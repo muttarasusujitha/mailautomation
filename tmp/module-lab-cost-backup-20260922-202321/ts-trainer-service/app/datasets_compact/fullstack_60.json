@@ -1,0 +1,1031 @@
+{
+  "domain": "Full Stack",
+  "name": "Full Stack Development",
+  "icon": "code",
+  "program_title": "Full Stack Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Full Stack Expert",
+  "certifications": [
+    "Meta Front-End Developer Certificate",
+    "AWS Certified Developer - Associate",
+    "MongoDB Associate Developer",
+    "AWS Certified Solutions Architect - Associate",
+    "Google Cloud Professional Cloud Architect"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Web Foundations - HTML5",
+      "subtopics": [
+        "Semantic HTML",
+        "Forms",
+        "Accessibility",
+        "Media Elements",
+        "SEO"
+      ],
+      "tools": [
+        "VS Code",
+        "Chrome DevTools"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Build semantic portfolio and registration pages"
+    },
+    {
+      "day": 2,
+      "topic": "Styling - CSS3 & Responsive Design",
+      "subtopics": [
+        "Selectors",
+        "Box Model",
+        "Flexbox",
+        "CSS Grid",
+        "Media Queries"
+      ],
+      "tools": [
+        "CSS3",
+        "Chrome DevTools"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Create responsive landing page with Flexbox/Grid"
+    },
+    {
+      "day": 3,
+      "topic": "JavaScript ES6+ Fundamentals",
+      "subtopics": [
+        "Syntax",
+        "Functions",
+        "Async/Await",
+        "Destructuring",
+        "Modules"
+      ],
+      "tools": [
+        "JavaScript",
+        "Node.js"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build calculator and API data fetching"
+    },
+    {
+      "day": 4,
+      "topic": "Frontend - React Fundamentals",
+      "subtopics": [
+        "Components",
+        "JSX",
+        "Props",
+        "State",
+        "Hooks"
+      ],
+      "tools": [
+        "React",
+        "Vite"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Build reusable component library"
+    },
+    {
+      "day": 5,
+      "topic": "Frontend - Advanced React",
+      "subtopics": [
+        "Custom Hooks",
+        "Context API",
+        "Redux Toolkit",
+        "Router",
+        "Performance"
+      ],
+      "tools": [
+        "React",
+        "Redux"
+      ],
+      "jira_focus": "Sprint planning; review progress for Advanced React",
+      "lab_task": "Build full-featured React app with state management"
+    },
+    {
+      "day": 6,
+      "topic": "Frontend - Styling & UI",
+      "subtopics": [
+        "Tailwind CSS",
+        "shadcn/ui",
+        "Theming",
+        "Animation",
+        "Accessibility"
+      ],
+      "tools": [
+        "Tailwind CSS",
+        "Framer Motion"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build polished UI with Tailwind and animations"
+    },
+    {
+      "day": 7,
+      "topic": "Frontend - Testing & Performance",
+      "subtopics": [
+        "Jest",
+        "React Testing Library",
+        "E2E Testing",
+        "Optimization",
+        "Lighthouse"
+      ],
+      "tools": [
+        "Vitest",
+        "Cypress"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Write test suite and optimize performance"
+    },
+    {
+      "day": 8,
+      "topic": "Backend - Node.js Fundamentals",
+      "subtopics": [
+        "Event Loop",
+        "Callbacks",
+        "npm",
+        "Core Modules",
+        "File System"
+      ],
+      "tools": [
+        "Node.js",
+        "npm"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Create Node scripts and basic server"
+    },
+    {
+      "day": 9,
+      "topic": "Backend - Express.js Basics",
+      "subtopics": [
+        "Routing",
+        "Middleware",
+        "Controllers",
+        "Error Handling",
+        "Validation"
+      ],
+      "tools": [
+        "Express.js"
+      ],
+      "jira_focus": "Sprint planning; review progress for Express.js Basics",
+      "lab_task": "Build CRUD REST API with validation"
+    },
+    {
+      "day": 10,
+      "topic": "Backend - Advanced Express Patterns",
+      "subtopics": [
+        "Decorators",
+        "Service Layer",
+        "Dependency Injection",
+        "Rate Limiting",
+        "Caching"
+      ],
+      "tools": [
+        "Express.js",
+        "Redis"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Implement production-ready API patterns"
+    },
+    {
+      "day": 11,
+      "topic": "HTML/CSS Advanced Layouts",
+      "subtopics": [
+        "semantic HTML",
+        "grid",
+        "flexbox",
+        "responsive",
+        "accessibility"
+      ],
+      "tools": [
+        "HTML",
+        "CSS"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build responsive dashboard layout"
+    },
+    {
+      "day": 12,
+      "topic": "Advanced JavaScript",
+      "subtopics": [
+        "closures",
+        "promises",
+        "async",
+        "modules",
+        "error handling"
+      ],
+      "tools": [
+        "JavaScript"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Create API-driven frontend utility"
+    },
+    {
+      "day": 13,
+      "topic": "TypeScript Foundations",
+      "subtopics": [
+        "types",
+        "interfaces",
+        "generics",
+        "narrowing"
+      ],
+      "tools": [
+        "TypeScript"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Convert JS module to TypeScript"
+    },
+    {
+      "day": 14,
+      "topic": "React Hooks Deep Dive",
+      "subtopics": [
+        "useEffect",
+        "useMemo",
+        "useCallback",
+        "custom hooks"
+      ],
+      "tools": [
+        "React"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build custom data-fetching hook"
+    },
+    {
+      "day": 15,
+      "topic": "React Router and Layouts",
+      "subtopics": [
+        "nested routes",
+        "params",
+        "protected routes",
+        "layouts"
+      ],
+      "tools": [
+        "React Router"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Create protected dashboard routes"
+    },
+    {
+      "day": 16,
+      "topic": "State Management",
+      "subtopics": [
+        "Context",
+        "Redux Toolkit",
+        "Zustand",
+        "server state"
+      ],
+      "tools": [
+        "Redux Toolkit",
+        "Zustand"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Implement app-wide state"
+    },
+    {
+      "day": 17,
+      "topic": "Frontend Testing",
+      "subtopics": [
+        "Vitest",
+        "RTL",
+        "mocking",
+        "Cypress basics"
+      ],
+      "tools": [
+        "Vitest",
+        "Cypress"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Test critical UI flows"
+    },
+    {
+      "day": 18,
+      "topic": "Node.js Backend Foundations",
+      "subtopics": [
+        "event loop",
+        "npm",
+        "modules",
+        "env",
+        "streams"
+      ],
+      "tools": [
+        "Node.js"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Create backend utility server"
+    },
+    {
+      "day": 19,
+      "topic": "Express REST APIs",
+      "subtopics": [
+        "routing",
+        "middleware",
+        "validation",
+        "errors",
+        "controllers"
+      ],
+      "tools": [
+        "Express"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build REST API"
+    },
+    {
+      "day": 20,
+      "topic": "Database with SQL and MongoDB",
+      "subtopics": [
+        "schema",
+        "joins",
+        "Mongoose",
+        "indexes",
+        "aggregation"
+      ],
+      "tools": [
+        "PostgreSQL",
+        "MongoDB"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Build database modules"
+    },
+    {
+      "day": 21,
+      "topic": "Authentication Full Stack",
+      "subtopics": [
+        "JWT",
+        "sessions",
+        "RBAC",
+        "protected routes"
+      ],
+      "tools": [
+        "React",
+        "Express",
+        "JWT"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Implement login and roles"
+    },
+    {
+      "day": 22,
+      "topic": "File Uploads and Emails",
+      "subtopics": [
+        "Multer",
+        "cloud storage",
+        "email service",
+        "validation"
+      ],
+      "tools": [
+        "Node.js",
+        "Multer"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Add upload and email workflow"
+    },
+    {
+      "day": 23,
+      "topic": "Next.js Foundations",
+      "subtopics": [
+        "App Router",
+        "server components",
+        "API routes",
+        "metadata"
+      ],
+      "tools": [
+        "Next.js"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build Next.js feature module"
+    },
+    {
+      "day": 24,
+      "topic": "Performance Optimization",
+      "subtopics": [
+        "lazy loading",
+        "pagination",
+        "caching",
+        "query optimization"
+      ],
+      "tools": [
+        "React",
+        "DB"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Optimize dashboard performance"
+    },
+    {
+      "day": 25,
+      "topic": "Docker and Deployment",
+      "subtopics": [
+        "Dockerfile",
+        "compose",
+        "env",
+        "CI/CD",
+        "hosting"
+      ],
+      "tools": [
+        "Docker",
+        "GitHub Actions"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Deploy full-stack app"
+    },
+    {
+      "day": 26,
+      "topic": "Capstone Planning",
+      "subtopics": [
+        "requirements",
+        "wireframe",
+        "schema",
+        "API contract"
+      ],
+      "tools": [
+        "Jira",
+        "Figma"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Plan fullstack capstone"
+    },
+    {
+      "day": 27,
+      "topic": "Capstone Frontend Sprint",
+      "subtopics": [
+        "components",
+        "forms",
+        "routing",
+        "state"
+      ],
+      "tools": [
+        "React"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build capstone frontend"
+    },
+    {
+      "day": 28,
+      "topic": "Capstone Backend Sprint",
+      "subtopics": [
+        "APIs",
+        "database",
+        "auth",
+        "validation"
+      ],
+      "tools": [
+        "Node.js",
+        "Express"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Build capstone backend"
+    },
+    {
+      "day": 29,
+      "topic": "Capstone Integration Sprint",
+      "subtopics": [
+        "API integration",
+        "error states",
+        "uploads",
+        "reports"
+      ],
+      "tools": [
+        "React",
+        "Express"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Integrate frontend and backend"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Testing and Deployment",
+      "subtopics": [
+        "tests",
+        "Docker",
+        "CI/CD",
+        "demo"
+      ],
+      "tools": [
+        "Vitest",
+        "Docker"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Test and deploy capstone"
+    },
+    {
+      "day": 31,
+      "topic": "Database - SQL & PostgreSQL",
+      "subtopics": [
+        "Relational Design",
+        "Queries",
+        "Indexes",
+        "Transactions",
+        "Normalization"
+      ],
+      "tools": [
+        "PostgreSQL",
+        "psql"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Design database schema and write queries"
+    },
+    {
+      "day": 32,
+      "topic": "Database - NoSQL & MongoDB",
+      "subtopics": [
+        "Document Model",
+        "Mongoose",
+        "Aggregation",
+        "Indexing",
+        "Relationships"
+      ],
+      "tools": [
+        "MongoDB",
+        "Mongoose"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Build MongoDB collections with relationships"
+    },
+    {
+      "day": 33,
+      "topic": "Backend - Authentication & Authorization",
+      "subtopics": [
+        "JWT",
+        "Password Hashing",
+        "OAuth2",
+        "RBAC",
+        "Protected Routes"
+      ],
+      "tools": [
+        "bcrypt",
+        "JWT"
+      ],
+      "jira_focus": "Sprint planning; review progress for Authentication & Authorization",
+      "lab_task": "Implement login, JWT, and role-based access"
+    },
+    {
+      "day": 34,
+      "topic": "Backend - API Integration & External Services",
+      "subtopics": [
+        "REST Clients",
+        "Webhooks",
+        "Email Service",
+        "File Uploads",
+        "Payment Gateway"
+      ],
+      "tools": [
+        "Axios",
+        "Multer",
+        "Nodemailer"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Integrate email service and file uploads"
+    },
+    {
+      "day": 35,
+      "topic": "Backend - Real-Time Features",
+      "subtopics": [
+        "WebSockets",
+        "Socket.IO",
+        "Background Jobs",
+        "Message Queues",
+        "Pub/Sub"
+      ],
+      "tools": [
+        "Socket.IO",
+        "Redis",
+        "Bull"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build real-time notification system"
+    },
+    {
+      "day": 36,
+      "topic": "Full Stack Integration - Frontend to Backend",
+      "subtopics": [
+        "API Service Layer",
+        "Error Handling",
+        "Loading States",
+        "Data Flow",
+        "Validation Sync"
+      ],
+      "tools": [
+        "React",
+        "Axios",
+        "Express"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Connect React UI to Express backend API"
+    },
+    {
+      "day": 37,
+      "topic": "Full Stack - Forms & Data Validation",
+      "subtopics": [
+        "Form State",
+        "Validation Libraries",
+        "Error Messages",
+        "Submission Flow",
+        "Optimistic Updates"
+      ],
+      "tools": [
+        "React Hook Form",
+        "Zod"
+      ],
+      "jira_focus": "Sprint planning; review progress for Forms & Data Validation",
+      "lab_task": "Build multi-step form with validation"
+    },
+    {
+      "day": 38,
+      "topic": "GraphQL - Basics & Apollo",
+      "subtopics": [
+        "Query Language",
+        "Apollo Client",
+        "Apollo Server",
+        "Mutations",
+        "Subscriptions"
+      ],
+      "tools": [
+        "GraphQL",
+        "Apollo"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build app consuming GraphQL API"
+    },
+    {
+      "day": 39,
+      "topic": "Next.js - Full Stack Framework",
+      "subtopics": [
+        "App Router",
+        "Server Components",
+        "API Routes",
+        "Data Fetching",
+        "Deployment"
+      ],
+      "tools": [
+        "Next.js",
+        "React"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build full-stack feature with Next.js"
+    },
+    {
+      "day": 40,
+      "topic": "DevOps Basics - Docker & Containerization",
+      "subtopics": [
+        "Dockerfile",
+        "Images",
+        "Containers",
+        "Docker Compose",
+        "Networking"
+      ],
+      "tools": [
+        "Docker",
+        "Docker Compose"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Containerize full-stack application"
+    },
+    {
+      "day": 41,
+      "topic": "DevOps - CI/CD Pipelines",
+      "subtopics": [
+        "GitHub Actions",
+        "Testing Pipeline",
+        "Build Automation",
+        "Deployment",
+        "Monitoring"
+      ],
+      "tools": [
+        "GitHub Actions",
+        "Jest"
+      ],
+      "jira_focus": "Sprint planning; review progress for CI/CD Pipelines",
+      "lab_task": "Set up automated build and deploy pipeline"
+    },
+    {
+      "day": 42,
+      "topic": "Cloud Deployment - Vercel & Netlify",
+      "subtopics": [
+        "Deployment Basics",
+        "Environment Variables",
+        "Serverless",
+        "Edge Functions",
+        "CDN"
+      ],
+      "tools": [
+        "Vercel",
+        "Netlify"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Deploy frontend to Vercel/Netlify"
+    },
+    {
+      "day": 43,
+      "topic": "Cloud Deployment - AWS & Heroku",
+      "subtopics": [
+        "EC2",
+        "RDS",
+        "S3",
+        "Lambda",
+        "API Gateway"
+      ],
+      "tools": [
+        "AWS",
+        "Heroku"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Deploy backend to AWS/Heroku"
+    },
+    {
+      "day": 44,
+      "topic": "Databases in Production - Migrations & Backups",
+      "subtopics": [
+        "Schema Migrations",
+        "Seeding",
+        "Backups",
+        "Replication",
+        "Scaling"
+      ],
+      "tools": [
+        "Knex",
+        "db-migrate"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Write migrations and backup strategy"
+    },
+    {
+      "day": 45,
+      "topic": "Monitoring & Logging",
+      "subtopics": [
+        "Application Logging",
+        "Error Tracking",
+        "Performance Monitoring",
+        "ELK Stack",
+        "Alerting"
+      ],
+      "tools": [
+        "Winston",
+        "Sentry",
+        "Prometheus"
+      ],
+      "jira_focus": "Sprint planning; review progress for Monitoring & Logging",
+      "lab_task": "Set up centralized logging and monitoring"
+    },
+    {
+      "day": 46,
+      "topic": "Security - Best Practices",
+      "subtopics": [
+        "CORS",
+        "CSRF",
+        "SQL Injection Prevention",
+        "XSS Prevention",
+        "Secrets Management"
+      ],
+      "tools": [
+        "Helmet",
+        "OWASP"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Audit and secure full-stack app"
+    },
+    {
+      "day": 47,
+      "topic": "Performance Optimization - Part 2",
+      "subtopics": [
+        "Part 2: API Optimization",
+        "Part 2: Frontend Optimization",
+        "Part 2: Database Optimization",
+        "Part 2: Caching Strategies",
+        "Part 2: CDN"
+      ],
+      "tools": [
+        "Lighthouse",
+        "Chrome DevTools"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Part 2 hands-on: Profile and optimize app performance"
+    },
+    {
+      "day": 48,
+      "topic": "Scalability & Advanced Patterns",
+      "subtopics": [
+        "Microservices",
+        "Load Balancing",
+        "Database Sharding",
+        "Module Federation",
+        "Kubernetes Basics"
+      ],
+      "tools": [
+        "Kubernetes",
+        "Docker"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Design scalable architecture"
+    },
+    {
+      "day": 49,
+      "topic": "Capstone Project - Part 1",
+      "subtopics": [
+        "Requirements Analysis",
+        "Architecture Design",
+        "Tech Stack Selection",
+        "Database Modeling",
+        "Setup"
+      ],
+      "tools": [
+        "React",
+        "Node.js",
+        "PostgreSQL/MongoDB"
+      ],
+      "jira_focus": "Sprint planning; review progress for Capstone Part 1",
+      "lab_task": "Design and prototype full-stack application"
+    },
+    {
+      "day": 50,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Implementation",
+        "Testing",
+        "Deployment",
+        "Documentation",
+        "Final Demo"
+      ],
+      "tools": [
+        "All Full Stack Tools"
+      ],
+      "jira_focus": "Final sprint review, retrospective, release notes, and stakeholder demo",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    },
+    {
+      "day": 51,
+      "topic": "Fullstack Capstone Architecture",
+      "subtopics": [
+        "Fullstack Capstone Architecture concepts",
+        "Fullstack Capstone Architecture hands-on workflow",
+        "Fullstack Capstone Architecture validation",
+        "Fullstack Capstone Architecture troubleshooting",
+        "Fullstack Capstone Architecture best practices"
+      ],
+      "tools": [
+        "Full Stack Development"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Fullstack Capstone Architecture"
+    },
+    {
+      "day": 52,
+      "topic": "Frontend Feature Sprint",
+      "subtopics": [
+        "Frontend Feature Sprint concepts",
+        "Frontend Feature Sprint hands-on workflow",
+        "Frontend Feature Sprint validation",
+        "Frontend Feature Sprint troubleshooting",
+        "Frontend Feature Sprint best practices"
+      ],
+      "tools": [
+        "Full Stack Development"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Frontend Feature Sprint"
+    },
+    {
+      "day": 53,
+      "topic": "Backend API Sprint",
+      "subtopics": [
+        "Backend API Sprint concepts",
+        "Backend API Sprint hands-on workflow",
+        "Backend API Sprint validation",
+        "Backend API Sprint troubleshooting",
+        "Backend API Sprint best practices"
+      ],
+      "tools": [
+        "Full Stack Development"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Backend API Sprint"
+    },
+    {
+      "day": 54,
+      "topic": "Authentication and Integration Sprint",
+      "subtopics": [
+        "Authentication and Integration Sprint concepts",
+        "Authentication and Integration Sprint hands-on workflow",
+        "Authentication and Integration Sprint validation",
+        "Authentication and Integration Sprint troubleshooting",
+        "Authentication and Integration Sprint best practices"
+      ],
+      "tools": [
+        "Full Stack Development"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Authentication and Integration Sprint"
+    },
+    {
+      "day": 55,
+      "topic": "Testing and Performance Sprint",
+      "subtopics": [
+        "Testing and Performance Sprint concepts",
+        "Testing and Performance Sprint hands-on workflow",
+        "Testing and Performance Sprint validation",
+        "Testing and Performance Sprint troubleshooting",
+        "Testing and Performance Sprint best practices"
+      ],
+      "tools": [
+        "Full Stack Development"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Testing and Performance Sprint"
+    },
+    {
+      "day": 56,
+      "topic": "Deployment Sprint",
+      "subtopics": [
+        "Deployment Sprint concepts",
+        "Deployment Sprint hands-on workflow",
+        "Deployment Sprint validation",
+        "Deployment Sprint troubleshooting",
+        "Deployment Sprint best practices"
+      ],
+      "tools": [
+        "Full Stack Development"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Deployment Sprint"
+    },
+    {
+      "day": 57,
+      "topic": "User Acceptance Review",
+      "subtopics": [
+        "User Acceptance Review concepts",
+        "User Acceptance Review hands-on workflow",
+        "User Acceptance Review validation",
+        "User Acceptance Review troubleshooting",
+        "User Acceptance Review best practices"
+      ],
+      "tools": [
+        "Full Stack Development"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: User Acceptance Review"
+    },
+    {
+      "day": 58,
+      "topic": "Final Demo",
+      "subtopics": [
+        "Final Demo concepts",
+        "Final Demo hands-on workflow",
+        "Final Demo validation",
+        "Final Demo troubleshooting",
+        "Final Demo best practices"
+      ],
+      "tools": [
+        "Full Stack Development"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Final Demo"
+    },
+    {
+      "day": 59,
+      "topic": "Full Stack Production Readiness Review",
+      "subtopics": [
+        "Full Stack Production Readiness Review concepts",
+        "Full Stack Production Readiness Review hands-on workflow",
+        "Full Stack Production Readiness Review validation",
+        "Full Stack Production Readiness Review troubleshooting",
+        "Full Stack Production Readiness Review best practices"
+      ],
+      "tools": [
+        "Full Stack Development"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Full Stack Production Readiness Review"
+    },
+    {
+      "day": 60,
+      "topic": "Full Stack Final Demo and Portfolio Review",
+      "subtopics": [
+        "Full Stack Final Demo and Portfolio Review concepts",
+        "Full Stack Final Demo and Portfolio Review hands-on workflow",
+        "Full Stack Final Demo and Portfolio Review validation",
+        "Full Stack Final Demo and Portfolio Review troubleshooting",
+        "Full Stack Final Demo and Portfolio Review best practices"
+      ],
+      "tools": [
+        "Full Stack Development"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Full Stack Final Demo and Portfolio Review"
+    }
+  ],
+  "aliases": [
+    "Full Stack",
+    "Fullstack",
+    "Full Stack Development",
+    "MERN",
+    "MEAN",
+    "React Node Fullstack",
+    "Python Fullstack",
+    "Python Full Stack",
+    "Java Fullstack",
+    "Java Full Stack",
+    "Web Fullstack",
+    "Frontend Backend"
+  ],
+  "official_sources": [
+    "https://react.dev/learn",
+    "https://react.dev/reference/react/hooks",
+    "https://docs.spring.io/spring-boot/reference/using/build-systems.html",
+    "https://docs.docker.com/get-started/"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+}

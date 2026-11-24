@@ -237,14 +237,13 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     for label, needle in [
         ("availability", "availability"),
         ("updated profile", "profile"),
-        ("commercials", "commercial"),
         (f"relevant {technology} experience", "experience"),
         ("day-wise TOC", "toc"),
     ]:
         if any(needle in item.lower() for item in requested_items):
             selected.append(label)
     if not selected:
-        selected = ["availability", "updated profile", "commercials", f"relevant {technology} experience"]
+        selected = ["availability", "updated profile", f"relevant {technology} experience"]
     ask = ", ".join(dict.fromkeys(selected))
     return (
         f"Hi {trainer_name or 'Trainer'},\n\n"
@@ -253,6 +252,11 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         "Training Details:\n"
         f"{chr(10).join(details)}\n\n"
         f"Please confirm your availability for the above requirement. Also share your {ask}.\n\n"
+        "Please also share three convenient interview/discussion slots, with the date, time, and time zone.\n"
+        "Example:\n"
+        "- 01 November 2026, 10:00 AM IST\n"
+        "- 03 November 2026, 2:00 PM IST\n"
+        "- 05 November 2026, 4:00 PM IST\n\n"
         "Regards,\n"
         "Clahan Technologies"
     )

@@ -1,0 +1,60 @@
+services:
+  auth-service:
+    depends_on:
+    - mongo
+    environment:
+      AUTH_COOKIE_SECURE: 'false'
+      DEBUG: 'false'
+      EMAIL_SERVICE_URL: http://fake:8001
+      FRONTEND_URL: http://localhost:5174
+      MONGODB_DB_NAME: auth_integration
+      MONGODB_URL: mongodb://mongo:27017
+      PYTHONPATH: /app
+    image: ghcr.io/muttarasusujitha/trainersync/auth-service:latest
+    ports:
+    - 127.0.0.1:18088:8008
+    volumes:
+    - C:/Users/sujit/Desktop/mail/mailautomation/microservices/services/auth-service/app:/app/app:ro
+    - C:/Users/sujit/Desktop/mail/mailautomation/microservices/shared:/app/shared:ro
+  fake:
+    command:
+    - uvicorn
+    - fake:app
+    - --host
+    - 0.0.0.0
+    - --port
+    - '8001'
+    environment:
+      PYTHONPATH: /app/test
+    image: ghcr.io/muttarasusujitha/trainersync/auth-service:latest
+    networks:
+      default:
+        aliases:
+        - core-api
+        - email-service
+        - notification-service
+        - trainer-service
+        - intelligence-service
+        - document-service
+        - scheduler-service
+    ports:
+    - 127.0.0.1:18081:8001
+    volumes:
+    - C:/Users/sujit/Desktop/mail/tmp/auth-integration:/app/test:ro
+    working_dir: /app/test
+  gateway:
+    depends_on:
+    - auth-service
+    - fake
+    image: ghcr.io/muttarasusujitha/trainersync/gateway-service:latest
+    ports:
+    - 127.0.0.1:18089:80
+    volumes:
+    - C:/Users/sujit/Desktop/mail/mailautomation/microservices/gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+  mongo:
+    image: mongo:7.0
+    ports:
+    - 127.0.0.1:27029:27017
+    tmpfs:
+    - /data/db
+    - /data/configdb

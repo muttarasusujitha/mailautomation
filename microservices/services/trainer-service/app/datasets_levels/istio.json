@@ -1,0 +1,573 @@
+{
+  "domain": "Istio",
+  "name": "Istio",
+  "category": "DevOps and CI/CD",
+  "icon": "network",
+  "aliases": ["Istio Service Mesh", "Service Mesh", "Istio Ambient Mesh", "Istio Ambient Mode", "Istio Administration", "Istio Traffic Management", "Istio Security", "Istio on Kubernetes"],
+  "certifications": ["Istio Certified Associate (ICA)"],
+  "tools": ["Istio", "istioctl", "Envoy", "ztunnel", "Kubernetes", "Gateway API", "Helm", "Kiali", "Prometheus", "Grafana", "Jaeger", "OpenTelemetry Collector", "Fortio", "cert-manager"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Kubernetes users, platform engineers and developers who deploy applications on Kubernetes and are new to Istio. Covers the service mesh model, installing Istio with istioctl, sidecar injection with the Bookinfo and httpbin samples, north-south traffic through Gateway API and classic Istio gateways, VirtualService and DestinationRule routing, traffic shifting, request matching, timeouts, retries, fault injection and circuit breaking, automatic mTLS with PeerAuthentication, workload identity, AuthorizationPolicy and JWT RequestAuthentication, egress control with ServiceEntry, Prometheus metrics, Kiali and first-line debugging with istioctl, ending in a capstone that secures and releases Bookinfo.",
+      "prerequisites": ["Deploys and debugs applications on Kubernetes with kubectl: Deployments, Services, namespaces, labels and logs", "Understands HTTP basics (methods, status codes, headers) and the idea of TLS certificates", "Has a laptop with Docker or Podman, kind or minikube with at least 4 CPUs and 8 GB RAM free, kubectl, curl and rights to install istioctl"],
+      "outcomes": ["Install Istio with istioctl, enable sidecar injection and explain how istiod, Envoy and gateways fit together", "Route, split and harden traffic with Gateway API HTTPRoute, VirtualService and DestinationRule, including timeouts, retries, faults and circuit breakers", "Enforce mutual TLS, AuthorizationPolicy and JWT validation, and control outbound traffic with ServiceEntry", "Observe and debug a mesh with Prometheus metrics, Kiali, istioctl analyze and istioctl proxy-status"],
+      "days": [
+        {
+          "topic": "Istio Orientation: Service Mesh Concepts and Local Cluster Setup",
+          "subtopics": ["What a service mesh adds: traffic control, security and telemetry without code changes", "Istio components: istiod, Envoy proxies, gateways, istio-cni and ztunnel", "Sidecar mode and ambient mode at a glance", "Control plane versus data plane and the xDS configuration protocol", "Istio custom resources: networking, security and telemetry API groups", "Creating a kind or minikube cluster sized for Istio", "Downloading Istio with the istio.io download script and adding istioctl to PATH", "istioctl version and istioctl x precheck", "Release support windows and why to track supported minor versions", "Where Istio sits next to Kubernetes Services, Ingress and Gateway API"],
+          "tools": ["Istio", "istioctl", "Kubernetes", "kind", "kubectl"],
+          "lab_task": "Create a kind cluster called istio-lab with kind create cluster --name istio-lab, download Istio with curl -L https://istio.io/downloadIstio | sh -, add the istioctl binary to PATH, run istioctl version and istioctl x precheck, then list the samples directory and record which sample apps (bookinfo, httpbin, curl, helloworld) are available for later days.",
+          "deliverable": "Environment notes with kubectl get nodes, istioctl version and istioctl x precheck output",
+          "checks": [["Run istioctl x precheck on the new cluster", "Output reports no issues found and that Istio can be installed", "Terminal output"], ["Run istioctl version before any install", "The client version prints and the control plane is reported as not found", "Terminal output"], ["Run kubectl get nodes", "The kind node reports STATUS Ready", "kubectl output"]],
+          "objectives": ["Explain the problems a service mesh solves and the role of each Istio component", "Prepare a local Kubernetes cluster suitable for Istio", "Install istioctl and validate cluster readiness"]
+        },
+        {
+          "topic": "Installing Istio with istioctl Profiles",
+          "subtopics": ["Configuration profiles: default, demo, minimal, ambient and empty", "istioctl install --set profile=demo and the -y flag", "The IstioOperator API as install-time configuration, not a running operator", "istioctl profile dump and profile diff", "meshConfig settings: accessLogFile, defaultConfig and outboundTrafficPolicy", "Checking istiod and gateway pods in istio-system", "istioctl verify-install and post-install health checks", "Uninstalling with istioctl uninstall --purge and removing the namespace"],
+          "tools": ["istioctl", "Istio", "kubectl", "Kubernetes"],
+          "lab_task": "Run istioctl profile diff default demo and note three differences, install with istioctl install --set profile=demo --set meshConfig.accessLogFile=/dev/stdout -y, list pods in istio-system, confirm istiod and istio-ingressgateway are Running, then dump the active mesh config with kubectl get cm istio -n istio-system -o yaml and find accessLogFile.",
+          "deliverable": "Install log, profile diff notes and the istio ConfigMap excerpt showing accessLogFile",
+          "checks": [["Run kubectl get pods -n istio-system after install", "istiod, istio-ingressgateway and istio-egressgateway pods are all Running and Ready", "kubectl output"], ["Run istioctl version after install", "Client, control plane and data plane versions are reported and the control plane matches the client", "Terminal output"], ["Inspect the istio ConfigMap mesh key", "accessLogFile: /dev/stdout is present", "ConfigMap YAML"]],
+          "objectives": ["Choose an installation profile for a given goal", "Install and customise Istio with istioctl and meshConfig", "Verify a healthy control plane installation"]
+        },
+        {
+          "topic": "Sidecar Injection and the Bookinfo Sample",
+          "subtopics": ["Automatic injection with the istio-injection=enabled namespace label", "The sidecar-injector mutating webhook and when it runs", "Why existing pods need a rollout restart to get a sidecar", "The istio-proxy container and the istio-init init container", "Traffic capture with iptables: ports 15001 outbound and 15006 inbound", "Opting out with the sidecar.istio.io/inject: \"false\" label", "Bookinfo services: productpage, details, reviews v1 v2 v3 and ratings", "Service port naming and appProtocol for protocol selection"],
+          "tools": ["Istio", "kubectl", "Envoy", "Bookinfo"],
+          "lab_task": "Label the default namespace with kubectl label namespace default istio-injection=enabled, deploy samples/bookinfo/platform/kube/bookinfo.yaml, wait until every pod shows READY 2/2, then exec into ratings and run curl -s productpage:9080/productpage | grep -o '<title>.*</title>'. Finally deploy one pod with sidecar.istio.io/inject: \"false\" and compare its container count.",
+          "deliverable": "Pod list showing 2/2 containers, the curl title output and a note explaining the opt-out pod",
+          "checks": [["Run kubectl get pods in default after deploying Bookinfo", "All six Bookinfo pods show READY 2/2", "kubectl output"], ["curl productpage from the ratings pod", "Output contains <title>Simple Bookstore App</title>", "Terminal output"], ["Inspect the pod with sidecar.istio.io/inject set to false", "The pod shows READY 1/1 and has no istio-proxy container", "kubectl describe output"]],
+          "objectives": ["Enable and control automatic sidecar injection", "Explain how traffic is redirected through the sidecar", "Deploy and smoke-test the Bookinfo application in the mesh"]
+        },
+        {
+          "topic": "Istio Ingress with Gateway API Gateway and HTTPRoute",
+          "subtopics": ["Installing the Gateway API CRDs from the kubernetes-sigs standard install", "gatewayClassName: istio and automated gateway Deployments", "Gateway listeners, hostnames and allowedRoutes", "HTTPRoute parentRefs, matches and backendRefs", "Gateway status conditions: Accepted and Programmed", "Reaching the gateway on kind with port-forward or a LoadBalancer emulator", "Gateway API versus the Kubernetes Ingress resource", "Why Istio recommends Gateway API for new installations"],
+          "tools": ["Istio", "Gateway API", "kubectl", "curl"],
+          "lab_task": "Install the Gateway API standard CRDs if kubectl get crd gateways.gateway.networking.k8s.io fails, apply samples/bookinfo/gateway-api/bookinfo-gateway.yaml, wait with kubectl wait --for=condition=programmed gtw bookinfo-gateway, port-forward svc/bookinfo-gateway-istio 8080:80 and request /productpage 20 times with curl -s -o /dev/null -w '%{http_code}'. Record all response codes.",
+          "deliverable": "Gateway and HTTPRoute YAML, kubectl get gateway output and the response code log",
+          "checks": [["Run kubectl get gateway bookinfo-gateway", "PROGRAMMED shows True and an address is assigned", "kubectl output"], ["Send 20 requests to /productpage through the gateway", "All 20 requests return 200", "curl loop output"], ["Request a path not matched by the HTTPRoute such as /admin", "The gateway returns 404", "curl output"]],
+          "objectives": ["Install Gateway API CRDs and create an Istio-managed gateway", "Expose a mesh service with HTTPRoute", "Read Gateway and HTTPRoute status conditions"]
+        },
+        {
+          "topic": "Classic Istio Gateway and VirtualService Routing",
+          "subtopics": ["The networking.istio.io Gateway resource and selector: istio: ingressgateway", "servers, ports, hosts and how they bind to VirtualServices", "VirtualService hosts, gateways and http route blocks", "Route evaluation order: first match wins", "The reserved mesh gateway for in-mesh routing", "uri prefix, exact and regex matches with rewrite", "When to keep classic gateways and when to move to Gateway API", "Validating references with istioctl analyze"],
+          "tools": ["Istio", "istioctl", "kubectl", "curl"],
+          "lab_task": "Apply samples/bookinfo/networking/bookinfo-gateway.yaml, export INGRESS_HOST and INGRESS_PORT from the istio-ingressgateway service, confirm /productpage returns 200, then add an /api/v1/products route that rewrites to /api/v1/products on productpage and a /legacy prefix that redirects to /productpage. Verify each route with curl -sI and capture the status codes.",
+          "deliverable": "Gateway and VirtualService YAML with a route table listing match, destination and result",
+          "checks": [["curl -sI http://$INGRESS_HOST:$INGRESS_PORT/productpage", "HTTP/1.1 200 OK is returned", "curl headers"], ["curl -sI the /legacy path", "A 301 response with location: /productpage is returned", "curl headers"], ["Change the VirtualService gateways field to a non-existent gateway and run istioctl analyze", "istioctl analyze reports IST0101 ReferencedResourceNotFound", "analyze output"]],
+          "objectives": ["Expose services with an Istio Gateway and VirtualService", "Explain route ordering and match types", "Validate gateway and route references"]
+        },
+        {
+          "topic": "DestinationRule Subsets and Version Routing",
+          "subtopics": ["DestinationRule host, subsets and version labels", "Why VirtualService subsets fail without a matching DestinationRule", "Applying samples/bookinfo/networking/destination-rule-all.yaml", "Routing all traffic to reviews v1", "trafficPolicy at host and subset level", "Load balancer settings: ROUND_ROBIN, LEAST_REQUEST and RANDOM", "Consistent hash load balancing on headers or cookies", "Config ordering: apply DestinationRules before VirtualServices"],
+          "tools": ["Istio", "istioctl", "kubectl", "Bookinfo"],
+          "lab_task": "Apply destination-rule-all.yaml and virtual-service-all-v1.yaml from samples/bookinfo/networking, refresh /productpage 30 times and count how often stars appear, then change the reviews DestinationRule to consistentHash on httpHeaderName x-user and route to all three versions; send 10 requests with the same x-user header and record the version returned each time.",
+          "deliverable": "DestinationRule and VirtualService YAML plus a table of versions seen per test",
+          "checks": [["Load /productpage 30 times with all traffic routed to v1", "No response contains star ratings", "curl loop grep count of 0"], ["Reference a subset v4 that the DestinationRule does not define", "Requests to reviews return 503 with response flag NR or UH in the access log", "istio-proxy access log"], ["Send 10 requests with x-user: alice under consistentHash", "All 10 requests reach the same reviews version", "Version tally"]],
+          "objectives": ["Define service subsets with DestinationRule", "Pin traffic to a version with VirtualService", "Select load balancing policies for a service"]
+        },
+        {
+          "topic": "Weighted Traffic Shifting for Canary Releases",
+          "subtopics": ["Weighted destinations in VirtualService http routes", "Weighted backendRefs in Gateway API HTTPRoute", "Canary steps: 90/10, 50/50 and 0/100", "Statistical noise in small samples", "Rollback by restoring the previous weights", "Keeping DestinationRule subsets stable during a canary", "Separating deployment from release", "Verifying distribution with Prometheus and access logs"],
+          "tools": ["Istio", "Gateway API", "kubectl", "Prometheus", "curl"],
+          "lab_task": "Shift reviews traffic from v1 to v3 in three steps: 90/10, 50/50 and 0/100 using virtual-service-reviews-50-v3.yaml as a template. At each step send 200 requests to /productpage, count responses with red stars (v3) using grep -c 'color=\"red\"', and record the observed percentage. Then roll back to 100% v1 and confirm red stars disappear.",
+          "deliverable": "Canary step log with weights, observed percentages and the rollback result",
+          "checks": [["Send 200 requests at the 90/10 step", "Between 5% and 15% of responses come from reviews v3", "Count table"], ["Set weights to 0/100", "All 200 responses show red stars", "Count table"], ["Apply the rollback VirtualService", "0 of 200 responses show red stars", "Count table"]],
+          "objectives": ["Run a weighted canary release with Istio", "Measure traffic distribution from real requests", "Roll back a release by changing routing only"]
+        },
+        {
+          "topic": "Request Matching on Headers, Paths and Query Parameters",
+          "subtopics": ["HTTPMatchRequest fields: uri, headers, queryParams, method and port", "Bookinfo end-user header routing for user jason", "exact, prefix and regex string matches", "AND within a match block, OR across match blocks", "Header manipulation with headers.request.set and response.add", "Gateway API HTTPRoute header and query matches", "Default routes and why the last route should have no match", "Testing matches with curl -H"],
+          "tools": ["Istio", "Gateway API", "curl", "kubectl"],
+          "lab_task": "Apply virtual-service-reviews-test-v2.yaml so user jason sees reviews v2, then add a rule sending requests with query parameter beta=true to v3 and a response header x-reviews-version on each route. Log in as jason, test anonymous and ?beta=true requests with curl -sI through the ingress, and record the x-reviews-version header for each case.",
+          "deliverable": "VirtualService YAML and a match test matrix with request, expected version and observed header",
+          "checks": [["Log in to Bookinfo as jason", "Black star ratings (reviews v2) are shown on every refresh", "Browser screenshot"], ["Request /productpage?beta=true", "Response includes header x-reviews-version: v3", "curl headers"], ["Request anonymously without query parameters", "Response includes header x-reviews-version: v1", "curl headers"]],
+          "objectives": ["Route requests by header, path and query parameter", "Order match rules with a safe default route", "Modify request and response headers in routes"]
+        },
+        {
+          "topic": "Istio Timeouts and Retry Policies",
+          "subtopics": ["VirtualService timeout and the default of no route timeout", "retries.attempts, perTryTimeout and retryOn conditions", "Istio default retry behaviour of two attempts", "Retry amplification across call chains", "Response code 504 and response flag UT", "x-envoy-upstream-service-time and x-envoy-attempt-count headers", "Idempotency and safe retries", "Retry budgets and keeping total timeout above attempts times perTryTimeout"],
+          "tools": ["Istio", "httpbin", "curl", "Envoy"],
+          "lab_task": "Deploy samples/httpbin/httpbin.yaml and samples/curl/curl.yaml, add a VirtualService with timeout: 2s, then call httpbin:8000/delay/5 from the curl pod and record the status and time. Next set retries attempts: 3, perTryTimeout: 1s, retryOn: 5xx and call /status/503; read the httpbin istio-proxy access log to count attempts.",
+          "deliverable": "VirtualService YAML, timed curl output and access-log lines showing retry attempts",
+          "checks": [["curl httpbin:8000/delay/5 with a 2s route timeout", "HTTP 504 returns after about 2 seconds with body upstream request timeout", "time and curl output"], ["curl /status/503 with 3 retries configured", "The httpbin access log shows 4 requests for one client call", "Access log lines"], ["curl /delay/1 with the 2s timeout", "HTTP 200 returns in about 1 second", "curl output"]],
+          "objectives": ["Set route timeouts and retries in VirtualService", "Recognise timeout and retry behaviour in responses and logs", "Avoid retry storms by sizing attempts and timeouts"]
+        },
+        {
+          "topic": "Fault Injection with Delays and Aborts",
+          "subtopics": ["fault.delay with fixedDelay and percentage", "fault.abort with httpStatus and percentage", "Scoping faults to one user with header matches", "The Bookinfo 7s delay test and the hidden productpage timeout", "How faults interact with retries and timeouts", "Gateway API has no native fault injection: keep this in VirtualService", "Chaos experiments in staging versus production", "Removing faults and confirming recovery"],
+          "tools": ["Istio", "Bookinfo", "curl", "Kiali"],
+          "lab_task": "Apply virtual-service-ratings-test-delay.yaml (7s delay for jason), log in as jason and record the reviews error and page load time; change the delay to 2s and repeat. Then apply virtual-service-ratings-test-abort.yaml and confirm ratings shows unavailable for jason only. Explain the 7s result using productpage's timeout and retry settings.",
+          "deliverable": "Fault experiment log with timings, screenshots and an explanation of the cascading timeout",
+          "checks": [["Load /productpage as jason with a 7s ratings delay", "The page shows Error fetching product reviews after about 6 seconds", "Screenshot and timing"], ["Load /productpage as jason with a 2s ratings delay", "Reviews and ratings load after about 2 seconds without error", "Screenshot and timing"], ["Apply the abort fault and load the page as another user", "Ratings display normally for the non-jason user", "Screenshot"]],
+          "objectives": ["Inject delays and errors at the mesh layer", "Use fault injection to expose timeout mismatches", "Limit chaos tests to targeted users"]
+        },
+        {
+          "topic": "Circuit Breaking with Connection Pools and Outlier Detection",
+          "subtopics": ["connectionPool.tcp.maxConnections and connectTimeout", "connectionPool.http.http1MaxPendingRequests and maxRequestsPerConnection", "Response flag UO and upstream_rq_pending_overflow stats", "outlierDetection consecutive5xxErrors, interval and baseEjectionTime", "maxEjectionPercent and panic thresholds", "Load testing with the fortio sample client", "Reading Envoy stats with pilot-agent request GET stats", "Tuning limits to protect a dependency without starving callers"],
+          "tools": ["Istio", "Fortio", "httpbin", "Envoy"],
+          "lab_task": "Create a DestinationRule for httpbin with maxConnections: 1, http1MaxPendingRequests: 1 and maxRequestsPerConnection: 1, deploy samples/httpbin/sample-client/fortio-deploy.yaml and run fortio load -c 3 -qps 0 -n 30 -loglevel Warning http://httpbin:8000/get. Record the 200 and 503 counts, then query the fortio sidecar stats for upstream_rq_pending_overflow.",
+          "deliverable": "DestinationRule YAML, fortio result summary and the overflow counter value",
+          "checks": [["Run fortio with 1 concurrent connection (-c 1)", "All 30 requests return Code 200", "fortio output"], ["Run fortio with -c 3 against the limits", "Some requests return Code 503 and the access log shows flag UO", "fortio output and access log"], ["Run pilot-agent request GET stats | grep httpbin | grep pending in the fortio pod", "upstream_rq_pending_overflow is greater than 0", "Stats output"]],
+          "objectives": ["Configure connection pool limits for a service", "Eject failing endpoints with outlier detection", "Measure circuit breaker behaviour under load"]
+        },
+        {
+          "topic": "Automatic Mutual TLS and PeerAuthentication Modes",
+          "subtopics": ["Automatic mTLS between sidecars and when it falls back to plaintext", "PeerAuthentication modes: PERMISSIVE, STRICT and DISABLE", "Mesh-wide, namespace-wide and workload-specific scope", "Port-level mtls overrides with portLevelMtls", "The root namespace istio-system for mesh-wide policy", "Testing from non-mesh clients in a legacy namespace", "Seeing mTLS in Kiali and in the X-Forwarded-Client-Cert header", "Migrating from PERMISSIVE to STRICT safely"],
+          "tools": ["Istio", "istioctl", "curl", "Kiali"],
+          "lab_task": "Create namespaces foo (injected) and legacy (not injected), deploy httpbin and curl into each, and call httpbin.foo:8000/ip from both curl pods. Apply a STRICT PeerAuthentication in foo, repeat the calls and record curl exit codes. From the foo curl pod call /headers and find the X-Forwarded-Client-Cert header with the SPIFFE URI.",
+          "deliverable": "PeerAuthentication YAML and a client matrix of source, target, mode and result",
+          "checks": [["Call httpbin.foo from legacy under PERMISSIVE mode", "HTTP 200 is returned", "curl output"], ["Call httpbin.foo from legacy under STRICT mode", "The request fails with curl exit code 56 connection reset by peer", "curl output"], ["Call httpbin.foo/headers from the injected foo curl pod", "X-Forwarded-Client-Cert contains URI=spiffe://cluster.local/ns/foo/sa/curl", "Response body"]],
+          "objectives": ["Explain automatic mTLS and PeerAuthentication modes", "Enforce strict mTLS at the right scope", "Prove encryption and identity between workloads"]
+        },
+        {
+          "topic": "Workload Identity, SPIFFE IDs and Certificate Rotation in Istio",
+          "subtopics": ["SPIFFE ID format spiffe://<trust-domain>/ns/<ns>/sa/<sa>", "Service accounts as the unit of identity", "istiod as the default certificate authority and the istio-ca-root-cert ConfigMap", "Certificate signing requests from istio-agent over SDS", "Default workload certificate lifetime and automatic rotation", "istioctl proxy-config secret and decoding certificates with openssl", "Trust domain and trust domain aliases", "Why shared service accounts weaken authorization"],
+          "tools": ["Istio", "istioctl", "OpenSSL", "kubectl"],
+          "lab_task": "Run istioctl proxy-config secret deploy/productpage-v1 -o json, extract the default certificate chain with jq, base64-decode it and run openssl x509 -noout -subject -ext subjectAltName -dates. Record the SPIFFE URI SAN and validity period, then give reviews-v2 its own service account, restart it and show the new SAN.",
+          "deliverable": "Certificate inspection notes with SAN, issuer, validity window and the service account change",
+          "checks": [["Decode the productpage workload certificate", "The SAN is URI:spiffe://cluster.local/ns/default/sa/bookinfo-productpage", "openssl output"], ["Read notBefore and notAfter", "The validity window is about 24 hours", "openssl output"], ["Restart reviews-v2 with a new service account reviews-v2-sa", "The new certificate SAN ends in /sa/reviews-v2-sa", "openssl output"]],
+          "objectives": ["Explain how Istio issues and rotates workload identities", "Inspect workload certificates with istioctl and openssl", "Design service accounts for meaningful identities"]
+        },
+        {
+          "topic": "AuthorizationPolicy Allow and Deny Rules",
+          "subtopics": ["AuthorizationPolicy actions: ALLOW, DENY, AUDIT and CUSTOM", "Evaluation order: CUSTOM, then DENY, then ALLOW", "The allow-nothing policy with an empty spec", "from.source principals and namespaces", "to.operation methods, paths and ports", "when conditions on request headers and source IPs", "403 RBAC: access denied and the rbac access log fields", "Least privilege policies for Bookinfo"],
+          "tools": ["Istio", "curl", "kubectl", "Bookinfo"],
+          "lab_task": "Apply an allow-nothing AuthorizationPolicy in default and confirm /productpage fails, then add ALLOW policies so only the ingress gateway may GET productpage, only productpage may GET details and reviews, and only reviews may GET ratings. Verify from the curl pod that GET details:9080/details/0 is denied and that the page works through the gateway.",
+          "deliverable": "Set of AuthorizationPolicy YAML files and an allowed-versus-denied test table",
+          "checks": [["Request /productpage with only allow-nothing applied", "HTTP 403 with body RBAC: access denied", "curl output"], ["Load /productpage through the gateway with all ALLOW policies", "HTTP 200 with details, reviews and ratings rendered", "Browser screenshot"], ["curl details:9080/details/0 from the curl pod", "HTTP 403 RBAC: access denied", "curl output"]],
+          "objectives": ["Write ALLOW and DENY authorization policies", "Apply default deny and grant least privilege", "Test and debug policy decisions"]
+        },
+        {
+          "topic": "JWT Validation with RequestAuthentication",
+          "subtopics": ["RequestAuthentication issuer, jwksUri and audiences", "Requests without a token pass RequestAuthentication alone", "Requiring a token with requestPrincipals in AuthorizationPolicy", "401 Jwt verification fails versus 403 RBAC: access denied", "Claims-based rules with request.auth.claims", "forwardOriginalToken and outputPayloadToHeader", "Applying JWT rules at the ingress gateway", "Istio sample jwks.json and demo.jwt for testing"],
+          "tools": ["Istio", "curl", "jq", "kubectl"],
+          "lab_task": "Apply a RequestAuthentication on the ingress gateway with issuer testing@secure.istio.io and the sample jwksUri, then an AuthorizationPolicy requiring requestPrincipals [\"*\"]. Fetch demo.jwt from the Istio repo and send requests with no token, a valid token and a tampered token. Add a rule allowing only tokens whose groups claim contains group1 and test groups-scope.jwt.",
+          "deliverable": "RequestAuthentication and AuthorizationPolicy YAML with a token test matrix",
+          "checks": [["Send a request with a tampered token", "HTTP 401 with body Jwt verification fails", "curl output"], ["Send a request with no token", "HTTP 403 with body RBAC: access denied", "curl output"], ["Send a request with the valid demo token", "HTTP 200 is returned", "curl output"]],
+          "objectives": ["Validate JWTs at the mesh edge", "Combine authentication and authorization policies", "Write claim-based access rules"]
+        },
+        {
+          "topic": "Egress Control with ServiceEntry and Outbound Traffic Policy",
+          "subtopics": ["outboundTrafficPolicy ALLOW_ANY versus REGISTRY_ONLY", "BlackHoleCluster and PassthroughCluster in Envoy", "ServiceEntry hosts, ports, resolution DNS and location MESH_EXTERNAL", "HTTPS egress with TLS protocol and SNI", "Applying timeouts and retries to external services", "exportTo to limit where a ServiceEntry is visible", "Sidecar egress hosts to restrict namespaces", "Response 502 and connection resets for blocked destinations"],
+          "tools": ["Istio", "istioctl", "curl", "Envoy"],
+          "lab_task": "Reinstall or update Istio with --set meshConfig.outboundTrafficPolicy.mode=REGISTRY_ONLY, then from the curl pod request http://httpbin.org/headers and https://www.istio.io and record the results. Create ServiceEntries for httpbin.org port 80 HTTP and www.istio.io port 443 TLS, repeat the requests and add a 3s timeout VirtualService for httpbin.org/delay/5.",
+          "deliverable": "ServiceEntry and VirtualService YAML with before-and-after egress results",
+          "checks": [["curl http://httpbin.org/headers under REGISTRY_ONLY without a ServiceEntry", "HTTP 502 is returned", "curl output"], ["curl https://www.istio.io without a ServiceEntry", "The TLS handshake fails with curl exit code 35", "curl output"], ["curl httpbin.org/delay/5 with the ServiceEntry and 3s timeout", "HTTP 504 returns after about 3 seconds", "curl output and timing"]],
+          "objectives": ["Lock down outbound traffic to registered destinations", "Register external services with ServiceEntry", "Apply traffic policy to external calls"]
+        },
+        {
+          "topic": "Mesh Telemetry with Prometheus and Istio Standard Metrics",
+          "subtopics": ["Installing the Prometheus addon from samples/addons", "istio_requests_total labels: source, destination, response_code and reporter", "istio_request_duration_milliseconds histogram and percentiles", "TCP metrics: istio_tcp_connections_opened_total and bytes sent", "reporter=source versus reporter=destination", "Scraping merged metrics on port 15020 and Envoy stats on 15090", "PromQL for request rate, error ratio and p99 latency", "Opening dashboards with istioctl dashboard prometheus"],
+          "tools": ["Prometheus", "Istio", "istioctl", "PromQL", "Grafana"],
+          "lab_task": "Apply samples/addons/prometheus.yaml, generate traffic with a loop of 300 /productpage requests, open istioctl dashboard prometheus and write PromQL for reviews request rate per destination_version, the 5xx ratio for productpage and p99 latency using histogram_quantile(0.99, sum(rate(istio_request_duration_milliseconds_bucket[1m])) by (le, destination_service_name)).",
+          "deliverable": "PromQL query sheet with screenshots and the values observed for each query",
+          "checks": [["Query sum(istio_requests_total{destination_service_name=\"reviews\"}) by (destination_version)", "Series exist for v1, v2 and v3 with non-zero counts", "Prometheus screenshot"], ["Compute the productpage 5xx ratio during normal traffic", "The ratio is 0", "Query result"], ["Inject the ratings abort fault and requery the ratings 5xx rate", "Series with response_code=\"500\" appear for ratings", "Prometheus screenshot"]],
+          "objectives": ["Collect and query Istio standard metrics", "Write PromQL for rate, errors and duration", "Distinguish source and destination reporting"]
+        },
+        {
+          "topic": "Visualising the Mesh in Kiali",
+          "subtopics": ["Installing Kiali from samples/addons and its Prometheus dependency", "Graph types: app, versioned app, workload and service", "Edge labels: request rate, response time and security padlock", "Health indicators and error rate thresholds", "Istio Config view and validation messages", "Workload details: logs, Envoy config and metrics", "Using Kiali wizards and why GitOps should own the result", "Opening Kiali with istioctl dashboard kiali"],
+          "tools": ["Kiali", "Prometheus", "istioctl", "Istio"],
+          "lab_task": "Install Kiali and Prometheus from samples/addons, generate steady traffic to /productpage, open istioctl dashboard kiali, select the versioned app graph for default and enable the Traffic Distribution and Security display options. Apply the 50/50 reviews VirtualService, capture the graph percentages, then break a DestinationRule subset reference and record the validation error Kiali shows.",
+          "deliverable": "Kiali screenshots of the graph, traffic split, security badges and the config validation error",
+          "checks": [["View the versioned app graph with security display on", "Padlock icons show on edges between Bookinfo workloads", "Kiali screenshot"], ["Apply a 50/50 split between reviews v1 and v3", "Edge labels show roughly 50% to each version", "Kiali screenshot"], ["Reference a missing subset in a VirtualService", "Kiali Istio Config marks the VirtualService with an error", "Kiali screenshot"]],
+          "objectives": ["Navigate Kiali graphs and health views", "Confirm routing and mTLS visually", "Use Kiali validations to spot misconfiguration"]
+        },
+        {
+          "topic": "First-Line Debugging with istioctl analyze and proxy-status",
+          "subtopics": ["istioctl analyze for a namespace, all namespaces and local files", "Message codes such as IST0101 and IST0102 and their fixes", "istioctl proxy-status columns: CDS, LDS, EDS, RDS and ISTIOD", "SYNCED, NOT SENT and STALE states", "istioctl x describe pod for applied routing and policies", "Sidecar access logs and the response flags field", "kubectl logs on istio-proxy and istiod", "A repeatable triage checklist for 503 and 404 errors"],
+          "tools": ["istioctl", "kubectl", "Envoy", "Istio"],
+          "lab_task": "Introduce three faults: a namespace without the injection label, a VirtualService pointing at a non-existent host and a DestinationRule subset with a wrong label. Run istioctl analyze -A, istioctl proxy-status and istioctl x describe pod on reviews, use the outputs to find and fix each fault, and log the command that revealed each one.",
+          "deliverable": "Triage log mapping each fault to the command, message and fix",
+          "checks": [["Run istioctl analyze on a namespace with pods but no injection label", "Message IST0102 NamespaceNotInjected is reported", "analyze output"], ["Run istioctl proxy-status after fixes", "Every proxy shows SYNCED for CDS, LDS, EDS and RDS", "proxy-status output"], ["Run istioctl analyze -A after all fixes", "No validation issues found when analyzing all namespaces", "analyze output"]],
+          "objectives": ["Validate mesh configuration with istioctl analyze", "Check proxy synchronisation with istioctl proxy-status", "Follow a structured triage path for common errors"]
+        },
+        {
+          "topic": "Beginner Capstone: Securing and Releasing Bookinfo",
+          "subtopics": ["Requirements: exposed through Gateway API with strict mTLS and least-privilege policies", "JWT protection for the /api path at the gateway", "Canary of reviews v3 with timeouts, retries and an outlier detection policy", "REGISTRY_ONLY egress with one approved external API", "Prometheus and Kiali evidence of the release", "Runbook and demonstration"],
+          "tools": ["Istio", "istioctl", "Gateway API", "Kiali", "Prometheus"],
+          "lab_task": "Starting from a clean cluster, install Istio, deploy Bookinfo behind a Gateway API gateway, enforce mesh-wide STRICT mTLS and least-privilege AuthorizationPolicies, require a JWT on /api, run a 90/10 then 0/100 canary to reviews v3 with a 2s timeout and 2 retries, block egress except one ServiceEntry, and pass istioctl analyze -A with zero issues.",
+          "deliverable": "Git-ready folder of manifests, install commands, a runbook and Kiali and Prometheus evidence",
+          "checks": [["Run istioctl analyze -A on the finished mesh", "No validation issues found", "analyze output"], ["curl /api/v1/products through the gateway without a token", "HTTP 403 RBAC: access denied", "curl output"], ["Send 200 requests after the final canary step", "All 200 responses come from reviews v3 and the 5xx ratio is 0", "Prometheus query and count table"]],
+          "objectives": ["Combine traffic, security and egress features into one design", "Release a new version safely with measurable evidence", "Document and demonstrate an operational Istio setup"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already run Istio in sidecar mode and can route, secure and observe a single-cluster mesh. Covers ambient mode in depth (ztunnel, HBONE, istio-cni and waypoint proxies), migrating from sidecars to ambient, Gateway API for mesh traffic (GAMMA), gateway TLS termination, passthrough and TCP routing, egress gateways and TLS origination, OpenTelemetry tracing and the Telemetry API, locality failover, traffic mirroring, external authorization, plug-in CA certificates, Helm-based installation, canary control plane upgrades with revisions and tags, and Envoy and ztunnel troubleshooting, ending in a zero-downtime ambient migration capstone.",
+      "prerequisites": ["Completed the Istio beginner level or can install Istio and write VirtualService, DestinationRule, PeerAuthentication and AuthorizationPolicy resources", "Comfortable with Helm, kubectl patch and rollout commands, and reading YAML diffs", "Has a Kubernetes cluster with at least 3 nodes (kind multi-node is fine) and rights to install CRDs, DaemonSets and cluster-scoped webhooks"],
+      "outcomes": ["Run workloads in ambient mode, add waypoint proxies only where L7 features are needed and migrate namespaces from sidecars without downtime", "Secure north-south and egress traffic with TLS termination, passthrough, TLS origination and an intermediate CA", "Instrument the mesh with OpenTelemetry tracing, Telemetry API access logs and customised metrics", "Install, upgrade and debug Istio with Helm, revisions, revision tags, istioctl proxy-config and istioctl ztunnel-config"],
+      "days": [
+        {
+          "topic": "Ambient Mode Architecture: ztunnel, HBONE and istio-cni",
+          "subtopics": ["Why ambient splits L4 and L7: ztunnel per node and optional waypoints", "The ztunnel DaemonSet and its Rust implementation", "HBONE: HTTP CONNECT tunnelling over mTLS on port 15008", "istio-cni node agent and in-pod traffic redirection", "Secure overlay features: mTLS, L4 authorization and TCP telemetry", "What needs a waypoint: HTTP routing, L7 policy and HTTP metrics", "Resource footprint compared with sidecars", "Installing with istioctl install --set profile=ambient"],
+          "tools": ["Istio", "istioctl", "ztunnel", "istio-cni", "kubectl"],
+          "lab_task": "On a fresh 3-node cluster install Istio with istioctl install --set profile=ambient --skip-confirmation and the Gateway API CRDs, then list pods in istio-system and confirm one ztunnel and one istio-cni-node pod per node. Run kubectl get ds -n istio-system and record DESIRED versus READY, and sum the requested CPU and memory of ztunnel pods.",
+          "deliverable": "Architecture diagram of the cluster plus kubectl outputs for istiod, ztunnel and istio-cni",
+          "checks": [["Run kubectl get ds ztunnel -n istio-system on 3 nodes", "DESIRED and READY are both 3", "kubectl output"], ["Run kubectl get pods -n istio-system", "istiod, ztunnel and istio-cni-node pods are Running and no ingress gateway is installed by the ambient profile", "kubectl output"], ["Run istioctl version", "ztunnel data plane versions match the istiod version", "Terminal output"]],
+          "objectives": ["Explain the ambient data plane layers", "Install Istio in ambient mode", "Compare ambient resource use with sidecar mode"]
+        },
+        {
+          "topic": "Enrolling Namespaces in Ambient Mode",
+          "subtopics": ["The istio.io/dataplane-mode=ambient label on namespaces and pods", "Opting out a pod with istio.io/dataplane-mode=none", "No restarts needed and pods stay 1/1", "istioctl ztunnel-config workloads and the HBONE protocol column", "ztunnel access logs with src.identity and dst.identity", "L4 AuthorizationPolicy enforced by ztunnel", "PeerAuthentication STRICT in ambient", "Interoperability with non-mesh and sidecar workloads"],
+          "tools": ["Istio", "istioctl", "ztunnel", "Bookinfo", "kubectl"],
+          "lab_task": "Deploy Bookinfo and the curl sample without any label, then run kubectl label namespace default istio.io/dataplane-mode=ambient. Without restarting, confirm pods still show 1/1, run istioctl ztunnel-config workloads and check the protocol, send 20 requests from curl to productpage and find matching lines in kubectl logs ds/ztunnel -n istio-system. Add an L4 policy allowing only the curl service account.",
+          "deliverable": "Enrollment steps, ztunnel-config output, ztunnel log excerpts and the L4 policy",
+          "checks": [["Run istioctl ztunnel-config workloads for default", "Bookinfo workloads show PROTOCOL HBONE", "istioctl output"], ["Grep ztunnel logs after the requests", "Access lines show src.identity spiffe://cluster.local/ns/default/sa/curl", "Log excerpt"], ["Call productpage from a pod using another service account after the L4 policy", "The connection is reset and ztunnel logs a policy rejection", "curl output and ztunnel log"]],
+          "objectives": ["Add workloads to ambient without restarts", "Verify HBONE and identities with ztunnel tooling", "Enforce L4 authorization in ambient"]
+        },
+        {
+          "topic": "Deploying and Scoping Waypoint Proxies",
+          "subtopics": ["Waypoints as Gateway API Gateways with gatewayClassName istio-waypoint", "istioctl waypoint apply, list, status and delete", "--enroll-namespace and the istio.io/use-waypoint label", "Namespace, service and workload waypoint scopes", "The istio.io/waypoint-for setting: service, workload, all or none", "Cross-namespace waypoints with istio.io/use-waypoint-namespace", "Sizing and scaling waypoint Deployments", "When a workload does not need a waypoint"],
+          "tools": ["Istio", "istioctl", "Gateway API", "kubectl"],
+          "lab_task": "In the ambient default namespace run istioctl waypoint apply -n default --enroll-namespace --wait, then confirm with kubectl get gateway waypoint and istioctl waypoint list. Remove the namespace label and instead label only the reviews service with istio.io/use-waypoint=waypoint, then show with istioctl ztunnel-config services which services now route through the waypoint.",
+          "deliverable": "Waypoint manifests, istioctl waypoint list output and a table of services with and without a waypoint",
+          "checks": [["Run kubectl get gateway waypoint -n default", "CLASS istio-waypoint with PROGRAMMED True", "kubectl output"], ["Run istioctl waypoint list -n default", "waypoint is listed with REVISION and PROGRAMMED True", "istioctl output"], ["Run istioctl ztunnel-config services after labelling only reviews", "Only the reviews service lists a waypoint", "istioctl output"]],
+          "objectives": ["Deploy waypoint proxies at the needed scope", "Attach services to waypoints with labels", "Decide where L7 processing is worth its cost"]
+        },
+        {
+          "topic": "L7 Policy and Routing through Waypoints",
+          "subtopics": ["AuthorizationPolicy targetRefs to a Gateway or Service", "Why selector-based L7 policies do not apply to waypoints", "HTTPRoute parentRefs to a Service for waypoint routing", "Weighted traffic splits in ambient with HTTPRoute", "Timeouts and retries on HTTPRoute rules", "HTTP metrics reported by the waypoint", "L4 policy at ztunnel plus L7 policy at the waypoint", "Debugging waypoints with istioctl proxy-config"],
+          "tools": ["Istio", "Gateway API", "istioctl", "Prometheus", "curl"],
+          "lab_task": "With reviews attached to a waypoint, apply an HTTPRoute with parentRefs kind Service name reviews splitting 90/10 between reviews-v1 and reviews-v2 services, then an AuthorizationPolicy with targetRefs to the reviews Service allowing only GET from productpage. Send 200 requests, count versions, and send a POST from the curl pod to confirm denial.",
+          "deliverable": "HTTPRoute and AuthorizationPolicy YAML with version counts and denial evidence",
+          "checks": [["Send 200 productpage requests with the 90/10 HTTPRoute", "Between 10 and 30 responses come from reviews-v2", "Count table"], ["Send POST to reviews:9080 from the curl pod", "HTTP 403 with body RBAC: access denied", "curl output"], ["Query istio_requests_total with reporter=\"waypoint\" for reviews", "Series exist with response_code labels", "Prometheus result"]],
+          "objectives": ["Apply L7 routing to ambient services with HTTPRoute", "Bind L7 authorization to waypoints with targetRefs", "Confirm L7 telemetry from waypoints"]
+        },
+        {
+          "topic": "Migrating Workloads from Sidecars to Ambient",
+          "subtopics": ["Prerequisites: istio-cni installed and ambient-capable istiod", "Translating VirtualService and selector policies to targetRefs and HTTPRoute", "Deploying waypoints before removing sidecars", "Swapping istio-injection=enabled for istio.io/dataplane-mode=ambient", "Rolling restarts namespace by namespace", "Sidecar-to-ambient interoperability during the move", "Rollback by relabelling and restarting", "Measuring memory and CPU savings after migration"],
+          "tools": ["Istio", "istioctl", "kubectl", "Prometheus", "Fortio"],
+          "lab_task": "Start with Bookinfo in sidecar mode under a fortio load of 20 qps. Deploy a waypoint, convert reviews routing to an HTTPRoute and policies to targetRefs, then relabel the namespace to ambient and run kubectl rollout restart deploy. Keep fortio running throughout and record its error count, then compare istio-proxy and ztunnel memory before and after with kubectl top.",
+          "deliverable": "Migration runbook, fortio summary during the move and a before-and-after resource table",
+          "checks": [["Check fortio output across the migration window", "Non-200 responses are 0 or under 0.1% of requests", "fortio summary"], ["Run kubectl get pods after migration", "All Bookinfo pods show READY 1/1", "kubectl output"], ["Compare total proxy memory before and after with kubectl top", "Total data plane memory is lower after migration", "Resource table"]],
+          "objectives": ["Plan a sidecar-to-ambient migration", "Convert sidecar-era resources to ambient-compatible ones", "Migrate without dropping traffic and measure the gain"]
+        },
+        {
+          "topic": "Gateway API Mesh Routing with GAMMA HTTPRoutes",
+          "subtopics": ["GAMMA: HTTPRoute attached to a Service as parentRef", "Producer routes and consumer routes by namespace", "Header matching, filters and RequestHeaderModifier", "RequestMirror and URLRewrite filters", "GRPCRoute for gRPC services", "Route conflicts and precedence rules", "Mapping VirtualService features to Gateway API and the gaps", "Route status: Accepted, ResolvedRefs and parent conditions"],
+          "tools": ["Gateway API", "Istio", "kubectl", "grpcurl", "curl"],
+          "lab_task": "In sidecar mode, create an HTTPRoute with parentRefs to the reviews Service that sends requests with header x-tier: gold to reviews-v3 and adds header x-route: gamma. Deploy a gRPC echo server, expose it with a GRPCRoute matching one method, and test with grpcurl. Then point a backendRef at a missing Service and read the route status.",
+          "deliverable": "HTTPRoute and GRPCRoute YAML, test outputs and route status conditions",
+          "checks": [["curl reviews:9080/reviews/0 with x-tier: gold", "The response body comes from reviews-v3 and includes the red star colour", "curl output"], ["Call the gRPC method with grpcurl", "The echoed message is returned with status OK", "grpcurl output"], ["Read status of the HTTPRoute with a missing backend", "ResolvedRefs is False with reason BackendNotFound", "kubectl get httproute -o yaml"]],
+          "objectives": ["Route east-west traffic with Gateway API", "Use HTTPRoute filters and GRPCRoute", "Interpret Gateway API route status"]
+        },
+        {
+          "topic": "Gateway TLS Termination, SNI and cert-manager Certificates",
+          "subtopics": ["HTTPS listeners with tls.mode Terminate and certificateRefs", "Classic Gateway tls.mode SIMPLE with credentialName", "Kubernetes TLS secrets in the gateway namespace", "Serving multiple hostnames with SNI", "Mutual TLS at the gateway with client CA certificates", "Issuing gateway certificates with cert-manager", "HTTP to HTTPS redirects", "Testing with curl --resolve and openssl s_client"],
+          "tools": ["Istio", "Gateway API", "cert-manager", "OpenSSL", "curl"],
+          "lab_task": "Create a self-signed root, issue certificates for bookinfo.example.com and httpbin.example.com, store them as TLS secrets and add two HTTPS listeners to a Gateway API Gateway. Add an HTTP listener with a 301 redirect to HTTPS. Test each host with curl --resolve and --cacert, and with openssl s_client -servername to confirm the right certificate is served per SNI.",
+          "deliverable": "Gateway YAML, certificate files list and SNI test results",
+          "checks": [["curl -v --resolve bookinfo.example.com:443:<ip> --cacert root.crt https://bookinfo.example.com/productpage", "HTTP 200 and the server certificate CN is bookinfo.example.com", "curl verbose output"], ["openssl s_client -servername httpbin.example.com", "The subject shows httpbin.example.com", "openssl output"], ["curl -I http://bookinfo.example.com/productpage", "HTTP 301 with location starting https://", "curl headers"]],
+          "objectives": ["Terminate TLS at an Istio gateway", "Serve multiple certificates by SNI", "Automate gateway certificates with cert-manager"]
+        },
+        {
+          "topic": "TLS Passthrough and TCP Routing at Istio Gateways",
+          "subtopics": ["Gateway API TLSRoute and tls.mode Passthrough", "Classic Gateway tls.mode PASSTHROUGH with VirtualService tls match on sniHosts", "TCPRoute and VirtualService tcp routes", "Exposing a database or MQTT broker through the gateway", "Port and protocol choices on gateway listeners", "Weighted TCP routing between backends", "Limitations of passthrough: no L7 telemetry or header routing", "TCP metrics for gateway traffic"],
+          "tools": ["Istio", "Gateway API", "OpenSSL", "kubectl", "Prometheus"],
+          "lab_task": "Deploy an nginx backend that terminates its own TLS for nginx.example.com and expose it through the gateway in passthrough mode with a TLSRoute or classic VirtualService sniHosts match. Expose a TCP echo service on port 31400 with a TCP route. Verify the nginx certificate is the backend one and send 10 lines to the echo service with nc.",
+          "deliverable": "Passthrough and TCP route YAML, certificate evidence and echo results",
+          "checks": [["openssl s_client -servername nginx.example.com through the gateway", "The certificate is the one held by the nginx pod, not a gateway secret", "openssl output"], ["Send 10 lines to the TCP echo service with nc", "All 10 lines are echoed back", "nc output"], ["Query istio_tcp_connections_opened_total for the echo service", "The counter increases by at least the number of connections made", "Prometheus result"]],
+          "objectives": ["Expose TLS services without terminating at the gateway", "Route raw TCP through Istio gateways", "Explain what passthrough gives up"]
+        },
+        {
+          "topic": "Egress Gateways and TLS Origination",
+          "subtopics": ["Why route egress through a dedicated gateway: audit and fixed source", "Installing an egress gateway with Helm or Gateway API", "ServiceEntry plus VirtualService steering through the egress gateway", "TLS origination with DestinationRule tls.mode SIMPLE", "Mutual TLS origination to partner APIs with client certificates", "Combining egress gateways with AuthorizationPolicy", "Blocking direct egress with Kubernetes NetworkPolicy", "Egress access logs as audit evidence"],
+          "tools": ["Istio", "Envoy", "curl", "kubectl"],
+          "lab_task": "Create a ServiceEntry for edition.cnn.com and route port 80 traffic from the curl pod through istio-egressgateway, where a DestinationRule originates TLS to port 443. Confirm curl http://edition.cnn.com/politics returns 200 with no client-side TLS, find the request in the egress gateway log and add a NetworkPolicy so only the gateway can reach the internet.",
+          "deliverable": "ServiceEntry, Gateway, VirtualService, DestinationRule and NetworkPolicy YAML with logs",
+          "checks": [["curl -sSL -o /dev/null -w '%{http_code}' http://edition.cnn.com/politics from curl", "Returns 200", "curl output"], ["Grep egress gateway logs for edition.cnn.com", "An access line shows outbound|443||edition.cnn.com", "Gateway log excerpt"], ["curl an unlisted site from a pod after NetworkPolicy", "The request times out", "curl output"]],
+          "objectives": ["Centralise outbound traffic through an egress gateway", "Originate TLS from the mesh", "Enforce egress paths with policy and logs"]
+        },
+        {
+          "topic": "Distributed Tracing with OpenTelemetry and Jaeger in Istio",
+          "subtopics": ["meshConfig.extensionProviders with opentelemetry service and port", "Telemetry API tracing providers and randomSamplingPercentage", "Deploying an OpenTelemetry Collector and Jaeger", "Trace context propagation: traceparent, b3 and x-request-id", "Why applications must forward trace headers", "Custom tags from headers and literals", "Span names, durations and the critical path", "Sampling trade-offs in production"],
+          "tools": ["Istio", "OpenTelemetry Collector", "Jaeger", "istioctl", "Telemetry API"],
+          "lab_task": "Deploy an OpenTelemetry Collector exporting to Jaeger, add an opentelemetry extensionProvider named otel pointing at the collector on 4317, and apply a mesh-wide Telemetry with tracing provider otel at 100% sampling. Send 50 /productpage requests, open Jaeger and inspect one trace. Add a custom tag from header x-tenant, then lower sampling to 10%.",
+          "deliverable": "Mesh config, Telemetry YAML and Jaeger screenshots of a full Bookinfo trace",
+          "checks": [["Open a productpage trace in Jaeger", "Spans exist for productpage, details, reviews and ratings", "Jaeger screenshot"], ["Send a request with header x-tenant: acme", "The span shows tag x-tenant=acme", "Jaeger span view"], ["Send 200 requests at 10% sampling", "Between 10 and 30 new traces appear", "Jaeger trace count"]],
+          "objectives": ["Export Istio traces through OpenTelemetry", "Configure sampling and tags with the Telemetry API", "Explain application responsibility for propagation"]
+        },
+        {
+          "topic": "Telemetry API: Access Logs, Metric Customisation and Sampling",
+          "subtopics": ["Telemetry resource scope: mesh, namespace and workload", "accessLogging providers and CEL filter expressions", "Envoy access log format and the %RESPONSE_FLAGS% operator", "metrics overrides: disabling metrics and tag removal", "Adding tags with tagOverrides and CEL values", "Controlling metric cardinality", "Text versus JSON log encoding", "Telemetry API in ambient: ztunnel and waypoint coverage"],
+          "tools": ["Istio", "Telemetry API", "Prometheus", "Envoy", "kubectl"],
+          "lab_task": "Apply a namespace Telemetry that enables envoy access logs only when response.code >= 400, then a metrics override that removes request_protocol from istio_requests_total and adds a tag tenant from request.headers['x-tenant']. Generate 100 good and 10 failing requests, count log lines in productpage istio-proxy and confirm the label changes in Prometheus.",
+          "deliverable": "Telemetry YAML with log counts and Prometheus label evidence",
+          "checks": [["Count productpage istio-proxy access log lines after the test", "Only the 10 failing requests are logged", "Log count"], ["Query istio_requests_total for the new tenant label", "Series carry tenant=\"acme\"", "Prometheus result"], ["Check labels on istio_requests_total", "request_protocol is absent from new series", "Prometheus label list"]],
+          "objectives": ["Tune access logging with filters", "Customise Istio metrics while controlling cardinality", "Scope telemetry settings to the right workloads"]
+        },
+        {
+          "topic": "Locality Load Balancing and Failover",
+          "subtopics": ["Locality from topology.kubernetes.io/region and zone labels", "Default locality-weighted preference", "localityLbSetting failover and failoverPriority", "Outlier detection is required for failover to work", "distribute weights across zones", "Testing with helloworld deployed per zone", "Cross-zone traffic cost and latency", "Observing locality with source and destination labels"],
+          "tools": ["Istio", "kind", "helloworld", "kubectl", "Envoy"],
+          "lab_task": "Label three kind nodes as zones z1, z2 and z3 in region r1, deploy helloworld pinned to z1 and z2 and a curl pod in z1. Apply a DestinationRule with localityLbSetting enabled and outlierDetection consecutive5xxErrors: 1. Send 50 requests and count versions, then scale the z1 helloworld to zero and send 50 more.",
+          "deliverable": "DestinationRule YAML, node labels and per-zone response counts",
+          "checks": [["Send 50 requests with both zones healthy", "All 50 responses come from the z1 instance", "Count table"], ["Scale the z1 instance to zero and resend", "All 50 responses come from the z2 instance", "Count table"], ["Remove outlierDetection and repeat the healthy test", "Responses spread across both zones", "Count table"]],
+          "objectives": ["Keep traffic local with locality load balancing", "Configure failover between zones", "Explain the role of outlier detection in failover"]
+        },
+        {
+          "topic": "Traffic Mirroring for Safe Release Testing",
+          "subtopics": ["VirtualService mirror, mirrors and mirrorPercentage", "Gateway API RequestMirror filter", "Fire-and-forget semantics: mirrored responses are discarded", "Host header -shadow suffix on mirrored requests", "Mirroring writes: side-effects and test databases", "Comparing v1 and v2 behaviour from logs and metrics", "Cost and capacity of shadow traffic", "Stopping a mirror cleanly"],
+          "tools": ["Istio", "Gateway API", "httpbin", "Prometheus", "kubectl"],
+          "lab_task": "Deploy httpbin v1 and v2 with distinct version labels, route 100% to v1 and mirror 50% to v2 using mirrorPercentage. Send 100 requests from the curl pod, count lines in v1 and v2 application logs, and confirm client responses always came from v1. Then switch to the Gateway API RequestMirror filter and repeat.",
+          "deliverable": "Mirroring YAML for both APIs with log counts and response evidence",
+          "checks": [["Count v2 log lines after 100 requests with 50% mirroring", "Between 35 and 65 mirrored requests reach v2", "Log count"], ["Inspect the Host header logged by v2", "The Host ends with -shadow", "Log excerpt"], ["Stop v2 during the test", "All 100 client requests still return 200", "curl summary"]],
+          "objectives": ["Mirror live traffic to a new version", "Measure shadow traffic safely", "Explain the risks of mirroring writes"]
+        },
+        {
+          "topic": "External Authorization with CUSTOM AuthorizationPolicy",
+          "subtopics": ["meshConfig extensionProviders envoyExtAuthzHttp and envoyExtAuthzGrpc", "AuthorizationPolicy action CUSTOM with provider name", "Sending selected headers to the authorizer", "Using the Istio ext-authz sample server", "Integrating OPA or oauth2-proxy as an authorizer", "Fail-open versus fail-closed with failOpen", "Latency budget for external decisions", "Ordering: CUSTOM decisions run before DENY and ALLOW"],
+          "tools": ["Istio", "OPA", "oauth2-proxy", "curl", "kubectl"],
+          "lab_task": "Deploy samples/extauthz/ext-authz.yaml, register it in meshConfig as an envoyExtAuthzHttp provider named sample-ext-authz-http that forwards header x-ext-authz, and apply a CUSTOM AuthorizationPolicy on httpbin for path /headers. Test with x-ext-authz: allow and deny, then scale the authorizer to zero and record the default result.",
+          "deliverable": "Mesh config, policy YAML and a test table covering allow, deny and authorizer outage",
+          "checks": [["curl httpbin:8000/headers with x-ext-authz: allow", "HTTP 200 and the body contains x-ext-authz-check-result: allowed", "curl output"], ["curl /headers with x-ext-authz: deny", "HTTP 403 with denied by ext_authz in the body", "curl output"], ["curl /ip with x-ext-authz: deny", "HTTP 200 because the policy covers only /headers", "curl output"]],
+          "objectives": ["Delegate authorization decisions to an external service", "Scope CUSTOM policies to specific paths", "Plan failure behaviour for external authorizers"]
+        },
+        {
+          "topic": "Plugging in an Intermediate CA with cacerts",
+          "subtopics": ["Why replace the self-signed istiod root", "The cacerts secret: ca-cert.pem, ca-key.pem, root-cert.pem and cert-chain.pem", "Generating certificates with tools/certs Makefile.selfSigned.mk", "Installing cacerts before istiod starts", "Root rotation and the risk of mixed trust", "External signers: cert-manager istio-csr and Kubernetes CSR API", "Verifying the chain from a workload", "Protecting CA private keys"],
+          "tools": ["Istio", "OpenSSL", "make", "cert-manager", "istioctl"],
+          "lab_task": "Use make -f tools/certs/Makefile.selfSigned.mk root-ca and cluster1-cacerts, create the cacerts secret in istio-system with the four files, restart istiod and Bookinfo, then extract the productpage certificate chain with istioctl proxy-config secret and verify it with openssl verify -CAfile root-cert.pem. Record issuer names at each level.",
+          "deliverable": "Certificate hierarchy diagram, secret creation commands and openssl verify output",
+          "checks": [["Run openssl verify on the extracted workload chain", "The result prints OK", "openssl output"], ["Read the issuer of the workload certificate", "The issuer is the cluster1 intermediate CA", "openssl output"], ["Check istiod logs after restart", "istiod reports it is using the plugged-in cert from cacerts", "istiod log line"]],
+          "objectives": ["Run Istio with an organisation-controlled CA", "Verify workload certificate chains", "Plan CA rotation and key protection"]
+        },
+        {
+          "topic": "Installing and Upgrading Istio with Helm Charts",
+          "subtopics": ["Charts: base, istiod, cni, ztunnel and gateway", "helm repo add istio https://istio-release.storage.googleapis.com/charts", "Install order and the profile=ambient value", "values.yaml for meshConfig, resources and pilot env", "Gateway chart deployments and Services", "helm upgrade and CRD handling in the base chart", "Pinning chart versions and storing values in Git", "Diffing releases with helm diff before upgrade"],
+          "tools": ["Helm", "Istio", "kubectl", "helm-diff"],
+          "lab_task": "Install Istio with Helm in order: istio/base, istio/istiod --set profile=ambient, istio/cni --set profile=ambient and istio/ztunnel, then istio/gateway into istio-ingress. Put meshConfig.accessLogFile and pilot resources in a values file, change one value, preview it with helm diff upgrade and apply it with helm upgrade.",
+          "deliverable": "values files, Helm commands, helm list output and the reviewed diff",
+          "checks": [["Run helm list -A", "istio-base, istiod, istio-cni, ztunnel and the gateway release show STATUS deployed", "helm output"], ["Run helm diff upgrade with one changed value", "Only the expected ConfigMap or Deployment fields change", "Diff output"], ["Run istioctl verify-install or kubectl get pods -n istio-system after upgrade", "All Istio pods are Running and Ready", "Terminal output"]],
+          "objectives": ["Install Istio with Helm in the correct order", "Manage Istio configuration as versioned values", "Preview and apply Helm upgrades safely"]
+        },
+        {
+          "topic": "Canary Control Plane Upgrades with Revisions and Tags",
+          "subtopics": ["Revisioned istiod installs with --set revision=<rev>", "Namespace label istio.io/rev and removing istio-injection", "Revision tags such as prod-stable and prod-canary with istioctl tag set", "Moving namespaces by retagging instead of relabelling", "Restarting workloads to pick up the new proxy", "Gateway upgrades by revision", "Checking proxy versions with istioctl proxy-status", "Removing the old revision with istioctl uninstall --revision"],
+          "tools": ["istioctl", "Istio", "Helm", "kubectl"],
+          "lab_task": "Install the current release as revision stable, create tag prod-stable and label two namespaces istio.io/rev=prod-stable. Install a newer patch or minor release as revision canary, point prod-canary at it, move one namespace and restart it, check istioctl proxy-status, then retag prod-stable to canary, restart the second namespace and uninstall the old revision.",
+          "deliverable": "Upgrade runbook, istioctl tag list output and proxy-status before and after",
+          "checks": [["Run istioctl tag list after the first move", "prod-stable points to stable and prod-canary points to canary", "istioctl output"], ["Run istioctl proxy-status after restarting the canary namespace", "Its pods show the canary istiod in the ISTIOD column", "proxy-status output"], ["Run kubectl get pods -n istio-system after uninstalling the old revision", "Only istiod-canary pods remain", "kubectl output"]],
+          "objectives": ["Upgrade Istio with a canary control plane", "Use revision tags to move namespaces safely", "Retire an old revision cleanly"]
+        },
+        {
+          "topic": "Reading Envoy Configuration with istioctl proxy-config",
+          "subtopics": ["proxy-config listeners, routes, clusters, endpoints and secret", "Outbound cluster names: outbound|port|subset|host", "Virtual listeners 0.0.0.0_15001 and 15006", "Endpoint health states HEALTHY and UNHEALTHY", "Route tables per port and virtual hosts", "proxy-config log to change Envoy log levels at runtime", "Dumping the full config with -o json", "Comparing proxy config with istioctl proxy-status <pod>"],
+          "tools": ["istioctl", "Envoy", "jq", "kubectl"],
+          "lab_task": "For productpage, run istioctl proxy-config listeners, routes --name 9080, clusters --fqdn reviews.default.svc.cluster.local and endpoints --cluster 'outbound|9080|v2|reviews.default.svc.cluster.local'. Apply a VirtualService with a 3s timeout and find the timeout in routes -o json. Scale reviews-v2 to zero and recheck endpoints, then raise connection logging with proxy-config log --level connection:debug.",
+          "deliverable": "Annotated proxy-config outputs showing listeners, the route timeout and endpoint changes",
+          "checks": [["Run proxy-config clusters for reviews", "Clusters exist for subsets v1, v2 and v3", "istioctl output"], ["Search routes -o json for the new timeout", "The reviews route shows \"timeout\": \"3s\"", "jq output"], ["Check v2 endpoints after scaling reviews-v2 to zero", "No endpoints are listed for the v2 cluster", "istioctl output"]],
+          "objectives": ["Read Envoy listener, route and cluster config", "Trace Istio resources into proxy config", "Adjust proxy logging during an investigation"]
+        },
+        {
+          "topic": "Ambient Data Plane Troubleshooting with ztunnel-config",
+          "subtopics": ["istioctl ztunnel-config workloads, services, policies and certificates", "ztunnel logs: access lines, connection errors and policy rejection", "Checking istio-cni node agent logs for redirection failures", "Pods not captured: missing labels or host network pods", "Waypoint not used: missing istio.io/use-waypoint or wrong waypoint-for", "Port 15008 blocked by NetworkPolicy", "Raising ztunnel log level with istioctl ztunnel-config log", "A triage order for ambient connectivity issues"],
+          "tools": ["istioctl", "ztunnel", "istio-cni", "kubectl"],
+          "lab_task": "Break an ambient namespace three ways: a NetworkPolicy that blocks TCP 15008, a waypoint created with istio.io/waypoint-for: workload while services use it, and a pod labelled istio.io/dataplane-mode=none. Use istioctl ztunnel-config workloads and services, ztunnel and istio-cni logs and waypoint status to find and fix each fault, recording the evidence.",
+          "deliverable": "Triage report listing symptom, command, evidence and fix for each fault",
+          "checks": [["Run ztunnel-config workloads for the opted-out pod", "Its PROTOCOL shows TCP rather than HBONE", "istioctl output"], ["Read ztunnel logs while 15008 is blocked", "Connection errors to the destination on port 15008 appear", "Log excerpt"], ["Test productpage to reviews after all fixes", "HTTP 200 and the request appears in waypoint access logs", "curl output and waypoint log"]],
+          "objectives": ["Diagnose ambient capture and tunnelling problems", "Use ztunnel-config and logs systematically", "Fix waypoint attachment mistakes"]
+        },
+        {
+          "topic": "Intermediate Capstone: Ambient Migration with Zero Downtime",
+          "subtopics": ["Brief: move a 3-namespace sidecar mesh to ambient with Helm-managed Istio", "Revision-tagged upgrade before migration", "Waypoints and HTTPRoutes only where L7 is required", "TLS-terminated ingress, egress gateway with TLS origination", "OpenTelemetry traces and filtered access logs as evidence", "Runbook, rollback plan and demonstration"],
+          "tools": ["Istio", "Helm", "istioctl", "Gateway API", "Jaeger", "Fortio"],
+          "lab_task": "Given Bookinfo, httpbin and a gRPC app in three sidecar namespaces, upgrade Istio by revision tag, migrate each namespace to ambient with waypoints only where needed, keep HTTPS ingress and egress TLS origination working, and run fortio at 50 qps throughout. Deliver traces, ztunnel-config proof and a fortio error rate under 0.1%.",
+          "deliverable": "Helm values, manifests, runbook with rollback steps and evidence pack",
+          "checks": [["Review fortio results across the whole migration", "Error rate is below 0.1%", "fortio summary"], ["Run istioctl ztunnel-config workloads -A", "All application workloads show HBONE", "istioctl output"], ["Run istioctl waypoint list -A", "Waypoints exist only in namespaces that use L7 routing or policy", "istioctl output"]],
+          "objectives": ["Plan and execute a production-style ambient migration", "Combine upgrades, gateways and telemetry in one change", "Prove zero downtime with measurements"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform and SRE engineers who operate Istio in production and can already run ambient and sidecar workloads, upgrade by revision and read Envoy configuration. Covers multi-cluster topologies (multi-primary, different networks, primary-remote), cross-cluster trust and failover, control plane scaling with discoverySelectors and Sidecar scoping, data plane benchmarking and proxy tuning, WasmPlugin and EnvoyFilter extensions, local and global rate limiting, zero-trust policy design, gateway and control plane hardening, multi-tenancy, SLO alerting on Istio metrics, automated canary analysis with Flagger, deep 503 and xDS troubleshooting and fleet upgrades, ending in a multi-cluster zero-trust platform capstone.",
+      "prerequisites": ["Completed the Istio intermediate level or has run Istio upgrades, waypoints, gateways and Telemetry API configuration in a shared cluster", "Reads Envoy config dumps and PromQL fluently and is comfortable with Kubernetes RBAC, NetworkPolicy and admission webhooks", "Has access to two or three Kubernetes clusters (cloud or kind with MetalLB) with routable LoadBalancer addresses between them"],
+      "outcomes": ["Design and operate multi-cluster Istio meshes with shared trust, cross-cluster discovery and tested failover", "Scale and tune istiod, sidecars, ztunnel and waypoints using measured latency, memory and push metrics", "Extend and protect the mesh with WasmPlugin, EnvoyFilter, rate limiting, default-deny authorization and hardened gateways", "Automate releases on SLOs with Flagger and resolve production incidents and fleet upgrades with a repeatable method"],
+      "days": [
+        {
+          "topic": "Multi-Cluster Istio: Multi-Primary on a Shared Network",
+          "subtopics": ["Deployment models: single or multi-network, single or multi-primary", "meshID, clusterName and network values per cluster", "Shared root CA with per-cluster intermediates in cacerts", "Remote secrets with istioctl create-remote-secret", "Endpoint discovery across clusters", "Testing with helloworld v1 in cluster1 and v2 in cluster2", "Kubernetes API server reachability and RBAC for remote secrets", "Failure modes when one API server is down"],
+          "tools": ["Istio", "istioctl", "helloworld", "kubectl", "OpenSSL"],
+          "lab_task": "Create cacerts for cluster1 and cluster2 from one root, install istiod in both with meshID mesh1, distinct clusterName and network network1, then exchange remote secrets with istioctl create-remote-secret --context=ctx1 --name=cluster1 | kubectl apply --context=ctx2 -f - and the reverse. Deploy helloworld v1 and v2 one per cluster and send 20 requests from curl in cluster1.",
+          "deliverable": "Install values for both clusters, remote secret commands and response counts",
+          "checks": [["Send 20 requests to helloworld.sample:5000/hello from cluster1", "Responses include both Hello version: v1 and Hello version: v2", "curl loop output"], ["Run istioctl proxy-config endpoints on the cluster1 curl pod for helloworld", "Endpoints from both clusters are listed as HEALTHY", "istioctl output"], ["Delete the remote secret in cluster1 and resend", "Only v1 responses are returned", "curl loop output"]],
+          "objectives": ["Choose a multi-cluster deployment model", "Build a multi-primary mesh with shared trust", "Verify cross-cluster endpoint discovery"]
+        },
+        {
+          "topic": "Multi-Network Istio with East-West Gateways",
+          "subtopics": ["When clusters lack pod-to-pod connectivity", "topology.istio.io/network labels on istio-system", "East-west gateway generation with samples/multicluster/gen-eastwest-gateway.sh", "Port 15443 and AUTO_PASSTHROUGH with expose-services.yaml", "Exposing istiod for remote clusters on 15012 and 15017", "SNI-based routing of mTLS traffic across networks", "Gateway address discovery and LoadBalancer requirements", "Latency and cost of cross-network calls"],
+          "tools": ["Istio", "istioctl", "MetalLB", "kubectl", "helloworld"],
+          "lab_task": "Reconfigure the two clusters as network1 and network2, label istio-system with topology.istio.io/network, install an east-west gateway in each with gen-eastwest-gateway.sh, apply samples/multicluster/expose-services.yaml and refresh remote secrets. Send 20 helloworld requests from cluster1 and confirm the cluster2 endpoint shown by proxy-config is the east-west gateway address on 15443.",
+          "deliverable": "Multi-network install values, gateway manifests and endpoint evidence",
+          "checks": [["Run kubectl get svc istio-eastwestgateway -n istio-system in both clusters", "Each has an EXTERNAL-IP and port 15443", "kubectl output"], ["Inspect cluster1 curl endpoints for helloworld", "The v2 endpoint is the cluster2 east-west gateway IP on port 15443", "istioctl proxy-config endpoints output"], ["Send 20 requests from cluster1", "Both v1 and v2 responses appear", "curl loop output"]],
+          "objectives": ["Connect meshes across separate networks", "Configure east-west gateways and exposed services", "Trace the cross-network data path"]
+        },
+        {
+          "topic": "Primary-Remote Topology and External Control Planes",
+          "subtopics": ["Primary-remote: one istiod serving a remote cluster", "Remote cluster install with istiodRemote and remotePilotAddress", "Injection webhook pointing to the primary istiod", "Control plane availability risk for remote clusters", "External control plane model for managed meshes", "Revisions and tags in primary-remote setups", "Monitoring istiod connections from remote proxies", "Choosing between multi-primary and primary-remote"],
+          "tools": ["Istio", "istioctl", "kubectl", "Prometheus"],
+          "lab_task": "Convert cluster2 to a remote of cluster1: expose istiod through the east-west gateway, install cluster2 with the remote profile and remotePilotAddress set to the gateway address, and create the remote secret in cluster1. Deploy curl in cluster2, confirm it gets a sidecar from cluster1's istiod, then scale cluster1 istiod to zero for 2 minutes and test traffic and new pod injection.",
+          "deliverable": "Topology diagram, install commands and an availability test table",
+          "checks": [["Run istioctl proxy-status --context ctx1", "Proxies from cluster2 are listed against cluster1's istiod", "proxy-status output"], ["Send requests between existing pods while the primary istiod is down", "Existing traffic keeps returning 200", "curl loop output"], ["Create a new pod in cluster2 while the primary istiod is down", "Pod creation fails or the pod has no sidecar because the injection webhook is unavailable", "kubectl events"]],
+          "objectives": ["Install a primary-remote mesh", "Understand control plane dependency in remote clusters", "Pick a topology based on availability needs"]
+        },
+        {
+          "topic": "Cross-Cluster Failover and Trust Verification",
+          "subtopics": ["Locality failover across clusters with region labels", "failoverPriority on topology.istio.io/cluster and network", "Keeping traffic in-cluster with MeshConfig serviceSettings clusterLocal", "Verifying peer identities across clusters", "Trust domain consistency and trustDomainAliases", "AuthorizationPolicy with principals from another cluster", "Failover drills: scale-to-zero, gateway loss and network cut", "Measuring recovery time from fortio output"],
+          "tools": ["Istio", "Fortio", "istioctl", "OpenSSL", "kubectl"],
+          "lab_task": "Deploy helloworld in both clusters and apply a DestinationRule with outlierDetection and failoverPriority [topology.istio.io/cluster]. Run fortio at 20 qps from cluster1 for 3 minutes, scale cluster1 helloworld to zero at minute 1 and back at minute 2, and record the error count and time to recover. Add an AuthorizationPolicy allowing only the cluster1 curl principal.",
+          "deliverable": "DestinationRule and policy YAML, fortio timeline and failover analysis",
+          "checks": [["Check responses while both clusters are healthy", "All responses come from the cluster1 instance", "Count table"], ["Review fortio output across the scale-to-zero event", "Failover to cluster2 completes and errors stop within 10 seconds", "fortio histogram and timeline"], ["Call helloworld from a cluster2 curl pod after the policy", "HTTP 403 RBAC: access denied", "curl output"]],
+          "objectives": ["Prefer local endpoints and fail over across clusters", "Verify identities and policies across clusters", "Run and measure failover drills"]
+        },
+        {
+          "topic": "Scaling istiod: Discovery Selectors, Sidecar Scoping and Push Tuning",
+          "subtopics": ["meshConfig.discoverySelectors to limit watched namespaces", "The Sidecar resource egress hosts to shrink proxy config", "exportTo on Services, VirtualServices and DestinationRules", "Debounce and throttle settings: PILOT_DEBOUNCE_AFTER and PILOT_PUSH_THROTTLE", "Key metrics: pilot_xds_pushes, pilot_proxy_convergence_time and pilot_xds_push_time", "Horizontal scaling and resource requests for istiod", "Full versus incremental pushes", "Load generation with many namespaces and services"],
+          "tools": ["Istio", "Prometheus", "istioctl", "kubectl", "Grafana"],
+          "lab_task": "Create 100 namespaces with 10 services each, then measure istioctl proxy-config clusters on one pod piped to wc -l, the productpage sidecar memory and pilot_proxy_convergence_time p99. Apply a default Sidecar with egress hosts ./* and istio-system/*, add discoverySelectors for labelled namespaces, restart a test workload and remeasure all three values.",
+          "deliverable": "Scaling report with before-and-after cluster counts, memory and convergence time",
+          "checks": [["Count clusters in the test pod before scoping", "More than 1000 outbound clusters are listed", "wc -l output"], ["Count clusters after the Sidecar resource", "Fewer than 50 clusters are listed", "wc -l output"], ["Compare p99 pilot_proxy_convergence_time before and after", "The p99 is lower after scoping", "Prometheus results"]],
+          "objectives": ["Reduce control plane work with discovery scoping", "Shrink per-proxy configuration with Sidecar resources", "Use istiod metrics to prove scaling changes"]
+        },
+        {
+          "topic": "Data Plane Performance Benchmarking with Fortio and Nighthawk",
+          "subtopics": ["Defining the benchmark: qps, connections, payload and duration", "Baseline without the mesh", "Comparing ambient L4, ambient with waypoint and sidecar modes", "Latency percentiles p50, p90, p99 and p99.9", "CPU per 1000 requests for proxies and ztunnel", "Coordinated omission and fixed-rate load", "Isolating noisy neighbours and pinning nodes", "Reporting results with confidence ranges"],
+          "tools": ["Fortio", "Nighthawk", "Prometheus", "Istio", "kubectl"],
+          "lab_task": "Benchmark httpbin /get at 1000 qps with 32 connections for 60 seconds in four modes: no mesh, ambient L4, ambient with waypoint and sidecar. Run each test three times with fortio load -qps 1000 -c 32 -t 60s, record p50, p99 and p99.9 latency plus CPU for istio-proxy, ztunnel and waypoint containers, and chart the results.",
+          "deliverable": "Benchmark report with method, raw fortio JSON, a percentile table and CPU chart",
+          "checks": [["Run the no-mesh baseline three times", "p99 varies by less than 20% between runs", "fortio JSON results"], ["Compare sidecar and ambient L4 p99", "Both values are recorded with the added latency over baseline in milliseconds", "Percentile table"], ["Check achieved qps in every run", "Each run reports actual qps within 1% of 1000", "fortio summary"]],
+          "objectives": ["Design a fair service mesh benchmark", "Measure latency and CPU across data plane modes", "Report performance results credibly"]
+        },
+        {
+          "topic": "Proxy Resource Tuning for Sidecars, ztunnel and Waypoints",
+          "subtopics": ["sidecar.istio.io/proxyCPU and proxyMemory annotations and limits", "proxy.istio.io/config concurrency and holdApplicationUntilProxyStarts", "Global proxy resources in values.global.proxy", "ztunnel DaemonSet sizing and node capacity", "Waypoint replicas, HPA and PodDisruptionBudgets", "container_memory_working_set_bytes for istio-proxy", "OOMKilled sidecars and their symptoms", "Startup order and graceful drain with terminationDrainDuration"],
+          "tools": ["Istio", "Prometheus", "kubectl", "Fortio", "Helm"],
+          "lab_task": "Set productpage proxy memory limit to 64Mi and run fortio at 500 qps until the sidecar is OOMKilled, then fix it with right-sized requests from observed working set. Set concurrency: 2 and holdApplicationUntilProxyStarts: true via proxy.istio.io/config, add an HPA and PDB for the waypoint, and confirm a rolling node drain causes no failed requests.",
+          "deliverable": "Tuning notes with annotations, Prometheus graphs, OOM evidence and drain test results",
+          "checks": [["Run kubectl describe pod after the 64Mi load test", "istio-proxy last state shows Reason OOMKilled", "kubectl describe output"], ["Drain one node during fortio at 100 qps", "fortio reports 0 non-200 responses", "fortio summary"], ["Inspect the restarted pod's container start order", "istio-proxy is Ready before the app container starts", "kubectl events or logs"]],
+          "objectives": ["Size proxies from measured usage", "Tune proxy concurrency and startup behaviour", "Keep waypoints and sidecars available during disruption"]
+        },
+        {
+          "topic": "Extending Envoy with WasmPlugin",
+          "subtopics": ["The WasmPlugin API: url, phase, priority and pluginConfig", "OCI image delivery and imagePullPolicy", "Phases AUTHN, AUTHZ and STATS", "selector versus targetRefs for gateways and waypoints", "Proxy-Wasm SDKs in Rust, Go and C++", "failStrategy and what happens when a module fails to load", "Performance cost of Wasm filters", "Verifying load with proxy-config and Envoy stats"],
+          "tools": ["Istio", "WasmPlugin", "Rust", "Docker", "istioctl"],
+          "lab_task": "Build a small Proxy-Wasm filter in Rust that adds response header x-wasm-tenant from request header x-tenant and rejects requests without it with 400. Push it as an OCI image, apply a WasmPlugin with phase AUTHN on the ingress gateway, then test with and without the header and benchmark p99 latency with fortio before and after.",
+          "deliverable": "Filter source, OCI image reference, WasmPlugin YAML and latency comparison",
+          "checks": [["curl through the gateway with x-tenant: acme", "HTTP 200 with response header x-wasm-tenant: acme", "curl headers"], ["curl through the gateway without x-tenant", "HTTP 400 is returned by the filter", "curl output"], ["Compare fortio p99 before and after the plugin", "Both p99 values and the difference are recorded", "fortio results"]],
+          "objectives": ["Write and package a Proxy-Wasm extension", "Deploy extensions with the WasmPlugin API", "Measure extension overhead"]
+        },
+        {
+          "topic": "EnvoyFilter Patching and Local Rate Limiting",
+          "subtopics": ["When EnvoyFilter is justified and its upgrade risk", "configPatches: applyTo, match context and patch operation", "Inserting envoy.filters.http.local_ratelimit", "Token bucket max_tokens, tokens_per_fill and fill_interval", "Per-route rate limits with typed_per_filter_config", "Response 429 and the x-local-rate-limit header", "Version-scoping EnvoyFilters with proxy version matches", "Testing patches with istioctl proxy-config listeners -o json"],
+          "tools": ["Istio", "EnvoyFilter", "Envoy", "Fortio", "istioctl"],
+          "lab_task": "Write an EnvoyFilter for the httpbin sidecar inbound listener that adds local_ratelimit with max_tokens 10, tokens_per_fill 10 and fill_interval 60s and sets response header x-local-rate-limit: true. Send 30 requests in 10 seconds with fortio -qps 3 -n 30 and count 200 and 429 responses, then find the filter in proxy-config listeners -o json.",
+          "deliverable": "EnvoyFilter YAML, fortio code counts and the patched listener JSON",
+          "checks": [["Send 30 requests in under 60 seconds", "10 return 200 and 20 return 429", "fortio output"], ["Inspect a 429 response with curl -i", "Header x-local-rate-limit: true is present", "curl headers"], ["Search listener JSON for local_ratelimit", "The envoy.filters.http.local_ratelimit filter appears on the inbound listener", "jq output"]],
+          "objectives": ["Patch Envoy safely with EnvoyFilter", "Apply local rate limits at the proxy", "Verify patches in generated config"]
+        },
+        {
+          "topic": "Global Rate Limiting with the Envoy Rate Limit Service",
+          "subtopics": ["Local versus global limits and when each fits", "Deploying envoyproxy/ratelimit with Redis from samples/ratelimit", "Rate limit descriptors and the config ConfigMap", "EnvoyFilter for envoy.filters.http.ratelimit and rate_limit_service", "Route actions that build descriptors from headers and paths", "x-envoy-ratelimited and 429 responses", "Fail-open behaviour when the service is down", "Monitoring over-limit counters"],
+          "tools": ["Istio", "Envoy", "Redis", "EnvoyFilter", "Fortio"],
+          "lab_task": "Deploy the rate limit service and Redis, configure a descriptor PATH /productpage at 5 requests per minute, and attach the global ratelimit filter and route action to the ingress gateway with EnvoyFilter. Scale the gateway to 3 replicas, send 20 requests in one minute and count 429s, then stop the rate limit service and repeat.",
+          "deliverable": "Rate limit config, EnvoyFilter YAML and results with the service up and down",
+          "checks": [["Send 20 requests across 3 gateway replicas within a minute", "Exactly 5 return 200 and 15 return 429", "curl loop output"], ["Inspect a 429 response", "Header x-envoy-ratelimited is present", "curl headers"], ["Stop the rate limit service and resend 20 requests", "All 20 return 200 because the filter fails open", "curl loop output"]],
+          "objectives": ["Enforce shared limits across gateway replicas", "Build descriptors for global rate limiting", "Decide failure behaviour for rate limiting"]
+        },
+        {
+          "topic": "Zero-Trust Policy Design: Default Deny and Namespace Isolation",
+          "subtopics": ["Mesh-wide allow-nothing in the root namespace", "Per-namespace ALLOW policies owned by teams", "source.namespaces versus principals", "DENY policies for guardrails such as blocking /admin from outside", "AUDIT action with audit logs", "Policy for ambient: ztunnel L4 rules and waypoint L7 rules", "Dry-run with istio.io/dry-run annotation", "Policy testing matrices and regression suites"],
+          "tools": ["Istio", "istioctl", "kubectl", "curl", "Prometheus"],
+          "lab_task": "Apply an allow-nothing policy in istio-system, then team ALLOW policies for three namespaces so each only accepts traffic from its listed callers and the ingress gateway. Add a mesh-wide DENY for path /admin* from outside istio-system. Annotate one new policy with istio.io/dry-run: \"true\" and read the shadow decision from Envoy stats. Run a 12-case test matrix.",
+          "deliverable": "Policy set, test matrix with expected and actual results and dry-run evidence",
+          "checks": [["Run the 12-case test matrix", "All 12 actual results match expected allow or deny", "Test script output"], ["Call /admin on any service from another namespace", "HTTP 403 RBAC: access denied", "curl output"], ["Grep sidecar stats for the dry-run policy", "rbac shadow_denied counter increases while requests still return 200", "Stats output"]],
+          "objectives": ["Design default-deny authorization for a mesh", "Delegate namespace policies safely to teams", "Test policies before enforcing them"]
+        },
+        {
+          "topic": "Hardening Istio Ingress Gateways",
+          "subtopics": ["Dedicated gateway namespaces and service accounts", "Restricting allowedRoutes namespaces on Gateway listeners", "Removing server and x-envoy headers from responses", "Request size, header count and connection limits", "TLS minProtocolVersion and cipher suites", "Preserving client IP with externalTrafficPolicy Local and numTrustedProxies", "Running gateways as non-root and with read-only filesystems", "Scanning gateway exposure with external TLS tests"],
+          "tools": ["Istio", "Gateway API", "OpenSSL", "curl", "kubectl"],
+          "lab_task": "On a dedicated ingress namespace, restrict the Gateway listener allowedRoutes to namespaces labelled shared-gateway-access=true, set TLS minProtocolVersion TLSV1_2, strip the server header, set numTrustedProxies for the load balancer, and test that an HTTPRoute from an unlabelled namespace is rejected and TLS 1.1 handshakes fail.",
+          "deliverable": "Hardened gateway config, route status evidence and TLS test results",
+          "checks": [["Create an HTTPRoute from an unlabelled namespace", "Route status shows Accepted False with reason NotAllowedByListeners", "kubectl get httproute -o yaml"], ["Run openssl s_client -tls1_1 against the gateway", "The handshake fails with a protocol version alert", "openssl output"], ["curl -I a gateway route", "No server: istio-envoy header is returned", "curl headers"]],
+          "objectives": ["Restrict who can attach routes to shared gateways", "Harden TLS and response headers at the edge", "Preserve client IPs for policy and logging"]
+        },
+        {
+          "topic": "Hardening the Istio Control Plane and Node Agents",
+          "subtopics": ["istio-cni removes the NET_ADMIN istio-init container", "Pod Security Standards restricted with sidecars", "Privileges of istio-cni and ztunnel DaemonSets", "Kubernetes RBAC for who can write Istio CRDs", "Protecting the injection and validation webhooks", "Limiting istiod secret access and multi-cluster remote secrets", "Distroless proxy images and image provenance checks", "Admission policies that reject risky EnvoyFilters"],
+          "tools": ["Istio", "istio-cni", "Kyverno", "kubectl", "Helm"],
+          "lab_task": "Install istio-cni for sidecar mode, label a namespace with pod-security.kubernetes.io/enforce=restricted, and deploy an injected app to confirm it runs without istio-init. Switch proxy images to the distroless variant with values.global.variant=distroless, then add an admission policy that blocks EnvoyFilter creation outside istio-system and test it.",
+          "deliverable": "Hardening checklist with Helm values, admission policy and test evidence",
+          "checks": [["Run kubectl get pod -o jsonpath on init containers for an injected pod", "istio-init is absent and only istio-validation or no init container is present", "kubectl output"], ["Create an EnvoyFilter in an application namespace", "The request is rejected by the admission policy", "kubectl error output"], ["Exec a shell into the distroless istio-proxy container", "The exec fails because no shell exists in the image", "kubectl exec error"]],
+          "objectives": ["Run sidecars under restricted Pod Security", "Limit who can change mesh behaviour", "Reduce attack surface of Istio components"]
+        },
+        {
+          "topic": "Multi-Tenancy with Dedicated Gateways and Namespace Ownership",
+          "subtopics": ["Soft multi-tenancy models: namespace per team versus mesh per team", "Per-tenant ingress gateways and gateway classes", "exportTo defaults with meshConfig.defaultServiceExportTo", "Per-tenant Sidecar and Telemetry defaults", "Revisions per tenant and staged upgrades", "RBAC so tenants own routes but not gateways", "Noisy-neighbour control with rate limits and connection pools", "Tenant cost attribution from Istio metrics"],
+          "tools": ["Istio", "Gateway API", "kubectl", "Prometheus", "Helm"],
+          "lab_task": "Create tenants red and blue, each with its own Gateway, namespace-limited Kubernetes RBAC that allows HTTPRoute but not Gateway edits, defaultServiceExportTo set to ., and a per-tenant Sidecar. Show that red cannot see blue services in its proxy config, that red cannot attach routes to blue's gateway, and report request volume per tenant from istio_requests_total.",
+          "deliverable": "Tenancy design, RBAC and Istio manifests with isolation evidence and a tenant usage report",
+          "checks": [["Run proxy-config clusters on a red pod filtered for blue", "No blue service clusters are listed", "istioctl output"], ["As a red user, kubectl apply a Gateway edit", "The API server returns Forbidden", "kubectl error output"], ["Query sum(rate(istio_requests_total[5m])) by (destination_service_namespace)", "Separate series for red and blue are reported", "Prometheus result"]],
+          "objectives": ["Isolate tenants in a shared mesh", "Split ownership between platform and tenant teams", "Attribute traffic and cost per tenant"]
+        },
+        {
+          "topic": "SLO Alerting on Istio Metrics with Prometheus Recording Rules",
+          "subtopics": ["Choosing SLIs: availability from istio_requests_total, latency from duration buckets", "Recording rules for per-service success ratio and p99", "Multi-window, multi-burn-rate alerts", "Excluding health checks and synthetic traffic", "Prometheus federation or remote write for multi-cluster metrics", "Cardinality budgets for Istio labels", "Alert routing in Alertmanager", "Testing alerts with fault injection"],
+          "tools": ["Prometheus", "Alertmanager", "Istio", "Grafana", "promtool"],
+          "lab_task": "Define a 99.5% availability SLO for productpage over 30 days, write recording rules for 5m and 1h success ratios from istio_requests_total reporter=destination, and fast and slow burn-rate alerts. Validate with promtool test rules, then inject a 10% abort fault on productpage and time how long until the fast-burn alert fires.",
+          "deliverable": "Rules file, promtool test file and an alert firing timeline",
+          "checks": [["Run promtool test rules on the test file", "All tests pass with SUCCESS", "promtool output"], ["Inject a 10% abort fault and watch Alertmanager", "The fast-burn alert fires within 5 minutes", "Alertmanager screenshot and timestamps"], ["Remove the fault", "The alert resolves after the short window recovers", "Alertmanager history"]],
+          "objectives": ["Define SLOs from Istio telemetry", "Write burn-rate alerts with recording rules", "Validate alerts with controlled failures"]
+        },
+        {
+          "topic": "Automated Canary Analysis with Flagger and Istio Metrics",
+          "subtopics": ["Flagger Canary resources: targetRef, service and analysis", "Built-in metrics request-success-rate and request-duration", "stepWeight, maxWeight, interval and threshold", "Generated primary and canary Deployments and VirtualService", "Webhooks for load tests and acceptance tests", "Automatic rollback on failed analysis", "Header-based A/B testing instead of weights", "Flagger events and status phases"],
+          "tools": ["Flagger", "Istio", "Prometheus", "kubectl", "Fortio"],
+          "lab_task": "Install Flagger for Istio, create a Canary for podinfo with stepWeight 10, maxWeight 50, threshold 5 and checks request-success-rate min 99 and request-duration max 500ms, plus a load-test webhook. Release a good image and record the phases, then release an image that returns 500 for 20% of requests and record the rollback.",
+          "deliverable": "Canary YAML, kubectl get canary timelines and Flagger event logs for both releases",
+          "checks": [["Release the healthy image", "Canary status reaches Succeeded and the primary runs the new image", "kubectl get canary output"], ["Release the faulty image", "Canary status reaches Failed and traffic returns 100% to primary", "kubectl describe canary events"], ["Read the VirtualService during analysis", "Weights step by 10 up to 50 for the canary", "kubectl get virtualservice -o yaml"]],
+          "objectives": ["Automate canary promotion on Istio metrics", "Configure analysis thresholds and webhooks", "Verify automatic rollback"]
+        },
+        {
+          "topic": "Istio 503 Triage with Envoy Response Flags",
+          "subtopics": ["Response flags UH, UF, UO, URX, NR, UT, UC and DC", "Access log fields upstream_cluster, upstream_host and response_code_details", "503 during rollouts: endpoint lag and terminationDrainDuration", "Protocol mismatches from wrong port names or appProtocol", "mTLS mismatches with DISABLE or legacy clients", "Connection reuse and upstream idle timeouts", "Envoy debug logging per component", "Building a 503 decision tree"],
+          "tools": ["Envoy", "istioctl", "kubectl", "Kiali", "Fortio"],
+          "lab_task": "Reproduce four 503 causes on httpbin: no endpoints, circuit breaker overflow, a DestinationRule with tls mode DISABLE against a STRICT server, and a Service port named tcp serving HTTP. For each, capture the access log line, response flag and response_code_details, find the root cause with istioctl and proxy-config, then document the fix in a decision tree.",
+          "deliverable": "503 decision tree with one access-log example and fix per cause",
+          "checks": [["Scale httpbin to zero and send a request", "The access log shows 503 with flag UH", "Access log line"], ["Trigger the circuit breaker with fortio", "The access log shows 503 with flag UO", "Access log line"], ["Call the server with tls mode DISABLE", "The access log shows 503 with flag UC or UF and upstream connection termination details", "Access log line"]],
+          "objectives": ["Read response flags to classify 503s", "Locate root causes with proxy-config and logs", "Write a reusable triage decision tree"]
+        },
+        {
+          "topic": "Control Plane Troubleshooting: xDS Pushes, Convergence and Webhooks",
+          "subtopics": ["istiod debug endpoints on 15014: syncz, configz and push_status", "istioctl x internal-debug for remote debug calls", "Push errors and rejected config: pilot_total_xds_rejects", "Webhook failures: failed calling webhook namespace.sidecar-injector.istio.io", "Validation webhook outages and failurePolicy", "istiod leader election and CA readiness", "Stale config after a bad EnvoyFilter", "Collecting evidence with istioctl bug-report"],
+          "tools": ["istioctl", "Istio", "Prometheus", "kubectl", "Envoy"],
+          "lab_task": "Apply an EnvoyFilter with an invalid typed_config so proxies reject it, then find the rejection with istioctl proxy-status, pilot_total_xds_rejects and istiod logs. Block the istiod webhook port with a NetworkPolicy and create a pod to reproduce the injection error. Fix both, run istioctl bug-report and list which files contain the key evidence.",
+          "deliverable": "Incident notes with metrics, log lines, webhook errors and the bug-report file index",
+          "checks": [["Query pilot_total_xds_rejects after the bad EnvoyFilter", "The counter increases above 0", "Prometheus result"], ["Create a pod while the webhook port is blocked", "Pod creation fails with failed calling webhook namespace.sidecar-injector.istio.io", "kubectl error output"], ["Run istioctl proxy-status after removing the EnvoyFilter", "All proxies return to SYNCED", "proxy-status output"]],
+          "objectives": ["Diagnose config rejection and push problems", "Recover from webhook failures", "Gather complete evidence for escalation"]
+        },
+        {
+          "topic": "Fleet Upgrades for Multi-Cluster and Ambient Meshes",
+          "subtopics": ["Supported version skew between istiod and proxies", "Upgrade order across clusters in multi-primary and primary-remote", "Ambient upgrade order: istiod, istio-cni, ztunnel, waypoints", "ztunnel upgrades and draining nodes to avoid dropped connections", "Revision tags across clusters", "Pre-upgrade checks with istioctl x precheck and release notes", "Post-upgrade verification gates with SLO metrics", "Rollback plans per component"],
+          "tools": ["istioctl", "Helm", "Istio", "Prometheus", "Fortio"],
+          "lab_task": "Upgrade a two-cluster mesh with one ambient namespace to a newer supported release: run istioctl x precheck, install the new istiod revision in each cluster, upgrade istio-cni and ztunnel node by node with cordon and drain, retag namespaces, restart sidecar workloads and upgrade waypoints. Keep fortio at 50 qps and gate each step on a 99.9% success ratio.",
+          "deliverable": "Fleet upgrade plan, step log with gates and fortio results",
+          "checks": [["Run istioctl x precheck before the upgrade", "No issues found is reported in both clusters", "precheck output"], ["Run istioctl version after the upgrade", "Control plane, ztunnel and proxies all report the new version", "Terminal output"], ["Review the success ratio at each gate", "Every gate shows at least 99.9% success", "Prometheus results"]],
+          "objectives": ["Plan upgrades across a multi-cluster fleet", "Upgrade ambient components in the right order", "Gate upgrades on measured service health"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Cluster Zero-Trust Mesh Platform",
+          "subtopics": ["Brief: two clusters on separate networks for two tenants with shared trust", "Default-deny authorization, JWT at ingress and hardened gateways", "Scoped config, tuned proxies and global rate limiting", "SLO alerts and Flagger canaries on Istio metrics", "Failover drill and fleet upgrade rehearsal", "Design review, runbooks and demonstration"],
+          "tools": ["Istio", "istioctl", "Helm", "Flagger", "Prometheus", "Fortio"],
+          "lab_task": "Build a two-network multi-primary mesh for tenants red and blue: shared root CA, east-west gateways, default-deny policies, JWT at ingress, global rate limit, Sidecar scoping, SLO burn-rate alerts and a Flagger canary. Demonstrate cross-cluster failover with errors stopping within 10 seconds, a rejected faulty canary and a 12-case policy matrix that fully passes.",
+          "deliverable": "Architecture document, Helm values and manifests, runbooks and an evidence pack from the demonstration",
+          "checks": [["Run the 12-case policy matrix", "All 12 cases match expectations", "Test script output"], ["Scale the cluster1 service to zero during fortio load", "Traffic fails over to cluster2 and errors stop within 10 seconds", "fortio timeline"], ["Release a faulty image through Flagger", "Canary status Failed and no SLO alert fires for the primary", "kubectl get canary and Alertmanager history"]],
+          "objectives": ["Design an enterprise multi-cluster Istio platform", "Combine security, scale and release automation", "Defend the design with measured evidence"]
+        }
+      ]
+    }
+  }
+}

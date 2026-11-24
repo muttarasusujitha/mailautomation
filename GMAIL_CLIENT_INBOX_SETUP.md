@@ -11,11 +11,27 @@ This setup connects Gmail API push notifications to `POST /api/gmail/webhook`, w
 3. Configure OAuth consent screen:
    - App type: External or Internal depending on your Google Workspace.
    - Add your Gmail account as a test user if the app is in testing.
-4. Create OAuth client credentials:
-   - Desktop app is simplest for local setup.
-   - Web app is fine if you later build a browser OAuth flow.
-5. Download the OAuth file as `credentials.json`.
-6. Put it here:
+4. Create a **Web application** OAuth client. The Gmail connection is a
+   server-side web OAuth flow and must use the same client as
+   `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
+5. Add the exact callback URI used by the deployment under **Authorized
+   redirect URIs**:
+
+   ```text
+   https://meetclahan.shop/api/v1/gmail/oauth-callback
+   ```
+
+   This application uses the frontend callback for local browser development:
+
+   ```text
+   http://localhost:5174/auth/callback
+   ```
+
+   Do not register `/api/gmail/oauth-callback` in place of
+   `/api/v1/gmail/oauth-callback`; Google compares the URI character-for-
+   character.
+6. Download the OAuth file as `credentials.json`.
+7. Put it here:
    - `backend/config/credentials.json`
 
 ## 2. Generate Gmail OAuth Token
@@ -70,6 +86,12 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 GOOGLE_CREDENTIALS_FILE=backend/config/credentials.json
 GOOGLE_TOKEN_FILE=backend/config/token.json
+
+# Register both values as Authorized redirect URIs on the same Web OAuth client.
+# Production:
+GOOGLE_REDIRECT_URI=https://meetclahan.shop/api/v1/gmail/oauth-callback
+# Local development:
+GOOGLE_REDIRECT_URI_LOCAL=http://localhost:5174/auth/callback
 
 TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

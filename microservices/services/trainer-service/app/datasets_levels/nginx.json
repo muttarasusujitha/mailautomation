@@ -1,0 +1,573 @@
+{
+  "domain": "Nginx",
+  "name": "Nginx",
+  "category": "Backend, APIs and Web Servers",
+  "icon": "server",
+  "aliases": ["NGINX", "Web Server and Reverse Proxy", "Nginx Web Server", "Nginx Reverse Proxy", "NGINX Administration", "Nginx Server Administration", "Nginx Engineer"],
+  "certifications": [],
+  "tools": ["NGINX Open Source", "curl", "OpenSSL", "Certbot", "Docker", "wrk", "GoAccess", "njs", "nginx-prometheus-exporter", "Prometheus", "Grafana", "tcpdump"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For system administrators, developers and DevOps trainees who have used a Linux terminal but have not run Nginx in production. Covers installation, the configuration hierarchy, server blocks, location matching, static files, logging, redirects and rewrites, compression and cache headers, a first reverse proxy, HTTPS with OpenSSL and Let's Encrypt, request limits, variables and map, Docker, basic hardening, error diagnosis and a two-site HTTPS capstone.",
+      "prerequisites": ["Comfortable with the Linux command line, file permissions and a text editor such as vim or nano", "Understands HTTP requests, status codes and headers at a basic level and can use curl", "Has a Linux VM, WSL or container host with sudo rights and ports 80 and 443 free"],
+      "outcomes": ["Install, configure, test and reload Nginx safely with nginx -t and nginx -s reload", "Host several sites with server blocks, location rules, static file handling and custom error pages", "Proxy requests to an application backend over HTTPS with correct headers and certificates", "Diagnose 403, 404, 502 and 504 responses from the error log and fix them"],
+      "days": [
+        {
+          "topic": "Installing Nginx and Serving a First Page",
+          "subtopics": ["What Nginx does: web server, reverse proxy, TLS terminator and cache", "Open Source stable and mainline branches and which to choose", "Installing from the distribution package, the nginx.org repository or the official Docker image", "Master and worker process model and worker_processes auto", "Default paths: /etc/nginx, /usr/share/nginx/html, /var/log/nginx", "Starting, stopping and enabling the service with systemctl", "Opening ports 80 and 443 in ufw or firewalld", "Verifying with curl -I and reading the Server header"],
+          "tools": ["Nginx", "curl", "systemctl", "ps", "ufw"],
+          "lab_task": "On Ubuntu run sudo apt install nginx, then nginx -v and systemctl status nginx. Run curl -I http://localhost and note the status line and Server header. Run ps -o pid,ppid,cmd -C nginx to count the master and worker processes, then replace /usr/share/nginx/html/index.html with a page that contains your name and reload.",
+          "deliverable": "Install report with nginx -v output, curl -I response headers, the process listing and the modified index page",
+          "checks": [["Run curl -I http://localhost after installation", "Response begins HTTP/1.1 200 OK and has a Server: nginx header", "curl output"], ["Run ps -o pid,ppid,cmd -C nginx", "One master process owned by root and one worker per CPU core running as www-data", "ps output"], ["Run curl -s http://localhost after editing index.html", "Body contains the custom text, not the Welcome to nginx! default", "curl output"]],
+          "objectives": ["Install Nginx from a package and confirm the version and service state", "Describe the master and worker process roles", "Serve a changed static page and verify it with curl"]
+        },
+        {
+          "topic": "Configuration File Hierarchy and Context Rules",
+          "subtopics": ["nginx.conf as the entry point and the include directive", "Main, events, http, server and location contexts", "Simple directives versus block directives and the trailing semicolon", "Directive inheritance and which directives override or replace parent values", "conf.d, sites-available and sites-enabled conventions", "Comments, quoting and units such as 10m and 30s", "Dumping the merged configuration with nginx -T", "Reading [emerg] errors with file name and line number"],
+          "tools": ["Nginx", "nginx -T", "vim", "grep", "diff"],
+          "lab_task": "Run sudo nginx -T > merged.conf and list every include path it loaded. Add worker_connections 2048; inside the http block on purpose, run nginx -t and record the exact [emerg] message, then move it to events and rerun. Add a gzip off; line in a server block and prove with nginx -T that it overrides the http-level gzip on;.",
+          "deliverable": "Annotated merged.conf listing each context and the include chain, plus the recorded [emerg] message and fix",
+          "checks": [["Put worker_connections 2048; inside the http block and run nginx -t", "nginx: [emerg] \"worker_connections\" directive is not allowed here in /etc/nginx/nginx.conf:<line>", "nginx -t output"], ["Move the directive into events and run nginx -t", "Reports syntax is ok and test is successful", "nginx -t output"], ["Set gzip off in one server block and run nginx -T | grep gzip", "Both gzip on (http) and gzip off (server) appear, and the server value applies to that host", "Filtered nginx -T output"]],
+          "objectives": ["Locate and read every file that makes up the active configuration", "Predict which context a directive may appear in and how it is inherited", "Interpret configuration test errors by file and line"]
+        },
+        {
+          "topic": "Controlling Nginx: nginx -t, nginx -s and systemd",
+          "subtopics": ["Test before every change: nginx -t and nginx -t -c for a different file", "nginx -T versus nginx -V and reading compiled-in modules", "Signals behind nginx -s: reload, reopen, quit and stop", "Graceful reload: new workers start, old workers drain", "Differences between restart and reload", "The PID file and sending HUP, USR1 and QUIT with kill", "journalctl -u nginx for startup failures", "Running as a non-root user and the user directive"],
+          "tools": ["Nginx", "systemctl", "journalctl", "kill", "curl"],
+          "lab_task": "Start a slow download with curl --limit-rate 50k http://localhost/big.bin (create big.bin with dd if=/dev/zero of=big.bin bs=1M count=20). While it runs, change the config and execute sudo nginx -t && sudo nginx -s reload. Confirm the download finishes, then compare worker PIDs from ps before and after the reload.",
+          "deliverable": "Reload experiment log with before and after worker PIDs and the completed download result",
+          "checks": [["Run nginx -s reload while a throttled download is active", "Download completes with the full 20971520 bytes and no connection reset", "curl summary line"], ["Compare worker PIDs from ps before and after nginx -s reload", "Worker PIDs change and the master PID is unchanged", "Two ps listings"], ["Run nginx -V 2>&1 | tr ' ' '\\n' | grep with-http", "Output lists compiled modules such as --with-http_ssl_module and --with-http_v2_module", "Filtered output"]],
+          "objectives": ["Validate configuration safely before applying it", "Reload without dropping active connections", "Read build options with nginx -V"]
+        },
+        {
+          "topic": "Server Blocks and Name-Based Virtual Hosts",
+          "subtopics": ["The listen directive: address, port and default_server", "server_name: exact, wildcard and regex names", "Name matching order and the catch-all server", "Why an unknown Host header reaches the default server", "Returning 444 or ssl_reject_handshake for unknown hosts", "Separate root and log files per virtual host", "Testing hosts with curl --resolve and the Host header", "Editing /etc/hosts for local names"],
+          "tools": ["Nginx", "curl", "dig", "/etc/hosts", "nginx -T"],
+          "lab_task": "Create site-a.test and site-b.test, each with its own root and index.html, plus a default_server that returns 444. Use curl --resolve site-a.test:80:127.0.0.1 http://site-a.test/ and the same for site-b, then call curl -H 'Host: unknown.test' http://127.0.0.1/ and record each result.",
+          "deliverable": "Three server blocks, three curl transcripts and a one-paragraph explanation of the matching order",
+          "checks": [["curl --resolve site-a.test:80:127.0.0.1 http://site-a.test/", "Body shows the site A page", "curl output"], ["curl --resolve site-b.test:80:127.0.0.1 http://site-b.test/", "Body shows the site B page, which differs from site A", "curl output"], ["curl -sS -H 'Host: unknown.test' http://127.0.0.1/", "curl: (52) Empty reply from server because the default server returns 444", "curl output"]],
+          "objectives": ["Host several sites on one IP address using server_name", "Explain how Nginx picks a server block for a request", "Reject requests for unknown hostnames"]
+        },
+        {
+          "topic": "Location Matching: Prefix, Exact and Regex Priority",
+          "subtopics": ["Prefix locations and longest-prefix selection", "Exact match with the = modifier", "The ^~ modifier that stops regex checking", "Case-sensitive ~ and case-insensitive ~* regex locations", "Order of regex evaluation and first-match wins", "Named locations with @ and internal locations", "Nested locations and the normalized URI", "Debugging match decisions with add_header X-Loc"],
+          "tools": ["Nginx", "curl", "nginx -t", "grep", "add_header"],
+          "lab_task": "Define locations /, = /ping, /images/, ^~ /static/, ~ \\.php$ and ~* \\.(jpg|png)$, each returning a different text via return 200 'name'. Use curl to request /, /ping, /images/a.jpg, /static/a.jpg and /x.php, and create a table showing which location answered each request and why.",
+          "deliverable": "Priority table with five request URLs, the matched location and the rule that decided it",
+          "checks": [["curl http://localhost/ping", "Body is the exact-match location text, not the / prefix text", "curl output"], ["curl http://localhost/static/a.jpg", "The ^~ /static/ location answers and the .jpg regex is skipped", "curl output"], ["curl http://localhost/images/a.jpg", "The case-insensitive image regex answers instead of the /images/ prefix", "curl output"]],
+          "objectives": ["Apply the location selection algorithm in the correct order", "Choose the right modifier for a routing need", "Prove a match decision with a test request"]
+        },
+        {
+          "topic": "Serving Static Files with root, alias and try_files",
+          "subtopics": ["root versus alias and how each builds the file path", "The classic alias trailing-slash mistake", "try_files with a fallback to a status code or named location", "Single-page application fallback to /index.html", "index directive and directory redirects", "File permissions and the worker user", "open_file_cache basics", "Symbolic links with disable_symlinks"],
+          "tools": ["Nginx", "curl", "namei", "ls", "chmod"],
+          "lab_task": "Create /srv/app/dist/index.html and /srv/assets/logo.txt. Configure location / with root /srv/app/dist and try_files $uri $uri/ /index.html, and location /assets/ with alias /srv/assets/. Request /missing/route, /assets/logo.txt and a file with mode 000, then read error.log to find the open() failed message.",
+          "deliverable": "Configuration plus curl outputs for SPA fallback, aliased asset and permission-denied cases",
+          "checks": [["curl -s http://localhost/missing/route", "Returns the index.html body with status 200 through the try_files fallback", "curl output"], ["curl -s http://localhost/assets/logo.txt", "Returns the contents of /srv/assets/logo.txt via alias", "curl output"], ["Request a file with chmod 000", "Status 403 and error.log shows open() ... failed (13: Permission denied)", "Status code and log line"]],
+          "objectives": ["Map URLs to filesystem paths with root and alias", "Implement a single-page application fallback", "Diagnose permission failures from the error log"]
+        },
+        {
+          "topic": "Error Pages, Directory Listings and Custom Status Responses",
+          "subtopics": ["error_page for 404, 403 and 5xx codes", "Internal error pages and the = response-code override", "Why error pages must be internal locations", "autoindex on with autoindex_exact_size and autoindex_format", "Returning fixed bodies with return 200, 204 and 403", "Maintenance mode using return 503 and Retry-After", "Custom pages for upstream errors with proxy_intercept_errors", "Keeping default pages from leaking the version"],
+          "tools": ["Nginx", "curl", "autoindex", "error_page", "add_header"],
+          "lab_task": "Create /srv/errors/404.html and 50x.html, add error_page 404 /404.html and error_page 500 502 503 504 /50x.html with internal locations. Enable autoindex on /downloads/ with autoindex_format json. Add a maintenance location that returns 503 with add_header Retry-After 120 always, then verify each with curl -i.",
+          "deliverable": "Config with three error pages, a JSON directory listing and curl -i transcripts of each response",
+          "checks": [["curl -i http://localhost/nope", "HTTP/1.1 404 Not Found with the custom 404.html body", "curl -i output"], ["curl -s http://localhost/downloads/", "Valid JSON array of file objects with name, type and mtime", "curl output"], ["curl -i http://localhost/maintenance", "HTTP/1.1 503 Service Temporarily Unavailable with Retry-After: 120", "curl -i output"]],
+          "objectives": ["Replace default error pages with branded ones", "Expose a controlled directory listing", "Return maintenance responses with correct headers"]
+        },
+        {
+          "topic": "Access Logs, Error Logs and log_format Fields",
+          "subtopics": ["Default combined log format and its fields", "Defining log_format with $remote_addr, $request_time and $status", "Upstream fields: $upstream_addr and $upstream_response_time", "error_log levels from debug to emerg", "access_log off for health checks", "Per-server and per-location log files", "Rotation with logrotate and nginx -s reopen", "Quick analysis with awk, sort and GoAccess"],
+          "tools": ["Nginx", "awk", "logrotate", "GoAccess", "curl"],
+          "lab_task": "Add log_format timed '$remote_addr $request $status $request_time' and use it in a new access_log. Generate 200 requests with for i in $(seq 200); do curl -s -o /dev/null localhost/; done, then run awk '{print $(NF-1)}' on the log to count the 200 status codes and use sudo logrotate -f to rotate the file safely.",
+          "deliverable": "Log format definition, an awk status-count summary and logrotate evidence",
+          "checks": [["Make 200 requests and count lines in the new access log", "Exactly 200 new lines, all ending with a request_time value", "wc -l output"], ["Run awk to count status codes", "Count of 200 responses equals 200 for the loop requests", "awk output"], ["Run logrotate -f then ls /var/log/nginx", "A rotated file exists and the new access log is written by the workers again", "ls output"]],
+          "objectives": ["Design a log format for the questions you need to answer", "Control log verbosity and destinations", "Rotate logs without restarting Nginx"]
+        },
+        {
+          "topic": "Redirects, return and rewrite Rules",
+          "subtopics": ["return 301 and 302 and when to use each", "Redirecting HTTP to HTTPS", "Canonical host redirects between www and non-www", "rewrite syntax and the last, break, redirect and permanent flags", "Regex capture groups and $1 in rewrites", "Rewrite cycles and the 10-iteration limit that produces a 500", "if is evil: the safe uses of if in a location", "Testing redirects with curl -I -L"],
+          "tools": ["Nginx", "curl", "regex101", "nginx -t", "grep"],
+          "lab_task": "Add return 301 https://example.test$request_uri for port 80, a www to apex redirect, and rewrite ^/old/(.*)$ /new/$1 permanent. Test each with curl -I --resolve. Then create two rules that rewrite to each other and capture the error.log line showing rewrite or internal redirection cycle.",
+          "deliverable": "Redirect table of source, target and status code, and the captured redirect-loop error",
+          "checks": [["curl -I http://example.test/old/page", "HTTP/1.1 301 Moved Permanently with Location: /new/page", "curl -I output"], ["curl -I http://www.example.test/a?b=1", "301 to https://example.test/a?b=1 with the query string preserved", "curl -I output"], ["Request a URI covered by two rewrites that point at each other", "HTTP 500 and error.log contains rewrite or internal redirection cycle", "Status code and log line"]],
+          "objectives": ["Choose between return and rewrite", "Write redirects that keep the query string", "Detect and fix rewrite loops"]
+        },
+        {
+          "topic": "MIME Types, gzip Compression and Browser Cache Headers",
+          "subtopics": ["types, default_type and the mime.types file", "Fixing wrong Content-Type for .mjs, .wasm or .webmanifest", "gzip on, gzip_types and gzip_min_length", "gzip_comp_level cost versus size", "Vary: Accept-Encoding and gzip_vary", "expires and Cache-Control max-age", "ETag and Last-Modified revalidation, 304 responses", "Long-lived caching of fingerprinted assets with immutable"],
+          "tools": ["Nginx", "curl", "gzip", "browser DevTools", "ls"],
+          "lab_task": "Enable gzip on, gzip_types text/css application/javascript application/json and gzip_min_length 256. Compare curl -s -H 'Accept-Encoding: gzip' -o /dev/null -w '%{size_download}\\n' with and without the header for a 200 KB CSS file. Add expires 30d for /assets/ and prove a 304 using curl -I -H 'If-None-Match: <etag>'.",
+          "deliverable": "Size comparison table, headers for assets and the 304 transcript",
+          "checks": [["Request the 200 KB CSS with and without Accept-Encoding: gzip", "Compressed download is under half the size and has Content-Encoding: gzip", "curl -w size output"], ["curl -I http://localhost/assets/app.css", "Response has Cache-Control: max-age=2592000 and an Expires header", "curl -I output"], ["Repeat the request with If-None-Match set to the ETag", "HTTP/1.1 304 Not Modified with an empty body", "curl -I output"]],
+          "objectives": ["Return correct content types and compress text responses", "Set caching headers appropriate to asset type", "Verify conditional requests produce 304 responses"]
+        },
+        {
+          "topic": "First Reverse Proxy with proxy_pass and proxy_set_header",
+          "subtopics": ["Reverse proxy versus forward proxy and why use one", "Starting a test backend with python3 -m http.server 8081", "proxy_pass to a host:port", "Default Host header rewriting and proxy_set_header Host $host", "X-Real-IP and X-Forwarded-For and X-Forwarded-Proto", "proxy_http_version 1.1 and the Connection header", "proxy_connect_timeout, proxy_read_timeout and proxy_send_timeout", "Confirming what the backend sees with a header-echo script"],
+          "tools": ["Nginx", "curl", "Python http.server", "netcat", "ss"],
+          "lab_task": "Start a small Python echo server on 127.0.0.1:8081 that prints request headers. Add location /api/ { proxy_pass http://127.0.0.1:8081; } with proxy_set_header Host $host, X-Real-IP $remote_addr and X-Forwarded-Proto $scheme. Call curl localhost/api/ and capture the headers the backend printed, then stop the backend and note the status.",
+          "deliverable": "Proxy configuration, backend header dump and the response seen when the backend is down",
+          "checks": [["curl http://localhost/api/ with the backend running", "Backend echoes Host: localhost and X-Real-IP: 127.0.0.1", "Backend console output"], ["Check headers the backend received", "X-Forwarded-Proto: http is present", "Backend console output"], ["Stop the backend and curl -i http://localhost/api/", "HTTP/1.1 502 Bad Gateway and error.log shows connect() failed (111: Connection refused)", "curl -i and log line"]],
+          "objectives": ["Configure Nginx to forward requests to a backend", "Pass client context to the backend with headers", "Recognize a 502 caused by a stopped backend"]
+        },
+        {
+          "topic": "URI Handling in proxy_pass: Trailing Slashes and Path Rewriting",
+          "subtopics": ["proxy_pass with and without a URI part", "How the matched location prefix is replaced", "Trailing slash combinations on location and proxy_pass", "Regex locations and why proxy_pass cannot carry a URI there", "Using rewrite plus proxy_pass for path changes", "Variables in proxy_pass and the need for a resolver", "Preserving the original request URI with $request_uri", "Proving the backend path with a logging backend"],
+          "tools": ["Nginx", "curl", "Python http.server", "rewrite", "nginx -t"],
+          "lab_task": "With a backend that prints the path it receives, configure four cases: location /a/ with proxy_pass http://127.0.0.1:8081; then with a trailing slash; location /b/ with proxy_pass http://127.0.0.1:8081/api/; and a regex location that uses rewrite ^/c/(.*)$ /v2/$1 break;. Request /a/x, /b/x and /c/x and document each upstream path.",
+          "deliverable": "Table of four configurations with the request path and the path received by the backend",
+          "checks": [["Request /a/x where proxy_pass has no URI part", "Backend receives /a/x unchanged", "Backend log"], ["Request /b/x where proxy_pass has the URI /api/", "Backend receives /api/x", "Backend log"], ["Request /c/x using rewrite ... break and proxy_pass", "Backend receives /v2/x", "Backend log"]],
+          "objectives": ["Predict the exact URI sent to the backend", "Strip or add a path prefix correctly", "Avoid the proxy_pass-with-URI restriction in regex locations"]
+        },
+        {
+          "topic": "HTTPS with OpenSSL Self-Signed Certificates",
+          "subtopics": ["Certificates, private keys, CSRs and chains", "Generating a key and certificate with openssl req -x509", "Subject Alternative Names and why CN alone fails", "listen 443 ssl and ssl_certificate, ssl_certificate_key", "Key file permissions and ownership", "Inspecting with openssl x509 -text and openssl s_client", "Trusting a local CA for development", "http2 on in the server block"],
+          "tools": ["Nginx", "OpenSSL", "curl", "openssl s_client", "mkcert"],
+          "lab_task": "Run openssl req -x509 -newkey rsa:2048 -nodes -days 30 -keyout dev.key -out dev.crt -subj '/CN=app.test' -addext 'subjectAltName=DNS:app.test'. Configure listen 443 ssl and the two certificate directives, then run openssl s_client -connect 127.0.0.1:443 -servername app.test and curl --cacert dev.crt --resolve app.test:443:127.0.0.1 https://app.test/.",
+          "deliverable": "Certificate files, HTTPS server block and s_client output showing the negotiated protocol and certificate subject",
+          "checks": [["openssl s_client -connect 127.0.0.1:443 -servername app.test", "Shows subject CN = app.test and a TLSv1.3 or TLSv1.2 negotiated protocol", "s_client output"], ["curl https://app.test/ without --cacert", "curl: (60) SSL certificate problem: self-signed certificate", "curl error"], ["curl --cacert dev.crt --resolve app.test:443:127.0.0.1 https://app.test/", "HTTP 200 and the page body", "curl output"]],
+          "objectives": ["Create a certificate with a SAN and install it in Nginx", "Inspect a served certificate with OpenSSL", "Explain why clients reject self-signed certificates"]
+        },
+        {
+          "topic": "Let's Encrypt Certificates with Certbot and Automated Renewal",
+          "subtopics": ["ACME protocol and HTTP-01 versus DNS-01 challenges", "Installing certbot via snap or the distribution package", "certbot --nginx versus certbot certonly --webroot", "Where files land under /etc/letsencrypt/live", "Staging environment with --staging and rate limits", "Renewal timer and certbot renew --dry-run", "Deploy hooks that reload Nginx", "Wildcard certificates with a DNS plugin"],
+          "tools": ["Certbot", "Nginx", "systemctl", "openssl", "curl"],
+          "lab_task": "On a public host with a DNS A record, run sudo certbot certonly --webroot -w /var/www/certbot -d www.example.org --staging, then point ssl_certificate at /etc/letsencrypt/live/www.example.org/fullchain.pem. Add a deploy hook script under /etc/letsencrypt/renewal-hooks/deploy that runs nginx -s reload, then run sudo certbot renew --dry-run.",
+          "deliverable": "Issued staging certificate details, working server block, deploy hook and a successful dry-run log",
+          "checks": [["Run certbot certonly with --staging", "Output says Successfully received certificate and lists the fullchain.pem path", "certbot output"], ["Run certbot renew --dry-run", "Output says Congratulations, all simulated renewals succeeded", "certbot output"], ["Run systemctl list-timers | grep certbot", "A certbot timer is listed with a next activation time", "systemctl output"]],
+          "objectives": ["Obtain and install a browser-trusted certificate", "Automate renewal and reload", "Choose between HTTP-01 and DNS-01 validation"]
+        },
+        {
+          "topic": "Request Size Limits, Timeouts and Slow Clients",
+          "subtopics": ["client_max_body_size and the 413 response", "client_body_buffer_size and temporary files", "client_header_timeout and client_body_timeout", "send_timeout and keepalive_timeout", "large_client_header_buffers and the 414 or 400 errors", "Testing with curl --data-binary and a generated file", "Matching limits between Nginx and the backend", "Upload endpoints with higher limits only where needed"],
+          "tools": ["Nginx", "curl", "dd", "nginx -t", "error.log"],
+          "lab_task": "Create a 3 MB file with dd if=/dev/zero of=up.bin bs=1M count=3. Set client_max_body_size 1m in http, then POST it with curl -i --data-binary @up.bin http://localhost/upload. Record the 413 and error.log text, then give location /upload a 10m limit, reload and repeat the test.",
+          "deliverable": "Before and after test transcripts with status codes and the matching error.log entry",
+          "checks": [["POST a 3 MB file with client_max_body_size 1m", "HTTP/1.1 413 Request Entity Too Large", "curl -i output"], ["Inspect error.log after the rejected upload", "Contains client intended to send too large body: 3145728 bytes", "Log line"], ["Raise the limit to 10m on /upload and repeat", "Request passes the size check and returns the backend status, not 413", "curl -i output"]],
+          "objectives": ["Set body and header limits that match the application", "Interpret 413 and the related log entry", "Apply higher limits only to selected locations"]
+        },
+        {
+          "topic": "Embedded Variables, map and Conditional Logic",
+          "subtopics": ["Common variables: $uri, $request_uri, $args, $host and $scheme", "Request variables $http_*, $cookie_* and $arg_*", "Response and upstream variables", "set and the rewrite-phase evaluation order", "map blocks with default and regex keys", "geo for IP-based values", "Using map instead of if", "Variable scope limits and map placed only in the http context", "Logging computed variables", "Sanity checks for empty and unset values"],
+          "tools": ["Nginx", "curl", "map", "nginx -T", "add_header"],
+          "lab_task": "Create map $http_user_agent $device { default desktop; ~*mobile mobile; ~*bot crawler; } in http. Add add_header X-Device $device always in a location, then run curl -I -A 'Mozilla Mobile', -A 'Googlebot' and the default agent. Add a second map that turns $arg_debug into 0 or 1 and expose it as X-Debug.",
+          "deliverable": "Map definitions plus a table of three User-Agent values and the X-Device and X-Debug headers returned",
+          "checks": [["curl -I -A 'Mozilla Mobile' http://localhost/", "Header X-Device: mobile", "curl -I output"], ["curl -I -A 'Googlebot' http://localhost/", "Header X-Device: crawler", "curl -I output"], ["curl -I 'http://localhost/?debug=on'", "Header X-Debug: 1 from the second map", "curl -I output"]],
+          "objectives": ["Read request data through embedded variables", "Replace if blocks with map", "Expose computed values for debugging"]
+        },
+        {
+          "topic": "Running Nginx in Docker with Mounted Configuration",
+          "subtopics": ["Official nginx image tags: stable, mainline and alpine", "docker run -p 8080:80 -v for configuration and content", "Image entrypoint scripts and /etc/nginx/templates with envsubst", "Logs to stdout and stderr via symlinks", "Docker network names as upstream hostnames", "Docker Compose service with a healthcheck", "Reload inside a container with docker exec ... nginx -s reload", "Image pinning by digest"],
+          "tools": ["Docker", "Docker Compose", "Nginx", "curl", "docker logs"],
+          "lab_task": "Write a compose.yaml with an nginx service on port 8080 mounting ./conf/default.conf:/etc/nginx/conf.d/default.conf:ro and ./site:/usr/share/nginx/html:ro. Add a second service app and proxy /api/ to http://app:8000. Run docker compose up -d, curl localhost:8080/api/, then edit config, run docker compose exec nginx nginx -t and reload.",
+          "deliverable": "Compose file, configuration and curl output showing proxy to the app container and a reload without recreating",
+          "checks": [["docker compose ps", "Both services Up and nginx publishes 0.0.0.0:8080->80/tcp", "docker compose ps output"], ["curl localhost:8080/api/", "Response comes from the app container through the Docker network name", "curl output"], ["docker compose exec nginx nginx -t", "nginx: configuration file /etc/nginx/nginx.conf test is successful", "Command output"]],
+          "objectives": ["Run Nginx in a container with mounted configuration", "Use service names as proxy targets", "Reload containerized Nginx without downtime"]
+        },
+        {
+          "topic": "Host Hardening Essentials: server_tokens, Access Rules and Permissions",
+          "subtopics": ["server_tokens off and version disclosure", "allow and deny rules by CIDR", "Blocking hidden files such as /.git and /.env", "Restricting HTTP methods with limit_except", "Running workers as an unprivileged user", "File ownership: root-owned configuration, readable certificates", "Disabling unused modules and default server pages", "Quick audit with nmap and curl -I"],
+          "tools": ["Nginx", "curl", "nmap", "chmod", "ss"],
+          "lab_task": "Set server_tokens off and add location ~ /\\.(?!well-known) { deny all; }. Restrict /admin/ with allow 10.0.0.0/8; deny all;. Allow only GET and HEAD on /api/ with limit_except GET HEAD { deny all; }. Then verify with curl -I localhost/.git/config, curl -X DELETE localhost/api/ and curl -I localhost for the Server header.",
+          "deliverable": "Hardening snippet and curl evidence for version hiding, blocked dotfiles and method restriction",
+          "checks": [["curl -I http://localhost/", "Server: nginx with no version number", "curl -I output"], ["curl -i http://localhost/.git/config", "HTTP/1.1 403 Forbidden", "curl -i output"], ["curl -i -X DELETE http://localhost/api/", "HTTP/1.1 405 or 403 from the limit_except rule", "curl -i output"]],
+          "objectives": ["Remove unnecessary information disclosure", "Block sensitive paths and methods", "Restrict access by network range"]
+        },
+        {
+          "topic": "Reading Errors: Diagnosing 403, 404, 502 and 504",
+          "subtopics": ["Decision tree from status code to likely cause", "403: permissions, index missing, deny rules, SELinux", "404: wrong root, alias or try_files", "502: backend down, wrong port, socket permission", "504: upstream timed out and proxy_read_timeout", "Reading the error.log pattern for each case", "ss -ltnp and curl to the backend directly", "Reproducing each failure deliberately and fixing it"],
+          "tools": ["Nginx", "curl", "ss", "journalctl", "Python http.server"],
+          "lab_task": "Reproduce four failures: chmod 000 a file for 403, request a missing file for 404, stop the backend for 502, and point at a backend that sleeps 90 seconds (time.sleep) with proxy_read_timeout 5s for 504. For each, record curl -i status and the matching error.log line, then fix it and show the 200 response.",
+          "deliverable": "Four-row failure catalogue of symptom, log line, root cause and fix",
+          "checks": [["Backend sleeps 90 seconds with proxy_read_timeout 5s", "HTTP/1.1 504 Gateway Time-out after about 5 seconds", "curl -i with time_total"], ["Inspect error.log for the 504 case", "Contains upstream timed out (110: Connection timed out) while reading response header from upstream", "Log line"], ["Stop the backend and request the proxied URL", "HTTP/1.1 502 Bad Gateway with connect() failed (111: Connection refused)", "curl -i and log line"]],
+          "objectives": ["Map a status code to the most likely cause", "Find evidence in error.log quickly", "Fix and re-verify each failure"]
+        },
+        {
+          "topic": "Beginner Capstone: Two HTTPS Sites with a Proxied API",
+          "subtopics": ["Plan: two server names, one static site, one API proxy", "Certificate and redirect configuration", "Locations, error pages and logging per site", "Hardening and limits applied", "Test script with curl for every requirement", "Documentation of the final layout"],
+          "tools": ["Nginx", "OpenSSL", "curl", "Docker", "Certbot"],
+          "lab_task": "Build site-a.test (static SPA with try_files) and api.test (proxy_pass to a local app on port 8081), both on HTTPS with a certificate from OpenSSL or Certbot staging, with HTTP redirected to HTTPS, custom 404 and 50x pages, separate access logs and server_tokens off. Write test.sh with at least ten curl assertions and run it.",
+          "deliverable": "Final configuration, certificate steps, test.sh output with all assertions passing and a short runbook",
+          "checks": [["Run test.sh", "All 10 or more assertions print PASS and the script exits with code 0", "Script output"], ["curl -I http://site-a.test/ and curl -I https://api.test/", "301 to HTTPS for the first and 200 or the API status for the second, with no version in Server header", "curl -I output"], ["Stop the API app and call https://api.test/", "Custom 50x page with HTTP 502", "curl -i output"]],
+          "objectives": ["Combine virtual hosts, TLS, redirects and proxying in one deployment", "Verify requirements with automated tests", "Document the setup so another engineer can reproduce it"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already run Nginx for simple sites and need to run it as a performance and security layer. Covers worker and connection tuning, three Nginx-specific upstream topics (balancing methods, passive failure handling and keepalive), buffering, WebSocket proxying, FastCGI, proxy caching and microcaching, rate and connection limits, TLS hardening, HTTP/2 and HTTP/3, authentication, client IP handling, security headers, structured logging and reusable configuration.",
+      "prerequisites": ["Has completed the beginner level or runs Nginx for static sites and a simple reverse proxy", "Can read server logs, use ss and ps and run a simple benchmark with wrk or ab", "Knows TLS basics: certificates, chains and SNI"],
+      "outcomes": ["Tune worker, connection, keepalive and buffering settings from measurements", "Configure upstream groups with weights, retries and keepalive, and prove failover from logs", "Add caching, rate limits and connection limits that protect a backend without breaking users", "Deliver a hardened TLS reverse proxy with HTTP/2, HTTP/3 and structured logging"],
+      "days": [
+        {
+          "topic": "Worker Processes, Connections and the Event Model",
+          "subtopics": ["worker_processes auto and CPU affinity", "worker_connections and the formula for maximum clients", "worker_rlimit_nofile and ulimit -n", "The events block: use epoll, multi_accept", "Reverse proxy doubling of connections per request", "keepalive_timeout and keepalive_requests", "sendfile, tcp_nopush and tcp_nodelay", "Reading the worker connections are not enough warning"],
+          "tools": ["Nginx", "wrk", "ulimit", "ss", "stub_status"],
+          "lab_task": "Set worker_processes 1, worker_connections 512 and run wrk -t2 -c1000 -d20s http://localhost/. Find the worker connections are not enough warning in error.log, then raise worker_connections to 4096 and worker_rlimit_nofile to 8192, reload, repeat and compare the non-2xx or socket error counts reported by wrk.",
+          "deliverable": "Before and after wrk results, the error.log warning and the calculated maximum client formula",
+          "checks": [["wrk -c1000 with worker_connections 512", "wrk reports socket errors and error.log shows worker_connections are not enough", "wrk output and log line"], ["Same test with worker_connections 4096 and nofile 8192", "Zero connect or read socket errors in the wrk summary", "wrk output"], ["cat /proc/<worker pid>/limits | grep 'open files'", "Soft limit shows 8192 for the worker", "Command output"]],
+          "objectives": ["Size worker and connection limits from expected traffic", "Recognize connection exhaustion in logs", "Apply file descriptor limits correctly"]
+        },
+        {
+          "topic": "Upstream Blocks and Balancing Methods",
+          "subtopics": ["Defining upstream with several server entries", "Round robin and the weight parameter", "least_conn behavior with uneven request times", "ip_hash and hash $request_uri consistent", "random two least_conn", "Which methods are Open Source and which need NGINX Plus", "backup and down server flags", "Observing distribution through $upstream_addr in the access log"],
+          "tools": ["Nginx", "curl", "wrk", "Python http.server", "awk"],
+          "lab_task": "Start three backends on ports 9001 to 9003 with one slowed by time.sleep(0.5). Define upstream app with weight=3 on the first, add $upstream_addr to log_format, send 300 requests with curl, and count per-backend hits with awk. Switch to least_conn, repeat with parallel curl -P, and compare the distribution.",
+          "deliverable": "Distribution table for round robin with weights and least_conn, with the log evidence",
+          "checks": [["300 sequential requests with weights 3, 1, 1", "Hit counts near 180, 60 and 60 respectively", "awk count of $upstream_addr"], ["Repeat under concurrency with least_conn and one slow backend", "The slow backend receives clearly fewer requests than the others", "awk count"], ["Use ip_hash and call from one client 20 times", "All 20 requests are served by the same backend address", "Log excerpt"]],
+          "objectives": ["Configure an upstream group with weights and methods", "Prove request distribution from logs", "Identify which balancing features require NGINX Plus"]
+        },
+        {
+          "topic": "Passive Failure Handling: max_fails, proxy_next_upstream and Retries",
+          "subtopics": ["Passive health checking with max_fails and fail_timeout", "What counts as a failed attempt", "proxy_next_upstream conditions: error, timeout, http_502, http_503", "proxy_next_upstream_tries and proxy_next_upstream_timeout", "Non-idempotent requests and the non_idempotent flag", "Marking servers down and backup failover", "Observing retries as multiple values in $upstream_addr", "Active health checks as an NGINX Plus feature"],
+          "tools": ["Nginx", "curl", "kill", "awk", "error.log"],
+          "lab_task": "With two backends on 9001 and 9002, set max_fails=2 fail_timeout=10s and proxy_next_upstream error timeout http_502. Run a loop of 30 requests, kill the 9001 backend in the middle, and show that clients still get 200. Capture a log line where $upstream_addr has two comma-separated addresses, then start 9001 again.",
+          "deliverable": "Failover test log with success counts and a log line proving a retry occurred",
+          "checks": [["Kill backend 9001 during a 30-request loop", "All 30 responses are 200 because failed attempts are retried on 9002", "curl status list"], ["Search the access log for $upstream_addr", "At least one line contains two addresses such as 127.0.0.1:9001, 127.0.0.1:9002", "grep output"], ["Stop both backends and request", "HTTP 502 and error.log contains no live upstreams while connecting to upstream", "curl -i and log line"]],
+          "objectives": ["Configure retry and failover behavior safely", "Explain why POST requests are not retried by default", "Verify failover from the log"]
+        },
+        {
+          "topic": "Upstream Keepalive and Backend Connection Reuse",
+          "subtopics": ["Why a new TCP connection per proxied request is expensive", "keepalive in upstream, keepalive_requests and keepalive_time", "The pair proxy_http_version 1.1 and proxy_set_header Connection \"\"", "Idle connection counts per worker", "TIME_WAIT growth seen with ss -s", "Matching backend keep-alive timeouts to avoid resets", "Measuring gains with wrk", "Upstream TLS reuse with proxy_ssl_session_reuse"],
+          "tools": ["Nginx", "ss", "wrk", "Python http.server", "tcpdump"],
+          "lab_task": "Benchmark a proxied backend with wrk -t2 -c50 -d15s, run ss -tan state time-wait | wc -l, then add keepalive 32; proxy_http_version 1.1; proxy_set_header Connection \"\"; and repeat. Compare requests per second and TIME_WAIT counts, and confirm with tcpdump that fewer SYN packets reach the backend port.",
+          "deliverable": "Benchmark table with requests per second and TIME_WAIT counts before and after keepalive",
+          "checks": [["Count TIME_WAIT sockets after the test without keepalive", "Thousands of TIME_WAIT sockets to the backend port", "ss output"], ["Count them after enabling upstream keepalive 32", "Dozens at most, far fewer than before", "ss output"], ["Compare wrk Requests/sec", "Higher throughput with keepalive than without", "wrk summaries"]],
+          "objectives": ["Enable HTTP/1.1 keepalive to backends correctly", "Measure the effect of connection reuse", "Prevent resets from mismatched idle timeouts"]
+        },
+        {
+          "topic": "Proxy Buffering, Timeouts and Streaming Responses",
+          "subtopics": ["proxy_buffering, proxy_buffer_size and proxy_buffers", "Temporary files and proxy_max_temp_file_size", "Why slow clients keep backends busy without buffering", "Disabling buffering for streaming with proxy_buffering off or X-Accel-Buffering", "upstream sent too big header and the 502 it causes", "proxy_request_buffering for uploads", "proxy_read_timeout for long-running responses", "chunked transfer and Content-Length behavior"],
+          "tools": ["Nginx", "curl", "Python Flask", "dd", "error.log"],
+          "lab_task": "Create a backend that sets a 12 KB response header and one that streams ten lines at one-second intervals. Observe the 502 and the upstream sent too big header message, fix it with proxy_buffer_size 16k, then test the stream with curl -N under proxy_buffering on and off and record when the first line appears.",
+          "deliverable": "Buffering test notes with first-byte timings in both modes and the header-size fix",
+          "checks": [["Backend sends a 12 KB header with default buffers", "502 Bad Gateway and error.log has upstream sent too big header while reading response header from upstream", "curl and log line"], ["Set proxy_buffer_size 16k and retry", "HTTP 200 returns with the large header", "curl -i output"], ["curl -N the stream with proxy_buffering off", "First line arrives after about 1 second instead of after the full 10 seconds", "Timestamped curl output"]],
+          "objectives": ["Tune buffer sizes to avoid header errors", "Choose buffering settings for streaming endpoints", "Explain how buffering affects backend load"]
+        },
+        {
+          "topic": "WebSocket and Server-Sent Events Proxying",
+          "subtopics": ["HTTP Upgrade handshake and the 101 response", "proxy_set_header Upgrade $http_upgrade and Connection upgrade", "The map for $connection_upgrade", "proxy_read_timeout and idle disconnects at 60 seconds", "Server-Sent Events: Content-Type text/event-stream and buffering off", "Testing with websocat and curl -N", "Sticky behavior and ip_hash caveats", "Connection counting with stub_status"],
+          "tools": ["Nginx", "websocat", "curl", "Node.js", "stub_status"],
+          "lab_task": "Run a ws echo server on port 8085. Add map $http_upgrade $connection_upgrade { default upgrade; '' close; } and a location /ws/ with proxy_http_version 1.1 and the Upgrade and Connection headers. Test with websocat ws://localhost/ws/, leave it idle for 70 seconds to see the disconnect, then set proxy_read_timeout 3600s and retry.",
+          "deliverable": "Working WebSocket location, handshake capture and idle-timeout before and after results",
+          "checks": [["curl -i -N -H 'Connection: Upgrade' -H 'Upgrade: websocket' -H 'Sec-WebSocket-Version: 13' -H 'Sec-WebSocket-Key: dGhlIHNhbXBsZQ==' http://localhost/ws/", "HTTP/1.1 101 Switching Protocols", "curl output"], ["Leave websocat idle for 70 seconds with the default timeout", "Connection closes after 60 seconds", "websocat output with timestamps"], ["Same test with proxy_read_timeout 3600s", "Connection stays open and an echo still works after 70 seconds", "websocat output"]],
+          "objectives": ["Proxy WebSocket upgrades correctly", "Tune timeouts for long-lived connections", "Stream Server-Sent Events without buffering"]
+        },
+        {
+          "topic": "FastCGI, PHP-FPM and Unix Socket Backends",
+          "subtopics": ["FastCGI protocol and fastcgi_pass", "PHP-FPM pools, listen sockets and socket permissions", "fastcgi_params and SCRIPT_FILENAME", "try_files $uri =404 to block script injection", "fastcgi_index and PATH_INFO handling", "Tuning pm.max_children against memory", "uwsgi_pass and scgi_pass for similar protocols", "Common errors: File not found and 502 on socket permission"],
+          "tools": ["Nginx", "PHP-FPM", "curl", "ls", "systemctl"],
+          "lab_task": "Install php-fpm, create /var/www/app/info.php with phpinfo(), and add location ~ \\.php$ { try_files $uri =404; include fastcgi_params; fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; fastcgi_pass unix:/run/php/php-fpm.sock; }. Test it, then chmod the socket to 600 root-owned and capture the 502 permission error.",
+          "deliverable": "Working PHP location plus the captured socket permission failure and its fix",
+          "checks": [["curl -s localhost/info.php | grep 'PHP Version'", "Returns the PHP version line", "curl output"], ["Request /missing.php with try_files $uri =404", "HTTP 404 without reaching PHP-FPM", "curl -i output"], ["Break socket permission and request /info.php", "502 and error.log shows connect() to unix:/run/php/php-fpm.sock failed (13: Permission denied)", "Log line"]],
+          "objectives": ["Connect Nginx to PHP-FPM through a Unix socket", "Prevent arbitrary script execution", "Diagnose FastCGI socket errors"]
+        },
+        {
+          "topic": "Content Caching with proxy_cache_path and Cache Keys",
+          "subtopics": ["proxy_cache_path: levels, keys_zone, max_size, inactive", "proxy_cache and proxy_cache_key defaults", "proxy_cache_valid by status code", "What upstream headers Cache-Control, Expires and Set-Cookie do to caching", "X-Accel-Expires and proxy_ignore_headers", "Reading $upstream_cache_status: MISS, HIT, EXPIRED, BYPASS, STALE", "Cache directory layout and the cache manager and loader processes", "Vary header behavior and key design"],
+          "tools": ["Nginx", "curl", "find", "du", "Python http.server"],
+          "lab_task": "Define proxy_cache_path /var/cache/nginx/app levels=1:2 keys_zone=app:10m max_size=200m inactive=10m and enable proxy_cache app with proxy_cache_valid 200 1m. Add add_header X-Cache $upstream_cache_status. Call a counter backend twice and show MISS then HIT, then find /var/cache/nginx/app -type f to see the stored object.",
+          "deliverable": "Cache configuration, MISS and HIT header evidence and a listing of cached files",
+          "checks": [["First request to /api/time", "X-Cache: MISS and backend counter increments", "curl -I output"], ["Second request within 60 seconds", "X-Cache: HIT and the backend counter does not change", "curl -I and backend log"], ["Count files under /var/cache/nginx/app", "At least one file exists whose header contains KEY: http://...", "find output"]],
+          "objectives": ["Configure a disk cache with a keys zone", "Read cache status from a response header", "Explain how upstream headers affect cacheability"]
+        },
+        {
+          "topic": "Cache Freshness: Stale Serving, Locking and Purge Strategies",
+          "subtopics": ["proxy_cache_use_stale for error, timeout and updating", "proxy_cache_background_update and stale-while-revalidate behavior", "proxy_cache_lock and thundering herd prevention", "proxy_cache_min_uses", "Purging: delete files, versioned keys and PURGE in NGINX Plus", "proxy_cache_revalidate with If-Modified-Since", "Cache bypass with proxy_cache_bypass and proxy_no_cache", "Verifying with parallel requests"],
+          "tools": ["Nginx", "curl", "wrk", "xargs", "find"],
+          "lab_task": "Use proxy_cache_valid 200 10s with proxy_cache_use_stale error timeout updating and proxy_cache_lock on. Fire 50 parallel requests at an expired object using xargs -P50 and count backend hits. Stop the backend, request again to see STALE, then add proxy_cache_bypass $http_x_refresh and test with curl -H 'X-Refresh: 1'.",
+          "deliverable": "Test notes with backend hit counts under the stampede, the STALE response and the bypass result",
+          "checks": [["50 parallel requests for an expired object with proxy_cache_lock on", "Backend log shows 1 request, not 50", "Backend log count"], ["Stop the backend and request after expiry", "X-Cache: STALE and HTTP 200 from use_stale", "curl -I output"], ["curl -H 'X-Refresh: 1' with proxy_cache_bypass", "X-Cache: BYPASS and a fresh backend response", "curl -I output"]],
+          "objectives": ["Protect the backend from cache stampedes", "Serve stale content during backend failure", "Force refresh selectively"]
+        },
+        {
+          "topic": "Microcaching and Cache Rules for Dynamic Pages",
+          "subtopics": ["Why one-second caching helps dynamic pages", "fastcgi_cache_path and fastcgi_cache_key", "Never caching logged-in users: map on cookies", "proxy_no_cache and proxy_cache_bypass with the same condition", "Caching only GET and HEAD with proxy_cache_methods", "Excluding Set-Cookie responses and private data", "Measuring the effect with wrk", "Per-location cache zones and key design including $host"],
+          "tools": ["Nginx", "wrk", "curl", "PHP-FPM", "map"],
+          "lab_task": "Cache a PHP page for 1 second using fastcgi_cache_valid 200 1s with a map that sets $skip_cache to 1 when $http_cookie contains session. Run wrk -t2 -c50 -d15s with and without the cache, record requests per second, and then send curl -b session=abc to prove the cache is skipped for session users.",
+          "deliverable": "Throughput comparison and header evidence that session users bypass the microcache",
+          "checks": [["wrk against the PHP page without cache vs with 1s cache", "Requests/sec increases several times with the cache enabled", "wrk summaries"], ["curl -I without a cookie", "X-Cache shows HIT after the first request", "curl -I output"], ["curl -I -b 'session=abc'", "X-Cache: BYPASS", "curl -I output"]],
+          "objectives": ["Apply microcaching to dynamic pages", "Exclude personalized responses from the cache", "Quantify caching improvements"]
+        },
+        {
+          "topic": "Rate Limiting with limit_req and Burst Tuning",
+          "subtopics": ["limit_req_zone key, zone size and rate in r/s or r/m", "limit_req zone, burst and nodelay", "delay=N for partially delayed bursts", "The leaky bucket model", "limit_req_status 429 and limit_req_log_level", "Keys: $binary_remote_addr versus an API key header", "Dry-run mode with limit_req_dry_run", "Allow-lists with geo and map to an empty key"],
+          "tools": ["Nginx", "curl", "wrk", "xargs", "error.log"],
+          "lab_task": "Define limit_req_zone $binary_remote_addr zone=api:10m rate=5r/s and use limit_req zone=api burst=10 nodelay with limit_req_status 429. Send 30 requests in under a second with seq 30 | xargs -P30 -I{} curl -s -o /dev/null -w '%{http_code}\\n' localhost/api/ and count the 200s and 429s, then repeat without nodelay and compare timing.",
+          "deliverable": "Counts of 200 and 429 responses for burst with and without nodelay, with the zone configuration",
+          "checks": [["30 simultaneous requests with rate=5r/s burst=10 nodelay", "About 11 return 200 and about 19 return 429", "Sorted status counts"], ["Inspect error.log", "Lines contain limiting requests, excess: ... by zone \"api\"", "Log lines"], ["Repeat without nodelay", "Burst requests are delayed to 5 per second so total time is longer, about 2 seconds", "curl timing"]],
+          "objectives": ["Configure per-client request limits", "Predict accepted and rejected counts from rate and burst", "Return a meaningful 429 status"]
+        },
+        {
+          "topic": "Connection Limits and Bandwidth Throttling",
+          "subtopics": ["limit_conn_zone and limit_conn per key", "limit_conn_status and limit_conn_log_level", "limit_rate and limit_rate_after for downloads", "Per-server connection limits with $server_name", "Combining limit_req and limit_conn", "Protecting expensive endpoints like export or report", "Choosing limits that tolerate corporate NAT", "Observing active connections via stub_status"],
+          "tools": ["Nginx", "curl", "stub_status", "xargs", "wrk"],
+          "lab_task": "Add limit_conn_zone $binary_remote_addr zone=perip:10m and limit_conn perip 3 for /download/, plus limit_rate_after 1m and limit_rate 200k. Start five parallel curl downloads of a 10 MB file and count the 503 responses, then record the speed of one download with curl -w '%{speed_download}'.",
+          "deliverable": "Connection-limit test with counts of rejected requests and measured download speed after the threshold",
+          "checks": [["Five parallel long downloads with limit_conn perip 3", "Two of the five return 503 (or the configured limit_conn_status)", "curl status codes"], ["Error log after the test", "Contains limiting connections by zone \"perip\"", "Log line"], ["Single download with limit_rate 200k after 1 MB", "Average speed shown near 200000 bytes per second", "curl -w output"]],
+          "objectives": ["Cap concurrent connections per client", "Throttle large downloads", "Use limits without blocking legitimate users behind NAT"]
+        },
+        {
+          "topic": "TLS Hardening: Protocols, Ciphers, Sessions and HSTS",
+          "subtopics": ["ssl_protocols TLSv1.2 TLSv1.3 and dropping older versions", "ssl_ciphers, ssl_prefer_server_ciphers and TLS 1.3 suites", "ssl_session_cache shared:SSL:10m and session tickets", "DH parameters and ECDSA versus RSA certificates", "Strict-Transport-Security with max-age and includeSubDomains", "OCSP stapling status as certificate authorities phase out OCSP", "Testing with openssl s_client -tls1_2 and nmap --script ssl-enum-ciphers", "Grading with SSL Labs or testssl.sh"],
+          "tools": ["Nginx", "OpenSSL", "testssl.sh", "nmap", "curl"],
+          "lab_task": "Set ssl_protocols TLSv1.2 TLSv1.3, ssl_session_cache shared:SSL:10m, ssl_session_tickets off and add Strict-Transport-Security max-age=31536000 always. Verify openssl s_client -tls1_1 fails, -tls1_3 succeeds, run testssl.sh --protocols https://app.test and curl -sI to confirm the HSTS header.",
+          "deliverable": "Hardened TLS configuration with s_client results for each protocol and the testssl.sh protocol table",
+          "checks": [["openssl s_client -connect host:443 -tls1_1", "Handshake fails with alert protocol version or no protocols available", "s_client output"], ["openssl s_client -connect host:443 -tls1_3", "Output shows Protocol: TLSv1.3 and a cipher such as TLS_AES_256_GCM_SHA384", "s_client output"], ["curl -sI https://app.test/", "Strict-Transport-Security: max-age=31536000 header is present", "curl output"]],
+          "objectives": ["Restrict TLS to modern protocol versions", "Enable session resumption and HSTS", "Verify TLS posture with independent tools"]
+        },
+        {
+          "topic": "HTTP/2 and HTTP/3 (QUIC) Configuration",
+          "subtopics": ["http2 on; as a server-level directive", "Multiplexing, header compression and what changes for the backend", "listen 443 quic reuseport and listen 443 ssl together", "Alt-Svc header with h3=\":443\"; ma=86400", "ssl_early_data and replay risk", "UDP port 443 in the firewall and cloud security groups", "quic_retry and quic_gso", "Verifying with curl --http2, curl --http3 and browser DevTools"],
+          "tools": ["Nginx", "curl", "Wireshark", "ufw", "DevTools"],
+          "lab_task": "Add http2 on; and a listen 443 quic reuseport; line to the TLS server along with add_header Alt-Svc 'h3=\":443\"; ma=86400' always, open UDP 443, then run curl -sI --http2 https://app.test/ and curl -sI --http3 https://app.test/ (using a curl built with HTTP/3). Record the protocol shown in -w '%{http_version}'.",
+          "deliverable": "Configuration, firewall rule and curl output showing HTTP/2 and HTTP/3 negotiation",
+          "checks": [["curl -s -o /dev/null -w '%{http_version}\\n' --http2 https://app.test/", "Prints 2", "curl output"], ["curl -s -o /dev/null -w '%{http_version}\\n' --http3 https://app.test/", "Prints 3", "curl output"], ["curl -sI https://app.test/ | grep -i alt-svc", "alt-svc header advertises h3=\":443\"", "curl output"]],
+          "objectives": ["Enable HTTP/2 and HTTP/3 on a TLS server", "Advertise HTTP/3 with Alt-Svc", "Test negotiation with curl"]
+        },
+        {
+          "topic": "Authentication Options: Password Files, auth_request and satisfy",
+          "subtopics": ["auth_basic and auth_basic_user_file", "Creating htpasswd entries with openssl passwd -apr1 or htpasswd -B", "auth_request to an authentication subrequest", "Passing identity with auth_request_set and proxy_set_header", "Handling 401 and 403 from the auth service", "satisfy any versus satisfy all with allow and deny", "Protecting only /admin and leaving health endpoints open", "Why Basic over plain HTTP is unsafe"],
+          "tools": ["Nginx", "htpasswd", "curl", "Python Flask", "openssl"],
+          "lab_task": "Create users with htpasswd -B -c /etc/nginx/.htpasswd alice and protect /admin/ with auth_basic. Then add location /private/ with auth_request /_auth that proxies to a Flask endpoint returning 204 only when header X-Token equals secret, and copy a user header with auth_request_set. Test with correct and wrong credentials.",
+          "deliverable": "Two protected locations with curl results for missing, wrong and valid credentials",
+          "checks": [["curl -i http://localhost/admin/ with no credentials", "HTTP/1.1 401 Unauthorized with a WWW-Authenticate: Basic header", "curl -i output"], ["curl -u alice:<password> http://localhost/admin/", "HTTP 200 with the protected content", "curl output"], ["curl -i -H 'X-Token: wrong' http://localhost/private/", "HTTP 401 or 403 from the auth_request subrequest", "curl -i output"]],
+          "objectives": ["Protect locations with Basic authentication", "Delegate authorization to an external service", "Combine access rules using satisfy"]
+        },
+        {
+          "topic": "Client IP Handling: real_ip, X-Forwarded-For and PROXY Protocol",
+          "subtopics": ["Why $remote_addr shows the load balancer when behind a proxy", "set_real_ip_from and real_ip_header", "real_ip_recursive and trusted proxy chains", "X-Forwarded-For building with $proxy_add_x_forwarded_for", "PROXY protocol: listen ... proxy_protocol and $proxy_protocol_addr", "Spoofing risk when trusting headers from anyone", "Using $realip_remote_addr in logs", "Cloud load balancers and the ranges to trust"],
+          "tools": ["Nginx", "curl", "tcpdump", "HAProxy", "awk"],
+          "lab_task": "Run Nginx behind a second Nginx on 127.0.0.1:8082. In the front proxy set proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for. In the back instance set set_real_ip_from 127.0.0.1 and real_ip_header X-Forwarded-For, then call curl -H 'X-Forwarded-For: 203.0.113.9' and compare $remote_addr in the log before and after enabling the module.",
+          "deliverable": "Before and after access log lines showing the real client address and a note on spoofing",
+          "checks": [["Request through the proxy chain before enabling realip", "Backend log shows remote address 127.0.0.1", "Log line"], ["Enable set_real_ip_from 127.0.0.1 and repeat", "Backend log shows the client address from X-Forwarded-For", "Log line"], ["Send a spoofed X-Forwarded-For directly to an untrusted listener", "The header is ignored and the actual peer address is logged", "Log line"]],
+          "objectives": ["Recover true client IP addresses behind proxies", "Configure trusted proxy ranges", "Avoid header spoofing"]
+        },
+        {
+          "topic": "Security Headers and Content Security Policy at the Edge",
+          "subtopics": ["add_header inheritance rule and the always parameter", "X-Content-Type-Options, X-Frame-Options and frame-ancestors", "Content-Security-Policy and Content-Security-Policy-Report-Only", "Referrer-Policy and Permissions-Policy", "Cross-Origin policies: COOP, COEP, CORP", "CORS with map and Origin allow-lists", "Hiding backend headers with proxy_hide_header", "Scanning with securityheaders.com style tools or curl"],
+          "tools": ["Nginx", "curl", "Mozilla Observatory", "DevTools", "map"],
+          "lab_task": "Create /etc/nginx/snippets/sec-headers.conf with add_header ... always lines for X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin and a Content-Security-Policy-Report-Only. Include it in a server and in one location that has its own add_header, then show with curl -I which headers vanish due to inheritance and fix it.",
+          "deliverable": "Header snippet, inheritance bug reproduction and fixed curl -I output",
+          "checks": [["curl -I a location that defines its own add_header", "Server-level security headers are missing, proving add_header is not inherited", "curl -I output"], ["Include the snippet in the location and repeat", "X-Content-Type-Options: nosniff is present again", "curl -I output"], ["curl -I -H 'Origin: https://evil.test'", "No Access-Control-Allow-Origin header for an origin not in the map", "curl -I output"]],
+          "objectives": ["Apply a consistent security header set", "Avoid the add_header inheritance trap", "Configure allow-listed CORS"]
+        },
+        {
+          "topic": "Structured JSON Logging, Conditional Logs and stub_status",
+          "subtopics": ["log_format with escape=json", "Choosing fields: request_id, upstream_response_time, ssl_protocol", "$request_id for correlation with the backend", "Conditional logging with map and access_log if=", "Buffering logs: access_log buffer= flush=", "stub_status counters: Active connections, accepts, handled, requests", "Restricting /nginx_status to localhost", "Parsing JSON logs with jq"],
+          "tools": ["Nginx", "jq", "stub_status", "curl", "awk"],
+          "lab_task": "Define log_format json escape=json with time_iso8601, request_id, status, request_time and upstream_response_time and write it to a second access_log. Add proxy_set_header X-Request-ID $request_id. Expose stub_status on 127.0.0.1 only. Run 100 requests, then use jq -s 'map(.status)|group_by(.)|map({s:.[0],n:length})' on the log.",
+          "deliverable": "JSON log sample, jq summary and stub_status output",
+          "checks": [["jq -r .request_id on the last log line and the backend log", "The same 32-hex request ID appears in both", "Two log excerpts"], ["curl http://127.0.0.1/nginx_status", "Output begins Active connections: and shows accepts handled requests counters", "curl output"], ["curl http://<external ip>/nginx_status", "403 Forbidden because only 127.0.0.1 is allowed", "curl output"]],
+          "objectives": ["Emit machine-readable logs with correlation IDs", "Expose basic server metrics safely", "Query logs with jq"]
+        },
+        {
+          "topic": "Reusable Configuration: Includes, Snippets and Reload Discipline",
+          "subtopics": ["Splitting config into conf.d, snippets and per-site files", "Include with wildcards and ordering", "Shared proxy parameters in proxy_params-style snippets", "Generating files with envsubst or templating", "Safe change flow: edit, nginx -t, reload, verify", "Keeping configuration in Git with a review diff", "Rollback by checking out the previous commit and reloading", "Detecting drift with nginx -T and diff"],
+          "tools": ["Nginx", "Git", "envsubst", "diff", "nginx -T"],
+          "lab_task": "Move shared proxy headers into /etc/nginx/snippets/proxy-common.conf and include it from three locations. Put /etc/nginx in a Git repository, make a change that breaks syntax, show nginx -t rejects it, then write deploy.sh that runs git pull, nginx -t, nginx -s reload and a curl health check, and rolls back with git checkout on failure.",
+          "deliverable": "Repository layout, deploy.sh and a transcript of one successful and one rolled-back deployment",
+          "checks": [["Run deploy.sh with a broken configuration commit", "nginx -t fails, reload is skipped and the script exits non-zero", "Script output"], ["Run deploy.sh with a good commit", "Reload succeeds and health check returns HTTP 200", "Script output"], ["Run nginx -T | diff - last-known-good.conf after rollback", "No differences", "diff output"]],
+          "objectives": ["Structure configuration for reuse", "Apply changes safely with test and reload", "Roll back automatically on failure"]
+        },
+        {
+          "topic": "Intermediate Capstone: Cached, Rate-Limited TLS Reverse Proxy for an API",
+          "subtopics": ["Requirements and architecture sketch", "Upstream group with failover and keepalive", "Caching, rate limits and TLS hardening combined", "Structured logs and a metrics endpoint", "Load and failure test plan with wrk and kill", "Findings report with measured results"],
+          "tools": ["Nginx", "wrk", "curl", "OpenSSL", "jq"],
+          "lab_task": "Build an HTTPS reverse proxy for two API backends with upstream keepalive, proxy_cache for GET, limit_req of 10r/s per IP, TLS 1.2 and 1.3 only, HTTP/2, JSON logs and stub_status. Test with wrk, kill one backend during a run, and produce a report showing requests per second, cache hit ratio, 429 counts and zero 5xx during failover.",
+          "deliverable": "Configuration repository, test scripts and a results report with hit ratio, 429 count and failover evidence",
+          "checks": [["wrk run for 30 seconds against cached GET endpoint", "Cache hit ratio at least 90 percent computed from X-Cache or the JSON log", "Log analysis output"], ["Kill one backend mid-run", "No 5xx responses in the access log because retries use the second backend", "grep count of 5xx equals 0"], ["Send 50 simultaneous requests from one IP", "Excess requests return 429 and error.log shows the limiting requests entries", "Status count and log"]],
+          "objectives": ["Combine proxying, caching, limiting and TLS in a single design", "Prove resilience and performance with measurements", "Report results to a technical audience"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior engineers and platform teams who operate Nginx at the edge of larger systems. Covers dynamic upstream resolution, the stream module, gRPC, canary routing, njs and dynamic modules, kernel tuning, mutual TLS, mirroring, large media delivery, WAF engines, abuse mitigation, benchmarking and profiling, metrics and tracing, Kubernetes edge traffic, container hardening, configuration CI, debug forensics, zero-downtime upgrades and a multi-tier gateway capstone.",
+      "prerequisites": ["Has completed the intermediate level or operates Nginx reverse proxies in production", "Comfortable with Linux networking tools such as ss, tcpdump and sysctl, and with Docker", "Knows Git and a CI system and has basic Kubernetes exposure"],
+      "outcomes": ["Operate Nginx for non-HTTP and gRPC protocols and route traffic with canaries and SNI", "Measure, profile and tune Nginx and the kernel for high-concurrency workloads", "Secure the edge with mTLS, WAF modules and abuse controls and verify each with attack tests", "Ship configuration through CI with automated tests, upgrades and rollbacks"],
+      "days": [
+        {
+          "topic": "Dynamic Upstream Resolution, Resolver and Shared Zones",
+          "subtopics": ["Why hostnames in upstream are resolved only at start-up or reload", "resolver directive, valid= and ipv6=off", "Variables in proxy_pass to force runtime DNS resolution", "resolve parameter on upstream server and the zone requirement", "DNS TTL behavior and short-lived container or cloud IPs", "The no resolver defined to resolve error", "Shared zone memory for upstream state across workers", "Behavior difference between Open Source and NGINX Plus APIs"],
+          "tools": ["Nginx", "dig", "dnsmasq", "curl", "Docker"],
+          "lab_task": "Run dnsmasq or a Docker network alias for backend.local, point an upstream at it, then change its IP and show that Nginx keeps using the old address after DNS changes. Fix it with resolver 127.0.0.1 valid=10s; plus upstream { zone backend 64k; server backend.local resolve; } and confirm the new address through $upstream_addr.",
+          "deliverable": "Reproduction of stale DNS, the corrected configuration and log evidence of the new address after a DNS change",
+          "checks": [["Change the DNS record and request without resolver support", "Log $upstream_addr still shows the old IP", "Access log line"], ["Enable resolver and server ... resolve with a zone, wait for valid= to expire, repeat", "Log $upstream_addr shows the new IP without a reload", "Access log line"], ["Use proxy_pass http://$host_var without a resolver", "error.log shows no resolver defined to resolve", "Log line"]],
+          "objectives": ["Explain when Nginx resolves hostnames", "Configure runtime resolution for changing backends", "Use shared zones for upstream state"]
+        },
+        {
+          "topic": "Stream Module: TCP and UDP Proxying and ssl_preread",
+          "subtopics": ["stream context versus http context", "listen and proxy_pass for TCP services such as PostgreSQL and Redis", "UDP proxying for DNS with listen ... udp", "proxy_timeout and proxy_responses", "ssl_preread and routing by $ssl_preread_server_name", "TLS passthrough versus termination in stream", "Stream upstream balancing and access logs in the stream context", "PROXY protocol to the backend"],
+          "tools": ["Nginx", "nc", "dig", "psql", "openssl s_client"],
+          "lab_task": "Create a stream block that listens on 5433 and proxies to PostgreSQL on 5432, a UDP listener on 5353 that forwards to 127.0.0.1:53, and a 443 listener using ssl_preread with a map from $ssl_preread_server_name to two upstreams. Test with psql -h localhost -p 5433, dig @127.0.0.1 -p 5353 example.com and s_client -servername.",
+          "deliverable": "Stream configuration and three test transcripts for TCP, UDP and SNI routing",
+          "checks": [["psql -h localhost -p 5433 -c 'select 1'", "Returns one row with value 1 through the proxy", "psql output"], ["dig @127.0.0.1 -p 5353 example.com +short", "Returns an IP address through UDP proxying", "dig output"], ["openssl s_client -connect localhost:443 -servername a.test, then -servername b.test", "Each SNI reaches a different backend certificate subject", "s_client subjects"]],
+          "objectives": ["Proxy non-HTTP protocols with the stream module", "Route TLS traffic by SNI without terminating it", "Know the differences between stream and http logging"]
+        },
+        {
+          "topic": "gRPC Proxying with grpc_pass and HTTP/2 Backends",
+          "subtopics": ["grpc_pass grpc://host:port and grpcs://", "listen 443 ssl with http2 on for gRPC clients", "grpc_set_header and metadata forwarding", "grpc_read_timeout and long streams", "Error pages with grpc status mapping using error_page and internal locations", "Routing by service path: location /pkg.Service/", "Testing with grpcurl and reflection", "TLS between Nginx and backend with grpc_ssl_verify"],
+          "tools": ["Nginx", "grpcurl", "grpc_pass", "protoc", "openssl"],
+          "lab_task": "Run a gRPC health server on 50051. Add a server with http2 on and location /grpc.health.v1.Health/ { grpc_pass grpc://127.0.0.1:50051; }. Call grpcurl -insecure localhost:443 grpc.health.v1.Health/Check, stop the backend and check the grpc-status that clients get, and add grpc_read_timeout 5s with a streaming call.",
+          "deliverable": "Working grpc_pass configuration and results for success and backend-down calls",
+          "checks": [["grpcurl -insecure localhost:443 grpc.health.v1.Health/Check", "Response {\"status\": \"SERVING\"}", "grpcurl output"], ["Stop the backend and repeat", "Error Code: Unavailable and Nginx logs connect() failed", "grpcurl error and log"], ["Use a streaming call with grpc_read_timeout 5s and no data", "The call ends after about 5 seconds with DeadlineExceeded or Unavailable", "Timestamped client output"]],
+          "objectives": ["Proxy gRPC through Nginx over HTTP/2", "Route by gRPC service path", "Interpret gRPC status codes on proxy failures"]
+        },
+        {
+          "topic": "Canary Releases with split_clients, geo and Cookie Routing",
+          "subtopics": ["split_clients percentage buckets keyed by $remote_addr or a cookie", "Mapping the bucket to an upstream with map", "Sticky cohort by cookie to avoid users flipping between versions", "Header-based routing for internal testers using map $http_x_canary", "geo-based routing by country or network range", "Logging the chosen version in the access log", "Measuring a 10 percent canary from logs", "Instant rollback with a one-line change and reload"],
+          "tools": ["Nginx", "curl", "split_clients", "awk", "jq"],
+          "lab_task": "Create upstreams stable and canary, add split_clients \"${remote_addr}${http_user_agent}\" $variant { 10% canary; * stable; } and a map that routes to canary when X-Canary: 1 is present. Log $variant, send 1000 requests with varying User-Agent and count the share. Set the split to 0% and reload for rollback.",
+          "deliverable": "Routing configuration, a canary share measurement and rollback evidence",
+          "checks": [["1000 requests with random User-Agent values", "Between 80 and 120 are logged as canary (about 10 percent)", "awk count"], ["curl -H 'X-Canary: 1'", "Always routed to canary, logged variant=canary", "Access log line"], ["Set the percentage to 0 and reload", "The next 100 requests all log variant=stable", "awk count"]],
+          "objectives": ["Route a fraction of traffic to a new version", "Make cohorts stable using cookies or hashes", "Roll back with a configuration change"]
+        },
+        {
+          "topic": "njs Scripting: JavaScript Handlers in Nginx",
+          "subtopics": ["What njs is and how it differs from OpenResty Lua", "Loading ngx_http_js_module with load_module", "js_import, js_content and js_set", "The request object r: headers, args, return, subrequest", "js_header_filter and js_body_filter", "Reading shared dictionaries with js_shared_dict_zone", "Unit-testing njs with the njs CLI", "Performance and blocking rules"],
+          "tools": ["Nginx", "njs", "curl", "jq", "nginx -t"],
+          "lab_task": "Install the njs dynamic module, add load_module modules/ngx_http_js_module.so; and js_import main from /etc/nginx/njs/main.js;. Write a function that returns JSON with r.headersIn['User-Agent'] and a computed SHA-256 hash from the crypto module, expose it with js_content, test with curl, and run njs -c in the CLI for a unit check.",
+          "deliverable": "njs script, configuration and curl output plus a CLI unit test result",
+          "checks": [["nginx -t after load_module and js_import", "Reports syntax is ok and test is successful", "nginx -t output"], ["curl -s http://localhost/njs", "Returns JSON containing the User-Agent and a 64-hex-character hash", "curl output"], ["Pass an invalid argument to the handler", "The script returns HTTP 400 with a JSON error message", "curl -i output"]],
+          "objectives": ["Extend Nginx behavior with njs handlers", "Test njs scripts outside the server", "Know when scripting is appropriate and when it is not"]
+        },
+        {
+          "topic": "Dynamic Modules: Building, Loading and Compatibility",
+          "subtopics": ["Static versus dynamic modules and load_module in the main context", "nginx -V flags needed to match a module build", "Building a module with ./configure --with-compat --add-dynamic-module", "Brotli and other third-party modules", "Module ABI mismatch error: module is not binary compatible", "Package-provided modules such as nginx-module-njs", "OpenResty and Lua as an alternative platform", "Update strategy when Nginx is upgraded"],
+          "tools": ["Nginx", "gcc", "make", "nginx -V", "git"],
+          "lab_task": "Take the exact nginx -V output, download the matching Nginx source tarball and build ngx_brotli as a dynamic module using ./configure --with-compat --add-dynamic-module=../ngx_brotli followed by make modules. Copy the .so files, add load_module lines, enable brotli on and verify with curl -H 'Accept-Encoding: br' -I.",
+          "deliverable": "Build notes, module .so files and a response with Content-Encoding: br",
+          "checks": [["nginx -t after load_module for brotli", "Configuration test is successful", "nginx -t output"], ["curl -I -H 'Accept-Encoding: br' http://localhost/app.js", "Content-Encoding: br", "curl -I output"], ["Load a module built from a different Nginx version", "[emerg] module ... is not binary compatible", "nginx -t output"]],
+          "objectives": ["Build and load a dynamic module", "Match module builds to the running binary", "Plan module upgrades safely"]
+        },
+        {
+          "topic": "Kernel and Socket Tuning: reuseport, Backlog and File Descriptors",
+          "subtopics": ["listen ... reuseport and SO_REUSEPORT", "listen backlog= and net.core.somaxconn", "net.ipv4.ip_local_port_range and ephemeral port exhaustion", "net.ipv4.tcp_tw_reuse and TIME_WAIT reality", "fs.file-max, LimitNOFILE in the systemd unit", "Receive and send buffer sizes", "accept queue drops seen in ss -lnt and netstat -s", "Verifying each change with a repeatable wrk test"],
+          "tools": ["Nginx", "sysctl", "ss", "wrk", "systemd"],
+          "lab_task": "Record baseline wrk -t4 -c2000 -d30s numbers and nstat -az TcpExtListenOverflows. Set net.core.somaxconn=4096 with sysctl -w, listen 80 backlog=4096 reuseport, and LimitNOFILE=65535 through systemctl edit nginx. Reload, repeat the test and compare overflows, socket errors and throughput.",
+          "deliverable": "Before and after table of throughput, errors and ListenOverflows with the sysctl and unit drop-in changes",
+          "checks": [["ss -lnt sport = :80 after setting backlog 4096", "Send-Q column shows 4096 for the listening socket", "ss output"], ["cat /proc/$(pgrep -o nginx)/limits | grep 'Max open files'", "Shows 65535", "Command output"], ["Compare nstat ListenOverflows before and after the same wrk test", "The counter increases by less than before or stays 0", "nstat output"]],
+          "objectives": ["Tune the listen backlog and descriptors for high concurrency", "Detect accept queue overflow", "Validate each tuning change with measurement"]
+        },
+        {
+          "topic": "TLS at Scale: SNI Certificates, mTLS and ssl_reject_handshake",
+          "subtopics": ["Many certificates per IP with SNI", "ssl_certificate with variables and loading certificates from files by hostname", "ssl_reject_handshake on for the default server", "Mutual TLS: ssl_client_certificate, ssl_verify_client and ssl_verify_depth", "$ssl_client_verify, $ssl_client_s_dn and passing identity to the backend", "Creating a private CA with openssl and issuing client certificates", "CRL with ssl_crl and revocation limits", "Certificate rotation without downtime"],
+          "tools": ["Nginx", "OpenSSL", "curl", "openssl s_client", "jq"],
+          "lab_task": "Create a private CA and a client certificate with openssl. Configure ssl_client_certificate ca.crt; ssl_verify_client on; on api.test and pass $ssl_client_s_dn to the backend as X-Client-DN. Test with and without --cert/--key, add a default server with ssl_reject_handshake on, and call openssl s_client with an unknown -servername.",
+          "deliverable": "mTLS server configuration, CA files and curl outputs with and without a client certificate",
+          "checks": [["curl --cacert ca.crt https://api.test/ with no client certificate", "HTTP 400 No required SSL certificate was sent", "curl output"], ["curl --cert client.crt --key client.key --cacert ca.crt https://api.test/", "HTTP 200 and the backend receives X-Client-DN: CN=client1", "curl output and backend log"], ["openssl s_client -servername unknown.test", "Handshake fails with an unrecognized_name alert", "s_client output"]],
+          "objectives": ["Serve many hostnames with SNI", "Require and validate client certificates", "Reject handshakes for unknown names"]
+        },
+        {
+          "topic": "Request Mirroring and Subrequests: mirror, slice and sub_filter",
+          "subtopics": ["mirror and mirror_request_body to shadow traffic", "Mirror response is discarded: effects on latency and errors", "Using mirrors to test a new service version", "sub_filter for response body rewriting and sub_filter_once", "Compressed upstream responses and the need for Accept-Encoding \"\"", "Subrequest-based modules such as auth_request and addition", "The slice module for range subrequests", "Preventing infinite recursion and looking at the request log"],
+          "tools": ["Nginx", "curl", "tcpdump", "Python http.server", "grep"],
+          "lab_task": "Configure location /api/ with mirror /mirror; mirror_request_body on; and an internal location /mirror { proxy_pass http://127.0.0.1:9100$request_uri; } where 9100 logs requests. POST 20 JSON payloads to /api/ and show that the shadow service logs 20 requests while clients see only the primary response. Then add sub_filter 'http://old.test' 'https://new.test'.",
+          "deliverable": "Mirroring configuration, shadow server log count and a sub_filter rewrite example",
+          "checks": [["POST 20 payloads to /api/", "Shadow service log has 20 matching entries", "Shadow log count"], ["Stop the shadow service and repeat", "Clients still receive HTTP 200 from the primary backend", "curl status list"], ["Request a page that contains http://old.test links", "Response body shows https://new.test after sub_filter", "curl output"]],
+          "objectives": ["Duplicate production traffic to a test service", "Understand that mirror failures do not change client responses", "Rewrite response bodies with sub_filter"]
+        },
+        {
+          "topic": "Large Media Delivery: sendfile, aio threads, slice and mp4",
+          "subtopics": ["sendfile, directio and aio threads with thread_pool", "Range requests and 206 responses", "The slice module and proxy_cache_key including $slice_range", "Pseudo-streaming with the mp4 module and start= query", "Throttling with limit_rate for video streams", "Cache sizing for large objects", "Checking disk throughput and page cache with iostat", "Verifying with curl -r and ffprobe"],
+          "tools": ["Nginx", "curl", "ffprobe", "iostat", "wrk"],
+          "lab_task": "Serve a 500 MB file and test curl -r 0-99 -I and -r 100-199 for 206 responses. Enable slice 1m in a caching proxy with proxy_set_header Range $slice_range and proxy_cache_key $uri$is_args$args$slice_range, request the file twice, and find slice-sized objects with find. Then enable thread_pool and aio threads and compare iostat.",
+          "deliverable": "Range test results and cache listing with slice-sized chunks",
+          "checks": [["curl -s -o /dev/null -w '%{http_code}' -r 0-99 http://localhost/big.bin", "Prints 206", "curl output"], ["Request the first megabyte of the file twice through the slice cache", "Second response has X-Cache: HIT", "curl -I output"], ["find the cache directory for objects after a full download", "Roughly 500 cached chunk files of about 1 MB", "find and count output"]],
+          "objectives": ["Support range requests and efficient file delivery", "Cache large objects in slices", "Use thread pools to prevent worker blocking on disk I/O"]
+        },
+        {
+          "topic": "Web Application Firewall Modules: ModSecurity v3 and Coraza",
+          "subtopics": ["What a WAF at Nginx can and cannot stop", "ModSecurity v3 connector and libmodsecurity", "Coraza and other Core Rule Set capable engines", "OWASP Core Rule Set paranoia levels and anomaly scoring", "DetectionOnly versus On engine modes", "Reading the audit log and rule IDs", "Writing exclusions for false positives", "Performance cost and the request body inspection limit"],
+          "tools": ["Nginx", "ModSecurity", "OWASP CRS", "curl", "jq"],
+          "lab_task": "Install the ModSecurity v3 dynamic module and the OWASP Core Rule Set, start with SecRuleEngine DetectionOnly, then send curl 'http://localhost/?q=<script>alert(1)</script>' and curl 'http://localhost/?id=1%20OR%201=1'. Read the audit log for rule IDs, switch to SecRuleEngine On and confirm 403, then add a rule exclusion for one false positive.",
+          "deliverable": "WAF configuration, audit log entries for two attacks and an exclusion rule with justification",
+          "checks": [["Send an XSS payload with DetectionOnly", "HTTP 200 returned and audit log records a CRS 941xxx rule match", "curl and audit log"], ["Same payload with SecRuleEngine On", "HTTP 403 Forbidden", "curl -i output"], ["Send a legitimate request that triggers a false positive and add an exclusion", "After exclusion the request returns 200 and the rule no longer appears", "curl and audit log"]],
+          "objectives": ["Deploy a WAF engine with the Core Rule Set", "Tune rules using detection mode first", "Handle false positives with documented exclusions"]
+        },
+        {
+          "topic": "Abuse Mitigation: Slow Clients, return 444 and Bot Filtering",
+          "subtopics": ["Slowloris and slow-read behavior and Nginx timeouts", "client_header_timeout, client_body_timeout and reset_timedout_connection", "return 444 to drop connections silently", "Blocking by User-Agent and path scanners with map", "Combining limit_req, limit_conn and a deny list", "geo ranges and an allow-list for admin paths", "Fail2ban reading Nginx logs", "Edge protection versus CDN and DDoS services"],
+          "tools": ["Nginx", "curl", "fail2ban", "slowhttptest", "geo"],
+          "lab_task": "Use slowhttptest -c 500 -H -i 10 -r 100 -t GET -u http://localhost/ -p 3 before and after setting client_header_timeout 5s and reset_timedout_connection on. Add a map on $http_user_agent that returns 444 for sqlmap and nikto, and configure a fail2ban jail that bans IPs with five 403s. Verify with curl -A sqlmap and fail2ban-client status.",
+          "deliverable": "Mitigation configuration, slowhttptest results before and after, and a fail2ban ban record",
+          "checks": [["curl -A 'sqlmap/1.7' http://localhost/", "curl: (52) Empty reply from server", "curl output"], ["slowhttptest report before and after timeouts", "Connections closed by server count increases with client_header_timeout 5s", "slowhttptest summary"], ["fail2ban-client status nginx-403 after five 403 requests", "Currently banned shows 1 IP", "fail2ban-client output"]],
+          "objectives": ["Protect Nginx from slow and abusive clients", "Drop known-bad traffic cheaply", "Automate bans from log patterns"]
+        },
+        {
+          "topic": "Load Testing and Profiling with wrk, perf and strace",
+          "subtopics": ["Defining a throughput and latency target before testing", "wrk, wrk2 and k6 and coordinated omission", "Test hosts, warm-up and avoiding client bottlenecks", "Reading Requests/sec, Latency distribution and Socket errors", "CPU profiling worker processes with perf top and perf record", "strace -c -p on a worker to find syscalls", "TLS handshake versus keep-alive cost", "Building a regression benchmark in CI"],
+          "tools": ["wrk", "wrk2", "perf", "strace", "Nginx"],
+          "lab_task": "Run wrk2 -t4 -c200 -d60s -R 5000 --latency against a static page over HTTPS, then wrk -c200 with keep-alive disabled using -H 'Connection: close'. Capture p50, p99 and Requests/sec, run perf record -g -p <worker pid> for 20 seconds with perf report, and strace -c -p <worker> -f for syscall counts.",
+          "deliverable": "Benchmark report with latency percentiles, a perf top-symbol list and the syscall summary",
+          "checks": [["wrk2 --latency run at a fixed 5000 requests per second", "Output includes 50%, 99% latency percentiles and Requests/sec near 5000", "wrk2 output"], ["Same load with Connection: close", "Requests/sec lower and CPU time in TLS handshake symbols visible in perf report", "wrk and perf report"], ["strace -c -p <worker> during load", "Syscall table with sendfile, epoll_wait and recvfrom counts as top entries", "strace summary"]],
+          "objectives": ["Design an honest load test", "Identify CPU and syscall hot spots in worker processes", "Report latency percentiles, not only averages"]
+        },
+        {
+          "topic": "Metrics and Tracing: Prometheus Exporter, Request IDs and OpenTelemetry",
+          "subtopics": ["Exporting stub_status via nginx-prometheus-exporter", "Key metrics: nginx_connections_active, nginx_http_requests_total", "Log-derived metrics for status codes and upstream time", "Grafana dashboard panels and alert rules for 5xx ratio", "Request ID propagation with $request_id and traceparent", "The OpenTelemetry module for Nginx and span attributes", "Sampling choices and the cost of tracing", "SLO example: p99 latency and error budget"],
+          "tools": ["Prometheus", "Grafana", "nginx-prometheus-exporter", "OpenTelemetry", "Nginx"],
+          "lab_task": "Run nginx-prometheus-exporter against http://127.0.0.1/nginx_status, scrape it with Prometheus, and write an alert expression such as sum(rate(nginx_http_requests_total[5m])) plus a 5xx ratio from log metrics. Load the OpenTelemetry module, send traces to an OTLP collector on 4317 and verify one trace contains the Nginx and backend spans.",
+          "deliverable": "Prometheus scrape config, alert rule and a screenshot or JSON of a trace with two services",
+          "checks": [["curl http://localhost:9113/metrics | grep nginx_connections_active", "Metric nginx_connections_active has a numeric value", "curl output"], ["Prometheus query nginx_up", "Returns 1 for the Nginx target", "Prometheus result"], ["Search the trace store for a request ID", "One trace shows an Nginx span and a backend span with the same trace ID", "Trace view"]],
+          "objectives": ["Expose Nginx metrics to Prometheus", "Correlate requests across Nginx and backends", "Define an alert based on error ratio"]
+        },
+        {
+          "topic": "Kubernetes Edge Traffic: Ingress Controllers and Gateway API",
+          "subtopics": ["Nginx as an ingress controller: how annotations become nginx.conf", "The community ingress-nginx project retirement and migration planning", "F5 NGINX Ingress Controller and NGINX Gateway Fabric", "Gateway API resources: GatewayClass, Gateway and HTTPRoute", "Reading the generated configuration with kubectl exec ... nginx -T", "Rate limit, timeout and body size equivalents in Kubernetes", "Readiness, graceful termination and preStop for zero downtime", "TLS secrets and cert-manager"],
+          "tools": ["Kubernetes", "kubectl", "NGINX Gateway Fabric", "Helm", "cert-manager"],
+          "lab_task": "On a kind cluster install an Nginx-based Gateway API implementation with Helm. Create a GatewayClass, a Gateway on port 80 and an HTTPRoute that sends /app to a Deployment with two replicas. Test with curl, scale the backend, then run kubectl exec into the data plane pod and nginx -T | grep -A5 upstream to see the generated upstream.",
+          "deliverable": "Gateway and HTTPRoute manifests, curl results and the generated configuration excerpt",
+          "checks": [["kubectl get gateway,httproute", "Gateway shows Programmed True and HTTPRoute shows Accepted True", "kubectl output"], ["curl http://<gateway-ip>/app", "HTTP 200 from the application pods", "curl output"], ["kubectl exec <data plane pod> -- nginx -T | grep upstream", "Upstream block lists the pod IP addresses of the two replicas", "Filtered output"]],
+          "objectives": ["Explain how Kubernetes resources translate to Nginx configuration", "Plan migration from legacy Ingress to Gateway API", "Verify generated configuration in the data plane"]
+        },
+        {
+          "topic": "Production Container Images: Unprivileged Nginx and Graceful Shutdown",
+          "subtopics": ["nginxinc/nginx-unprivileged and listening on port 8080", "Read-only root filesystem with tmpfs for /tmp and /var/cache/nginx", "Dropping capabilities and no-new-privileges", "Distroless or minimal images and CVE scanning with Trivy", "SIGQUIT versus SIGTERM for graceful shutdown in containers", "STOPSIGNAL SIGQUIT and terminationGracePeriodSeconds", "Health endpoints and liveness probes", "Image provenance: pinning digests and SBOMs"],
+          "tools": ["Docker", "Trivy", "Nginx", "Kubernetes", "curl"],
+          "lab_task": "Run docker run --read-only --tmpfs /tmp --tmpfs /var/cache/nginx --tmpfs /var/run --cap-drop ALL --security-opt no-new-privileges -p 8080:8080 nginxinc/nginx-unprivileged. Verify with docker exec id, trivy image on the image, and test graceful stop by running a slow curl download, then docker stop -t 30 and confirming the transfer completes.",
+          "deliverable": "Hardened run command or manifest, Trivy report summary and graceful-stop evidence",
+          "checks": [["docker exec <container> id", "UID is non-root, for example uid=101(nginx)", "id output"], ["Attempt docker exec <container> touch /etc/x", "touch: cannot touch '/etc/x': Read-only file system", "Command output"], ["Start a slow download then docker stop -t 30", "Download completes fully before the container exits", "curl summary and docker events"]],
+          "objectives": ["Run Nginx without root privileges", "Lock down the container runtime surface", "Shut down gracefully without cutting connections"]
+        },
+        {
+          "topic": "Config as Code: Linting with gixy, CI Gates and Automated Rollback",
+          "subtopics": ["Repository structure for configuration and templates", "nginx -t in CI using a container with the same version", "gixy and other static analyzers for misconfigurations", "Common findings: host header spoofing, alias traversal, unbounded regex", "Smoke tests with curl against an ephemeral container", "Canary deployment of config to one node first", "Deployment hook with automatic rollback", "Change reviews and an audit trail"],
+          "tools": ["GitHub Actions", "gixy", "Docker", "Nginx", "curl"],
+          "lab_task": "Create a GitHub Actions workflow that mounts the repository config into the nginx image and runs nginx -t, then runs gixy on nginx.conf. Seed a location /static { alias /srv/static/; } traversal bug, watch gixy report it as a failing check, fix with a trailing slash on the location, and add a curl smoke-test job.",
+          "deliverable": "Workflow YAML, a failing run showing the alias traversal finding and a passing run after the fix",
+          "checks": [["Push the seeded alias bug", "CI job fails and gixy reports Alias traversal", "CI log"], ["Push the fix", "nginx -t, gixy and the curl smoke test all succeed", "CI run summary"], ["Push a syntax error", "nginx -t job fails with [emerg] and blocks the deployment job", "CI log"]],
+          "objectives": ["Test Nginx configuration automatically before release", "Find security misconfigurations with static analysis", "Gate deployments on test results"]
+        },
+        {
+          "topic": "Debug Logging, debug_connection and Production Incident Forensics",
+          "subtopics": ["Nginx built --with-debug and checking nginx -V", "error_log debug and the volume it produces", "debug_connection to limit to one client IP", "Reading the phases: rewrite, access, content, log", "Tracing a failing proxy_pass or rewrite decision", "Core dumps, worker_rlimit_core and working_directory", "Packet capture with tcpdump -i any port 443 and Wireshark", "Timeline-building from access, error and system logs"],
+          "tools": ["Nginx", "tcpdump", "gdb", "journalctl", "Wireshark"],
+          "lab_task": "On a build with debug, add events { debug_connection 192.0.2.10; } and error_log /var/log/nginx/debug.log debug; then request a location that uses rewrite and try_files from that address. Trace which location handled the request with grep 'using configuration', and capture the same request with tcpdump -w t.pcap port 80 to show the proxied upstream request.",
+          "deliverable": "Debug log excerpt with the matched location, a pcap file and a timeline of the request",
+          "checks": [["nginx -V 2>&1 | grep -o with-debug", "Prints --with-debug", "Command output"], ["grep 'using configuration' debug.log", "Shows the exact location matched, for example \"/api/\"", "Log line"], ["Make the same request from a different IP", "No debug entries are written for that client", "Log comparison"]],
+          "objectives": ["Enable targeted debug logging safely", "Trace phases and location selection from logs", "Correlate application and network evidence"]
+        },
+        {
+          "topic": "Zero-Downtime Binary Upgrades and Version Migration",
+          "subtopics": ["Mainline versus stable release lines and support policy", "Reading release notes for removed or changed directives", "Binary upgrade with kill -USR2 and the .oldbin PID file", "Winding down old workers with kill -WINCH and quitting with QUIT", "Rolling back by sending HUP to the old master", "Package upgrades and nginx -t before service restart", "Blue-green nodes and draining traffic instead", "Changes to watch for: http2 directive, ssl and listen differences"],
+          "tools": ["Nginx", "kill", "ps", "curl", "apt"],
+          "lab_task": "Install an older Nginx to /opt/nginx-old and start it. Replace the binary with a newer build, send kill -USR2 $(cat nginx.pid), then ps to see both masters, kill -WINCH on the old master, and verify a long curl download survives. Test rollback by sending kill -HUP to the old master and killing the new one.",
+          "deliverable": "Upgrade runbook with ps output at each step and download continuity result",
+          "checks": [["After kill -USR2, run ps -ef | grep 'nginx: master'", "Two master processes exist and a nginx.pid.oldbin file is present", "ps and ls output"], ["Run kill -WINCH on the old master during a download", "The download completes and old workers exit afterwards", "curl summary and ps"], ["nginx -v after upgrade", "Shows the new version while the port stayed open throughout", "nginx -v output and uptime log"]],
+          "objectives": ["Upgrade Nginx without dropping connections", "Roll back from a failed upgrade", "Review release notes for configuration impact"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Tier Edge Gateway with Canary, mTLS and Observability",
+          "subtopics": ["Requirements and threat model", "Edge Nginx and internal gateway layers with mTLS", "Canary routing, rate limits and WAF in detection mode", "Metrics, tracing and structured logs", "Failure drills and performance verification", "Runbook and handover review"],
+          "tools": ["Nginx", "Docker Compose", "wrk", "OpenSSL", "Prometheus"],
+          "lab_task": "Use Docker Compose to build an edge Nginx that terminates TLS 1.3 with HTTP/3, mTLS to an internal Nginx gateway, a 10 percent split_clients canary, limit_req, JSON logs and a Prometheus exporter. Run wrk, kill the canary, reload with an invalid config to prove rollback and publish a runbook with measured p99 latency and 5xx counts.",
+          "deliverable": "Compose project, configuration repository, benchmark and failure-drill results, and a runbook",
+          "checks": [["wrk at 2000 requests per second for 60 seconds", "p99 latency and error rate are recorded and 5xx ratio is below 0.1 percent", "wrk2 report"], ["Stop the canary service during traffic", "All requests are answered by the stable pool with no client-visible errors in the log", "Log analysis"], ["Deploy a configuration with a syntax error", "The deployment script stops at nginx -t, the running configuration is unchanged and Prometheus shows no downtime", "Script output and nginx_up"]],
+          "objectives": ["Design and test a layered edge gateway", "Prove resilience with failure drills", "Hand over a runbook that another team can operate"]
+        }
+      ]
+    }
+  }
+}

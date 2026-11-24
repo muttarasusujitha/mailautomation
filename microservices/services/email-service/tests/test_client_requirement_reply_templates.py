@@ -27,7 +27,10 @@ def test_partial_client_requirement_reply_asks_only_missing_details():
     )
     reply = _client_proceed_ack_reply(extracted)
 
-    assert "Thanks for sharing your training requirement." in reply["body"]
+    opening = reply["body"].split("\n\n")[1]
+    assert opening.startswith("Thanks ") or opening.startswith("Thank you ")
+    assert "requirement" in opening
+    assert "Thanks for sharing your training requirement." not in reply["body"]
     assert "Please share:" in reply["body"]
     assert "- Training duration" in reply["body"]
     assert "- Training mode/location" in reply["body"]
@@ -119,9 +122,11 @@ def test_lab_cost_is_recorded_for_clahan_without_requesting_it_from_trainers():
         "Lab setup details",
     }.intersection(extracted["requested_details"])
     body = _client_proceed_ack_reply(extracted)["body"]
-    assert "prepare the lab estimate" in body
-    assert "after confirming the participant count and required lab-access hours per day and preferred cloud provider (AWS, Azure, or GCP)" in body
-    assert "not treated as the participant count" in body
+    assert "Could you please confirm" not in body
+    assert "lab estimate for one participant and 3 hours per day" in body.lower()
+    assert "approved one-person, three-hour baseline" in body.lower()
+    assert "not treated as the participant count" not in body
+    assert "confirmed batch scope" not in body
 
 
 def test_client_supplied_lab_inputs_are_acknowledged_without_default_disclaimer():
@@ -147,8 +152,15 @@ def test_client_supplied_lab_inputs_are_acknowledged_without_default_disclaimer(
     assert extracted["lab_hours_per_day"] == 3
     assert extracted["cloud_provider"] == "AWS & Azure"
     body = _client_proceed_ack_reply(extracted)["body"]
-    assert "20 training days, Offline, 34 participants, Advanced level, AWS & Azure platforms" in body
-    assert "34 participants, 20 lab-access days, and 3 lab-access hours per day" in body
+    assert "prepare the lab estimate for 34 participants, 20 days, and 3 hours per day." in body.lower()
+    assert "20" in body
+    assert "offline" in body
+    assert "CV" in body
+    assert "LinkedIn" in body
+    assert "toc" in body.lower()
+    assert "topics" not in body.lower()
+    assert "Greetings of the day" not in body
+    assert "We will share the CV and ToC for your review." not in body
     assert "not treated as the participant count" not in body
     assert "Please share the participant count" not in body
     assert "commercials for your review" not in body
@@ -257,8 +269,9 @@ def test_total_client_commercial_uses_duration_without_fifteen_thousand_cap():
 def test_first_trainer_mail_requests_three_dated_interview_slots():
     mail = _trainer_mail_for_requirement({"technology_needed": "DevOps"}, "REQ-1")
 
-    assert "3 convenient interview/discussion slots" in mail["body"]
+    assert "three convenient interview/discussion slots that you are actually available for" in mail["body"]
     assert "date, time, and time zone" in mail["body"]
+    assert "illustrative, not booked appointments" in mail["body"]
 
 
 def test_date_first_training_dates_are_extracted_from_recent_client_request():
@@ -353,8 +366,14 @@ def test_client_provided_all_details_reply_thanks_naturally():
     )
     reply = _client_proceed_ack_reply(extracted)
 
-    assert "Thanks for sharing the required details for your training requirement." in reply["body"]
-    assert "share suitable trainer profiles" in reply["body"]
+    assert "DevOps" in reply["body"]
+    assert "5" in reply["body"]
+    assert "Online" in reply["body"]
+    assert "Looking forward" in reply["body"] or "look forward" in reply["body"]
+    assert "Greetings of the day" not in reply["body"]
+    assert "We will share the CV and ToC for your review." not in reply["body"]
+    assert "topics" not in reply["body"].lower()
+    assert "lab cost" not in reply["body"].lower()
     assert "Please share:" not in reply["body"]
 
 
@@ -382,7 +401,10 @@ def test_client_sent_details_template_uses_details_ack_intro():
 
     assert reply["template_key"] == "client_details_ack"
     assert "Hi Asha" in reply["body"]
-    assert "Thanks for sharing the required details." in reply["body"]
+    assert "DevOps" in reply["body"]
+    assert "Thank you for" in reply["body"]
+    assert "Greetings of the day" not in reply["body"]
+    assert "Thanks for sharing the required details." not in reply["body"]
     assert "Thanks for sharing the DevOps training requirement." not in reply["body"]
 
 
@@ -405,8 +427,8 @@ def test_auto_reply_partial_requirement_lists_only_missing_details():
     )
 
     assert "Please share:" in reply["body"]
-    assert "* Training mode/location" in reply["body"]
-    assert "* Participant count" in reply["body"]
+    assert "- Training mode/location" in reply["body"]
+    assert "- Participant count" in reply["body"]
 
 
 def test_auto_reply_profile_request_does_not_ask_for_unrelated_fields():

@@ -133,6 +133,82 @@ def test_remember_me_redirect_can_finish_but_verification_is_not_bypassed(destin
     page.wait_for_url.assert_awaited_once()
 
 
+def test_a_busy_linkedin_fetch_waits_and_then_reports_busy(monkeypatch):
+    from app.clients import linkedin_browser
+    linkedin_browser._lock = asyncio.Lock()
+    monkeypatch.setattr(linkedin_browser, '_LOCK_WAIT_SECONDS', 0.05)
+
+    async def hold():
+        async with linkedin_browser._lock:
+            await asyncio.sleep(0.2)
+
+    async def run():
+        waiter = asyncio.create_task(hold())
+        await asyncio.sleep(0)
+        with pytest.raises(ValueError, match='LinkedIn bot is busy'):
+            await linkedin_browser._acquire_bot_lock()
+        await waiter
+
+    try:
+        asyncio.run(run())
+    finally:
+        linkedin_browser._lock = asyncio.Lock()
+
+
+def test_a_finished_linkedin_fetch_releases_the_next_search(monkeypatch):
+    from app.clients import linkedin_browser
+    linkedin_browser._lock = asyncio.Lock()
+    monkeypatch.setattr(linkedin_browser, '_LOCK_WAIT_SECONDS', 1)
+
+    async def run():
+        await linkedin_browser._lock.acquire()
+        async def release():
+            await asyncio.sleep(0.05)
+            linkedin_browser._lock.release()
+        asyncio.create_task(release())
+        await linkedin_browser._acquire_bot_lock()
+        assert linkedin_browser._lock.locked()
+        linkedin_browser._lock.release()
+
+    try:
+        asyncio.run(run())
+    finally:
+        linkedin_browser._lock = asyncio.Lock()
+
+
+def test_trainer_search_budget_is_long_enough_to_page_people_results():
+    from app.clients.linkedin_browser import trainer_scan_budget
+    limit, scan_limit, page_cap, seconds = trainer_scan_budget(60)
+    assert limit == 60
+    assert scan_limit == 240
+    assert page_cap >= 24
+    assert seconds >= 160
+    # A 50-profile request used to miss the 60-profile line and stop after 65 seconds.
+    assert trainer_scan_budget(50)[3] >= 160
+    assert trainer_scan_budget(2)[3] < 90
+
+
+def test_account_search_asks_the_browser_for_the_full_trainer_target(tmp_path, monkeypatch):
+    from app.clients.linkedin_browser import search_linkedin_account
+    monkeypatch.setenv('LINKEDIN_BOT_ENABLED', 'true')
+    monkeypatch.setenv('LINKEDIN_BOT_PROFILE_PATH', str(tmp_path))
+    page = MagicMock()
+    page.url = 'https://www.linkedin.com/search/results/people/'
+    page.locator.return_value.count = AsyncMock(return_value=0)
+    context = AsyncMock()
+    context.new_page.return_value = page
+    context.cookies.return_value = []
+    playwright = MagicMock()
+    playwright.chromium.launch_persistent_context = AsyncMock(return_value=context)
+    manager = AsyncMock()
+    manager.__aenter__.return_value = playwright
+    collector = AsyncMock(return_value=[])
+    with patch('playwright.async_api.async_playwright', return_value=manager), \
+            patch('app.clients.linkedin_browser.collect_trainer_profiles', collector):
+        asyncio.run(search_linkedin_account('Devops trainer', 'trainer', 60))
+    assert collector.await_args.args[3] == 60
+
+
 def test_disabled_bot_does_not_launch_browser():
     with patch.dict('os.environ', {'LINKEDIN_BOT_ENABLED': 'false'}):
         with pytest.raises(ValueError, match='not enabled'):
@@ -205,7 +281,8 @@ def test_people_search_keeps_paging_until_the_fifty_profile_target():
         rows = asyncio.run(collect_trainer_profiles(page, 'SAP trainer', '', 50))
     assert len(rows) == 6
     assert page.goto.await_count > 6
-    assert all('page=' in call.args[0] for call in page.goto.await_args_list)
+    assert sum('page=' in call.args[0] for call in page.goto.await_args_list) >= 6
+    assert any('/content/' in call.args[0] for call in page.goto.await_args_list)
 
 
 def test_scanning_people_stops_at_sixty_trainer_profiles():
@@ -236,7 +313,7 @@ def test_scanning_people_stops_at_sixty_trainer_profiles():
     assert len({row['url'] for row in rows}) == 60
     assert all('trainer-' in row['url'] for row in rows)
     assert page.goto.await_count == 12
-    assert any('page=12' in call.args[0] for call in page.goto.await_args_list)
+    assert len({call.args[0].split('&page=')[0] for call in page.goto.await_args_list}) >= 3
     assert all('page=13' not in call.args[0] for call in page.goto.await_args_list)
     page.get_by_role.return_value.click.assert_not_awaited()
 
@@ -486,6 +563,58 @@ def test_account_results_saved_without_search_api_or_mail(mode, table, url, text
     public.assert_not_awaited()
     paid.assert_not_awaited()
     mail.assert_not_awaited()
+
+
+def test_search_page_html_keeps_trainer_profiles_and_skips_the_nav_label():
+    from app.clients.linkedin_browser import profiles_from_search_html
+    html = (
+        '{"navigationUrl":"https:\\/\\/www.linkedin.com\\/in\\/ada-lovelace",'
+        '"title":{"text":"Ada Lovelace"},"primarySubtitle":{"text":"DevOps corporate trainer"}}'
+        '{"publicIdentifier":"me","navigationUrl":"https://www.linkedin.com/in/me","title":{"text":"Me"}}'
+    )
+    rows = profiles_from_search_html(html)
+    assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/ada-lovelace']
+    assert 'DevOps corporate trainer' in rows[0]['text']
+
+
+def test_nav_link_does_not_hide_profiles_embedded_in_the_search_page():
+    from app.clients.linkedin_browser import collect_trainer_profiles
+    html = (
+        '{"navigationUrl":"https://www.linkedin.com/in/ada-lovelace",'
+        '"title":{"text":"Ada Lovelace"},"primarySubtitle":{"text":"Soft Skills corporate trainer"}}'
+    )
+    page = MagicMock()
+    page.goto = AsyncMock(side_effect=TimeoutError('slow search page'))
+    page.wait_for_timeout = AsyncMock()
+    page.mouse.wheel = AsyncMock()
+    page.content = AsyncMock(return_value=html)
+    people = MagicMock()
+    people.first.wait_for = AsyncMock()
+    people.evaluate_all = AsyncMock(return_value=[{'url': 'https://www.linkedin.com/in/me', 'text': 'Me'}])
+    page.locator.return_value = people
+    with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
+        rows = asyncio.run(collect_trainer_profiles(page, 'soft skills', '', 5))
+    assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/ada-lovelace']
+
+
+def test_account_search_asks_for_sixty_profiles_instead_of_stopping_at_fifty(tmp_path, monkeypatch):
+    monkeypatch.setenv('LINKEDIN_BOT_ENABLED', 'true')
+    monkeypatch.setenv('LINKEDIN_BOT_PROFILE_PATH', str(tmp_path))
+    page = MagicMock()
+    page.url = 'https://www.linkedin.com/search/results/people/'
+    page.locator.return_value.count = AsyncMock(return_value=0)
+    context = AsyncMock()
+    context.new_page.return_value = page
+    context.cookies.return_value = []
+    playwright = MagicMock()
+    playwright.chromium.launch_persistent_context = AsyncMock(return_value=context)
+    manager = AsyncMock()
+    manager.__aenter__.return_value = playwright
+    collector = AsyncMock(return_value=[])
+    with patch('playwright.async_api.async_playwright', return_value=manager), \
+            patch('app.clients.linkedin_browser.collect_trainer_profiles', collector):
+        asyncio.run(search_linkedin_account('DevOps', 'trainer', 60))
+    assert collector.await_args.args[3] == 60
 
 
 def test_account_failure_is_explicit_and_stops_other_domains():

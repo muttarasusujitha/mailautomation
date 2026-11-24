@@ -99,6 +99,7 @@ class AdminSettingsUpdate(BaseModel):
     teamsDirectCfg: Optional[Dict[str, Any]] = None
     notif: Optional[Dict[str, Any]] = None
     pipeline: Optional[Dict[str, Any]] = None
+    offlineOperations: Optional[Dict[str, Any]] = None
     keys: Optional[Dict[str, Any]] = None
     schedulerCfg: Optional[Dict[str, Any]] = None
     autoSendCfg: Optional[Dict[str, Any]] = None

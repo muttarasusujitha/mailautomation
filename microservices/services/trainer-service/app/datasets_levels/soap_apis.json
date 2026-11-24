@@ -1,0 +1,573 @@
+{
+  "domain": "SOAP APIs",
+  "name": "SOAP APIs",
+  "category": "Backend, APIs and Web Servers",
+  "icon": "server",
+  "aliases": ["SOAP Web Services", "XML Web Services", "SOAP", "WSDL and SOAP", "SOAP Web Services Training", "WS-Security", "Jakarta XML Web Services", "Apache CXF and CoreWCF"],
+  "certifications": [],
+  "tools": ["SoapUI", "Postman", "Apache CXF", "Spring Web Services", "CoreWCF", "dotnet-svcutil", "WSS4J", "JAXB", "xmllint", "Wireshark", "JMeter", "WireMock", "Oxygen XML Editor"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers and testers who know one programming language and basic HTTP and are new to SOAP. Covers the SOAP 1.1 and 1.2 message model, XML namespaces and XSD, faults, WSDL structure and binding styles, calling services with curl, Postman and SoapUI, mocks, generating and writing Java clients and services with Jakarta XML Web Services and Apache CXF, a .NET client with dotnet-svcutil, a first CoreWCF service, basic transport security and troubleshooting, ending with a tested order lookup service.",
+      "prerequisites": ["Programs in Java or C# at a basic level and can build a project with Maven or the dotnet CLI", "Understands HTTP methods, headers and status codes", "Has a laptop that can run a JDK 17 or later, the .NET SDK, Docker and SoapUI"],
+      "outcomes": ["Read and hand-write SOAP 1.1 and 1.2 messages and interpret faults", "Read a WSDL and XSD and trace an operation through the contract", "Build, call and test a simple SOAP service in Java and .NET", "Diagnose common SOAP failures with curl, SoapUI and a TCP monitor"],
+      "days": [
+        {
+          "topic": "SOAP Orientation: Messaging Model, Standards and Where It Still Runs",
+          "subtopics": ["What SOAP is: an XML messaging protocol with an envelope, headers and a body", "The W3C SOAP 1.1 note and the SOAP 1.2 recommendation", "The WS-* family: WSDL, WS-Security, WS-Addressing, WS-Policy", "Request-response, one-way and fault message exchange patterns", "Why banks, insurers, telecoms, governments and ERP systems still expose SOAP", "SOAP versus REST, gRPC and GraphQL: contract, transport and tooling trade-offs", "Transport bindings: HTTP POST is the norm, JMS and SMTP are rare", "Intermediaries, nodes and roles (actor) in the SOAP processing model", "Reading a real SOAP exchange: who sends what and why", "Course roadmap: Java, .NET, SoapUI, gateways and modernisation"],
+          "tools": ["curl", "SoapUI", "Postman", "xmllint", "Wireshark"],
+          "lab_task": "Send one SOAP 1.1 request with curl -v -H 'Content-Type: text/xml; charset=utf-8' -H 'SOAPAction: \"\"' --data @req.xml to a public number-conversion or calculator WSDL service, then label the HTTP status line, headers, Envelope, Header, Body and response element in an annotated copy of the exchange.",
+          "deliverable": "Annotated request and response capture with a one-page SOAP versus REST comparison",
+          "checks": [["Run the curl command against the public calculator service", "HTTP/1.1 200 with a text/xml response whose Body holds a <...Response> element", "curl -v output saved as exchange.txt"], ["Remove the Body element from req.xml and resend", "The service returns a SOAP Fault with faultcode in the Client or Server family and HTTP 500", "Fault XML in the capture"], ["List three systems in your organisation that use SOAP", "Each is named with its owner, counterpart and WSDL location", "Inventory table in the report"]],
+          "objectives": ["Describe the SOAP message model and the role of the Envelope, Header and Body", "Place SOAP among the WS-* standards and modern API styles", "Capture and read a raw SOAP exchange"]
+        },
+        {
+          "topic": "Lab Setup: SoapUI, curl, xmllint and a Java and .NET Toolchain",
+          "subtopics": ["Installing SoapUI Open Source and noting how it differs from ReadyAPI", "Choosing a JDK (17 or 21) and Maven 3.9 or Gradle 8 for the course", "Installing the .NET SDK and the dotnet-svcutil global tool", "Installing libxml2-utils so xmllint is available", "Setting up Postman for raw XML bodies", "Choosing public practice services and keeping a local mock as a fallback", "Starting a local SOAP service with Docker for repeatable labs", "Project folder layout: wsdl, xsd, samples, tests", "Proxy and TLS settings in SoapUI preferences", "Verifying the toolchain with a version script"],
+          "tools": ["SoapUI", "JDK", "Maven", ".NET SDK", "xmllint", "Docker"],
+          "lab_task": "Install the toolchain, then create check.sh that prints java -version, mvn -v, dotnet --version, xmllint --version and docker --version, imports a WSDL URL into a new SoapUI project, and runs xmllint --noout on a sample XML file. Run the script and keep its output as the lab proof.",
+          "deliverable": "Working lab with check.sh output and a SoapUI project file committed to a Git repository",
+          "checks": [["Run ./check.sh", "Every tool prints a version and the script exits with code 0", "Terminal output"], ["Import a public WSDL into SoapUI", "The project tree lists at least one binding with its operations", "SoapUI project screenshot"], ["Run xmllint --noout on a file with an unclosed tag", "xmllint reports a parser error naming the line and 'Premature end of data' or 'expected' text", "Terminal output"]],
+          "objectives": ["Prepare a repeatable SOAP development environment", "Verify tools with a scripted check", "Organise WSDL, XSD and sample files in a project"]
+        },
+        {
+          "topic": "XML and Namespaces for SOAP Developers",
+          "subtopics": ["Well-formed versus valid XML", "Elements, attributes, text and mixed content", "Namespace declarations with xmlns and prefixes", "Default namespaces and why they do not apply to attributes", "Qualified versus unqualified names in practice", "Character encoding, the XML declaration and UTF-8", "CDATA, entity references and escaping &, < and >", "XPath 1.0 basics: paths, predicates and namespace-aware queries", "Parsing with DOM, SAX and StAX and when each is used", "Common namespace mistakes that break SOAP requests"],
+          "tools": ["xmllint", "xmlstarlet", "VS Code", "SoapUI"],
+          "lab_task": "Write order.xml with a default namespace and a prefixed namespace, check it with xmllint --noout, then run xmllint --xpath \"//*[local-name()='Id']/text()\" and a namespace-aware xmlstarlet sel -N o=urn:example:orders query. Then break the namespace on purpose and record how the XPath result changes.",
+          "deliverable": "order.xml, XPath query script and a note on three namespace errors with their symptoms",
+          "checks": [["Run the local-name() XPath against order.xml", "It prints the order Id value exactly as in the file", "Terminal output"], ["Run the prefixed XPath with the namespace URI changed by one character", "It returns an empty node set", "Terminal output"], ["Save the file with an unescaped & inside text", "xmllint reports an EntityRef error on the line", "xmllint message"]],
+          "objectives": ["Write namespace-correct XML", "Query XML with namespace-aware XPath", "Diagnose namespace errors"]
+        },
+        {
+          "topic": "XML Schema (XSD): Simple Types, Complex Types and Elements",
+          "subtopics": ["xs:schema, targetNamespace and elementFormDefault qualified", "Built-in types: xs:string, xs:int, xs:decimal, xs:date and xs:dateTime", "Restrictions with xs:pattern, xs:enumeration, xs:minLength and xs:maxInclusive", "xs:complexType with xs:sequence, xs:choice and xs:all", "minOccurs, maxOccurs and nillable with xsi:nil", "Attributes versus elements and use=\"required\"", "Named types versus anonymous types and reuse", "xs:list, xs:union and extension versus restriction", "Validating with xmllint --schema", "Reading XSD validation errors"],
+          "tools": ["xmllint", "VS Code", "Oxygen XML Editor", "SoapUI"],
+          "lab_task": "Author order.xsd with a PostalCode pattern restriction, an enumerated Status type, a sequence with a repeating Line element (maxOccurs unbounded) and a nillable Note. Validate three XML files with xmllint --noout --schema order.xsd and record each result.",
+          "deliverable": "order.xsd with valid and invalid sample files and a validation log",
+          "checks": [["Validate the valid sample", "xmllint prints 'order.xml validates'", "Terminal output"], ["Validate a file with Status set to SHIPPED2", "The error names the enumeration facet and lists the allowed values", "Terminal output"], ["Validate a file with a PostalCode that fails the pattern", "The error cites the pattern facet and the element name", "Terminal output"]],
+          "objectives": ["Model business data with XSD types and facets", "Validate documents against a schema from the command line", "Interpret schema validation errors"]
+        },
+        {
+          "topic": "The SOAP 1.1 Message: Envelope, Header, Body and SOAPAction",
+          "subtopics": ["Envelope namespace http://schemas.xmlsoap.org/soap/envelope/", "The optional Header and header blocks", "mustUnderstand and actor attributes", "The Body and the single payload element", "HTTP POST with Content-Type text/xml; charset=utf-8", "The SOAPAction HTTP header and its role in dispatch", "Response codes: 200 for success, 500 for faults", "Encoding style attribute and why it is no longer used", "Hand-writing a request from a WSDL", "Comparing a hand-written request to the one SoapUI generates"],
+          "tools": ["SoapUI", "curl", "xmllint", "Postman"],
+          "lab_task": "From a WSDL, hand-write a SOAP 1.1 request for one operation, send it with curl including the SOAPAction value copied from the WSDL soap:operation element, then add a header block with mustUnderstand=\"1\" that the service does not know and record the response.",
+          "deliverable": "Hand-written request, response and a table of Envelope parts",
+          "checks": [["Send the hand-written request with the right SOAPAction", "HTTP 200 and a Body containing the expected response element", "curl output"], ["Add an unknown header block with mustUnderstand=\"1\"", "A fault with faultcode MustUnderstand (or a service-specific reject) and HTTP 500", "Response XML"], ["Send the request with Content-Type application/json", "The service rejects it with an HTTP 415 or a fault, not a normal response", "Status line"]],
+          "objectives": ["Construct a valid SOAP 1.1 request by hand", "Explain mustUnderstand and SOAPAction", "Map HTTP details to the SOAP exchange"]
+        },
+        {
+          "topic": "SOAP 1.2: Differences, Content Type and the HTTP Binding",
+          "subtopics": ["Envelope namespace http://www.w3.org/2003/05/soap-envelope", "Content-Type application/soap+xml with the action parameter", "Removal of the SOAPAction header and what replaces it", "role and relay replace actor", "HTTP status codes for faults in the SOAP 1.2 HTTP binding", "VersionMismatch and the Upgrade header block", "The SOAP 1.2 Fault structure with Code, Reason and Detail", "Why most services support both versions", "Detecting the version a server accepts", "Converting a 1.1 request to 1.2"],
+          "tools": ["SoapUI", "curl", "xmllint", "Wireshark"],
+          "lab_task": "Convert a working SOAP 1.1 request into SOAP 1.2: change the Envelope namespace, send it with Content-Type: application/soap+xml; charset=utf-8; action=\"...\", compare the reply, then send the 1.2 body to a 1.1-only endpoint and record the VersionMismatch fault.",
+          "deliverable": "Side-by-side table of 1.1 and 1.2 requests and responses with captured faults",
+          "checks": [["Send the 1.2 request to a service with a soap12 binding", "HTTP 200 and an Envelope in the 2003/05 namespace", "curl output"], ["Send the 1.2 Envelope to a 1.1-only endpoint", "A fault with code VersionMismatch or a plain HTTP error that is recorded", "Response capture"], ["Send the 1.2 request without the action parameter", "The outcome (accepted or rejected) is recorded with the service's behaviour", "Response capture"]],
+          "objectives": ["Distinguish SOAP 1.1 and 1.2 messages", "Use the right content type and action semantics", "Test version negotiation"]
+        },
+        {
+          "topic": "SOAP Faults: Structure, Fault Codes and Error Design",
+          "subtopics": ["SOAP 1.1 fault: faultcode, faultstring, faultactor and detail", "SOAP 1.2 fault: Code/Value, Reason/Text, Node, Role and Detail", "Standard codes: Client or Sender versus Server or Receiver", "Custom faults declared in the WSDL with wsdl:fault", "Why the detail element carries typed business errors", "HTTP 500 and fault handling in clients", "Not leaking stack traces or SQL in faults", "Mapping exceptions to faults in Java and .NET", "Asserting on faults in SoapUI", "Choosing between faults and error codes in a success response"],
+          "tools": ["SoapUI", "curl", "xmllint", "Postman"],
+          "lab_task": "Trigger three faults on a test service: malformed XML, an invalid argument and a business rule failure. For each, capture the HTTP status, faultcode, faultstring and detail, then write a one-page error catalogue that says which are client errors and which are server errors.",
+          "deliverable": "Error catalogue with three captured faults and a classification",
+          "checks": [["Send XML that is not well-formed", "A fault (1.1 Client or 1.2 Sender) or an HTTP 400, recorded", "Response capture"], ["Send an operation argument that violates the schema", "A fault whose message names the offending element", "Response capture"], ["Search all fault bodies for 'at com.' or 'Exception in'", "No stack trace text is present in the responses", "grep result"]],
+          "objectives": ["Read and classify SOAP faults", "Design a safe, typed error contract", "Assert on faults in tests"]
+        },
+        {
+          "topic": "WSDL 1.1 Structure: Types, Messages, PortType, Binding and Service",
+          "subtopics": ["wsdl:definitions and targetNamespace", "wsdl:types with embedded or imported XSD", "wsdl:message and wsdl:part with element or type", "wsdl:portType and operations with input, output and fault", "wsdl:binding with soap:binding, soap:operation and soap:body", "wsdl:service, wsdl:port and soap:address location", "Abstract versus concrete parts of the contract", "Reading a WSDL from the bottom up", "Why the soap:address needs fixing behind a proxy", "Validating a WSDL with a linter or a code generator"],
+          "tools": ["SoapUI", "VS Code", "Oxygen XML Editor", "xmllint"],
+          "lab_task": "Take a calculator or order WSDL and produce a diagram that traces one operation from service/port through binding and portType to message and XSD element. Then change the soap:address location to a local mock URL and send a request from SoapUI to confirm it reaches the mock.",
+          "deliverable": "Annotated WSDL diagram and a working request against a changed endpoint address",
+          "checks": [["Follow operation Add from service to XSD element in your diagram", "Every hop (port, binding, portType, message, element) is named correctly", "Diagram review"], ["Change the soap:address location and resend", "The request reaches the mock and the mock log shows it", "Mock log"], ["Delete a referenced message from the WSDL", "SoapUI or a code generator reports an unresolved reference naming the message", "Tool error text"]],
+          "objectives": ["Read every section of a WSDL 1.1 document", "Trace an operation across abstract and concrete parts", "Repoint a service endpoint"]
+        },
+        {
+          "topic": "Binding Styles: Document/Literal Wrapped, Bare and RPC/Literal",
+          "subtopics": ["style document versus rpc and use literal versus encoded", "Document/literal bare and what the parts look like", "Document/literal wrapped and the wrapper element convention", "RPC/literal with operation-named wrapper elements", "Why SOAP encoding (use=\"encoded\") is not supported by WS-I", "How the style affects generated Java and C# signatures", "Overloading and why wrapped avoids ambiguity", "Validating messages against the schema in each style", "Choosing a style for new services", "Spotting the style from a WSDL"],
+          "tools": ["SoapUI", "xmllint", "wsimport", "VS Code"],
+          "lab_task": "Obtain or write three small WSDLs that use document/literal wrapped, document/literal bare and rpc/literal. For each, send one request in SoapUI, copy the Body, and note how the first child element is named and whether it validates against the XSD. Summarise findings in a table.",
+          "deliverable": "Comparison table of the three styles with request samples",
+          "checks": [["Open each WSDL binding and read the style and use attributes", "Each style/use pair is recorded correctly", "Table row per WSDL"], ["Validate the rpc/literal request Body against the schema", "The wrapper element is not in the schema, so validation applies only to the parts", "Validation note"], ["Check wrapped request first-child names", "They match the operation name with the document wrapper element", "Request sample"]],
+          "objectives": ["Identify binding style and use", "Predict message shapes per style", "Pick document/literal wrapped for new services"]
+        },
+        {
+          "topic": "Calling SOAP Services with curl, Postman and SoapUI",
+          "subtopics": ["Choosing a tool for each purpose", "curl: headers, --data @file and --trace-ascii", "Postman: raw XML body, headers and environments", "SoapUI: generating requests from a WSDL", "Using environment variables for endpoints", "Basic authentication and custom headers", "Reading response headers and timing", "Saving and sharing requests in version control", "Handling gzip responses", "Comparing the same call across three tools"],
+          "tools": ["curl", "Postman", "SoapUI", "xmllint", "jq"],
+          "lab_task": "Call one operation three ways: curl with --data @req.xml and -w '%{http_code} %{time_total}', Postman with a raw XML body and a {{baseUrl}} variable, and SoapUI from the WSDL. Compare status codes, response sizes and timings in a table over 5 runs each.",
+          "deliverable": "Three working request definitions and a timing comparison table",
+          "checks": [["Call the operation with curl and print %{http_code}", "200 is printed and the body contains the expected response element", "Terminal output"], ["Switch the Postman environment from test to a wrong host", "Postman shows a connection error that is distinct from a SOAP fault", "Postman console"], ["Run each tool 5 times", "A table shows median time for each tool", "Timing table"]],
+          "objectives": ["Call SOAP services from three tools", "Parameterise endpoints", "Compare results between tools"]
+        },
+        {
+          "topic": "SoapUI Projects: Requests, Assertions and Property Transfers",
+          "subtopics": ["Workspaces, projects, interfaces and requests", "Test suites, test cases and test steps", "Assertions: SOAP Response, Schema Compliance and Not SOAP Fault", "XPath Match and XQuery Match assertions", "Simple Contains and Valid HTTP Status Codes", "Properties at project, suite, case and global levels", "Property Transfer steps between responses and requests", "Running a test case and reading the log", "Saving projects as XML for Git", "Parameterising with ${#Project#endpoint}"],
+          "tools": ["SoapUI", "XPath", "Git", "xmllint"],
+          "lab_task": "Build a SoapUI test case with two steps: create an order, then fetch it using a property transfer of the returned OrderId. Add Schema Compliance, Not SOAP Fault and an XPath Match assertion on Status, run it, and commit the project XML to Git.",
+          "deliverable": "SoapUI project XML with a passing two-step test case",
+          "checks": [["Run the test case", "Both steps are green and the log shows 3 assertions passed per step", "SoapUI test log"], ["Change the XPath assertion expected value to a wrong status", "The step turns red with an XPath mismatch message", "SoapUI log"], ["Check the transfer", "Step 2 request contains the OrderId returned by step 1", "Raw request view"]],
+          "objectives": ["Create SoapUI test cases with assertions", "Chain steps with property transfers", "Store tests in version control"]
+        },
+        {
+          "topic": "Mock Services with SoapUI and WireMock for Dependent Teams",
+          "subtopics": ["Why mocks decouple teams and speed tests", "SoapUI MockService from a WSDL", "Dispatch by sequence, script or XPath query match", "Returning faults from a mock", "Delays and simulated slow responses", "Running a mock headless with mockservicerunner.sh", "WireMock with SOAP body matchers (matchesXPath)", "Recording responses from a real service", "Keeping mocks aligned with the contract", "Using mocks in CI"],
+          "tools": ["SoapUI", "WireMock", "Docker", "curl"],
+          "lab_task": "Create a SoapUI MockService from a WSDL with two responses chosen by an XPath dispatch on CustomerId: one returns a normal reply, the other a fault. Start it with mockservicerunner.sh -p 8088, call both cases with curl, and add a 3-second delay to a third response.",
+          "deliverable": "Mock service project and a script that exercises all three responses",
+          "checks": [["curl with CustomerId 100", "The normal response is returned with HTTP 200", "curl output"], ["curl with CustomerId 999", "The fault response is returned with HTTP 500", "curl output"], ["Time the delayed case", "time_total is at least 3.0 seconds", "curl -w output"]],
+          "objectives": ["Build a mock from a WSDL", "Dispatch responses by input", "Run mocks in automation"]
+        },
+        {
+          "topic": "Java Clients from WSDL: wsimport and Apache CXF wsdl2java",
+          "subtopics": ["Why JAX-WS left the JDK in Java 11 and what to add", "Jakarta XML Web Services 4.0 and the jakarta.xml.ws package", "wsimport and the Maven jaxws-maven-plugin", "Apache CXF wsdl2java and cxf-codegen-plugin", "Generated artefacts: service, port interface and JAXB classes", "Calling the port with a typed client", "Setting the endpoint address at runtime with BindingProvider", "Setting timeouts on the client", "Handling SOAPFaultException and typed faults", "Generating sources into target/generated-sources"],
+          "tools": ["Maven", "Apache CXF", "wsimport", "JDK", "IntelliJ IDEA"],
+          "lab_task": "Create a Maven project that runs cxf-codegen-plugin wsdl2java against a WSDL in src/main/resources, then write a main class that sets the endpoint with BindingProvider.ENDPOINT_ADDRESS_PROPERTY, calls one operation and prints the result. Add a test that expects a typed fault for a bad input.",
+          "deliverable": "Maven project that generates a client and a JUnit 5 test for success and fault",
+          "checks": [["Run mvn -q generate-sources", "Generated Java classes appear under target/generated-sources", "Directory listing"], ["Run the main class", "The typed result prints and the exit code is 0", "Console output"], ["Run the fault test", "mvn test shows 2 tests, 0 failures", "Surefire report"]],
+          "objectives": ["Generate a Java client from a WSDL", "Configure endpoint and timeouts", "Handle faults in typed code"]
+        },
+        {
+          "topic": "Code-First Services with Jakarta XML Web Services Annotations",
+          "subtopics": ["@WebService, @WebMethod and @WebParam", "@SOAPBinding style and parameterStyle", "@XmlRootElement, @XmlType and JAXB defaults", "Publishing with Endpoint.publish for a quick test", "Retrieving the generated WSDL with ?wsdl", "Controlling names and namespaces with annotations", "@WebFault and exception mapping", "One-way operations with @Oneway", "Why contract-first is preferred for stable services", "Checking the generated contract for unwanted details"],
+          "tools": ["JDK", "Maven", "SoapUI", "curl"],
+          "lab_task": "Write a code-first @WebService with three operations (getBook, listBooks, addBook), publish it with Endpoint.publish(\"http://localhost:8080/books\", new BookService()), fetch ?wsdl, import it in SoapUI and call each operation. Record how the generated WSDL names the namespace and wrapper elements.",
+          "deliverable": "Code-first service and a review of the generated WSDL",
+          "checks": [["curl http://localhost:8080/books?wsdl", "A WSDL with 3 operations in portType is returned", "wsdl file"], ["Call getBook from SoapUI with a missing id", "A fault or an empty result as designed, documented in the review", "SoapUI response"], ["Count wsdl:operation elements in the portType", "The count is 3", "grep or xmllint output"]],
+          "objectives": ["Expose a Java class as a SOAP endpoint", "Inspect and critique the generated WSDL", "Explain why contract-first is safer"]
+        },
+        {
+          "topic": "Apache CXF with Spring Boot: A First Endpoint and Client",
+          "subtopics": ["Dependency cxf-spring-boot-starter-jaxws and the jakarta namespace in CXF 4.x", "Registering an endpoint through EndpointImpl", "Changing the base path with cxf.path", "Service listing page at /services", "JaxWsProxyFactoryBean for a programmatic client", "Spring beans injected into the endpoint class", "Enabling the logging feature safely", "Running with the embedded server", "Testing with @SpringBootTest and a random port", "Packaging as an executable jar"],
+          "tools": ["Spring Boot", "Apache CXF", "Maven", "SoapUI", "JUnit 5"],
+          "lab_task": "Create a Spring Boot app with cxf-spring-boot-starter-jaxws, publish an @WebService bean at /services/orders with EndpointImpl, read cxf.path from application.properties, and write a @SpringBootTest that calls it with JaxWsProxyFactoryBean on a random port.",
+          "deliverable": "Spring Boot service with passing integration test",
+          "checks": [["GET /services in a browser", "The page lists the OrdersService endpoint with a WSDL link", "Browser screenshot"], ["Run mvn test", "The SpringBootTest passes with 1 test and 0 failures", "Surefire report"], ["Change cxf.path to /soap and restart", "The WSDL is served at /soap/orders?wsdl", "curl output"]],
+          "objectives": ["Publish a SOAP endpoint in Spring Boot with CXF", "Consume it with a proxy factory", "Test the endpoint through the container"]
+        },
+        {
+          "topic": "Consuming SOAP from .NET with dotnet-svcutil and ServiceModel Clients",
+          "subtopics": ["System.ServiceModel.Http and the WCF client packages for modern .NET", "dotnet-svcutil and the Microsoft WCF Web Service Reference provider", "Generated proxy, client class and data contracts", "BasicHttpBinding for SOAP 1.1 over HTTP", "EndpointAddress and runtime endpoint changes", "OpenTimeout, SendTimeout and ReceiveTimeout", "Catching FaultException and FaultException<TDetail>", "Closing and aborting clients properly", "Using IHttpClientFactory-style patterns with generated clients", "Reading Message Inspector output for debugging"],
+          "tools": [".NET SDK", "dotnet-svcutil", "Visual Studio Code", "SoapUI"],
+          "lab_task": "Create a console app, run dotnet-svcutil against a WSDL URL, call one operation through the generated client with a BasicHttpBinding that sets SendTimeout to 10 seconds, and catch FaultException to print the fault code and reason when you send invalid input.",
+          "deliverable": ".NET console client with generated proxy and fault handling",
+          "checks": [["dotnet run with valid input", "The typed result prints and the exit code is 0", "Console output"], ["Run with invalid input", "FaultException caught and the fault reason is printed", "Console output"], ["Point the client at a closed port", "EndpointNotFoundException is reported, not a fault", "Console output"]],
+          "objectives": ["Generate a .NET client from a WSDL", "Configure bindings and timeouts", "Handle faults and transport errors differently"]
+        },
+        {
+          "topic": "Hosting a First CoreWCF Service on ASP.NET Core",
+          "subtopics": ["What CoreWCF is and which WCF features it supports", "Packages CoreWCF.Primitives and CoreWCF.Http", "[ServiceContract], [OperationContract] and [DataContract]", "AddServiceModelServices and UseServiceModel in Program.cs", "AddService with BasicHttpBinding and an endpoint address", "Enabling metadata with ServiceMetadataBehavior and HttpGetEnabled", "Retrieving ?wsdl and the single WSDL option", "Calling the service from SoapUI and the generated client", "Differences from .NET Framework WCF to review in the supported-features list", "Choosing CoreWCF or SoapCore for hosting"],
+          "tools": ["CoreWCF", ".NET SDK", "SoapUI", "dotnet-svcutil"],
+          "lab_task": "Create an ASP.NET Core app, add CoreWCF.Http and CoreWCF.Primitives, define an IGreeter contract with one operation, configure UseServiceModel with a BasicHttpBinding endpoint at /greeter and enable HttpGetEnabled, then call it from SoapUI and check the WSDL link.",
+          "deliverable": "Running CoreWCF service with WSDL and a SoapUI call",
+          "checks": [["Open /greeter?wsdl", "A WSDL with the Greeter operation is returned", "Browser or curl output"], ["Call SayHello from SoapUI", "The response contains the greeting and HTTP 200", "SoapUI response"], ["Send an unknown SOAPAction", "A fault stating that no operation matches the action is returned", "Response XML"]],
+          "objectives": ["Host a SOAP service on modern .NET", "Expose metadata", "Test with an external client"]
+        },
+        {
+          "topic": "Basic Security: HTTPS, HTTP Basic Auth and UsernameToken Concepts",
+          "subtopics": ["Why SOAP over plain HTTP is unsafe", "TLS 1.2 and 1.3 with certificates for the endpoint", "HTTP Basic authentication over TLS", "WS-Security UsernameToken: Username, Password and the PasswordText type", "Why PasswordDigest needs a nonce and a created time", "Transport-level versus message-level security", "Secrets handling for test credentials", "SoapUI authentication settings", "Reading a 401 or a security fault", "Choosing the minimum viable security for an internal service"],
+          "tools": ["SoapUI", "openssl", "curl", "keytool"],
+          "lab_task": "Generate a self-signed certificate with openssl, enable HTTPS on a test service, call it with curl --cacert and HTTP Basic credentials, then add a wsse:UsernameToken header in SoapUI and compare outcomes when you send a wrong password.",
+          "deliverable": "Secured test endpoint with captured successes and rejections",
+          "checks": [["curl --cacert cert.pem with valid Basic credentials", "HTTP 200 with a normal response", "curl output"], ["Send a wrong password", "HTTP 401 or a security fault is returned", "Response capture"], ["Call the HTTPS endpoint with plain http://", "The connection fails or redirects, not a successful SOAP response", "curl output"]],
+          "objectives": ["Secure transport for SOAP", "Explain UsernameToken options", "Test negative authentication cases"]
+        },
+        {
+          "topic": "Troubleshooting Common SOAP Errors: Faults, Parsing, Namespaces and Timeouts",
+          "subtopics": ["Reading the HTTP status first", "Faults that say 'unexpected element' or 'no such operation'", "Wrong namespace in the request body", "SOAPAction mismatch", "Content-Type and charset mismatches", "Schema validation failures on the server", "Connection resets, TLS handshake failures and timeouts", "Proxy and WSDL address problems", "Using a TCP monitor in SoapUI", "Building a checklist for a failing call"],
+          "tools": ["SoapUI", "curl", "Wireshark", "xmllint"],
+          "lab_task": "Take five broken requests supplied by the trainer (wrong namespace, missing SOAPAction, wrong Content-Type, schema violation, closed port). For each, find the cause using curl -v and the SoapUI TCP monitor, fix the request and write the symptom, cause and fix in a checklist.",
+          "deliverable": "Five-row troubleshooting checklist with before and after captures",
+          "checks": [["Fix the wrong-namespace request", "The response changes from an unexpected-element fault to HTTP 200", "Before and after capture"], ["Fix the Content-Type", "The service stops returning HTTP 415 or a content-type fault", "curl output"], ["Fix the port", "The connection error is replaced by a SOAP response", "curl output"]],
+          "objectives": ["Diagnose SOAP failures methodically", "Use TCP monitoring and verbose curl", "Document recurring errors"]
+        },
+        {
+          "topic": "Beginner Capstone: Order Lookup Service with Client and Test Suite",
+          "subtopics": ["Contract: XSD and WSDL for GetOrder and a typed OrderNotFound fault", "Service implemented with CXF or CoreWCF with an in-memory store", "Client in the other stack from the service", "SoapUI test suite with schema, fault and XPath assertions", "TLS and Basic authentication enabled", "README with run steps and a demonstration"],
+          "tools": ["Spring Boot", "CoreWCF", "SoapUI", "Maven", "Git"],
+          "lab_task": "Build an order lookup service with GetOrder (id) returning order data or an OrderNotFound fault, a client in the other stack, and a SoapUI suite of 6 test cases (success, not found, bad schema, no auth, wrong auth, unknown SOAPAction). All 6 must pass in a single headless run.",
+          "deliverable": "Repository with contract, service, client, SoapUI project and README",
+          "checks": [["Run testrunner.sh -s OrderSuite on the project", "6 test cases run with 0 failures", "Runner console summary"], ["Call GetOrder with id 0", "An OrderNotFound fault with HTTP 500 and the typed detail element is returned", "Response capture"], ["Run the other-stack client", "It prints the order for a known id and exits with code 0", "Console output"]],
+          "objectives": ["Combine contract, service, client and tests", "Secure and test a first service", "Present a working integration"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have called or built a SOAP service and now design contracts and secure them. Covers schema and WSDL design, dual SOAP bindings, WS-I interoperability, JAXB binding, CXF interceptors, Jakarta handlers, Spring Web Services endpoints, validation, faults and clients, CoreWCF contracts, dependency injection and authentication, MTOM, WS-Addressing, WS-Security with WSS4J, signatures, encryption, mutual TLS, automated SoapUI suites and contract checks in CI.",
+      "prerequisites": ["Has completed the beginner level or built and called a SOAP service in Java or .NET", "Can write unit and integration tests and use Git and a CI service", "Understands TLS, certificates and keystores at a basic level"],
+      "outcomes": ["Design contract-first XSD and WSDL documents that generate clean code on both stacks", "Implement secure services with Spring Web Services, Apache CXF or CoreWCF", "Apply WS-Security, MTOM, WS-Addressing and mutual TLS correctly", "Automate SOAP tests and compatibility checks in a pipeline"],
+      "days": [
+        {
+          "topic": "Contract-First Schema Design: Namespaces, Imports, Includes and Reuse",
+          "subtopics": ["Namespace strategy: one per domain with a version policy", "xs:import versus xs:include and schemaLocation hygiene", "Canonical types for Money, Address and Identifier", "Common types in a shared schema", "Global elements versus global types and what WSDL needs", "Extensibility with xs:any and xs:anyAttribute and its costs", "Date, time and time zone rules for xs:dateTime", "Avoiding xs:all and deep choice nesting for code generators", "Documentation with xs:annotation and xs:documentation", "Catalogs and local schema resolution"],
+          "tools": ["Oxygen XML Editor", "xmllint", "VS Code", "xjc"],
+          "lab_task": "Split a customer-order model into common.xsd, customer.xsd and order.xsd with distinct target namespaces, import them with relative schemaLocation values, validate three sample files with xmllint --schema order.xsd, then run xjc and confirm one Java package is generated per namespace.",
+          "deliverable": "Three-schema model with samples, xjc output and design notes",
+          "checks": [["xmllint --noout --schema order.xsd on a valid sample", "Output says the sample validates", "Terminal output"], ["Change a namespace in common.xsd by one letter", "xmllint reports an undeclared or unresolved type naming the element", "Terminal output"], ["Run xjc -d out order.xsd", "Packages for each target namespace appear in out/", "Directory listing"]],
+          "objectives": ["Structure schemas for reuse", "Choose import or include correctly", "Check that code generation matches the design"]
+        },
+        {
+          "topic": "Contract-First WSDL: Operations, Faults and Documentation",
+          "subtopics": ["Designing coarse-grained operations around business actions", "Request and response wrapper elements", "Declaring typed faults in portType and binding", "Operation names and naming conventions", "One-way versus request-response in the portType", "wsdl:documentation as an API reference", "Splitting abstract and concrete WSDL files", "Importing XSD instead of inline types", "Linting WSDL with tools and code generators", "Reviewing a contract with consumers before coding"],
+          "tools": ["Oxygen XML Editor", "SoapUI", "wsdl2java", "xmllint"],
+          "lab_task": "Write orders.wsdl in document/literal wrapped style with CreateOrder, GetOrder and CancelOrder, two typed faults (OrderNotFound, InvalidState), imported XSD and wsdl:documentation. Generate Java with wsdl2java and C# with dotnet-svcutil and check both compile.",
+          "deliverable": "Contract-first WSDL generating compilable code in both stacks",
+          "checks": [["Run wsdl2java on orders.wsdl", "Generated classes include 2 fault exceptions", "Directory listing"], ["Run dotnet-svcutil on the same WSDL", "A client with 3 operations is created and dotnet build passes", "Build output"], ["Open the WSDL in SoapUI", "3 operations with sample requests are displayed", "SoapUI screenshot"]],
+          "objectives": ["Design a stable operation set", "Declare typed faults", "Verify the contract on two stacks"]
+        },
+        {
+          "topic": "Dual Bindings: SOAP 1.1 and 1.2 Endpoints from One Contract",
+          "subtopics": ["Two wsdl:binding elements over the same portType", "soap:binding versus soap12:binding namespaces", "Two ports in one service", "Different addresses or one address that sniffs the content type", "Dispatch on Content-Type in CXF and CoreWCF", "SOAPAction and action parameter values per binding", "Testing both bindings in SoapUI", "Fault differences between versions", "Client selection of binding", "When to retire the 1.1 binding"],
+          "tools": ["SoapUI", "Apache CXF", "CoreWCF", "curl"],
+          "lab_task": "Extend orders.wsdl with a soap12 binding and a second port. Configure a CXF endpoint with SOAPBinding.SOAP12HTTP_BINDING or a CoreWCF custom binding, and send the same CreateOrder in 1.1 and 1.2 with curl, recording both responses and their namespaces.",
+          "deliverable": "Dual-binding WSDL, working endpoint and comparison of both exchanges",
+          "checks": [["Send the 1.1 request with SOAPAction", "A response in the soap/envelope namespace with HTTP 200", "curl output"], ["Send the 1.2 request with application/soap+xml", "A response in the 2003/05 envelope namespace with HTTP 200", "curl output"], ["Trigger OrderNotFound on each version", "1.1 returns faultcode and faultstring; 1.2 returns Code and Reason", "Two fault captures"]],
+          "objectives": ["Publish both SOAP versions", "Test version-specific behaviour", "Plan retirement of the older binding"]
+        },
+        {
+          "topic": "WS-I Basic Profile and Interoperability Rules for Java and .NET",
+          "subtopics": ["WS-I Basic Profile 1.1 and the assertions that matter most", "Document/literal and no SOAP encoding", "Single child element in Body for wrapped operations", "Nillable and optional element handling across stacks", "Dates, decimals and arrays across Java and .NET", "Enumerations and unknown values", "Attachments and character set rules", "Running WS-I-style checks with a tool or manual review", "Cross-stack tests: Java client to .NET server and back", "A shared interoperability test matrix"],
+          "tools": ["SoapUI", "Apache CXF", "CoreWCF", "dotnet-svcutil"],
+          "lab_task": "Build a 2x2 matrix: CXF service and CoreWCF service, each called by a CXF client and a .NET client, for an operation using xs:dateTime, xs:decimal, a nillable field and a list of 3 items. Record any value that arrives changed and fix the schema or binding.",
+          "deliverable": "Interoperability matrix of four call paths with fixes",
+          "checks": [["Run all four call combinations", "A matrix with 4 cells each marked pass or fail with a reason", "Matrix document"], ["Send a decimal 12345.670 and read it back", "The value is preserved to 3 decimals on all paths or the difference is documented", "Console output"], ["Send a dateTime with a +05:30 offset", "The instant is equal after round trip on all paths", "Console output"]],
+          "objectives": ["Apply WS-I interoperability rules", "Test across Java and .NET", "Fix data type mismatches"]
+        },
+        {
+          "topic": "Data Binding with JAXB: bindings.xjb, Adapters and Generated Types",
+          "subtopics": ["JAXB 4.0 in the jakarta.xml.bind package", "xjc options and the Maven jaxb2 plugin", "Global bindings: generateElementProperty and typesafe enums", "Customising package and class names with bindings.xjb", "XmlAdapter for dates into java.time types", "Handling xs:choice and xs:any in the generated code", "JAXBElement and ObjectFactory", "Marshalling and unmarshalling with validation via Schema", "Reusing JAXB context for speed", "Unmarshalling errors and ValidationEventHandler"],
+          "tools": ["xjc", "Maven", "JAXB", "JUnit 5"],
+          "lab_task": "Add a bindings.xjb that maps the package to com.example.orders, converts xs:date and xs:dateTime to LocalDate and OffsetDateTime with XmlAdapters, and generates enums. Write a JUnit test that marshals an order, validates it with a Schema object and unmarshals it back with equal fields.",
+          "deliverable": "JAXB binding file, generated sources and a round-trip test",
+          "checks": [["mvn test", "The round-trip test passes: 1 test, 0 failures", "Surefire report"], ["Marshal an order with an invalid status", "A ValidationEvent is reported with the element name", "Test log"], ["Check the generated class", "Date fields use LocalDate and OffsetDateTime", "Source excerpt"]],
+          "objectives": ["Customise code generation from XSD", "Use java.time types", "Validate during marshalling"]
+        },
+        {
+          "topic": "Apache CXF Interceptors, Features and Message Logging",
+          "subtopics": ["Interceptor chains and phases (RECEIVE, UNMARSHAL, INVOKE and others)", "Writing a custom interceptor extending AbstractPhaseInterceptor", "In, Out and Fault chains", "Features: LoggingFeature and its settings", "Masking passwords and tokens in logs", "Adding and reading SOAP headers in an interceptor", "Message properties and the Exchange object", "Ordering with addBefore and addAfter", "Client-side interceptors", "Measuring time per call"],
+          "tools": ["Apache CXF", "Maven", "Logback", "SoapUI"],
+          "lab_task": "Write a CXF in-interceptor that reads a correlation-id header block, puts it in MDC and fails with a fault if it is missing, plus an out-interceptor that adds the same header to the response. Enable LoggingFeature with a size limit of 8192 and verify the log shows the id and masks any password.",
+          "deliverable": "Interceptor pair, logging config and test evidence",
+          "checks": [["Send a request without correlation-id", "A SOAP fault names the missing header and no business code runs", "Response XML"], ["Send a request with correlation-id abc-123", "The response contains the same id and the log line shows abc-123", "Response and log"], ["Send a UsernameToken request", "The logged message shows the password replaced by ***", "Log excerpt"]],
+          "objectives": ["Customise message processing in CXF", "Log without leaking secrets", "Carry correlation data through calls"]
+        },
+        {
+          "topic": "Jakarta XML Web Services Handlers: SOAPHandler and LogicalHandler",
+          "subtopics": ["Handler chains and the @HandlerChain annotation", "SOAPHandler<SOAPMessageContext> and header access", "LogicalHandler and payload access", "handleMessage, handleFault and close", "Inbound versus outbound direction from the context", "Reading the SOAPMessage with SAAJ", "Adding custom SOAP headers on the client", "Handler order and configuration in handler-chain XML", "Handlers versus CXF interceptors", "Unit testing a handler with a mocked context"],
+          "tools": ["JDK", "SAAJ", "JUnit 5", "SoapUI"],
+          "lab_task": "Write a client-side SOAPHandler that adds an ApiKey header block with mustUnderstand set to false, register it with a handler-chain.xml, call a service that echoes headers, and write a JUnit test for the handler using Mockito to mock SOAPMessageContext.",
+          "deliverable": "Handler, chain file and unit test",
+          "checks": [["Call the echo service through the client", "The echoed headers include ApiKey with the configured value", "Response XML"], ["Run the JUnit test", "The test passes and verifies the header was added when outbound is true", "Surefire report"], ["Run with the handler removed", "The ApiKey header is absent in the echo", "Response XML"]],
+          "objectives": ["Use handler chains to alter messages", "Access headers with SAAJ", "Unit test handlers"]
+        },
+        {
+          "topic": "Spring Web Services: Contract-First Endpoints with @Endpoint",
+          "subtopics": ["Spring Web Services 4.x on Spring Framework 6 and Jakarta", "MessageDispatcherServlet registration and the /ws/* mapping", "@EnableWs and WsConfigurer", "@Endpoint, @PayloadRoot, @RequestPayload and @ResponsePayload", "Marshalling with Jaxb2Marshaller", "Generating the WSDL from XSD with DefaultWsdl11Definition", "Static WSDL with SimpleWsdl11Definition", "transformWsdlLocations for proxies", "Naming conventions: request and response suffixes", "Testing with MockWebServiceClient"],
+          "tools": ["Spring Web Services", "Spring Boot", "Maven", "SoapUI"],
+          "lab_task": "Create a Spring Boot app with spring-boot-starter-web-services, an orders.xsd, a CountryEndpoint-style @Endpoint with @PayloadRoot for GetOrderRequest, DefaultWsdl11Definition exposed at /ws/orders.wsdl and a MockWebServiceClient test sending a request and asserting the response with the Spring WS test matchers.",
+          "deliverable": "Contract-first Spring WS service with generated WSDL and a test",
+          "checks": [["curl localhost:8080/ws/orders.wsdl", "A WSDL with GetOrder request and response messages is returned", "curl output"], ["Run mvn test", "The MockWebServiceClient test passes", "Surefire report"], ["Send a request with an element not in any @PayloadRoot", "A fault stating no endpoint mapping found is returned", "Response XML"]],
+          "objectives": ["Build a contract-first service in Spring WS", "Generate or serve the WSDL", "Test endpoints without a running server"]
+        },
+        {
+          "topic": "Spring WS Payload Validation, Fault Mapping and Interceptors",
+          "subtopics": ["PayloadValidatingInterceptor with the XSD", "Validating requests and responses", "SoapFaultMappingExceptionResolver and SoapFaultDefinition", "@SoapFault on exception classes", "Custom fault detail elements", "EndpointInterceptor: handleRequest, handleResponse and handleFault", "PayloadLoggingInterceptor and SoapEnvelopeLoggingInterceptor", "Ordering interceptors", "Returning client faults versus server faults", "Testing fault responses"],
+          "tools": ["Spring Web Services", "Spring Boot", "SoapUI", "JUnit 5"],
+          "lab_task": "Add PayloadValidatingInterceptor for requests, map OrderNotFoundException to a Client fault with @SoapFault(faultCode = FaultCode.CLIENT), map unexpected exceptions to a Server fault with no stack trace, and write 3 MockWebServiceClient tests for success, validation failure and not found.",
+          "deliverable": "Spring WS service with validation, fault mapping and three passing tests",
+          "checks": [["Send a request that violates the XSD", "A Client fault whose text names the invalid element", "Response XML"], ["Request a missing order", "A Client fault with the OrderNotFound message", "Response XML"], ["Force an unexpected NullPointerException", "A Server fault with a generic message and no stack trace text", "Response XML"]],
+          "objectives": ["Validate payloads", "Map exceptions to faults", "Log through interceptors"]
+        },
+        {
+          "topic": "Calling SOAP with WebServiceTemplate: Marshalling, Timeouts and Pooling",
+          "subtopics": ["WebServiceTemplate with Jaxb2Marshaller", "marshalSendAndReceive and sendSourceAndReceive", "Callbacks for SOAP action and headers", "HttpComponentsMessageSender and the Apache HttpClient 5 connection pool", "Connect and read timeouts", "ClientInterceptor for logging and security", "Fault handling with SoapFaultClientException", "Generated clients from wsdl via maven-jaxb2-plugin", "Thread safety and reusing the template", "Testing with MockWebServiceServer"],
+          "tools": ["Spring Web Services", "Apache HttpClient", "Maven", "WireMock"],
+          "lab_task": "Build a client class that uses WebServiceTemplate with HttpComponentsMessageSender, setting connectionTimeout 2000 ms and readTimeout 5000 ms, sets the SOAPAction through a callback, and add MockWebServiceServer tests for success, a SoapFaultClientException and a slow response.",
+          "deliverable": "Spring WS client with pooled sender and three tests",
+          "checks": [["Run the success test", "The response object has the expected Order id", "Surefire report"], ["Run the fault test", "SoapFaultClientException is thrown with the fault string", "Test output"], ["Run against a WireMock that delays 8 seconds", "A timeout exception occurs in about 5 seconds, not 8", "Test timing"]],
+          "objectives": ["Build resilient Spring WS clients", "Configure pooling and timeouts", "Test clients with mock servers"]
+        },
+        {
+          "topic": "CoreWCF Bindings, Behaviors, MessageContract and FaultContract",
+          "subtopics": ["BasicHttpBinding, NetTcpBinding and WSHttpBinding in CoreWCF and their support status", "Binding security modes: None, Transport and TransportWithMessageCredential", "[MessageContract], [MessageHeader] and [MessageBodyMember]", "[FaultContract] and FaultException<T>", "IncludeExceptionDetailInFaults and why it stays false in production", "Service behaviors: throttling and metadata", "Operation behaviors and IOperationBehavior", "Message size and reader quotas", "Custom headers with IClientMessageInspector", "Binding configuration for SOAP 1.1 versus 1.2 (text message encoding)"],
+          "tools": ["CoreWCF", ".NET SDK", "SoapUI", "dotnet-svcutil"],
+          "lab_task": "Add a MessageContract with a custom header, a FaultContract for OrderNotFound and a limit of MaxReceivedMessageSize 1 MB to a CoreWCF service. Call it with a generated client and SoapUI, then send a 2 MB body and capture the error.",
+          "deliverable": "CoreWCF service with typed headers, typed fault and enforced limits",
+          "checks": [["Request a missing order from the generated client", "FaultException<OrderNotFound> is caught with the typed detail", "Console output"], ["Send a 2 MB body", "The request is rejected with a size-quota error or HTTP 413", "Response or log"], ["Check metadata for the custom header", "The WSDL shows the header in the message definition", "WSDL excerpt"]],
+          "objectives": ["Use message and fault contracts", "Set limits and quotas", "Keep exception details out of production"]
+        },
+        {
+          "topic": "CoreWCF with ASP.NET Core Dependency Injection, Authentication and Configuration",
+          "subtopics": ["Service lifetime and how CoreWCF resolves services from the container", "Constructor injection into the service class", "ServiceBehavior InstanceContextMode and ConcurrencyMode", "Reading options from appsettings.json", "Authentication with ASP.NET Core middleware ahead of CoreWCF", "Authorization policies for operations", "ILogger and scopes for correlation ids", "Health checks next to SOAP endpoints", "Hosting multiple services and base addresses", "Integration testing with WebApplicationFactory"],
+          "tools": ["CoreWCF", ".NET SDK", "xUnit", "SoapUI"],
+          "lab_task": "Inject an IOrderRepository and ILogger into a CoreWCF service, protect /orders with an ASP.NET Core authentication handler that requires an API key header, add /healthz, and test with WebApplicationFactory plus a SoapUI request with and without the key.",
+          "deliverable": "CoreWCF service using DI with auth and tests",
+          "checks": [["Call without the API key header", "HTTP 401 is returned before any SOAP processing", "Status line"], ["Call with a valid key", "HTTP 200 with a SOAP response", "SoapUI response"], ["GET /healthz", "HTTP 200 with a Healthy body", "curl output"]],
+          "objectives": ["Use dependency injection with CoreWCF", "Protect SOAP routes with ASP.NET Core auth", "Test hosted services"]
+        },
+        {
+          "topic": "Attachments and Large Payloads: MTOM, XOP and Streaming",
+          "subtopics": ["Why base64 in XML grows data by about a third", "MTOM and XOP and the multipart/related content type", "xmime:expectedContentTypes and swaRef", "Enabling MTOM in CXF with @MTOM", "MTOM in CoreWCF with messageEncoding Mtom and streamed transfer", "Streaming versus buffering and memory impact", "Size limits and timeouts", "SOAP with Attachments as a legacy form", "Checksums and virus scanning for uploads", "Testing MTOM with SoapUI"],
+          "tools": ["Apache CXF", "CoreWCF", "SoapUI", "curl"],
+          "lab_task": "Add an UploadDocument operation that takes a byte[] field marked xmime:base64Binary. Send a 20 MB file once with plain base64 and once with MTOM enabled, then compare request sizes and the peak heap or working set of the server in both runs.",
+          "deliverable": "Upload service with size and memory comparison of base64 versus MTOM",
+          "checks": [["Send the 20 MB file as plain base64", "Request size is roughly 27 MB", "Request size from the log"], ["Send the same file with MTOM", "Request size is close to 20 MB and content type is multipart/related", "Request headers"], ["Compare memory", "The comparison table states peak memory for both runs", "Monitoring output"]],
+          "objectives": ["Transfer binary content in SOAP", "Choose MTOM or base64", "Measure memory and size"]
+        },
+        {
+          "topic": "WS-Addressing, One-Way Operations and Asynchronous SOAP Patterns",
+          "subtopics": ["WS-Addressing headers: To, Action, MessageID, RelatesTo, ReplyTo", "Anonymous and non-anonymous ReplyTo", "One-way operations and HTTP 202", "Callback endpoints and correlation", "Async client APIs in Jakarta XML Web Services (Response<T> and AsyncHandler)", "Async operations in generated .NET clients (Task-based)", "Polling a status operation as the simple alternative", "Idempotency keys for retried requests", "Timeouts and what a client knows after a lost response", "Enabling WS-Addressing in CXF"],
+          "tools": ["Apache CXF", "SoapUI", "Wireshark", "CoreWCF"],
+          "lab_task": "Enable WS-Addressing in CXF, make SubmitReport one-way and return HTTP 202, add a status operation, and write a client that submits then polls GetStatus every 2 seconds until Completed. Capture the addressing headers in a request.",
+          "deliverable": "Async submit-and-poll service with captured WS-Addressing headers",
+          "checks": [["Submit a report", "HTTP 202 with an empty body", "curl -i output"], ["Poll GetStatus", "Status moves from Pending to Completed within the demonstration run", "Client log"], ["Inspect the request headers", "wsa:Action and wsa:MessageID are present", "Captured XML"]],
+          "objectives": ["Use WS-Addressing", "Build submit and poll workflows", "Explain retry risk with lost responses"]
+        },
+        {
+          "topic": "WS-Security with WSS4J: UsernameToken, Timestamp and Replay Protection",
+          "subtopics": ["WS-Security 1.1 and the wsse, wsu namespaces", "UsernameToken with PasswordText and PasswordDigest", "Nonce and Created and the replay window", "wsu:Timestamp with Created and Expires", "Apache WSS4J actions in CXF (WSS4JInInterceptor, WSS4JOutInterceptor)", "Wss4jSecurityInterceptor in Spring WS", "Password callback handlers and secure credential stores", "Clock skew limits", "Rejection faults: FailedAuthentication and MessageExpired", "Testing with SoapUI WS-Security configuration"],
+          "tools": ["Apache CXF", "Spring Web Services", "WSS4J", "SoapUI"],
+          "lab_task": "Secure a service with WSS4J actions UsernameToken Timestamp, passwordType PasswordDigest and a ClassPath-based callback. Call it from SoapUI with correct credentials, an expired Timestamp and a replayed Nonce, and record each fault or success.",
+          "deliverable": "Secured service with a table of three security test results",
+          "checks": [["Send valid digest credentials with a fresh Timestamp", "HTTP 200 with the normal response", "SoapUI response"], ["Send a Timestamp whose Expires is 10 minutes ago", "A security fault (MessageExpired or similar) with HTTP 500", "Response XML"], ["Resend a request with the same Nonce", "The request is rejected if replay caching is on; otherwise the gap is documented", "Response capture"]],
+          "objectives": ["Configure UsernameToken and Timestamp", "Test replay and expiry", "Keep credentials out of config files"]
+        },
+        {
+          "topic": "WS-Security Signatures and Encryption with X.509 Certificates",
+          "subtopics": ["XML Signature: canonicalisation, digest and signature value", "BinarySecurityToken and X509v3 token profile", "Key identifier types: DirectReference, IssuerSerial and SKI", "Signing the Body and Timestamp with wsu:Id references", "XML Encryption of the Body with AES and key transport with RSA-OAEP", "Keystores: PKCS12 and JKS with keytool", "crypto.properties for WSS4J Merlin", "Choosing algorithms and avoiding SHA-1 and RSA 1.5", "Certificate validation and trust stores", "Inspecting signed messages in SoapUI and CoreWCF message security"],
+          "tools": ["WSS4J", "keytool", "openssl", "SoapUI", "Apache CXF"],
+          "lab_task": "Create client and server PKCS12 keystores with keytool, configure WSS4J actions Signature and Encrypt using rsa-sha256 and aes256-gcm, call the service and show that the Body is an EncryptedData element on the wire. Then alter one byte of the signed Timestamp and capture the failure.",
+          "deliverable": "Signed and encrypted exchange with a tamper test",
+          "checks": [["Capture the request on the wire", "The Body contains xenc:EncryptedData and a ds:Signature is present", "Wireshark or proxy capture"], ["Send the message with a modified Timestamp", "A fault citing an invalid signature or digest", "Response XML"], ["Check the signature algorithm in the message", "It is rsa-sha256 or stronger, not rsa-sha1", "XML excerpt"]],
+          "objectives": ["Sign and encrypt SOAP messages", "Manage keystores", "Show tamper detection"]
+        },
+        {
+          "topic": "Automated SoapUI Test Suites: Groovy, Data-Driven Tests and Command-Line Runs",
+          "subtopics": ["Groovy Script test steps and context variables", "DataSource steps from CSV or Excel and DataSource Loop", "Conditional goto and test flow", "Setup and teardown scripts", "Using the command-line testrunner.sh flags -s, -c, -r, -j and -f", "JUnit-style XML reports for CI", "Secure property storage and environments", "Maven soapui plugin or Docker image for runs", "Testing negative paths from a data file", "Keeping scripts maintainable"],
+          "tools": ["SoapUI", "Groovy", "Maven", "Jenkins", "GitHub Actions"],
+          "lab_task": "Create a data-driven suite that reads 10 rows from cases.csv (input, expected status) and runs them through DataSource Loop, add a Groovy step that fails if any response time exceeds 2000 ms, run it with testrunner.sh -j -f reports and publish the JUnit XML in CI.",
+          "deliverable": "Data-driven suite, CLI command and CI report",
+          "checks": [["Run testrunner.sh -s OrdersSuite -j -f reports", "10 iterations run and a JUnit XML file is written to reports/", "Runner log and file listing"], ["Change one expected status in cases.csv", "Exactly one test fails with the row id in the message", "Runner log"], ["Open the CI build page", "The test tab shows the 10 results", "CI screenshot"]],
+          "objectives": ["Automate data-driven SOAP tests", "Run SoapUI headless", "Publish test reports in CI"]
+        },
+        {
+          "topic": "Contract Testing and Schema Compatibility Checks in CI",
+          "subtopics": ["Breaking versus non-breaking WSDL and XSD changes", "Adding optional elements versus making elements required", "Removing or renaming operations", "Enumeration changes", "Diffing contracts with xmldiff or a custom script", "Consumer-driven contracts with recorded sample messages", "Validating samples in the pipeline with xmllint", "Publishing the WSDL as a build artefact with a version", "Blocking a pull request on a breaking change", "Governance of contract owners"],
+          "tools": ["xmllint", "GitHub Actions", "Git", "SoapUI"],
+          "lab_task": "Add a CI job that fetches the last released WSDL, validates 12 stored consumer sample requests against the new XSD with xmllint, and fails when any sample no longer validates. Prove it by making one optional element required and showing the job fail.",
+          "deliverable": "Pipeline job that blocks a breaking schema change",
+          "checks": [["Run the job on an unchanged contract", "All 12 samples validate and the job passes", "CI log"], ["Make an optional element required and push", "At least one sample fails validation and the job turns red", "CI log"], ["Add a new optional element and push", "All 12 samples still validate and the job passes", "CI log"]],
+          "objectives": ["Classify contract changes", "Automate compatibility checks", "Prevent breaking releases"]
+        },
+        {
+          "topic": "Transport Security for SOAP: TLS Configuration and Mutual TLS",
+          "subtopics": ["TLS versions and cipher suite policy for SOAP endpoints", "Server certificates, chains and SANs", "Mutual TLS: client certificates and trust stores", "CXF TLSClientParameters and the HTTP conduit", "Java trust store system properties and per-client configuration", "CoreWCF Kestrel client certificate settings and binding security mode Transport", "Certificate expiry monitoring", "Common errors: PKIX path building failed and certificate unknown", "Using openssl s_client to test", "Combining transport with message security"],
+          "tools": ["openssl", "keytool", "Apache CXF", "CoreWCF", "curl"],
+          "lab_task": "Configure a SOAP service to require client certificates. Use openssl s_client -connect host:8443 -cert client.pem -key client.key to confirm the handshake, call it with curl --cert, then call without a certificate and with an untrusted one and capture each failure.",
+          "deliverable": "mTLS-enabled SOAP service with three captured handshake outcomes",
+          "checks": [["curl with the trusted client certificate", "HTTP 200 with a SOAP response", "curl output"], ["curl with no client certificate", "The TLS handshake fails (alert handshake failure or certificate required)", "curl output"], ["curl with a certificate from an untrusted CA", "A certificate unknown or bad certificate alert", "curl or s_client output"]],
+          "objectives": ["Enable mutual TLS", "Diagnose TLS errors", "Know when to add message-level security"]
+        },
+        {
+          "topic": "Intermediate Capstone: Contract-First Claims Service on Java and .NET",
+          "subtopics": ["Shared claims XSD and WSDL with typed faults and versioned namespace", "Spring WS or CXF implementation with WS-Security UsernameToken and Timestamp", "CoreWCF implementation of the same contract with mTLS", "Cross-stack clients and a shared interoperability matrix", "SoapUI data-driven suite with 12 cases in CI with a compatibility check", "Design notes on logging, limits and error mapping"],
+          "tools": ["Spring Web Services", "CoreWCF", "SoapUI", "GitHub Actions", "Maven"],
+          "lab_task": "Implement a claims service (SubmitClaim, GetClaim, CancelClaim) from one WSDL on both stacks, secure it, and run a CI pipeline that validates 12 samples, runs 12 SoapUI cases against each implementation and publishes reports. All 24 runs pass and a breaking-change commit fails the pipeline.",
+          "deliverable": "Repository with contract, two implementations, tests, pipeline and design notes",
+          "checks": [["Run the pipeline on main", "24 SoapUI executions pass (12 per stack) with 0 failures", "CI test report"], ["Push a commit that removes CancelClaim from the WSDL", "The compatibility job fails", "CI log"], ["Send an unsigned or unauthenticated request to each stack", "Both reject it with a security fault or HTTP 401", "Two response captures"]],
+          "objectives": ["Deliver one contract on two stacks", "Secure and test both implementations", "Gate releases on compatibility"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For architects, senior engineers and platform owners who run SOAP estates. Covers gateway routing and policies, XML threat protection, WS-Security attack defence, SAML and WS-Trust federation, WS-Policy, reliability and idempotency, performance and load testing, observability, contract versioning, resilient clients, Kubernetes deployment, SOAP over JMS, SOAP-to-REST modernisation with strangler routing, OpenAPI mapping, REST facades, estate governance, advanced troubleshooting and a full modernisation capstone.",
+      "prerequisites": ["Has delivered at least one secured SOAP service or completed the intermediate level", "Knows Kubernetes, an API gateway or a reverse proxy at a working level", "Can read logs, metrics and traces and run load tests"],
+      "outcomes": ["Harden SOAP endpoints against XML and WS-Security attacks", "Operate SOAP services with measured performance, resilience and observability", "Plan and execute a strangler migration from SOAP to REST with evidence", "Govern, version and retire services in a mixed SOAP and REST estate"],
+      "days": [
+        {
+          "topic": "Gateway Patterns for SOAP: Pass-Through, Routing and Transformation",
+          "subtopics": ["Why put a gateway in front of SOAP services", "SOAP pass-through versus WSDL-aware proxies", "Routing on SOAPAction, the body element QName or the URL", "Version routing across 1.1 and 1.2", "Header injection and removal at the edge", "XSLT transformation between contract versions", "WSDL rewriting for the public address", "Rate limits and quotas per consumer", "Authentication offload and credential mapping", "Gateway products compared: NGINX, Kong, Envoy, Apigee, Azure API Management, WSO2 and DataPower"],
+          "tools": ["NGINX", "Kong", "Envoy", "SoapUI", "xsltproc"],
+          "lab_task": "Put NGINX in front of two SOAP backends and route requests by the SOAPAction header using a map block, rewrite soap:address in the served WSDL with sub_filter, and apply limit_req at 5 requests per second. Send 20 requests in a second with a loop and count the responses by status.",
+          "deliverable": "Gateway config routing by SOAPAction with rate limiting and WSDL rewriting",
+          "checks": [["Call with SOAPAction GetOrder", "The request reaches backend A as shown in its access log", "Backend log lines"], ["Call with SOAPAction CreateInvoice", "The request reaches backend B", "Backend log lines"], ["Fire 20 requests in one second", "Some return HTTP 503 or 429 once the limit applies; counts are recorded", "Status count table"]],
+          "objectives": ["Route SOAP traffic at a gateway", "Rewrite WSDL addresses", "Apply rate limits"]
+        },
+        {
+          "topic": "Managed Gateways for SOAP: Azure API Management, Apigee and WSO2 Policies",
+          "subtopics": ["Importing a WSDL as a SOAP pass-through API", "Policy models: inbound, backend, outbound and on-error flows", "Validating XML against the XSD at the gateway", "Subscription keys, OAuth and IP filters in front of SOAP", "Transformation with XSLT policies", "SOAP-to-REST wizards and their limits", "Caching read-only SOAP operations by body hash", "Analytics and logging with sensitive data masking", "DataPower and enterprise service bus legacy", "Checking each vendor's current documentation for supported SOAP features"],
+          "tools": ["Azure API Management", "Apigee", "WSO2 API Manager", "SoapUI", "Postman"],
+          "lab_task": "On a gateway you have access to, import a WSDL as a SOAP API, add a subscription key requirement, validate the body against the schema, and add a response cache for one read operation with a 60-second duration. Test hits and misses with 3 requests and compare timing.",
+          "deliverable": "SOAP API on a managed gateway with key, validation and caching evidence",
+          "checks": [["Call without a subscription key", "HTTP 401 from the gateway before the backend is reached", "Response and backend log"], ["Send an XSD-invalid body", "The gateway rejects it with a client error and the backend log shows no call", "Response and backend log"], ["Call the cached read operation twice within 60 seconds", "The second call is served from cache and is faster", "Timing from both calls"]],
+          "objectives": ["Configure a managed gateway for SOAP", "Validate and cache at the edge", "Compare vendor capabilities"]
+        },
+        {
+          "topic": "XML Threat Protection: XXE, Entity Expansion, Oversized and Deeply Nested Payloads",
+          "subtopics": ["XXE and external entity resolution in parsers", "Billion laughs and quadratic blowup attacks", "Disabling DOCTYPE: disallow-doctype-decl in Java and DtdProcessing.Prohibit in .NET", "Secure processing features in StAX, SAX and DOM", "Limits for depth, element count, attribute count and size", "XPath and XSLT injection", "SSRF through schemaLocation and imports", "Gateway XML threat policies", "Security tests in SoapUI", "Evidence that a parser is configured safely"],
+          "tools": ["SoapUI", "curl", "Apache CXF", "CoreWCF", "OWASP ZAP"],
+          "lab_task": "In a lab service you own, send a request with a DOCTYPE that defines an external entity pointing to file:///etc/hostname, then a 10-level entity expansion payload, and a 1 MB nested-element payload. Fix the parser configuration until all three are rejected within 1 second and add them as SoapUI tests.",
+          "deliverable": "Hardened test service with three attack payloads and regression tests",
+          "checks": [["Send the XXE payload before the fix", "The response or a log shows the file content or an outbound read, proving exposure", "Response capture"], ["Send the XXE payload after the fix", "The request is rejected with a fault and no file content appears", "Response capture"], ["Send the expansion payload after the fix", "A rejection returns in under 1 second with no CPU spike above 50 percent", "Timing and monitor"]],
+          "objectives": ["Recognise XML parser attacks", "Configure safe parsers", "Add regression tests for attacks"]
+        },
+        {
+          "topic": "WS-Security Attacks: Signature Wrapping, Replay and Algorithm Downgrade",
+          "subtopics": ["XML Signature wrapping and element relocation", "Verifying that the signed element is the processed element", "Replay: nonce caches and timestamp windows", "Weak algorithms: SHA-1, RSA 1.5 and CBC padding oracles", "Certificate validation: chains, revocation and subject constraints", "WSS4J requirements and strict mode settings", "Requiring signed parts with policy", "Credential stuffing against UsernameToken endpoints", "Logging security failures for a SIEM", "Reviewing a service against OWASP guidance for web services"],
+          "tools": ["WSS4J", "SoapUI", "Apache CXF", "OWASP ZAP"],
+          "lab_task": "On a lab service that signs the Body, craft a wrapping attack in SoapUI by moving the signed Body into a Header block and adding an attacker Body. Observe the outcome, then enable WSS4J requirement checks (signed Body and Timestamp) and show the attack now returns a fault.",
+          "deliverable": "Attack demonstration, fix and test cases",
+          "checks": [["Send the wrapped message before the fix", "The attacker Body is processed or the gap is demonstrated", "Response capture"], ["Send the wrapped message after requiring the signed Body", "A fault says the required signed part is missing", "Response XML"], ["Replay a captured valid message after the window", "The Timestamp check rejects it", "Response XML"]],
+          "objectives": ["Explain wrapping and replay attacks", "Enforce signed-part requirements", "Log security events"]
+        },
+        {
+          "topic": "Federation for SOAP: WS-Trust, a Security Token Service and SAML Assertions",
+          "subtopics": ["WS-Trust RST and RSTR exchange", "SAML 2.0 assertions as security tokens in the WS-Security header", "Holder-of-key versus bearer confirmation", "Audience restriction and NotOnOrAfter", "Identity mapping to SOAP service roles", "Apache CXF STS and why modern deployments may prefer OAuth at the gateway", "Token translation from OAuth bearer to SAML or an internal header", "Validating SAML signatures and conditions", "Interop with legacy partners", "Testing token flows in SoapUI"],
+          "tools": ["Apache CXF", "Keycloak", "SoapUI", "WSS4J"],
+          "lab_task": "Using a test STS or Keycloak SAML client, obtain a SAML assertion, place it in the wsse:Security header of a SOAP request and call a service that validates Conditions and Audience. Test a valid token, an expired token and a token for another audience.",
+          "deliverable": "SAML-secured SOAP call with three token cases",
+          "checks": [["Send a valid assertion", "HTTP 200 and the service logs the subject", "Response and log"], ["Send an assertion with NotOnOrAfter in the past", "A security fault and no business code runs", "Response XML"], ["Send an assertion for a different Audience", "A security fault naming the audience", "Response XML"]],
+          "objectives": ["Use SAML tokens in SOAP", "Validate conditions", "Plan a move from STS to OAuth where possible"]
+        },
+        {
+          "topic": "WS-Policy and WS-SecurityPolicy: Declaring and Enforcing Requirements",
+          "subtopics": ["wsp:Policy, ExactlyOne and All", "Attaching policy to a binding or operation in WSDL", "WS-SecurityPolicy assertions: TransportBinding, AsymmetricBinding and SupportingTokens", "Policy intersection and client behaviour", "CXF and WSS4J policy support", "Policy support in .NET and CoreWCF versus code configuration", "Policy alternatives for old clients", "Troubleshooting policy mismatch faults", "Keeping policy in sync with code", "When to replace policy with gateway enforcement"],
+          "tools": ["Apache CXF", "SoapUI", "Oxygen XML Editor", "WSS4J"],
+          "lab_task": "Add a WS-SecurityPolicy TransportBinding with a UsernameToken supporting token to a WSDL, publish it from CXF so the policy is enforced, generate a client from the policy-bearing WSDL, and show a request without the token being rejected.",
+          "deliverable": "Policy-enforcing service and generated client",
+          "checks": [["Call with the generated client and credentials", "HTTP 200 with a normal response", "Console output"], ["Call with no security header", "A fault stating the policy requirement is not met", "Response XML"], ["Read the WSDL", "The wsp:Policy element is attached to the binding", "WSDL excerpt"]],
+          "objectives": ["Read and apply WS-SecurityPolicy", "Enforce rules from the contract", "Decide when to use gateways instead"]
+        },
+        {
+          "topic": "Reliability for SOAP Calls: Idempotency, Retries and Duplicate Detection",
+          "subtopics": ["Which failures are safe to retry", "Idempotent design: natural keys and request ids", "Duplicate detection tables with unique constraints", "Retry with exponential backoff and jitter", "WS-ReliableMessaging and why most estates avoid it", "Handling lost responses after a successful commit", "Compensation and saga-style cancellation operations", "Dead letter queues for async SOAP processing", "Timeout budgets across call chains", "Testing failure injection"],
+          "tools": ["Resilience4j", "WireMock", "SoapUI", "Docker", "Toxiproxy"],
+          "lab_task": "Add a client-supplied RequestId to CreateOrder with a unique index on the server. Use Toxiproxy to drop the response after the server commits, retry 3 times, and verify exactly one order exists in the database after the retries.",
+          "deliverable": "Idempotent CreateOrder with a failure injection test",
+          "checks": [["Run the Toxiproxy scenario with retries", "The client retries and the database shows 1 order for the RequestId", "SQL count"], ["Send two requests with the same RequestId", "Both return the same OrderId", "Response XML"], ["Send 5 retries with backoff", "Delays between attempts increase with jitter in the client log", "Client log"]],
+          "objectives": ["Make SOAP operations safe to retry", "Implement duplicate detection", "Test partial failures"]
+        },
+        {
+          "topic": "Performance Tuning: JAXB Reuse, Streaming, Compression and Connection Pools",
+          "subtopics": ["Where time goes: parsing, binding, validation and network", "JAXBContext creation cost and caching", "Schema validation cost and when to validate", "StAX streaming for large messages", "HTTP keep-alive, pooling and HTTP/2 at the gateway", "gzip request and response compression", "Thread pools and Tomcat or Kestrel connection limits", "Payload design: avoiding large lists", "Profiling with JFR, async-profiler and dotnet-counters", "Setting service level objectives for latency"],
+          "tools": ["JMeter", "JDK Flight Recorder", "async-profiler", "dotnet-counters", "SoapUI"],
+          "lab_task": "Benchmark a 500-line order message at 50 concurrent users for 3 minutes with JMeter. Change one thing at a time: cache JAXBContext, disable server-side validation, enable gzip. Record p50, p95 and throughput after each change in a table.",
+          "deliverable": "Benchmark table with four runs and a recommendation",
+          "checks": [["Run the baseline", "A table row has p50, p95 and requests per second", "JMeter summary"], ["Run with JAXBContext cached", "p95 is lower than the baseline, with the delta stated", "JMeter summary"], ["Run with gzip", "Bytes transferred fall by at least 60 percent for the test message", "Network totals"]],
+          "objectives": ["Locate SOAP bottlenecks", "Apply one change per run", "Quantify improvement"]
+        },
+        {
+          "topic": "Load and Soak Testing SOAP Services with JMeter and ReadyAPI Concepts",
+          "subtopics": ["Load profile design from production logs", "JMeter SOAP/XML-RPC request sampler and HTTP Request with raw body", "Extracting values with the XPath2 Extractor", "Correlating ids across steps", "Ramp-up, steady-state and stress shapes", "Assertions that do not distort timing", "Running non-GUI with jmeter -n -t -l -e -o", "ReadyAPI load testing compared with JMeter", "Test data and clean-up", "Reading latency percentiles and errors"],
+          "tools": ["JMeter", "SoapUI", "ReadyAPI", "Grafana", "InfluxDB"],
+          "lab_task": "Build a JMeter plan with a ramp to 100 users over 2 minutes, a 10-minute steady state, an XPath2 extractor that carries OrderId from CreateOrder into GetOrder, and run it headless with jmeter -n -t plan.jmx -l results.jtl -e -o report. Find the user level where p95 first exceeds 1 second.",
+          "deliverable": "Plan, HTML report and an identified capacity knee",
+          "checks": [["Run the plan headless", "An HTML report folder is generated with a summary table", "report/index.html"], ["Check GetOrder samples", "Error rate is below 1 percent in the steady state", "Report error table"], ["Locate the user count at which p95 exceeds 1 second", "A number is stated with the graph that shows it", "Report graph"]],
+          "objectives": ["Design SOAP load tests", "Correlate values between requests", "Find capacity limits"]
+        },
+        {
+          "topic": "Observability for SOAP: Correlation IDs, Metrics and Distributed Tracing",
+          "subtopics": ["Correlation ids in headers and logs", "OpenTelemetry instrumentation for Spring and ASP.NET Core", "Extracting operation names as metric labels", "Low-cardinality labels: operation, fault type and status", "Fault rate and latency histograms", "W3C traceparent across SOAP hops", "Masking PII in logged envelopes", "Log sampling for large payloads", "Dashboards and alerts in Prometheus and Grafana", "Auditing who called which operation"],
+          "tools": ["OpenTelemetry", "Prometheus", "Grafana", "Jaeger", "Spring Boot"],
+          "lab_task": "Instrument a SOAP service with the OpenTelemetry Java agent or the .NET SDK, add a custom operation name attribute, send a traceparent header in a SOAP call, and view the trace in Jaeger. Create a Prometheus histogram per operation and a Grafana panel for p95 and fault rate.",
+          "deliverable": "Traced and measured SOAP service with a dashboard",
+          "checks": [["Send a request with a traceparent header", "Jaeger shows a trace whose id matches the header", "Jaeger screenshot"], ["Trigger 10 faults", "The fault counter increases by 10 for that operation", "Prometheus query result"], ["Check logs for a password value", "No password appears in any log line", "grep result"]],
+          "objectives": ["Trace SOAP calls", "Define useful metrics", "Keep logs free of secrets"]
+        },
+        {
+          "topic": "Versioning and Evolving WSDL and XSD Contracts",
+          "subtopics": ["Namespace versioning versus endpoint versioning", "Backward-compatible changes and extension points", "Deprecation notices in wsdl:documentation and headers", "Running v1 and v2 side by side", "Adapters between versions with XSLT or code", "Consumer registry and usage analytics", "Sunset schedule and communication", "Regression suites per version", "Schema evolution of enumerations", "Rollback"],
+          "tools": ["SoapUI", "xsltproc", "Git", "Apache CXF"],
+          "lab_task": "Release v2 of the orders contract with a new optional Priority element and a new namespace. Serve v1 and v2 at different paths, add an XSLT that converts v1 requests to v2, and run the same 12-case SoapUI suite against both paths with the correct request versions.",
+          "deliverable": "Dual-version service with an adapter and passing suites",
+          "checks": [["Run the v1 suite against /v1", "12 of 12 pass", "Runner summary"], ["Run the v2 suite against /v2", "12 of 12 pass including a case using Priority", "Runner summary"], ["Send a v1 request through the adapter", "The backend receives a valid v2 request with Priority at its default", "Backend log"]],
+          "objectives": ["Plan contract evolution", "Run two versions together", "Communicate deprecation"]
+        },
+        {
+          "topic": "Resilient SOAP Clients: Circuit Breakers, Bulkheads and Timeout Budgets",
+          "subtopics": ["Circuit breaker states: closed, open and half-open", "Resilience4j around generated Java clients", "Polly policies around WCF clients in .NET", "Bulkhead and thread pool isolation", "Per-operation timeouts", "Fallbacks and cached answers", "Rate limiting outbound calls to a partner", "Health checks for SOAP dependencies", "Treating faults versus transport errors in breaker rules", "Testing with failure injection"],
+          "tools": ["Resilience4j", "Polly", "WireMock", "Toxiproxy", "Micrometer"],
+          "lab_task": "Wrap a generated client with a Resilience4j CircuitBreaker (failureRateThreshold 50, slidingWindowSize 10, waitDurationInOpenState 10s) that counts timeouts and 5xx but not business faults. Drive 20 calls against a WireMock that fails 60 percent and record state transitions.",
+          "deliverable": "Client with circuit breaker, metrics and a transition log",
+          "checks": [["Drive 10 calls with 6 failures", "The breaker moves to OPEN", "Micrometer or log output"], ["Call while OPEN", "CallNotPermittedException is thrown in under 50 ms", "Test log"], ["Send 5 business faults", "The breaker stays CLOSED", "State metric"]],
+          "objectives": ["Protect callers from slow partners", "Separate fault types in policies", "Observe breaker state"]
+        },
+        {
+          "topic": "Deploying SOAP Services on Kubernetes: Images, Probes and Ingress",
+          "subtopics": ["Container images for Spring Boot and ASP.NET Core with non-root users", "Readiness and liveness probes that do not call heavy operations", "Configuring WSDL addresses behind ingress and X-Forwarded headers", "Ingress with NGINX and large-body limits (proxy-body-size)", "TLS termination and re-encryption", "Secrets for keystores mounted as files", "Horizontal Pod Autoscaler based on CPU and request rate", "Graceful shutdown with preStop and terminationGracePeriodSeconds", "Sticky sessions: why stateless is better", "Rolling updates with contract compatibility"],
+          "tools": ["Kubernetes", "Docker", "Helm", "NGINX Ingress", "kubectl"],
+          "lab_task": "Package a SOAP service as a non-root image, deploy it with a Helm chart with readinessProbe on a lightweight /health, an Ingress with proxy-body-size 20m, and a secret-mounted keystore. Confirm the WSDL shows the public host and run a rolling update with no failed requests from a 1-minute loop.",
+          "deliverable": "Helm chart and a zero-failure rolling update",
+          "checks": [["curl https://soap.example.test/orders?wsdl", "soap:address uses the public host name", "curl output"], ["Run a request loop during kubectl rollout restart", "0 failed requests in the loop", "Loop summary"], ["Send a 25 MB body", "The ingress rejects it with HTTP 413", "curl output"]],
+          "objectives": ["Deploy SOAP services on Kubernetes", "Configure ingress for WSDL and large messages", "Roll out without downtime"]
+        },
+        {
+          "topic": "SOAP over JMS and Queue-Based Bridges to Event Streams",
+          "subtopics": ["SOAP over JMS and the W3C binding", "Why queues help with partner outages", "Message properties used for routing: SOAPAction and content type", "Apache CXF JMS transport and ActiveMQ Artemis", "Bridging a SOAP request to Kafka or a queue with a gateway or service", "Poison messages and dead-letter queues", "Ordering and idempotent consumers", "Large messages and claim-check", "Transactions and XA concerns", "Choosing between HTTP SOAP and messaging"],
+          "tools": ["Apache CXF", "ActiveMQ Artemis", "Kafka", "Docker", "SoapUI"],
+          "lab_task": "Run Artemis in Docker, expose a CXF service over JMS with a request queue, send a SOAP envelope as a text message with a script, read the reply from the reply queue, and add a poison message that lands in the DLQ after 3 delivery attempts.",
+          "deliverable": "SOAP over JMS demonstration with DLQ evidence",
+          "checks": [["Send a valid SOAP envelope to the queue", "A SOAP response arrives on the reply queue", "Queue browser output"], ["Send a malformed envelope", "After 3 delivery attempts it appears in the DLQ", "Artemis console"], ["Count DLQ messages", "The DLQ depth is 1", "Console count"]],
+          "objectives": ["Use JMS as a SOAP transport", "Handle poison messages", "Bridge to modern messaging"]
+        },
+        {
+          "topic": "SOAP-to-REST Modernisation: Strangler Fig, Facades and Migration Slices",
+          "subtopics": ["Why modernise and what not to touch", "Strangler fig pattern and routing slices of traffic", "Facade over the SOAP backend versus rewriting the backend", "Resource modelling from SOAP operations", "Commands that do not map to CRUD", "Partner contracts that must stay SOAP", "Dual-run and shadow traffic comparison", "Choosing the unit of migration: operation, domain or consumer", "Measuring success with traffic share and error rate", "Rollback"],
+          "tools": ["NGINX", "Kong", "Spring Boot", "SoapUI", "Postman"],
+          "lab_task": "From a SOAP orders contract with 6 operations, produce a mapping sheet to REST resources and verbs, choose two operations for slice one, put a gateway in front that routes 10 percent of read traffic to the new REST facade, and compare 200 paired responses for equality.",
+          "deliverable": "Mapping sheet, routing config and a comparison report",
+          "checks": [["Check the mapping sheet", "All 6 operations map to a resource and verb or are marked remain-SOAP with a reason", "Sheet"], ["Send 1,000 requests through the gateway", "About 100 (between 80 and 120) are served by the REST path", "Gateway log counts"], ["Compare 200 paired responses", "A report shows the number of differences and a list of the types", "Comparison report"]],
+          "objectives": ["Plan a strangler migration", "Map operations to resources", "Prove equivalence with shadow traffic"]
+        },
+        {
+          "topic": "Mapping XML Schema to OpenAPI and JSON: Pitfalls and Rules",
+          "subtopics": ["Elements and attributes into JSON properties", "Repeating elements and single-item list ambiguity", "xs:choice into oneOf and discriminators", "nillable versus missing versus null", "Namespaces dropped in JSON and name collisions", "xs:decimal, xs:dateTime and xs:base64Binary mapping", "Enumerations and unknown values", "Mixed content and xs:any", "Generating OpenAPI from XSD with a tool and reviewing the result", "Error mapping: SOAP faults to RFC 9457 problem details"],
+          "tools": ["OpenAPI Generator", "Jackson", "Spectral", "Postman", "VS Code"],
+          "lab_task": "Convert orders.xsd to an OpenAPI 3.1 schema using a tool or a script, then fix issues by hand: single-item arrays, xs:choice as oneOf, decimal as a string with a pattern, dates as format date-time. Lint with Spectral and map OrderNotFound fault to an RFC 9457 problem response.",
+          "deliverable": "OpenAPI document with a list of mapping decisions",
+          "checks": [["Run spectral lint on the OpenAPI file", "0 errors are reported", "Spectral output"], ["Convert an order with a single line item", "The JSON has lines as an array of length 1", "JSON output"], ["Trigger OrderNotFound through the facade", "HTTP 404 with application/problem+json and a type and title", "Response capture"]],
+          "objectives": ["Map schemas to JSON deliberately", "Review generated OpenAPI", "Translate faults into problem details"]
+        },
+        {
+          "topic": "Building a REST Facade in Spring Boot over Generated SOAP Clients",
+          "subtopics": ["Facade layers: controller, mapper and SOAP client adapter", "Generated client isolated in an adapter module", "MapStruct for DTO mapping", "Authentication translation: OAuth2 bearer in, WS-Security out", "Timeouts and circuit breakers on the SOAP side", "Translating faults to status codes", "Pagination over operations that return full lists", "Caching with ETag and Cache-Control", "Contract tests for the facade", "Observability across the REST to SOAP hop"],
+          "tools": ["Spring Boot", "MapStruct", "WireMock", "Resilience4j", "Spring Security"],
+          "lab_task": "Build a Spring Boot REST API with GET /orders/{id} and POST /orders that calls a generated SOAP client with UsernameToken, uses MapStruct, maps OrderNotFound to 404 and timeouts to 504, and add WireMock tests for success, 404 and timeout.",
+          "deliverable": "REST facade with three passing tests",
+          "checks": [["GET /orders/42 against the SOAP mock", "HTTP 200 with JSON fields from the SOAP reply", "Test output"], ["Mock an OrderNotFound fault", "HTTP 404 problem+json", "Test output"], ["Mock a response delay beyond the timeout", "HTTP 504 returned in about the configured timeout", "Test timing"]],
+          "objectives": ["Build a REST layer over SOAP", "Translate security and errors", "Test through mocks"]
+        },
+        {
+          "topic": "Governing and Retiring a SOAP Estate: Inventory, Consumer Mapping and Sunset",
+          "subtopics": ["Discovering services from gateway logs, UDDI leftovers and WSDL repositories", "Consumer identification with keys, certificates and IPs", "Usage and criticality scoring", "Prioritising migration candidates", "Cost of running SOAP stacks and aging libraries", "Security debt: old WS-Security and algorithms", "Communication and deprecation headers", "Decommission checklist", "Maintaining the partner SOAP APIs that remain", "Reporting progress"],
+          "tools": ["Splunk", "Kibana", "Python", "Excel", "Git"],
+          "lab_task": "Parse 30 days of gateway access logs with a Python script, group requests by SOAPAction and client certificate subject or API key, produce a CSV of operation, consumer, calls, p95 latency and error rate, and rank the top 10 migration candidates with a stated scoring formula.",
+          "deliverable": "Inventory CSV, scoring formula and a ranked candidate list",
+          "checks": [["Run the script on the sample logs", "A CSV with one row per operation and consumer pair is created", "CSV file"], ["Check that totals reconcile", "The sum of calls in the CSV equals the number of SOAP requests in the logs", "Reconciliation output"], ["Review the top 10 list", "Each entry has a score and the formula is documented", "Report"]],
+          "objectives": ["Build a service inventory from logs", "Prioritise by data", "Plan sunset"]
+        },
+        {
+          "topic": "Advanced Troubleshooting: Packet Capture, Message Tracing and Reproduction",
+          "subtopics": ["Capturing decrypted traffic with a proxy or key log file", "Wireshark filters for SOAP and the SSLKEYLOGFILE option", "Reading chunked and gzip bodies", "JVM TLS debugging with -Djavax.net.debug=ssl,handshake", "CXF and .NET message logging switches", "Reproducing a production failure with a sanitised message", "Thread dumps and dotnet-dump for hung calls", "Clock skew, certificate expiry and DNS causes", "Binary search through gateway, ingress and service logs", "Writing an incident report"],
+          "tools": ["Wireshark", "Fiddler", "mitmproxy", "curl", "jstack"],
+          "lab_task": "Reproduce three seeded faults in a lab: a TLS handshake failure, a Timestamp rejected from 10 minutes of clock skew and a hang caused by a missing read timeout. Diagnose each with Wireshark or logs and jstack, fix it, and write an incident note per fault.",
+          "deliverable": "Three incident notes with evidence and fixes",
+          "checks": [["Capture the failed handshake", "The alert type and the cause are identified", "Wireshark screenshot"], ["Correct the clock skew", "The Timestamp fault clears and a call returns HTTP 200", "Response and time sync output"], ["Take a thread dump of the hung client", "The stack shows a socket read and a read timeout is added to prevent it", "jstack excerpt and config diff"]],
+          "objectives": ["Diagnose failures at the network and message level", "Reproduce issues safely", "Write blameless incident notes"]
+        },
+        {
+          "topic": "Advanced Capstone: Modernise a Legacy SOAP Estate",
+          "subtopics": ["Estate inventory and a migration plan for 6 operations", "Hardened SOAP core: XXE-safe parsers, WS-Security with requirement checks and mTLS", "REST facade and gateway with strangler routing and shadow comparison", "Resilience, observability and a 100-user load test with targets", "Kubernetes deployment with rolling updates", "Runbook, risk register and decommission plan"],
+          "tools": ["Spring Boot", "Kubernetes", "NGINX", "SoapUI", "JMeter"],
+          "lab_task": "Take a provided legacy SOAP orders service with 6 operations and migrate two read operations to REST behind a gateway while keeping SOAP for partners. Pass 10 attack tests, a 100-user load test with p95 under 800 ms, a zero-failure rolling update and a 200-pair shadow comparison with fewer than 2 percent differences.",
+          "deliverable": "Repository with hardened service, facade, gateway config, tests, dashboards and runbook",
+          "checks": [["Run the 10 security tests", "All 10 attacks are rejected with a fault or 4xx", "SoapUI runner log"], ["Run the 100-user load test", "p95 is below 800 ms and errors below 1 percent", "JMeter report"], ["Compare 200 shadow pairs", "Fewer than 4 differing pairs with causes listed", "Comparison report"]],
+          "objectives": ["Deliver a secure, observable migration slice", "Prove behaviour with data", "Document operations and decommission"]
+        }
+      ]
+    }
+  }
+}

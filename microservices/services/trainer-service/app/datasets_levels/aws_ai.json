@@ -1,0 +1,573 @@
+{
+  "domain": "AWS AI",
+  "name": "AWS AI",
+  "category": "Cloud",
+  "icon": "cloud",
+  "aliases": ["AWS GenAI", "AWS Bedrock", "Amazon Bedrock", "AWS Machine Learning", "SageMaker", "Amazon SageMaker AI", "AWS AI Services"],
+  "certifications": ["AWS Certified AI Practitioner (AIF-C01)", "AWS Certified Machine Learning Engineer - Associate (MLA-C01)", "AWS Certified Generative AI Developer - Professional (AIP-C01)"],
+  "tools": ["Amazon Bedrock", "Amazon Bedrock AgentCore", "Bedrock Knowledge Bases", "Amazon Bedrock Guardrails", "Amazon SageMaker AI", "SageMaker Unified Studio", "Amazon Rekognition", "Amazon Textract", "Amazon Comprehend", "Amazon Transcribe", "AWS CLI", "boto3"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, analysts and cloud engineers who are new to AI on AWS. Covers the AWS AI service map, account and CLI setup, generative AI concepts, Amazon Bedrock models and the Converse API, prompting, streaming and token usage, multimodal inputs, the managed AI services Amazon Rekognition, Textract, Comprehend, Transcribe, Polly and Translate, Bedrock Knowledge Bases and Guardrails, a first tour of Amazon SageMaker AI, Lambda and API Gateway wiring, IAM least privilege, cost and responsible AI habits, and a document Q&A capstone.",
+      "prerequisites": ["Has used a programming language such as Python or JavaScript and can read JSON", "Can use a terminal and has seen the AWS Management Console or the AWS CLI", "Has an AWS account or sandbox with permission to create IAM roles, S3 buckets, Lambda functions and Bedrock requests, plus a billing alert in place"],
+      "outcomes": ["Choose the right AWS AI service for text, image, document, speech and prediction tasks", "Call foundation models on Amazon Bedrock with the Converse API and control cost with token limits", "Build a small retrieval-augmented assistant with Knowledge Bases, Guardrails, Lambda and API Gateway", "Apply least-privilege IAM, budgets and responsible AI checks to every AI workload"],
+      "days": [
+        {
+          "topic": "Getting Started: AWS AI Service Map, Account and CLI Configuration",
+          "subtopics": ["The AWS AI stack: Amazon Bedrock, Amazon SageMaker AI and the task-specific AI services", "When to use a managed AI service, a foundation model or a custom model", "Creating a sandbox account, a non-root admin user and MFA", "Installing AWS CLI v2 and running aws configure sso", "Choosing a Region and checking Bedrock availability there", "Setting an AWS Budgets alert before the first lab", "Python with boto3 and the bedrock, bedrock-runtime and bedrock-agent-runtime clients", "Reading the AWS AI Service Cards and the shared responsibility model"],
+          "tools": ["AWS CLI", "boto3", "AWS Management Console", "AWS Budgets", "IAM Identity Center", "CloudShell"],
+          "lab_task": "Configure the AWS CLI with aws configure sso, run aws sts get-caller-identity and save the output, create a USD 10 monthly budget with an email alert using aws budgets create-budget, then run aws bedrock list-foundation-models --region us-east-1 --query 'length(modelSummaries)' and note the model count.",
+          "deliverable": "Setup record with caller identity, budget ARN, chosen Region and foundation model count",
+          "checks": [["Run aws sts get-caller-identity", "Returns an Arn for the SSO or IAM user, not the root account", "Saved CLI output"], ["Run aws budgets describe-budgets for the account", "The USD 10 budget is listed with a notification at 80 percent", "Command output"], ["Run aws bedrock list-foundation-models in the chosen Region", "Returns a numeric count greater than 0 in modelSummaries", "Query result"]],
+          "objectives": ["Configure a safe, budget-limited AWS environment for AI work", "Place Bedrock, SageMaker AI and the AI services on one map", "Explain when to use a managed service versus a custom model"]
+        },
+        {
+          "topic": "Generative AI Concepts for AWS Practitioners",
+          "subtopics": ["Foundation models, LLMs and the difference from classic machine learning", "Tokens, context windows and why they drive cost", "Temperature, top-p and max tokens", "Embeddings and vector similarity", "Hallucination and grounding with retrieval", "Prompting, RAG, fine-tuning and continued pre-training compared", "Model families on Bedrock: Amazon Nova, Anthropic Claude, Meta Llama, Mistral and others", "Exam domains of AWS Certified AI Practitioner (AIF-C01)"],
+          "tools": ["Amazon Bedrock", "Bedrock Playground", "Python", "tiktoken-style token counters", "AWS Skill Builder"],
+          "lab_task": "In the Bedrock chat playground send the same 120-word support question to two models at temperature 0 and 1.0. Record input tokens, output tokens and latency for each run, repeat each setting three times, and write a table showing which setting gave identical answers and the token cost difference.",
+          "deliverable": "Comparison table of 12 runs with tokens, latency and an explanation of temperature and token effects",
+          "checks": [["Run the same prompt three times at temperature 0", "Answers are identical or nearly identical", "Playground transcript"], ["Run it three times at temperature 1.0", "At least two answers differ in wording", "Playground transcript"], ["Compare input token counts across the two models", "Counts differ because each model uses its own tokenizer", "Run table"]],
+          "objectives": ["Explain tokens, context windows and sampling parameters", "Distinguish prompting, RAG and fine-tuning", "Map generative AI vocabulary to AIF-C01 domains"]
+        },
+        {
+          "topic": "Amazon Bedrock Console, Model Catalog and Model Access",
+          "subtopics": ["Serverless access to models through one API", "The model catalog, providers and modalities", "Region availability and inference profile IDs such as us.amazon.nova-lite-v1:0", "Model access, EULAs and the use-case form some providers require", "Pricing dimensions: on-demand tokens, batch, provisioned throughput", "Service quotas for requests and tokens per minute", "Viewing model details with aws bedrock get-foundation-model", "Playgrounds for chat, text and image"],
+          "tools": ["Amazon Bedrock", "AWS CLI", "Service Quotas", "Bedrock Playground"],
+          "lab_task": "Filter the model catalog to text-output models, run aws bedrock list-foundation-models --by-provider amazon --by-output-modality TEXT, pick Amazon Nova Lite, call get-foundation-model for its modelId and inputModalities, then open Service Quotas and record the on-demand requests-per-minute and tokens-per-minute values for the chosen model.",
+          "deliverable": "One-page model profile with model ID, modalities, Region, price per 1,000 tokens and quota values",
+          "checks": [["Run list-foundation-models --by-provider amazon", "Output includes at least one amazon.nova model ID", "CLI output"], ["Call get-foundation-model for Nova Lite", "inputModalities lists TEXT and IMAGE", "JSON output"], ["Open Service Quotas for Bedrock", "A numeric on-demand tokens-per-minute value is shown for the model", "Screenshot"]],
+          "objectives": ["Navigate the Bedrock catalog and quotas", "Read a model's modalities, Regions and pricing", "Identify which models need extra access steps"]
+        },
+        {
+          "topic": "Calling Models with the Bedrock Converse API",
+          "subtopics": ["Converse versus InvokeModel and why Converse gives one request shape", "The messages array, roles and content blocks", "System prompts", "inferenceConfig: maxTokens, temperature, topP, stopSequences", "Reading usage.inputTokens, outputTokens and stopReason", "Multi-turn conversations by resending history", "Handling ValidationException and AccessDeniedException", "Calling from boto3 and from aws bedrock-runtime converse"],
+          "tools": ["boto3", "AWS CLI", "Amazon Bedrock", "Python", "Amazon Nova"],
+          "lab_task": "Write converse_demo.py using boto3 bedrock-runtime client.converse with modelId us.amazon.nova-lite-v1:0, a system prompt, maxTokens 200 and temperature 0.2. Ask three questions in a loop that appends each assistant reply to messages, print usage.totalTokens each turn, and confirm stopReason is end_turn.",
+          "deliverable": "converse_demo.py with a transcript showing three turns and token usage per turn",
+          "checks": [["Run the script with a 3-turn conversation", "Third answer uses facts given in turn one, proving history is resent", "Console transcript"], ["Set maxTokens to 5", "stopReason is max_tokens and the reply is cut off", "Printed response"], ["Use a wrong modelId", "ValidationException or AccessDeniedException is raised and caught with a clear message", "Error log"]],
+          "objectives": ["Send multi-turn requests with the Converse API", "Read usage and stopReason fields", "Handle common Bedrock client errors"]
+        },
+        {
+          "topic": "Prompting Amazon Nova and Claude Models on Bedrock",
+          "subtopics": ["Clear instructions, role and output format", "Few-shot examples", "Delimiters and XML-style tags for inputs", "Asking for JSON and validating it", "Chain-of-thought versus asking for brief reasoning", "Model-specific guidance in the Nova and Claude prompt guides", "Negative instructions and refusals", "Comparing models on one prompt set"],
+          "tools": ["Amazon Bedrock", "Bedrock Playground", "boto3", "Python", "jsonschema"],
+          "lab_task": "Build a 10-prompt test set for classifying support tickets as billing, technical or account. Run each prompt through Nova Lite and one Claude model with Converse, require JSON output, validate with jsonschema, and compute accuracy and invalid-JSON counts for a zero-shot and a 3-shot prompt.",
+          "deliverable": "Prompt test set, results CSV and a recommendation on the better prompt and model",
+          "checks": [["Run zero-shot on 10 tickets", "Accuracy is recorded as a count out of 10 per model", "Results CSV"], ["Add three examples to the prompt", "Accuracy or JSON validity improves or the report explains why not", "Before and after table"], ["Validate each reply with jsonschema", "Number of invalid JSON replies is reported, expected 0 to 2", "Validation log"]],
+          "objectives": ["Write structured prompts with examples and formats", "Measure prompt quality with a labelled set", "Compare models on identical prompts"]
+        },
+        {
+          "topic": "Streaming, Inference Parameters and Token Usage",
+          "subtopics": ["converse_stream and event types: contentBlockDelta, messageStop, metadata", "Time to first token versus total latency", "Server-side streaming into a terminal", "Stop sequences", "Output length control and truncation", "Estimating cost per request from usage", "Retry and timeout settings in botocore Config", "Latency-optimised inference where a model supports it"],
+          "tools": ["boto3", "botocore Config", "Amazon Bedrock", "Python"],
+          "lab_task": "Write stream_demo.py using converse_stream for a 400-word summary prompt. Record the time of the first contentBlockDelta event and the metadata event, print tokens per second, run it 5 times, and compute average time-to-first-token and the cost from usage using the published per-1,000-token prices.",
+          "deliverable": "Latency and cost table for 5 streaming runs with a formula for cost per request",
+          "checks": [["Run converse_stream once", "Text appears incrementally and a metadata event with usage arrives last", "Terminal capture"], ["Compare first-token time with total time", "First token arrives well before the full reply completes", "Timing table"], ["Compute cost from usage for 5 runs", "Computed cost matches inputTokens and outputTokens multiplied by listed prices", "Spreadsheet"]],
+          "objectives": ["Stream responses and measure latency", "Calculate request cost from token usage", "Configure timeouts and retries in boto3"]
+        },
+        {
+          "topic": "Bedrock Prompt Management and Playground Workflows",
+          "subtopics": ["Prompt Management: variables, versions and drafts", "Creating a prompt with aws bedrock-agent create-prompt", "Prompt versions and create-prompt-version", "Variants for A/B comparison", "Calling a managed prompt by ARN through Converse", "Prompt optimisation tool in the console", "Naming and tagging conventions", "Prompt review before release"],
+          "tools": ["Amazon Bedrock Prompt Management", "AWS CLI", "boto3", "Bedrock Playground"],
+          "lab_task": "Create a managed prompt named ticket-summary with a {{ticket_text}} variable and two variants using different models. Publish version 1 with create-prompt-version, call it through Converse by passing the prompt ARN as modelId with promptVariables, then edit the draft and publish version 2.",
+          "deliverable": "Managed prompt with two published versions and a note on how callers pin a version",
+          "checks": [["Run list-prompts after creation", "ticket-summary appears with a prompt ID", "CLI output"], ["Publish a version", "get-prompt with the version number returns the frozen text", "JSON output"], ["Call the prompt ARN with a ticket", "Response is generated with the variable filled in", "Response transcript"]],
+          "objectives": ["Version prompts independently of code", "Compare prompt variants side by side", "Call managed prompts from applications"]
+        },
+        {
+          "topic": "Multimodal Inputs: Images and Documents with Bedrock",
+          "subtopics": ["Image blocks and supported formats in Converse", "Document blocks for PDF, DOCX, CSV and TXT", "Size and count limits per request", "Reading charts and screenshots", "Extracting fields from invoices with a prompt", "Accuracy limits compared with Textract", "Sending bytes versus S3 URIs", "Redacting sensitive pages before sending"],
+          "tools": ["Amazon Bedrock", "boto3", "Amazon Nova", "Python"],
+          "lab_task": "Send a PNG invoice and a 2-page PDF to Amazon Nova Lite through Converse using image and document content blocks. Ask for vendor, invoice number, total and due date as JSON, compare against ground truth for 5 files, and report field-level accuracy and token cost for images versus PDFs.",
+          "deliverable": "Extraction script, 5-file accuracy table and notes on failure cases",
+          "checks": [["Send an image block with an invoice PNG", "Reply contains vendor and total fields as JSON", "Script output"], ["Send the PDF as a document block", "Fields match the PDF and usage shows more input tokens than the text-only prompt", "Usage log"], ["Compare against ground truth on 5 files", "Field accuracy is reported per field, with at least one error explained", "Accuracy table"]],
+          "objectives": ["Send images and documents to a multimodal model", "Measure extraction accuracy against ground truth", "Know the limits of model-based extraction"]
+        },
+        {
+          "topic": "Amazon Rekognition Image and Video Analysis",
+          "subtopics": ["detect-labels, detect-text and detect-faces", "Confidence scores and the MinConfidence parameter", "Content moderation with detect-moderation-labels", "Face collections: create-collection, index-faces, search-faces-by-image", "Custom Labels for domain-specific images", "Asynchronous video jobs: start-label-detection and get-label-detection", "Face Liveness and responsible face analysis", "Pricing per image and per minute of video"],
+          "tools": ["Amazon Rekognition", "AWS CLI", "boto3", "Amazon S3"],
+          "lab_task": "Upload 10 images to S3, run aws rekognition detect-labels --max-labels 10 --min-confidence 80 on each, run detect-moderation-labels on two unsafe test images from the AWS sample set, and create a face collection with index-faces for 3 people, then search with search-faces-by-image and record similarity scores.",
+          "deliverable": "Results sheet for 10 images with labels, moderation findings and face match similarity",
+          "checks": [["Run detect-labels with --min-confidence 80", "Every returned label has Confidence at or above 80", "JSON output"], ["Run detect-moderation-labels on a flagged image", "ModerationLabels is non-empty with a parent category", "JSON output"], ["Search the face collection with an enrolled person", "FaceMatches has Similarity above 90 for the same person", "CLI output"]],
+          "objectives": ["Analyse images with Rekognition APIs", "Tune confidence thresholds", "Use face collections with care for privacy"]
+        },
+        {
+          "topic": "Amazon Textract for Documents, Forms and Tables",
+          "subtopics": ["detect-document-text versus analyze-document", "FeatureTypes: TABLES, FORMS, QUERIES, SIGNATURES, LAYOUT", "Block types: PAGE, LINE, WORD, TABLE, CELL, KEY_VALUE_SET", "analyze-expense and analyze-id", "Asynchronous start-document-analysis for multi-page PDFs", "Queries for targeted fields", "Adapters for custom accuracy", "Confidence handling and human review"],
+          "tools": ["Amazon Textract", "AWS CLI", "boto3", "Amazon S3", "Python"],
+          "lab_task": "Run aws textract analyze-document with FeatureTypes TABLES FORMS on a one-page form image, write a script that turns TABLE and CELL blocks into a CSV, then add --queries-config for 'What is the invoice total?' and report the answer with its confidence, flagging any value under 90 for review.",
+          "deliverable": "Script that outputs CSV and a query answer plus a list of low-confidence values",
+          "checks": [["Run analyze-document with TABLES", "Blocks include BlockType TABLE and CELL entries", "JSON output"], ["Add a QUERIES request for the invoice total", "A QUERY_RESULT block returns the expected amount with a Confidence value", "JSON output"], ["Convert the table to CSV", "CSV row and column counts match the source table", "CSV file"]],
+          "objectives": ["Extract text, tables and forms with Textract", "Use Queries for field extraction", "Route low-confidence values to review"]
+        },
+        {
+          "topic": "Amazon Comprehend Text Analytics and PII Detection",
+          "subtopics": ["detect-sentiment, detect-entities, detect-key-phrases, detect-dominant-language", "detect-pii-entities and contains-pii-entities", "Redaction in asynchronous PII jobs", "Toxicity detection", "Custom classification and custom entity recognition", "Batch APIs and size limits", "Language support differences", "When an LLM is a better choice than Comprehend"],
+          "tools": ["Amazon Comprehend", "AWS CLI", "boto3", "Amazon S3"],
+          "lab_task": "Run detect-sentiment, detect-entities and detect-pii-entities on 20 customer reviews. Write a script that masks every PII span returned (NAME, EMAIL, PHONE) with its type in brackets, run start-pii-entities-detection-job in redaction mode on the same S3 folder, and compare the two redactions.",
+          "deliverable": "Sentiment table, masked review file and a comparison note on synchronous versus batch redaction",
+          "checks": [["Run detect-sentiment on a clearly negative review", "Sentiment is NEGATIVE with the highest score above 0.8", "JSON output"], ["Run detect-pii-entities on a review with an email", "Entities contains Type EMAIL with Score and offsets", "JSON output"], ["Mask the PII with returned offsets", "No original email or phone string remains in the masked file", "Masked output"]],
+          "objectives": ["Run core Comprehend analyses", "Detect and redact PII", "Decide between Comprehend and an LLM"]
+        },
+        {
+          "topic": "Amazon Transcribe Speech-to-Text",
+          "subtopics": ["start-transcription-job with S3 media and OutputBucketName", "Job statuses: QUEUED, IN_PROGRESS, COMPLETED, FAILED", "Automatic language identification", "Speaker labels with ShowSpeakerLabels", "Custom vocabularies and custom language models", "Content redaction and vocabulary filters", "Streaming transcription", "Call analytics and Transcribe Medical scope"],
+          "tools": ["Amazon Transcribe", "AWS CLI", "boto3", "Amazon S3"],
+          "lab_task": "Upload a 2-minute meeting recording to S3, run aws transcribe start-transcription-job with --identify-language and --settings ShowSpeakerLabels=true,MaxSpeakerLabels=3, poll get-transcription-job until COMPLETED, then add a custom vocabulary of 10 product terms and a PII redaction setting and rerun.",
+          "deliverable": "Two transcripts, a custom vocabulary file and a word error comparison on 10 terms",
+          "checks": [["Poll get-transcription-job", "Status moves to COMPLETED and a TranscriptFileUri is returned", "CLI output"], ["Enable ShowSpeakerLabels", "Transcript JSON contains speaker_labels with at least 2 speakers", "Transcript JSON"], ["Rerun with custom vocabulary", "Product terms are spelled correctly where the first run misspelled them", "Diff of transcripts"]],
+          "objectives": ["Run batch transcription jobs", "Improve accuracy with custom vocabularies", "Apply speaker labels and redaction"]
+        },
+        {
+          "topic": "Amazon Polly Speech and Amazon Translate",
+          "subtopics": ["synthesize-speech with --engine standard, neural, long-form or generative", "Voice IDs and language codes", "SSML: break, prosody, say-as, phoneme", "Lexicons for pronunciation", "Speech marks for lip-sync and highlights", "translate-text with source and target codes", "Custom terminology with import-terminology", "Batch translation jobs and formality settings"],
+          "tools": ["Amazon Polly", "Amazon Translate", "AWS CLI", "boto3", "Amazon S3"],
+          "lab_task": "Translate a 150-word English notice into Spanish with aws translate translate-text, importing a terminology CSV that fixes three product names. Feed the Spanish text to aws polly synthesize-speech with an SSML pause and a neural Spanish voice, save the MP3 and record the character counts billed.",
+          "deliverable": "Translated text, terminology file, MP3 file and a character-count cost estimate",
+          "checks": [["Run translate-text with the terminology", "AppliedTerminologies lists the terminology and product names are unchanged", "JSON output"], ["Run synthesize-speech with SSML", "An MP3 is created and plays a pause where the break tag sits", "Audio file"], ["Check RequestCharacters in the Polly response header", "The count matches the SSML-excluded text length plus tags as documented", "Header output"]],
+          "objectives": ["Translate with custom terminology", "Generate speech from SSML", "Estimate character-based costs"]
+        },
+        {
+          "topic": "Bedrock Knowledge Bases: A First RAG Pipeline",
+          "subtopics": ["RAG steps: ingest, chunk, embed, retrieve, generate", "Creating an S3 data source", "Embedding model Titan Text Embeddings V2 and dimensions", "Quick-create vector store versus choosing one", "start-ingestion-job and its statistics", "retrieve versus retrieve-and-generate", "Citations in the response", "Sync after document changes"],
+          "tools": ["Bedrock Knowledge Bases", "Amazon S3", "AWS CLI", "boto3", "Titan Embeddings"],
+          "lab_task": "Upload five policy PDFs to S3, create a knowledge base with Titan Text Embeddings V2 and the quick-create vector store, run aws bedrock-agent start-ingestion-job, then ask three questions with bedrock-agent-runtime retrieve-and-generate and confirm each answer carries a citation to the right file.",
+          "deliverable": "Working knowledge base with ingestion statistics and three cited answers",
+          "checks": [["Run start-ingestion-job and poll", "Status COMPLETE with numberOfNewDocumentsIndexed equal to 5", "CLI output"], ["Ask a question answered in one PDF", "Answer is correct and citations reference that S3 object", "retrieve-and-generate output"], ["Ask a question not in the documents", "Model says it cannot find the answer instead of inventing one", "Response transcript"]],
+          "objectives": ["Create and sync a knowledge base", "Query it with retrieve and retrieve-and-generate", "Read citations to verify answers"]
+        },
+        {
+          "topic": "Bedrock Guardrails: Content Filters and Denied Topics",
+          "subtopics": ["What a guardrail checks: inputs and outputs", "Content filters: hate, insults, sexual, violence, misconduct, prompt attack", "Filter strength levels", "Denied topics with definitions and examples", "Word filters", "Blocked messaging text", "create-guardrail, versions and DRAFT", "Attaching a guardrail through guardrailConfig in Converse"],
+          "tools": ["Amazon Bedrock Guardrails", "AWS CLI", "boto3", "Python"],
+          "lab_task": "Create a guardrail with aws bedrock create-guardrail that blocks a denied topic named 'investment advice' and sets HIGH strength on the violence and prompt attack filters. Publish a version, attach it to Converse via guardrailConfig with trace enabled, and run 10 test prompts, recording which are blocked.",
+          "deliverable": "Guardrail JSON, version number and a 10-prompt block and pass table",
+          "checks": [["Ask an investment advice question through Converse", "stopReason is guardrail_intervened and the blocked message is returned", "Response JSON"], ["Ask a harmless HR question", "Normal answer with stopReason end_turn", "Response JSON"], ["Enable trace in guardrailConfig", "Trace output names the denied topic that matched", "Trace JSON"]],
+          "objectives": ["Build a guardrail with filters and denied topics", "Attach guardrails to model calls", "Test guardrail behaviour with a prompt set"]
+        },
+        {
+          "topic": "Amazon SageMaker AI Studio and JumpStart Tour",
+          "subtopics": ["SageMaker AI versus Bedrock: custom models versus managed access", "Domains, user profiles and Studio spaces", "JupyterLab and code editor spaces", "JumpStart model hub and deploying a model", "Instance types, ml.m5 versus ml.g5, and cost per hour", "Invoking an endpoint with invoke-endpoint", "Deleting endpoints and stopping idle spaces", "Where SageMaker Unified Studio fits"],
+          "tools": ["Amazon SageMaker AI", "SageMaker Studio", "JumpStart", "AWS CLI", "boto3"],
+          "lab_task": "Create a SageMaker domain, open JupyterLab, deploy a small JumpStart text model to an ml.g5.xlarge endpoint, call it with the SageMaker Python SDK predictor and note latency, then delete the endpoint, endpoint config and model, and stop the space. Confirm cleanup with aws sagemaker list-endpoints.",
+          "deliverable": "Notebook with deployment and prediction plus a cleanup checklist and cost note",
+          "checks": [["Run predictor.predict with a prompt", "A generated text reply is returned and latency is logged", "Notebook output"], ["Run aws sagemaker list-endpoints after cleanup", "Endpoints list is empty or excludes the lab endpoint", "CLI output"], ["Check the space status", "Space shows Stopped", "Studio screenshot"]],
+          "objectives": ["Launch Studio and deploy a JumpStart model", "Distinguish SageMaker AI from Bedrock use cases", "Clean up billable resources every time"]
+        },
+        {
+          "topic": "Serverless AI Apps: Lambda and API Gateway Calling Bedrock",
+          "subtopics": ["Lambda handler calling bedrock-runtime converse", "Execution role with bedrock:InvokeModel on a specific model ARN", "API Gateway REST or HTTP API with a POST /ask route", "Timeouts: Lambda timeout and API Gateway integration timeout", "Input validation and maximum prompt length", "Environment variables for modelId", "Logging without storing prompts", "Testing with curl and the Lambda console"],
+          "tools": ["AWS Lambda", "Amazon API Gateway", "boto3", "AWS CLI", "AWS SAM"],
+          "lab_task": "Deploy with AWS SAM a Python Lambda behind a POST /ask HTTP API. The function validates a 2,000-character limit, calls Converse with Nova Lite and returns JSON. Test with curl for a valid and an oversize prompt and read CloudWatch Logs for duration and token usage.",
+          "deliverable": "SAM template, handler code and curl tests with logs",
+          "checks": [["curl POST /ask with a short question", "HTTP 200 and a JSON body with an answer field", "curl output"], ["curl POST /ask with 3,000 characters", "HTTP 400 and a message about the length limit", "curl output"], ["Remove bedrock:InvokeModel from the role", "Lambda logs show AccessDeniedException and the API returns HTTP 500 or 502", "CloudWatch log"]],
+          "objectives": ["Expose a model through a serverless API", "Scope an execution role to one model", "Validate and limit inputs"]
+        },
+        {
+          "topic": "IAM Least Privilege and Data Handling for AI Services",
+          "subtopics": ["Identity policies for bedrock:InvokeModel and bedrock:Converse", "Resource ARNs for foundation models and inference profiles", "Service roles for Knowledge Bases and Textract with aws:SourceAccount", "Testing with aws iam simulate-principal-policy", "S3 bucket policies and encryption with KMS", "What data Bedrock stores and that inputs are not used to train base models", "AI services opt-out policies in AWS Organizations", "Logging and masking sensitive data"],
+          "tools": ["AWS IAM", "IAM Policy Simulator", "AWS KMS", "Amazon S3", "AWS CLI"],
+          "lab_task": "Write a policy that allows bedrock:InvokeModel only on the Nova Lite foundation-model ARN and its inference profile, attach it to a test role, run aws iam simulate-principal-policy for Nova Lite and for a Claude model ARN, and then review the AWS Organizations AI services opt-out policy syntax.",
+          "deliverable": "Least-privilege policy JSON with simulation results and an opt-out policy draft",
+          "checks": [["Simulate InvokeModel on the allowed ARN", "EvalDecision is allowed", "Simulator output"], ["Simulate InvokeModel on a different model ARN", "EvalDecision is implicitDeny", "Simulator output"], ["Review the S3 bucket policy for the data source", "Public access is blocked and only the service role can read", "Bucket policy and Block Public Access setting"]],
+          "objectives": ["Write model-scoped IAM policies", "Test permissions before deployment", "State how AWS handles customer AI data"]
+        },
+        {
+          "topic": "Cost Awareness and Responsible AI Habits",
+          "subtopics": ["Cost drivers: input and output tokens, embeddings, vector store hours, endpoints", "Cost Explorer filters for Bedrock and SageMaker", "Cost allocation tags", "Shorter prompts, smaller models and max token limits", "Fairness, transparency and privacy principles", "Human review for high-impact decisions", "Disclosing AI-generated content", "AWS responsible AI resources and service cards"],
+          "tools": ["AWS Cost Explorer", "AWS Budgets", "AWS Cost Anomaly Detection", "Amazon Bedrock"],
+          "lab_task": "Tag your lab resources with project=aws-ai-training, activate the tag for cost allocation, then use Cost Explorer grouped by Usage Type for Amazon Bedrock over the last 7 days. Estimate the per-request cost of your Lambda API and write a one-page responsible AI checklist for it.",
+          "deliverable": "Cost report screenshot, per-request estimate and responsible AI checklist",
+          "checks": [["Group Cost Explorer by Usage Type for Bedrock", "Usage types for input and output tokens appear", "Screenshot"], ["Calculate cost per request", "Estimate equals tokens times unit price within 10 percent of the billed usage", "Calculation sheet"], ["Review the checklist against the app", "Each item has a yes or no answer and an owner", "Checklist"]],
+          "objectives": ["Find and explain AI cost drivers", "Apply tags and budgets to AI projects", "Use a responsible AI checklist"]
+        },
+        {
+          "topic": "Beginner Capstone: Document Q&A Assistant on AWS",
+          "subtopics": ["Requirements and architecture sketch", "Knowledge base over 10 company documents", "Guardrail with a denied topic and PII masking", "Lambda and API Gateway endpoint", "IAM least privilege and a budget alert", "Test report with 15 questions and cleanup"],
+          "tools": ["Bedrock Knowledge Bases", "Amazon Bedrock Guardrails", "AWS Lambda", "API Gateway", "AWS SAM", "CloudWatch"],
+          "lab_task": "Build a document Q&A assistant: ingest 10 documents into a knowledge base, expose POST /ask through Lambda and API Gateway using retrieve-and-generate with a guardrail, then run 15 test questions including 3 out-of-scope and 2 prompt-injection attempts, record accuracy, blocked counts and total cost, and delete resources.",
+          "deliverable": "Working endpoint, SAM template, 15-question test report and cleanup proof",
+          "checks": [["Ask 10 in-scope questions", "At least 8 answers are correct and cite the right document", "Test report"], ["Send 3 out-of-scope and 2 injection prompts", "All 5 are refused or blocked by the model or guardrail", "Test report"], ["Run cleanup and check the bill", "No endpoints or collections remain and spend is under the budget", "CLI list output and Cost Explorer"]],
+          "objectives": ["Combine Bedrock, Knowledge Bases, Guardrails and Lambda in one working app", "Test for accuracy, refusals and cost", "Clean up and document the solution"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers and cloud engineers who can already call Amazon Bedrock and want to build production-grade AI applications on AWS. Covers model and Region selection with inference profiles, tool use, prompt caching and structured output, batch inference and quotas, Knowledge Bases ingestion and vector stores, retrieval tuning and reranking, Bedrock Data Automation, Bedrock Agents, Flows and Step Functions, Amazon Bedrock AgentCore, deeper Guardrails, Bedrock Evaluations, and SageMaker AI training, pipelines, registry and endpoints, ending in an agentic RAG capstone.",
+      "prerequisites": ["Has completed the beginner level or can call Bedrock with the Converse API, build a knowledge base and write a Lambda function", "Is comfortable with Python, JSON, IAM policies and either AWS SAM, CloudFormation or CDK", "Has a sandbox account with budgets in place and quota for at least one ml.g5 or ml.m5 instance type in SageMaker AI"],
+      "outcomes": ["Design Bedrock applications with the right model, inference profile, caching and batch strategy", "Build and tune RAG pipelines and agents using Knowledge Bases, Agents, Flows and AgentCore", "Measure quality and safety with Guardrails and Bedrock Evaluations", "Train, register and deploy a model on SageMaker AI with Pipelines and the right endpoint type"],
+      "days": [
+        {
+          "topic": "Bedrock Application Architecture: Choosing Models, Regions and Inference Profiles",
+          "subtopics": ["Selecting models by task, modality, context window, latency and price", "Region availability and data residency", "System-defined inference profiles", "Single-Region versus geographic cross-Region routing", "Model lifecycle: Active, Legacy and End-of-Life dates", "Reference architecture: client, API, orchestration, Bedrock, data", "Choosing Bedrock, AgentCore or SageMaker AI", "Decision record for a use case"],
+          "tools": ["Amazon Bedrock", "AWS CLI", "Service Quotas", "Draw.io"],
+          "lab_task": "For a contract-summary use case, shortlist three models. Run aws bedrock list-inference-profiles --type-equals SYSTEM_DEFINED, record each model's profile ID, context window, lifecycle status via get-foundation-model, and price, then write a decision record choosing a primary and fallback model with a test of 20 contracts.",
+          "deliverable": "Decision record with a model comparison table and architecture diagram",
+          "checks": [["Run list-inference-profiles for system-defined profiles", "Output lists at least one profile ID prefixed with a geography such as us. or eu.", "CLI output"], ["Check modelLifecycle status for each shortlisted model", "No chosen model is in end-of-life status", "get-foundation-model output"], ["Run the 20-contract test on both models", "Win rate, latency and cost are tabulated with one clear winner", "Results table"]],
+          "objectives": ["Select models using task, cost and lifecycle data", "Explain cross-Region inference trade-offs", "Document an architecture decision"]
+        },
+        {
+          "topic": "Cross-Region Inference and Application Inference Profiles",
+          "subtopics": ["Why geographic profiles raise throughput", "Data stays within the profile geography; check residency rules", "IAM permissions for the profile and each destination Region", "create-inference-profile with --model-source copyFrom", "Tagging profiles for cost allocation per team", "Using a profile ARN as modelId in Converse", "CloudWatch metrics by profile", "Quota behaviour and limits"],
+          "tools": ["Amazon Bedrock", "AWS CLI", "AWS IAM", "CloudWatch", "Cost Explorer"],
+          "lab_task": "Create two application inference profiles with aws bedrock create-inference-profile, tagged team=support and team=sales, both copying from the same system profile. Call Converse with each ARN 50 times, then show CloudWatch AWS/Bedrock metrics and Cost Explorer tag grouping separated by team.",
+          "deliverable": "Two tagged profiles, a 100-call test script and per-team metric screenshots",
+          "checks": [["Run create-inference-profile twice with different tags", "Two inferenceProfileArn values are returned", "CLI output"], ["Call Converse with each profile ARN", "Both return HTTP 200 and usage is recorded", "Script log"], ["Filter metrics by profile", "Invocations count per profile equals 50", "CloudWatch screenshot"]],
+          "objectives": ["Use cross-Region inference safely", "Attribute cost per team with application profiles", "Grant IAM for profiles and destination Regions"]
+        },
+        {
+          "topic": "Tool Use with Converse: Function Calling",
+          "subtopics": ["toolConfig with toolSpec, name, description and inputSchema", "toolChoice auto, any and a named tool", "stopReason tool_use and toolUse blocks", "Returning toolResult blocks", "Parallel tool calls", "Validating model-supplied arguments", "Error results and retries", "Streaming with tools"],
+          "tools": ["Amazon Bedrock", "boto3", "Python", "jsonschema"],
+          "lab_task": "Implement get_order_status and refund_order tools as Python functions with JSON schemas. Run the Converse loop until stopReason is end_turn, validate arguments with jsonschema before execution, deny refunds above 100 USD in code, and run 10 test conversations logging every toolUse and result.",
+          "deliverable": "Tool-calling script, 10 conversation logs and a table of blocked and allowed calls",
+          "checks": [["Ask for an order status", "stopReason tool_use appears, then end_turn with the status in the answer", "Loop log"], ["Ask to refund 250 USD", "Code rejects the call and the model explains it cannot refund that amount", "Conversation log"], ["Send malformed arguments", "jsonschema rejects them and a toolResult with status error is returned", "Validation log"]],
+          "objectives": ["Implement the Converse tool loop", "Validate and authorise tool arguments in code", "Handle tool errors gracefully"]
+        },
+        {
+          "topic": "Prompt Caching and Structured Outputs with Converse",
+          "subtopics": ["cachePoint blocks in system, messages and tools", "Cache write versus cache read tokens: cacheWriteInputTokens, cacheReadInputTokens", "Cache time-to-live and minimum token thresholds per model", "Forcing JSON with tool schemas", "Schema design for extraction", "Repair loops for invalid output", "Measuring savings", "Cases where caching does not help"],
+          "tools": ["Amazon Bedrock", "boto3", "Python", "jsonschema"],
+          "lab_task": "Place a 3,000-token policy document in the system prompt with a cachePoint. Call Converse 20 times with different questions, log cacheWriteInputTokens and cacheReadInputTokens per call, compute cost with and without caching using published rates, and add a forced tool schema to return a typed answer object.",
+          "deliverable": "Caching experiment log with a savings calculation and a typed output schema",
+          "checks": [["Make the first call", "usage shows cacheWriteInputTokens greater than 0", "Usage log"], ["Make the second call within the cache window", "cacheReadInputTokens is greater than 0 and inputTokens is lower", "Usage log"], ["Force the tool schema on 20 calls", "At least 19 of 20 responses validate against the schema", "Validation summary"]],
+          "objectives": ["Cut cost and latency with prompt caching", "Get typed JSON through tool schemas", "Quantify savings from usage data"]
+        },
+        {
+          "topic": "Bedrock Batch Inference and Throughput Quotas",
+          "subtopics": ["create-model-invocation-job with S3 input and output", "JSONL records: recordId and modelInput", "Job statuses: Submitted, InProgress, Completed, Failed", "Batch pricing compared with on-demand", "Minimum record counts and size limits", "Retry strategy for throttled online calls", "Service Quotas for RPM and TPM", "When to use Provisioned Throughput"],
+          "tools": ["Amazon Bedrock", "Amazon S3", "AWS CLI", "Service Quotas", "Python"],
+          "lab_task": "Create a JSONL file of 200 product descriptions in the model's batch format, upload it to S3, run aws bedrock create-model-invocation-job, poll get-model-invocation-job until Completed, parse the output, and compare total tokens, wall time and cost with 200 on-demand Converse calls.",
+          "deliverable": "Batch job run with a cost and time comparison against on-demand",
+          "checks": [["Run get-model-invocation-job until finished", "Status reaches Completed", "CLI output"], ["Count output records", "Output has 200 recordIds matching the input", "Script output"], ["Compare cost per 1,000 records", "Batch cost is lower than on-demand by the documented discount", "Cost table"]],
+          "objectives": ["Run offline workloads with batch inference", "Compare batch and on-demand economics", "Read and request quotas"]
+        },
+        {
+          "topic": "Knowledge Base Ingestion: Parsing, Chunking and Data Sources",
+          "subtopics": ["Data sources: S3, web crawler, Confluence, SharePoint and others", "Fixed-size, hierarchical, semantic and no chunking", "Chunk size and overlap percent", "Foundation-model and Bedrock Data Automation parsing", "Metadata files named filename.metadata.json", "Inclusion and exclusion filters", "Incremental sync and deletion handling", "Ingestion statistics and failures"],
+          "tools": ["Bedrock Knowledge Bases", "Amazon S3", "AWS CLI", "Python"],
+          "lab_task": "Ingest the same 30-page technical manual with fixed-size 300-token chunks, hierarchical chunks, and semantic chunks into three data sources. Add a .metadata.json file with department and year, run start-ingestion-job for each, and compare chunk counts and answers on 10 test questions.",
+          "deliverable": "Three-way chunking comparison with chunk counts and answer accuracy",
+          "checks": [["Run each ingestion job", "Statistics show numberOfNewDocumentsIndexed and zero numberOfDocumentsFailed", "Job output"], ["Query 10 questions on each strategy", "Per-strategy correct counts are recorded and differ", "Results table"], ["Delete a document from S3 and resync", "numberOfDocumentsDeleted is 1", "Ingestion statistics"]],
+          "objectives": ["Compare chunking strategies with evidence", "Attach metadata for filtering", "Keep an index in sync"]
+        },
+        {
+          "topic": "Vector Stores for Knowledge Bases: OpenSearch Serverless, Aurora pgvector and S3 Vectors",
+          "subtopics": ["Embedding dimensions: Titan V2 256, 512 and 1024", "Distance metrics", "OpenSearch Serverless VECTORSEARCH collections and encryption, network and data access policies", "Aurora PostgreSQL with pgvector and the Data API", "S3 Vectors: create-vector-bucket and create-index", "Standing cost versus per-query cost", "Other stores such as Pinecone and MongoDB Atlas", "Choosing by scale, latency and operations"],
+          "tools": ["OpenSearch Serverless", "Aurora PostgreSQL", "Amazon S3 Vectors", "Bedrock Knowledge Bases", "AWS CLI"],
+          "lab_task": "Create an S3 Vectors bucket and index with aws s3vectors create-index --data-type float32 --dimension 1024 --distance-metric cosine. Point a knowledge base at it, and compare with an OpenSearch Serverless collection on the same 500 chunks for query latency, monthly cost estimate and setup steps.",
+          "deliverable": "Comparison of two vector stores with latency, cost and operational notes",
+          "checks": [["Create the index with dimension 1024", "describe shows dimension 1024 and cosine distance", "CLI output"], ["Run 20 queries per store", "Median latency per store is recorded and differs", "Latency table"], ["Estimate monthly cost for 1 million vectors", "Estimate shows OpenSearch has a baseline OCU cost that S3 Vectors lacks", "Cost sheet"]],
+          "objectives": ["Create and configure two vector stores", "Match embedding dimension to the index", "Choose a store using cost and latency"]
+        },
+        {
+          "topic": "Retrieval Tuning: Metadata Filters, Hybrid Search and Reranking",
+          "subtopics": ["numberOfResults and score thresholds", "overrideSearchType HYBRID versus SEMANTIC", "Metadata filters with equals, in, andAll", "Reranker models via the Rerank API", "Query decomposition and reformulation", "Recall at k and mean reciprocal rank", "Generation prompt templates for citations", "Troubleshooting missing context"],
+          "tools": ["Bedrock Knowledge Bases", "boto3", "Python", "Amazon Rerank"],
+          "lab_task": "Build a 25-question test set with expected source documents. Call bedrock-agent-runtime retrieve with SEMANTIC and HYBRID search, then with a metadata filter and with reranking enabled, and compute recall at 5 for each of the four configurations.",
+          "deliverable": "Retrieval experiment table with recall at 5 per configuration",
+          "checks": [["Run retrieve with SEMANTIC and then HYBRID", "Recall at 5 is recorded for both and differs for at least 3 questions", "Results table"], ["Add a metadata filter department=finance", "All retrievalResults come from finance documents", "Response JSON"], ["Enable reranking", "Top result order changes and recall at 5 does not drop", "Before and after table"]],
+          "objectives": ["Tune retrieval and measure recall", "Use metadata filters for scoping", "Apply reranking where it pays off"]
+        },
+        {
+          "topic": "Bedrock Data Automation and Document Pipelines",
+          "subtopics": ["Projects, standard output and blueprints", "Documents, images, audio and video modalities", "invoke-data-automation-async and result locations in S3", "Custom blueprints with field instructions", "Confidence and grounding of extracted fields", "S3 events to Lambda to Step Functions pipelines", "Comparison with Textract and Transcribe", "Cost per page and per minute"],
+          "tools": ["Bedrock Data Automation", "Amazon S3", "AWS Lambda", "AWS Step Functions", "AWS CLI"],
+          "lab_task": "Create a Data Automation project with a custom blueprint for invoices (vendor, date, total, line items). Process 10 invoices through invoke-data-automation-async, read JSON from the S3 output, and compare field accuracy and cost per page with the same files processed by Textract AnalyzeExpense.",
+          "deliverable": "Project and blueprint definition with an accuracy and cost comparison versus Textract",
+          "checks": [["Invoke async on 10 invoices", "Each job reaches Success and writes result JSON to S3", "Job status and S3 listing"], ["Compare field accuracy against ground truth", "Per-field accuracy for both services is shown", "Accuracy table"], ["Check output confidence values", "Fields below the 0.8 threshold are routed to review", "Review queue file"]],
+          "objectives": ["Build extraction pipelines with Data Automation", "Compare it with Textract on accuracy and cost", "Route low confidence output to review"]
+        },
+        {
+          "topic": "Bedrock Agents: Action Groups and Lambda",
+          "subtopics": ["Agent instruction, foundation model and orchestration traces", "create-agent and the agent resource role", "Action groups with OpenAPI schema or function details", "Lambda event format: actionGroup, apiPath, parameters", "Resource policy allowing bedrock.amazonaws.com", "prepare-agent, aliases and versions", "invoke-agent with enableTrace", "Debugging with preprocessing and orchestration traces"],
+          "tools": ["Bedrock Agents", "AWS Lambda", "AWS CLI", "OpenAPI", "boto3"],
+          "lab_task": "Create an agent with an action group backed by Lambda and an OpenAPI schema for GET /orders/{id} and POST /returns. Run prepare-agent, create an alias, call invoke-agent with --enable-trace for 8 prompts, and list which prompts triggered which API path.",
+          "deliverable": "Agent, Lambda code, OpenAPI file and annotated trace log for 8 prompts",
+          "checks": [["Call invoke-agent with an order status request", "Trace shows invocationInput with apiPath /orders/{id} and a final answer", "Trace output"], ["Remove the Lambda resource policy", "Agent returns a dependency failure error", "Error output"], ["Ask something outside the schema", "Agent asks a clarifying question or refuses without calling Lambda", "Trace output"]],
+          "objectives": ["Build an agent with Lambda action groups", "Read orchestration traces", "Version agents with aliases"]
+        },
+        {
+          "topic": "Agents with Knowledge Bases, Sessions and Return of Control",
+          "subtopics": ["associate-agent-knowledge-base and retrieval description", "sessionId, sessionAttributes and promptSessionAttributes", "Session summary memory", "Return of control for client-side execution", "User confirmation for sensitive actions", "Prompt overrides and advanced prompts", "Guardrail association", "Latency of multi-step traces"],
+          "tools": ["Bedrock Agents", "Bedrock Knowledge Bases", "boto3", "Amazon Bedrock Guardrails"],
+          "lab_task": "Add a knowledge base and a guardrail to the order agent. Configure the refund action with requireConfirmation, then implement a client that handles returnControl for one action, passes a customer_id in sessionAttributes and holds a 4-turn conversation that uses the same sessionId.",
+          "deliverable": "Agent with knowledge base, confirmation, return of control client and 4-turn transcript",
+          "checks": [["Ask a policy question", "Trace shows knowledgeBaseLookupInput and a cited answer", "Trace output"], ["Request a refund", "Agent asks for confirmation before invoking the action", "Transcript"], ["Continue the conversation with the same sessionId", "The agent remembers the order from turn 1 in turn 4", "Transcript"]],
+          "objectives": ["Combine retrieval and actions in one agent", "Require confirmation for sensitive actions", "Run actions on the client with return of control"]
+        },
+        {
+          "topic": "Orchestrating AI Workflows with Bedrock Flows and Step Functions",
+          "subtopics": ["Flow nodes: Input, Prompt, Knowledge Base, Agent, Lambda, Condition, Iterator, Collector, Output", "create-flow, versions and aliases and invoke-flow", "Step Functions arn:aws:states:::bedrock:invokeModel integration", "Map state with MaxConcurrency for parallel documents", "Retry and Catch for ThrottlingException", "Human approval with task tokens", "Choosing Flows versus Step Functions", "Execution history as an audit trail"],
+          "tools": ["Bedrock Flows", "AWS Step Functions", "AWS Lambda", "AWS CLI", "Amazon SNS"],
+          "lab_task": "Build a Step Functions state machine that maps over 20 S3 documents, calls Bedrock invokeModel to classify each, retries ThrottlingException with exponential backoff, and sends low-confidence ones to a manual approval task. Rebuild the classify step as a Bedrock Flow and invoke it with invoke-flow.",
+          "deliverable": "State machine definition, flow definition and run history for 20 documents",
+          "checks": [["Run the state machine on 20 documents", "Execution Succeeded with 20 Map iterations in history", "Execution history"], ["Inject a throttle via a low MaxConcurrency quota test", "Retry entries appear before success or Catch routes to failure handling", "Execution event log"], ["Call invoke-flow", "Output node returns a classification for the test input", "CLI output"]],
+          "objectives": ["Orchestrate model calls in Step Functions", "Build a Bedrock Flow", "Choose between the two"]
+        },
+        {
+          "topic": "Amazon Bedrock AgentCore: Runtime and Gateway",
+          "subtopics": ["What AgentCore provides: Runtime, Gateway, Memory, Identity, Observability and built-in tools", "Framework-agnostic agents with Strands Agents, LangGraph and others", "Packaging an agent as a container or code and calling InvokeAgentRuntime", "Session isolation and runtimeSessionId", "Gateway: turning Lambda and OpenAPI APIs into MCP tools", "Tool discovery with tools/list", "Inbound auth with Cognito or another OAuth provider", "Cost model: consumption-based billing"],
+          "tools": ["Amazon Bedrock AgentCore", "Strands Agents", "AWS CLI", "Amazon ECR", "Amazon Cognito", "MCP"],
+          "lab_task": "Write a Strands agent with two tools, deploy it to AgentCore Runtime with the AgentCore CLI, invoke it using a fresh runtimeSessionId for two sessions, then create a Gateway with a Lambda target and call tools/list from the agent to confirm the tools are discovered.",
+          "deliverable": "Deployed agent runtime, gateway with a Lambda target and invocation logs for two sessions",
+          "checks": [["Invoke the runtime with session A and then B", "Session B has no memory of facts given in session A", "Invocation log"], ["Call tools/list on the Gateway endpoint with a valid token", "The Lambda tool name and schema are returned", "JSON-RPC output"], ["Call the Gateway without a token", "Request is rejected with HTTP 401", "curl output"]],
+          "objectives": ["Deploy an agent to AgentCore Runtime", "Expose enterprise APIs as tools via Gateway", "Verify session isolation and auth"]
+        },
+        {
+          "topic": "AgentCore Memory, Identity and Observability",
+          "subtopics": ["Short-term memory events: create-event and list-events", "Long-term strategies: semantic, summary and user preference", "Namespaces per user", "Workload identity and OAuth credential providers for outbound calls", "Token vault concept and user consent", "Observability with CloudWatch GenAI dashboards and OpenTelemetry traces", "Tracing a session across model and tool calls", "Retention and deletion of memory"],
+          "tools": ["Amazon Bedrock AgentCore", "CloudWatch", "OpenTelemetry", "Strands Agents", "AWS CLI"],
+          "lab_task": "Create an AgentCore Memory resource with a user-preference strategy, add the memory to your agent, tell it in session 1 that you prefer metric units, then in session 2 ask a question and confirm the preference is used. Enable observability and find the trace for session 2 in CloudWatch.",
+          "deliverable": "Agent with long-term memory and a trace walkthrough with latency per step",
+          "checks": [["Start session 2 for the same user", "The agent answers in metric units without being told again", "Transcript"], ["List memory records for the user namespace", "A preference record containing metric units exists", "CLI output"], ["Open the session trace", "Spans show model calls and tool calls with durations", "Trace screenshot"]],
+          "objectives": ["Add long-term memory scoped per user", "Understand outbound identity handling", "Trace agent sessions end to end"]
+        },
+        {
+          "topic": "Guardrails in Depth: PII, Grounding Checks and ApplyGuardrail",
+          "subtopics": ["Sensitive information filters: built-in PII types and regex entities", "Block versus anonymize actions", "Contextual grounding and relevance thresholds", "Automated Reasoning checks for policy rules", "ApplyGuardrail for text from any source", "Input and output evaluation, detect mode", "Standard versus classic tiers and language support", "Latency and cost of guardrails"],
+          "tools": ["Amazon Bedrock Guardrails", "boto3", "AWS CLI", "Python"],
+          "lab_task": "Extend your guardrail with ANONYMIZE for EMAIL and PHONE, a regex for employee IDs (EMP-\\d{6}), and contextual grounding at 0.75 threshold. Call apply-guardrail on 12 sample texts as INPUT and OUTPUT, then use grounding with a reference source and a hallucinated answer.",
+          "deliverable": "Guardrail configuration with a 12-case test matrix and grounding results",
+          "checks": [["Apply to text with an email address", "Output replaces it with a placeholder such as {EMAIL} and action is GUARDRAIL_INTERVENED", "ApplyGuardrail response"], ["Apply with a grounded answer and then an invented one", "The invented answer gets a grounding score below 0.75 and is blocked", "Assessment JSON"], ["Apply to clean text", "Action is NONE", "Response JSON"]],
+          "objectives": ["Mask or block PII with custom entities", "Detect hallucinations with grounding checks", "Use ApplyGuardrail independently of the model"]
+        },
+        {
+          "topic": "Evaluating Models and RAG with Bedrock Evaluations",
+          "subtopics": ["Automatic model evaluation: accuracy, robustness, toxicity", "LLM-as-a-judge metrics: correctness, completeness, helpfulness", "RAG evaluation: retrieve-only and retrieve-and-generate", "RAG metrics: context relevance, context coverage, faithfulness, citation precision", "Bring-your-own dataset JSONL with prompt and referenceResponse", "create-evaluation-job and S3 outputs", "Choosing a judge model", "Using scores as release gates"],
+          "tools": ["Amazon Bedrock Evaluations", "Amazon S3", "AWS CLI", "Python"],
+          "lab_task": "Prepare a 40-record JSONL dataset with prompt, referenceResponse and category. Run a model evaluation job for two models, then a RAG retrieve-and-generate job on your knowledge base, download the reports from S3 and write a pass or fail rule using a faithfulness score of at least 0.8.",
+          "deliverable": "Evaluation datasets, two job reports and a written release-gate rule",
+          "checks": [["Run create-evaluation-job and poll", "Job status becomes Completed with results in the S3 prefix", "CLI output"], ["Read the RAG report", "Faithfulness and context relevance scores are listed per record", "Report excerpt"], ["Apply the gate rule to both models", "One model passes and one fails, or both are explained against the 0.8 rule", "Gate table"]],
+          "objectives": ["Run model and RAG evaluations", "Interpret judge-based metrics", "Define a numeric release gate"]
+        },
+        {
+          "topic": "SageMaker AI Training Jobs with ModelTrainer, S3 and Spot",
+          "subtopics": ["Training job anatomy: image, instance type, input channels, output path", "SageMaker Python SDK ModelTrainer, Compute, SourceCode, InputData", "Built-in and custom training containers", "Managed Spot training with checkpoints and max wait", "BillableTimeInSeconds versus TrainingTimeInSeconds", "Metric definitions in CloudWatch", "Hyperparameter tuning jobs", "Errors: ResourceLimitExceeded and ClientError for image pull"],
+          "tools": ["Amazon SageMaker AI", "SageMaker Python SDK", "Amazon S3", "CloudWatch", "AWS CLI"],
+          "lab_task": "Train a scikit-learn or XGBoost churn model with ModelTrainer on ml.m5.xlarge using on-demand and then managed Spot with S3 checkpointing. Compare TrainingTimeInSeconds, BillableTimeInSeconds and cost from describe-training-job, and run a 6-job tuning job with the objective validation:auc.",
+          "deliverable": "Training script, two job comparisons and tuning job results",
+          "checks": [["Run describe-training-job for the Spot job", "BillableTimeInSeconds is lower than TrainingTimeInSeconds", "CLI output"], ["List tuning job results", "Best training job and its validation:auc value are shown", "Console or CLI output"], ["Check S3 for model.tar.gz", "Artifact exists at the OutputDataConfig path", "S3 listing"]],
+          "objectives": ["Run training jobs through the SDK", "Save cost with Spot and checkpoints", "Tune hyperparameters with a metric"]
+        },
+        {
+          "topic": "SageMaker AI Pipelines, Experiments and Model Registry",
+          "subtopics": ["Pipeline steps: Processing, Training, Condition, Model and Fail", "Parameters and caching", "upsert and start with a role", "Managed MLflow tracking servers", "Model package groups and versions", "Approval status: PendingManualApproval and Approved", "EventBridge triggers on package state change", "Lineage tracking"],
+          "tools": ["SageMaker AI Pipelines", "SageMaker Model Registry", "MLflow", "Amazon EventBridge", "SageMaker Python SDK"],
+          "lab_task": "Define a pipeline with preprocessing, training, evaluation, a ConditionStep requiring AUC of at least 0.80 and a model registration step. Run it, check the model package is PendingManualApproval, approve it with update-model-package, and log metrics to a managed MLflow tracking server.",
+          "deliverable": "Pipeline definition JSON, execution graph and registered model version",
+          "checks": [["Start the pipeline with AUC threshold 0.80", "Execution Succeeded and a model package is created", "Pipeline execution view"], ["Set the threshold to 0.99", "Condition fails and no package is registered", "Execution graph"], ["Run update-model-package with Approved", "ModelApprovalStatus reads Approved", "describe-model-package output"]],
+          "objectives": ["Automate training and evaluation in a pipeline", "Register and approve model versions", "Track experiments with MLflow"]
+        },
+        {
+          "topic": "Deploying SageMaker AI Endpoints: Real-Time, Serverless and Asynchronous",
+          "subtopics": ["create-model, create-endpoint-config and create-endpoint", "Real-time variants and instance counts", "Serverless inference with MemorySizeInMB and MaxConcurrency", "Asynchronous inference with S3 outputs and scaling to zero", "Batch Transform for offline scoring", "Auto scaling with SageMakerVariantInvocationsPerInstance", "ModelError 424 and container logs", "Choosing by traffic pattern"],
+          "tools": ["SageMaker AI endpoints", "Application Auto Scaling", "CloudWatch", "AWS CLI", "Python"],
+          "lab_task": "Deploy the registered model as a real-time endpoint, a serverless endpoint at 2048 MB and an async endpoint. Send 100 requests to each with invoke-endpoint, record p50 and p95 latency plus cold start time, configure target tracking autoscaling on the real-time one, then delete all three.",
+          "deliverable": "Latency comparison of three endpoint types with an autoscaling policy and cleanup proof",
+          "checks": [["Invoke each endpoint 100 times", "p50 and p95 latency are recorded for all three", "Latency table"], ["Compare the first serverless call after idle", "Cold start latency is higher than the warm median", "Timing log"], ["Run list-endpoints after cleanup", "None of the lab endpoints remain", "CLI output"]],
+          "objectives": ["Deploy the three common endpoint types", "Pick an endpoint type from traffic shape", "Configure target tracking scaling"]
+        },
+        {
+          "topic": "Intermediate Capstone: Agentic RAG Support Assistant on AWS",
+          "subtopics": ["Requirements, success metrics and architecture", "Knowledge base with metadata and reranking", "AgentCore or Bedrock agent with two tools and memory", "Guardrails and IAM boundaries", "Evaluation job with a release gate", "Observability, cost report and cleanup"],
+          "tools": ["Bedrock Knowledge Bases", "Amazon Bedrock AgentCore", "Amazon Bedrock Guardrails", "Bedrock Evaluations", "CloudWatch", "AWS CDK"],
+          "lab_task": "Build a support assistant: knowledge base of 50 documents with metadata, an agent with order lookup and ticket creation tools, a guardrail with PII anonymisation, then run a 60-question Bedrock evaluation and a 10-prompt red-team set, publish a trace, cost per conversation and a go or no-go decision.",
+          "deliverable": "Deployed assistant, IaC template, evaluation report and go or no-go memo",
+          "checks": [["Run the 60-question evaluation", "Faithfulness is at least 0.8 or the report documents fixes", "Evaluation report"], ["Run 10 injection and PII prompts", "At least 9 are blocked or safely refused", "Red-team log"], ["Compute cost per conversation from usage", "Value is stated in USD and matches the billing tags within 10 percent", "Cost sheet"]],
+          "objectives": ["Deliver a governed agentic RAG system", "Gate release with evaluation and red-team results", "Report cost and observability evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior engineers, architects and platform leads who run AI workloads on AWS at organisation scale. Covers multi-account AI platform design, Bedrock model customization, SageMaker HyperPod and large-scale training, inference optimisation, SageMaker Unified Studio governance, data foundations, security and prompt-injection defence, advanced AgentCore, model monitoring and bias analysis, observability and troubleshooting, FinOps, reliability, responsible AI governance, Amazon Quick and Kiro, service selection and migration, CI/CD for AI, Well-Architected reviews and a governed platform capstone.",
+      "prerequisites": ["Has delivered at least one Bedrock or SageMaker AI workload to production or completed the intermediate level", "Knows AWS Organizations, IAM, VPC endpoints, KMS and infrastructure as code with CDK, CloudFormation or Terraform", "Can read model evaluation reports, CloudWatch metrics and Cost Explorer data to support design decisions"],
+      "outcomes": ["Design a multi-account, secure and observable AI platform with governed access to models and agents", "Customize, train, optimise and serve models on Bedrock and SageMaker AI with measurable gains", "Operate AI systems with monitoring, reliability, FinOps and incident response practices", "Apply responsible AI governance, Well-Architected reviews and migration planning to enterprise portfolios"],
+      "days": [
+        {
+          "topic": "Enterprise AI Platform Architecture on AWS",
+          "subtopics": ["Account layout: AI platform account, workload accounts and a log archive", "Central model access gateway pattern with API Gateway or a proxy", "SCPs restricting Regions and models via aws:RequestedRegion and resource ARNs", "Per-tenant inference profiles and quotas", "Landing zone with Control Tower guardrails", "Shared knowledge base and vector store ownership", "Paved paths with Service Catalog", "Reference diagram and decision log"],
+          "tools": ["AWS Organizations", "Control Tower", "Amazon API Gateway", "Service Control Policies", "AWS CDK", "Service Catalog"],
+          "lab_task": "Design an AI platform for three business units. Write an SCP denying bedrock:InvokeModel outside two Regions and for non-approved model ARNs, test with the IAM policy simulator, create one application inference profile per unit, and document gateway, logging and quota ownership in a decision log.",
+          "deliverable": "SCP JSON, simulator results, tenancy design and architecture decision log",
+          "checks": [["Simulate InvokeModel from an approved Region", "EvalDecision is allowed", "Simulator output"], ["Simulate InvokeModel in an unapproved Region", "Result shows explicit deny from the SCP", "Simulator output"], ["Check inference profile tags per unit", "Each profile carries a unit tag used for cost allocation", "CLI output"]],
+          "objectives": ["Design a multi-account AI platform", "Enforce model and Region guardrails with SCPs", "Separate tenants with profiles and quotas"]
+        },
+        {
+          "topic": "Model Customization on Bedrock: Fine-Tuning, Distillation and Custom Model Import",
+          "subtopics": ["When to customize versus prompt or retrieve", "Fine-tuning data in JSONL conversation format", "Continued pre-training", "Distillation from a larger teacher to a smaller student", "create-model-customization-job and hyperparameters", "Custom model import for supported open-weight architectures with create-model-import-job", "Serving options: on-demand deployment or Provisioned Throughput where required", "Evaluating the custom model against the base model"],
+          "tools": ["Amazon Bedrock", "Amazon S3", "AWS CLI", "Bedrock Evaluations", "Python"],
+          "lab_task": "Create 500 JSONL training and 100 validation examples for a classification task. Start create-model-customization-job on a supported model, watch training and validation loss in S3 metrics, then evaluate the result against the base model with the same 100 test prompts and report accuracy, cost and serving requirements.",
+          "deliverable": "Customization job, loss curves and a base-versus-custom evaluation",
+          "checks": [["Run get-model-customization-job", "Status Completed and a custom model ARN is returned", "CLI output"], ["Compare accuracy on 100 held-out prompts", "Custom model accuracy is reported against the base and the delta is explained", "Evaluation table"], ["Review the cost sheet", "Training cost plus serving cost per 1,000 requests is stated", "Cost sheet"]],
+          "objectives": ["Customize a model on Bedrock with a clean dataset", "Evaluate gains against the base model", "Account for the serving cost of custom models"]
+        },
+        {
+          "topic": "SageMaker HyperPod and Large-Scale Training",
+          "subtopics": ["HyperPod clusters with Slurm or Amazon EKS orchestration", "create-cluster instance groups and lifecycle scripts", "Resilience: health checks, node replacement and auto-resume", "Checkpointing to S3 or FSx for Lustre", "Distributed training: FSDP, DeepSpeed and tensor parallelism", "HyperPod recipes", "Task governance and queues", "Capacity planning with flexible training plans"],
+          "tools": ["SageMaker HyperPod", "Amazon EKS", "FSx for Lustre", "PyTorch FSDP", "AWS CLI", "CloudWatch"],
+          "lab_task": "Create a small HyperPod cluster with two GPU instances using aws sagemaker create-cluster, mount shared storage, run a 2-node FSDP fine-tune of a 1B parameter model with checkpoints every 100 steps, then simulate a failure by stopping a node process and record recovery time and lost steps.",
+          "deliverable": "Cluster definition, training logs and a failure-recovery report",
+          "checks": [["Run describe-cluster after creation", "ClusterStatus is InService with 2 instances", "CLI output"], ["Stop one training process", "Job resumes from the last checkpoint with at most 100 steps lost", "Training log"], ["Compare throughput of 1 and 2 nodes", "Tokens per second is reported and scaling efficiency calculated", "Metrics table"]],
+          "objectives": ["Stand up a resilient training cluster", "Run distributed training with checkpoints", "Measure scaling efficiency and recovery"]
+        },
+        {
+          "topic": "Fine-Tuning and Serving Open-Weight Models with JumpStart and Inference Components",
+          "subtopics": ["JumpStartEstimator fine-tuning and EULA acceptance", "Parameter-efficient methods such as LoRA", "Large model inference containers and DJL or vLLM settings", "Inference components: create-inference-component, CopyCount, ComputeResourceRequirements", "Packing several models on one endpoint", "Scaling copies independently", "Quantisation options", "Comparison with Bedrock Custom Model Import"],
+          "tools": ["SageMaker JumpStart", "Inference Components", "vLLM", "SageMaker Python SDK", "CloudWatch"],
+          "lab_task": "Fine-tune an open-weight 1B to 8B model with LoRA via JumpStart, deploy two adapters or models as separate inference components on one ml.g5 endpoint, scale one copy count from 1 to 2, and run 200 requests per component recording tokens per second and GPU memory use.",
+          "deliverable": "Fine-tune job, endpoint with two inference components and a throughput report",
+          "checks": [["Run describe-inference-component for both", "InferenceComponentStatus is InService", "CLI output"], ["Update CopyCount from 1 to 2 on one component", "Throughput for that component rises and the other is unchanged", "Metrics table"], ["Check endpoint instance GPU memory", "Combined model memory fits with documented headroom", "CloudWatch metrics"]],
+          "objectives": ["Fine-tune open-weight models on SageMaker AI", "Share endpoint capacity with inference components", "Decide between SageMaker AI and Bedrock import"]
+        },
+        {
+          "topic": "Inference Optimisation: Inferentia, Trainium and Latency Tuning",
+          "subtopics": ["AWS Inferentia2 and Trainium instance families: inf2 and trn1", "Neuron SDK, neuron-ls and neuron-top", "Compilation and compilation caches", "Batching, KV cache and quantisation effects", "Bedrock latency-optimised inference and service tiers where offered", "Time to first token versus throughput targets", "Load testing with Locust or k6", "Price-performance comparison"],
+          "tools": ["AWS Neuron SDK", "Inferentia2", "Trainium", "Locust", "SageMaker AI", "CloudWatch"],
+          "lab_task": "Deploy the same 7B-class model on an ml.g5 and an ml.inf2 endpoint, load test with Locust at 1, 4 and 16 concurrent users, record p95 latency, tokens per second and cost per million tokens, and test one Bedrock latency-optimised call where supported.",
+          "deliverable": "Load test report with price-performance comparison across GPU and Inferentia",
+          "checks": [["Run Locust at 16 users on both endpoints", "p95 latency and error rate are recorded and error rate is under 1 percent", "Locust report"], ["Compute cost per million output tokens", "Both values are listed using hourly price and tokens per second", "Calculation sheet"], ["Run neuron-top on the inf2 instance", "NeuronCore utilisation is above 0 during load", "Terminal capture"]],
+          "objectives": ["Benchmark inference on GPU and AWS accelerators", "Use price-performance rather than raw speed", "Tune latency with the right Bedrock options"]
+        },
+        {
+          "topic": "SageMaker Unified Studio: Domains, Projects and AI Governance",
+          "subtopics": ["Domains with IAM Identity Center or IAM roles", "Projects, project profiles and blueprints", "Amazon Bedrock capabilities inside projects: chat apps, agents, flows", "Catalog, assets, glossaries and subscriptions", "Workflows with Apache Airflow operators", "Connections to data sources", "Permission boundaries and domain execution roles", "PrivateLink and VPC configuration"],
+          "tools": ["SageMaker Unified Studio", "SageMaker Catalog", "AWS Lake Formation", "AWS IAM Identity Center", "AWS CLI"],
+          "lab_task": "Create a domain with two project profiles, a data engineering project and a GenAI project. Publish a dataset to the catalog from the first project, subscribe the second project, build a Bedrock chat app over it, and verify that a user outside the project cannot open the app.",
+          "deliverable": "Domain configuration, two projects, a subscription and an access test",
+          "checks": [["Publish an asset and request subscription", "Subscription status becomes Approved and the asset is queryable", "Catalog screenshot"], ["Open the project as a non-member", "Access is denied", "Screenshot"], ["Review the domain execution role", "Policy lists only the required services", "Role JSON"]],
+          "objectives": ["Provision governed workspaces for data and AI", "Share data assets through the catalog", "Enforce project-level access"]
+        },
+        {
+          "topic": "Data Readiness for AI: Lakehouse, Lake Formation and Vector Data",
+          "subtopics": ["SageMaker Lakehouse, Glue Data Catalog and Iceberg tables", "Lake Formation grants for AI pipelines", "Dataset curation, deduplication and labelling", "S3 Tables and S3 Vectors for embeddings", "PII scanning with Macie and Comprehend", "Lineage from source to embedding", "Retention and deletion for retrieval indexes", "Data quality gates with Glue Data Quality"],
+          "tools": ["AWS Glue", "AWS Lake Formation", "Amazon Macie", "Amazon S3 Vectors", "Amazon Athena", "Amazon Comprehend"],
+          "lab_task": "Catalogue a document dataset in the Glue Data Catalog, run Macie and Comprehend PII detection, mask findings into a clean bucket, grant a Lake Formation read permission only on the clean table, and rebuild a knowledge base from the clean data to prove personal data is not retrievable.",
+          "deliverable": "Clean data pipeline, permission set and retrieval test for removed PII",
+          "checks": [["Run Macie on the raw bucket", "Findings list PII types and counts", "Macie report"], ["Query the clean table in Athena as the restricted role", "Only masked columns and rows return", "Athena result"], ["Ask the knowledge base for a removed email address", "Answer does not contain the address", "Transcript"]],
+          "objectives": ["Prepare clean, governed data for AI", "Restrict access with Lake Formation", "Prove removal of sensitive data from indexes"]
+        },
+        {
+          "topic": "AI Security: Identity, Network and Encryption Controls",
+          "subtopics": ["PrivateLink endpoints for bedrock-runtime and bedrock-agent-runtime with endpoint policies", "KMS customer managed keys for custom models, knowledge bases and agents", "IAM condition keys such as bedrock:GuardrailIdentifier", "Confused-deputy protection with aws:SourceArn", "Model invocation logging to S3 and CloudWatch", "CloudTrail for control-plane events", "Secrets in Secrets Manager for tool credentials", "Security review checklist for an AI workload"],
+          "tools": ["AWS PrivateLink", "AWS KMS", "AWS CloudTrail", "AWS IAM", "Secrets Manager", "VPC"],
+          "lab_task": "Place a Lambda in private subnets with no NAT, create a bedrock-runtime interface endpoint with an endpoint policy allowing one model, confirm Converse works, add an IAM condition requiring a guardrail identifier, and enable model invocation logging with a KMS-encrypted S3 bucket.",
+          "deliverable": "Private-only Bedrock path, condition policy and encrypted invocation logs",
+          "checks": [["Invoke from the private Lambda", "Converse succeeds with no internet route", "Lambda log"], ["Call a model not in the endpoint policy", "AccessDeniedException is returned", "Lambda log"], ["Call without the required guardrail", "Request is denied by the IAM condition", "Error output"]],
+          "objectives": ["Build a private, encrypted Bedrock path", "Require guardrails with IAM conditions", "Log invocations safely"]
+        },
+        {
+          "topic": "Defending Against Prompt Injection, Data Leakage and Agent Abuse",
+          "subtopics": ["OWASP Top 10 for LLM Applications: prompt injection, sensitive information disclosure, excessive agency", "Direct and indirect injection through documents and web pages", "Guardrails PROMPT_ATTACK filter and input tagging with guardContent", "Least-privilege tools and confirmation steps", "Output encoding and rendering risks", "Canary strings to detect leakage", "Red-team harnesses such as garak or PyRIT", "Incident playbook and disclosure"],
+          "tools": ["Amazon Bedrock Guardrails", "OWASP LLM Top 10", "garak", "PyRIT", "Amazon Bedrock Agents", "CloudWatch"],
+          "lab_task": "Plant an indirect injection in a document in your knowledge base that instructs the assistant to reveal its system prompt and call a refund tool. Run 30 attack prompts from a red-team harness, measure attack success rate before and after adding PROMPT_ATTACK filtering, tool confirmation and canary detection.",
+          "deliverable": "Red-team report with attack success rates before and after mitigations",
+          "checks": [["Run 30 attacks without mitigations", "Baseline attack success rate is recorded as a percentage", "Harness report"], ["Enable guardrail, tagging and confirmation", "Attack success rate drops and the refund tool is never called without confirmation", "Harness report"], ["Search logs for the canary string", "No canary appears in user-visible output after mitigation", "Log query result"]],
+          "objectives": ["Test an AI app against OWASP LLM risks", "Apply layered mitigations", "Measure attack success rate"]
+        },
+        {
+          "topic": "Advanced AgentCore: Policy, Evaluations and Multi-Agent Systems",
+          "subtopics": ["Policy for tool calls: Cedar-style rules enforced at the Gateway", "Deny-by-default tool access and per-user scopes", "Online and on-demand agent evaluations", "Built-in evaluators and custom evaluators", "Agent-to-agent calls and the A2A protocol", "Supervisor and swarm patterns with Strands", "Code Interpreter and Browser tools in sandboxes", "Cost and quota controls for long-running agents"],
+          "tools": ["Amazon Bedrock AgentCore", "Strands Agents", "Cedar", "A2A protocol", "AgentCore Gateway", "CloudWatch"],
+          "lab_task": "Build a supervisor agent and two specialist agents on AgentCore. Add a policy that denies the refund tool for amounts over 100 USD, run an evaluation set of 30 sessions measuring goal success and tool-selection accuracy, and use the Code Interpreter tool for one analysis step.",
+          "deliverable": "Multi-agent system, tool policy and evaluation report for 30 sessions",
+          "checks": [["Request a 250 USD refund through the agent", "Policy denies the call and the log shows the policy decision", "Gateway log"], ["Run the 30-session evaluation", "Goal success and tool-selection scores are reported per session", "Evaluation report"], ["Trace a supervisor delegation", "Trace shows the supervisor calling the right specialist", "Trace screenshot"]],
+          "objectives": ["Enforce tool policies outside the model", "Evaluate agent behaviour at scale", "Coordinate multiple agents safely"]
+        },
+        {
+          "topic": "Model Monitoring, Drift and Bias with SageMaker Model Monitor and Clarify",
+          "subtopics": ["Data capture with DataCaptureConfig", "Baseline suggestion and constraints.json and statistics.json", "Monitoring schedules and violations in constraint_violations.json", "Model quality and ground truth merge", "Clarify bias metrics: class imbalance and DPPL", "SHAP explainability reports", "Bias drift and feature attribution drift monitors", "Alarm and retraining triggers through EventBridge"],
+          "tools": ["SageMaker Model Monitor", "SageMaker Clarify", "Amazon EventBridge", "Amazon S3", "CloudWatch"],
+          "lab_task": "Enable data capture on the churn endpoint, create a baseline, schedule hourly data quality monitoring, send 1,000 requests with one shifted feature, find the violation in constraint_violations.json, run a Clarify bias job on a sensitive attribute and trigger a retraining pipeline from an EventBridge rule.",
+          "deliverable": "Monitoring schedule, violation report, bias report and automatic retraining trigger",
+          "checks": [["Send drifted traffic and run the schedule", "constraint_violations.json lists the shifted feature", "S3 file"], ["Read the Clarify report", "Class imbalance and DPPL values are listed for the sensitive attribute", "Report PDF or JSON"], ["Check the EventBridge target", "A pipeline execution starts after the violation event", "Pipeline execution list"]],
+          "objectives": ["Detect data drift and bias in production", "Explain predictions with SHAP", "Automate retraining on violation"]
+        },
+        {
+          "topic": "Observability and Troubleshooting for Bedrock Workloads",
+          "subtopics": ["AWS/Bedrock metrics: Invocations, InvocationLatency, InputTokenCount, OutputTokenCount, InvocationThrottles", "Error classes: ValidationException 400, AccessDeniedException 403, ThrottlingException 429, ModelTimeoutException 408, ServiceUnavailableException 503", "Model invocation logs in CloudWatch Logs Insights", "OpenTelemetry traces for RAG pipelines", "Dashboards and alarms on p95 latency and throttles", "Debugging empty retrieval", "Debugging agent loops", "Runbook for a quality incident"],
+          "tools": ["CloudWatch", "CloudWatch Logs Insights", "OpenTelemetry", "AWS X-Ray", "Amazon Bedrock", "Amazon SNS"],
+          "lab_task": "Turn on model invocation logging, then inject faults: wrong modelId, missing IAM permission, a 200,000-token prompt and 100 parallel calls. Use Logs Insights to classify errors by exception name, build a dashboard for latency, tokens and throttles, and write alarms with an SNS action.",
+          "deliverable": "Fault-injection log, dashboard JSON, alarms and a troubleshooting runbook",
+          "checks": [["Send a request with a wrong modelId", "ValidationException or ResourceNotFoundException appears in logs", "Logs Insights result"], ["Send 100 parallel requests above quota", "InvocationThrottles metric is above 0 and ThrottlingException is logged", "Dashboard screenshot"], ["Breach the p95 latency alarm", "SNS notification is received", "Email or SNS log"]],
+          "objectives": ["Instrument Bedrock apps with metrics, logs and traces", "Diagnose common error classes quickly", "Write a runbook for AI incidents"]
+        },
+        {
+          "topic": "FinOps for AI on AWS",
+          "subtopics": ["Unit economics: cost per conversation, per document and per resolved ticket", "Bedrock pricing levers: model choice, caching, batch, Provisioned Throughput, prompt routing", "SageMaker pricing levers: Spot, Savings Plans, right-sizing, scale to zero", "Cost allocation tags and application inference profiles", "Cost and Usage Report with Athena", "Budgets and anomaly detection", "Showback and chargeback", "Savings plan for a platform"],
+          "tools": ["AWS Cost Explorer", "Cost and Usage Report", "Amazon Athena", "AWS Budgets", "Cost Anomaly Detection"],
+          "lab_task": "Query CUR data in Athena for Bedrock and SageMaker usage by tag. Build a unit-cost dashboard for cost per conversation, model three savings changes (caching, a smaller model for classification, batch for nightly jobs) and calculate expected monthly savings with a sensitivity range.",
+          "deliverable": "Athena queries, unit cost dashboard and savings model with assumptions",
+          "checks": [["Run the Athena query grouped by team tag", "Rows show spend per team with product code AmazonBedrock", "Query result"], ["Model the caching change using measured hit rate", "Savings figure uses cacheRead tokens and listed price", "Spreadsheet"], ["Trigger a test anomaly alert", "Alert is delivered for a spend spike above the threshold", "Notification"]],
+          "objectives": ["Calculate unit economics for AI services", "Find and size savings levers", "Alert on cost anomalies"]
+        },
+        {
+          "topic": "Reliability: Throttling, Failover and Capacity for AI Workloads",
+          "subtopics": ["Quotas for requests and tokens per minute and output-token burndown", "Retries with exponential backoff and jitter using botocore adaptive mode", "Cross-Region profiles for resilience", "Fallback models and circuit breakers", "Provisioned Throughput for steady demand", "Multi-AZ SageMaker endpoints with at least 2 instances", "Blue/green and canary endpoint updates", "Game-day testing with AWS FIS"],
+          "tools": ["Amazon Bedrock", "AWS FIS", "botocore", "SageMaker AI endpoints", "Route 53", "CloudWatch"],
+          "lab_task": "Implement a client with adaptive retries (max_attempts 8), a circuit breaker and a fallback to a second model. Load test above quota, record success rate with and without it, then run a canary deployment on a SageMaker endpoint that rolls back on a CloudWatch alarm.",
+          "deliverable": "Resilient client, load test comparison and canary rollback evidence",
+          "checks": [["Run the load test without retries", "Failure rate from throttling is recorded above 0 percent", "Load test report"], ["Run with retries, breaker and fallback", "Success rate is higher and fallback usage is logged", "Load test report"], ["Deploy a bad model version by canary", "Alarm triggers rollback and traffic returns to the old variant", "Endpoint deployment history"]],
+          "objectives": ["Design resilient AI clients", "Use failover and fallback safely", "Roll out endpoint changes with rollback"]
+        },
+        {
+          "topic": "Responsible AI Governance: Human Review, Model Cards and Regulation",
+          "subtopics": ["Amazon Augmented AI: flow definitions and start-human-loop", "SageMaker Model Cards and Bedrock model evaluation evidence", "AWS AI Service Cards", "Risk tiering and approval workflows", "EU AI Act obligations and timelines, NIST AI RMF, ISO/IEC 42001", "Bias, explainability and transparency evidence", "Audit trails with CloudTrail and invocation logs", "Policies for acceptable use"],
+          "tools": ["Amazon Augmented AI", "SageMaker Model Cards", "AWS Audit Manager", "AWS CloudTrail", "SageMaker Clarify"],
+          "lab_task": "Add Amazon A2I human review to the Textract invoice flow for extractions below 90 percent confidence using start-human-loop. Create a model card for the churn model and a one-page risk assessment mapping the system to NIST AI RMF functions and to an EU AI Act risk tier.",
+          "deliverable": "A2I review loop, model card and risk assessment mapped to a framework",
+          "checks": [["Process a low-confidence invoice", "A human loop is started and the task appears for reviewers", "A2I console"], ["Open the model card", "Intended use, evaluation results and limitations sections are filled", "Model card"], ["Check the risk assessment", "Each NIST function has controls and an owner", "Document"]],
+          "objectives": ["Add human review to automated decisions", "Document models and risks", "Map systems to governance frameworks"]
+        },
+        {
+          "topic": "Amazon Quick, Amazon Q Developer and Kiro: Assistants for Business and Engineering",
+          "subtopics": ["Amazon Quick as the workplace assistant that succeeds Amazon Q Business for new deployments", "Quick capabilities: spaces, flows, research and dashboards", "Amazon Q Business closed to new customers; migration implications", "Amazon Q Developer IDE plugin support ending April 30, 2027 with Kiro as the successor", "Amazon Q Developer in chat applications and console help", "Data source connectors and permission mirroring", "Build versus buy against custom Bedrock apps", "Adoption metrics and governance"],
+          "tools": ["Amazon Quick", "Amazon Q Developer", "Kiro", "Amazon Bedrock", "AWS IAM Identity Center"],
+          "lab_task": "Write a build-versus-buy analysis for an internal HR assistant comparing Amazon Quick against a custom Bedrock Knowledge Base app on 8 criteria (setup time, connectors, permission mirroring, cost per user, customisation, governance, evaluation, lifecycle risk), and run a one-week pilot with 5 users and 20 tasks.",
+          "deliverable": "Decision matrix, pilot results and a recommendation with lifecycle risks",
+          "checks": [["Score both options on 8 criteria", "Each criterion has a score and a cited source", "Decision matrix"], ["Run 20 pilot tasks", "Task success rate per option is recorded", "Pilot log"], ["Check product lifecycle notices", "Q Business and Q Developer plugin dates are listed with source links", "Lifecycle table"]],
+          "objectives": ["Position Amazon Quick, Q Developer and Kiro correctly", "Decide build versus buy with evidence", "Plan around product lifecycle changes"]
+        },
+        {
+          "topic": "Service Selection, Retirements and Migration Paths",
+          "subtopics": ["AWS decision guide for generative AI services", "Choosing among Bedrock, AgentCore, SageMaker AI and task-specific AI services", "Services closed to new customers or discontinued: verify Amazon Forecast, Lookout services and Q Business on lifecycle pages", "Replacement patterns: SageMaker AI forecasting models, Bedrock Data Automation, Textract", "Migrating model IDs when versions reach end of life", "Compatibility testing with an evaluation set", "Rollout plan with dual running", "Retirement watch process"],
+          "tools": ["AWS Decision Guides", "Amazon Bedrock", "SageMaker AI", "AWS Health", "Bedrock Evaluations"],
+          "lab_task": "Inventory an AI portfolio of 15 workloads, check each service and model ID against lifecycle announcements, classify risk, and migrate one workload from a legacy model to its successor using a 50-prompt regression set, recording quality, latency and cost differences before switching.",
+          "deliverable": "Portfolio inventory with lifecycle risk, one migration and regression results",
+          "checks": [["Check 15 workloads against lifecycle notices", "Each row shows the status and an end date where announced", "Inventory sheet"], ["Run the 50-prompt regression on old and new models", "Pass rate, latency and cost for both are tabulated", "Regression report"], ["Configure AWS Health notifications for the account", "A rule delivers Bedrock lifecycle events to an SNS topic", "EventBridge rule"]],
+          "objectives": ["Select services with an AWS decision guide", "Find and plan around retirements", "Migrate model versions with regression tests"]
+        },
+        {
+          "topic": "CI/CD for AI on AWS: CDK, CodePipeline and Evaluation Gates",
+          "subtopics": ["Infrastructure as code for guardrails, knowledge bases and agents with CDK or CloudFormation", "Prompt versions as release artefacts", "Evaluation jobs as a pipeline stage that fails below a threshold", "SageMaker Projects MLOps templates", "Blue/green for agents using aliases", "cdk-nag and policy checks", "Drift detection", "Promotion across dev, test and prod accounts"],
+          "tools": ["AWS CDK", "AWS CodePipeline", "CloudFormation", "cdk-nag", "Bedrock Evaluations", "SageMaker Projects"],
+          "lab_task": "Create a CDK app that deploys a guardrail, knowledge base and agent alias. Build a CodePipeline with a stage that starts a Bedrock evaluation and fails if faithfulness is below 0.8, test with a degraded prompt, and promote the passing build to a second account.",
+          "deliverable": "CDK app, pipeline definition and failed-then-passed pipeline runs",
+          "checks": [["Run the pipeline with a degraded prompt", "Evaluation stage fails with faithfulness under 0.8", "Pipeline execution"], ["Fix the prompt and rerun", "Evaluation passes and deployment continues", "Pipeline execution"], ["Run cdk-nag on the stack", "No unsuppressed errors remain", "cdk-nag report"]],
+          "objectives": ["Deploy AI components as code", "Gate releases on evaluation scores", "Promote across accounts safely"]
+        },
+        {
+          "topic": "AI Workload Reviews with the Well-Architected Generative AI and Responsible AI Lenses",
+          "subtopics": ["The six Well-Architected pillars applied to AI", "Generative AI Lens, Machine Learning Lens and Responsible AI Lens", "Creating a workload with aws wellarchitected create-workload", "Questions, risks and improvement plans", "Evidence gathering from logs, evaluations and cost reports", "Risk prioritisation and owners", "Review cadence and trigger events", "Presenting findings to leadership"],
+          "tools": ["AWS Well-Architected Tool", "Generative AI Lens", "Responsible AI Lens", "AWS Config", "Trusted Advisor"],
+          "lab_task": "Review your capstone workload with the Well-Architected Tool using the Generative AI Lens, answer the questions with evidence links, record at least 8 high and medium risks, and produce a prioritised plan with owners and dates.",
+          "deliverable": "Completed lens review with risks, evidence and an improvement plan",
+          "checks": [["Run list-lenses and attach the AI lens", "The lens appears on the workload", "CLI output"], ["Count recorded risks by level", "At least 8 high or medium risks are listed with evidence links", "Tool report"], ["Check the improvement plan", "Every risk has an owner and a due date", "Exported PDF"]],
+          "objectives": ["Run a structured review of an AI workload", "Support findings with evidence", "Prioritise improvements"]
+        },
+        {
+          "topic": "Advanced Capstone: Governed Enterprise AI Platform on AWS",
+          "subtopics": ["Platform blueprint and risk assessment", "Secure multi-account deployment with gateway, guardrails and private endpoints", "RAG and agent workloads with evaluation gates", "Observability, FinOps and reliability evidence", "Responsible AI documentation and human review", "Executive readout with a roadmap"],
+          "tools": ["Amazon Bedrock", "AgentCore", "SageMaker AI", "AWS CDK", "CloudWatch", "AWS Organizations"],
+          "lab_task": "Deliver a platform serving two workloads, a RAG assistant and a SageMaker AI model. Include SCPs, private endpoints, tenant profiles, evaluation-gated CI/CD, monitoring, a red-team run, a cost per unit report, a failover drill, and a Well-Architected review, then present results and a 12-month roadmap.",
+          "deliverable": "Deployed platform, evidence pack, and a roadmap presentation",
+          "checks": [["Run the failover drill", "Service stays above 99 percent success with the fallback active", "Drill report"], ["Run a 30-attack red-team set", "Attack success rate is documented and under the agreed target", "Red-team report"], ["Show unit cost per workload", "Cost per conversation and per prediction match billing within 10 percent", "FinOps dashboard"]],
+          "objectives": ["Deliver a secure, governed and observable AI platform", "Prove reliability, safety and cost with evidence", "Present a risk-based roadmap"]
+        }
+      ]
+    }
+  }
+}

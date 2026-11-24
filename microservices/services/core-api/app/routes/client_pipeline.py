@@ -289,7 +289,7 @@ async def get_client_pipeline(
             }
 
         client_po = await db["purchase_orders"].find_one(
-            {"requirement_id": req_id}, {"_id": 0}, sort=[("created_at", -1)]
+            {"requirement_id": req_id, "po_id": {"$not": {"$regex": "^TPO-"}}}, {"_id": 0}, sort=[("created_at", -1)]
         ) or {}
         invoice = await db["invoices"].find_one(
             {"requirement_id": req_id}, {"_id": 0}, sort=[("created_at", -1)]

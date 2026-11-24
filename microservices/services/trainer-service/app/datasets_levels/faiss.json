@@ -1,0 +1,573 @@
+{
+  "domain": "FAISS",
+  "name": "FAISS",
+  "category": "Generative AI and Agents",
+  "icon": "search",
+  "aliases": ["Facebook AI Similarity Search", "FAISS Vector Index", "Meta FAISS", "FAISS Library", "FAISS Similarity Search", "FAISS GPU", "FAISS Python", "FAISS Indexing"],
+  "certifications": [],
+  "tools": ["faiss-cpu", "faiss-gpu", "faiss-gpu-cuvs", "NVIDIA cuVS", "CUDA Toolkit", "NumPy", "faiss.contrib", "conda", "CMake", "sentence-transformers", "LangChain", "LlamaIndex", "FastAPI", "Jupyter"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python developers, data engineers and ML engineers who need fast similarity search over embeddings and have not used Meta's FAISS library before. Covers installing faiss-cpu, the float32 array contract, exact search with IndexFlatL2 and IndexFlatIP, squared L2 versus inner product and cosine, reading search results, ID mapping with IndexIDMap, persistence with write_index and read_index, k-means clustering, first IVF, HNSW, scalar quantization and product quantization indexes, index_factory strings, measuring recall against brute-force ground truth, removal and filtered search with IDSelector, range search, keeping metadata next to an index, and a semantic document search capstone.",
+      "prerequisites": ["Writes Python 3 scripts comfortably, including functions, virtual environments and pip installs", "Uses NumPy arrays: shapes, dtypes, slicing and np.random for test data", "Understands at a high level what a text or image embedding is and why nearby vectors mean similar items"],
+      "outcomes": ["Install FAISS, build exact and approximate indexes and run k-nearest-neighbour searches on float32 NumPy data", "Choose between squared L2, inner product and cosine similarity and prepare vectors correctly for each", "Build IVF, HNSW, SQ and PQ indexes directly and through index_factory, then measure their recall@k against exact search", "Persist an index with its own IDs and a metadata store, and serve semantic search over a real document collection"],
+      "days": [
+        {
+          "topic": "FAISS Installation and Environment Setup",
+          "subtopics": ["What FAISS is: a C++ library with Python bindings for dense vector similarity search and clustering", "Package choices: faiss-cpu on PyPI and the conda-forge or pytorch channel packages", "Creating an isolated environment with python -m venv or conda create", "pip install faiss-cpu and conda install -c pytorch faiss-cpu", "Checking the install with faiss.__version__ and faiss.get_compile_options()", "SIMD variants: generic, AVX2 and AVX-512 builds and the loader log line", "Controlling threads with faiss.omp_get_max_threads() and faiss.omp_set_num_threads()", "Where the documentation lives: the GitHub wiki, the API docs and the tutorial folder", "The faiss.contrib package of pure-Python helpers", "Jupyter notebooks for interactive experiments"],
+          "tools": ["faiss-cpu", "pip", "conda", "Python 3", "NumPy", "Jupyter"],
+          "lab_task": "Create a virtual environment, run pip install faiss-cpu numpy, then in Python print faiss.__version__, faiss.get_compile_options() and faiss.omp_get_max_threads(). Build an IndexFlatL2(64), add 10,000 random float32 vectors with np.random.default_rng(0) and search 5 queries with k=3. Record the version, the SIMD option string, the thread count and the shape of the returned arrays.",
+          "deliverable": "Environment report with pip show faiss-cpu output, compile options and the first search result arrays",
+          "checks": [["Run python -c \"import faiss; print(faiss.__version__)\"", "A version string such as 1.x.y is printed with no ImportError", "Terminal output"], ["Print faiss.get_compile_options() on an x86-64 machine", "The string contains AVX2 or AVX512 when an optimised build was loaded", "Terminal output"], ["Search 5 queries with k=3 on the 10,000-vector IndexFlatL2", "Both D and I have shape (5, 3)", "Notebook cell output"]],
+          "objectives": ["Install FAISS in an isolated Python environment", "Verify the loaded build and its SIMD level", "Run a first add and search round trip"]
+        },
+        {
+          "topic": "Vectors, Embeddings and the float32 Contract in FAISS",
+          "subtopics": ["Why FAISS indexes store float32 vectors of a fixed dimension d", "Array shape (n, d) for add and (nq, d) for search", "C-contiguous memory and np.ascontiguousarray", "What happens when float64 arrays are passed from Python", "Dimension mismatch and the AssertionError from the Python wrapper", "Memory cost: 4 * d bytes per vector in a flat index", "Loading vectors from .npy files with np.load and mmap_mode", "Generating reproducible test data with np.random.default_rng", "Single-query search: reshaping a vector to (1, d)"],
+          "tools": ["faiss-cpu", "NumPy", "Jupyter"],
+          "lab_task": "Create 50,000 vectors of dimension 128 as float64, convert them with astype('float32'), and save them with np.save. Load them with np.load(mmap_mode='r'), build IndexFlatL2(128) and add them. Then try index.add with a (10, 64) array and a single query of shape (128,), fix both with reshape, and record the error type for each failure and the index memory estimate 4 * d * ntotal in MB.",
+          "deliverable": "Notebook showing each failure, its fix and the memory estimate for 50,000 x 128 vectors",
+          "checks": [["Call index.add with an array of shape (10, 64) on an IndexFlatL2(128)", "An AssertionError is raised and ntotal stays at 50,000", "Notebook traceback"], ["Compute 4 * 128 * 50,000 bytes", "The flat index needs about 25.6 MB of vector storage", "Calculation cell"], ["Search with q.reshape(1, -1) for one 128-d query and k=5", "I has shape (1, 5)", "Notebook cell output"]],
+          "objectives": ["Prepare NumPy arrays that FAISS accepts", "Diagnose shape and dimension errors", "Estimate flat index memory from n and d"]
+        },
+        {
+          "topic": "Exact Search with IndexFlatL2 and IndexFlatIP",
+          "subtopics": ["Brute-force k-NN as the baseline every other index is compared with", "IndexFlatL2 and IndexFlatIP constructors", "is_trained is True for flat indexes, so no train call is needed", "ntotal, d and metric_type attributes", "index.search(xq, k) returning distances D and labels I", "Sequential IDs 0 to ntotal-1 assigned by add", "reconstruct(i) and reconstruct_n to read stored vectors back", "faiss.knn as a function for one-off exact search", "Cost model: O(n * d) per query and why it is still fast with BLAS for batches"],
+          "tools": ["faiss-cpu", "NumPy", "Python timeit"],
+          "lab_task": "Build IndexFlatL2(96) and IndexFlatIP(96) over the same 100,000 random float32 vectors. Search the first 10 database vectors as queries with k=4, confirm each query finds itself at rank 0 in the L2 index, reconstruct vector 42 and compare it with np.array_equal. Time 1,000 queries searched in one batch versus a Python loop of single queries and report queries per second for both.",
+          "deliverable": "Script and timing table comparing batched and single-query flat search",
+          "checks": [["Search database vectors 0 to 9 against IndexFlatL2 with k=4", "I[:, 0] equals [0, 1, ..., 9] and D[:, 0] is 0.0", "Printed arrays"], ["np.array_equal(index.reconstruct(42), xb[42])", "Returns True", "Notebook output"], ["Time 1,000 queries batched versus one at a time", "The batched call reports higher queries per second than the loop", "Timing table"]],
+          "objectives": ["Build and query exact flat indexes", "Read stored vectors back with reconstruct", "Explain why batching queries matters"]
+        },
+        {
+          "topic": "Distance Metrics: Squared L2, Inner Product and Cosine in FAISS",
+          "subtopics": ["METRIC_L2 returns squared Euclidean distance, not the square root", "METRIC_INNER_PRODUCT returns similarity where larger is better", "Cosine similarity as inner product on L2-normalised vectors", "faiss.normalize_L2 normalises an array in place", "Sort order of D for L2 (ascending) and IP (descending)", "Equivalence of L2 and cosine rankings on unit vectors", "Other metrics: METRIC_L1, METRIC_Linf and METRIC_Canberra in flat indexes", "Which metric an embedding model was trained for"],
+          "tools": ["faiss-cpu", "NumPy", "SciPy"],
+          "lab_task": "Take 5,000 random 32-d vectors, build IndexFlatL2 and compare D[0,0..4] with scipy.spatial.distance.cdist squared. Copy the data, run faiss.normalize_L2 on it, build IndexFlatIP and compare scores with 1 - cdist(metric='cosine'). Finally search the normalised data with IndexFlatL2 and show that the neighbour IDs match the IP index for 100 queries. Report the maximum absolute difference for each comparison.",
+          "deliverable": "Metric comparison notebook with difference values and an ID-agreement count",
+          "checks": [["Compare IndexFlatL2 distances with scipy cdist results squared", "Maximum absolute difference is below 1e-3", "Comparison cell"], ["Check np.linalg.norm of rows after faiss.normalize_L2", "Every norm equals 1.0 within 1e-5", "Printed norms"], ["Compare neighbour IDs from IndexFlatIP and IndexFlatL2 on normalised data for 100 queries", "All 100 rows of I are identical", "Agreement count"]],
+          "objectives": ["Interpret L2 and inner-product scores correctly", "Implement cosine similarity with normalize_L2 and IndexFlatIP", "Match the metric to the embedding model"]
+        },
+        {
+          "topic": "Generating Embeddings for a FAISS Corpus",
+          "subtopics": ["Sentence-transformers models and their output dimension", "model.encode with batch_size, convert_to_numpy and normalize_embeddings", "Ensuring the output dtype is float32 before index.add", "Chunking long documents before embedding", "Embedding queries with the same model and prefix conventions", "Caching embeddings to .npy files so the index can be rebuilt", "Throughput on CPU versus GPU for the encoder step", "Keeping a row-number-to-document mapping"],
+          "tools": ["sentence-transformers", "faiss-cpu", "NumPy", "pandas"],
+          "lab_task": "Load 2,000 short texts from a CSV with pandas, encode them with SentenceTransformer('all-MiniLM-L6-v2') using batch_size=64 and normalize_embeddings=True, save the result to embeddings.npy and check dtype and shape. Build IndexFlatIP(384), search the query 'how do I reset my password' with k=5 and print the matching texts and scores. Record encoding time per 1,000 texts.",
+          "deliverable": "embeddings.npy, a row-to-text CSV and a printout of the top-5 results for three queries",
+          "checks": [["Print emb.shape and emb.dtype after encoding 2,000 texts", "Output is (2000, 384) float32", "Notebook output"], ["Search the same text that is stored as row 0 with k=1", "Label 0 is returned with a score close to 1.0", "Search output"], ["Time the encode call", "Encoding time per 1,000 texts is recorded for the hardware used", "Timing log"]],
+          "objectives": ["Produce float32 embeddings ready for FAISS", "Keep a stable mapping from FAISS row numbers to source records", "Query a FAISS index with text"]
+        },
+        {
+          "topic": "Reading search() Results: Distances, Labels and -1 Padding",
+          "subtopics": ["The D and I arrays and their (nq, k) shapes", "Label -1 when fewer than k results exist", "Sentinel distances: +3.4028235e+38 for L2 and -3.4028235e+38 for IP", "Ties and why equal distances may order differently between runs", "Converting labels to records while skipping -1", "Choosing k: cost of large k on exact and approximate indexes", "Pre-allocated output arrays with search(x, k, D=..., I=...)", "Turning L2 distances into a similarity score for display"],
+          "tools": ["faiss-cpu", "NumPy", "pandas"],
+          "lab_task": "Build IndexFlatL2(16) with only 3 vectors and search with k=5. Print D and I, then write a helper results_to_rows(D, I, table) that skips -1 labels and returns a pandas DataFrame of id, distance and text. Repeat with IndexFlatIP and record the sentinel distance values for missing results in both metrics.",
+          "deliverable": "results_to_rows helper with unit tests for padded and full result sets",
+          "checks": [["Search a 3-vector IndexFlatL2 with k=5", "I contains -1 in the last two columns of every row", "Printed I array"], ["Inspect D for the padded positions in the L2 index", "Padded distances equal 3.4028235e+38", "Printed D array"], ["Call results_to_rows on the padded result", "The DataFrame has 3 rows per query and no -1 IDs", "Unit test output"]],
+          "objectives": ["Interpret D and I correctly", "Handle missing results safely", "Convert FAISS results into application records"]
+        },
+        {
+          "topic": "Mapping Your Own IDs with IndexIDMap and IndexIDMap2",
+          "subtopics": ["Why sequential IDs break when rows are deleted or come from a database", "add_with_ids on IndexIDMap with int64 IDs", "Error from add_with_ids on a bare IndexFlat", "The rule that the wrapped index must be empty", "IndexIDMap2 and reconstruct by external ID", "The id_map vector and faiss.vector_to_array", "IVF indexes store IDs natively and do not need IndexIDMap", "The IDMap,Flat factory string"],
+          "tools": ["faiss-cpu", "NumPy", "SQLite"],
+          "lab_task": "Assign product IDs from 1,000,000 upward to 20,000 vectors. Call add_with_ids on a plain IndexFlatL2 and record the error, then wrap it in IndexIDMap and add again. Search 5 queries and confirm labels are product IDs. Build IndexIDMap2 over the same data and call reconstruct(1000042). Finally wrap a non-empty IndexFlatL2 and record the error message.",
+          "deliverable": "ID mapping notebook showing each error, the working wrapper and a reconstruct-by-ID result",
+          "checks": [["Call add_with_ids on a bare IndexFlatL2", "RuntimeError stating add_with_ids is not implemented for this type of index", "Traceback"], ["Search IndexIDMap with k=3", "Every returned label is 1,000,000 or greater", "Printed I array"], ["Create IndexIDMap around a flat index that already holds vectors", "RuntimeError stating the index must be empty on input", "Traceback"]],
+          "objectives": ["Store external IDs in a FAISS index", "Choose between IndexIDMap and IndexIDMap2", "Avoid the common wrapping mistakes"]
+        },
+        {
+          "topic": "Saving and Loading Indexes with write_index and read_index",
+          "subtopics": ["faiss.write_index(index, path) and faiss.read_index(path)", "What the index file contains: header, parameters, trained state and codes", "File size compared with ntotal * code size", "serialize_index and deserialize_index to and from NumPy uint8 arrays", "Storing serialized bytes in object storage or a database blob", "Versioning index files next to the embedding model name", "Rebuilding versus reloading and when each is faster", "Checking the loaded type with type(index) and faiss.downcast_index"],
+          "tools": ["faiss-cpu", "NumPy", "boto3", "pathlib"],
+          "lab_task": "Build IDMap,Flat over 100,000 vectors of dimension 128, write it with faiss.write_index to products.index, record the file size with os.path.getsize and time a read_index reload. Serialize the same index with faiss.serialize_index, round-trip through deserialize_index, and compare search results for 50 queries between the original, file-loaded and deserialized copies.",
+          "deliverable": "Persistence script with file size, reload time and a result-equality assertion",
+          "checks": [["Compare os.path.getsize of the index file with 100,000 * 128 * 4 bytes", "File size is about 52 MB: 51.2 MB of vectors plus 0.8 MB of int64 IDs and a small header", "Size report"], ["Search 50 queries on the original and reloaded index", "np.array_equal on I returns True", "Assertion output"], ["Print type(faiss.read_index('products.index'))", "The type is IndexIDMap", "Notebook output"]],
+          "objectives": ["Persist and reload FAISS indexes", "Serialize an index to bytes for storage services", "Verify that a reloaded index behaves identically"]
+        },
+        {
+          "topic": "FAISS Clustering with faiss.Kmeans",
+          "subtopics": ["faiss.Kmeans(d, k, niter, verbose, seed) parameters", "kmeans.train(x) and kmeans.centroids", "kmeans.obj and the objective curve per iteration", "Assigning points with kmeans.index.search(x, 1)", "The warning asking for at least 39 * k training points", "max_points_per_centroid and automatic subsampling", "spherical=True for cosine-style clustering", "Using cluster assignments for deduplication and topic grouping"],
+          "tools": ["faiss-cpu", "NumPy", "matplotlib"],
+          "lab_task": "Cluster 200,000 random 64-d vectors into k=256 with faiss.Kmeans(64, 256, niter=20, verbose=True, seed=1). Plot kmeans.obj per iteration, then assign every vector with kmeans.index.search(x, 1) and compute cluster sizes with np.bincount. Rerun with only 5,000 training points and record the warning text. Report the smallest and largest cluster size.",
+          "deliverable": "Clustering notebook with objective plot, cluster size histogram and the warning text",
+          "checks": [["Train with 200,000 points and k=256", "kmeans.centroids has shape (256, 64)", "Notebook output"], ["Train k=256 with 5,000 points", "FAISS prints a warning asking for at least 9,984 training points", "Captured log"], ["Plot kmeans.obj", "The objective decreases across the 20 iterations", "Objective plot"]],
+          "objectives": ["Run k-means clustering with FAISS", "Size training data for the number of centroids", "Assign vectors to clusters"]
+        },
+        {
+          "topic": "First Inverted File Index: IndexIVFFlat, train and add",
+          "subtopics": ["Coarse quantizer and inverted lists", "IndexIVFFlat(quantizer, d, nlist, metric) construction", "is_trained is False until train is called", "Training on a representative sample", "Error when adding to an untrained index", "nprobe default of 1 and its effect", "Inspecting list sizes with index.invlists.list_size(i)", "Why IVF search is faster than flat search on large collections"],
+          "tools": ["faiss-cpu", "NumPy", "matplotlib"],
+          "lab_task": "Create IndexIVFFlat with a IndexFlatL2(128) quantizer and nlist=1024. Try index.add before training and record the error. Train on 100,000 sampled vectors, add 1,000,000 vectors, and plot the distribution of invlists.list_size over all lists. Search 1,000 queries with nprobe=1 and compare queries per second with IndexFlatL2 on the same data.",
+          "deliverable": "IVF build notebook with list-size histogram and QPS comparison against flat search",
+          "checks": [["Call add on the IVF index before train", "RuntimeError mentioning the is_trained check", "Traceback"], ["Sum invlists.list_size(i) over all 1,024 lists after adding", "The total equals 1,000,000 and equals index.ntotal", "Notebook output"], ["Search 1,000 queries at nprobe=1", "QPS is several times higher than IndexFlatL2 on the same data", "Timing table"]],
+          "objectives": ["Train and populate an IVF index", "Explain coarse quantization and inverted lists", "Measure the speed gain over exact search"]
+        },
+        {
+          "topic": "Tuning nlist and nprobe on an IVF Index",
+          "subtopics": ["Rule of thumb: nlist around 4 * sqrt(n) to 16 * sqrt(n)", "nprobe as the main recall versus speed knob", "nprobe = nlist reproduces exact search", "Setting nprobe as an attribute versus faiss.ParameterSpace", "Recall@10 measured against IndexFlatL2 results", "Search time growth with nprobe", "faiss.cvar.indexIVF_stats.ndis to count distance computations", "Effect of nlist on training time and list imbalance"],
+          "tools": ["faiss-cpu", "NumPy", "matplotlib"],
+          "lab_task": "Using the 1,000,000-vector IVF1024,Flat index, compute exact top-10 neighbours for 1,000 queries with IndexFlatL2. Sweep nprobe over 1, 4, 16, 64, 256 and 1024, recording recall@10, milliseconds per query and faiss.cvar.indexIVF_stats.ndis after resetting the stats. Plot recall against latency and choose the smallest nprobe giving recall@10 of at least 0.95.",
+          "deliverable": "nprobe sweep table and recall-latency plot with the chosen operating point",
+          "checks": [["Search with nprobe=1024 on an index with nlist=1024", "Recall@10 equals 1.0 against IndexFlatL2", "Sweep table"], ["Compare indexIVF_stats.ndis at nprobe=4 and nprobe=64", "Distance computations grow roughly 16 times", "Stats printout"], ["Select the operating point", "The chosen nprobe is the smallest value reaching recall@10 of 0.95", "Recall-latency plot"]],
+          "objectives": ["Tune nprobe for a recall target", "Size nlist for a collection", "Measure search effort with IVF statistics"]
+        },
+        {
+          "topic": "Graph Search with IndexHNSWFlat",
+          "subtopics": ["Hierarchical navigable small world graphs in one paragraph", "IndexHNSWFlat(d, M) and the meaning of M", "hnsw.efConstruction (default 40) set before add", "hnsw.efSearch (default 16) set before search", "No training step: is_trained is True", "Build time and memory overhead of graph links", "remove_ids is not supported on HNSW indexes", "When HNSW beats IVF for small and medium collections"],
+          "tools": ["faiss-cpu", "NumPy", "matplotlib"],
+          "lab_task": "Build IndexHNSWFlat(128, 32) on 500,000 vectors, timing the add call. Sweep hnsw.efSearch over 16, 32, 64, 128 and 256 for 1,000 queries and record recall@10 against exact search and ms per query. Compare file size after write_index with an IndexFlatL2 of the same data, and call remove_ids on the HNSW index to record the error.",
+          "deliverable": "HNSW build report with efSearch sweep, size comparison and the remove_ids error",
+          "checks": [["Print index.hnsw.efSearch on a new IndexHNSWFlat", "The value is 16", "Notebook output"], ["Raise efSearch from 16 to 256", "Recall@10 increases and latency per query increases", "Sweep table"], ["Call remove_ids on IndexHNSWFlat", "RuntimeError stating the operation is not implemented for this index", "Traceback"]],
+          "objectives": ["Build and tune an HNSW index", "Compare graph and flat index memory", "Recognise operations HNSW does not support"]
+        },
+        {
+          "topic": "Compressing Vectors with IndexScalarQuantizer (SQ8, SQfp16)",
+          "subtopics": ["Scalar quantization: each dimension encoded independently", "QT_8bit, QT_4bit, QT_fp16 and QT_8bit_uniform types", "sa_code_size(): d bytes for SQ8, 2 * d bytes for SQfp16", "Training SQ8 to learn per-dimension ranges", "SQfp16 needs no meaningful training", "Factory strings SQ8, SQ4, SQfp16 and IVF4096,SQ8", "Recall loss from compression compared with IndexFlatL2", "When SQ8 is enough and PQ is not needed"],
+          "tools": ["faiss-cpu", "NumPy", "pandas"],
+          "lab_task": "Build IndexScalarQuantizer(128, faiss.ScalarQuantizer.QT_8bit) and the QT_fp16 and QT_4bit variants over 500,000 vectors, training each on 100,000 samples. For each, print sa_code_size(), write the index to disk and measure file size, and compute recall@10 for 1,000 queries against IndexFlatL2. Present a table of bytes per vector, file size and recall.",
+          "deliverable": "Scalar quantizer comparison table with code size, file size and recall@10",
+          "checks": [["Print sa_code_size() for SQ8 on d=128", "The value is 128", "Notebook output"], ["Print sa_code_size() for SQfp16 on d=128", "The value is 256", "Notebook output"], ["Compare recall@10 of QT_4bit and QT_8bit", "QT_4bit recall is lower than QT_8bit recall", "Comparison table"]],
+          "objectives": ["Compress vectors with scalar quantization", "Predict index size from code size", "Weigh compression against recall"]
+        },
+        {
+          "topic": "Product Quantization Fundamentals with IndexPQ",
+          "subtopics": ["Splitting a vector into M sub-vectors", "A codebook of 2^nbits centroids per sub-vector", "Code size of M * nbits / 8 bytes", "The rule that d must be divisible by M", "IndexPQ(d, M, nbits) construction", "Training data size: about 39 * 256 points per sub-quantizer for nbits=8", "Asymmetric distance computation with lookup tables", "Reconstruction error with pq.compute_codes and pq.decode", "Recall impact of M=8, 16 and 32", "Compression ratio compared with float32"],
+          "tools": ["faiss-cpu", "NumPy", "matplotlib"],
+          "lab_task": "Build IndexPQ(128, M, 8) for M in 8, 16 and 32 over 500,000 vectors, training each on 50,000 points. Record sa_code_size(), mean squared reconstruction error from index.pq.decode(index.pq.compute_codes(x)) on 10,000 vectors, and recall@10 for 1,000 queries. Try IndexPQ(128, 7, 8) and record the error.",
+          "deliverable": "PQ comparison table with code size, reconstruction error and recall for each M",
+          "checks": [["Print sa_code_size() for IndexPQ(128, 16, 8)", "The value is 16 bytes, a 32 times reduction from 512 bytes", "Notebook output"], ["Construct IndexPQ(128, 7, 8)", "An error states d must be a multiple of M", "Traceback"], ["Compare reconstruction error for M=8 and M=32", "M=32 has lower mean squared error than M=8", "Comparison table"]],
+          "objectives": ["Explain how product quantization encodes vectors", "Choose M and nbits for a memory budget", "Measure the accuracy cost of PQ"]
+        },
+        {
+          "topic": "Building Indexes from index_factory Strings",
+          "subtopics": ["faiss.index_factory(d, description, metric)", "Components: pre-transform, coarse quantizer, encoding and refinement", "Examples: Flat, IVF4096,Flat, HNSW32,Flat, IVF1024,PQ16, IDMap,Flat", "Passing faiss.METRIC_INNER_PRODUCT to the factory", "Pre-transforms PCA64 and L2norm in a factory string", "Reading the built type with faiss.downcast_index", "Error messages from an unparseable string", "The index_factory cheat sheet on the FAISS wiki"],
+          "tools": ["faiss-cpu", "NumPy", "FAISS wiki"],
+          "lab_task": "Use faiss.index_factory(128, s) to build Flat, IDMap,Flat, IVF256,Flat, HNSW32,Flat, IVF256,SQ8, IVF256,PQ16 and PCA64,IVF256,Flat. For each print type(index), is_trained and, after training on 50,000 vectors and adding 200,000, the file size from write_index. Build one with METRIC_INNER_PRODUCT and print metric_type. Pass the string IVF256,Bogus and record the error.",
+          "deliverable": "Factory catalogue table: string, Python type, needs training, file size",
+          "checks": [["Print type(faiss.index_factory(128, 'IVF256,Flat'))", "The type is IndexIVFFlat", "Notebook output"], ["Print is_trained for HNSW32,Flat and IVF256,PQ16 before training", "True for HNSW32,Flat and False for IVF256,PQ16", "Notebook output"], ["Call index_factory with IVF256,Bogus", "A RuntimeError reports the string could not be parsed", "Traceback"]],
+          "objectives": ["Describe indexes concisely with factory strings", "Predict which factory indexes need training", "Build inner-product indexes through the factory"]
+        },
+        {
+          "topic": "Measuring Recall@k Against Brute-Force Ground Truth",
+          "subtopics": ["Ground truth from IndexFlatL2 or faiss.knn", "1-recall@1, recall@k and k-NN intersection", "faiss.contrib.evaluation.knn_intersection_measure", "Using held-out queries instead of database vectors", "Sample size: why 1,000 queries is a sensible minimum", "Reporting recall together with latency and memory", "Ground truth caching to .npy files", "Recall versus downstream relevance metrics"],
+          "tools": ["faiss-cpu", "faiss.contrib.evaluation", "NumPy", "pandas"],
+          "lab_task": "Compute exact top-100 ground truth for 1,000 held-out queries on 1,000,000 vectors and save it to gt.npy. Write recall_at_k(I, gt, k) and compare its value with knn_intersection_measure for IVF1024,Flat at nprobe=8, HNSW32,Flat at efSearch=64 and IVF1024,PQ32 at nprobe=16. Report recall@1, recall@10 and ms per query for each in one table.",
+          "deliverable": "Reusable recall_at_k function, gt.npy and a three-index recall table",
+          "checks": [["Evaluate IndexFlatL2 against its own ground truth", "recall@10 equals 1.0", "Test output"], ["Compare recall_at_k with knn_intersection_measure for the same I", "Both values agree to 4 decimal places", "Comparison cell"], ["Compare recall@10 of IVF1024,PQ32 and IVF1024,Flat at similar nprobe", "The PQ index scores lower recall than the Flat index", "Recall table"]],
+          "objectives": ["Compute exact ground truth efficiently", "Measure recall@k correctly", "Report recall with latency for index comparisons"]
+        },
+        {
+          "topic": "Removing Vectors and Filtered Search with IDSelector",
+          "subtopics": ["index.remove_ids with an int64 array and its return count", "IDSelectorRange, IDSelectorBatch and IDSelectorArray", "IDSelectorNot, IDSelectorAnd and IDSelectorOr", "Filtered search with faiss.SearchParameters(sel=...)", "SearchParametersIVF(sel=..., nprobe=...)", "Index types that support removal and search-time selectors", "Cost of removal on flat and IVF indexes", "Restricting search to one tenant's ID range"],
+          "tools": ["faiss-cpu", "NumPy"],
+          "lab_task": "Build IDMap,Flat over 100,000 vectors with IDs 0 to 99,999. Remove IDs 0 to 9,999 with remove_ids(faiss.IDSelectorRange(0, 10000)) and record the return value and ntotal. Then build IVF256,Flat with tenant-coded IDs and search with faiss.SearchParametersIVF(sel=faiss.IDSelectorBatch(allowed), nprobe=32), confirming that every returned label is in the allowed set.",
+          "deliverable": "Removal and filtering notebook with counts before and after and an allowed-ID assertion",
+          "checks": [["remove_ids(faiss.IDSelectorRange(0, 10000)) on the IDMap,Flat index", "Returns 10000 and ntotal drops to 90,000", "Notebook output"], ["Search with an IDSelectorBatch of 500 allowed IDs", "Every non -1 label is in the allowed set", "Assertion output"], ["Search IDs removed earlier as exact query vectors", "None of the removed IDs appear in the results", "Search output"]],
+          "objectives": ["Delete vectors by ID", "Apply search-time ID filters", "Know which index types support these operations"]
+        },
+        {
+          "topic": "Range Search and Similarity Thresholds in FAISS",
+          "subtopics": ["index.range_search(x, radius) returning lims, D and I", "lims has nq + 1 entries and slices D and I per query", "Radius is a squared distance for METRIC_L2", "Radius is a minimum similarity for METRIC_INNER_PRODUCT", "Index types that support range search", "Choosing a threshold from a labelled sample of pairs", "Near-duplicate detection with a cosine threshold", "Combining k-NN with a post-filter on distance"],
+          "tools": ["faiss-cpu", "NumPy", "sentence-transformers"],
+          "lab_task": "Embed 5,000 product titles with normalised embeddings and build IndexFlatIP. Run range_search with radius 0.9 on all titles as queries to find near duplicates, then compute the number of pairs per query from np.diff(lims). Repeat on IndexFlatL2 over the same vectors with radius 0.2 and confirm the result sets match, since squared L2 of 0.2 equals cosine 0.9 on unit vectors.",
+          "deliverable": "Near-duplicate report listing groups found at cosine 0.9 and the L2-equivalent check",
+          "checks": [["Print len(lims) after range_search on 5,000 queries", "lims has 5,001 entries", "Notebook output"], ["Inspect D for one query on IndexFlatIP with radius 0.9", "Every returned score is greater than 0.9", "Printed slice"], ["Compare result sets of IP radius 0.9 and L2 radius 0.2 on unit vectors", "The sets of pairs are identical", "Assertion output"]],
+          "objectives": ["Run range searches and read lims", "Convert between cosine and squared L2 thresholds", "Detect near duplicates with FAISS"]
+        },
+        {
+          "topic": "Storing Metadata Alongside a FAISS Index with SQLite",
+          "subtopics": ["FAISS stores vectors and int64 IDs only", "Using the primary key of a SQLite table as the FAISS ID", "Fetching rows for returned labels with a parameterised IN query", "Keeping the index and table in sync on insert and delete", "Pre-filtering with SQL and an IDSelectorBatch", "Post-filtering with over-fetching k", "Writing the index and database together as one versioned artifact", "Rebuild scripts from the database as the source of truth"],
+          "tools": ["faiss-cpu", "SQLite", "sentence-transformers", "pandas"],
+          "lab_task": "Create a SQLite table docs(id INTEGER PRIMARY KEY, title, category, body) with 10,000 rows. Embed the titles, add them to IDMap,Flat using the id column, and write search(query, category=None, k=5) that pre-filters by category with an IDSelectorBatch from SELECT id FROM docs WHERE category = ?. Delete 100 rows from both stores and confirm counts match.",
+          "deliverable": "search() module with tests for unfiltered, filtered and post-delete queries",
+          "checks": [["Run SELECT COUNT(*) FROM docs and print index.ntotal after deleting 100 rows", "Both report 9,900", "Test output"], ["Call search('refund policy', category='billing')", "Every returned row has category billing", "Test output"], ["Pass a query string containing a single quote", "The parameterised query runs without SQL errors", "Test output"]],
+          "objectives": ["Pair a FAISS index with a metadata store", "Implement category filtering with IDSelector", "Keep index and database consistent"]
+        },
+        {
+          "topic": "Beginner Capstone: FAISS Semantic Search over a Document Collection",
+          "subtopics": ["Chunking and embedding a document collection of at least 20,000 passages", "Choosing IDMap,Flat or HNSW32,Flat with a written justification", "Metadata in SQLite keyed by FAISS IDs", "Recall@10 of the chosen index against exact search on 500 queries", "Persisting index and database as a versioned artifact", "A command-line search tool with filters"],
+          "tools": ["faiss-cpu", "sentence-transformers", "SQLite", "NumPy", "argparse"],
+          "lab_task": "Build a search tool over at least 20,000 passages: chunk the documents, embed them with normalised embeddings, store metadata in SQLite and vectors in a FAISS index chosen from IDMap,Flat or an HNSW variant. Measure recall@10 against IndexFlatIP on 500 queries, persist both stores with a version tag, and expose python search.py 'query' --k 5 --category X.",
+          "deliverable": "Repository with build and search scripts, the index artifact, a recall report and a 1-page design note",
+          "checks": [["Run python search.py 'reset password' --k 5", "Five passages with titles and scores are printed in under 200 ms after loading", "Terminal recording"], ["Evaluate the chosen index on 500 held-out queries", "recall@10 is 0.95 or higher against IndexFlatIP", "Recall report"], ["Delete the index file and run the rebuild script", "The rebuilt index has the same ntotal as the SQLite row count", "Build log"]],
+          "objectives": ["Deliver an end-to-end FAISS search application", "Justify an index choice with recall and latency data", "Package index and metadata reproducibly"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who can already build flat, IVF and HNSW indexes in FAISS and now need to run them at millions of vectors with predictable recall, memory and latency. Covers IVFPQ with residual encoding, OPQ and PCA pre-transforms, exact re-ranking with refinement, 4-bit fast-scan PQ, HNSW parameter tuning, coarse quantizer choices, benchmarking on SIFT1M, automatic tuning with ParameterSpace, per-call search parameters, threading and batching, memory estimation, updates and deletes in IVF, binary indexes, single and multi-GPU indexes, the FAISS integrations in LangChain and LlamaIndex, serving an index behind FastAPI, diagnosing low recall and common errors, and a tuned retrieval service capstone.",
+      "prerequisites": ["Has completed the FAISS beginner level or has built and queried IVF and HNSW indexes with index_factory", "Can compute recall@k against brute-force ground truth and read a recall-latency trade-off plot", "Has access to a machine with at least 16 GB of RAM, and for the GPU days an NVIDIA GPU with a CUDA driver or a cloud GPU instance"],
+      "outcomes": ["Design compressed IVFPQ, OPQ and fast-scan indexes that meet a memory budget and a recall@10 target", "Benchmark and auto-tune FAISS indexes on standard datasets and choose operating points from measured data", "Move indexes between CPU and one or more GPUs and use FAISS as the vector store in LangChain and LlamaIndex", "Serve a FAISS index behind an HTTP API with safe concurrency, updates and a documented recall and latency profile"],
+      "days": [
+        {
+          "topic": "IVFPQ Indexes: Residual Encoding and Code Size",
+          "subtopics": ["IndexIVFPQ(quantizer, d, nlist, m, nbits) and the IVF4096,PQ32 factory string", "Encoding residuals relative to the centroid with by_residual", "Bytes per vector: m codes plus 8 bytes of ID in the inverted lists", "Training data needs for both the coarse quantizer and the PQ codebooks", "Lookup tables and use_precomputed_table", "Recall ceiling of PQ compared with IVF,Flat at the same nprobe", "Choosing m from the memory budget per vector", "Effect of nbits 8 versus 6 or 10 on training and recall"],
+          "tools": ["faiss-cpu", "NumPy", "pandas", "matplotlib"],
+          "lab_task": "Build IVF4096,PQ16, IVF4096,PQ32 and IVF4096,PQ64 on 2,000,000 vectors of d=128, training on 200,000 samples. For each record train time, sa_code_size(), index file size and recall@10 at nprobe 16 and 64 against exact ground truth. Build IVF4096,PQ32 with by_residual set to False and compare its recall with the residual version at nprobe=64.",
+          "deliverable": "IVFPQ comparison table with memory per vector, recall and training cost",
+          "checks": [["Print sa_code_size() for IVF4096,PQ32", "The value is 32 bytes per vector", "Notebook output"], ["Compare file sizes of the PQ16 and PQ64 indexes", "The PQ64 file is roughly 3 times larger because IDs and centroids add fixed overhead", "Size table"], ["Compare recall@10 with by_residual True and False at nprobe=64", "The residual version has higher recall", "Recall table"]],
+          "objectives": ["Configure IVFPQ for a memory budget", "Explain residual encoding", "Measure PQ recall limits"]
+        },
+        {
+          "topic": "OPQ Rotation and PCA Pre-Transforms with IndexPreTransform",
+          "subtopics": ["VectorTransform objects and IndexPreTransform chains", "OPQMatrix and the OPQ32_128 factory prefix", "PCAMatrix, PCAR and dimensionality reduction with PCA64", "Training order: transforms first, then the index", "Accessing the chain with index.chain.at(0) and faiss.downcast_VectorTransform", "Applying a transform manually with apply_py", "When OPQ helps: embeddings with correlated dimensions", "Cost of a transform at query time"],
+          "tools": ["faiss-cpu", "NumPy", "pandas"],
+          "lab_task": "On 1,000,000 vectors of d=384 from a sentence-transformers model, build IVF4096,PQ32, OPQ32_384,IVF4096,PQ32 and PCAR128,IVF4096,PQ32. Train each on 200,000 vectors, record training time, and measure recall@10 at nprobe=32 on 1,000 queries. Extract the OPQ matrix from index.chain.at(0) and confirm that the transform preserves vector norms.",
+          "deliverable": "Pre-transform comparison report with recall, training time and the norm-preservation test",
+          "checks": [["Compare recall@10 of IVF4096,PQ32 and OPQ32_384,IVF4096,PQ32", "OPQ recall is equal or higher on the embedding dataset", "Recall table"], ["Apply the OPQ transform with apply_py to 100 vectors and compare norms", "Norms are preserved to within 1e-4 because OPQ is a rotation", "Notebook output"], ["Print type(index) for the OPQ factory string", "The type is IndexPreTransform", "Notebook output"]],
+          "objectives": ["Add OPQ and PCA transforms to an index", "Inspect and apply transforms in a chain", "Decide when a rotation improves PQ"]
+        },
+        {
+          "topic": "Exact Re-Ranking with IndexRefineFlat and k_factor",
+          "subtopics": ["Two-stage search: compressed candidates then exact distances", "IndexRefineFlat(base_index) and the RFlat and Refine(Flat) factory suffixes", "k_factor: candidates fetched equal k * k_factor", "IndexRefineSearchParameters for a per-call k_factor", "Memory cost: the refine stage stores full vectors", "Refining with SQ8 instead of Flat to save memory", "Distances returned after refinement are exact", "Recall gain versus latency added by refinement"],
+          "tools": ["faiss-cpu", "NumPy", "matplotlib"],
+          "lab_task": "Build IVF4096,PQ16 and IVF4096,PQ16,RFlat on 1,000,000 vectors. At nprobe=32 sweep k_factor over 1, 2, 4, 8 and 16 for k=10, recording recall@10 and ms per query. Build IVF4096,PQ16,Refine(SQ8) and compare its file size and recall at k_factor=8. Confirm that refined distances match IndexFlatL2 distances for the returned IDs.",
+          "deliverable": "Refinement sweep table and plot with the chosen k_factor",
+          "checks": [["Compare recall@10 at k_factor=1 and k_factor=8", "Recall@10 rises at k_factor=8", "Sweep table"], ["Compare distances returned by the RFlat index with exact squared L2 for the same IDs", "Values match to within 1e-3", "Assertion output"], ["Compare file sizes of the Refine(SQ8) and RFlat indexes", "The Refine(SQ8) file is roughly 3 to 4 times smaller than the RFlat file", "Size table"]],
+          "objectives": ["Add exact re-ranking to compressed indexes", "Tune k_factor for recall and latency", "Trade refine memory against accuracy"]
+        },
+        {
+          "topic": "4-Bit PQ Fast-Scan Indexes (PQx4fs)",
+          "subtopics": ["Why 4-bit codes allow SIMD in-register lookup tables", "Factory strings PQ32x4fs, IVF4096,PQ32x4fs and IVF4096,PQ32x4fsr", "IndexPQFastScan and IndexIVFPQFastScan classes", "Block size bbs and code packing", "Code size: M * 4 bits", "Combining fast-scan with RFlat re-ranking", "Speed comparison with 8-bit IVFPQ", "CPU instruction requirements for the fastest paths"],
+          "tools": ["faiss-cpu", "NumPy", "pandas"],
+          "lab_task": "On 2,000,000 vectors build IVF4096,PQ32 and IVF4096,PQ64x4fs, which have the same 32-byte codes. Measure QPS and recall@10 at nprobe 16, 32 and 64 for 10,000 queries in one batch. Add IVF4096,PQ64x4fs,RFlat and record recall at k_factor=4. Print faiss.get_compile_options() so results can be tied to the SIMD level.",
+          "deliverable": "Fast-scan benchmark table with QPS, recall and SIMD level",
+          "checks": [["Print sa_code_size() for IVF4096,PQ64x4fs", "The value is 32 bytes", "Notebook output"], ["Compare QPS of IVF4096,PQ64x4fs and IVF4096,PQ32 at nprobe=32", "The fast-scan index reports higher QPS", "Benchmark table"], ["Measure recall@10 of PQ64x4fs,RFlat at k_factor=4", "Recall is higher than PQ64x4fs without refinement", "Benchmark table"]],
+          "objectives": ["Build 4-bit fast-scan indexes", "Compare fast-scan and standard PQ fairly", "Combine fast-scan with re-ranking"]
+        },
+        {
+          "topic": "HNSW Parameters: M, efConstruction and efSearch Trade-offs",
+          "subtopics": ["M and the number of links per node at each level", "efConstruction effect on build time and graph quality", "efSearch effect on query latency and recall", "Memory overhead of links compared with vector storage", "HNSW32,SQ8 and HNSW32,PQ16 compressed variants", "Parallel add with OpenMP threads", "faiss.cvar.hnsw_stats for distance computation counts", "Search_bounded_queue and other less common HNSW options"],
+          "tools": ["faiss-cpu", "NumPy", "matplotlib"],
+          "lab_task": "Build HNSW16,Flat, HNSW32,Flat and HNSW64,Flat on 1,000,000 vectors with efConstruction 40 and 200, timing each build. For every graph sweep efSearch over 16 to 512 and record recall@10 and ms per query. Measure file size from write_index, then build HNSW32,SQ8 and compare its recall at efSearch=128 with HNSW32,Flat.",
+          "deliverable": "HNSW parameter grid with build time, memory and recall-latency curves",
+          "checks": [["Compare build time with efConstruction 40 and 200 for HNSW32", "The efConstruction=200 build takes longer", "Build log"], ["Compare file sizes of HNSW16,Flat and HNSW64,Flat", "HNSW64 is larger due to more links per node", "Size table"], ["Compare recall@10 at efSearch=128 between HNSW32,SQ8 and HNSW32,Flat", "HNSW32,SQ8 recall is slightly lower and its file is smaller", "Comparison table"]],
+          "objectives": ["Tune HNSW build and search parameters", "Estimate HNSW memory", "Use compressed HNSW variants"]
+        },
+        {
+          "topic": "IVF Coarse Quantizers: Flat, HNSW and Training at Scale",
+          "subtopics": ["Coarse quantizer search cost grows with nlist", "IVF65536_HNSW32,Flat: an HNSW graph over centroids", "quantizer_efSearch and nprobe together", "Training sample size for 65,536 centroids", "Training the clustering on a GPU with clustering_index", "faiss.extract_index_ivf to reach the IVF layer inside wrappers", "List imbalance and its effect on latency", "Residual quantizer variants for very large nlist"],
+          "tools": ["faiss-cpu", "faiss-gpu", "NumPy", "matplotlib"],
+          "lab_task": "Build IVF16384,Flat and IVF16384_HNSW32,Flat on 5,000,000 vectors, training on 500,000 samples. Record training time on CPU and, where a GPU is available, with index_ivf.clustering_index = faiss.index_cpu_to_all_gpus(faiss.IndexFlatL2(d)). Compare ms per query at nprobe=64 and measure how many lists hold over 2 times the mean size.",
+          "deliverable": "Coarse quantizer comparison with training times, query latency and list imbalance figures",
+          "checks": [["Compare per-query latency of the two indexes at nprobe=64", "The HNSW quantizer variant is faster at similar recall", "Benchmark table"], ["Train with the GPU clustering_index", "Training time is lower than the CPU run for the same sample", "Timing log"], ["Compute list sizes with invlists.list_size over 16,384 lists", "The count of lists above 2 times the mean size is reported", "Imbalance report"]],
+          "objectives": ["Pick a coarse quantizer for large nlist", "Speed up IVF training with a GPU", "Diagnose inverted list imbalance"]
+        },
+        {
+          "topic": "Benchmarking FAISS on SIFT1M with fvecs Files",
+          "subtopics": ["The SIFT1M files: base, learn, query and groundtruth", "fvecs and ivecs layout with a leading int32 dimension", "faiss.contrib.vecs_io.fvecs_read and ivecs_read", "faiss.contrib.datasets.DatasetSIFT1M", "Using the provided 100-NN ground truth", "Separating training, database and query sets", "Warm-up runs and timing with time.perf_counter", "Recording hardware, thread count and FAISS version with each run"],
+          "tools": ["faiss-cpu", "faiss.contrib", "NumPy", "wget"],
+          "lab_task": "Download ANN_SIFT1M, read sift_base.fvecs, sift_learn.fvecs, sift_query.fvecs and sift_groundtruth.ivecs with faiss.contrib.vecs_io, and print their shapes. Train IVF4096,Flat and IVF4096,PQ32 on the learn set, add the base set, and record 1-recall@1 and recall@10 against the provided ground truth at nprobe 1 to 256, plus QPS for all 10,000 queries.",
+          "deliverable": "SIFT1M benchmark notebook with a results table and a machine description",
+          "checks": [["Print shapes of base, query and groundtruth arrays", "Output is (1000000, 128), (10000, 128) and (10000, 100)", "Notebook output"], ["Evaluate IndexFlatL2 on the base set against sift_groundtruth.ivecs", "1-recall@1 is 1.0 apart from ties", "Benchmark output"], ["Compare QPS at nprobe=1 and nprobe=256 for IVF4096,Flat", "QPS falls as nprobe rises while recall improves", "Results table"]],
+          "objectives": ["Load standard ANN benchmark data", "Run a reproducible FAISS benchmark", "Report results with hardware context"]
+        },
+        {
+          "topic": "Autotuning with ParameterSpace and OperatingPoints",
+          "subtopics": ["faiss.ParameterSpace and ps.initialize(index)", "Tunable parameters: nprobe, efSearch, quantizer_efSearch, k_factor and ht", "faiss.OneRecallAtRCriterion and IntersectionCriterion", "Setting ground truth with crit.set_groundtruth", "ps.explore returning OperatingPoints and the Pareto frontier", "op.display() and reading optimal points", "Applying a setting with ps.set_index_parameters(index, 'nprobe=32')", "Search time limits and avoiding over-fitting the tuning queries"],
+          "tools": ["faiss-cpu", "NumPy", "SIFT1M"],
+          "lab_task": "On SIFT1M build OPQ32_128,IVF4096_HNSW32,PQ32. Create a ParameterSpace, initialize it on the index, set an IntersectionCriterion(nq, 10) with the ground truth, and run ps.explore on 1,000 tuning queries. Display the Pareto operating points, pick the fastest one with recall@10 at or above 0.9, apply it with set_index_parameters and re-check recall on 1,000 separate queries.",
+          "deliverable": "Autotuning log with Pareto points and validation of the chosen setting on held-out queries",
+          "checks": [["Print the parameter names after ps.initialize(index)", "The list includes nprobe and quantizer_efSearch", "Notebook output"], ["Run op.display() after explore", "A list of Pareto-optimal settings with performance and time is printed", "Captured output"], ["Apply the chosen setting and evaluate held-out queries", "recall@10 stays within 0.02 of the tuning result", "Validation output"]],
+          "objectives": ["Run FAISS automatic parameter exploration", "Read Pareto-optimal operating points", "Validate tuned settings on unseen queries"]
+        },
+        {
+          "topic": "Search-Time Parameters with SearchParametersIVF and SearchParametersHNSW",
+          "subtopics": ["Why mutating index.nprobe is unsafe with concurrent callers", "faiss.SearchParametersIVF(nprobe=..., max_codes=...)", "faiss.SearchParametersHNSW(efSearch=...)", "Nested quantizer_params for IVF with an HNSW quantizer", "Combining parameters with an IDSelector in sel", "Passing params= to index.search", "Index types that reject unexpected parameter objects", "Per-request quality tiers in an API"],
+          "tools": ["faiss-cpu", "NumPy", "concurrent.futures"],
+          "lab_task": "Using IVF4096_HNSW32,Flat, run two thread pools at once: one searching with SearchParametersIVF(nprobe=8) and one with nprobe=128 and quantizer_params=faiss.SearchParametersHNSW(efSearch=128). Record recall@10 for each group and show that index.nprobe on the object never changes. Repeat by setting index.nprobe directly from both threads and record how recall varies.",
+          "deliverable": "Concurrency experiment showing per-call parameters keep each request's settings",
+          "checks": [["Search with params=SearchParametersIVF(nprobe=128)", "Recall@10 matches a single-threaded run at nprobe=128", "Experiment output"], ["Print index.nprobe after the per-call parameter runs", "The value is unchanged from its initial setting", "Notebook output"], ["Mutate index.nprobe from two threads during searches", "Recall of each group varies between runs", "Experiment output"]],
+          "objectives": ["Pass search parameters per call", "Combine filters and quality settings", "Avoid shared-state races in concurrent search"]
+        },
+        {
+          "topic": "Multithreading, Batching and OpenMP Control in FAISS",
+          "subtopics": ["OpenMP parallelism over queries in a batch", "faiss.omp_set_num_threads and the OMP_NUM_THREADS variable", "Single-query latency versus batch throughput", "Thread oversubscription with web servers and NumPy BLAS threads", "Micro-batching requests to raise throughput", "Thread safety: concurrent search is safe on CPU indexes, add is not", "Duplicate OpenMP runtime errors such as OMP Error #15 on mixed installs", "Pinning threads and NUMA effects on large machines"],
+          "tools": ["faiss-cpu", "NumPy", "threadpoolctl", "htop"],
+          "lab_task": "On a 1,000,000-vector IVF4096,Flat index, measure QPS for batches of 1, 16, 128 and 1,024 queries with omp_set_num_threads set to 1, 4 and the core count. Then run 8 Python threads each searching single queries with 8 OpenMP threads and record p95 latency, and repeat with OMP threads set to 1. Present the throughput grid and the oversubscription result.",
+          "deliverable": "Threading and batching grid with a recommended configuration for online and batch workloads",
+          "checks": [["Compare QPS for batch size 1,024 with 1 thread and all cores", "Throughput scales with thread count", "Benchmark grid"], ["Run 8 request threads with 8 OpenMP threads each", "p95 latency is worse than with OpenMP threads set to 1", "Latency report"], ["Print faiss.omp_get_max_threads() after omp_set_num_threads(4)", "The value is 4", "Notebook output"]],
+          "objectives": ["Control FAISS threading", "Choose between batching and per-request search", "Avoid thread oversubscription"]
+        },
+        {
+          "topic": "Memory Footprint Estimation for FAISS Index Types",
+          "subtopics": ["Flat: 4 * d bytes per vector", "IVF,Flat: 4 * d plus 8 bytes ID per vector plus nlist * d * 4 for centroids", "IVFPQ: m bytes plus 8 bytes ID plus codebooks", "HNSW: vector storage plus about 2 * M * 4 bytes of level-0 links", "SQ8 and SQfp16 code sizes", "Measuring serialized size with faiss.serialize_index(index).nbytes", "Measuring resident memory with psutil.Process().memory_info().rss", "Building a capacity worksheet for 100 million vectors"],
+          "tools": ["faiss-cpu", "NumPy", "psutil", "pandas"],
+          "lab_task": "Write estimate_bytes(factory, n, d) covering Flat, IVF,Flat, IVF,PQ, IVF,SQ8 and HNSW,Flat. Build each at n=1,000,000 and d=128, record serialized size and RSS growth with psutil, and compute the estimation error. Use the function to project memory for 100,000,000 vectors of d=768 and pick indexes that fit in 64 GB.",
+          "deliverable": "Memory estimator function, validation table and 100M-vector capacity worksheet",
+          "checks": [["Compare estimate_bytes with serialized size for IVF4096,PQ32 at n=1,000,000", "The estimate is within 10 percent of the measured size", "Validation table"], ["Project Flat storage for 100,000,000 vectors at d=768", "The projection is about 307 GB, which does not fit in 64 GB", "Capacity worksheet"], ["Measure RSS before and after read_index on the IVF4096,Flat file", "RSS growth is close to the file size", "psutil output"]],
+          "objectives": ["Estimate memory for FAISS indexes", "Validate estimates against measurement", "Plan capacity for large collections"]
+        },
+        {
+          "topic": "Incremental Updates and Deletes in IVF Indexes",
+          "subtopics": ["add_with_ids on IVF indexes without IndexIDMap", "remove_ids on IVF and its cost per list", "Direct maps: NoMap, Array and Hashtable", "make_direct_map and set_direct_map_type", "The direct map not initialized error from reconstruct", "Updating a vector as remove followed by add", "Drift when new data differs from the training sample", "Periodic compaction and rebuild schedules"],
+          "tools": ["faiss-cpu", "NumPy", "pandas"],
+          "lab_task": "On IVF1024,Flat with 1,000,000 vectors and custom IDs, call reconstruct(id) and record the error. Enable set_direct_map_type(faiss.DirectMap.Hashtable), then reconstruct succeeds. Update 10,000 vectors by remove_ids followed by add_with_ids and confirm ntotal is unchanged. Add 200,000 vectors from a shifted distribution and measure recall@10 for new data before and after retraining.",
+          "deliverable": "Update procedure document with timings and the drift recall comparison",
+          "checks": [["Call reconstruct on an IVF index with no direct map", "RuntimeError stating the direct map is not initialized", "Traceback"], ["Remove and re-add 10,000 IDs", "ntotal is unchanged at 1,000,000 before the drift step", "Notebook output"], ["Compare recall@10 on shifted data before and after retraining", "Recall improves after retraining on a sample that includes new data", "Recall table"]],
+          "objectives": ["Update and delete vectors in IVF indexes", "Use direct maps for reconstruct and lookups", "Decide when to retrain"]
+        },
+        {
+          "topic": "Binary Indexes and Hamming Search with IndexBinaryFlat and IndexBinaryIVF",
+          "subtopics": ["Binary vectors stored as uint8 arrays of d / 8 bytes", "IndexBinaryFlat(d) where d is in bits", "Hamming distances returned as integers", "IndexBinaryIVF and IndexBinaryHNSW", "faiss.index_binary_factory strings such as BIVF256", "Binarizing float embeddings with np.packbits(x > 0, axis=1)", "Re-ranking binary candidates with float vectors", "Memory saving of 32 times compared with float32"],
+          "tools": ["faiss-cpu", "NumPy", "sentence-transformers"],
+          "lab_task": "Binarize 1,000,000 embeddings of d=768 with np.packbits(x > 0, axis=1), build IndexBinaryFlat(768) and BIVF1024 via index_binary_factory, and search 1,000 queries with k=100. Re-rank the 100 candidates with exact inner product on the float vectors and compare recall@10 against float IndexFlatIP, along with memory size and QPS.",
+          "deliverable": "Binary retrieval benchmark with and without float re-ranking",
+          "checks": [["Print xb_bin.shape after packbits on d=768 vectors", "Shape is (1000000, 96)", "Notebook output"], ["Inspect D from IndexBinaryFlat search", "Distances are integers between 0 and 768", "Printed array"], ["Compare recall@10 of binary-only and binary plus float re-ranking", "Re-ranking gives higher recall@10", "Recall table"]],
+          "objectives": ["Build binary indexes", "Convert float embeddings to binary codes", "Recover accuracy with float re-ranking"]
+        },
+        {
+          "topic": "Moving FAISS Indexes to the GPU with StandardGpuResources",
+          "subtopics": ["Installing GPU builds with conda from the pytorch and nvidia channels", "faiss.get_num_gpus() and checking CUDA visibility", "faiss.StandardGpuResources and temporary memory with setTempMemory", "index_cpu_to_gpu and index_gpu_to_cpu", "GpuIndexFlatL2, GpuIndexIVFFlat, GpuIndexIVFPQ and GpuIndexIVFScalarQuantizer", "GpuClonerOptions with useFloat16", "The k and nprobe limit of 2048 on classic GPU indexes", "Writing a GPU index requires converting back to CPU first"],
+          "tools": ["faiss-gpu", "CUDA Toolkit", "nvidia-smi", "conda", "NumPy"],
+          "lab_task": "Install faiss-gpu with conda, print faiss.get_num_gpus(), and move an IVF4096,Flat index of 5,000,000 vectors to GPU 0 with index_cpu_to_gpu. Compare QPS for 10,000 queries at nprobe=32 on CPU and GPU, record nvidia-smi memory use, try search with k=4096, and try write_index on the GPU index before converting with index_gpu_to_cpu.",
+          "deliverable": "CPU versus GPU benchmark with memory figures and the two recorded errors",
+          "checks": [["Search 10,000 queries on GPU and CPU at nprobe=32", "GPU QPS is higher and recall@10 matches within 0.01", "Benchmark table"], ["Search the classic GPU IVF index with k=4096", "An error states the GPU k-selection limit of 2048", "Traceback"], ["Call faiss.write_index on the GPU index", "An error states it does not know how to serialize this type of index", "Traceback"]],
+          "objectives": ["Run FAISS indexes on a GPU", "Manage GPU memory resources", "Work within GPU index limits"]
+        },
+        {
+          "topic": "Multi-GPU Replication and Sharding with GpuMultipleClonerOptions",
+          "subtopics": ["faiss.index_cpu_to_all_gpus and index_cpu_to_gpu_multiple_py", "GpuMultipleClonerOptions and the shard flag", "Replication: each GPU holds a full copy for throughput", "Sharding: each GPU holds a part for capacity", "useFloat16 and indicesOptions to save GPU memory", "Restricting devices with CUDA_VISIBLE_DEVICES", "Result merging across shards", "Choosing between replicas and shards from memory and QPS needs"],
+          "tools": ["faiss-gpu", "CUDA Toolkit", "nvidia-smi", "NumPy"],
+          "lab_task": "On a machine with at least 2 GPUs, clone IVF16384,PQ32 over 20,000,000 vectors with index_cpu_to_all_gpus twice: once with co.shard = False and once with co.shard = True. Record per-GPU memory from nvidia-smi and QPS for 50,000 queries in each mode, and confirm recall@10 matches the single-GPU result at nprobe=64.",
+          "deliverable": "Replica versus shard comparison table with memory per GPU, QPS and recall",
+          "checks": [["Compare per-GPU memory in shard mode and replica mode", "Shard mode uses about half the memory per GPU on 2 GPUs", "nvidia-smi output"], ["Compare recall@10 in shard mode with single-GPU recall", "The values agree within 0.005", "Recall table"], ["Set CUDA_VISIBLE_DEVICES=0 and print faiss.get_num_gpus()", "The value is 1", "Terminal output"]],
+          "objectives": ["Spread FAISS indexes across GPUs", "Choose replication or sharding", "Control which GPUs FAISS uses"]
+        },
+        {
+          "topic": "FAISS Vector Store in LangChain: from_documents, save_local and load_local",
+          "subtopics": ["The FAISS class in langchain_community.vectorstores", "FAISS.from_documents and from_texts with an Embeddings object", "index.faiss and index.pkl written by save_local", "load_local and the allow_dangerous_deserialization flag", "similarity_search_with_score and the default L2 distance", "distance_strategy and normalize_L2 for cosine-style scores", "Metadata filters with filter and fetch_k", "Replacing the default IndexFlatL2 with a custom FAISS index"],
+          "tools": ["LangChain", "faiss-cpu", "sentence-transformers", "Python 3"],
+          "lab_task": "Create a FAISS vector store with FAISS.from_documents on 5,000 chunks using HuggingFaceEmbeddings. Run similarity_search_with_score and check that lower scores mean closer matches. Call save_local('kb') and list the files, call load_local without allow_dangerous_deserialization and record the error, then reload with it set to True. Inspect store.index and print its type and ntotal.",
+          "deliverable": "LangChain notebook showing the store files, the safety error and the underlying FAISS index details",
+          "checks": [["List the folder written by save_local('kb')", "It contains index.faiss and index.pkl", "Directory listing"], ["Call FAISS.load_local without allow_dangerous_deserialization=True", "A ValueError warns that loading the pickle file is unsafe", "Traceback"], ["Print type(store.index) and store.index.ntotal", "IndexFlatL2 with ntotal equal to 5,000", "Notebook output"]],
+          "objectives": ["Use FAISS as a LangChain vector store", "Persist and reload the store safely", "Reach the underlying FAISS index for tuning"]
+        },
+        {
+          "topic": "FaissVectorStore in LlamaIndex Pipelines",
+          "subtopics": ["Installing llama-index-vector-stores-faiss", "FaissVectorStore(faiss_index=...) with an index you create", "StorageContext.from_defaults(vector_store=...)", "VectorStoreIndex.from_documents with the FAISS store", "Persisting with storage_context.persist and FaissVectorStore.from_persist_dir", "Matching the FAISS dimension to the embedding model", "Deletion support and the ID-mapped store variant", "Retrieving with as_retriever(similarity_top_k=...)"],
+          "tools": ["LlamaIndex", "faiss-cpu", "HuggingFace embeddings", "Python 3"],
+          "lab_task": "Create faiss.IndexHNSWFlat(384, 32), wrap it in FaissVectorStore, and index 500 Markdown files with VectorStoreIndex.from_documents using a 384-d embedding model. Persist to ./storage, reload with FaissVectorStore.from_persist_dir and load_index_from_storage, and run 10 retrieval queries with similarity_top_k=5. Then create the store with IndexFlatL2(768) and record the dimension error.",
+          "deliverable": "LlamaIndex retrieval script with persisted storage and a dimension-mismatch test",
+          "checks": [["Reload ./storage and run the same 10 queries", "Retrieved node IDs match the pre-persist results", "Comparison output"], ["Print vector_store._faiss_index.ntotal after indexing", "ntotal equals the number of nodes created", "Notebook output"], ["Index 384-d embeddings into a FAISS index of d=768", "An AssertionError is raised from the add call", "Traceback"]],
+          "objectives": ["Use FAISS as the LlamaIndex vector store", "Persist and reload FAISS-backed indexes", "Match index and embedding dimensions"]
+        },
+        {
+          "topic": "Serving a FAISS Index with FastAPI",
+          "subtopics": ["Loading the index once in a FastAPI lifespan handler", "Request and response models with pydantic", "Sync def endpoints and the threadpool for CPU-bound search", "Per-request SearchParameters instead of shared mutation", "Setting OpenMP threads to fit the worker model", "uvicorn workers and per-process index copies", "Health and readiness endpoints reporting ntotal and index version", "Load testing with hey or locust and reading p95 latency"],
+          "tools": ["FastAPI", "uvicorn", "faiss-cpu", "pydantic", "hey", "Docker"],
+          "lab_task": "Build a FastAPI app that loads index.faiss in a lifespan handler and exposes POST /search with a vector, k and nprobe, using SearchParametersIVF per request, plus GET /health returning ntotal. Run uvicorn with 2 workers in Docker and load test with hey -n 10000 -c 32. Record p50 and p95 latency and resident memory per worker.",
+          "deliverable": "Dockerised FastAPI service, load test output and a short capacity note",
+          "checks": [["Call GET /health after start-up", "Returns 200 with ntotal equal to the index size", "curl output"], ["POST /search with a vector of the wrong dimension", "Returns 422 or 400 with a clear message and no worker crash", "curl output"], ["Run hey -n 10000 -c 32 against /search", "No non-2xx responses and a recorded p95 latency", "hey summary"]],
+          "objectives": ["Expose FAISS search over HTTP", "Configure workers and threads for CPU search", "Measure service latency under load"]
+        },
+        {
+          "topic": "Diagnosing Low Recall and Common FAISS Errors",
+          "subtopics": ["Checklist: metric, normalisation, nprobe or efSearch, training sample", "Default nprobe of 1 as the most common low-recall cause", "Inner product on unnormalised vectors", "Training on too few or unrepresentative vectors", "Queries embedded with a different model or prefix", "Errors: untrained index, d mismatch, add_with_ids not implemented", "Crashes from garbage-collected quantizers in hand-built indexes", "Comparing a suspect index with IndexFlat on the same 100 queries"],
+          "tools": ["faiss-cpu", "NumPy", "pytest"],
+          "lab_task": "Receive five broken scripts prepared by the trainer: IVF with nprobe 1, IP on unnormalised vectors, PQ trained on 2,000 points, queries from a different model and an IVF index trained on random data. For each, measure recall@10 against IndexFlat, find the cause, fix it, and add a pytest that fails on the broken version and passes on the fixed one.",
+          "deliverable": "Diagnosis log for the five cases with fixes and a pytest suite",
+          "checks": [["Run the IVF script with nprobe left at its default", "recall@10 is well below 0.9 until nprobe is raised", "Diagnosis log"], ["Run pytest on the fixed scripts", "All 5 tests pass", "pytest output"], ["Run pytest on the original scripts", "All 5 tests fail with recall assertions", "pytest output"]],
+          "objectives": ["Diagnose low recall systematically", "Recognise common FAISS error messages", "Guard index quality with automated tests"]
+        },
+        {
+          "topic": "Intermediate Capstone: Tuned IVFPQ Retrieval Service with a Recall Report",
+          "subtopics": ["Index design for at least 5,000,000 vectors within a stated memory budget", "Autotuned operating point with recall@10 at or above 0.9", "FastAPI service with per-request parameters, health checks and updates", "Optional GPU path for index building", "Benchmark report with recall, QPS, p95 latency and memory", "Runbook for rebuild and retraining"],
+          "tools": ["faiss-cpu", "faiss-gpu", "FastAPI", "Docker", "hey", "pandas"],
+          "lab_task": "Design an OPQ or fast-scan IVF index for 5,000,000 vectors that fits in 8 GB, train it, autotune with ParameterSpace for recall@10 at or above 0.9, and serve it with FastAPI including POST /search, POST /vectors for add_with_ids and DELETE /vectors/{id}. Load test with hey and publish a report with recall, QPS, p95 latency and memory.",
+          "deliverable": "Service repository, Docker image, benchmark report and runbook",
+          "checks": [["Evaluate 1,000 held-out queries through POST /search", "recall@10 is 0.9 or higher", "Recall report"], ["Measure container memory with docker stats under load", "Memory stays below 8 GB", "docker stats output"], ["DELETE /vectors/{id} and search with that vector", "The deleted ID no longer appears in results", "API test log"]],
+          "objectives": ["Deliver a tuned FAISS retrieval service", "Meet stated memory and recall targets", "Document operation and rebuild procedures"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior engineers and ML platform teams who run FAISS in production or at hundreds of millions to billions of vectors. Covers building FAISS from source with CMake, the C++ API, SIMD build variants, GPU IVF and CAGRA indexes through NVIDIA cuVS, billion-scale IVF design, IndexShards and IndexReplicas, on-disk inverted lists and memory-mapped loading, additive quantizers and RaBitQ, NSG graphs, large-batch search and ground truth at scale, benchmarking methodology, filtered search strategies, index lifecycle and blue-green swaps, production serving architecture, observability and capacity planning, safe index loading, GPU-build and CPU-serve pipelines, and a sharded search platform capstone.",
+      "prerequisites": ["Has completed the FAISS intermediate level or has run tuned IVFPQ or HNSW indexes in a service", "Reads and compiles C++17 code with CMake and is comfortable with Linux performance tools such as perf, htop and numactl", "Has access to a Linux host with 64 GB or more of RAM and at least one NVIDIA GPU, or equivalent cloud instances"],
+      "outcomes": ["Build, profile and embed FAISS from C++ and Python with the right SIMD and GPU options for the target hardware", "Design billion-scale indexes using sharding, on-disk inverted lists, memory mapping and advanced quantizers", "Run rigorous recall, latency and cost benchmarks and choose GPU or CPU paths for building and serving", "Operate a production FAISS platform with safe loading, rebuilds, blue-green swaps, observability and capacity plans"],
+      "days": [
+        {
+          "topic": "Building FAISS from Source with CMake",
+          "subtopics": ["Repository layout: faiss/, faiss/gpu, faiss/python, c_api, tests and benchs", "Dependencies: a C++17 compiler, BLAS such as OpenBLAS or Intel MKL, SWIG and NumPy", "Key options: FAISS_ENABLE_GPU, FAISS_ENABLE_PYTHON, FAISS_ENABLE_CUVS and BUILD_TESTING", "FAISS_OPT_LEVEL values generic, avx2, avx512 and sve", "Building the faiss and swigfaiss targets with make -C build -j", "Installing the Python package from build/faiss/python", "Running the C++ test suite with ctest", "Pinning a commit or release tag for reproducible builds"],
+          "tools": ["CMake", "GCC or Clang", "OpenBLAS", "Intel MKL", "SWIG", "ctest"],
+          "lab_task": "Clone facebookresearch/faiss at a release tag, configure with cmake -B build -DFAISS_ENABLE_GPU=OFF -DFAISS_ENABLE_PYTHON=ON -DFAISS_OPT_LEVEL=avx2 -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release, then run make -C build -j faiss swigfaiss and ctest --test-dir build. Install the Python package from build/faiss/python and confirm get_compile_options() reports AVX2.",
+          "deliverable": "Build script, CMake cache summary, ctest results and a Python import check",
+          "checks": [["Run ctest --test-dir build", "All tests report passed", "ctest summary"], ["Import the locally built package and print faiss.get_compile_options()", "The string contains AVX2", "Terminal output"], ["Configure with -DFAISS_ENABLE_GPU=ON on a machine without the CUDA toolkit", "CMake stops with an error that CUDA cannot be found", "CMake output"]],
+          "objectives": ["Build FAISS from source for a target CPU", "Run the FAISS test suite", "Produce reproducible FAISS builds"]
+        },
+        {
+          "topic": "Writing C++ Search Code against libfaiss",
+          "subtopics": ["Headers such as faiss/IndexFlat.h, faiss/IndexIVFFlat.h and faiss/index_io.h", "faiss::idx_t labels and float distance buffers", "index.add(n, x) and index.search(n, x, k, D, I) pointer interfaces", "faiss::index_factory returning an owning raw pointer", "std::unique_ptr ownership and own_fields on composite indexes", "faiss::write_index and faiss::read_index", "Catching faiss::FaissException", "Linking with find_package(faiss) and target_link_libraries"],
+          "tools": ["CMake", "libfaiss", "GCC or Clang", "Valgrind", "perf"],
+          "lab_task": "Write a C++17 program that loads vectors from an fvecs file, builds an index with faiss::index_factory(128, \"IVF1024,Flat\") held in std::unique_ptr, trains, adds, searches 1,000 queries with k=10 and writes the index with faiss::write_index. Link via find_package(faiss) in CMakeLists.txt. Compare results with the Python build of the same index and run it under valgrind for leaks.",
+          "deliverable": "C++ program, CMakeLists.txt and a result-equivalence report against Python",
+          "checks": [["Compare labels from the C++ and Python builds on the same data and settings", "The label arrays are identical", "Comparison script output"], ["Run the binary under valgrind --leak-check=full", "No definitely lost blocks are reported", "Valgrind summary"], ["Call add on the IVF index before train", "A faiss::FaissException is caught and its what() mentions is_trained", "Program output"]],
+          "objectives": ["Use the FAISS C++ API", "Manage index ownership safely", "Integrate libfaiss into a CMake project"]
+        },
+        {
+          "topic": "SIMD Builds and CPU Dispatch in the FAISS Python Loader",
+          "subtopics": ["How faiss/loader.py picks swigfaiss_avx512, swigfaiss_avx2 or the generic module", "The FAISS_OPT_LEVEL environment variable to force a variant", "Detecting CPU flags with lscpu and numpy.distutils style checks", "Kernels that benefit most: distance computation and PQ fast-scan", "ARM builds with SVE and NEON", "BLAS choice for large batch flat search", "Profiling with perf record and perf report", "Shipping one container image to mixed hardware"],
+          "tools": ["faiss-cpu", "perf", "lscpu", "Docker", "NumPy"],
+          "lab_task": "On an AVX-512 capable host, run the same IVF4096,PQ64x4fs benchmark of 10,000 queries three times with FAISS_OPT_LEVEL set to generic, avx2 and avx512, printing faiss.get_compile_options() each time. Record QPS for each, then profile the slowest run with perf record -g and list the top three symbols from perf report.",
+          "deliverable": "SIMD comparison table and a perf profile summary",
+          "checks": [["Run with FAISS_OPT_LEVEL=generic and print get_compile_options()", "The output contains no AVX2 or AVX512 marker", "Terminal output"], ["Compare QPS of generic and avx2 runs for the fast-scan index", "The avx2 run has higher QPS", "Benchmark table"], ["Run perf report on the generic run", "The top symbols are FAISS distance or scan kernels", "perf report output"]],
+          "objectives": ["Control which FAISS SIMD build is loaded", "Measure the effect of SIMD on search speed", "Profile FAISS hot paths"]
+        },
+        {
+          "topic": "GPU IVF and CAGRA Indexes with NVIDIA cuVS",
+          "subtopics": ["The faiss-gpu-cuvs conda packages and FAISS_ENABLE_CUVS builds", "use_cuvs in GPU IVF index configs", "GpuIndexCagra and its graph_degree and intermediate_graph_degree settings", "Search parameters for CAGRA such as itopk_size", "Build time of CAGRA compared with CPU HNSW", "Converting a CAGRA graph to a CPU IndexHNSWCagra", "GPU memory requirements for graph building", "Comparing cuVS and classic FAISS GPU kernels on the same data"],
+          "tools": ["faiss-gpu-cuvs", "NVIDIA cuVS", "CUDA Toolkit", "nvidia-smi", "NumPy"],
+          "lab_task": "Install faiss-gpu-cuvs with conda, build a GpuIndexIVFFlat with nlist 16384 on 10,000,000 vectors with use_cuvs set to True and False, and compare build time and QPS at nprobe 64. Build a GpuIndexCagra with graph_degree 32 on the same data, compare its build time with CPU HNSW32,Flat, and record recall@10 against exact ground truth.",
+          "deliverable": "cuVS benchmark report comparing classic GPU IVF, cuVS IVF, CAGRA and CPU HNSW",
+          "checks": [["Compare build time of GpuIndexCagra with CPU HNSW32,Flat", "The CAGRA build is faster on the GPU host", "Timing table"], ["Measure recall@10 of CAGRA at the chosen itopk_size", "recall@10 is 0.95 or higher", "Recall table"], ["Compare IVF results with use_cuvs True and False at nprobe=64", "recall@10 agrees within 0.01 between the two kernels", "Comparison table"]],
+          "objectives": ["Use cuVS-backed FAISS GPU indexes", "Build and tune CAGRA graphs", "Compare GPU kernel options with data"]
+        },
+        {
+          "topic": "Billion-Scale IVF Design: nlist Sizing and GPU-Trained Quantizers",
+          "subtopics": ["nlist in the range 65,536 to 1,048,576 for very large collections", "IVF262144_HNSW32 and IVF1048576_HNSW32 coarse quantizers", "Training samples per centroid and subsampling", "GPU k-means for training the coarse quantizer", "Encoding choices: PQ, fast-scan PQ and SQ8 at this scale", "Parallel add by chunk with one trained template index", "Memory budget per billion vectors for each encoding", "The BigANN and big-ann-benchmarks datasets"],
+          "tools": ["faiss-gpu", "faiss-cpu", "NumPy", "big-ann-benchmarks"],
+          "lab_task": "Plan an index for 1,000,000,000 vectors of d=96 in 128 GB of RAM. Train IVF262144_HNSW32,PQ48x4fs on 10,000,000 sampled vectors using GPU k-means for the coarse quantizer, record training time, then add a 100,000,000-vector subset in 10 chunks and extrapolate memory and add time to the full collection.",
+          "deliverable": "Billion-scale design document with training logs, measured subset figures and extrapolations",
+          "checks": [["Compute PQ48x4fs code bytes for 1,000,000,000 vectors", "Codes need 24 GB plus 8 GB of IDs", "Design worksheet"], ["Compare GPU and CPU coarse training on the 10,000,000 sample", "GPU training is faster", "Training log"], ["Measure memory after adding 100,000,000 vectors", "Measured memory is within 15 percent of the worksheet estimate", "psutil output"]],
+          "objectives": ["Size IVF for billions of vectors", "Train large coarse quantizers on GPUs", "Extrapolate memory and build time from subsets"]
+        },
+        {
+          "topic": "Sharding with IndexShards and IndexReplicas",
+          "subtopics": ["faiss.IndexShards(d, threaded, successive_ids) and add_shard", "faiss.IndexReplicas and add_replica", "Splitting data by ID range or hash across shards", "Training once and cloning empty trained indexes with faiss.clone_index", "Merging IVF indexes with merge_from", "Result merging and the cost of k per shard", "Shards in one process versus across servers", "Balancing shard sizes and rebalancing"],
+          "tools": ["faiss-cpu", "NumPy", "concurrent.futures"],
+          "lab_task": "Train one IVF4096,PQ32 template on a sample, clone it 4 times with faiss.clone_index, and add a quarter of 20,000,000 vectors to each clone in parallel with add_with_ids and global IDs. Combine them in IndexShards(d, True, False) and search 1,000 queries; then merge the 4 clones into one index with merge_from and compare results and QPS. Wrap 2 copies in IndexReplicas and record throughput.",
+          "deliverable": "Sharding experiment with shard, merged and replicated configurations",
+          "checks": [["Compare labels from IndexShards and the merged single index at the same nprobe", "Results are identical", "Comparison output"], ["Print ntotal of the IndexShards object", "ntotal equals 20,000,000", "Notebook output"], ["Compare QPS of IndexReplicas with 2 copies and a single index on a 10,000-query batch", "Replicas give higher QPS", "Benchmark table"]],
+          "objectives": ["Split an index across shards", "Merge trained IVF indexes", "Use replicas for throughput"]
+        },
+        {
+          "topic": "On-Disk Inverted Lists and merge_ondisk",
+          "subtopics": ["OnDiskInvertedLists and the separate .ivfdata file", "faiss.contrib.ondisk.merge_ondisk(index, block_fnames, ivfdata_fname)", "Building blocks in parallel from one trained index", "Loading lists through mmap when the index is read", "Search cost when lists are not in page cache", "SSD requirements and random read patterns", "Moving index and ivfdata files together", "The demo_ondisk_ivf.py example in the FAISS repository"],
+          "tools": ["faiss-cpu", "faiss.contrib.ondisk", "fio", "iostat"],
+          "lab_task": "Train IVF16384,Flat on a sample, create 8 block indexes each holding 5,000,000 vectors, write them to disk, and combine them with merge_ondisk into populated.index and merged.ivfdata. Restart Python, read the index, and measure ms per query at nprobe=32 with a cold page cache after echo 3 > /proc/sys/vm/drop_caches and again warm. Record iostat read throughput during the cold run.",
+          "deliverable": "On-disk index build script and a cold versus warm latency report",
+          "checks": [["List the output directory after merge_ondisk", "populated.index is small and merged.ivfdata holds the list data", "Directory listing"], ["Compare cold-cache and warm-cache latency at nprobe=32", "Cold-cache latency is higher", "Latency report"], ["Print index.ntotal after reading populated.index", "ntotal equals 40,000,000", "Notebook output"]],
+          "objectives": ["Build IVF indexes whose lists live on disk", "Merge separately built blocks", "Measure disk-bound search latency"]
+        },
+        {
+          "topic": "Memory-Mapped Loading with IO_FLAG_MMAP and IO_FLAG_READ_ONLY",
+          "subtopics": ["faiss.read_index(path, faiss.IO_FLAG_MMAP)", "Combining flags with IO_FLAG_READ_ONLY", "Which index types support memory-mapped inverted lists", "Page cache sharing between worker processes", "Start-up time compared with a full read", "Restrictions: mapped indexes are not meant to be modified", "Pre-warming with vmtouch or sequential reads", "Container memory limits and page cache accounting"],
+          "tools": ["faiss-cpu", "vmtouch", "psutil", "Docker"],
+          "lab_task": "Write an IVF16384,PQ64 index of 50,000,000 vectors to disk. Compare read_index time and RSS for a plain load and for faiss.IO_FLAG_MMAP | faiss.IO_FLAG_READ_ONLY. Start 4 uvicorn workers that each load the mapped index and measure total memory with free -m and per-process RSS, then repeat with plain loads and compare totals.",
+          "deliverable": "mmap loading report with start-up times and multi-worker memory totals",
+          "checks": [["Compare read_index time for plain and IO_FLAG_MMAP loads", "The mmap load returns much faster", "Timing log"], ["Compare total memory of 4 workers with mmap and plain loads", "The mmap configuration uses less total memory because pages are shared", "free -m output"], ["Measure RSS immediately after the IO_FLAG_MMAP load and before any search", "RSS grows far less than the file size until queries touch the mapped pages", "psutil output"]],
+          "objectives": ["Load FAISS indexes with memory mapping", "Share index memory across processes", "Know the limits of mapped indexes"]
+        },
+        {
+          "topic": "Additive Quantizers: Residual and Local Search Quantization",
+          "subtopics": ["Additive quantization compared with product quantization", "faiss.IndexResidualQuantizer and beam search with max_beam_size", "faiss.IndexLocalSearchQuantizer and its training cost", "Product variants: ProductResidualQuantizer and ProductLocalSearchQuantizer", "Norm encoding options for inner-product and L2 search", "IVF with additive quantizers", "Training time versus accuracy at the same code size", "When the extra build cost pays off"],
+          "tools": ["faiss-cpu", "NumPy", "pandas"],
+          "lab_task": "On 1,000,000 vectors of d=128, build IndexPQ(128, 16, 8), IndexResidualQuantizer(128, 16, 8) and IndexLocalSearchQuantizer(128, 16, 8), all with 16-byte codes. Train each on 100,000 vectors and record training time, mean squared reconstruction error on 10,000 vectors and recall@10 for 1,000 queries. Try max_beam_size values 1, 5 and 20 for the residual quantizer.",
+          "deliverable": "Additive quantizer comparison at a fixed 16-byte code size",
+          "checks": [["Compare reconstruction error of the residual quantizer and IndexPQ", "The residual quantizer error is lower", "Comparison table"], ["Compare training time of IndexLocalSearchQuantizer and IndexPQ", "LSQ training takes longer", "Timing table"], ["Raise max_beam_size from 1 to 20", "Reconstruction error falls and encoding time rises", "Sweep table"]],
+          "objectives": ["Use residual and local search quantizers", "Compare quantizers at equal code size", "Decide when advanced quantizers justify their cost"]
+        },
+        {
+          "topic": "RaBitQ Quantization in IndexRaBitQ and IndexIVFRaBitQ",
+          "subtopics": ["RaBitQ: one bit per dimension with a distance estimator", "faiss.IndexRaBitQ and the RaBitQ factory string", "IndexIVFRaBitQ and IVF4096,RaBitQ", "Query-side bits and their effect on accuracy", "Adding a Refine stage for exact re-ranking", "Code size compared with PQ and binary indexes", "Comparing RaBitQ with PQ fast-scan at similar memory", "Checking that the installed FAISS release includes RaBitQ"],
+          "tools": ["faiss-cpu", "NumPy", "pandas"],
+          "lab_task": "Confirm that hasattr(faiss, 'IndexIVFRaBitQ') is True. On 2,000,000 vectors of d=768 build IVF4096,RaBitQ and IVF4096,RaBitQ,Refine(SQ8) and compare them with IVF4096,PQ96x4fs, which has a similar code size. Record code bytes per vector, recall@10 at nprobe 32 and QPS for 10,000 queries.",
+          "deliverable": "RaBitQ benchmark table against PQ fast-scan with and without refinement",
+          "checks": [["Print sa_code_size() of the base RaBitQ index at d=768", "The code is about 96 bytes plus a few bytes of per-vector factors", "Notebook output"], ["Compare recall@10 of RaBitQ with and without Refine(SQ8)", "The refined version has higher recall", "Benchmark table"], ["Run hasattr(faiss, 'IndexIVFRaBitQ') on the installed build", "Returns True", "Notebook output"]],
+          "objectives": ["Build RaBitQ indexes in FAISS", "Compare RaBitQ with PQ at matched memory", "Add re-ranking to one-bit codes"]
+        },
+        {
+          "topic": "NSG Graph Indexes and Compressed HNSW Storage in FAISS",
+          "subtopics": ["IndexNSGFlat and the NSG32,Flat factory string", "NSG build from a k-NN graph and the build_type option", "search_L as the NSG search-time parameter", "HNSW32,PQ16 and HNSW32,SQ8 for smaller graphs", "Graph memory versus code memory", "Build time comparison of NSG and HNSW", "Graph indexes and deletions", "Choosing graph or IVF for a given recall and memory target"],
+          "tools": ["faiss-cpu", "NumPy", "matplotlib"],
+          "lab_task": "Build NSG32,Flat, HNSW32,Flat and HNSW32,PQ32 on 1,000,000 vectors. Record build times and file sizes, then sweep search_L for NSG and efSearch for the HNSW indexes, plotting recall@10 against ms per query on one chart. Pick the index with the lowest latency at recall@10 of 0.95 and report its memory.",
+          "deliverable": "Graph index comparison chart and a recommendation",
+          "checks": [["Compare file sizes of HNSW32,PQ32 and HNSW32,Flat", "HNSW32,PQ32 is smaller", "Size table"], ["Raise search_L on the NSG index", "Recall@10 increases with search_L", "Sweep table"], ["Choose the index meeting recall@10 of 0.95", "The recommendation names one index with its latency and memory", "Recommendation note"]],
+          "objectives": ["Build NSG graph indexes", "Compress graph indexes with PQ or SQ", "Compare graph families with measured curves"]
+        },
+        {
+          "topic": "Large-Batch Search and Ground Truth at Scale with faiss.contrib",
+          "subtopics": ["faiss.knn_gpu for exact k-NN on GPUs", "faiss.contrib.exhaustive_search.knn_ground_truth over a database iterator", "range_ground_truth for range search evaluation", "faiss.contrib.big_batch_search for very large query sets", "Chunked processing to bound memory", "Checkpointing long ground-truth jobs", "Using ground truth to label evaluation sets for drift checks", "Storing ground truth with dataset and model versions"],
+          "tools": ["faiss-gpu", "faiss.contrib", "NumPy", "nvidia-smi"],
+          "lab_task": "Compute exact top-100 ground truth for 10,000 queries over 100,000,000 vectors with knn_ground_truth feeding 1,000,000-vector chunks, first on CPU for 10 chunks and then with faiss.knn_gpu for all chunks. Record throughput, peak RAM and GPU memory, and verify that CPU and GPU results agree on the chunks run on both.",
+          "deliverable": "Ground-truth pipeline script, run log and agreement check",
+          "checks": [["Compare CPU and GPU top-100 labels on the shared chunks", "Labels agree apart from distance ties", "Agreement report"], ["Measure peak RAM during the chunked run", "Peak RAM stays below the configured chunk budget plus overhead", "psutil log"], ["Compare chunk throughput of CPU and GPU runs", "GPU throughput is higher", "Run log"]],
+          "objectives": ["Compute exact ground truth at scale", "Bound memory with chunked processing", "Use GPUs for exact search"]
+        },
+        {
+          "topic": "Recall-Latency Benchmarking Methodology for FAISS",
+          "subtopics": ["QPS at fixed recall as the primary comparison", "p50, p95 and p99 latency for single queries", "Warm-up, repeated runs and variance", "Cold and warm page cache conditions", "Fixing thread counts and CPU frequency scaling", "ann-benchmarks style plots", "Cost per million queries from instance prices", "Writing a benchmark report others can reproduce"],
+          "tools": ["faiss-cpu", "faiss-gpu", "pandas", "matplotlib", "perf"],
+          "lab_task": "Write a benchmark harness that takes factory strings and a parameter grid, runs 5 repetitions per point after a warm-up, records recall@10, QPS, p50, p95 and p99, and writes a CSV with git commit, FAISS version, CPU model and thread count. Run it for 4 index types on SIFT1M or an embedding dataset and plot QPS against recall.",
+          "deliverable": "Benchmark harness, results CSV, Pareto plot and a reproducibility checklist",
+          "checks": [["Run the harness twice on the same machine", "QPS at each point differs by less than 10 percent between runs", "Two CSV files"], ["Open the CSV header", "It includes faiss_version, cpu_model and threads columns", "CSV file"], ["Read the Pareto plot at recall@10 of 0.95", "The fastest index at that recall is identified with its QPS", "Plot"]],
+          "objectives": ["Benchmark FAISS indexes rigorously", "Report latency percentiles and cost", "Make benchmark results reproducible"]
+        },
+        {
+          "topic": "Filtered Search Strategies: IDSelectorBitmap, Partitioned Indexes and Brute-Force Fallback",
+          "subtopics": ["Filter selectivity and its effect on recall and latency", "IDSelectorBitmap for dense allow-lists", "IDSelectorBatch for sparse allow-lists", "Recall loss in HNSW when most nodes are filtered out", "Brute-force over the allowed subset with faiss.knn", "Separate indexes per tenant or partition", "Choosing the strategy by selectivity threshold", "Over-fetching with post-filtering"],
+          "tools": ["faiss-cpu", "NumPy", "pandas"],
+          "lab_task": "On 5,000,000 vectors with a category attribute, test selectivities of 50, 10, 1 and 0.1 percent using HNSW32,Flat with IDSelectorBitmap, IVF4096,Flat with IDSelectorBitmap, and exact faiss.knn on the gathered subset. Record recall@10 and latency for each, then implement a router that picks the strategy by selectivity and validate it on 1,000 mixed queries.",
+          "deliverable": "Filtered search study and a selectivity-based router with tests",
+          "checks": [["Run HNSW32,Flat with a 0.1 percent selectivity filter", "recall@10 falls below the 50 percent selectivity result", "Results table"], ["Run exact faiss.knn on the 0.1 percent subset", "recall@10 is 1.0 with lower latency than unfiltered exact search", "Results table"], ["Validate the router on 1,000 mixed queries", "Mean recall@10 is 0.95 or higher", "Validation output"]],
+          "objectives": ["Choose filtering strategies by selectivity", "Use bitmap selectors efficiently", "Route queries to the cheapest correct path"]
+        },
+        {
+          "topic": "FAISS Index Lifecycle: Retraining, Rebuilds and Blue-Green Swaps",
+          "subtopics": ["Triggers: embedding model change, drift and fragmentation from deletes", "Recall canaries on a fixed labelled query set", "Building a new index offline from the source of truth", "Shadow queries comparing old and new results", "Atomic swap of the in-memory index reference", "Rollback to the previous index version", "Dual-writing updates during a rebuild", "Index artifact naming with model and data versions"],
+          "tools": ["faiss-cpu", "FastAPI", "Amazon S3 or MinIO", "Prometheus"],
+          "lab_task": "Extend a FastAPI FAISS service so it loads index versions from object storage. Add POST /admin/swap that loads a new version in a background thread, runs 200 canary queries, and swaps the global reference only if recall@10 is at least 0.95. Shadow 5 percent of traffic to the candidate and record result overlap. Prove rollback by swapping back during a hey load test.",
+          "deliverable": "Lifecycle code, swap and rollback runbook, and a load test log showing zero errors during swaps",
+          "checks": [["Swap to a new version during hey -n 20000 -c 32", "hey reports no non-2xx responses", "hey summary"], ["Submit a candidate index trained on shuffled data", "The swap is rejected because canary recall is below 0.95", "Service log"], ["Call GET /health after a swap", "The response reports the new index version and its ntotal", "curl output"]],
+          "objectives": ["Plan FAISS index rebuilds", "Swap indexes without downtime", "Gate releases on recall canaries"]
+        },
+        {
+          "topic": "Production FAISS Serving Architecture",
+          "subtopics": ["Stateless API tier and stateful index tier", "Scatter-gather across shard servers and merging top-k", "Replicas behind a load balancer for throughput", "Metadata store and ID mapping outside FAISS", "Write path: queue, batch add and periodic rebuild", "Timeouts, partial results and shard failure handling", "CPU versus GPU serving cost per query", "Kubernetes resource requests for memory-heavy pods"],
+          "tools": ["faiss-cpu", "FastAPI", "gRPC", "Kubernetes", "Redis", "PostgreSQL"],
+          "lab_task": "Run 4 shard servers, each serving a quarter of 20,000,000 vectors, and a gateway that sends each query to all shards in parallel with a 50 ms timeout and merges the top 10 by distance. Compare merged results with a single combined IndexShards. Kill one shard during a load test and confirm the gateway returns partial results with a flag instead of failing.",
+          "deliverable": "Architecture diagram, gateway and shard code, and a failure test report",
+          "checks": [["Compare gateway top-10 with a single in-process IndexShards", "Results match for all 1,000 test queries", "Comparison report"], ["Kill one shard during a load test", "Responses continue with partial set to true", "Gateway log"], ["Measure gateway p95 latency at 200 requests per second", "p95 is recorded and stays below the 50 ms timeout plus merge time", "Load test output"]],
+          "objectives": ["Design a sharded FAISS serving system", "Merge results across shard servers", "Handle shard failures gracefully"]
+        },
+        {
+          "topic": "Observability and Capacity Planning for FAISS Services",
+          "subtopics": ["Latency histograms per index and per parameter tier", "Counters from faiss.cvar.indexIVF_stats and hnsw_stats", "Gauges for ntotal, index version and memory", "Online recall estimation with sampled exact search", "Alert thresholds for latency, recall and memory", "Capacity model: QPS per core at the operating point", "Growth projections and headroom", "Dashboards in Grafana"],
+          "tools": ["Prometheus", "Grafana", "prometheus_client", "faiss-cpu", "OpenTelemetry"],
+          "lab_task": "Instrument a FAISS service with prometheus_client: a latency histogram labelled by nprobe tier, a gauge for ntotal and a counter for distances computed from indexIVF_stats.ndis. Sample 1 percent of queries for exact search to estimate recall in the background. Build a Grafana dashboard, then use load test data to calculate cores needed for 2,000 QPS with 30 percent headroom.",
+          "deliverable": "Metrics code, Grafana dashboard JSON and a capacity calculation",
+          "checks": [["curl /metrics on the service", "faiss_search_seconds histogram and faiss_index_ntotal gauge are present", "curl output"], ["Lower nprobe for 10 minutes in a test environment", "The online recall estimate drops and the recall alert fires", "Grafana and alert screenshot"], ["Apply the capacity formula to measured QPS per core", "The required core count for 2,000 QPS with 30 percent headroom is stated", "Capacity sheet"]],
+          "objectives": ["Instrument FAISS search", "Estimate recall online", "Plan capacity from measured throughput"]
+        },
+        {
+          "topic": "FAISS Security and Safe Index Loading",
+          "subtopics": ["LangChain index.pkl and the risk of loading pickles", "Treating FAISS index files as trusted build artifacts only", "Checksums and signatures on index artifacts", "Limits on k, nprobe and request batch size", "Authentication and network isolation of the search API", "Embedding inversion and membership risks for sensitive data", "Tenant isolation with separate indexes or enforced selectors", "Dependency and image scanning for FAISS containers"],
+          "tools": ["faiss-cpu", "sha256sum", "cosign", "FastAPI", "Trivy"],
+          "lab_task": "Add artifact verification to the index loader: compute sha256 of the index file, compare it with a signed manifest verified by cosign, and refuse to load on mismatch. Enforce k at most 100 and nprobe at most 256 in the API, require a bearer token, and inject the tenant IDSelector on the server. Scan the image with trivy image and fix high findings.",
+          "deliverable": "Hardened loader and API, threat model note and scan report",
+          "checks": [["Modify one byte of the index file and start the service", "The service refuses to load and logs a checksum mismatch", "Service log"], ["POST /search with k=10000", "Returns 422 with a validation message", "curl output"], ["Search as tenant A for a vector owned by tenant B", "No tenant B IDs are returned", "Test output"]],
+          "objectives": ["Load index artifacts safely", "Limit expensive search requests", "Isolate tenants in shared FAISS services"]
+        },
+        {
+          "topic": "GPU Build and CPU Serve Pipelines for FAISS",
+          "subtopics": ["Why GPUs suit training and bulk add while CPUs suit steady serving", "Training IVF on GPU and converting with index_gpu_to_cpu", "Building CAGRA on GPU and serving the converted HNSW graph on CPU", "Bulk add on GPU then transfer to CPU indexes", "Checking that CPU and GPU results agree after conversion", "Spot or preemptible GPU instances for build jobs", "Pipeline orchestration and artifact hand-off", "Cost comparison of build-on-CPU and build-on-GPU"],
+          "tools": ["faiss-gpu-cuvs", "faiss-cpu", "NVIDIA cuVS", "Docker", "Amazon S3 or MinIO"],
+          "lab_task": "Create a build job that trains and fills IVF16384,PQ32 on a GPU, converts it with index_gpu_to_cpu, and writes it to object storage. In a second job build a GpuIndexCagra, convert it to a CPU HNSW index and write it. Load both on a CPU-only server, compare recall@10 with the GPU versions on 1,000 queries, and compute build cost against an all-CPU build.",
+          "deliverable": "Build pipeline scripts, artifacts and a cost and recall comparison",
+          "checks": [["Compare CPU-served recall@10 with GPU recall for the IVFPQ artifact", "Recall agrees within 0.01", "Comparison report"], ["Load the converted CAGRA graph on a server with no GPU", "The index loads and searches without CUDA libraries", "Service log"], ["Compare build wall time of GPU and all-CPU pipelines", "The GPU pipeline finishes faster", "Pipeline log"]],
+          "objectives": ["Split building and serving across GPU and CPU", "Convert GPU indexes for CPU serving", "Compare pipeline cost and accuracy"]
+        },
+        {
+          "topic": "Advanced Capstone: Sharded FAISS Search Platform with Lifecycle and Benchmarks",
+          "subtopics": ["Index design for at least 100,000,000 vectors with a memory and recall budget", "GPU or CPU build pipeline producing verified artifacts", "Sharded serving with scatter-gather, replicas and partial results", "Filtered search routing and tenant isolation", "Blue-green swaps gated by recall canaries", "Benchmark and capacity report with cost per million queries"],
+          "tools": ["faiss-cpu", "faiss-gpu-cuvs", "FastAPI", "Kubernetes", "Prometheus", "Grafana"],
+          "lab_task": "Deliver a FAISS platform for at least 100,000,000 vectors: a build pipeline that trains on GPU and writes checksummed shard artifacts, shard servers loading with IO_FLAG_MMAP, a gateway with scatter-gather and filter routing, canary-gated blue-green swaps, and Prometheus dashboards. Publish recall@10, QPS, p99 latency and cost per million queries.",
+          "deliverable": "Platform repository, deployment manifests, dashboards, benchmark report and architecture review deck",
+          "checks": [["Run 1,000 held-out queries through the gateway", "recall@10 meets the stated target of 0.95 or higher", "Recall report"], ["Perform a blue-green swap during a sustained load test", "No failed requests and the new version is reported by every shard", "Load test and health output"], ["Remove one shard pod during the load test", "The gateway serves partial results and an alert fires within 2 minutes", "Alert and gateway log"]],
+          "objectives": ["Design and operate a large FAISS platform", "Prove quality, resilience and cost with measurements", "Defend architecture choices in a review"]
+        }
+      ]
+    }
+  }
+}

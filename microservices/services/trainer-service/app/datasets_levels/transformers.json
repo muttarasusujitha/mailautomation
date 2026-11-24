@@ -1,0 +1,573 @@
+{
+  "domain": "Transformers",
+  "name": "Transformers",
+  "category": "Data Science and Machine Learning",
+  "icon": "layers",
+  "aliases": ["Transformer Models", "Attention-Based Models", "Transformer Architecture", "Hugging Face Transformers", "Transformers Library", "HF Transformers", "Transformer Networks", "Attention Mechanisms"],
+  "certifications": [],
+  "tools": ["Python", "PyTorch", "transformers", "tokenizers", "datasets", "evaluate", "Accelerate", "peft", "safetensors", "bitsandbytes", "Jupyter", "Weights & Biases"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python developers, data analysts and engineers who have used a neural network or an LLM chat tool but have never opened the machinery. Covers what a transformer is and how text becomes token IDs, embeddings, self-attention, multi-head attention, masks and the transformer block, then the Hugging Face transformers library: pipeline(), AutoTokenizer and AutoModel classes, config objects, reading logits and hidden states, generate(), chat templates, encoder embeddings, datasets and evaluate, devices and dtypes, plus vision and audio models. Ends with a capstone triage tool.",
+      "prerequisites": ["Writes Python functions and uses pip and virtual environments", "Knows what a vector, matrix and matrix multiplication are, at the level of NumPy", "Has a laptop or cloud notebook with 8 GB of RAM and Python 3.10 or later; a GPU is helpful but not required"],
+      "outcomes": ["Explain, with shapes, how a transformer turns text into token IDs, attention weights and next-token probabilities", "Implement scaled dot-product attention and a causal mask in PyTorch and match the output of torch.nn.functional.scaled_dot_product_attention", "Load tokenizers and models with the transformers Auto classes, run pipeline() and generate(), and read logits, hidden states and attention outputs", "Build and evaluate a small multi-model text triage tool and document the limits of the pretrained models it uses"],
+      "days": [
+        {
+          "topic": "Transformer Landscape and Environment Setup for the transformers Library",
+          "subtopics": ["What a transformer is and the 2017 Attention Is All You Need paper", "Encoder-only, decoder-only and encoder-decoder families at a glance", "Where transformers are used: text, code, images, audio and multimodal", "Creating a virtual environment with python -m venv", "Installing torch and transformers with pip", "Running transformers env to capture versions and the device", "Checking torch.cuda.is_available() and torch.backends.mps.is_available()", "The local model cache directory and the HF_HOME variable", "Offline mode with HF_HUB_OFFLINE=1 after the first download", "Reading the library documentation and the model type list"],
+          "tools": ["Python", "pip", "PyTorch", "transformers", "Jupyter", "Visual Studio Code"],
+          "lab_task": "Create a venv, run pip install torch transformers, then run transformers env and save the output. In Python, call pipeline('sentiment-analysis') on the text 'This course is clear and useful' and print the result. Set HF_HUB_OFFLINE=1, rerun the script and confirm it still works from the local cache. Record the library version, device and cache size.",
+          "deliverable": "Environment report with transformers env output, the first pipeline script and the cache directory size",
+          "checks": [["Run transformers env", "Output lists the transformers, PyTorch and Python versions and the platform", "Terminal output"], ["Run the sentiment pipeline on the positive sentence", "Prints a list with one dict whose label is POSITIVE and a score above 0.9", "Script output"], ["Rerun with HF_HUB_OFFLINE=1 after the model is cached", "Script runs with no network access and returns the same label", "Terminal output"]],
+          "objectives": ["Describe the three transformer families and one task for each", "Install and verify a reproducible transformers environment", "Explain where downloaded model files are cached and how offline mode works"]
+        },
+        {
+          "topic": "From Text to Token IDs with AutoTokenizer",
+          "subtopics": ["Why models read integers, not characters", "Subword tokenisation in outline: words, pieces and bytes", "AutoTokenizer.from_pretrained and the tokenizer class it returns", "Calling a tokenizer: input_ids, attention_mask and token_type_ids", "tokenizer.tokenize, convert_tokens_to_ids and decode", "Special tokens: [CLS], [SEP], <|endoftext|> and the BOS and EOS tokens", "Padding, truncation and max_length", "return_tensors='pt' and batch encoding", "Fast tokenizers and return_offsets_mapping"],
+          "tools": ["transformers", "tokenizers", "Python", "Jupyter"],
+          "lab_task": "Load AutoTokenizer for bert-base-uncased and gpt2. Encode 'Hello world' with each and print input_ids and tokens. Encode three sentences of different lengths with padding=True and truncation=True, max_length=8, then print the attention_mask. Use return_offsets_mapping=True to map each token back to character spans of the input string.",
+          "deliverable": "Notebook comparing BERT and GPT-2 tokenisation with a table of ids, tokens and masks",
+          "checks": [["Encode 'Hello world' with bert-base-uncased", "input_ids is [101, 7592, 2088, 102]", "Notebook output"], ["Encode three sentences with padding=True and max_length=8", "All rows have length 8 and padded positions have attention_mask 0", "Printed tensor"], ["Call tokenizer.decode on the BERT ids from the first check", "Returns '[CLS] hello world [SEP]' as lowercased text", "Notebook output"]],
+          "objectives": ["Convert text to ids and back with a pretrained tokenizer", "Explain special tokens, padding and attention masks", "Compare two tokenizers on the same input"]
+        },
+        {
+          "topic": "Embeddings and Positional Information in Tensors",
+          "subtopics": ["The embedding matrix as a lookup table of shape vocab by hidden", "Looking up vectors with nn.Embedding and model.get_input_embeddings()", "Why attention alone ignores word order", "Sinusoidal positional encoding formula and a plot", "Learned absolute position embeddings in BERT and GPT-2", "Adding token and position embeddings", "Tensor shapes through the input layer: batch, sequence, hidden", "Tied input and output embeddings", "Cosine similarity between token vectors"],
+          "tools": ["PyTorch", "transformers", "matplotlib", "NumPy"],
+          "lab_task": "Load gpt2 and print model.get_input_embeddings().weight.shape. Look up the vector for one token id and confirm it equals the matching row of the weight matrix. Build a sinusoidal positional encoding matrix of 64 positions by 128 dimensions in NumPy and plot it. Print wpe.weight.shape from gpt2 and compare learned and sinusoidal positions.",
+          "deliverable": "Notebook with embedding shape checks, a positional encoding heatmap and a short written comparison",
+          "checks": [["Print gpt2 input embedding weight shape", "Output is torch.Size([50257, 768])", "Notebook output"], ["Compare the looked-up vector with weight[token_id]", "torch.equal returns True", "Notebook output"], ["Print the gpt2 position embedding weight shape", "Output is torch.Size([1024, 768]), showing a 1024-token context", "Notebook output"]],
+          "objectives": ["Describe how token ids become vectors and why position must be added", "Generate and plot sinusoidal positional encodings", "Report embedding and position table shapes for a real model"]
+        },
+        {
+          "topic": "Scaled Dot-Product Self-Attention by Hand",
+          "subtopics": ["Queries, keys and values as three linear projections", "Score matrix QK transposed and its shape", "Why divide by the square root of the key dimension", "Softmax over the key axis and attention weights that sum to 1", "Weighted sum of values to form the output", "A worked 3-token example with numbers", "Implementing it in about ten lines of PyTorch", "Comparing with torch.nn.functional.scaled_dot_product_attention", "Complexity: quadratic in sequence length"],
+          "tools": ["PyTorch", "NumPy", "Jupyter"],
+          "lab_task": "Write attention(q, k, v) in PyTorch for tensors of shape (batch=2, seq=5, dim=16). Compute scores, divide by sqrt(16), apply softmax on the last axis and multiply by v. Check each weight row sums to 1. Compare your output with torch.nn.functional.scaled_dot_product_attention using torch.allclose with atol=1e-5. Time seq lengths 128, 256 and 512.",
+          "deliverable": "attention.py with a unit test and a timing table showing growth with sequence length",
+          "checks": [["Sum the attention weights along the last axis", "Every row sums to 1.0 within 1e-6", "Assertion output"], ["Compare with F.scaled_dot_product_attention", "torch.allclose returns True at atol=1e-5", "Test result"], ["Time seq 256 versus seq 512", "Time for 512 is roughly 3 to 4 times that for 256, consistent with quadratic growth", "Timing table"]],
+          "objectives": ["Compute self-attention from Q, K and V by hand", "Explain the scaling factor and softmax step", "Verify a custom implementation against the PyTorch reference"]
+        },
+        {
+          "topic": "Multi-Head Attention and Masks: Causal and Padding",
+          "subtopics": ["Splitting hidden size into heads with view and transpose", "Head dimension equals hidden divided by number of heads", "Running heads in parallel and concatenating", "The output projection", "Causal masks with torch.tril so tokens cannot see the future", "Padding masks from attention_mask", "Combining masks and adding -inf before softmax", "Why GPT-style models need causal masks and BERT does not", "Visualising masked weights as a heatmap"],
+          "tools": ["PyTorch", "transformers", "matplotlib"],
+          "lab_task": "Extend your attention code into a multi-head module with 4 heads and hidden size 32. Add a causal mask built with torch.tril and a padding mask for a batch where the second sequence has 3 real tokens out of 6. Print the weights for the first head and plot them. Confirm that the weight on any future position is exactly 0 and that padded keys receive 0.",
+          "deliverable": "MultiHeadAttention class, a masked-weights heatmap and a test file",
+          "checks": [["Sum weights above the diagonal in the causal case", "Total is exactly 0.0", "Test output"], ["Check weights on padded key positions of sequence 2", "All padded positions have weight 0", "Test output"], ["Print the shape of the head tensor after view and transpose", "Shape is (batch, 4, seq, 8) for hidden 32 and 4 heads", "Notebook output"]],
+          "objectives": ["Implement multi-head attention with correct reshaping", "Apply causal and padding masks and explain why each is needed", "Visualise attention weights per head"]
+        },
+        {
+          "topic": "The Transformer Block: Residuals, LayerNorm and Feed-Forward",
+          "subtopics": ["Block layout: attention, add and norm, feed-forward, add and norm", "Residual connections and gradient flow", "LayerNorm versus BatchNorm for sequences", "Pre-LN versus Post-LN placement", "The position-wise feed-forward network and the 4x expansion", "GELU activation", "Dropout placement", "Stacking blocks and counting parameters per block"],
+          "tools": ["PyTorch", "transformers", "Jupyter"],
+          "lab_task": "Build a TransformerBlock in PyTorch with hidden 64, 4 heads and an MLP of 256 using pre-LN. Stack 4 blocks, feed a (2, 10, 64) tensor and confirm the output shape. Count parameters with sum(p.numel()). Load BertModel bert-base-uncased and print the parameter count of one encoder layer, and compare the ratio of feed-forward to attention parameters.",
+          "deliverable": "Block implementation with a parameter-count table for the toy block and one BERT layer",
+          "checks": [["Pass a (2, 10, 64) tensor through 4 blocks", "Output shape is torch.Size([2, 10, 64])", "Notebook output"], ["Count parameters of BertModel bert-base-uncased", "Total is 109482240", "Printed count"], ["Compare feed-forward and attention parameters in one BERT layer", "Feed-forward holds about twice the attention parameters (about 4.7M versus 2.4M)", "Parameter table"]],
+          "objectives": ["Assemble a transformer block from attention, MLP, norm and residuals", "Explain the role of residual connections and layer normalisation", "Count parameters by component"]
+        },
+        {
+          "topic": "Encoder, Decoder and Encoder-Decoder Model Families",
+          "subtopics": ["Encoder-only: BERT, RoBERTa and DeBERTa for understanding tasks", "Decoder-only: GPT, Llama and Qwen for generation", "Encoder-decoder: T5 and BART with cross-attention", "Bidirectional versus causal attention", "Pretraining objectives: masked LM, causal LM, span corruption", "Mapping tasks to families: classification, generation, translation", "Reading config.model_type and config.architectures", "Why most current LLMs are decoder-only"],
+          "tools": ["transformers", "Python", "Jupyter"],
+          "lab_task": "For bert-base-uncased, gpt2 and t5-small, load AutoConfig and print model_type, architectures, num layers, hidden size and heads. Build a table of family, objective and best-fit task. Then call AutoModel on each and print the class name returned. Run one small input through each and print the output field names such as last_hidden_state and logits.",
+          "deliverable": "Comparison table of three families with config values and the output fields of each model",
+          "checks": [["Print AutoConfig.from_pretrained('gpt2').model_type", "Prints gpt2 with n_layer 12, n_head 12 and n_embd 768", "Notebook output"], ["Print the class of AutoModel.from_pretrained('t5-small')", "Returns T5Model, which has encoder and decoder parts", "Notebook output"], ["Check config.is_encoder_decoder for bert, gpt2 and t5-small", "Values are False, False and True respectively", "Printed table"]],
+          "objectives": ["Classify a model as encoder, decoder or encoder-decoder from its config", "Match common tasks to model families", "Read key architecture values from AutoConfig"]
+        },
+        {
+          "topic": "Running pipeline() for Common Tasks",
+          "subtopics": ["What pipeline() does: preprocess, model, postprocess", "Choosing a task string and a model argument", "sentiment-analysis, fill-mask, token-classification and zero-shot-classification", "question-answering with context", "Passing lists and the batch_size argument", "Running on a device with device_map or device", "The top_k argument and score output", "Inspecting pipe.model and pipe.tokenizer", "When pipeline() is not enough"],
+          "tools": ["transformers", "Python", "Jupyter"],
+          "lab_task": "Run four pipelines: fill-mask with bert-base-uncased on 'Paris is the [MASK] of France.', zero-shot-classification with candidate labels billing, outage and feedback, question-answering over a 3-sentence context, and token-classification with aggregation_strategy='simple'. Print results with scores. Time a list of 32 inputs with batch_size=1 and batch_size=16.",
+          "deliverable": "Notebook of four pipelines with outputs and a batch-size timing comparison",
+          "checks": [["Run fill-mask on 'Paris is the [MASK] of France.'", "Top token is 'capital' with a score above 0.9", "Pipeline output"], ["Run zero-shot classification with three labels", "Scores across labels sum to 1.0 and the best label matches the intended class", "Printed scores"], ["Time 32 inputs at batch_size 1 and 16", "Batched run is measurably faster on GPU, and results are identical", "Timing output"]],
+          "objectives": ["Run text pipelines for four different tasks", "Read pipeline output structures and scores", "Explain what happens inside pipeline() in three stages"]
+        },
+        {
+          "topic": "Loading Models with AutoModel Classes and Configs",
+          "subtopics": ["AutoModel versus task heads: AutoModelForSequenceClassification and AutoModelForCausalLM", "from_pretrained arguments: dtype, device_map and revision", "AutoConfig and overriding values such as num_labels", "Randomly initialised heads and the 'newly initialized' warning", "model.eval() and torch.no_grad() versus inference_mode", "save_pretrained and the saved files", "safetensors versus pickle checkpoints", "Loading from a local directory", "model.num_parameters() and memory footprint"],
+          "tools": ["transformers", "PyTorch", "safetensors", "Python"],
+          "lab_task": "Load AutoModelForSequenceClassification from bert-base-uncased with num_labels=3 and read the warning about newly initialised weights. Save it with save_pretrained to ./bert3 and list the files. Reload from the local path. Call model.get_memory_footprint() and num_parameters(). Reload with dtype=torch.bfloat16 and compare the footprint.",
+          "deliverable": "Script and file listing showing save and reload, with footprint comparison for float32 and bfloat16",
+          "checks": [["Load bert-base-uncased with num_labels=3", "Warning names classifier.weight and classifier.bias as newly initialised", "Console warning"], ["List ./bert3 after save_pretrained", "Contains config.json and model.safetensors", "Directory listing"], ["Compare get_memory_footprint for float32 and bfloat16", "bfloat16 footprint is about half of float32", "Printed values"]],
+          "objectives": ["Load a model with the correct task head and config overrides", "Save and reload checkpoints in safetensors format", "Measure memory effect of the dtype argument"]
+        },
+        {
+          "topic": "Inspecting Outputs: Logits, Hidden States and Attention Weights",
+          "subtopics": ["The ModelOutput object and its fields", "logits shape and the softmax to probabilities", "argmax and config.id2label", "output_hidden_states=True and the tuple length", "output_attentions=True and tensor shapes", "last_hidden_state versus pooler_output", "Using the [CLS] position and mean pooling", "Attention implementation 'eager' needed to return weights", "Saving outputs for later analysis"],
+          "tools": ["transformers", "PyTorch", "matplotlib", "Jupyter"],
+          "lab_task": "Load distilbert-base-uncased-finetuned-sst-2-english with attn_implementation='eager'. Run one sentence with output_hidden_states=True and output_attentions=True. Print logits, softmax probabilities, the number of hidden-state tensors, and the shape of the first attention tensor. Plot head 0 of the last layer as a heatmap against the tokens.",
+          "deliverable": "Notebook with all output shapes annotated and an attention heatmap",
+          "checks": [["Count hidden_states for DistilBERT with 6 layers", "Tuple has 7 tensors, embeddings plus 6 layers", "Printed length"], ["Print shape of attentions[0] for a 10-token input", "Shape is (1, 12, 10, 10) for 12 heads", "Printed shape"], ["Apply softmax to logits and map with id2label", "Probabilities sum to 1 and the top label is POSITIVE for a positive sentence", "Printed result"]],
+          "objectives": ["Retrieve logits, hidden states and attentions from a model", "Interpret output tensor shapes", "Convert logits to labelled probabilities"]
+        },
+        {
+          "topic": "Text Generation with generate(): Greedy, Beam and Sampling",
+          "subtopics": ["Autoregressive decoding as repeated next-token prediction", "model.generate and max_new_tokens", "Greedy decoding and repetition", "Beam search with num_beams and early_stopping", "Sampling with do_sample, temperature, top_k and top_p", "repetition_penalty and no_repeat_ngram_size", "Fixing randomness with set_seed", "GenerationConfig and saving it", "Slicing prompt tokens off the output"],
+          "tools": ["transformers", "PyTorch", "Python"],
+          "lab_task": "With Qwen/Qwen2.5-0.5B-Instruct or gpt2, generate 40 new tokens from the prompt 'The transformer architecture' using greedy, num_beams=4, and do_sample=True with temperature 0.7 and top_p 0.9. Repeat sampling with set_seed(42) twice and confirm identical text. Print the number of new tokens and tabulate the three outputs.",
+          "deliverable": "Notebook with a table of decoding strategies, outputs and measured time",
+          "checks": [["Run greedy decoding twice with the same prompt", "Both outputs are identical", "Diff of outputs"], ["Run sampling twice with set_seed(42)", "Both outputs are identical; with different seeds they differ", "Printed text"], ["Set max_new_tokens=40 and count new tokens", "Output length minus prompt length is at most 40", "Printed counts"]],
+          "objectives": ["Generate text with several decoding strategies", "Control randomness and length", "Explain how each sampling parameter changes the distribution"]
+        },
+        {
+          "topic": "Chat Templates and Instruction-Tuned Models",
+          "subtopics": ["Base models versus instruction-tuned models", "Roles: system, user and assistant", "tokenizer.apply_chat_template and add_generation_prompt=True", "tokenize=False to see the formatted string", "Why each model family has a different template", "Special tokens in a chat template such as <|im_start|>", "Multi-turn history and context growth", "eos_token_id and stopping at end of turn", "Common mistake: sending raw text to a chat model"],
+          "tools": ["transformers", "PyTorch", "Jinja2", "Python"],
+          "lab_task": "Load Qwen/Qwen2.5-0.5B-Instruct. Build a messages list with a system and user turn, call apply_chat_template(tokenize=False, add_generation_prompt=True) and print the string. Generate a reply with max_new_tokens=80. Add the reply and a follow-up question as a second turn, generate again, and compare with sending the follow-up without history.",
+          "deliverable": "Notebook showing the template string, a two-turn chat and the effect of dropping history",
+          "checks": [["Print the template with tokenize=False", "Output contains <|im_start|>system and ends with <|im_start|>assistant", "Printed string"], ["Ask a follow-up that refers to the earlier answer, with history", "Reply refers to the earlier content correctly", "Chat transcript"], ["Send the same follow-up with no history", "Reply is generic or confused, showing the model keeps no state", "Chat transcript"]],
+          "objectives": ["Format conversations with apply_chat_template", "Explain why chat templates differ between models", "Manage multi-turn history manually"]
+        },
+        {
+          "topic": "Masked Language Modelling with BERT-Style Encoders",
+          "subtopics": ["The masked LM objective and the 15 percent masking rule", "The 80-10-10 replacement split", "AutoModelForMaskedLM and finding mask_token_id", "Reading logits at the masked position", "Top-k predictions and probabilities", "Bidirectional context and why it helps understanding", "Encoder limits: no free-form generation", "DataCollatorForLanguageModeling and mlm_probability", "Perplexity-like pseudo-scores"],
+          "tools": ["transformers", "PyTorch", "datasets", "Jupyter"],
+          "lab_task": "Use AutoModelForMaskedLM with bert-base-uncased. Tokenise 'The doctor told the patient to take a [MASK] every day.', find the mask index with input_ids == tokenizer.mask_token_id, and print the top 5 tokens with softmax scores. Then apply DataCollatorForLanguageModeling with mlm_probability=0.15 to 100 sentences and measure the share of positions with label != -100.",
+          "deliverable": "Notebook with top-5 predictions and a measured masking rate table",
+          "checks": [["Find mask position in the tokenised sentence", "torch.where returns exactly one index", "Printed index"], ["Print top 5 predictions", "Five tokens with probabilities in descending order that sum to less than 1", "Printed table"], ["Measure label != -100 share over 100 sentences", "Share is close to 0.15, between 0.12 and 0.18", "Printed ratio"]],
+          "objectives": ["Use a masked language model to predict tokens", "Describe the masking procedure", "Measure the masking rate with a collator"]
+        },
+        {
+          "topic": "Sentence Embeddings and Similarity with Encoders",
+          "subtopics": ["From token vectors to one sentence vector", "Mean pooling with the attention mask", "CLS pooling and when it is trained for", "Normalising and cosine similarity", "Comparing raw BERT with an embedding model such as sentence-transformers/all-MiniLM-L6-v2", "Using the sentence-transformers library and SentenceTransformer.encode", "Batched encoding and speed", "Small semantic search over 20 documents", "Limits: negation and numbers"],
+          "tools": ["transformers", "sentence-transformers", "PyTorch", "NumPy"],
+          "lab_task": "Embed 20 short support questions with all-MiniLM-L6-v2 through plain transformers using mean pooling that respects attention_mask, then again with SentenceTransformer.encode. Confirm both give the same vectors within 1e-4 after normalisation. Run a query and print the top 3 nearest documents by cosine similarity. Repeat with raw bert-base-uncased CLS vectors and compare.",
+          "deliverable": "Notebook with both embedding routes, a top-3 search result and a comparison note",
+          "checks": [["Print the embedding shape of all-MiniLM-L6-v2", "Shape is (20, 384)", "Printed shape"], ["Compare manual mean pooling with SentenceTransformer.encode", "Max absolute difference below 1e-4 after normalising", "Printed difference"], ["Search with a paraphrased query", "Top result is the matching document; raw BERT CLS ranks it lower or equal", "Printed ranking"]],
+          "objectives": ["Pool token vectors into sentence embeddings correctly", "Run a cosine-similarity search", "Explain why a trained embedding model beats raw BERT vectors"]
+        },
+        {
+          "topic": "Datasets for Transformers: Loading, Mapping and Batching",
+          "subtopics": ["load_dataset for local CSV and JSON files", "Dataset and DatasetDict objects and split names", "Inspecting features and column types", "Dataset.map with batched=True and a tokenising function", "remove_columns and set_format('torch')", "DataCollatorWithPadding and dynamic padding", "DataLoader with a collator", "train_test_split with a seed", "Memory mapping and Arrow files on disk"],
+          "tools": ["datasets", "transformers", "PyTorch", "pandas"],
+          "lab_task": "Write a 200-row CSV of support tickets with text and label columns. Load it with load_dataset('csv', data_files=...), split 80/20 with train_test_split(seed=42), then map a batched tokenising function with truncation. Remove the text column, build a DataLoader of batch size 16 with DataCollatorWithPadding and print the shape of the first batch.",
+          "deliverable": "Data preparation script and a printout of dataset features and a collated batch",
+          "checks": [["Split 200 rows with test_size=0.2 and seed=42", "Train has 160 rows and test has 40 rows", "Printed lengths"], ["Print the first collated batch keys", "Contains input_ids, attention_mask and labels", "Printed keys"], ["Inspect the padded length of two different batches", "Padded length follows the longest sequence in each batch, not a fixed value", "Printed shapes"]],
+          "objectives": ["Load and split local data with the datasets library", "Tokenise a dataset with batched map", "Build padded batches with a data collator"]
+        },
+        {
+          "topic": "Evaluating Transformer Outputs: Metrics with evaluate",
+          "subtopics": ["Choosing a metric for the task: accuracy, F1, exact match, ROUGE, BLEU", "evaluate.load and metric.compute", "Predictions from logits via argmax", "Macro versus weighted F1 on imbalanced classes", "Confusion matrix reading", "Perplexity for language models", "Held-out data and leakage", "Confidence intervals by bootstrapping", "Reporting error examples, not only a number"],
+          "tools": ["evaluate", "scikit-learn", "transformers", "pandas"],
+          "lab_task": "Run the sst2 pipeline on 200 labelled sentences from your own CSV. Compute accuracy and macro F1 with evaluate.load('accuracy') and evaluate.load('f1'), then print a scikit-learn confusion matrix. Bootstrap 1000 resamples to give a 95 percent interval for accuracy. List 10 misclassified sentences and tag each error cause.",
+          "deliverable": "Evaluation report with metrics, confusion matrix, interval and an error table",
+          "checks": [["Compute accuracy via evaluate", "Value equals correct predictions divided by 200 within 1e-9", "Printed metric"], ["Compute macro F1 on an imbalanced set", "Macro F1 is lower than accuracy when the minority class is weak", "Printed values"], ["Bootstrap accuracy 1000 times", "Interval has lower bound below and upper bound above the point estimate", "Printed interval"]],
+          "objectives": ["Compute task metrics for transformer outputs", "Read a confusion matrix and choose between accuracy and F1", "Analyse errors qualitatively"]
+        },
+        {
+          "topic": "Running Models on CPU, GPU and Apple Silicon: device_map and dtype",
+          "subtopics": ["Moving models and tensors with .to(device)", "float32, float16 and bfloat16 trade-offs", "device_map='auto' and what it does", "Memory estimate: parameters times bytes per parameter", "torch.cuda.max_memory_allocated", "Out-of-memory errors and quick fixes", "Batch size versus latency and throughput", "torch.inference_mode", "Measuring tokens per second honestly with warmup and synchronize"],
+          "tools": ["PyTorch", "transformers", "Accelerate", "nvidia-smi"],
+          "lab_task": "Load Qwen/Qwen2.5-0.5B-Instruct in float32 and in bfloat16 on your best device. For each, generate 100 tokens after one warmup, calling torch.cuda.synchronize() if on CUDA, and record tokens per second and peak memory. Estimate memory as parameters times bytes and compare it with the measured value. Try batch sizes 1, 4 and 16.",
+          "deliverable": "Benchmark table of dtype, batch size, tokens per second and peak memory",
+          "checks": [["Estimate memory for 0.5B parameters in bfloat16", "About 1 GB of weights, and measured peak is close to or above it", "Estimate versus measurement"], ["Compare float32 and bfloat16 weight memory", "float32 uses roughly twice the memory of bfloat16", "Benchmark table"], ["Raise batch size from 1 to 16", "Total tokens per second rises while per-request latency rises too", "Benchmark table"]],
+          "objectives": ["Place models on the right device and dtype", "Estimate and measure model memory", "Benchmark throughput and latency correctly"]
+        },
+        {
+          "topic": "Vision and Audio Transformers: ViT and Whisper in pipeline()",
+          "subtopics": ["Vision Transformer: patches as tokens, the CLS token and 16x16 patches", "Image processors and AutoImageProcessor", "image-classification pipeline", "Token count for a 224 by 224 image with patch 16", "Audio: log-Mel features and the Whisper encoder-decoder", "automatic-speech-recognition pipeline and chunk_length_s", "Sampling rate 16 kHz and resampling", "Word timestamps", "Limits: accents, noise and domain terms"],
+          "tools": ["transformers", "Pillow", "librosa", "torchaudio"],
+          "lab_task": "Run an image-classification pipeline with google/vit-base-patch16-224 on two photos and print the top 3 labels. Print the image processor size and compute the number of patch tokens. Run an automatic-speech-recognition pipeline with openai/whisper-tiny on a 30-second 16 kHz WAV file and print the transcript and word error rate against a reference you typed.",
+          "deliverable": "Notebook with image labels, ViT token arithmetic and a measured Whisper WER",
+          "checks": [["Compute ViT tokens for a 224x224 image, patch 16", "196 patches plus the CLS token gives 197", "Notebook calculation"], ["Run image-classification on a clear photo of a dog", "Top-3 labels include a dog breed with score above 0.5", "Pipeline output"], ["Compute WER of whisper-tiny against the reference", "WER is a number between 0 and 1 and is higher for a noisy recording than a clean one", "Printed WER"]],
+          "objectives": ["Explain how images and audio become token sequences", "Run vision and speech pipelines", "Measure speech recognition quality with WER"]
+        },
+        {
+          "topic": "Limits, Bias and Failure Modes of Pretrained Transformers",
+          "subtopics": ["Hallucination in generative models", "Bias in sentiment and fill-mask outputs", "Sensitivity to wording and typos", "Out-of-distribution text and domain shift", "Context-length overflow and silent truncation", "Confidence scores that are not calibrated", "Licences of model weights and dataset terms", "Privacy: not pasting secrets into hosted tools", "A short model risk checklist"],
+          "tools": ["transformers", "Python", "pandas", "Jupyter"],
+          "lab_task": "Probe fill-mask with the templates 'The [MASK] is a nurse' and 'The [MASK] is an engineer' using he and she scores, and tabulate the gap. Test sentiment with 20 typo-laden inputs and count label flips. Feed a 1,000-token input to a 512-token model with truncation off and record the exact error message. Write a one-page risk checklist.",
+          "deliverable": "Probe notebook with bias and robustness tables and a one-page risk checklist",
+          "checks": [["Compare he and she scores for the two templates", "Table shows a measurable score gap that differs between the occupations", "Printed table"], ["Run 20 typo variants of a positive sentence", "Report the count of label flips out of 20", "Printed count"], ["Feed 1000 tokens to bert-base-uncased with truncation off", "Warning or error states the sequence is longer than the maximum 512", "Console output"]],
+          "objectives": ["Probe pretrained models for bias and brittleness", "Recognise silent truncation and overflow", "Write a practical model risk checklist"]
+        },
+        {
+          "topic": "Beginner Capstone: Transformer Explorer Notebook and Text Triage Tool",
+          "subtopics": ["Scope and acceptance criteria for a triage tool", "Combining a classifier, a zero-shot labeller and a summary-style generator", "Batch processing of 100 tickets from CSV", "Reporting accuracy, latency and failure cases", "Writing a README with model names, licences and limits"],
+          "tools": ["transformers", "datasets", "evaluate", "PyTorch", "Jupyter"],
+          "lab_task": "Build triage.py that reads 100 tickets from CSV, assigns sentiment with a distilbert pipeline, a topic with zero-shot-classification over four labels, and a one-line reply draft with Qwen2.5-0.5B-Instruct. Write results to triage_out.csv, evaluate against 50 hand-labelled rows with accuracy and macro F1, log latency per stage, and add a README listing model licences and known failure cases.",
+          "deliverable": "Repository with triage.py, triage_out.csv, evaluation report and README",
+          "checks": [["Run triage.py on 100 tickets", "triage_out.csv has 100 rows with sentiment, topic and draft columns", "CSV file"], ["Compare topic labels with 50 hand-labelled rows", "Accuracy and macro F1 are reported and accuracy is above 0.6", "Evaluation report"], ["Review the README", "Lists each model, its licence, and at least three documented failure cases", "README file"]],
+          "objectives": ["Combine several transformer models in one tool", "Evaluate a pipeline with metrics and error cases", "Document licences, limits and latency"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who can run transformers pipelines and now need to understand and change the internals. Covers attention variants (multi-query and grouped-query, sliding window), positional schemes (sinusoidal, RoPE, ALiBi), modern normalisation and activation choices, writing a decoder-only model from scratch, training a small language model with Trainer, two fine-tuning days (encoder classification and LoRA with peft), tokenizer training, collators and packing, generation internals, KV cache, attention backends, quantised loading, encoder-decoder, multimodal and speech models, multi-GPU inference, interpretability and benchmarking.",
+      "prerequisites": ["Completed the beginner level or can implement scaled dot-product attention and use AutoTokenizer, AutoModel and generate()", "Trains a PyTorch model with a loop or Trainer and reads a loss curve", "Has access to one GPU with 12 GB or more, or a cloud notebook, for the training and fine-tuning days"],
+      "outcomes": ["Explain and implement grouped-query attention, rotary position embeddings and RMSNorm, and verify them against library implementations", "Train a small decoder-only language model and fine-tune an encoder and a decoder with LoRA using Trainer and peft, reporting held-out metrics", "Control generation with logits processors, stopping criteria, streaming and KV cache settings, and choose an attention backend by measurement", "Load quantised, multimodal and speech models and benchmark memory, latency and quality with reproducible scripts"],
+      "days": [
+        {
+          "topic": "Attention Variants: MQA, GQA and Sliding-Window Attention",
+          "subtopics": ["Multi-head versus multi-query versus grouped-query attention", "num_key_value_heads in model configs", "Repeating KV heads to match query heads", "KV cache size formula per token", "Sliding-window attention and the sliding_window config key", "Local versus global layers", "Quality and memory trade-offs", "Reading a Llama-style attention class in transformers"],
+          "tools": ["PyTorch", "transformers", "Jupyter", "matplotlib"],
+          "lab_task": "Print num_attention_heads, num_key_value_heads, num_hidden_layers and head_dim from AutoConfig for Qwen/Qwen2.5-0.5B-Instruct. Compute KV cache bytes per token as 2 x layers x kv_heads x head_dim x 2 bytes, then recompute for a full multi-head variant. Implement grouped-query attention in 30 lines and check it equals F.scaled_dot_product_attention with enable_gqa=True.",
+          "deliverable": "Notebook with the KV size formula, a GQA module and a comparison table of cache memory",
+          "checks": [["Compute KV cache per token for Qwen2.5-0.5B-Instruct", "24 layers x 2 kv heads x 64 head_dim x 2 x 2 bytes gives 12288 bytes per token", "Notebook calculation"], ["Compare GQA module with the PyTorch reference", "torch.allclose returns True at atol=1e-5", "Test output"], ["Recompute cache size with kv_heads equal to attention heads", "Cache is 7 times larger for 14 heads versus 2 kv heads", "Comparison table"]],
+          "objectives": ["Explain MQA, GQA and sliding-window attention", "Compute KV cache memory from a model config", "Implement grouped-query attention and verify it"]
+        },
+        {
+          "topic": "Positional Encoding Schemes: Sinusoidal, Learned, RoPE and ALiBi",
+          "subtopics": ["Absolute versus relative position information", "Rotary embeddings: rotating query and key pairs by angle", "rope_theta and rope_scaling config keys", "Applying RoPE in a few lines with complex or paired rotation", "Relative-position property of the dot product", "ALiBi bias slopes added to scores", "Extrapolation beyond the trained length", "Where each scheme is used in open models"],
+          "tools": ["PyTorch", "transformers", "NumPy", "matplotlib"],
+          "lab_task": "Implement apply_rope(x, positions) for head_dim 64 with theta 10000. Verify that the dot product of rotated q at position m and rotated k at position n depends only on m minus n: test pairs (5,3) and (12,10) and print both values. Compare with the LlamaRotaryEmbedding code path in transformers by reading rope_theta from a config.",
+          "deliverable": "rope.py with a relative-position test and a short note comparing RoPE and ALiBi",
+          "checks": [["Compare dot products for position pairs (5,3) and (12,10)", "Values match within 1e-5 because the offset is 2 in both", "Test output"], ["Check rotation preserves vector norm", "Norm before and after rotation matches within 1e-6", "Assertion output"], ["Read rope_theta from a Qwen2.5 config", "A numeric rope_theta is printed and used in your function", "Printed value"]],
+          "objectives": ["Implement rotary position embeddings", "Show the relative-position property numerically", "Compare RoPE with learned, sinusoidal and ALiBi schemes"]
+        },
+        {
+          "topic": "Normalisation and Activation Choices: Pre-LN, RMSNorm and SwiGLU",
+          "subtopics": ["LayerNorm versus RMSNorm formula and parameter count", "Pre-LN versus post-LN and training stability", "Gated MLPs: SwiGLU with gate_proj, up_proj and down_proj", "Why the hidden size of the gated MLP is about 8/3 of d_model", "Bias terms removed in many models", "Comparing parameter counts per layer", "Reading LlamaMLP and RMSNorm source", "Numerical dtype in the norm computation"],
+          "tools": ["PyTorch", "transformers", "Jupyter"],
+          "lab_task": "Implement RMSNorm and SwiGLU MLP modules. Check RMSNorm output against the Qwen2RMSNorm class from transformers using the same weights and a random (2, 8, 896) input. Count the parameters of a 896-wide SwiGLU MLP with intermediate size 4864 and compare it with a GELU MLP using 4x expansion. Print both counts.",
+          "deliverable": "Modules, equivalence test and a parameter comparison table",
+          "checks": [["Compare custom RMSNorm to Qwen2RMSNorm", "torch.allclose returns True at atol=1e-5", "Test output"], ["Count SwiGLU MLP parameters with 896 and 4864", "3 x 896 x 4864 = 13,074,432 parameters", "Printed count"], ["Count a GELU MLP with 4x expansion at 896", "2 x 896 x 3584 plus biases, about 6.4M, fewer than the SwiGLU example at that width", "Printed count"]],
+          "objectives": ["Implement RMSNorm and SwiGLU", "Compare normalisation placements", "Verify custom layers against library modules"]
+        },
+        {
+          "topic": "Writing a Decoder-Only Transformer in PyTorch from Scratch",
+          "subtopics": ["Config dataclass: vocab, d_model, layers, heads, context", "Token embedding, RoPE and causal attention using scaled_dot_product_attention", "Block stack with RMSNorm and SwiGLU", "Final norm and the LM head with weight tying", "Cross-entropy loss with shifted labels", "Parameter initialisation with std 0.02", "Counting parameters", "Sampling loop and a forward-pass shape test"],
+          "tools": ["PyTorch", "Python", "Jupyter", "pytest"],
+          "lab_task": "Write a 6-layer, d_model 384, 6-head decoder with RoPE, RMSNorm and SwiGLU in under 200 lines. Tie input and output embeddings. Run a forward pass on a (4, 64) batch and print logits shape. Compute loss with shifted labels, then overfit a single 64-token sequence for 300 steps with AdamW lr 3e-3 and confirm loss falls below 0.05.",
+          "deliverable": "model.py, test_model.py and a log of the single-batch overfit run",
+          "checks": [["Forward pass on a (4, 64) batch", "Logits shape is (4, 64, vocab_size)", "pytest output"], ["Check the first-step loss", "Loss is near ln(vocab_size) within 0.3 at initialisation", "Printed loss"], ["Overfit one sequence for 300 steps", "Loss drops below 0.05", "Training log"]],
+          "objectives": ["Assemble a complete decoder-only model", "Compute next-token loss with shifted labels", "Use overfitting one batch as a correctness test"]
+        },
+        {
+          "topic": "Training a Small Language Model with the Trainer API",
+          "subtopics": ["Choosing a small config and a tokenizer", "Building a causal LM dataset by concatenating and chunking text", "DataCollatorForLanguageModeling with mlm=False", "TrainingArguments: per_device_train_batch_size, gradient_accumulation_steps, learning_rate, warmup_ratio, lr_scheduler_type", "bf16=True and eval_strategy='steps'", "Logging and checkpoints with save_steps", "Perplexity as exp(eval_loss)", "Resuming from a checkpoint"],
+          "tools": ["transformers", "datasets", "PyTorch", "Accelerate"],
+          "lab_task": "Create a LlamaConfig with 4 layers and hidden size 256, train it from random initialisation on a 20 MB plain-text corpus using the gpt2 tokenizer, chunked to 256 tokens. Use Trainer with learning_rate 1e-3, warmup_ratio 0.05, bf16=True, eval_strategy='steps' and eval_steps 200. Report train and eval loss, perplexity, and resume once from checkpoint with resume_from_checkpoint=True.",
+          "deliverable": "Training script, loss curves and a perplexity report with the resume test",
+          "checks": [["Compute perplexity from eval_loss", "perplexity equals exp(eval_loss) and falls over training", "Metrics log"], ["Interrupt and resume with resume_from_checkpoint=True", "Training continues from the saved global_step rather than step 0", "Trainer log"], ["Compare train and eval loss at the end", "Gap is reported; eval loss is higher and the cause is discussed", "Report"]],
+          "objectives": ["Pretrain a small model with Trainer from random weights", "Choose training arguments for stable optimisation", "Report perplexity and resume from a checkpoint"]
+        },
+        {
+          "topic": "Fine-Tuning an Encoder for Classification with Trainer",
+          "subtopics": ["When fine-tuning beats zero-shot for classification", "AutoModelForSequenceClassification with id2label and label2id", "Tokenise and split with datasets", "TrainingArguments and the Trainer with processing_class", "compute_metrics with accuracy and macro F1", "Learning rate 2e-5, 3 epochs and weight decay", "load_best_model_at_end and metric_for_best_model", "Evaluating on a held-out test set once", "Saving and reloading the tuned model"],
+          "tools": ["transformers", "datasets", "evaluate", "PyTorch", "Accelerate"],
+          "lab_task": "Fine-tune distilbert-base-uncased on a 3-class set of 2,000 labelled support tickets split 80/10/10 with seed 42. Use learning_rate 2e-5, 3 epochs, per_device_train_batch_size 16 and compute_metrics returning accuracy and macro F1. Set load_best_model_at_end=True. Evaluate once on the test split, save to ./ticket-clf and reload with pipeline().",
+          "deliverable": "Training script, metrics table for validation and test, and the saved model folder",
+          "checks": [["Evaluate on the untouched test split", "Accuracy and macro F1 are reported and exceed the majority-class baseline", "Test metrics"], ["Check config.id2label in the saved model", "Contains the three label names rather than LABEL_0 to LABEL_2", "config.json"], ["Reload ./ticket-clf in a pipeline and classify a new ticket", "Returns one of the three named labels", "Pipeline output"]],
+          "objectives": ["Fine-tune an encoder for sequence classification", "Select the best checkpoint by a validation metric", "Evaluate and package the tuned model"]
+        },
+        {
+          "topic": "Fine-Tuning Decoder Models with LoRA via peft",
+          "subtopics": ["Why adapters: memory and storage savings", "LoraConfig: r, lora_alpha, target_modules, lora_dropout", "get_peft_model and print_trainable_parameters", "Formatting examples with chat templates and masking prompt tokens in labels", "Training with Trainer and a causal LM collator", "Saving only adapter weights", "Loading with PeftModel.from_pretrained", "merge_and_unload for a plain checkpoint", "Comparing outputs before and after tuning"],
+          "tools": ["peft", "transformers", "datasets", "PyTorch", "Accelerate"],
+          "lab_task": "Apply LoraConfig(r=16, lora_alpha=32, target_modules=['q_proj','k_proj','v_proj','o_proj']) to Qwen/Qwen2.5-0.5B-Instruct, print trainable parameters, and train 1 epoch on 500 instruction pairs that return answers in a fixed JSON format. Save the adapter, reload with PeftModel, then call merge_and_unload. Compare JSON validity on 50 held-out prompts before and after tuning.",
+          "deliverable": "Training script, adapter folder and a before-and-after JSON-validity table",
+          "checks": [["Print trainable parameters after get_peft_model", "Trainable share is under 2 percent of total parameters", "print_trainable_parameters output"], ["List the saved adapter directory", "Contains adapter_config.json and adapter_model.safetensors, a few MB in size", "Directory listing"], ["Count valid JSON replies on 50 held-out prompts", "Valid share after tuning is higher than before", "Comparison table"]],
+          "objectives": ["Configure LoRA adapters on a decoder model", "Train, save, reload and merge adapters", "Measure the effect of tuning on a task metric"]
+        },
+        {
+          "topic": "Tokenizer Internals: BPE, WordPiece and Unigram, and Training Your Own",
+          "subtopics": ["Byte-level BPE merges and the byte fallback", "WordPiece with the ## continuation prefix", "Unigram and SentencePiece", "The tokenizers pipeline: normalizer, pre-tokenizer, model, post-processor", "Training with BpeTrainer on a corpus and choosing vocab_size", "Wrapping with PreTrainedTokenizerFast", "Adding special tokens and resizing embeddings", "Measuring tokens per word and fertility across languages", "Whitespace and number handling surprises"],
+          "tools": ["tokenizers", "transformers", "Python", "sentencepiece"],
+          "lab_task": "Train a byte-level BPE tokenizer with the tokenizers library on a 10 MB corpus at vocab_size 8000, wrap it in PreTrainedTokenizerFast and save it. Compare tokens per word on the corpus against gpt2 and bert-base-uncased for English and a 1,000-word Hindi sample. Add two special tokens and call model.resize_token_embeddings, then confirm the new embedding shape.",
+          "deliverable": "Trained tokenizer files and a fertility table across three tokenizers and two languages",
+          "checks": [["Train BPE at vocab_size 8000 and check len(tokenizer)", "Length is 8000 plus any added special tokens", "Printed length"], ["Compare tokens per word on the Hindi sample", "Hindi tokens per word are clearly higher than English for gpt2 and bert-base-uncased, and the three tokenizers are ranked", "Fertility table"], ["Resize embeddings after adding two special tokens", "New embedding rows equal the old count plus 2", "Printed shape"]],
+          "objectives": ["Explain how BPE, WordPiece and Unigram differ", "Train and save a custom tokenizer", "Measure tokenizer efficiency across languages"]
+        },
+        {
+          "topic": "Custom Data Collators, Padding and Sequence Packing",
+          "subtopics": ["Dynamic padding versus fixed padding and wasted tokens", "Left padding for decoder generation versus right padding for training", "Writing a collator that builds labels with -100 masking", "Prompt masking for instruction data", "Packing documents into fixed-length blocks", "position_ids and attention reset for packed samples", "Length-grouped batching with group_by_length", "Measuring padding waste and throughput"],
+          "tools": ["transformers", "datasets", "PyTorch", "Python"],
+          "lab_task": "Take 2,000 instruction examples of varied length. Write a collator that pads right, sets padding labels to -100 and masks all prompt tokens. Measure padding waste as pad tokens divided by total tokens for fixed 512 padding, dynamic padding and group_by_length. Then pack the same data into 512-token blocks and compare tokens processed per second in a 50-step run.",
+          "deliverable": "Collator code and a table of padding waste and throughput for three batching strategies",
+          "checks": [["Check labels for a padded sample", "Prompt and padding positions are -100 and only answer tokens carry ids", "Printed labels"], ["Compute padding waste for fixed 512 versus dynamic", "Dynamic padding waste is far lower than fixed padding", "Waste table"], ["Compare throughput with packing", "Packed run processes more real tokens per second than dynamic padding", "Benchmark output"]],
+          "objectives": ["Build a collator that masks prompts and padding", "Quantify padding waste", "Apply packing and understand its attention implications"]
+        },
+        {
+          "topic": "Generation Internals: Logits Processors, Stopping Criteria and Streaming",
+          "subtopics": ["The loop inside generate(): forward, logits, process, select", "LogitsProcessor and LogitsProcessorList", "Writing a processor that bans or boosts tokens", "StoppingCriteria and stop_strings", "TextStreamer and TextIteratorStreamer with a thread", "output_scores and compute_transition_scores", "Constrained decoding with bad_words_ids and force_words_ids", "GenerationConfig fields and precedence"],
+          "tools": ["transformers", "PyTorch", "Python", "threading"],
+          "lab_task": "Write a LogitsProcessor that sets the logits of all tokens containing digits to -inf and use it with Qwen2.5-0.5B-Instruct to answer 'What is 2+2?' Verify no digit appears. Add stop_strings=['\\n\\n'] with the tokenizer argument, stream tokens with TextIteratorStreamer in a thread, and use compute_transition_scores to print the probability of each generated token.",
+          "deliverable": "Script with a custom processor, streaming loop and per-token probability printout",
+          "checks": [["Run the digit-banning processor on a maths prompt", "Generated text contains no characters 0-9", "Output check"], ["Set stop_strings with the tokenizer argument", "Generation ends at the blank line and the stop string is in the output tail", "Printed text"], ["Print per-token probabilities from transition scores", "One probability in (0, 1] per generated token", "Printed list"]],
+          "objectives": ["Customise decoding with logits processors and stopping criteria", "Stream tokens to a consumer", "Inspect token-level scores"]
+        },
+        {
+          "topic": "KV Cache Mechanics and Static Cache in transformers",
+          "subtopics": ["Why recomputing keys and values wastes time", "past_key_values and use_cache", "The DynamicCache class and its growth", "Measuring generation time with and without cache", "Cache memory growth with sequence length", "StaticCache and cache_implementation='static'", "Compatibility with torch.compile", "Reusing a prompt prefix cache across requests", "Offloaded and quantised cache options at a glance"],
+          "tools": ["transformers", "PyTorch", "Python", "matplotlib"],
+          "lab_task": "Generate 200 tokens with Qwen2.5-0.5B-Instruct using use_cache=True and use_cache=False and time both. Then call the model manually for a 500-token prompt, keep past_key_values, and feed only new tokens. Print the cache tensor shape and the bytes used. Plot time per new token against sequence length for both modes and test cache_implementation='static'.",
+          "deliverable": "Benchmark notebook with timings, cache sizes and a plot",
+          "checks": [["Compare 200-token generation time with cache on versus off", "Cache-off time is several times longer and grows faster with length", "Timing table"], ["Print the key tensor shape in layer 0 after a 500-token prompt", "Shape is (1, 2, 500, 64) for 2 KV heads and head_dim 64", "Printed shape"], ["Reuse the prefix cache for a second question", "Output equals the full-prompt output and prefill time is saved", "Equality test and timing"]],
+          "objectives": ["Explain what the KV cache stores and why it speeds decoding", "Manage past_key_values manually", "Compare dynamic and static cache implementations"]
+        },
+        {
+          "topic": "Attention Backends: SDPA and FlashAttention in transformers",
+          "subtopics": ["attn_implementation values: eager, sdpa and flash_attention_2", "What SDPA dispatches to on your hardware", "Installing and requirements for flash-attn", "Dtype and device constraints", "Memory and speed versus sequence length", "Numerical differences and tolerance", "Returning attention weights needs eager", "Choosing and recording the backend in experiment logs"],
+          "tools": ["transformers", "PyTorch", "flash-attn", "nvidia-smi"],
+          "lab_task": "Load the same model with attn_implementation='eager' and 'sdpa' (and 'flash_attention_2' if the GPU supports it). For sequence lengths 512, 2048 and 8192 measure forward time and peak memory with torch.cuda.max_memory_allocated. Compare last-layer logits across backends with torch.allclose at atol 1e-2 in bfloat16 and record which backend each run used.",
+          "deliverable": "Benchmark table of backend, length, time and peak memory with a logit-equivalence note",
+          "checks": [["Request output_attentions with sdpa", "Library warns or falls back, because weights need eager", "Console output"], ["Compare peak memory at 8192 tokens, eager versus sdpa", "sdpa uses far less memory than eager", "Benchmark table"], ["Compare logits between backends in bfloat16", "Outputs agree within atol 1e-2 and are not bit-identical", "Comparison output"]],
+          "objectives": ["Choose an attention backend by measurement", "Explain memory differences between eager and fused attention", "Check numerical agreement across backends"]
+        },
+        {
+          "topic": "Loading Quantised Models with quantization_config",
+          "subtopics": ["Weights memory by precision: fp16, int8, 4-bit", "BitsAndBytesConfig with load_in_4bit, bnb_4bit_quant_type='nf4' and bnb_4bit_compute_dtype", "Double quantisation", "Loading pre-quantised checkpoints such as GPTQ and AWQ formats", "Reading quantization_config in config.json", "Measuring memory, speed and perplexity change", "Which layers stay in higher precision", "Limits: training in 4-bit needs adapters"],
+          "tools": ["transformers", "bitsandbytes", "PyTorch", "evaluate"],
+          "lab_task": "Load Qwen/Qwen2.5-1.5B-Instruct in bfloat16, in 8-bit and in 4-bit NF4 with BitsAndBytesConfig. Record get_memory_footprint for each and tokens per second for 100 generated tokens. Compute perplexity on 100 held-out sentences for each variant. Print the quantization_config dict from model.config for the 4-bit run.",
+          "deliverable": "Table of footprint, speed and perplexity for bf16, int8 and NF4",
+          "checks": [["Compare footprints of bf16 and NF4", "NF4 footprint is roughly a third to a quarter of bf16", "Printed table"], ["Compute perplexity on the same 100 sentences", "NF4 perplexity is slightly higher than bf16 and the delta is reported", "Perplexity table"], ["Print model.config.quantization_config for NF4", "Shows load_in_4bit true and bnb_4bit_quant_type nf4", "Printed dict"]],
+          "objectives": ["Load models in 8-bit and 4-bit with BitsAndBytesConfig", "Measure memory, speed and quality trade-offs", "Read quantisation settings from a config"]
+        },
+        {
+          "topic": "Encoder-Decoder Models: T5, BART and Seq2Seq Generation",
+          "subtopics": ["Cross-attention: decoder queries over encoder outputs", "AutoModelForSeq2SeqLM and generate for text-to-text", "T5 task prefixes and the text-to-text framing", "decoder_input_ids and shifting labels right", "Teacher forcing during training", "Beam search for translation and summarisation", "ROUGE evaluation", "Choosing encoder-decoder versus decoder-only"],
+          "tools": ["transformers", "evaluate", "datasets", "PyTorch"],
+          "lab_task": "Load google/flan-t5-small with AutoModelForSeq2SeqLM. Summarise 30 short articles with 'summarize: ' prompts using num_beams=4 and max_new_tokens=60, and compute ROUGE-L with evaluate against your references. Print the encoder output shape, the cross-attention weight shape with output_attentions=True, and the decoder_input_ids created from a label tensor.",
+          "deliverable": "Notebook with summaries, ROUGE scores and shape annotations",
+          "checks": [["Print the shift-right of a label tensor", "decoder_input_ids start with the decoder start token and drop the last label", "Printed tensors"], ["Compute ROUGE-L over 30 summaries", "A score between 0 and 1 is reported with beam and greedy compared", "Metric output"], ["Print cross-attention weight shape", "Shape is (batch, heads, target_len, source_len)", "Printed shape"]],
+          "objectives": ["Run and evaluate seq2seq generation", "Explain cross-attention and decoder input shifting", "Choose between encoder-decoder and decoder-only models"]
+        },
+        {
+          "topic": "Vision-Language and Multimodal Models with AutoProcessor",
+          "subtopics": ["Processors: tokenizer plus image processor in one object", "Image tokens inserted into the text sequence", "Chat templates with image content entries", "AutoModelForImageTextToText", "Image resolution, patches and token cost", "Visual question answering and captioning", "Document and chart reading limits", "Batching mixed image and text inputs", "Hallucinated visual details"],
+          "tools": ["transformers", "Pillow", "PyTorch", "Accelerate"],
+          "lab_task": "Load a small vision-language model such as HuggingFaceTB/SmolVLM-256M-Instruct with AutoProcessor and AutoModelForImageTextToText. Build a messages list with one image and the question 'How many bars are in this chart?', apply_chat_template, and generate 60 tokens. Print the number of image tokens in input_ids and run 10 chart images, scoring the counts against your own answers.",
+          "deliverable": "Notebook with ten image questions, the count of image tokens and an accuracy score",
+          "checks": [["Count image token positions in input_ids", "A fixed positive count per image is printed and depends on resolution settings", "Printed count"], ["Score 10 chart questions against your answers", "Accuracy out of 10 is reported with wrong answers listed", "Score table"], ["Ask about a detail not present in the image", "Record whether the model hallucinates and quote the output", "Output transcript"]],
+          "objectives": ["Use processors for image and text input", "Estimate image token cost", "Test a vision-language model for hallucination"]
+        },
+        {
+          "topic": "Speech Transformers: Whisper Transcription and Wav2Vec2 Features",
+          "subtopics": ["Whisper encoder-decoder with log-Mel input", "WhisperProcessor and generate with language and task arguments", "Long audio with chunked or sequential decoding", "Timestamps and return_timestamps", "Wav2Vec2 and CTC for character output", "Fine-grained error analysis with jiwer", "Real-time factor as a metric", "Model sizes tiny to large and WER versus speed", "Privacy of recordings"],
+          "tools": ["transformers", "librosa", "jiwer", "torchaudio"],
+          "lab_task": "Transcribe five 60-second WAV clips with whisper-tiny, whisper-base and whisper-small using the ASR pipeline with chunk_length_s=30. Compute WER with jiwer against your reference text and real-time factor as processing seconds divided by audio seconds. Also run facebook/wav2vec2-base-960h and compare its CTC output with Whisper on the same clip.",
+          "deliverable": "Table of WER and real-time factor for three Whisper sizes plus Wav2Vec2",
+          "checks": [["Compute WER per model with jiwer", "WER decreases from tiny to small on most clips", "Results table"], ["Compute real-time factor", "RTF increases with model size and is reported for your hardware", "Results table"], ["Compare Wav2Vec2 output on a clip with punctuation", "Wav2Vec2 output is uppercase letters without punctuation, unlike Whisper", "Transcript comparison"]],
+          "objectives": ["Transcribe long audio with Whisper", "Compute WER and real-time factor", "Contrast CTC and encoder-decoder speech models"]
+        },
+        {
+          "topic": "Accelerate and Multi-GPU Inference with device_map",
+          "subtopics": ["Layer placement with device_map='auto' and device_map='balanced'", "max_memory per device", "hf_device_map and how layers are split", "CPU and disk offload and their cost", "Pipeline-style sequential execution across GPUs", "accelerate launch for scripts", "accelerate config", "Out-of-memory diagnosis with torch.cuda.memory_summary", "Tensor parallel loading with tp_plan at a glance"],
+          "tools": ["Accelerate", "transformers", "PyTorch", "nvidia-smi"],
+          "lab_task": "Load a model that does not fit on one GPU, or simulate with max_memory={0:'2GiB','cpu':'16GiB'}, using device_map='auto'. Print model.hf_device_map and count layers on each device. Generate 50 tokens and time it. Repeat with fewer layers offloaded and report the speed ratio. Run accelerate env and attach the output.",
+          "deliverable": "Device-map report with layer placement, timing for offload settings and accelerate env output",
+          "checks": [["Print hf_device_map with a 2GiB GPU limit", "Some layers are listed on 'cpu' and others on device 0", "Printed map"], ["Compare tokens per second with and without offload", "Offloaded run is much slower", "Benchmark table"], ["Run accelerate env", "Prints Accelerate version, PyTorch version and device details", "Terminal output"]],
+          "objectives": ["Place large models across devices with device_map", "Measure the cost of offloading", "Diagnose placement and memory issues"]
+        },
+        {
+          "topic": "Interpreting Transformers: Attention Maps, Probing and Logit Lens",
+          "subtopics": ["Attention is not explanation: what weights do and do not show", "Plotting attention per layer and head", "Probing classifiers on hidden states", "Logit lens: apply the unembedding to intermediate layers", "Activation patching idea in outline", "Gradient-times-input attribution", "Detecting induction-style repeats", "Reporting findings with caveats"],
+          "tools": ["transformers", "PyTorch", "scikit-learn", "matplotlib"],
+          "lab_task": "With gpt2 run output_hidden_states=True on 'The Eiffel Tower is in the city of'. Apply ln_f and lm_head to the hidden state at the final position for each of the 12 layers and print the top token per layer (logit lens). Train a logistic-regression probe on layer-6 states to predict part of speech for 2,000 tokens and report accuracy per layer.",
+          "deliverable": "Logit-lens table across layers and a probe accuracy chart by layer",
+          "checks": [["Apply logit lens to the last layer", "Top token at layer 12 equals the model's actual next-token prediction", "Printed token"], ["Train probes for layers 0, 6 and 12", "Probe accuracy is reported per layer and layer 0 is below the middle layers", "Accuracy chart"], ["Run the probe on shuffled labels", "Accuracy falls to about chance, confirming the probe is not memorising", "Control result"]],
+          "objectives": ["Apply logit lens and probing to a transformer", "Run control experiments for probes", "State limits of attention-based explanation"]
+        },
+        {
+          "topic": "Testing and Benchmarking Transformers Code: Reproducibility, Latency and Memory",
+          "subtopics": ["Seeds with set_seed and deterministic flags", "pytest tests for shapes, masks and loss values", "Golden-output tests with tolerances by dtype", "Latency percentiles: p50 and p95", "Warmup runs and CUDA synchronisation", "Memory with max_memory_allocated", "Recording library versions and git commit", "CI for small CPU-only model tests", "Regression thresholds"],
+          "tools": ["pytest", "transformers", "PyTorch", "GitHub Actions"],
+          "lab_task": "Write pytest tests for your decoder model: output shape, causal mask leakage (changing token t+1 must not change logits at t), and loss at init near ln(vocab). Add a benchmark script that records p50 and p95 latency over 100 runs after 10 warmups and peak memory to a JSON file with versions. Run the tests in a GitHub Actions job on CPU.",
+          "deliverable": "tests folder, benchmark.py, results.json and a CI workflow file",
+          "checks": [["Change token t+1 and compare logits at position t", "Logits at positions up to t are identical, showing no future leakage", "pytest output"], ["Run the benchmark twice with the same seed", "Outputs are equal and p50 latency varies by less than 10 percent", "results.json"], ["Check the CI workflow run", "All tests pass on CPU in the Actions log", "Actions run"]],
+          "objectives": ["Write tests that catch masking and shape bugs", "Benchmark latency and memory correctly", "Record versions for reproducibility"]
+        },
+        {
+          "topic": "Intermediate Capstone: Small Language Model Training and Evaluation Report",
+          "subtopics": ["Scope: a 20M to 60M parameter model on a domain corpus", "Tokenizer, model config, training run and ablation", "Evaluation: perplexity, sample quality and a task probe", "Reporting memory, speed and cost", "Reproducibility package"],
+          "tools": ["transformers", "datasets", "PyTorch", "Accelerate", "evaluate", "peft"],
+          "lab_task": "Train a 4-layer decoder with your own BPE tokenizer on a domain corpus of at least 50 MB using Trainer. Run two ablations (RoPE versus learned positions, or GQA versus MHA) for equal steps. Report perplexity on a held-out split, 5 sample generations, tokens per second and peak memory, then LoRA-tune the best model on 300 examples. Publish seeds, versions and configs in a README.",
+          "deliverable": "Repository with code, configs, logs, evaluation tables and a ten-page report",
+          "checks": [["Compare ablation perplexities at equal steps", "Table shows both variants with the same data and seed", "Report table"], ["Rerun the baseline with the recorded seed", "Eval loss matches within 2 percent of the report", "Rerun log"], ["Review the README", "Lists versions, seeds, configs, commands and hardware", "README file"]],
+          "objectives": ["Run a controlled training experiment with ablations", "Evaluate a language model with several signals", "Package work for reproduction"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For ML engineers and researchers who train, modify or serve transformer models and need numbers, not rules of thumb. Covers parameter, FLOP and memory accounting, scaling laws, mixture-of-experts, long-context methods, fused attention, continuous batching, speculative decoding, state-space hybrids, tensor, pipeline and sequence parallelism, FSDP and DeepSpeed ZeRO, contributing a new architecture to transformers, custom models and checkpoint conversion, compilation and export, numerical debugging, training stability, distillation, reasoning models and mechanistic analysis.",
+      "prerequisites": ["Completed the intermediate level or has implemented a decoder-only transformer and trained one with Trainer", "Comfortable reading PyTorch source, profiler traces and distributed training logs", "Has access to at least one GPU, and for the distributed days two GPUs or a cloud multi-GPU node"],
+      "outcomes": ["Predict parameters, FLOPs, memory and KV cache for a given transformer configuration and confirm the prediction by measurement", "Choose and configure parallelism, sharding and attention kernels for training and serving, and explain the trade-offs", "Add or convert an architecture in the transformers library with numerical parity tests against a reference implementation", "Diagnose loss spikes, NaNs and precision problems, and evaluate compression, long-context and reasoning techniques with controlled experiments"],
+      "days": [
+        {
+          "topic": "Transformer Compute Accounting: Parameters, FLOPs and Memory",
+          "subtopics": ["Parameter count formula per layer: attention plus MLP plus embeddings", "Training FLOPs approximation 6 x N x D", "Forward-only FLOPs 2 x N per token", "Attention FLOPs that scale with sequence length squared", "Training memory: weights, gradients, Adam states and activations", "Bytes per parameter in mixed precision training", "Model FLOPs utilisation (MFU) and how to compute it", "Checking estimates with torch.utils.flop_counter"],
+          "tools": ["PyTorch", "transformers", "torch.profiler", "Jupyter"],
+          "lab_task": "Write count_params(config) for a Llama-style config and verify it against sum(p.numel()) for Qwen/Qwen2.5-0.5B. Estimate training memory with Adam in bf16 mixed precision at 16 bytes per parameter. Measure FLOPs of one forward pass with torch.utils.flop_counter.FlopCounterMode and compare with 2 x N x tokens. Compute MFU of a measured training step against your GPU's peak.",
+          "deliverable": "Accounting notebook comparing formula, counter and measured values for params, FLOPs and memory",
+          "checks": [["Compare count_params with sum(p.numel())", "Values agree exactly, with tied embeddings counted once", "Printed counts"], ["Compare FlopCounterMode output with 2 x N x tokens", "Counter result is within 20 percent, higher due to attention FLOPs", "Comparison table"], ["Estimate Adam mixed-precision memory for a 1B model", "About 16 GB for weights, gradients and optimiser states before activations", "Calculation"]],
+          "objectives": ["Compute parameters, FLOPs and memory from a config", "Verify estimates with counters and profilers", "Calculate model FLOPs utilisation"]
+        },
+        {
+          "topic": "Scaling Laws and Compute-Optimal Training",
+          "subtopics": ["Power-law loss versus parameters, data and compute", "The Kaplan and Chinchilla results and their differences", "Roughly 20 tokens per parameter as a compute-optimal rule of thumb", "Over-training small models for inference cost", "Fitting a power law L = a N^-b + c", "IsoFLOP curves", "Extrapolation risk and irreducible loss", "Planning a training budget"],
+          "tools": ["PyTorch", "NumPy", "SciPy", "matplotlib"],
+          "lab_task": "Train five small decoder models with 2M, 4M, 8M, 16M and 32M parameters for the same token budget on one corpus and record final eval loss. Fit L = a N^-b + c with scipy.optimize.curve_fit, plot the fit and predict the loss at 64M. Train the 64M model and compare the prediction with the measured loss. Report the error.",
+          "deliverable": "Scaling experiment notebook with fit parameters, plot and a prediction error",
+          "checks": [["Fit the power law to five points", "Fit reports a, b and c with b positive and a residual per point", "Fit output"], ["Predict loss at 64M parameters", "Prediction is within 5 percent of the measured loss", "Prediction table"], ["Compute tokens per parameter for a 7B model trained on 2T tokens", "About 286 tokens per parameter, far above 20", "Calculation"]],
+          "objectives": ["Fit a scaling law to experiment results", "Apply compute-optimal budgeting", "Explain over-training for cheaper inference"]
+        },
+        {
+          "topic": "Mixture-of-Experts Transformers and Routing",
+          "subtopics": ["Sparse MoE layer: router, top-k experts, combine weights", "Total versus active parameters", "Load-balancing auxiliary loss", "Capacity, token dropping and expert collapse", "Shared experts and fine-grained experts", "MoE blocks in transformers such as the Mixtral and Qwen-MoE classes", "Memory versus compute trade-offs for serving", "Expert parallelism at a glance"],
+          "tools": ["PyTorch", "transformers", "matplotlib", "Jupyter"],
+          "lab_task": "Replace the MLP in your small decoder with an 8-expert, top-2 MoE layer in PyTorch. Add the load-balancing loss with coefficient 0.01. Train 2,000 steps and log the token share per expert, then train again without the auxiliary loss. Print total and active parameters. Plot expert utilisation for both runs.",
+          "deliverable": "MoE layer code, utilisation plots with and without balancing loss and a parameter table",
+          "checks": [["Compute active versus total parameters of the MoE model", "Active parameters are roughly top-k over experts of the MLP share plus dense parts", "Parameter table"], ["Compare expert utilisation with the auxiliary loss", "Max-to-min expert share ratio is lower with the loss than without", "Utilisation plot"], ["Check router output for a token", "Exactly 2 experts selected with weights summing to 1", "Printed routing"]],
+          "objectives": ["Implement a top-k routed MoE layer", "Explain load balancing and expert collapse", "Distinguish active from total parameters"]
+        },
+        {
+          "topic": "Long-Context Methods: RoPE Scaling, YaRN and Ring Attention",
+          "subtopics": ["Why a model fails beyond its trained length", "Position interpolation and NTK-aware scaling", "YaRN and the rope_scaling config dictionary", "Needle-in-a-haystack tests and their limits", "Lost in the middle effect", "Attention sinks and sliding windows for streaming", "Ring attention and sequence parallelism concepts", "Memory cost of long prompts"],
+          "tools": ["transformers", "PyTorch", "matplotlib", "Python"],
+          "lab_task": "Run a needle-in-a-haystack test on a model with a 4k trained context: insert a fact at depths 0, 25, 50, 75 and 100 percent in prompts of 1k, 2k, 4k and 8k tokens and record exact-match recall. Repeat 8k with rope_scaling set to type linear factor 2 (or yarn) in the config. Plot a recall heatmap and report KV memory at each length.",
+          "deliverable": "Recall heatmaps with and without scaling and a KV memory table",
+          "checks": [["Test recall at 8k tokens without scaling", "Recall drops sharply beyond the trained length", "Heatmap"], ["Test recall at 8k with rope_scaling factor 2", "Recall at 8k is higher than without scaling", "Heatmap comparison"], ["Check recall by needle depth at 4k", "Report whether the middle depth is worse than the ends", "Recall table"]],
+          "objectives": ["Test long-context behaviour with controlled prompts", "Apply RoPE scaling through configuration", "Explain memory and quality limits of long prompts"]
+        },
+        {
+          "topic": "FlashAttention and Fused Kernels: What They Change",
+          "subtopics": ["Memory-bound attention and the HBM versus SRAM story", "Tiling and online softmax", "Why activations for attention are not stored in full", "IO complexity and the speedup source", "Causal block skipping", "FlexAttention and score_mod in PyTorch", "Variable-length batches with cu_seqlens", "Profiling kernels with torch.profiler", "When fused kernels do not help (short sequences)"],
+          "tools": ["PyTorch", "torch.profiler", "flash-attn", "Triton"],
+          "lab_task": "Profile naive attention and F.scaled_dot_product_attention for batch 4, 16 heads, head_dim 64 at sequence lengths 512, 2048, 8192 using torch.profiler. Record kernel time, peak memory and number of kernels. Implement online softmax for one block in plain PyTorch and check it equals the standard softmax. Try FlexAttention with a sliding-window score_mod and compare time with full causal attention.",
+          "deliverable": "Profiler tables, an online-softmax test and a FlexAttention timing comparison",
+          "checks": [["Compare peak memory at 8192 tokens", "Naive attention memory grows with L squared and the fused path stays near linear", "Memory table"], ["Check online softmax against standard softmax", "torch.allclose returns True at atol=1e-6", "Test output"], ["Time sliding-window FlexAttention versus full causal", "Windowed attention is faster at 8192 tokens", "Timing table"]],
+          "objectives": ["Explain why fused attention is faster and uses less memory", "Implement online softmax", "Profile attention kernels"]
+        },
+        {
+          "topic": "Continuous Batching and Paged Attention for Inference",
+          "subtopics": ["Static versus continuous batching and head-of-line blocking", "Prefill versus decode phases and their different bottlenecks", "Paged KV cache blocks and fragmentation", "Prefix caching and shared prompts", "Chunked prefill", "Throughput versus time to first token", "The generate_batch and serve paths in recent transformers releases and external engines such as vLLM", "Load testing with a Poisson arrival pattern"],
+          "tools": ["transformers", "vLLM", "PyTorch", "Python"],
+          "lab_task": "Simulate 200 requests with Poisson arrivals at 4 requests per second and output lengths from 20 to 400 tokens. Run static batches of 8 using generate() and measure throughput, p50 and p95 latency. Repeat with continuous batching using the library's continuous batching support or vLLM. Report time to first token and tokens per second for both.",
+          "deliverable": "Load test script and a comparison table of throughput, TTFT and tail latency",
+          "checks": [["Measure static-batch p95 latency", "p95 is reported and is dominated by the longest request in each batch", "Latency table"], ["Measure continuous-batching throughput", "Tokens per second is higher than static batching under the same load", "Throughput table"], ["Compare time to first token", "TTFT is lower with continuous batching at p95", "Latency table"]],
+          "objectives": ["Explain prefill versus decode and head-of-line blocking", "Run a realistic load test", "Compare static and continuous batching"]
+        },
+        {
+          "topic": "Speculative Decoding and Assisted Generation",
+          "subtopics": ["Draft-and-verify idea and why output distribution is preserved", "Acceptance rate and expected speedup", "assistant_model argument in generate()", "Prompt lookup decoding with prompt_lookup_num_tokens", "Draft model choice: same tokenizer and family", "Batch size effect on benefit", "Measuring speedup honestly with warmup", "Sampling versus greedy compatibility", "Where speculative decoding hurts"],
+          "tools": ["transformers", "PyTorch", "Python", "matplotlib"],
+          "lab_task": "Use Qwen2.5-1.5B-Instruct as target and Qwen2.5-0.5B-Instruct as the draft with assistant_model. Generate 200 tokens for 30 prompts greedily with and without the assistant. Verify outputs are identical, record tokens per second, and estimate acceptance rate. Repeat with prompt_lookup_num_tokens=10 on a summarisation task and compare speedups.",
+          "deliverable": "Table of speedups for assisted and prompt-lookup decoding with output equality results",
+          "checks": [["Compare greedy outputs with and without the assistant", "Outputs are identical for every prompt", "Equality test"], ["Measure speedup with a draft model", "Tokens per second ratio above 1.0 for batch size 1 and reported per prompt", "Speed table"], ["Use prompt lookup on a summarisation task", "Speedup is higher on copy-heavy tasks than on open-ended chat", "Speed comparison"]],
+          "objectives": ["Explain why speculative decoding preserves outputs", "Configure assisted generation", "Measure speedup and acceptance rate"]
+        },
+        {
+          "topic": "State Space and Hybrid Models: Mamba and Attention Hybrids",
+          "subtopics": ["Recurrent view of state space models and constant-size state", "Selective scan in Mamba", "Linear versus quadratic cost and memory during decoding", "Hybrid stacks that mix attention and SSM layers", "Loading Mamba-type models in transformers", "Recall weaknesses and associative recall tests", "Throughput on long sequences", "Choosing between transformer, SSM and hybrid"],
+          "tools": ["transformers", "PyTorch", "mamba-ssm", "matplotlib"],
+          "lab_task": "Load a small Mamba-family model and a similar-size transformer with AutoModelForCausalLM. Measure decode memory and time per token at context lengths 1k, 4k, 16k and 32k. Run a 50-sample associative recall test of key-value pairs at each length. Plot time per token and recall against length for both models and explain the difference.",
+          "deliverable": "Benchmark notebook with plots of memory, speed and recall versus length",
+          "checks": [["Measure decode memory at 16k and 32k", "SSM memory stays near constant while transformer KV cache grows linearly", "Memory table"], ["Measure time per token at 32k", "SSM time per token is flat and transformer time rises with length", "Timing plot"], ["Run associative recall at 16k", "Report recall for both and note which degrades more", "Recall table"]],
+          "objectives": ["Explain recurrent and attention cost differences", "Benchmark SSM and transformer decoding", "Evaluate recall trade-offs of hybrids"]
+        },
+        {
+          "topic": "Tensor, Pipeline and Sequence Parallelism for Training",
+          "subtopics": ["Data, tensor, pipeline, sequence and expert parallelism compared", "Column-parallel and row-parallel linear layers", "All-reduce placement in attention and MLP", "Pipeline stages, micro-batches and the bubble fraction", "Communication volume and NVLink versus PCIe", "Sequence parallelism with norms and dropout", "torch.distributed.tensor and DeviceMesh basics", "Choosing a layout for a given model and cluster"],
+          "tools": ["PyTorch", "torch.distributed", "NCCL", "transformers"],
+          "lab_task": "Implement a column-parallel then row-parallel MLP across 2 processes with torch.distributed and torchrun --nproc_per_node=2, using the gloo backend if no GPUs are present. Check the output equals the single-device MLP within 1e-5. Compute the pipeline bubble fraction (p-1)/(m+p-1) for p=4 and m=4, 8, 16 and count all-reduce bytes per layer.",
+          "deliverable": "Tensor-parallel MLP script, equality test and a pipeline bubble and communication table",
+          "checks": [["Compare tensor-parallel MLP output with single-device output", "torch.allclose returns True at atol=1e-5", "Test output"], ["Compute bubble fraction for p=4", "m=4 gives 3/7 (0.4286), m=8 gives 3/11 (0.2727), m=16 gives 3/19 (0.1579)", "Calculation table"], ["Count all-reduce bytes for hidden 4096, batch tokens 8192 in bf16", "8192 x 4096 x 2 = 67,108,864 bytes per all-reduce payload", "Calculation"]],
+          "objectives": ["Implement tensor-parallel linear layers", "Compute pipeline bubble and communication costs", "Select a parallelism layout"]
+        },
+        {
+          "topic": "FSDP and DeepSpeed ZeRO with Accelerate and Trainer",
+          "subtopics": ["ZeRO stages 1, 2 and 3: what is sharded", "FSDP sharding strategies FULL_SHARD and SHARD_GRAD_OP", "accelerate config and fsdp_config", "Trainer arguments for deepspeed and fsdp", "Mixed precision and activation checkpointing with gradient_checkpointing=True", "CPU offload and its slowdown", "Saving full versus sharded checkpoints", "Loading a sharded state dict", "Per-GPU memory arithmetic"],
+          "tools": ["Accelerate", "DeepSpeed", "PyTorch FSDP", "transformers", "NCCL"],
+          "lab_task": "Train a 1B-parameter model on 2 GPUs with accelerate launch under DDP, FSDP FULL_SHARD and DeepSpeed ZeRO-3 using the same Trainer script. Record peak memory per GPU, tokens per second and loss after 100 steps. Enable gradient_checkpointing and compare. Save a sharded checkpoint, then convert it to a single safetensors file and reload it for generation.",
+          "deliverable": "Comparison table for DDP, FSDP and ZeRO-3 with a checkpoint conversion log",
+          "checks": [["Compare peak memory per GPU across DDP, FSDP and ZeRO-3", "FSDP and ZeRO-3 use clearly less memory per GPU than DDP", "Memory table"], ["Compare loss after 100 steps", "Losses match across strategies within 2 percent", "Training logs"], ["Reload the consolidated checkpoint", "Generation from it matches the pre-save output for a fixed prompt", "Equality test"]],
+          "objectives": ["Configure FSDP and ZeRO for Trainer jobs", "Compute and measure per-GPU memory", "Save and consolidate sharded checkpoints"]
+        },
+        {
+          "topic": "Adding a New Architecture to transformers: Modular Conversion and Contribution",
+          "subtopics": ["Repository layout: models folder, configuration, modeling, tokenisation files", "The modular_*.py file and the converter that generates modeling code", "Inheriting from Llama classes and overriding differences", "Auto class registration and model mappings", "Tests: ModelTester and common tests", "Writing docs and an index entry", "Running make style and make fixup", "Contributor guidelines and the review process"],
+          "tools": ["transformers", "Git", "pytest", "Python", "ruff"],
+          "lab_task": "Fork and install transformers in editable mode with pip install -e '.[dev]'. Create a modular_toy.py for a variant of Llama that uses a different MLP activation and QK-norm, run the modular converter to generate modeling_toy.py, add a config and register the model. Run the common model tests for the new model with pytest tests/models/toy -x and report how many pass.",
+          "deliverable": "Branch with modular_toy.py, generated files and a passing test run",
+          "checks": [["Run the modular converter", "modeling_toy.py is generated and contains the overridden classes", "Generated file"], ["Run pytest on tests/models/toy", "Common tests pass, with any skipped tests listed with reasons", "Pytest summary"], ["Build the model via AutoModelForCausalLM.from_config", "Returns the new class instead of raising an unrecognised model error", "Printed class"]],
+          "objectives": ["Explain the modular approach to model code in transformers", "Create and register a new architecture", "Run the library's test and style tooling"]
+        },
+        {
+          "topic": "Custom Models: PreTrainedModel, Config and Auto Registration",
+          "subtopics": ["Subclassing PretrainedConfig with model_type and attribute_map", "Subclassing PreTrainedModel with config_class and base_model_prefix", "_init_weights and post_init", "Registering with AutoConfig.register and AutoModel.register", "Saving and loading custom models with save_pretrained", "trust_remote_code and the security implications", "Supporting generate() with GenerationMixin", "Supporting Trainer through the loss in forward", "Gradient checkpointing support flags"],
+          "tools": ["transformers", "PyTorch", "pytest", "safetensors"],
+          "lab_task": "Wrap your from-scratch decoder as a PreTrainedModel with a ToyConfig. Add post_init, a forward that returns CausalLMOutputWithPast with loss, and GenerationMixin so generate works. Register with AutoConfig and AutoModelForCausalLM, save and reload, then train 50 steps with Trainer. Confirm logits after reload are identical and note why trust_remote_code is not needed for registered code.",
+          "deliverable": "Custom model package with registration code, save/reload test and a Trainer smoke run",
+          "checks": [["Save then reload through AutoModelForCausalLM", "Logits on a fixed input are identical", "Equality test"], ["Call generate on the custom model", "Returns tokens without error and honours max_new_tokens", "Printed output"], ["Run Trainer for 50 steps", "Loss decreases and no unexpected-keyword errors appear", "Training log"]],
+          "objectives": ["Build a library-compatible custom model", "Register custom classes with the Auto API", "Explain the risks of trust_remote_code"]
+        },
+        {
+          "topic": "Model Conversion and Weight Mapping: Checkpoint Surgery with safetensors",
+          "subtopics": ["Reading safetensors headers and tensor names without loading", "Mapping foreign parameter names to library names", "Splitting and fusing QKV, and gate and up projections", "Transposed linear weights", "RoPE permutation differences between layouts", "Sharded checkpoints and model.safetensors.index.json", "dtype and tied weights", "Parity test: logits against the reference implementation", "Writing a conversion script"],
+          "tools": ["safetensors", "transformers", "PyTorch", "Python"],
+          "lab_task": "Take a reference implementation with fused QKV weights and write convert.py that maps its state dict into a Llama-style layout with separate q_proj, k_proj and v_proj, handling the RoPE permutation. Save as sharded safetensors with max_shard_size='200MB'. Compare logits for 10 prompts against the reference using torch.allclose with atol 1e-4 and print the max absolute difference.",
+          "deliverable": "convert.py, the sharded output folder and a parity report with max differences",
+          "checks": [["Compare logits on 10 prompts", "Max absolute difference is below 1e-4 in float32", "Parity report"], ["List the shard index", "model.safetensors.index.json lists each tensor and its shard file", "Index file"], ["Load with from_pretrained and strict key checks", "No missing or unexpected keys are reported", "Load log"]],
+          "objectives": ["Convert checkpoints between layouts", "Prove numerical parity with a reference", "Work with sharded safetensors files"]
+        },
+        {
+          "topic": "Export and Compilation: torch.compile, ONNX and ExecuTorch for Transformers",
+          "subtopics": ["torch.compile modes: default, reduce-overhead, max-autotune", "Graph breaks and how to find them with TORCH_LOGS", "Static cache for compiled decoding", "Dynamic shapes and recompilation", "torch.export and ExportedProgram", "ONNX export of encoders with dynamic axes", "ExecuTorch for on-device inference", "Parity and latency checks after export"],
+          "tools": ["PyTorch", "transformers", "ONNX Runtime", "ExecuTorch"],
+          "lab_task": "Compile a decoder forward pass with torch.compile(mode='reduce-overhead') using a static cache and compare per-token latency with eager over 200 tokens. Use TORCH_LOGS=graph_breaks to list breaks. Export distilbert-base-uncased to ONNX with dynamic batch and sequence axes, run it with ONNX Runtime and compare logits to PyTorch with atol 1e-4.",
+          "deliverable": "Latency comparison, graph-break log and an ONNX parity report",
+          "checks": [["Compare per-token latency of eager and compiled decode", "Compiled decode is faster after warmup and the first call is slower", "Latency table"], ["Run with TORCH_LOGS=graph_breaks", "Log lists graph breaks or reports none", "Log output"], ["Compare ONNX Runtime and PyTorch logits", "Max absolute difference below 1e-4", "Parity output"]],
+          "objectives": ["Speed up decoding with torch.compile and a static cache", "Export encoders to ONNX with dynamic axes", "Verify parity after export"]
+        },
+        {
+          "topic": "Numerical Debugging: Precision, Overflows and Loss Spikes",
+          "subtopics": ["fp16 range and loss scaling versus bf16 range and precision", "Where overflow happens: attention scores, logits and softmax", "Float32 for norms, softmax and loss", "torch.autograd.set_detect_anomaly and its cost", "Hooks to log activation and gradient norms per layer", "Gradient clipping with max_grad_norm", "Bisecting a spike by data batch and step", "Bad data as a cause: duplicates and long junk sequences", "Checkpoint rollback and skip-batch recovery"],
+          "tools": ["PyTorch", "transformers", "Weights & Biases", "Python"],
+          "lab_task": "Reproduce an fp16 overflow by training a small model with a large learning rate until loss becomes NaN. Register forward hooks to log the max absolute activation per layer and gradient norm per step. Identify the first layer and step with inf, then fix it with bf16, gradient clipping 1.0 and a lower learning rate. Show the loss curve before and after.",
+          "deliverable": "Debug log identifying the first overflow layer, plus before-and-after loss curves",
+          "checks": [["Log activation max per layer before NaN", "First inf appears in a named layer at a named step", "Hook log"], ["Rerun with bf16 and max_grad_norm=1.0", "Loss stays finite through 1,000 steps", "Loss curve"], ["Compare gradient norm before and after clipping", "Clipped norm never exceeds 1.0 after clipping", "Gradient norm log"]],
+          "objectives": ["Locate the source of NaNs and infs", "Choose precision formats on evidence", "Recover from a loss spike"]
+        },
+        {
+          "topic": "Training Stability: Attention Entropy, QK-Norm and Logit Soft-Capping",
+          "subtopics": ["Attention logit growth and entropy collapse", "Measuring attention entropy per head", "QK-norm: normalise queries and keys before dot product", "Logit soft-capping with tanh as in some released models", "z-loss on output logits", "Learning-rate warmup and its effect", "Weight decay and AdamW epsilon", "Ablating one stabiliser at a time", "Reading learning-rate sensitivity curves"],
+          "tools": ["PyTorch", "transformers", "matplotlib", "Weights & Biases"],
+          "lab_task": "Train your small decoder at five learning rates from 1e-3 to 3e-2 with and without QK-norm, logging max attention logit and mean attention entropy every 50 steps. Plot final loss against learning rate for both settings. Add a z-loss of 1e-4 as a third condition. Report the highest learning rate that trains stably in each condition.",
+          "deliverable": "Learning-rate sensitivity plot and a table of the highest stable rate for three conditions",
+          "checks": [["Compare maximum attention logit with and without QK-norm", "Max logit is smaller and flatter with QK-norm at high learning rates", "Logged curves"], ["Find the highest stable learning rate for each condition", "QK-norm tolerates a higher rate than the baseline", "Sensitivity table"], ["Measure attention entropy at the failing rate", "Entropy collapses toward 0 in unstable baseline heads", "Entropy plot"]],
+          "objectives": ["Diagnose training instability with attention statistics", "Apply QK-norm and z-loss", "Run controlled learning-rate sensitivity studies"]
+        },
+        {
+          "topic": "Distillation and Pruning of Transformers",
+          "subtopics": ["Logit distillation with KL divergence and temperature", "Hidden-state and attention-map matching losses", "Student initialisation from alternate teacher layers", "Sequence-level distillation from teacher outputs", "Structured pruning of heads and MLP neurons", "Magnitude versus movement pruning", "Measuring size, latency and quality", "Combining distillation with quantisation"],
+          "tools": ["PyTorch", "transformers", "evaluate", "datasets"],
+          "lab_task": "Distil a 6-layer student from bert-base-uncased fine-tuned on a 3-class task, initialised from every second teacher layer. Train with loss = 0.5 x KL(T=2) + 0.5 x cross-entropy on 5,000 examples. Compare accuracy, parameters and latency of the teacher, the student trained with labels only and the distilled student. Prune 4 of 12 heads in the teacher and report the effect.",
+          "deliverable": "Three-way comparison table of accuracy, size and latency plus a pruning note",
+          "checks": [["Compare distilled and label-only students", "Distilled student has higher accuracy than label-only at identical size", "Results table"], ["Measure student parameters versus teacher", "Student has about half the encoder layers and fewer parameters", "Parameter table"], ["Measure latency at batch size 32", "Student is roughly 1.5 to 2 times faster than the teacher", "Latency table"]],
+          "objectives": ["Implement logit and layer-based distillation", "Prune attention heads and measure impact", "Report quality, size and latency together"]
+        },
+        {
+          "topic": "Test-Time Compute: Chain-of-Thought Sampling and Self-Consistency",
+          "subtopics": ["Chain-of-thought tokens as extra compute", "Reasoning-tuned model outputs with thinking sections", "Sampling many answers and majority voting (self-consistency)", "Best-of-N with a verifier", "Budget control through max_new_tokens and stop rules", "Cost, latency and accuracy trade-offs", "Measuring accuracy against generated tokens", "Failure modes: overthinking and unfaithful reasoning"],
+          "tools": ["transformers", "PyTorch", "datasets", "Python"],
+          "lab_task": "Take 100 grade-school arithmetic word problems with known answers. With a small instruct model, measure exact-match accuracy for direct answer, chain-of-thought and self-consistency with N=5 and N=10 at temperature 0.7. Parse the final number with a regex. Record average generated tokens per problem and plot accuracy against tokens.",
+          "deliverable": "Accuracy-versus-tokens plot and a table of direct, CoT and self-consistency results",
+          "checks": [["Compute exact-match accuracy for direct answers", "A baseline accuracy over 100 problems is reported", "Results table"], ["Compare CoT and self-consistency at N=10", "Accuracy increases with N while tokens per problem increase about 10 times", "Results table"], ["Inspect 10 failures", "Each is labelled as arithmetic error, parsing error or reasoning error", "Error log"]],
+          "objectives": ["Measure accuracy gains from test-time compute", "Implement self-consistency and best-of-N", "Reason about cost versus accuracy"]
+        },
+        {
+          "topic": "Mechanistic Analysis: Circuits, Induction Heads and Sparse Autoencoders",
+          "subtopics": ["Residual stream view of the transformer", "Induction heads and in-context copying", "Detecting induction with repeated random token sequences", "Activation patching and path patching", "Direct logit attribution", "Sparse autoencoders for features in the residual stream", "Reconstruction loss and L1 sparsity", "Limits and reproducibility of interpretability claims"],
+          "tools": ["transformers", "PyTorch", "TransformerLens", "matplotlib"],
+          "lab_task": "Feed gpt2 a random token sequence repeated twice and measure per-position loss: the second repeat should fall sharply. Score each head for induction with the attention from the second repeat to the token after the first occurrence. Patch the top head's output with a clean-run value and report loss recovery. Train a 4096-feature sparse autoencoder on layer-6 activations and report L0.",
+          "deliverable": "Induction-head scores, a patching result table and sparse autoencoder metrics",
+          "checks": [["Measure loss on first and second repeat", "Second-repeat loss is far lower than first-repeat loss", "Loss table"], ["Rank heads by induction score", "Top heads cluster in middle layers and scores are listed", "Head ranking"], ["Report autoencoder reconstruction and L0", "Reconstruction loss and average active features per token are reported", "SAE metrics"]],
+          "objectives": ["Detect induction behaviour with controlled inputs", "Apply activation patching", "Train and evaluate a sparse autoencoder"]
+        },
+        {
+          "topic": "Advanced Capstone: Re-implement and Verify an Open-Weight Architecture",
+          "subtopics": ["Select a released small open-weight architecture and read its reference code", "Implement it independently and match logits layer by layer", "Add generation, KV cache and a speed benchmark", "Test long-context and quantised behaviour", "Write the verification report"],
+          "tools": ["transformers", "PyTorch", "safetensors", "pytest", "torch.profiler", "Accelerate"],
+          "lab_task": "Choose a small open-weight model with published code. Re-implement it from the paper and config in under 400 lines, load its safetensors weights through a conversion script and match hidden states layer by layer with atol 1e-4 in float32. Add a KV cache and compare generation to the reference for 20 prompts. Benchmark tokens per second and memory against the library implementation and write the report.",
+          "deliverable": "Repository with the implementation, conversion script, parity tests, benchmarks and a verification report",
+          "checks": [["Compare hidden states layer by layer", "Max absolute difference per layer is below 1e-4 in float32", "Parity report"], ["Compare greedy generations for 20 prompts", "All 20 outputs are identical token for token", "Equality test"], ["Compare throughput with the library implementation", "Tokens per second and memory are reported within a stated ratio", "Benchmark table"]],
+          "objectives": ["Re-implement an architecture and verify parity", "Add cache-aware generation to a custom model", "Report benchmark and fidelity results"]
+        }
+      ]
+    }
+  }
+}

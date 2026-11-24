@@ -1,0 +1,573 @@
+{
+  "domain": "Microsoft 365 Administration",
+  "name": "Microsoft 365 Administration",
+  "category": "Infrastructure and Virtualisation",
+  "icon": "grid",
+  "aliases": ["Microsoft 365", "M365", "M365 Administration", "Office 365", "O365", "Office 365 Administration", "Microsoft 365 Admin", "Microsoft 365 Administrator", "Exchange Online", "Exchange Online Administration", "Microsoft Intune", "Intune", "Microsoft Teams Administration", "Microsoft Purview", "MS-102"],
+  "certifications": ["Microsoft 365 Certified: Administrator Expert (MS-102)", "Microsoft Certified: Endpoint Administrator Associate (MD-102)", "Microsoft 365 Certified: Teams Administrator Associate (MS-700)", "Microsoft Certified: Information Protection and Compliance Administrator Associate (SC-401)"],
+  "tools": ["Microsoft 365 E5 developer or trial tenant", "Microsoft 365 admin center", "Microsoft Entra admin center", "Exchange admin center", "Microsoft Intune admin center", "Microsoft Purview portal", "PowerShell with Microsoft Graph"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For IT support staff and new administrators. Covers the Microsoft 365 tenant, admin centers and roles, domains, users and groups, licences, Entra ID basics, MFA and self-service password reset, Exchange Online mailboxes and mail flow, Teams, OneDrive and SharePoint basics, Microsoft 365 Apps deployment, Intune device enrolment, Defender basics, Purview basics, service health, reports and PowerShell.",
+      "prerequisites": ["Supports users on Windows and Office applications", "Knows basic networking such as DNS", "No previous Microsoft 365 administration needed"],
+      "outcomes": ["Set up and manage a Microsoft 365 tenant, domains, users, groups and licences", "Secure sign-in with MFA and basic policies", "Administer Exchange Online, Teams, OneDrive and devices with Intune", "Monitor the service and automate tasks with PowerShell"],
+      "days": [
+        {
+          "topic": "Microsoft 365 Overview and Tenant Setup",
+          "subtopics": ["What Microsoft 365 includes", "Plans: Business, E3 and E5", "Tenants and regions", "Getting a developer or trial tenant", "The Microsoft 365 admin center", "Other admin centers: Entra, Exchange, Teams, Intune and Purview", "Organisation profile and settings", "Release options for updates", "Message center and roadmap", "The course case company: a 500-person consultancy"],
+          "tools": ["Microsoft 365 trial tenant", "Microsoft 365 admin center"],
+          "lab_task": "Create a trial tenant, set the organisation profile and release preferences, open each admin center and record what it is used for.",
+          "deliverable": "Tenant settings screenshots and an admin center map",
+          "checks": [["Open each admin center", "Purpose recorded for each", "Admin center map"], ["Set release preferences", "Targeted release for a pilot group", "Settings screenshot"], ["Read the message center", "Two upcoming changes noted with impact", "Notes"]],
+          "objectives": ["Describe Microsoft 365", "Set up a tenant", "Navigate admin centers"]
+        },
+        {
+          "topic": "Admin Roles and Least Privilege",
+          "subtopics": ["Global administrator and why to limit it", "Built-in admin roles", "Assigning roles", "Role groups in Exchange and Purview", "Admin units", "Emergency access accounts", "Reviewing role assignments", "Partner and delegated admin access"],
+          "tools": ["Microsoft 365 admin center", "Microsoft Entra admin center"],
+          "lab_task": "Assign helpdesk, user and Exchange admin roles instead of global admin, create two emergency access accounts and review who holds privileged roles.",
+          "deliverable": "Role assignments and review report",
+          "checks": [["Reset a password as a helpdesk admin", "Allowed", "Screenshot"], ["Change tenant settings as a helpdesk admin", "Not allowed", "Screenshot"], ["List global admins", "No more than the agreed number", "Role report"]],
+          "objectives": ["Assign admin roles", "Apply least privilege", "Plan emergency access"]
+        },
+        {
+          "topic": "Domains and DNS Records",
+          "subtopics": ["Adding custom domains", "Domain verification", "DNS records for Microsoft 365", "MX, SPF and autodiscover", "DKIM and DMARC in brief", "Setting the default domain", "Domain troubleshooting", "Domain removal"],
+          "tools": ["Microsoft 365 admin center", "DNS provider", "MXToolbox"],
+          "lab_task": "Add a custom domain, verify it, create the required DNS records, set it as default and check mail records with an online tool.",
+          "deliverable": "DNS records and verification screenshots",
+          "checks": [["Verify the domain", "Domain shows as healthy", "Admin center"], ["Check MX and SPF", "Records correct", "MXToolbox result"], ["Change a user's sign-in name", "New domain in use", "User record"]],
+          "objectives": ["Add domains", "Configure DNS", "Troubleshoot domains"]
+        },
+        {
+          "topic": "Users, Groups and Licences",
+          "subtopics": ["Creating users one at a time and in bulk", "User properties", "Microsoft 365 groups, security groups and distribution lists", "Dynamic groups", "Assigning licences", "Group-based licensing", "Deleting and restoring users", "Guest users"],
+          "tools": ["Microsoft 365 admin center", "Microsoft Entra admin center"],
+          "lab_task": "Import 50 users from CSV, create department groups with dynamic membership, assign licences through groups and restore a deleted user.",
+          "deliverable": "Users, groups and licence report",
+          "checks": [["Import users", "50 users created", "User list"], ["Change a department", "Dynamic group membership updates", "Group members"], ["Restore a deleted user", "Mailbox and files back", "User record"]],
+          "objectives": ["Manage users", "Use groups", "Assign licences"]
+        },
+        {
+          "topic": "Microsoft Entra ID for Microsoft 365 Administrators",
+          "subtopics": ["Entra ID and Microsoft 365", "Identity types: cloud and synced", "Microsoft Entra Connect and Cloud Sync in brief", "Sign-in logs", "Audit logs", "Enterprise applications", "Company branding", "Self-service group management"],
+          "tools": ["Microsoft Entra admin center"],
+          "lab_task": "Brand the sign-in page, read sign-in and audit logs for a failed login, add an enterprise application and let users manage their own groups.",
+          "deliverable": "Configuration and log findings",
+          "checks": [["Sign in with a wrong password", "Failure in sign-in logs with reason", "Sign-in log"], ["Change a user", "Change recorded in audit logs", "Audit log"], ["Open the branded sign-in page", "Company logo shown", "Screenshot"]],
+          "objectives": ["Use Entra ID", "Read logs", "Manage applications"]
+        },
+        {
+          "topic": "MFA, Self-Service Password Reset and Security Defaults",
+          "subtopics": ["Why MFA", "Security defaults", "Per-user MFA compared with Conditional Access", "Authentication methods", "Microsoft Authenticator and passkeys", "Self-service password reset", "Registration campaigns", "Help desk impact"],
+          "tools": ["Microsoft Entra admin center"],
+          "lab_task": "Turn on MFA for all users, set authentication methods with Authenticator and passkeys, enable self-service password reset and test both as a user.",
+          "deliverable": "Settings and test results",
+          "checks": [["Sign in as a user", "MFA prompt shown", "Screenshot"], ["Reset a password", "Reset done without the help desk", "Screenshot"], ["Report registration", "Users with MFA registered listed", "Report"]],
+          "objectives": ["Turn on MFA", "Enable password reset", "Choose methods"]
+        },
+        {
+          "topic": "Exchange Online Mailboxes",
+          "subtopics": ["Mailbox types: user, shared and resource", "Creating mailboxes", "Mailbox permissions: full access, send as and send on behalf", "Aliases and email addresses", "Mailbox size and archive", "Room and equipment mailboxes", "Calendar sharing", "Converting mailboxes"],
+          "tools": ["Exchange admin center"],
+          "lab_task": "Create a shared mailbox for support with permissions, a meeting room with booking rules, add aliases and turn on an archive for a user.",
+          "deliverable": "Mailbox configuration and tests",
+          "checks": [["Send as the shared mailbox", "Message sent from the shared address", "Sent items"], ["Book the room", "Booking accepted by the rules", "Calendar"], ["Turn on the archive", "Archive visible in Outlook", "Screenshot"]],
+          "objectives": ["Manage mailboxes", "Set permissions", "Use resource mailboxes"]
+        },
+        {
+          "topic": "Exchange Online Mail Flow",
+          "subtopics": ["How mail flows in Exchange Online", "Accepted domains", "Mail flow rules", "Connectors", "Message trace", "Quarantine", "Spam and malware filtering basics", "Common delivery problems"],
+          "tools": ["Exchange admin center", "Message trace"],
+          "lab_task": "Add a disclaimer rule, block an attachment type, trace a message that did not arrive and release a message from quarantine.",
+          "deliverable": "Rules, trace results and notes",
+          "checks": [["Send a message", "Disclaimer added", "Received message"], ["Send a blocked attachment", "Message blocked", "Message trace"], ["Release from quarantine", "User receives the message", "Message trace"]],
+          "objectives": ["Control mail flow", "Trace messages", "Manage quarantine"]
+        },
+        {
+          "topic": "Microsoft Teams Administration",
+          "subtopics": ["Teams architecture: teams, channels and chats", "Teams admin center", "Teams policies: messaging, meetings and apps", "External access and guest access", "Creating and managing teams", "Teams templates", "Meeting settings", "Teams Phone in brief"],
+          "tools": ["Teams admin center"],
+          "lab_task": "Create teams from a template, set meeting and messaging policies for staff and contractors, allow guest access and block external chat with one domain.",
+          "deliverable": "Policies, teams and test results",
+          "checks": [["Join as a guest", "Guest can access the team", "Screenshot"], ["Chat with the blocked domain", "Chat refused", "Screenshot"], ["Apply the contractor policy", "Recording disabled for contractors", "Screenshot"]],
+          "objectives": ["Administer Teams", "Apply policies", "Manage external access"]
+        },
+        {
+          "topic": "Administering OneDrive and SharePoint Sharing",
+          "subtopics": ["OneDrive for business", "OneDrive storage and sync", "Known Folder Move", "SharePoint sites in brief", "Sharing settings at tenant level", "External sharing", "Restoring files", "Retention basics for files"],
+          "tools": ["SharePoint admin center", "OneDrive admin settings"],
+          "lab_task": "Set tenant sharing levels, redirect users' Documents and Desktop to OneDrive with Known Folder Move, restrict external sharing and restore a deleted file.",
+          "deliverable": "Sharing settings and test results",
+          "checks": [["Share a file externally", "Allowed only as configured", "Screenshot"], ["Check Known Folder Move", "Documents folder synced to OneDrive", "Screenshot"], ["Restore a file", "File back from the recycle bin", "Screenshot"]],
+          "objectives": ["Manage OneDrive", "Control sharing", "Restore files"]
+        },
+        {
+          "topic": "Deploying Microsoft 365 Apps",
+          "subtopics": ["Microsoft 365 Apps editions", "Update channels", "Office Deployment Tool", "Installing through Intune", "Activation and licences", "Shared computer activation", "Policies for apps", "Troubleshooting installs"],
+          "tools": ["Office Deployment Tool", "Microsoft 365 Apps admin center", "Intune"],
+          "lab_task": "Build a configuration with the Office Deployment Tool, deploy Microsoft 365 Apps through Intune on the Monthly Enterprise channel and fix an activation problem.",
+          "deliverable": "Configuration file, deployment and fix notes",
+          "checks": [["Deploy the apps", "Installed on a test device", "Device screenshot"], ["Check the channel", "Monthly Enterprise channel in use", "Account page"], ["Fix activation", "Apps activated after the fix", "Screenshot"]],
+          "objectives": ["Deploy Office apps", "Choose update channels", "Fix activation"]
+        },
+        {
+          "topic": "Enrolling and Managing Devices with Intune",
+          "subtopics": ["Intune overview", "Enrolment methods for Windows, iOS and Android", "Windows Autopilot in brief", "Device groups", "Compliance policies", "Configuration profiles", "App deployment", "Remote actions: wipe, retire and restart"],
+          "tools": ["Microsoft Intune admin center", "Windows Autopilot"],
+          "lab_task": "Enrol a Windows device and a phone, apply a compliance policy and a configuration profile, deploy an app and retire a lost device.",
+          "deliverable": "Policies, device records and test results",
+          "checks": [["Enrol a device", "Device appears as managed", "Device list"], ["Break compliance", "Device marked non-compliant", "Compliance report"], ["Retire a device", "Company data removed", "Device record"]],
+          "objectives": ["Enrol devices", "Apply policies", "Manage apps and devices"]
+        },
+        {
+          "topic": "Protecting Email with Microsoft Defender for Office 365",
+          "subtopics": ["Threats to email and collaboration", "Anti-phishing policies", "Safe Links", "Safe Attachments", "Preset security policies", "Threat explorer", "User reporting of phishing", "Attack simulation training"],
+          "tools": ["Microsoft Defender portal"],
+          "lab_task": "Turn on preset security policies, configure Safe Links and Safe Attachments, run an attack simulation and review reported messages.",
+          "deliverable": "Policies, simulation results and review notes",
+          "checks": [["Click a test link", "Safe Links checks it", "Screenshot"], ["Run the simulation", "Click and report rates recorded", "Simulation report"], ["Review reported messages", "Messages classified", "Defender portal"]],
+          "objectives": ["Protect email", "Run phishing simulations", "Review threats"]
+        },
+        {
+          "topic": "Retention and Sensitivity Labels with Microsoft Purview",
+          "subtopics": ["Purview overview", "Retention policies", "Retention labels", "Sensitivity labels", "Label policies", "Encryption with labels", "Audit search", "Content search basics"],
+          "tools": ["Microsoft Purview portal"],
+          "lab_task": "Retain email for seven years, publish a confidential sensitivity label that encrypts documents, apply it as a user and find who opened a file with audit search.",
+          "deliverable": "Policies, labels and audit results",
+          "checks": [["Apply the confidential label", "Document encrypted", "Document properties"], ["Open as an outsider", "Access denied", "Screenshot"], ["Search the audit log", "File access events listed", "Audit results"]],
+          "objectives": ["Retain content", "Label sensitive data", "Search the audit log"]
+        },
+        {
+          "topic": "Service Health, Message Center and Support",
+          "subtopics": ["Service health dashboard", "Incidents and advisories", "Message center", "Microsoft 365 roadmap", "Opening support requests", "Network connectivity tests", "Communication to users", "Planning for changes"],
+          "tools": ["Microsoft 365 admin center", "Network connectivity test"],
+          "lab_task": "Review current incidents and advisories, write a user notice for one, run a network connectivity test and open a test support request.",
+          "deliverable": "Incident summary, user notice and test results",
+          "checks": [["Review an advisory", "Impact on the company explained", "Summary"], ["Run the network test", "Results and recommendations recorded", "Test report"], ["Write the notice", "Clear message for users", "User notice"]],
+          "objectives": ["Monitor service health", "Plan for changes", "Use support"]
+        },
+        {
+          "topic": "Usage Reports and Adoption",
+          "subtopics": ["Usage reports", "Adoption Score", "Active users and inactive accounts", "Mailbox and storage reports", "Teams usage reports", "Privacy settings in reports", "Licence optimisation", "Sharing reports with managers"],
+          "tools": ["Microsoft 365 admin center reports", "Adoption Score"],
+          "lab_task": "Find inactive licensed users, report Teams and OneDrive use by department, review Adoption Score and recommend licence changes.",
+          "deliverable": "Usage report and licence recommendation",
+          "checks": [["Find inactive users", "Licensed users inactive for 90 days listed", "Report"], ["Report by department", "Use per department shown", "Report"], ["Recommend licences", "Savings estimated", "Recommendation"]],
+          "objectives": ["Read usage reports", "Improve adoption", "Optimise licences"]
+        },
+        {
+          "topic": "PowerShell and Microsoft Graph for Administration",
+          "subtopics": ["Why PowerShell", "Microsoft Graph PowerShell SDK", "Exchange Online PowerShell", "Teams PowerShell", "Connecting with least privilege", "Bulk tasks with CSV", "Reporting scripts", "Running scripts safely"],
+          "tools": ["PowerShell 7", "Microsoft Graph PowerShell SDK", "Exchange Online PowerShell"],
+          "lab_task": "Connect to Graph and Exchange Online with limited scopes, bulk-update user departments from CSV, report mailbox sizes and export licence assignments.",
+          "deliverable": "Scripts and outputs",
+          "checks": [["Bulk-update departments", "Changes applied", "User records"], ["Report mailbox sizes", "Largest mailboxes listed", "Script output"], ["Review scopes", "Only needed permissions requested", "Connection log"]],
+          "objectives": ["Use PowerShell", "Use Microsoft Graph", "Automate bulk tasks"]
+        },
+        {
+          "topic": "Onboarding and Offboarding Users",
+          "subtopics": ["Onboarding checklists", "Licences, groups and mailboxes for new staff", "Device set-up for new staff", "Offboarding steps", "Converting mailboxes and forwarding", "OneDrive handover", "Removing access quickly", "Automating joiners and leavers"],
+          "tools": ["Microsoft 365 admin center", "PowerShell", "Intune"],
+          "lab_task": "Onboard a new hire with groups, licences, mailbox and device, then offboard a leaver: block sign-in, convert the mailbox, hand over OneDrive and wipe the device.",
+          "deliverable": "Checklists and completed records",
+          "checks": [["Onboard the new hire", "Access ready on day one", "Checklist"], ["Block the leaver", "Sign-in blocked and sessions revoked", "Sign-in log"], ["Hand over OneDrive", "Manager has access to the files", "Screenshot"]],
+          "objectives": ["Onboard users", "Offboard users safely", "Automate joiners and leavers"]
+        },
+        {
+          "topic": "Backup, Retention and Recovery in Microsoft 365",
+          "subtopics": ["Shared responsibility for Microsoft 365 data", "Recycle bins and retention", "Microsoft 365 Backup", "Third-party backup tools", "Restoring mailboxes, sites and OneDrive", "Ransomware recovery for files", "Litigation hold", "Recovery testing"],
+          "tools": ["Microsoft 365 Backup", "Purview retention", "OneDrive restore"],
+          "lab_task": "Back up mailboxes and OneDrive with Microsoft 365 Backup, restore a mailbox and a OneDrive to an earlier point and place a user on litigation hold.",
+          "deliverable": "Backup configuration, restore evidence and hold settings",
+          "checks": [["Restore a mailbox", "Deleted items back", "Mailbox"], ["Restore OneDrive to a point in time", "Files before the change restored", "Screenshot"], ["Place a hold", "Deleted items kept for the hold", "Hold settings"]],
+          "objectives": ["Protect Microsoft 365 data", "Restore content", "Use holds"]
+        },
+        {
+          "topic": "Beginner Capstone: Setting Up a Microsoft 365 Tenant for a Company",
+          "subtopics": ["Tenant and identity", "Mail and collaboration", "Devices and security", "Handover"],
+          "tools": ["Microsoft 365 admin center", "Entra", "Exchange", "Teams", "Intune", "Purview", "PowerShell"],
+          "lab_task": "Set up the tenant for the case company: domain, users and groups from CSV, MFA, admin roles, shared mailboxes, Teams policies, sharing settings, Intune enrolment, preset security, a retention policy and an onboarding script, then hand it over with a runbook.",
+          "deliverable": "Configured tenant, scripts and runbook",
+          "checks": [["Onboard a test user", "Ready to work with mail, Teams and a managed device", "Demo recording"], ["Test security", "MFA enforced and phishing protection active", "Test results"], ["Hand over with the runbook", "A colleague can offboard a user using it", "Peer feedback"]],
+          "objectives": ["Combine the beginner topics in one tenant", "Set up Microsoft 365 for a company", "Document it"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For Microsoft 365 administrators. Covers hybrid identity, Conditional Access, Privileged Identity Management, identity protection, Exchange hybrid and migrations, mail security with DKIM and DMARC, advanced Teams and Teams Phone, SharePoint administration, Intune in depth with Autopilot and app protection, Endpoint security, Defender XDR, Purview DLP, information protection, eDiscovery, insider risk, Copilot readiness, migrations from other platforms and the MS-102 exam.",
+      "prerequisites": ["Manages users, groups, licences, Exchange Online, Teams and Intune basics", "Uses PowerShell", "Understands DNS and Active Directory"],
+      "outcomes": ["Secure identities with hybrid sync, Conditional Access and PIM", "Run Exchange, Teams, SharePoint and devices at company scale", "Protect data with Defender, DLP, labels and eDiscovery", "Migrate workloads and pass the MS-102 exam"],
+      "days": [
+        {
+          "topic": "Hybrid Identity with Entra Connect and Cloud Sync",
+          "subtopics": ["Hybrid identity options", "Entra Connect and Cloud Sync compared", "Password hash sync, pass-through authentication and federation", "Sync filtering", "Attribute flow", "Seamless single sign-on", "Monitoring sync health", "Troubleshooting sync errors"],
+          "tools": ["Microsoft Entra Connect or Cloud Sync", "Active Directory"],
+          "lab_task": "Sync an Active Directory OU to Entra ID with password hash sync, filter what syncs, fix a duplicate attribute error and monitor sync health.",
+          "deliverable": "Sync configuration and troubleshooting notes",
+          "checks": [["Create a user in AD", "User appears in Entra ID", "User list"], ["Fix the duplicate attribute", "Error resolved and object synced", "Sync health"], ["Sign in with the AD password", "Login works in Microsoft 365", "Sign-in log"]],
+          "objectives": ["Set up hybrid identity", "Filter sync", "Fix sync errors"]
+        },
+        {
+          "topic": "Conditional Access Policies",
+          "subtopics": ["How Conditional Access works", "Users, apps and conditions", "Grant and session controls", "Requiring compliant devices", "Blocking legacy authentication", "Location and risk conditions", "Report-only mode", "Testing with What If"],
+          "tools": ["Microsoft Entra Conditional Access"],
+          "lab_task": "Build policies that require MFA for all, compliant devices for admins, block legacy authentication and restrict access from outside India, testing each in report-only mode first.",
+          "deliverable": "Policies and test results",
+          "checks": [["Test with What If", "Expected policies apply", "What If results"], ["Sign in from an unmanaged device as an admin", "Access blocked by the compliant device policy", "Sign-in log"], ["Try legacy authentication", "Legacy protocol sign-in refused", "Sign-in log"]],
+          "objectives": ["Write Conditional Access policies", "Test safely", "Protect admin access"]
+        },
+        {
+          "topic": "Privileged Identity Management and Access Reviews",
+          "subtopics": ["Standing access risks", "PIM for Entra roles", "Eligible and active assignments", "Approval and justification", "PIM for groups", "Access reviews", "Entitlement management", "Reporting on privileged access"],
+          "tools": ["Microsoft Entra PIM", "Access reviews", "Entitlement management"],
+          "lab_task": "Make admin roles eligible with approval and time limits, activate a role with justification, run an access review of a sensitive group and create an access package for contractors.",
+          "deliverable": "PIM settings, activation record and review results",
+          "checks": [["Activate a role", "Approval required and access expires", "PIM history"], ["Run the access review", "Unneeded members removed", "Review results"], ["Request the access package", "Access granted with expiry", "Entitlement history"]],
+          "objectives": ["Use PIM", "Review access", "Grant time-limited access"]
+        },
+        {
+          "topic": "Identity Protection and Risk-Based Access",
+          "subtopics": ["User risk and sign-in risk", "Risk detections", "Risk-based Conditional Access", "Investigating risky users", "Remediating compromised accounts", "Workload identities", "Identity Secure Score", "Reporting identity risk"],
+          "tools": ["Microsoft Entra ID Protection", "Conditional Access"],
+          "lab_task": "Require password change for high user risk and MFA for medium sign-in risk, investigate a simulated risky sign-in and remediate the account.",
+          "deliverable": "Policies, investigation notes and remediation",
+          "checks": [["Simulate a risky sign-in", "Risk detected", "Risk detections"], ["Remediate the account", "Password reset and sessions revoked", "User record"], ["Review Secure Score", "Improvement actions listed", "Secure Score"]],
+          "objectives": ["Detect identity risk", "Use risk-based access", "Respond to compromise"]
+        },
+        {
+          "topic": "Exchange Hybrid and Mailbox Migrations",
+          "subtopics": ["Migration options: cutover, staged, hybrid and IMAP", "Hybrid Configuration Wizard", "Free and busy sharing", "Migration batches", "Mailbox moves and completion", "Public folder migration in brief", "Decommissioning on-premises Exchange", "Troubleshooting migrations"],
+          "tools": ["Exchange admin center", "Hybrid Configuration Wizard", "Exchange PowerShell"],
+          "lab_task": "Plan a hybrid migration, move a batch of mailboxes, check free and busy between on-premises and cloud users and fix a stalled move.",
+          "deliverable": "Migration plan, batch report and fix notes",
+          "checks": [["Move a batch", "Mailboxes in Exchange Online", "Batch report"], ["Check free and busy", "Calendars visible both ways", "Screenshot"], ["Fix the stalled move", "Cause found and move completes", "Move report"]],
+          "objectives": ["Plan mailbox migrations", "Run hybrid moves", "Fix migration problems"]
+        },
+        {
+          "topic": "Mail Security: SPF, DKIM, DMARC and Advanced Protection",
+          "subtopics": ["SPF in depth", "DKIM signing", "DMARC policies and reports", "Moving DMARC to reject", "Anti-spoofing", "Tenant allow and block lists", "Outbound spam controls", "Investigating phishing campaigns"],
+          "tools": ["Exchange admin center", "Defender portal", "DMARC report tool"],
+          "lab_task": "Turn on DKIM, publish DMARC at none, read aggregate reports, fix unauthorised senders and move the policy to quarantine then reject.",
+          "deliverable": "DNS records, report analysis and policy change log",
+          "checks": [["Read DMARC reports", "Legitimate and unknown senders identified", "Report analysis"], ["Move to reject", "Spoofed mail rejected", "Message trace"], ["Check DKIM", "Messages signed", "Message headers"]],
+          "objectives": ["Authenticate email", "Enforce DMARC", "Stop spoofing"]
+        },
+        {
+          "topic": "Advanced Teams: Governance, Lifecycle and Teams Phone",
+          "subtopics": ["Teams creation governance", "Naming policies and expiration", "Sensitivity labels for teams", "Archiving and deleting teams", "App governance", "Teams Phone with calling plans or direct routing", "Auto attendants and call queues", "Teams Rooms in brief"],
+          "tools": ["Teams admin center", "Entra group settings", "Teams Phone"],
+          "lab_task": "Limit who can create teams, apply naming and expiration policies, label confidential teams, set up an auto attendant and call queue and archive an old team.",
+          "deliverable": "Governance settings, phone set-up and test results",
+          "checks": [["Create a team as a normal user", "Blocked or named by policy", "Screenshot"], ["Call the auto attendant", "Call routed to the queue", "Call log"], ["Apply a sensitivity label", "Guest access blocked for the team", "Screenshot"]],
+          "objectives": ["Govern Teams", "Manage team lifecycle", "Set up Teams Phone"]
+        },
+        {
+          "topic": "SharePoint Online Administration",
+          "subtopics": ["Site types: team and communication sites", "Hub sites", "Site permissions and sharing", "Storage and versioning", "Site lifecycle and inactive sites", "Restricted access control", "Search administration", "Migration with SharePoint Migration Tool"],
+          "tools": ["SharePoint admin center", "SharePoint Migration Tool"],
+          "lab_task": "Create a hub with associated sites, set permissions and versioning, restrict a confidential site to a group and migrate a file share with the Migration Tool.",
+          "deliverable": "Site structure, settings and migration report",
+          "checks": [["Associate sites to the hub", "Navigation shared", "Screenshot"], ["Restrict the confidential site", "Others cannot open it even with a link", "Screenshot"], ["Migrate the file share", "Files and permissions moved", "Migration report"]],
+          "objectives": ["Administer SharePoint", "Structure sites", "Migrate files"]
+        },
+        {
+          "topic": "Intune in Depth: Autopilot, Compliance and Configuration",
+          "subtopics": ["Windows Autopilot profiles", "Enrolment Status Page", "Compliance policies and actions", "Settings catalog", "Windows Update rings and feature updates", "Scripts and remediations", "Device filters", "Reporting"],
+          "tools": ["Microsoft Intune", "Windows Autopilot"],
+          "lab_task": "Provision a Windows device with Autopilot, enforce compliance with grace periods, configure settings with the settings catalog, set update rings and fix a problem with a remediation script.",
+          "deliverable": "Profiles, policies and device reports",
+          "checks": [["Provision with Autopilot", "Device ready with apps and policies", "Device record"], ["Break compliance", "Grace period then block", "Compliance report"], ["Run the remediation", "Problem fixed on devices", "Remediation report"]],
+          "objectives": ["Use Autopilot", "Manage compliance and configuration", "Update devices"]
+        },
+        {
+          "topic": "Mobile Devices and App Protection",
+          "subtopics": ["BYOD and corporate devices", "App protection policies", "Protecting data without enrolment", "Conditional Access with app protection", "Managed apps", "iOS and Android enrolment options", "Selective wipe", "User experience"],
+          "tools": ["Microsoft Intune", "Conditional Access"],
+          "lab_task": "Protect Outlook and Teams data on personal phones with app protection policies, require approved apps with Conditional Access and selectively wipe company data.",
+          "deliverable": "Policies and test results",
+          "checks": [["Copy data to a personal app", "Blocked", "Screenshot"], ["Use an unapproved app", "Access blocked", "Sign-in log"], ["Selective wipe", "Company data removed and personal data kept", "Device screenshot"]],
+          "objectives": ["Protect mobile data", "Use app protection", "Support BYOD"]
+        },
+        {
+          "topic": "Endpoint Security with Intune and Defender for Endpoint",
+          "subtopics": ["Endpoint security policies", "Antivirus and firewall", "Attack surface reduction rules", "Disk encryption with BitLocker", "Windows LAPS", "Onboarding to Defender for Endpoint", "Device risk in compliance", "Security baselines"],
+          "tools": ["Microsoft Intune endpoint security", "Microsoft Defender for Endpoint"],
+          "lab_task": "Apply security baselines, BitLocker and LAPS, turn on attack surface reduction rules in audit then block mode and use device risk from Defender in compliance.",
+          "deliverable": "Policies and test results",
+          "checks": [["Check BitLocker", "Recovery key stored in Entra ID", "Device record"], ["Trigger an ASR rule", "Action blocked and logged", "Defender portal"], ["Raise device risk", "Device marked non-compliant", "Compliance report"]],
+          "objectives": ["Secure endpoints", "Apply baselines", "Link device risk to access"]
+        },
+        {
+          "topic": "Microsoft Defender XDR for Microsoft 365",
+          "subtopics": ["Defender XDR overview", "Incidents and alerts", "Defender for Office 365 Plan 2 features", "Defender for Identity", "Defender for Cloud Apps", "Automated investigation and response", "Advanced hunting with KQL", "Secure Score"],
+          "tools": ["Microsoft Defender portal", "KQL"],
+          "lab_task": "Investigate a simulated phishing incident across email, identity and endpoint, use advanced hunting to find affected users and let automated investigation remediate.",
+          "deliverable": "Incident investigation and hunting queries",
+          "checks": [["Investigate the incident", "Affected mailboxes and devices found", "Incident page"], ["Run a hunting query", "Users who clicked the link listed", "Query results"], ["Review automated actions", "Malicious emails removed", "Action center"]],
+          "objectives": ["Investigate incidents", "Hunt with KQL", "Use automated response"]
+        },
+        {
+          "topic": "Data Loss Prevention with Microsoft Purview",
+          "subtopics": ["DLP concepts", "Sensitive information types", "DLP policies for Exchange, SharePoint, OneDrive and Teams", "Endpoint DLP", "Policy tips and overrides", "Testing in simulation mode", "DLP alerts", "Tuning false positives"],
+          "tools": ["Microsoft Purview DLP"],
+          "lab_task": "Create a DLP policy for Aadhaar and card numbers across email, Teams and devices, run it in simulation, tune false positives and enforce with policy tips.",
+          "deliverable": "DLP policy, simulation results and tuning notes",
+          "checks": [["Send a card number externally", "Blocked with a policy tip", "Screenshot"], ["Copy sensitive data to USB", "Blocked by endpoint DLP", "Device notification"], ["Review simulation", "False positives found and tuned", "Simulation report"]],
+          "objectives": ["Prevent data loss", "Use endpoint DLP", "Tune policies"]
+        },
+        {
+          "topic": "Information Protection: Labels at Scale",
+          "subtopics": ["Labelling strategy", "Default and mandatory labelling", "Automatic labelling", "Labels for sites, groups and Teams", "Encryption and permissions", "Labels in Office, PDF and other files", "Label analytics", "User training"],
+          "tools": ["Microsoft Purview Information Protection"],
+          "lab_task": "Design a four-level label scheme, require labels in Office apps, auto-label documents with card numbers and review label activity.",
+          "deliverable": "Label scheme, policies and activity report",
+          "checks": [["Save a document without a label", "Prompt to label", "Screenshot"], ["Auto-label a document", "Confidential label applied", "Document properties"], ["Review label activity", "Label use by department", "Activity explorer"]],
+          "objectives": ["Design labels", "Label automatically", "Track labelling"]
+        },
+        {
+          "topic": "eDiscovery, Audit and Legal Holds",
+          "subtopics": ["eDiscovery in Purview", "Cases and holds", "Searches and queries", "Review sets", "Exporting results", "Audit (Premium)", "Retention of audit logs", "Working with legal teams"],
+          "tools": ["Microsoft Purview eDiscovery", "Audit"],
+          "lab_task": "Open an eDiscovery case, place custodians on hold, search mail and Teams for a project name, review results and export them for legal.",
+          "deliverable": "Case, holds, search results and export",
+          "checks": [["Place a hold", "Custodian content preserved after deletion", "Hold report"], ["Search content", "Mail and Teams messages found", "Search results"], ["Export results", "Export ready for legal", "Export summary"]],
+          "objectives": ["Run eDiscovery", "Use holds", "Support legal teams"]
+        },
+        {
+          "topic": "Insider Risk and Communication Compliance",
+          "subtopics": ["Insider risk scenarios", "Insider risk management policies", "Departing employee data theft", "Communication compliance policies", "Privacy settings and pseudonymisation", "Investigations workflow", "Working with HR and legal", "Ethics and transparency"],
+          "tools": ["Microsoft Purview Insider Risk Management", "Communication Compliance"],
+          "lab_task": "Create an insider risk policy for departing employees, simulate a data theft, review the alert with pseudonymised names and create a communication compliance policy for offensive language.",
+          "deliverable": "Policies, alert review and notes",
+          "checks": [["Simulate data theft", "Alert raised", "Insider risk alerts"], ["Review with pseudonymisation", "Names hidden until escalation", "Screenshot"], ["Trigger communication compliance", "Message flagged for review", "Review queue"]],
+          "objectives": ["Detect insider risk", "Monitor communications", "Respect privacy"]
+        },
+        {
+          "topic": "Preparing a Tenant for Microsoft 365 Copilot",
+          "subtopics": ["What Copilot can access", "Oversharing risks", "SharePoint permission clean-up", "Restricted SharePoint Search", "Sensitivity labels and Copilot", "Licensing and pilot groups", "Copilot usage reports", "Data protection for prompts"],
+          "tools": ["SharePoint admin center", "Purview", "Copilot dashboard"],
+          "lab_task": "Find overshared sites with data access governance reports, fix permissions on three, restrict search for sensitive sites, run a Copilot pilot and review usage.",
+          "deliverable": "Oversharing report, fixes and pilot results",
+          "checks": [["Run the oversharing report", "Sites shared with everyone listed", "Report"], ["Ask Copilot about restricted content", "Restricted content not returned", "Screenshot"], ["Review usage", "Pilot usage by app reported", "Copilot dashboard"]],
+          "objectives": ["Prepare for Copilot", "Reduce oversharing", "Run pilots"]
+        },
+        {
+          "topic": "Migrating to Microsoft 365 from Google Workspace and Other Platforms",
+          "subtopics": ["Migration planning", "Mail migration from Google Workspace", "Drive to OneDrive and SharePoint", "Calendar and contacts", "Identity and domain cutover", "Coexistence", "Communication and training", "Post-migration checks"],
+          "tools": ["Exchange migration", "Migration Manager", "Google Workspace test tenant"],
+          "lab_task": "Migrate a pilot group from Google Workspace: mail, calendar and Drive, cut over MX records and run post-migration checks.",
+          "deliverable": "Migration plan, migration reports and checklist",
+          "checks": [["Migrate mail", "Messages and folders present", "Migration report"], ["Migrate Drive", "Files in OneDrive with sharing", "Migration Manager report"], ["Cut over MX", "New mail arrives in Exchange Online", "Message trace"]],
+          "objectives": ["Plan migrations", "Move mail and files", "Cut over domains"]
+        },
+        {
+          "topic": "MS-102 Administrator Expert Exam Preparation",
+          "subtopics": ["Exam structure", "Tenant deployment questions", "Identity and access questions", "Security and threats questions", "Compliance questions", "Case studies and labs", "Timed practice", "Weak-area review"],
+          "tools": ["Practice assessments", "Microsoft Learn", "Trial tenant"],
+          "lab_task": "Take a timed practice assessment, repeat failed tasks in the tenant, review Microsoft Learn modules for weak areas and take a second practice assessment.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first practice", "Score recorded by area", "Score sheet"], ["Repeat failed tasks", "Each done correctly in the tenant", "Notes"], ["Take the second practice", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand MS-102", "Close gaps", "Reach a passing score"]
+        },
+        {
+          "topic": "Intermediate Capstone: Secure and Compliant Microsoft 365 for a Regulated Company",
+          "subtopics": ["Identity and access", "Collaboration and devices", "Data protection", "Demo"],
+          "tools": ["Entra ID", "Conditional Access", "PIM", "Intune", "Defender XDR", "Purview"],
+          "lab_task": "Secure the tenant for a regulated company: hybrid identity, Conditional Access and PIM, Autopilot and endpoint security, DMARC at reject, DLP and labels, eDiscovery and Copilot readiness, then demo responses to a phishing attack and a data leak.",
+          "deliverable": "Configuration documentation, policies and demo recording",
+          "checks": [["Respond to the phishing attack", "Incident investigated and contained", "Demo recording"], ["Block the data leak", "DLP stops the leak and alerts", "Demo recording"], ["Present the design", "Security and compliance choices explained", "Presentation feedback"]],
+          "objectives": ["Combine the intermediate topics in one tenant", "Secure and protect Microsoft 365", "Respond to incidents"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior Microsoft 365 administrators and architects. Covers tenant architecture and multi-geo, cross-tenant collaboration and migrations, zero trust design, advanced Conditional Access, workload identities, automation with Graph and Azure Automation, infrastructure as code for Microsoft 365, Defender XDR at scale, Sentinel integration, data governance at scale, records management, compliance for regulators, Copilot and agent governance, Teams voice at scale, change and release management, cost and licensing, incident response and tenant health.",
+      "prerequisites": ["Administers Microsoft 365 security and compliance at company scale", "Writes PowerShell with Microsoft Graph", "Has run migrations or major tenant changes"],
+      "outcomes": ["Design tenants and collaboration across organisations and regions", "Apply zero trust and automation to identity and devices", "Govern data, records, Copilot and compliance at scale", "Lead incident response, change and licensing decisions"],
+      "days": [
+        {
+          "topic": "Tenant Architecture, Multi-Geo and Data Residency",
+          "subtopics": ["One tenant or several", "Multi-Geo capabilities", "Data location commitments", "Preferred data location for users", "Advanced Data Residency", "Sovereignty requirements", "Tenant naming and settings strategy", "Architecture decision records"],
+          "tools": ["Microsoft 365 admin center", "Multi-Geo", "Architecture diagrams"],
+          "lab_task": "Design the tenant strategy for a group with companies in India, the EU and the US, decide on Multi-Geo, set preferred data locations and record the decisions.",
+          "deliverable": "Tenant design and decision records",
+          "checks": [["Decide on tenants", "Choice justified with legal and operational reasons", "Decision record"], ["Set data locations", "Users' content stored in the right geo", "Data location report"], ["Review residency", "Requirements met per country", "Review notes"]],
+          "objectives": ["Design tenant architecture", "Manage data residency", "Record decisions"]
+        },
+        {
+          "topic": "Cross-Tenant Collaboration and Tenant-to-Tenant Migration",
+          "subtopics": ["Entra B2B and cross-tenant access settings", "Multitenant organisations", "B2B direct connect and Teams shared channels", "Cross-tenant synchronisation", "Mergers and acquisitions scenarios", "Tenant-to-tenant mailbox and OneDrive migration", "Domain moves", "Planning the cutover"],
+          "tools": ["Entra cross-tenant access", "Cross-tenant mailbox migration", "Migration tools"],
+          "lab_task": "Set up a multitenant organisation for two companies, share Teams channels across tenants, sync users across tenants and migrate a pilot mailbox and OneDrive between tenants.",
+          "deliverable": "Configuration, shared channel tests and migration report",
+          "checks": [["Join a shared channel from the other tenant", "Access without switching tenants", "Screenshot"], ["Sync users", "Users from tenant A appear in tenant B", "User list"], ["Migrate the pilot", "Mailbox and files in the new tenant", "Migration report"]],
+          "objectives": ["Collaborate across tenants", "Sync identities", "Migrate between tenants"]
+        },
+        {
+          "topic": "Zero Trust Architecture for Microsoft 365",
+          "subtopics": ["Zero trust principles", "Identity, device, app and data pillars", "Microsoft zero trust guidance", "Maturity assessment", "Designing the policy set", "Phased rollout", "Measuring progress", "Communicating zero trust to leadership"],
+          "tools": ["Microsoft zero trust assessment", "Secure Score", "Conditional Access"],
+          "lab_task": "Assess the tenant's zero trust maturity, design a phased policy set across identity, devices and data and present the roadmap.",
+          "deliverable": "Assessment, policy design and roadmap",
+          "checks": [["Assess maturity", "Level per pillar with evidence", "Assessment"], ["Design the policy set", "Policies mapped to principles", "Design document"], ["Present the roadmap", "Phases and measures clear", "Presentation feedback"]],
+          "objectives": ["Apply zero trust", "Design policy sets", "Plan rollout"]
+        },
+        {
+          "topic": "Advanced Conditional Access and Authentication Strength",
+          "subtopics": ["Policy design patterns and personas", "Authentication strengths and phishing-resistant MFA", "Token protection and continuous access evaluation", "Session controls with Defender for Cloud Apps", "Policies for guests and partners", "Policy as code and backups", "Monitoring policy impact with workbooks", "Avoiding lockouts"],
+          "tools": ["Conditional Access", "Entra workbooks", "Defender for Cloud Apps"],
+          "lab_task": "Rebuild policies by persona, require phishing-resistant MFA for admins, apply session controls for unmanaged devices, back up policies as code and analyse impact with workbooks.",
+          "deliverable": "Persona policy set, backups and impact analysis",
+          "checks": [["Sign in as an admin with SMS", "Refused by authentication strength", "Sign-in log"], ["Download from an unmanaged device", "Download blocked by session control", "Screenshot"], ["Restore a policy from backup", "Policy restored exactly", "Diff"]],
+          "objectives": ["Design persona-based policies", "Use phishing-resistant MFA", "Manage policies as code"]
+        },
+        {
+          "topic": "Workload Identities and Application Governance",
+          "subtopics": ["App registrations and service principals", "Consent and permissions", "Admin consent workflow", "Risky app permissions", "Managed identities", "Workload identity protection", "App governance in Defender", "Cleaning up unused apps"],
+          "tools": ["Entra app registrations", "App governance", "Microsoft Graph"],
+          "lab_task": "Review all app registrations, remove over-privileged permissions, turn on the admin consent workflow, protect workload identities with Conditional Access and remove unused apps.",
+          "deliverable": "App review, changes and policies",
+          "checks": [["Find over-privileged apps", "Apps with risky permissions listed", "Review report"], ["Request consent as a user", "Request routed to admins", "Consent request"], ["Remove unused apps", "Apps with no sign-ins removed", "App list"]],
+          "objectives": ["Govern applications", "Control consent", "Protect workload identities"]
+        },
+        {
+          "topic": "Automating Microsoft 365 with Graph, Azure Automation and Logic Apps",
+          "subtopics": ["Microsoft Graph API", "App-only authentication with certificates", "Azure Automation runbooks", "Logic Apps and Power Automate for admin tasks", "Lifecycle workflows in Entra", "Scheduling and error handling", "Secrets in automation", "Testing automation"],
+          "tools": ["Microsoft Graph", "Azure Automation", "Entra Lifecycle Workflows", "Logic Apps"],
+          "lab_task": "Automate joiners and leavers with lifecycle workflows, build a runbook that reports licence waste weekly using a certificate and a Logic App that posts service health to Teams.",
+          "deliverable": "Workflows, runbook and Logic App",
+          "checks": [["Add a joiner in HR data", "Workflow creates access on the start date", "Workflow history"], ["Run the runbook", "Report produced without stored passwords", "Runbook output"], ["Post service health", "Message appears in Teams", "Teams screenshot"]],
+          "objectives": ["Automate with Graph", "Use lifecycle workflows", "Secure automation"]
+        },
+        {
+          "topic": "Microsoft 365 Configuration as Code",
+          "subtopics": ["Why configuration as code", "Microsoft365DSC", "Exporting tenant configuration", "Detecting drift", "Deploying configuration between tenants", "Change control with Git", "Testing changes", "Limits of configuration as code"],
+          "tools": ["Microsoft365DSC", "Git", "Azure DevOps or GitHub Actions"],
+          "lab_task": "Export the tenant's configuration with Microsoft365DSC, store it in Git, detect drift after a manual change and deploy a policy set to a test tenant through a pipeline.",
+          "deliverable": "Exported configuration, drift report and pipeline",
+          "checks": [["Export configuration", "Settings captured in files", "Repository"], ["Make a manual change", "Drift detected", "Drift report"], ["Deploy to the test tenant", "Settings applied by the pipeline", "Pipeline log"]],
+          "objectives": ["Manage configuration as code", "Detect drift", "Promote configuration"]
+        },
+        {
+          "topic": "Defender XDR Operations at Scale",
+          "subtopics": ["SOC processes for Microsoft 365", "Incident triage and prioritisation", "Custom detections", "Automated investigation tuning", "Threat analytics", "Attack disruption", "Reporting to leadership", "Measuring detection and response"],
+          "tools": ["Microsoft Defender XDR", "KQL"],
+          "lab_task": "Write custom detections for business email compromise and suspicious inbox rules, tune automated investigation, run a threat analytics review and report response metrics.",
+          "deliverable": "Detections, tuning notes and metrics report",
+          "checks": [["Create a suspicious inbox rule", "Custom detection alerts", "Alert"], ["Tune automation", "Fewer manual approvals for safe actions", "Action center"], ["Report metrics", "Time to detect and respond measured", "Report"]],
+          "objectives": ["Operate Defender at scale", "Write detections", "Measure response"]
+        },
+        {
+          "topic": "Microsoft Sentinel Integration for Microsoft 365",
+          "subtopics": ["Sentinel and Defender XDR together", "Data connectors for Microsoft 365", "Analytics rules", "Workbooks", "Playbooks for automated response", "Cost of log ingestion", "Retention", "Hunting across data"],
+          "tools": ["Microsoft Sentinel", "Logic Apps", "KQL"],
+          "lab_task": "Connect Microsoft 365 and Entra logs to Sentinel, write an analytics rule for impossible travel, build a playbook that disables an account and estimate ingestion cost.",
+          "deliverable": "Connectors, rule, playbook and cost estimate",
+          "checks": [["Trigger the rule", "Incident created in Sentinel", "Incident page"], ["Run the playbook", "Account disabled automatically", "Playbook run history"], ["Estimate cost", "Monthly ingestion cost calculated", "Cost estimate"]],
+          "objectives": ["Use Sentinel", "Automate response", "Control log cost"]
+        },
+        {
+          "topic": "Data Governance at Scale with Purview",
+          "subtopics": ["Data governance strategy for Microsoft 365", "Data access governance reports", "Site lifecycle management", "Inactive and ownerless sites", "Sharing reviews by site owners", "Labelling coverage", "Governance metrics", "Working with business owners"],
+          "tools": ["SharePoint Advanced Management", "Purview", "Graph reports"],
+          "lab_task": "Run data access governance reports, set inactive site policies, launch site owner access reviews and report labelling coverage to leadership.",
+          "deliverable": "Governance policies, review results and report",
+          "checks": [["Run the inactive site policy", "Owners asked to confirm or archive", "Policy report"], ["Run owner access reviews", "Permissions reduced", "Review results"], ["Report labelling coverage", "Coverage by department", "Report"]],
+          "objectives": ["Govern data at scale", "Clean up sites", "Report governance"]
+        },
+        {
+          "topic": "Records Management and Retention at Scale",
+          "subtopics": ["Records management in Purview", "File plans", "Retention labels with events", "Disposition reviews", "Regulatory records", "Adaptive scopes", "Retention for Teams and Copilot interactions", "Proving deletion"],
+          "tools": ["Microsoft Purview Records Management"],
+          "lab_task": "Build a file plan, apply event-based retention for contracts, run a disposition review and use adaptive scopes for retention by department.",
+          "deliverable": "File plan, labels and disposition evidence",
+          "checks": [["Trigger an event", "Retention starts from the event date", "Label details"], ["Run disposition review", "Items approved for deletion", "Disposition report"], ["Apply adaptive scopes", "Policies target the right users", "Scope report"]],
+          "objectives": ["Manage records", "Use event-based retention", "Prove disposition"]
+        },
+        {
+          "topic": "Compliance for Regulators: Compliance Manager and Audits",
+          "subtopics": ["Compliance Manager", "Assessments for ISO 27001, DPDP and others", "Improvement actions", "Microsoft-managed and customer-managed controls", "Evidence for auditors", "Audit log retention", "Customer Lockbox", "Regulatory reporting"],
+          "tools": ["Microsoft Purview Compliance Manager", "Audit (Premium)"],
+          "lab_task": "Run Compliance Manager assessments for ISO 27001 and the DPDP Act, complete five improvement actions with evidence and prepare an auditor pack.",
+          "deliverable": "Assessments, completed actions and auditor pack",
+          "checks": [["Complete improvement actions", "Score increases with evidence attached", "Compliance Manager"], ["Retain audit logs", "Retention policy set for the required period", "Audit settings"], ["Review the auditor pack", "Evidence mapped to controls", "Auditor pack"]],
+          "objectives": ["Use Compliance Manager", "Prepare evidence", "Support audits"]
+        },
+        {
+          "topic": "Governing Microsoft 365 Copilot and Agents",
+          "subtopics": ["Copilot architecture and data access", "Copilot settings and controls", "Agents and Copilot Studio governance", "Data protection for prompts and responses", "Auditing Copilot interactions", "Responsible AI policies", "Measuring Copilot value", "Rollout at scale"],
+          "tools": ["Copilot settings", "Copilot Studio", "Purview", "Copilot analytics"],
+          "lab_task": "Set Copilot and agent governance for the tenant, restrict agent creation, audit Copilot interactions with Purview, write the AI use policy and measure value for a pilot group.",
+          "deliverable": "Governance settings, audit results, policy and value report",
+          "checks": [["Create an agent as a normal user", "Blocked or routed for approval", "Screenshot"], ["Search Copilot interactions", "Prompts and responses found in audit", "Audit results"], ["Measure value", "Time saved estimated from usage", "Value report"]],
+          "objectives": ["Govern Copilot", "Control agents", "Measure AI value"]
+        },
+        {
+          "topic": "Teams Voice and Meetings at Scale",
+          "subtopics": ["Voice architecture choices", "Direct routing and Operator Connect", "Emergency calling", "Call quality and the Call Quality Dashboard", "Network readiness", "Teams Rooms management", "Large meetings, webinars and town halls", "Support processes for voice"],
+          "tools": ["Teams admin center", "Call Quality Dashboard", "Teams Rooms Pro"],
+          "lab_task": "Design voice for three offices, configure emergency locations, analyse call quality, fix a network problem causing poor calls and plan a town hall.",
+          "deliverable": "Voice design, call quality analysis and town hall plan",
+          "checks": [["Analyse call quality", "Poor calls traced to a site network", "Call Quality Dashboard"], ["Configure emergency calling", "Locations set for each office", "Settings"], ["Plan the town hall", "Format and capacity suit the audience", "Plan"]],
+          "objectives": ["Design Teams voice", "Improve call quality", "Run large meetings"]
+        },
+        {
+          "topic": "Change, Release and Feature Management",
+          "subtopics": ["Microsoft's update cadence", "Message center triage", "Pilot rings", "Feature control with policies", "Communicating changes", "Training and adoption", "Measuring change impact", "Change advisory processes"],
+          "tools": ["Message center", "Targeted release", "Admin center settings"],
+          "lab_task": "Set up message center triage with owners, create pilot rings, control a new feature with policy, communicate it and measure adoption.",
+          "deliverable": "Triage process, rings and adoption report",
+          "checks": [["Triage messages", "Owners and actions assigned", "Triage log"], ["Control the feature", "Available only to the pilot ring", "Settings"], ["Measure adoption", "Use measured after rollout", "Report"]],
+          "objectives": ["Manage Microsoft 365 change", "Use pilot rings", "Drive adoption"]
+        },
+        {
+          "topic": "Licensing Strategy and Cost Optimisation",
+          "subtopics": ["Microsoft 365 licence suites", "Add-ons: E5 security, compliance and Copilot", "Licence assignment at scale", "Finding waste", "Frontline licences", "Renewal and negotiation inputs", "Chargeback", "Licence reporting"],
+          "tools": ["Admin center reports", "Graph PowerShell", "Spreadsheet"],
+          "lab_task": "Analyse licence use, find waste and over-licensing, model moving users between suites and estimate annual savings for renewal.",
+          "deliverable": "Licence analysis and savings model",
+          "checks": [["Find waste", "Unused and duplicate licences listed", "Licence report"], ["Model suite changes", "Cost of each option", "Savings model"], ["Present savings", "Annual saving with risks", "Presentation"]],
+          "objectives": ["Plan licensing", "Reduce waste", "Prepare renewals"]
+        },
+        {
+          "topic": "Incident Response for Microsoft 365 Compromise",
+          "subtopics": ["Business email compromise", "Token theft", "Malicious OAuth apps", "Investigation steps", "Containment", "Evidence collection", "Recovery and hardening", "Post-incident review"],
+          "tools": ["Defender XDR", "Entra sign-in logs", "Purview Audit", "PowerShell"],
+          "lab_task": "Respond to a simulated business email compromise with token theft and a malicious app: investigate, contain, collect evidence, recover and write the review.",
+          "deliverable": "Investigation log, containment steps and review",
+          "checks": [["Contain the account", "Sessions revoked and app removed", "Audit log"], ["Find malicious inbox rules", "Rules found and removed", "Mailbox audit"], ["Write the review", "Timeline, cause and hardening actions recorded", "Post-incident review"]],
+          "objectives": ["Respond to compromise", "Contain attacks", "Harden after incidents"]
+        },
+        {
+          "topic": "Tenant Health, Monitoring and Operations",
+          "subtopics": ["Operations model for Microsoft 365", "Monitoring service health and incidents", "Monitoring configuration drift", "Secure Score and identity score tracking", "Operational dashboards", "Runbooks", "Service levels for the help desk", "Monthly tenant health reviews"],
+          "tools": ["Admin center", "Graph", "Power BI", "Microsoft365DSC"],
+          "lab_task": "Build a monthly tenant health dashboard covering service incidents, drift, Secure Score, licence use and help desk volumes, and run a review meeting.",
+          "deliverable": "Dashboard and review minutes",
+          "checks": [["Build the dashboard", "All health areas shown", "Dashboard"], ["Run the review", "Actions agreed with owners", "Review minutes"], ["Track Secure Score", "Trend and next actions shown", "Dashboard"]],
+          "objectives": ["Operate the tenant", "Monitor health", "Run reviews"]
+        },
+        {
+          "topic": "Troubleshooting Complex Microsoft 365 Issues",
+          "subtopics": ["An incident method for Microsoft 365", "Sign-in and Conditional Access problems", "Mail delivery failures", "Sync problems with OneDrive and Entra", "Teams call and meeting problems", "Intune policy conflicts", "Working with Microsoft support", "Post-incident reviews"],
+          "tools": ["Sign-in logs", "Message trace", "Intune reports", "Microsoft support tools"],
+          "lab_task": "Diagnose five injected issues (a Conditional Access lockout, a mail loop, an Entra sync failure, an Intune policy conflict and poor Teams calls), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix the lockout", "Users sign in and the policy is corrected", "Sign-in log"], ["Fix the policy conflict", "Device applies one setting", "Intune report"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose complex issues", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Microsoft 365 Architecture",
+          "subtopics": ["Architecture", "Identity and security", "Data and compliance", "Operations"],
+          "tools": ["Entra ID", "Conditional Access", "Microsoft365DSC", "Defender XDR", "Sentinel", "Purview", "Copilot governance"],
+          "lab_task": "Design and deliver Microsoft 365 for a multinational group: tenant and data residency strategy, cross-tenant collaboration, zero trust policies as code, automated lifecycle, Defender and Sentinel response, records and Copilot governance and a licensing plan, then run an incident drill and present to an architecture board.",
+          "deliverable": "Architecture records, configuration repository, drill report and board presentation",
+          "checks": [["Run the incident drill", "Compromise contained within the target", "Drill report"], ["Deploy a policy change through the pipeline", "Change tested and applied", "Pipeline log"], ["Present to the board", "Design and cost choices defended", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one design", "Run Microsoft 365 at enterprise scale", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import asyncio
 
 from app.routes.inbox import (
+    _pending_initial_trainer_mail_targets,
     _requirement_flow_from_email,
     _update_existing_requirement_from_extracted,
 )
@@ -56,6 +57,16 @@ We will share the final dates and delivery details shortly.
 """
 
     assert _requirement_flow_from_email({}, text) == "proposal"
+
+
+def test_initial_trainer_mail_retries_pending_failed_attempts_but_skips_delivered():
+    trainers = [
+        {"trainer_id": "failed", "pipeline_status": "pending", "last_mail_type": "mail1"},
+        {"trainer_id": "new", "pipeline_status": "shortlisted"},
+        {"trainer_id": "sent", "pipeline_status": "waiting_reply1", "mail1_sent_at": "2026-10-31T10:00:00Z"},
+    ]
+
+    assert [trainer["trainer_id"] for trainer in _pending_initial_trainer_mail_targets(trainers)] == ["failed", "new"]
 
 
 def test_extractor_confirmed_label_cannot_override_client_message():
@@ -253,12 +264,19 @@ def test_tentative_language_overrides_complete_extracted_fields(message):
 
 
 @pytest.mark.parametrize("updates", [
-    {"training_dates": "October 2026"}, {"duration_days": 0},
-    {"participant_count": 0}, {"budget_total": 0},
-    {"training_dates": "Tentative 5 October 2026"},
+    {"duration_days": 0}, {"participant_count": 0}, {"budget_total": 0},
 ])
 def test_incomplete_or_tentative_fields_do_not_confirm(updates):
     extracted = dict(technology_needed="AWS", duration_days=10, participant_count=25,
                      training_dates="5 October 2026", budget_total=250000)
     extracted.update(updates)
     assert _requirement_flow_from_email(extracted, "Upcoming AWS batch") == "proposal"
+
+
+def test_fixed_scope_duration_and_commercials_confirm_without_calendar_dates():
+    extracted = {
+        "technology_needed": "DevOps",
+        "duration_days": 5,
+        "budget_total": 150000,
+    }
+    assert _requirement_flow_from_email(extracted, "DevOps corporate batch") == "confirmed"

@@ -1,0 +1,573 @@
+{
+  "domain": "Selenium",
+  "name": "Selenium Test Automation",
+  "category": "Testing and QA",
+  "icon": "monitor-check",
+  "aliases": ["Selenium WebDriver", "Selenium with Java", "Selenium Automation", "Selenium Testing", "Selenium Test Automation", "Selenium Grid", "Selenium 4", "Selenium Automation Testing"],
+  "certifications": ["No official Selenium certification; assessed by capstone project", "ISTQB Advanced Level Test Automation Engineering", "ISTQB Certified Tester Foundation Level (CTFL)"],
+  "tools": ["Java 21", "Selenium 4", "TestNG", "Maven", "IntelliJ IDEA", "Git"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For manual testers and new automation engineers. Covers the Java needed for Selenium, WebDriver set-up, locators, interacting with every common element, waits, alerts, frames and windows, TestNG, assertions, data-driven tests with Excel, a first Page Object Model and HTML reports, ending with an automated regression suite for a web shop.",
+      "prerequisites": ["Has done manual testing of web applications", "Basic programming knowledge helps but is not required", "Can install software on their machine"],
+      "outcomes": ["Write Java code needed for test automation", "Automate web pages with Selenium WebDriver using reliable locators and waits", "Organise tests with TestNG, data-driven tests and page objects", "Run suites and produce readable reports"],
+      "days": [
+        {
+          "topic": "Selenium Overview and Environment Setup",
+          "subtopics": ["What Selenium is: WebDriver, IDE and Grid", "How WebDriver talks to browsers", "Selenium compared with Playwright and Cypress", "Installing Java 21, Maven and IntelliJ IDEA", "Creating a Maven project", "Adding Selenium and TestNG dependencies", "Selenium Manager and browser drivers", "Opening a browser and a page", "Closing the browser cleanly", "Course application overview"],
+          "tools": ["Java 21", "Maven", "IntelliJ IDEA", "Selenium 4"],
+          "lab_task": "Set up a Maven project with Selenium and TestNG, write a test that opens the course web shop in Chrome and Firefox, checks the page title and closes the browser.",
+          "deliverable": "Maven project and test run output",
+          "checks": [["Run mvn test", "Test passes in Chrome", "Maven output"], ["Switch to Firefox", "Same test passes", "Maven output"], ["Check the browser closes", "No browser windows left after the run", "Screenshot"]],
+          "objectives": ["Explain Selenium components", "Set up an automation project", "Run a first browser test"]
+        },
+        {
+          "topic": "Java Essentials for Testers: Variables, Conditions and Loops",
+          "subtopics": ["Classes and the main method", "Variables and data types", "Strings and string methods", "Operators", "if and switch", "for and while loops", "Arrays", "Reading compiler errors", "Running code in IntelliJ", "Debugging basics"],
+          "tools": ["Java 21", "IntelliJ IDEA"],
+          "lab_task": "Write small Java programs that validate test data: check email formats, loop over a list of prices to find the highest and count words in a product description.",
+          "deliverable": "Java programs with output",
+          "checks": [["Validate ten emails", "Valid and invalid emails reported correctly", "Program output"], ["Find the highest price", "Correct value", "Program output"], ["Use the debugger", "Breakpoint stops inside the loop", "Screenshot"]],
+          "objectives": ["Write basic Java", "Use conditions and loops", "Debug simple programs"]
+        },
+        {
+          "topic": "Java for Automation: Methods, Classes, Collections and Exceptions",
+          "subtopics": ["Methods and parameters", "Classes and objects", "Constructors", "Inheritance in brief", "ArrayList and HashMap", "Exceptions and try-catch", "Static members", "Packages and imports"],
+          "tools": ["Java 21", "IntelliJ IDEA"],
+          "lab_task": "Model a product and a cart as classes, store products in an ArrayList and a HashMap, calculate totals and handle an invalid quantity with an exception.",
+          "deliverable": "Java classes with a test program",
+          "checks": [["Add three products", "Cart total correct", "Program output"], ["Add a negative quantity", "Exception caught with a clear message", "Program output"], ["Look up a product by code", "Found through the HashMap", "Program output"]],
+          "objectives": ["Use classes and collections", "Handle exceptions", "Prepare Java skills for Selenium"]
+        },
+        {
+          "topic": "WebDriver Navigation and Browser Commands",
+          "subtopics": ["WebDriver interface and implementations", "get and navigate", "Back, forward and refresh", "Window size and maximise", "getTitle and getCurrentUrl", "Page source", "Browser options and headless mode", "quit versus close"],
+          "tools": ["Selenium 4", "Java 21"],
+          "lab_task": "Write tests that navigate between shop pages, check titles and URLs, use back and forward, run in headless mode and set a fixed window size.",
+          "deliverable": "Navigation tests and run output",
+          "checks": [["Navigate back after opening a product", "Returns to the list page URL", "Test output"], ["Run headless", "Tests pass without a visible browser", "Maven output"], ["Set window size", "Screenshot has the set dimensions", "Screenshot"]],
+          "objectives": ["Control the browser with WebDriver", "Navigate pages", "Use browser options"]
+        },
+        {
+          "topic": "Locators: ID, Name, Class, Link Text and CSS Selectors",
+          "subtopics": ["Inspecting elements in DevTools", "By.id, By.name and By.className", "Link text and partial link text", "Tag name", "CSS selectors: id, class, attribute", "CSS combinators and nth-child", "Testing selectors in DevTools", "Choosing stable locators"],
+          "tools": ["Selenium 4", "Chrome DevTools"],
+          "lab_task": "Locate 20 elements on the shop pages with ID, name, class, link text and CSS selectors, check each in DevTools first and replace three fragile locators with stable ones.",
+          "deliverable": "Locator list and tests that use them",
+          "checks": [["Check each CSS selector in DevTools", "Matches exactly one element", "DevTools screenshot"], ["Run the tests", "All elements found", "Test output"], ["Replace fragile locators", "No locators depend on layout position", "Code review"]],
+          "objectives": ["Use basic locators", "Write CSS selectors", "Choose stable locators"]
+        },
+        {
+          "topic": "XPath Locators and Relative Locators",
+          "subtopics": ["Absolute versus relative XPath", "XPath with attributes", "contains and starts-with", "text()", "Axes: parent, following-sibling, ancestor", "Indexes and their risks", "Selenium 4 relative locators", "XPath versus CSS"],
+          "tools": ["Selenium 4", "Chrome DevTools"],
+          "lab_task": "Locate table cells, labels and buttons that have no IDs using XPath axes and text, and use relative locators to find a field next to its label.",
+          "deliverable": "XPath locator list and tests",
+          "checks": [["Find the price in the row for a named product", "Correct cell found with an axis", "Test output"], ["Use a relative locator", "Field found next to its label", "Test output"], ["Review XPaths", "No absolute paths used", "Code review"]],
+          "objectives": ["Write XPath locators", "Use axes and functions", "Use relative locators"]
+        },
+        {
+          "topic": "Interacting with Elements: Forms, Buttons and Text",
+          "subtopics": ["click, sendKeys and clear", "getText and getAttribute", "isDisplayed, isEnabled and isSelected", "Submitting forms", "Keyboard keys with Keys", "Reading lists of elements with findElements", "Element state checks", "Common interaction errors"],
+          "tools": ["Selenium 4", "Java 21"],
+          "lab_task": "Automate registration and login forms, read error messages for invalid input, count search results with findElements and check button states.",
+          "deliverable": "Form tests and run output",
+          "checks": [["Submit registration with a bad email", "Error message text checked", "Test output"], ["Count search results", "Count matches the expected number", "Test output"], ["Check the disabled button", "isEnabled returns false before terms are accepted", "Test output"]],
+          "objectives": ["Interact with page elements", "Read text and attributes", "Check element states"]
+        },
+        {
+          "topic": "Dropdowns, Checkboxes, Radio Buttons and Tables",
+          "subtopics": ["The Select class", "Selecting by visible text, value and index", "Multi-select lists", "Checkboxes and radio buttons", "Reading web tables", "Looping over rows and cells", "Custom dropdowns without select", "Date pickers"],
+          "tools": ["Selenium 4", "Java 21"],
+          "lab_task": "Automate a filter page with a select dropdown, checkboxes and radio buttons, a custom JavaScript dropdown and a date picker, then read an order table into a list.",
+          "deliverable": "Tests and extracted table data",
+          "checks": [["Select a category by visible text", "Results filtered to that category", "Test output"], ["Read the order table", "Rows match the expected data", "Test output"], ["Choose a date in the picker", "Field shows the chosen date", "Test output"]],
+          "objectives": ["Automate common controls", "Read web tables", "Handle custom widgets"]
+        },
+        {
+          "topic": "Synchronisation: Implicit, Explicit and Fluent Waits",
+          "subtopics": ["Why tests fail on timing", "Implicit waits and their problems", "WebDriverWait and ExpectedConditions", "Waiting for visibility, clickability and text", "FluentWait with polling", "Never using Thread.sleep", "Stale element exceptions", "Waiting for AJAX content"],
+          "tools": ["Selenium 4", "Java 21"],
+          "lab_task": "Fix a flaky test suite that uses Thread.sleep by replacing it with explicit waits for AJAX-loaded content and handle a stale element after a page refresh.",
+          "deliverable": "Fixed tests and run output from 10 runs",
+          "checks": [["Run the suite 10 times", "Passes every time", "Run log"], ["Search the code for Thread.sleep", "None found", "Search output"], ["Refresh a list during a test", "StaleElementReferenceException handled by relocating", "Test output"]],
+          "objectives": ["Synchronise tests correctly", "Use explicit and fluent waits", "Remove flaky sleeps"]
+        },
+        {
+          "topic": "Alerts, Frames and Multiple Windows",
+          "subtopics": ["JavaScript alerts, confirms and prompts", "Switching to alerts", "iframes by index, name and element", "Nested frames", "Switching back to the main page", "New tabs and windows", "Window handles", "Closing extra windows"],
+          "tools": ["Selenium 4", "Java 21"],
+          "lab_task": "Automate a page with an alert, a confirm and a prompt, an embedded payment iframe and a link that opens a new tab, returning to the main window each time.",
+          "deliverable": "Tests and run output",
+          "checks": [["Accept and dismiss the confirm", "Page shows the right message for each", "Test output"], ["Fill a field inside the iframe", "Value entered and payment accepted", "Test output"], ["Switch to the new tab and back", "Titles checked for both windows", "Test output"]],
+          "objectives": ["Handle alerts", "Work with frames", "Switch between windows"]
+        },
+        {
+          "topic": "Mouse and Keyboard Actions and JavaScriptExecutor",
+          "subtopics": ["The Actions class", "Hover menus", "Drag and drop", "Right click and double click", "Keyboard shortcuts with Actions", "Scrolling", "JavaScriptExecutor for clicks and scrolling", "When JavaScript is the wrong answer"],
+          "tools": ["Selenium 4", "Java 21"],
+          "lab_task": "Automate a hover menu, drag and drop items between lists, right-click a context menu and scroll to a lazy-loaded footer.",
+          "deliverable": "Tests and run output",
+          "checks": [["Hover over the menu", "Submenu becomes visible and is clicked", "Test output"], ["Drag an item", "Item appears in the target list", "Test output"], ["Scroll to the footer", "Lazy-loaded content appears", "Test output"]],
+          "objectives": ["Use the Actions class", "Perform complex interactions", "Use JavaScriptExecutor carefully"]
+        },
+        {
+          "topic": "Screenshots, File Upload and File Download",
+          "subtopics": ["Taking page screenshots", "Element screenshots", "Saving screenshots on failure", "Uploading files with sendKeys", "Download folder settings in Chrome options", "Checking downloaded files", "Cleaning up files", "Paths across operating systems"],
+          "tools": ["Selenium 4", "Java 21"],
+          "lab_task": "Upload a profile picture, download an invoice PDF and check it exists with the right name and size, and save a screenshot automatically when a test fails.",
+          "deliverable": "Tests, downloaded file check and failure screenshot",
+          "checks": [["Upload the picture", "Page shows the uploaded image", "Test output"], ["Download the invoice", "File exists with expected name and size above zero", "Test output"], ["Make a test fail", "Screenshot saved with the test name", "Screenshot file"]],
+          "objectives": ["Capture screenshots", "Upload and download files", "Save evidence on failure"]
+        },
+        {
+          "topic": "TestNG Essentials: Annotations, Assertions and Groups",
+          "subtopics": ["Why TestNG", "@Test, @BeforeMethod and @AfterMethod", "@BeforeClass and @AfterClass", "Hard assertions", "Soft assertions", "Priorities and dependencies", "Groups", "testng.xml suites"],
+          "tools": ["TestNG", "Maven", "Selenium 4"],
+          "lab_task": "Organise the tests into a TestNG suite with set-up and tear-down methods, soft assertions for a product page, smoke and regression groups and a testng.xml file.",
+          "deliverable": "TestNG suite and reports",
+          "checks": [["Run only the smoke group", "Only smoke tests run", "TestNG report"], ["Fail two soft assertions", "Both failures reported in one test", "TestNG report"], ["Check set-up and tear-down", "Browser opens and closes for each test", "Test log"]],
+          "objectives": ["Organise tests with TestNG", "Use assertions well", "Group and order tests"]
+        },
+        {
+          "topic": "Data-Driven Testing with DataProvider and Excel",
+          "subtopics": ["Why data-driven tests", "TestNG DataProvider", "Reading Excel with Apache POI", "Reading CSV and JSON files", "Test data per environment", "Positive and negative data sets", "Keeping data out of code", "Reporting each data row"],
+          "tools": ["TestNG", "Apache POI", "Excel"],
+          "lab_task": "Run the login test for 15 users from an Excel sheet with expected results, add CSV data for search terms and report each row as its own test result.",
+          "deliverable": "Data files, DataProvider code and report",
+          "checks": [["Run the login data set", "One result per row", "TestNG report"], ["Add a new row to Excel", "New case runs with no code change", "TestNG report"], ["Check negative rows", "Expected error messages verified", "TestNG report"]],
+          "objectives": ["Drive tests with data", "Read Excel and CSV", "Keep data out of code"]
+        },
+        {
+          "topic": "Page Object Model First Steps",
+          "subtopics": ["Why page objects", "One class per page", "Locators and actions in page classes", "Returning the next page", "Keeping assertions in tests", "Base page class", "Reusing components", "Refactoring tests to page objects"],
+          "tools": ["Selenium 4", "Java 21", "TestNG"],
+          "lab_task": "Refactor the login, search, product and cart tests into page objects with a base page class, and show that a changed locator is fixed in one place.",
+          "deliverable": "Page object classes and refactored tests",
+          "checks": [["Change the login button locator", "Fixed in one page class and all tests pass", "Code diff and test run"], ["Review tests", "No locators inside test methods", "Code review"], ["Chain page objects", "Login returns the home page object", "Test code"]],
+          "objectives": ["Use the Page Object Model", "Separate pages from tests", "Reduce maintenance"]
+        },
+        {
+          "topic": "Test Reports with ExtentReports and Logs",
+          "subtopics": ["Why readable reports matter", "TestNG default reports", "ExtentReports set-up", "Adding steps and screenshots to reports", "Listeners for automatic reporting", "Logging with Log4j2", "Sharing reports", "Reading failure details quickly"],
+          "tools": ["ExtentReports", "Log4j2", "TestNG listeners"],
+          "lab_task": "Add ExtentReports with steps and failure screenshots through a TestNG listener and Log4j2 logging, then share the report from a failed run.",
+          "deliverable": "Report and log files",
+          "checks": [["Open the report after a failure", "Failed step and screenshot shown", "ExtentReports file"], ["Check the logs", "Each test has start, steps and end entries", "Log file"], ["Run the full suite", "Report summarises pass and fail counts", "ExtentReports file"]],
+          "objectives": ["Produce readable reports", "Add logs and screenshots", "Use TestNG listeners"]
+        },
+        {
+          "topic": "Running Tests with Maven and Git",
+          "subtopics": ["Maven lifecycle and Surefire", "Running suites and groups from the command line", "Passing parameters with -D", "Git basics: clone, commit, push", "Branches for test changes", ".gitignore for reports and drivers", "Pull requests for test code", "Running tests on another machine"],
+          "tools": ["Maven", "Git", "GitHub"],
+          "lab_task": "Run the suite from the command line with a browser parameter, push the project to GitHub with a .gitignore, and run it on a colleague's machine from a fresh clone.",
+          "deliverable": "Repository and command-line run output",
+          "checks": [["Run with -Dbrowser=firefox", "Suite runs in Firefox", "Maven output"], ["Clone on another machine", "Suite runs with no manual set-up", "Maven output"], ["Check the repository", "Reports and build output not committed", "GitHub screenshot"]],
+          "objectives": ["Run tests from the command line", "Version test code in Git", "Share runnable suites"]
+        },
+        {
+          "topic": "Debugging Failing Selenium Tests",
+          "subtopics": ["Reading stack traces", "Common exceptions: NoSuchElement, ElementNotInteractable, Timeout", "Using breakpoints in tests", "Checking locators live", "Timing problems", "Environment problems", "Test data problems", "A debugging checklist"],
+          "tools": ["IntelliJ IDEA debugger", "Chrome DevTools"],
+          "lab_task": "Debug ten planted failures in a provided suite, record the cause and fix for each and classify them as locator, timing, data or environment problems.",
+          "deliverable": "Debug log and fixed suite",
+          "checks": [["Fix the ten failures", "Suite passes", "Test output"], ["Classify each failure", "Cause and category recorded", "Debug log"], ["Use a breakpoint", "Paused inside a failing test to inspect values", "Screenshot"]],
+          "objectives": ["Debug Selenium tests", "Recognise common exceptions", "Fix the real cause"]
+        },
+        {
+          "topic": "Selenium IDE and When Not to Automate",
+          "subtopics": ["Recording with Selenium IDE", "Exporting recordings to code", "Limits of record and playback", "What to automate first", "Automation return on investment", "Tests that should stay manual", "Keeping a balanced suite", "Planning an automation backlog"],
+          "tools": ["Selenium IDE", "Excel"],
+          "lab_task": "Record two flows in Selenium IDE, export them to Java and compare with hand-written tests, then build an automation backlog ranked by value and stability.",
+          "deliverable": "Recorded tests, comparison and automation backlog",
+          "checks": [["Export the recording", "Java code runs", "Test output"], ["Compare with hand-written tests", "Maintainability differences listed", "Comparison"], ["Rank the backlog", "Ranked by value, frequency and stability", "Backlog"]],
+          "objectives": ["Use Selenium IDE", "Decide what to automate", "Plan automation work"]
+        },
+        {
+          "topic": "Beginner Capstone: Automated Regression Suite for a Web Shop",
+          "subtopics": ["Scope and test selection", "Page objects for the main pages", "Data-driven tests", "TestNG suites and groups", "Reports and screenshots", "Demo"],
+          "tools": ["Java 21", "Selenium 4", "TestNG", "Maven", "ExtentReports", "Git"],
+          "lab_task": "Build a 30-test regression suite for the web shop with page objects, explicit waits, data-driven login and checkout tests, smoke and regression groups and ExtentReports, stored in Git, then demo a full run.",
+          "deliverable": "Repository, report from a full run and a 10-minute demo",
+          "checks": [["Run the regression group three times", "Passes every time", "Reports"], ["Break the checkout in the app", "The right test fails with a screenshot", "Report"], ["Review the code", "Page objects used and no Thread.sleep", "Code review"]],
+          "objectives": ["Combine the beginner topics in one suite", "Build a reliable regression suite", "Demo automation results"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For automation engineers who write Selenium tests. Covers hybrid framework design, configuration and utilities, parallel execution, Selenium Grid 4 with Docker, cross-browser and cloud grids, CI with Jenkins and GitHub Actions, BDD with Cucumber, API and UI tests together, dynamic elements and shadow DOM, Selenium 4 features, flakiness control and Allure reporting.",
+      "prerequisites": ["Writes Selenium tests in Java with TestNG", "Uses page objects and data-driven tests", "Uses Git and Maven"],
+      "outcomes": ["Design and build a maintainable hybrid automation framework", "Run suites in parallel on Selenium Grid and cloud browsers", "Run tests in CI with reports and quality gates", "Combine UI, API and BDD tests and keep them stable"],
+      "days": [
+        {
+          "topic": "Hybrid Framework Design",
+          "subtopics": ["Framework goals", "Layers: tests, pages, utilities, configuration", "Keyword, data-driven and hybrid frameworks", "Folder and package structure", "Naming conventions", "Framework documentation", "Onboarding new testers", "Common framework mistakes"],
+          "tools": ["Java 21", "Selenium 4", "TestNG", "Maven"],
+          "lab_task": "Design and build the skeleton of a hybrid framework with layers, packages, naming rules and a README, and move the beginner suite into it.",
+          "deliverable": "Framework skeleton, README and migrated tests",
+          "checks": [["Review the structure", "Tests, pages, utilities and configuration separated", "Repository"], ["Run the migrated tests", "All pass", "Test output"], ["Follow the README on a fresh machine", "New tester runs the suite", "Onboarding notes"]],
+          "objectives": ["Design automation frameworks", "Organise code in layers", "Document frameworks"]
+        },
+        {
+          "topic": "Driver Management with Factory and ThreadLocal",
+          "subtopics": ["Driver factory pattern", "Browser options per browser", "ThreadLocal drivers for parallel runs", "Local versus remote drivers", "Driver lifecycle hooks", "Avoiding static driver bugs", "Timeouts configuration", "Cleaning up after failures"],
+          "tools": ["Selenium 4", "TestNG", "Java 21"],
+          "lab_task": "Replace a static shared driver with a driver factory and ThreadLocal, support Chrome, Firefox and Edge locally and remotely, and prove drivers are cleaned up after failures.",
+          "deliverable": "Driver factory and test evidence",
+          "checks": [["Run tests in parallel", "No test uses another test's browser", "Test log"], ["Switch to remote mode", "Tests run on a remote browser by configuration", "Test output"], ["Fail a test mid-way", "Its browser is still closed", "Process list"]],
+          "objectives": ["Manage drivers safely", "Use the factory pattern", "Prepare for parallel runs"]
+        },
+        {
+          "topic": "Configuration, Environments and Secrets",
+          "subtopics": ["Properties and YAML configuration", "Environment profiles: dev, test, staging", "Command-line overrides", "Secrets from environment variables", "Base URLs and timeouts", "Feature flags in tests", "Validating configuration at start-up", "Never committing credentials"],
+          "tools": ["Maven profiles", "Java 21", "Git"],
+          "lab_task": "Add configuration for three environments with Maven profiles, read secrets from environment variables, override values from the command line and fail fast on missing settings.",
+          "deliverable": "Configuration files and run evidence",
+          "checks": [["Run against staging with a profile", "Tests use the staging URL", "Test log"], ["Remove a required setting", "Suite stops at start with a clear message", "Test output"], ["Search the repository for passwords", "None committed", "Search output"]],
+          "objectives": ["Configure environments", "Handle secrets safely", "Fail fast on bad configuration"]
+        },
+        {
+          "topic": "Advanced Page Objects, Components and PageFactory",
+          "subtopics": ["PageFactory and @FindBy", "Lazy loading of elements", "Component objects for headers and tables", "Fluent page methods", "Waits inside page objects", "Loadable components", "When PageFactory causes problems", "Page object reviews"],
+          "tools": ["Selenium 4", "Java 21"],
+          "lab_task": "Build reusable component objects for the header, product grid and data table, add fluent methods and a loadable component check, and compare PageFactory with plain By locators.",
+          "deliverable": "Component classes, refactored tests and comparison notes",
+          "checks": [["Reuse the header component", "Used on every page with no duplicate code", "Code review"], ["Open a page that loads slowly", "Loadable check waits until ready", "Test output"], ["Compare PageFactory and By", "Stale element behaviour explained", "Notes"]],
+          "objectives": ["Build component objects", "Use fluent page methods", "Choose locator strategies"]
+        },
+        {
+          "topic": "Utilities: Waits, Excel, Database and Email Helpers",
+          "subtopics": ["Wait helper class", "Excel and JSON data readers", "Database queries with JDBC for checks", "Random test data with Faker", "Date helpers", "Reading emails for sign-up links", "File helpers", "Keeping utilities small and tested"],
+          "tools": ["Java 21", "Apache POI", "JDBC", "Faker", "MailHog"],
+          "lab_task": "Write utilities for waits, data reading, database checks, random data and email, then automate a sign-up that confirms an emailed link and checks the database row.",
+          "deliverable": "Utility classes, unit tests and sign-up test",
+          "checks": [["Run the sign-up test", "Email link opened and account active", "Test output"], ["Check the database", "New user row with the right status", "Query result"], ["Run the utility unit tests", "All pass", "Test output"]],
+          "objectives": ["Write reusable utilities", "Check data in databases", "Automate email flows"]
+        },
+        {
+          "topic": "Parallel Execution with TestNG",
+          "subtopics": ["Why run in parallel", "parallel attribute: methods, classes, tests", "thread-count", "Thread-safe tests and data", "Avoiding shared state", "Parallel DataProviders", "Measuring speed-up", "Debugging parallel failures"],
+          "tools": ["TestNG", "Selenium 4", "Java 21"],
+          "lab_task": "Run the suite in parallel by classes and by methods with four threads, fix the failures caused by shared state and measure the speed-up.",
+          "deliverable": "Parallel configuration, fixes and timings",
+          "checks": [["Run in parallel with four threads", "All tests pass", "TestNG report"], ["Compare run time", "At least three times faster than serial", "Timing"], ["Fix shared-state failures", "Cause recorded for each", "Fix log"]],
+          "objectives": ["Run tests in parallel", "Make tests thread-safe", "Measure speed-up"]
+        },
+        {
+          "topic": "Selenium Grid 4 with Docker",
+          "subtopics": ["Grid 4 architecture: router, distributor, nodes", "Standalone, hub and node modes", "Running Grid with Docker Compose", "Video recording of sessions", "Grid UI and status", "RemoteWebDriver capabilities", "Scaling nodes", "Grid troubleshooting"],
+          "tools": ["Selenium Grid 4", "Docker", "Docker Compose"],
+          "lab_task": "Run Selenium Grid with Chrome, Firefox and Edge nodes in Docker Compose, run the suite against it in parallel with video recording and scale Chrome nodes to five.",
+          "deliverable": "Compose file, run report and session videos",
+          "checks": [["Open the Grid UI", "Nodes for three browsers registered", "Screenshot"], ["Run the suite on the Grid", "Tests spread across nodes", "Grid UI and report"], ["Watch a recorded session", "Video shows a failed test", "Video file"]],
+          "objectives": ["Run Selenium Grid", "Use Docker for browsers", "Scale test execution"]
+        },
+        {
+          "topic": "Cross-Browser Testing and Cloud Grids",
+          "subtopics": ["Browser and version matrix", "Browser differences", "Cloud grids: BrowserStack, Sauce Labs, LambdaTest", "Capabilities for cloud runs", "Local tunnels for private apps", "Running on real mobile browsers", "Reading cloud session results", "Cost and concurrency limits"],
+          "tools": ["BrowserStack or Sauce Labs", "Selenium 4"],
+          "lab_task": "Run the smoke suite on a cloud grid across six browser and OS combinations through a local tunnel, investigate a browser-specific failure and report it.",
+          "deliverable": "Cloud run results and defect report",
+          "checks": [["Run six combinations", "Results for each combination", "Cloud dashboard"], ["Use the local tunnel", "Private test site reached", "Session log"], ["Investigate the browser-specific failure", "Cause identified with session video", "Defect report"]],
+          "objectives": ["Test across browsers", "Use cloud grids", "Investigate browser differences"]
+        },
+        {
+          "topic": "Continuous Integration with Jenkins and GitHub Actions",
+          "subtopics": ["CI concepts for test suites", "Jenkins pipeline with Jenkinsfile", "GitHub Actions workflow", "Headless runs in CI", "Grid in CI with service containers", "Publishing reports", "Scheduled nightly runs", "Notifications to Slack or Teams"],
+          "tools": ["Jenkins", "GitHub Actions", "Selenium Grid", "Maven"],
+          "lab_task": "Run the smoke group on every pull request and the full regression nightly in Jenkins and GitHub Actions, publish reports and post results to a chat channel.",
+          "deliverable": "Jenkinsfile, workflow file and run evidence",
+          "checks": [["Open a pull request", "Smoke tests run and report the status", "CI log"], ["Wait for the nightly run", "Full regression runs and publishes the report", "CI log"], ["Check notifications", "Result message posted", "Chat screenshot"]],
+          "objectives": ["Run Selenium in CI", "Schedule regression runs", "Publish results"]
+        },
+        {
+          "topic": "BDD with Cucumber and Selenium",
+          "subtopics": ["BDD and Gherkin", "Feature files", "Step definitions in Java", "Hooks and tags", "Scenario outlines and data tables", "Sharing state between steps", "Cucumber with TestNG", "Cucumber reports"],
+          "tools": ["Cucumber", "TestNG", "Selenium 4"],
+          "lab_task": "Write feature files for search and checkout, implement step definitions on top of the page objects, tag smoke scenarios and produce Cucumber reports.",
+          "deliverable": "Feature files, step definitions and reports",
+          "checks": [["Run the smoke tag", "Only tagged scenarios run", "Cucumber report"], ["Run a scenario outline", "One run per example row", "Cucumber report"], ["Review steps", "Steps reuse page objects, no locators in step code", "Code review"]],
+          "objectives": ["Use BDD with Selenium", "Write Gherkin scenarios", "Connect steps to page objects"]
+        },
+        {
+          "topic": "Combining API and UI Tests with REST Assured",
+          "subtopics": ["When to use the API instead of the UI", "REST Assured basics", "Setting up test data through the API", "Logging in through the API and reusing cookies", "Checking UI actions through the API", "Response validation", "Faster tests with API set-up", "Keeping UI tests focused"],
+          "tools": ["REST Assured", "Selenium 4", "TestNG"],
+          "lab_task": "Create test users and products through the API, log in by injecting the session cookie, run a short UI check and verify the order through the API.",
+          "deliverable": "Combined tests and timing comparison",
+          "checks": [["Set up data through the API", "User and product exist before the UI test", "Test log"], ["Log in with the cookie", "Browser starts logged in", "Test output"], ["Compare run time", "Combined test faster than the full UI version", "Timing"]],
+          "objectives": ["Combine API and UI testing", "Set up data quickly", "Keep UI tests short"]
+        },
+        {
+          "topic": "Dynamic Elements, Shadow DOM and Complex Pages",
+          "subtopics": ["Dynamic IDs and classes", "Locating by stable attributes", "Shadow DOM with getShadowRoot", "Infinite scroll", "Single-page application routing", "Toast messages that disappear", "Canvas and SVG elements", "Asking developers for test IDs"],
+          "tools": ["Selenium 4", "Chrome DevTools"],
+          "lab_task": "Automate a single-page app with dynamic IDs, a shadow DOM component, infinite scroll and short-lived toast messages, and write a request to developers for test IDs.",
+          "deliverable": "Tests and a test ID request",
+          "checks": [["Interact with the shadow DOM component", "Value set inside the shadow root", "Test output"], ["Load items by infinite scroll", "Target item reached", "Test output"], ["Catch the toast message", "Text checked before it disappears", "Test output"]],
+          "objectives": ["Handle dynamic pages", "Work with shadow DOM", "Improve testability with developers"]
+        },
+        {
+          "topic": "Selenium 4 Features: CDP, BiDi and Network Control",
+          "subtopics": ["Chrome DevTools Protocol in Selenium", "WebDriver BiDi", "Capturing console logs", "Network interception and mocking", "Emulating geolocation and network speed", "Basic authentication", "Capturing performance metrics", "Limits across browsers"],
+          "tools": ["Selenium 4", "Chrome"],
+          "lab_task": "Use DevTools and BiDi to capture console errors, block analytics requests, simulate a slow 3G network and a location in Mumbai, and check the page behaves correctly.",
+          "deliverable": "Tests and captured logs",
+          "checks": [["Capture console errors", "Errors collected and reported in the test", "Test output"], ["Block analytics requests", "Requests blocked and page still works", "Test output"], ["Simulate slow 3G", "Loading indicator checked", "Test output"]],
+          "objectives": ["Use Selenium 4 DevTools features", "Control the network", "Capture browser logs"]
+        },
+        {
+          "topic": "Cookies, Sessions and Authentication in Tests",
+          "subtopics": ["Reading and adding cookies", "Reusing logged-in sessions", "Local storage and session storage", "Token-based authentication in tests", "Testing logout and session expiry", "Remember-me behaviour", "Multiple users in one test", "Keeping credentials safe"],
+          "tools": ["Selenium 4", "REST Assured", "Java 21"],
+          "lab_task": "Test session expiry, logout and remember-me, reuse a logged-in session across tests through cookies and local storage, and run a two-user chat flow in two browsers.",
+          "deliverable": "Session tests and run output",
+          "checks": [["Expire the session", "User is sent to the login page", "Test output"], ["Reuse the saved session", "Test starts logged in without the login page", "Test output"], ["Run the two-user flow", "Message from one browser appears in the other", "Test output"]],
+          "objectives": ["Manage cookies and storage", "Test authentication behaviour", "Run multi-user tests"]
+        },
+        {
+          "topic": "Reducing Flakiness and Improving Stability",
+          "subtopics": ["Measuring flakiness", "Common causes in Selenium suites", "Test isolation", "Retry analysers and their risks", "Quarantining flaky tests", "Stable waits and locators", "Environment stability", "Stability dashboards"],
+          "tools": ["TestNG", "CI history", "Allure"],
+          "lab_task": "Run the suite 30 times, rank flaky tests, fix the top five causes, add a retry analyser only for known infrastructure errors and track the flaky rate.",
+          "deliverable": "Flakiness analysis, fixes and tracking",
+          "checks": [["Rank flaky tests", "Failure rate per test reported", "Analysis"], ["Fix the top five", "Each passes 30 runs in a row", "Run log"], ["Track the flaky rate", "Rate shown over time", "Dashboard"]],
+          "objectives": ["Measure flakiness", "Fix unstable tests", "Use retries responsibly"]
+        },
+        {
+          "topic": "Allure Reporting and Test Analytics",
+          "subtopics": ["Allure set-up with TestNG", "Steps, attachments and links", "Categories for failures", "History and trends", "Environment information", "Linking tests to Jira issues", "Allure in CI", "Reading trends"],
+          "tools": ["Allure", "TestNG", "Jenkins or GitHub Actions"],
+          "lab_task": "Add Allure with steps, screenshots, Jira links and failure categories, publish history in CI and use the trend to find the least stable area.",
+          "deliverable": "Allure configuration and published report",
+          "checks": [["Open a failed test", "Steps, screenshot and Jira link shown", "Allure report"], ["Check categories", "Failures grouped by cause", "Allure report"], ["Read the trend", "Least stable area identified", "Notes"]],
+          "objectives": ["Report with Allure", "Analyse test trends", "Link tests to issues"]
+        },
+        {
+          "topic": "Testing Accessibility and Visuals with Selenium",
+          "subtopics": ["axe-core with Selenium", "Reporting WCAG violations", "Keyboard navigation tests", "Visual checks with screenshots", "Visual testing services", "Handling dynamic content in visual tests", "Responsive layout checks", "Where these checks fit in the suite"],
+          "tools": ["axe-core Selenium", "Applitools or screenshot comparison", "Selenium 4"],
+          "lab_task": "Add axe accessibility checks to five pages, a keyboard-only navigation test and visual comparison for two pages with dynamic areas masked.",
+          "deliverable": "Accessibility and visual tests with reports",
+          "checks": [["Run axe checks", "Violations reported with WCAG references", "Test report"], ["Run the keyboard test", "Checkout completed with the keyboard or blockers reported", "Test output"], ["Change page styling", "Visual test reports the difference", "Diff image"]],
+          "objectives": ["Automate accessibility checks", "Add visual tests", "Fit them into the suite"]
+        },
+        {
+          "topic": "Mobile Web and a First Appium Test for Selenium Users",
+          "subtopics": ["Mobile browsers with Selenium and Chrome emulation", "Appium architecture", "Appium and WebDriver similarities", "Desired capabilities for Android", "Locating native elements", "Hybrid apps and contexts", "Running on emulators", "Reusing framework code"],
+          "tools": ["Appium", "Android emulator", "Selenium 4"],
+          "lab_task": "Run the web shop tests on mobile Chrome emulation, then automate the native app's login with Appium using the same framework and page object style.",
+          "deliverable": "Mobile web tests and Appium login test",
+          "checks": [["Run on mobile emulation", "Tests pass on the mobile layout", "Test output"], ["Run the Appium login", "Login succeeds on the emulator", "Test output"], ["Switch to the web view context", "Hybrid page element found", "Test output"]],
+          "objectives": ["Test mobile web", "Start with Appium", "Reuse framework design"]
+        },
+        {
+          "topic": "Code Quality and Reviews for Test Automation",
+          "subtopics": ["Clean code in tests", "Static analysis with SonarLint", "Duplicate code in suites", "Naming tests clearly", "Review checklists for automation", "Refactoring safely", "Branching and pull requests", "Measuring maintainability"],
+          "tools": ["SonarLint", "Git", "GitHub pull requests"],
+          "lab_task": "Review a provided pull request of new tests against a checklist, fix static analysis warnings in the framework and refactor duplicate code.",
+          "deliverable": "Review comments, fixes and refactoring diff",
+          "checks": [["Review the pull request", "Main issues found with reasons", "Review comments"], ["Fix static analysis warnings", "No high-severity warnings", "SonarLint output"], ["Refactor duplicates", "Duplicate code removed with tests passing", "Diff and test run"]],
+          "objectives": ["Keep automation code clean", "Review test code", "Refactor safely"]
+        },
+        {
+          "topic": "Intermediate Capstone: Hybrid Selenium Framework in CI",
+          "subtopics": ["Framework design", "Page and component objects", "Data, configuration and utilities", "Grid and cross-browser runs", "BDD, API and accessibility checks", "CI pipeline and demo"],
+          "tools": ["Java 21", "Selenium 4", "TestNG", "Cucumber", "REST Assured", "Selenium Grid", "Allure", "GitHub Actions or Jenkins"],
+          "lab_task": "Deliver a hybrid framework with driver factory, components, configuration, utilities, BDD and API-assisted tests, accessibility checks and parallel Grid runs in CI with Allure, then present it.",
+          "deliverable": "Framework repository, pipeline, Allure report and a 15-minute demo",
+          "checks": [["Run the pipeline", "Parallel Grid run finishes with the Allure report", "CI log"], ["Break a feature", "The right tests fail with evidence", "Allure report"], ["Run 20 times", "Flaky rate under the agreed limit", "Run log"]],
+          "objectives": ["Combine the intermediate topics in one framework", "Prove stability in CI", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior automation engineers and test architects. Covers framework architecture at scale, design patterns, Selenium Grid on Kubernetes, suite performance and test impact analysis, observability for test runs, advanced network and browser control, security and compliance in automation, AI and self-healing, migration to and coexistence with Playwright, legacy suite rescue and leading automation teams.",
+      "prerequisites": ["Has built and maintained a Selenium framework in CI", "Knows parallel runs, Grid and reporting", "Comfortable with Java design patterns"],
+      "outcomes": ["Architect and scale Selenium automation for many teams", "Run fast, observable and reliable suites on Kubernetes grids", "Rescue, modernise and migrate legacy suites", "Lead automation strategy and teams"],
+      "days": [
+        {
+          "topic": "Automation Framework Architecture at Scale",
+          "subtopics": ["Frameworks shared by many teams", "Core library versus team code", "Versioning and releasing the framework", "Plugin points", "Backward compatibility", "Documentation sites", "Support model", "Architecture decision records"],
+          "tools": ["Maven", "GitHub Packages", "Java 21"],
+          "lab_task": "Split the framework into a versioned core library and team test projects, publish the core to a package registry, release a breaking change with a migration guide and record decisions.",
+          "deliverable": "Core library, team project, release notes and decision records",
+          "checks": [["Publish the core library", "Version available in the registry", "Registry screenshot"], ["Upgrade a team project", "Tests pass after following the migration guide", "Test output"], ["Review decision records", "Options and trade-offs recorded", "Decision records"]],
+          "objectives": ["Architect shared frameworks", "Version and release test libraries", "Support many teams"]
+        },
+        {
+          "topic": "Design Patterns for Selenium Frameworks",
+          "subtopics": ["Singleton and its risks", "Factory and abstract factory", "Builder for test data", "Strategy for browsers and environments", "Decorator for logging and retries", "Observer with WebDriver listeners", "Screenplay pattern", "Choosing patterns"],
+          "tools": ["Java 21", "Selenium 4"],
+          "lab_task": "Apply builder, strategy and decorator patterns in the framework, add a WebDriver listener that logs every action, and build one flow in the screenplay pattern for comparison.",
+          "deliverable": "Pattern implementations and comparison notes",
+          "checks": [["Use the builder for test data", "Readable data set-up in tests", "Code review"], ["Log actions with the listener", "Every click and navigation logged", "Log file"], ["Compare screenplay with page objects", "Trade-offs recorded", "Notes"]],
+          "objectives": ["Apply design patterns", "Use WebDriver listeners", "Choose patterns deliberately"]
+        },
+        {
+          "topic": "Selenium Grid on Kubernetes at Scale",
+          "subtopics": ["Grid components on Kubernetes", "Helm chart for Selenium Grid", "Autoscaling browser nodes with KEDA", "Resource requests for browsers", "Session queue tuning", "Video and log storage", "Grid monitoring", "Cost of running a grid"],
+          "tools": ["Kubernetes", "Helm", "KEDA", "Selenium Grid 4"],
+          "lab_task": "Deploy Selenium Grid on Kubernetes with Helm, autoscale Chrome nodes with KEDA from the session queue, run 200 parallel tests and report cost per run.",
+          "deliverable": "Helm values, autoscaling evidence and cost report",
+          "checks": [["Queue 200 sessions", "Nodes scale up and the queue drains", "Kubernetes events"], ["Finish the run", "Nodes scale back down", "Kubernetes events"], ["Report cost per run", "Cost calculated from node time", "Cost report"]],
+          "objectives": ["Run Grid on Kubernetes", "Autoscale browsers", "Control grid cost"]
+        },
+        {
+          "topic": "Suite Performance and Test Impact Analysis",
+          "subtopics": ["Measuring suite duration", "Finding slow tests", "Reducing set-up time", "Sharding across machines", "Test impact analysis from code changes", "Risk-based test selection", "Keeping a fast feedback loop", "Measuring feedback time"],
+          "tools": ["TestNG", "CI analytics", "Code coverage mapping"],
+          "lab_task": "Cut a 90-minute suite to under 20 minutes using sharding, faster set-up and test impact analysis that runs only tests affected by a change.",
+          "deliverable": "Timing analysis, changes and impact selection evidence",
+          "checks": [["Measure before and after", "Under 20 minutes for the full run", "CI timings"], ["Change one page", "Only affected tests run", "CI log"], ["Check missed defects", "Selection still catches the planted defect", "Test report"]],
+          "objectives": ["Speed up large suites", "Use test impact analysis", "Keep feedback fast"]
+        },
+        {
+          "topic": "Observability for Test Runs",
+          "subtopics": ["Logs, metrics and traces for tests", "Sending test results to a time series database", "Dashboards for pass rate, duration and flakiness", "Linking test failures to application traces", "Alerting on suite health", "Failure clustering", "Root cause hints", "Sharing dashboards with teams"],
+          "tools": ["Grafana", "InfluxDB or Prometheus", "OpenTelemetry"],
+          "lab_task": "Send test results and timings to a time series database, build a Grafana dashboard for suite health, link a failing test to the application trace and alert on a pass rate drop.",
+          "deliverable": "Dashboard, alert and trace link evidence",
+          "checks": [["Open the dashboard", "Pass rate, duration and flaky rate per suite", "Grafana screenshot"], ["Follow a failure to the trace", "Failing service call found", "Trace screenshot"], ["Drop the pass rate", "Alert fires", "Alert"]],
+          "objectives": ["Observe test runs", "Link tests to application traces", "Alert on suite health"]
+        },
+        {
+          "topic": "Advanced Browser Control and Network Testing",
+          "subtopics": ["BiDi network interception at scale", "Mocking backend failures in UI tests", "Throttling and offline testing", "Capturing HAR files", "Performance timings from the browser", "Authentication flows: SSO and MFA in tests", "Handling CAPTCHAs in test environments", "Browser profiles and extensions"],
+          "tools": ["Selenium 4 BiDi", "Chrome", "HAR tools"],
+          "lab_task": "Test how the UI handles backend errors, slow responses and offline mode with network mocking, capture HAR files and performance timings, and automate an SSO login in the test environment.",
+          "deliverable": "Tests, HAR files and timing report",
+          "checks": [["Mock a 500 from the order API", "UI shows the error message", "Test output"], ["Capture page timings", "Load and first paint times recorded", "Timing report"], ["Automate SSO login", "Logged in through the identity provider in the test environment", "Test output"]],
+          "objectives": ["Control browser networks", "Test failure handling", "Automate complex logins"]
+        },
+        {
+          "topic": "Security and Compliance in Test Automation",
+          "subtopics": ["Secrets management for test suites", "Test accounts and least privilege", "Personal data in test data and screenshots", "Masking data in reports", "Audit trails for test runs", "Secure Grid and network set-up", "Dependency scanning for test projects", "Compliance requirements for test evidence"],
+          "tools": ["Vault or a cloud secret manager", "OWASP Dependency-Check", "Allure"],
+          "lab_task": "Move test secrets to a secret manager, mask personal data in screenshots and reports, scan the test project's dependencies and secure the Grid behind authentication.",
+          "deliverable": "Security changes and scan report",
+          "checks": [["Search reports for personal data", "Masked in screenshots and logs", "Report review"], ["Scan dependencies", "No critical vulnerabilities left", "Scan report"], ["Access the Grid without credentials", "Access refused", "Test output"]],
+          "objectives": ["Secure test automation", "Protect data in evidence", "Scan test dependencies"]
+        },
+        {
+          "topic": "AI in Selenium Automation: Self-Healing and Test Generation",
+          "subtopics": ["Self-healing locators", "AI-assisted test generation", "Visual AI", "Using LLMs to explain failures", "Reviewing AI suggestions", "Risks of hidden failures", "Measuring AI benefits", "Choosing tools"],
+          "tools": ["Healenium", "GitHub Copilot or ChatGPT", "Applitools"],
+          "lab_task": "Add self-healing locators with Healenium, change the UI and review the healed locators, generate tests for a new page with AI and fix them, and measure time saved.",
+          "deliverable": "Healing report, reviewed AI tests and time comparison",
+          "checks": [["Change three locators in the app", "Tests heal and the report lists new locators", "Healenium report"], ["Review AI-generated tests", "Wrong assertions found and fixed", "Review notes"], ["Compare time", "Time saved measured", "Comparison"]],
+          "objectives": ["Use AI in automation", "Review healed locators", "Measure AI benefit"]
+        },
+        {
+          "topic": "Selenium and Playwright Coexistence and Migration",
+          "subtopics": ["Comparing Selenium and Playwright in depth", "When to migrate and when to stay", "Running both in one pipeline", "Shared test data and reporting", "Migrating page objects", "Training the team", "Measuring migration value", "Avoiding a big-bang rewrite"],
+          "tools": ["Selenium 4", "Playwright", "CI"],
+          "lab_task": "Evaluate migration for a 600-test suite, migrate 30 tests to Playwright with shared reporting, run both in one pipeline and recommend a path.",
+          "deliverable": "Evaluation, migrated tests, combined report and recommendation",
+          "checks": [["Run both suites in one pipeline", "One combined report", "CI log"], ["Compare stability and speed", "Measured for the migrated tests", "Comparison"], ["Review the recommendation", "Path justified by data", "Recommendation"]],
+          "objectives": ["Compare automation tools", "Migrate gradually", "Recommend a tool strategy"]
+        },
+        {
+          "topic": "Rescuing Legacy Selenium Suites",
+          "subtopics": ["Assessing a legacy suite", "Measuring health: pass rate, duration, flakiness", "Deleting low-value tests", "Stabilising before refactoring", "Upgrading Selenium versions", "Strangler approach for frameworks", "Communicating the rescue plan", "Tracking progress"],
+          "tools": ["Selenium 4", "TestNG", "CI analytics"],
+          "lab_task": "Assess a provided legacy suite of 800 tests, delete or merge low-value tests, upgrade it to Selenium 4, stabilise the worst areas and show improved health metrics.",
+          "deliverable": "Assessment, change log and before and after metrics",
+          "checks": [["Assess the suite", "Health metrics and problem areas reported", "Assessment"], ["Upgrade to Selenium 4", "Suite compiles and runs", "Test output"], ["Compare health metrics", "Pass rate up and duration down", "Metrics comparison"]],
+          "objectives": ["Assess legacy suites", "Upgrade and stabilise", "Show improvement with data"]
+        },
+        {
+          "topic": "Testing Complex Enterprise Applications",
+          "subtopics": ["Testing SAP Fiori and Salesforce UIs", "Dynamic enterprise components", "Long workflows across systems", "Test data in enterprise systems", "Working with vendor test tools", "Role-based test coverage", "Upgrade regression for SaaS releases", "Choosing UI versus API tests"],
+          "tools": ["Selenium 4", "Salesforce or SAP Fiori demo", "REST Assured"],
+          "lab_task": "Automate a lead-to-opportunity flow in a Salesforce developer org with dynamic components, set up data through the API and plan regression for a seasonal release.",
+          "deliverable": "Automated flow, data set-up and release regression plan",
+          "checks": [["Run the flow", "Lead converted and opportunity checked", "Test output"], ["Set up data through the API", "Records created before the UI test", "Test log"], ["Review the release plan", "Risk-based selection for the release notes", "Plan"]],
+          "objectives": ["Automate enterprise UIs", "Handle dynamic components", "Plan SaaS upgrade regression"]
+        },
+        {
+          "topic": "Contributing to and Extending Selenium",
+          "subtopics": ["Selenium project structure", "WebDriver specification basics", "Writing custom ExpectedConditions", "Custom WebDriver wrappers", "Browser driver logs", "Reporting bugs upstream", "Following Selenium releases", "Community resources"],
+          "tools": ["Selenium source", "Java 21", "ChromeDriver logs"],
+          "lab_task": "Write three custom ExpectedConditions and a wrapper that adds timing to every command, read driver logs to diagnose a failure and write an upstream-quality bug report.",
+          "deliverable": "Custom code, diagnosis and bug report",
+          "checks": [["Use the custom conditions", "Tests read better and pass", "Code review and test output"], ["Diagnose with driver logs", "Root cause found in the logs", "Diagnosis notes"], ["Review the bug report", "Minimal reproduction included", "Bug report"]],
+          "objectives": ["Extend Selenium", "Read driver logs", "Contribute to the community"]
+        },
+        {
+          "topic": "Testing Single-Page Applications Built with React and Angular",
+          "subtopics": ["How SPAs change page loading", "Waiting for framework rendering", "Angular testability hooks", "React state changes and the DOM", "Client-side routing", "Virtualised lists", "Test IDs agreed with developers", "Combining UI tests with component tests"],
+          "tools": ["Selenium 4", "React and Angular demo apps", "Java 21"],
+          "lab_task": "Automate a React and an Angular demo app with stable waits for rendering, client-side routing and virtualised lists, and agree a test ID convention with the developers.",
+          "deliverable": "Tests for both apps and the test ID convention",
+          "checks": [["Navigate with client-side routing", "URL and content checked without full reloads", "Test output"], ["Find an item in a virtualised list", "Item scrolled into view and checked", "Test output"], ["Run both suites 10 times", "No timing failures", "Run log"]],
+          "objectives": ["Test single-page applications", "Wait for framework rendering", "Improve testability with developers"]
+        },
+        {
+          "topic": "Test Data and Environments for Many Teams",
+          "subtopics": ["Shared versus team-owned test environments", "Environment booking and health checks", "Test data services and APIs", "Data isolation between parallel teams", "Resetting environments", "Synthetic data at scale", "Environment dashboards", "Cost of environments"],
+          "tools": ["Docker", "Kubernetes", "REST APIs", "Grafana"],
+          "lab_task": "Build a small test data service that creates isolated users and orders per test run, add an environment health check before suites start and a dashboard of environment status.",
+          "deliverable": "Test data service, health check and dashboard",
+          "checks": [["Run two teams' suites at once", "No data clashes", "Test reports"], ["Break the environment", "Health check stops the suite with a clear reason", "CI log"], ["Open the dashboard", "Status of each environment shown", "Dashboard"]],
+          "objectives": ["Provide test data at scale", "Check environments before runs", "Share environments across teams"]
+        },
+        {
+          "topic": "Automation Metrics and Return on Investment",
+          "subtopics": ["What to measure", "Automation coverage by risk", "Defects found by automation", "Maintenance cost", "Return on investment calculation", "Reporting to management", "Setting automation goals", "Avoiding vanity metrics"],
+          "tools": ["Excel or Power BI", "CI analytics"],
+          "lab_task": "Calculate the return on investment of the automation suite from effort and defect data, build an automation metrics dashboard and set goals for the next quarter.",
+          "deliverable": "ROI model, dashboard and goals",
+          "checks": [["Calculate ROI", "Based on stated effort and savings", "ROI model"], ["Build the dashboard", "Coverage, stability and cost shown", "Dashboard"], ["Set goals", "Measurable and linked to risk", "Goals"]],
+          "objectives": ["Measure automation value", "Report to management", "Set automation goals"]
+        },
+        {
+          "topic": "Leading Automation Teams",
+          "subtopics": ["Automation team structures", "Hiring automation engineers", "Skills matrix and training paths", "Coding standards", "Mentoring and pairing", "Working with developers", "Managing the automation backlog", "Leadership anti-patterns"],
+          "tools": ["Skills matrix template", "Confluence"],
+          "lab_task": "Build a skills matrix and training plan for an automation team of eight, write coding standards and run a pairing session to onboard a new engineer.",
+          "deliverable": "Skills matrix, training plan, standards and pairing notes",
+          "checks": [["Review the skills matrix", "Gaps identified per person", "Skills matrix"], ["Review the standards", "Clear rules with examples", "Standards document"], ["Run the pairing session", "New engineer merges a test", "Pull request"]],
+          "objectives": ["Lead automation teams", "Develop skills", "Set standards"]
+        },
+        {
+          "topic": "Automation Strategy for Organisations",
+          "subtopics": ["Linking automation to business risk", "Test pyramid across teams", "Tool strategy", "Platform and enablement teams", "Budget and licences", "Roadmaps", "Governance without blocking teams", "Presenting strategy"],
+          "tools": ["Miro", "Excel"],
+          "lab_task": "Write an automation strategy for an organisation with 12 product teams covering the pyramid, tools, platform support, budget and a 12-month roadmap, and present it.",
+          "deliverable": "Strategy document and presentation",
+          "checks": [["Review the strategy", "Linked to business risks", "Strategy"], ["Review the roadmap", "Milestones with measures", "Roadmap"], ["Answer questions", "Strategy defended with evidence", "Presentation"]],
+          "objectives": ["Set automation strategy", "Plan tools and platforms", "Present strategy to leaders"]
+        },
+        {
+          "topic": "Testing in Regulated Environments with Selenium",
+          "subtopics": ["Evidence requirements", "Traceability from requirements to automated tests", "Validated tools and frameworks", "Electronic records and signatures", "Audit trails of test runs", "Change control for test code", "Retaining evidence", "Audits"],
+          "tools": ["Jira", "Allure", "Git"],
+          "lab_task": "Make the framework produce audit-ready evidence with requirement links, signed reports and retained artefacts, and pass a mock audit of one release.",
+          "deliverable": "Evidence set-up and audit record",
+          "checks": [["Trace a requirement to its test run", "Link from requirement to report", "Traceability report"], ["Retrieve evidence for an old run", "Report and artefacts retrieved", "Evidence archive"], ["Pass the mock audit", "Questions answered with evidence", "Audit record"]],
+          "objectives": ["Produce audit-ready evidence", "Trace tests to requirements", "Pass audits"]
+        },
+        {
+          "topic": "Troubleshooting Large-Scale Automation Failures",
+          "subtopics": ["Mass failures after a release", "Grid outages", "Browser auto-updates breaking tests", "Test data corruption", "Network and environment problems", "Triage at scale", "Communicating with teams", "Post-incident reviews"],
+          "tools": ["CI analytics", "Selenium Grid", "Grafana"],
+          "lab_task": "Handle three injected incidents (a browser update breaking 200 tests, a Grid outage and corrupted test data), restore the pipeline and write runbooks.",
+          "deliverable": "Incident records, fixes and runbooks",
+          "checks": [["Restore after the browser update", "Suite green with the browser version pinned or fixed", "CI log"], ["Recover from the Grid outage", "Runs resume on restored nodes", "CI log"], ["Write a runbook for data corruption", "Another engineer can follow it", "Runbook"]],
+          "objectives": ["Troubleshoot automation at scale", "Restore pipelines quickly", "Write runbooks"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Automation Platform with Selenium",
+          "subtopics": ["Platform architecture", "Shared framework and team projects", "Kubernetes Grid and fast feedback", "Observability and AI healing", "Security, evidence and metrics", "Leadership presentation and defence"],
+          "tools": ["Selenium 4", "Kubernetes", "Helm", "KEDA", "Grafana", "Allure", "GitHub Actions"],
+          "lab_task": "Deliver an automation platform with a versioned core framework, two team projects, an autoscaled Kubernetes Grid, test impact analysis, observability dashboards, self-healing and audit-ready evidence, then present it to leadership.",
+          "deliverable": "Platform repositories, dashboards, metrics and a 20-minute presentation",
+          "checks": [["Run 300 tests in parallel", "Finishes within the time target with autoscaling", "CI log and Kubernetes events"], ["Change one feature", "Only impacted tests run and catch the planted defect", "CI log"], ["Answer leadership questions", "ROI and strategy defended with data", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one platform", "Prove speed, stability and value", "Lead automation at scale"]
+        }
+      ]
+    }
+  }
+}

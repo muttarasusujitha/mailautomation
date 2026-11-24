@@ -1,0 +1,573 @@
+{
+  "domain": "CompTIA Security+",
+  "name": "CompTIA Security+ Certification",
+  "category": "Cybersecurity and Identity",
+  "icon": "shield",
+  "aliases": ["Security+", "Security Plus", "SY0-701", "SY0-801", "CompTIA Security Plus", "Security+ Certification", "CompTIA Security+ Training", "Security Fundamentals Certification"],
+  "certifications": ["CompTIA Security+ (SY0-701, current until 11 June 2027)", "CompTIA Security+ (SY0-801, from 17 November 2026)", "A stepping stone to CySA+, PenTest+ and CASP+"],
+  "tools": ["A Windows and Linux lab", "Wireshark", "A password manager", "OpenSSL", "A firewall or security appliance lab", "Practice exam platform"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For IT support staff, help desk technicians and career changers preparing for CompTIA Security+ (SY0-701, with notes on the SY0-801 update). Covers security controls and the CIA triad, a study lab, authentication and authorisation, zero trust, cryptography and public key infrastructure, physical and deception controls, change management, threat actors and attack surfaces, social engineering, malware, application and network attacks, vulnerabilities, secure architecture and resilience, data protection, secure networking, identity and access, security operations tools and foundations of governance, risk and compliance that the exam measures.",
+      "prerequisites": ["Has about one year of IT or help desk experience or the CompTIA Network+ knowledge", "Understands basic networking, operating systems and the command line", "No prior security study needed"],
+      "outcomes": ["Explain security controls, the CIA triad and core cryptography", "Recognise threat actors, social engineering, malware and common attacks", "Describe secure architecture, resilience, identity and secure networking", "Use foundational security operations, governance and risk concepts for the exam"],
+      "days": [
+        {
+          "topic": "Security Controls and the CIA Triad",
+          "subtopics": ["Confidentiality, integrity and availability", "Non-repudiation and authentication", "Control categories: technical, managerial, operational and physical", "Control types: preventive, deterrent, detective, corrective, compensating and directive", "Examples of each control", "The gap between policy and control", "How the exam asks about controls", "Mapping controls to risks", "Defence in depth", "Course project overview: securing a small company"],
+          "tools": ["CompTIA Security+ objectives", "Control examples", "Study notes"],
+          "lab_task": "Classify twenty security measures by control category and type, and map five of them to the part of the CIA triad they protect.",
+          "deliverable": "Control classification table",
+          "checks": [["Classify", "Each measure has a correct category and type", "Table"], ["Map", "Controls map to the right CIA element", "Mapping"], ["Explain", "Defence in depth is explained with examples", "Notes"]],
+          "objectives": ["Explain the CIA triad", "Classify security controls", "Apply defence in depth"]
+        },
+        {
+          "topic": "Study Lab Setup and Exam Overview",
+          "subtopics": ["The SY0-701 exam format and domains", "The SY0-801 update and timing", "Performance-based questions", "Setting up a Windows and Linux lab", "Safe practice environment", "Note-taking and flashcards", "A study plan and schedule", "Practice exams and readiness", "Exam logistics and scoring", "Tracking weak areas"],
+          "tools": ["Windows and Linux VMs", "Flashcard tool", "Practice exam platform"],
+          "lab_task": "Build a small Windows and Linux lab, take a diagnostic practice test and write a study plan that targets your weakest domains.",
+          "deliverable": "Lab and study plan",
+          "checks": [["Build", "Both lab machines run and reach each other", "Connectivity test"], ["Assess", "A diagnostic practice score is recorded", "Score"], ["Plan", "The study plan targets weak domains", "Plan"]],
+          "objectives": ["Understand the exam", "Build a study lab", "Plan your study"]
+        },
+        {
+          "topic": "Authentication, Authorisation and Accounting",
+          "subtopics": ["Identification, authentication, authorisation and accounting", "Authentication factors", "Multi-factor authentication", "Something you know, have and are", "Passwordless and biometrics", "Authorisation models", "Accounting and logging", "Single sign-on", "Federation basics", "Common authentication weaknesses"],
+          "tools": ["Lab identity tools", "Authenticator app", "Study notes"],
+          "lab_task": "Configure multi-factor authentication on a lab service and explain each factor used, then list authorisation and accounting controls that apply.",
+          "deliverable": "Authentication configuration with explanation",
+          "checks": [["Configure", "Multi-factor authentication works on the service", "Login test"], ["Explain", "Each factor is named by type", "Notes"], ["List", "Authorisation and accounting controls are listed", "Notes"]],
+          "objectives": ["Explain authentication factors", "Configure multi-factor authentication", "Describe authorisation and accounting"]
+        },
+        {
+          "topic": "Zero Trust and Secure Access Concepts",
+          "subtopics": ["The zero trust model", "The control plane and data plane", "Policy decision and enforcement points", "Adaptive identity", "Least privilege", "Microsegmentation ideas", "Secure access service edge in brief", "Zero trust compared with the old perimeter", "Where zero trust is hard", "Zero trust on the exam"],
+          "tools": ["Zero trust diagrams", "CompTIA objectives", "Study notes"],
+          "lab_task": "Draw a zero trust design for the small company showing policy decision and enforcement points, and explain how a request is allowed.",
+          "deliverable": "Zero trust design with a request walkthrough",
+          "checks": [["Draw", "Control and data planes are shown", "Diagram"], ["Explain", "A request's allow decision is explained", "Walkthrough"], ["Compare", "Zero trust is compared with the perimeter model", "Notes"]],
+          "objectives": ["Explain zero trust", "Identify policy points", "Apply least privilege"]
+        },
+        {
+          "topic": "Cryptography Concepts and Algorithms",
+          "subtopics": ["Why cryptography matters", "Symmetric and asymmetric encryption", "Common algorithms on the exam", "Hashing and integrity", "Digital signatures", "Key exchange", "Key length and strength", "Salting and key stretching", "Steganography and obfuscation", "Limits and misuse of cryptography"],
+          "tools": ["OpenSSL", "Hashing tools", "Study notes"],
+          "lab_task": "Use OpenSSL to encrypt a file symmetrically, hash it, sign it and verify the signature, explaining each step.",
+          "deliverable": "Cryptography exercise with explanation",
+          "checks": [["Encrypt", "A file is encrypted and decrypted", "Command output"], ["Hash", "A hash detects a changed file", "Hash comparison"], ["Sign", "A signature is created and verified", "Verification output"]],
+          "objectives": ["Explain cryptography", "Use symmetric and asymmetric methods", "Use hashing and signatures"]
+        },
+        {
+          "topic": "Public Key Infrastructure and Certificates",
+          "subtopics": ["Public key infrastructure components", "Certificate authorities", "Certificate signing requests", "Root and intermediate certificates", "Certificate fields and trust", "Revocation with CRL and OCSP", "Key escrow", "Certificate use cases", "Certificate problems", "Certificates on the exam"],
+          "tools": ["OpenSSL", "A lab certificate authority", "Browser certificate viewer"],
+          "lab_task": "Build a small lab certificate authority, issue and install a certificate on a web server and show the browser trusting it, then revoke it.",
+          "deliverable": "Working certificate with revocation",
+          "checks": [["Issue", "The certificate is issued and installed", "Browser view"], ["Trust", "The browser trusts the certificate", "Screenshot"], ["Revoke", "The revoked certificate is rejected", "Revocation test"]],
+          "objectives": ["Explain public key infrastructure", "Issue certificates", "Handle revocation"]
+        },
+        {
+          "topic": "Physical Security and Deception Controls",
+          "subtopics": ["Physical security measures", "Fencing, bollards and lighting", "Locks and access badges", "Surveillance and sensors", "Access control vestibules", "Guards and visitor logs", "Honeypots and honeynets", "Honeyfiles and honeytokens", "Physical and deception controls together", "These controls on the exam"],
+          "tools": ["Physical control checklist", "Deception examples", "Study notes"],
+          "lab_task": "Design physical and deception controls for the small company's office and server room, and explain how each deters or detects an intruder.",
+          "deliverable": "Physical and deception control plan",
+          "checks": [["Design", "Layered physical controls are chosen", "Plan"], ["Deceive", "Deception controls are placed well", "Plan"], ["Explain", "Each control's purpose is explained", "Notes"]],
+          "objectives": ["Choose physical controls", "Use deception controls", "Explain their purpose"]
+        },
+        {
+          "topic": "Change Management for Security",
+          "subtopics": ["Why change management matters for security", "Change approval and the change advisory board", "Ownership and stakeholders", "Impact analysis and test results", "Backout plans", "Maintenance windows", "Standard operating procedures", "Documentation and version control", "Technical change implications", "Change management on the exam"],
+          "tools": ["Change request template", "Study notes"],
+          "lab_task": "Write a change request to apply a security patch to the company's web server with impact analysis, a test result, a backout plan and a maintenance window.",
+          "deliverable": "Security change request",
+          "checks": [["Analyse", "The change records impact and tests", "Change request"], ["Back out", "A backout plan is included", "Change request"], ["Schedule", "A maintenance window and approval are recorded", "Change request"]],
+          "objectives": ["Apply change management", "Write a change request", "Plan backout and windows"]
+        },
+        {
+          "topic": "Threat Actors and Attack Surfaces",
+          "subtopics": ["Types of threat actor", "Nation states, organised crime and hacktivists", "Insider threats", "Script kiddies and unskilled attackers", "Motivations", "Attributes of actors", "Attack surfaces and threat vectors", "Message, image and file vectors", "Supply chain vectors", "Actors and vectors on the exam"],
+          "tools": ["Threat actor matrix", "CompTIA objectives", "Study notes"],
+          "lab_task": "Build a threat actor matrix for the small company listing likely actors, their motivations and the vectors they would use.",
+          "deliverable": "Threat actor and vector matrix",
+          "checks": [["Identify", "Likely actors are listed with motivations", "Matrix"], ["Vector", "Each actor has likely vectors", "Matrix"], ["Prioritise", "The highest risk actors are chosen", "Notes"]],
+          "objectives": ["Describe threat actors", "Identify attack surfaces", "Match actors to vectors"]
+        },
+        {
+          "topic": "Social Engineering Techniques",
+          "subtopics": ["Social engineering principles", "Phishing and spear phishing", "Vishing and smishing", "Business email compromise", "Pretexting and impersonation", "Watering hole attacks", "Pharming and typosquatting", "Misinformation and influence campaigns", "Recognising social engineering", "Defences and training"],
+          "tools": ["Phishing examples", "Awareness materials", "Study notes"],
+          "lab_task": "Analyse five sample messages, identify the social engineering technique in each and list the clues and the defence for each.",
+          "deliverable": "Social engineering analysis",
+          "checks": [["Identify", "Each technique is named correctly", "Analysis"], ["Spot", "The warning signs are listed", "Analysis"], ["Defend", "A defence is given for each", "Analysis"]],
+          "objectives": ["Recognise social engineering", "Identify techniques", "Recommend defences"]
+        },
+        {
+          "topic": "Malware and Indicators",
+          "subtopics": ["Malware types", "Viruses, worms and trojans", "Ransomware", "Spyware and keyloggers", "Rootkits and bootkits", "Logic bombs", "Fileless malware", "Command and control and bots", "Indicators of malware", "Malware defences"],
+          "tools": ["A malware analysis sandbox in a lab", "Indicator lists", "Study notes"],
+          "lab_task": "Match malware indicators to malware types using safe lab samples or descriptions, and list a defence for each type.",
+          "deliverable": "Malware type and indicator table",
+          "checks": [["Match", "Indicators map to the right malware type", "Table"], ["Explain", "How each type spreads is explained", "Notes"], ["Defend", "A defence is listed for each type", "Table"]],
+          "objectives": ["Classify malware", "Recognise indicators", "Recommend malware defences"]
+        },
+        {
+          "topic": "Application and Network Attacks",
+          "subtopics": ["Injection attacks", "Cross-site scripting", "Buffer overflow", "Replay and forgery attacks", "Privilege escalation", "Denial of service and distributed denial of service", "On-path attacks", "DNS attacks", "Wireless and radio attacks", "Attack indicators on the exam"],
+          "tools": ["A lab vulnerable app", "Wireshark", "Study notes"],
+          "lab_task": "Reproduce a cross-site scripting and a denial-of-service condition in a safe lab, capture the indicators and explain the defence for each.",
+          "deliverable": "Attack demonstration with indicators",
+          "checks": [["Reproduce", "Two attacks are reproduced safely", "Proof"], ["Observe", "Indicators are captured", "Evidence"], ["Defend", "A defence is given for each", "Notes"]],
+          "objectives": ["Describe application and network attacks", "Recognise indicators", "Recommend defences"]
+        },
+        {
+          "topic": "Vulnerabilities and Weaknesses",
+          "subtopics": ["Vulnerability types", "Operating system and application vulnerabilities", "Web and cloud vulnerabilities", "Misconfiguration", "Zero-day vulnerabilities", "Hardware and firmware vulnerabilities", "Mobile and supply chain vulnerabilities", "Common Vulnerabilities and Exposures", "Vulnerability scanning in brief", "Vulnerabilities on the exam"],
+          "tools": ["A vulnerability scanner in a lab", "CVE database", "Study notes"],
+          "lab_task": "Scan a lab system, map three findings to vulnerability types and explain how each could be exploited and mitigated.",
+          "deliverable": "Vulnerability mapping",
+          "checks": [["Scan", "The scan finds known vulnerabilities", "Scan report"], ["Classify", "Findings map to vulnerability types", "Mapping"], ["Mitigate", "A mitigation is given for each", "Notes"]],
+          "objectives": ["Describe vulnerability types", "Map findings", "Recommend mitigations"]
+        },
+        {
+          "topic": "Secure Architecture and Enterprise Infrastructure",
+          "subtopics": ["Architecture models", "On-premises, cloud and hybrid", "Infrastructure as code", "Virtualisation and containers", "Serverless", "Network appliances and placement", "Secure communication and VPNs", "Segmentation and screened subnets", "Selecting controls for architecture", "Architecture on the exam"],
+          "tools": ["Architecture diagrams", "CompTIA objectives", "Study notes"],
+          "lab_task": "Design a secure architecture for the small company with segmentation, a screened subnet and placement of security appliances, and justify each choice.",
+          "deliverable": "Secure architecture design",
+          "checks": [["Segment", "The design separates trust zones", "Diagram"], ["Place", "Appliances are placed correctly", "Diagram"], ["Justify", "Each control choice is justified", "Notes"]],
+          "objectives": ["Describe secure architecture", "Segment networks", "Place security controls"]
+        },
+        {
+          "topic": "Resilience and Recovery",
+          "subtopics": ["Resilience concepts", "High availability and clustering", "Load balancing", "Site types: hot, warm and cold", "Backups and the 3-2-1 rule", "Replication and journaling", "Power resilience", "Testing resilience", "Recovery objectives", "Resilience on the exam"],
+          "tools": ["Backup tools", "Lab systems", "Study notes"],
+          "lab_task": "Design a backup and recovery plan for the company with site type, backup schedule and recovery objectives, and test a restore in the lab.",
+          "deliverable": "Resilience and recovery plan with a restore test",
+          "checks": [["Plan", "The plan covers backups and a recovery site", "Plan"], ["Restore", "A test restore succeeds", "Restore record"], ["Define", "Recovery objectives are set", "Plan"]],
+          "objectives": ["Describe resilience", "Plan backups and recovery", "Test a restore"]
+        },
+        {
+          "topic": "Data Protection and Privacy",
+          "subtopics": ["Data classification", "Data states: at rest, in transit and in use", "Data types and sensitivity", "Encryption for data protection", "Tokenisation and masking", "Data loss prevention", "Data retention and destruction", "Privacy roles and regulations", "Rights and consent", "Data protection on the exam"],
+          "tools": ["Lab data", "Encryption tools", "Study notes"],
+          "lab_task": "Classify sample company data, choose protection for each state and set retention and destruction rules.",
+          "deliverable": "Data protection plan",
+          "checks": [["Classify", "Data is classified by sensitivity", "Classification"], ["Protect", "Protection matches each data state", "Plan"], ["Retain", "Retention and destruction rules are set", "Plan"]],
+          "objectives": ["Classify data", "Protect data in each state", "Set retention rules"]
+        },
+        {
+          "topic": "Secure Networking and Protocols",
+          "subtopics": ["Secure protocols and their ports", "Replacing insecure protocols", "DNS security", "Email security with SPF, DKIM and DMARC", "Secure remote access", "VPN types", "Network access control", "Web and transport security", "Protocol selection", "Secure protocols on the exam"],
+          "tools": ["Wireshark", "Lab servers", "Study notes"],
+          "lab_task": "Replace three insecure protocols with secure ones on lab services and verify with Wireshark that traffic is now encrypted.",
+          "deliverable": "Secure protocol configuration",
+          "checks": [["Replace", "Insecure protocols are replaced", "Configuration"], ["Verify", "Captured traffic is encrypted", "Wireshark output"], ["Email", "SPF, DKIM and DMARC are explained", "Notes"]],
+          "objectives": ["Choose secure protocols", "Verify encryption", "Secure email and DNS"]
+        },
+        {
+          "topic": "Identity and Access Management Essentials",
+          "subtopics": ["Identity lifecycle", "Provisioning and deprovisioning", "Account types and privileged accounts", "Access control models", "Permission assignment", "Password policies and password managers", "Multi-factor and passwordless", "Privileged access management", "Just-in-time access", "Identity on the exam"],
+          "tools": ["Lab directory", "Password manager", "Study notes"],
+          "lab_task": "Create accounts with least privilege in a lab directory, apply a password policy and show privileged access being granted just in time.",
+          "deliverable": "Identity configuration",
+          "checks": [["Provision", "Accounts have least privilege", "Account review"], ["Policy", "The password policy is enforced", "Policy test"], ["Elevate", "Privileged access is time-limited", "Record"]],
+          "objectives": ["Manage identity lifecycle", "Apply access control models", "Protect privileged access"]
+        },
+        {
+          "topic": "Security Operations Tools and Monitoring",
+          "subtopics": ["Security operations overview", "Logging and log sources", "Security information and event management", "Alerting and monitoring", "Endpoint detection and response", "Network monitoring", "Vulnerability and patch management", "Automation and orchestration", "Common operations tools", "Operations on the exam"],
+          "tools": ["A lab SIEM", "Log sources", "Study notes"],
+          "lab_task": "Send logs from lab systems to a SIEM, build an alert for failed logons and explain how endpoint and network monitoring add coverage.",
+          "deliverable": "Monitoring setup with an alert",
+          "checks": [["Collect", "Logs reach the SIEM", "SIEM search"], ["Alert", "Failed logons raise an alert", "Alert record"], ["Explain", "Endpoint and network monitoring are explained", "Notes"]],
+          "objectives": ["Describe security operations", "Use a SIEM", "Explain monitoring tools"]
+        },
+        {
+          "topic": "Beginner Capstone: Securing the Small Company for the Exam",
+          "subtopics": ["Controls and architecture", "Identity and data protection", "Monitoring and resilience", "Exam-style review"],
+          "tools": ["Lab systems", "SIEM", "Practice exam platform"],
+          "lab_task": "Produce a security plan for the small company covering controls, secure architecture, identity, data protection, monitoring and resilience, then take a timed practice exam.",
+          "deliverable": "Security plan and practice exam result",
+          "checks": [["Cover", "The plan covers every domain area", "Security plan"], ["Justify", "Control choices are justified", "Plan"], ["Practise", "A timed practice exam score is recorded", "Score"]],
+          "objectives": ["Combine beginner knowledge", "Produce a security plan", "Measure exam readiness"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For practitioners who apply CompTIA Security+ knowledge on the job and want to master the harder domains. Covers applying controls to scenarios, threat intelligence, enterprise cryptography and key management, identity federation and privileged access, hardening across platforms, mobile and cloud security, wireless security, application security in the pipeline, network security design, monitoring and SIEM use, incident response, digital forensics basics, vulnerability management programmes, automation, risk management, third-party risk, audits and performance-based exam practice.",
+      "prerequisites": ["Has Security+ beginner knowledge or equivalent", "Administers Windows, Linux or cloud systems", "Comfortable reading logs and configuration"],
+      "outcomes": ["Apply the right control to a scenario and defend the choice", "Harden endpoints, servers, mobile, cloud and wireless", "Run monitoring, incident response and vulnerability management", "Apply risk, third-party and audit concepts and pass performance-based questions"],
+      "days": [
+        {
+          "topic": "Applying Security Controls to Scenarios",
+          "subtopics": ["Reading scenario questions", "Choosing the best control", "Balancing cost and risk", "Compensating controls", "Layering controls", "Mapping controls to frameworks", "Explaining a control choice", "Common exam traps", "Scenario practice method", "Reviewing wrong answers"],
+          "tools": ["Scenario bank", "CompTIA objectives", "Study notes"],
+          "lab_task": "Work through ten control scenarios, choose and justify the best control for each and review every miss against the objectives.",
+          "deliverable": "Scenario answers with justifications",
+          "checks": [["Choose", "The best control is chosen for each scenario", "Answers"], ["Justify", "Each choice has a clear reason", "Justifications"], ["Review", "Misses are mapped to objectives", "Review notes"]],
+          "objectives": ["Apply controls to scenarios", "Justify control choices", "Learn from misses"]
+        },
+        {
+          "topic": "Threat Intelligence and Indicators",
+          "subtopics": ["Threat intelligence sources", "Open-source intelligence", "Information sharing and ISACs", "Indicators of compromise", "The MITRE ATT&CK framework", "Threat feeds and reputation", "Predictive and behavioural intelligence", "Using intelligence to tune defences", "Reliability of sources", "Intelligence on the exam"],
+          "tools": ["Threat feeds", "MITRE ATT&CK", "Study notes"],
+          "lab_task": "Take a threat report, extract indicators and ATT&CK techniques and recommend detections and defences based on them.",
+          "deliverable": "Threat intelligence analysis",
+          "checks": [["Extract", "Indicators and techniques are extracted", "Analysis"], ["Map", "Techniques map to ATT&CK", "Mapping"], ["Recommend", "Detections and defences are recommended", "Recommendations"]],
+          "objectives": ["Use threat intelligence", "Extract indicators", "Tune defences with intelligence"]
+        },
+        {
+          "topic": "Enterprise Cryptography and Key Management",
+          "subtopics": ["Cryptographic use cases", "Full-disk and file encryption", "Transport encryption", "Hardware security modules", "Trusted platform modules", "Key management lifecycle", "Certificate management at scale", "Cryptographic agility", "Common cryptographic failures", "Cryptography scenarios on the exam"],
+          "tools": ["Lab encryption tools", "A key store", "Study notes"],
+          "lab_task": "Design key management for the company covering generation, storage, rotation and destruction, and encrypt data at rest and in transit in the lab.",
+          "deliverable": "Key management design with encryption",
+          "checks": [["Encrypt", "Data at rest and in transit is encrypted", "Evidence"], ["Manage", "The key lifecycle is defined", "Design"], ["Explain", "Common cryptographic failures are explained", "Notes"]],
+          "objectives": ["Apply enterprise cryptography", "Manage keys", "Avoid cryptographic failures"]
+        },
+        {
+          "topic": "Identity Federation and Single Sign-On",
+          "subtopics": ["Federation concepts", "SAML and OpenID Connect", "OAuth for authorisation", "Identity providers and service providers", "Directory services and LDAP", "Attribute and claim mapping", "Federation risks", "Single sign-on trade-offs", "Interoperability", "Federation on the exam"],
+          "tools": ["Lab identity provider", "Sample applications", "Study notes"],
+          "lab_task": "Configure single sign-on from a lab identity provider to two applications and explain the SAML or OpenID Connect flow.",
+          "deliverable": "Single sign-on configuration with an explanation",
+          "checks": [["Federate", "Both applications use single sign-on", "Login tests"], ["Explain", "The federation flow is explained", "Notes"], ["Assess", "Federation risks are listed", "Notes"]],
+          "objectives": ["Explain federation", "Configure single sign-on", "Assess federation risk"]
+        },
+        {
+          "topic": "Privileged Access and Account Hardening",
+          "subtopics": ["Privileged account risks", "Privileged access management", "Just-in-time and session recording", "Service and machine accounts", "Default account hardening", "Account auditing", "Separation of duties", "Least privilege in practice", "Break-glass accounts", "Privileged access on the exam"],
+          "tools": ["Lab directory", "Privileged access tools", "Study notes"],
+          "lab_task": "Harden privileged and default accounts in the lab, add just-in-time elevation for one role and audit privileged account use.",
+          "deliverable": "Privileged access hardening",
+          "checks": [["Harden", "Default and privileged accounts are hardened", "Account review"], ["Elevate", "Just-in-time elevation works", "Record"], ["Audit", "Privileged use is audited", "Audit log"]],
+          "objectives": ["Protect privileged access", "Harden accounts", "Audit privileged use"]
+        },
+        {
+          "topic": "Endpoint and Server Hardening",
+          "subtopics": ["Hardening baselines", "Secure configuration guides", "Patch management", "Application allow lists", "Host firewalls", "Endpoint protection", "Disk encryption and secure boot", "Logging on endpoints", "Hardening mobile endpoints in brief", "Hardening on the exam"],
+          "tools": ["CIS Benchmarks", "Lab Windows and Linux", "Study notes"],
+          "lab_task": "Apply a hardening baseline to a lab Windows and Linux host, enable application allow listing on one and verify with a configuration check.",
+          "deliverable": "Hardened hosts with verification",
+          "checks": [["Harden", "Hosts meet the baseline", "Configuration check"], ["Restrict", "Application allow listing blocks an unapproved app", "Test"], ["Verify", "A check confirms the hardening", "Report"]],
+          "objectives": ["Harden endpoints and servers", "Use baselines", "Verify hardening"]
+        },
+        {
+          "topic": "Mobile and Endpoint Management Security",
+          "subtopics": ["Mobile deployment models", "Bring your own device and corporate owned", "Mobile device management", "Mobile application management", "Containerisation on devices", "Mobile connection methods", "Mobile threats", "Loss and theft controls", "Mobile policy", "Mobile security on the exam"],
+          "tools": ["A lab mobile management tool", "A test device or emulator", "Study notes"],
+          "lab_task": "Enrol a test device in a lab mobile management tool, apply a security policy with encryption and a passcode and test a remote wipe.",
+          "deliverable": "Mobile management configuration",
+          "checks": [["Enrol", "The device is managed", "Device list"], ["Policy", "Encryption and passcode are enforced", "Policy test"], ["Wipe", "A remote wipe works", "Wipe record"]],
+          "objectives": ["Secure mobile devices", "Apply mobile policy", "Manage lost devices"]
+        },
+        {
+          "topic": "Cloud Security Concepts",
+          "subtopics": ["Cloud service and deployment models", "The shared responsibility model", "Cloud security controls", "Identity in the cloud", "Cloud storage security", "Cloud network security", "Cloud workload protection", "Misconfiguration risks", "Cloud security posture", "Cloud security on the exam"],
+          "tools": ["A lab cloud account", "Cloud security tools", "Study notes"],
+          "lab_task": "Secure a lab cloud environment by fixing public storage, tightening identity and enabling logging, and explain the shared responsibility split.",
+          "deliverable": "Cloud hardening with an explanation",
+          "checks": [["Fix", "Public storage is made private", "Configuration"], ["Tighten", "Identity follows least privilege", "Review"], ["Explain", "The shared responsibility model is explained", "Notes"]],
+          "objectives": ["Apply cloud security", "Fix misconfigurations", "Explain shared responsibility"]
+        },
+        {
+          "topic": "Wireless and Network Security Design",
+          "subtopics": ["Wireless security protocols", "WPA2 and WPA3", "Enterprise wireless authentication", "Rogue access points and evil twins", "Wireless site surveys in brief", "Network segmentation", "Firewalls and their rules", "Intrusion prevention", "Network access control", "Wireless and network design on the exam"],
+          "tools": ["A lab access point", "Firewall lab", "Study notes"],
+          "lab_task": "Configure WPA3 enterprise wireless in the lab, write firewall rules for segmentation and detect a rogue access point.",
+          "deliverable": "Secure wireless and network configuration",
+          "checks": [["Secure", "Wireless uses WPA3 enterprise", "Configuration"], ["Segment", "Firewall rules separate zones", "Rule set"], ["Detect", "A rogue access point is detected", "Detection record"]],
+          "objectives": ["Secure wireless networks", "Design network segmentation", "Detect rogue devices"]
+        },
+        {
+          "topic": "Application Security in the Pipeline",
+          "subtopics": ["Secure coding practices", "Input validation and output encoding", "Secure software development lifecycle", "Static and dynamic analysis", "Software composition analysis", "Secrets management", "Code signing", "Secure deployment", "Web application firewalls", "Application security on the exam"],
+          "tools": ["A lab pipeline", "Analysis tools", "Study notes"],
+          "lab_task": "Add static analysis, dependency scanning and secret scanning to a lab pipeline and show a vulnerable build being blocked.",
+          "deliverable": "Secure pipeline configuration",
+          "checks": [["Scan", "Code, dependencies and secrets are scanned", "Pipeline run"], ["Block", "A vulnerable build is blocked", "Pipeline result"], ["Explain", "Secure coding practices are explained", "Notes"]],
+          "objectives": ["Secure the development pipeline", "Scan code and dependencies", "Block vulnerable builds"]
+        },
+        {
+          "topic": "Security Monitoring and SIEM in Practice",
+          "subtopics": ["Log sources and collection", "Normalisation and parsing", "Correlation rules", "Alerting and tuning", "Dashboards and reports", "User and entity behaviour analytics", "Retention and storage", "SIEM limitations", "Choosing what to monitor", "Monitoring on the exam"],
+          "tools": ["A lab SIEM", "Log sources", "Study notes"],
+          "lab_task": "Build correlation rules in a lab SIEM for brute force and data exfiltration, tune out a false positive and build a dashboard.",
+          "deliverable": "SIEM rules and dashboard",
+          "checks": [["Correlate", "Rules detect the seeded activity", "Alerts"], ["Tune", "A false positive is removed", "Rule change"], ["Report", "A dashboard shows key events", "Dashboard"]],
+          "objectives": ["Use a SIEM in practice", "Write correlation rules", "Tune alerts"]
+        },
+        {
+          "topic": "Incident Response Process",
+          "subtopics": ["The incident response lifecycle", "Preparation", "Detection and analysis", "Containment, eradication and recovery", "Lessons learned", "Incident response roles", "Playbooks and runbooks", "Communication during incidents", "Tabletop exercises", "Incident response on the exam"],
+          "tools": ["Incident response plan template", "Lab logs", "Study notes"],
+          "lab_task": "Run a tabletop incident for a ransomware scenario through the full lifecycle and write the lessons-learned actions.",
+          "deliverable": "Incident response tabletop record",
+          "checks": [["Respond", "Each lifecycle phase is addressed", "Tabletop record"], ["Contain", "Containment and recovery steps are correct", "Record"], ["Learn", "Lessons-learned actions are written", "Actions"]],
+          "objectives": ["Apply the incident response lifecycle", "Run a tabletop", "Capture lessons learned"]
+        },
+        {
+          "topic": "Digital Forensics Essentials",
+          "subtopics": ["Forensic principles", "Order of volatility", "Chain of custody", "Acquisition and imaging", "Hashing evidence", "Preservation and legal hold", "Reporting findings", "Working with law enforcement", "Anti-forensics awareness", "Forensics on the exam"],
+          "tools": ["A forensic imaging tool in a lab", "Hashing tools", "Study notes"],
+          "lab_task": "Acquire a forensic image of a lab drive, hash it to prove integrity and document the chain of custody.",
+          "deliverable": "Forensic acquisition record",
+          "checks": [["Acquire", "A verified image is created", "Imaging log"], ["Hash", "Hashes prove integrity", "Hash record"], ["Document", "Chain of custody is recorded", "Custody form"]],
+          "objectives": ["Apply forensic principles", "Acquire evidence", "Keep chain of custody"]
+        },
+        {
+          "topic": "Running a Vulnerability Management Programme",
+          "subtopics": ["The vulnerability management lifecycle", "Asset inventory", "Scanning cadence", "Prioritisation with CVSS and context", "Remediation and exceptions", "Patch management", "Validation and rescanning", "Metrics and reporting", "Tool selection", "Vulnerability management on the exam"],
+          "tools": ["A vulnerability scanner", "Asset inventory", "Study notes"],
+          "lab_task": "Run a vulnerability management cycle on the lab: inventory, scan, prioritise, recommend remediation and plan a rescan.",
+          "deliverable": "Vulnerability management cycle record",
+          "checks": [["Inventory", "Assets are inventoried", "Inventory"], ["Prioritise", "Findings are prioritised with context", "Ranked list"], ["Plan", "Remediation and rescan are planned", "Plan"]],
+          "objectives": ["Run vulnerability management", "Prioritise findings", "Plan remediation"]
+        },
+        {
+          "topic": "Automation and Orchestration for Security",
+          "subtopics": ["Why automate security", "Scripting for repetitive tasks", "Security orchestration, automation and response", "Playbook automation", "Integration between tools", "Benefits and risks of automation", "Guardrails and approvals", "Measuring automation value", "When not to automate", "Automation on the exam"],
+          "tools": ["A scripting language", "A lab automation tool", "Study notes"],
+          "lab_task": "Automate a repetitive security task such as disabling a flagged account and posting an alert, with an approval step and logging.",
+          "deliverable": "Security automation with an approval step",
+          "checks": [["Automate", "The task runs automatically", "Run log"], ["Guard", "A risky step needs approval", "Approval record"], ["Log", "Actions are logged", "Log"]],
+          "objectives": ["Automate security tasks", "Add guardrails", "Measure automation value"]
+        },
+        {
+          "topic": "Governance, Risk and Compliance Concepts",
+          "subtopics": ["Governance structures", "Policies, standards and procedures", "Risk management process", "Risk assessment and analysis", "Risk treatment options", "Risk appetite and tolerance", "Compliance and regulations", "Frameworks such as NIST and ISO", "Security awareness programmes", "Governance on the exam"],
+          "tools": ["Risk register", "Policy templates", "Study notes"],
+          "lab_task": "Build a small risk register for the company, choose a treatment for each risk and map two controls to a framework.",
+          "deliverable": "Risk register with treatments",
+          "checks": [["Assess", "Risks are assessed for likelihood and impact", "Register"], ["Treat", "Each risk has a treatment choice", "Register"], ["Map", "Controls map to a framework", "Mapping"]],
+          "objectives": ["Explain governance and risk", "Build a risk register", "Map controls to frameworks"]
+        },
+        {
+          "topic": "Third-Party and Supply Chain Risk",
+          "subtopics": ["Third-party risk sources", "Vendor assessment", "Due diligence and questionnaires", "Contracts and agreements", "Service level agreements", "Supply chain risk", "Software bills of materials", "Ongoing monitoring of vendors", "Fourth-party risk", "Third-party risk on the exam"],
+          "tools": ["Vendor assessment template", "Study notes"],
+          "lab_task": "Assess a sample vendor for the company with a questionnaire, identify the top risks and recommend contract and monitoring controls.",
+          "deliverable": "Vendor risk assessment",
+          "checks": [["Assess", "The vendor is assessed for risk", "Assessment"], ["Recommend", "Contract and monitoring controls are recommended", "Recommendations"], ["Monitor", "Ongoing monitoring is planned", "Plan"]],
+          "objectives": ["Assess third-party risk", "Review vendors", "Plan vendor monitoring"]
+        },
+        {
+          "topic": "Audits, Assessments and Attestation",
+          "subtopics": ["Internal and external audits", "Assessment types", "Penetration tests and their role", "Attestation and certification", "Evidence collection", "Gap analysis", "Remediation planning", "Continuous compliance", "Working with auditors", "Audits on the exam"],
+          "tools": ["Audit checklist", "Evidence templates", "Study notes"],
+          "lab_task": "Run a gap analysis of the company against a control list, collect sample evidence and write a remediation plan for the gaps.",
+          "deliverable": "Gap analysis and remediation plan",
+          "checks": [["Analyse", "Gaps are found against the controls", "Gap analysis"], ["Evidence", "Sample evidence is collected", "Evidence"], ["Plan", "A remediation plan is written", "Plan"]],
+          "objectives": ["Explain audits and assessments", "Run a gap analysis", "Plan remediation"]
+        },
+        {
+          "topic": "Performance-Based Question Practice",
+          "subtopics": ["What performance-based questions test", "Reading the scenario carefully", "Common performance-based formats", "Drag-and-drop and matching", "Configuration tasks", "Log analysis tasks", "Time management on these questions", "Partial credit", "Practice method", "Review and improvement"],
+          "tools": ["Performance-based practice bank", "Lab systems", "Study notes"],
+          "lab_task": "Complete five performance-based practice tasks covering log analysis, configuration and matching, and review each against the correct answer.",
+          "deliverable": "Performance-based practice results",
+          "checks": [["Complete", "All five tasks are attempted", "Results"], ["Analyse", "Log analysis tasks are correct", "Answers"], ["Review", "Misses are reviewed and understood", "Review notes"]],
+          "objectives": ["Practise performance-based questions", "Manage time", "Learn from misses"]
+        },
+        {
+          "topic": "Intermediate Capstone: Scenario-Based Security Plan and Exam Readiness",
+          "subtopics": ["Scenario controls and architecture", "Monitoring, response and forensics", "Risk, third-party and compliance", "Full practice exam"],
+          "tools": ["Lab systems", "SIEM", "Practice exam platform"],
+          "lab_task": "Produce a scenario-based security plan that applies controls, monitoring, incident response, risk and compliance for a mid-size company, then take a full timed practice exam and review it.",
+          "deliverable": "Security plan and full practice exam review",
+          "checks": [["Apply", "Controls fit the scenario and are justified", "Plan"], ["Cover", "Operations, risk and compliance are covered", "Plan"], ["Practise", "A full practice exam is scored and reviewed", "Score and review"]],
+          "objectives": ["Combine intermediate knowledge", "Produce a scenario plan", "Reach exam readiness"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For security professionals who go beyond Security+ into design and leadership, and mentors who teach it. Covers security architecture at enterprise scale, zero trust architecture, enterprise identity design, data governance, cryptographic architecture, cloud and hybrid security design, network security architecture, security operations centre design, threat hunting, incident command, forensic readiness, risk management programmes, compliance programmes, supply chain security, secure development programmes, resilience and continuity, security metrics, emerging threats including AI, and mapping Security+ to the next certifications.",
+      "prerequisites": ["Holds Security+ or has equivalent working knowledge", "Has applied security controls in production", "Takes part in security design or decisions"],
+      "outcomes": ["Design enterprise security architecture and zero trust", "Lead security operations, incident response and threat hunting", "Run risk, compliance and supply chain programmes", "Plan resilience, measure security and plan a certification path beyond Security+"],
+      "days": [
+        {
+          "topic": "Enterprise Security Architecture",
+          "subtopics": ["Architecture frameworks", "Business and security requirements", "Reference architectures", "Control selection at scale", "Trust boundaries", "Segmentation strategy", "Secure design patterns", "Architecture governance", "Documenting architecture decisions", "Reviewing designs"],
+          "tools": ["Architecture frameworks", "Diagram tools", "Decision records"],
+          "lab_task": "Design an enterprise security architecture for a growing company with trust boundaries, segmentation and control selection, and defend it in a review.",
+          "deliverable": "Enterprise security architecture",
+          "checks": [["Design", "Trust boundaries and segmentation are defined", "Diagram"], ["Select", "Controls are chosen for each boundary", "Control map"], ["Defend", "The design passes a review", "Review record"]],
+          "objectives": ["Design enterprise architecture", "Set trust boundaries", "Govern architecture"]
+        },
+        {
+          "topic": "Zero Trust Architecture at Scale",
+          "subtopics": ["Zero trust principles at scale", "The policy engine and administrator", "Enforcement points across the estate", "Identity as the foundation", "Device trust and posture", "Microsegmentation programmes", "Phased adoption", "Measuring zero trust maturity", "Common pitfalls", "Zero trust roadmaps"],
+          "tools": ["Zero trust reference models", "Enforcement tools", "Maturity model"],
+          "lab_task": "Build a phased zero trust roadmap for the enterprise with enforcement points, identity and device trust, and a maturity measure.",
+          "deliverable": "Zero trust roadmap",
+          "checks": [["Plan", "Phases move the estate toward zero trust", "Roadmap"], ["Enforce", "Enforcement points cover key flows", "Design"], ["Measure", "A maturity measure is defined", "Measure"]],
+          "objectives": ["Design zero trust at scale", "Phase adoption", "Measure maturity"]
+        },
+        {
+          "topic": "Enterprise Identity Architecture",
+          "subtopics": ["Identity as the control plane", "Directory and federation design", "Single sign-on across the estate", "Privileged access programmes", "Identity governance", "Machine and workload identity", "Conditional access design", "Identity threat detection", "Identity resilience", "Identity architecture reviews"],
+          "tools": ["Identity platforms", "Federation tools", "Governance tools"],
+          "lab_task": "Design enterprise identity for the company with federation, privileged access, governance and conditional access, and review it for attack paths.",
+          "deliverable": "Enterprise identity design",
+          "checks": [["Design", "Federation and governance are defined", "Design"], ["Protect", "Privileged access is controlled", "Design"], ["Review", "Attack paths are considered", "Review notes"]],
+          "objectives": ["Design enterprise identity", "Govern identity", "Reduce identity attack paths"]
+        },
+        {
+          "topic": "Data Security and Governance Programmes",
+          "subtopics": ["Data governance structures", "Classification at scale", "Data discovery", "Protection by classification", "Data loss prevention programmes", "Rights management", "Privacy by design", "Retention and legal hold", "Data governance metrics", "Governance reviews"],
+          "tools": ["Data governance tools", "Classification tools", "Study notes"],
+          "lab_task": "Design a data governance programme with classification, discovery, protection and retention for the enterprise, and define metrics.",
+          "deliverable": "Data governance programme",
+          "checks": [["Classify", "A classification scheme is defined", "Scheme"], ["Protect", "Protection maps to classification", "Plan"], ["Measure", "Governance metrics are defined", "Metrics"]],
+          "objectives": ["Run data governance", "Protect data by classification", "Measure governance"]
+        },
+        {
+          "topic": "Cryptographic Architecture and Key Management at Scale",
+          "subtopics": ["Cryptographic standards and policy", "Hardware security modules at scale", "Enterprise key management", "Certificate lifecycle management", "Cryptographic inventory", "Post-quantum readiness", "Cryptographic agility", "Avoiding weak cryptography", "Compliance for cryptography", "Cryptographic architecture reviews"],
+          "tools": ["Key management systems", "Certificate tools", "Study notes"],
+          "lab_task": "Design cryptographic architecture and key management for the enterprise, build a cryptographic inventory and plan post-quantum readiness.",
+          "deliverable": "Cryptographic architecture and inventory",
+          "checks": [["Design", "Key management covers the lifecycle", "Design"], ["Inventory", "A cryptographic inventory is built", "Inventory"], ["Plan", "Post-quantum readiness is planned", "Plan"]],
+          "objectives": ["Design cryptographic architecture", "Manage keys at scale", "Plan for post-quantum"]
+        },
+        {
+          "topic": "Cloud and Hybrid Security Design",
+          "subtopics": ["Multi-cloud and hybrid patterns", "Landing zones", "Cloud security posture management", "Workload protection", "Cloud identity and access", "Cloud network security", "Secrets and key management in the cloud", "Cloud monitoring", "Shared responsibility at scale", "Cloud design reviews"],
+          "tools": ["Cloud security tools", "Landing zone templates", "Study notes"],
+          "lab_task": "Design a secure landing zone and posture management for a multi-cloud estate and show how workloads, identity and monitoring fit together.",
+          "deliverable": "Cloud security design",
+          "checks": [["Design", "The landing zone enforces guardrails", "Design"], ["Protect", "Workload and identity protection are defined", "Design"], ["Monitor", "Cloud monitoring is defined", "Design"]],
+          "objectives": ["Design cloud security", "Use landing zones", "Monitor cloud estates"]
+        },
+        {
+          "topic": "Network Security Architecture",
+          "subtopics": ["Network segmentation at scale", "Perimeter and internal controls", "Secure access service edge", "Microsegmentation", "Encrypted traffic inspection", "Network detection and response", "Secure remote access at scale", "Network resilience", "Network control selection", "Network design reviews"],
+          "tools": ["Network security tools", "Diagram tools", "Study notes"],
+          "lab_task": "Design network security for the enterprise with segmentation, secure access service edge and detection, and justify control placement.",
+          "deliverable": "Network security architecture",
+          "checks": [["Segment", "Segmentation limits blast radius", "Design"], ["Access", "Secure remote access is designed", "Design"], ["Justify", "Control placement is justified", "Notes"]],
+          "objectives": ["Design network security", "Segment at scale", "Place network controls"]
+        },
+        {
+          "topic": "Security Operations Centre Design",
+          "subtopics": ["Security operations centre models", "Staffing and tiers", "Tooling: SIEM, SOAR and detection", "Use case development", "Detection engineering", "Metrics and service levels", "Threat intelligence integration", "Shift and escalation design", "Outsourced and hybrid operations", "Operations centre maturity"],
+          "tools": ["SIEM and SOAR", "Detection libraries", "Study notes"],
+          "lab_task": "Design a security operations centre for the company with staffing, tooling, use cases and metrics, and write one detection use case end to end.",
+          "deliverable": "Operations centre design with a use case",
+          "checks": [["Design", "Staffing, tools and processes are defined", "Design"], ["Detect", "A use case detects the target activity", "Use case test"], ["Measure", "Service levels and metrics are defined", "Metrics"]],
+          "objectives": ["Design a security operations centre", "Engineer detections", "Measure operations"]
+        },
+        {
+          "topic": "Threat Hunting for Security Teams",
+          "subtopics": ["Threat hunting concepts", "Hypothesis-driven hunting", "Data sources for hunting", "Hunting with ATT&CK", "Behavioural analytics", "Tooling for hunting", "Turning hunts into detections", "Measuring hunt value", "Documenting hunts", "Building a hunting practice"],
+          "tools": ["SIEM and endpoint data", "ATT&CK", "Study notes"],
+          "lab_task": "Run a hypothesis-driven threat hunt in the lab against seeded activity, confirm or reject the hypothesis and turn a finding into a detection.",
+          "deliverable": "Threat hunt record with a new detection",
+          "checks": [["Hunt", "The hypothesis is tested with data", "Hunt notes"], ["Find", "Seeded activity is found or ruled out", "Evidence"], ["Detect", "A finding becomes a detection", "Detection rule"]],
+          "objectives": ["Run threat hunts", "Use hypotheses and ATT&CK", "Turn hunts into detections"]
+        },
+        {
+          "topic": "Incident Command and Crisis Management",
+          "subtopics": ["Incident command structure", "Roles and responsibilities", "Severity and escalation", "Communication plans", "Legal and regulatory duties", "Working with executives", "Crisis management", "Breach notification", "Post-incident review", "Exercises"],
+          "tools": ["Incident command plan", "Communication templates", "Study notes"],
+          "lab_task": "Lead a simulated major incident with incident command roles, communication updates and breach notification duties, then write the review.",
+          "deliverable": "Incident command exercise record",
+          "checks": [["Command", "Roles and escalation are followed", "Incident log"], ["Communicate", "Updates and notifications are timely", "Records"], ["Review", "The post-incident review lists actions", "Review"]],
+          "objectives": ["Lead incident command", "Manage crisis communication", "Meet notification duties"]
+        },
+        {
+          "topic": "Forensic Readiness and Investigation",
+          "subtopics": ["Forensic readiness programmes", "Logging for forensics", "Evidence handling at scale", "Cloud and endpoint forensics", "Timeline analysis", "Malware triage", "Legal considerations", "Working with external forensics", "Reporting investigations", "Forensic readiness reviews"],
+          "tools": ["Forensic tools", "Lab evidence", "Study notes"],
+          "lab_task": "Assess the company's forensic readiness, improve logging for one gap and run a timeline analysis of a seeded incident.",
+          "deliverable": "Forensic readiness assessment and timeline",
+          "checks": [["Assess", "Readiness gaps are identified", "Assessment"], ["Improve", "Logging is improved for a gap", "Change record"], ["Analyse", "A timeline explains the incident", "Timeline"]],
+          "objectives": ["Build forensic readiness", "Improve forensic logging", "Analyse timelines"]
+        },
+        {
+          "topic": "Enterprise Risk Management Programmes",
+          "subtopics": ["Risk management frameworks", "Risk governance", "Quantitative and qualitative risk", "Risk registers at scale", "Key risk indicators", "Risk treatment and acceptance", "Reporting risk to the board", "Risk appetite statements", "Integrating risk with the business", "Risk programme maturity"],
+          "tools": ["Risk framework", "Risk register", "Study notes"],
+          "lab_task": "Build an enterprise risk management approach with a register, key risk indicators and a board-level risk report.",
+          "deliverable": "Risk management programme",
+          "checks": [["Assess", "Risks are assessed consistently", "Register"], ["Indicate", "Key risk indicators are defined", "Indicators"], ["Report", "A board-level report is produced", "Report"]],
+          "objectives": ["Run enterprise risk management", "Use key risk indicators", "Report risk to leaders"]
+        },
+        {
+          "topic": "Compliance and Audit Programmes",
+          "subtopics": ["Compliance frameworks and regulations", "Mapping controls across frameworks", "Continuous compliance", "Evidence automation", "Internal audit programmes", "External audits and certification", "Managing findings", "Compliance reporting", "Avoiding compliance theatre", "Compliance programme maturity"],
+          "tools": ["Compliance tools", "Control mappings", "Study notes"],
+          "lab_task": "Map the company's controls to two frameworks, automate evidence for one control and plan an internal audit.",
+          "deliverable": "Compliance programme plan",
+          "checks": [["Map", "Controls map across frameworks", "Mapping"], ["Automate", "Evidence is automated for a control", "Evidence"], ["Plan", "An internal audit is planned", "Plan"]],
+          "objectives": ["Run compliance programmes", "Map controls across frameworks", "Automate evidence"]
+        },
+        {
+          "topic": "Supply Chain and Third-Party Security Programmes",
+          "subtopics": ["Supply chain risk at scale", "Vendor tiering", "Continuous vendor monitoring", "Software supply chain security", "Software bills of materials", "Hardware supply chain", "Contractual security requirements", "Incident response with vendors", "Fourth-party risk", "Supply chain programme maturity"],
+          "tools": ["Vendor risk platform", "Software bill of materials tools", "Study notes"],
+          "lab_task": "Design a third-party risk programme with vendor tiering, continuous monitoring and software bill of materials checks, and test it on two vendors.",
+          "deliverable": "Supply chain security programme",
+          "checks": [["Tier", "Vendors are tiered by risk", "Tiering"], ["Monitor", "Continuous monitoring is defined", "Design"], ["Check", "Software bills of materials are validated", "Results"]],
+          "objectives": ["Run supply chain security", "Tier and monitor vendors", "Validate software provenance"]
+        },
+        {
+          "topic": "Secure Development Programmes",
+          "subtopics": ["Secure development lifecycle at scale", "Developer security training", "Security champions", "Threat modelling programmes", "Pipeline security standards", "Application security testing coverage", "Vulnerability handling for products", "Metrics for application security", "Culture and shift left", "Programme maturity"],
+          "tools": ["Application security tools", "Threat modelling templates", "Study notes"],
+          "lab_task": "Design a secure development programme with threat modelling, pipeline standards and metrics, and run a threat model for one application.",
+          "deliverable": "Secure development programme with a threat model",
+          "checks": [["Design", "The programme covers training and pipeline standards", "Design"], ["Model", "A threat model is produced for an application", "Threat model"], ["Measure", "Application security metrics are defined", "Metrics"]],
+          "objectives": ["Run secure development", "Threat-model applications", "Measure application security"]
+        },
+        {
+          "topic": "Resilience, Continuity and Disaster Recovery",
+          "subtopics": ["Business impact analysis", "Recovery objectives", "Continuity planning", "Disaster recovery strategies", "Backup and restore at scale", "Site resilience", "Testing continuity", "Crisis coordination", "Lessons from incidents", "Resilience programme maturity"],
+          "tools": ["Business impact analysis template", "Recovery plans", "Study notes"],
+          "lab_task": "Run a business impact analysis for key services, set recovery objectives and plan and test a disaster recovery scenario in the lab.",
+          "deliverable": "Continuity and recovery plan with a test",
+          "checks": [["Analyse", "Impact and recovery objectives are set", "Business impact analysis"], ["Plan", "Continuity and recovery plans are written", "Plans"], ["Test", "A recovery test is run", "Test record"]],
+          "objectives": ["Plan resilience and continuity", "Set recovery objectives", "Test recovery"]
+        },
+        {
+          "topic": "Security Metrics and Executive Reporting",
+          "subtopics": ["Why security metrics matter", "Choosing meaningful metrics", "Leading and lagging indicators", "Control effectiveness metrics", "Risk and compliance metrics", "Dashboards for leaders", "Benchmarking", "Avoiding vanity metrics", "Telling a story with data", "Reporting cadence"],
+          "tools": ["Metrics framework", "Dashboard tool", "Study notes"],
+          "lab_task": "Define a set of security metrics for the company, build an executive dashboard and present the security posture to a leadership persona.",
+          "deliverable": "Security metrics and executive dashboard",
+          "checks": [["Choose", "Metrics are meaningful and defined", "Metrics list"], ["Build", "The dashboard shows posture clearly", "Dashboard"], ["Present", "Leaders understand the posture", "Presentation notes"]],
+          "objectives": ["Measure security", "Report to executives", "Avoid vanity metrics"]
+        },
+        {
+          "topic": "Emerging Threats and the Future of Security",
+          "subtopics": ["The changing threat landscape", "AI-enabled attacks", "Securing AI systems", "Deepfakes and disinformation", "Quantum computing and cryptography", "Internet of things and operational technology", "Automation of attacks", "Keeping skills current", "Horizon scanning", "Preparing the organisation"],
+          "tools": ["Threat research", "Study notes", "AI security guidance"],
+          "lab_task": "Assess three emerging threats for the company, including an AI-enabled threat, and recommend how to prepare for each.",
+          "deliverable": "Emerging threat assessment",
+          "checks": [["Assess", "Each threat's impact is assessed", "Assessment"], ["Recommend", "Preparation steps are recommended", "Recommendations"], ["Prioritise", "The threats are prioritised", "Notes"]],
+          "objectives": ["Assess emerging threats", "Prepare for AI threats", "Keep skills current"]
+        },
+        {
+          "topic": "Mapping Security+ to the Next Certifications and Roles",
+          "subtopics": ["The CompTIA certification pathway", "CySA+ for analysts", "PenTest+ for testers", "CASP+ and SecurityX for architects", "Vendor certifications", "ISC2 and ISACA paths", "Matching certifications to roles", "Building a learning plan", "Experience alongside certifications", "Career roadmaps"],
+          "tools": ["Certification roadmaps", "Role descriptions", "Study notes"],
+          "lab_task": "Map your target role to the next certifications after Security+ and build a two-year learning and experience plan.",
+          "deliverable": "Certification and career plan",
+          "checks": [["Map", "Certifications map to the target role", "Mapping"], ["Plan", "A two-year learning plan is written", "Plan"], ["Balance", "Experience and study are balanced", "Plan"]],
+          "objectives": ["Plan beyond Security+", "Match certifications to roles", "Build a learning plan"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Security Programme Design",
+          "subtopics": ["Architecture and zero trust", "Operations, response and hunting", "Risk, compliance and supply chain", "Metrics and roadmap"],
+          "tools": ["Architecture documents", "Programme plans", "Dashboards"],
+          "lab_task": "Design an enterprise security programme that brings together architecture, zero trust, security operations, incident response, risk, compliance and metrics, and present it to a leadership persona.",
+          "deliverable": "Enterprise security programme with a roadmap",
+          "checks": [["Design", "Architecture and operations are defined", "Programme design"], ["Govern", "Risk and compliance are covered", "Plan"], ["Report", "Metrics and a roadmap are presented", "Dashboard and roadmap"]],
+          "objectives": ["Combine advanced knowledge", "Design a security programme", "Present a security roadmap"]
+        }
+      ]
+    }
+  }
+}

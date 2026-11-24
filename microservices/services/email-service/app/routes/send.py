@@ -386,11 +386,11 @@ async def send_single_email(
                     {"_id": 0, "email_id": 1, "status": 1, "sent_at": 1},
                 ) or {}
                 return {
-                    "success": True,
+                    "success": existing_log.get("status") == "sent",
                     "email_id": existing_log.get("email_id"),
                     "sent_at": existing_log.get("sent_at"),
                     "already_sent": existing_log.get("status") == "sent",
-                    "already_in_progress": existing_log.get("status") != "sent",
+                    "already_in_progress": existing_log.get("status") == "sending",
                 }
 
     success, error = await send_email_async(

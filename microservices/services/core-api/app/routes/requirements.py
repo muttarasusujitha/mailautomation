@@ -47,6 +47,23 @@ def _clean(value: Any) -> str:
     return str(value or "").strip()
 
 
+def _has_confirmed_requirement_value(value: Any) -> bool:
+    """Ignore inbox placeholders when deciding whether a batch is confirmed."""
+    text = _clean(value).lower().strip(" .,:;-")
+    if not text:
+        return False
+    placeholders = {
+        "tbd", "to be decided", "to be confirmed", "not confirmed", "pending",
+        "pending confirmation", "awaiting confirmation", "not finalized", "not finalised",
+        "to be finalized", "to be finalised", "flexible", "not shared", "not provided",
+        "not available", "n/a", "na", "-",
+    }
+    return text not in placeholders and not bool(re.fullmatch(
+        r"(?:to be|awaiting|pending)\s+(?:confirmed|confirmation|finali[sz]ed|decided|shared|provided)",
+        text,
+    ))
+
+
 def _amounts_from_text(value: Any) -> List[int]:
     text = str(value or "")
     if not text:
@@ -500,16 +517,8 @@ def _category_text(trainer: Dict[str, Any]) -> str:
 
 
 def _trainer_experience(trainer: Dict[str, Any]) -> float:
-    direct = _safe_float(trainer.get("experience_years"), -1)
-    if direct >= 0:
-        return direct
-    raw = " ".join([
-        _clean(trainer.get("experience_raw")),
-        _clean(trainer.get("summary")),
-        _clean(trainer.get("resume")),
-    ])
-    match = re.search(r"(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?)", raw, flags=re.IGNORECASE)
-    return _safe_float(match.group(1), 0.0) if match else 0.0
+    from shared.trainer_experience import profile_experience_years
+    return profile_experience_years(trainer) or 0.0
 
 
 def _has_resume(trainer: Dict[str, Any]) -> bool:
@@ -541,8 +550,10 @@ def _term_matches(terms: List[str], text: str) -> List[str]:
 
 
 def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    if trainer.get("needs_review") is True:
-        return None
+    # A pending profile review must remain visible to the administrator; it is
+    # not evidence that the trainer is unsuitable for a new requirement.
+    # Keep the flag on the matched profile so the shortlist can show it.
+    profile_review_required = bool(trainer.get("profile_review_required", False))
     if requirement.get("must_have_linkedin") and not trainer.get("linkedin"):
         return None
     if requirement.get("must_have_resume") and not _has_resume(trainer):
@@ -558,6 +569,8 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
         _as_list(requirement.get("required_skills"))
         + _as_list(requirement.get("skills"))
         + _as_list(requirement.get("requested_topics"))
+        + _as_list(requirement.get("topics"))
+        + _as_list(requirement.get("custom_topics"))
     ))
     preferred_skills = _as_list(requirement.get("preferred_skills"))
     required_terms = [term for term in [technology, *required_skills] if term]
@@ -582,7 +595,8 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
         score += tech_score
         breakdown["technology"] = round(tech_score, 2)
 
-    required_matches = _term_matches(required_skills, profile)
+    from shared.toc_quality import topic_is_covered
+    required_matches = [skill for skill in required_skills if topic_is_covered(skill, profile)]
     if required_skills:
         skill_score = 25.0 * (len(required_matches) / max(len(required_skills), 1))
     elif not technology:
@@ -599,6 +613,13 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     min_exp = _safe_float(requirement.get("min_experience_years"), 0.0)
     exp = _trainer_experience(trainer)
     if min_exp > 0 and exp < min_exp:
+        return None
+    # Treat the requested domain and every explicit required skill/topic as
+    # eligibility gates. Rank only candidates who meet the stated experience
+    # and scope; return fewer than five when fewer than five qualify.
+    if technology and not topic_is_covered(technology, profile):
+        return None
+    if len(required_matches) != len(required_skills):
         return None
     if min_exp > 0:
         exp_score = 15.0 if exp >= min_exp else 10.0 * (exp / max(min_exp, 1.0))
@@ -628,10 +649,6 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     score += credibility_score
     breakdown["credibility"] = round(credibility_score, 2)
 
-    scope_tokens = technology_tokens - {"advanced", "intermediate", "beginner", "training", "trainer", "with", "and", "including", "course"}
-    if required_terms and not required_matches and not (scope_tokens & profile_tokens):
-        return None
-
     public = {k: v for k, v in trainer.items() if k not in {"_id", "combined_text"}}
     public["trainer_id"] = _clean(public.get("trainer_id")) or f"TR-{uuid.uuid4().hex[:8].upper()}"
     public["name"] = _clean(public.get("name") or public.get("trainer_name") or "Trainer")
@@ -643,6 +660,9 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     public["score_breakdown"] = breakdown
     public["match_quality"] = _quality(public["match_score"])
     public["recommended_next_action"] = "Contact trainer and confirm availability"
+    public["profile_review_required"] = profile_review_required
+    if profile_review_required:
+        public["recommended_next_action"] = "Review the uploaded profile before contacting this trainer"
     return public
 
 
@@ -674,9 +694,8 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
     data["timeline_end"] = _clean(data.get("timeline_end"))
     data["timing"] = _clean(data.get("timing"))
     data["preferred_location"] = _clean(data.get("preferred_location") or data.get("location"))
-    # Every service keeps the same trainer result size.
-    from shared.trainer_targets import TRAINER_RESULT_TARGET
-    data["top_n"] = TRAINER_RESULT_TARGET
+    # Shortlist and Shortlist1 use the five highest ranked candidates.
+    data["top_n"] = 5
     data["min_experience_years"] = _safe_int(data.get("min_experience_years"), 0)
     data["send_emails"] = bool(data.get("send_emails", False))
     source_text = " ".join(
@@ -723,11 +742,11 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
             if _clean(data.get(field))
         )
         has_training_dates = any(
-            _clean(data.get(field))
+            _has_confirmed_requirement_value(data.get(field))
             for field in ("training_dates", "preferred_dates", "timeline_start", "timeline_end")
         )
         has_commercials = any(
-            _clean(data.get(field))
+            _has_confirmed_requirement_value(data.get(field))
             for field in (
                 "budget", "budget_total", "budget_per_day", "client_budget_per_day",
                 "budget_min", "budget_max", "budget_range", "commercial", "commercials",
@@ -827,6 +846,9 @@ async def _build_shortlist_for_requirement(
         ]
     scored.sort(
         key=lambda trainer: (
+            _safe_float(trainer.get("match_score"), 0)
+            + (5.0 if trainer.get("trainer_priority") is True else 0.0),
+            1 if trainer.get("trainer_priority") is True else 0,
             _safe_float(trainer.get("match_score"), 0),
             _safe_float(trainer.get("experience_years"), 0),
             1 if trainer.get("email") else 0,
@@ -834,8 +856,8 @@ async def _build_shortlist_for_requirement(
         reverse=True,
     )
 
-    from shared.trainer_targets import TRAINER_RESULT_TARGET
-    top_trainers = scored[:TRAINER_RESULT_TARGET]
+    # Store the five highest ranked candidates in Shortlist/Shortlist1.
+    top_trainers = scored[:5]
     existing = await db["shortlists"].find_one({"requirement_id": req_id}, {"_id": 0}) or {}
     old_by_id = {
         _clean(trainer.get("trainer_id")): trainer
@@ -844,10 +866,15 @@ async def _build_shortlist_for_requirement(
     }
     for index, trainer in enumerate(top_trainers, start=1):
         trainer["rank"] = index
-        trainer["pipeline_status"] = trainer.get("pipeline_status") or "shortlisted"
         old = old_by_id.get(_clean(trainer.get("trainer_id")))
         if old:
             trainer.update(_merge_pipeline_state(trainer, old))
+        if trainer.get("profile_review_required"):
+            trainer["pipeline_status"] = "profile_review"
+        elif _clean(trainer.get("pipeline_status")).lower() == "profile_review":
+            trainer["pipeline_status"] = "shortlisted"
+        else:
+            trainer["pipeline_status"] = trainer.get("pipeline_status") or "shortlisted"
 
     now = datetime.utcnow()
     warnings = [] if all_trainers else ["No trainers available in database."]
@@ -914,6 +941,7 @@ async def _build_shortlist_for_requirement(
         {"$set": {
             "total_matched": len(scored),
             "top_count": len(top_trainers),
+            "top_n": len(top_trainers),
             "updated_at": now,
         }},
     )
@@ -1025,12 +1053,57 @@ async def list_commercial_analyses(
     limit: int = Query(50, ge=1, le=100),
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    """Commercial comparison for the requirements the recruiter is working."""
+    """Commercial comparison for requirements managed by the administrator."""
     items = []
     cursor = db.requirements.find({}).sort("updated_at", -1).limit(limit)
     async for doc in cursor:
         items.append(await _requirement_analysis(db, doc))
     return {"items": items, "total": len(items)}
+
+
+@router.post("/{req_id}/refresh-shortlist")
+async def refresh_shortlist(
+    req_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Re-rank this requirement after trainer records are added or updated."""
+    requirement = await db.requirements.find_one(_requirement_query(req_id), {"_id": 0})
+    if not requirement:
+        raise HTTPException(404, "Requirement not found")
+    shortlist = await _build_shortlist_for_requirement(db, requirement)
+    return {
+        "requirement_id": requirement.get("requirement_id") or req_id,
+        "total_trainers_scanned": shortlist.get("total_trainers_scanned", 0),
+        "total_available": shortlist.get("total_available", 0),
+        "total_matched": shortlist.get("total_matched", 0),
+        "top_trainers": shortlist.get("top_trainers", []),
+        "pipeline_summary": shortlist.get("pipeline_summary", {}),
+    }
+
+
+@router.post("/{req_id}/trainers/{trainer_id}/approve-profile")
+async def approve_shortlisted_trainer_profile(
+    req_id: str,
+    trainer_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Approve an extracted profile before any trainer outreach can begin."""
+    requirement = await db.requirements.find_one(_requirement_query(req_id), {"_id": 0, "requirement_id": 1})
+    if not requirement:
+        raise HTTPException(404, "Requirement not found")
+    trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0, "trainer_id": 1})
+    if not trainer:
+        raise HTTPException(404, "Trainer not found")
+    await db["trainers"].update_one(
+        {"trainer_id": trainer_id},
+        {"$set": {"needs_review": False, "profile_reviewed_at": datetime.utcnow(), "updated_at": datetime.utcnow()}},
+    )
+    shortlist = await _build_shortlist_for_requirement(db, requirement)
+    return {
+        "success": True,
+        "requirement_id": requirement.get("requirement_id") or req_id,
+        "top_trainers": shortlist.get("top_trainers", []),
+    }
 
 
 @router.get("/{req_id}")
@@ -1179,8 +1252,7 @@ async def update_requirement(
             raise HTTPException(422, "generation_mode must be 'ai' or 'template'")
         data["generation_mode"] = generation_mode
     if "top_n" in data:
-        from shared.trainer_targets import TRAINER_RESULT_TARGET
-        data["top_n"] = TRAINER_RESULT_TARGET
+        data["top_n"] = 5
     if any(key in data for key in ("technology_needed", "domain", "title", "job_title")):
         data = _normalise_requirement_payload(data, current)
     data.pop("_id", None)
@@ -1379,10 +1451,21 @@ async def request_client_po(
     training_dates = payload.training_dates or doc.get('training_dates') or doc.get('timeline_start') or ''
     tech = doc.get('technology_needed') or doc.get('technology') or 'DevOps'
     day_rate = 'To be confirmed'
+    lab_line = ''
+    commercial_lines = ''
 
     if payload.body:
         body = payload.body
     else:
+        from shared.commercial_policy import commercial_breakdown
+        commercials = commercial_breakdown(doc)
+        if commercials["needs_lab_price"]:
+            raise HTTPException(
+                400,
+                "The client budget covers training and lab work. Send or approve the lab workbook before requesting the client PO.",
+            )
+        if commercials["invalid"]:
+            raise HTTPException(400, "The client combined budget is lower than the lab commercial amount.")
         duration = str(
             doc.get('duration_text')
             or doc.get('training_duration')
@@ -1398,11 +1481,11 @@ async def request_client_po(
         participant_count = doc.get('participant_count') or doc.get('participants')
         participant_line = f"- **Participants:** {participant_count}\n" if participant_count else ''
         latest_commercial_value = await _latest_client_commercial(db, req_id, payload.trainer_id)
-        commercial_value = latest_commercial_value
+        commercial_value = commercials["training_client_amount"] or latest_commercial_value
         if commercial_value:
             try:
                 amount = float(commercial_value)
-                day_rate = f"INR {amount:,.0f} per day/session"
+                day_rate = f"INR {amount:,.0f}" + (" total" if commercials["training_client_amount"] else " per day/session")
             except (TypeError, ValueError):
                 day_rate = f"{commercial_value} per day/session"
         else:
@@ -1410,6 +1493,19 @@ async def request_client_po(
                 400,
                 "Client commercial amount is required before the PO request can be sent.",
             )
+        lab_line = ""
+        po_instruction = "Kindly share the Purchase Order (PO) at your earliest convenience so that we can proceed with trainer confirmation and the remaining training arrangements."
+        if commercials["lab_client_amount"]:
+            lab_line = (
+                f"- **Training services:** INR {commercials['training_client_amount']:,.0f}\n"
+                f"- **Lab services:** INR {commercials['lab_client_amount']:,.0f}\n"
+                f"- **Total client commercial:** INR {commercials['total_client_amount']:,.0f}\n"
+            )
+            po_instruction = (
+                "Kindly issue one PO with separate Training Services and Lab Services line items using the above amounts. "
+                "Clahan will issue the training and lab invoices separately."
+            )
+        commercial_lines = lab_line or f"- **Training Commercials:** {day_rate}\n"
         body = (
             f"Dear {payload.client_name or doc.get('client_name') or doc.get('client_company') or 'Client'},\n\n"
             f"Thank you for confirming the **{tech}** training requirement.\n\n"
@@ -1420,8 +1516,8 @@ async def request_client_po(
             f"{dates_line}"
             f"{mode_line}"
             f"{participant_line}"
-            f"- **Commercials:** {day_rate}\n\n"
-            f"Kindly share the Purchase Order (PO) at your earliest convenience so that we can proceed with trainer confirmation and the remaining training arrangements.\n\n"
+            f"{commercial_lines}\n"
+            f"{po_instruction}\n\n"
             f"Please let us know if you require any additional information.\n\n"
             f"Regards,\nRecruitment Team\nClahan Technologies"
         )
@@ -1452,7 +1548,7 @@ async def request_client_po(
                         "trainer_name": payload.trainer_name or "",
                         "technology": doc.get("technology_needed") or doc.get("technology") or "",
                         "training_dates": training_dates,
-                        "commercial": day_rate,
+                        "commercial": commercial_lines.strip() or day_rate,
                         "requested_action": "share the purchase order",
                     },
                 },
@@ -1551,7 +1647,7 @@ async def generate_invoice_from_requirement_po(
         raise HTTPException(404, "Requirement not found")
 
     # Find linked PO
-    po = await db["purchase_orders"].find_one({"requirement_id": req_id}, {"_id": 0})
+    po = await db["purchase_orders"].find_one({"requirement_id": req_id, "po_id": {"$not": {"$regex": "^TPO-"}}}, {"_id": 0})
     if not po:
         trainer_id = payload.trainer_id or doc.get("selected_trainer_id") or f"MANUAL-{req_id}"
 
@@ -1570,8 +1666,8 @@ async def generate_invoice_from_requirement_po(
             items = [{
                 "description": f"{payload.course_name or payload.technology or doc.get('technology_needed') or 'Training'} Training",
                 "hsn_sac": "999293",
-                "quantity": duration,
-                "rate": round(amount / duration, 2),
+                "quantity": 1,
+                "rate": amount,
                 "amount": amount,
             }]
 
