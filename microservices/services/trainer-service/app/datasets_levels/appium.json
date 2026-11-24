@@ -12,6 +12,23 @@
       "summary": "For testers and developers starting mobile automation with Appium. Covers how Appium works, installing the server and drivers, Android emulators and iOS simulators, Appium Inspector, desired capabilities, locator strategies, interacting with native elements, waits, gestures with W3C actions, lists and scrolling, hybrid apps and webviews, mobile web, app lifecycle commands, device settings, screenshots and logs, page objects for screens, test data, TestNG and Maven runs and running a suite on a device cloud.",
       "prerequisites": ["Has tested mobile apps by hand", "Basic Java or another programming language", "Can install Android Studio; a Mac with Xcode is needed for the iOS days"],
       "outcomes": ["Install Appium with drivers and run tests on Android emulators and iOS simulators", "Locate and interact with native, hybrid and web elements reliably", "Automate gestures, scrolling and app lifecycle steps", "Organise tests with screen objects and run them with Maven locally and on a device cloud"],
+      "course_outcomes": [
+        {"outcome": "Explain Appium architecture and set up the test environment", "topics": ["Appium Overview, Architecture and Environment Setup"]},
+        {"outcome": "Start sessions with capabilities", "topics": ["Capabilities and Starting Sessions"]},
+        {"outcome": "Locate and interact with native elements", "topics": ["Locator Strategies for Native Apps", "Interacting with Native Elements"]},
+        {"outcome": "Synchronise mobile tests with waits", "topics": ["Waits and Synchronisation in Mobile Tests"]},
+        {"outcome": "Perform swipe, scroll, long press and drag gestures with W3C Actions", "topics": ["Gestures with W3C Actions: Swipe, Scroll, Long Press and Drag"]},
+        {"outcome": "Scroll to elements in lists and handle dynamic content", "topics": ["Lists, Scrolling to Elements and Dynamic Content"]},
+        {"outcome": "Switch contexts to test hybrid apps, webviews and mobile web", "topics": ["Hybrid Apps and Webviews: Switching Contexts", "Mobile Web Testing with Appium"]},
+        {"outcome": "Control the app lifecycle, including background and deep links", "topics": ["App Lifecycle: Install, Launch, Background and Deep Links"]},
+        {"outcome": "Change network, location, orientation and permission settings", "topics": ["Device Settings: Network, Location, Orientation and Permissions"]},
+        {"outcome": "Capture screenshots, video and logs", "topics": ["Screenshots, Video Recording and Logs"]},
+        {"outcome": "Structure tests with screen objects and manage test data and accounts", "topics": ["Screen Objects for Android and iOS", "Test Data and Accounts for Mobile Tests"]},
+        {"outcome": "Run mobile tests with TestNG and Maven", "topics": ["Running Tests with TestNG and Maven"]},
+        {"outcome": "Automate iOS with the XCUITest driver and Android with UiAutomator2, Espresso and ADB", "topics": ["iOS Automation Essentials: XCUITest Driver, WebDriverAgent and Signing", "Android Automation Essentials: UiAutomator2, Espresso Driver and ADB"]},
+        {"outcome": "Run tests on real devices and device clouds and debug failing tests", "topics": ["Running on Real Devices and Device Clouds", "Debugging Failing Mobile Tests"]},
+        {"outcome": "Deliver a mobile regression suite for a shopping app", "topics": ["Beginner Capstone: Mobile Regression Suite for a Shopping App"]}
+      ],
       "days": [
         {
           "topic": "Appium Overview, Architecture and Environment Setup",
@@ -199,6 +216,23 @@
       "summary": "For testers and SDETs who write Appium tests and now build a team framework. Covers framework design, driver management and thread safety, configuration for devices and environments, parallel execution on emulators and grids, Appium plugins, image-based checks, visual testing, accessibility checks, performance signals, network mocking with proxies, push notifications and system interactions, biometrics, deep testing of webviews, BDD with Cucumber, Python and JavaScript clients, reporting, CI pipelines with emulators, flakiness, app builds and device farm strategy.",
       "prerequisites": ["Writes Appium tests with screen objects, waits and gestures", "Comfortable with Java, Maven and Git", "Has run mobile tests on emulators and real devices"],
       "outcomes": ["Build a maintainable Appium framework for Android and iOS that a team can extend", "Run suites in parallel on emulators, real devices and clouds", "Add visual, accessibility, performance and network checks to mobile tests", "Run mobile tests reliably in CI with clear reports"],
+      "course_outcomes": [
+        {"outcome": "Design a mobile automation framework with thread-safe driver management", "topics": ["Framework Design for Mobile Automation", "Driver Management and Thread Safety"]},
+        {"outcome": "Configure tests for devices, builds and environments", "topics": ["Configuration for Devices, Builds and Environments"]},
+        {"outcome": "Run tests in parallel on emulators, simulators and grids", "topics": ["Parallel Execution on Emulators, Simulators and Grids"]},
+        {"outcome": "Extend Appium with plugins for images, gestures and custom commands", "topics": ["Appium Plugins: Images, Gestures and Custom Commands"]},
+        {"outcome": "Add visual, accessibility and performance checks to mobile tests", "topics": ["Visual Testing for Mobile Apps", "Mobile Accessibility Testing: TalkBack, VoiceOver and Automated Checks", "Performance Signals in Mobile Tests: Start Time, Memory and CPU"]},
+        {"outcome": "Mock networks with proxies", "topics": ["Network Mocking and Proxies for Mobile Tests"]},
+        {"outcome": "Handle notifications, system apps and interruptions", "topics": ["Notifications, System Apps and Interruptions"]},
+        {"outcome": "Test biometrics, camera and other device features", "topics": ["Biometrics, Camera and Device Features"]},
+        {"outcome": "Test webviews and hybrid apps in depth", "topics": ["Webviews and Hybrid Apps in Depth"]},
+        {"outcome": "Write BDD tests with Cucumber and use the Python and JavaScript clients", "topics": ["BDD for Mobile with Cucumber and Appium", "Appium with Python and JavaScript Clients"]},
+        {"outcome": "Report on mobile test suites", "topics": ["Reporting for Mobile Test Suites"]},
+        {"outcome": "Run mobile tests in CI pipelines with emulators and device clouds", "topics": ["CI Pipelines with Emulators and Device Clouds"]},
+        {"outcome": "Fix flaky mobile tests and add testability hooks to app builds", "topics": ["Flaky Mobile Tests: Causes and Fixes", "App Builds, Test Builds and Testability Hooks"]},
+        {"outcome": "Plan device coverage and manage device farms", "topics": ["Device Coverage Strategy and Device Farm Management"]},
+        {"outcome": "Deliver a parallel cross-platform Appium framework in CI", "topics": ["Intermediate Capstone: Parallel Cross-Platform Appium Framework in CI"]}
+      ],
       "days": [
         {
           "topic": "Framework Design for Mobile Automation",
@@ -386,6 +420,23 @@
       "summary": "For mobile automation leads and SDETs who run Appium across apps and teams. Covers mobile test strategy, framework architecture for many apps, self-hosted device farms, Appium on Kubernetes, scaling with clouds, test impact analysis, mobile security checks, privacy, resilience testing, performance engineering, testing apps built with Flutter and React Native, AI-assisted automation, observability for test runs, governance, migration to or from Espresso and XCUITest, Appium server internals and drivers, release quality gates, team enablement and troubleshooting.",
       "prerequisites": ["Has built and maintained an Appium framework used by a team", "Strong Java or another client language and CI skills", "Understands mobile release processes"],
       "outcomes": ["Set mobile test strategy and architecture for many apps and teams", "Run large mobile suites fast and reliably on device farms and clouds", "Add security, privacy, resilience and performance testing to mobile quality", "Lead mobile automation governance, migrations and capability"],
+      "course_outcomes": [
+        {"outcome": "Set a mobile test strategy for an organisation", "topics": ["Mobile Test Strategy for an Organisation"]},
+        {"outcome": "Design a framework architecture for many mobile apps", "topics": ["Framework Architecture for Many Mobile Apps"]},
+        {"outcome": "Run self-hosted device farms and Appium on Kubernetes with containerised emulators", "topics": ["Self-Hosted Device Farms", "Appium on Kubernetes and Containerised Emulators"]},
+        {"outcome": "Scale on device clouds while managing concurrency, cost and reliability", "topics": ["Scaling with Device Clouds: Concurrency, Costs and Reliability"]},
+        {"outcome": "Select mobile tests with test impact analysis", "topics": ["Test Impact Analysis and Smart Selection for Mobile Suites"]},
+        {"outcome": "Automate mobile security and privacy checks", "topics": ["Mobile Security Testing Checks with Automation", "Privacy and Data Protection in Mobile Apps"]},
+        {"outcome": "Test mobile resilience and performance with automation", "topics": ["Resilience Testing for Mobile Apps", "Mobile Performance Engineering with Automation"]},
+        {"outcome": "Test Flutter and React Native apps", "topics": ["Testing Flutter and React Native Apps"]},
+        {"outcome": "Use AI assistance in mobile automation", "topics": ["AI-Assisted Mobile Automation"]},
+        {"outcome": "Observe test runs and govern mobile automation", "topics": ["Observability for Mobile Test Runs", "Governance for Mobile Automation"]},
+        {"outcome": "Migrate between Appium, Espresso and XCUITest", "topics": ["Migrating Between Appium, Espresso and XCUITest"]},
+        {"outcome": "Manage Appium server internals, drivers and upgrades", "topics": ["Appium Server Internals, Drivers and Upgrades"]},
+        {"outcome": "Set release quality gates for mobile apps", "topics": ["Release Quality Gates for Mobile Apps"]},
+        {"outcome": "Enable teams and troubleshoot large mobile suites", "topics": ["Enabling Teams in Mobile Automation", "Troubleshooting Large Mobile Suites"]},
+        {"outcome": "Deliver a mobile quality platform for several apps", "topics": ["Advanced Capstone: Mobile Quality Platform for Several Apps"]}
+      ],
       "days": [
         {
           "topic": "Mobile Test Strategy for an Organisation",

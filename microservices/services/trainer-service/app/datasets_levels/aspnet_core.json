@@ -12,6 +12,23 @@
       "summary": "For C# developers starting web work on ASP.NET Core. Covers project templates and hosting, the middleware pipeline and routing, minimal APIs, controllers and model binding, dependency injection lifetimes, configuration and options, logging, EF Core per request, validation and ProblemDetails, OpenAPI documents, Razor Pages, MVC views and tag helpers, Blazor components, cookie authentication and Identity, authorization policies, static files and CORS, HttpClientFactory, endpoint tests and publishing to IIS, Linux and containers.",
       "prerequisites": ["Writes C# classes, methods, LINQ and async/await", "Understands HTTP requests and JSON", "Knows what a relational database is"],
       "outcomes": ["Build web APIs and server-rendered sites with ASP.NET Core", "Configure the pipeline, dependency injection, data access and security", "Choose between minimal APIs, controllers, Razor Pages, MVC and Blazor", "Test and publish ASP.NET Core applications"],
+      "course_outcomes": [
+        {"outcome": "Set up an ASP.NET Core project and trace the request pipeline", "topics": ["ASP.NET Core Overview and Project Setup", "The Request Pipeline: Hosting, Middleware and Routing"]},
+        {"outcome": "Build minimal API endpoints with route groups and parameter binding", "topics": ["Minimal APIs: Endpoints, Route Groups and Parameter Binding"]},
+        {"outcome": "Build controllers with model binding", "topics": ["Controllers and Model Binding in ASP.NET Core"]},
+        {"outcome": "Register services with the right lifetimes and configure options and environments", "topics": ["Dependency Injection Lifetimes and Service Registration", "Configuration, Options and Environments in ASP.NET Core"]},
+        {"outcome": "Write structured logs with ILogger", "topics": ["Logging with ILogger and Structured Logs"]},
+        {"outcome": "Use EF Core with a DbContext per request and migrations", "topics": ["EF Core with ASP.NET Core: DbContext per Request and Migrations"]},
+        {"outcome": "Validate input and return ProblemDetails responses", "topics": ["Validation and ProblemDetails Responses"]},
+        {"outcome": "Generate OpenAPI documents and browse them with Scalar", "topics": ["OpenAPI Documents with Microsoft.AspNetCore.OpenApi and Scalar"]},
+        {"outcome": "Render server pages with Razor Pages, MVC views, tag helpers and layouts", "topics": ["Razor Pages for Server-Rendered Sites", "MVC Views, Tag Helpers and Layouts"]},
+        {"outcome": "Build Blazor components with render modes", "topics": ["Blazor Components and Render Modes"]},
+        {"outcome": "Sign users in with cookies and Identity UI and authorise them with policies", "topics": ["Cookie Authentication and ASP.NET Core Identity UI", "Authorization Policies, Requirements and Handlers"]},
+        {"outcome": "Configure static files, CORS and HTTPS and call other APIs with HttpClientFactory", "topics": ["Static Files, CORS and HTTPS Settings", "Calling Other APIs with HttpClientFactory"]},
+        {"outcome": "Test endpoints with xUnit and WebApplicationFactory", "topics": ["Testing ASP.NET Core Endpoints with xUnit and WebApplicationFactory"]},
+        {"outcome": "Publish ASP.NET Core apps to IIS, Linux and containers", "topics": ["Publishing ASP.NET Core to IIS, Linux and Containers"]},
+        {"outcome": "Deliver an event registration web app and API", "topics": ["Beginner Capstone: Event Registration Web App and API"]}
+      ],
       "days": [
         {
           "topic": "ASP.NET Core Overview and Project Setup",
@@ -199,6 +216,23 @@
       "summary": "For developers who already build ASP.NET Core applications. Covers custom middleware and endpoint filters, rate limiting and request timeouts, output caching and HybridCache, hosted services and channels, SignalR scale-out, gRPC, token validation and the BFF pattern, Identity endpoints and passkeys, data protection and antiforgery, API versioning, health checks, metrics and tracing, resilience, Blazor forms and state, localisation, large uploads, Kestrel performance, .NET Aspire and OWASP risks.",
       "prerequisites": ["Has built and deployed an ASP.NET Core API or site", "Comfortable with dependency injection, EF Core and authentication basics", "Writes async C# confidently"],
       "outcomes": ["Extend the pipeline with middleware, filters, caching and limits", "Build real-time, gRPC and background features", "Secure, observe and tune ASP.NET Core applications", "Run applications with containers and .NET Aspire"],
+      "course_outcomes": [
+        {"outcome": "Write custom middleware and endpoint filters", "topics": ["Advanced Middleware: Custom Middleware, Short-Circuiting and Endpoint Filters"]},
+        {"outcome": "Apply rate limiting and request timeouts", "topics": ["Rate Limiting and Request Timeouts Middleware"]},
+        {"outcome": "Cache responses with output caching, response caching and HybridCache", "topics": ["Output Caching, Response Caching and HybridCache"]},
+        {"outcome": "Run background work with hosted services, channels and queues", "topics": ["Background Work: Hosted Services, Channels and Queues"]},
+        {"outcome": "Build real-time features with SignalR hubs, groups and scale-out", "topics": ["SignalR Hubs, Groups and Scale-Out"]},
+        {"outcome": "Build gRPC services", "topics": ["gRPC Services in ASP.NET Core"]},
+        {"outcome": "Secure sign-in with token validation, OpenID Connect, the BFF pattern, two-factor authentication and passkeys", "topics": ["Token Validation, OpenID Connect and the BFF Pattern in ASP.NET Core", "Identity Endpoints, Two-Factor Authentication and Passkeys"]},
+        {"outcome": "Protect data and forms with Data Protection, antiforgery and secret handling", "topics": ["Data Protection, Antiforgery and Secrets"]},
+        {"outcome": "Version APIs with Asp.Versioning", "topics": ["Versioning Minimal and Controller APIs with Asp.Versioning"]},
+        {"outcome": "Add health checks, metrics, tracing and logging to endpoints", "topics": ["Health Checks, Readiness and Diagnostics Endpoints", "Metrics, Tracing and Logging for ASP.NET Core Endpoints"]},
+        {"outcome": "Add resilience with Microsoft.Extensions.Http.Resilience and Polly", "topics": ["Resilience with Microsoft.Extensions.Http.Resilience and Polly"]},
+        {"outcome": "Build Blazor forms with state and localise apps", "topics": ["Blazor in Depth: Forms, State and Interactivity", "Localisation and Globalisation in ASP.NET Core"]},
+        {"outcome": "Handle large uploads, streaming and range requests and tune Kestrel performance", "topics": ["File Handling: Large Uploads, Streaming and Range Requests", "Performance: Kestrel Tuning, Pooling and Benchmarks"]},
+        {"outcome": "Run apps in containers with .NET Aspire and secure them against the OWASP Top 10", "topics": ["Containers and .NET Aspire for ASP.NET Core Apps", "Securing ASP.NET Core Apps Against the OWASP Top 10"]},
+        {"outcome": "Deliver a production API and Blazor admin portal", "topics": ["Intermediate Capstone: Production API and Blazor Admin Portal"]}
+      ],
       "days": [
         {
           "topic": "Advanced Middleware: Custom Middleware, Short-Circuiting and Endpoint Filters",
@@ -386,6 +420,23 @@
       "summary": "For senior ASP.NET Core engineers and technical leads. Covers hosting and Kestrel internals, routing internals and endpoint metadata, source generators and AOT-safe APIs, multi-tenancy, YARP and gateway patterns, advanced authorization, zero-downtime deployments, distributed sessions and caching, large-scale SignalR, Blazor at scale, certificate and token exchange security, abuse protection, testing strategy, production diagnostics, migration from MVC 5 and Web API 2, hosting at scale, API governance, AI features and incident troubleshooting.",
       "prerequisites": ["Several years building production ASP.NET Core applications", "Strong C#, EF Core and security knowledge", "Has deployed and operated ASP.NET Core in production"],
       "outcomes": ["Explain and extend ASP.NET Core internals", "Architect multi-tenant, secure and scalable ASP.NET Core platforms", "Diagnose and fix deep production problems", "Lead migrations and API platform decisions"],
+      "course_outcomes": [
+        {"outcome": "Trace hosting, Kestrel and routing internals and build AOT-safe APIs with source generators", "topics": ["ASP.NET Core Internals: Hosting, Kestrel and the Request Pipeline", "Routing Internals and Endpoint Metadata", "Source Generators, Request Delegate Generation and AOT-Safe APIs"]},
+        {"outcome": "Build multi-tenant ASP.NET Core applications", "topics": ["Multi-Tenant ASP.NET Core Applications"]},
+        {"outcome": "Build an API gateway with YARP", "topics": ["YARP Reverse Proxy and API Gateway Patterns"]},
+        {"outcome": "Write resource-based authorization rules and custom policy providers", "topics": ["Advanced Authorization: Resource-Based Rules, Policy Providers and External Policy Engines"]},
+        {"outcome": "Deploy with zero downtime, including database changes", "topics": ["Zero-Downtime Deployments and Database Changes for ASP.NET Core"]},
+        {"outcome": "Scale distributed caching, session state and SignalR", "topics": ["Distributed Caching and Session State at Scale", "Large-Scale SignalR with Azure SignalR Service"]},
+        {"outcome": "Build Blazor component libraries and choose a render mode strategy", "topics": ["Advanced Blazor: Component Libraries, Render Mode Strategy and Performance"]},
+        {"outcome": "Secure APIs with mTLS, certificate authentication and token exchange and protect them from abuse", "topics": ["Securing APIs: mTLS, Certificate Authentication and Token Exchange", "Rate Limiting and Abuse Protection at Scale"]},
+        {"outcome": "Set a testing strategy for ASP.NET Core platforms", "topics": ["Testing Strategy for ASP.NET Core Platforms"]},
+        {"outcome": "Diagnose production incidents with dotnet-counters, dotnet-trace and dumps", "topics": ["Production Diagnostics with dotnet-counters, dotnet-trace and Dumps", "Troubleshooting Production ASP.NET Core Incidents"]},
+        {"outcome": "Migrate from ASP.NET MVC 5 and Web API 2 to ASP.NET Core", "topics": ["Migrating from ASP.NET MVC 5 and Web API 2 to ASP.NET Core"]},
+        {"outcome": "Host at scale on Kubernetes, Container Apps and IIS farms", "topics": ["Hosting at Scale: Kubernetes, Container Apps and IIS Farms"]},
+        {"outcome": "Govern API platforms with contracts, deprecation and developer portals", "topics": ["API Platform Governance: Contracts, Deprecation and Developer Portals"]},
+        {"outcome": "Add AI features with Microsoft.Extensions.AI", "topics": ["AI Features in ASP.NET Core with Microsoft.Extensions.AI"]},
+        {"outcome": "Deliver a multi-tenant API platform on ASP.NET Core", "topics": ["Advanced Capstone: Multi-Tenant API Platform on ASP.NET Core"]}
+      ],
       "days": [
         {
           "topic": "ASP.NET Core Internals: Hosting, Kestrel and the Request Pipeline",

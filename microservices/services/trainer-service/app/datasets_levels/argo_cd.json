@@ -12,6 +12,23 @@
       "summary": "For Kubernetes users, DevOps engineers and developers who deploy with kubectl or Helm today and want to adopt GitOps with Argo CD. Covers the Argo CD components and reconciliation model, installation on a local cluster, the argocd CLI and web UI, the Application resource, sync and health status, manual and automated sync with prune and self-heal, sync options, private repository credentials, plain YAML, Helm and Kustomize sources, sync waves and resource hooks, health assessment, diff customization, local users and the default project, and diagnosing OutOfSync applications, ending with a capstone that delivers a three-tier app entirely from Git.",
       "prerequisites": ["Deploys and inspects workloads with kubectl: Deployments, Services, ConfigMaps, Secrets and namespaces", "Uses Git from the command line: clone, branch, commit, push and pull requests on GitHub or GitLab", "Has a laptop with Docker or Podman, kind or minikube, kubectl and rights to install the argocd CLI"],
       "outcomes": ["Install Argo CD on a Kubernetes cluster and operate it through the argocd CLI, the web UI and kubectl", "Write Application manifests that deploy plain YAML, Helm charts and Kustomize overlays from Git", "Control how changes reach the cluster with manual and automated sync, prune, self-heal, sync options, waves and hooks", "Read sync and health status, customise diffs and diagnose OutOfSync, Degraded and ComparisonError applications"],
+      "course_outcomes": [
+        {"outcome": "Explain GitOps principles and Argo CD architecture", "topics": ["Argo CD Architecture and GitOps Principles"]},
+        {"outcome": "Install Argo CD on a local kind cluster and use the CLI and web UI", "topics": ["Installing Argo CD on a Local kind Cluster", "Argo CD CLI and Web UI Navigation"]},
+        {"outcome": "Deploy a first application from the guestbook sample", "topics": ["First Argo CD Application with the guestbook Sample"]},
+        {"outcome": "Write Application manifests with source, destination and project", "topics": ["The Application Manifest: source, destination and project"]},
+        {"outcome": "Read sync and health status and explain the reconciliation loop", "topics": ["Sync Status, Health Status and the Reconciliation Loop"]},
+        {"outcome": "Sync manually, compare diffs, view history and roll back", "topics": ["Manual Sync, Diff, History and Rollback"]},
+        {"outcome": "Automate sync with prune and selfHeal and set sync options", "topics": ["Automated Sync Policy with prune and selfHeal", "Sync Options: CreateNamespace, PruneLast, ServerSideApply and Replace"]},
+        {"outcome": "Connect private Git repositories with credentials", "topics": ["Private Git Repositories and Repository Credentials"]},
+        {"outcome": "Deploy plain YAML, Jsonnet, Helm and Kustomize sources", "topics": ["Plain YAML, Directory and Jsonnet Sources", "Deploying Helm Charts through Argo CD", "Deploying Kustomize Overlays through Argo CD"]},
+        {"outcome": "Order resources with sync waves and resource hooks", "topics": ["Sync Waves for Ordering Resources", "Resource Hooks: PreSync, Sync, PostSync and SyncFail"]},
+        {"outcome": "Assess health and find degraded resources", "topics": ["Built-in Health Assessment and Degraded Resources"]},
+        {"outcome": "Customise diffs with ignoreDifferences", "topics": ["ignoreDifferences and Diff Customization"]},
+        {"outcome": "Set up the default AppProject, local users and read-only access", "topics": ["Default AppProject, Local Users and Read-Only Access"]},
+        {"outcome": "Diagnose OutOfSync and ComparisonError applications", "topics": ["Diagnosing OutOfSync and ComparisonError Applications"]},
+        {"outcome": "Deliver a three-tier app through GitOps with Argo CD", "topics": ["Capstone: GitOps Delivery of a Three-Tier App with Argo CD"]}
+      ],
       "days": [
         {
           "topic": "Argo CD Architecture and GitOps Principles",
@@ -199,6 +216,23 @@
       "summary": "For engineers who already run Argo CD for a handful of applications and now need to manage many teams, environments and clusters. Covers declarative configuration of Argo CD itself, the App of Apps bootstrap pattern, ApplicationSets with the List, Git, Cluster, Matrix, Merge and Pull Request generators, AppProjects and RBAC, SSO with Dex and OIDC, external cluster registration, multi-source applications, secrets with Sealed Secrets, External Secrets Operator and SOPS, notifications, custom Lua health checks and actions, sync windows, project tokens and environment promotion, ending with a multi-cluster bootstrap capstone.",
       "prerequisites": ["Completed the beginner level or deploys Helm and Kustomize apps with Argo CD Applications, sync policies, waves and hooks", "Can edit argocd-cm and argocd-rbac-cm and read controller logs with kubectl", "Has access to at least two Kubernetes clusters (two kind clusters are enough) and an identity provider such as GitHub, Keycloak, Okta or Microsoft Entra ID"],
       "outcomes": ["Manage Argo CD configuration, projects, repositories and clusters declaratively from Git", "Generate Applications for many teams, environments and clusters with ApplicationSets", "Enforce tenancy with AppProjects, RBAC, SSO groups, sync windows and project tokens", "Deliver secrets safely with Sealed Secrets, External Secrets Operator or SOPS and alert on sync and health events"],
+      "course_outcomes": [
+        {"outcome": "Configure Argo CD declaratively with argocd-cm and argocd-cmd-params-cm", "topics": ["Declarative Argo CD Configuration with argocd-cm and argocd-cmd-params-cm"]},
+        {"outcome": "Bootstrap clusters with the App of Apps pattern", "topics": ["App of Apps Pattern for Cluster Bootstrapping"]},
+        {"outcome": "Generate applications with ApplicationSet list, Git directory and Git file generators", "topics": ["ApplicationSet Controller and the List Generator", "ApplicationSet Git Directory and Git File Generators"]},
+        {"outcome": "Fan out to clusters with the cluster generator and combine generators with matrix, merge and Go templates", "topics": ["ApplicationSet Cluster Generator and Multi-Cluster Fan-Out", "Matrix and Merge Generators with Go Templates"]},
+        {"outcome": "Create preview environments with the pull request generator", "topics": ["Pull Request Generator Preview Environments"]},
+        {"outcome": "Restrict sources, destinations and resources with AppProjects", "topics": ["AppProjects: Source, Destination and Resource Allow-Lists"]},
+        {"outcome": "Write RBAC policies and set up SSO with Dex or direct OIDC", "topics": ["Argo CD RBAC Policies in argocd-rbac-cm", "SSO for Argo CD with Dex and Direct OIDC"]},
+        {"outcome": "Register and manage external clusters", "topics": ["Registering and Managing External Clusters"]},
+        {"outcome": "Combine sources and take Helm values from a second repo", "topics": ["Multi-Source Applications and Helm Values from a Second Repo"]},
+        {"outcome": "Manage secrets with Sealed Secrets, External Secrets Operator and SOPS", "topics": ["Sealed Secrets in an Argo CD Workflow", "External Secrets Operator with Argo CD", "SOPS-Encrypted Secrets with KSOPS and helm-secrets"]},
+        {"outcome": "Send notifications with triggers, templates and services", "topics": ["Argo CD Notifications: Triggers, Templates and Services"]},
+        {"outcome": "Write custom Lua health checks and resource actions", "topics": ["Custom Lua Health Checks and Resource Actions"]},
+        {"outcome": "Control sync windows and project roles with JWT tokens", "topics": ["Sync Windows and Project Roles with JWT Tokens"]},
+        {"outcome": "Promote changes across dev, staging and prod", "topics": ["Environment Promotion Across dev, staging and prod"]},
+        {"outcome": "Deliver a multi-cluster platform bootstrap with ApplicationSets", "topics": ["Capstone: Multi-Cluster Platform Bootstrap with ApplicationSets"]}
+      ],
       "days": [
         {
           "topic": "Declarative Argo CD Configuration with argocd-cm and argocd-cmd-params-cm",
@@ -386,6 +420,23 @@
       "summary": "For platform engineers and SREs who own Argo CD in production for many teams and clusters. Covers progressive delivery with Argo Rollouts canary and blue-green strategies, automated analysis and traffic routing, Argo CD Image Updater, Config Management Plugins, Applications in any namespace, ApplicationSet progressive syncs, high availability, controller sharding and reconciliation tuning, repo-server performance and webhooks, Prometheus monitoring, security hardening, hub-and-spoke topologies, backup and disaster recovery, upgrades, deep troubleshooting, the rendered manifests pattern and the Argo CD API, ending with a capstone that builds a production GitOps platform with progressive delivery.",
       "prerequisites": ["Completed the intermediate level or runs ApplicationSets, AppProjects, RBAC and SSO for several teams", "Reads Prometheus queries and Grafana dashboards and understands Kubernetes Services, Ingress and service mesh basics", "Has a cluster with at least three worker nodes and Prometheus installed, plus a container registry the learner can push to"],
       "outcomes": ["Deliver releases progressively with Argo Rollouts canary and blue-green strategies gated by metric analysis", "Scale Argo CD to thousands of Applications with HA, sharding, caching, webhooks and tuned reconciliation", "Harden, monitor, back up and upgrade a shared Argo CD installation", "Extend Argo CD with plugins, image automation, rendered manifests and the API, and troubleshoot failures at component level"],
+      "course_outcomes": [
+        {"outcome": "Run canary and blue-green releases with Argo Rollouts", "topics": ["Argo Rollouts Canary Strategy with Argo CD", "Argo Rollouts Blue-Green and Preview Services"]},
+        {"outcome": "Gate rollouts with AnalysisTemplates and Prometheus", "topics": ["Automated Analysis with AnalysisTemplates and Prometheus"]},
+        {"outcome": "Shape rollout traffic with Istio, NGINX and Gateway API", "topics": ["Rollouts Traffic Management with Istio, NGINX and Gateway API"]},
+        {"outcome": "Update images automatically with Argo CD Image Updater write-back", "topics": ["Argo CD Image Updater Write-Back Strategies"]},
+        {"outcome": "Run config management plugins as repo-server sidecars", "topics": ["Config Management Plugins as repo-server Sidecars"]},
+        {"outcome": "Isolate tenants with applications in any namespace", "topics": ["Applications in Any Namespace and Multi-Tenant Isolation"]},
+        {"outcome": "Roll out fleets safely with ApplicationSet progressive syncs", "topics": ["ApplicationSet Progressive Syncs and Safe Fleet Rollouts"]},
+        {"outcome": "Run Argo CD in high availability with Redis HA", "topics": ["Argo CD High Availability Manifests and Redis HA"]},
+        {"outcome": "Shard the application controller, tune the repo-server and monitor with Prometheus and Grafana", "topics": ["Application Controller Sharding and Reconciliation Tuning", "repo-server Performance, Caching and Webhooks", "Monitoring Argo CD with Prometheus Metrics and Grafana"]},
+        {"outcome": "Harden Argo CD security and supply-chain controls", "topics": ["Argo CD Security Hardening and Supply-Chain Controls"]},
+        {"outcome": "Choose between hub-and-spoke and per-cluster topologies", "topics": ["Hub-and-Spoke Compared with Per-Cluster Argo CD Topologies"]},
+        {"outcome": "Back up, restore and upgrade Argo CD", "topics": ["Backup and Disaster Recovery with argocd admin export and import", "Upgrading Argo CD Across Minor and Major Versions"]},
+        {"outcome": "Troubleshoot controller, repo-server and sync failures", "topics": ["Deep Troubleshooting of Controller, repo-server and Sync Failures"]},
+        {"outcome": "Render manifests with the source hydrator and automate Argo CD through its API", "topics": ["Rendered Manifests Pattern and the Source Hydrator", "Automating Argo CD through the REST and gRPC API"]},
+        {"outcome": "Deliver a production GitOps platform with progressive delivery", "topics": ["Capstone: Production GitOps Platform with Progressive Delivery"]}
+      ],
       "days": [
         {
           "topic": "Argo Rollouts Canary Strategy with Argo CD",
