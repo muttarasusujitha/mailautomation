@@ -1,7 +1,18 @@
 """Presentation selection is independent of curriculum selection."""
 from email.utils import parseaddr
 
-REFERENCE_LAYOUTS = ("execution_plan", "technical_plan", "skills_matrix", "detailed_syllabus")
+REFERENCE_LAYOUTS = (
+    "execution_plan",
+    "technical_plan",
+    "skills_matrix",
+    "detailed_syllabus",
+    "stone_plan",
+    "moss_plan",
+    "sand_plan",
+    "bark_plan",
+    "mist_plan",
+    "olive_plan",
+)
 
 
 def normalize_client_email(value):

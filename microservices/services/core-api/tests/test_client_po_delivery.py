@@ -40,6 +40,41 @@ def test_client_po_request_does_not_report_success_when_email_delivery_fails(mon
     assert client.post.await_args.kwargs["json"]["ai_generate"] is False
 
 
+def test_client_po_request_uses_agentic_wording_when_application_ai_is_on(monkeypatch):
+    response = SimpleNamespace(raise_for_status=lambda: (_ for _ in ()).throw(RuntimeError("SMTP unavailable")))
+    client = SimpleNamespace(post=AsyncMock(return_value=response))
+
+    class FakeAsyncClient:
+        def __init__(self, **_kwargs):
+            pass
+
+        async def __aenter__(self):
+            return client
+
+        async def __aexit__(self, *_args):
+            return False
+
+    class FakeDatabase:
+        requirements = SimpleNamespace(find_one=AsyncMock(return_value={
+            "requirement_id": "REQ-1", "technology_needed": "DevOps", "client_email": "client@example.com",
+        }))
+
+        def __getitem__(self, name):
+            assert name == "automation_settings"
+            return SimpleNamespace(find_one=AsyncMock(return_value={"value": "ai"}))
+
+    monkeypatch.setattr(requirements._httpx, "AsyncClient", FakeAsyncClient)
+
+    with pytest.raises(HTTPException):
+        asyncio.run(requirements.request_client_po(
+            "REQ-1",
+            requirements.ClientPORequest(client_email="client@example.com", body="Please share the PO."),
+            FakeDatabase(),
+        ))
+
+    assert client.post.await_args.kwargs["json"]["ai_generate"] is True
+
+
 def test_client_po_request_requires_a_saved_client_commercial(monkeypatch):
     response = SimpleNamespace(raise_for_status=lambda: None)
     client = SimpleNamespace(post=AsyncMock(return_value=response))

@@ -80,6 +80,13 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=[
+        "Content-Disposition",
+        "X-Lab-Cost-Quote-ID",
+        "X-Lab-Cost-Quote-Valid-Until",
+        "X-Lab-Cost-Pricing-Status",
+        "X-Lab-Cost-Final-INR",
+    ],
 )
 
 # Core trainer CRUD + matching

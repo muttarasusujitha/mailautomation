@@ -130,12 +130,17 @@ export default function LabCost() {
     setPricingProfile({ status: 'checking', detail: 'Checking live-pricing profile…' })
     api.get(`/toc/lab-cost/pricing-catalog/${form.cloud_provider}/${encodeURIComponent(form.cloud_region)}`)
       .then(({ data }) => {
-        if (active) setPricingProfile({ status: 'ready', detail: `Verified profile configured ${data.validated_at ? `on ${new Date(data.validated_at).toLocaleString()}` : ''}. Rates will refresh when the workbook is generated.` })
+        if (active) setPricingProfile({ status: 'ready', detail: `Saved catalog will override the automatic selectors${data.validated_at ? ` (saved ${new Date(data.validated_at).toLocaleString()})` : ''}. Public prices and USD/INR are fetched again when the workbook is generated, and the totals are calculated before download.` })
       })
       .catch(error => {
         if (!active) return
+        const automatic = error?.response?.status === 404 && ['aws', 'azure'].includes(form.cloud_provider)
+        if (automatic) {
+          setPricingProfile({ status: 'ready', detail: 'Public retail prices for this provider and region, plus the current USD/INR rate, are fetched when the workbook is generated. The spreadsheet totals are calculated before the file downloads.' })
+          return
+        }
         const message = error?.response?.status === 404
-          ? 'No verified pricing profile is configured for this provider and region. Configure the lab resource architecture before generating a client quote.'
+          ? 'GCP needs a saved catalog with exact service and SKU selections before a live price can be fetched.'
           : (error.message || 'Could not check the live-pricing profile')
         setPricingProfile({ status: 'missing', detail: message })
       })
@@ -187,15 +192,18 @@ export default function LabCost() {
     const technology = selected.technology_needed || selected.domain || selected.job_title
     const durationDays = Number(selected.duration_days || Math.ceil(Number(selected.duration_hours || 0) / 8) || 3)
     if (!technology) return toast.error('The selected requirement needs a technology')
-    if ([form.hours_per_day, form.participant_count, form.fx_rate, form.quote_validity_days].some(value => Number(value) <= 0)) {
-      return toast.error('Hours, participants, FX rate, and validity must be positive')
+    if ([form.hours_per_day, form.participant_count, form.quote_validity_days].some(value => Number(value) <= 0)) {
+      return toast.error('Hours, participants, and validity must be positive')
     }
 
     setGenerating(true)
     try {
-      const usage = Object.fromEntries(['disk_gb_per_node', 'storage_gb', 'egress_gb', 'build_minutes', 'monitoring_gb', 'k8s_worker_nodes'].map(key => {
-        if (form[key] === '' || !Number.isFinite(Number(form[key])) || Number(form[key]) < 0) throw new Error(`Confirm ${key.replaceAll('_', ' ')}; enter 0 when unused`)
-        return [key, Number(form[key])]
+      const usageDefaults = { disk_gb_per_node: form.cloud_provider === 'azure' ? 32 : 20, storage_gb: 0, egress_gb: 0, build_minutes: 0, monitoring_gb: 0, k8s_worker_nodes: 0 }
+      const usage = Object.fromEntries(Object.entries(usageDefaults).map(([key, fallback]) => {
+        if (form[key] === '' || form[key] == null) return [key, fallback]
+        const number = Number(form[key])
+        if (!Number.isFinite(number) || number < 0) throw new Error(`Confirm ${key.replaceAll('_', ' ')}; enter 0 when unused`)
+        return [key, number]
       }))
       const mapping = labMode === 'manual' ? JSON.parse(manualMapping) : undefined
       const tocResponse = await api.post('/toc/generate', {
@@ -204,6 +212,7 @@ export default function LabCost() {
         requirement_id: selected.requirement_id || selected.id,
         technology,
         duration_days: durationDays,
+        level: selected.level || selected.audience_level || 'intermediate',
         audience_level: selected.audience_level || selected.level || 'intermediate',
         mode: selected.mode || selected.training_mode || 'Online',
         training_dates: selected.training_dates || selected.preferred_dates || '',
@@ -218,7 +227,6 @@ export default function LabCost() {
         cloud_region: form.cloud_region,
         hours_per_day: Number(form.hours_per_day),
         participant_count: Number(form.participant_count),
-        fx_rate: Number(form.fx_rate),
         contingency_percent: Number(form.contingency_percent),
         tax_percent: Number(form.tax_percent),
         lab_package: form.lab_package,
@@ -234,7 +242,10 @@ export default function LabCost() {
       link.click()
       link.remove()
       URL.revokeObjectURL(url)
-      toast.success('Lab cost workbook generated. Review it before sending to the client.')
+      const pricingStatus = response.headers['x-lab-cost-pricing-status']
+      const finalInr = response.headers['x-lab-cost-final-inr']
+      const total = finalInr ? ` Calculated total INR ${Number(finalInr).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.` : ''
+      toast.success(`Lab cost workbook generated from live public prices.${total} ${pricingStatus || 'Review the rate sheet before sending.'}`)
     } catch (error) {
       let detail = error.message || 'Lab cost generation failed'
       if (error.response?.data instanceof Blob) {
@@ -307,7 +318,7 @@ export default function LabCost() {
         <div className="my-4 grid gap-4 sm:grid-cols-2">
           {Object.entries({ disk_gb_per_node: 'Disk GB per VM / worker', storage_gb: 'Object storage GB', egress_gb: 'Outbound transfer GB', build_minutes: 'Build runner minutes', monitoring_gb: 'Monitoring GB', k8s_worker_nodes: 'Shared Kubernetes workers' }).map(([key, label]) => <Field key={key} label={label}><input type="number" min="0" step={key === 'k8s_worker_nodes' ? '1' : 'any'} value={form[key]} onChange={event => update(key, event.target.value)} /></Field>)}
         </div>
-        <p className="text-sm text-slate-600">Enter confirmed usage; use 0 for unused resources. Compute is charged for access hours. Disk and object storage remain billable while retained. Resource quantities are totals for the group.</p>
+        <p className="text-sm text-slate-600">Blank optional usage stays at the pricing baseline: 20 GB disk on AWS, 32 GiB on Azure, and zero for unused egress, builds, monitoring, and extra workers. VM, disk, and storage rates are fetched from the public price list. The workbook total is calculated before download.</p>
         <button type="button" disabled={saving || !selected} onClick={() => saveSetup()} className="my-3 rounded border px-4 py-2 disabled:opacity-50">Save confirmed inputs for Shortlist</button>
         <details className="my-3 rounded border p-3">
           <summary>Configure provider pricing catalog</summary>
@@ -323,7 +334,7 @@ export default function LabCost() {
           <Field label="Lab package"><select value={form.lab_package} onChange={event => update('lab_package', event.target.value)}>{packages.map(item => <option key={item.value} value={item.value}>{item.label} - {item.note}</option>)}</select></Field>
           <Field label="Lab hours per day"><input type="number" min="0.5" step="0.5" value={form.hours_per_day} onChange={event => update('hours_per_day', event.target.value)} /></Field>
           <Field label="Participants"><input type="number" min="1" value={form.participant_count} onChange={event => update('participant_count', event.target.value)} /></Field>
-          <Field label="USD to INR"><input type="number" min="1" step="0.01" value={form.fx_rate} onChange={event => update('fx_rate', event.target.value)} /></Field>
+          <Field label="USD to INR"><p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">Fetched from the published USD/INR rate when the workbook is generated.</p></Field>
           <Field label="Contingency %"><input type="number" min="0" max="100" value={form.contingency_percent} onChange={event => update('contingency_percent', event.target.value)} /></Field>
           <Field label="Tax / GST %"><input type="number" min="0" max="100" value={form.tax_percent} onChange={event => update('tax_percent', event.target.value)} /></Field>
           <Field label="Quote validity (days)"><input type="number" min="1" value={form.quote_validity_days} onChange={event => update('quote_validity_days', event.target.value)} /></Field>

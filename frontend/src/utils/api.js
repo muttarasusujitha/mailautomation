@@ -148,6 +148,22 @@ export const getAgentRoles = () => api.get('/agent-orchestrator/roles')
 export const runAgentOrchestrator = (limit = 20) => api.post('/agent-orchestrator/run', null, { params: { limit } })
 export const getAgentOrchestratorSummary = () => api.get('/agent-orchestrator/summary')
 export const getAgentDecisions = (params = {}) => api.get('/agent-orchestrator/decisions', { params })
+export async function generateWorkflowMail({ requirementId, trainerId, trainerName, mailType, subject, body }) {
+  const response = await api.post('/shortlists/generate-ai-mail', {
+    requirement_id: requirementId,
+    trainer_id: trainerId || '',
+    trainer_name: trainerName || '',
+    mail_type: mailType,
+    subject: subject || '',
+    body: body || '',
+  })
+  const subjectOut = String(response.data?.subject || '').trim()
+  const bodyOut = String(response.data?.body || '').trim()
+  if (!response.data?.success || !subjectOut || !bodyOut) {
+    throw new Error('AI email generation is unavailable. Check the configured AI provider and try again.')
+  }
+  return { subject: subjectOut, body: bodyOut }
+}
 export const createRequirement = (data)   => api.post('/requirements', data)
 export const updateRequirement = (id, data) => api.patch(`/requirements/${id}`, data)
 export const deleteRequirement = (id)     => api.delete(`/requirements/${id}`)

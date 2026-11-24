@@ -32,7 +32,7 @@ class LinkedInLeadSearchRequest(BaseModel):
     domain: Optional[str] = ""
     domains: Optional[List[str]] = None
     location: Optional[str] = ""
-    max_results: int = 10
+    max_results: int = 50
     max_queries: Optional[int] = None
     save: bool = True
     mode: Literal['trainer', 'client'] = "trainer"
@@ -182,6 +182,18 @@ def _looks_like_client_requirement_post(text: str) -> bool:
         re.search(r"\b(need|needs|needed|looking (?:out )?for|require|requires|required|requirements?|hiring|seeking)\b", text)
         and re.search(r"\b(trainers?|instructors?|training|facilitators?)\b", text)
     )
+
+
+def _text_has_domain(combined_text: str, terms: List[str]) -> bool:
+    required = [term for term in terms if term != "full stack"]
+    if all(re.search(r"(?<!\w)" + re.escape(term) + r"(?!\w)", combined_text) for term in required):
+        return True
+    # "SoftSkills" has no word boundary between the domain words.
+    if len(required) < 2:
+        return False
+    compact = re.sub(r"[^a-z0-9+#]+", "", combined_text)
+    phrase = re.sub(r"[^a-z0-9+#]+", "", "".join(required))
+    return bool(phrase) and phrase in compact
 
 
 def _result_text(item: Dict[str, Any]) -> str:
@@ -546,18 +558,26 @@ async def search_linkedin_leads(
                 break
             try:
                 if payload.search_provider == 'linkedin_account':
+                    from shared.trainer_targets import TRAINER_RESULT_TARGET
                     from app.clients.linkedin_browser import search_linkedin_account
-                    raw_results.extend(await search_linkedin_account(domain, mode, min(50, target_results), payload.location or ''))
+                    # Trainer fetches keep 50 matches from a 200-person scan.
+                    fetch_limit = min(TRAINER_RESULT_TARGET, target_results)
+                    raw_results.extend(await search_linkedin_account(domain, mode, fetch_limit, payload.location or ''))
                 elif payload.search_provider == 'public':
                     from app.clients.public_search import search_public
                     raw_results.extend(await search_public(query, min(20, target_results)))
                 else:
                     raw_results.extend(await _plain_tavily_search(query, min(20, target_results)))
             except Exception as exc:
-                if payload.search_provider == 'linkedin_account':
-                    raw_results.extend(getattr(exc, 'results', []))
+                message = str(exc) or 'Search timed out'
+                partial = list(getattr(exc, 'results', []) or [])
+                if payload.search_provider == 'linkedin_account' and partial:
+                    raw_results.extend(partial)
                 logger.warning("LinkedIn search failed for %s: %s", domain, exc)
-                search_errors.append({'domain': domain, 'error': str(exc) or 'Search timed out'})
+                # A time limit that already collected profiles is a finished search.
+                # The connect helper treats any search_error as "not ready".
+                if not (partial and 'time limit' in message.lower()):
+                    search_errors.append({'domain': domain, 'error': message})
                 break
 
         for item in raw_results:
@@ -620,6 +640,12 @@ async def search_linkedin_leads(
 
         if search_errors and payload.search_provider == 'linkedin_account':
             break
+
+    if all_results:
+        search_errors = [
+            item for item in search_errors
+            if 'time limit' not in str(item.get('error') or '').lower()
+        ]
 
     return {
         "success": not search_errors,

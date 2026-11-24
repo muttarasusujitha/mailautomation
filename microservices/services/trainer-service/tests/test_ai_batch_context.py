@@ -24,3 +24,29 @@ def test_mail1_ai_receives_batch_rules_and_reference(monkeypatch, flow, expected
 @pytest.mark.parametrize('page,proposal', [('shortlist', True), ('shortlist1', False)])
 def test_explicit_page_controls_batch_flow(page, proposal):
     assert shortlists._is_proposal_requirement({'pipeline_target': page, 'batch_flow': 'proposal'}) is proposal
+
+
+def test_generate_ai_mail_refuses_template_mode():
+    from fastapi import HTTPException
+    db = {"automation_settings": SimpleNamespace(find_one=AsyncMock(return_value={"value": "template"}))}
+    with pytest.raises(HTTPException) as error:
+        asyncio.run(shortlists.generate_ai_mail(shortlists.GenerateAiMailRequest(
+            requirement_id="R1", mail_type="mail2", subject="Subject", body="Body",
+        ), db))
+    assert error.value.status_code == 409
+
+
+def test_generate_ai_mail_uses_llm_when_ai_generation_is_on(monkeypatch):
+    writer = AsyncMock(return_value={"subject": "AI subject", "body": "AI body"})
+    monkeypatch.setattr(shortlists, "_ai_stage_mail", writer)
+    db = {
+        "automation_settings": SimpleNamespace(find_one=AsyncMock(return_value={"value": "ai"})),
+        "requirements": SimpleNamespace(find_one=AsyncMock(return_value={"technology_needed": "Python"})),
+    }
+    result = asyncio.run(shortlists.generate_ai_mail(shortlists.GenerateAiMailRequest(
+        requirement_id="R1", trainer_name="Ada", mail_type="mail2", subject="Subject", body="Reference",
+    ), db))
+    assert result["success"] is True
+    assert result["generation_mode"] == "ai"
+    assert result["body"] == "AI body"
+    writer.assert_awaited()

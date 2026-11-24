@@ -215,8 +215,34 @@ def test_structure_preserves_contact_details_and_postscript():
     assert result.count("Regards,") == 1
 
 
+def test_dashboard_ai_calls_the_model_without_the_env_flag(monkeypatch):
+    writer = use_ollama(monkeypatch, "Hi Mira,\n\nThe session is online.")
+    monkeypatch.setattr(config, "get_settings", lambda: SimpleNamespace(
+        USE_LLM_FOR_EMAILS=False, AI_PROVIDER="ollama",
+    ))
+    result = asyncio.run(inbox_actions._ai_draft_reply(
+        "Delivery mode", "Is it online?", require_openai=True,
+    ))
+    assert writer.await_count == 1
+    assert "online" in result
+
+
+def test_callers_without_ai_selection_stay_on_the_reference(monkeypatch):
+    writer = use_ollama(monkeypatch, "This must not be used.")
+    monkeypatch.setattr(config, "get_settings", lambda: SimpleNamespace(
+        USE_LLM_FOR_EMAILS=False, AI_PROVIDER="ollama",
+    ))
+    result = asyncio.run(inbox_actions._ai_draft_reply(
+        "Delivery mode", "Is it online?", require_openai=False,
+        reference_reply={"body": "Approved reference"},
+    ))
+    assert writer.await_count == 0
+    assert result == "Approved reference"
+
+
 @pytest.mark.parametrize("ai_enabled", [True, False])
 def test_regenerate_never_saves_template_when_ai_is_unavailable(monkeypatch, ai_enabled):
+    from app.routes import inbox
     writer = use_ollama(monkeypatch, "")
     writer.side_effect = RuntimeError("Provider unavailable")
     monkeypatch.setattr(config, "get_settings", lambda: SimpleNamespace(
@@ -235,11 +261,10 @@ def test_regenerate_never_saves_template_when_ai_is_unavailable(monkeypatch, ai_
     }
     monkeypatch.setattr(inbox_actions, "build_auto_reply", lambda **kwargs: {"body": "Stock fallback template"})
     monkeypatch.setattr(inbox_actions, "_load_reply_workflow_context", AsyncMock(return_value={}))
-    from app.routes import inbox
     monkeypatch.setattr(inbox, "_verified_question_history", AsyncMock(return_value=[]))
     with pytest.raises(HTTPException) as error:
         asyncio.run(inbox_actions.regenerate_reply("test-email", inbox_actions.RegenerateRequest(), db))
     assert error.value.status_code == 502
     assert "no template was substituted" in error.value.detail
     records.update_one.assert_not_awaited()
-    assert writer.await_count == int(ai_enabled)
+    assert writer.await_count == 1

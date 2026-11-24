@@ -130,7 +130,9 @@ async def generate_client_curriculum(request, settings):
     references = [{key: record.get(key) for key in ("domain", "title", "subtopics")}
                   for record in sources]
     raw = request.model_dump(exclude={"toc_id", "trainer_email", "trainer_name", "trainer_id", "client_email"})
+    from app.routes.toc import _ai_level_contract
     instructions = (
+        _ai_level_contract(request.level) + " "
         "Create a new training outline from THIS client's goals, audience, prior knowledge, requested topics, "
         "exclusions, duration and notes. Choose a suitable topic sequence yourself. Use the local examples only "
         "as optional reference; do not copy their day sequence. Use your knowledge when no reference matches. "

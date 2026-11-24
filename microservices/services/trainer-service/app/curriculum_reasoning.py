@@ -382,7 +382,9 @@ async def generate_reasoned_toc(request, client, settings, db=None):
         raise ValueError("No curriculum evidence found for this requirement")
     planning_sources = [_planning_source(record) for record in sources] if using_ollama else sources
     data = {"request": raw, "brief": brief.model_dump(), "sources": planning_sources}
+    from app.routes.toc import _ai_level_contract
     instructions = (
+        _ai_level_contract(request.level) + " "
         "Design a fresh client-specific curriculum from the requirement brief and locally matched dataset examples. "
         "Choose and sequence modules for this audience; do not copy a fixed template or pad days. "
         "Include every required topic, exclude forbidden topics, honor explicit allocations and duration. "

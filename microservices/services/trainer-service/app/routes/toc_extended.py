@@ -1137,15 +1137,19 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
             },
             "workbook_filename": filename,
         })
+        headers = {
+            "Content-Disposition": f"attachment; filename={filename}",
+            "X-Lab-Cost-Quote-ID": quote_id,
+            "X-Lab-Cost-Quote-Valid-Until": valid_until.isoformat(),
+            "X-Lab-Cost-Pricing-Status": pricing_status,
+        }
+        final_inr = response.headers.get("X-Lab-Cost-Final-INR")
+        if final_inr:
+            headers["X-Lab-Cost-Final-INR"] = final_inr
         return Response(
             content=response.content,
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            headers={
-                "Content-Disposition": f"attachment; filename={filename}",
-                "X-Lab-Cost-Quote-ID": quote_id,
-                "X-Lab-Cost-Quote-Valid-Until": valid_until.isoformat(),
-                "X-Lab-Cost-Pricing-Status": pricing_status,
-            },
+            headers=headers,
         )
     except HTTPException:
         raise

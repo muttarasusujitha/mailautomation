@@ -29,7 +29,7 @@ class VoiceTaskRequest(VoiceAssistantRequest):
 class VoiceExecuteRequest(VoiceAssistantRequest):
     client_name: Optional[str] = ""
     client_email: Optional[str] = ""
-    top_n: Optional[int] = 1
+    top_n: Optional[int] = 50
     send_emails: Optional[bool] = False
 
 
@@ -164,7 +164,8 @@ def _requirement_payload(payload: VoiceExecuteRequest, analysis: Dict[str, Any])
     budget = _extract_amount(transcript)
     duration_hours = _extract_duration_hours(transcript)
     participants = _extract_participants(transcript)
-    top_n = 1
+    from shared.trainer_targets import TRAINER_RESULT_TARGET
+    top_n = TRAINER_RESULT_TARGET
     location = analysis.get("location") or ""
     requirement: Dict[str, Any] = {
         "technology_needed": technology,

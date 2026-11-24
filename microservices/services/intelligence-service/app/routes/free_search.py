@@ -133,7 +133,7 @@ class FreeSearchRequest(BaseModel):
     domain: Optional[str] = ""
     query: Optional[str] = ""
     location: Optional[str] = ""
-    max_results: int = 10
+    max_results: int = 50
     save_leads: bool = False
 
 
@@ -159,7 +159,7 @@ async def free_search_trainers(
     all_profiles: List[Dict[str, Any]] = []
     seen_slugs: set = set()
 
-    requested = max(1, min(int(payload.max_results or 10), 100))
+    requested = max(1, min(int(payload.max_results or 50), 50))
     per_query = min(max(requested, 20), 50)
     query_suffixes = [
         "",

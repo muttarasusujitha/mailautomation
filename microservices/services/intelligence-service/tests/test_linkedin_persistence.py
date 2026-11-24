@@ -43,11 +43,11 @@ def test_search_retains_refreshed_login_without_hiding_results(tmp_path, monkeyp
     with patch('playwright.async_api.async_playwright', return_value=manager), \
             patch('app.clients.linkedin_browser.collect_trainer_profiles', collector), \
             patch('app.clients.linkedin_session.save_session', saver):
-        if outcome in ('partial', 'checkpoint', 'captcha'):
-            with pytest.raises(ValueError) as error:
+        if outcome == 'partial':
+            assert asyncio.run(search_linkedin_account('SAP', 'trainer')) == rows
+        elif outcome in ('checkpoint', 'captcha'):
+            with pytest.raises(ValueError):
                 asyncio.run(search_linkedin_account('SAP', 'trainer'))
-            if outcome == 'partial':
-                assert error.value.results == rows
         else:
             assert asyncio.run(search_linkedin_account('SAP', 'trainer')) == rows
 

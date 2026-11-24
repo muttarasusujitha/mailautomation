@@ -53,7 +53,7 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(minute="*/10"),
         "args": [],
     },
-    # Send Google Meet join notices 10 minutes before each interview.
+    # Send Google Meet join notices about 5 minutes before each interview.
     "meet-start-notices-every-minute": {
         "task": "app.tasks.meet_start_notices.send_due_start_notices",
         "schedule": crontab(minute="*"),

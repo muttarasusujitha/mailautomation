@@ -382,7 +382,7 @@ export default function LinkedInPipeline() {
         technology_needed: technology,
         title: `${technology} LinkedIn Pipeline`,
         domain: technology,
-        top_n: 20,
+        top_n: 50,
         source: 'linkedin_pipeline',
         batch_flow: 'linkedin',
         batch_type: 'linkedin',
@@ -391,7 +391,7 @@ export default function LinkedInPipeline() {
         pipeline_page: 'linkedin-pipeline',
         metadata: { source: 'linkedin_pipeline', search_query: technology },
       })
-      const req = res.data.requirement || { requirement_id: res.data.requirement_id, technology_needed: technology, domain: technology, top_n: 20 }
+      const req = res.data.requirement || { requirement_id: res.data.requirement_id, technology_needed: technology, domain: technology, top_n: 50 }
       setRequirements(prev => [req, ...prev.filter(item => item.requirement_id !== req.requirement_id)])
       setSelectedReq(req)
       setDomain(technology)

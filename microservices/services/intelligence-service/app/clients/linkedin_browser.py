@@ -294,6 +294,68 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                 if await read_people() == 0:
                     break
                 if len(results) >= limit:
+                    break
+        return new_urls, len(order)
+
+    async def open_people_page(keywords, page_number):
+        """Open one numbered people-search page. The page URL is the scan position."""
+        # The first paint is the slow one. Later pages should not each consume
+        # the whole search budget when LinkedIn never answers.
+        timeout = 20000 if page_number == 1 else 12000
+        try:
+            return await page.goto(_people_search_url(keywords, page_number), wait_until='commit', timeout=timeout), True
+        except Exception:
+            return None, False
+
+    queries = [trainer_keywords(domain, location)]
+    instructor = f'{domain} {location} instructor'.strip()
+    if instructor.lower() != queries[0].lower():
+        queries.append(instructor)
+    try:
+        page_loads = 0
+        failed_opens = 0
+        plain_pages = 0
+        for keywords in queries:
+            if (len(results) >= limit or len(visited) >= scan_limit or timed_out()
+                    or failed_opens >= 2 or plain_pages >= 2):
+                break
+            for page_number in range(1, page_cap + 1):
+                reserve_fallback = not results and asyncio.get_running_loop().time() > deadline - 25
+                if (len(results) >= limit or len(visited) >= scan_limit or page_loads >= page_cap
+                        or timed_out() or failed_opens >= 2 or plain_pages >= 2 or reserve_fallback):
+                    break
+                page_loads += 1
+                response, opened = await open_people_page(keywords, page_number)
+                if not opened:
+                    # Two missed pages means this query is not loading. Stop and
+                    # use the content fallback while time is still left.
+                    failed_opens += 1
+                    continue
+                failed_opens = 0
+                if response and response.status in (403, 429):
+                    raise ValueError('LinkedIn limited this session. Fetching stopped.')
+                try:
+                    await page.locator('a[href*="/in/"]').first.wait_for(timeout=8000)
+                except Exception:
+                    pass
+                await require_session(page)
+                qualified_before = len(results)
+                new_urls, raw_count = await read_people()
+                if new_urls == 0 and raw_count == 0:
+                    # The result list often paints after the first lookup.
+                    try:
+                        await page.mouse.wheel(0, 1600)
+                        await page.wait_for_timeout(500)
+                    except Exception:
+                        pass
+                    new_urls, raw_count = await read_people()
+                if new_urls == 0:
+                    break
+                if len(results) == qualified_before:
+                    plain_pages += 1
+                else:
+                    plain_pages = 0
+                if len(results) >= limit or len(visited) >= scan_limit:
                     return results
     except ValueError:
         # Verification and rate limits require human action, not another search.
@@ -311,8 +373,11 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     phrases = ('"corporate trainer"', '"trainer" "I am"', '"technical trainer"',
                '"instructor"', '"freelance trainer"',
                '"training consultant"', '"trainer" "delivered"', '"trainer" "workshop"')
+    remaining = deadline - asyncio.get_running_loop().time()
+    if remaining < 8:
+        return results
     try:
-        async with asyncio.timeout(50):
+        async with asyncio.timeout(min(40, remaining)):
             for phrase in phrases:
                 url = 'https://www.linkedin.com/search/results/content/?' + urlencode({
                     'keywords': f'{domain} {location} {phrase}'.strip(), 'sortBy': '"relevance"'})
@@ -359,7 +424,9 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
             return results
         raise PartialSearchError('Trainer search reached its time limit.', results)
     except Exception as exc:
-        raise PartialSearchError(str(exc), results) from exc
+        if results:
+            return results
+        raise PartialSearchError(str(exc) or 'Trainer search reached its time limit.', results) from exc
     return results
 
 
@@ -427,11 +494,18 @@ async def search_linkedin_account(domain, mode, limit=20, location='', collected
                     return await collect_client_posts(page, context, domain, location, min(max(limit, 1), 50))
             except Exception as exc:
                 cause = exc
+                partial = None
+                auth_required = False
                 while cause is not None:
                     if isinstance(cause, LinkedInAuthenticationRequired):
+                        auth_required = True
                         block_session(profile_path())
-                        break
+                    if partial is None and getattr(cause, 'results', None):
+                        partial = list(cause.results)
                     cause = cause.__cause__
+                # Profiles collected before a deadline are a completed search.
+                if partial and not auth_required:
+                    return partial
                 raise
             finally:
                 try:

@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     MONGODB_DB_NAME: str = "trainersync"
     REDIS_URL: str = "redis://127.0.0.1:6379"
     SCHEDULER_SERVICE_URL: str = "http://scheduler-service:8007"
+    INTELLIGENCE_SERVICE_URL: str = "http://intelligence-service:8005"
     INTERNAL_SERVICE_TOKEN: str = ""
     SECRET_KEY: str = "change-me-in-production"
 

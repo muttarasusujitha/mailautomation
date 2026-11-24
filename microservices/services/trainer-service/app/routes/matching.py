@@ -8,6 +8,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel, Field
 
 from shared.database.service import get_db
+from shared.trainer_targets import TRAINER_RESULT_TARGET
 
 router = APIRouter()
 
@@ -64,7 +65,7 @@ class MatchRequest(BaseModel):
     budget: Optional[float] = Field(None, ge=0)
     budget_per_day: Optional[float] = Field(None, ge=0)
     budget_total: Optional[float] = Field(None, ge=0)
-    top_n: int = 1
+    top_n: int = TRAINER_RESULT_TARGET
 
 
 def _budget_per_day(payload: MatchRequest, requirement: Dict[str, Any]) -> tuple[Optional[float], str]:
@@ -160,7 +161,7 @@ async def match_trainers(
     scored.sort(key=lambda x: (x["budget_status"] == "unknown", -x["_match_score"]))
     # This endpoint is also used by ad-hoc matching screens; enforce the
     # system policy here instead of relying on each caller's payload.
-    top = scored[:1]
+    top = scored[:max(1, min(payload.top_n, TRAINER_RESULT_TARGET))]
 
     return {
         "matched": len(top),

@@ -427,7 +427,7 @@ export default function Requirements() {
     timing: '',
     must_have_linkedin: false,
     must_have_resume: false,
-    top_n: 5,
+    top_n: 50,
     batch_flow: 'confirmed',
     batch_type: 'confirmed',
     requirement_type: 'confirmed_batch',

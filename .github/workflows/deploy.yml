@@ -268,6 +268,8 @@ jobs:
           }
           set_env GMAIL_USER "${{ secrets.GMAIL_USER }}"
           set_env GMAIL_FALLBACK_USER "${{ secrets.GMAIL_FALLBACK_USER }}"
+          set_env STYLE_IMAP_USER "${{ secrets.STYLE_IMAP_USER }}"
+          set_env STYLE_IMAP_PASSWORD "${{ secrets.STYLE_IMAP_PASSWORD }}"
           set_env GMAIL_FALLBACK_FROM_EMAIL "${{ secrets.GMAIL_FALLBACK_FROM_EMAIL }}"
           set_env FROM_EMAIL "${{ secrets.FROM_EMAIL }}"
           set_env FROM_NAME "${{ secrets.FROM_NAME }}"

@@ -101,6 +101,37 @@ def test_reference_scenarios_keep_individual_evidence():
     assert wb["Scenarios"]["F3"].value == "Schema report"
 
 
+def test_workbook_header_uses_the_linen_palette():
+    toc = {"excel_layout": "execution_plan", "title": "Python for analysts", "hours_per_day": 4,
+           "days": [{"day": 1, "focus_area": "CSV validation", "subtopics": ["pandas"], "lab": "Clean a sales CSV"}]}
+    wb = openpyxl.load_workbook(io.BytesIO(_toc_to_excel(toc)))
+    header = wb["Day-wise Plan"]["A1"]
+    assert header.font.bold is True
+    assert header.font.color.rgb.endswith("3E3832")
+    assert header.fill.fgColor.rgb.endswith("F4EFE6")
+    assert header.border.bottom.color.rgb.endswith("8C7B6B")
+    assert wb["Day-wise Plan"].sheet_properties.tabColor.rgb.endswith("8C7B6B")
+    assert wb["Program Overview"]["A2"].font.bold is True
+    assert wb["Program Overview"]["A2"].font.color.rgb.endswith("3E3832")
+    assert wb["Program Overview"].oddHeader.left.text.startswith("Python for analysts")
+    assert wb.properties.title.startswith("Python for analysts")
+    assert all(sheet.freeze_panes == "A2" for sheet in wb.worksheets)
+
+
+def test_ten_natural_layouts_use_different_shades():
+    assert len(REFERENCE_LAYOUTS) == 10
+    shades = set()
+    for layout in REFERENCE_LAYOUTS:
+        wb = openpyxl.load_workbook(io.BytesIO(_toc_to_excel({
+            "excel_layout": layout, "title": "Python", "days": [{"day": 1, "focus_area": "Validation", "subtopics": ["pandas"]}],
+        })))
+        header = wb.worksheets[1]["A1"]
+        shades.add((header.fill.fgColor.rgb, header.font.color.rgb, header.border.bottom.color.rgb, header.alignment.horizontal, header.font.size, wb.worksheets[1].title))
+        assert wb.worksheets[1]["E2"].value is None or isinstance(wb.worksheets[1]["E2"].value, (int, float))
+        assert all(sheet.freeze_panes == "A2" for sheet in wb.worksheets)
+    assert len(shades) == 10
+
+
 def test_long_lab_is_visible_in_continuation_rows_without_duplicating_hours():
     long_lab = "\n".join(f"Lab step {index}: inspect input and capture results." for index in range(100))
     toc = {"excel_layout": "execution_plan", "days": [{"day": 1, "minutes": 240, "focus_area": "Long lab", "lab": long_lab}]}
