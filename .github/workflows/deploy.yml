@@ -258,6 +258,8 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
+          build-args: |
+            VITE_GOOGLE_CLIENT_ID=${{ matrix.image == 'frontend' && (secrets.VITE_GOOGLE_CLIENT_ID || secrets.GOOGLE_CLIENT_ID) || '' }}
           # Pull requests build images for validation but never publish them.
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
@@ -329,7 +331,7 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: |
           cat > .env <<EOF
-          VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+          VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID || secrets.GOOGLE_CLIENT_ID }}
           EOF
 
       - name: Check Deployment Disk Space
