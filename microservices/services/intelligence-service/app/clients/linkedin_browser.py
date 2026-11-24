@@ -39,7 +39,10 @@ def canonical_url(value):
     host = (parts.hostname or '').lower()
     if parts.scheme != 'https' or not (host == 'linkedin.com' or host.endswith('.linkedin.com')):
         return ''
-    if not parts.path.startswith(('/in/', '/posts/', '/feed/update/')):
+    profile_match = re.match(r'^/in/([^/]+)', parts.path)
+    if profile_match and profile_match.group(1).strip():
+        return urlunsplit(('https', 'www.linkedin.com', f'/in/{profile_match.group(1).strip()}', '', ''))
+    if not parts.path.startswith(('/posts/', '/feed/update/')):
         return ''
     return urlunsplit(('https', 'www.linkedin.com', parts.path.rstrip('/'), '', ''))
 
@@ -62,6 +65,12 @@ def search_url(domain, mode, location='', page=1):
     if mode == 'client':
         params['sortBy'] = '"date_posted"'
     return f'https://www.linkedin.com/search/results/{kind}/?{urlencode(params)}'
+
+
+def _people_search_url(keywords, page_number):
+    return 'https://www.linkedin.com/search/results/people/?' + urlencode({
+        'keywords': keywords, 'origin': 'GLOBAL_SEARCH_HEADER', 'page': page_number,
+    })
 
 
 async def require_session(page):
@@ -300,15 +309,12 @@ from shared.trainer_targets import TRAINER_RESULT_TARGET, TRAINER_SCAN_LIMIT
 
 
 async def collect_trainer_profiles(page, domain, location, limit, collected=None):
-    """Page through people search until the qualified target or the scan limit is met."""
+    """Page through people search and keep every qualified profile already read."""
     from app.routes.linkedin_leads import _normalize_result
     results = [] if collected is None else collected
-    seen, visited = {row.get('url') for row in results}, set()
-    limit = min(max(int(limit or 1), 1), TRAINER_RESULT_TARGET)
-    scan_limit = TRAINER_SCAN_LIMIT if limit >= TRAINER_RESULT_TARGET else min(TRAINER_SCAN_LIMIT, max(limit * 4, limit))
-    # LinkedIn shows about ten people per page, so 200 profiles is 20 pages.
-    page_cap = 20 if limit >= TRAINER_RESULT_TARGET else min(20, max(limit, 2))
-    deadline = asyncio.get_running_loop().time() + (180 if limit >= TRAINER_RESULT_TARGET else 65)
+    seen = {row.get('url') for row in results if row.get('url')}
+    visited = set()
+    deadline = asyncio.get_running_loop().time() + 70
 
     def timed_out():
         return asyncio.get_running_loop().time() >= deadline
@@ -355,13 +361,47 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
             if url in seen:
                 continue
             candidate = {'url': url, 'title': profile_title(text), 'content': text[:5000]}
-            # The save path uses this same check, so rejected cards are not reported as found.
             if _normalize_result(candidate, domain, 'trainer'):
                 seen.add(url)
                 results.append(candidate)
                 if len(results) >= limit:
                     break
-        return new_urls, len(links or [])
+        return new_urls
+
+    queries = [trainer_keywords(domain, location)]
+    instructor = re.sub(r'\btrainer\b', 'instructor', queries[0], count=1, flags=re.IGNORECASE)
+    if instructor.lower() != queries[0].lower():
+        queries.append(instructor)
+    try:
+        page_loads = 0
+        for keywords in queries:
+            if len(results) >= limit or timed_out():
+                break
+            for page_number in range(1, 8):
+                if len(results) >= limit or page_loads >= 6 or timed_out():
+                    break
+                page_loads += 1
+                try:
+                    response = await page.goto(_people_search_url(keywords, page_number), wait_until='commit', timeout=12000)
+                except Exception:
+                    response = None
+                if response and response.status in (403, 429):
+                    raise ValueError('LinkedIn limited this session. Fetching stopped.')
+                try:
+                    await page.locator('a[href*="/in/"]').first.wait_for(timeout=8000)
+                except Exception:
+                    pass
+                await require_session(page)
+                try:
+                    await page.mouse.wheel(0, 1800)
+                    await page.wait_for_timeout(600)
+                except Exception:
+                    pass
+                if await read_people() == 0:
+                    break
+                if len(results) >= limit:
+                    break
+        return new_urls, len(order)
 
     async def open_people_page(keywords, page_number):
         """Open one numbered people-search page. The page URL is the scan position."""
@@ -431,13 +471,11 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
             return results
         raise PartialSearchError('Trainer search reached its time limit.', results)
     except Exception:
-        # People layouts vary; continue with the content search below.
-        if results:
-            return results
-    if results:
+        logger.warning('People search layout failed for %s; trying post search.', domain)
+    if results or timed_out():
+        # Posts are only a fallback when people search contributed nothing.
+        # Running them after a partial people result is what exhausted the time budget.
         return results
-    if timed_out():
-        raise PartialSearchError('Trainer search reached its time limit.', results)
     phrases = ('"corporate trainer"', '"trainer" "I am"', '"technical trainer"',
                '"instructor"', '"freelance trainer"',
                '"training consultant"', '"trainer" "delivered"', '"trainer" "workshop"')
@@ -541,7 +579,14 @@ async def search_linkedin_account(domain, mode, limit=20, location='', collected
         ensure_session_not_blocked(profile_path())
         async with async_playwright() as playwright:
             context = await playwright.chromium.launch_persistent_context(
-                profile_path(), headless=True, accept_downloads=False)
+                profile_path(), headless=True, accept_downloads=False,
+                user_agent=(
+                    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
+                    '(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+                ),
+                viewport={'width': 1366, 'height': 900},
+                args=['--disable-blink-features=AutomationControlled'],
+            )
             page = None
             try:
                 from app.clients.linkedin_session import load_session

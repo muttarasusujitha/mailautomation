@@ -41,7 +41,7 @@ class TocRequest(BaseModel):
     notes: Optional[str] = ""
     requirement_id: Optional[str] = None
     client_email: Optional[str] = None
-    excel_layout: Literal["auto", "execution_plan", "technical_plan", "skills_matrix", "detailed_syllabus", "legacy"] = "auto"
+    excel_layout: Literal["auto", "execution_plan", "technical_plan", "skills_matrix", "detailed_syllabus", "stone_plan", "moss_plan", "sand_plan", "bark_plan", "mist_plan", "olive_plan", "legacy"] = "auto"
     trainer_id: Optional[str] = None
     trainer_name: Optional[str] = None
     trainer_email: Optional[str] = None

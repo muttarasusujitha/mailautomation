@@ -21,6 +21,14 @@ def test_regeneration_keeps_saved_layout(layout):
     assert collection.find_one.await_count == 1
 
 
+def test_natural_cycle_wraps_after_the_tenth_shade():
+    collection = AsyncMock()
+    collection.find_one.return_value = {"toc": {"excel_layout": REFERENCE_LAYOUTS[-1]}}
+    result = asyncio.run(select_toc_layout({"toc_generations": collection}, client_email="Client <SIR@Example.com>"))
+    assert len(REFERENCE_LAYOUTS) == 10
+    assert result == REFERENCE_LAYOUTS[0]
+
+
 def test_explicit_layout_and_anonymous_default_need_no_history():
     collection = AsyncMock()
     db = {"toc_generations": collection}
