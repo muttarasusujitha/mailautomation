@@ -141,7 +141,7 @@ export default function LinkedInSearch() {
         payload.max_results = 50
         payload.max_queries = 2
       }
-      const res = await api.post(endpoint, payload)
+      const res = await api.post(endpoint, payload, { timeout: 300000 })
       const savedCount = res.data.saved_count || 0
       const skippedCount = res.data.skipped_count || 0
       const autoSentCount = res.data.auto_sent_count || 0

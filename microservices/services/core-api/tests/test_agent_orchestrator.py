@@ -191,3 +191,37 @@ def test_ai_mode_stores_client_shortlist_and_toc_notes(monkeypatch):
     assert note["shortlist_note"].startswith("Two trainers")
     assert "TOC" in note["toc_note"]
     assert updates[0][0] == {"decision_id": "AGD-1"}
+
+
+def test_ai_mode_includes_every_application_agent(monkeypatch):
+    seen = {}
+
+    async def wording(decisions):
+        seen["roles"] = [item["agent_role"] for item in decisions]
+        return {}
+
+    monkeypatch.setattr(agent_orchestrator, "_fetch_agentic_wording", wording)
+
+    class Decisions:
+        def find(self, *args, **kwargs):
+            return self
+
+        def sort(self, *args, **kwargs):
+            return self
+
+        def limit(self, *args, **kwargs):
+            return self
+
+        async def to_list(self, *args, **kwargs):
+            return []
+
+    db = {
+        "automation_settings": SimpleNamespace(find_one=AsyncMock(return_value={"value": "ai"})),
+        "agent_decisions": Decisions(),
+    }
+    decisions = [
+        {"agent_role": role, "entity_id": role, "metadata": {}}
+        for role in agent_orchestrator.AGENT_ROLES
+    ]
+    asyncio.run(agent_orchestrator._attach_agentic_wording(db, decisions, True))
+    assert set(seen["roles"]) == set(agent_orchestrator.AGENT_ROLES)
