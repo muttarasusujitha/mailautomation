@@ -12,6 +12,23 @@
       "summary": "For data engineers, analysts and DBAs who completed a general Hadoop or SQL course and now want to work with Apache Hive itself. Covers running Hive 4 in Docker, the HiveServer2, Driver and Metastore query lifecycle, metastore schema and schematool, managed versus external tables, HiveQL types, loading, joins, grouping sets, window functions, lateral views, partitions, SerDes, ORC tables, Java UDFs, configuration layers, EXPLAIN plans, and a web log warehouse capstone.",
       "prerequisites": ["Writes SQL joins, aggregates and subqueries against a relational database", "Knows what HDFS, YARN and a file format are at the level of an introductory Hadoop course", "Has a laptop with Docker Desktop or Docker Engine, 8 GB RAM free and a terminal"],
       "outcomes": ["Run Hive 4 locally and query it through Beeline using JDBC URLs, scripts and variables", "Explain how HiveServer2, the Driver, the Metastore and the execution engine cooperate on one query", "Write HiveQL with complex types, window functions, grouping sets, lateral views and partitioned ORC tables", "Read EXPLAIN output and the HiveServer2 web UI to explain why a query is slow or wrong"],
+      "course_outcomes": [
+        {"outcome": "Run Hive 4 in Docker and connect with Beeline", "topics": ["Running Hive 4 in Docker and Connecting with Beeline"]},
+        {"outcome": "Trace a query through HiveServer2, the driver and the metastore and manage the metastore schema", "topics": ["Query Lifecycle Walkthrough: HiveServer2, Driver and Metastore Architecture", "Metastore Schema, schematool and the Backing RDBMS"]},
+        {"outcome": "Create databases and managed and external tables with table properties", "topics": ["Managed and External Tables in Hive 4 and the Warehouse Directories", "Databases, DDL Statements and Table Properties"]},
+        {"outcome": "Use HiveQL data types, complex types and type conversion", "topics": ["HiveQL Data Types, Complex Types and Type Conversion"]},
+        {"outcome": "Load data with LOAD DATA, INSERT OVERWRITE, multi-insert and CTAS", "topics": ["Loading Data with LOAD DATA, INSERT OVERWRITE, Multi-Insert and CTAS"]},
+        {"outcome": "Write joins with hints and handle skewed keys", "topics": ["Join Types, Join Hints and Skewed Key Behaviour in HiveQL"]},
+        {"outcome": "Aggregate with GROUPING SETS, ROLLUP and CUBE and write window functions", "topics": ["Aggregation with GROUPING SETS, ROLLUP, CUBE and GROUPING__ID", "Window Functions and Analytic Queries in HiveQL"]},
+        {"outcome": "Query complex types with LATERAL VIEW and explode", "topics": ["Lateral View, explode and Querying Complex Types"]},
+        {"outcome": "Apply date, string and conditional functions and write subqueries, CTEs and set operations", "topics": ["Date, String and Conditional Functions with Hive-Specific Behaviour", "Subqueries, Common Table Expressions and Set Operations"]},
+        {"outcome": "Load and prune static and dynamic partitions", "topics": ["Static and Dynamic Partitions: Loading, Pruning and Directory Layout"]},
+        {"outcome": "Read text formats with OpenCSVSerde, JsonSerDe and RegexSerDe", "topics": ["SerDes and Text Formats: OpenCSVSerde, JsonSerDe and RegexSerDe"]},
+        {"outcome": "Store tables in ORC and inspect them with orcfiledump", "topics": ["ORC Tables: Stripes, Compression and orcfiledump"]},
+        {"outcome": "Write Java UDFs, UDAFs and permanent functions", "topics": ["Writing Java UDFs, UDAFs and Permanent Functions"]},
+        {"outcome": "Configure Hive settings and read query plans with EXPLAIN", "topics": ["Configuration Layers: hive-site.xml, SET, hiveconf and hivevar", "Reading Query Plans with EXPLAIN and the HiveServer2 Web UI"]},
+        {"outcome": "Deliver a web log analytics warehouse on Hive 4", "topics": ["Beginner Capstone: Web Log Analytics Warehouse on Hive 4"]}
+      ],
       "days": [
         {
           "topic": "Running Hive 4 in Docker and Connecting with Beeline",
@@ -199,6 +216,23 @@
       "summary": "For engineers who can write HiveQL and run Hive 4 and now need to make it fast, transactional and governed. Covers the Tez engine, cost-based optimisation and statistics, vectorisation, join strategies, partition and bucket design, ACID tables and compaction, MERGE for slowly changing dimensions, materialised views, LLAP, Iceberg tables in Hive 4, HiveServer2 high availability, Kerberos and LDAP authentication, Ranger policies with row filters and masking, storage handlers, cloud object storage, YARN queues, and a governed warehouse capstone.",
       "prerequisites": ["Completed the beginner level or writes HiveQL with partitions, ORC tables and window functions", "Can read EXPLAIN output and use Beeline and the HiveServer2 web UI", "Has access to a Hive 4 environment with YARN and Tez, either a lab cluster or a Docker Compose stack with a remote metastore"],
       "outcomes": ["Tune queries using Tez settings, statistics, vectorisation and the right join strategy, and prove gains with counters", "Operate ACID tables, including compaction, MERGE and locks, and explain their metadata", "Create, query and maintain Iceberg tables from Hive 4 including time travel and partition evolution", "Apply authentication and Ranger row filter and masking policies and expose external data through storage handlers and cloud storage"],
+      "course_outcomes": [
+        {"outcome": "Run queries on the Tez engine with DAGs, containers and sessions", "topics": ["Tez Execution Engine: DAGs, Containers and Sessions"]},
+        {"outcome": "Speed up queries with cost-based optimisation and column statistics", "topics": ["Cost-Based Optimisation and Column Statistics"]},
+        {"outcome": "Use vectorised execution and ORC predicate pushdown", "topics": ["Vectorised Execution and ORC Predicate Pushdown"]},
+        {"outcome": "Choose between map join, bucket map join and sort-merge-bucket joins", "topics": ["Join Strategies: Map Join, Bucket Map Join and Sort-Merge-Bucket"]},
+        {"outcome": "Design partitions and buckets and handle data skew", "topics": ["Partitioning Design: Pruning, Dynamic Partition Limits and MSCK", "Bucketing Design and Data Skew Handling"]},
+        {"outcome": "Run ACID tables and tune compaction", "topics": ["ACID Tables: Delta Files, Transaction Manager and Locks", "Compaction: Initiator, Worker, Cleaner and Tuning"]},
+        {"outcome": "Maintain slowly changing dimensions with MERGE, UPDATE and DELETE", "topics": ["MERGE, UPDATE and DELETE for Slowly Changing Dimensions"]},
+        {"outcome": "Rewrite queries with materialized views", "topics": ["Materialized Views and Query Rewriting"]},
+        {"outcome": "Run LLAP daemons for interactive queries", "topics": ["LLAP Daemons: Cache, Executors and Query Fragments"]},
+        {"outcome": "Create, query and maintain Iceberg tables in Hive 4", "topics": ["Iceberg Tables in Hive 4: Creating and Querying", "Iceberg Maintenance, Time Travel and Partition Evolution in Hive"]},
+        {"outcome": "Make HiveServer2 highly available with ZooKeeper discovery and load balancing", "topics": ["HiveServer2 High Availability, ZooKeeper Discovery and Load Balancing"]},
+        {"outcome": "Authenticate HiveServer2 users and apply Ranger row filters and column masks", "topics": ["Authentication in HiveServer2: Kerberos, LDAP, SSL and doAs", "Apache Ranger Policies for Hive: Row Filters and Column Masking"]},
+        {"outcome": "Query JDBC and Kafka tables with storage handlers", "topics": ["Storage Handlers: JDBC and Kafka Tables in Hive"]},
+        {"outcome": "Store Hive tables on S3A, ADLS and GCS and run sessions in Capacity Scheduler queues", "topics": ["Cloud Object Storage with Hive: S3A, ADLS and GCS Tables", "Capacity Scheduler Queues and Hive Sessions on YARN"]},
+        {"outcome": "Deliver a governed warehouse with ACID, Iceberg and Ranger", "topics": ["Intermediate Capstone: Governed Warehouse with ACID, Iceberg and Ranger"]}
+      ],
       "days": [
         {
           "topic": "Tez Execution Engine: DAGs, Containers and Sessions",
@@ -386,6 +420,23 @@
       "summary": "For senior data engineers, platform engineers and architects who run or migrate Hive estates. Covers Hive Metastore internals and performance, the Calcite compiler and plan debugging, Tez and LLAP sizing, skew and small-file diagnosis, ACID at scale, workload management resource plans, replication with REPL DUMP and REPL LOAD, a shared standalone metastore, Iceberg engineering in Hive 4, converting Hive tables to Iceberg, migrating HiveQL to Spark SQL and Trino, moving to EMR, Dataproc and Glue, Hive on Kubernetes, tag-based Ranger policy, upgrades, TPC-DS benchmarking, incident playbooks and a migration capstone.",
       "prerequisites": ["Completed the intermediate level or operates Hive with ACID tables, Tez and Ranger in production", "Reads Tez counters, EXPLAIN plans and metastore tables to diagnose problems", "Has a lab with a remote metastore database, YARN or Kubernetes, and access to Spark and Trino for comparison runs"],
       "outcomes": ["Diagnose slow and failing Hive workloads from compiler plans, Tez counters, LLAP metrics and metastore load", "Operate ACID, workload management and replication for a multi-tenant Hive platform", "Plan and execute migrations of Hive tables and HiveQL to Iceberg, Spark SQL, Trino and cloud services with measurable validation", "Run Hive on Kubernetes and manage upgrades, benchmarks and incident response with documented runbooks"],
+      "course_outcomes": [
+        {"outcome": "Diagnose metastore schema, events and metadata performance", "topics": ["Hive Metastore Internals: Schema, Events and Metadata Performance"]},
+        {"outcome": "Debug query plans through Calcite and operator trees", "topics": ["Query Compiler Internals: Calcite, Operator Trees and Plan Debugging"]},
+        {"outcome": "Tune Tez containers, reducer parallelism and shuffle and size LLAP", "topics": ["Tez Tuning: Container Sizing, Auto Reducer Parallelism and Shuffle", "LLAP Tuning and Sizing: Memory, Cache Hit Rate and Daemon Scaling"]},
+        {"outcome": "Diagnose slow queries caused by skew, data layout and small files", "topics": ["Skew, Data Layout and Small Files: Diagnosing Slow Queries from Counters"]},
+        {"outcome": "Run ACID at scale by clearing compaction backlogs and transaction metadata", "topics": ["ACID at Scale: Compaction Backlog, Transaction Metadata Cleanup and Aborts"]},
+        {"outcome": "Manage workloads with resource plans, pools and triggers", "topics": ["Workload Management: Resource Plans, Pools and Triggers"]},
+        {"outcome": "Replicate warehouses for disaster recovery with REPL DUMP and REPL LOAD", "topics": ["Replication and Disaster Recovery with REPL DUMP and REPL LOAD"]},
+        {"outcome": "Share a standalone metastore with Spark, Trino and Flink", "topics": ["Hive Metastore as a Shared Catalog: Standalone HMS with Spark, Trino and Flink"]},
+        {"outcome": "Engineer Iceberg tables in Hive 4 and migrate Hive tables to Iceberg with rollback plans", "topics": ["Iceberg Engineering in Hive 4: Row-Level Operations, Delete Files and Compaction", "Migrating Hive Tables to Iceberg: CONVERT TO ICEBERG and Rollback Plans"]},
+        {"outcome": "Migrate HiveQL workloads to Spark SQL and Trino", "topics": ["HiveQL to Spark SQL Migration: Semantics, Bucketing and ACID Gaps", "HiveQL to Trino Migration: Dialect, Connector and Performance Differences"]},
+        {"outcome": "Move Hive to the cloud and run it on Kubernetes", "topics": ["Moving Hive to the Cloud: EMR, Dataproc and Glue Catalog Patterns", "Hive on Kubernetes: Containerised HiveServer2, Metastore and Storage"]},
+        {"outcome": "Enforce fine-grained access with tag policies, auditing and Hive hooks", "topics": ["Fine-Grained Access Control at Scale: Tag Policies, Auditing and Hive Hooks"]},
+        {"outcome": "Plan Hive 3.x to 4.x upgrades and gate performance regressions with TPC-DS", "topics": ["Hive Upgrade Planning: 3.x to 4.x, Metastore Schema and Behaviour Changes", "Benchmarking with TPC-DS and Performance Regression Gates"]},
+        {"outcome": "Respond to HiveServer2, metastore and Tez incidents", "topics": ["Incident Response Playbooks for HiveServer2, Metastore and Tez"]},
+        {"outcome": "Deliver a migration of a Hive warehouse to Iceberg with Spark and Trino access", "topics": ["Advanced Capstone: Migrating a Hive Warehouse to Iceberg with Spark and Trino Access"]}
+      ],
       "days": [
         {
           "topic": "Hive Metastore Internals: Schema, Events and Metadata Performance",
