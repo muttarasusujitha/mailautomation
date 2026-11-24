@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
 import { ArrowLeft, Download, Loader2, Plus, ReceiptText, RefreshCw, Search, Send, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import api from '../utils/api'
 import { usePipelineRecords } from '../utils/usePipelineRecords'
 
@@ -46,6 +47,12 @@ function nextDueDate() {
   return date.toISOString().slice(0, 10)
 }
 
+function financeClientName(item = {}) {
+  const extractedName = String(item.extracted_po_fields?.client_name || '').trim()
+  if (extractedName && !/^\/?\s*bill\s*to\s*$/i.test(extractedName) && !/^(client|customer|unknown)$/i.test(extractedName)) return extractedName
+  return item.client_name || item.client_email || 'Client'
+}
+
 function defaultItem(item = {}) {
   const req = item.requirement || {}
   const po = item.client_po || {}
@@ -54,8 +61,8 @@ function defaultItem(item = {}) {
   return {
     description: `${item.domain || req.technology || req.technology_needed || 'Training'} Training`,
     hsn_sac: po.hsn_sac || '999293',
-    quantity: qty,
-    rate: amount && qty ? Math.round(amount / qty) : '',
+    quantity: amount ? 1 : qty,
+    rate: amount || '',
   }
 }
 
@@ -73,8 +80,8 @@ function initialForm(item = {}) {
     client_po_number: po.client_po_number || req.client_po_number || '',
     client_pan: po.client_pan || req.client_pan || '',
     client_gstin: po.client_gstin || '',
-    tax_type: Number(po.gst_rate ?? 18) ? 'cgst_sgst' : 'none',
-    items: [defaultItem(item)],
+    tax_type: item.invoice?.tax_type || (Number(po.gst_rate ?? 18) ? 'cgst_sgst' : 'none'),
+    items: (item.invoice?.items?.length ? item.invoice.items : po.items?.length ? po.items : [defaultItem(item)]).map(row => ({ ...row })),
     notes: '',
   }
 }
@@ -115,6 +122,7 @@ function InvoiceRow({ item, active, onClick, onAutoGenerate, busy }) {
 }
 
 export default function Invoices() {
+  const navigate = useNavigate()
   const [selectedId, setSelectedId] = useState('')
   const [q, setQ] = useState('')
   const { items, loading, refreshing, error, load } = usePipelineRecords(q)
@@ -158,15 +166,8 @@ export default function Invoices() {
     setFinanceVersion(version => version + 1)
   }
 
-  const approveFinance = async (item) => {
-    const amount = Number(window.prompt('Approved PO amount (before GST):', '') || 0)
-    const poNumber = window.prompt('PO number:', '') || ''
-    if (!amount || !poNumber) return toast.error('PO number and approved amount are required')
-    try {
-      await api.post(`/finance/approvals/${item.finance_id}/approve-send`, { client_name: item.client_name || 'Client', client_email: item.client_email, po_number: poNumber, total_amount: amount })
-      toast.success('Invoice generated and sent')
-      refreshAll()
-    } catch (e) { toast.error(e.message || 'Could not approve invoice') }
+  const reviewFinance = (item) => {
+    navigate(`/finance-approvals?finance_id=${encodeURIComponent(item.finance_id)}`)
   }
   const rejectFinance = async (item) => {
     const reason = window.prompt('Reason for rejection / clarification:')
@@ -300,8 +301,13 @@ export default function Invoices() {
     setBusy('send')
     try {
       const toEmail = form.client_email || selected.client?.email || selected.invoice?.client_email || ''
-      await api.post(`/invoices/${selected.invoice.invoice_id}/send`, { to_email: toEmail })
-      toast.success(`Invoice sent to ${toEmail}`)
+      const { data } = await api.post(`/invoices/${selected.invoice.invoice_id}/send`, { to_email: toEmail })
+      if (data?.success !== true) throw new Error('Invoice send was not confirmed')
+      if (data.already_sent) {
+        toast(data.sent_to ? `Invoice was already marked sent to ${data.sent_to}. No new email was sent.` : 'Invoice was already marked sent. No new email was sent.')
+      } else {
+        toast.success(`Invoice sent to ${data.sent_to}`)
+      }
       await load(true)
     } catch (e) {
       toast.error(e.message || 'Invoice send failed')
@@ -317,10 +323,10 @@ export default function Invoices() {
         <div className="relative flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-700 ring-1 ring-blue-100">
-              <ReceiptText className="h-3.5 w-3.5" /> Manual Billing
+              <ReceiptText className="h-3.5 w-3.5" /> Client finance
             </div>
-            <h1 className="mt-2 page-title">Generate Invoice</h1>
-            <p className="mt-1 text-sm text-slate-500">Choose Beulix or Self Invoice format, then generate PDF. Invoice mail is sent as Murali Mohan M, and only when billing is the request. It is not added to a ToC or lab-cost reply.</p>
+            <h1 className="mt-2 page-title">Invoices</h1>
+            <p className="mt-1 text-sm text-slate-500">Client PO and invoice processing are handled here. Complete, final POs with clear INR and GST details are invoiced and emailed automatically. Draft, incomplete, or ambiguous POs stay in the review list.</p>
           </div>
           <button onClick={refreshAll} className="btn-secondary text-sm" disabled={refreshing}>
             <RefreshCw className={clsx('h-4 w-4', refreshing && 'animate-spin')} /> Refresh
@@ -330,11 +336,12 @@ export default function Invoices() {
 
       {financeApprovals.filter(item => item.status === 'pending_human_approval').length > 0 && (
         <section className="mx-auto mb-4 w-full max-w-[1600px] rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <h2 className="font-bold text-amber-950">PO / Invoice Approval Required</h2>
+          <h2 className="font-bold text-amber-950">PO / Invoice Processing</h2>
+          <p className="mt-1 text-xs text-amber-900">Eligible final POs are processed automatically. Review is needed when required details are missing or unclear.</p>
           <div className="mt-3 space-y-2">
             {financeApprovals.filter(item => item.status === 'pending_human_approval').map(item => <div key={item.finance_id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-white p-3 text-sm">
-              <span><b>{item.client_name || item.client_email}</b> — {item.request_type === 'po_to_invoice' ? 'PO to invoice' : 'Invoice request'}{item.attachment_names?.length ? ` (${item.attachment_names.join(', ')})` : ''}</span>
-              <span className="flex gap-2"><button onClick={() => approveFinance(item)} className="btn-primary text-xs">Approve & Send Invoice</button><button onClick={() => rejectFinance(item)} className="btn-secondary text-xs">Reject</button></span>
+              <span className="min-w-0"><b>{financeClientName(item)}</b> - {item.request_type === 'po_to_invoice' ? `PO ${item.extracted_po_fields?.po_number || 'details pending'}` : 'Invoice request'}{item.attachment_names?.length ? ` (${item.attachment_names.join(', ')})` : ''}<span className="mt-1 block text-xs text-slate-600">{item.auto_processing_error || item.auto_processing_blockers?.join(' · ') || 'Open PO review to verify the source document and invoice details.'}</span></span>
+              <span className="flex gap-2"><button onClick={() => reviewFinance(item)} className="btn-primary text-xs">Review PO</button><button onClick={() => rejectFinance(item)} className="btn-secondary text-xs">Reject</button></span>
             </div>)}
           </div>
         </section>

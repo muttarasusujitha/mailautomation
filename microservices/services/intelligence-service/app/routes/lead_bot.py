@@ -2,7 +2,7 @@
 import asyncio
 import logging
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Literal
 
 from fastapi import APIRouter, Depends
@@ -14,6 +14,59 @@ from app.clients.client_post_scan import scan_client_posts
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+def connection_status():
+    """Report saved-session state without exposing account cookies."""
+    from app.clients.linkedin_browser import profile_path
+    from app.clients.linkedin_session import (
+        load_session, ensure_session_not_blocked, rate_limit_paused_until,
+        LinkedInAuthenticationRequired,
+    )
+    try:
+        profile = profile_path()
+        ensure_session_not_blocked(profile)
+        until = rate_limit_paused_until(profile)
+        if until:
+            return {'state': 'paused', 'message': 'LinkedIn has limited this session. Wait before retrying.', 'retry_after': until.isoformat()}
+        if not any(c.get('name') == 'li_at' and c.get('value') for c in load_session(profile)):
+            return {'state': 'disconnected', 'message': 'Sign in to LinkedIn in the server bot browser.'}
+        return {'state': 'saved', 'message': 'A saved LinkedIn session exists. Verify it before collecting.'}
+    except LinkedInAuthenticationRequired:
+        return {'state': 'verification_required', 'message': 'LinkedIn requires sign-in or verification in the server bot browser.'}
+    except (OSError, ValueError, TypeError):
+        return {'state': 'unavailable', 'message': 'The server could not read the saved LinkedIn session.'}
+
+
+@router.get('/connection/status')
+async def linkedin_connection_status():
+    return connection_status()
+
+
+@router.post('/connection/verify')
+async def verify_linkedin_connection():
+    from app.clients.linkedin_browser import _lock
+    import sys
+    state = connection_status()
+    if state['state'] != 'saved':
+        return state
+    if _lock.locked():
+        return {'state': 'busy', 'message': 'A LinkedIn search is running. Verify after it finishes.'}
+    async with _lock:
+        process = await asyncio.create_subprocess_exec(
+            sys.executable, '-m', 'app.linkedin_authenticate', '--verify-only',
+            stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL,
+        )
+        try:
+            code = await asyncio.wait_for(process.wait(), timeout=60)
+        except (TimeoutError, asyncio.CancelledError):
+            process.kill()
+            await process.wait()
+            return {'state': 'unavailable', 'message': 'Verification timed out. Try again later.'}
+        if code == 0:
+            return {'state': 'connected', 'message': 'LinkedIn search access was verified on the server.'}
+        state = connection_status()
+        return state if state['state'] != 'saved' else {'state': 'unavailable', 'message': 'Search verification failed. Check the server login browser.'}
 
 
 class BotSettings(BaseModel):
@@ -37,6 +90,9 @@ async def status(mode: Literal['trainer', 'client'], db=Depends(get_db)):
             config['next_domains'] = list(catalog)
         except ValueError as exc:
             config['catalog_error'] = str(exc)
+    pause = _cooldown_state()
+    if config.get('enabled') and pause:
+        config.update(pause)
     return config
 
 
@@ -69,9 +125,16 @@ async def collect_due(db, mode):
             {'$or': [{'next_run': {'$lte': now}}, {'next_run': {'$exists': False}}]},
             {'$or': [{'lease_until': {'$lte': now}}, {'lease_until': {'$exists': False}}]},
         ],
-    }, {'$set': {'lease_until': now + timedelta(minutes=20), 'lease_token': token,
-                 'status': 'running', 'last_started': now}})
+    }, {'$set': {'lease_until': now + timedelta(minutes=25 if mode == 'trainer' else 20),
+                 'lease_token': token, 'status': 'running', 'last_started': now}})
     if not config:
+        return
+    pause = _cooldown_state()
+    if pause:
+        await db['lead_bots'].update_one({'_id': mode, 'lease_token': token}, {
+            '$set': pause,
+            '$unset': {'lease_until': '', 'lease_token': ''},
+        })
         return
     coverage = {}
     try:
@@ -97,28 +160,86 @@ async def collect_due(db, mode):
         else:
             result = await asyncio.wait_for(search_linkedin_leads(LinkedInLeadSearchRequest(
                 mode=mode, domains=domains, search_provider='auto',
-                save=True, max_results=60, max_queries=2), db), timeout=800)
+                save=True, max_results=60, max_queries=2), db), timeout=1180)
         error = result.get('error') or result.get('search_error') or ''
         outcome = {'status': 'error' if error else 'completed' if result.get('found') else 'no_results',
                    'last_error': str(error)[:500], 'found': result.get('found', 0),
                    'saved': result.get('saved_count', 0), 'domain_outcomes': result.get('domain_outcomes', []),
+                   'target': result.get('target', 0), 'target_met': result.get('target_met', False),
                    'scanned_posts': result.get('scanned_posts', 0), 'scan_warnings': result.get('scan_warnings', []),
                    **coverage}
     except Exception as exc:
         outcome = {'status': 'error', 'last_error': str(exc)[:500] or type(exc).__name__, 'found': 0, 'saved': 0,
                    'domain_outcomes': [], 'scan_warnings': [], 'scanned_posts': 0}
+    next_run = (max(datetime.utcnow(), now + timedelta(minutes=10)) if mode == 'client'
+                else datetime.utcnow() + timedelta(minutes=config.get('interval_minutes', 60)))
     await db['lead_bots'].update_one({'_id': mode, 'lease_token': token}, {
         '$set': {**outcome, 'last_finished': datetime.utcnow(),
-                 'next_run': max(datetime.utcnow(), now + timedelta(minutes=10)) if mode == 'client'
-                             else datetime.utcnow() + timedelta(minutes=config.get('interval_minutes', 60))},
+                 'next_run': next_run, **(_cooldown_state() or {})},
         '$unset': {'lease_until': '', 'lease_token': ''},
     })
+
+
+async def collect_pending_trainer_searches(db):
+    """Retry a single queued trainer search per cycle without user intervention."""
+    now = datetime.utcnow()
+    task = await db['lead_search_retries'].find_one_and_update(
+        {'mode': 'trainer', 'status': 'queued', 'next_attempt_at': {'$lte': now},
+         '$or': [{'lease_until': {'$exists': False}}, {'lease_until': {'$lte': now}}]},
+        {'$set': {'status': 'running', 'lease_until': now + timedelta(minutes=15), 'updated_at': now}, '$inc': {'attempt_count': 1}},
+        sort=[('next_attempt_at', 1)],
+        return_document=True,
+    )
+    if not task:
+        return
+    try:
+        result = await asyncio.wait_for(search_linkedin_leads(LinkedInLeadSearchRequest(
+            mode='trainer', domains=[task['domain']], location=task.get('location') or '',
+            search_provider='auto', save=True, max_results=60, max_queries=2,
+            queue_retry_on_blocked=False,
+        ), db), timeout=700)
+        blocked = any(str(row.get('status') or '').lower() in {'blocked', 'no_results'} for row in result.get('domain_outcomes') or [])
+        update = {'status': 'queued' if blocked else 'completed', 'last_result': {
+            'found': result.get('found', 0), 'saved': result.get('saved_count', 0),
+        }, 'updated_at': datetime.utcnow()}
+        if blocked:
+            outcome = (result.get('domain_outcomes') or [{}])[0]
+            update['next_attempt_at'] = _retry_after(outcome)
+        await db['lead_search_retries'].update_one({'_id': task['_id']}, {'$set': update, '$unset': {'lease_until': ''}})
+    except Exception as exc:
+        await db['lead_search_retries'].update_one({'_id': task['_id']}, {'$set': {
+            'status': 'queued', 'next_attempt_at': datetime.utcnow() + timedelta(minutes=15),
+            'last_reason': str(exc)[:800], 'updated_at': datetime.utcnow(),
+        }, '$unset': {'lease_until': ''}})
+
+
+def _retry_after(outcome):
+    from app.routes.linkedin_leads import _retry_after_from_outcome
+    return _retry_after_from_outcome(outcome or {})
+
+
+def _cooldown_state():
+    """Schedule blocked collectors after the persisted account cooldown."""
+    state = connection_status()
+    if state.get('state') != 'paused':
+        return None
+    until = datetime.fromisoformat(state['retry_after'])
+    if until.tzinfo is None:
+        until = until.replace(tzinfo=timezone.utc)
+    # MongoDB scheduling elsewhere uses naive UTC datetimes.
+    until = until.astimezone(timezone.utc).replace(tzinfo=None)
+    if until <= datetime.utcnow():
+        return None
+    return {'status': 'paused', 'next_run': until + timedelta(seconds=30),
+            'last_error': state['message']}
 
 
 async def _run_mode(mode):
     while True:
         try:
             db = await get_db()
+            if mode == 'trainer':
+                await collect_pending_trainer_searches(db)
             if mode == 'client':
                 # Upgrade persisted hourly settings without enabling paused bots.
                 await db['lead_bots'].update_one(

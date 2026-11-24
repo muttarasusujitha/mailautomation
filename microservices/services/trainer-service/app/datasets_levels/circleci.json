@@ -1,0 +1,573 @@
+{
+  "domain": "CircleCI",
+  "name": "CircleCI",
+  "category": "DevOps and CI/CD",
+  "icon": "workflow",
+  "aliases": ["CircleCI Pipelines", "CI/CD with CircleCI", "CircleCI CI/CD", "CircleCI Cloud", "CircleCI Orbs", "CircleCI Config", "CircleCI Workflows"],
+  "certifications": [],
+  "tools": ["CircleCI Cloud", "CircleCI CLI", ".circleci/config.yml", "CircleCI Orb Registry", "CircleCI API v2", "cimg convenience images", "CircleCI self-hosted runners", "Docker", "GitHub", "Bitbucket", "GitLab", "Helm", "AWS CLI", "Open Policy Agent"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, testers and junior DevOps engineers who can use Git and the command line but have not built pipelines on CircleCI. Covers connecting a repository through the CircleCI GitHub App or OAuth integration, the version 2.1 config.yml format, jobs, steps and the Docker and machine executors with cimg convenience images, workflows with requires and branch and tag filters, environment variables and pipeline values, dependency caching, workspaces, artifacts and test results, service containers, resource classes and credits, certified orbs, contexts, approval jobs, building Docker images with setup_remote_docker, the local CircleCI CLI and SSH debugging, ending with a complete pipeline capstone for a Node.js API.",
+      "prerequisites": ["Uses Git daily: cloning, branching, committing, pushing and opening pull requests on GitHub, GitLab or Bitbucket", "Reads and edits YAML files and runs shell commands such as npm, pip or make in a Linux terminal", "Has a GitHub, GitLab or Bitbucket account with admin rights on a practice repository, a free CircleCI account and Docker installed locally"],
+      "outcomes": ["Connect a repository to CircleCI and write a valid version 2.1 config.yml with jobs, steps, executors and workflows", "Speed up and structure pipelines with dependency caches, workspaces, artifacts, test results and service containers", "Manage configuration and secrets with environment variables, pipeline values, contexts, orbs and approval jobs", "Diagnose failed jobs with the CircleCI CLI, step output and SSH reruns, and build and push a Docker image from a pipeline"],
+      "days": [
+        {
+          "topic": "CircleCI Orientation: Organizations, Projects and Pipelines",
+          "subtopics": ["Where CircleCI fits: hosted cloud, CircleCI server and self-hosted runners", "Organizations, projects and the project slug such as gh/acme/api", "GitHub App integration versus GitHub OAuth, Bitbucket and GitLab integrations", "Pipelines, workflows, jobs and steps as the four levels of the run hierarchy", "How a push or pull request triggers a pipeline and what the pipeline number means", "The web app: Dashboard, Projects, Pipelines view, job page and step output", "Project Settings: Advanced, Environment Variables, SSH Keys, Triggers and Webhooks", "Organization Settings: Contexts, Security, Plan and Usage", "Free, Performance and Scale plans and the idea of credits", "Status checks on pull requests and the CircleCI status badge"],
+          "tools": ["CircleCI web app", "GitHub", "Git", "CircleCI status badge"],
+          "lab_task": "Create a CircleCI organization connected to GitHub, add a practice repository as a project with the hello-world starter config, push two commits and open a pull request. Record the project slug, pipeline numbers, workflow and job names, and confirm the ci/circleci status check appears on the pull request. Add the status badge Markdown to README.md and confirm it renders as passing.",
+          "deliverable": "Orientation sheet with project slug, two pipeline numbers, a screenshot of the pull request status check and the README badge",
+          "checks": [["Push a commit to the main branch", "A new pipeline appears with a pipeline number one higher than the previous run", "Pipelines view screenshot"], ["Open a pull request from a feature branch", "The pull request shows a CircleCI status check that turns green when the workflow succeeds", "Pull request checks screenshot"], ["Render README.md on GitHub", "The CircleCI badge shows the passing state for the main branch", "README screenshot"]],
+          "objectives": ["Explain the pipeline, workflow, job and step hierarchy", "Connect a VCS repository to a CircleCI project", "Navigate the CircleCI web app and project settings"]
+        },
+        {
+          "topic": "Writing .circleci/config.yml Version 2.1",
+          "subtopics": ["File location .circleci/config.yml and the version: 2.1 key", "Top-level keys: version, orbs, parameters, executors, commands, jobs and workflows", "Job structure: executor, working_directory, environment and steps", "YAML anchors and aliases compared with 2.1 reusable config", "Indentation and type errors that break schema validation", "Reading the Configuration File tab and the compiled config", "Job names, workflow names and how they appear in the UI", "Committing config changes on a branch before merging to main"],
+          "tools": ["CircleCI CLI", "Visual Studio Code", "CircleCI VS Code extension", "YAML"],
+          "lab_task": "Write a config.yml with version: 2.1, one docker job named test using cimg/python:3.12 that runs python --version and pytest, and a workflow named ci. Validate it with circleci config validate, then break indentation under steps, run validate again and record the schema error. Fix it, push, and compare your file with the compiled config shown on the job's Configuration File tab.",
+          "deliverable": "Working config.yml, the CLI validation output for the valid and broken versions, and a passing pipeline link",
+          "checks": [["Run circleci config validate on the correct file", "The CLI prints Config file at .circleci/config.yml is valid.", "Terminal output"], ["Run circleci config validate after mis-indenting the steps list", "Validation fails with a schema error naming the jobs/test path", "Terminal output"], ["Push the fixed config", "Workflow ci runs job test and it finishes with status Success", "Pipeline page screenshot"]],
+          "objectives": ["Write a minimal valid version 2.1 configuration", "Validate configuration locally before pushing", "Read schema errors and map them to the YAML line at fault"]
+        },
+        {
+          "topic": "CircleCI Docker Executor and cimg Convenience Images",
+          "subtopics": ["The docker executor: primary container and how steps run inside it", "cimg images such as cimg/base, cimg/node, cimg/python and cimg/go", "Variant tags: -browsers and -node and when they are needed", "Pinning an exact tag versus floating tags such as lts or current", "Image pull authentication with auth username and password", "Docker Hub rate limits and the toomanyrequests error", "Private images from Amazon ECR with aws_auth", "Default user circleci, sudo and installing extra packages with apt-get"],
+          "tools": ["CircleCI docker executor", "cimg/node", "cimg/python", "Docker Hub", "Amazon ECR"],
+          "lab_task": "Run the same test job three times: on cimg/node:lts, on a pinned cimg/node tag such as 22.11, and on cimg/node:22.11-browsers. In each, print node --version, whoami and google-chrome --version || true, and add an apt-get install of jq with sudo. Record the image pull time from the Spin up environment step and compare the three runs in a table.",
+          "deliverable": "Comparison table of image tag, Node version, Chrome availability and spin-up time for the three jobs",
+          "checks": [["Run whoami in a cimg job", "The output is circleci", "Step output"], ["Run google-chrome --version on the -browsers variant", "A Chrome version string prints while the plain variant reports command not found", "Step output from both jobs"], ["Configure auth with a Docker Hub username and access token from a context", "The Spin up environment step shows the image pulled without a toomanyrequests error", "Job log"]],
+          "objectives": ["Choose and pin cimg convenience images", "Authenticate image pulls from Docker Hub and private registries", "Install additional tools inside a docker executor job"]
+        },
+        {
+          "topic": "CircleCI Steps: checkout, run, BASH_ENV and Shell Behaviour",
+          "subtopics": ["The checkout step and how it clones the commit being built", "run with name, command, working_directory and shell", "Default shell /bin/bash -eo pipefail and why pipelines fail fast", "Multi-line commands with the YAML pipe block", "Persisting values between steps with echo export >> \"$BASH_ENV\"", "background: true for long-running helper processes", "no_output_timeout and the Too long with no output error", "when: always, on_success and on_fail at step level"],
+          "tools": ["CircleCI run step", "Bash", "checkout step", "BASH_ENV"],
+          "lab_task": "Build a job that checks out the repo, writes APP_VERSION from git describe --tags --always into $BASH_ENV, prints it in a later step, starts a mock server with background: true, curls it, and runs a step with when: always that prints a summary. Then add a step running false | true and observe that pipefail fails it, and a step with sleep 120 and no_output_timeout: 1m.",
+          "deliverable": "Job log showing the shared APP_VERSION, the pipefail failure and the no-output timeout message",
+          "checks": [["Print $APP_VERSION in a step after writing it to $BASH_ENV", "The later step prints the same version string", "Step output"], ["Run a step with false | true under the default shell", "The step fails with exit code 1 because of -o pipefail", "Step output"], ["Run sleep 120 with no_output_timeout: 1m", "The step is cancelled with Too long with no output (exceeded 1m0s)", "Step output"]],
+          "objectives": ["Use checkout and run steps with correct shell semantics", "Share values between steps through BASH_ENV", "Control step behaviour with background, when and no_output_timeout"]
+        },
+        {
+          "topic": "CircleCI Workflows, requires and Job Ordering",
+          "subtopics": ["Workflows as the orchestration layer for jobs", "Running jobs concurrently by default", "requires for fan-out and fan-in dependencies", "Requiring specific statuses such as success, failed and canceled", "Job name overrides with name: when reusing a job", "Multiple workflows in one config and when to split them", "Rerun workflow from start versus rerun from failed", "Auto-cancel redundant workflows on non-default branches"],
+          "tools": ["CircleCI workflows", "CircleCI web app", "Workflow graph"],
+          "lab_task": "Create a workflow with lint and unit running in parallel, build requiring both, and two e2e jobs requiring build (fan-out) followed by report requiring both e2e jobs (fan-in). Make one e2e job fail, use Rerun from failed, and compare total duration with a sequential version. Enable auto-cancel redundant workflows and push twice quickly to a feature branch.",
+          "deliverable": "Screenshot of the workflow graph, the duration comparison, and evidence of an auto-cancelled pipeline",
+          "checks": [["Push the fan-out and fan-in config", "The workflow graph shows lint and unit in parallel and report waiting on both e2e jobs", "Workflow graph screenshot"], ["Use Rerun from failed after one e2e job fails", "Only the failed e2e job and the downstream report job run again", "Rerun workflow page"], ["Push two commits to a feature branch within seconds with auto-cancel on", "The first pipeline's workflow shows status Canceled", "Pipelines view screenshot"]],
+          "objectives": ["Model job dependencies with requires", "Shorten pipelines with parallel jobs", "Use reruns and auto-cancel to save time and credits"]
+        },
+        {
+          "topic": "CircleCI Branch and Tag Filters in Workflows",
+          "subtopics": ["filters.branches.only and filters.branches.ignore", "Regular expressions in filters such as /^release\\/.*/", "Tags are not built by default and need filters.tags", "Tag filters must be set on every upstream job in the chain", "Building version tags like v1.2.3 with /^v\\d+\\.\\d+\\.\\d+$/", "Combining branch ignore with tag only for release-only jobs", "Pull requests from forks and how they appear as pull/123 branches", "Testing filters by pushing throwaway branches and tags"],
+          "tools": ["CircleCI workflows", "Git tags", "Regular expressions"],
+          "lab_task": "Configure test to run on all branches and tags, publish to run only on tags matching /^v\\d+\\.\\d+\\.\\d+$/ with branches ignored, and docs to run only on main. Push to a feature branch, merge to main, push tag v0.1.0 and push tag v0.1.0-rc1. Record which jobs ran for each event in a table and explain any job that did not start.",
+          "deliverable": "Event-to-jobs table for the four pushes and the final filter config",
+          "checks": [["Push tag v0.1.0", "test and publish both run and docs does not", "Pipeline page for the tag"], ["Push tag v0.1.0-rc1", "Only test runs because the publish regex does not match", "Pipeline page for the tag"], ["Remove the tag filter from test and push tag v0.1.1", "No workflow runs for the tag because the upstream job blocks it", "Pipelines view"]],
+          "objectives": ["Write branch and tag filters with regular expressions", "Explain why tag builds need filters on every upstream job", "Run release jobs only for semantic version tags"]
+        },
+        {
+          "topic": "CircleCI Environment Variables and Built-in Pipeline Values",
+          "subtopics": ["Project environment variables in Project Settings", "Job-level and step-level environment keys", "Order of precedence across step, job, context and project values", "Built-in variables: CIRCLE_BRANCH, CIRCLE_SHA1, CIRCLE_TAG and CIRCLE_BUILD_NUM", "CIRCLE_PULL_REQUEST, CIRCLE_PROJECT_REPONAME and CIRCLE_WORKFLOW_ID", "Pipeline values: pipeline.number, pipeline.git.branch and pipeline.git.revision", "pipeline.trigger_source and pipeline.id", "Pipeline values are resolved at compile time and environment variables at run time", "Secret masking of project variables in step output", "Why secrets must not be written to artifacts or echoed with set -x"],
+          "tools": ["CircleCI Project Settings", "CircleCI pipeline values", "Bash", "env"],
+          "lab_task": "Add a project variable API_KEY and a job environment variable LOG_LEVEL, then override LOG_LEVEL in a step. Print CIRCLE_BRANCH, CIRCLE_SHA1, CIRCLE_BUILD_NUM, << pipeline.number >> and << pipeline.git.branch >>, and echo $API_KEY. Record the precedence result, confirm the masked output, and explain why pipeline.number differs from CIRCLE_BUILD_NUM.",
+          "deliverable": "Step output annotated with the source of each value, the precedence result and the masking evidence",
+          "checks": [["Echo $API_KEY from a project environment variable", "The step output shows ******** instead of the value", "Step output"], ["Set LOG_LEVEL at job level to info and at step level to debug", "The step prints debug", "Step output"], ["Print << pipeline.number >> and $CIRCLE_BUILD_NUM in the same job", "Two different numbers print: the pipeline number and the job build number", "Step output"]],
+          "objectives": ["Configure project, job and step environment variables", "Use built-in variables and pipeline values correctly", "Keep secrets masked in job output"]
+        },
+        {
+          "topic": "CircleCI Dependency Caching with save_cache and restore_cache",
+          "subtopics": ["What to cache: package manager stores such as ~/.npm, ~/.cache/pip and ~/go/pkg/mod", "Cache keys with {{ checksum \"package-lock.json\" }}", "Templates: {{ .Branch }}, {{ arch }} and {{ .Environment.VAR }}", "Fallback keys with partial prefixes in restore_cache", "Caches are immutable once a key is saved", "Version prefixes like v1- to invalidate caches", "Cache retention and usage controls", "Reading Found a cache from build and No cache is found for key messages"],
+          "tools": ["CircleCI caching", "npm", "pip", "Go modules"],
+          "lab_task": "For a Node.js project add restore_cache with keys v1-npm-{{ checksum \"package-lock.json\" }} and v1-npm-, run npm ci, and save_cache of ~/.npm. Run the pipeline twice and record npm ci time cold and warm. Change one dependency, run again, and show the fallback key restored. Finally bump the prefix to v2- and confirm a cold run.",
+          "deliverable": "Timing table for cold, warm, fallback and invalidated runs with the matching restore_cache log lines",
+          "checks": [["Run the pipeline a second time without changing package-lock.json", "restore_cache logs Found a cache from build and npm ci is faster than the cold run", "Step output and timing table"], ["Run save_cache again with an unchanged key", "The step logs that the cache already exists and skips the upload", "Step output"], ["Change the prefix to v2- and run", "restore_cache logs No cache is found for key", "Step output"]],
+          "objectives": ["Design checksum-based cache keys with fallbacks", "Measure the time saved by caching", "Invalidate caches deliberately"]
+        },
+        {
+          "topic": "CircleCI Workspaces for Passing Build Output Between Jobs",
+          "subtopics": ["Workspaces versus caches versus artifacts", "persist_to_workspace with root and paths", "attach_workspace with at", "Workspace layering across a chain of jobs", "What happens when two parallel jobs persist the same path", "Workspace retention and rerun behaviour", "Keeping workspaces small with targeted paths", "Passing build metadata files such as version.txt"],
+          "tools": ["CircleCI workspaces", "npm", "tar"],
+          "lab_task": "Split the pipeline into build, which runs npm run build and persists dist/ and version.txt to a workspace, and two downstream jobs, e2e and package, which attach the workspace at ~/project. In package, create a tarball from dist and print version.txt. Record the workspace upload size and time from the build log and confirm the downstream jobs do not rebuild.",
+          "deliverable": "Workflow with three jobs, workspace size and timing notes, and logs proving dist was reused",
+          "checks": [["Run ls dist in the e2e job after attach_workspace", "The built files from the build job are listed", "Step output"], ["Print version.txt in the package job", "The same version written by build is printed", "Step output"], ["Remove attach_workspace from package and rerun", "The package step fails because dist does not exist", "Step output"]],
+          "objectives": ["Choose between workspaces, caches and artifacts", "Pass build output between jobs with workspaces", "Keep workspace payloads small"]
+        },
+        {
+          "topic": "CircleCI Artifacts and store_test_results",
+          "subtopics": ["store_artifacts with path and destination", "Browsing and downloading artifacts from the Artifacts tab", "Listing artifacts through the API v2 artifacts endpoint", "store_test_results with JUnit XML directories", "Reporters such as jest-junit and pytest --junitxml", "The Tests tab: failed tests, slowest tests and failure messages", "Using when: always so results upload after a failure", "Artifact retention and sensitive data in artifacts"],
+          "tools": ["CircleCI artifacts", "jest-junit", "pytest", "CircleCI API v2"],
+          "lab_task": "Configure pytest --junitxml=test-results/junit.xml and coverage html to coverage/, then add store_test_results for test-results and store_artifacts for coverage with when: always. Make one test fail deliberately. Confirm the Tests tab names the failing test, open the coverage report from the Artifacts tab, and list artifact URLs with curl against /api/v2/project/<slug>/<job-number>/artifacts.",
+          "deliverable": "Screenshots of the Tests and Artifacts tabs and the API JSON listing artifact URLs",
+          "checks": [["Run the job with one failing test", "The Tests tab shows 1 failed test with its name and assertion message", "Tests tab screenshot"], ["Call the artifacts API with a personal token", "The JSON response lists coverage/index.html with a download URL", "curl output"], ["Remove when: always from store_test_results and fail a test", "No test results are shown because the step was skipped", "Job page screenshot"]],
+          "objectives": ["Publish test results and browse failures in the Tests tab", "Store and retrieve artifacts", "Keep result uploads working when tests fail"]
+        },
+        {
+          "topic": "CircleCI Service Containers for Databases in Test Jobs",
+          "subtopics": ["Secondary images in the docker list", "Networking: services reachable on localhost", "Environment for service images such as POSTGRES_PASSWORD", "Waiting for readiness with dockerize -wait or pg_isready loops", "Postgres, Redis and MySQL service patterns", "Running migrations before integration tests", "Memory sharing between primary and service containers", "When to switch to the machine executor with docker compose"],
+          "tools": ["CircleCI docker executor", "PostgreSQL", "Redis", "dockerize", "pg_isready"],
+          "lab_task": "Add postgres:16 and redis:7 as secondary images with POSTGRES_USER, POSTGRES_PASSWORD and POSTGRES_DB set. Before tests, wait with until pg_isready -h localhost -p 5432; do sleep 1; done and redis-cli -h localhost ping. Run migrations and an integration suite that writes and reads 100 rows. Then remove the wait loop and record the connection refused failure.",
+          "deliverable": "Config with service containers, passing integration test output and the failure log without the wait step",
+          "checks": [["Run pg_isready -h localhost -p 5432 after the wait loop", "It prints localhost:5432 - accepting connections", "Step output"], ["Run redis-cli -h localhost ping", "It prints PONG", "Step output"], ["Run the integration suite", "100 rows are written and read back and all tests pass", "Test results in the Tests tab"]],
+          "objectives": ["Run databases as service containers", "Wait for service readiness reliably", "Run integration tests against real dependencies"]
+        },
+        {
+          "topic": "CircleCI Machine Executor and Linux VM Images",
+          "subtopics": ["machine: image: ubuntu-2404:current and ubuntu-2204:current", "Pinned image tags versus current and edge", "When to use machine: full Docker daemon, privileged operations and kernel features", "docker compose on the machine executor", "Pre-installed tools and checking versions", "Resource classes for machine jobs", "Spin-up time compared with the docker executor", "Image deprecation notices and migration"],
+          "tools": ["CircleCI machine executor", "Docker Compose", "Ubuntu", "sysctl"],
+          "lab_task": "Create a machine job on ubuntu-2404:current that prints lsb_release -a and docker version, starts a three-service app with docker compose up -d --wait, runs curl health checks, and runs sudo sysctl -w vm.max_map_count=262144. Repeat the same health check on the docker executor and record which operations fail there and the spin-up time of each executor.",
+          "deliverable": "Executor comparison table with spin-up time, Docker availability and privileged operation results",
+          "checks": [["Run lsb_release -a in the machine job", "It reports Ubuntu 24.04", "Step output"], ["Run docker compose up -d --wait", "All three services report healthy", "Step output"], ["Run sudo sysctl -w vm.max_map_count=262144 in a docker executor job", "The command fails with a read-only file system or permission error", "Step output"]],
+          "objectives": ["Choose between docker and machine executors", "Run docker compose stacks on the machine executor", "Pin and maintain machine images"]
+        },
+        {
+          "topic": "CircleCI Resource Classes and Credit Consumption",
+          "subtopics": ["resource_class key for docker and machine jobs", "Docker sizes from small to 2xlarge+ and the medium default", "Credits per minute and how job duration drives cost", "Resources tab: CPU and memory graphs per job", "Exit code 137 and out-of-memory kills", "Matching test runner workers to vCPU count", "Plan limits on which classes are available", "Usage screens for credits by project"],
+          "tools": ["CircleCI resource classes", "Resources tab", "CircleCI Plan Usage", "nproc"],
+          "lab_task": "Run the same build on small, medium and large resource classes, printing nproc and free -m. Record duration, peak memory from the Resources tab and credits from the job page for each. Then run a memory-heavy step (node --max-old-space-size=6000 on a medium job) to reproduce an exit code 137 kill and fix it by moving to large.",
+          "deliverable": "Table of resource class, vCPUs, memory, duration and credits, plus the 137 failure and fix",
+          "checks": [["Run nproc on medium and large docker classes", "medium reports 2 and large reports 4", "Step output"], ["Run the memory-heavy step on medium", "The step fails with exit code 137 and a killed signal", "Step output"], ["Compare credits for the three runs", "The cheapest class per completed build is identified with numbers", "Comparison table"]],
+          "objectives": ["Select resource classes by measured need", "Diagnose out-of-memory failures", "Relate duration and class to credit cost"]
+        },
+        {
+          "topic": "Using Certified Orbs from the CircleCI Orb Registry",
+          "subtopics": ["What orbs package: commands, jobs and executors", "Certified, partner and community orbs", "Declaring orbs: node: circleci/node@<version>", "Reading orb docs, usage examples and parameters in the registry", "Using an orb job directly in a workflow", "Using orb commands inside your own job", "Viewing expanded orb source with circleci config process", "Version pinning and the Allow Uncertified Orbs setting"],
+          "tools": ["CircleCI Orb Registry", "circleci/node orb", "circleci/python orb", "CircleCI CLI"],
+          "lab_task": "Replace hand-written install and cache steps with the circleci/node orb: use node/install-packages inside your job, then use the orb's test job directly in the workflow. Run circleci config process .circleci/config.yml > processed.yml and count how many lines the orb expanded into. Compare duration and cache behaviour with the hand-written version.",
+          "deliverable": "Orb-based config, processed.yml line count and a before-and-after comparison",
+          "checks": [["Run circleci config process on the orb config", "processed.yml contains the expanded node orb steps and no orbs key", "processed.yml file"], ["Run the pipeline twice", "The second run restores the cache created by node/install-packages", "Step output"], ["Reference a community orb with Allow Uncertified Orbs disabled", "Config compilation fails with an error that the orb is not allowed", "Pipeline error page"]],
+          "objectives": ["Find and evaluate orbs in the registry", "Use orb jobs and commands in a config", "Inspect what an orb expands into"]
+        },
+        {
+          "topic": "CircleCI Contexts for Shared Secrets",
+          "subtopics": ["Contexts as organization-level sets of environment variables", "Creating contexts and adding variables in Organization Settings", "Attaching contexts with context: in workflow job entries", "Multiple contexts on one job and variable precedence", "Contexts versus project variables", "Separating dev, staging and prod credentials", "Masking behaviour for context values", "Context errors when a user lacks access"],
+          "tools": ["CircleCI contexts", "CircleCI Organization Settings", "CircleCI CLI"],
+          "lab_task": "Create contexts acme-dev and acme-prod, each with DEPLOY_URL and DEPLOY_TOKEN. Add deploy-dev and deploy-prod jobs that curl -fsS $DEPLOY_URL/health with the token header and attach the matching context. Confirm values are masked, then remove the context from deploy-prod and record the failure caused by the missing variable.",
+          "deliverable": "Context list screenshot, deploy job logs for each environment and the missing-context failure",
+          "checks": [["Run deploy-dev with context acme-dev", "The health call returns HTTP 200 and the token prints as ********", "Step output"], ["Remove context acme-prod from deploy-prod", "The step fails because DEPLOY_URL is empty", "Step output"], ["List the contexts with the CircleCI CLI or the web app", "Both acme-dev and acme-prod appear", "CLI output or screenshot"]],
+          "objectives": ["Create and attach contexts", "Separate credentials per environment", "Troubleshoot missing context variables"]
+        },
+        {
+          "topic": "CircleCI Approval Jobs and Manual Gates",
+          "subtopics": ["type: approval jobs in a workflow", "The On Hold status and the Approve button", "Requiring approval before production jobs", "Who can approve and how approvals are recorded", "Approval jobs combined with restricted contexts", "Timeouts and abandoned held workflows", "Approving from the API with the approval request ID", "Notifying approvers when a workflow is on hold"],
+          "tools": ["CircleCI approval jobs", "CircleCI web app", "CircleCI API v2"],
+          "lab_task": "Add a hold-prod approval job between deploy-staging and deploy-prod on main. Push, confirm the workflow shows On Hold, approve it from the UI and note the approver recorded. Run again and approve through POST /api/v2/workflow/<id>/approve/<approval_request_id> using curl. Run a third time, cancel instead, and confirm deploy-prod never starts.",
+          "deliverable": "Workflow screenshots for held, approved and cancelled runs, and the API approval call and response",
+          "checks": [["Push to main with the approval job", "The workflow status shows On Hold at hold-prod", "Workflow screenshot"], ["Approve through the API", "The call returns a success message and deploy-prod starts", "curl output and workflow page"], ["Cancel the held workflow", "deploy-prod shows as not run and the workflow is Canceled", "Workflow screenshot"]],
+          "objectives": ["Add manual gates with approval jobs", "Approve workflows from the UI and the API", "Prevent unapproved production runs"]
+        },
+        {
+          "topic": "Building Docker Images in CircleCI with setup_remote_docker",
+          "subtopics": ["Why the docker executor needs setup_remote_docker to run docker commands", "The remote Docker engine and its separate filesystem", "docker build, docker login and docker push in a job", "Tagging images with $CIRCLE_SHA1 and version tags", "Volume mounts that fail with remote Docker and the docker cp workaround", "Building on the machine executor instead", "The circleci/docker and circleci/aws-ecr orbs", "Registry credentials from contexts", "Choosing the remote Docker engine version with the version key", "Image labels with org.opencontainers.image.revision set from CIRCLE_SHA1"],
+          "tools": ["setup_remote_docker", "Docker", "Docker Hub", "circleci/aws-ecr orb", "circleci/docker orb"],
+          "lab_task": "In a docker executor job add setup_remote_docker, build the app image tagged with ${CIRCLE_SHA1:0:7}, log in with docker login using a context token, and push to a registry. Try docker run -v $PWD:/src alpine ls /src and record why the mount is empty, then fix it with docker create plus docker cp. Repeat the build on the machine executor and compare times.",
+          "deliverable": "Pushed image reference, the volume mount explanation and a timing comparison of the two executors",
+          "checks": [["Run docker build without setup_remote_docker", "The step fails with Cannot connect to the Docker daemon", "Step output"], ["Push the image tagged with the short SHA", "The registry shows the tag matching ${CIRCLE_SHA1:0:7}", "Registry screenshot"], ["Run docker run -v $PWD:/src alpine ls /src with remote Docker", "The listing is empty because the path is not on the remote engine", "Step output"]],
+          "objectives": ["Build and push images from CircleCI", "Explain remote Docker constraints", "Choose between remote Docker and the machine executor"]
+        },
+        {
+          "topic": "CircleCI Local CLI: validate, process and local execute",
+          "subtopics": ["Installing the CircleCI CLI and running circleci setup with a token", "circleci config validate with --org-slug for private orbs", "circleci config process to expand orbs and parameters", "circleci local execute for docker executor jobs", "Limits of local execution: no caches, workspaces or machine executor", "circleci diagnostic to check authentication", "Pre-commit hooks that validate config", "Editor support through the CircleCI VS Code extension"],
+          "tools": ["CircleCI CLI", "Docker", "pre-commit", "CircleCI VS Code extension"],
+          "lab_task": "Install the CircleCI CLI, authenticate with circleci setup, and run circleci diagnostic. Run circleci local execute test against your config and record which steps are skipped locally. Add a pre-commit hook that runs circleci config validate and confirm it blocks a commit with an invalid key. Finally run circleci config process and diff its output after changing one orb parameter.",
+          "deliverable": "CLI install notes, local execution log, working pre-commit hook and the process diff",
+          "checks": [["Run circleci diagnostic", "It reports the API host and confirms the token is valid", "Terminal output"], ["Run circleci local execute test", "The job runs in a local Docker container and save_cache is reported as not supported locally", "Terminal output"], ["Commit a config with an unknown key", "The pre-commit hook fails and the commit is not created", "Terminal output"]],
+          "objectives": ["Install and authenticate the CircleCI CLI", "Run jobs locally and know the limits", "Catch config errors before pushing"]
+        },
+        {
+          "topic": "Debugging Failed CircleCI Jobs with SSH Reruns",
+          "subtopics": ["Reading the failing step, exit code and last log lines", "Rerun job with SSH and the SSH key it uses", "Connecting with the ssh command shown in the job", "Inspecting files, environment and processes in the live container", "How long an SSH session stays open", "Common failures: missing files, wrong working_directory, flaky network", "Adding set -x and diagnostic steps safely", "Sharing a minimal reproduction with your team"],
+          "tools": ["Rerun job with SSH", "SSH", "Bash", "CircleCI web app"],
+          "lab_task": "Introduce three faults: a wrong working_directory, a missing environment variable and a test that depends on a file not in the workspace. For each, read the failing step, rerun with SSH, inspect with ls, env and cat, fix the config and rerun normally. Record time to diagnosis for each fault and end the SSH session explicitly.",
+          "deliverable": "Fault log with symptom, SSH evidence, root cause and fix for each of the three faults",
+          "checks": [["Rerun the failed job with SSH", "The job page shows an ssh -p command with host and port", "Job page screenshot"], ["Run env | grep -c DEPLOY_ in the SSH session for the missing variable fault", "It prints 0", "Terminal output"], ["Push the three fixes", "The workflow passes on the next normal run", "Pipeline page"]],
+          "objectives": ["Read job logs to find the failing step", "Use SSH reruns to inspect a live job", "Fix and verify common config faults"]
+        },
+        {
+          "topic": "Beginner Capstone: CircleCI Pipeline for a Node.js API",
+          "subtopics": ["Requirements: lint, unit and integration tests, image build and staged deploy", "Config design with caching, workspaces and a Postgres service container", "Test results, coverage artifacts and branch and tag filters", "Contexts for staging and production with an approval gate", "Docker image build and push tagged by commit and version", "Demonstration, runbook and cost and duration report"],
+          "tools": ["CircleCI", "circleci/node orb", "setup_remote_docker", "PostgreSQL", "CircleCI CLI"],
+          "lab_task": "Build a complete pipeline for a provided Node.js API: lint and unit tests in parallel with an npm cache, integration tests against postgres:16, a build job that persists dist to a workspace, an image pushed with the commit SHA, deploy-staging on main, and deploy-prod after approval only for v* tags. Keep the main branch pipeline under 6 minutes with a warm cache.",
+          "deliverable": "Repository with config.yml, README runbook, pipeline links for main and a v1.0.0 tag, and a duration and credit report",
+          "checks": [["Push to main with a warm cache", "The workflow completes successfully in under 6 minutes", "Pipeline page with duration"], ["Push tag v1.0.0", "deploy-prod waits on the approval job and runs only after approval", "Workflow screenshots"], ["Break one unit test", "The Tests tab shows the failure and no image is pushed", "Tests tab and registry screenshot"]],
+          "objectives": ["Combine executors, caching, workspaces and filters in one pipeline", "Gate production deploys with contexts and approvals", "Present a working pipeline with a runbook"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already run CircleCI pipelines with jobs, workflows, caches and contexts and now need faster, reusable and multi-platform delivery. Covers reusable commands, executors and parameters, matrix jobs, parallelism with timing-based test splitting and failed-test reruns, advanced cache design, Docker layer caching, Arm, macOS, Windows and GPU executors, OIDC federation to AWS, Google Cloud and Azure, scheduled and API-triggered pipelines, pipeline parameters with conditional workflows, context restrictions, Kubernetes deploys, deploy markers, notifications and webhooks, and Test Insights, ending with a multi-platform release pipeline capstone.",
+      "prerequisites": ["Has written CircleCI config.yml files with jobs, workflows, filters, caches, workspaces and contexts, or completed the beginner level", "Builds and tests applications in containers and reads Dockerfiles, JUnit XML output and shell scripts", "Has a sandbox AWS, Google Cloud or Azure account with rights to create IAM roles or identity federation, plus a Kubernetes test cluster"],
+      "outcomes": ["Write DRY configuration with commands, executors, parameters and matrix jobs that build on Linux, Arm, macOS, Windows and GPU executors", "Cut test time with parallelism, timing-based splitting, failed-test reruns, layered caches and Docker layer caching", "Deploy to cloud and Kubernetes targets with OIDC instead of stored keys, restricted contexts and tracked deploy markers", "Trigger, notify and measure pipelines with schedules, the API, pipeline parameters, webhooks and Test Insights"],
+      "days": [
+        {
+          "topic": "CircleCI Reusable Config: Commands, Executors and Parameters",
+          "subtopics": ["Reusable commands with steps and parameters", "Named executors with docker, machine and resource_class", "Parameter types: string, boolean, integer, enum, executor, steps and env_var_name", "Defaults and required parameters", "<< parameters.name >> interpolation and where it is allowed", "Parameterised jobs called several times with different names", "pre-steps and post-steps on workflow job entries", "Reading the processed config to confirm expansion"],
+          "tools": ["CircleCI reusable config", "CircleCI CLI", "circleci config process"],
+          "lab_task": "Refactor a config with three near-identical test jobs into one executor node-exec with a version parameter, one command install-and-cache, and one parameterised job test that takes a steps parameter for extra checks. Call it three times in the workflow with different names, add a post-steps notification, and confirm with circleci config process that the expanded jobs match the original behaviour.",
+          "deliverable": "Before-and-after config with line counts, processed output and a passing workflow",
+          "checks": [["Run circleci config process on the refactored file", "Three expanded jobs appear with the names given in the workflow", "processed.yml"], ["Pass an enum parameter value that is not allowed", "Compilation fails with an error naming the parameter and allowed values", "Pipeline error page"], ["Count lines in the old and new config", "The refactored config is shorter and the workflow still passes", "wc -l output and pipeline link"]],
+          "objectives": ["Write reusable commands, executors and parameterised jobs", "Use pre-steps and post-steps", "Verify expansion with the processed config"]
+        },
+        {
+          "topic": "CircleCI Matrix Jobs Across Runtime Versions",
+          "subtopics": ["matrix: parameters on workflow job entries", "Generated job names such as test-<< matrix.version >>", "exclude for unsupported combinations", "alias for requiring every matrix job at once", "Requiring a single generated job by name", "Matrices across executors and operating systems", "Combining matrix with filters and contexts", "Credit impact of large matrices"],
+          "tools": ["CircleCI matrix jobs", "cimg/python", "cimg/node", "CircleCI workflows"],
+          "lab_task": "Run a Python library's tests across Python 3.10 to 3.13 and two OS executors with a matrix, exclude one unsupported pair, and give jobs names like test-3.12-linux. Add a publish job that requires the matrix alias. Record the number of generated jobs, the total credits and the workflow duration, then cut the matrix for pull requests with a pipeline parameter.",
+          "deliverable": "Matrix config, job count and credit table, and the reduced pull request matrix",
+          "checks": [["Push the matrix config", "The workflow shows the expected number of generated jobs minus the excluded pair", "Workflow graph screenshot"], ["Make the 3.13 job fail", "publish does not start because it requires the matrix alias", "Workflow page"], ["Open a pull request with the reduced matrix", "Only the reduced subset of jobs runs", "Workflow graph screenshot"]],
+          "objectives": ["Generate jobs with matrix parameters", "Control matrix dependencies and exclusions", "Balance coverage against credit use"]
+        },
+        {
+          "topic": "CircleCI Parallelism and Timing-Based Test Splitting",
+          "subtopics": ["parallelism key and parallel containers", "CIRCLE_NODE_INDEX and CIRCLE_NODE_TOTAL", "circleci tests glob for test file discovery", "circleci tests split by name, filesize and timings", "Timing data from store_test_results and the file attribute in JUnit XML", "circleci tests run with --command and --split-by=timings", "Measuring imbalance between parallel containers", "Diminishing returns and credit cost of extra containers"],
+          "tools": ["CircleCI test splitting", "circleci tests run", "Jest", "jest-junit", "RSpec"],
+          "lab_task": "Take a 400-file Jest suite running in one container, set parallelism: 6 and run circleci tests glob \"src/**/*.test.ts\" | circleci tests run --command=\"xargs npx jest --ci\" --verbose --split-by=timings with jest-junit and JEST_JUNIT_ADD_FILE_ATTRIBUTE=true. Run twice so timings exist, then record per-container durations and the spread between the fastest and slowest.",
+          "deliverable": "Per-container timing table for the first and second run, total duration and credit comparison",
+          "checks": [["Run with parallelism: 6", "Six containers run, each printing a different CIRCLE_NODE_INDEX from 0 to 5", "Job page"], ["Run a second time after timing data is stored", "The slowest container finishes within 20 percent of the fastest", "Timing table"], ["Remove the file attribute from the JUnit output", "The split logs that no timing data was found and falls back to splitting by name", "Step output"]],
+          "objectives": ["Split tests across parallel containers", "Use stored timings for balanced splits", "Measure the cost and benefit of parallelism"]
+        },
+        {
+          "topic": "Rerunning Only Failed Tests in CircleCI",
+          "subtopics": ["The Rerun failed tests option in the web app", "Requirements: circleci tests run and JUnit results", "How the rerun selects test files from the previous run", "Parallelism on a failed-test rerun", "Framework support and file or classname attributes", "When rerunning hides a real regression", "Combining reruns with flaky test detection", "Credit savings compared with full reruns"],
+          "tools": ["circleci tests run", "Rerun failed tests", "pytest", "Jest"],
+          "lab_task": "Convert a pytest job to circleci tests run --command=\"xargs pytest -o junit_family=legacy --junitxml=test-results/junit.xml\" --verbose with store_test_results. Make three of 200 tests fail, use Rerun failed tests and record how many tests and containers ran and how long it took. Compare with a full Rerun workflow from failed and compute the credits saved.",
+          "deliverable": "Rerun comparison table with test counts, duration and credits for both rerun types",
+          "checks": [["Use Rerun failed tests after 3 failures", "Only the 3 failed tests are executed", "Step output listing the tests"], ["Compare duration with a full rerun", "The failed-test rerun takes less time and fewer credits", "Comparison table"], ["Use Rerun failed tests on a job that does not use circleci tests run", "The option is unavailable or the whole suite runs", "Screenshot and step output"]],
+          "objectives": ["Configure jobs for failed-test reruns", "Explain how CircleCI selects tests to rerun", "Quantify savings from targeted reruns"]
+        },
+        {
+          "topic": "CircleCI Cache Strategy: Key Templates, Fallbacks and Size",
+          "subtopics": ["Layered keys: lockfile checksum, branch and fallback prefix", "Caching per architecture with {{ arch }}", "Separate caches for dependencies and build outputs such as .next/cache", "Cache size, upload time and the point where caching costs more than it saves", "Monorepo caches keyed on several lockfiles with checksum of a combined file", "Cache poisoning risks from untrusted branches", "Cache retention settings in usage controls", "Measuring hit rate across 20 pipeline runs"],
+          "tools": ["CircleCI caching", "npm", "Gradle", "Next.js"],
+          "lab_task": "For a Gradle or Next.js build, design three cache layers: dependencies keyed on lockfile checksum, build cache keyed on branch and revision with branch and main fallbacks, and tool binaries keyed on {{ arch }}. Run 10 pipelines across two branches, record restore time, save time, cache size and hit or miss for each layer, and remove any layer whose save time exceeds its saving.",
+          "deliverable": "Cache layer table over 10 runs with hit rate, sizes and a decision for each layer",
+          "checks": [["Run a feature branch for the first time", "The build cache restores from the main fallback key", "restore_cache log line"], ["Run on an Arm and an x86 job", "Two distinct tool caches are stored with different arch segments in the key", "Step output"], ["Compute hit rate over the 10 runs", "The dependency cache hit rate is at least 80 percent", "Results table"]],
+          "objectives": ["Design layered cache keys", "Measure cache value against cost", "Avoid cache poisoning and oversize caches"]
+        },
+        {
+          "topic": "CircleCI Docker Layer Caching and BuildKit Registry Cache",
+          "subtopics": ["docker_layer_caching: true on setup_remote_docker", "docker_layer_caching on the machine executor", "How DLC volumes are shared and why hits are not guaranteed", "Credit cost of DLC per job", "Dockerfile ordering to maximise layer reuse", "BuildKit cache with --cache-from and --cache-to type=registry", "Comparing DLC with registry cache on cold and warm runs", "When neither cache helps"],
+          "tools": ["Docker layer caching", "Docker BuildKit", "docker buildx", "setup_remote_docker"],
+          "lab_task": "Build a multi-stage Dockerfile four ways: no cache, DLC on setup_remote_docker, DLC on the machine executor, and docker buildx build --cache-from type=registry,ref=<repo>:cache --cache-to type=registry,ref=<repo>:cache,mode=max. Run each three times after changing only application code. Record build time and credit cost, including the DLC charge, and recommend one method.",
+          "deliverable": "Build time and credit table for the four methods over three runs with a recommendation",
+          "checks": [["Run the DLC job a second time with only app code changed", "Dependency layers show CACHED in the build output", "Step output"], ["Run the registry cache build on a fresh job", "Layers are imported from the cache ref and the build is faster than the no-cache run", "Step output"], ["Compare credits for DLC and registry cache runs", "The table shows the DLC charge and the cheaper method for this workload", "Comparison table"]],
+          "objectives": ["Enable and measure Docker layer caching", "Use BuildKit registry caches as an alternative", "Choose a caching method on cost and speed"]
+        },
+        {
+          "topic": "CircleCI Arm Resource Classes and Multi-Architecture Images",
+          "subtopics": ["Arm resource classes such as arm.medium and arm.large", "Arm on the docker executor and on machine images", "Checking architecture with uname -m", "Native Arm builds versus QEMU emulation with buildx", "Building amd64 and arm64 images in parallel jobs", "Creating a manifest list with docker buildx imagetools create", "Cost and speed comparison of Arm and x86 classes", "Libraries without Arm builds and how to detect them"],
+          "tools": ["CircleCI Arm resource classes", "docker buildx", "Docker", "QEMU"],
+          "lab_task": "Build an image natively on medium (x86) and arm.medium in two parallel jobs, push each with -amd64 and -arm64 suffixes, then join them with docker buildx imagetools create -t <repo>:1.0 <repo>:1.0-amd64 <repo>:1.0-arm64. Compare with a single QEMU-emulated buildx build of both platforms and record build times and credits.",
+          "deliverable": "Pushed multi-architecture image, docker buildx imagetools inspect output and a timing comparison",
+          "checks": [["Run uname -m on arm.medium", "It prints aarch64", "Step output"], ["Run docker buildx imagetools inspect <repo>:1.0", "The manifest lists linux/amd64 and linux/arm64", "Terminal output"], ["Compare the native and emulated arm64 builds", "The native Arm build is faster than the emulated build", "Timing table"]],
+          "objectives": ["Run jobs on Arm resource classes", "Publish multi-architecture images", "Compare native and emulated builds"]
+        },
+        {
+          "topic": "CircleCI macOS Executor for iOS Builds with Xcode",
+          "subtopics": ["macos: xcode: version selection", "Apple silicon resource classes and how to check the current list", "Pre-installed simulators, Ruby and Homebrew", "xcodebuild test with -destination for an iOS Simulator", "fastlane scan and fastlane match with a context-held passphrase", "Caching CocoaPods, Swift Package Manager and DerivedData", "Code signing keychains in CI", "macOS credit cost and keeping macOS jobs short"],
+          "tools": ["CircleCI macOS executor", "Xcode", "xcodebuild", "fastlane", "Swift Package Manager"],
+          "lab_task": "Create a macOS job with a pinned Xcode version that resolves Swift packages with a cache keyed on Package.resolved, runs xcodebuild test -scheme App -destination 'platform=iOS Simulator,name=iPhone 16' -resultBundlePath out.xcresult, converts results to JUnit with fastlane or xcresult tooling, and stores them. Record cold and warm durations and credits.",
+          "deliverable": "macOS job config, Tests tab with iOS results, and cold versus warm duration and credit table",
+          "checks": [["Run xcodebuild -version in the job", "The Xcode version matches the pinned macos.xcode value", "Step output"], ["Run the test step", "Test results appear in the Tests tab with counts matching the xcresult bundle", "Tests tab screenshot"], ["Run a second time with the package cache", "Package resolution is faster than the cold run", "Timing table"]],
+          "objectives": ["Build and test iOS apps on the macOS executor", "Cache Apple tool dependencies", "Control macOS job cost"]
+        },
+        {
+          "topic": "CircleCI Windows Executor for .NET Builds",
+          "subtopics": ["Windows machine images such as windows-server-2022-gui", "The circleci/windows orb and its default executor", "Shells: powershell.exe, pwsh and bash.exe", "Windows resource classes and spin-up time", "dotnet restore, build and test with --logger trx or JUnit", "Caching NuGet packages", "Path separators and line endings across platforms", "Exit codes in PowerShell steps and $ErrorActionPreference"],
+          "tools": ["CircleCI Windows executor", "circleci/windows orb", "PowerShell", ".NET SDK", "NuGet"],
+          "lab_task": "Create a Windows job that prints $PSVersionTable and dotnet --info, restores with a NuGet cache keyed on packages.lock.json, runs dotnet test with a JUnit logger to test-results, and stores results. Add a PowerShell step that calls a failing exe and show it passes silently until you check $LASTEXITCODE and exit with it. Record durations and credits.",
+          "deliverable": "Windows job config, test results and evidence of the exit code fix",
+          "checks": [["Run dotnet test in the Windows job", "Test results appear in the Tests tab", "Tests tab screenshot"], ["Call a failing exe in a PowerShell step without checking $LASTEXITCODE", "The step reports success even though the exe failed", "Step output"], ["Add if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }", "The step now fails with the exe's exit code", "Step output"]],
+          "objectives": ["Build and test .NET on the Windows executor", "Handle PowerShell exit codes correctly", "Cache NuGet dependencies"]
+        },
+        {
+          "topic": "CircleCI GPU Executors for CUDA Workloads",
+          "subtopics": ["GPU resource classes on Linux and Windows machine executors", "CUDA machine images and checking the driver with nvidia-smi", "When GPU tests belong in CI and when they do not", "Running PyTorch or CUDA sample tests", "Docker with the NVIDIA container toolkit on machine jobs", "Keeping GPU jobs short and gated by filters or parameters", "GPU credit cost and plan availability", "Self-hosted GPU runners as an alternative"],
+          "tools": ["CircleCI GPU resource classes", "nvidia-smi", "CUDA", "PyTorch", "NVIDIA Container Toolkit"],
+          "lab_task": "Add a GPU machine job using a CUDA image and a GPU resource class available on your plan, run nvidia-smi, install PyTorch and run a test that asserts torch.cuda.is_available() and multiplies two 4096x4096 tensors. Gate the job to run only on main or with a run-gpu pipeline parameter, and record duration and credits per run.",
+          "deliverable": "GPU job config, nvidia-smi output, test result and a cost-per-run figure",
+          "checks": [["Run nvidia-smi", "One GPU is listed with driver and CUDA versions", "Step output"], ["Run the PyTorch test", "torch.cuda.is_available() returns True and the test passes", "Test results"], ["Push to a feature branch without run-gpu", "The GPU job does not run", "Workflow graph"]],
+          "objectives": ["Run CUDA workloads on GPU executors", "Gate expensive GPU jobs", "Estimate GPU job cost"]
+        },
+        {
+          "topic": "CircleCI OIDC Tokens for Keyless AWS Access",
+          "subtopics": ["CIRCLE_OIDC_TOKEN and CIRCLE_OIDC_TOKEN_V2 environment variables", "Issuer https://oidc.circleci.com/org/<ORG_ID> and audience set to the org ID", "Claims: sub, oidc.circleci.com/project-id, context-ids, vcs-origin and vcs-ref", "Creating an IAM OIDC identity provider for the issuer", "Trust policy conditions on aud and sub with StringLike", "aws sts assume-role-with-web-identity and the aws-cli orb role_arn setup", "Restricting roles to one project and branch", "Removing stored AWS access keys"],
+          "tools": ["CircleCI OIDC", "AWS IAM", "AWS CLI", "circleci/aws-cli orb", "jq"],
+          "lab_task": "Create an IAM OIDC provider for oidc.circleci.com/org/<ORG_ID> and a role whose trust policy requires aud equal to the org ID and sub like org/<ORG_ID>/project/<PROJECT_ID>/user/*. Decode the token claims with jq, assume the role with aws sts assume-role-with-web-identity, run aws sts get-caller-identity, then delete the old access keys from the project.",
+          "deliverable": "IAM trust policy, decoded token claims, get-caller-identity output and confirmation that no AWS keys remain in CircleCI",
+          "checks": [["Run aws sts get-caller-identity after assuming the role", "The Arn shows the assumed-role session for the CircleCI role", "Step output"], ["Run the job from a different project", "AssumeRoleWithWebIdentity fails with AccessDenied", "Step output"], ["Search project and context variables for AWS_SECRET_ACCESS_KEY", "No such variable exists", "Settings screenshot"]],
+          "objectives": ["Explain CircleCI OIDC token claims", "Federate CircleCI jobs into AWS without stored keys", "Scope cloud roles to projects and branches"]
+        },
+        {
+          "topic": "CircleCI OIDC Federation with Google Cloud and Azure",
+          "subtopics": ["Google Cloud workload identity pools and OIDC providers", "Attribute mapping from CircleCI claims to google.subject and attributes", "Granting roles/iam.workloadIdentityUser on a service account", "Azure federated identity credentials on an app registration", "Audience api://AzureADTokenExchange and custom claims with circleci run oidc get", "Subject matching limits with user IDs in the sub claim", "az login --federated-token and gcloud auth login --cred-file", "Testing denial paths for wrong project and branch"],
+          "tools": ["CircleCI OIDC", "gcloud", "Azure CLI", "Google Cloud IAM", "Microsoft Entra ID"],
+          "lab_task": "For Google Cloud, create a workload identity pool and OIDC provider with issuer https://oidc.circleci.com/org/<ORG_ID>, map attribute.project_id, bind a service account, and run gcloud storage ls. For Azure, add a federated credential and log in with az login --service-principal --federated-token \"$(circleci run oidc get --claims '{\"aud\":\"api://AzureADTokenExchange\"}')\", then run az group list.",
+          "deliverable": "Federation setup notes for both clouds, successful command output and one denied attempt per cloud",
+          "checks": [["Run gcloud storage ls with the federated credential", "The bucket list prints without a service account key", "Step output"], ["Run az group list after federated login", "Resource groups print as JSON", "Step output"], ["Request a token without the Azure audience claim", "Azure login fails with an AADSTS audience error", "Step output"]],
+          "objectives": ["Federate CircleCI with Google Cloud", "Federate CircleCI with Azure using custom audience claims", "Verify denial paths for federated identities"]
+        },
+        {
+          "topic": "CircleCI Scheduled Pipelines and API-Triggered Pipelines",
+          "subtopics": ["Scheduled pipelines in Project Settings > Triggers", "Schedule timetable, branch and parameters", "pipeline.schedule.name and pipeline.trigger_source in when conditions", "Migrating from deprecated scheduled workflows with triggers: schedule", "Triggering a pipeline with POST to the API v2 pipeline endpoint", "Circle-Token header and personal versus project tokens", "Passing parameters in the request body", "Errors for undeclared parameters"],
+          "tools": ["CircleCI scheduled pipelines", "CircleCI API v2", "curl", "jq"],
+          "lab_task": "Create a nightly schedule on main that sets a run-nightly parameter, and a workflow that runs only when pipeline.trigger_source is scheduled_pipeline. Then trigger the same workflow from curl with -H \"Circle-Token: $CIRCLE_TOKEN\" and a JSON body setting branch and parameters. Send an undeclared parameter and record the error response.",
+          "deliverable": "Schedule configuration, API request and response bodies and the undeclared parameter error",
+          "checks": [["POST a pipeline with valid branch and parameters", "The API returns HTTP 201 with a pipeline number and id", "curl output"], ["POST with an undeclared parameter", "The API returns an error naming the unexpected argument", "curl output"], ["Wait for the scheduled run", "The pipeline shows trigger type scheduled and only the nightly workflow runs", "Pipelines view screenshot"]],
+          "objectives": ["Schedule pipelines with parameters", "Trigger pipelines from the API", "Branch workflow logic on trigger source"]
+        },
+        {
+          "topic": "CircleCI Pipeline Parameters and Conditional Workflows with when",
+          "subtopics": ["Top-level parameters with types and defaults", "<< pipeline.parameters.name >> in jobs and workflows", "Workflow-level when and unless", "Logic statements: and, or, not, equal and matches", "Step-level when conditions with parameters", "Conditions on pipeline.git.branch and pipeline.git.tag", "Compile-time evaluation and why environment variables cannot be used in when", "Testing every branch of the logic"],
+          "tools": ["CircleCI pipeline parameters", "CircleCI logic statements", "CircleCI API v2"],
+          "lab_task": "Add parameters deploy (boolean) and target (enum dev, staging, prod). Write a deploy workflow with when: and: [<< pipeline.parameters.deploy >>, matches: {pattern: \"^main$\", value: << pipeline.git.branch >>}], and a step that runs only for target prod. Trigger four combinations through the API and record which workflows and steps ran.",
+          "deliverable": "Truth table of four triggers with the workflows and steps that ran",
+          "checks": [["Trigger with deploy true on main", "The deploy workflow runs", "Pipeline page"], ["Trigger with deploy true on a feature branch", "The deploy workflow does not run", "Pipeline page"], ["Try when: equal [ main, $CIRCLE_BRANCH ]", "The workflow never runs because the variable is not resolved at compile time", "Pipeline page and explanation"]],
+          "objectives": ["Declare and use pipeline parameters", "Write conditional workflows with logic statements", "Explain compile-time versus run-time values"]
+        },
+        {
+          "topic": "CircleCI Context Restrictions: Security Groups and Expression Rules",
+          "subtopics": ["Why unrestricted contexts are a risk", "Security group restrictions for VCS-connected organizations", "Project restrictions on contexts", "Expression restrictions on pipeline.git.branch and other values", "Unauthorized status when a restriction blocks a job", "Combining restrictions with approval jobs", "Auditing which jobs use which context", "Context ownership and naming conventions"],
+          "tools": ["CircleCI contexts", "CircleCI Organization Settings", "GitHub teams"],
+          "lab_task": "Restrict context acme-prod so only the api project can use it and only when pipeline.git.branch == \"main\". Add a team or group restriction where your integration supports it. Run deploy-prod from main, from a feature branch and from another project, and record each result. Add an approval job that only restricted members can usefully approve.",
+          "deliverable": "Context restriction settings and a table of the three attempts with their outcomes",
+          "checks": [["Run deploy-prod from main in the api project", "The job runs and reads the context variables", "Job page"], ["Run deploy-prod from a feature branch", "The job fails with status Unauthorized", "Job page screenshot"], ["Run a job using acme-prod from another project", "The job is blocked by the project restriction", "Job page screenshot"]],
+          "objectives": ["Restrict contexts by project, branch and group", "Interpret Unauthorized job results", "Combine restrictions with approvals"]
+        },
+        {
+          "topic": "Deploying to Kubernetes from CircleCI with Helm",
+          "subtopics": ["Getting cluster credentials via OIDC with aws eks update-kubeconfig or gcloud", "The circleci/kubernetes and circleci/helm orbs", "helm upgrade --install --atomic --wait with a timeout", "Setting the image tag from CIRCLE_SHA1 or the release version", "Namespaces per environment", "kubectl rollout status as a deploy gate", "Rolling back with helm rollback", "Preventing concurrent deploys to the same environment"],
+          "tools": ["Helm", "kubectl", "circleci/kubernetes orb", "Amazon EKS", "CircleCI OIDC"],
+          "lab_task": "Add a deploy-staging job that assumes a role with OIDC, runs aws eks update-kubeconfig, and deploys with helm upgrade --install api ./chart -n staging --set image.tag=${CIRCLE_SHA1:0:7} --atomic --wait --timeout 5m. Deploy a broken image tag on purpose, confirm --atomic rolls it back, then run helm history and record the revisions.",
+          "deliverable": "Deploy job config, helm history output and logs for the successful and rolled-back deploys",
+          "checks": [["Deploy a good tag", "helm upgrade reports STATUS: deployed and kubectl rollout status succeeds", "Step output"], ["Deploy a tag that does not exist", "The upgrade times out and --atomic rolls back to the previous revision", "Step output"], ["Run helm history api -n staging", "A failed revision is followed by a rollback revision", "Terminal output"]],
+          "objectives": ["Deploy Helm charts from CircleCI with short-lived credentials", "Gate deploys on rollout status", "Recover with automatic and manual rollback"]
+        },
+        {
+          "topic": "CircleCI Deploys: Deploy Markers and Environment Tracking",
+          "subtopics": ["The Deploys view and what a deploy marker records", "Environments and components", "circleci run release plan and circleci run release update", "Marking deploys running, successful, failed or canceled", "Recording rollbacks", "Linking deploys to commits and pipelines", "The Kubernetes release agent as an alternative to markers", "Using deploy history in incident reviews"],
+          "tools": ["CircleCI Deploys", "CircleCI CLI", "Helm", "kubectl"],
+          "lab_task": "Add deploy markers to your staging and prod jobs: plan the release with environment and component names and the target version, update it to running before helm upgrade, and to success or failed in steps with when: on_success and when: on_fail. Run three deploys including one failure and one rollback, then review the environment timeline in the Deploys view.",
+          "deliverable": "Deploy job config with markers and a Deploys view screenshot showing three entries with correct statuses",
+          "checks": [["Run a successful staging deploy", "The Deploys view shows the version as successful in staging", "Deploys view screenshot"], ["Run a deploy that fails", "The marker is recorded as failed by the on_fail step", "Deploys view screenshot"], ["Open the deploy entry", "It links to the commit and the pipeline that produced it", "Screenshot"]],
+          "objectives": ["Track deploys per environment and component", "Record failures and rollbacks accurately", "Use deploy history for reviews"]
+        },
+        {
+          "topic": "CircleCI Notifications with the Slack Orb and Outbound Webhooks",
+          "subtopics": ["The circleci/slack orb with SLACK_ACCESS_TOKEN and SLACK_DEFAULT_CHANNEL", "slack/notify with event: fail, pass and always", "Built-in templates and custom Block Kit JSON", "Branch pattern filters to avoid noisy alerts", "Outbound webhooks for workflow-completed and job-completed events", "Verifying the circleci-signature header with HMAC-SHA256", "Receiving webhooks with a small HTTP service", "Alert routing by environment"],
+          "tools": ["circleci/slack orb", "Slack", "CircleCI outbound webhooks", "Python", "openssl"],
+          "lab_task": "Add slack/notify with event: fail on main and a custom template for successful prod deploys, using a context for the token. Configure an outbound webhook for workflow-completed to a small Python receiver that verifies circleci-signature with HMAC-SHA256 and logs workflow name and status. Send one tampered request and confirm it is rejected.",
+          "deliverable": "Slack messages for a failure and a deploy, receiver code and logs with one rejected tampered request",
+          "checks": [["Fail a job on main", "A Slack message posts in the channel with the job name and a link", "Slack screenshot"], ["Complete a workflow", "The receiver logs a workflow-completed event with a valid signature", "Receiver log"], ["POST a modified payload with the old signature", "The receiver responds 401 and logs a signature mismatch", "Receiver log"]],
+          "objectives": ["Send targeted Slack notifications", "Receive and verify outbound webhooks", "Reduce alert noise with filters"]
+        },
+        {
+          "topic": "CircleCI Test Insights and Flaky Test Detection",
+          "subtopics": ["The Insights dashboard: success rate, duration, throughput and credits", "Test Insights: slowest, most failed and flaky tests", "How CircleCI flags a test as flaky", "Insights API endpoints for workflows, jobs and flaky tests", "Choosing the reporting window and branch", "Quarantining flaky tests and tracking fixes", "Setting duration and success targets", "Sharing a weekly pipeline health report"],
+          "tools": ["CircleCI Insights", "CircleCI API v2", "jq", "Test Insights"],
+          "lab_task": "Seed a test suite with two intermittent tests and run the pipeline 20 times on main. Open Test Insights, record the tests flagged as flaky, then call GET /api/v2/insights/<slug>/flaky-tests and the workflows summary endpoint with jq to extract success rate and p95 duration. Quarantine the flaky tests and compare metrics over the next 10 runs.",
+          "deliverable": "Pipeline health report with flaky tests found, API output and before-and-after success rate",
+          "checks": [["Call the flaky-tests endpoint", "Both seeded tests appear in the response", "curl and jq output"], ["Extract success rate from the workflow summary endpoint", "A numeric success rate and p95 duration are returned for main", "jq output"], ["Run 10 times after quarantine", "The workflow success rate rises compared with the first 20 runs", "Report table"]],
+          "objectives": ["Read pipeline and test health in Insights", "Query the Insights API", "Manage flaky tests with evidence"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Platform CircleCI Release Pipeline",
+          "subtopics": ["Requirements: Linux, Arm, macOS or Windows builds and a matrix of runtimes", "Reusable executors, commands and parameters", "Split tests with timings and failed-test reruns", "Multi-architecture image with Docker layer or registry caching", "OIDC deploys to Kubernetes with restricted contexts and deploy markers", "Insights-based report, Slack alerts and runbook"],
+          "tools": ["CircleCI", "circleci tests run", "docker buildx", "Helm", "CircleCI OIDC", "circleci/slack orb"],
+          "lab_task": "Deliver a release pipeline for a service and its client: matrix tests split by timings, an amd64 and arm64 image joined into one tag, a Windows or macOS client build, OIDC deploys to staging and prod with a restricted prod context, deploy markers and Slack alerts. Keep pull request runs under 8 minutes and show no long-lived cloud keys in CircleCI.",
+          "deliverable": "Repository with reusable config, release runbook, Deploys view evidence and an Insights report",
+          "checks": [["Open a pull request", "The pipeline finishes in under 8 minutes with balanced test containers", "Pipeline page and timing table"], ["Push tag v2.0.0", "A two-platform image is pushed and deploy markers show staging then prod as successful", "imagetools inspect output and Deploys view"], ["Search project and context variables for cloud keys", "No access keys or service account keys are stored", "Settings screenshots"]],
+          "objectives": ["Combine multi-platform builds with reusable config", "Deliver keyless, tracked deployments", "Report pipeline performance with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform engineers, DevOps leads and CI administrators who own CircleCI for many teams and repositories. Covers dynamic configuration with setup workflows, the continuation and path-filtering orbs for monorepos, authoring, testing and publishing private and public orbs, machine runner and container runner fleets with autoscaling and hardening, config policies written in Rego, secrets hygiene, supply chain controls, serial groups for deployment concurrency, progressive delivery with the release agent, multi-account OIDC promotion, API v2 automation, Insights-driven performance tuning, credit governance, audit logs and migration from other CI systems, ending with a governed monorepo platform capstone.",
+      "prerequisites": ["Writes reusable CircleCI config with commands, executors, parameters, matrix jobs and OIDC deploys, or completed the intermediate level", "Administers Kubernetes and Linux hosts and can write Helm values files, IAM policies and shell or Python automation", "Has organization admin rights on a CircleCI organization on a plan that offers runners, config policies and usage export, plus a Kubernetes cluster for runners"],
+      "outcomes": ["Build monorepo pipelines with setup workflows, path filtering and continuation that run only the work a change needs", "Publish and maintain tested orbs and operate autoscaled, hardened machine and container runner fleets", "Enforce organization standards with config policies, restricted contexts, supply chain controls, audit logs and OIDC role chains", "Run progressive, serialised deployments and govern speed and credit spend with the Insights and usage APIs"],
+      "days": [
+        {
+          "topic": "CircleCI Dynamic Config with Setup Workflows and the Continuation Orb",
+          "subtopics": ["Enabling dynamic config in Project Settings > Advanced", "setup: true at the top of the setup config", "The one-continuation rule and its time window", "circleci/continuation orb: continue with configuration_path and parameters", "Generating config with a script in the setup job", "Passing pipeline parameters into the continued config", "Validating generated config before continuing", "Debugging failed continuations and the setup workflow view", "Security of the continuation key and who can continue a pipeline", "When dynamic config adds more complexity than it removes"],
+          "tools": ["CircleCI dynamic config", "circleci/continuation orb", "CircleCI CLI", "Python", "yq"],
+          "lab_task": "Enable dynamic config, write a setup config with setup: true whose job runs a Python script that reads services.yaml and generates .circleci/generated.yml with one job per service. Validate it with circleci config validate, then continue with continuation/continue using configuration_path. Add a service to services.yaml and confirm a new job appears without editing YAML by hand.",
+          "deliverable": "Setup config, generator script, generated config sample and pipelines before and after adding a service",
+          "checks": [["Push the setup config with dynamic config enabled", "The pipeline shows a setup workflow followed by the continued workflow", "Pipeline page screenshot"], ["Add a fourth service to services.yaml", "The continued workflow contains four service jobs", "Workflow graph"], ["Generate an invalid config and continue", "The continuation fails and the setup job reports the config error", "Step output"]],
+          "objectives": ["Configure setup workflows and continuation", "Generate config programmatically and validate it", "Judge when dynamic config is worth it"]
+        },
+        {
+          "topic": "CircleCI Monorepo Path Filtering with the path-filtering Orb",
+          "subtopics": ["path-filtering/filter job and its mapping lines", "Mapping format: regex, parameter name and value", "base-revision for pull requests and main branch builds", "Mapping to a config file per service with config-path", "Boolean pipeline parameters that gate service workflows", "Shared library changes that must trigger several services", "Default runs on main to catch drift", "Measuring credits saved versus run-everything pipelines"],
+          "tools": ["circleci/path-filtering orb", "CircleCI dynamic config", "Git", "CircleCI pipeline parameters"],
+          "lab_task": "In a monorepo with services/api, services/web and libs/shared, configure path-filtering/filter with mappings like services/api/.* run-api true and libs/shared/.* run-api true plus run-web true, base-revision main. Make five commits touching different paths and record which workflows run. Compare total credits against a version that runs every service on every commit.",
+          "deliverable": "Mapping file, a commit-to-workflow table for five commits and a credit comparison",
+          "checks": [["Commit a change only under services/web", "Only the web workflow runs", "Pipeline page"], ["Commit a change under libs/shared", "Both api and web workflows run", "Pipeline page"], ["Compare five-commit credit totals", "The path-filtered config uses fewer credits than run-everything", "Comparison table"]],
+          "objectives": ["Filter monorepo workflows by changed paths", "Handle shared dependencies in mappings", "Quantify savings from path filtering"]
+        },
+        {
+          "topic": "Authoring and Publishing a CircleCI Orb with the Orb Development Kit",
+          "subtopics": ["Namespaces and circleci namespace create", "circleci orb init and the src layout: commands, jobs, executors, scripts and examples", "@orb.yml metadata, display and description", "Including shell scripts with <<include(scripts/file.sh)>>", "circleci orb pack and circleci orb validate", "Development versions such as dev:alpha and their expiry", "Semantic version publishing and immutability", "Private orbs and visibility within the organization"],
+          "tools": ["CircleCI orb development kit", "CircleCI CLI", "ShellCheck", "Bats"],
+          "lab_task": "Create a namespace if needed, run circleci orb init to scaffold a private orb that wraps your team's build and deploy steps in two commands and one job, with scripts included through <<include()>>. Pack and validate it, publish a dev:alpha version, use it from a consumer project, then publish 0.1.0 and pin the consumer to the full version.",
+          "deliverable": "Orb repository, orb source listing, dev and 0.1.0 publish output and a consumer pipeline using the orb",
+          "checks": [["Run circleci orb validate on the packed orb", "The CLI reports the orb is valid", "Terminal output"], ["Run circleci orb info <namespace>/<orb>@0.1.0", "The output lists the two commands and one job", "Terminal output"], ["Republish 0.1.0 with a change", "Publishing fails because the version already exists", "Terminal output"]],
+          "objectives": ["Scaffold and structure an orb", "Publish development and semantic versions", "Consume a private orb safely"]
+        },
+        {
+          "topic": "Testing CircleCI Orbs: Integration Tests, Review Checks and Releases",
+          "subtopics": ["The orb-tools orb pipeline: pack, review, publish", "orb-tools review checks for naming, descriptions and examples", "ShellCheck and Bats tests for included scripts", "Integration tests that use the dev version in the same pipeline", "Tag-driven production publish and the version bump", "Changelogs and breaking change policy", "Deprecating commands with notices", "Supporting consumers across major versions"],
+          "tools": ["orb-tools orb", "ShellCheck", "Bats", "CircleCI CLI", "Git tags"],
+          "lab_task": "Extend the orb repository's pipeline so pull requests pack, review, run ShellCheck and Bats unit tests, publish a dev version and run integration test jobs that call each orb command. Fix every review finding, then push tag v0.2.0 to publish the production version. Introduce a breaking parameter rename on a branch and show the integration tests catch it.",
+          "deliverable": "Passing orb pipeline, review findings and fixes, and the failing integration run for the breaking change",
+          "checks": [["Run the review job on the initial orb", "Review findings are listed and all pass after fixes", "Job output before and after"], ["Push tag v0.2.0", "The registry shows version 0.2.0 published", "circleci orb info output"], ["Rename a parameter without updating tests", "An integration test job fails with an unknown parameter error", "Pipeline page"]],
+          "objectives": ["Test orbs at unit and integration level", "Automate orb releases from tags", "Manage breaking changes for orb consumers"]
+        },
+        {
+          "topic": "CircleCI Machine Runner 3 on Linux, macOS and Windows Hosts",
+          "subtopics": ["Runner resource classes named namespace/name", "Creating resource classes and tokens with circleci runner resource-class create", "Installing the circleci-runner package and its config file", "runner.name, api.auth_token and working directory settings", "Running as a systemd service with a dedicated user", "Targeting runners with machine: true and resource_class", "Job isolation on persistent hosts and cleanup between jobs", "Viewing runner status in the Self-Hosted Runners page"],
+          "tools": ["CircleCI machine runner", "CircleCI CLI", "systemd", "Linux", "PowerShell"],
+          "lab_task": "Create resource class acme/linux-build with circleci runner resource-class create --generate-token, install circleci-runner on an Ubuntu VM, write the token into /etc/circleci-runner/circleci-runner-config.yaml, and enable the service with systemctl enable --now circleci-runner. Run a job with machine: true and resource_class: acme/linux-build that prints hostname, then stop the service and record what the job shows.",
+          "deliverable": "Runner install notes, systemctl status output and job logs with the runner online and offline",
+          "checks": [["Run systemctl status circleci-runner", "The service is active (running)", "Terminal output"], ["Run a job targeting acme/linux-build", "The job runs and prints the runner VM hostname", "Step output"], ["Stop the runner and trigger the job", "The job stays queued waiting for a runner", "Job page screenshot"]],
+          "objectives": ["Install and register machine runners", "Target jobs at self-hosted resource classes", "Operate runner services safely"]
+        },
+        {
+          "topic": "CircleCI Container Runner on Kubernetes",
+          "subtopics": ["Container runner architecture: container-agent and task pods", "Installing with Helm and a values file of resource classes and tokens", "Using docker executor syntax with a runner resource class", "Pod specs: resources, nodeSelector, tolerations and service accounts", "Concurrency limits per resource class", "Private image pulls with imagePullSecrets", "What is not supported compared with cloud docker jobs", "Logs and troubleshooting with kubectl"],
+          "tools": ["CircleCI container runner", "Helm", "kubectl", "Kubernetes"],
+          "lab_task": "Install container runner into namespace circleci with helm install container-agent container-agent/container-agent -f values.yaml, defining resource class acme/k8s-small with CPU and memory requests and limits. Run a parallelism: 4 test job using docker image cimg/node with resource_class acme/k8s-small, watch task pods with kubectl get pods -n circleci -w, and record pod resources and scheduling time.",
+          "deliverable": "values.yaml, kubectl pod listing during the run, and the job page showing four parallel tasks",
+          "checks": [["Run kubectl get pods -n circleci during the job", "Four task pods are running alongside the container-agent pod", "Terminal output"], ["Describe one task pod", "Requests and limits match values.yaml", "kubectl describe output"], ["Use setup_remote_docker in a container runner job", "The job fails because the feature is not supported on container runner", "Step output"]],
+          "objectives": ["Install container runner with Helm", "Shape task pods with Kubernetes settings", "Know container runner limits"]
+        },
+        {
+          "topic": "Autoscaling and Hardening CircleCI Self-Hosted Runner Fleets",
+          "subtopics": ["The runner tasks API for unclaimed task counts per resource class", "Scaling machine runners with cloud auto scaling groups", "Ephemeral single-task runners versus long-lived hosts", "Cluster autoscaling for container runner node pools", "Network egress rules and private network access", "Least-privilege cloud roles for runner hosts", "Token storage and rotation for runner resource classes", "Patching images and removing build residue"],
+          "tools": ["CircleCI runner API", "AWS Auto Scaling", "Kubernetes Cluster Autoscaler", "Terraform", "CircleCI CLI"],
+          "lab_task": "Write a scaler that polls GET https://runner.circleci.com/api/v3/runner/tasks?resource-class=acme/linux-build every 30 seconds and sets the desired capacity of an auto scaling group between 0 and 10. Launch 30 jobs and record queue time and instance count over time. Then restrict runner egress to CircleCI and your registry, and rotate the resource class token.",
+          "deliverable": "Scaler code, queue-time and capacity chart for 30 jobs, egress rules and token rotation steps",
+          "checks": [["Query the runner tasks endpoint while 30 jobs are queued", "unclaimed_task_count reports the queued jobs", "curl output"], ["Run the 30-job burst", "Capacity scales up and returns to 0 within the idle period after the queue drains", "Capacity chart"], ["Revoke the old token after rotation", "Runners using the old token fail to claim tasks and new runners succeed", "Runner logs"]],
+          "objectives": ["Autoscale runners from queue depth", "Harden runner networking and credentials", "Measure queue time and fleet cost"]
+        },
+        {
+          "topic": "CircleCI Config Policies with OPA Rego",
+          "subtopics": ["Config policies on supported plans and the Rego language", "package org and policy_name, enable_rule and hard_fail", "The data.circleci.config helpers such as require_orbs and ban_orbs", "circleci policy push, policy diff and policy fetch", "Testing decisions locally with circleci policy decide", "Decision results: PASS, SOFT_FAIL and HARD_FAIL", "Enabling enforcement with circleci policy settings --enabled", "Rolling out policies soft first, then hard"],
+          "tools": ["CircleCI config policies", "Open Policy Agent", "Rego", "CircleCI CLI"],
+          "lab_task": "Write three Rego policies: block jobs on resource classes larger than xlarge outside main, require contexts named *-prod only in workflows with an approval job, and ban unpinned orb versions. Test each with circleci policy decide against a passing and failing config, push with circleci policy push, enable enforcement, and push a violating config to a project.",
+          "deliverable": "Policy bundle, local decide outputs for pass and fail cases and the blocked pipeline",
+          "checks": [["Run circleci policy decide on a compliant config", "The decision status is PASS", "Terminal output"], ["Run circleci policy decide on a config using a floating orb version", "The decision status is HARD_FAIL naming the rule", "Terminal output"], ["Push a violating config with enforcement enabled", "The pipeline is blocked with the policy violation shown", "Pipeline error page"]],
+          "objectives": ["Write config policies in Rego", "Test decisions locally before rollout", "Enforce organization standards at compile time"]
+        },
+        {
+          "topic": "CircleCI Secrets Hygiene: Masking, Forked Pull Requests and SSH Keys",
+          "subtopics": ["Masking rules and the minimum length for masked values", "Bypasses: base64, splitting strings and writing to artifacts", "Build forked pull requests and Pass secrets to builds from forked pull requests", "Read-only deploy keys versus user keys", "Additional SSH keys with add_ssh_keys and fingerprints", "Personal API tokens, project tokens and rotation", "Detecting committed secrets with a scanning job", "Revocation runbook for a leaked token"],
+          "tools": ["CircleCI contexts", "add_ssh_keys", "gitleaks", "CircleCI API v2"],
+          "lab_task": "Audit one organization: list projects with fork secret passing enabled, contexts without restrictions and SSH keys older than a year. Show that printing a secret with base64 bypasses masking, then add a gitleaks job that fails on a planted test key. Rotate one personal token and one deploy key and write a revocation runbook with timings.",
+          "deliverable": "Audit spreadsheet, masking bypass demonstration, gitleaks job output and the revocation runbook",
+          "checks": [["Echo a context secret directly", "The output shows ******** instead of the value", "Step output"], ["Run gitleaks detect on a branch with a planted key", "The job fails and reports one leak", "Step output"], ["Use the revoked personal token against the API", "The API returns HTTP 401", "curl output"]],
+          "objectives": ["Find and fix risky secret settings", "Explain the limits of output masking", "Rotate and revoke credentials with a runbook"]
+        },
+        {
+          "topic": "CircleCI Supply Chain Controls: Orb Allow-Lists, Image Pinning and SBOMs",
+          "subtopics": ["Disabling uncertified orbs and allow-listing approved namespaces", "Pinning orbs to full semantic versions", "Pinning images by digest such as cimg/node@sha256:...", "Generating SBOMs with syft in the pipeline", "Scanning images with grype or trivy and failing on severity", "Signing images with cosign and a KMS key", "Static IP ranges for allow-listed endpoints with circleci_ip_ranges", "Provenance records linking image, commit and pipeline"],
+          "tools": ["syft", "grype", "cosign", "CircleCI config policies", "Docker"],
+          "lab_task": "Pin every orb and image in one project, generate an SBOM with syft <image> -o spdx-json > sbom.json, scan with grype --fail-on high, sign the image with cosign sign --key awskms://<key-arn>, and store SBOM and scan report as artifacts. Add a policy that rejects images without a digest. Introduce a vulnerable base image and record the failure.",
+          "deliverable": "Pinned config, SBOM and scan artifacts, cosign verify output and the failing vulnerable build",
+          "checks": [["Run cosign verify --key on the pushed image", "Verification succeeds and prints the signature payload", "Step output"], ["Build with a base image that has a known high severity CVE", "grype fails the job with exit code 1", "Step output"], ["Push config with an image tag but no digest", "The config policy blocks the pipeline", "Pipeline error page"]],
+          "objectives": ["Pin and allow-list pipeline dependencies", "Produce SBOMs, scans and signatures in CircleCI", "Enforce supply chain rules with policies"]
+        },
+        {
+          "topic": "CircleCI Serial Groups and Deployment Concurrency Control",
+          "subtopics": ["Why concurrent pipelines can deploy out of order", "The serial-group job key and group naming with pipeline values", "Ordering guarantees across pipelines in the same group", "Serial groups per environment", "Interaction with approval jobs and reruns", "Queue time impact on deployment lead time", "Alternatives: locks in external systems and auto-cancel", "Testing ordering with rapid consecutive merges"],
+          "tools": ["CircleCI serial groups", "CircleCI workflows", "Helm", "CircleCI Deploys"],
+          "lab_task": "Merge five commits to main within two minutes with no serial group and record the order in which deploy-staging finishes, then add serial-group: << pipeline.project.slug >>/staging to deploy-staging and repeat. Compare deployed version order, queue time and final deployed version for both runs.",
+          "deliverable": "Order and timing table for both experiments and the config change",
+          "checks": [["Merge five commits without a serial group", "At least two deploy jobs overlap in time", "Timing table"], ["Merge five commits with the serial group", "Deploy jobs run one at a time in pipeline order", "Timing table"], ["Check the deployed version after the serial run", "The fifth commit's version is live", "helm list or app version endpoint output"]],
+          "objectives": ["Serialise deployments across pipelines", "Measure the queue time cost of serialisation", "Prove deploy ordering with an experiment"]
+        },
+        {
+          "topic": "Progressive Delivery from CircleCI with the Release Agent and Argo Rollouts",
+          "subtopics": ["The CircleCI release agent for Kubernetes and what it reports", "Installing the agent with Helm and an integration token", "Required labels and annotations on Deployments or Rollouts", "Argo Rollouts canary steps and analysis", "Promoting, pausing and rolling back releases from CircleCI", "Release status in the Deploys view", "Gating promotion on error rate and latency", "Rollback drills and time to restore"],
+          "tools": ["CircleCI release agent", "Argo Rollouts", "Helm", "kubectl", "Prometheus"],
+          "lab_task": "Install the release agent in the cluster, label a Rollout for component api, and deploy a canary with steps 20, 50 and 100 percent from CircleCI. Use an analysis template that queries Prometheus error rate. Release one healthy and one faulty version, then roll back the faulty one from CircleCI and record time to restore.",
+          "deliverable": "Agent install values, Rollout manifest, Deploys view timeline and the rollback timing",
+          "checks": [["Deploy a healthy version", "The canary reaches 100 percent and the release shows as successful", "Deploys view screenshot"], ["Deploy a version with a 10 percent error rate", "Analysis fails and the rollout aborts", "kubectl argo rollouts get rollout output"], ["Trigger rollback from CircleCI", "The previous version serves traffic within the measured restore time", "Timeline and app version output"]],
+          "objectives": ["Connect Kubernetes releases to CircleCI", "Run canary releases with automated analysis", "Practise rollback with measured restore time"]
+        },
+        {
+          "topic": "CircleCI Multi-Account Cloud Promotion with OIDC Role Chaining",
+          "subtopics": ["One CircleCI OIDC provider per cloud account versus a central account", "Role chaining from a CI broker role into target accounts", "Session tags and conditions on project-id, vcs-ref and context-ids", "Separate roles for plan and apply in infrastructure jobs", "Promoting the same artifact digest from dev to prod", "Session duration limits and long deploys", "Detecting drift between environments", "CloudTrail evidence of who deployed what"],
+          "tools": ["CircleCI OIDC", "AWS IAM", "AWS CloudTrail", "Terraform", "AWS CLI"],
+          "lab_task": "Create a broker role trusted by CircleCI OIDC with conditions on project-id and vcs-ref refs/heads/main, and dev, staging and prod roles that trust only the broker. Promote one image digest through all three accounts with role chaining. Find the AssumeRoleWithWebIdentity and AssumeRole events in CloudTrail and link them to the pipeline number.",
+          "deliverable": "IAM policy set, promotion pipeline, CloudTrail event extract and a digest consistency check",
+          "checks": [["Assume the prod role from a feature branch", "The broker role assumption is denied", "Step output"], ["Promote to all three accounts", "The same image digest is running in dev, staging and prod", "Digest comparison output"], ["Search CloudTrail for the prod deploy", "AssumeRoleWithWebIdentity and AssumeRole events are found for that pipeline's session", "CloudTrail extract"]],
+          "objectives": ["Design multi-account federation for CircleCI", "Promote immutable artifacts across environments", "Produce audit evidence for deployments"]
+        },
+        {
+          "topic": "CircleCI API v2 Automation and Pipeline Orchestration Scripts",
+          "subtopics": ["API v2 authentication and pagination with next_page_token", "Project, pipeline, workflow and job endpoints", "Triggering pipelines and polling workflow status", "Cancelling and rerunning workflows from scripts", "Managing project environment variables and contexts through the API", "Rate limits and HTTP 429 handling with backoff", "Cross-project orchestration and fan-out triggers", "Building a small CLI or ChatOps command"],
+          "tools": ["CircleCI API v2", "Python", "requests", "jq", "CircleCI CLI"],
+          "lab_task": "Write a Python tool that triggers pipelines in three projects with parameters, polls each workflow until it finishes, cancels the others if one fails, and prints a summary table. Add retry with exponential backoff on HTTP 429 and pagination for listing pipelines. Run it for a passing and a failing scenario and record total time and API calls made.",
+          "deliverable": "Orchestration script, run logs for both scenarios and an API call count",
+          "checks": [["Run the tool where all three projects pass", "The summary shows three successful workflows", "Terminal output"], ["Run the tool where one project fails", "The other two workflows are cancelled", "Terminal output and pipeline pages"], ["List more than 20 pipelines for a project", "The tool follows next_page_token and returns all of them", "Terminal output"]],
+          "objectives": ["Automate CircleCI with API v2", "Handle pagination and rate limits", "Orchestrate pipelines across projects"]
+        },
+        {
+          "topic": "CircleCI Insights API and Build Duration Optimisation",
+          "subtopics": ["Workflow and job metrics: duration percentiles, success rate and credits", "Finding the critical path through a workflow", "Per-step timing from the job API", "Spin-up, restore, test and upload time breakdown", "Speed-ups: smaller images, better caches, more parallelism, fewer jobs", "Prioritising work by minutes saved per week", "Before-and-after measurement with the same reporting window", "Publishing a duration dashboard"],
+          "tools": ["CircleCI Insights API", "CircleCI API v2", "Python", "jq"],
+          "lab_task": "Pull 30 days of job metrics for one busy project from the Insights API, compute the critical path of the main workflow and the time split by step type, and pick three changes expected to save the most minutes per week. Apply them, run for a week or 50 pipelines, and compare p50 and p95 duration and credits per pipeline.",
+          "deliverable": "Analysis notebook, prioritised change list and before-and-after metrics",
+          "checks": [["Compute the critical path", "The jobs on the critical path and their p95 durations are listed", "Analysis output"], ["Apply the three changes and re-measure", "p95 workflow duration is lower than the baseline", "Metrics comparison"], ["Compare credits per pipeline", "The figure is reported with the change in percent", "Metrics comparison"]],
+          "objectives": ["Analyse pipeline performance with Insights data", "Prioritise optimisations by impact", "Prove improvements with before-and-after metrics"]
+        },
+        {
+          "topic": "CircleCI Cost Governance: Credits, Usage Export and Right-Sizing",
+          "subtopics": ["Credit consumption by resource class, executor and feature", "The Usage API export job and CSV fields", "Attributing spend to projects and teams", "Right-sizing from Resources tab utilisation", "Retention controls for artifacts, workspaces and caches", "Spend from macOS, GPU, DLC and IP ranges", "Budgets, alerts and monthly reviews", "Policies that cap resource classes per project"],
+          "tools": ["CircleCI Usage API", "CircleCI Plan Usage", "Python", "pandas", "CircleCI config policies"],
+          "lab_task": "Create a usage export with POST /api/v2/organizations/<org-id>/usage_export_job for the last month, download the CSVs and load them with pandas. Rank the top 10 projects and jobs by credits, find jobs whose CPU utilisation stays below 30 percent and downsize two of them, and shorten retention where it is longer than needed. Estimate monthly savings.",
+          "deliverable": "Usage analysis notebook, top-10 tables, downsizing changes and a savings estimate",
+          "checks": [["Create the usage export job", "The job reaches a completed state with download URLs", "API output"], ["Downsize two underused jobs and rerun", "Durations stay within 10 percent of before and credits per run fall", "Before-and-after table"], ["Compute the monthly savings estimate", "A credit figure is reported with its calculation", "Notebook output"]],
+          "objectives": ["Export and analyse CircleCI usage", "Right-size resource classes with evidence", "Set up ongoing cost governance"]
+        },
+        {
+          "topic": "CircleCI Audit Logs and Compliance Evidence",
+          "subtopics": ["What audit log events record: contexts, settings, users and jobs", "Requesting audit log exports and streaming them to storage", "Fields: actor, action, target and timestamp", "Mapping events to change management and access reviews", "Correlating audit events with pipeline and deploy records", "Retention requirements and evidence storage", "Alerting on sensitive events such as context changes", "Quarterly access review of organization admins"],
+          "tools": ["CircleCI audit logs", "Amazon S3", "Amazon Athena", "jq", "CircleCI Deploys"],
+          "lab_task": "Export or stream audit logs to S3 and query them with Athena or jq. Find every context variable change in the last 30 days with actor and time, link one production deploy to its pipeline, approver and context use, and write an alert rule for changes to any *-prod context. Produce an evidence pack for one change request.",
+          "deliverable": "Audit queries, an evidence pack for one production change and the alert rule definition",
+          "checks": [["Query for context variable changes", "Each change lists actor, context name and timestamp", "Query output"], ["Trace one production deploy", "Commit, pipeline, approver and context use are linked in one record", "Evidence pack"], ["Change a variable in acme-prod", "The alert rule fires for that event", "Alert screenshot"]],
+          "objectives": ["Collect and query CircleCI audit logs", "Assemble change evidence for compliance", "Alert on sensitive configuration changes"]
+        },
+        {
+          "topic": "CircleCI Pipeline Performance Tuning for Large Test Suites",
+          "subtopics": ["Test suite profiling from Test Insights and JUnit timings", "Splitting by timings at high parallelism and the cost curve", "Container spin-up overhead and image size", "Moving setup into prebuilt custom images", "Test impact analysis to select tests by changed files", "Database setup with templates and snapshots", "Retry policy for genuinely flaky infrastructure", "Choosing parallelism by cost per minute saved"],
+          "tools": ["circleci tests run", "CircleCI Test Insights", "Docker", "Jest", "pytest"],
+          "lab_task": "Take a suite that runs 30 minutes, profile it, build a custom image with tools preinstalled, run parallelism at 4, 8, 16 and 24 with timing splits and plot duration and credits. Add test selection based on changed paths for pull requests. Pick the parallelism level with the best cost per minute saved and record the final pull request duration.",
+          "deliverable": "Parallelism cost curve, custom image Dockerfile, test selection script and final duration figures",
+          "checks": [["Run with the custom image", "Spin-up plus setup time is lower than with the stock image", "Timing table"], ["Plot the four parallelism levels", "Duration falls with diminishing returns while credits rise", "Chart"], ["Open a pull request that changes one module", "Only the selected tests run and the pipeline is faster than the full suite", "Pipeline page and test count"]],
+          "objectives": ["Profile and tune large test suites", "Find the efficient parallelism level", "Select tests by change impact"]
+        },
+        {
+          "topic": "Migrating Jenkinsfiles and GitHub Actions Workflows to CircleCI",
+          "subtopics": ["Inventory of pipelines, triggers, secrets and agents", "Mapping stages, jobs and steps to CircleCI jobs and workflows", "Mapping Jenkins agents and Actions runners to executors and runners", "Replacing plugins and marketplace actions with orbs or scripts", "Moving secrets into restricted contexts and OIDC", "Running old and new pipelines in parallel and comparing results", "Cut-over plan and rollback", "Training teams and publishing templates"],
+          "tools": ["CircleCI", "Jenkins", "GitHub Actions", "CircleCI CLI", "CircleCI orbs"],
+          "lab_task": "Migrate one Jenkinsfile with parallel stages and one GitHub Actions workflow with a matrix to CircleCI config, replacing two plugins or actions with orbs. Run both old and new pipelines on the same 10 commits, compare pass and fail results and durations, move secrets to restricted contexts and write the cut-over and rollback plan.",
+          "deliverable": "Mapping table, migrated configs, 10-commit comparison and cut-over plan",
+          "checks": [["Run old and new pipelines on 10 commits", "Pass or fail results match for all 10 commits", "Comparison table"], ["Compare median duration", "The CircleCI median is reported against the old system's median", "Comparison table"], ["Search the migrated config for plaintext secrets", "No secrets are present and all are read from contexts", "grep output"]],
+          "objectives": ["Map other CI concepts onto CircleCI", "Validate a migration with parallel runs", "Plan a safe cut-over"]
+        },
+        {
+          "topic": "Advanced Capstone: Governed CircleCI Platform for a Monorepo",
+          "subtopics": ["Requirements: monorepo with four services and shared libraries", "Setup workflow with path filtering and generated config", "Private orb with tests and release automation", "Runner fleet, config policies and supply chain controls", "OIDC promotion, serial groups and progressive delivery", "Insights, usage and audit report to stakeholders"],
+          "tools": ["CircleCI dynamic config", "CircleCI orbs", "CircleCI runners", "CircleCI config policies", "CircleCI OIDC", "CircleCI Insights"],
+          "lab_task": "Deliver a monorepo platform: path-filtered dynamic config, a tested private orb used by every service, a container runner pool for integration tests, Rego policies for orbs, images and resource classes, signed images promoted by OIDC across three accounts with serial groups and canary releases, and a report on duration, credits and audit evidence.",
+          "deliverable": "Platform repository, orb repository, policy bundle, runbooks and a stakeholder report with metrics",
+          "checks": [["Change one service in a pull request", "Only that service's workflow runs and it passes policy checks", "Pipeline page"], ["Push a config that violates a policy", "The pipeline is blocked with the rule name shown", "Pipeline error page"], ["Release a faulty canary", "The release aborts and the previous version stays live", "Deploys view and rollout output"]],
+          "objectives": ["Design a governed CircleCI platform for many teams", "Integrate dynamic config, orbs, runners and policies", "Report platform health with metrics and evidence"]
+        }
+      ]
+    }
+  }
+}

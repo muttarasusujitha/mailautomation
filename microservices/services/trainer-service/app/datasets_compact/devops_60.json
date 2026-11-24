@@ -56,25 +56,31 @@
       "day": 1,
       "topic": "DevOps Orientation, SDLC and Agile Delivery",
       "subtopics": [
-        "DevOps lifecycle",
-        "Agile vs DevOps",
-        "CI/CD overview",
-        "Jira workflow",
-        "delivery roles"
+        "DevOps as shared ownership of build, release and operations",
+        "The delivery lifecycle: plan, code, build, test, release, deploy, operate, monitor",
+        "Agile versus DevOps: iteration planning versus flow to production",
+        "Delivery roles: product owner, developer, QA, platform and SRE",
+        "Value stream mapping and hand-off delays",
+        "DORA metrics: deployment frequency, lead time for changes, change failure rate, time to restore",
+        "Definition of ready and definition of done",
+        "Release evidence: tests, approvals, change records and rollback triggers",
+        "Jira workflow: backlog, sprint, in progress, review, done",
+        "Linking stories to commits, builds and deployments"
       ],
       "tools": [
         "Jira",
         "Git"
       ],
       "jira_focus": "Create epics, stories, tasks and move them on sprint board",
-      "lab_task": "Create a Jira sprint board and map a sample application delivery workflow",
-      "deliverable": "Participant submission for 'DevOps Orientation, SDLC and Agile Delivery': Create a Jira sprint board and map a sample application delivery workflow. Include the resulting artefact, reproducible steps and observed results.",
-      "assessment": "Reproduce the source lab: Create a Jira sprint board and map a sample application delivery workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DevOps lifecycle; Agile vs DevOps; CI/CD overview; Jira workflow; delivery roles). Require one changed-input or exception case and an explanation of its result.",
+      "lab_task": "Map a Feature to Production: The stages from backlog item to production; The owner, input and evidence for each stage; Acceptance criteria and a definition of done; The release decision and who approves it; A measurable rollback trigger.",
+      "deliverable": "Delivery workflow board; Definition of done; Release-evidence checklist",
+      "assessment": "Participants explain where the supplied workflow loses time and which evidence would block a bad release.",
       "learning_objectives": [
-        "Complete and demonstrate: Create a Jira sprint board and map a sample application delivery workflow.",
-        "Explain how the lab applies DevOps Orientation, SDLC and Agile Delivery and justify the observed result."
+        "Describe the DevOps delivery lifecycle and the role of each team.",
+        "Measure delivery with the four DORA metrics.",
+        "Define release evidence and a rollback trigger for a change."
       ],
-      "scenario": "Demonstrate 'DevOps Orientation, SDLC and Agile Delivery' on a prepared training sample through this task: Create a Jira sprint board and map a sample application delivery workflow.",
+      "scenario": "A team has a production defect but no shared definition of done or release evidence.",
       "preparation_requirements": [
         "Prepare sample assets, expected results and an exception case for: Create a Jira sprint board and map a sample application delivery workflow",
         "Confirm participant prerequisites, tool access and activity durations before delivery"
@@ -82,50 +88,235 @@
       "delivery_steps": [
         {
           "method": "Explanation and demonstration",
-          "minutes": null,
-          "activity": "Explain the applicable concepts (DevOps lifecycle; Agile vs DevOps; CI/CD overview; Jira workflow; delivery roles) and demonstrate the starting sample for: Create a Jira sprint board and map a sample application delivery workflow",
-          "evidence": "Annotated sample with inputs and expected results"
+          "minutes": 120,
+          "activity": "Explain and demonstrate: DevOps Operating Model; Flow and Feedback; Work Tracking",
+          "evidence": "Demonstrated example and participant notes"
         },
         {
-          "method": "Guided practice",
-          "minutes": null,
-          "activity": "Create a Jira sprint board and map a sample application delivery workflow",
-          "evidence": "Participant submission for 'DevOps Orientation, SDLC and Agile Delivery': Create a Jira sprint board and map a sample application delivery workflow. Include the resulting artefact, reproducible steps and observed results."
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Map a Feature to Production: A team has a production defect but no shared definition of done or release evidence.",
+          "evidence": "Delivery workflow board; Definition of done; Release-evidence checklist"
         },
         {
-          "method": "Independent application",
-          "minutes": null,
-          "activity": "Repeat 'Create a Jira sprint board and map a sample application delivery workflow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
-          "evidence": "Participant artefact and comparison of expected versus observed results"
-        },
-        {
-          "method": "Assessment and feedback",
-          "minutes": null,
-          "activity": "Reproduce the source lab: Create a Jira sprint board and map a sample application delivery workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DevOps lifecycle; Agile vs DevOps; CI/CD overview; Jira workflow; delivery roles). Require one changed-input or exception case and an explanation of its result.",
-          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Review each workflow stage – Every stage has an owner, input and evidence output. Mark an automated check as failed – The release decision cannot be marked ready. Read the rollback trigger – It names a measurable operational condition.",
+          "evidence": "Recorded verification results and trainer feedback"
         }
       ],
       "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
       "proposed_fields": [
-        "deliverable",
-        "assessment",
-        "learning_objectives",
-        "scenario",
-        "preparation_requirements",
-        "delivery_steps"
+        "delivery_steps",
+        "minutes"
       ],
-      "content_enrichment_version": "catalog-delivery-v1",
-      "review_status": "unreviewed"
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "DevOps lifecycle",
+          "Agile vs DevOps",
+          "CI/CD overview",
+          "Jira workflow",
+          "delivery roles"
+        ],
+        "lab_task": "Create a Jira sprint board and map a sample application delivery workflow",
+        "scenario": "Demonstrate 'DevOps Orientation, SDLC and Agile Delivery' on a prepared training sample through this task: Create a Jira sprint board and map a sample application delivery workflow.",
+        "deliverable": "Participant submission for 'DevOps Orientation, SDLC and Agile Delivery': Create a Jira sprint board and map a sample application delivery workflow. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Create a Jira sprint board and map a sample application delivery workflow.",
+          "Explain how the lab applies DevOps Orientation, SDLC and Agile Delivery and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Create a Jira sprint board and map a sample application delivery workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DevOps lifecycle; Agile vs DevOps; CI/CD overview; Jira workflow; delivery roles). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (DevOps lifecycle; Agile vs DevOps; CI/CD overview; Jira workflow; delivery roles) and demonstrate the starting sample for: Create a Jira sprint board and map a sample application delivery workflow",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Create a Jira sprint board and map a sample application delivery workflow",
+            "evidence": "Participant submission for 'DevOps Orientation, SDLC and Agile Delivery': Create a Jira sprint board and map a sample application delivery workflow. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Create a Jira sprint board and map a sample application delivery workflow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Create a Jira sprint board and map a sample application delivery workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DevOps lifecycle; Agile vs DevOps; CI/CD overview; Jira workflow; delivery roles). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Review each workflow stage",
+          "expected_result": "Every stage has an owner, input and evidence output.",
+          "evidence": "Workflow board"
+        },
+        {
+          "input_or_condition": "Mark an automated check as failed",
+          "expected_result": "The release decision cannot be marked ready.",
+          "evidence": "Release-evidence checklist"
+        },
+        {
+          "input_or_condition": "Read the rollback trigger",
+          "expected_result": "It names a measurable operational condition.",
+          "evidence": "Rollback section of the checklist"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "DevOps Operating Model",
+            "lead": "",
+            "items": [
+              {
+                "text": "DevOps as shared ownership of build, release and operations",
+                "children": []
+              },
+              {
+                "text": "The delivery lifecycle:",
+                "children": [
+                  "plan",
+                  "code",
+                  "build",
+                  "test",
+                  "release",
+                  "deploy",
+                  "operate",
+                  "monitor"
+                ]
+              },
+              {
+                "text": "Agile versus DevOps: iteration planning versus flow to production",
+                "children": []
+              },
+              {
+                "text": "Delivery roles:",
+                "children": [
+                  "product owner",
+                  "developer",
+                  "QA",
+                  "platform and SRE"
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "Flow and Feedback",
+            "lead": "",
+            "items": [
+              {
+                "text": "Value stream mapping and hand-off delays",
+                "children": []
+              },
+              {
+                "text": "DORA metrics:",
+                "children": [
+                  "deployment frequency",
+                  "lead time for changes",
+                  "change failure rate",
+                  "time to restore"
+                ]
+              },
+              {
+                "text": "Definition of ready and definition of done",
+                "children": []
+              },
+              {
+                "text": "Release evidence:",
+                "children": [
+                  "tests",
+                  "approvals",
+                  "change records and rollback triggers"
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "Work Tracking",
+            "lead": "",
+            "items": [
+              {
+                "text": "Jira workflow:",
+                "children": [
+                  "backlog",
+                  "sprint",
+                  "in progress",
+                  "review",
+                  "done"
+                ]
+              },
+              {
+                "text": "Linking stories to commits, builds and deployments",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "Delivery Principle",
+          "lead": "A change is releasable only when it has:",
+          "points": [
+            "A clear owner and acceptance criteria.",
+            "Automated test and scan evidence.",
+            "An approved release decision.",
+            "A measurable rollback trigger."
+          ]
+        },
+        "lab": {
+          "title": "Map a Feature to Production",
+          "scenario": "A team has a production defect but no shared definition of done or release evidence.",
+          "lead": "Participants map a supplied feature from backlog to release and define:",
+          "tasks": [
+            "The stages from backlog item to production",
+            "The owner, input and evidence for each stage",
+            "Acceptance criteria and a definition of done",
+            "The release decision and who approves it",
+            "A measurable rollback trigger"
+          ],
+          "verify": [
+            "Review each workflow stage – Every stage has an owner, input and evidence output.",
+            "Mark an automated check as failed – The release decision cannot be marked ready.",
+            "Read the rollback trigger – It names a measurable operational condition."
+          ],
+          "deliverables": [
+            "Delivery workflow board",
+            "Definition of done",
+            "Release-evidence checklist"
+          ]
+        },
+        "assessment": "Participants explain where the supplied workflow loses time and which evidence would block a bad release.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
     },
     {
       "day": 2,
       "topic": "Linux Fundamentals for DevOps",
       "subtopics": [
-        "Linux filesystem",
-        "permissions",
-        "users and groups",
-        "package managers",
-        "services and logs"
+        "Filesystem hierarchy: /etc, /var, /home, /opt, /tmp",
+        "Navigating and inspecting files: ls, cd, find, du, df",
+        "Permissions and ownership: chmod, chown, umask",
+        "Users, groups and sudo",
+        "Processes and signals: ps, top, kill",
+        "Managing services with systemctl",
+        "Reading logs with journalctl and /var/log",
+        "Package management: apt, dnf",
+        "Text tools: grep, sed, awk, tail -f",
+        "Archiving and compression: tar, gzip",
+        "Environment variables and PATH"
       ],
       "tools": [
         "Ubuntu",
@@ -134,14 +325,15 @@
         "journalctl"
       ],
       "jira_focus": "Log Linux setup task evidence and update task status",
-      "lab_task": "Create users, manage permissions, install packages and inspect service logs",
-      "deliverable": "Participant submission for 'Linux Fundamentals for DevOps': Create users, manage permissions, install packages and inspect service logs. Include the resulting artefact, reproducible steps and observed results.",
-      "assessment": "Reproduce the source lab: Create users, manage permissions, install packages and inspect service logs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Linux filesystem; permissions; users and groups; package managers; services and logs). Require one changed-input or exception case and an explanation of its result.",
+      "lab_task": "Disk-Full Investigation: Find the largest directories and files with du and find; Identify the oversized log, its owner and permissions; Check the service status and recent errors with systemctl and journalctl; Archive the log safely without deleting it; Restart the service and confirm it is healthy.",
+      "deliverable": "Investigation notes with the commands used; Safe archival plan for the log",
+      "assessment": "Participants diagnose a second seeded server problem using only command-line tools.",
       "learning_objectives": [
-        "Complete and demonstrate: Create users, manage permissions, install packages and inspect service logs.",
-        "Explain how the lab applies Linux Fundamentals for DevOps and justify the observed result."
+        "Navigate the Linux filesystem and set permissions safely.",
+        "Manage services and read their logs.",
+        "Investigate a disk and service problem from the command line."
       ],
-      "scenario": "Demonstrate 'Linux Fundamentals for DevOps' on a prepared training sample through this task: Create users, manage permissions, install packages and inspect service logs.",
+      "scenario": "A training server reports a full disk and a failing application service.",
       "preparation_requirements": [
         "Prepare sample assets, expected results and an exception case for: Create users, manage permissions, install packages and inspect service logs",
         "Confirm participant prerequisites, tool access and activity durations before delivery"
@@ -149,51 +341,229 @@
       "delivery_steps": [
         {
           "method": "Explanation and demonstration",
-          "minutes": null,
-          "activity": "Explain the applicable concepts (Linux filesystem; permissions; users and groups; package managers; services and logs) and demonstrate the starting sample for: Create users, manage permissions, install packages and inspect service logs",
-          "evidence": "Annotated sample with inputs and expected results"
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Filesystem and Permissions; Processes and Services; Everyday Operations",
+          "evidence": "Demonstrated example and participant notes"
         },
         {
-          "method": "Guided practice",
-          "minutes": null,
-          "activity": "Create users, manage permissions, install packages and inspect service logs",
-          "evidence": "Participant submission for 'Linux Fundamentals for DevOps': Create users, manage permissions, install packages and inspect service logs. Include the resulting artefact, reproducible steps and observed results."
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Disk-Full Investigation: A training server reports a full disk and a failing application service.",
+          "evidence": "Investigation notes with the commands used; Safe archival plan for the log"
         },
         {
-          "method": "Independent application",
-          "minutes": null,
-          "activity": "Repeat 'Create users, manage permissions, install packages and inspect service logs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
-          "evidence": "Participant artefact and comparison of expected versus observed results"
-        },
-        {
-          "method": "Assessment and feedback",
-          "minutes": null,
-          "activity": "Reproduce the source lab: Create users, manage permissions, install packages and inspect service logs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Linux filesystem; permissions; users and groups; package managers; services and logs). Require one changed-input or exception case and an explanation of its result.",
-          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Run the investigation commands – The oversized log and its owner are identified. Follow the archival plan – The log is archived and disk usage drops without data loss. Check the service after restart – systemctl reports the service as active.",
+          "evidence": "Recorded verification results and trainer feedback"
         }
       ],
       "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
       "proposed_fields": [
-        "deliverable",
-        "assessment",
-        "learning_objectives",
-        "scenario",
-        "preparation_requirements",
-        "delivery_steps"
+        "delivery_steps",
+        "minutes"
       ],
-      "content_enrichment_version": "catalog-delivery-v1",
-      "review_status": "unreviewed"
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "Linux filesystem",
+          "permissions",
+          "users and groups",
+          "package managers",
+          "services and logs"
+        ],
+        "lab_task": "Create users, manage permissions, install packages and inspect service logs",
+        "scenario": "Demonstrate 'Linux Fundamentals for DevOps' on a prepared training sample through this task: Create users, manage permissions, install packages and inspect service logs.",
+        "deliverable": "Participant submission for 'Linux Fundamentals for DevOps': Create users, manage permissions, install packages and inspect service logs. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Create users, manage permissions, install packages and inspect service logs.",
+          "Explain how the lab applies Linux Fundamentals for DevOps and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Create users, manage permissions, install packages and inspect service logs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Linux filesystem; permissions; users and groups; package managers; services and logs). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (Linux filesystem; permissions; users and groups; package managers; services and logs) and demonstrate the starting sample for: Create users, manage permissions, install packages and inspect service logs",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Create users, manage permissions, install packages and inspect service logs",
+            "evidence": "Participant submission for 'Linux Fundamentals for DevOps': Create users, manage permissions, install packages and inspect service logs. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Create users, manage permissions, install packages and inspect service logs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Create users, manage permissions, install packages and inspect service logs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Linux filesystem; permissions; users and groups; package managers; services and logs). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Run the investigation commands",
+          "expected_result": "The oversized log and its owner are identified.",
+          "evidence": "Command output in the notes"
+        },
+        {
+          "input_or_condition": "Follow the archival plan",
+          "expected_result": "The log is archived and disk usage drops without data loss.",
+          "evidence": "df output before and after"
+        },
+        {
+          "input_or_condition": "Check the service after restart",
+          "expected_result": "systemctl reports the service as active.",
+          "evidence": "Service status output"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Filesystem and Permissions",
+            "lead": "",
+            "items": [
+              {
+                "text": "Filesystem hierarchy:",
+                "children": [
+                  "/etc",
+                  "/var",
+                  "/home",
+                  "/opt",
+                  "/tmp"
+                ]
+              },
+              {
+                "text": "Navigating and inspecting files:",
+                "children": [
+                  "ls",
+                  "cd",
+                  "find",
+                  "du",
+                  "df"
+                ]
+              },
+              {
+                "text": "Permissions and ownership:",
+                "children": [
+                  "chmod",
+                  "chown",
+                  "umask"
+                ]
+              },
+              {
+                "text": "Users, groups and sudo",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Processes and Services",
+            "lead": "",
+            "items": [
+              {
+                "text": "Processes and signals:",
+                "children": [
+                  "ps",
+                  "top",
+                  "kill"
+                ]
+              },
+              {
+                "text": "Managing services with systemctl",
+                "children": []
+              },
+              {
+                "text": "Reading logs with journalctl and /var/log",
+                "children": []
+              },
+              {
+                "text": "Package management: apt, dnf",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Everyday Operations",
+            "lead": "",
+            "items": [
+              {
+                "text": "Text tools:",
+                "children": [
+                  "grep",
+                  "sed",
+                  "awk",
+                  "tail -f"
+                ]
+              },
+              {
+                "text": "Archiving and compression: tar, gzip",
+                "children": []
+              },
+              {
+                "text": "Environment variables and PATH",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Disk-Full Investigation",
+          "scenario": "A training server reports a full disk and a failing application service.",
+          "lead": "Participants:",
+          "tasks": [
+            "Find the largest directories and files with du and find",
+            "Identify the oversized log, its owner and permissions",
+            "Check the service status and recent errors with systemctl and journalctl",
+            "Archive the log safely without deleting it",
+            "Restart the service and confirm it is healthy"
+          ],
+          "verify": [
+            "Run the investigation commands – The oversized log and its owner are identified.",
+            "Follow the archival plan – The log is archived and disk usage drops without data loss.",
+            "Check the service after restart – systemctl reports the service as active."
+          ],
+          "deliverables": [
+            "Investigation notes with the commands used",
+            "Safe archival plan for the log"
+          ]
+        },
+        "assessment": "Participants diagnose a second seeded server problem using only command-line tools.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
     },
     {
       "day": 3,
       "topic": "Shell Scripting and Automation",
       "subtopics": [
-        "variables",
-        "conditions",
-        "loops",
-        "functions",
-        "cron jobs",
-        "exit codes"
+        "Shebang, execution permission and script structure",
+        "Variables, quoting and command substitution",
+        "Conditions: if, test and [[ ]]",
+        "Loops: for, while and reading files line by line",
+        "Functions and arguments",
+        "Exit codes and set -euo pipefail",
+        "Logging to stdout and stderr",
+        "Idempotent operations",
+        "Linting scripts with shellcheck",
+        "Cron syntax and crontab",
+        "Running jobs with systemd timers"
       ],
       "tools": [
         "Bash",
@@ -201,14 +571,15 @@
         "VS Code"
       ],
       "jira_focus": "Attach script output to Jira task and mark acceptance criteria",
-      "lab_task": "Write backup, health-check and log-cleanup shell scripts",
-      "deliverable": "Participant submission for 'Shell Scripting and Automation': Write backup, health-check and log-cleanup shell scripts. Include the resulting artefact, reproducible steps and observed results.",
-      "assessment": "Reproduce the source lab: Write backup, health-check and log-cleanup shell scripts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (variables; conditions; loops; functions; cron jobs; exit codes). Require one changed-input or exception case and an explanation of its result.",
+      "lab_task": "Operations Script Kit: Back up a directory to a timestamped archive; Check an HTTP endpoint and exit non-zero when it fails; Remove logs older than seven days; Schedule all three with cron; Pass shellcheck with no warnings.",
+      "deliverable": "backup.sh, healthcheck.sh and cleanup.sh; Crontab entries and a sample run log",
+      "assessment": "Participants extend the health check to test three endpoints and report each result.",
       "learning_objectives": [
-        "Complete and demonstrate: Write backup, health-check and log-cleanup shell scripts.",
-        "Explain how the lab applies Shell Scripting and Automation and justify the observed result."
+        "Write Bash scripts with variables, conditions, loops and functions.",
+        "Make scripts fail safely with exit codes and strict mode.",
+        "Schedule recurring jobs with cron."
       ],
-      "scenario": "Demonstrate 'Shell Scripting and Automation' on a prepared training sample through this task: Write backup, health-check and log-cleanup shell scripts.",
+      "scenario": "The operations team runs backups, health checks and log clean-up by hand every day.",
       "preparation_requirements": [
         "Prepare sample assets, expected results and an exception case for: Write backup, health-check and log-cleanup shell scripts",
         "Confirm participant prerequisites, tool access and activity durations before delivery"
@@ -216,51 +587,205 @@
       "delivery_steps": [
         {
           "method": "Explanation and demonstration",
-          "minutes": null,
-          "activity": "Explain the applicable concepts (variables; conditions; loops; functions; cron jobs; exit codes) and demonstrate the starting sample for: Write backup, health-check and log-cleanup shell scripts",
-          "evidence": "Annotated sample with inputs and expected results"
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Bash Building Blocks; Reliable Scripts; Scheduling",
+          "evidence": "Demonstrated example and participant notes"
         },
         {
-          "method": "Guided practice",
-          "minutes": null,
-          "activity": "Write backup, health-check and log-cleanup shell scripts",
-          "evidence": "Participant submission for 'Shell Scripting and Automation': Write backup, health-check and log-cleanup shell scripts. Include the resulting artefact, reproducible steps and observed results."
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Operations Script Kit: The operations team runs backups, health checks and log clean-up by hand every day.",
+          "evidence": "backup.sh, healthcheck.sh and cleanup.sh; Crontab entries and a sample run log"
         },
         {
-          "method": "Independent application",
-          "minutes": null,
-          "activity": "Repeat 'Write backup, health-check and log-cleanup shell scripts' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
-          "evidence": "Participant artefact and comparison of expected versus observed results"
-        },
-        {
-          "method": "Assessment and feedback",
-          "minutes": null,
-          "activity": "Reproduce the source lab: Write backup, health-check and log-cleanup shell scripts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (variables; conditions; loops; functions; cron jobs; exit codes). Require one changed-input or exception case and an explanation of its result.",
-          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Stop the target service and run healthcheck.sh – The script exits with a non-zero code and logs the failure. Run backup.sh twice – Two separate timestamped archives exist. Run shellcheck on all scripts – No warnings are reported.",
+          "evidence": "Recorded verification results and trainer feedback"
         }
       ],
       "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
       "proposed_fields": [
-        "deliverable",
-        "assessment",
-        "learning_objectives",
-        "scenario",
-        "preparation_requirements",
-        "delivery_steps"
+        "delivery_steps",
+        "minutes"
       ],
-      "content_enrichment_version": "catalog-delivery-v1",
-      "review_status": "unreviewed"
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "variables",
+          "conditions",
+          "loops",
+          "functions",
+          "cron jobs",
+          "exit codes"
+        ],
+        "lab_task": "Write backup, health-check and log-cleanup shell scripts",
+        "scenario": "Demonstrate 'Shell Scripting and Automation' on a prepared training sample through this task: Write backup, health-check and log-cleanup shell scripts.",
+        "deliverable": "Participant submission for 'Shell Scripting and Automation': Write backup, health-check and log-cleanup shell scripts. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Write backup, health-check and log-cleanup shell scripts.",
+          "Explain how the lab applies Shell Scripting and Automation and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Write backup, health-check and log-cleanup shell scripts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (variables; conditions; loops; functions; cron jobs; exit codes). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (variables; conditions; loops; functions; cron jobs; exit codes) and demonstrate the starting sample for: Write backup, health-check and log-cleanup shell scripts",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Write backup, health-check and log-cleanup shell scripts",
+            "evidence": "Participant submission for 'Shell Scripting and Automation': Write backup, health-check and log-cleanup shell scripts. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Write backup, health-check and log-cleanup shell scripts' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Write backup, health-check and log-cleanup shell scripts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (variables; conditions; loops; functions; cron jobs; exit codes). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Stop the target service and run healthcheck.sh",
+          "expected_result": "The script exits with a non-zero code and logs the failure.",
+          "evidence": "Exit code and log line"
+        },
+        {
+          "input_or_condition": "Run backup.sh twice",
+          "expected_result": "Two separate timestamped archives exist.",
+          "evidence": "Archive listing"
+        },
+        {
+          "input_or_condition": "Run shellcheck on all scripts",
+          "expected_result": "No warnings are reported.",
+          "evidence": "shellcheck output"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Bash Building Blocks",
+            "lead": "",
+            "items": [
+              {
+                "text": "Shebang, execution permission and script structure",
+                "children": []
+              },
+              {
+                "text": "Variables, quoting and command substitution",
+                "children": []
+              },
+              {
+                "text": "Conditions: if, test and [[ ]]",
+                "children": []
+              },
+              {
+                "text": "Loops: for, while and reading files line by line",
+                "children": []
+              },
+              {
+                "text": "Functions and arguments",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Reliable Scripts",
+            "lead": "",
+            "items": [
+              {
+                "text": "Exit codes and set -euo pipefail",
+                "children": []
+              },
+              {
+                "text": "Logging to stdout and stderr",
+                "children": []
+              },
+              {
+                "text": "Idempotent operations",
+                "children": []
+              },
+              {
+                "text": "Linting scripts with shellcheck",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Scheduling",
+            "lead": "",
+            "items": [
+              {
+                "text": "Cron syntax and crontab",
+                "children": []
+              },
+              {
+                "text": "Running jobs with systemd timers",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Operations Script Kit",
+          "scenario": "The operations team runs backups, health checks and log clean-up by hand every day.",
+          "lead": "Participants write three scripts that:",
+          "tasks": [
+            "Back up a directory to a timestamped archive",
+            "Check an HTTP endpoint and exit non-zero when it fails",
+            "Remove logs older than seven days",
+            "Schedule all three with cron",
+            "Pass shellcheck with no warnings"
+          ],
+          "verify": [
+            "Stop the target service and run healthcheck.sh – The script exits with a non-zero code and logs the failure.",
+            "Run backup.sh twice – Two separate timestamped archives exist.",
+            "Run shellcheck on all scripts – No warnings are reported."
+          ],
+          "deliverables": [
+            "backup.sh, healthcheck.sh and cleanup.sh",
+            "Crontab entries and a sample run log"
+          ]
+        },
+        "assessment": "Participants extend the health check to test three endpoints and report each result.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
     },
     {
       "day": 4,
       "topic": "Networking, SSH and Web Basics",
       "subtopics": [
-        "TCP/IP",
-        "DNS",
-        "HTTP/HTTPS",
-        "ports",
-        "SSH",
-        "curl troubleshooting"
+        "TCP/IP, IP addressing and subnets",
+        "Ports and listening services: ss, netstat",
+        "DNS resolution: dig, nslookup, /etc/hosts",
+        "HTTP and HTTPS: methods, status codes, headers, TLS certificates",
+        "SSH keys and authorized_keys",
+        "SSH config, jump hosts and port forwarding",
+        "Copying files with scp and rsync",
+        "Name resolution",
+        "Network reachability: ping, traceroute",
+        "Port reachability: nc, curl -v",
+        "Application response and logs"
       ],
       "tools": [
         "ssh",
@@ -269,14 +794,15 @@
         "nslookup"
       ],
       "jira_focus": "Create troubleshooting sub-tasks for network incidents",
-      "lab_task": "Troubleshoot service connectivity using curl, ports and SSH",
-      "deliverable": "Participant submission for 'Networking, SSH and Web Basics': Troubleshoot service connectivity using curl, ports and SSH. Include the resulting artefact, reproducible steps and observed results.",
-      "assessment": "Reproduce the source lab: Troubleshoot service connectivity using curl, ports and SSH. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (TCP/IP; DNS; HTTP/HTTPS; ports; SSH; curl troubleshooting). Require one changed-input or exception case and an explanation of its result.",
+      "lab_task": "Why Can't Users Reach the App?: Connect to the server with SSH keys; Trace the request from DNS to the application; Find and fix each seeded fault; Confirm the application responds over HTTP.",
+      "deliverable": "Troubleshooting log with the command and result for each step; List of root causes and fixes",
+      "assessment": "Participants explain the evidence that separated each seeded fault from the others.",
       "learning_objectives": [
-        "Complete and demonstrate: Troubleshoot service connectivity using curl, ports and SSH.",
-        "Explain how the lab applies Networking, SSH and Web Basics and justify the observed result."
+        "Explain how a web request travels from DNS to the application.",
+        "Connect securely with SSH keys and transfer files.",
+        "Troubleshoot connectivity in a structured order."
       ],
-      "scenario": "Demonstrate 'Networking, SSH and Web Basics' on a prepared training sample through this task: Troubleshoot service connectivity using curl, ports and SSH.",
+      "scenario": "Users report that a web application is unreachable; three faults have been seeded: a wrong DNS record, a closed port and a service bound to localhost.",
       "preparation_requirements": [
         "Prepare sample assets, expected results and an exception case for: Troubleshoot service connectivity using curl, ports and SSH",
         "Confirm participant prerequisites, tool access and activity durations before delivery"
@@ -284,65 +810,227 @@
       "delivery_steps": [
         {
           "method": "Explanation and demonstration",
-          "minutes": null,
-          "activity": "Explain the applicable concepts (TCP/IP; DNS; HTTP/HTTPS; ports; SSH; curl troubleshooting) and demonstrate the starting sample for: Troubleshoot service connectivity using curl, ports and SSH",
-          "evidence": "Annotated sample with inputs and expected results"
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Network Foundations; Secure Remote Access; Troubleshooting Path",
+          "evidence": "Demonstrated example and participant notes"
         },
         {
-          "method": "Guided practice",
-          "minutes": null,
-          "activity": "Troubleshoot service connectivity using curl, ports and SSH",
-          "evidence": "Participant submission for 'Networking, SSH and Web Basics': Troubleshoot service connectivity using curl, ports and SSH. Include the resulting artefact, reproducible steps and observed results."
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Why Can't Users Reach the App?: Users report that a web application is unreachable; three faults have been seeded: a wrong DNS record, a closed port and a service bound to localhost.",
+          "evidence": "Troubleshooting log with the command and result for each step; List of root causes and fixes"
         },
         {
-          "method": "Independent application",
-          "minutes": null,
-          "activity": "Repeat 'Troubleshoot service connectivity using curl, ports and SSH' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
-          "evidence": "Participant artefact and comparison of expected versus observed results"
-        },
-        {
-          "method": "Assessment and feedback",
-          "minutes": null,
-          "activity": "Reproduce the source lab: Troubleshoot service connectivity using curl, ports and SSH. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (TCP/IP; DNS; HTTP/HTTPS; ports; SSH; curl troubleshooting). Require one changed-input or exception case and an explanation of its result.",
-          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Resolve the application hostname – It resolves to the correct server address. Request the application with curl -v – It returns HTTP 200 from the external address. Log in to the server – SSH works with a key and password login is not used.",
+          "evidence": "Recorded verification results and trainer feedback"
         }
       ],
       "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
       "proposed_fields": [
-        "deliverable",
-        "assessment",
-        "learning_objectives",
-        "scenario",
-        "preparation_requirements",
-        "delivery_steps"
+        "delivery_steps",
+        "minutes"
       ],
-      "content_enrichment_version": "catalog-delivery-v1",
-      "review_status": "unreviewed"
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "TCP/IP",
+          "DNS",
+          "HTTP/HTTPS",
+          "ports",
+          "SSH",
+          "curl troubleshooting"
+        ],
+        "lab_task": "Troubleshoot service connectivity using curl, ports and SSH",
+        "scenario": "Demonstrate 'Networking, SSH and Web Basics' on a prepared training sample through this task: Troubleshoot service connectivity using curl, ports and SSH.",
+        "deliverable": "Participant submission for 'Networking, SSH and Web Basics': Troubleshoot service connectivity using curl, ports and SSH. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Troubleshoot service connectivity using curl, ports and SSH.",
+          "Explain how the lab applies Networking, SSH and Web Basics and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Troubleshoot service connectivity using curl, ports and SSH. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (TCP/IP; DNS; HTTP/HTTPS; ports; SSH; curl troubleshooting). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (TCP/IP; DNS; HTTP/HTTPS; ports; SSH; curl troubleshooting) and demonstrate the starting sample for: Troubleshoot service connectivity using curl, ports and SSH",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Troubleshoot service connectivity using curl, ports and SSH",
+            "evidence": "Participant submission for 'Networking, SSH and Web Basics': Troubleshoot service connectivity using curl, ports and SSH. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Troubleshoot service connectivity using curl, ports and SSH' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Troubleshoot service connectivity using curl, ports and SSH. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (TCP/IP; DNS; HTTP/HTTPS; ports; SSH; curl troubleshooting). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Resolve the application hostname",
+          "expected_result": "It resolves to the correct server address.",
+          "evidence": "dig output"
+        },
+        {
+          "input_or_condition": "Request the application with curl -v",
+          "expected_result": "It returns HTTP 200 from the external address.",
+          "evidence": "curl output"
+        },
+        {
+          "input_or_condition": "Log in to the server",
+          "expected_result": "SSH works with a key and password login is not used.",
+          "evidence": "SSH session log"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Network Foundations",
+            "lead": "",
+            "items": [
+              {
+                "text": "TCP/IP, IP addressing and subnets",
+                "children": []
+              },
+              {
+                "text": "Ports and listening services: ss, netstat",
+                "children": []
+              },
+              {
+                "text": "DNS resolution:",
+                "children": [
+                  "dig",
+                  "nslookup",
+                  "/etc/hosts"
+                ]
+              },
+              {
+                "text": "HTTP and HTTPS:",
+                "children": [
+                  "methods",
+                  "status codes",
+                  "headers",
+                  "TLS certificates"
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "Secure Remote Access",
+            "lead": "",
+            "items": [
+              {
+                "text": "SSH keys and authorized_keys",
+                "children": []
+              },
+              {
+                "text": "SSH config, jump hosts and port forwarding",
+                "children": []
+              },
+              {
+                "text": "Copying files with scp and rsync",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Troubleshooting Path",
+            "lead": "Work outward from the client:",
+            "items": [
+              {
+                "text": "Name resolution",
+                "children": []
+              },
+              {
+                "text": "Network reachability: ping, traceroute",
+                "children": []
+              },
+              {
+                "text": "Port reachability: nc, curl -v",
+                "children": []
+              },
+              {
+                "text": "Application response and logs",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Why Can't Users Reach the App?",
+          "scenario": "Users report that a web application is unreachable; three faults have been seeded: a wrong DNS record, a closed port and a service bound to localhost.",
+          "lead": "Participants:",
+          "tasks": [
+            "Connect to the server with SSH keys",
+            "Trace the request from DNS to the application",
+            "Find and fix each seeded fault",
+            "Confirm the application responds over HTTP"
+          ],
+          "verify": [
+            "Resolve the application hostname – It resolves to the correct server address.",
+            "Request the application with curl -v – It returns HTTP 200 from the external address.",
+            "Log in to the server – SSH works with a key and password login is not used."
+          ],
+          "deliverables": [
+            "Troubleshooting log with the command and result for each step",
+            "List of root causes and fixes"
+          ]
+        },
+        "assessment": "Participants explain the evidence that separated each seeded fault from the others.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
     },
     {
       "day": 5,
       "topic": "Git and GitHub Collaboration",
       "subtopics": [
-        "clone",
-        "branching",
-        "merge",
-        "rebase",
-        "pull requests",
-        "merge conflicts"
+        "Repositories, commits and the staging area",
+        "Branches, HEAD and tags",
+        "Merging versus rebasing",
+        "Undoing changes: revert, reset, restore",
+        "Branching strategies: trunk-based, GitHub flow, Git flow",
+        "Pull requests, reviews and required checks",
+        "Branch protection rules",
+        "Resolving merge conflicts",
+        "Commit message conventions",
+        ".gitignore and keeping secrets out of history"
       ],
       "tools": [
         "Git",
         "GitHub"
       ],
       "jira_focus": "Link commits and pull requests to Jira stories",
-      "lab_task": "Resolve merge conflict and complete pull-request review workflow",
-      "deliverable": "Participant submission for 'Git and GitHub Collaboration': Resolve merge conflict and complete pull-request review workflow. Include the resulting artefact, reproducible steps and observed results.",
-      "assessment": "Reproduce the source lab: Resolve merge conflict and complete pull-request review workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (clone; branching; merge; rebase; pull requests; merge conflicts). Require one changed-input or exception case and an explanation of its result.",
+      "lab_task": "Pull Request Workflow: Create a feature branch and push commits; Open a pull request and request a review; Resolve the merge conflict with the other branch; Protect main so that it needs a review and a passing check; Merge and tag a release.",
+      "deliverable": "Merged pull request with review comments; Branch protection settings; Release tag",
+      "assessment": "Participants resolve a second conflict and explain when they would rebase instead of merge.",
       "learning_objectives": [
-        "Complete and demonstrate: Resolve merge conflict and complete pull-request review workflow.",
-        "Explain how the lab applies Git and GitHub Collaboration and justify the observed result."
+        "Use branches, merges and rebases correctly.",
+        "Run a pull request review with branch protection.",
+        "Resolve merge conflicts without losing work."
       ],
-      "scenario": "Demonstrate 'Git and GitHub Collaboration' on a prepared training sample through this task: Resolve merge conflict and complete pull-request review workflow.",
+      "scenario": "Two developers changed the same configuration file on separate branches.",
       "preparation_requirements": [
         "Prepare sample assets, expected results and an exception case for: Resolve merge conflict and complete pull-request review workflow",
         "Confirm participant prerequisites, tool access and activity durations before delivery"
@@ -350,50 +1038,209 @@
       "delivery_steps": [
         {
           "method": "Explanation and demonstration",
-          "minutes": null,
-          "activity": "Explain the applicable concepts (clone; branching; merge; rebase; pull requests; merge conflicts) and demonstrate the starting sample for: Resolve merge conflict and complete pull-request review workflow",
-          "evidence": "Annotated sample with inputs and expected results"
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Git Fundamentals; Team Workflow; Repository Hygiene",
+          "evidence": "Demonstrated example and participant notes"
         },
         {
-          "method": "Guided practice",
-          "minutes": null,
-          "activity": "Resolve merge conflict and complete pull-request review workflow",
-          "evidence": "Participant submission for 'Git and GitHub Collaboration': Resolve merge conflict and complete pull-request review workflow. Include the resulting artefact, reproducible steps and observed results."
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Pull Request Workflow: Two developers changed the same configuration file on separate branches.",
+          "evidence": "Merged pull request with review comments; Branch protection settings; Release tag"
         },
         {
-          "method": "Independent application",
-          "minutes": null,
-          "activity": "Repeat 'Resolve merge conflict and complete pull-request review workflow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
-          "evidence": "Participant artefact and comparison of expected versus observed results"
-        },
-        {
-          "method": "Assessment and feedback",
-          "minutes": null,
-          "activity": "Reproduce the source lab: Resolve merge conflict and complete pull-request review workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (clone; branching; merge; rebase; pull requests; merge conflicts). Require one changed-input or exception case and an explanation of its result.",
-          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Push directly to main – The push is rejected by branch protection. Merge the conflicting branches – The conflict is resolved and both changes are kept. Inspect the history – Each commit has a clear message linked to the change.",
+          "evidence": "Recorded verification results and trainer feedback"
         }
       ],
       "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
       "proposed_fields": [
-        "deliverable",
-        "assessment",
-        "learning_objectives",
-        "scenario",
-        "preparation_requirements",
-        "delivery_steps"
+        "delivery_steps",
+        "minutes"
       ],
-      "content_enrichment_version": "catalog-delivery-v1",
-      "review_status": "unreviewed"
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "clone",
+          "branching",
+          "merge",
+          "rebase",
+          "pull requests",
+          "merge conflicts"
+        ],
+        "lab_task": "Resolve merge conflict and complete pull-request review workflow",
+        "scenario": "Demonstrate 'Git and GitHub Collaboration' on a prepared training sample through this task: Resolve merge conflict and complete pull-request review workflow.",
+        "deliverable": "Participant submission for 'Git and GitHub Collaboration': Resolve merge conflict and complete pull-request review workflow. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Resolve merge conflict and complete pull-request review workflow.",
+          "Explain how the lab applies Git and GitHub Collaboration and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Resolve merge conflict and complete pull-request review workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (clone; branching; merge; rebase; pull requests; merge conflicts). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (clone; branching; merge; rebase; pull requests; merge conflicts) and demonstrate the starting sample for: Resolve merge conflict and complete pull-request review workflow",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Resolve merge conflict and complete pull-request review workflow",
+            "evidence": "Participant submission for 'Git and GitHub Collaboration': Resolve merge conflict and complete pull-request review workflow. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Resolve merge conflict and complete pull-request review workflow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Resolve merge conflict and complete pull-request review workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (clone; branching; merge; rebase; pull requests; merge conflicts). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Push directly to main",
+          "expected_result": "The push is rejected by branch protection.",
+          "evidence": "Git error output"
+        },
+        {
+          "input_or_condition": "Merge the conflicting branches",
+          "expected_result": "The conflict is resolved and both changes are kept.",
+          "evidence": "Merge commit diff"
+        },
+        {
+          "input_or_condition": "Inspect the history",
+          "expected_result": "Each commit has a clear message linked to the change.",
+          "evidence": "git log output"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Git Fundamentals",
+            "lead": "",
+            "items": [
+              {
+                "text": "Repositories, commits and the staging area",
+                "children": []
+              },
+              {
+                "text": "Branches, HEAD and tags",
+                "children": []
+              },
+              {
+                "text": "Merging versus rebasing",
+                "children": []
+              },
+              {
+                "text": "Undoing changes:",
+                "children": [
+                  "revert",
+                  "reset",
+                  "restore"
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "Team Workflow",
+            "lead": "",
+            "items": [
+              {
+                "text": "Branching strategies:",
+                "children": [
+                  "trunk-based",
+                  "GitHub flow",
+                  "Git flow"
+                ]
+              },
+              {
+                "text": "Pull requests, reviews and required checks",
+                "children": []
+              },
+              {
+                "text": "Branch protection rules",
+                "children": []
+              },
+              {
+                "text": "Resolving merge conflicts",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Repository Hygiene",
+            "lead": "",
+            "items": [
+              {
+                "text": "Commit message conventions",
+                "children": []
+              },
+              {
+                "text": ".gitignore and keeping secrets out of history",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Pull Request Workflow",
+          "scenario": "Two developers changed the same configuration file on separate branches.",
+          "lead": "Participants:",
+          "tasks": [
+            "Create a feature branch and push commits",
+            "Open a pull request and request a review",
+            "Resolve the merge conflict with the other branch",
+            "Protect main so that it needs a review and a passing check",
+            "Merge and tag a release"
+          ],
+          "verify": [
+            "Push directly to main – The push is rejected by branch protection.",
+            "Merge the conflicting branches – The conflict is resolved and both changes are kept.",
+            "Inspect the history – Each commit has a clear message linked to the change."
+          ],
+          "deliverables": [
+            "Merged pull request with review comments",
+            "Branch protection settings",
+            "Release tag"
+          ]
+        },
+        "assessment": "Participants resolve a second conflict and explain when they would rebase instead of merge.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
     },
     {
       "day": 6,
       "topic": "Build Tools and Artifact Management",
       "subtopics": [
-        "Maven/Gradle/npm basics",
-        "build lifecycle",
-        "versioning",
-        "artifact repositories",
-        "release packages"
+        "Maven lifecycle: validate, compile, test, package, install, deploy",
+        "Gradle tasks and the build cache",
+        "npm scripts and package-lock.json",
+        "Dependency management and version pinning",
+        "Semantic versioning",
+        "Snapshot versus release artifacts",
+        "Artifact repositories: Nexus, Artifactory, GitHub Packages",
+        "Build once, deploy many",
+        "Lockfiles and pinned build tool versions",
+        "Generating build metadata and checksums"
       ],
       "tools": [
         "Maven",
@@ -401,14 +1248,15 @@
         "Nexus"
       ],
       "jira_focus": "Add build artifact links and release notes to Jira",
-      "lab_task": "Build a sample app and publish artifact to a repository",
-      "deliverable": "Participant submission for 'Build Tools and Artifact Management': Build a sample app and publish artifact to a repository. Include the resulting artefact, reproducible steps and observed results.",
-      "assessment": "Reproduce the source lab: Build a sample app and publish artifact to a repository. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Maven/Gradle/npm basics; build lifecycle; versioning; artifact repositories; release packages). Require one changed-input or exception case and an explanation of its result.",
+      "lab_task": "Build and Publish a Release: Build and test the service with Maven; Version it with semantic versioning; Publish a snapshot and a release to Nexus; Download the release on another machine and run it.",
+      "deliverable": "Build log with test results; Published artifacts in Nexus; Versioning notes",
+      "assessment": "Participants explain how the pipeline would promote the same artifact from test to production.",
       "learning_objectives": [
-        "Complete and demonstrate: Build a sample app and publish artifact to a repository.",
-        "Explain how the lab applies Build Tools and Artifact Management and justify the observed result."
+        "Run the Maven, Gradle and npm build lifecycles.",
+        "Version and publish artifacts to a repository.",
+        "Keep builds reproducible across machines."
       ],
-      "scenario": "Demonstrate 'Build Tools and Artifact Management' on a prepared training sample through this task: Build a sample app and publish artifact to a repository.",
+      "scenario": "A sample Java service is built differently on each developer laptop.",
       "preparation_requirements": [
         "Prepare sample assets, expected results and an exception case for: Build a sample app and publish artifact to a repository",
         "Confirm participant prerequisites, tool access and activity durations before delivery"
@@ -416,40 +1264,195 @@
       "delivery_steps": [
         {
           "method": "Explanation and demonstration",
-          "minutes": null,
-          "activity": "Explain the applicable concepts (Maven/Gradle/npm basics; build lifecycle; versioning; artifact repositories; release packages) and demonstrate the starting sample for: Build a sample app and publish artifact to a repository",
-          "evidence": "Annotated sample with inputs and expected results"
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Build Tools; Versioning and Artifacts; Reproducible Builds",
+          "evidence": "Demonstrated example and participant notes"
         },
         {
-          "method": "Guided practice",
-          "minutes": null,
-          "activity": "Build a sample app and publish artifact to a repository",
-          "evidence": "Participant submission for 'Build Tools and Artifact Management': Build a sample app and publish artifact to a repository. Include the resulting artefact, reproducible steps and observed results."
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Build and Publish a Release: A sample Java service is built differently on each developer laptop.",
+          "evidence": "Build log with test results; Published artifacts in Nexus; Versioning notes"
         },
         {
-          "method": "Independent application",
-          "minutes": null,
-          "activity": "Repeat 'Build a sample app and publish artifact to a repository' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
-          "evidence": "Participant artefact and comparison of expected versus observed results"
-        },
-        {
-          "method": "Assessment and feedback",
-          "minutes": null,
-          "activity": "Reproduce the source lab: Build a sample app and publish artifact to a repository. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Maven/Gradle/npm basics; build lifecycle; versioning; artifact repositories; release packages). Require one changed-input or exception case and an explanation of its result.",
-          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Run the build twice from a clean checkout – Both builds produce the same artifact checksum. Publish a release version that already exists – The repository rejects the overwrite. Fail one unit test – The package step does not run.",
+          "evidence": "Recorded verification results and trainer feedback"
         }
       ],
       "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
       "proposed_fields": [
-        "deliverable",
-        "assessment",
-        "learning_objectives",
-        "scenario",
-        "preparation_requirements",
-        "delivery_steps"
+        "delivery_steps",
+        "minutes"
       ],
-      "content_enrichment_version": "catalog-delivery-v1",
-      "review_status": "unreviewed"
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "Maven/Gradle/npm basics",
+          "build lifecycle",
+          "versioning",
+          "artifact repositories",
+          "release packages"
+        ],
+        "lab_task": "Build a sample app and publish artifact to a repository",
+        "scenario": "Demonstrate 'Build Tools and Artifact Management' on a prepared training sample through this task: Build a sample app and publish artifact to a repository.",
+        "deliverable": "Participant submission for 'Build Tools and Artifact Management': Build a sample app and publish artifact to a repository. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Build a sample app and publish artifact to a repository.",
+          "Explain how the lab applies Build Tools and Artifact Management and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Build a sample app and publish artifact to a repository. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Maven/Gradle/npm basics; build lifecycle; versioning; artifact repositories; release packages). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (Maven/Gradle/npm basics; build lifecycle; versioning; artifact repositories; release packages) and demonstrate the starting sample for: Build a sample app and publish artifact to a repository",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Build a sample app and publish artifact to a repository",
+            "evidence": "Participant submission for 'Build Tools and Artifact Management': Build a sample app and publish artifact to a repository. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Build a sample app and publish artifact to a repository' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Build a sample app and publish artifact to a repository. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Maven/Gradle/npm basics; build lifecycle; versioning; artifact repositories; release packages). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Run the build twice from a clean checkout",
+          "expected_result": "Both builds produce the same artifact checksum.",
+          "evidence": "Checksum comparison"
+        },
+        {
+          "input_or_condition": "Publish a release version that already exists",
+          "expected_result": "The repository rejects the overwrite.",
+          "evidence": "Nexus error"
+        },
+        {
+          "input_or_condition": "Fail one unit test",
+          "expected_result": "The package step does not run.",
+          "evidence": "Build log"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Build Tools",
+            "lead": "",
+            "items": [
+              {
+                "text": "Maven lifecycle:",
+                "children": [
+                  "validate",
+                  "compile",
+                  "test",
+                  "package",
+                  "install",
+                  "deploy"
+                ]
+              },
+              {
+                "text": "Gradle tasks and the build cache",
+                "children": []
+              },
+              {
+                "text": "npm scripts and package-lock.json",
+                "children": []
+              },
+              {
+                "text": "Dependency management and version pinning",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Versioning and Artifacts",
+            "lead": "",
+            "items": [
+              {
+                "text": "Semantic versioning",
+                "children": []
+              },
+              {
+                "text": "Snapshot versus release artifacts",
+                "children": []
+              },
+              {
+                "text": "Artifact repositories:",
+                "children": [
+                  "Nexus",
+                  "Artifactory",
+                  "GitHub Packages"
+                ]
+              },
+              {
+                "text": "Build once, deploy many",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Reproducible Builds",
+            "lead": "",
+            "items": [
+              {
+                "text": "Lockfiles and pinned build tool versions",
+                "children": []
+              },
+              {
+                "text": "Generating build metadata and checksums",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Build and Publish a Release",
+          "scenario": "A sample Java service is built differently on each developer laptop.",
+          "lead": "Participants:",
+          "tasks": [
+            "Build and test the service with Maven",
+            "Version it with semantic versioning",
+            "Publish a snapshot and a release to Nexus",
+            "Download the release on another machine and run it"
+          ],
+          "verify": [
+            "Run the build twice from a clean checkout – Both builds produce the same artifact checksum.",
+            "Publish a release version that already exists – The repository rejects the overwrite.",
+            "Fail one unit test – The package step does not run."
+          ],
+          "deliverables": [
+            "Build log with test results",
+            "Published artifacts in Nexus",
+            "Versioning notes"
+          ]
+        },
+        "assessment": "Participants explain how the pipeline would promote the same artifact from test to production.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
     },
     {
       "day": 7,

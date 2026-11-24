@@ -1,0 +1,375 @@
+{
+    "domain":  "OpenTelemetry",
+    "name":  "OpenTelemetry â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "OTel",
+                    "OpenTelemetry Framework"
+                ],
+    "tools":  [
+                  "OpenTelemetry SDK",
+                  "Collector",
+                  "OTLP",
+                  "Jaeger",
+                  "Prometheus"
+              ],
+    "certifications":  [
+                           "OpenTelemetry official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Fundamentals",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Terminology",
+                                       "Common protocols",
+                                       "Use cases",
+                                       "Threats or failure modes",
+                                       "Lab setup",
+                                       "OpenTelemetry terminology and feature mapping for this topic",
+                                       "OpenTelemetry configuration and implementation considerations",
+                                       "OpenTelemetry best practices and common mistakes for this topic",
+                                       "API",
+                                       "SDK",
+                                       "Collector",
+                                       "OTLP",
+                                       "traces",
+                                       "metrics",
+                                       "logs",
+                                       "resources",
+                                       "attributes",
+                                       "baggage",
+                                       "context propagation",
+                                       "processors"
+                                   ],
+                     "tools":  [
+                                   "OpenTelemetry SDK",
+                                   "Collector",
+                                   "OTLP"
+                               ],
+                     "lab_task":  "Set up a safe lab and demonstrate OpenTelemetry fundamentals.",
+                     "technology":  "OpenTelemetry",
+                     "technology_id":  "opentelemetry",
+                     "learning_objectives":  [
+                                                 "Explain the Fundamentals concepts in the context of OpenTelemetry.",
+                                                 "Configure or implement the key OpenTelemetry features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Fundamentals practically using OpenTelemetry.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Protocols and Components",
+                     "subtopics":  [
+                                       "Core components",
+                                       "Packet/message flow",
+                                       "Ports and protocols",
+                                       "Addressing/identity concepts",
+                                       "State",
+                                       "Control plane/data plane",
+                                       "Common configurations",
+                                       "OpenTelemetry terminology and feature mapping for this topic",
+                                       "OpenTelemetry configuration and implementation considerations",
+                                       "OpenTelemetry best practices and common mistakes for this topic",
+                                       "API",
+                                       "SDK",
+                                       "Collector",
+                                       "OTLP",
+                                       "traces",
+                                       "metrics",
+                                       "logs",
+                                       "resources",
+                                       "attributes",
+                                       "baggage",
+                                       "context propagation",
+                                       "processors"
+                                   ],
+                     "tools":  [
+                                   "OpenTelemetry SDK",
+                                   "Collector",
+                                   "OTLP"
+                               ],
+                     "lab_task":  "Inspect and configure core OpenTelemetry components.",
+                     "technology":  "OpenTelemetry",
+                     "technology_id":  "opentelemetry",
+                     "learning_objectives":  [
+                                                 "Explain the Protocols and Components concepts in the context of OpenTelemetry.",
+                                                 "Configure or implement the key OpenTelemetry features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Protocols and Components practically using OpenTelemetry.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Design and Architecture",
+                     "subtopics":  [
+                                       "Enterprise design patterns",
+                                       "Segmentation",
+                                       "Redundancy",
+                                       "Scalability",
+                                       "Trust boundaries",
+                                       "Failure domains",
+                                       "Cloud considerations",
+                                       "OpenTelemetry terminology and feature mapping for this topic",
+                                       "OpenTelemetry configuration and implementation considerations",
+                                       "OpenTelemetry best practices and common mistakes for this topic",
+                                       "API",
+                                       "SDK",
+                                       "Collector",
+                                       "OTLP",
+                                       "traces",
+                                       "metrics",
+                                       "logs",
+                                       "resources",
+                                       "attributes",
+                                       "baggage",
+                                       "context propagation",
+                                       "processors"
+                                   ],
+                     "tools":  [
+                                   "OpenTelemetry SDK",
+                                   "Collector",
+                                   "OTLP"
+                               ],
+                     "lab_task":  "Design an enterprise architecture for OpenTelemetry.",
+                     "technology":  "OpenTelemetry",
+                     "technology_id":  "opentelemetry",
+                     "learning_objectives":  [
+                                                 "Explain the Design and Architecture concepts in the context of OpenTelemetry.",
+                                                 "Configure or implement the key OpenTelemetry features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Design and Architecture practically using OpenTelemetry.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Security Controls",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Encryption",
+                                       "Certificates/keys",
+                                       "Hardening",
+                                       "Least privilege",
+                                       "Logging and auditing",
+                                       "OpenTelemetry terminology and feature mapping for this topic",
+                                       "OpenTelemetry configuration and implementation considerations",
+                                       "OpenTelemetry best practices and common mistakes for this topic",
+                                       "API",
+                                       "SDK",
+                                       "Collector",
+                                       "OTLP",
+                                       "traces",
+                                       "metrics",
+                                       "logs",
+                                       "resources",
+                                       "attributes",
+                                       "baggage",
+                                       "context propagation",
+                                       "processors"
+                                   ],
+                     "tools":  [
+                                   "OpenTelemetry SDK",
+                                   "Collector",
+                                   "OTLP"
+                               ],
+                     "lab_task":  "Apply secure configuration and hardening.",
+                     "technology":  "OpenTelemetry",
+                     "technology_id":  "opentelemetry",
+                     "learning_objectives":  [
+                                                 "Explain the Security Controls concepts in the context of OpenTelemetry.",
+                                                 "Configure or implement the key OpenTelemetry features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security Controls practically using OpenTelemetry.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Monitoring and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Packet or request inspection",
+                                       "Common faults",
+                                       "Diagnostic commands",
+                                       "Alerting",
+                                       "Incident workflow",
+                                       "OpenTelemetry terminology and feature mapping for this topic",
+                                       "OpenTelemetry configuration and implementation considerations",
+                                       "OpenTelemetry best practices and common mistakes for this topic",
+                                       "API",
+                                       "SDK",
+                                       "Collector",
+                                       "OTLP",
+                                       "traces",
+                                       "resources",
+                                       "attributes",
+                                       "baggage",
+                                       "context propagation",
+                                       "processors"
+                                   ],
+                     "tools":  [
+                                   "OpenTelemetry SDK",
+                                   "Collector",
+                                   "OTLP",
+                                   "Jaeger"
+                               ],
+                     "lab_task":  "Diagnose and resolve a simulated OpenTelemetry issue.",
+                     "technology":  "OpenTelemetry",
+                     "technology_id":  "opentelemetry",
+                     "learning_objectives":  [
+                                                 "Explain the Monitoring and Troubleshooting concepts in the context of OpenTelemetry.",
+                                                 "Configure or implement the key OpenTelemetry features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Monitoring and Troubleshooting practically using OpenTelemetry.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Automation and Operations",
+                     "subtopics":  [
+                                       "Configuration automation",
+                                       "Policy management",
+                                       "Backups",
+                                       "Change control",
+                                       "Versioning",
+                                       "Testing",
+                                       "Operational runbooks",
+                                       "OpenTelemetry terminology and feature mapping for this topic",
+                                       "OpenTelemetry configuration and implementation considerations",
+                                       "OpenTelemetry best practices and common mistakes for this topic",
+                                       "API",
+                                       "SDK",
+                                       "Collector",
+                                       "OTLP",
+                                       "traces",
+                                       "metrics",
+                                       "logs",
+                                       "resources",
+                                       "attributes",
+                                       "baggage",
+                                       "context propagation",
+                                       "processors"
+                                   ],
+                     "tools":  [
+                                   "OpenTelemetry SDK",
+                                   "Collector",
+                                   "OTLP"
+                               ],
+                     "lab_task":  "Automate a repeatable OpenTelemetry configuration task.",
+                     "technology":  "OpenTelemetry",
+                     "technology_id":  "opentelemetry",
+                     "learning_objectives":  [
+                                                 "Explain the Automation and Operations concepts in the context of OpenTelemetry.",
+                                                 "Configure or implement the key OpenTelemetry features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation and Operations practically using OpenTelemetry.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Advanced and Cloud Patterns",
+                     "subtopics":  [
+                                       "Cloud-native services",
+                                       "Hybrid connectivity",
+                                       "Zero-trust considerations",
+                                       "Performance",
+                                       "High availability",
+                                       "Disaster recovery",
+                                       "Cost considerations",
+                                       "OpenTelemetry terminology and feature mapping for this topic",
+                                       "OpenTelemetry configuration and implementation considerations",
+                                       "OpenTelemetry best practices and common mistakes for this topic",
+                                       "API",
+                                       "SDK",
+                                       "Collector",
+                                       "OTLP",
+                                       "traces",
+                                       "metrics",
+                                       "logs",
+                                       "resources",
+                                       "attributes",
+                                       "baggage",
+                                       "context propagation",
+                                       "processors"
+                                   ],
+                     "tools":  [
+                                   "OpenTelemetry SDK",
+                                   "Collector",
+                                   "OTLP",
+                                   "Jaeger"
+                               ],
+                     "lab_task":  "Design a cloud/hybrid implementation.",
+                     "technology":  "OpenTelemetry",
+                     "technology_id":  "opentelemetry",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced and Cloud Patterns concepts in the context of OpenTelemetry.",
+                                                 "Configure or implement the key OpenTelemetry features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced and Cloud Patterns practically using OpenTelemetry.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Capstone",
+                     "subtopics":  [
+                                       "Requirement analysis",
+                                       "Architecture",
+                                       "Security",
+                                       "Configuration",
+                                       "Testing",
+                                       "Monitoring",
+                                       "Troubleshooting",
+                                       "Documentation",
+                                       "OpenTelemetry terminology and feature mapping for this topic",
+                                       "OpenTelemetry configuration and implementation considerations",
+                                       "OpenTelemetry best practices and common mistakes for this topic",
+                                       "API",
+                                       "SDK",
+                                       "Collector",
+                                       "OTLP",
+                                       "traces",
+                                       "metrics",
+                                       "logs",
+                                       "resources",
+                                       "attributes",
+                                       "baggage",
+                                       "context propagation",
+                                       "processors"
+                                   ],
+                     "tools":  [
+                                   "OpenTelemetry SDK",
+                                   "Collector",
+                                   "OTLP",
+                                   "Jaeger"
+                               ],
+                     "lab_task":  "Build and document an end-to-end OpenTelemetry solution.",
+                     "technology":  "OpenTelemetry",
+                     "technology_id":  "opentelemetry",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone concepts in the context of OpenTelemetry.",
+                                                 "Configure or implement the key OpenTelemetry features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone practically using OpenTelemetry.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "opentelemetry"
+}

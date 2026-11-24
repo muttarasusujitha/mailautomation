@@ -1,0 +1,573 @@
+{
+  "domain": "Bamboo",
+  "name": "Bamboo",
+  "category": "DevOps and CI/CD",
+  "icon": "workflow",
+  "aliases": ["Atlassian Bamboo", "Bamboo CI/CD", "Bamboo Data Center", "Atlassian Bamboo Data Center", "Bamboo Server", "Bamboo Specs", "Bamboo CI", "Bamboo Build Server"],
+  "certifications": [],
+  "tools": ["Bamboo Data Center", "Bamboo remote agent", "Bamboo Java Specs", "Bamboo YAML Specs", "Bamboo REST API", "Bitbucket Data Center", "Jira Software Data Center", "Elastic Bamboo (Amazon EC2)", "Kubernetes", "Docker", "Apache Maven", "Atlassian Data Center Helm charts", "GitHub Actions Importer", "Bitbucket Pipelines"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, build engineers and DevOps newcomers who must run or contribute to builds on Atlassian Bamboo Data Center. Covers the server, Bamboo home and first login, projects, plans, stages, jobs and tasks, linking Git and Bitbucket repositories, script, Maven and npm tasks, test result parsing, triggers, variables, artifacts, local and remote agents, capabilities and requirements, plan branches, build results and notifications, deployment projects, environments and releases, Jira and Bitbucket links, basic permissions and Docker tasks, ending with a build-and-deploy capstone configured through the Bamboo UI.",
+      "prerequisites": ["Uses Git from the command line: clone, branch, commit, push and open a pull request", "Can build a Java project with Maven or a JavaScript project with npm on a laptop and read the console output", "Has a training Bamboo Data Center instance (or a laptop with a supported JDK, 8 GB RAM and Docker) plus a Bitbucket or GitHub account for sample repositories"],
+      "outcomes": ["Create Bamboo projects and plans with stages, jobs and tasks that check out, build and test code from a linked repository", "Configure triggers, variables, artifacts, plan branches and job requirements so builds run on the right agent at the right time", "Set up a deployment project with environments and releases that deploys a plan artifact to test and staging targets", "Read build logs and test results, connect builds to Jira issues and Bitbucket commits, and grant users the plan permissions they need"],
+      "days": [
+        {
+          "topic": "Bamboo Data Center Orientation: Server, Home Directory and First Login",
+          "subtopics": ["What Bamboo Data Center does compared with Bitbucket Pipelines and Jenkins", "Installation directory versus Bamboo home directory", "bamboo-init.properties and the bamboo.home setting", "bamboo.cfg.xml and the database connection it stores", "Supported databases (PostgreSQL, MySQL, Oracle, SQL Server) and why H2 is evaluation-only", "start-bamboo.sh, stop-bamboo.sh and the default HTTP port 8085", "Setup wizard: licence, base URL, database and admin account", "atlassian-bamboo.log in <bamboo-home>/logs", "Dashboard, My Bamboo, build queue and Administration menu", "System information page (/admin/systemInfo.action)"],
+          "tools": ["Bamboo Data Center", "PostgreSQL", "Docker", "OpenJDK", "Web browser"],
+          "lab_task": "Start PostgreSQL in Docker (docker run -d -p 5432:5432 -e POSTGRES_DB=bamboo -e POSTGRES_USER=bamboo -e POSTGRES_PASSWORD=bamboo postgres:16), set bamboo.home in bamboo-init.properties, run bin/start-bamboo.sh, finish the setup wizard with a trial licence and base URL http://localhost:8085, then open System information and record the Bamboo version, JVM version, database type and home path.",
+          "deliverable": "Installation record with bamboo-init.properties, the setup choices and a System information screenshot",
+          "checks": [["Open http://localhost:8085 after start-bamboo.sh finishes", "The Bamboo dashboard loads after login with the admin account", "Browser screenshot"], ["Read <bamboo-home>/bamboo.cfg.xml", "hibernate.connection.url points to jdbc:postgresql://localhost:5432/bamboo", "Config file excerpt"], ["Search atlassian-bamboo.log for 'Bamboo is ready to serve' or the startup completion line", "One startup completion entry with no ERROR lines from the database layer", "Log excerpt"]],
+          "objectives": ["Distinguish the installation directory from the Bamboo home directory", "Install Bamboo Data Center against an external PostgreSQL database", "Locate the main log file and system information page"]
+        },
+        {
+          "topic": "Projects, Plans and Plan Keys in Bamboo",
+          "subtopics": ["Project as a container for plans, deployment links and permissions", "Project key and plan key rules (uppercase letters and digits)", "Full plan key PROJ-PLAN and build result key PROJ-PLAN-42", "Create plan wizard: project, plan name, description and repository", "Plan configuration tabs: stages, repositories, triggers, branches, dependencies, permissions, notifications, variables, miscellaneous", "Enabling and disabling a plan", "Cloning a plan and moving a plan to another project", "Plan summary, history and build result pages"],
+          "tools": ["Bamboo Data Center", "Web browser", "Git"],
+          "lab_task": "Create a project with key TRAIN, then a plan WEB (full key TRAIN-WEB) linked to a sample Git repository with one Script task running echo hello. Run it twice manually, clone the plan as TRAIN-WEBCOPY, disable the copy, and write down the build result keys and the URL /browse/TRAIN-WEB-2.",
+          "deliverable": "Plan inventory sheet listing project key, plan keys, build result keys and the plan configuration tabs used",
+          "checks": [["Open /browse/TRAIN-WEB-2", "Build result page for build number 2 shows status Successful", "Screenshot"], ["Try to run the disabled plan TRAIN-WEBCOPY", "The Run button is unavailable and the plan list marks it as disabled", "Screenshot"], ["Create a project with key 'train-1'", "Bamboo rejects the key because project keys must be uppercase letters and digits", "Validation message"]],
+          "objectives": ["Create Bamboo projects and plans with valid keys", "Navigate plan configuration tabs and build result pages", "Clone, move and disable plans safely"]
+        },
+        {
+          "topic": "Stages, Jobs and Tasks: Bamboo Build Anatomy",
+          "subtopics": ["Stages run sequentially; jobs in one stage run in parallel", "Jobs as the unit sent to one agent with their own working directory", "Tasks run in order inside a job", "Source Code Checkout task and its position in the task list", "Final tasks that run even when an earlier task fails", "Manual stages that wait for a user to continue", "Final stage flag for clean-up stages", "Job keys such as TRAIN-WEB-JOB1 and the job result page"],
+          "tools": ["Bamboo Data Center", "Script task", "Source Code Checkout task"],
+          "lab_task": "Give TRAIN-WEB three stages: Build (one job), Test (two parallel jobs UNIT and LINT) and Publish (manual stage). Add a final task in each job that runs ls -la. Make LINT fail with exit 1 and run the plan; record which stages run, which jobs show as failed and whether the final task still executed.",
+          "deliverable": "Annotated stage and job diagram with a build result screenshot showing parallel jobs and the manual stage",
+          "checks": [["Run the plan with LINT returning exit 1", "The Test stage fails and the Publish stage does not start", "Build result page"], ["Open the LINT job log", "The final task ls -la ran after the failing script task", "Job log excerpt"], ["Fix LINT and rerun", "The build pauses at the manual Publish stage until a user clicks Continue", "Screenshot of the manual stage button"]],
+          "objectives": ["Explain how stages, jobs and tasks execute", "Use final tasks and manual stages", "Read job-level results inside a build result"]
+        },
+        {
+          "topic": "Linking Bitbucket and Git Repositories to Bamboo Plans",
+          "subtopics": ["Plan repositories versus linked (global) repositories", "Project-level repositories shared by plans in one project", "Repository types: Bitbucket Data Center, Bitbucket Cloud, GitHub and generic Git", "Authentication: SSH keys, access tokens and shared credentials", "Default repository and checking out several repositories into subdirectories", "Shallow clones, submodules and fetch whole repository options", "Repository caching on agents", "Commit history and changes shown on build results"],
+          "tools": ["Bamboo Data Center", "Bitbucket Data Center", "GitHub", "Git", "ssh-keygen"],
+          "lab_task": "Create a linked repository of type Git pointing at a sample repository over SSH using a key from ssh-keygen -t ed25519, enable shallow clones, attach it to TRAIN-WEB as the default repository, add a second repository checked out into the libs/ subdirectory, then push a commit and confirm both checkouts appear in the job log.",
+          "deliverable": "Repository configuration screenshots and a job log showing two checkouts into separate directories",
+          "checks": [["Click Test connection on the linked repository", "Bamboo reports the connection as successful", "Screenshot"], ["Run the plan after a new commit", "The build result Commits tab lists the new commit hash and author", "Commits tab screenshot"], ["Remove the deploy key from the Git host and rerun", "The checkout task fails with a permission denied (publickey) error", "Job log excerpt"]],
+          "objectives": ["Link Git and Bitbucket repositories at plan, project and global level", "Configure authentication and checkout options", "Check out more than one repository into a job"]
+        },
+        {
+          "topic": "Script and Command Tasks on Bamboo Agents",
+          "subtopics": ["Script task: inline body versus script file", "Interpreter choice: shell, Windows PowerShell, cmd and /bin/sh", "Exit codes and how a non-zero code fails the task", "Command task and executable capabilities", "Working subdirectory for a task", "Environment variables passed to a task", "set -euo pipefail for safe shell scripts", "Keeping logic in versioned scripts instead of long inline bodies"],
+          "tools": ["Bamboo Data Center", "Bash", "PowerShell", "ShellCheck"],
+          "lab_task": "Move the inline build logic of TRAIN-WEB into ci/build.sh with set -euo pipefail, call it from a Script task using the file option, add a Command task that runs a registered git executable with argument --version, and pass ENVIRONMENT=ci as a task environment variable. Run shellcheck ci/build.sh locally and fix every warning.",
+          "deliverable": "ci/build.sh, task configuration screenshots and a clean shellcheck run",
+          "checks": [["Run shellcheck ci/build.sh", "No warnings are printed and the exit code is 0", "Terminal output"], ["Make build.sh reference an unset variable", "set -u aborts the script and the task fails with a non-zero exit code", "Job log excerpt"], ["Inspect the Command task log", "The log contains the output of git --version from the registered executable", "Job log excerpt"]],
+          "objectives": ["Write Script tasks that fail fast on errors", "Use Command tasks with executable capabilities", "Keep build logic in versioned script files"]
+        },
+        {
+          "topic": "Building Maven and Node.js Projects with Bamboo Tasks",
+          "subtopics": ["Maven 3.x task: goals, build JDK and executable", "Passing -B and -Dmaven.repo.local for repeatable Maven builds", "npm task and Node.js executable capability", "npm ci versus npm install in CI", "Task working subdirectory for mono-repositories", "Selecting a JDK capability such as JDK 17", "Environment variables such as MAVEN_OPTS and NODE_OPTIONS", "Reading build tool output in the job log"],
+          "tools": ["Bamboo Data Center", "Apache Maven", "Node.js", "npm", "OpenJDK"],
+          "lab_task": "Add a job to TRAIN-WEB with a Maven 3.x task running clean verify -B on a Spring Boot sample using the JDK 17 capability, and a second job with npm tasks running ci and run build in the frontend/ subdirectory. Record each job duration and the path of target/*.jar and frontend/dist after a successful run.",
+          "deliverable": "Build job configuration and a table of duration, tool versions and output paths for both jobs",
+          "checks": [["Run the Maven job", "The log shows BUILD SUCCESS and a jar under target/", "Job log excerpt"], ["Change package-lock.json so it no longer matches package.json and rerun", "npm ci fails and asks for the lock file to be updated", "Job log excerpt"], ["Select a JDK capability no agent has", "The job shows that no agent can build it and stays queued", "Build queue screenshot"]],
+          "objectives": ["Configure Maven and npm tasks", "Choose build tool executables and JDK capabilities", "Diagnose common build tool failures in job logs"]
+        },
+        {
+          "topic": "Bamboo Test Results: JUnit Parser, Failing Tests and Quarantine",
+          "subtopics": ["JUnit Parser task and the **/target/surefire-reports/*.xml pattern", "Test parsing built into Maven and npm tasks", "Tests tab: new failures, existing failures and fixed tests", "Test history across builds", "Quarantining a flaky test and its effect on build status", "Unquarantining and assigning responsibility", "Placing the parser as a final task so it runs after failures", "Other parsers such as NUnit, TestNG and Mocha"],
+          "tools": ["Bamboo Data Center", "JUnit Parser task", "Apache Maven", "JUnit 5"],
+          "lab_task": "Add a JUnit Parser final task with pattern **/target/surefire-reports/*.xml to the Maven job. Add one failing test and one test that fails randomly, run three builds, quarantine the random test, then run again and record the counts of passed, failed and quarantined tests reported on the Tests tab.",
+          "deliverable": "Tests tab screenshots before and after quarantine with a count table",
+          "checks": [["Run the build with one deliberate failure", "The Tests tab lists exactly 1 new failure and the build is Failed", "Tests tab screenshot"], ["Quarantine the flaky test and rerun", "The quarantined test is listed separately and does not fail the build", "Build result"], ["Point the parser at a path with no XML files", "The task fails because no test result files were found", "Job log excerpt"]],
+          "objectives": ["Parse test reports into Bamboo", "Read new, existing and fixed failures", "Quarantine and unquarantine flaky tests"]
+        },
+        {
+          "topic": "Bamboo Triggers: Polling, Webhooks, Cron and Manual Runs",
+          "subtopics": ["Repository polling trigger and polling interval", "Bitbucket Data Center repository trigger driven by repository events", "Remote trigger called by an external system", "Scheduled trigger with Quartz cron expressions including seconds", "Single daily build trigger", "Trigger conditions such as only when other plans are green", "Quiet period to batch commits", "Manual runs and Run customised"],
+          "tools": ["Bamboo Data Center", "Bitbucket Data Center", "curl"],
+          "lab_task": "Replace polling on TRAIN-WEB with the Bitbucket Data Center repository trigger, add a scheduled trigger with cron 0 0 2 ? * MON-FRI for a nightly build, and set a quiet period of 60 seconds. Push three commits within 30 seconds and record how many builds start and the trigger reason shown on each build result.",
+          "deliverable": "Trigger configuration screenshots and a build history table with trigger reasons",
+          "checks": [["Push three commits within 30 seconds", "One build starts and its changes list all three commits", "Build result Commits tab"], ["Read the trigger reason of the nightly build", "The reason says the build was triggered by a scheduled trigger", "Build summary screenshot"], ["Enter the cron expression 0 0 2 * * MON-FRI", "Bamboo rejects it because day-of-month and day-of-week cannot both be specified", "Validation message"]],
+          "objectives": ["Choose between polling, repository events and remote triggers", "Write valid Quartz cron schedules", "Batch commits with a quiet period"]
+        },
+        {
+          "topic": "Bamboo Variables: Global, Plan and Build-Time Values",
+          "subtopics": ["Global variables set by administrators", "Project and plan variables and override order", "Referencing ${bamboo.variableName} in task fields", "Environment form $bamboo_variableName with dots turned into underscores", "Built-in variables: bamboo.buildNumber, bamboo.planKey, bamboo.buildResultKey", "Repository variables: bamboo.planRepository.revision and branch", "Run customised with overridden plan variables", "Masking of variables whose names contain password or secret", "Inject Bamboo variables task reading a properties file", "Variable scope: result versus local"],
+          "tools": ["Bamboo Data Center", "Inject Bamboo variables task", "Bash"],
+          "lab_task": "Create a global variable company=acme, a plan variable deployTarget=test and a plan variable dbPassword. In a Script task print ${bamboo.buildNumber}, $bamboo_deployTarget and $bamboo_dbPassword, write version=1.0.${bamboo.buildNumber} to build.properties, read it with the Inject Bamboo variables task (namespace inject) and echo ${bamboo.inject.version}.",
+          "deliverable": "Variable table with scope and override rules plus the job log showing resolved and masked values",
+          "checks": [["Print $bamboo_dbPassword in the script", "The job log shows ******** instead of the value", "Job log excerpt"], ["Use Run customised with deployTarget=staging", "The job log prints staging instead of test", "Job log excerpt"], ["Echo ${bamboo.inject.version} in a later task of build 7", "The log prints 1.0.7", "Job log excerpt"]],
+          "objectives": ["Use global, plan and build-time variables", "Reference variables in fields and scripts", "Pass values between tasks with the Inject Bamboo variables task"]
+        },
+        {
+          "topic": "Artifact Definitions and Sharing Between Bamboo Stages",
+          "subtopics": ["Artifact definition: name, location and copy pattern", "Ant-style patterns such as **/*.jar", "Required artifacts that fail the job if missing", "Shared artifacts and artifact dependencies", "Artifact download task in later stages", "Artifacts tab on build results", "Artifacts used by deployment projects", "Size and retention considerations"],
+          "tools": ["Bamboo Data Center", "Artifact download task", "Apache Maven"],
+          "lab_task": "Define a shared required artifact app-jar with location target and copy pattern *.jar in the Build stage job, add an Artifact download task in a Test stage job that places it in downloaded/, run java -jar downloaded/*.jar --version, then make the pattern match nothing and record the result.",
+          "deliverable": "Artifact definition screenshots and logs for the passing and missing-artifact runs",
+          "checks": [["Open the Artifacts tab of a successful build", "app-jar is listed with a download link and file size", "Screenshot"], ["Run the Test stage job", "The job log shows the jar downloaded into downloaded/", "Job log excerpt"], ["Change the copy pattern to *.war on a jar project", "The Build job fails because the required artifact was not found", "Job log excerpt"]],
+          "objectives": ["Define and share artifacts", "Download artifacts in later stages", "Use required artifacts to catch packaging errors"]
+        },
+        {
+          "topic": "Local and Remote Bamboo Agents for Beginners",
+          "subtopics": ["Local agents running inside the server JVM and why they suit only small or test setups", "Remote agents on separate machines", "Downloading atlassian-bamboo-agent-installer-<version>.jar", "Starting with java -jar ... http://<server>:8085/agentServer/", "Agent home directory and bamboo-agent.cfg.xml", "Agent authentication and approving new agents", "Agent online, idle, building and disabled states", "Agents page and the build history of one agent"],
+          "tools": ["Bamboo Data Center", "Bamboo remote agent", "OpenJDK", "Docker"],
+          "lab_task": "On a second machine or container with a JDK, download the remote agent installer from Administration > Agents, run java -jar atlassian-bamboo-agent-installer.jar http://bamboo:8085/agentServer/, approve the agent if remote agent authentication is enabled, disable all local agents, then run TRAIN-WEB and confirm the job ran on the remote agent.",
+          "deliverable": "Agent list screenshot and build result showing the remote agent name",
+          "checks": [["Open Administration > Agents after starting the installer", "The new remote agent is listed as Online and Idle", "Agents page screenshot"], ["Run TRAIN-WEB with local agents disabled", "The job summary names the remote agent as the agent used", "Job summary screenshot"], ["Stop the agent process during a build", "The agent shows Offline and the job is reported as failed or hung", "Agents page and build result"]],
+          "objectives": ["Explain local versus remote agents", "Install and register a remote agent", "Check which agent ran a job"]
+        },
+        {
+          "topic": "Agent Capabilities and Job Requirements in Bamboo",
+          "subtopics": ["Capability types: executable, JDK, Version Control and custom", "Capability keys such as system.builder.mvn3.Maven 3 and system.jdk.JDK 17", "Automatic detection of capabilities on agents", "Server capabilities shared by local agents", "bamboo-capabilities.properties on remote agents", "Job requirements added automatically by tasks", "Custom requirements: exists, equals and matches", "Agent matrix and the 'no agent can build this job' warning"],
+          "tools": ["Bamboo Data Center", "Bamboo remote agent", "Apache Maven", "Node.js"],
+          "lab_task": "On the remote agent add os=linux and docker=true to <agent-home>/bin/bamboo-capabilities.properties and restart it. Add a job requirement docker equals true, check the job's agent count on the requirements screen, then change it to docker equals false and record the warning and queue state.",
+          "deliverable": "Capability list, requirement settings and a table of matching agent counts",
+          "checks": [["View the agent capabilities after restart", "Custom capabilities os=linux and docker=true are listed", "Agent capabilities screenshot"], ["Open the job requirements with docker equals true", "Bamboo shows at least 1 agent that can build the job", "Requirements screenshot"], ["Change the requirement to docker equals false", "The build stays queued with a message that no agent can build it", "Build queue screenshot"]],
+          "objectives": ["Define capabilities on agents", "Write job requirements that route builds", "Diagnose builds that cannot find an agent"]
+        },
+        {
+          "topic": "Plan Branches for Feature Branch Builds in Bamboo",
+          "subtopics": ["Plan branches as copies of the master plan configuration", "Automatic branch creation for new branches in the repository", "Regular expression filter such as feature/.*", "Branch clean-up after a number of days of inactivity", "Branch-specific variables and overrides", "Branch keys such as TRAIN-WEB0 and branch build history", "Triggers for plan branches", "Manually creating a plan branch"],
+          "tools": ["Bamboo Data Center", "Git", "Bitbucket Data Center"],
+          "lab_task": "Enable automatic plan branch creation on TRAIN-WEB with the filter feature/.* and delete inactive branches after 7 days. Push branches feature/login and hotfix/x, record which plan branches Bamboo creates and their keys, override deployTarget=feature on feature/login, and run both the default branch and the plan branch.",
+          "deliverable": "Plan branch settings, branch list screenshot and a table of branch keys and variable values",
+          "checks": [["Push feature/login", "A plan branch for feature/login appears and builds automatically", "Branches tab screenshot"], ["Push hotfix/x", "No plan branch is created because the name does not match feature/.*", "Branches tab screenshot"], ["Echo $bamboo_deployTarget on the feature/login branch", "The log prints feature while the default branch prints test", "Two job log excerpts"]],
+          "objectives": ["Configure automatic plan branches", "Filter and clean up plan branches", "Override variables per branch"]
+        },
+        {
+          "topic": "Build Results, Logs and Notifications in Bamboo",
+          "subtopics": ["Build result summary: status, duration, trigger reason and agent", "Default job log, full log download and log size limits", "Build metadata tab", "Comments and labels on build results", "Notification events: all builds completed, failed and fixed, first failure", "Recipients: users, groups, committers, responsible users and email addresses", "Mail server configuration in Administration", "Responsibility for broken builds"],
+          "tools": ["Bamboo Data Center", "SMTP server", "MailHog"],
+          "lab_task": "Configure the Bamboo mail server against a MailHog container on port 1025, add a notification on TRAIN-WEB for 'Failed builds and first successful' to committers, break the build, then fix it. Count the emails received, open the metadata tab of the failed build, and add the label needs-review to it.",
+          "deliverable": "Notification configuration, MailHog inbox screenshot and the labelled build result",
+          "checks": [["Send a test email from the mail server settings", "MailHog receives the test message", "MailHog screenshot"], ["Break and then fix the build", "Exactly 2 notification emails arrive, one for the failure and one for the fix", "MailHog inbox"], ["Search builds by label needs-review", "Only the labelled failed build is returned", "Search result screenshot"]],
+          "objectives": ["Read build result details and logs", "Configure plan notifications", "Use labels and comments for build triage"]
+        },
+        {
+          "topic": "First Deployment Project and Environments in Bamboo",
+          "subtopics": ["Deployment project linked to a build plan", "Artifacts the deployment project takes from the plan", "Environments such as Test, Staging and Production", "Environment tasks: Artifact download, Clean working directory and Script", "Release naming with ${bamboo.buildNumber}", "Creating a release from a build result", "Deploying a release to an environment", "Deployment results and logs"],
+          "tools": ["Bamboo Data Center", "Artifact download task", "SSH task", "SCP task"],
+          "lab_task": "Create a deployment project TRAIN Web Deploy for plan TRAIN-WEB with environments Test and Staging. Each environment downloads app-jar, copies it to a target host with the SCP task and restarts it with the SSH task. Create release 1.0-${bamboo.buildNumber}, deploy it to Test, and record the release name and environment status.",
+          "deliverable": "Deployment project configuration and a deployment result for release 1.0-N on Test",
+          "checks": [["Deploy the release to Test", "The Test environment shows the release name and a successful deployment", "Deployment project screenshot"], ["Open the deployment log", "The SCP task copied the jar and the SSH task restarted the service", "Deployment log excerpt"], ["Try to create a release from a failed build", "Bamboo only offers successful builds with artifacts as release sources", "Screenshot"]],
+          "objectives": ["Create a deployment project and environments", "Create releases from plan builds", "Deploy a release and read the deployment log"]
+        },
+        {
+          "topic": "Releases and Deployment Triggers in Bamboo",
+          "subtopics": ["Release versions and automatic naming", "Release status: approved and broken", "Promoting the same release from Test to Staging", "Trigger: after a successful plan build", "Trigger: after a successful stage", "Trigger: after a successful deployment to another environment", "Scheduled deployment trigger", "Release comparison: commits and Jira issues between releases"],
+          "tools": ["Bamboo Data Center", "Jira Software Data Center"],
+          "lab_task": "Add a trigger on Test that deploys after each successful TRAIN-WEB build on the default branch, and a trigger on Staging that deploys after a successful Test deployment. Push a commit, watch the release reach Staging without clicks, mark an older release as broken, and compare the two latest releases.",
+          "deliverable": "Trigger configuration and a release timeline showing build, Test and Staging times",
+          "checks": [["Push a commit to the default branch", "A new release is created and deployed to Test and then Staging automatically", "Deployment project screenshot"], ["Mark an older release as broken", "The release shows the broken status on its release page", "Release page screenshot"], ["Compare the two latest releases", "The comparison lists the commits pushed between them", "Release comparison screenshot"]],
+          "objectives": ["Automate deployments with environment triggers", "Promote one release through several environments", "Track release status and changes"]
+        },
+        {
+          "topic": "Connecting Bamboo to Jira Issues and Bitbucket Data Center",
+          "subtopics": ["Application links between Bamboo, Jira and Bitbucket", "OAuth-based application links and incoming and outgoing authentication", "Issue keys in commit messages linked to builds", "Jira issues tab on build results", "Builds and deployments in the Jira development panel", "Build status reported to Bitbucket commits", "Creating plans directly from Bitbucket repositories", "Troubleshooting broken application links"],
+          "tools": ["Bamboo Data Center", "Jira Software Data Center", "Bitbucket Data Center", "Application Links"],
+          "lab_task": "Create application links from Bamboo to Jira and Bitbucket Data Center, push a commit with message 'TRAIN-12 add login page', run TRAIN-WEB, then open issue TRAIN-12 in Jira and the commit in Bitbucket. Record what each product shows about the build and the deployment to Test.",
+          "deliverable": "Application link status page and screenshots from Jira and Bitbucket showing linked builds",
+          "checks": [["Open the Jira issues tab of the build", "Issue TRAIN-12 is listed as linked through the commit message", "Build result screenshot"], ["Open the commit in Bitbucket", "A green build status from Bamboo is shown on the commit", "Bitbucket screenshot"], ["Open TRAIN-12 in Jira", "The development panel shows 1 build and the Test deployment", "Jira screenshot"]],
+          "objectives": ["Create application links between Atlassian products", "Link builds to Jira issues through commit messages", "Report build status back to Bitbucket"]
+        },
+        {
+          "topic": "Bamboo Users, Groups and Plan Permissions",
+          "subtopics": ["Internal user directory, users and groups", "Global permissions: access, create plan, create repository, restricted admin and admin", "Plan permissions: view, view configuration, edit, build, clone and admin", "Granting permissions to groups instead of users", "Anonymous and logged-in user access", "Deployment project and environment permissions", "Checking effective access as a test user", "Least privilege for build engineers and developers"],
+          "tools": ["Bamboo Data Center", "Web browser"],
+          "lab_task": "Create groups developers and release-managers and users dev1 and rel1. Give developers View and Build on TRAIN-WEB only, give release-managers Deploy on the Staging environment, then log in as each user and record which buttons they see on the plan and the deployment project.",
+          "deliverable": "Permission matrix for both groups with screenshots taken as dev1 and rel1",
+          "checks": [["Log in as dev1 and open TRAIN-WEB", "The Run button is shown but Actions > Configure plan is not", "Screenshot as dev1"], ["Log in as dev1 and open the Staging environment", "No Deploy button is available", "Screenshot as dev1"], ["Log in as rel1 and deploy to Staging", "The deployment starts and the result names rel1 as the user", "Deployment result"]],
+          "objectives": ["Manage users and groups", "Apply global, plan and environment permissions", "Verify effective permissions as a test user"]
+        },
+        {
+          "topic": "Docker Tasks and the Docker Runner in Bamboo",
+          "subtopics": ["Docker task commands: build, run, push and pull", "Docker capability on agents", "Registry credentials through shared credentials", "Tagging images with ${bamboo.buildNumber} and the commit hash", "Docker runner: running a whole job inside a container image", "Volumes and the working directory in the Docker runner", "Cleaning images to save agent disk space", "When to use the Docker task versus a Script task calling docker"],
+          "tools": ["Bamboo Data Center", "Docker", "Docker task", "Docker Hub", "Harbor"],
+          "lab_task": "Add a job that builds the app image with the Docker task tagged registry.example/train/web:${bamboo.buildNumber} and pushes it with stored registry credentials. In a second job enable the Docker runner with image maven:3-eclipse-temurin-17 and run mvn -B verify. Record image size and job duration for both jobs.",
+          "deliverable": "Dockerfile, job configuration screenshots and a registry screenshot showing the pushed tag",
+          "checks": [["List tags in the registry after build 15", "Tag web:15 exists", "Registry screenshot"], ["Check the Docker runner job log", "The log shows the job running inside maven:3-eclipse-temurin-17", "Job log excerpt"], ["Run the Docker task on an agent without the docker capability", "The job cannot be built and waits in the queue", "Build queue screenshot"]],
+          "objectives": ["Build and push images with the Docker task", "Run jobs inside containers with the Docker runner", "Route Docker jobs to capable agents"]
+        },
+        {
+          "topic": "Beginner Capstone: Bamboo Build-and-Deploy Pipeline for a Java Web App",
+          "subtopics": ["Plan with Build, Test and Package stages and parallel test jobs", "Plan branches for feature/* with notifications to committers", "Shared artifacts, test parsing and a Docker image", "Deployment project with Test and Staging environments and triggers", "Jira and Bitbucket links on every build", "Group-based permissions and a short runbook"],
+          "tools": ["Bamboo Data Center", "Bitbucket Data Center", "Jira Software Data Center", "Apache Maven", "Docker", "Bamboo remote agent"],
+          "lab_task": "Build plan CAP-APP for a Spring Boot repo: Build, Test (unit and lint jobs in parallel) and Package stages, JUnit parsing, a shared jar artifact and a Docker image tagged with the build number, plan branches for feature/*, and a deployment project that auto-deploys to Test and promotes to Staging. Demo a commit referencing a Jira issue reaching Staging within 15 minutes.",
+          "deliverable": "Working plan and deployment project, configuration screenshots, a timed demo and a one-page runbook",
+          "checks": [["Push a commit with a Jira key to the default branch", "The release reaches Staging in under 15 minutes without manual clicks", "Deployment timeline screenshot"], ["Push a commit with a failing unit test to feature/demo", "The plan branch fails, the committer gets an email and nothing is deployed", "Branch result and email"], ["Open the Jira issue referenced in the commit", "The development panel lists the build and the Staging deployment", "Jira screenshot"]],
+          "objectives": ["Combine plans, branches, artifacts and deployments into one pipeline", "Demonstrate automated promotion between environments", "Document the pipeline for other team members"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For build engineers and DevOps practitioners who already run Bamboo plans through the UI and now need to manage them as code at team scale. Covers Bamboo Specs in Java and YAML, repository-stored Specs, Specs permissions and scanning, exporting plans to Specs, branch merging with Branch Updater and Gatekeeper, pull request builds, plan dependencies, shared credentials and Specs encryption, deployment projects in Specs, release promotion rules, remote agents as services, dedicated agents, Elastic Bamboo on EC2, artifact handlers and build expiry, splitting tests across jobs, the REST API with personal access tokens, deeper Jira integration, global and project permissions and build troubleshooting.",
+      "prerequisites": ["Has completed the beginner level or has built and deployed with Bamboo plans, artifacts, variables and deployment projects through the UI", "Reads and writes YAML and basic Java and can run Maven builds locally", "Has project admin rights on a training Bamboo Data Center instance, a Bitbucket or GitHub repository and, for the elastic agent day, an AWS sandbox account"],
+      "outcomes": ["Define plans, plan permissions and deployment projects as Bamboo Specs in Java or YAML and store them in repositories with controlled access", "Design branch workflows with plan branches, pull request builds, Branch Updater, Gatekeeper and plan dependencies", "Operate agent pools with remote agents as services, dedicated agents and Elastic Bamboo, and manage artifact storage and build expiry", "Automate Bamboo with the REST API and personal access tokens, secure credentials, and troubleshoot failed builds and queues from logs and agent data"],
+      "days": [
+        {
+          "topic": "Bamboo Java Specs with the bamboo-specs Library",
+          "subtopics": ["Why Specs: reviewable, versioned and repeatable plan configuration", "Generating a project with the bamboo-specs-archetype Maven archetype", "com.atlassian.bamboo.specs.api builders: Project, Plan, Stage, Job", "Task builders such as ScriptTask, MavenTask and VcsCheckoutTask", "BambooServer and publish() from the main method", "Credentials in the .credentials file and keeping it out of Git", "mvn -Ppublish-specs to publish from a workstation", "Validation errors reported before anything changes on the server"],
+          "tools": ["Bamboo Java Specs", "Apache Maven", "IntelliJ IDEA", "OpenJDK", "Bamboo Data Center"],
+          "lab_task": "Generate a Specs project with mvn archetype:generate -DarchetypeGroupId=com.atlassian.bamboo -DarchetypeArtifactId=bamboo-specs-archetype, write a PlanSpec class creating project SPEC and plan SPEC-API with one stage, one job and a ScriptTask running ./ci/build.sh, put credentials in .credentials, run mvn -Ppublish-specs and open the new plan in Bamboo.",
+          "deliverable": "Specs Maven project, PlanSpec.java, .gitignore entry for .credentials and the publish output",
+          "checks": [["Run mvn -Ppublish-specs", "Maven ends with BUILD SUCCESS and the output reports the plan as published", "Terminal output"], ["Open /browse/SPEC-API in Bamboo", "The plan exists with the stage, job and script task from the code", "Screenshot"], ["Give the plan key a lowercase value and publish", "Publishing fails with a validation error naming the plan key", "Terminal output"]],
+          "objectives": ["Create a Bamboo Java Specs project", "Model plans with Specs builders", "Publish Specs safely from a workstation"]
+        },
+        {
+          "topic": "Bamboo YAML Specs Syntax and Repository-Stored Specs",
+          "subtopics": ["bamboo-specs/bamboo.yml location in the repository", "version: 2 and the plan block with project-key, key and name", "stages, jobs and tasks sections", "script, checkout and test-parser tasks in YAML", "artifacts and artifact-subscriptions", "requirements and other job settings", "variables, triggers and branches blocks", "Several documents in one file separated by ---", "!include for splitting large files", "Enabling Bamboo Specs scanning on a linked repository"],
+          "tools": ["Bamboo YAML Specs", "Bitbucket Data Center", "Git", "yamllint"],
+          "lab_task": "Write bamboo-specs/bamboo.yml with version: 2 defining plan SPEC-WEB with Build and Test stages, a script task, a test-parser task for JUnit results and a shared artifact. Enable Specs scanning on the linked repository, push the file and confirm Bamboo creates the plan; then push a change adding a variable and confirm the plan updates.",
+          "deliverable": "bamboo.yml, the Specs status page and before-and-after screenshots of the plan",
+          "checks": [["Push bamboo.yml to the default branch", "Specs status shows a successful import and plan SPEC-WEB is created", "Specs status screenshot"], ["Push an extra variable in the YAML", "The plan's Variables tab lists the new variable after the scan", "Screenshot"], ["Push YAML with a misspelled key such as stagez", "The Specs scan fails with a parse error and the plan is unchanged", "Specs status log"]],
+          "objectives": ["Write YAML Specs for plans", "Enable repository-stored Specs", "Read Specs scanning results"]
+        },
+        {
+          "topic": "Specs Permissions, Linked Repository Access and Specs Scanning Logs",
+          "subtopics": ["Which projects a Specs repository is allowed to change", "Repository-stored Specs permissions on the linked repository", "Project permission that lets a repository create plans", "Specs run as the repository, not as the committer", "Plan permissions defined in Specs", "Specs status page and scanning logs", "Preventing a branch from changing the default plan", "Specs-managed plans and blocked UI edits"],
+          "tools": ["Bamboo Data Center", "Bamboo YAML Specs", "Bitbucket Data Center"],
+          "lab_task": "Create a second project OPS and try to create plan OPS-JOB from the SPEC repository's bamboo.yml. Record the error, then grant the repository access to project OPS and retry. Add a plan-permissions document giving group developers view and build on SPEC-WEB, and try to edit a Specs-managed plan's tasks in the UI.",
+          "deliverable": "Specs access configuration, scanning logs for denied and allowed runs and the permission YAML",
+          "checks": [["Push Specs that target project OPS without access", "The Specs log reports that the repository has no access to project OPS", "Specs status log"], ["Grant access and push again", "Plan OPS-JOB is created", "Plan list screenshot"], ["Open the developers group plan permissions after the scan", "developers has View and Build on SPEC-WEB as defined in YAML", "Permissions screenshot"]],
+          "objectives": ["Control which repositories can change which projects", "Manage plan permissions as code", "Investigate Specs scanning failures"]
+        },
+        {
+          "topic": "Exporting Existing Bamboo Plans to Specs and Reviewing Specs Changes",
+          "subtopics": ["View plan as Java Specs and View plan as YAML Specs", "Cleaning exported code: IDs, defaults and hard-coded secrets", "Mapping UI-only settings that have no Specs equivalent", "Moving a UI plan to repository-stored Specs without losing history", "Pull request review rules for bamboo-specs/ changes", "Linting Specs YAML and compiling Java Specs in CI", "Rollback by reverting a Specs commit", "Tracking drift between Specs and the running plan"],
+          "tools": ["Bamboo Data Center", "Bamboo Java Specs", "Bamboo YAML Specs", "yamllint", "Bitbucket Data Center"],
+          "lab_task": "Export plan TRAIN-WEB with Actions > View plan as YAML Specs, clean the output, commit it to bamboo-specs/bamboo.yml with the same project and plan keys, enable Specs scanning, and confirm the existing build history remains. Add a CODEOWNERS or default reviewer rule for bamboo-specs/ and revert one change to show rollback.",
+          "deliverable": "Cleaned YAML export, review rule configuration and a before-and-after build history screenshot",
+          "checks": [["Import the exported YAML with the same keys", "Build history of TRAIN-WEB keeps its earlier build numbers", "History screenshot"], ["Open a pull request changing bamboo-specs/", "The review rule adds the platform team as required reviewers", "Pull request screenshot"], ["Revert the last Specs commit", "The plan returns to the earlier configuration after the next scan", "Specs status and plan screenshots"]],
+          "objectives": ["Convert UI plans to Specs", "Review and lint Specs changes", "Roll back configuration through version control"]
+        },
+        {
+          "topic": "Branch Merging Strategies: Branch Updater and Gatekeeper",
+          "subtopics": ["Plan branch merging options", "Branch Updater: merge the default branch into the feature branch before building", "Gatekeeper: merge the feature branch into the target and push on success", "Push on successful build and its credentials", "Merge conflicts and how Bamboo reports them", "Choosing merging versus pull request workflows", "Branch protection rules on the Git host", "Effects on build reproducibility"],
+          "tools": ["Bamboo Data Center", "Git", "Bitbucket Data Center"],
+          "lab_task": "Enable Branch Updater on plan branch feature/login to merge from main, push a change to main and observe the merge in the next branch build. Then switch to Gatekeeper with push on success, build feature/login and check main for the merge commit. Create a conflicting change and record the outcome.",
+          "deliverable": "Branch merge configuration, build logs for both strategies and a git log --graph excerpt",
+          "checks": [["Build feature/login with Branch Updater after a main change", "The build log shows main merged into the branch before the build", "Job log excerpt"], ["Build with Gatekeeper and push on success", "git log --oneline main shows the merge commit from Bamboo", "git log output"], ["Create a conflicting change on both branches", "The build fails at the merge step with a merge conflict message", "Build result"]],
+          "objectives": ["Configure Branch Updater and Gatekeeper", "Choose a branch merging strategy", "Handle merge conflicts in automated merges"]
+        },
+        {
+          "topic": "Pull Request Builds and Bitbucket Build Status in Bamboo",
+          "subtopics": ["Creating plan branches for pull requests", "Pull request builds versus branch builds", "Build status posted to Bitbucket Data Center pull requests", "Required successful builds as a merge check", "Pull requests from forks and security implications", "GitHub repositories and commit status checks", "Cleaning up plan branches when a pull request closes", "Variables describing the pull request"],
+          "tools": ["Bamboo Data Center", "Bitbucket Data Center", "GitHub", "Application Links"],
+          "lab_task": "Enable plan branch creation for pull requests on SPEC-WEB, open a pull request from feature/search to main in Bitbucket, enable the 'minimum successful builds' merge check, push a failing commit and try to merge, then fix it and merge. Print the pull request variables in a script and record their values.",
+          "deliverable": "Plan branch settings, pull request screenshots for failing and passing builds and the variable values",
+          "checks": [["Open a pull request", "Bamboo creates a plan branch and the pull request shows a build in progress", "Pull request screenshot"], ["Try to merge with a failing build", "Bitbucket blocks the merge because the required build is not successful", "Merge check message"], ["Merge the pull request after a green build", "The plan branch is removed later according to the clean-up setting", "Branches tab screenshot"]],
+          "objectives": ["Build pull requests in Bamboo", "Gate merges on Bamboo build status", "Clean up pull request plan branches"]
+        },
+        {
+          "topic": "Plan Dependencies and Child Plans in Bamboo",
+          "subtopics": ["Parent and child plans", "Triggering child plans after a successful parent build", "Dependency blocking: none, block if parent has changes, block if parent is building", "Dependencies for plan branches", "Sharing artifacts across plans through deployment projects instead of dependencies", "Dependency graph view", "Avoiding cycles and long chains", "Comparing dependencies with mono-repository builds"],
+          "tools": ["Bamboo Data Center", "Bamboo YAML Specs"],
+          "lab_task": "Make LIB-CORE the parent of SPEC-WEB and SPEC-API. Enable 'block build if parent plans have unbuilt changes' on SPEC-WEB, commit to LIB-CORE and SPEC-WEB at the same time, and record the build order. Define the same dependency in YAML Specs with the dependencies block.",
+          "deliverable": "Dependency diagram, build timeline and the YAML dependency block",
+          "checks": [["Run LIB-CORE successfully", "SPEC-WEB and SPEC-API start automatically with a dependency trigger reason", "Build summary screenshots"], ["Commit to LIB-CORE and SPEC-WEB at once", "SPEC-WEB waits until LIB-CORE finishes before building", "Build timeline"], ["Make LIB-CORE fail", "No child plan builds are triggered", "Plan history screenshots"]],
+          "objectives": ["Configure plan dependencies", "Control build order with dependency blocking", "Decide when to use dependencies or deployment projects"]
+        },
+        {
+          "topic": "Shared Credentials, Secret Masking and Specs Encryption in Bamboo",
+          "subtopics": ["Shared credentials: username and password, SSH and AWS", "Global versus project-level shared credentials", "Referencing shared credentials from Specs by name", "Masking of sensitive values in build logs", "Bamboo Specs encryption for secrets in Specs files", "Encrypted values and who can decrypt them", "Rotating credentials without editing every plan", "Never echoing secrets and avoiding set -x"],
+          "tools": ["Bamboo Data Center", "Bamboo YAML Specs", "Bamboo Java Specs", "ssh-keygen"],
+          "lab_task": "Create a project-level shared SSH credential deploy-key and reference it by name from a YAML Specs SSH task. Encrypt a test secret with the Bamboo Specs encryption page, use it as a variable value in bamboo.yml, push, then run a script with set -x that prints it and record what the log shows. Rotate the shared credential and rerun.",
+          "deliverable": "Credential inventory, Specs snippet with the encrypted value and log excerpts before and after rotation",
+          "checks": [["Search the job log for the plain secret", "The secret does not appear; masked output is shown instead", "Job log search"], ["Push Specs with the encrypted value", "The variable is created and the YAML in Git holds only the encrypted string", "Git diff and plan screenshot"], ["Rotate the shared SSH credential", "The next deployment succeeds without any plan or Specs change", "Deployment result"]],
+          "objectives": ["Store credentials centrally", "Keep secrets out of Specs repositories", "Rotate secrets with no plan changes"]
+        },
+        {
+          "topic": "Deployment Projects in YAML Specs",
+          "subtopics": ["deployment document with name and source-plan", "release-naming with next-version-name and auto-increment", "environments list and per-environment tasks", "Environment triggers in YAML", "Environment variables and requirements", "deployment-permissions and environment-permissions documents", "Linking several deployment documents to one plan", "Keeping build and deployment Specs in one repository"],
+          "tools": ["Bamboo YAML Specs", "Bamboo Data Center", "SSH task", "SCP task"],
+          "lab_task": "Add a second document to bamboo.yml after --- with version: 2, deployment name SPEC Web Deploy, source-plan SPEC-WEB, release-naming 1.0.${bamboo.buildNumber}, environments Test and Staging with artifact download and script tasks, and a trigger on Test after a successful build. Push it and run a full build-to-Test cycle.",
+          "deliverable": "Deployment YAML and screenshots of the generated deployment project and its first release",
+          "checks": [["Push the deployment document", "Deployment project SPEC Web Deploy appears with Test and Staging", "Screenshot"], ["Run SPEC-WEB build 30", "Release 1.0.30 is created and deployed to Test automatically", "Deployment screenshot"], ["Set source-plan to a plan key that does not exist", "The Specs scan fails with an error naming the missing plan", "Specs status log"]],
+          "objectives": ["Define deployment projects in YAML Specs", "Configure release naming and environment triggers as code", "Assign environment permissions as code"]
+        },
+        {
+          "topic": "Release Approval Status, Environment Permissions and Promotion Rules",
+          "subtopics": ["Approving and marking releases as broken", "Using release status as a promotion signal", "Environment permissions: view, edit and deploy", "Separating who builds from who deploys to production", "Deployment triggers that promote only from a given environment", "Agent dedication for production environments", "Change records in Jira before a production deployment", "Audit of who deployed which release"],
+          "tools": ["Bamboo Data Center", "Jira Software Data Center", "Bamboo YAML Specs"],
+          "lab_task": "Add a Production environment to SPEC Web Deploy with Deploy permission only for group release-managers and an agent dedicated to it. Add a script task that fails unless the release is approved by checking the REST API, then try to deploy an unapproved release as dev1 and an approved one as rel1.",
+          "deliverable": "Promotion rule document, environment permission settings and deployment results for both users",
+          "checks": [["Open Production as dev1", "No Deploy button is shown", "Screenshot as dev1"], ["Deploy an unapproved release as rel1", "The guard script exits 1 and the deployment fails", "Deployment log"], ["Approve the release and deploy as rel1", "The deployment succeeds on the dedicated agent", "Deployment result naming the agent"]],
+          "objectives": ["Use release status in promotion decisions", "Restrict production deployments by permission and agent", "Record who deployed each release"]
+        },
+        {
+          "topic": "Remote Agents as Services: Wrapper, Token Verification and Agent Approval",
+          "subtopics": ["Running the remote agent with the Java Service Wrapper", "bamboo-agent.sh install, start and status on Linux", "Windows service installation", "wrapper.conf memory and Java options", "Agent security token verification and the -t argument", "Remote agent authentication and approving by IP", "Agent automatic updates from the server", "atlassian-bamboo-agent.log and wrapper logs"],
+          "tools": ["Bamboo remote agent", "Java Service Wrapper", "systemd", "OpenJDK"],
+          "lab_task": "Enable agent security token verification, install a remote agent with java -jar atlassian-bamboo-agent-installer.jar http://bamboo:8085/agentServer/ -t <token> install, start it with bamboo-agent.sh start, set wrapper.java.maxmemory in wrapper.conf, reboot the host, and confirm the agent returns Online without manual steps.",
+          "deliverable": "Service install notes, wrapper.conf diff and agent status before and after reboot",
+          "checks": [["Reboot the agent host", "The agent is Online again within 2 minutes without manual action", "Agents page screenshot"], ["Start a second agent with a wrong token", "The server rejects the agent and logs a token error", "Agent log excerpt"], ["Run bamboo-agent.sh status", "The wrapper reports the agent as running", "Terminal output"]],
+          "objectives": ["Install remote agents as services", "Secure agent registration with tokens and approval", "Locate agent logs for diagnosis"]
+        },
+        {
+          "topic": "Dedicated Agents, Agent Assignments and the Agent Matrix",
+          "subtopics": ["Dedicating agents to a project, plan, job or deployment environment", "Effect of dedication on other builds", "Agent pools built from capabilities", "Agent matrix: which agents can build which jobs", "Executable and JDK capability conflicts", "Disabling an agent for maintenance", "Balancing queue time against isolation", "Documenting agent ownership"],
+          "tools": ["Bamboo Data Center", "Bamboo remote agent"],
+          "lab_task": "With three remote agents, dedicate agent-prod to the Production environment and agent-docker to jobs requiring docker=true. Queue ten builds of SPEC-WEB and SPEC-API, record queue times and which agent ran each job, then disable agent-docker and record what happens to Docker jobs.",
+          "deliverable": "Agent assignment table, agent matrix screenshot and queue time measurements",
+          "checks": [["Queue ten builds", "No build job runs on agent-prod", "Agent build history"], ["Open the agent matrix", "Docker jobs list only agent-docker as capable", "Agent matrix screenshot"], ["Disable agent-docker", "Docker jobs stay queued with no capable agent available", "Build queue screenshot"]],
+          "objectives": ["Dedicate agents to plans and environments", "Read the agent matrix", "Plan agent capacity and maintenance"]
+        },
+        {
+          "topic": "Elastic Bamboo on Amazon EC2: Images and Instance Management",
+          "subtopics": ["Elastic Bamboo configuration: AWS credentials, region and maximum instances", "Elastic image configurations and custom AMIs", "Instance types, subnets, security groups and spot pricing", "Elastic instance management: passive, aggressive and custom settings", "Idle shutdown and instance start-up time", "Elastic capabilities and job requirements", "Agent home on EBS and snapshot reuse", "Cost monitoring and tagging"],
+          "tools": ["Bamboo Data Center", "Elastic Bamboo", "Amazon EC2", "AWS IAM", "AWS CLI"],
+          "lab_task": "Configure Elastic Bamboo in an AWS sandbox with an IAM user limited to EC2 actions, create an elastic image configuration from the stock or a custom AMI, set custom instance management to start 1 instance when 3 builds wait, queue 5 builds, and record start-up time, jobs run and when instances shut down.",
+          "deliverable": "Elastic configuration, IAM policy and a timeline of instance start, jobs and shutdown",
+          "checks": [["Queue 5 builds that require the elastic image", "An EC2 instance starts and registers as an elastic agent", "Elastic agents page and aws ec2 describe-instances"], ["Leave the agent idle past the idle timeout", "Bamboo terminates the instance", "EC2 console state terminated"], ["Remove ec2:RunInstances from the IAM policy", "Bamboo reports an authorisation error when starting an instance", "Bamboo log excerpt"]],
+          "objectives": ["Configure Elastic Bamboo", "Tune instance management for cost and queue time", "Apply least-privilege AWS permissions"]
+        },
+        {
+          "topic": "Bamboo Artifact Handlers, S3 Storage and Build Expiry",
+          "subtopics": ["Artifact handlers: server-local, agent-local and Amazon S3", "Choosing handlers for shared and non-shared artifacts", "S3 bucket, prefix and credential settings", "Global build expiry: results, artifacts and logs", "Plan-level expiry overrides", "Keeping labelled builds with expiry exceptions", "Measuring disk use in the Bamboo home", "Effects of expiry on releases and deployments"],
+          "tools": ["Bamboo Data Center", "Amazon S3", "AWS CLI", "du"],
+          "lab_task": "Measure du -sh <bamboo-home>/artifacts, configure an S3 artifact handler for shared artifacts, run SPEC-WEB and confirm the artifact object with aws s3 ls. Set build expiry to keep 10 builds and exclude builds labelled release, run expiry manually, and compare disk use before and after.",
+          "deliverable": "Handler configuration, expiry settings and a disk usage comparison",
+          "checks": [["Run aws s3 ls on the artifact bucket after build 40", "An object path for the build 40 artifact exists", "Terminal output"], ["Run build expiry manually", "Only the latest 10 builds plus builds labelled release remain", "Plan history screenshot"], ["Run du -sh on the artifacts directory after expiry", "The size is smaller than before expiry", "Before-and-after du output"]],
+          "objectives": ["Configure artifact handlers including S3", "Set build expiry rules", "Keep release builds while controlling disk use"]
+        },
+        {
+          "topic": "Test Parallelism: Splitting Jobs Across Bamboo Agents",
+          "subtopics": ["Parallel jobs in one stage as the parallelism unit", "Splitting tests by module, package or timing", "Passing a shard index through job variables", "Merging test results across jobs", "Shared artifacts needed by every shard", "Agent capacity and queue effects", "Generating repeated jobs with Java Specs loops", "Measuring wall-clock time savings"],
+          "tools": ["Bamboo Data Center", "Bamboo Java Specs", "JUnit 5", "Apache Maven"],
+          "lab_task": "Use Java Specs to generate four jobs TEST1 to TEST4 in the Test stage from a loop, each with a variable shard=N passed to a script that runs a quarter of the test classes, and a JUnit Parser task in each job. Compare total stage time with the single-job version over three runs each.",
+          "deliverable": "Specs loop code, timing table and a test count reconciliation",
+          "checks": [["Run the plan with four shards", "Four Test jobs run in parallel on different agents", "Build result screenshot"], ["Add up test counts across shards", "The total equals the single-job test count", "Count table"], ["Compare mean Test stage time over three runs", "The four-shard stage is faster than the single-job stage", "Timing table"]],
+          "objectives": ["Split test suites across jobs", "Generate repetitive configuration with Java Specs", "Measure the benefit of parallelism"]
+        },
+        {
+          "topic": "Bamboo REST API and Personal Access Tokens",
+          "subtopics": ["Personal access tokens and expiry dates", "Authorization: Bearer <token> header", "GET /rest/api/latest/plan and /rest/api/latest/result/{planKey}", "POST /rest/api/latest/queue/{planKey} to start a build", "Passing bamboo.variable.* values when queueing", "Expanding results with ?expand= and paging with max-result", "Deployment endpoints under /rest/api/latest/deploy", "Rate of calls, errors 401, 403 and 404"],
+          "tools": ["Bamboo REST API", "curl", "jq", "Python requests", "Bamboo Data Center"],
+          "lab_task": "Create a personal access token, list plans with curl -H 'Authorization: Bearer $TOKEN' -H 'Accept: application/json' http://bamboo:8085/rest/api/latest/plan | jq, queue SPEC-WEB with POST /rest/api/latest/queue/SPEC-WEB?bamboo.variable.deployTarget=qa, then poll /rest/api/latest/result/SPEC-WEB-latest until the state is Successful.",
+          "deliverable": "Script that queues and polls a build, with sample JSON responses",
+          "checks": [["POST to /rest/api/latest/queue/SPEC-WEB", "The response includes buildResultKey such as SPEC-WEB-41", "JSON response"], ["Poll the result endpoint until done", "buildState is Successful and the variable deployTarget is qa", "JSON response and job log"], ["Call the API with a revoked token", "The API returns HTTP 401", "curl -i output"]],
+          "objectives": ["Authenticate to Bamboo with personal access tokens", "Queue builds and read results through REST", "Handle API errors in scripts"]
+        },
+        {
+          "topic": "Jira Development Panel, Release Builds and Issue Linking from Bamboo",
+          "subtopics": ["Builds and deployments in the Jira development panel", "Linking issues through commit messages and branch names", "Running a Bamboo build when releasing a version in Jira", "Release comparison listing Jira issues", "Jira issues on deployment releases", "Viewing build status in Jira for each issue", "Application link permissions and impersonation", "Fixing missing links and stale data"],
+          "tools": ["Bamboo Data Center", "Jira Software Data Center", "Application Links"],
+          "lab_task": "Create Jira version 2.1 with three issues, push commits referencing each issue key, deploy two releases to Test, then use the Jira release page to trigger a Bamboo build of SPEC-WEB with a variable. Compare the two releases in Bamboo and count the Jira issues listed.",
+          "deliverable": "Jira release page screenshot, Bamboo release comparison and a list of linked issues",
+          "checks": [["Compare the two releases", "The comparison lists exactly the 3 issue keys from the commits", "Release comparison screenshot"], ["Release Jira version 2.1 with the Bamboo build option", "A SPEC-WEB build starts with a trigger reason naming Jira", "Build summary"], ["Open one issue in Jira", "The development panel shows the deployment to Test", "Jira screenshot"]],
+          "objectives": ["Use Jira data in Bamboo releases", "Trigger builds from Jira releases", "Diagnose missing development panel data"]
+        },
+        {
+          "topic": "Bamboo Global and Project Permissions with Restricted Admin",
+          "subtopics": ["Global permissions and their effects", "Restricted administrator for delegated operations", "Project permissions inherited by new plans", "Project-level plan and deployment permissions", "Repository and shared credential permissions", "External directories such as Jira, Crowd or LDAP for groups", "Reviewing permissions with the REST API", "Quarterly access review procedure"],
+          "tools": ["Bamboo Data Center", "Bamboo REST API", "Crowd", "jq"],
+          "lab_task": "Create group bamboo-ops with Restricted admin and group team-web with project admin on SPEC only. Create a plan in SPEC as a team-web user and check it inherits project permissions. Export users with each permission through REST calls and jq and review the list against a role matrix.",
+          "deliverable": "Role matrix, permission screenshots and an access review report from REST output",
+          "checks": [["Create a new plan in SPEC as a team-web member", "The plan inherits the project permissions without manual changes", "Plan permissions screenshot"], ["Log in as a bamboo-ops user", "Agent and queue pages are available but global security settings are not", "Screenshots"], ["Run the REST export", "The JSON lists each group with its granted permissions", "jq output"]],
+          "objectives": ["Delegate administration with restricted admin", "Use project permissions for team self-service", "Run an access review"]
+        },
+        {
+          "topic": "Troubleshooting Failed Bamboo Builds and Stuck Queues",
+          "subtopics": ["Build hung detection and timeouts", "Reading job logs, the agent log and atlassian-bamboo.log together", "Jobs that no agent can build", "Working directory problems and Clean working directory task", "Checkout failures and repository cache corruption", "Out of disk space on agents", "Rerunning failed jobs only", "Thread dumps of a stuck server"],
+          "tools": ["Bamboo Data Center", "Bamboo remote agent", "jstack", "df"],
+          "lab_task": "The trainer injects four faults: a job requirement no agent meets, a full agent disk, a script that sleeps past the hung-build limit and a corrupt repository cache. For each, find the cause from the build queue, job log, agent log or df -h, fix it, and rerun only the failed job.",
+          "deliverable": "Troubleshooting log with symptom, evidence, cause and fix for all four faults",
+          "checks": [["Investigate the stuck queued job", "The queue shows no agent can build it and the missing capability is named", "Queue screenshot"], ["Run df -h on the failing agent", "The working filesystem is at or near 100% use", "Terminal output"], ["Let the sleeping script exceed the hung-build limit", "Bamboo marks the build as hung and offers to stop it", "Build result screenshot"]],
+          "objectives": ["Diagnose failed and stuck builds", "Use server, agent and job logs together", "Recover with minimal reruns"]
+        },
+        {
+          "topic": "Intermediate Capstone: Repository-Stored Specs for a Multi-Branch Service with Gated Releases",
+          "subtopics": ["YAML or Java Specs for plan, branches, permissions and deployments", "Pull request builds with a Bitbucket merge check", "Shared credentials and encrypted Specs values", "Elastic or dedicated agents with requirements", "Release promotion to Production restricted to release managers", "REST script and troubleshooting runbook"],
+          "tools": ["Bamboo Data Center", "Bamboo YAML Specs", "Bamboo Java Specs", "Bitbucket Data Center", "Jira Software Data Center", "Bamboo REST API"],
+          "lab_task": "Deliver a repository whose bamboo-specs/ creates a plan with parallel test jobs, plan branches for pull requests, encrypted secrets, a deployment project with Test, Staging and Production, and permissions as code. Show a pull request blocked by a failing build, then a fix flowing to Staging and an approved release deployed to Production by a release manager.",
+          "deliverable": "Specs repository, demo recording or screenshots and a runbook with REST examples",
+          "checks": [["Delete the plan and push the Specs repository again", "The plan, deployment project and permissions are recreated from code", "Specs status and screenshots"], ["Open a pull request with a failing test", "The merge is blocked by the required build check", "Pull request screenshot"], ["Deploy an approved release to Production as a release manager", "Deployment succeeds and the result names the release manager", "Deployment result"]],
+          "objectives": ["Manage a full Bamboo pipeline as code", "Gate code and releases with checks and permissions", "Hand over the pipeline with a runbook"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For Bamboo administrators, platform engineers and CI/CD leads who run Bamboo Data Center for many teams or plan to move off it. Covers the server, database, shared home and agent communication architecture, active-standby high availability, ephemeral agents on Kubernetes, Atlassian Helm charts, JVM and database tuning, monitoring with JMX, logs and support zips, SSO and user directories, security hardening, audit logging, large Java Specs code bases, Bamboo apps with the Atlassian SDK, upgrades and agent updates, database and instance moves, backup and disaster recovery, advanced deployment patterns, agent caching, plan inventory and migration to Bitbucket Pipelines and GitHub Actions.",
+      "prerequisites": ["Has completed the intermediate level or manages Bamboo plans as Specs with remote or elastic agents in a team setting", "Administers Linux servers, a relational database and Kubernetes clusters with kubectl and Helm", "Has system administrator access to a non-production Bamboo Data Center instance with a Data Center licence and to a Kubernetes cluster"],
+      "outcomes": ["Design and operate Bamboo Data Center with high availability, ephemeral Kubernetes agents, monitoring, backups and tested disaster recovery", "Harden Bamboo with SSO, directory integration, agent authentication, Specs repository controls and audit logging", "Plan and carry out Bamboo upgrades, database moves and large-scale Specs refactoring with rollback options", "Inventory Bamboo plans and deployment projects and migrate selected pipelines to Bitbucket Pipelines or GitHub Actions with measured parity"],
+      "days": [
+        {
+          "topic": "Bamboo Data Center Architecture: Server, Database, Shared Home and Agent Communication",
+          "subtopics": ["Bamboo server JVM, web tier and build scheduler", "Database as the source of truth for plans, results and permissions", "Local home versus shared home contents", "Embedded message broker and broker URL used by remote agents", "Default broker port 54663 and firewall rules", "Base URL, reverse proxy and server.xml connector settings", "How agents receive jobs and stream logs back", "Sizing by concurrent builds, agents and artifact volume"],
+          "tools": ["Bamboo Data Center", "PostgreSQL", "NGINX", "Apache Tomcat", "Bamboo remote agent"],
+          "lab_task": "Draw the architecture of a training instance: put Bamboo behind NGINX with TLS, set proxyName, proxyPort and scheme in server.xml, set the base URL to the HTTPS address, and set the broker client URL agents use. Verify an agent outside the proxy connects on port 54663 and that build logs stream while a job runs.",
+          "deliverable": "Architecture diagram with ports and data flows, server.xml diff and connectivity test results",
+          "checks": [["Open the Bamboo HTTPS URL through NGINX", "Pages load with no base URL mismatch warning", "Browser screenshot"], ["Run nc -zv bamboo 54663 from the agent host", "The connection to port 54663 succeeds", "Terminal output"], ["Block port 54663 and restart the agent", "The agent fails to connect and logs a broker connection error", "Agent log excerpt"]],
+          "objectives": ["Explain Bamboo server, database, home and agent communication", "Run Bamboo behind a reverse proxy", "Size a Bamboo installation"]
+        },
+        {
+          "topic": "High Availability with Active and Standby Bamboo Nodes",
+          "subtopics": ["Bamboo Data Center active-standby model and what it protects", "Shared home on NFS and shared database requirements", "Primary node election and the cluster page", "Load balancer health checks that route only to the active node", "Failover behaviour for running builds and connected agents", "Agents reconnecting after failover", "Recovery time objectives you can expect", "Testing failover regularly"],
+          "tools": ["Bamboo Data Center", "NFS", "HAProxy", "PostgreSQL", "curl"],
+          "lab_task": "Build two Bamboo nodes sharing a PostgreSQL database and an NFS shared home behind HAProxy with a health check on /rest/api/latest/server. Start a long build, stop the active node with stop-bamboo.sh, and time how long until the standby serves the UI and agents are online again. Record what happened to the running build.",
+          "deliverable": "HA configuration, HAProxy config and a failover timeline with measured recovery time",
+          "checks": [["Call the health endpoint on both nodes", "Only the active node returns a running state; HAProxy marks the other node down", "curl output and HAProxy stats"], ["Stop the active node", "The standby takes over and the UI is reachable again through HAProxy", "Timeline with timestamps"], ["Check remote agents after failover", "All agents show Online on the new active node", "Agents page screenshot"]],
+          "objectives": ["Configure active-standby Bamboo nodes", "Route traffic with health checks", "Measure and document failover behaviour"]
+        },
+        {
+          "topic": "Ephemeral Bamboo Agents on Kubernetes with Pod Templates",
+          "subtopics": ["Ephemeral agents: one job per agent pod, then removal", "Kubernetes configuration in Bamboo administration", "Ephemeral agent templates as pod specifications", "atlassian/bamboo-agent-base image and custom images", "Template capabilities and job requirements that select them", "Service account, namespace and RBAC for pod creation", "Resource requests and limits per template", "Troubleshooting pods that never register"],
+          "tools": ["Bamboo Data Center", "Kubernetes", "kubectl", "Docker", "Helm"],
+          "lab_task": "Create namespace bamboo-agents with a service account allowed to create and delete pods, configure Bamboo's Kubernetes connection, add an ephemeral template using an image built FROM atlassian/bamboo-agent-base with Maven added and requests cpu: 1, memory: 2Gi. Run five jobs requiring it and record pod lifetimes with kubectl get pods -w.",
+          "deliverable": "RBAC manifests, template YAML, custom Dockerfile and a pod lifetime table",
+          "checks": [["Queue five jobs that need the template", "Five agent pods start, each runs one job and then terminates", "kubectl get pods -w output"], ["List agents after the jobs finish", "No ephemeral agents remain registered", "Agents page screenshot"], ["Remove the create permission on pods from the Role", "Bamboo logs a 403 Forbidden error from the Kubernetes API", "Bamboo log excerpt"]],
+          "objectives": ["Run Bamboo jobs on ephemeral Kubernetes agents", "Write ephemeral agent templates", "Grant Bamboo minimal Kubernetes permissions"]
+        },
+        {
+          "topic": "Running Bamboo Server and Agents with Atlassian Helm Charts",
+          "subtopics": ["Atlassian Data Center Helm charts repository", "bamboo and bamboo-agent charts", "values.yaml: database, shared home, ingress and licence", "Unattended setup with security token and admin credentials from Kubernetes secrets", "Persistent volumes for local and shared home", "Scaling agent replicas", "helm upgrade and rollback", "Supported versus community deployment patterns"],
+          "tools": ["Helm", "Kubernetes", "kubectl", "Atlassian Data Center Helm charts", "PostgreSQL"],
+          "lab_task": "Add the chart repository with helm repo add atlassian-data-center https://atlassian.github.io/data-center-helm-charts, install the bamboo chart with a values.yaml pointing at an external PostgreSQL and an ingress host, then install bamboo-agent with 3 replicas using the server's security token stored in a secret. Confirm all agents register.",
+          "deliverable": "values.yaml files with secrets referenced, helm list output and agent screenshots",
+          "checks": [["Run helm list -n bamboo", "Both releases show status deployed", "Terminal output"], ["Scale the agent release to 3 replicas", "Three remote agents are Online in Bamboo", "Agents page screenshot"], ["Install the agent chart with a wrong security token", "Agent pods restart and their logs show the token was rejected", "kubectl logs output"]],
+          "objectives": ["Deploy Bamboo with Helm", "Keep secrets out of values files", "Scale and roll back Helm releases"]
+        },
+        {
+          "topic": "Bamboo Performance Tuning: JVM, Database Pool and Build Queue",
+          "subtopics": ["JVM heap settings in setenv.sh (JVM_MINIMUM_MEMORY and JVM_MAXIMUM_MEMORY)", "Garbage collection logs and pause analysis", "Database connection pool size in bamboo.cfg.xml", "Database maintenance: vacuum, analyze and index health", "Effects of polling triggers on server load", "Build log size limits and large artifacts", "Expiry jobs and their schedule", "Load testing with many queued builds"],
+          "tools": ["Bamboo Data Center", "OpenJDK", "PostgreSQL", "GCeasy", "jcmd"],
+          "lab_task": "Capture a baseline: average page load of the dashboard, GC pause times from gc logs and database connections in use. Switch 50 plans from polling to repository triggers, raise heap from 2 GB to 4 GB in setenv.sh, run VACUUM ANALYZE, then repeat the same load of 100 queued builds and compare.",
+          "deliverable": "Before-and-after tuning report with GC, database and response time figures",
+          "checks": [["Compare GC logs before and after the heap change", "Maximum pause time is lower after tuning", "GC analysis report"], ["Count polling requests in logs after the trigger change", "Repository polling entries for the 50 plans drop to zero", "Log query output"], ["Measure dashboard load time under 100 queued builds", "Load time is lower than the baseline", "Timing table"]],
+          "objectives": ["Tune the Bamboo JVM and database pool", "Reduce server load from triggers and logs", "Measure performance changes"]
+        },
+        {
+          "topic": "Monitoring Bamboo with JMX, Logs and Support Zips",
+          "subtopics": ["Enabling JMX monitoring in Bamboo", "Key metrics: queue length, building agents, idle agents, build durations", "Exporting JMX data with the Prometheus JMX exporter", "Log levels in Administration and log4j configuration", "atlassian-bamboo.log rotation and access logs", "Atlassian Troubleshooting and Support Tools app and its health checks", "Creating support zips", "Alert thresholds for queue time and offline agents"],
+          "tools": ["Bamboo Data Center", "Prometheus", "Grafana", "Prometheus JMX exporter", "Atlassian Troubleshooting and Support Tools"],
+          "lab_task": "Enable JMX, attach the Prometheus JMX exporter as a Java agent in setenv.sh, scrape it with Prometheus, and build a Grafana panel for queue length and online agents. Create an alert when the queue stays above 10 for 5 minutes, trigger it by disabling agents, and create a support zip.",
+          "deliverable": "JMX exporter config, Grafana dashboard JSON, alert rule and the support zip file list",
+          "checks": [["Query the exporter endpoint with curl", "Bamboo metrics appear in the Prometheus text format", "curl output"], ["Disable all agents and queue 15 builds", "The queue alert fires after 5 minutes", "Alert notification screenshot"], ["Create a support zip", "The archive contains application logs and configuration files with passwords removed", "unzip -l output"]],
+          "objectives": ["Expose Bamboo metrics through JMX", "Build dashboards and alerts for queues and agents", "Collect diagnostic data for support"]
+        },
+        {
+          "topic": "SSO, Crowd and LDAP User Directories for Bamboo",
+          "subtopics": ["User directory order and synchronisation", "LDAP and Active Directory connector settings", "Crowd and Jira as user servers", "SAML and OpenID Connect single sign-on in Data Center", "Just-in-time provisioning and group mapping", "Fallback login for administrators when the identity provider is down", "Personal access tokens for API clients instead of passwords", "Testing directory changes without locking users out"],
+          "tools": ["Bamboo Data Center", "Keycloak", "OpenLDAP", "Crowd", "Okta"],
+          "lab_task": "Connect Bamboo to an OpenLDAP directory with groups mapped to existing permissions, then configure SAML SSO with Keycloak as the identity provider. Log in as an LDAP user through SSO, check group-based permissions, test the admin fallback login while Keycloak is stopped, and call the REST API with a personal access token.",
+          "deliverable": "Directory and SSO configuration, login test results and a recovery procedure for identity provider outages",
+          "checks": [["Log in as an LDAP user through Keycloak", "The user lands in Bamboo with permissions from their LDAP groups", "Screenshot"], ["Stop Keycloak and use the fallback login URL as admin", "The admin can still log in", "Screenshot"], ["Call /rest/api/latest/plan with a token", "The API returns HTTP 200 without a password", "curl output"]],
+          "objectives": ["Integrate Bamboo with LDAP and Crowd", "Configure SAML or OIDC single sign-on", "Keep an emergency admin access path"]
+        },
+        {
+          "topic": "Bamboo Security Hardening: Agent Authentication, Specs Scope and Build Isolation",
+          "subtopics": ["Agent security token verification and remote agent authentication", "Restricting which repositories may run repository-stored Specs", "Untrusted pull requests from forks and secret exposure", "Running jobs in the Docker runner or ephemeral pods for isolation", "Separating production deployment agents", "Secure HTTP headers, TLS and session settings", "Applying Atlassian security advisories", "Running the server and agents as non-root users"],
+          "tools": ["Bamboo Data Center", "Bamboo remote agent", "Docker", "Kubernetes", "Trivy"],
+          "lab_task": "Review a training instance against a hardening checklist: enable token verification and agent approval, restrict Specs repositories to named projects, disable fork pull request builds that receive secrets, move production deployments to dedicated agents, confirm processes run as a non-root user with ps -o user, and scan agent images with trivy image.",
+          "deliverable": "Hardening checklist with before-and-after status and evidence for each control",
+          "checks": [["Start an unapproved agent", "It cannot run builds until an administrator approves it", "Agents page screenshot"], ["Run ps -o user= -p $(pgrep -f bamboo)", "The server and agent processes run as non-root users", "Terminal output"], ["Run trivy image on the agent image", "No critical vulnerabilities remain after the base image update", "Trivy report"]],
+          "objectives": ["Harden agent registration and isolation", "Limit the reach of Specs repositories", "Track and apply security advisories"]
+        },
+        {
+          "topic": "Bamboo Audit Log, Compliance Evidence and Change Tracking",
+          "subtopics": ["Global audit log and its retention settings", "Plan and deployment configuration change history", "Who triggered builds and deployments", "Audit log coverage areas and levels in Data Center", "Exporting audit events to a SIEM", "Specs commits as change evidence", "Linking production deployments to Jira change issues", "Building a compliance evidence pack"],
+          "tools": ["Bamboo Data Center", "Bamboo REST API", "Jira Software Data Center", "Splunk", "jq"],
+          "lab_task": "Change a plan variable, a permission and a production deployment, then find each event in the audit log with the user, time and object. Export a week of audit events to a file read by a SIEM, and write an evidence pack for one release linking the Specs commit, build result, Jira change and deployment result.",
+          "deliverable": "Audit log excerpts, SIEM export and a one-release evidence pack",
+          "checks": [["Search the audit log for the permission change", "The entry names the user, the plan and the permission changed", "Audit log screenshot"], ["Ingest the export into the SIEM", "The SIEM search returns the three test events", "SIEM search result"], ["Follow the evidence pack links", "Each link opens the matching commit, build, issue and deployment", "Evidence pack document"]],
+          "objectives": ["Use the Bamboo audit log", "Export audit events for compliance", "Produce release-level change evidence"]
+        },
+        {
+          "topic": "Large-Scale Java Specs: Shared Modules, Reuse and Unit-Testing Specs",
+          "subtopics": ["Shared Specs libraries published to an internal Maven repository", "Factory methods for standard jobs and stages", "Parameterising plans by team and service", "Unit testing Specs objects with EntityPropertiesBuilders", "Validating Specs offline before publishing", "Versioning shared Specs and controlled upgrades", "Publishing many plans from one repository", "Handling deletions that Specs do not perform"],
+          "tools": ["Bamboo Java Specs", "Apache Maven", "JUnit 5", "Sonatype Nexus", "IntelliJ IDEA"],
+          "lab_task": "Create a shared Specs library with a StandardJavaPlan factory and publish version 1.0.0 to Nexus. Use it from two service repositories, write a JUnit test that builds the plan object and asserts it has 3 stages and a JUnit parser task, then release 1.1.0 adding a security scan job and upgrade one service.",
+          "deliverable": "Shared library source, unit tests, Nexus listing and plan screenshots for both services",
+          "checks": [["Run mvn test on the shared library", "All Specs unit tests pass", "Maven output"], ["Publish both service repositories", "Both plans have the same 3 standard stages", "Plan screenshots"], ["Upgrade one service to 1.1.0", "Only that service's plan gains the security scan job", "Plan comparison"]],
+          "objectives": ["Reuse plan definitions with a shared Specs library", "Unit test Specs before publishing", "Roll out Specs changes in versions"]
+        },
+        {
+          "topic": "Bamboo Upgrades: Backups, Upgrade Tasks and Agent Auto-Update",
+          "subtopics": ["Reading release notes, upgrade notes and the supported platforms page", "Long Term Support releases versus feature releases", "App compatibility checks before upgrading", "Database backup and Bamboo home backup", "Pausing the server and draining the queue", "Upgrade tasks that run at first start", "Remote agents updating their jar from the server", "Rollback plan and post-upgrade smoke tests"],
+          "tools": ["Bamboo Data Center", "PostgreSQL", "pg_dump", "Bamboo REST API", "Universal Plugin Manager"],
+          "lab_task": "Upgrade a staging copy to the next supported release: check app compatibility in the plugin manager, pause the server with POST /rest/api/latest/server/pause, wait for builds to finish, run pg_dump and copy the home, install the new version with the same bamboo-init.properties, start it, and confirm upgrade tasks and agent updates in the logs.",
+          "deliverable": "Upgrade runbook with timings, backup locations, log excerpts and smoke test results",
+          "checks": [["Call GET /rest/api/latest/server after pausing", "The state is PAUSED", "curl output"], ["Start the new version and search the log for upgrade tasks", "Every upgrade task is reported as complete with no failures", "Log excerpt"], ["Check the remote agents after the upgrade", "All agents reconnect and report the new version", "Agents page screenshot"]],
+          "objectives": ["Plan a Bamboo upgrade with backups and app checks", "Pause, upgrade and verify the server", "Confirm agents update and builds still run"]
+        },
+        {
+          "topic": "Bamboo Database Migration and Instance Moves",
+          "subtopics": ["Moving from H2 or MySQL to PostgreSQL", "Bamboo export and import of a full instance", "Database migration within the Bamboo administration screens", "Moving the Bamboo home to new storage", "Changing the base URL and updating application links", "Reconnecting agents to a new server address", "Data checks after the move", "Downtime planning"],
+          "tools": ["Bamboo Data Center", "PostgreSQL", "MySQL", "rsync", "psql"],
+          "lab_task": "Move a training instance from MySQL to a new PostgreSQL database and new host: record plan, build result and deployment counts, run the database migration or export and import, copy the home with rsync -a, update the base URL and application links, repoint agents, and compare the counts afterwards.",
+          "deliverable": "Migration plan, timings, before-and-after counts and updated application link status",
+          "checks": [["Compare plan and build result counts", "Counts on the new instance equal the counts recorded before the move", "Count table"], ["Open Application Links after the base URL change", "Jira and Bitbucket links show as connected", "Screenshot"], ["Run a build on a repointed agent", "The build succeeds on the new server", "Build result"]],
+          "objectives": ["Move Bamboo to a new database and host", "Repair links and agents after a move", "Verify data completeness"]
+        },
+        {
+          "topic": "Building Custom Bamboo Tasks with the Atlassian Plugin SDK",
+          "subtopics": ["When to write an app instead of a script", "Atlassian Plugin SDK and atlas-create-bamboo-plugin", "atlassian-plugin.xml and the taskType module", "TaskType implementation and TaskResultBuilder", "Task configurator and UI templates", "Running Bamboo locally with atlas-run", "Specs support for custom tasks", "Packaging and installing the app jar"],
+          "tools": ["Atlassian Plugin SDK", "Apache Maven", "OpenJDK", "IntelliJ IDEA", "Bamboo Data Center"],
+          "lab_task": "Generate an app with atlas-create-bamboo-plugin, add a taskType module whose task reads a configured URL, calls it and fails the build if HTTP status is not 200, run it with atlas-run, configure it in a plan, and record logs for a 200 and a 500 response. Package it with atlas-package and install the jar.",
+          "deliverable": "App source, atlassian-plugin.xml, test logs and the packaged jar",
+          "checks": [["Run the task against a URL returning 200", "The task succeeds and logs the status code 200", "Job log excerpt"], ["Run the task against a URL returning 500", "The task fails and the build is marked Failed", "Job log excerpt"], ["Install the jar on the training instance", "The custom task appears in the task type list", "Screenshot"]],
+          "objectives": ["Build a simple Bamboo task app", "Test apps locally with the SDK", "Package and install a Bamboo app"]
+        },
+        {
+          "topic": "Advanced Deployment Patterns: Blue-Green and Canary Releases from Bamboo Environments",
+          "subtopics": ["Modelling blue and green targets as Bamboo environments", "Switching traffic with a load balancer task", "Canary releases with a small traffic share", "Health checks and automatic rollback scripts", "Redeploying the previous release from the release list", "Deployment concurrency and locking", "Kubernetes rollouts started from Bamboo", "Recording deployment metrics for DORA reports"],
+          "tools": ["Bamboo Data Center", "kubectl", "Helm", "NGINX", "Bamboo REST API"],
+          "lab_task": "Create Production-Blue and Production-Green environments that deploy a release with helm upgrade --install into separate namespaces, then a Switch environment that changes the NGINX upstream and runs a health check. Deploy release N to green, switch, then deploy a broken release and use the rollback script to return traffic within 2 minutes.",
+          "deliverable": "Environment design, scripts and a timed rollback demonstration",
+          "checks": [["Deploy to green and switch", "curl to the public URL returns the release N version string", "curl output"], ["Deploy a broken release and switch", "The health check fails and traffic stays on or returns to the working colour", "Deployment log"], ["Time the rollback", "Traffic is back on the working release within 2 minutes", "Timeline with timestamps"]],
+          "objectives": ["Implement blue-green releases with Bamboo environments", "Automate health checks and rollback", "Collect deployment metrics"]
+        },
+        {
+          "topic": "Build Caching, Repository Caching and Workspace Strategies on Bamboo Agents",
+          "subtopics": ["Repository caching on agents and cache clean-up", "Shallow clones and sparse checkouts", "Maven and npm caches on persistent agents", "Caches on ephemeral agents through volumes or remote caches", "Clean working directory after each build", "Reusing build output between stages with artifacts", "Docker layer caching on agents", "Measuring cache hit rates and build time"],
+          "tools": ["Bamboo Data Center", "Apache Maven", "npm", "Docker BuildKit"],
+          "lab_task": "Measure three cold builds of SPEC-WEB, then enable repository caching, a shared Maven repository directory on persistent agents, and BuildKit cache mounts for the Docker build. Measure three warm builds and record checkout, dependency and image build times; then run on an ephemeral agent with no cache and record the difference.",
+          "deliverable": "Caching configuration and a timing table for cold, warm and ephemeral runs",
+          "checks": [["Compare checkout time on warm builds", "Checkout is faster than on cold builds", "Timing table"], ["Read the Maven log on a warm build", "Dependencies resolve from the local repository without downloads", "Job log excerpt"], ["Run on an ephemeral agent", "Build time is close to the cold build figure", "Timing table"]],
+          "objectives": ["Speed up builds with agent caches", "Choose caching for persistent and ephemeral agents", "Measure the effect of caching"]
+        },
+        {
+          "topic": "Disaster Recovery and Backup Strategies for Bamboo Data Center",
+          "subtopics": ["What must be backed up: database, shared home, local home and installation", "Consistent backups of database and home together", "Recovery point and recovery time objectives", "Restoring to a cold standby site", "Agent and application link changes during recovery", "Secrets and encryption keys needed after restore", "Restore testing schedule", "Runbook ownership"],
+          "tools": ["Bamboo Data Center", "PostgreSQL", "pg_dump", "pg_restore", "rsync"],
+          "lab_task": "Take a consistent backup with pg_dump -Fc and a home snapshot taken while the server is paused, destroy the training server, restore to a new host with pg_restore and rsync, start Bamboo, and measure time until the first build succeeds. Check that shared credentials still decrypt and deployments still run.",
+          "deliverable": "DR runbook with measured recovery time, recovery point and issues found",
+          "checks": [["Restore to a new host", "Bamboo starts and the plan count equals the backup count", "Count table"], ["Run a deployment that uses a shared credential", "The deployment succeeds, proving credentials still decrypt", "Deployment result"], ["Measure from start of restore to first green build", "The measured recovery time is recorded and meets or misses the target", "Timeline"]],
+          "objectives": ["Back up Bamboo consistently", "Restore Bamboo to new infrastructure", "Measure recovery against objectives"]
+        },
+        {
+          "topic": "Bamboo Plan Inventory and Migration Assessment",
+          "subtopics": ["Listing projects, plans, branches and deployment projects through REST", "Classifying plans by task types, agents and apps used", "Finding inactive plans for retirement", "Plans using custom apps with no target equivalent", "Secrets, shared credentials and variables to move", "Atlassian Data Center lifecycle dates and business drivers", "Choosing targets: Bitbucket Pipelines, GitHub Actions or another tool", "Migration waves and success measures"],
+          "tools": ["Bamboo REST API", "Python requests", "jq", "GitHub Actions Importer", "Microsoft Excel"],
+          "lab_task": "Write a Python script that calls /rest/api/latest/plan?expand=plans.plan and /rest/api/latest/deploy/project/all, writes a CSV of plans with last build date, job count and deployment links, then flags plans with no build in 90 days. Run gh actions-importer audit bamboo for a second view and compare the two counts.",
+          "deliverable": "Inventory CSV, audit summary and a migration wave plan with success measures",
+          "checks": [["Run the inventory script", "The CSV row count equals the plan count shown in Bamboo", "CSV and screenshot"], ["Filter plans with no build in 90 days", "A list of retirement candidates with last build dates is produced", "Filtered CSV"], ["Run gh actions-importer audit bamboo", "The audit summary reports plan totals and conversion rates", "Audit summary file"]],
+          "objectives": ["Inventory Bamboo plans through REST", "Assess migration complexity", "Plan migration waves"]
+        },
+        {
+          "topic": "Migrating Bamboo Plans to Bitbucket Pipelines",
+          "subtopics": ["Mapping stages and jobs to Pipelines steps and parallel steps", "Mapping tasks to scripts and pipes", "Plan branches to branch and pull-request pipelines", "Artifacts and caches in bitbucket-pipelines.yml", "Variables and secured repository and workspace variables", "Deployment projects to Pipelines deployments and environments", "Agents to Bitbucket Pipelines runners", "Running Bamboo and Pipelines side by side"],
+          "tools": ["Bitbucket Pipelines", "Bitbucket Cloud", "Bitbucket Pipelines runners", "Bamboo YAML Specs", "Docker"],
+          "lab_task": "Take SPEC-WEB's YAML Specs and write bitbucket-pipelines.yml with a build step, two parallel test steps, artifacts target/*.jar, a maven cache, and deployment steps for test and staging using secured variables. Run both systems on the same commits for a week and compare durations and results.",
+          "deliverable": "Mapping table, bitbucket-pipelines.yml and a side-by-side results report",
+          "checks": [["Push a commit to both systems", "Bamboo and Pipelines both report the same pass or fail result", "Both result pages"], ["Open the Pipelines deployment dashboard", "The release shows in test and staging environments", "Screenshot"], ["Compare test counts between systems", "Both report the same number of tests", "Comparison table"]],
+          "objectives": ["Map Bamboo concepts to Bitbucket Pipelines", "Convert build and deployment configuration", "Validate parity before switching"]
+        },
+        {
+          "topic": "Migrating Bamboo Plans to GitHub Actions with GitHub Actions Importer",
+          "subtopics": ["GitHub Actions Importer as a gh CLI extension", "gh actions-importer configure with Bamboo URL and token", "audit bamboo, forecast bamboo and dry-run bamboo build", "migrate bamboo build with --plan-slug and --target-url", "Converting deployment projects with the deployment subcommands", "Manual tasks the importer cannot convert", "Self-hosted runners as agent replacements", "Secrets and environments with protection rules"],
+          "tools": ["GitHub Actions Importer", "GitHub Actions", "GitHub CLI", "Docker", "Bamboo REST API"],
+          "lab_task": "Install with gh extension install github/gh-actions-importer, run gh actions-importer configure for Bamboo, then dry-run bamboo build --plan-slug SPEC-WEB --output-dir out. Review the workflow and manual tasks, fix them, and run migrate bamboo build with --target-url to open a pull request. Compare the workflow run with Bamboo.",
+          "deliverable": "Importer output, reviewed workflow file, migration pull request and parity notes",
+          "checks": [["Run the dry-run command", "A workflow YAML file is written under the output directory", "Directory listing"], ["Run the migrate command", "A pull request with the converted workflow is opened in the target repository", "Pull request URL"], ["Run the workflow on the same commit as Bamboo", "Both systems report the same test count and result", "Comparison table"]],
+          "objectives": ["Use GitHub Actions Importer for Bamboo", "Finish conversions the importer leaves manual", "Validate GitHub Actions parity with Bamboo"]
+        },
+        {
+          "topic": "Advanced Capstone: Bamboo Data Center Platform Review and Migration Pilot",
+          "subtopics": ["HA or DR design with measured recovery", "Ephemeral Kubernetes agents and monitoring", "Security hardening and audit evidence", "Upgrade runbook tested on staging", "Plan inventory and migration wave plan", "Pilot migration of one plan and deployment project"],
+          "tools": ["Bamboo Data Center", "Kubernetes", "Prometheus", "Grafana", "GitHub Actions Importer", "Bitbucket Pipelines"],
+          "lab_task": "For a training organisation, deliver a Bamboo platform review: a tested backup restore or failover with recovery time, ephemeral Kubernetes agents with Grafana alerts, a hardening checklist with evidence, and an upgrade runbook. Then migrate one plan and its deployment project to Bitbucket Pipelines or GitHub Actions and show a week of parity results.",
+          "deliverable": "Platform review report, dashboards, runbooks and a migration pilot report with parity data",
+          "checks": [["Run the restore or failover test", "Measured recovery time is recorded against the stated objective", "Timeline"], ["Queue 20 jobs needing ephemeral agents", "The queue alert stays quiet and all 20 jobs complete", "Grafana screenshot"], ["Compare pilot results over a week", "Pass and fail results match for every compared commit", "Parity table"]],
+          "objectives": ["Assess and improve a Bamboo Data Center platform", "Present evidence for resilience and security", "Run a measured migration pilot"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,573 @@
+{
+  "domain": "Spring Boot",
+  "name": "Spring Boot",
+  "category": "Backend, APIs and Web Servers",
+  "icon": "leaf",
+  "aliases": ["Spring Boot Development", "Spring Boot Developer", "Spring Boot Microservices", "Spring Boot REST API", "Spring Boot Training", "Spring Microservices", "Spring Cloud"],
+  "certifications": ["Broadcom Spring Certified Professional (2V0-72.22)", "Oracle Certified Professional: Java SE 21 Developer (1Z0-830)"],
+  "tools": ["JDK 21", "Spring Boot", "IntelliJ IDEA", "Maven", "Gradle", "PostgreSQL", "Docker", "Postman"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Java developers new to Spring. Covers creating Spring Boot projects, dependency injection, configuration, REST controllers, validation, Spring Data JPA, migrations, transactions, testing, logging, Actuator, security, calling other services, API documentation, scheduled work and running the service in Docker.",
+      "prerequisites": ["Writes core Java confidently: classes, interfaces, collections, exceptions and lambdas", "Knows basic SQL queries", "Has used Maven or Gradle to build a project"],
+      "outcomes": ["Build REST APIs with Spring Boot backed by a relational database", "Configure, validate, secure and document a service", "Write unit and slice tests for Spring components", "Package a service and run it in Docker"],
+      "days": [
+        {
+          "topic": "Spring Boot Setup and Project Structure",
+          "subtopics": ["What Spring Boot adds on top of the Spring Framework", "Creating a project with Spring Initializr", "Choosing starters: web, data JPA, validation, actuator", "Maven and Gradle build files for Spring Boot", "The main application class and @SpringBootApplication", "Package layout by feature", "Running the application from the IDE and the command line", "Embedded Tomcat and the default port", "application.properties versus application.yml", "DevTools and live reload"],
+          "tools": ["Spring Initializr", "IntelliJ IDEA", "Maven", "JDK 21"],
+          "lab_task": "Generate a Spring Boot project with the web, validation and actuator starters, organise packages by feature, change the server port in application.yml and run it from the IDE and with the Maven wrapper.",
+          "deliverable": "Project in Git with a README explaining how to run it",
+          "checks": [["Run ./mvnw spring-boot:run", "Application starts on the configured port", "Console log"], ["Call /actuator/health", "Response shows status UP", "curl output"], ["Review the package layout", "Packages grouped by feature, not by layer", "Project tree"]],
+          "objectives": ["Create a Spring Boot project", "Understand starters and the main class", "Run the application"]
+        },
+        {
+          "topic": "Dependency Injection and Spring Beans",
+          "subtopics": ["Inversion of control and the application context", "@Component, @Service, @Repository and @Controller", "Constructor injection and why it is preferred", "@Configuration classes and @Bean methods", "Bean scopes: singleton and prototype", "Choosing between implementations with @Qualifier and @Primary", "Bean lifecycle callbacks", "Component scanning rules"],
+          "tools": ["Spring Boot", "IntelliJ IDEA"],
+          "lab_task": "Build a notification module with an interface and two implementations (email and SMS), inject the right one with @Qualifier, create a clock bean in a @Configuration class and replace it in a test.",
+          "deliverable": "Notification module and a test that swaps the clock bean",
+          "checks": [["Start the application", "Context loads with no ambiguous bean errors", "Console log"], ["Remove @Qualifier and start again", "NoUniqueBeanDefinitionException explained", "Written note"], ["Run the test", "Fixed clock is used in the test", "Test report"]],
+          "objectives": ["Explain the application context", "Use constructor injection", "Define and choose beans"]
+        },
+        {
+          "topic": "Configuration Properties and Profiles",
+          "subtopics": ["Property sources and their order", "@Value versus @ConfigurationProperties", "Typed and validated configuration records", "Profiles for dev, test and prod", "Profile-specific files", "Environment variables and command-line arguments", "Keeping secrets out of the repository", "Inspecting configuration with the env endpoint"],
+          "tools": ["Spring Boot", "Actuator", "Docker"],
+          "lab_task": "Move the notification settings into a validated @ConfigurationProperties record, create dev and prod profiles, override a value with an environment variable and confirm the result through Actuator.",
+          "deliverable": "Configuration classes, profile files and a note on the override order",
+          "checks": [["Start with an invalid property", "Startup fails with a clear binding error", "Console log"], ["Start with the prod profile", "Prod values are used", "Actuator env output"], ["Search the repository for secrets", "No passwords or keys committed", "git grep output"]],
+          "objectives": ["Use typed configuration", "Separate environments with profiles", "Keep secrets out of code"]
+        },
+        {
+          "topic": "Building a First REST Controller",
+          "subtopics": ["@RestController and request mappings", "GET, POST, PUT, PATCH and DELETE handlers", "Path variables and query parameters", "Request and response bodies with records", "Status codes and ResponseEntity", "Location headers for created resources", "JSON serialisation with Jackson", "Testing endpoints with Postman and curl"],
+          "tools": ["Spring Boot", "Postman", "curl"],
+          "lab_task": "Build a book catalogue API with in-memory storage supporting create, read, update, delete and search by author, returning correct status codes and a Location header on create.",
+          "deliverable": "Controller code and a Postman collection",
+          "checks": [["POST a new book", "201 Created with a Location header", "Postman result"], ["GET a missing book", "404 Not Found", "Postman result"], ["Search by author", "Only matching books returned", "Postman result"]],
+          "objectives": ["Build REST endpoints", "Return correct status codes", "Map JSON to records"]
+        },
+        {
+          "topic": "Request Validation and Error Responses",
+          "subtopics": ["Bean Validation annotations", "@Valid on request bodies and parameters", "Custom validators", "@RestControllerAdvice and @ExceptionHandler", "Problem Details (RFC 9457) responses", "Mapping domain exceptions to status codes", "Consistent error formats", "Not leaking stack traces to clients"],
+          "tools": ["Spring Boot", "Hibernate Validator", "Postman"],
+          "lab_task": "Add validation to the book API (required title, valid ISBN with a custom validator, positive price), return Problem Details for validation and not-found errors, and confirm no stack traces reach the client.",
+          "deliverable": "Validation rules, error handler and sample error responses",
+          "checks": [["POST a book with an invalid ISBN", "400 with the field error in Problem Details", "Postman result"], ["Trigger an unexpected exception", "Generic 500 message without a stack trace", "Postman result"], ["Review the error handler", "Each domain exception mapped to one status", "Code review"]],
+          "objectives": ["Validate input", "Return consistent errors", "Hide internal details"]
+        },
+        {
+          "topic": "Data Access with Spring Data JPA Repositories",
+          "subtopics": ["Entities, IDs and generated keys", "JpaRepository and CrudRepository", "Derived query methods", "@Query with JPQL", "Connecting to PostgreSQL", "Hibernate SQL logging", "The persistence context in simple terms", "Running PostgreSQL in Docker for development"],
+          "tools": ["Spring Data JPA", "PostgreSQL", "Docker"],
+          "lab_task": "Replace in-memory storage with PostgreSQL, map the book entity, add derived queries for author and price range and a JPQL query for books published after a date, and log the SQL Hibernate runs.",
+          "deliverable": "Entity, repository and SQL log extract",
+          "checks": [["Restart the application", "Saved books are still there", "API response"], ["Call the price range search", "Correct books and one SQL query in the log", "SQL log"], ["Review the queries", "Each repository method has a test or manual check recorded", "Test notes"]],
+          "objectives": ["Map entities", "Use repositories and queries", "Connect to PostgreSQL"]
+        },
+        {
+          "topic": "Entity Relationships and Queries",
+          "subtopics": ["One-to-many and many-to-one", "Many-to-many with a join table", "Owning side and mappedBy", "Lazy and eager loading", "Cascades and orphan removal", "Fetch joins", "Projections for list views", "Avoiding bidirectional JSON loops"],
+          "tools": ["Spring Data JPA", "PostgreSQL"],
+          "lab_task": "Add authors and categories to the catalogue (author has many books, books have many categories), return author pages with a projection and load an author with books using a fetch join.",
+          "deliverable": "Entity mappings, queries and API responses",
+          "checks": [["Load an author with books", "One query in the SQL log", "SQL log"], ["Serialise an author", "No infinite recursion in the JSON", "API response"], ["Delete a book from an author", "Orphan row removed", "Database query"]],
+          "objectives": ["Map relationships", "Control loading", "Use projections"]
+        },
+        {
+          "topic": "Database Migrations with Flyway",
+          "subtopics": ["Why not to use ddl-auto in production", "Flyway versioned migrations", "Naming and ordering scripts", "Baseline for existing databases", "Repeatable migrations", "Seed and reference data", "Validating schema against entities", "Rolling forward instead of rolling back"],
+          "tools": ["Flyway", "PostgreSQL", "Spring Boot"],
+          "lab_task": "Turn off ddl-auto, write Flyway migrations for the current schema, add a migration that introduces a published flag with a default, and set ddl-auto to validate.",
+          "deliverable": "Migration scripts and the flyway_schema_history table output",
+          "checks": [["Start against an empty database", "All migrations applied in order", "flyway_schema_history"], ["Change an applied script and restart", "Checksum mismatch error explained", "Console log"], ["Start with ddl-auto=validate", "Starts without schema errors", "Console log"]],
+          "objectives": ["Manage schema changes", "Write migrations", "Validate the schema"]
+        },
+        {
+          "topic": "Service Layer, Transactions and DTOs",
+          "subtopics": ["Controller, service and repository responsibilities", "@Transactional and its defaults", "Read-only transactions", "Rollback rules for checked exceptions", "Self-invocation and proxy pitfalls", "Request and response DTOs", "Mapping with MapStruct or by hand", "Keeping entities out of the API"],
+          "tools": ["Spring Boot", "MapStruct", "PostgreSQL"],
+          "lab_task": "Add a service that borrows a book (marks it unavailable and records a loan) in one transaction, prove it rolls back when the loan insert fails and expose only DTOs from the controller.",
+          "deliverable": "Service, DTOs and a rollback test",
+          "checks": [["Force the loan insert to fail", "Book stays available after the failure", "Test report"], ["Call a @Transactional method from the same class", "Missing transaction explained", "Written note"], ["Review controller signatures", "No entity types in requests or responses", "Code review"]],
+          "objectives": ["Separate layers", "Use transactions correctly", "Return DTOs"]
+        },
+        {
+          "topic": "Paging, Sorting and Filtering APIs",
+          "subtopics": ["Pageable and Page", "Sort parameters", "Page size limits", "Dynamic filters with Specifications", "Query by Example", "Response format for paged results", "Indexes for filtered queries", "Keyset paging for large tables"],
+          "tools": ["Spring Data JPA", "PostgreSQL", "Postman"],
+          "lab_task": "Add paged, sorted search to the catalogue with optional author, category and price filters using Specifications, cap the page size at 100 and add an index for the most common filter.",
+          "deliverable": "Search endpoint, specification code and EXPLAIN output",
+          "checks": [["Request page 2 of size 10", "Correct items and total count", "API response"], ["Request size 1000", "Page size capped at 100", "API response"], ["Run EXPLAIN on the common filter", "Index scan used", "EXPLAIN output"]],
+          "objectives": ["Page and sort results", "Build dynamic filters", "Index filtered queries"]
+        },
+        {
+          "topic": "Testing Spring Boot Applications",
+          "subtopics": ["Unit tests without Spring", "@SpringBootTest and when to avoid it", "@WebMvcTest with MockMvc", "@DataJpaTest", "Mocking beans with @MockitoBean", "Test profiles and test data", "AssertJ assertions", "Test speed and context caching"],
+          "tools": ["JUnit 5", "MockMvc", "Mockito", "AssertJ"],
+          "lab_task": "Write unit tests for the loan service, @WebMvcTest tests for the book controller including validation errors and @DataJpaTest tests for the custom queries.",
+          "deliverable": "Test suite and coverage report",
+          "checks": [["Run the tests", "All pass", "Test report"], ["Break the validation rule", "A controller test fails", "Test report"], ["Review coverage of the loan service", "Above 80 percent line coverage", "JaCoCo report"]],
+          "objectives": ["Write unit and slice tests", "Test controllers and repositories", "Keep tests fast"]
+        },
+        {
+          "topic": "Logging and Debugging in Spring Boot",
+          "subtopics": ["SLF4J and Logback defaults", "Log levels per package", "Structured JSON logging", "Request correlation IDs with MDC", "Changing log levels at runtime", "Debugging with breakpoints in the IDE", "Reading startup failure reports", "The conditions evaluation report"],
+          "tools": ["Logback", "Actuator", "IntelliJ IDEA"],
+          "lab_task": "Switch to structured JSON logs, add a filter that sets a correlation ID on every request, change a package log level through Actuator and diagnose a deliberately broken bean from the startup report.",
+          "deliverable": "Logging configuration, filter and diagnosis notes",
+          "checks": [["Make two requests", "Each log line has its request's correlation ID", "Log output"], ["Change the level through Actuator", "DEBUG lines appear without a restart", "Log output"], ["Diagnose the broken bean", "Cause identified from the startup report", "Diagnosis notes"]],
+          "objectives": ["Configure logging", "Trace requests", "Diagnose startup failures"]
+        },
+        {
+          "topic": "Actuator Health and Metrics",
+          "subtopics": ["Actuator endpoints and exposure", "Health indicators and groups", "Liveness and readiness", "Custom health indicators", "Micrometer metrics", "Custom counters and timers", "The info endpoint and build information", "Protecting Actuator endpoints"],
+          "tools": ["Spring Boot Actuator", "Micrometer"],
+          "lab_task": "Expose health, info and metrics, add a custom health indicator for an external dependency, add a counter for loans created and a timer around the search, and restrict all endpoints except health.",
+          "deliverable": "Actuator configuration and sample endpoint output",
+          "checks": [["Stop the dependency", "Health shows DOWN for that indicator", "Health output"], ["Create three loans", "Counter shows three", "Metrics output"], ["Call /actuator/env without credentials", "Access denied", "curl output"]],
+          "objectives": ["Monitor health", "Add custom metrics", "Protect Actuator"]
+        },
+        {
+          "topic": "Securing APIs with Spring Security",
+          "subtopics": ["What Spring Security adds by default", "The security filter chain", "Configuring SecurityFilterChain beans", "In-memory and database users", "Password hashing with BCrypt", "HTTP Basic for simple APIs", "Role-based access to endpoints", "CSRF and when to disable it for APIs"],
+          "tools": ["Spring Security", "Spring Boot", "Postman"],
+          "lab_task": "Secure the catalogue so anyone can read, members can borrow and admins can create or delete books, store users in the database with BCrypt hashes and test each role.",
+          "deliverable": "Security configuration, user table and test results",
+          "checks": [["Delete a book as a member", "403 Forbidden", "Postman result"], ["Call without credentials", "401 Unauthorized", "Postman result"], ["Inspect the user table", "Passwords stored as BCrypt hashes", "Database query"]],
+          "objectives": ["Configure the filter chain", "Store users safely", "Restrict endpoints by role"]
+        },
+        {
+          "topic": "Calling Other Services with RestClient",
+          "subtopics": ["RestClient and the older RestTemplate", "Declarative HTTP interfaces", "Timeouts", "Handling error responses", "Retries for safe calls", "Testing with WireMock or MockRestServiceServer", "Passing correlation IDs downstream", "Configuring base URLs per environment"],
+          "tools": ["RestClient", "WireMock", "Spring Boot"],
+          "lab_task": "Call an external ISBN lookup service to fill in book details through a declarative HTTP interface, with timeouts, error mapping and a retry, and test it against WireMock.",
+          "deliverable": "Client interface, configuration and WireMock tests",
+          "checks": [["Simulate a slow service", "Call fails after the timeout", "Test report"], ["Simulate a 500 response", "Mapped to a clear domain error", "Test report"], ["Check downstream headers", "Correlation ID passed on", "WireMock request log"]],
+          "objectives": ["Call other services", "Handle failures", "Test clients without the real service"]
+        },
+        {
+          "topic": "API Documentation with springdoc OpenAPI",
+          "subtopics": ["OpenAPI and Swagger UI", "Adding springdoc to the project", "Describing operations and schemas", "Documenting errors", "Security schemes in the docs", "Grouping APIs", "Generating clients from the spec", "Keeping docs in sync with code"],
+          "tools": ["springdoc-openapi", "Swagger UI", "OpenAPI Generator"],
+          "lab_task": "Add springdoc, describe all catalogue operations including error responses and the security scheme, and generate a TypeScript client from the spec to prove it is usable.",
+          "deliverable": "OpenAPI spec, Swagger UI screenshot and generated client",
+          "checks": [["Open Swagger UI", "All endpoints listed with schemas", "Screenshot"], ["Review error documentation", "400 and 404 responses documented", "OpenAPI spec"], ["Generate the client", "Generation succeeds with no errors", "Generator output"]],
+          "objectives": ["Document APIs", "Describe errors and security", "Generate clients"]
+        },
+        {
+          "topic": "File Uploads, Static Content and CORS",
+          "subtopics": ["Multipart file uploads", "File size limits", "Storing files outside the database", "Streaming downloads", "Serving static content", "CORS configuration", "Content types and validation", "Cleaning up temporary files"],
+          "tools": ["Spring Boot", "Postman", "Local file storage"],
+          "lab_task": "Add book cover uploads limited to 2 MB JPEG or PNG, store them on disk with a generated name, stream them back on download and allow a front-end origin through CORS.",
+          "deliverable": "Upload and download endpoints and CORS configuration",
+          "checks": [["Upload a 5 MB file", "Rejected with a clear error", "Postman result"], ["Upload a text file renamed to .png", "Rejected by content check", "Postman result"], ["Call from the allowed origin", "CORS headers present", "Browser network log"]],
+          "objectives": ["Handle uploads and downloads", "Validate files", "Configure CORS"]
+        },
+        {
+          "topic": "Scheduling and Asynchronous Tasks",
+          "subtopics": ["@EnableScheduling and @Scheduled", "Fixed rate, fixed delay and cron", "Task executors and thread pools", "@Async methods", "Returning CompletableFuture", "Error handling in background work", "Avoiding duplicate runs on several instances", "Testing scheduled code"],
+          "tools": ["Spring Boot", "ShedLock", "JUnit 5"],
+          "lab_task": "Add a nightly job that marks overdue loans and an async email sender, configure a bounded thread pool and use ShedLock so the job runs once across two instances.",
+          "deliverable": "Scheduled job, async service and ShedLock configuration",
+          "checks": [["Run two instances", "Job runs on only one", "Logs from both instances"], ["Fail the async send", "Error logged and not lost", "Log output"], ["Test the overdue logic", "Correct loans marked", "Test report"]],
+          "objectives": ["Schedule jobs", "Run work asynchronously", "Prevent duplicate runs"]
+        },
+        {
+          "topic": "Packaging and Running Spring Boot in Docker",
+          "subtopics": ["Executable JAR files", "Layered JARs", "Writing a Dockerfile for Spring Boot", "Building images with Buildpacks", "Docker Compose with PostgreSQL", "Passing configuration through environment variables", "Health checks in containers", "Image size and startup time"],
+          "tools": ["Docker", "Docker Compose", "Spring Boot Maven Plugin"],
+          "lab_task": "Build the catalogue as a container image twice (a layered Dockerfile and Buildpacks), run it with PostgreSQL in Docker Compose with configuration from environment variables and compare image size and startup time.",
+          "deliverable": "Dockerfile, compose file and comparison table",
+          "checks": [["Run docker compose up", "Application and database healthy", "docker compose ps output"], ["Change only application code and rebuild", "Dependency layer reused", "Build output"], ["Compare images", "Size and startup time recorded for both", "Comparison table"]],
+          "objectives": ["Package Spring Boot", "Run in containers", "Configure through the environment"]
+        },
+        {
+          "topic": "Beginner Capstone: Library Lending REST API",
+          "subtopics": ["Requirements and API design", "Data model and migrations", "Security and validation", "Tests and documentation"],
+          "tools": ["Spring Boot", "Spring Data JPA", "Spring Security", "PostgreSQL", "Flyway", "Docker"],
+          "lab_task": "Build a library lending API with books, members and loans: Flyway migrations, validated DTOs, role-based security, paged search, an overdue job, OpenAPI docs, tests and Docker Compose, then demo it.",
+          "deliverable": "Repository, OpenAPI spec, test report and demo recording",
+          "checks": [["Run the full test suite", "All tests pass", "Test report"], ["Borrow an unavailable book", "Clear 409 Conflict response", "Demo recording"], ["Start with docker compose", "Whole system runs from one command", "Demo recording"]],
+          "objectives": ["Combine the beginner topics in one service", "Build a secure, tested API", "Run it in containers"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built Spring Boot REST services. Covers how auto-configuration works, JPA performance, caching, token-based security and OAuth2, messaging with Kafka and RabbitMQ, Testcontainers, API design, reactive endpoints, Spring Batch, observability, resilience, Spring Cloud, MongoDB, events and the outbox pattern, CI and running on Kubernetes.",
+      "prerequisites": ["Has built a Spring Boot REST API with Spring Data JPA", "Writes tests with JUnit and MockMvc", "Uses Docker for local development"],
+      "outcomes": ["Build secure, observable Spring Boot microservices that communicate through APIs and messages", "Tune data access and caching", "Test against real infrastructure with Testcontainers", "Build and run services in CI and on Kubernetes"],
+      "days": [
+        {
+          "topic": "How Auto-Configuration Works and Custom Starters",
+          "subtopics": ["Auto-configuration classes and imports", "Conditional annotations", "Ordering and overriding auto-configuration", "The conditions evaluation report in depth", "Writing your own auto-configuration", "Building a company starter", "Configuration metadata for IDE hints", "Testing auto-configuration with ApplicationContextRunner"],
+          "tools": ["Spring Boot", "Maven", "ApplicationContextRunner"],
+          "lab_task": "Build an internal audit starter that auto-configures an audit logger when a property is set, backs off when the user defines their own bean and ships configuration metadata, then test each condition.",
+          "deliverable": "Starter module, metadata and tests",
+          "checks": [["Add the starter with the property on", "Audit logger bean created", "Test report"], ["Define a custom audit bean", "Starter backs off", "Test report"], ["Type the property in the IDE", "Auto-completion with description shown", "Screenshot"]],
+          "objectives": ["Explain auto-configuration", "Write conditional configuration", "Build a reusable starter"]
+        },
+        {
+          "topic": "JPA Performance: Fetching, N+1 and Batching",
+          "subtopics": ["Spotting N+1 queries", "Entity graphs and fetch joins", "DTO projections", "Batch fetching", "JDBC batch inserts", "Second-level cache trade-offs", "Optimistic locking with @Version", "Measuring queries with logs and statistics"],
+          "tools": ["Spring Data JPA", "Hibernate statistics", "PostgreSQL"],
+          "lab_task": "Find and fix N+1 queries in an order listing, switch to a DTO projection, enable batch inserts for an import and add optimistic locking to stock updates, recording query counts before and after.",
+          "deliverable": "Query counts before and after, code changes and a locking test",
+          "checks": [["List 100 orders", "Query count drops from over 100 to under 5", "Hibernate statistics"], ["Import 10,000 rows", "Inserts sent in batches", "SQL log"], ["Update the same product twice concurrently", "One update fails with an optimistic lock error", "Test report"]],
+          "objectives": ["Find and fix N+1 queries", "Batch writes", "Use optimistic locking"]
+        },
+        {
+          "topic": "Caching with Spring Cache and Redis",
+          "subtopics": ["The cache abstraction", "@Cacheable, @CachePut and @CacheEvict", "Cache keys and conditions", "Redis as a shared cache", "Time to live and eviction", "Cache stampede and stale data", "Serialisation of cached values", "Measuring hit rates"],
+          "tools": ["Spring Cache", "Redis", "Micrometer"],
+          "lab_task": "Cache product lookups in Redis with a 10-minute TTL, evict on update, prevent caching of null results and measure hit rate and latency under a load test.",
+          "deliverable": "Cache configuration, eviction tests and hit-rate metrics",
+          "checks": [["Request the same product twice", "Second call served from cache", "Logs and metrics"], ["Update the product", "Next read returns the new value", "Test report"], ["Run the load test", "Hit rate and latency recorded", "Metrics output"]],
+          "objectives": ["Cache with Redis", "Evict correctly", "Measure cache effect"]
+        },
+        {
+          "topic": "JWT Authentication and Method Security",
+          "subtopics": ["Stateless authentication", "Issuing and validating JWTs", "Signing keys and rotation", "Refresh tokens", "@PreAuthorize and method security", "Ownership checks in expressions", "Testing secured endpoints", "Common JWT mistakes"],
+          "tools": ["Spring Security", "Nimbus JOSE JWT", "Postman"],
+          "lab_task": "Add a login endpoint that issues short-lived JWTs and refresh tokens, protect services with @PreAuthorize including an \"only the owner can read their order\" rule and test with @WithMockUser and real tokens.",
+          "deliverable": "Security configuration, token endpoints and tests",
+          "checks": [["Use an expired token", "401 Unauthorized", "Postman result"], ["Read another user's order", "403 Forbidden", "Test report"], ["Tamper with a token payload", "Signature check fails", "Test report"]],
+          "objectives": ["Issue and validate JWTs", "Apply method security", "Test security rules"]
+        },
+        {
+          "topic": "OAuth2 Login and Resource Servers",
+          "subtopics": ["OAuth2 and OpenID Connect roles", "Authorisation code flow with PKCE", "Spring Boot as a resource server", "Mapping scopes and roles from tokens", "Keycloak or Entra ID as the identity provider", "Client credentials for service-to-service calls", "Token relay", "Testing with mock JWTs"],
+          "tools": ["Spring Security OAuth2", "Keycloak", "Postman"],
+          "lab_task": "Run Keycloak in Docker, configure the order service as a resource server mapping realm roles, call it from a second service with client credentials and test with mock JWTs.",
+          "deliverable": "Keycloak realm export, resource server configuration and tests",
+          "checks": [["Call with a token missing the scope", "403 Forbidden", "Postman result"], ["Call service to service", "Client credentials token accepted", "Logs"], ["Run the tests", "Role mapping verified with mock JWTs", "Test report"]],
+          "objectives": ["Build a resource server", "Use OAuth2 flows", "Secure service-to-service calls"]
+        },
+        {
+          "topic": "Messaging with Spring for Apache Kafka",
+          "subtopics": ["Topics, partitions and consumer groups", "KafkaTemplate producers", "@KafkaListener consumers", "JSON and Avro serialisation", "Keys and ordering", "Error handling and dead-letter topics", "Idempotent consumers", "Testing with embedded Kafka or Testcontainers"],
+          "tools": ["Spring for Apache Kafka", "Apache Kafka", "Docker"],
+          "lab_task": "Publish an OrderPlaced event from the order service, consume it in an inventory service, route poison messages to a dead-letter topic and make the consumer idempotent.",
+          "deliverable": "Producer, consumer, error handling and tests",
+          "checks": [["Place an order", "Inventory reserves stock", "Logs"], ["Send a malformed message", "Message lands on the dead-letter topic", "Kafka topic output"], ["Deliver the same event twice", "Stock reserved only once", "Test report"]],
+          "objectives": ["Produce and consume events", "Handle bad messages", "Build idempotent consumers"]
+        },
+        {
+          "topic": "RabbitMQ with Spring AMQP",
+          "subtopics": ["Exchanges, queues and bindings", "Direct, topic and fanout exchanges", "RabbitTemplate and @RabbitListener", "Acknowledgements and prefetch", "Retries and dead-letter exchanges", "Delayed messages", "When to choose RabbitMQ or Kafka", "Monitoring queues"],
+          "tools": ["Spring AMQP", "RabbitMQ", "Docker"],
+          "lab_task": "Send order confirmation emails through a RabbitMQ topic exchange, retry failed sends three times with back-off, then route them to a dead-letter queue and inspect it in the management UI.",
+          "deliverable": "AMQP configuration, listener and management UI screenshot",
+          "checks": [["Fail the email send", "Three retries then dead-lettered", "Logs and UI"], ["Bind a second queue", "Both receive matching messages", "UI screenshot"], ["Write the comparison", "Two cases each for RabbitMQ and Kafka", "Written note"]],
+          "objectives": ["Use RabbitMQ from Spring", "Retry and dead-letter", "Choose a broker"]
+        },
+        {
+          "topic": "Integration Testing with Testcontainers",
+          "subtopics": ["Why mocks are not enough", "Testcontainers with JUnit 5", "@ServiceConnection", "PostgreSQL, Kafka and Redis containers", "Reusing containers across tests", "Test data setup and cleanup", "Running in CI", "Development-time services with Testcontainers"],
+          "tools": ["Testcontainers", "JUnit 5", "Docker"],
+          "lab_task": "Write integration tests for placing an order that run against real PostgreSQL, Kafka and Redis containers using @ServiceConnection, and run the app locally with the same containers.",
+          "deliverable": "Integration tests and local run configuration",
+          "checks": [["Run the tests", "Pass against real containers", "Test report"], ["Measure suite time", "Containers reused across test classes", "Test timing output"], ["Run in CI", "Tests pass on the CI runner", "CI log"]],
+          "objectives": ["Test against real infrastructure", "Use @ServiceConnection", "Keep tests reliable"]
+        },
+        {
+          "topic": "API Design: Versioning, Contracts and Idempotency",
+          "subtopics": ["Resource naming and HTTP semantics", "Contract-first with OpenAPI", "Versioning strategies", "Backwards-compatible changes", "Idempotency keys for POST", "Consistent pagination and errors", "Consumer-driven contracts with Spring Cloud Contract", "Deprecating endpoints"],
+          "tools": ["OpenAPI Generator", "Spring Cloud Contract", "Postman"],
+          "lab_task": "Design version 2 of the order API contract-first, generate server interfaces, add idempotency keys to order creation and write a consumer contract that the provider verifies.",
+          "deliverable": "OpenAPI spec, generated interfaces, contract tests and changelog",
+          "checks": [["Repeat a POST with the same idempotency key", "One order created", "Test report"], ["Break the contract on the provider", "Contract test fails", "Test report"], ["Call version 1 after the change", "Still works unchanged", "Postman result"]],
+          "objectives": ["Design APIs contract-first", "Version safely", "Make writes idempotent"]
+        },
+        {
+          "topic": "Reactive Endpoints with Spring WebFlux",
+          "subtopics": ["When reactive is worth it", "Mono and Flux", "WebFlux controllers and functional routes", "WebClient", "R2DBC for reactive databases", "Backpressure", "Server-sent events", "Testing with StepVerifier and WebTestClient"],
+          "tools": ["Spring WebFlux", "Project Reactor", "R2DBC", "WebTestClient"],
+          "lab_task": "Build a price streaming endpoint with server-sent events that combines two upstream services through WebClient, store prices with R2DBC and test it with StepVerifier.",
+          "deliverable": "Reactive service, tests and a note on when to use it",
+          "checks": [["Open the stream in a browser", "Prices arrive continuously", "Screenshot"], ["Run StepVerifier tests", "Expected sequence verified", "Test report"], ["Write the note", "Clear cases for and against WebFlux", "Written note"]],
+          "objectives": ["Build reactive endpoints", "Use WebClient and R2DBC", "Test reactive code"]
+        },
+        {
+          "topic": "Batch Processing with Spring Batch",
+          "subtopics": ["Jobs, steps and chunks", "Readers, processors and writers", "Restarting failed jobs", "Skip and retry policies", "Partitioning for parallel work", "Job parameters", "Monitoring job runs", "Scheduling batch jobs"],
+          "tools": ["Spring Batch", "PostgreSQL"],
+          "lab_task": "Build a job that imports a 100,000-line product CSV in chunks, skips bad rows into an error file, restarts from the failed chunk after a crash and runs partitioned across four threads.",
+          "deliverable": "Job configuration, error file and run history",
+          "checks": [["Kill the job halfway and restart", "Resumes from the last committed chunk", "Job repository tables"], ["Include ten bad rows", "Ten rows in the error file and the rest imported", "Error file"], ["Run partitioned", "Faster than a single thread", "Timing comparison"]],
+          "objectives": ["Build batch jobs", "Restart and skip safely", "Parallelise work"]
+        },
+        {
+          "topic": "Observability with Micrometer Tracing and Prometheus",
+          "subtopics": ["Metrics, logs and traces together", "Micrometer Observation API", "Distributed tracing with OpenTelemetry", "Trace IDs in logs", "Prometheus scraping", "Grafana dashboards", "Custom observations", "High-cardinality labels to avoid"],
+          "tools": ["Micrometer", "OpenTelemetry", "Prometheus", "Grafana", "Jaeger"],
+          "lab_task": "Add tracing to the order and inventory services, export traces to Jaeger and metrics to Prometheus, build a Grafana dashboard for request rate, errors and latency and find a slow call through its trace.",
+          "deliverable": "Configuration, dashboard and a trace screenshot",
+          "checks": [["Place an order", "One trace spans both services", "Jaeger screenshot"], ["Search logs by trace ID", "Lines from both services found", "Log output"], ["Review metric labels", "No user IDs or other high-cardinality labels", "Metrics output"]],
+          "objectives": ["Trace across services", "Export metrics", "Build dashboards"]
+        },
+        {
+          "topic": "Resilience in Spring Boot Services",
+          "subtopics": ["Failure modes between services", "Timeouts first", "Retries with back-off", "Circuit breakers", "Bulkheads and rate limiters", "Fallbacks", "Resilience4j with Spring Boot", "Testing failure behaviour"],
+          "tools": ["Resilience4j", "Spring Boot", "WireMock"],
+          "lab_task": "Protect the order service's call to payments with a timeout, retries, a circuit breaker and a fallback, then show the breaker opening and closing under simulated failures.",
+          "deliverable": "Resilience configuration, tests and breaker state metrics",
+          "checks": [["Fail payments repeatedly", "Circuit opens and calls fail fast", "Metrics output"], ["Restore payments", "Circuit closes after the wait", "Metrics output"], ["Make payments slow", "Calls fail at the timeout instead of hanging", "Test report"]],
+          "objectives": ["Add timeouts and retries", "Use circuit breakers", "Test failure handling"]
+        },
+        {
+          "topic": "Spring Cloud Config and Service Discovery",
+          "subtopics": ["Centralised configuration", "Config server backed by Git", "Refreshing configuration at runtime", "Encrypting configuration values", "Service discovery with Eureka", "Client-side load balancing", "Discovery on Kubernetes instead of Eureka", "When to use none of these"],
+          "tools": ["Spring Cloud Config", "Eureka", "Spring Cloud LoadBalancer"],
+          "lab_task": "Run a config server backed by a Git repository, move service settings into it, refresh a value without a restart and register two inventory instances with Eureka for load-balanced calls.",
+          "deliverable": "Config repository, server configuration and load-balancing logs",
+          "checks": [["Change a value and refresh", "New value used without restart", "Logs"], ["Call inventory ten times", "Calls spread across both instances", "Logs"], ["Write the decision note", "When Kubernetes services replace Eureka", "Written note"]],
+          "objectives": ["Centralise configuration", "Discover services", "Choose the right tools"]
+        },
+        {
+          "topic": "API Gateway with Spring Cloud Gateway",
+          "subtopics": ["What a gateway does", "Routes, predicates and filters", "Authentication at the gateway", "Rate limiting with Redis", "Request and response rewriting", "Gateway timeouts and retries", "CORS at the gateway", "Monitoring the gateway"],
+          "tools": ["Spring Cloud Gateway", "Redis", "Keycloak"],
+          "lab_task": "Put a gateway in front of the services with routes per service, token validation, per-client rate limits and correlation ID propagation.",
+          "deliverable": "Gateway configuration and test results",
+          "checks": [["Exceed the rate limit", "429 Too Many Requests", "Postman result"], ["Call without a token", "Rejected at the gateway", "Gateway log"], ["Follow a request", "Correlation ID reaches the backend", "Backend log"]],
+          "objectives": ["Route traffic through a gateway", "Secure and limit requests", "Monitor the gateway"]
+        },
+        {
+          "topic": "Document Data with Spring Data MongoDB",
+          "subtopics": ["When a document store fits", "Mapping documents", "Repositories and MongoTemplate", "Embedded documents versus references", "Indexes in MongoDB", "Aggregation pipelines", "Transactions in MongoDB", "Testing with Testcontainers"],
+          "tools": ["Spring Data MongoDB", "MongoDB", "Testcontainers"],
+          "lab_task": "Store product reviews in MongoDB with embedded replies, add indexes for product and rating, build an aggregation for average rating per product and test it against a container.",
+          "deliverable": "Document model, repository, aggregation and tests",
+          "checks": [["Query reviews by product", "Index used", "explain() output"], ["Run the aggregation", "Correct averages", "Test report"], ["Write the design note", "Reason for embedding replies", "Written note"]],
+          "objectives": ["Model documents", "Query and aggregate", "Choose between SQL and documents"]
+        },
+        {
+          "topic": "Domain Events and the Transactional Outbox",
+          "subtopics": ["Application events in Spring", "@TransactionalEventListener", "The dual-write problem", "The outbox pattern", "Publishing outbox rows to Kafka", "Debezium change data capture", "Event schemas and versioning", "Ordering and duplicates"],
+          "tools": ["Spring Boot", "PostgreSQL", "Apache Kafka", "Debezium"],
+          "lab_task": "Replace direct Kafka publishing in the order service with an outbox table written in the same transaction, publish it with a poller and with Debezium, and prove no event is lost when Kafka is down.",
+          "deliverable": "Outbox table, publishers and failure test",
+          "checks": [["Stop Kafka and place orders", "Events published after Kafka returns", "Logs and topic output"], ["Roll back an order", "No event published", "Test report"], ["Compare poller and Debezium", "Trade-offs written", "Written note"]],
+          "objectives": ["Explain dual writes", "Implement an outbox", "Publish events reliably"]
+        },
+        {
+          "topic": "CI Pipelines for Spring Boot Services",
+          "subtopics": ["Build stages for Java services", "Caching Maven or Gradle dependencies", "Unit, slice and integration test stages", "Static analysis with SpotBugs or SonarQube", "Dependency vulnerability scanning", "Building and pushing images", "Versioning artefacts", "Quality gates"],
+          "tools": ["GitHub Actions", "Maven", "SonarQube", "Trivy", "Docker"],
+          "lab_task": "Build a GitHub Actions pipeline for the order service that caches dependencies, runs all test stages with Testcontainers, scans dependencies and the image, and pushes a versioned image only when quality gates pass.",
+          "deliverable": "Workflow file and a green pipeline run",
+          "checks": [["Add a failing test", "Pipeline stops before the image push", "Pipeline log"], ["Add a vulnerable dependency", "Scan fails the build", "Pipeline log"], ["Compare run times with and without the cache", "Cached run is faster", "Pipeline timings"]],
+          "objectives": ["Build CI for Spring Boot", "Gate on quality and security", "Publish versioned images"]
+        },
+        {
+          "topic": "Running Spring Boot on Kubernetes",
+          "subtopics": ["Deployments and services for Spring Boot", "Liveness and readiness probes from Actuator", "ConfigMaps and Secrets", "Resource requests and JVM memory settings", "Graceful shutdown", "Horizontal pod autoscaling", "Rolling updates", "Spring Cloud Kubernetes"],
+          "tools": ["Kubernetes", "kubectl", "Helm", "Spring Boot Actuator"],
+          "lab_task": "Deploy the services to a local Kubernetes cluster with Actuator probes, configuration from ConfigMaps and Secrets, correct memory limits, graceful shutdown and an autoscaler, then roll out a new version without errors.",
+          "deliverable": "Kubernetes manifests or Helm chart and rollout evidence",
+          "checks": [["Roll out a new version under load", "No failed requests", "Load test output"], ["Kill the database", "Readiness fails and traffic stops to the pod", "kubectl output"], ["Review memory", "JVM heap fits inside the container limit", "Pod metrics"]],
+          "objectives": ["Deploy Spring Boot to Kubernetes", "Use probes and graceful shutdown", "Scale safely"]
+        },
+        {
+          "topic": "Intermediate Capstone: Event-Driven Order Platform",
+          "subtopics": ["Service boundaries", "Security and gateway", "Messaging and outbox", "Observability and deployment"],
+          "tools": ["Spring Boot", "Spring Cloud Gateway", "Apache Kafka", "PostgreSQL", "Keycloak", "Kubernetes"],
+          "lab_task": "Build an order platform with gateway, order, inventory and payment services using OAuth2, Kafka with an outbox, resilience, tracing and Testcontainers tests, deployed to Kubernetes through CI, then demo a failure and recovery.",
+          "deliverable": "Repositories, pipeline, dashboards and demo recording",
+          "checks": [["Place an order end to end", "Order, stock and payment updated", "Demo recording"], ["Stop the payment service", "Orders queue and complete when it returns", "Demo recording"], ["Show the trace", "One trace across all services", "Jaeger screenshot"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Build event-driven services", "Show resilience and observability"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior developers and architects running Spring Boot in production. Covers performance tuning, virtual threads, native images, multi-tenancy, authorisation servers, sagas, event sourcing, modular monoliths, database scaling, Kafka Streams, zero-downtime releases, cloud platforms, SLOs, supply-chain security, chaos testing, Spring AI, GraphQL, upgrades and production troubleshooting.",
+      "prerequisites": ["Has built and run Spring Boot microservices in production", "Knows Kafka, Docker and Kubernetes at a working level", "Understands JPA performance and Spring Security configuration"],
+      "outcomes": ["Design and tune Spring Boot systems for performance, scale and reliability", "Choose between microservices, modular monoliths, sagas and event sourcing", "Release safely and secure the software supply chain", "Diagnose and fix production problems quickly"],
+      "days": [
+        {
+          "topic": "Spring Boot Performance Tuning and Profiling",
+          "subtopics": ["Setting performance goals", "Load testing with Gatling or k6", "Profiling with JFR and async-profiler", "Thread pool and connection pool sizing", "Serialisation costs", "Startup time and lazy initialisation", "JVM flags for containers", "Reading flame graphs"],
+          "tools": ["Gatling", "Java Flight Recorder", "async-profiler", "Grafana"],
+          "lab_task": "Load test the order service to its limit, profile it with JFR and async-profiler, fix the two largest hotspots and the pool sizes, and show the improvement under the same load.",
+          "deliverable": "Load test reports before and after, flame graphs and change notes",
+          "checks": [["Compare p99 latency", "Lower after the changes at the same load", "Load test reports"], ["Read the flame graph", "Top hotspot identified with its cause", "Flame graph notes"], ["Review pool sizes", "Sizes justified by measurements", "Change notes"]],
+          "objectives": ["Load test services", "Profile hotspots", "Tune pools and the JVM"]
+        },
+        {
+          "topic": "Virtual Threads and Concurrency in Spring Boot",
+          "subtopics": ["Platform and virtual threads", "Enabling virtual threads in Spring Boot", "Blocking I/O and virtual threads", "Pinning and how to find it", "Connection pools as the real limit", "Structured concurrency for fan-out calls", "Comparing with WebFlux", "Measuring throughput"],
+          "tools": ["JDK 21", "Spring Boot", "JFR", "Gatling"],
+          "lab_task": "Run the same blocking service with platform threads, virtual threads and WebFlux, find and remove a pinning case and compare throughput and memory under load.",
+          "deliverable": "Benchmark results, pinning fix and recommendation",
+          "checks": [["Detect pinning", "JFR shows the pinned thread event before the fix", "JFR output"], ["Compare throughput", "Results recorded for all three models", "Benchmark table"], ["Write the recommendation", "Clear rule for when to use each model", "Written note"]],
+          "objectives": ["Use virtual threads", "Find pinning", "Choose a concurrency model"]
+        },
+        {
+          "topic": "Native Images with GraalVM and Spring AOT",
+          "subtopics": ["Ahead-of-time processing in Spring", "GraalVM native image", "Reflection and resource hints", "Building native images with Buildpacks", "Testing native images", "Startup and memory gains", "Limits and trade-offs", "Class Data Sharing and CRaC as alternatives"],
+          "tools": ["GraalVM", "Spring AOT", "Buildpacks", "Docker"],
+          "lab_task": "Build the inventory service as a native image, fix a missing reflection hint, run the tests in native mode and compare startup, memory and peak throughput with the JVM version.",
+          "deliverable": "Native image build, hints and comparison table",
+          "checks": [["Start the native image", "Starts in under one second", "Startup log"], ["Run native tests", "All pass", "Test report"], ["Compare peak throughput", "Measured for both versions", "Comparison table"]],
+          "objectives": ["Build native images", "Add runtime hints", "Decide when native is worth it"]
+        },
+        {
+          "topic": "Multi-Tenancy in Spring Boot Applications",
+          "subtopics": ["Tenancy models: shared schema, schema per tenant, database per tenant", "Resolving the tenant from the request", "Hibernate multi-tenancy support", "Row-level security in PostgreSQL", "Tenant-aware caching", "Tenant-aware messaging", "Migrations across tenants", "Testing tenant isolation"],
+          "tools": ["Hibernate", "PostgreSQL", "Flyway", "Spring Security"],
+          "lab_task": "Make the order service multi-tenant with schema per tenant, resolve the tenant from the token, migrate all tenant schemas with Flyway and prove one tenant cannot read another's data.",
+          "deliverable": "Tenancy implementation, migration process and isolation tests",
+          "checks": [["Read with tenant A's token", "Only tenant A's orders returned", "Test report"], ["Add a new tenant", "Schema created and migrated automatically", "Logs"], ["Check cache keys", "Tenant ID included in every key", "Code review"]],
+          "objectives": ["Choose a tenancy model", "Resolve tenants safely", "Prove isolation"]
+        },
+        {
+          "topic": "Advanced Spring Security: Authorization Server and Fine-Grained Access",
+          "subtopics": ["Spring Authorization Server", "Custom token claims", "Fine-grained permissions", "Attribute-based access control", "Policy engines such as OPA", "Securing Kafka consumers and internal calls", "Security testing in CI", "Auditing access decisions"],
+          "tools": ["Spring Authorization Server", "Spring Security", "Open Policy Agent"],
+          "lab_task": "Run Spring Authorization Server with custom claims, enforce a rule that managers can approve refunds only under a limit through an authorisation manager and OPA, and audit every decision.",
+          "deliverable": "Authorization server, policy and audit log",
+          "checks": [["Approve a refund above the limit", "Denied with the reason logged", "Audit log"], ["Inspect a token", "Custom claims present", "Decoded token"], ["Run the security test suite", "All access rules tested", "Test report"]],
+          "objectives": ["Run an authorisation server", "Enforce fine-grained rules", "Audit access"]
+        },
+        {
+          "topic": "Sagas and Distributed Transactions",
+          "subtopics": ["Why two-phase commit is avoided", "Choreography sagas", "Orchestration sagas", "Compensating actions", "Saga state and timeouts", "Idempotency across steps", "Tools: Temporal, Axon and hand-written orchestrators", "Testing sagas"],
+          "tools": ["Spring Boot", "Apache Kafka", "Temporal"],
+          "lab_task": "Implement order placement as an orchestrated saga across inventory and payment with compensations, then run it as a choreography and compare failure handling.",
+          "deliverable": "Two saga implementations, failure tests and comparison",
+          "checks": [["Fail payment after stock is reserved", "Stock released by compensation", "Test report"], ["Time out a step", "Saga ends in a clear failed state", "Logs"], ["Write the comparison", "Trade-offs of both styles stated", "Written note"]],
+          "objectives": ["Design sagas", "Write compensations", "Choose orchestration or choreography"]
+        },
+        {
+          "topic": "Event Sourcing and CQRS with Spring",
+          "subtopics": ["Events as the source of truth", "Aggregates and event stores", "Rebuilding state from events", "Snapshots", "Read models and projections", "Eventual consistency in the UI", "Event schema changes", "When not to use event sourcing"],
+          "tools": ["Axon Framework or a custom event store", "PostgreSQL", "Apache Kafka"],
+          "lab_task": "Event-source the account balance of a wallet service, build two read models with projections, add snapshots and rebuild a read model from scratch.",
+          "deliverable": "Event store, projections and rebuild evidence",
+          "checks": [["Rebuild the read model", "Matches the previous model exactly", "Comparison output"], ["Load an aggregate with snapshots", "Fewer events replayed", "Logs"], ["Change an event schema", "Old events still readable", "Test report"]],
+          "objectives": ["Apply event sourcing", "Build projections", "Handle event changes"]
+        },
+        {
+          "topic": "Modular Monoliths with Spring Modulith",
+          "subtopics": ["Microservices versus modular monoliths", "Modules and their boundaries", "Verifying module structure", "Events between modules", "Event publication registry", "Documenting modules", "Testing modules in isolation", "Extracting a module into a service later"],
+          "tools": ["Spring Modulith", "ArchUnit", "Spring Boot"],
+          "lab_task": "Restructure a tangled monolith into orders, inventory and billing modules, verify boundaries in a test, switch cross-module calls to events and generate module documentation.",
+          "deliverable": "Restructured code, verification test and module diagrams",
+          "checks": [["Add a forbidden dependency", "Verification test fails", "Test report"], ["Test the orders module alone", "Runs without the other modules", "Test report"], ["Write the extraction plan", "Steps to move billing to a service", "Written plan"]],
+          "objectives": ["Build modular monoliths", "Enforce boundaries", "Plan extraction"]
+        },
+        {
+          "topic": "Database Scaling: Pools, Read Replicas and Partitioning",
+          "subtopics": ["HikariCP tuning", "Statement batching and fetch sizes", "Read replicas with routing data sources", "Replication lag", "Table partitioning", "Database connection limits across many pods", "Query plans for hot paths", "Archiving old data"],
+          "tools": ["PostgreSQL", "HikariCP", "pgbouncer", "Spring Boot"],
+          "lab_task": "Route read-only transactions to a replica, add pgbouncer in front of PostgreSQL for 30 pods, partition the orders table by month and measure the hot query before and after.",
+          "deliverable": "Routing configuration, partition migrations and measurements",
+          "checks": [["Run a read-only transaction", "Executed on the replica", "Database logs"], ["Scale to 30 pods", "Connections stay under the database limit", "Database metrics"], ["Query recent orders", "Only recent partitions scanned", "EXPLAIN output"]],
+          "objectives": ["Scale database access", "Route reads", "Partition large tables"]
+        },
+        {
+          "topic": "Stream Processing with Kafka Streams and Spring",
+          "subtopics": ["Streams versus consumers", "KStream and KTable", "Windowed aggregations", "Joins between streams", "State stores", "Exactly-once processing", "Interactive queries", "Testing with TopologyTestDriver"],
+          "tools": ["Kafka Streams", "Spring for Apache Kafka", "TopologyTestDriver"],
+          "lab_task": "Build a stream that counts orders per product in five-minute windows, joins with product data, exposes results through an interactive query endpoint and is tested with TopologyTestDriver.",
+          "deliverable": "Topology, query endpoint and tests",
+          "checks": [["Send orders across two windows", "Counts correct per window", "Test report"], ["Restart the application", "State restored from changelog", "Logs"], ["Query the endpoint", "Current counts returned", "API response"]],
+          "objectives": ["Process streams", "Aggregate in windows", "Query state"]
+        },
+        {
+          "topic": "Zero-Downtime Releases and Database Changes",
+          "subtopics": ["Rolling, blue-green and canary releases", "Expand and contract migrations", "Backward-compatible APIs and events", "Feature flags", "Graceful shutdown and connection draining", "Canary analysis with metrics", "Rollback plans", "Release checklists"],
+          "tools": ["Kubernetes", "Argo Rollouts", "Flyway", "OpenFeature"],
+          "lab_task": "Rename a column used by a live service with expand and contract migrations over three releases, roll out with a canary and automatic analysis, and roll back a bad version.",
+          "deliverable": "Migration sequence, rollout configuration and rollback evidence",
+          "checks": [["Run the three releases under load", "No failed requests", "Load test output"], ["Release a version with high errors", "Canary aborted automatically", "Rollout status"], ["Review the migrations", "Old and new code work at every step", "Migration review"]],
+          "objectives": ["Release without downtime", "Change schemas safely", "Use canaries and rollbacks"]
+        },
+        {
+          "topic": "Spring Boot on AWS and Azure",
+          "subtopics": ["Managed options: EKS, ECS, App Runner, Azure Container Apps, AKS", "Spring Cloud AWS and Spring Cloud Azure", "Managed databases and secrets", "Identity for workloads", "Messaging with SQS, SNS and Service Bus", "Cost of each option", "Observability with cloud tools", "Choosing a platform"],
+          "tools": ["AWS", "Azure", "Spring Cloud AWS", "Spring Cloud Azure", "Terraform"],
+          "lab_task": "Deploy the inventory service to AWS ECS with RDS and Secrets Manager and to Azure Container Apps with Azure Database for PostgreSQL and Key Vault, using workload identity and no stored keys, and compare cost and effort.",
+          "deliverable": "Terraform for both, running services and comparison",
+          "checks": [["Search configuration for keys", "No access keys stored anywhere", "Configuration review"], ["Call both deployments", "Both healthy", "curl output"], ["Write the comparison", "Monthly cost and effort estimated for both", "Comparison table"]],
+          "objectives": ["Run Spring Boot on cloud platforms", "Use managed services", "Avoid stored credentials"]
+        },
+        {
+          "topic": "Production Observability: SLOs, Dashboards and Alerting",
+          "subtopics": ["Service level indicators and objectives", "Error budgets", "RED and USE methods", "Alerting on symptoms", "Burn-rate alerts", "Log aggregation", "Exemplars linking metrics to traces", "On-call runbooks"],
+          "tools": ["Prometheus", "Grafana", "Loki", "Alertmanager"],
+          "lab_task": "Define SLOs for the order API, build burn-rate alerts and a dashboard with exemplars, write a runbook and trigger the alert with an injected failure.",
+          "deliverable": "SLO definitions, alerts, dashboard and runbook",
+          "checks": [["Inject errors", "Burn-rate alert fires", "Alertmanager screenshot"], ["Click an exemplar", "Opens the matching trace", "Screenshot"], ["Follow the runbook", "Issue found and fixed in under 15 minutes", "Exercise notes"]],
+          "objectives": ["Define SLOs", "Alert on burn rate", "Write runbooks"]
+        },
+        {
+          "topic": "Securing the Software Supply Chain for Spring Boot",
+          "subtopics": ["Dependency risks", "SBOMs with CycloneDX", "Vulnerability scanning and triage", "Signing images with cosign", "Reproducible builds", "Keeping dependencies current with Renovate or Dependabot", "Secrets scanning", "Security headers and OWASP Top 10 checks"],
+          "tools": ["CycloneDX", "Trivy", "cosign", "Renovate", "OWASP ZAP"],
+          "lab_task": "Generate an SBOM for the service, triage its vulnerabilities, sign and verify the image in CI, enable automatic dependency updates and run a ZAP baseline scan.",
+          "deliverable": "SBOM, triage notes, signed image and scan report",
+          "checks": [["Deploy an unsigned image", "Admission rejected", "Cluster event"], ["Review the triage", "Each high finding fixed or justified", "Triage notes"], ["Run the ZAP scan", "No high-risk findings", "ZAP report"]],
+          "objectives": ["Produce SBOMs", "Sign and verify images", "Manage dependency risk"]
+        },
+        {
+          "topic": "Chaos Testing and Failure Injection",
+          "subtopics": ["Why test failures on purpose", "Steady-state hypotheses", "Chaos Monkey for Spring Boot", "Network faults with Toxiproxy", "Pod and node failures", "Game days", "Limiting blast radius", "Turning findings into fixes"],
+          "tools": ["Chaos Monkey for Spring Boot", "Toxiproxy", "Kubernetes"],
+          "lab_task": "Run a game day on the order platform: inject latency, kill pods and drop the database connection, check each steady-state hypothesis and fix the weakest point found.",
+          "deliverable": "Experiment plan, results and fix",
+          "checks": [["Inject 2 seconds of latency into payments", "Orders still accepted within the SLO", "Dashboard screenshot"], ["Kill a pod during load", "Error rate stays under the budget", "Load test output"], ["Fix the weakest point", "Experiment passes on re-run", "Re-run results"]],
+          "objectives": ["Run chaos experiments", "Limit blast radius", "Fix what fails"]
+        },
+        {
+          "topic": "AI Features with Spring AI",
+          "subtopics": ["Spring AI overview", "Chat clients and prompt templates", "Structured output into Java records", "Embeddings and vector stores", "Retrieval-augmented generation", "Tool calling", "Cost, latency and limits", "Testing and evaluating AI features"],
+          "tools": ["Spring AI", "PostgreSQL with pgvector", "OpenAI or Azure OpenAI", "Ollama"],
+          "lab_task": "Add a product question-answering endpoint that retrieves product documents from pgvector, answers with citations and returns structured output, with a fallback when the model is unavailable and an evaluation set of 20 questions.",
+          "deliverable": "AI endpoint, evaluation results and cost estimate",
+          "checks": [["Ask a question from the evaluation set", "Answer cites the right document", "API response"], ["Run the evaluation", "Accuracy recorded for all 20 questions", "Evaluation report"], ["Stop the model provider", "Clear fallback response", "API response"]],
+          "objectives": ["Build AI features with Spring AI", "Use retrieval", "Evaluate AI output"]
+        },
+        {
+          "topic": "GraphQL APIs with Spring for GraphQL",
+          "subtopics": ["When GraphQL fits", "Schema-first design", "Query and mutation controllers", "Batch loading to avoid N+1", "Pagination with connections", "Security for GraphQL", "Query complexity limits", "Testing with GraphQlTester"],
+          "tools": ["Spring for GraphQL", "GraphiQL", "GraphQlTester"],
+          "lab_task": "Expose orders, products and customers through GraphQL with batch loading, cursor pagination, field-level security and a complexity limit, and test it with GraphQlTester.",
+          "deliverable": "Schema, controllers and tests",
+          "checks": [["Query 50 orders with customers", "Customers loaded in one batch", "SQL log"], ["Send an over-complex query", "Rejected by the limit", "API response"], ["Request a restricted field as a normal user", "Field access denied", "Test report"]],
+          "objectives": ["Build GraphQL APIs", "Batch-load data", "Secure and limit queries"]
+        },
+        {
+          "topic": "Upgrading and Migrating Spring Boot Versions",
+          "subtopics": ["Release cadence and support periods", "Reading release notes and migration guides", "Jakarta EE namespace change", "Properties migrator", "Automated upgrades with OpenRewrite", "Dependency management with the Boot BOM", "Testing an upgrade", "Planning upgrades across many services"],
+          "tools": ["OpenRewrite", "Spring Boot Properties Migrator", "Maven"],
+          "lab_task": "Upgrade a legacy service from Spring Boot 2.7 to the current version with OpenRewrite and the properties migrator, fix the remaining issues by hand and write an upgrade playbook for other teams.",
+          "deliverable": "Upgraded service, change list and playbook",
+          "checks": [["Run the tests after the upgrade", "All pass", "Test report"], ["Start the application", "No deprecated property warnings", "Startup log"], ["Review the playbook", "Steps, tools and risks listed", "Playbook"]],
+          "objectives": ["Plan upgrades", "Use automated migration", "Help other teams upgrade"]
+        },
+        {
+          "topic": "Troubleshooting Production Spring Boot Issues",
+          "subtopics": ["A method for production incidents", "Thread dumps and deadlocks", "Heap dumps and memory leaks", "Connection pool exhaustion", "Slow queries under load", "Reading logs, metrics and traces together", "Safe diagnostics in production", "Writing post-incident reviews"],
+          "tools": ["jcmd", "Eclipse MAT", "Actuator", "Grafana", "Jaeger"],
+          "lab_task": "Diagnose four injected production problems (a deadlock, a memory leak, pool exhaustion and a slow query) using only production-safe tools, fix each and write a post-incident review for one.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Find the deadlock", "Threads and locks named from the thread dump", "Diagnosis notes"], ["Find the leak", "Leaking object identified in the heap dump", "MAT report"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose production problems", "Use dumps and telemetry", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Production-Ready Spring Boot Platform",
+          "subtopics": ["Architecture decision", "Performance and scale", "Security and supply chain", "Release and operations"],
+          "tools": ["Spring Boot", "Apache Kafka", "PostgreSQL", "Kubernetes", "Prometheus", "Grafana", "Argo Rollouts"],
+          "lab_task": "Take the order platform to production standard: choose and justify the architecture, meet a latency SLO under load, add multi-tenancy, sign images, release with canaries, run a chaos game day and present the result to an architecture review board.",
+          "deliverable": "Architecture decision records, load and chaos results, release evidence and review presentation",
+          "checks": [["Run the load test", "SLO met at the target load", "Load test report"], ["Release a faulty version", "Canary rolls back automatically", "Rollout status"], ["Present to the review board", "Architecture choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run Spring Boot at production standard", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}

@@ -9,8 +9,12 @@ $ErrorActionPreference = 'Stop'
 $servicePath = Join-Path $PSScriptRoot '../services/intelligence-service'
 $profileDirectory = [System.IO.Path]::GetFullPath((Join-Path $servicePath 'linkedin-bot-profile'))
 $previousProfile = $env:LINKEDIN_BOT_PROFILE_PATH
+$previousPythonPath = $env:PYTHONPATH
 Push-Location $servicePath
 try {
+    # The browser client imports shared modules from the microservices root.
+    $sharedRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+    $env:PYTHONPATH = (@($sharedRoot, $previousPythonPath) | Where-Object { $_ }) -join [System.IO.Path]::PathSeparator
     $env:LINKEDIN_BOT_PROFILE_PATH = $profileDirectory
     & $Python -u -m app.linkedin_authenticate --domain $Domain --mode $Mode
     if ($LASTEXITCODE -ne 0) { throw 'Manual search verification did not complete. No session was transferred.' }
@@ -77,5 +81,6 @@ sys.exit(2)
     if ($LASTEXITCODE -ne 0) { throw 'The application search is not ready. Review the error above; this helper will not retry.' }
 } finally {
     $env:LINKEDIN_BOT_PROFILE_PATH = $previousProfile
+    $env:PYTHONPATH = $previousPythonPath
     Pop-Location
 }

@@ -1,0 +1,573 @@
+{
+  "domain": "AppDynamics",
+  "name": "AppDynamics",
+  "category": "Observability and SRE",
+  "icon": "activity",
+  "aliases": ["Cisco AppDynamics", "Application Performance Monitoring", "Splunk AppDynamics", "AppD", "AppDynamics APM", "AppDynamics Administration", "AppDynamics Training", "AppDynamics Controller"],
+  "certifications": ["AppDynamics Certified Performance Analyst"],
+  "tools": ["AppDynamics Controller (SaaS and on-premises)", "Java Agent", ".NET Agent", "Node.js Agent", "Python Agent", "Machine Agent with Server Visibility", "Database Agent", "Browser RUM (adrum.js)", "Mobile RUM SDKs", "Browser Synthetic Monitoring and Private Synthetic Agent", "Events Service and ADQL", "Cluster Agent with Helm", "Enterprise Console", "Controller REST API"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, support engineers, SREs and operations staff who are new to Cisco AppDynamics, now sold and documented as Splunk AppDynamics after Cisco acquired Splunk. Covers the Controller and agent architecture on SaaS and on-premises, the application, tier and node model, installing the Java, .NET, Node.js, Python and Machine Agents, business transaction discovery, flow maps, the Metric Browser, snapshots and call graphs, errors, baselines, health rules, policies and actions, custom dashboards, browser real user monitoring, agent troubleshooting, and a three-tier instrumentation capstone.",
+      "prerequisites": ["Can deploy and run a simple web application written in Java, .NET, Node.js or Python on Linux or Windows", "Understands HTTP requests, response codes, SQL databases and basic latency concepts such as averages and percentiles", "Has a lab Controller (a SaaS trial tenant or an on-premises demo Controller) with an access key and a Linux VM or laptop where agents can be installed"],
+      "outcomes": ["Install and register Java, .NET, Node.js, Python and Machine Agents with correct application, tier and node names", "Read flow maps, business transaction metrics, snapshots and call graphs to locate a slow method or backend", "Create health rules on baselines and wire them to policies that send email and HTTP request actions", "Build a custom dashboard and enable browser real user monitoring for a monitored web application"],
+      "days": [
+        {
+          "topic": "AppDynamics Platform Orientation: Controller, Agents and the Application Model",
+          "subtopics": ["What application performance monitoring answers that logs and host metrics do not", "Cisco AppDynamics and the Splunk AppDynamics positioning after the Cisco acquisition of Splunk", "SaaS Controller tenants (<account>.saas.appdynamics.com) compared with on-premises Controllers", "Controller, Events Service and EUM Server as the three back-end components", "App Server Agents, Machine Agents, Database Agents and Cluster Agents", "The model: business application, tier, node and business transaction", "Account name, access key and how agents authenticate to the Controller", "Ports used by agents: 443 for SaaS, 8090 and 8181 by default on-premises", "Licence units and what an agent consumes", "Documentation, the Splunk AppDynamics help portal and community resources"],
+          "tools": ["AppDynamics Controller", "Web browser", "Splunk AppDynamics documentation"],
+          "lab_task": "Log in to the lab Controller, open Settings > License to record the account name and licence types, copy the access key from the License page, list the applications on the Applications page, then call curl -u '<user>@<account>:<password>' 'https://<host>/controller/rest/applications?output=JSON' and confirm the JSON array length matches the application count shown in the UI.",
+          "deliverable": "Platform worksheet listing Controller URL, account name, licence types, applications and a component diagram",
+          "checks": [["Call /controller/rest/applications?output=JSON with valid credentials", "HTTP 200 and a JSON array whose length equals the number of applications in the UI", "curl output and Applications page screenshot"], ["Call the same endpoint with a wrong password", "HTTP 401 Unauthorized is returned", "curl -i output"], ["Locate the Controller version", "The version appears under the help (?) menu About dialog and matches the value in the worksheet", "About dialog screenshot"]],
+          "objectives": ["Describe the Controller, Events Service, EUM Server and agent roles", "Explain the business application, tier, node and business transaction model", "Authenticate to the Controller UI and REST API"]
+        },
+        {
+          "topic": "Controller UI Navigation and the Application Dashboard",
+          "subtopics": ["Applications list, health indicators and the time range picker", "Application Dashboard: flow map, load, response time and errors panels", "Business Transactions list with calls per minute and average response time", "Tiers & Nodes view and node dashboards", "Troubleshoot menu: slow response times, errors and health rule violations", "Events list and event filters", "Infrastructure, Databases, User Experience and Analytics tabs", "Saving views and sharing deep links with a fixed time range"],
+          "tools": ["AppDynamics Controller", "Application Dashboard", "Events list"],
+          "lab_task": "Using a demo application with traffic, open its Application Dashboard, set the time range to the last 1 hour, record calls per minute, average response time and errors per minute from the summary panels, sort the Business Transactions list by response time, open the slowest transaction and copy a deep link with a fixed time range that a colleague can open to see the same chart.",
+          "deliverable": "Navigation guide with screenshots of each tab and a table of the five slowest business transactions",
+          "checks": [["Change the time range from last 15 minutes to last 1 day", "Calls per minute on the dashboard changes and the chart x-axis spans 24 hours", "Two dashboard screenshots"], ["Open the shared deep link in a private browser window after login", "The same transaction and time range are shown", "Screenshot with the URL visible"], ["Sort Business Transactions by average response time", "The first row has the highest average response time in the list", "Business Transactions list screenshot"]],
+          "objectives": ["Navigate the main Controller areas", "Read load, response time and error summaries", "Share a reproducible view of a problem"]
+        },
+        {
+          "topic": "Installing the Java Agent with -javaagent and controller-info.xml",
+          "subtopics": ["Downloading the Java Agent from the Controller or the download portal", "Agent directory layout: javaagent.jar, ver<version> folder, conf and logs", "controller-info.xml keys: controller-host-name, controller-port, controller-ssl-enabled", "account-name, account-access-key, application-name, tier-name and node-name", "Equivalent -Dappdynamics.* system properties and APPDYNAMICS_* environment variables", "Adding -javaagent to Tomcat setenv.sh, Spring Boot java -jar and JAVA_TOOL_OPTIONS", "File permissions: the JVM user must write to the logs directory", "Confirming registration on the Tiers & Nodes page"],
+          "tools": ["Java Agent", "Apache Tomcat", "Spring Boot", "AppDynamics Controller"],
+          "lab_task": "Unzip the Java Agent to /opt/appdynamics/javaagent, set controller-host-name, controller-port 443, controller-ssl-enabled true, account-name and account-access-key in conf/controller-info.xml, start a Spring Boot app with java -javaagent:/opt/appdynamics/javaagent/javaagent.jar -Dappdynamics.agent.applicationName=shop-lab -Dappdynamics.agent.tierName=web -Dappdynamics.agent.nodeName=web-1 -jar app.jar, and confirm node web-1 appears within 5 minutes.",
+          "deliverable": "Java Agent install note with the edited controller-info.xml (access key redacted) and the startup command",
+          "checks": [["Start the JVM and grep the agent log for 'Started AppDynamics Java Agent Successfully'", "The line appears once in the agent log for node web-1", "Agent log excerpt"], ["Open Tiers & Nodes for shop-lab", "Tier web contains node web-1 with a reporting status", "Tiers & Nodes screenshot"], ["Set an invalid account-access-key and restart", "The node does not register and the agent log shows an authentication failure from the Controller", "Agent log excerpt"]],
+          "objectives": ["Install and configure the Java Agent", "Choose between controller-info.xml, system properties and environment variables", "Verify agent registration"]
+        },
+        {
+          "topic": "Applications, Tiers and Nodes Naming Strategy",
+          "subtopics": ["Business application as a group of tiers that call each other", "Tier as a group of identical nodes running the same code", "Node as one JVM, CLR, Node.js or Python process", "Naming conventions by environment, service and instance", "Unique host ID and reuse of node names in containers", "Node name reuse with -Dappdynamics.agent.reuse.nodeName and a prefix", "Historical node cleanup and the node retention period", "Moving a tier between applications and its effect on history"],
+          "tools": ["AppDynamics Controller", "Java Agent", "Tiers & Nodes view"],
+          "lab_task": "Run three JVMs of the same service with -Dappdynamics.agent.reuse.nodeName=true and -Dappdynamics.agent.reuse.nodeName.prefix=orders, plus one JVM of a second service, all in application shop-lab. Record the generated node names, restart one JVM and confirm the node count in tier orders stays at 3 rather than growing, then write a naming standard for dev, test and prod.",
+          "deliverable": "Naming standard document with application, tier and node patterns and examples for three environments",
+          "checks": [["Start three orders JVMs with node name reuse enabled", "Tier orders shows exactly 3 nodes whose names start with orders", "Tiers & Nodes screenshot"], ["Restart one orders JVM", "The node count in tier orders remains 3", "Tiers & Nodes screenshot after restart"], ["Start a JVM with tier-name payments", "A new tier payments appears in the flow map once it calls or is called by orders", "Flow map screenshot"]],
+          "objectives": ["Design application, tier and node names", "Handle node naming for short-lived processes", "Explain the effect of names on metrics and history"]
+        },
+        {
+          "topic": "Business Transaction Discovery and Entry Points",
+          "subtopics": ["What a business transaction is and why it is the main unit of monitoring", "Automatic entry point detection for Servlet, Spring, Struts, web services and message listeners", "Default servlet naming by the first two URI segments", "Transaction Detection page under Configuration > Instrumentation", "Business transaction registration limits per application and per tier", "All Other Traffic and why transactions land there", "Renaming, excluding and grouping transactions", "Live preview of discovered transactions"],
+          "tools": ["AppDynamics Controller", "Java Agent", "curl"],
+          "lab_task": "Drive 10 different URIs against the shop-lab web tier with a curl loop for 10 minutes, list the transactions that appear on the Business Transactions page, identify which URIs merged into one transaction under default naming, rename two transactions to business-meaningful names and exclude the /health endpoint so that its calls stop appearing as a transaction.",
+          "deliverable": "Business transaction inventory mapping URIs to transaction names, with the renames and the exclusion recorded",
+          "checks": [["Call /api/orders/123 and /api/orders/456", "Both requests are counted in one business transaction named for /api/orders", "Business Transactions list"], ["Exclude /health and send 100 health requests", "No new business transaction for /health appears and its call count stops increasing", "Business Transactions list after 10 minutes"], ["Rename a business transaction to Checkout", "The list shows Checkout and historical metrics remain attached to it", "Transaction dashboard screenshot"]],
+          "objectives": ["Explain how entry points become business transactions", "Rename and exclude business transactions", "Recognise when traffic falls into All Other Traffic"]
+        },
+        {
+          "topic": "Flow Maps, Backends and Remote Services",
+          "subtopics": ["Flow map nodes: tiers, databases, remote services and queues", "Exit calls and how backends are auto-detected", "Database backends identified by host, port and database name", "HTTP backends and when they resolve to a downstream tier", "Calls per minute and average time on flow map links", "Message queue backends for JMS, Kafka and RabbitMQ", "Backend detection rules and naming properties", "Remote Services dashboard and backend metrics"],
+          "tools": ["AppDynamics Controller", "Flow map", "Java Agent", "MySQL"],
+          "lab_task": "Instrument web and orders tiers where web calls orders over HTTP and orders calls MySQL and an external payment API. Open the application flow map, record calls per minute and average time on each link, then edit HTTP backend detection to name the payment backend by host only and confirm the flow map shows one payment backend rather than one per URL.",
+          "deliverable": "Annotated flow map with link metrics and the backend detection rule change",
+          "checks": [["Drive traffic through web to orders", "The flow map draws a link from web to orders labelled with calls per minute and milliseconds", "Flow map screenshot"], ["Run orders queries against MySQL", "A database backend icon with the MySQL host and port appears linked to orders", "Flow map screenshot"], ["Change HTTP backend naming to host only", "Several payment URL backends collapse into one backend named after the host", "Remote Services list before and after"]],
+          "objectives": ["Read the application flow map", "Explain exit calls and backend detection", "Adjust backend naming"]
+        },
+        {
+          "topic": "Metric Browser and AppDynamics Metric Paths",
+          "subtopics": ["Metric tree: Overall Application Performance, Business Transaction Performance, Backends, Application Infrastructure Performance", "Metric paths separated by the pipe character", "Calls per Minute, Average Response Time (ms) and Errors per Minute", "Metric resolution and rollup to coarser data over time", "Value, min, max, sum and count in a metric data point", "Comparing metrics on one chart", "Copying a full metric path for health rules and the REST API", "Querying metric-data with time-range-type BEFORE_NOW and duration-in-mins"],
+          "tools": ["AppDynamics Controller", "Metric Browser", "curl", "jq"],
+          "lab_task": "In the Metric Browser, plot Business Transaction Performance|Business Transactions|web|Checkout|Average Response Time (ms) for the last hour, copy the metric path, then call /controller/rest/applications/shop-lab/metric-data with metric-path set to that path, time-range-type=BEFORE_NOW, duration-in-mins=60, rollup=true and output=JSON, and confirm the returned value matches the Metric Browser average within 5 ms.",
+          "deliverable": "Metric path cheat sheet and a REST query script that prints the Checkout average response time",
+          "checks": [["Run the metric-data query with rollup=true", "A single metricValues entry is returned with value, min, max and count", "jq output"], ["Run the same query with rollup=false", "Multiple metricValues entries are returned, one per data point", "jq length output"], ["Query a misspelled metric path", "The response contains no metric values or a METRIC DATA NOT FOUND entry", "curl output"]],
+          "objectives": ["Navigate the metric tree", "Build valid metric paths", "Retrieve metric data through the REST API"]
+        },
+        {
+          "topic": "Transaction Snapshots and Call Graph Reading",
+          "subtopics": ["Transaction snapshots: periodic, slow, very slow, stall and error snapshots", "Slow and very slow thresholds based on standard deviations from the baseline", "Full, partial and no call graph snapshots", "Call graph tree: method timings, self time and exit calls", "Hot spots and the potential issues panel", "SQL exit calls with query text and duration", "Cross-tier correlation: one snapshot across downstream tiers", "Snapshot retention and archiving a snapshot"],
+          "tools": ["AppDynamics Controller", "Transaction snapshots", "Java Agent"],
+          "lab_task": "Add Thread.sleep(2000) inside one method in the Checkout path and an N+1 query loop in orders, generate traffic for 15 minutes, open a slow snapshot for Checkout, drill into the call graph to find the method with the largest self time and the repeated SQL exit calls, then archive the snapshot so it outlives the retention period.",
+          "deliverable": "Snapshot analysis note naming the slow method, its self time and the repeated SQL statement with call count",
+          "checks": [["Open a slow Checkout snapshot", "The call graph shows the method with the 2000 ms sleep as the largest self-time entry", "Call graph screenshot"], ["Inspect exit calls in the orders segment", "The same SELECT statement appears many times with a call count above 10", "Exit calls panel screenshot"], ["Archive the snapshot", "The snapshot shows as archived in the snapshot list", "Snapshot list with archive marker"]],
+          "objectives": ["Distinguish snapshot types and thresholds", "Read a call graph to find slow code", "Trace a request across tiers"]
+        },
+        {
+          "topic": "Error Detection and Exception Handling in AppDynamics",
+          "subtopics": ["Errors per Minute and how a business transaction becomes an error transaction", "Logged errors from Log4j, Logback and java.util.logging", "Uncaught exceptions and HTTP error codes", "Error detection configuration under Instrumentation", "Ignoring exceptions and logger messages that are expected", "Errors tab and the exception stack trace view", "Error snapshots and their call graphs", "Error rate compared with error count when setting alerts"],
+          "tools": ["AppDynamics Controller", "Java Agent", "Logback"],
+          "lab_task": "Make the orders tier throw IllegalStateException on 5% of requests and log a WARN message on 20%, generate traffic for 10 minutes, record Errors per Minute and the top exceptions from the Errors tab, then add an ignore rule for a known benign exception type and confirm its count stops increasing while IllegalStateException continues to be reported.",
+          "deliverable": "Error triage report with top exceptions, their counts and the ignore rule configuration",
+          "checks": [["Throw IllegalStateException on 5% of requests", "IllegalStateException appears in the Errors tab with a count near 5% of calls", "Errors tab screenshot"], ["Add an ignore rule for the benign exception", "The ignored exception count stops increasing after the change", "Errors tab before and after"], ["Open an error snapshot", "The stack trace shows the class and line number where the exception was thrown", "Error snapshot screenshot"]],
+          "objectives": ["Explain how AppDynamics detects errors", "Tune error detection to remove noise", "Use error snapshots for diagnosis"]
+        },
+        {
+          "topic": "Machine Agent and Server Visibility Setup",
+          "subtopics": ["Machine Agent role: host metrics, extensions and Server Visibility", "Standalone Machine Agent packages: zip, RPM, DEB and Windows MSI", "conf/controller-info.xml keys shared with the app agent", "sim-enabled true and -Dappdynamics.sim.enabled=true for Server Visibility", "Linking a Machine Agent to app nodes on the same host", "Servers list, server dashboards and process lists", "Volumes, network and CPU metrics under Hardware Resources", "Service availability monitoring for HTTP endpoints", "Running the Machine Agent as a systemd service", "Machine Agent logs in logs/machine-agent.log"],
+          "tools": ["Machine Agent", "systemd", "AppDynamics Controller"],
+          "lab_task": "Install the Machine Agent on the Linux host running web-1, set controller settings and sim-enabled true in controller-info.xml, start it with systemctl start appdynamics-machine-agent, then open Servers in the Infrastructure tab, check CPU, memory and disk metrics, and add a service availability monitor for http://localhost:8080/health that reports response code 200.",
+          "deliverable": "Machine Agent install record with systemctl status output and a server dashboard screenshot",
+          "checks": [["Run systemctl status appdynamics-machine-agent", "The service is active (running)", "systemctl output"], ["Open Servers in the Infrastructure tab", "The host appears with CPU, memory and disk metrics from the last 5 minutes", "Server dashboard screenshot"], ["Stop the app on port 8080", "The service availability monitor reports a failed check", "Service availability screenshot"]],
+          "objectives": ["Install and run the Machine Agent", "Enable Server Visibility", "Correlate host metrics with application nodes"]
+        },
+        {
+          "topic": ".NET Agent on Windows IIS",
+          "subtopics": [".NET Agent installer (MSI) and the Agent Configuration utility", "AppDynamics.Agent.Coordinator_service and its role", "config.xml under %ProgramData%\\AppDynamics\\DotNetAgent\\Config", "Automatic IIS application pool instrumentation and tier naming", "Instrumenting Windows services and standalone executables", ".NET (Core) on Linux with environment variables and the profiler", "Restarting IIS with iisreset after configuration changes", "Agent logs under %ProgramData%\\AppDynamics\\DotNetAgent\\Logs"],
+          "tools": [".NET Agent", "IIS", "PowerShell", "AppDynamics Controller"],
+          "lab_task": "Install the .NET Agent MSI on a Windows Server lab VM, run the Agent Configuration utility to set the Controller, account and application shop-lab-net, assign the DefaultAppPool site to tier net-web, run iisreset, browse the site 50 times, then confirm a node under net-web reports calls per minute and check that the coordinator service is running with Get-Service AppDynamics.Agent.Coordinator_service.",
+          "deliverable": ".NET install record with the generated config.xml (key redacted), service status and a node dashboard screenshot",
+          "checks": [["Run Get-Service AppDynamics.Agent.Coordinator_service", "Status is Running", "PowerShell output"], ["Browse the IIS site 50 times", "Tier net-web shows a node with calls per minute above 0", "Node dashboard screenshot"], ["Stop the coordinator service and recycle the app pool", "New requests are not reported and the node becomes unavailable after a few minutes", "Tiers & Nodes screenshot"]],
+          "objectives": ["Install the .NET Agent", "Map IIS application pools to tiers", "Troubleshoot .NET agent registration"]
+        },
+        {
+          "topic": "Node.js Agent with require(\"appdynamics\").profile",
+          "subtopics": ["Installing the appdynamics npm package and supported Node.js versions", "Calling require(\"appdynamics\").profile() before any other require", "profile options: controllerHostName, controllerPort, controllerSslEnabled", "accountName, accountAccessKey, applicationName, tierName and nodeName", "Express route detection as business transactions", "Exit calls for HTTP, MongoDB, Redis and PostgreSQL clients", "Process snapshots and the Node.js event loop metrics", "Running in containers and with PM2 cluster mode"],
+          "tools": ["Node.js Agent", "npm", "Express", "AppDynamics Controller"],
+          "lab_task": "Run npm install appdynamics in an Express service, add require(\"appdynamics\").profile({...}) as the first line of server.js with applicationName shop-lab, tierName catalog and nodeName catalog-1, read the access key from process.env, start the service, send 200 requests across three routes with a curl loop and confirm three business transactions and a Redis exit call appear.",
+          "deliverable": "Instrumented server.js (key read from environment) and a Business Transactions list for tier catalog",
+          "checks": [["Start the service and send 200 requests", "Tier catalog shows node catalog-1 reporting calls per minute", "Tiers & Nodes screenshot"], ["Move the profile call below require(\"express\") and restart", "Express routes are no longer detected as business transactions", "Business Transactions list"], ["Call a route that reads from Redis", "A Redis backend linked to catalog appears in the flow map", "Flow map screenshot"]],
+          "objectives": ["Install the Node.js Agent", "Explain why the profile call must load first", "Verify Node.js transactions and exit calls"]
+        },
+        {
+          "topic": "Python Agent with pyagent run",
+          "subtopics": ["pip install appdynamics and matching the agent to the Python version", "pyagent run -c appdynamics.cfg -- <command> to wrap the process", "appdynamics.cfg sections: [agent] app, tier, node and [controller] host, port, ssl, account, accesskey", "APPD_* environment variables as an alternative to the config file", "Django, Flask and WSGI entry point detection", "Running under Gunicorn and uWSGI workers", "The proxy process and its logs", "Exit calls for requests, psycopg2 and redis-py"],
+          "tools": ["Python Agent", "pip", "Flask", "Gunicorn"],
+          "lab_task": "pip install appdynamics in a Flask virtual environment, write appdynamics.cfg with app shop-lab, tier recs and node recs-1, start the app with pyagent run -c appdynamics.cfg -- gunicorn -w 2 -b 0.0.0.0:5000 app:app, send 100 requests with curl, then confirm tier recs reports calls and a PostgreSQL exit call appears when the /recommend route queries the database.",
+          "deliverable": "appdynamics.cfg (key redacted), the start command and a tier dashboard screenshot",
+          "checks": [["Start Gunicorn through pyagent run", "Tier recs shows node recs-1 within 5 minutes", "Tiers & Nodes screenshot"], ["Send 100 requests to /recommend", "The /recommend business transaction shows about 100 calls in the last 15 minutes", "Business Transactions list"], ["Start Gunicorn without pyagent run", "No new calls are reported for recs-1", "Tier dashboard after 10 minutes"]],
+          "objectives": ["Install and run the Python Agent", "Configure the agent with appdynamics.cfg", "Verify Python transactions and backends"]
+        },
+        {
+          "topic": "AppDynamics Baselines and Dynamic Thresholds",
+          "subtopics": ["What a baseline is: the expected value for a metric at a given time", "Default baseline: daily trend over the last 30 days", "Fixed time range, rolling time period and trend baselines", "Daily, weekly and monthly trend patterns", "Standard deviation and how slow and very slow are derived", "Baseline shown as a band in metric charts", "Creating and setting a default baseline under Configuration > Baselines", "Why a new application needs time before baselines are reliable"],
+          "tools": ["AppDynamics Controller", "Baselines configuration", "Metric Browser"],
+          "lab_task": "Open Configuration > Baselines for shop-lab and record the default baseline, then create a weekly trend baseline over the last 30 days named weekly-30d. In the Metric Browser, show the baseline for Checkout Average Response Time (ms) and compare the actual value with the baseline band at peak and off-peak hours from a 7-day traffic replay.",
+          "deliverable": "Baseline comparison note with chart screenshots of actual versus baseline at peak and off-peak hours",
+          "checks": [["Open Configuration > Baselines", "One baseline is marked as the default and its type and period are listed", "Baselines page screenshot"], ["Create the weekly-30d baseline", "weekly-30d is listed with weekly trend and a 30-day period", "Baselines page screenshot"], ["Inject a 3x latency increase at off-peak hours", "The actual line moves above the baseline band in the chart", "Metric Browser screenshot"]],
+          "objectives": ["Explain baseline types", "Configure a baseline for an application", "Compare live metrics with the baseline"]
+        },
+        {
+          "topic": "Writing a First Health Rule",
+          "subtopics": ["Health rule types: business transaction performance, node health, servers and custom", "Affected entities: all business transactions, specific ones or matching a pattern", "Critical and warning criteria with conditions on metric values", "Baseline conditions: greater than N standard deviations above the baseline", "Absolute value conditions and minimum load guards using Calls per Minute", "Evaluation window and the number of minutes the condition must hold", "Health rule violation events: started, upgraded, continues and ended", "Default health rules created with each application"],
+          "tools": ["AppDynamics Controller", "Health rules", "curl"],
+          "lab_task": "Create a health rule Checkout-latency for business transaction Checkout: critical when Average Response Time is more than 3 standard deviations above the baseline and Calls per Minute is above 10, warning at 2 standard deviations, evaluated over the last 5 minutes. Inject a 2 second delay and confirm a critical violation event opens within 10 minutes and ends after the delay is removed.",
+          "deliverable": "Health rule definition screenshots and the violation timeline from the Events list",
+          "checks": [["Inject a 2 second delay into Checkout", "A Health Rule Violation Started - Critical event for Checkout-latency appears within 10 minutes", "Events list screenshot"], ["Remove the delay", "A Health Rule Violation Ended event appears for Checkout-latency", "Events list screenshot"], ["Reduce traffic to 2 calls per minute with the delay present", "No violation opens because the Calls per Minute guard is not met", "Events list for the period"]],
+          "objectives": ["Create health rules with baseline and absolute conditions", "Guard health rules against low-traffic noise", "Read health rule violation events"]
+        },
+        {
+          "topic": "Policies, Email Actions and HTTP Request Templates",
+          "subtopics": ["Policies connect events such as health rule violations to actions", "Policy triggers: health rule violation events and other event types", "Policy scope by health rule, object and entity", "Email actions and email digests", "Email server (SMTP) settings for on-premises Controllers", "HTTP request templates: method, URL, headers and payload with variables such as ${latestEvent.summaryMessage}", "HTTP request actions to chat tools and incident systems", "Testing actions and reading action execution events"],
+          "tools": ["AppDynamics Controller", "HTTP request templates", "Webhook test endpoint"],
+          "lab_task": "Create an HTTP request template that POSTs JSON containing ${latestEvent.displayName} and ${latestEvent.summaryMessage} to a lab webhook receiver, create an HTTP request action from it and an email action, then build a policy that runs both when Checkout-latency starts a critical violation. Trigger the violation and confirm one webhook POST and one email arrive.",
+          "deliverable": "Policy configuration, the HTTP request template body and the received webhook payload",
+          "checks": [["Run the template test from the HTTP request template page", "The webhook receiver logs a POST with HTTP 200 returned", "Receiver log"], ["Trigger a critical Checkout-latency violation", "Exactly one webhook POST containing the event display name arrives", "Receiver log"], ["Trigger only a warning violation", "No action runs because the policy filters on critical", "Receiver log and Events list"]],
+          "objectives": ["Build policies that run actions", "Create HTTP request templates with event variables", "Test and verify alert delivery"]
+        },
+        {
+          "topic": "Custom Dashboards in the AppDynamics Controller",
+          "subtopics": ["Custom dashboards compared with application and tier dashboards", "Absolute and grid layouts", "Widgets: timeseries graph, metric value, health status, pie chart and text", "Selecting metrics with metric expressions", "Global time range compared with per-widget time range", "Sharing dashboards and permissions", "Exporting a dashboard as JSON", "Designing a service overview for on-call engineers"],
+          "tools": ["AppDynamics Controller", "Custom dashboards"],
+          "lab_task": "Build a custom dashboard Shop-Overview with a health status widget for Checkout-latency, timeseries graphs for Checkout calls per minute and average response time, a metric value widget for Errors per Minute, and a server CPU graph for web-1. Export it as JSON from the dashboard list, delete it and import it again to confirm the export is complete.",
+          "deliverable": "Shop-Overview dashboard screenshot and its exported JSON file",
+          "checks": [["Trigger the Checkout-latency violation", "The health status widget turns red", "Dashboard screenshot"], ["Export the dashboard", "A JSON file containing the dashboard name Shop-Overview and its widgets is downloaded", "Exported JSON excerpt"], ["Import the exported JSON after deleting the dashboard", "Shop-Overview reappears with the same widget count", "Dashboard list and dashboard screenshot"]],
+          "objectives": ["Design a custom dashboard", "Choose widgets and metrics for an audience", "Export and import dashboards"]
+        },
+        {
+          "topic": "Browser Real User Monitoring with adrum.js",
+          "subtopics": ["Browser RUM concepts: page loads, Ajax requests, virtual pages and iframes", "Creating a browser application and its EUM app key", "The JavaScript agent snippet with window['adrum-config'] and appKey", "adrumExtUrlHttps and beaconUrlHttps for SaaS or an on-premises EUM Server", "Single-page application monitoring and virtual page naming", "Page timings: first byte, DOM ready, page render and end user response time", "Browser sessions and geographic and browser breakdowns", "Correlating browser requests with server-side business transactions"],
+          "tools": ["Browser RUM", "adrum.js", "AppDynamics Controller", "Browser developer tools"],
+          "lab_task": "Create a browser application in User Experience, copy its app key, add the adrum-config snippet and adrum.js loader to the head of the shop front end, load 30 pages and run 20 Ajax calls from two browsers, then confirm page and Ajax metrics appear in the browser application within 10 minutes and that a page snapshot links to the Checkout server snapshot.",
+          "deliverable": "Browser app configuration, the inserted snippet and screenshots of page and Ajax metrics",
+          "checks": [["Load a page with the browser network panel open", "A beacon request to the EUM collector returns HTTP 200 or 204", "Network panel screenshot"], ["Load 30 pages from two browsers", "The Pages list shows page views and a browser breakdown with two browser types", "Browser app screenshot"], ["Remove the appKey from adrum-config", "No new page views are recorded", "Pages list after 10 minutes"]],
+          "objectives": ["Enable browser RUM", "Read page and Ajax performance data", "Correlate browser and server timings"]
+        },
+        {
+          "topic": "Agent Logs and Common AppDynamics Agent Registration Errors",
+          "subtopics": ["Where Java, .NET, Node.js, Python and Machine Agent logs are written", "Increasing log detail with log4j2 configuration in the Java Agent", "Controller connection errors: wrong host, port or SSL setting", "Authentication failures from wrong account name or access key", "Licence exhaustion and nodes that register but do not report", "Proxy settings: -Dappdynamics.http.proxyHost and -Dappdynamics.http.proxyPort", "Certificate trust for on-premises Controllers with private CAs", "App Server Agent Availability metric and node status"],
+          "tools": ["Java Agent", "Machine Agent", "openssl", "curl"],
+          "lab_task": "Reproduce four faults on the Java Agent one at a time: wrong controller-port, controller-ssl-enabled false against an HTTPS Controller, wrong account-access-key and a blocked network path without a proxy. For each, capture the agent log message, the Controller symptom and the fix, then verify Controller reachability with openssl s_client -connect <host>:443.",
+          "deliverable": "Agent troubleshooting runbook with four fault entries giving log message, symptom and fix",
+          "checks": [["Set a wrong controller-port and restart", "The agent log shows connection refused or timeout errors to the Controller", "Agent log excerpt"], ["Run openssl s_client -connect <controller-host>:443", "The certificate chain prints and verification returns code 0 (ok)", "openssl output"], ["Restore the correct settings", "The node reports again and App Server Agent Availability returns to 100", "Metric Browser screenshot"]],
+          "objectives": ["Locate agent logs for each agent type", "Diagnose registration failures from log messages", "Verify network and certificate paths to the Controller"]
+        },
+        {
+          "topic": "Beginner Capstone: Instrumenting a Three-Tier Application in AppDynamics",
+          "subtopics": ["Instrumenting web, orders and recs tiers with Java, Node.js and Python agents", "Machine Agent with Server Visibility on each host", "Business transaction naming and exclusions for the shop", "Health rules on Checkout latency and error rate with an email and webhook policy", "Custom dashboard and browser RUM for the front end", "Fault injection demonstration and written findings"],
+          "tools": ["Java Agent", "Node.js Agent", "Python Agent", "Machine Agent", "Browser RUM", "AppDynamics Controller"],
+          "lab_task": "Instrument a three-tier shop (Java web, Node.js catalog, Python recs, MySQL) in application shop-capstone with Machine Agents on every host and browser RUM on the front end. Name five key business transactions, add latency and error health rules with a webhook policy, build an overview dashboard, then inject a slow SQL query and show the alert, flow map and call graph that identify it.",
+          "deliverable": "Capstone pack: naming standard, configuration exports, dashboard, alert evidence and a one-page diagnosis",
+          "checks": [["Open the shop-capstone flow map", "Three tiers, MySQL and the external payment backend appear linked", "Flow map screenshot"], ["Inject the slow SQL query", "A critical Checkout health rule violation opens and the webhook receiver logs one POST", "Events list and receiver log"], ["Open a slow Checkout snapshot", "The call graph points to the slow SQL statement as the largest time contributor", "Call graph screenshot"]],
+          "objectives": ["Instrument a multi-language application end to end", "Configure alerting and dashboards", "Diagnose an injected fault with AppDynamics evidence"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already run AppDynamics agents and read flow maps, snapshots and health rules, and now need to tune and extend a deployment. Covers custom match rules and business transaction limits, data collectors, information points and custom metrics, Machine Agent extensions, Database Visibility, diagnostic sessions and slow thresholds, advanced health rule scope and schedules, actions suppression, the Controller REST API with API Clients, Transaction and Log Analytics with ADQL, Dash Studio, mobile RUM, browser synthetic jobs with Private Synthetic Agents, Kubernetes monitoring with the Cluster Agent and auto-instrumentation, and role-based access control, ending with an alerting and analytics capstone.",
+      "prerequisites": ["Completed the beginner level or has installed and registered AppDynamics app agents and Machine Agents in a lab", "Can create health rules, policies and custom dashboards and read snapshots and call graphs", "Has kubectl and Helm access to a lab Kubernetes cluster and can run curl and jq against a REST API"],
+      "outcomes": ["Shape business transactions and collect business data with custom match rules, data collectors and information points", "Monitor databases, Kubernetes clusters, mobile apps and synthetic user journeys in the same Controller", "Query Transaction and Log Analytics with ADQL and present results in Dash Studio", "Automate Controller tasks with API Clients and the REST API under least-privilege roles"],
+      "days": [
+        {
+          "topic": "Custom Match Rules and Business Transaction Limits",
+          "subtopics": ["Why default naming produces too many or too few business transactions", "Custom match rules on URI, HTTP method, headers, parameters and class or method", "Rule priority and how the first matching rule wins", "Splitting a transaction by a request parameter or payload value", "POJO and Spring Bean entry points for background jobs", "Business transaction registration limits and what happens at the limit", "Business transaction lockdown to stop new registrations", "Cleaning up stale transactions without losing important history"],
+          "tools": ["AppDynamics Controller", "Java Agent", "curl"],
+          "lab_task": "Create a custom match rule for POST /api/checkout split by the paymentMethod request parameter so card and paypal become separate transactions, add a POJO entry point for the nightly InvoiceJob.run method, enable business transaction lockdown on the web tier and confirm that a new URI pattern goes to All Other Traffic instead of registering a new transaction.",
+          "deliverable": "Business transaction design document with rule priorities, the split rule and lockdown evidence",
+          "checks": [["Send checkout requests with paymentMethod=card and paymentMethod=paypal", "Two business transactions, one for each payment method, show separate call counts", "Business Transactions list"], ["Run InvoiceJob.run once", "A POJO business transaction for InvoiceJob appears with one call", "Business Transactions list"], ["Call a new URI after lockdown", "The call is counted in All Other Traffic for the web tier", "All Other Traffic screenshot"]],
+          "objectives": ["Write custom match rules with correct priority", "Instrument background jobs as business transactions", "Control business transaction growth"]
+        },
+        {
+          "topic": "Data Collectors: HTTP Request and Method Invocation",
+          "subtopics": ["Data collector types: HTTP request data collectors and method invocation data collectors", "Collecting parameters, headers, cookies and session keys", "Getter chains on method arguments and return values", "Applying collectors to selected business transactions", "Showing collected data in snapshots compared with sending it to Transaction Analytics", "Avoiding collection of personal and payment data", "Agent restart requirements when adding method invocation collectors", "Searching snapshots by data collector values"],
+          "tools": ["AppDynamics Controller", "Java Agent", "Transaction snapshots"],
+          "lab_task": "Create an HTTP request data collector that captures the X-Customer-Tier header and a method invocation data collector on OrderService.placeOrder(Order) that reads getTotal() and getItems().size() with getter chains, apply both to Checkout, restart the agent if prompted, then generate orders and confirm the values appear in snapshot user data and can be used to filter snapshots.",
+          "deliverable": "Data collector configuration and a snapshot screenshot showing the three collected values",
+          "checks": [["Open a Checkout snapshot after placing an order", "User data shows X-Customer-Tier, the order total and the item count", "Snapshot data panel"], ["Filter snapshots by X-Customer-Tier=gold", "Only snapshots for gold customers are listed", "Snapshot search screenshot"], ["Use a getter chain with a misspelled method name", "The value is not collected and the agent log reports the getter chain failure", "Agent log excerpt"]],
+          "objectives": ["Configure HTTP and method invocation data collectors", "Write getter chains", "Keep sensitive data out of collected values"]
+        },
+        {
+          "topic": "Information Points and Custom Metrics from Code",
+          "subtopics": ["Information points: tracking a method outside business transactions", "Calls, average response time and errors for an information point", "Custom metrics on information points from method arguments or return values", "Metric aggregation: sum, average and observation", "Information point metrics in the Metric Browser under Information Points", "Using information point metrics in health rules", "Business metrics such as revenue per minute", "Overhead and choosing which methods to measure"],
+          "tools": ["AppDynamics Controller", "Java Agent", "Metric Browser"],
+          "lab_task": "Create an information point on PaymentGateway.charge(Payment) with a custom metric that sums getAmount() as revenue, generate 200 charges with known amounts, then confirm in the Metric Browser that calls equal 200 and the revenue sum matches the test data, and build a health rule that warns when revenue per minute drops to 0 for 10 minutes while Checkout calls stay above 5.",
+          "deliverable": "Information point definition, Metric Browser screenshots and the revenue health rule",
+          "checks": [["Run 200 charges totalling a known amount", "The information point shows 200 calls and the revenue metric sum equals the known total", "Metric Browser screenshot and test data"], ["Stop calling PaymentGateway.charge while Checkout traffic continues", "The revenue health rule opens a warning violation after 10 minutes", "Events list"], ["Open Information Points in the Metric Browser", "The PaymentGateway information point lists Calls per Minute and Average Response Time", "Metric tree screenshot"]],
+          "objectives": ["Create information points", "Derive business metrics from code", "Alert on business metrics"]
+        },
+        {
+          "topic": "Machine Agent Extensions and the HTTP Metric Listener",
+          "subtopics": ["Extension structure: monitors/<name>/monitor.xml and a script or JAR", "Script output format: name=Custom Metrics|<path>,value=<n>", "Metric prefixes and tier-specific paths for custom metrics", "Aggregator, time rollup and cluster rollup types", "Starting the HTTP listener with -Dmetric.http.listener=true and -Dmetric.http.listener.port", "POST /api/v1/metrics with a JSON array of metricName, aggregatorType and value", "Community extensions and the Machine Agent metric limit", "Debugging extensions with the machine-agent.log"],
+          "tools": ["Machine Agent", "Bash", "curl", "Metric Browser"],
+          "lab_task": "Write a Bash extension under monitors/QueueDepth with a monitor.xml that runs every 60 seconds and prints name=Custom Metrics|Shop|Queue Depth,value=<n> from a local file, then start the Machine Agent HTTP listener on port 8293 and POST a JSON metric for Custom Metrics|Shop|Orders Pending. Confirm both metrics appear in the Metric Browser under the host within 5 minutes.",
+          "deliverable": "Extension folder with monitor.xml and script, the curl command and Metric Browser screenshots",
+          "checks": [["Run the extension script by hand", "It prints exactly one line in the name=...,value=... format", "Terminal output"], ["POST to http://localhost:8293/api/v1/metrics", "The listener returns HTTP 204 and the metric appears in the Metric Browser", "curl -i output and Metric Browser screenshot"], ["Print a non-numeric value from the script", "The metric is not updated and machine-agent.log reports a parsing problem", "Log excerpt"]],
+          "objectives": ["Build a Machine Agent extension", "Push metrics through the HTTP listener", "Debug custom metric ingestion"]
+        },
+        {
+          "topic": "Database Visibility Agent and Collectors",
+          "subtopics": ["Database Agent compared with database backends seen from app agents", "Installing the Database Agent and its controller-info.xml", "Creating collectors for MySQL, PostgreSQL, SQL Server and Oracle in the Controller", "Least-privilege monitoring users for each database type", "Queries view: top statements by time, executions and weight", "Query details: execution plans and wait states", "Hardware metrics through host monitoring for databases", "Linking database queries to business transactions"],
+          "tools": ["Database Agent", "MySQL", "PostgreSQL", "AppDynamics Controller"],
+          "lab_task": "Install the Database Agent on a utility VM, create a monitoring user in PostgreSQL with the pg_monitor role, add a PostgreSQL collector in Databases > Configuration, run a pgbench load plus one deliberately unindexed query for 15 minutes, then use the Queries view to rank statements by total time and open the execution plan of the slow query.",
+          "deliverable": "Database Visibility setup record, monitoring user grants and a top queries report",
+          "checks": [["Open the PostgreSQL collector status", "The collector shows as connected with no errors", "Collector status screenshot"], ["Sort Queries by total time", "The unindexed query is in the top 3 by total time", "Queries view screenshot"], ["Remove pg_monitor from the monitoring user", "The collector reports a permission error and query data stops updating", "Collector status and agent log"]],
+          "objectives": ["Install and configure the Database Agent", "Find expensive queries", "Connect database findings to application transactions"]
+        },
+        {
+          "topic": "Diagnostic Sessions, Developer Mode and Slow Transaction Thresholds",
+          "subtopics": ["Slow, very slow and stall thresholds per business transaction", "Standard deviation thresholds compared with static millisecond thresholds", "Periodic snapshot collection interval", "Diagnostic sessions started manually or by a health rule action", "Developer mode for full call graphs on a business transaction", "Call graph settings: SQL capture, minimum method time and package exclusions", "Agent overhead of more snapshots", "When to switch developer mode off"],
+          "tools": ["AppDynamics Controller", "Java Agent", "Transaction snapshots"],
+          "lab_task": "Set a static slow threshold of 800 ms and very slow of 1500 ms for Checkout, start a 10-minute diagnostic session for Checkout from its dashboard, generate mixed traffic with 10% of requests at 1 second, then count the slow snapshots collected during the session, enable developer mode for 5 minutes to capture full call graphs and switch it off again.",
+          "deliverable": "Threshold configuration, diagnostic session snapshot count and a developer-mode call graph",
+          "checks": [["Send requests at 1 second with the 800 ms threshold", "These requests are classified as slow in the snapshot list", "Snapshot list filtered by slow"], ["Run the 10-minute diagnostic session", "Snapshots during the session are collected with call graphs at a higher rate than normal", "Snapshot list for the session window"], ["Leave developer mode enabled beyond its time limit", "Developer mode turns itself off after the limit", "Transaction settings screenshot"]],
+          "objectives": ["Tune slow transaction thresholds", "Use diagnostic sessions and developer mode safely", "Balance snapshot detail against overhead"]
+        },
+        {
+          "topic": "Health Rule Schedules, Affects Scope and Evaluation Windows",
+          "subtopics": ["Health rule evaluation windows and violation wait times", "Health rule schedules for business hours, nights and weekends", "Affects scope: specific tiers, nodes matching a regex or business transactions matching a pattern", "Conditions with ALL or ANY and custom boolean expressions", "Evaluating per node compared with per tier", "Percentage of nodes violating for tier-level rules", "Health rules for servers and containers", "Reducing alert noise from flapping metrics"],
+          "tools": ["AppDynamics Controller", "Health rules"],
+          "lab_task": "Create a node health rule for tier orders that is critical when JVM heap utilisation is above 90% on at least 50% of nodes, evaluated over 10 minutes, active only on a weekday business-hours schedule. Fill heap on 1 of 3 nodes, then on 2 of 3, and record which case opens a violation and whether it opens outside the schedule.",
+          "deliverable": "Health rule specification with schedule, scope and percentage condition, plus test results",
+          "checks": [["Fill heap on 1 of 3 orders nodes", "No violation opens because fewer than 50% of nodes exceed 90%", "Events list"], ["Fill heap on 2 of 3 nodes during business hours", "A critical violation opens for tier orders", "Events list"], ["Repeat the 2 of 3 test outside the schedule", "No violation opens because the schedule is inactive", "Events list and schedule definition"]],
+          "objectives": ["Scope health rules precisely", "Apply schedules and evaluation windows", "Reduce noisy alerts"]
+        },
+        {
+          "topic": "Actions Suppression and Maintenance Windows in AppDynamics",
+          "subtopics": ["Actions suppression configuration and its scope", "Suppressing actions for an application, tiers, nodes or servers", "One-time and recurring suppression windows", "Whether health rules keep evaluating during suppression", "Creating suppression windows from a deployment pipeline through the REST API", "Deployment events with eventtype APPLICATION_DEPLOYMENT", "Change markers on dashboards", "Audit of who created a suppression"],
+          "tools": ["AppDynamics Controller", "Controller REST API", "curl"],
+          "lab_task": "Create a 20-minute actions suppression for tier orders, restart all orders nodes during the window and confirm no webhook action fires while the violation events still appear, then post a deployment event with curl -X POST '.../controller/rest/applications/shop-lab/events?eventtype=APPLICATION_DEPLOYMENT&severity=INFO&summary=orders%20v42' and check it shows on the application dashboard.",
+          "deliverable": "Suppression configuration, receiver log for the window and the deployment event screenshot",
+          "checks": [["Restart orders nodes inside the suppression window", "Violation events appear but the webhook receiver logs no POST", "Events list and receiver log"], ["Post the APPLICATION_DEPLOYMENT event", "The Controller returns a response with a new event ID", "curl output"], ["Trigger the same fault after the window ends", "The webhook receiver logs one POST", "Receiver log"]],
+          "objectives": ["Configure actions suppression", "Mark deployments as events", "Automate maintenance windows"]
+        },
+        {
+          "topic": "Controller REST API: Applications, Metrics and Events",
+          "subtopics": ["REST base path /controller/rest and output=JSON", "Listing applications, tiers, nodes and business transactions", "metric-data queries with wildcards in metric paths", "time-range-type values: BEFORE_NOW, BETWEEN_TIMES and AFTER_TIME", "Health rule violations through /problems/healthrule-violations", "Retrieving snapshots through request-snapshots", "Pagination, rate limits and query cost", "Scripting with Python requests or Bash with jq"],
+          "tools": ["Controller REST API", "curl", "jq", "Python requests"],
+          "lab_task": "Write a Python script that lists every tier and node in shop-lab, pulls Average Response Time for all business transactions with a wildcard metric path over the last 60 minutes, and fetches health rule violations for the last 24 hours, then writes a CSV with one row per transaction and the count of violations, and compares the row count with the UI.",
+          "deliverable": "Python reporting script and the generated CSV",
+          "checks": [["Request /controller/rest/applications/shop-lab/tiers?output=JSON", "The JSON array length equals the tier count on Tiers & Nodes", "jq length output"], ["Query metric-data with a * wildcard for business transaction names", "One metric entry per business transaction is returned", "Script output"], ["Query healthrule-violations with time-range-type BEFORE_NOW and duration-in-mins=1440", "Each violation from the Events list for the period appears in the output", "CSV and Events list"]],
+          "objectives": ["Query applications, metrics and events through REST", "Use wildcards and time ranges correctly", "Build a repeatable report"]
+        },
+        {
+          "topic": "API Clients and OAuth Tokens for the Controller",
+          "subtopics": ["API Clients under Administration and why they replace user passwords in scripts", "Client name, client secret and default token expiry", "Requesting a token: POST /controller/api/oauth/access_token with grant_type=client_credentials", "client_id in the form <client-name>@<account-name>", "Sending Authorization: Bearer <token>", "Assigning roles to API Clients for least privilege", "Rotating client secrets and revoking tokens", "Storing secrets in CI vaults rather than scripts"],
+          "tools": ["Controller REST API", "curl", "jq", "AppDynamics Controller"],
+          "lab_task": "Create an API Client report-bot with a read-only role, request a token with curl -X POST https://<host>/controller/api/oauth/access_token -d 'grant_type=client_credentials&client_id=report-bot@<account>&client_secret=$SECRET', use the Bearer token to list applications, then try to create a health rule with the same token and record the error.",
+          "deliverable": "API Client setup record, token request script with the secret read from an environment variable, and results",
+          "checks": [["Request a token with valid credentials", "The JSON response contains access_token and expires_in", "jq output with the token masked"], ["List applications with the Bearer token", "HTTP 200 with the application array", "curl output"], ["Create a health rule with the read-only token", "The request is refused with HTTP 403 or an equivalent permission error", "curl -i output"]],
+          "objectives": ["Create and scope API Clients", "Authenticate scripts with OAuth tokens", "Manage API secrets safely"]
+        },
+        {
+          "topic": "Transaction Analytics and the Events Service",
+          "subtopics": ["Analytics components: Events Service, Analytics Agent and agent-side collection", "Enabling Transaction Analytics per application and business transaction", "Analytics Agent roles for Java and .NET compared with built-in collection in newer agents", "Default transaction fields: application, tier, segments, responseTime, userExperience", "Sending data collector values to analytics as custom fields", "Searches, saved searches and visualisations", "Analytics licence units and data retention", "Checking analytics data flow end to end"],
+          "tools": ["Events Service", "Analytics Agent", "AppDynamics Controller", "Transaction Analytics"],
+          "lab_task": "Enable Transaction Analytics for shop-lab and the Checkout and Search transactions, mark the order total and X-Customer-Tier data collectors for analytics, generate 1,000 requests, then open Analytics > Searches, filter transactions by application shop-lab and customer tier gold and confirm the count of gold Checkout records matches the number sent in the test.",
+          "deliverable": "Analytics enablement record and a saved search for gold-customer checkouts",
+          "checks": [["Search transactions for application shop-lab in the last 15 minutes", "Records for Checkout and Search appear with responseTime and userExperience fields", "Analytics search screenshot"], ["Filter by customer tier gold for Checkout", "The record count equals the number of gold checkouts sent", "Search result count and test log"], ["Disable analytics for Search", "New Search records stop appearing while Checkout records continue", "Search results by business transaction"]],
+          "objectives": ["Enable Transaction Analytics", "Send business data to analytics", "Verify analytics data flow"]
+        },
+        {
+          "topic": "ADQL Queries for Transactions, Logs and Browser Records",
+          "subtopics": ["ADQL as the AppDynamics Query Language for analytics data", "SELECT, FROM transactions, logs, browserrecords and mobilesnapshots", "WHERE filters, quoted field names and IN lists", "Aggregations: count(*), avg, min, max, sum and percentile", "Grouping by fields such as segments.tier or userExperience", "series() for time series and histograms", "Time ranges set in the UI or the query API", "Saving ADQL queries and adding them to dashboards"],
+          "tools": ["ADQL", "Analytics query editor", "Events Service"],
+          "lab_task": "Write ADQL queries that return: count of Checkout transactions grouped by userExperience; 95th percentile responseTime by business transaction for shop-lab; error count per hour with series(eventTimestamp, '1h'); and the 10 slowest browser pages by average end user response time. Run each for the last 24 hours and check one result against a Metric Browser value.",
+          "deliverable": "ADQL query file with four queries, results and a cross-check note",
+          "checks": [["Run SELECT userExperience, count(*) FROM transactions WHERE transactionName = 'Checkout'", "Rows for NORMAL, SLOW, VERY_SLOW, STALL or ERROR with counts that add up to total Checkout calls", "Query result screenshot"], ["Run percentile(responseTime, 95) grouped by transactionName", "One row per transaction with a p95 value at or above its average", "Query result"], ["Run a query with an unknown field name", "The editor reports a query error naming the field", "Error message screenshot"]],
+          "objectives": ["Write ADQL for counts, percentiles and time series", "Query browser and log data as well as transactions", "Validate analytics results against metrics"]
+        },
+        {
+          "topic": "Log Analytics with Source Rules",
+          "subtopics": ["Log Analytics architecture: Analytics Agent or Machine Agent log collection", "Source rules: log path, wildcard and source type", "Grok patterns and key-value extraction for fields", "Multiline events such as Java stack traces", "Centralised log management through the Controller", "Searching logs with ADQL FROM logs", "Linking logs to business transactions with request GUIDs", "Masking sensitive values before upload"],
+          "tools": ["Log Analytics", "Analytics Agent", "ADQL", "Grok"],
+          "lab_task": "Create a source rule for /var/log/shop/orders*.log with a grok pattern that extracts level, orderId and durationMs, set multiline handling for stack traces, mask card numbers with a regex, then query SELECT level, count(*) FROM logs WHERE sourceType = 'orders-log' and confirm ERROR counts match grep -c ERROR on the file.",
+          "deliverable": "Source rule definition, grok pattern, masking rule and a query-versus-grep comparison",
+          "checks": [["Run the level count ADQL query", "The ERROR count matches grep -c ERROR on the log file for the same period", "Query result and grep output"], ["Write a Java stack trace to the log", "It arrives as one log event, not one event per line", "Log search screenshot"], ["Log a test card number", "The stored log message shows the masked value", "Log search screenshot"]],
+          "objectives": ["Collect logs with source rules", "Extract fields with grok", "Protect sensitive values in logs"]
+        },
+        {
+          "topic": "Dash Studio Dashboards with ADQL and Metric Widgets",
+          "subtopics": ["Dash Studio compared with classic custom dashboards", "Metric-based widgets and ADQL-based widgets", "Variables and drop-down filters for application or tier", "Time series, numeric, pie, table and funnel widgets", "Thresholds and colour rules on widgets", "Drill-down links to business transactions and searches", "Sharing and permissions for Dash Studio dashboards", "Performance of heavy ADQL widgets"],
+          "tools": ["Dash Studio", "ADQL", "AppDynamics Controller"],
+          "lab_task": "Build a Dash Studio dashboard Checkout-Health with an application drop-down variable, a metric time series for Checkout calls per minute, an ADQL numeric widget for p95 responseTime, an ADQL table of top 10 error messages and a threshold that colours p95 red above 1500 ms. Switch the variable between two applications and confirm every widget changes.",
+          "deliverable": "Checkout-Health dashboard screenshots for two applications and the widget query list",
+          "checks": [["Change the application variable", "All widgets refresh with values for the selected application", "Two dashboard screenshots"], ["Inject latency so p95 exceeds 1500 ms", "The p95 widget turns red", "Dashboard screenshot"], ["Open the dashboard as a user without access to the application", "That user cannot see the application data", "Screenshot as restricted user"]],
+          "objectives": ["Build Dash Studio dashboards", "Combine metric and ADQL widgets", "Use variables and thresholds"]
+        },
+        {
+          "topic": "Mobile Real User Monitoring for Android and iOS",
+          "subtopics": ["Mobile application keys and creating a mobile app in User Experience", "Android: Gradle plugin and Instrumentation.start with AgentConfiguration.builder().withAppKey()", "iOS: Swift Package Manager or CocoaPods and ADEumInstrumentation initWithKey", "Network requests, crashes and app not responding events", "Uploading ProGuard or R8 mapping files and dSYM files for symbolication", "Custom user data, breadcrumbs and session frames", "Correlating mobile network requests with server business transactions", "Privacy settings and disabling collection per user"],
+          "tools": ["Mobile RUM SDKs", "Android Studio", "Xcode", "AppDynamics Controller"],
+          "lab_task": "Instrument a sample Android app with the AppDynamics Gradle plugin and Instrumentation.start using the mobile app key, call the shop API 50 times, force one crash, upload the R8 mapping file, then confirm network requests, the crash with a deobfuscated stack trace and a correlated Checkout server snapshot appear in the mobile app dashboard.",
+          "deliverable": "Instrumented app build notes, mapping upload evidence and mobile dashboard screenshots",
+          "checks": [["Run the app and make 50 API calls", "The Network Requests view lists the shop API with about 50 requests", "Mobile dashboard screenshot"], ["Force a crash after uploading the mapping file", "The crash appears with readable class and method names", "Crash details screenshot"], ["Force a crash without the mapping file", "The crash stack trace shows obfuscated names", "Crash details screenshot"]],
+          "objectives": ["Instrument Android or iOS apps", "Symbolicate crashes", "Correlate mobile requests with back-end transactions"]
+        },
+        {
+          "topic": "Browser Synthetic Jobs and Private Synthetic Agents",
+          "subtopics": ["Synthetic monitoring compared with real user monitoring", "Browser synthetic jobs: URL jobs and scripted jobs", "Scripted measurements in Python with Selenium WebDriver", "Hosted agent locations compared with Private Synthetic Agents", "Deploying a Private Synthetic Agent on Docker or Kubernetes with Helm", "Schedules, browsers and locations for a job", "Synthetic sessions, waterfalls and screenshots", "Health rules on synthetic job availability and duration"],
+          "tools": ["Browser Synthetic Monitoring", "Private Synthetic Agent", "Selenium WebDriver", "Helm"],
+          "lab_task": "Write a scripted synthetic job in Python Selenium that opens the shop, searches for an item, adds it to the cart and asserts the cart count is 1, schedule it every 5 minutes from a Private Synthetic Agent deployed in the lab cluster with Helm, break the add-to-cart button and confirm the job fails with a screenshot and a health rule violation.",
+          "deliverable": "Synthetic script, Private Synthetic Agent deployment values and failure evidence",
+          "checks": [["Run the job against the working shop", "The session succeeds and shows a waterfall for each page step", "Synthetic session screenshot"], ["Break the add-to-cart button", "The job fails on the cart assertion and stores a screenshot", "Failed session details"], ["Run kubectl get pods in the agent namespace", "Private Synthetic Agent pods are Running", "kubectl output"]],
+          "objectives": ["Write scripted synthetic jobs", "Run Private Synthetic Agents", "Alert on synthetic failures"]
+        },
+        {
+          "topic": "Kubernetes Monitoring with the AppDynamics Cluster Agent",
+          "subtopics": ["Cluster Agent role: cluster, namespace, pod and container visibility", "Installing with the AppDynamics Helm chart or the operator", "Controller credentials in a Kubernetes secret", "nsToMonitor and nsToMonitorRegex namespace selection", "Cluster dashboard: pod status, restarts, evictions and resource quotas", "Pod and container metrics and events", "RBAC required by the Cluster Agent service account", "Infrastructure Visibility DaemonSet with Machine Agents for node metrics"],
+          "tools": ["Cluster Agent", "Helm", "kubectl", "AppDynamics Controller"],
+          "lab_task": "Add the AppDynamics Helm repository, install the Cluster Agent into namespace appdynamics with a values file that sets the Controller URL, account and nsToMonitorRegex shop-.*, store the access key in a secret, then confirm the cluster appears in the Controller, and create a crash-looping pod in shop-dev to see restarts counted on the cluster dashboard.",
+          "deliverable": "Helm values file (secrets excluded), install commands and cluster dashboard screenshots",
+          "checks": [["Run kubectl -n appdynamics get pods", "The Cluster Agent pod is Running with 0 restarts", "kubectl output"], ["Open the cluster in the Controller", "Namespaces matching shop-.* are listed and others are not", "Cluster dashboard screenshot"], ["Deploy a crash-looping pod in shop-dev", "Pod restarts and a CrashLoopBackOff state appear on the cluster dashboard", "Dashboard and kubectl describe output"]],
+          "objectives": ["Install the Cluster Agent", "Select namespaces to monitor", "Read cluster health in the Controller"]
+        },
+        {
+          "topic": "Cluster Agent Auto-Instrumentation of Java Pods",
+          "subtopics": ["Auto-instrumentation: Cluster Agent injects app agents into matching deployments", "instrumentationMethod, nsToInstrumentRegex and instrumentationRules", "appNameStrategy, tier naming from deployment names and labels", "Init container image that copies the agent into the pod", "Environment variable injection into JAVA_TOOL_OPTIONS", "Rolling restarts triggered by instrumentation", "Opting a deployment out with labels", "Checking injection with kubectl describe pod"],
+          "tools": ["Cluster Agent", "Java Agent", "kubectl", "Helm"],
+          "lab_task": "Enable auto-instrumentation in the Cluster Agent values with instrumentationMethod Env, nsToInstrumentRegex shop-dev and a rule that injects the Java Agent for pods labelled language=java, apply with helm upgrade, then confirm the orders deployment restarts with an init container, the agent loads from JAVA_TOOL_OPTIONS and a tier named after the deployment appears in the Controller.",
+          "deliverable": "Auto-instrumentation values block and evidence from kubectl and the Controller",
+          "checks": [["Run kubectl -n shop-dev describe pod <orders-pod>", "An AppDynamics init container and JAVA_TOOL_OPTIONS with -javaagent are present", "kubectl describe output"], ["Open Tiers & Nodes for the target application", "A tier for the orders deployment has nodes reporting", "Tiers & Nodes screenshot"], ["Deploy a Java pod without the language=java label", "No init container is injected", "kubectl describe output"]],
+          "objectives": ["Configure Cluster Agent auto-instrumentation", "Control which workloads get agents", "Verify injected agents"]
+        },
+        {
+          "topic": "Roles, Groups and Permissions in the AppDynamics Controller",
+          "subtopics": ["Predefined roles such as Account Owner, Administrator, User and Read Only", "Custom roles with application, dashboard and account permissions", "Application-level permissions: view, configure, create health rules", "Groups and mapping external groups from LDAP or SAML", "Local users compared with SAML users on SaaS", "Dashboard and analytics permissions, including analytics data access by application", "Least-privilege patterns for developers, SREs and service accounts", "Reviewing who has which role"],
+          "tools": ["AppDynamics Controller", "Administration console", "Controller REST API"],
+          "lab_task": "Create custom roles shop-dev (view shop-lab, configure instrumentation, no health rule edits) and shop-sre (view and edit health rules and policies for shop-lab), assign them to two groups, log in as a member of each and attempt to edit a health rule and to view a second application, recording which actions succeed and which are refused.",
+          "deliverable": "RBAC matrix of roles, permissions and test results for each group",
+          "checks": [["Log in as a shop-dev member and edit a health rule", "The save is refused or the edit option is not available", "Screenshot"], ["Log in as a shop-sre member and edit Checkout-latency", "The change saves and appears in the health rule list", "Screenshot"], ["Log in as shop-dev and open a second application", "The application is not listed for that user", "Applications page screenshot"]],
+          "objectives": ["Design custom roles", "Map groups to roles", "Test least-privilege access"]
+        },
+        {
+          "topic": "Intermediate Capstone: Alerting and Analytics Runbook for a Retail Checkout",
+          "subtopics": ["Business transaction design with split rules and data collectors for checkout", "Database Visibility and Kubernetes monitoring for the checkout stack", "Health rules with schedules, suppression and webhook policies", "ADQL queries and a Dash Studio dashboard for business and technical KPIs", "Synthetic checkout journey with a Private Synthetic Agent", "Least-privilege roles and an API Client for reporting"],
+          "tools": ["Cluster Agent", "Database Agent", "ADQL", "Dash Studio", "Browser Synthetic Monitoring", "Controller REST API"],
+          "lab_task": "For a checkout stack running in Kubernetes, deliver split business transactions, analytics fields for order total and customer tier, Database Visibility, a scripted synthetic checkout, scheduled health rules with a webhook policy, a Dash Studio dashboard and an API Client report script. Inject a slow database query and show detection by synthetic, health rule and ADQL within 15 minutes.",
+          "deliverable": "Runbook with configuration exports, dashboard, report output and a fault timeline",
+          "checks": [["Inject a slow checkout database query", "The synthetic job duration rises and a critical health rule violation opens within 15 minutes", "Synthetic results and Events list"], ["Run the ADQL p95 responseTime query for the fault window", "p95 for Checkout is higher than the pre-fault value", "Query results for both windows"], ["Run the API Client report script", "It produces a CSV that lists the fault violation", "CSV output"]],
+          "objectives": ["Combine AppDynamics features into one monitoring design", "Detect a fault through several signals", "Hand over a runbook to an operations team"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For AppDynamics administrators, observability architects and senior SREs who own a production deployment. Covers on-premises Controller deployment with the Enterprise Console, Controller high availability, Events Service and EUM Server scaling, agent overhead and node properties, asynchronous and custom exit point instrumentation, anomaly detection and automated root cause analysis, Business iQ and Experience Level Management, advanced ADQL and the Analytics Events API, configuration as code, ITSM integrations, OpenTelemetry ingestion and combined agent modes, Cluster Agent at scale, Secure Application, licence rules, upgrades, fleet rollout, cross-signal performance analysis and Controller hardening, ending with an enterprise rollout capstone.",
+      "prerequisites": ["Completed the intermediate level or administers AppDynamics agents, health rules, analytics and the Cluster Agent in a team", "Comfortable with Linux administration, TLS certificates, load balancers, Kubernetes and Helm", "Can script against REST APIs in Python or Bash and work with CI/CD pipelines and an ITSM tool such as ServiceNow"],
+      "outcomes": ["Deploy, scale, make highly available and upgrade an on-premises AppDynamics platform, and plan SaaS tenant governance", "Instrument complex code paths and tune agents for low overhead across large fleets", "Use anomaly detection, Business iQ, advanced ADQL and custom analytics events for business and technical insight", "Manage AppDynamics configuration as code, integrate with ITSM and OpenTelemetry, and enforce licence, RBAC and hardening policies"],
+      "days": [
+        {
+          "topic": "On-Premises Controller Deployment with the Enterprise Console",
+          "subtopics": ["Enterprise Console role: installing and managing Controller and Events Service", "Platform, credential store and host registration", "Controller profiles from demo to extra large and their hardware sizing", "Embedded MySQL database and data directory placement", "platform-admin.sh commands to start, stop and check the Controller", "Ports: 8090 HTTP, 8181 HTTPS and the admin console", "Installing a TLS certificate in the Controller keystore", "Operating system limits: open files, swap and file systems"],
+          "tools": ["Enterprise Console", "platform-admin.sh", "AppDynamics Controller", "keytool"],
+          "lab_task": "On a lab VM that meets the small profile, install the Enterprise Console, create a platform, add the local host and install a Controller with the small profile through the console. Check status with bin/platform-admin.sh show-platform-admin-version and the service status page, install a TLS certificate signed by the lab CA, and confirm an agent connects on port 8181 with SSL enabled.",
+          "deliverable": "Deployment record with sizing, commands, certificate steps and agent connection evidence",
+          "checks": [["Open https://<controller>:8181/controller/rest/serverstatus", "The response reports the Controller as available with its version", "curl output"], ["Check the certificate with openssl s_client -connect <controller>:8181", "The lab CA-issued certificate is presented and verification returns ok", "openssl output"], ["Raise the open files limit below the documented minimum and start the Controller", "The Enterprise Console precheck reports a failed requirement", "Precheck output"]],
+          "objectives": ["Install a Controller with the Enterprise Console", "Size a Controller profile", "Secure the Controller with TLS"]
+        },
+        {
+          "topic": "Controller High Availability and Disaster Recovery",
+          "subtopics": ["Primary and secondary Controllers with database replication", "HA setup through the Enterprise Console", "Load balancer or DNS in front of the Controller pair", "Failover: planned and unplanned", "Agent behaviour while the Controller is unavailable", "Backups of the Controller database and configuration", "Recovery point and recovery time objectives for monitoring data", "Testing failover without losing agent connectivity"],
+          "tools": ["Enterprise Console", "AppDynamics Controller", "HAProxy", "MySQL replication tools"],
+          "lab_task": "Configure a primary and secondary Controller through the Enterprise Console, place HAProxy in front with a health check on /controller/rest/serverstatus, point agents at the HAProxy address, perform a planned failover and measure how many minutes agents stop reporting, then restore a database backup to a scratch VM and confirm the application list matches.",
+          "deliverable": "HA design, failover timeline with measured gap and backup restore evidence",
+          "checks": [["Perform the planned failover", "The secondary becomes active and agents reconnect through HAProxy without configuration changes", "HAProxy stats and Tiers & Nodes screenshot"], ["Measure the reporting gap in Calls per Minute", "The gap is recorded in minutes and is within the agreed recovery time objective", "Metric Browser screenshot"], ["Restore the backup to a scratch VM", "The restored Controller lists the same applications as production", "Applications list comparison"]],
+          "objectives": ["Design Controller HA", "Run and measure a failover", "Restore Controller data from backup"]
+        },
+        {
+          "topic": "Events Service and EUM Server Scaling On-Premises",
+          "subtopics": ["Events Service as an Elasticsearch-based store for analytics data", "Single-node compared with three-node or larger Events Service clusters", "Installing and scaling the Events Service from the Enterprise Console", "Heap sizing and disk planning for analytics retention", "EUM Server components: collector, processor and its database", "Connecting the Controller to the Events Service and EUM Server", "Load balancing beacon traffic to the EUM Server", "Monitoring the Events Service health and disk use"],
+          "tools": ["Events Service", "EUM Server", "Enterprise Console", "curl"],
+          "lab_task": "Scale a single-node Events Service to three nodes from the Enterprise Console, set the heap for the expected daily ingest, connect the Controller with the Events Service URL and key in its admin settings, then send 100,000 transaction analytics records and confirm searches still return within the target time and the cluster health shows green.",
+          "deliverable": "Events Service sizing sheet, scale-out steps and health evidence",
+          "checks": [["Query the Events Service cluster health endpoint", "Status is green with 3 nodes", "curl output"], ["Run an ADQL count over the last hour after 100,000 records", "The count returns within the target time and is about 100,000", "Query result and timing"], ["Stop one Events Service node", "Status changes to yellow and searches still return results", "Health output and search screenshot"]],
+          "objectives": ["Scale the Events Service", "Connect analytics and EUM back ends", "Monitor platform component health"]
+        },
+        {
+          "topic": "Agent Overhead, Node Properties and Tuning",
+          "subtopics": ["Measuring agent overhead: CPU, heap, startup time and latency", "App agent node properties and where they are set", "Limiting snapshots, call graph depth and SQL capture", "Excluding packages and classes from instrumentation", "Business transaction, backend and metric registration limits", "Async and thread correlation costs", "Agent-side metric limits and the max metrics message in logs", "A tuning process with a load test baseline"],
+          "tools": ["Java Agent", "Apache JMeter", "AppDynamics Controller", "JDK Flight Recorder"],
+          "lab_task": "Run a JMeter load of 500 requests per second against orders without the agent, with the default agent and with tuned settings (fewer periodic snapshots, package exclusions, reduced SQL capture). Record p95 latency, CPU and heap for each run and show the tuned configuration keeps p95 within 5% of the no-agent baseline.",
+          "deliverable": "Overhead test report with three runs, the node property changes and a recommendation",
+          "checks": [["Compare p95 latency for no agent and default agent", "Both values and the percentage difference are recorded", "JMeter summary reports"], ["Apply tuned node properties and repeat the load test", "p95 latency is within 5% of the no-agent baseline", "JMeter summary report"], ["Exceed the metric registration limit in a test tier", "The agent log reports that the metric limit was reached", "Agent log excerpt"]],
+          "objectives": ["Measure agent overhead", "Tune agents with node properties", "Recognise registration limits"]
+        },
+        {
+          "topic": "Asynchronous Transactions, Thread Correlation and Custom Exit Points",
+          "subtopics": ["Thread correlation for Executor, CompletableFuture and Reactor", "Async transaction demarcation and end-to-end latency", "Custom exit points for unsupported clients", "Custom correlation for proprietary protocols", "Kafka and JMS correlation across producers and consumers", "The Java Agent API for manual business transactions and exit calls", "Viewing async segments in call graphs", "Choosing between configuration and agent API instrumentation"],
+          "tools": ["Java Agent", "AppDynamics Java Agent API", "Apache Kafka", "AppDynamics Controller"],
+          "lab_task": "Instrument an orders service that hands work to a CompletableFuture pool and publishes to Kafka, configure async demarcation so Checkout end-to-end latency includes the async work, add a custom exit point for a proprietary TCP pricing client, then confirm the flow map shows the pricing backend and the consumer tier linked through Kafka.",
+          "deliverable": "Instrumentation design with configuration screenshots and a flow map showing async and Kafka links",
+          "checks": [["Open a Checkout snapshot", "Async segments from the CompletableFuture pool appear in the call graph", "Call graph screenshot"], ["Call the pricing client", "A custom backend for the pricing service appears on the flow map", "Flow map screenshot"], ["Publish orders to Kafka", "The consumer tier is linked to the producer tier through the Kafka backend", "Flow map screenshot"]],
+          "objectives": ["Correlate asynchronous work", "Create custom exit points", "Trace messaging flows across tiers"]
+        },
+        {
+          "topic": "Anomaly Detection and Automated Root Cause Analysis",
+          "subtopics": ["Anomaly Detection models trained on business transaction metrics", "Enabling Anomaly Detection per application and training time", "Anomaly severity and how it differs from health rules", "Suspected causes and the root cause analysis view", "Automated Transaction Diagnostics and collected snapshots", "Using anomalies in policies to trigger actions", "Tuning sensitivity and reducing duplicate alerts with health rules", "Explaining anomaly results to service owners"],
+          "tools": ["Anomaly Detection", "AppDynamics Controller", "Automated Transaction Diagnostics"],
+          "lab_task": "Enable Anomaly Detection for shop-lab, let it train on steady traffic, then inject a slow downstream call in recs that affects Checkout. Open the anomaly, record the suspected causes listed and check that the top suspected cause points to the recs tier, then create a policy that sends a webhook on new critical anomalies and compare its timing with the Checkout-latency health rule.",
+          "deliverable": "Anomaly investigation report with suspected causes, timings and the anomaly policy",
+          "checks": [["Inject the slow recs call after training", "An anomaly opens for Checkout", "Anomaly list screenshot"], ["Open the anomaly details", "The top suspected cause names the recs tier or its slow method", "Root cause analysis screenshot"], ["Compare detection times", "The anomaly and health rule start times are both recorded with the difference in minutes", "Events timeline"]],
+          "objectives": ["Enable and interpret anomaly detection", "Use suspected causes in diagnosis", "Combine anomalies and health rules in alerting"]
+        },
+        {
+          "topic": "Business iQ: Business Journeys and Experience Level Management",
+          "subtopics": ["Business iQ as analytics on business data from transactions, logs and custom events", "Business journeys: milestones linked by a shared key such as orderId", "Milestone conditions and maximum time between milestones", "Journey events queried with ADQL", "Experience Level Management: targets for performance and availability", "Compliance reports by period and exclusion periods", "Conversion funnels for checkout steps", "Presenting business impact to non-technical stakeholders"],
+          "tools": ["Business iQ", "ADQL", "Experience Level Management", "Dash Studio"],
+          "lab_task": "Define a business journey OrderLifecycle with milestones Checkout, PaymentAuthorised and Shipped linked by orderId, generate 500 orders where 5% never ship, then query journey events with ADQL to count incomplete journeys, and create an Experience Level Management configuration targeting 99% of Checkout calls as normal per day.",
+          "deliverable": "Journey definition, ADQL results for incomplete journeys and an XLM compliance report",
+          "checks": [["Generate 500 orders with 25 never shipped", "ADQL reports 25 journeys that did not reach Shipped", "Query result"], ["Open the XLM report for the test day", "Compliance percentage for Checkout is shown against the 99% target", "XLM report screenshot"], ["Mark the fault hour as an exclusion period", "The XLM compliance percentage is recalculated without that hour", "Report before and after"]],
+          "objectives": ["Build business journeys", "Measure experience levels", "Report business impact"]
+        },
+        {
+          "topic": "Advanced ADQL: Funnels, Series and Percentiles",
+          "subtopics": ["Nested aggregations and multiple group-by fields", "series() with histograms and time buckets", "Percentiles and distribution analysis", "Funnel queries for step conversion", "Comparing periods with saved searches", "Query cost, limits and the maximum result size", "Querying through the Analytics Events API with POST /events/query", "Headers X-Events-API-AccountName and X-Events-API-Key"],
+          "tools": ["ADQL", "Analytics Events API", "curl", "jq"],
+          "lab_task": "Write a funnel ADQL query for the Search, AddToCart and Checkout steps, a percentile query for p50, p90 and p99 responseTime by tier, and an hourly series of errors per segment. Run the percentile query through the Analytics Events API with curl, Content-Type application/vnd.appd.events+text;v=2 and start and end parameters, and confirm it matches the UI result.",
+          "deliverable": "Advanced ADQL query set with UI and API results compared",
+          "checks": [["Run the funnel query", "Step counts decrease from Search to AddToCart to Checkout", "Query result screenshot"], ["Run the percentile query by tier", "For each tier p50 is at or below p90 which is at or below p99", "Query result"], ["Post the percentile query to /events/query with a wrong API key", "The API returns HTTP 401 or 403", "curl -i output"]],
+          "objectives": ["Write advanced ADQL", "Run ADQL through the Analytics Events API", "Check query results across interfaces"]
+        },
+        {
+          "topic": "Analytics Events API: Custom Schemas and Publishing",
+          "subtopics": ["Custom event schemas and field types", "Creating a schema with POST /events/schema/{schemaName}", "Publishing with POST /events/publish/{schemaName} and Content-Type application/vnd.appd.events+json;v=2", "API keys scoped to custom event schemas", "Batching events and handling ingestion errors", "Schema changes and adding fields", "Querying custom events with ADQL", "Use cases: release, inventory and business events"],
+          "tools": ["Analytics Events API", "Python requests", "ADQL"],
+          "lab_task": "Create a custom schema inventory_events with fields sku (string), warehouse (string) and stockLevel (integer), publish 1,000 events in batches of 100 with a Python script using an Events API key restricted to that schema, then query SELECT warehouse, min(stockLevel) FROM inventory_events and confirm the result matches the generated data.",
+          "deliverable": "Schema definition, publishing script with key from environment and query results",
+          "checks": [["Create the schema", "The API returns success and the schema appears in Analytics", "curl output"], ["Publish 1,000 events in 10 batches", "count(*) FROM inventory_events returns 1000", "Query result"], ["Publish a batch with stockLevel as a string", "The API rejects the batch with a validation error", "Script output"]],
+          "objectives": ["Design custom analytics schemas", "Publish events reliably", "Query custom events"]
+        },
+        {
+          "topic": "Configuration as Code: Exporting Health Rules, Dashboards and Policies",
+          "subtopics": ["Why AppDynamics configuration should live in version control", "Health rule API under /controller/alerting/rest/v1/applications/{id}/health-rules", "Policies and actions APIs under the alerting path", "Dashboard export and import through the Controller", "Export and import of instrumentation settings between applications", "Templating per environment and applying in CI", "Detecting drift between Git and the Controller", "Ordering imports: actions before policies, health rules before policies"],
+          "tools": ["Controller REST API", "Python requests", "Git", "CI pipeline"],
+          "lab_task": "Write a script that exports all health rules, actions and policies for shop-lab as JSON files, replaces application-specific IDs with variables, and imports them into a new application shop-stage through the alerting API in the correct order. Then change one threshold in the Controller and make the script report the drift against the exported files.",
+          "deliverable": "Configuration export repository layout, import script and a drift report",
+          "checks": [["Import the exported set into shop-stage", "shop-stage has the same number of health rules, actions and policies as shop-lab", "API list counts"], ["Import policies before actions on an empty application", "The import fails because referenced actions do not exist", "API error output"], ["Change a threshold in the Controller and run the drift check", "The script reports one changed health rule with the old and new values", "Drift report"]],
+          "objectives": ["Export and import AppDynamics configuration", "Manage configuration across environments", "Detect configuration drift"]
+        },
+        {
+          "topic": "Remediation Actions and Webhook Integrations with ITSM",
+          "subtopics": ["HTTP request templates for ServiceNow, Jira Service Management and PagerDuty style APIs", "Mapping health rule severity to incident priority", "Opening and closing incidents on violation start and end", "Deduplication keys from health rule and entity IDs", "Custom actions and remediation scripts on Machine Agents", "Approval requirements before remediation runs", "Retries, timeouts and failures of HTTP actions", "Testing integrations without paging people"],
+          "tools": ["HTTP request templates", "Machine Agent", "ServiceNow", "AppDynamics Controller"],
+          "lab_task": "Build two HTTP request templates against a ServiceNow developer instance: one that creates an incident on violation start with a correlation ID from the health rule and entity IDs, and one that resolves it on violation end. Add a remediation script that restarts a lab service through the Machine Agent, then trigger and end a violation and confirm one incident is created and resolved.",
+          "deliverable": "Integration design, templates, remediation script and an incident lifecycle record",
+          "checks": [["Trigger a critical violation", "Exactly one incident is created with the correlation ID", "ServiceNow incident record"], ["Let the violation continue for 30 minutes", "No duplicate incident is created", "Incident list"], ["End the violation", "The incident moves to Resolved", "Incident history"]],
+          "objectives": ["Integrate AppDynamics alerts with ITSM", "Prevent duplicate incidents", "Run controlled remediation"]
+        },
+        {
+          "topic": "OpenTelemetry Ingestion and Hybrid Agent Mode in AppDynamics",
+          "subtopics": ["OpenTelemetry support in AppDynamics: OTLP trace ingestion and an OTel-capable Java Agent", "Sending OTLP from the OpenTelemetry Collector with an AppDynamics API key header", "Resource attributes service.name and service.namespace mapped to tiers and applications", "Running the AppDynamics Java Agent with OpenTelemetry export enabled", "Splunk AppDynamics and Splunk Observability Cloud with combined agent data", "Correlating OpenTelemetry spans with AppDynamics business transactions", "Feature differences between OTel-ingested services and agent-instrumented tiers", "Choosing per service between native agents, OpenTelemetry or both"],
+          "tools": ["OpenTelemetry Collector", "Java Agent", "OTLP", "AppDynamics Controller"],
+          "lab_task": "Instrument a Go service with the OpenTelemetry SDK, send spans through an OpenTelemetry Collector with an otlphttp exporter to the AppDynamics OTLP endpoint using the API key header from the Controller's OpenTelemetry configuration page, and run the Java orders tier with the agent's OpenTelemetry mode enabled. Confirm both services appear and a trace from Go to orders is linked.",
+          "deliverable": "Collector configuration, Java Agent flags and screenshots of the linked OTel and agent services",
+          "checks": [["Run the Collector and send traffic", "The Collector logs show successful exports with no 4xx responses", "Collector log excerpt"], ["Open the application view after traffic", "The Go service appears with service.name as its tier", "Controller screenshot"], ["Send OTLP with a wrong API key", "The Collector logs HTTP 401 or 403 from the endpoint", "Collector log excerpt"]],
+          "objectives": ["Ingest OpenTelemetry data into AppDynamics", "Run OTel-capable agents", "Decide where OpenTelemetry fits beside native agents"]
+        },
+        {
+          "topic": "Cluster Agent at Scale: Multi-Cluster, Namespaces and Infrastructure Visibility",
+          "subtopics": ["One Cluster Agent per cluster and naming clusters consistently", "Namespace limits and pod limits per Cluster Agent", "Resource requests and limits for the Cluster Agent", "Infrastructure Visibility DaemonSet and Machine Agent licences", "Auto-instrumentation rules at scale with labels and regex", "GitOps delivery of Cluster Agent values with Argo CD or Flux", "OpenShift security context constraints and service accounts", "Upgrading the Cluster Agent and agent images without downtime"],
+          "tools": ["Cluster Agent", "Helm", "Argo CD", "kubectl"],
+          "lab_task": "Deploy the Cluster Agent to two lab clusters from one Git repository with per-cluster Helm values, set CPU and memory limits, enable Infrastructure Visibility on one cluster only, then roll out an instrumentation rule change through Git and confirm both clusters apply it and the Cluster Agent pods stay within their limits over 1 hour.",
+          "deliverable": "Multi-cluster values layout, GitOps manifests and resource usage evidence",
+          "checks": [["Run kubectl top pod for the Cluster Agent in each cluster", "Usage stays below the configured limits over 1 hour", "kubectl top output"], ["Merge an instrumentation rule change", "Both clusters show the updated rule and newly injected pods", "kubectl describe and Controller screenshot"], ["Open the cluster without Infrastructure Visibility", "Node-level machine metrics are absent while pod metrics remain", "Controller screenshot"]],
+          "objectives": ["Run Cluster Agents across clusters", "Deliver AppDynamics configuration with GitOps", "Size and limit monitoring components"]
+        },
+        {
+          "topic": "Secure Application Runtime Vulnerability Detection",
+          "subtopics": ["Cisco Secure Application as runtime security in the Java and other app agents", "Enabling Secure Application for applications and its licence", "Vulnerable library detection in loaded classes", "Attack detection for paths such as command execution and deserialisation", "Detect and block policies", "Business risk score and prioritisation", "Linking findings to business transactions", "Working with application security teams and SBOM tools"],
+          "tools": ["Secure Application", "Java Agent", "AppDynamics Controller"],
+          "lab_task": "Enable Secure Application for shop-lab, deploy a test build of orders that includes a library version with a known CVE, confirm the vulnerability appears with the affected tier, then exercise a lab endpoint that runs a shell command and set the policy for command execution to detect and then to block, recording the event and the HTTP result in each mode.",
+          "deliverable": "Secure Application findings report with CVE, affected tiers and policy test results",
+          "checks": [["Deploy the build with the vulnerable library", "The CVE is listed against the orders tier", "Vulnerabilities view"], ["Call the command endpoint in detect mode", "An attack event is recorded and the request completes", "Attacks view and HTTP response"], ["Call the endpoint in block mode", "The request is blocked and an event shows the block", "Attacks view and HTTP response"]],
+          "objectives": ["Enable runtime vulnerability detection", "Configure detect and block policies", "Prioritise security findings by business impact"]
+        },
+        {
+          "topic": "License Rules and Infrastructure-Based Licensing in AppDynamics",
+          "subtopics": ["Licensing models: agent-based units and infrastructure-based licensing by CPU core", "Licence editions and which features each enables", "License rules: allocating units to teams with their own access keys", "Restricting a rule to applications, hosts or machine patterns", "Licence usage reports and peak consumption", "What happens when a licence rule is exhausted", "Reclaiming licences from historical and idle nodes", "Chargeback and showback reports for teams"],
+          "tools": ["AppDynamics Controller", "License rules", "Controller REST API"],
+          "lab_task": "Create two licence rules team-payments and team-search with fixed unit allocations and separate access keys, point a test agent fleet at each, exceed the allocation for team-search by starting extra nodes and record what happens to the extra nodes, then produce a monthly usage report per rule for showback.",
+          "deliverable": "Licence rule design, exhaustion test results and a per-team usage report",
+          "checks": [["Start agents with the team-payments access key", "Usage is counted against team-payments only", "License usage screenshot"], ["Start more team-search nodes than its allocation", "Extra nodes do not get a licence and their agents report a licence error", "Agent logs and License page"], ["Remove idle historical nodes", "Licence usage for the rule drops after cleanup", "License usage before and after"]],
+          "objectives": ["Allocate licences with rules", "Monitor licence consumption", "Recover unused licences"]
+        },
+        {
+          "topic": "Upgrading Controllers and Agents with Compatibility Planning",
+          "subtopics": ["Controller and agent version compatibility: agents may be older than the Controller but not newer", "SaaS upgrades by the vendor and on-premises upgrades by the customer", "Upgrade order: Enterprise Console, Controller, Events Service, EUM Server, then agents", "Pre-upgrade backups and database checks", "Release notes, deprecated features and end-of-support dates", "Rolling agent upgrades by tier", "Rollback plans for Controller and agent upgrades", "Post-upgrade validation checklist"],
+          "tools": ["Enterprise Console", "AppDynamics Controller", "Java Agent", "Machine Agent"],
+          "lab_task": "Plan and run an upgrade on the lab platform: back up the Controller, upgrade the Enterprise Console, then the Controller and Events Service through the console, then roll a newer Java Agent across the orders tier one node at a time. Validate application counts, health rules, dashboards and agent reporting after each step and write a rollback plan.",
+          "deliverable": "Upgrade runbook with compatibility matrix, step timings, validation results and rollback plan",
+          "checks": [["Check the Controller version after upgrade", "The About dialog and serverstatus show the new version", "Screenshot and curl output"], ["Count health rules and dashboards before and after", "The counts are unchanged", "API counts"], ["Roll the new Java Agent to one orders node", "That node reports with the new agent version while others keep the old version", "Tiers & Nodes agent version column"]],
+          "objectives": ["Plan AppDynamics upgrades", "Respect agent and Controller compatibility", "Validate and roll back upgrades"]
+        },
+        {
+          "topic": "Agent Fleet Rollout with Ansible, Container Images and Init Containers",
+          "subtopics": ["Packaging agents for virtual machines, containers and Kubernetes", "Ansible roles for Java Agent and Machine Agent installation", "Baking agents into container images compared with init containers", "Passing access keys through secrets rather than images", "Standard node property and naming templates for every team", "Agent management features in the Controller for installing and upgrading agents", "Canary rollouts and verifying agent health", "Removing agents cleanly from retired hosts"],
+          "tools": ["Ansible", "Docker", "Java Agent", "Machine Agent", "Kubernetes"],
+          "lab_task": "Write an Ansible role that installs the Java Agent and Machine Agent on 5 lab VMs with templated controller-info.xml from vault variables, and a Dockerfile that copies the Java Agent into a base image with the access key supplied at runtime. Roll out to one canary VM first, then the rest, and confirm all 5 hosts and their nodes report.",
+          "deliverable": "Ansible role, Dockerfile, rollout log and a fleet status table",
+          "checks": [["Run the playbook against the canary host", "The play completes with 0 failed tasks and the host reports in Servers", "Ansible output and Servers list"], ["Run the playbook against all 5 hosts twice", "The second run reports 0 changed tasks", "Ansible recap"], ["Inspect the container image with docker history", "No access key appears in any image layer", "docker history and image inspection output"]],
+          "objectives": ["Automate agent installation", "Keep secrets out of images", "Roll out agents safely"]
+        },
+        {
+          "topic": "Correlating Snapshots, Database Waits and Server Metrics in AppDynamics",
+          "subtopics": ["Starting from a business transaction health rule violation", "Comparing slow and normal snapshots for the same transaction", "Moving from snapshot SQL to Database Visibility waits", "Checking host CPU, memory and disk on Server Visibility", "Container and pod metrics from the Cluster Agent", "JVM metrics: garbage collection time, heap and thread counts", "Building a timeline of changes with deployment events", "Writing a root cause statement backed by evidence"],
+          "tools": ["AppDynamics Controller", "Database Agent", "Machine Agent", "Cluster Agent"],
+          "lab_task": "Given a lab scenario where Checkout slows after a deployment that adds a missing index and raises connection pool size, use the violation, slow snapshots, Database Visibility waits, server metrics and the deployment event to identify the cause, then write a root cause statement with timestamps and 5 pieces of AppDynamics evidence.",
+          "deliverable": "Root cause analysis document with a timeline and 5 linked evidence screenshots",
+          "checks": [["Compare slow and normal Checkout snapshots", "The slow snapshot shows a SQL call that takes most of the response time", "Snapshot comparison"], ["Open Database Visibility for the fault window", "Top waits show the lock or I/O wait linked to the slow query", "Database waits screenshot"], ["Overlay the deployment event on the Checkout chart", "Latency rises within minutes after the deployment event", "Chart screenshot"]],
+          "objectives": ["Correlate AppDynamics data across layers", "Build an evidence timeline", "Write a defensible root cause statement"]
+        },
+        {
+          "topic": "SAML Single Sign-On, Audit History and Controller Hardening",
+          "subtopics": ["SAML authentication with an identity provider such as Okta or Microsoft Entra ID", "Mapping SAML attributes to AppDynamics groups and roles", "LDAP authentication for on-premises Controllers", "Controller audit history: who changed what and when", "Querying audit history through the REST API", "TLS settings, ciphers and HTTP to HTTPS redirection", "Restricting admin console and database ports with firewalls", "Access key rotation and reviewing API Client usage"],
+          "tools": ["AppDynamics Controller", "SAML identity provider", "Controller REST API", "nmap"],
+          "lab_task": "Configure SAML login with a lab identity provider, map an idp group to the shop-sre role, log in as a mapped user and change a health rule, then query /controller/ControllerAuditHistory for the last hour and find the change, and scan the Controller host with nmap to confirm only the HTTPS port is reachable from the user network.",
+          "deliverable": "SSO configuration, role mapping, audit query output and a port scan report",
+          "checks": [["Log in through the identity provider as a mapped user", "The user lands in the Controller with the shop-sre role", "User profile screenshot"], ["Query ControllerAuditHistory for the last hour", "The health rule change appears with the user name and time", "API output"], ["Run nmap against the Controller host from the user network", "Only the HTTPS port is open", "nmap output"]],
+          "objectives": ["Configure SSO and role mapping", "Review Controller audit history", "Harden Controller network exposure"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise AppDynamics Rollout Plan for a Kubernetes Platform",
+          "subtopics": ["Platform choice between SaaS and on-premises with HA and sizing", "Fleet rollout of agents and Cluster Agents with GitOps and secrets", "Configuration as code for health rules, policies and dashboards", "OpenTelemetry and native agent coverage per service", "Licence rules, RBAC, SSO and audit", "Fault drill with anomaly detection, ITSM incident and root cause report"],
+          "tools": ["Cluster Agent", "Enterprise Console", "Controller REST API", "OpenTelemetry Collector", "Helm", "ServiceNow"],
+          "lab_task": "Design and demonstrate an AppDynamics rollout for 3 Kubernetes clusters and 40 services: platform choice, Cluster Agent GitOps setup, agent coverage per service (native or OpenTelemetry), configuration as code, licence rules, RBAC with SSO and an upgrade policy. Run a fault drill that ends with an ITSM incident and a root cause report.",
+          "deliverable": "Rollout plan, repository of configuration, drill evidence and an executive summary",
+          "checks": [["Run the fault drill", "An anomaly or health rule violation opens and one ITSM incident is created", "Events list and incident record"], ["Apply the configuration repository to a clean application", "Health rules, policies and dashboards match the source counts", "API count comparison"], ["Review RBAC as a developer account", "The developer can view but not change production alerting", "Screenshots as developer"]],
+          "objectives": ["Design an enterprise AppDynamics platform", "Prove operations readiness with a drill", "Present a rollout plan to stakeholders"]
+        }
+      ]
+    }
+  }
+}

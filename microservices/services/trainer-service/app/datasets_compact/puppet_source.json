@@ -1,6 +1,6 @@
 {
   "domain": "Puppet",
-  "name": "Puppet â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "name": "Puppet – Comprehensive Fundamentals to Advanced Curriculum",
   "aliases": [
     "Puppet Enterprise",
     "Puppet Configuration Management"
@@ -26,9 +26,6 @@
         "CLI/UI",
         "Typical workflows",
         "Terminology",
-        "Puppet terminology and feature mapping for this topic",
-        "Puppet configuration and implementation considerations",
-        "Puppet best practices and common mistakes for this topic",
         "manifests",
         "resources",
         "classes",
@@ -112,22 +109,7 @@
         "Parameters",
         "Secrets",
         "Environment-specific configuration",
-        "Validation",
-        "Puppet terminology and feature mapping for this topic",
-        "Puppet configuration and implementation considerations",
-        "Puppet best practices and common mistakes for this topic",
-        "manifests",
-        "resources",
-        "classes",
-        "modules",
-        "Hiera",
-        "Facter",
-        "catalog",
-        "Puppet Server",
-        "agents",
-        "environments",
-        "templates",
-        "resource relationships"
+        "Validation"
       ],
       "tools": [
         "Puppet",
@@ -200,22 +182,7 @@
         "Caching",
         "Retries",
         "Failure handling",
-        "Notifications",
-        "Puppet terminology and feature mapping for this topic",
-        "Puppet configuration and implementation considerations",
-        "Puppet best practices and common mistakes for this topic",
-        "manifests",
-        "resources",
-        "classes",
-        "modules",
-        "Hiera",
-        "Facter",
-        "catalog",
-        "Puppet Server",
-        "agents",
-        "environments",
-        "templates",
-        "resource relationships"
+        "Notifications"
       ],
       "tools": [
         "Puppet",
@@ -286,22 +253,7 @@
         "Cloud integration",
         "API/webhook integration",
         "Credential management",
-        "Third-party plugins",
-        "Puppet terminology and feature mapping for this topic",
-        "Puppet configuration and implementation considerations",
-        "Puppet best practices and common mistakes for this topic",
-        "manifests",
-        "resources",
-        "classes",
-        "modules",
-        "Hiera",
-        "Facter",
-        "catalog",
-        "Puppet Server",
-        "agents",
-        "environments",
-        "templates",
-        "resource relationships"
+        "Third-party plugins"
       ],
       "tools": [
         "Puppet",
@@ -374,22 +326,7 @@
         "Least privilege",
         "Supply-chain concerns",
         "Audit logs",
-        "Policy controls",
-        "Puppet terminology and feature mapping for this topic",
-        "Puppet configuration and implementation considerations",
-        "Puppet best practices and common mistakes for this topic",
-        "manifests",
-        "resources",
-        "classes",
-        "modules",
-        "Hiera",
-        "Facter",
-        "catalog",
-        "Puppet Server",
-        "agents",
-        "environments",
-        "templates",
-        "resource relationships"
+        "Policy controls"
       ],
       "tools": [
         "Puppet",
@@ -461,22 +398,7 @@
         "State management",
         "Backups",
         "Failure recovery",
-        "Capacity planning",
-        "Puppet terminology and feature mapping for this topic",
-        "Puppet configuration and implementation considerations",
-        "Puppet best practices and common mistakes for this topic",
-        "manifests",
-        "resources",
-        "classes",
-        "modules",
-        "Hiera",
-        "Facter",
-        "catalog",
-        "Puppet Server",
-        "agents",
-        "environments",
-        "templates",
-        "resource relationships"
+        "Capacity planning"
       ],
       "tools": [
         "Puppet",
@@ -548,22 +470,7 @@
         "Failure diagnosis",
         "Performance bottlenecks",
         "Alerting",
-        "Operational runbooks",
-        "Puppet terminology and feature mapping for this topic",
-        "Puppet configuration and implementation considerations",
-        "Puppet best practices and common mistakes for this topic",
-        "manifests",
-        "resources",
-        "classes",
-        "modules",
-        "Hiera",
-        "Facter",
-        "catalog",
-        "Puppet Server",
-        "agents",
-        "environments",
-        "templates",
-        "resource relationships"
+        "Operational runbooks"
       ],
       "tools": [
         "Puppet",
@@ -634,22 +541,7 @@
         "Promotion strategy",
         "Policy as code concepts",
         "GitOps/IaC patterns",
-        "Best practices",
-        "Puppet terminology and feature mapping for this topic",
-        "Puppet configuration and implementation considerations",
-        "Puppet best practices and common mistakes for this topic",
-        "manifests",
-        "resources",
-        "classes",
-        "modules",
-        "Hiera",
-        "Facter",
-        "catalog",
-        "Puppet Server",
-        "agents",
-        "environments",
-        "templates",
-        "resource relationships"
+        "Best practices"
       ],
       "tools": [
         "Puppet",
@@ -723,22 +615,7 @@
         "Deploy",
         "Rollback",
         "Approval gates",
-        "Documentation",
-        "Puppet terminology and feature mapping for this topic",
-        "Puppet configuration and implementation considerations",
-        "Puppet best practices and common mistakes for this topic",
-        "manifests",
-        "resources",
-        "classes",
-        "modules",
-        "Hiera",
-        "Facter",
-        "catalog",
-        "Puppet Server",
-        "agents",
-        "environments",
-        "templates",
-        "resource relationships"
+        "Documentation"
       ],
       "tools": [
         "Puppet",
@@ -807,5 +684,6 @@
   "review_warnings": [
     "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
   ],
-  "review_status": "unreviewed"
+  "review_status": "unreviewed",
+  "content_cleanup_version": "course-outline-v1"
 }

@@ -1,0 +1,573 @@
+{
+  "domain": "Flutter",
+  "name": "Flutter",
+  "category": "Mobile Development",
+  "icon": "smartphone",
+  "aliases": ["Flutter Developer", "Flutter Mobile Development", "Flutter with Dart", "Flutter Web", "Advanced Flutter", "Flutter Cross-Platform Development"],
+  "certifications": [],
+  "tools": ["Flutter SDK 3.50", "Dart SDK 3.14", "Visual Studio Code with the Flutter extension", "Android Studio", "Xcode 27", "Flutter DevTools", "pub.dev", "Firebase console"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who are new to Flutter, such as web, back-end or native mobile developers moving to cross-platform apps. Covers the Flutter 3.50 SDK and tooling, the Dart that Flutter code needs, widgets, layouts and state, lists, go_router navigation, forms, async code, REST APIs and JSON, shared_preferences and SQLite, Material 3 theming, assets, Provider, device plugins, widget tests, and release builds for Google Play and the App Store.",
+      "prerequisites": ["Has written programs in an object-oriented language such as Java, Kotlin, Swift, C# or TypeScript", "Uses Git and a terminal for everyday tasks such as cloning, committing and running commands", "Has a laptop with 16 GB RAM and admin rights, an Android phone or emulator, and a Mac with Xcode 27 for iOS work"],
+      "outcomes": ["Build multi-screen Flutter apps with Material 3 widgets, responsive layouts, lists, forms and go_router navigation", "Load and save data through REST APIs, JSON models, shared_preferences and SQLite", "Manage simple app state with setState, ChangeNotifier and Provider, and cover it with widget tests", "Produce signed release builds and publish them to Google Play internal testing and TestFlight"],
+      "days": [
+        {
+          "topic": "Flutter SDK Setup and Developer Tooling",
+          "subtopics": ["How Flutter works: Dart code, the framework, the engine and platform embedders", "Installing the Flutter 3.50 SDK and adding flutter/bin to PATH", "flutter doctor -v and fixing Android toolchain, Xcode and licence problems", "Android Studio, the Android SDK and an emulator with an API 36 system image", "Xcode 27, the iOS Simulator and Swift Package Manager as the default for iOS plugins", "VS Code with the Dart and Flutter extensions: device selector, run and debug", "flutter create and the project layout: lib/, test/, android/, ios/, web/ and pubspec.yaml", "Hot reload, hot restart and full restart, and what each one keeps", "Release channels, flutter upgrade and pinning a project's Flutter version", "Adding packages with flutter pub add and judging them by likes, pub points, downloads and publisher"],
+          "tools": ["Flutter SDK 3.50", "Visual Studio Code with the Flutter extension", "Android Studio Device Manager", "Xcode 27 and iOS Simulator"],
+          "lab_task": "Install Flutter 3.50, clear every error reported by flutter doctor -v, create an app with flutter create --org com.acmetraining field_notes, run it on an Android API 36 emulator and on the iOS Simulator (or Chrome on a laptop without macOS), change the counter step from 1 to 5 with hot reload and add the intl package with flutter pub add.",
+          "deliverable": "flutter doctor -v output with no errors, the field_notes app running on two targets and a note on hot reload versus hot restart",
+          "checks": [["Run flutter doctor -v after installing", "The Flutter, Android toolchain and Android Studio sections show no errors, and Xcode shows none on a Mac", "flutter doctor output"], ["Change the counter increment from 1 to 5 and save the file", "Hot reload applies the change and the current count is kept", "Screen recording of the counter"], ["Change the starting value of _counter from 0 to 10 and hot reload", "The count stays the same until a hot restart resets it to 10", "Screenshots before and after the hot restart"]],
+          "objectives": ["Install and verify the Flutter toolchain", "Create, run and hot reload an app on two targets", "Explain the parts of a Flutter project"]
+        },
+        {
+          "topic": "Dart Essentials for Flutter Developers",
+          "subtopics": ["var, final and const, and why const widgets skip rebuild work", "Sound null safety with ?, !, ?? and late", "Lists, maps and sets with collection if, collection for and spreads", "Functions, named and required parameters, and closures as callbacks", "Classes and constructors, including primary constructors from Dart 3.13", "Enums, records and patterns in switch expressions", "Sealed classes for modelling screen states", "Dot shorthands such as .center and .all(8) from Dart 3.10"],
+          "tools": ["DartPad", "dart analyze", "dart format", "Visual Studio Code with the Dart extension"],
+          "lab_task": "Model a library loan system in a Dart console project: a Book class with a primary constructor, a sealed LoanState with Available, OnLoan and Overdue subclasses, a switch expression that returns a label for each state, and a report that filters 20 sample books with collection for and prints the overdue titles.",
+          "deliverable": "Dart loan model that passes dart analyze, with the console report for the 20 sample books",
+          "checks": [["Delete the Overdue case from the switch expression", "dart analyze reports that the switch is not exhaustive", "Analyzer output"], ["Read title.length on a Book? variable without a null check", "Compilation fails until ?. or a null check is added", "Compiler error and corrected line"], ["Run the report on the supplied 20 books", "Exactly 4 overdue titles are printed", "Console output"]],
+          "objectives": ["Write null-safe Dart", "Model states with sealed classes and patterns", "Read the Dart used in Flutter widget code"]
+        },
+        {
+          "topic": "Widgets and the Widget Tree",
+          "subtopics": ["Composing screens from small widgets instead of inheritance", "runApp, MaterialApp and Scaffold from package:material_ui", "The widget, element and render object trees and what each one does", "BuildContext and lookups such as Theme.of and MediaQuery.sizeOf", "Everyday widgets: Text, Icon, Image, Card, ListTile and FilledButton", "Keys: ValueKey, ObjectKey and GlobalKey, and when you need them", "Extracting widget classes rather than helper methods that return widgets", "Exploring the tree in the Flutter Inspector and with Widget Previews"],
+          "tools": ["Flutter Inspector in DevTools", "Flutter Widget Previewer", "Visual Studio Code with the Flutter extension"],
+          "lab_task": "Build a conference session screen from a supplied design with an AppBar, header image, title, a speaker row with avatar and 3 selectable tag chips, extract SessionCard, SpeakerRow and TagChips widget classes, give each chip a ValueKey, add @Preview functions for SessionCard in light and dark themes and locate each widget in the Flutter Inspector.",
+          "deliverable": "Session screen split into 3 widget classes, with previews and an Inspector screenshot of the tree",
+          "checks": [["Open the widget tree in the Flutter Inspector", "SessionCard, SpeakerRow and TagChips show as separate nodes", "Inspector screenshot"], ["Open the Widget Previewer for SessionCard", "Light and dark previews render without running the app", "Previewer screenshot"], ["Select the first chip, then reverse the tag order", "The selected state moves with its chip because of the ValueKey", "Before-and-after screenshots"]],
+          "objectives": ["Compose screens from small widgets", "Explain the widget, element and render object trees", "Use the Inspector and Widget Previewer"]
+        },
+        {
+          "topic": "Stateless and Stateful Widgets",
+          "subtopics": ["When a StatelessWidget is enough", "StatefulWidget, State and setState", "The State lifecycle: initState, didChangeDependencies, didUpdateWidget and dispose", "Disposing controllers, timers and stream subscriptions", "Lifting state up and passing callbacks to child widgets", "The mounted check after an await", "Keeping setState low in the tree to limit rebuilds", "AppLifecycleListener for resume, pause and detach events"],
+          "tools": ["Visual Studio Code with the Flutter extension", "Rebuild stats in Flutter DevTools", "debugPrint"],
+          "lab_task": "Build a basket screen with a stateless ProductTile and a stateful QuantityStepper limited to 0 to 10, lift the basket total into the parent screen, log every State lifecycle method, and pause a 1-second countdown timer when the app goes to the background using AppLifecycleListener.",
+          "deliverable": "Basket screen with a running total, a lifecycle log and a timer that is cancelled in dispose",
+          "checks": [["Press + on a stepper 11 times", "The quantity stops at 10 and the total updates on every press up to 10", "Screen recording"], ["Leave the basket screen", "dispose runs and the timer stops printing", "Debug console log"], ["Send the app to the background for 10 seconds", "The countdown pauses and resumes from the same value", "Log lines with timestamps"]],
+          "objectives": ["Choose between stateless and stateful widgets", "Manage the State lifecycle and release resources", "Lift state to a shared parent"]
+        },
+        {
+          "topic": "Layouts: Rows, Columns, Stacks and Constraints",
+          "subtopics": ["Constraints go down, sizes go up, the parent sets the position", "Row and Column with mainAxisAlignment and crossAxisAlignment", "Expanded, Flexible and Spacer", "Padding, SizedBox and Container for spacing and decoration", "Stack, Positioned and Align for overlapping content", "Wrap for chips and tags that flow onto new lines", "Reading RenderFlex overflow and unbounded height errors", "Layout Explorer and debug paint for finding layout problems"],
+          "tools": ["Flutter Inspector Layout Explorer", "debugPaintSizeEnabled", "Android emulator"],
+          "lab_task": "Rebuild a supplied profile screen with a cover image and an overlapping avatar using Stack and Positioned, a stats row of 3 equal Expanded columns and a Wrap of 12 skill chips, then fix 2 seeded bugs: a Row that overflows by 48 pixels on a 360 dp wide screen and a ListView inside a Column with unbounded height.",
+          "deliverable": "Profile screen that matches the design at 360 and 412 dp widths, with notes on the 2 fixed layout errors",
+          "checks": [["Run the seeded screen on a 360 dp wide emulator", "A striped overflow warning and a RenderFlex overflowed by 48 pixels error appear", "Console error and screenshot"], ["Wrap the ListView in Expanded", "The unbounded height error disappears and the list scrolls", "Screen recording"], ["Select the stats row in Layout Explorer", "The 3 columns each have flex 1 and equal widths", "Layout Explorer screenshot"]],
+          "objectives": ["Explain how constraints flow through a layout", "Build layouts with Row, Column, Stack and Wrap", "Diagnose overflow and unbounded constraint errors"]
+        },
+        {
+          "topic": "Responsive Layouts with LayoutBuilder and MediaQuery",
+          "subtopics": ["MediaQuery.sizeOf, MediaQuery.paddingOf and MediaQuery.textScalerOf", "LayoutBuilder and breakpoints at 600 and 840 dp", "SafeArea, display cut-outs and Android 16 edge-to-edge display", "Orientation changes and OrientationBuilder", "NavigationBar on phones and NavigationRail on tablets and desktops", "Adaptive widgets such as Switch.adaptive and platform checks", "AspectRatio, ConstrainedBox and FractionallySizedBox for flexible sizing", "Checking layouts on tablet and foldable emulators and in a resized browser window"],
+          "tools": ["Android emulator tablet and foldable profiles", "Chrome with flutter run -d chrome", "Flutter Widget Previewer"],
+          "lab_task": "Turn a single-column news reader into an adaptive app: one column below 600 dp, list and article side by side from 840 dp, a NavigationBar below 600 dp and a NavigationRail above it, and check the result on a phone emulator, a tablet emulator and a Chrome window resized from 1024 to 360 dp.",
+          "deliverable": "Adaptive news reader with screenshots at 360, 700 and 1024 dp widths",
+          "checks": [["Resize the Chrome window from 1024 to 360 dp", "The layout changes from list and article to a single list at the breakpoints", "Screen recording"], ["Rotate the phone emulator to landscape", "Content stays clear of the camera cut-out and nothing overflows", "Landscape screenshot"], ["Set the device font size to 200% and reopen the app", "Headlines wrap onto new lines instead of being clipped", "Screenshot at 200% text size"]],
+          "objectives": ["Build layouts that adapt to the window size", "Respect safe areas and text scaling", "Switch navigation patterns by breakpoint"]
+        },
+        {
+          "topic": "Lists and Grids with ListView, GridView and Slivers",
+          "subtopics": ["ListView, ListView.builder and ListView.separated", "GridView.builder with SliverGridDelegateWithMaxCrossAxisExtent", "ListTile, Card and Dismissible rows", "Lazy building, itemExtent and prototypeItem for long lists", "CustomScrollView with SliverAppBar and SliverList", "Pull to refresh with RefreshIndicator", "Loading the next page from a ScrollController", "Empty, loading and error states for lists"],
+          "tools": ["Flutter DevTools Performance view", "Visual Studio Code with the Flutter extension"],
+          "lab_task": "Build a product catalogue over 1,000 generated products that loads 50 at a time into a ListView.builder, add a GridView mode with a 180 dp maximum tile width, swipe-to-delete with an Undo SnackBar, pull to refresh, and load the next 50 when the user scrolls within 200 pixels of the end.",
+          "deliverable": "Catalogue with list and grid modes, swipe-to-delete with undo and paged loading",
+          "checks": [["Scroll within 200 pixels of the end of the first page", "Exactly 50 more products load and the counter shows 100", "Screenshot of the counter"], ["Swipe a product away and tap Undo", "The product returns to the same position", "Screen recording"], ["Scroll to the 1,000th product in profile mode on a device", "No frame in the Performance view goes over the 16 ms budget", "DevTools frame chart"]],
+          "objectives": ["Build lazy lists and grids", "Add refresh, paging and swipe actions", "Show empty, loading and error states"]
+        },
+        {
+          "topic": "Navigation and Deep Links with go_router",
+          "subtopics": ["Navigator push and pop compared with declarative routing", "GoRouter with GoRoute paths and route names", "Path parameters such as /events/:id and query parameters", "context.go, context.push and context.pop", "Returning a result from a pushed screen", "StatefulShellRoute.indexedStack for tabs that keep their state", "redirect for screens that need a signed-in user", "Deep links with Android App Links, iOS Universal Links and custom URL schemes"],
+          "tools": ["go_router", "adb shell am start", "xcrun simctl openurl", "DevTools Deep Links tool"],
+          "lab_task": "Add go_router to a three-tab events app (Events, Tickets, Profile) with StatefulShellRoute so each tab keeps its scroll position, add /events/:id with an optional ?tab=speakers query parameter, redirect /tickets to /login when signed out, and open the /events/42 deep link from adb on Android and from xcrun simctl openurl on iOS.",
+          "deliverable": "Events app with tab navigation, a parameterised detail route, a sign-in redirect and deep link test results",
+          "checks": [["Open the /events/42 deep link with adb shell am start", "The app opens the detail screen for event 42 with a back button to the list", "Screen recording"], ["Open the Tickets tab while signed out", "The router sends the user to /login and back to /tickets after sign-in", "Screen recording"], ["Scroll the Events tab, switch to Profile and back", "The Events list keeps its scroll position", "Before-and-after screenshots"]],
+          "objectives": ["Configure declarative routes with go_router", "Pass parameters and protect routes with redirects", "Test deep links on Android and iOS"]
+        },
+        {
+          "topic": "Forms and Validation with Form and TextFormField",
+          "subtopics": ["TextField, TextFormField and TextEditingController", "Form, GlobalKey<FormState>, validate() and save()", "Validators for required fields, email format and number ranges", "autovalidateMode and when to show errors", "Keyboard types, textInputAction and focus order with FocusNode", "DropdownButtonFormField, CheckboxListTile, SwitchListTile and showDatePicker", "Input formatters for phone numbers and amounts", "Disabling Submit while saving and confirming with a SnackBar"],
+          "tools": ["Visual Studio Code with the Flutter extension", "Android emulator and iOS Simulator keyboards"],
+          "lab_task": "Build an event registration form with name, email, ticket count from 1 to 6, a dietary needs dropdown and a terms checkbox, validate on submit and then on every change, move focus with Next and Done, limit the date picker to the next 90 days and disable Submit during a simulated 2-second save.",
+          "deliverable": "Registration form with validators, keyboard focus order and a submit flow",
+          "checks": [["Submit the empty form", "Each required field shows its own error message", "Screenshot"], ["Enter 7 in the ticket count", "The field shows Enter a number from 1 to 6", "Screenshot"], ["Press Next on the keyboard in the name field", "Focus moves to email and then to ticket count", "Screen recording"]],
+          "objectives": ["Build forms with validation", "Control focus and keyboard behaviour", "Handle submit and saving states"]
+        },
+        {
+          "topic": "Futures, Streams and Async Builders",
+          "subtopics": ["Future, async and await", "try, catch and finally around awaited calls", "Future.wait for parallel calls and .timeout for slow ones", "Stream, StreamController and listen", "FutureBuilder and ConnectionState", "StreamBuilder for live values", "Creating the Future in initState rather than in build", "Isolate.run for heavy parsing away from the UI isolate"],
+          "tools": ["DartPad", "Flutter DevTools CPU profiler", "Visual Studio Code debugger"],
+          "lab_task": "Build a weather dashboard that loads 3 city forecasts in parallel with Future.wait and a 5-second timeout, shows loading, data and error states with FutureBuilder, shows a clock that ticks every second with StreamBuilder, and parses a 5 MB JSON file with Isolate.run while a progress spinner keeps turning.",
+          "deliverable": "Weather dashboard with 3 async states, a live clock and isolate-based parsing",
+          "checks": [["Make one city's response take 8 seconds", "The timeout fires after 5 seconds and the error state offers Retry", "Screen recording"], ["Parse the 5 MB file on the UI isolate and then with Isolate.run", "The spinner freezes in the first run and keeps turning in the second", "Screen recordings of both runs"], ["Toggle the theme 10 times", "The forecast request is sent only once", "Debug log of requests"]],
+          "objectives": ["Write async Dart with error handling", "Show Futures and Streams in widgets", "Keep heavy work off the UI isolate"]
+        },
+        {
+          "topic": "REST APIs and JSON with http and json_serializable",
+          "subtopics": ["The http package: get, post, headers and status codes", "Decoding JSON with dart:convert into typed model classes", "fromJson and toJson generated by json_serializable and build_runner", "Handling 4xx and 5xx responses, timeouts and SocketException", "A small API client class with a base URL", "The Android INTERNET permission and iOS App Transport Security", "Showing data, retry and empty states", "Inspecting requests in the DevTools Network view"],
+          "tools": ["http package", "json_serializable and build_runner", "Flutter DevTools Network view", "Postman"],
+          "lab_task": "Connect a to-do app to the JSONPlaceholder /todos endpoint: fetch all 200 items into a Todo model generated with json_serializable, create an item with POST and show the returned id of 201, and show a friendly message with a Retry button when the device is offline.",
+          "deliverable": "To-do screen backed by the REST API, with a generated model and error handling",
+          "checks": [["Fetch /todos", "200 items are listed and the Network view shows status 200", "Network view screenshot"], ["POST a new to-do", "The response has status 201 and id 201", "Network view or log output"], ["Turn on airplane mode and refresh", "The app shows a no-connection message with Retry instead of crashing", "Screenshot"]],
+          "objectives": ["Call REST APIs with the http package", "Map JSON to typed models", "Handle network errors in the UI"]
+        },
+        {
+          "topic": "Local Storage with shared_preferences and SQLite",
+          "subtopics": ["Choosing key-value storage, files or a database", "SharedPreferencesAsync and SharedPreferencesWithCache instead of the legacy SharedPreferences API", "path_provider for documents and cache directories", "Opening a database with sqflite, onCreate and version numbers", "Insert, query, update and delete with whereArgs", "Schema changes with onUpgrade", "Inspecting the database with Android Studio App Inspection", "Keeping tokens and passwords out of plain storage"],
+          "tools": ["shared_preferences", "sqflite", "path_provider", "Android Studio App Inspection"],
+          "lab_task": "Save a dark mode flag and the last opened tab with SharedPreferencesWithCache, store a notes table (id, title, body, updated_at) in sqflite with insert, title search through a LIKE query with whereArgs and delete, then ship schema version 2 that adds a pinned column through onUpgrade without losing the 20 existing notes.",
+          "deliverable": "Notes app with saved settings, SQLite CRUD and a tested schema upgrade",
+          "checks": [["Kill and relaunch the app", "Dark mode and the last tab are restored", "Screenshots before and after"], ["Upgrade the database from version 1 to version 2", "All 20 notes remain and each has pinned set to 0", "App Inspection query result"], ["Search for a title containing an apostrophe, such as O'Brien", "The note is found without an SQL error", "Screenshot and log"]],
+          "objectives": ["Persist settings with shared_preferences", "Use SQLite with parameterised queries", "Change a local schema safely"]
+        },
+        {
+          "topic": "Material 3 Themes, Colour Schemes and Typography",
+          "subtopics": ["material_ui as the Material library in new Flutter 3.50 projects", "ThemeData and ColorScheme.fromSeed", "Light and dark themes with themeMode", "TextTheme roles such as headlineMedium and bodyLarge", "Component themes for buttons, cards and text fields", "Material 3 components: FilledButton, NavigationBar, SegmentedButton and SearchBar", "ThemeExtension for brand colours", "iOS-style screens with widgets from cupertino_ui"],
+          "tools": ["material_ui", "Material Theme Builder", "Flutter Widget Previewer"],
+          "lab_task": "Theme a banking demo from one seed colour (#0B6E4F) with light and dark themes that follow the system setting, define component themes for FilledButton, Card and InputDecoration, add a ThemeExtension with success and warning colours, and replace 3 hard-coded colours and 2 text styles with theme lookups.",
+          "deliverable": "Themed app in light and dark mode with no hard-coded colours in screen code",
+          "checks": [["Switch the device to dark mode", "The app changes theme without a restart", "Light and dark screenshots"], ["Search lib/ for Color(0x", "Matches appear only in the theme file", "Search results"], ["Check body text against the surface colour in a contrast checker", "Contrast is at least 4.5:1 in both themes", "Contrast checker results"]],
+          "objectives": ["Build Material 3 themes from a seed colour", "Use theme roles instead of hard-coded styles", "Support light and dark mode"]
+        },
+        {
+          "topic": "Image Assets, Custom Fonts and Launcher Icons",
+          "subtopics": ["Declaring assets and fonts in pubspec.yaml", "Resolution-aware images in 2.0x and 3.0x folders", "Image.asset and Image.network with loading and error builders", "Caching remote images with cached_network_image", "SVG icons with flutter_svg", "Bundled custom fonts and the google_fonts package", "Launcher icons with flutter_launcher_icons and splash screens with flutter_native_splash", "The size cost of assets and flutter build apk --analyze-size"],
+          "tools": ["cached_network_image", "flutter_svg", "flutter_launcher_icons", "flutter_native_splash"],
+          "lab_task": "Add a logo at 1x, 2x and 3x, a gallery of 30 remote photos with placeholder and error widgets, an SVG icon set, a bundled variable font, a launcher icon from a 1024 x 1024 PNG and a splash screen, then compare the release APK size before and after converting 12 PNG backgrounds to WebP.",
+          "deliverable": "App with all assets, icons and splash screen, plus a before-and-after size report",
+          "checks": [["Turn off the network after viewing 10 gallery photos", "The 10 cached photos still show and the others show the error widget", "Screenshot"], ["Install the release build", "The new launcher icon and splash screen appear on Android and iOS", "Home screen and launch screenshots"], ["Run flutter build apk --analyze-size --target-platform android-arm64 before and after the WebP change", "The assets entry in the size report gets smaller", "Size analysis output"]],
+          "objectives": ["Bundle and load images, fonts and SVGs", "Generate launcher icons and splash screens", "Measure what assets add to app size"]
+        },
+        {
+          "topic": "Simple State Management with ChangeNotifier and Provider",
+          "subtopics": ["Ephemeral state compared with app state", "InheritedWidget and how data flows down the tree", "ValueNotifier and ValueListenableBuilder", "ChangeNotifier and notifyListeners", "ChangeNotifierProvider and MultiProvider", "context.watch, context.read and context.select", "Moving logic out of widgets into model classes", "Unit testing a ChangeNotifier"],
+          "tools": ["provider", "flutter test", "Rebuild stats in Flutter DevTools"],
+          "lab_task": "Move a shopping cart from setState into a CartModel ChangeNotifier shared by the catalogue, the cart badge and the checkout screen through ChangeNotifierProvider, use context.select so the badge rebuilds only when the item count changes, and write 4 unit tests for add, remove, clear and total.",
+          "deliverable": "Cart app using Provider, with 4 passing CartModel unit tests",
+          "checks": [["Add an item on the catalogue screen", "The badge and the checkout total update without passing callbacks", "Screen recording"], ["Edit an item's gift note without changing the count", "The badge does not rebuild", "Rebuild stats or debugPrint log"], ["Run flutter test test/cart_model_test.dart", "All 4 tests pass", "Test output"]],
+          "objectives": ["Separate app state from widgets", "Share state with Provider", "Limit rebuilds with select"]
+        },
+        {
+          "topic": "Camera, Location and Permissions through Plugins",
+          "subtopics": ["How plugins work: a Dart API with Android and iOS code, and pub.dev platform tags", "image_picker for the camera and photo library", "geolocator for position, accuracy and location services", "permission_handler and a pre-permission explanation screen", "AndroidManifest.xml permissions and Info.plist usage descriptions", "Denied and permanently denied permissions and opening app settings", "url_launcher and share_plus for links, calls and sharing", "Mock locations on emulators and testing on real devices"],
+          "tools": ["image_picker", "geolocator", "permission_handler", "share_plus"],
+          "lab_task": "Build an incident report screen that takes a photo with image_picker, records the position with geolocator to 6 decimal places, explains each permission before the system dialog, offers Open settings when location is permanently denied, and shares the report text with share_plus.",
+          "deliverable": "Incident report screen with photo, location, permission handling and sharing",
+          "checks": [["Deny location twice on Android", "The app shows an Open settings button instead of asking again", "Screenshot"], ["Set a mock location of 51.500700, -0.124600 in the emulator", "The report shows those coordinates", "Screenshot"], ["Remove NSCameraUsageDescription from Info.plist and open the camera on iOS", "iOS terminates the app, and restoring the key fixes it", "Crash log and retest screenshot"]],
+          "objectives": ["Use plugins to reach device features", "Request and handle permissions correctly", "Configure platform permission files"]
+        },
+        {
+          "topic": "Widget Tests with flutter_test",
+          "subtopics": ["Unit, widget and integration tests and what each one costs", "testWidgets, WidgetTester and pumpWidget", "Finders: find.text, find.byKey and find.byType", "tap, enterText, pump and pumpAndSettle", "Fake dependencies with mocktail", "Testing forms, lists and navigation", "Testing async states with a fake HTTP client", "flutter test --coverage and reading lcov.info"],
+          "tools": ["flutter_test", "mocktail", "lcov genhtml"],
+          "lab_task": "Write 8 widget tests for the registration form and the to-do list covering required-field errors, the ticket range error, a successful submit, list loading, the empty list state, a list error with Retry using a mocktail fake client, swipe-to-delete and navigation to the detail route, then reach at least 70% line coverage for lib/features/registration.",
+          "deliverable": "Suite of 8 widget tests with a coverage report",
+          "checks": [["Run flutter test", "All 8 tests pass in under 30 seconds", "Test output"], ["Break the email validator on purpose", "Exactly one test fails with a clear finder message", "Failing test output"], ["Run flutter test --coverage and generate the HTML report", "Line coverage for lib/features/registration is 70% or more", "Coverage report"]],
+          "objectives": ["Write widget tests with finders and interactions", "Fake dependencies with mocktail", "Measure test coverage"]
+        },
+        {
+          "topic": "Google Play Releases with flutter build appbundle",
+          "subtopics": ["Version name and build number in pubspec.yaml, such as 1.0.0+1", "applicationId, minSdk and targetSdk 36 in android/app/build.gradle.kts", "Creating an upload keystore with keytool and keeping key.properties out of Git", "flutter build appbundle and the release AAB", "R8 code shrinking in release builds", "Play App Signing and the upload key", "Internal testing and the 12-tester, 14-day closed test for new personal accounts", "Store listing, content rating and the Data safety form"],
+          "tools": ["flutter build appbundle", "keytool", "Google Play Console", "bundletool"],
+          "lab_task": "Set the version to 1.0.0+1, create an upload keystore with keytool, configure release signing through key.properties excluded from Git, build an AAB that targets API 36, upload it to an internal testing track in Play Console and install it on a tester's phone from the opt-in link.",
+          "deliverable": "Signed AAB on the internal testing track, with the Play Console release summary",
+          "checks": [["Run git status after configuring signing", "Neither key.properties nor the .jks file is listed", "git status output"], ["Upload the AAB to internal testing", "Play Console accepts it without a target API level error", "Release summary screenshot"], ["Install from the internal testing opt-in link", "Version 1.0.0 (1) runs on the tester's phone", "App info screenshot"]],
+          "objectives": ["Create signed Android release builds", "Publish to a Google Play testing track", "Prepare the store listing and Data safety answers"]
+        },
+        {
+          "topic": "App Store Releases with flutter build ipa and TestFlight",
+          "subtopics": ["Apple Developer Program membership, bundle IDs and App Store Connect app records", "Automatic signing, certificates and provisioning profiles in Xcode 27", "Display name, the iOS 15 minimum deployment target and Info.plist entries", "flutter build ipa and export options", "Uploading with Transporter or the Xcode Organizer", "TestFlight internal and external testers and beta app review", "App Privacy answers and the app's privacy manifest", "Review guidelines that often reject first submissions, such as account deletion and minimum functionality"],
+          "tools": ["Xcode 27", "flutter build ipa", "App Store Connect", "TestFlight", "Transporter"],
+          "lab_task": "Register the bundle ID com.acmetraining.fieldNotes, set the display name and version 1.0.0 (2), build with flutter build ipa, upload through Transporter, add 2 internal testers in TestFlight and complete the App Privacy section for an app that collects email addresses.",
+          "deliverable": "TestFlight build installed by 2 internal testers and a completed App Privacy section",
+          "checks": [["Upload the IPA", "The build finishes processing and appears in the TestFlight tab", "App Store Connect screenshot"], ["Upload a second IPA with the same build number", "App Store Connect rejects it as a duplicate build", "Transporter error message"], ["Install from the TestFlight app on a tester's iPhone", "Version 1.0.0 (2) launches", "TestFlight screenshot"]],
+          "objectives": ["Sign and archive iOS builds", "Distribute builds through TestFlight", "Complete App Store privacy details"]
+        },
+        {
+          "topic": "Beginner Capstone: Community Book Swap App",
+          "subtopics": ["Requirements and a screen map for browse, detail, add and profile screens", "go_router navigation with tabs and a detail route by ID", "REST API listing with JSON models and loading, empty and error states", "An add-book form with validation and a camera photo", "Favourites in SQLite, settings in shared_preferences and a Material 3 theme", "Widget tests, a signed release build and a 10-minute demo"],
+          "tools": ["Flutter SDK 3.50", "go_router", "provider", "sqflite", "Google Play Console or TestFlight"],
+          "lab_task": "In pairs, build a book swap app: browse 100 books from a supplied REST API in list and grid modes, open /books/:id from a deep link, add a book through a validated form with a camera photo, save favourites in SQLite, follow the system light or dark theme, cover the app with at least 6 widget tests and upload a signed build to Google Play internal testing or TestFlight.",
+          "deliverable": "Source repository, test report, a build on a testing track and a 10-minute demo",
+          "checks": [["Open the deep link for book 17", "The detail screen for book 17 opens with a working back button", "Demo recording"], ["Run flutter test on the final commit", "At least 6 widget tests pass", "Test output"], ["Restart the app after saving 3 favourites", "The 3 favourites are still listed", "Screenshots"]],
+          "objectives": ["Combine the beginner topics in one working app", "Ship a tested build to a testing track", "Explain design and code decisions"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For Flutter developers who already ship simple apps and now work on larger production codebases. Covers layered architecture with dependency injection, Dio networking, Riverpod 3 and Bloc compared, Firebase Authentication, Cloud Firestore and Cloud Messaging through FlutterFire, offline-first data with Drift, animations and custom painting, DevTools profiling, platform channels, Pigeon and federated plugins, accessibility, internationalisation, integration and golden tests, flavours, CI/CD with GitHub Actions, Codemagic and fastlane, and Flutter web and desktop.",
+      "prerequisites": ["Has completed the Beginner track or built and released at least one Flutter app", "Writes Dart with null safety, async/await, sealed classes and pattern matching", "Has a Firebase project, a GitHub account and access to Android and iOS test devices"],
+      "outcomes": ["Structure apps into UI and data layers with repositories, dependency injection and Riverpod or Bloc", "Integrate Firebase, native platform APIs and an offline-first data store", "Make apps fast, accessible and localised, and prove it with integration and golden tests", "Automate builds for several flavours and ship to mobile, web and desktop targets"],
+      "days": [
+        {
+          "topic": "Layered App Architecture: Views, View Models, Repositories and Services",
+          "subtopics": ["The Flutter architecture guide: a UI layer and a data layer", "Views and view models with ChangeNotifier and the Command pattern", "Repositories as the single source of truth for each type of data", "Services that wrap HTTP clients, plugins and local storage", "An optional domain layer of use cases for logic shared by view models", "Dependency injection with Provider, get_it or Riverpod providers", "Result types for expected errors instead of thrown exceptions", "Feature-first folders and import rules between layers"],
+          "tools": ["Compass app sample in flutter/samples", "provider", "get_it", "very_good_analysis"],
+          "lab_task": "Refactor a 1,200-line single-file travel booking screen into a view, a view model with load and book Commands, a BookingRepository and an ApiService, inject them with Provider, return Result<Booking> from the repository and write unit tests for the view model against a fake repository.",
+          "deliverable": "Booking feature in a layered folder structure, with view model unit tests",
+          "checks": [["Search the views folder for imports of package:http", "No view imports an HTTP or storage package", "Search output"], ["Run the view model tests with the fake repository", "The tests pass with the network turned off", "Test output"], ["Make the API return 500 during booking", "The view shows the Result error and the book Command can run again", "Screen recording"]],
+          "objectives": ["Split features into UI and data layers", "Inject dependencies so features can be tested", "Model expected errors with Result types"]
+        },
+        {
+          "topic": "Dio Networking with Interceptors, Retries and Token Refresh",
+          "subtopics": ["Dio options: baseUrl, connect and receive timeouts and default headers", "Interceptors for auth headers and request logging", "Refreshing an expired access token once when several requests fail together", "Retrying idempotent requests with exponential backoff", "Cancelling requests with CancelToken when a screen closes", "Mapping DioException types to app errors", "Typed API clients with retrofit and json_serializable", "Testing the client with http_mock_adapter"],
+          "tools": ["dio", "retrofit", "http_mock_adapter", "Flutter DevTools Network view"],
+          "lab_task": "Build a client for a supplied orders API that adds a bearer token, refreshes it with a single call on 401 even when 5 requests fail at once, retries GET requests up to 3 times on 503 with 0.5, 1 and 2 second delays, cancels requests when the orders screen closes, and covers each case with http_mock_adapter tests.",
+          "deliverable": "Orders API client with interceptors and 6 passing client tests",
+          "checks": [["Send 5 requests with an expired token", "One refresh call is made and all 5 requests then succeed", "Test log or Network view"], ["Return 503 twice and then 200", "The client retries twice and returns the data", "Test output"], ["Close the orders screen during a slow request", "The request is cancelled with no error after dispose", "Debug log"]],
+          "objectives": ["Build a networking layer that copes with failures", "Handle token refresh and retries safely", "Test networking code without a server"]
+        },
+        {
+          "topic": "Riverpod 3: Providers, Notifiers and Async State",
+          "subtopics": ["ProviderScope, providers and the Ref object", "Notifier and AsyncNotifier for state that changes", "FutureProvider, StreamProvider and AsyncValue loading, data and error states", "Code generation with @riverpod and riverpod_generator", "Family providers and autoDispose", "ref.watch, ref.read, ref.listen and select", "Automatic retry and the experimental offline persistence and mutations in Riverpod 3", "Overriding providers in tests with ProviderContainer"],
+          "tools": ["flutter_riverpod", "riverpod_generator and build_runner", "riverpod_lint", "flutter test"],
+          "lab_task": "Rebuild the orders feature with Riverpod 3: an AsyncNotifier for the order list, a family provider for order details by ID, an optimistic Mark as shipped update that rolls back on failure, and tests that override the repository provider with a fake.",
+          "deliverable": "Riverpod orders feature with provider tests",
+          "checks": [["Open order 42 on two screens at once", "The family provider fetches order 42 once", "Repository call log"], ["Make Mark as shipped fail with a 409", "The order returns to Pending and an error SnackBar appears", "Screen recording"], ["Leave the details screen", "The autoDispose provider is disposed", "ref.onDispose log line"]],
+          "objectives": ["Model async state with Riverpod 3", "Use family and autoDispose providers", "Test providers with overrides"]
+        },
+        {
+          "topic": "Bloc and Cubit Compared with Riverpod",
+          "subtopics": ["Cubit: methods that emit new states", "Bloc: events, states and on<Event> handlers", "BlocProvider, BlocBuilder, BlocListener and BlocSelector", "Sealed state classes with Equatable or freezed", "Event transformers from bloc_concurrency: droppable, restartable and sequential", "Testing with bloc_test and blocTest", "hydrated_bloc for restoring state after a restart", "Choosing Riverpod or Bloc by team size, traceability and boilerplate"],
+          "tools": ["flutter_bloc", "bloc_test", "bloc_concurrency", "Bloc extension for VS Code"],
+          "lab_task": "Build the order search as a Bloc with a restartable SearchChanged event and a 300 ms debounce, write 5 blocTest cases, then compare the Riverpod and Bloc versions on lines of code, number of tests, rebuild counts and readability in a one-page table.",
+          "deliverable": "Bloc search feature, 5 blocTest cases and a Riverpod and Bloc comparison table",
+          "checks": [["Type 5 characters quickly", "Only one search request is sent, 300 ms after the last key press", "Network log"], ["Run the blocTest cases", "All 5 pass and the emitted states are Loading then Loaded", "Test output"], ["Present the comparison to the group", "The team picks one approach for the capstone and records the reasons", "Comparison document"]],
+          "objectives": ["Build features with Bloc and Cubit", "Control how events are processed", "Choose a state management approach with evidence"]
+        },
+        {
+          "topic": "Firebase Auth and Cloud Firestore with FlutterFire",
+          "subtopics": ["flutterfire configure and the generated firebase_options.dart", "Firebase Authentication with email and password, Google and Sign in with Apple", "authStateChanges as the stream behind go_router redirects", "Firestore collections, documents and typed models with withConverter", "Real-time queries with snapshots, ordering and pagination with startAfterDocument", "Offline persistence and pending writes in Firestore", "Security rules for per-user data, tested in the Local Emulator Suite", "Firebase App Check with Play Integrity and App Attest"],
+          "tools": ["FlutterFire CLI", "firebase_auth", "cloud_firestore", "Firebase Local Emulator Suite"],
+          "lab_task": "Add email and Google sign-in to a shared shopping list app, store lists in Firestore under /users/{uid}/lists with withConverter models, show real-time updates on 2 devices, and write security rules that block reading another user's lists, proved with the Emulator Suite.",
+          "deliverable": "Shopping list app with sign-in, real-time sync and tested security rules",
+          "checks": [["Add an item on device A", "Device B shows it within 2 seconds", "Side-by-side screen recording"], ["Read another user's list with a changed UID", "Firestore returns permission-denied", "Emulator Suite request log"], ["Add an item in airplane mode and then reconnect", "The write is queued and syncs when the network returns", "Screen recording"]],
+          "objectives": ["Connect Flutter apps to Firebase with FlutterFire", "Use Firebase Authentication and Firestore from Flutter", "Protect user data with rules and App Check"]
+        },
+        {
+          "topic": "Push Notifications with firebase_messaging and flutter_local_notifications",
+          "subtopics": ["FCM registration tokens, token refresh and storing tokens per user", "Uploading an APNs authentication key and enabling push for iOS", "Notification permission on Android 13 and later and on iOS", "Foreground, background and terminated message handling", "onBackgroundMessage as a top-level function", "Android notification channels and foreground display with flutter_local_notifications", "Opening a go_router route when a notification is tapped", "Test sends from the Firebase console and the FCM HTTP v1 API"],
+          "tools": ["firebase_messaging", "flutter_local_notifications", "Firebase console Messaging", "FCM HTTP v1 API"],
+          "lab_task": "Send an order-shipped message through the FCM HTTP v1 API to one user's devices, show it as a heads-up notification on a high-importance Android channel when the app is open, and open /orders/42 when the user taps it from the background and after the app has been closed.",
+          "deliverable": "Push notification flow tested in foreground, background and terminated states",
+          "checks": [["Send a message while the app is in the foreground", "A local notification appears on the orders channel", "Screenshot"], ["Tap the notification after force-quitting the app", "The app starts on /orders/42", "Screen recording"], ["Turn notifications off in Android settings", "The app shows a prompt to open settings instead of failing silently", "Screenshot"]],
+          "objectives": ["Configure FCM for Android and iOS", "Handle messages in every app state", "Send users to the right screen from a notification"]
+        },
+        {
+          "topic": "Offline-First Data with Drift and a Sync Queue",
+          "subtopics": ["The local database as the source of truth for the UI", "Drift tables, DAOs and type-safe queries", "Watching queries as streams in the UI", "Schema migrations with stepByStep and generated schema tests", "An outbox table for pending writes", "Sync with retry, backoff and connectivity_plus", "Conflict rules based on server versions and updated_at", "Background sync with workmanager"],
+          "tools": ["drift", "drift_dev", "connectivity_plus", "workmanager"],
+          "lab_task": "Make an inspection app offline-first: store 500 inspections in Drift, drive the list from a watched query, queue edits in an outbox table while offline, sync them in order when the network returns, and settle a conflict where the server copy is newer by keeping the server version and logging the local edit.",
+          "deliverable": "Offline-first inspection list with an outbox, a sync log and a conflict report",
+          "checks": [["Edit 10 inspections in airplane mode", "The list updates at once and the outbox holds 10 rows", "Database inspector screenshot"], ["Reconnect the network", "The outbox empties in order and the server shows all 10 edits", "Sync log and server records"], ["Edit an inspection that was already changed on the server", "The server copy wins and a conflict entry is logged", "Conflict log"]],
+          "objectives": ["Make a local database the single source of truth", "Queue and sync offline writes", "Resolve sync conflicts with a clear rule"]
+        },
+        {
+          "topic": "Implicit, Explicit and Hero Animations",
+          "subtopics": ["Implicit animations: AnimatedContainer, AnimatedOpacity and AnimatedSwitcher", "TweenAnimationBuilder for one-off value changes", "AnimationController, Tween and CurvedAnimation", "AnimatedBuilder and TickerProviderStateMixin", "Staggered animations with Interval", "Hero transitions from a grid to a detail page", "Custom page transitions in go_router with CustomTransitionPage", "Reduced motion with MediaQuery.disableAnimationsOf"],
+          "tools": ["Slow animations toggle in Flutter DevTools", "Flutter DevTools Performance view", "Rive or Lottie for designer-made animations"],
+          "lab_task": "Add a Hero transition from the product grid to the detail page, a staggered entrance for 6 detail sections over 900 ms, an AnimatedSwitcher for the add-to-basket button states and a fade CustomTransitionPage for one route, and turn off non-essential motion when the system reduce motion setting is on.",
+          "deliverable": "Animated product flow with a reduced-motion mode",
+          "checks": [["Turn on slow animations in DevTools", "The Hero image moves from the grid tile to the detail header without jumping", "Slow-motion recording"], ["Turn on Remove animations on Android or Reduce Motion on iOS", "The detail sections appear without the staggered movement", "Screen recording"], ["Record the detail entrance in the Performance view", "No frame takes longer than 16 ms during the animation", "Frame chart screenshot"]],
+          "objectives": ["Choose between implicit and explicit animations", "Coordinate staggered and Hero animations", "Respect reduced-motion settings"]
+        },
+        {
+          "topic": "CustomPainter, Gestures and Custom Widgets",
+          "subtopics": ["CustomPaint, CustomPainter and Canvas drawing calls", "Paths, arcs, strokes and gradients", "shouldRepaint and RepaintBoundary", "GestureDetector, InkWell and hit testing", "Tap, drag, scale and long-press gestures", "Listener for raw pointer events", "A reusable widget with a small public API and sensible defaults", "Semantics for custom-drawn widgets"],
+          "tools": ["Repaint rainbow in Flutter DevTools", "Flutter Widget Previewer", "flutter_test"],
+          "lab_task": "Build a reusable RingChart widget that draws up to 5 segments with CustomPainter, animates from 0 to the values in 600 ms, selects a segment on tap and rotates on drag, repaints only the chart inside a RepaintBoundary, and gives each segment a label and percentage for screen readers.",
+          "deliverable": "RingChart widget with gestures, semantics and an example screen",
+          "checks": [["Turn on the repaint rainbow and rotate the chart", "Only the chart area changes colour", "Screen recording"], ["Tap the third segment", "The segment is highlighted and onSelected receives index 2", "Debug log"], ["Move through the chart with TalkBack or VoiceOver", "Each segment is read with its label and percentage", "Screen reader recording"]],
+          "objectives": ["Draw custom graphics with CustomPainter", "Handle gestures and hit testing", "Package a custom widget with semantics"]
+        },
+        {
+          "topic": "Profiling Jank, Rebuilds and Memory in DevTools",
+          "subtopics": ["Debug, profile and release modes, and why to profile on a real device", "The Performance view: frame chart, UI thread and raster thread", "Rebuild stats and finding widgets that rebuild too often", "Costly effects: saveLayer, clipping, Opacity and shadows", "The CPU profiler and custom timeline events from dart:developer", "The Memory view: heap snapshots, diffs and leak tracking", "Image memory: decoding large images with cacheWidth and cacheHeight", "Moving JSON parsing to Isolate.run and measuring the gain"],
+          "tools": ["Flutter DevTools Performance view", "DevTools CPU profiler", "DevTools Memory view", "flutter run --profile"],
+          "lab_task": "Profile a seeded slow feed on a mid-range Android phone in profile mode, find its 3 causes (an Opacity widget that triggers saveLayer on every item, 4000 x 3000 pixel photos decoded at full size and JSON parsing on the UI isolate), fix each one and count janky frames during a 10-second scroll before and after.",
+          "deliverable": "Profiling report with 3 fixes and before-and-after janky frame counts",
+          "checks": [["Scroll the feed for 10 seconds before any fix", "The Performance view marks janky frames in red", "Frame chart screenshot"], ["Decode feed photos with cacheWidth set to the display width", "Image memory in the Memory view falls", "Memory view screenshots before and after"], ["Repeat the 10-second scroll after all 3 fixes", "Janky frames fall by at least 80%", "Before-and-after counts"]],
+          "objectives": ["Profile apps in profile mode on devices", "Find and fix jank, rebuild and memory problems", "Report measured performance gains"]
+        },
+        {
+          "topic": "Platform Channels and Pigeon",
+          "subtopics": ["When to write platform code and when an existing plugin is enough", "MethodChannel calls, results and PlatformException", "EventChannel for streams of native events", "Merged UI and platform threads since Flutter 3.29 and keeping native work short", "Pigeon: one Dart API definition that generates Kotlin and Swift code", "Host APIs, Flutter APIs, async methods and data classes in Pigeon", "Pigeon's newer mode that generates FFIgen and JNIgen bindings instead of channels", "Testing channel code with mock method call handlers"],
+          "tools": ["pigeon", "Android Studio", "Xcode 27", "flutter test"],
+          "lab_task": "Expose the battery level and charging state to Dart twice: first with a hand-written MethodChannel and EventChannel, then with a Pigeon-generated BatteryApi in Kotlin and Swift, and compare the amount of code and the mistakes each version catches at compile time.",
+          "deliverable": "Battery feature built with channels and with Pigeon, plus a comparison note",
+          "checks": [["Call getBatteryLevel on an Android phone and an iPhone", "Both return a value from 0 to 100 that matches system settings", "Screenshots"], ["Rename the method on the Kotlin side only", "The Pigeon version fails to compile while the channel version fails at run time", "Build error and runtime exception"], ["Plug in and unplug the charger", "The EventChannel stream emits charging and discharging events", "Debug log"]],
+          "objectives": ["Call native code through platform channels", "Generate type-safe interfaces with Pigeon", "Stream native events to Dart"]
+        },
+        {
+          "topic": "Writing a Federated Plugin",
+          "subtopics": ["Package, plugin and FFI package templates in flutter create --template", "Federated layout: app-facing package, platform interface and platform packages", "PlatformInterface and verify tokens from plugin_platform_interface", "Android code in Kotlin with built-in Kotlin support in AGP 9", "iOS code in Swift with Package.swift for Swift Package Manager", "A web implementation with package:web and dart:js_interop", "The example app, tests and pub.dev scoring with pana", "Versioning and dart pub publish --dry-run"],
+          "tools": ["flutter create --template=plugin", "plugin_platform_interface", "pana", "dart pub publish --dry-run"],
+          "lab_task": "Create a federated device_info_lite plugin with app-facing, platform interface, Android, iOS and web packages that return the model name and OS version, add a Package.swift for Swift Package Manager, unit test the platform interface and pass dart pub publish --dry-run with no warnings.",
+          "deliverable": "Federated plugin repository with an example app, tests and a clean dry-run publish",
+          "checks": [["Run the example app on Android, iOS and Chrome", "Each shows the model name and OS version from its own platform package", "3 screenshots"], ["Build the iOS example with Swift Package Manager", "The build succeeds without a Podfile", "Build log"], ["Run dart pub publish --dry-run", "The package has 0 warnings", "Dry-run output"]],
+          "objectives": ["Structure a federated plugin", "Implement Android, iOS and web platform packages", "Prepare a plugin for publishing"]
+        },
+        {
+          "topic": "Accessibility with Semantics, Screen Readers and Text Scaling",
+          "subtopics": ["The semantics tree and the Semantics widget", "Labels, hints, values and SemanticsRole", "MergeSemantics and ExcludeSemantics", "TalkBack and VoiceOver gestures for testing", "Tap targets of at least 48 x 48 dp on Android and 44 x 44 pt on iOS", "Text scaling with TextScaler and layouts that grow with it", "Focus order and keyboard navigation with FocusTraversalGroup", "Guideline tests with meetsGuideline and WCAG 2.2 AA for the European Accessibility Act"],
+          "tools": ["SemanticsDebugger", "Accessibility Scanner", "Xcode Accessibility Inspector", "flutter_test accessibility guidelines"],
+          "lab_task": "Audit the checkout flow with Accessibility Scanner and Accessibility Inspector, fix at least 10 issues such as unlabelled icon buttons, 32 dp tap targets and clipped text at 200% text size, add semantics to the RingChart, and add widget tests with androidTapTargetGuideline, iOSTapTargetGuideline, labeledTapTargetGuideline and textContrastGuideline.",
+          "deliverable": "Accessibility audit with before-and-after issue counts and guideline tests",
+          "checks": [["Run Accessibility Scanner on the checkout screen after the fixes", "None of the original 10 issues remain", "Scanner results before and after"], ["Complete checkout with VoiceOver only", "Every control is announced with a label and a role", "Screen reader recording"], ["Run the guideline tests", "All 4 guideline tests pass", "Test output"]],
+          "objectives": ["Expose meaning through the semantics tree", "Test with screen readers and scanners", "Automate accessibility checks"]
+        },
+        {
+          "topic": "Internationalisation with gen-l10n and ARB Files",
+          "subtopics": ["flutter_localizations, intl and generate: true in pubspec.yaml", "l10n.yaml, ARB files and AppLocalizations generated into the source tree", "Placeholders, plurals and select messages in ICU format", "Dates, numbers and currencies with DateFormat and NumberFormat", "Right-to-left layouts with Directionality and EdgeInsetsDirectional", "Locale resolution, fallbacks and an in-app language switch", "CFBundleLocalizations on iOS and per-app language settings on Android", "Translation workflows and a missing-key check in CI"],
+          "tools": ["flutter gen-l10n", "intl", "Crowdin or Localizely", "Android per-app language settings"],
+          "lab_task": "Localise the booking app into English, German and Arabic with ARB files, add a plural message for 0, 1 and many tickets, format prices in EUR and AED, mirror the checkout layout in Arabic, and add a CI step that fails when any ARB file is missing a key.",
+          "deliverable": "App in 3 locales with plural and currency formatting and a missing-key check",
+          "checks": [["Switch the device language to Arabic", "The layout mirrors and text runs right to left", "Screenshot"], ["Show 0, 1 and 5 tickets in German", "Keine Tickets, 1 Ticket and 5 Tickets are shown", "Screenshots"], ["Delete one key from app_de.arb", "The missing-key check fails and names the key", "CI log"]],
+          "objectives": ["Generate localisations from ARB files", "Format plurals, dates and currencies for each locale", "Support right-to-left layouts"]
+        },
+        {
+          "topic": "Integration Tests with Patrol and Golden Image Tests",
+          "subtopics": ["integration_test and running tests on a device with flutter test integration_test", "Patrol 4 for native dialogs, permissions and notifications", "Stable test selectors with Keys and semantics identifiers", "Golden tests with matchesGoldenFile and --update-goldens", "Fonts and platform differences that make golden files flaky", "Running integration tests on Firebase Test Lab devices", "Common causes of flaky tests: timers, animations and the network", "Choosing what to cover with unit, widget, golden and integration tests"],
+          "tools": ["integration_test", "Patrol", "Firebase Test Lab", "flutter test --update-goldens"],
+          "lab_task": "Write 3 Patrol tests for sign-in, checkout and the notification permission dialog, add golden tests for the product card in light, dark and 200% text size, run the integration tests on 2 Firebase Test Lab devices and fix one flaky test caused by an animation that was not awaited.",
+          "deliverable": "Integration and golden test suite with Firebase Test Lab results",
+          "checks": [["Run the Patrol test that grants notification permission", "The native dialog is accepted and the test passes", "Patrol test output"], ["Change the product card padding by 4 pixels", "The golden test fails and writes a diff image", "Failure diff image"], ["Run the suite on 2 Test Lab devices", "All tests pass on both devices", "Test Lab results page"]],
+          "objectives": ["Automate end-to-end flows including native dialogs", "Catch visual regressions with golden tests", "Run tests on real devices in the cloud"]
+        },
+        {
+          "topic": "Flavours, Environments and --dart-define",
+          "subtopics": ["What changes between dev, staging and prod: API URLs, app IDs, names and icons", "Android productFlavors and applicationIdSuffix in build.gradle.kts", "iOS schemes and build configurations for each flavour", "flutter run --flavor and the appFlavor constant", "--dart-define-from-file with one JSON file per environment", "A separate Firebase project per flavour with flutterfire configure", "Flavour-specific assets and launcher icons", "Why --dart-define values are not secret"],
+          "tools": ["flutter run --flavor", "--dart-define-from-file", "FlutterFire CLI", "Xcode 27 schemes"],
+          "lab_task": "Create dev, staging and prod flavours of the booking app with application ID suffixes .dev and .stg, separate names and icons, 3 Firebase projects, and API base URLs read from config/dev.json, config/staging.json and config/prod.json, then install all 3 side by side on one phone.",
+          "deliverable": "3 flavours installed side by side, with a flavour configuration table",
+          "checks": [["Install the dev, staging and prod builds on one phone", "3 apps with different names and icons appear", "Home screen screenshot"], ["Open the About screen in the staging build", "It shows the staging API URL and Firebase project ID", "Screenshot"], ["Search the prod release binary for the dev API URL", "The string is not found", "strings or grep output"]],
+          "objectives": ["Configure Android and iOS flavours", "Inject environment settings at build time", "Use a separate Firebase project per environment"]
+        },
+        {
+          "topic": "Flutter CI/CD with GitHub Actions, Codemagic and fastlane",
+          "subtopics": ["A pull request pipeline: flutter analyze, dart format --set-exit-if-changed and flutter test", "Caching the Flutter SDK and pub packages with subosito/flutter-action", "Android signing in CI with the keystore stored as an encrypted secret", "iOS signing with fastlane match and an App Store Connect API key", "fastlane supply and pilot for Google Play and TestFlight uploads", "codemagic.yaml workflows, triggers and automatic iOS code signing", "Build numbers taken from the CI run number", "Build artefacts, release notes and Slack notifications"],
+          "tools": ["GitHub Actions", "subosito/flutter-action", "fastlane", "Codemagic"],
+          "lab_task": "Build a GitHub Actions workflow that runs analysis, formatting and tests on every pull request in under 10 minutes, a release workflow that builds the prod flavour and uploads it to Google Play internal testing with fastlane supply, and a Codemagic workflow that signs the iOS build and uploads it to TestFlight with an App Store Connect API key.",
+          "deliverable": "Pull request and release pipelines, with a TestFlight upload from Codemagic",
+          "checks": [["Open a pull request with a formatting error", "The workflow fails at the dart format step", "GitHub Actions log"], ["Merge to main", "A build numbered from the run number reaches Google Play internal testing", "Play Console release screenshot"], ["Start the Codemagic iOS workflow", "The build appears in TestFlight with no manual signing steps", "Codemagic build log"]],
+          "objectives": ["Automate checks on every pull request", "Sign and upload builds from CI", "Combine GitHub Actions, Codemagic and fastlane"]
+        },
+        {
+          "topic": "Flutter on the Web: Wasm, Renderers and Hosting",
+          "subtopics": ["Where Flutter web fits: app-like products rather than content sites", "CanvasKit and skwasm renderers since the HTML renderer was removed in Flutter 3.29", "flutter build web --wasm, WasmGC and the JavaScript fallback", "Wasm on Safari and Firefox in Flutter 3.50 through the opt-in wasmAllowList", "Path URLs, browser history and go_router on the web", "Browser APIs through dart:js_interop and package:web", "Long-lived caching with --web-content-hash and hosting on Firebase Hosting", "How the semantics tree becomes accessible DOM elements"],
+          "tools": ["flutter build web --wasm", "Chrome DevTools", "Firebase Hosting", "Lighthouse"],
+          "lab_task": "Build the booking app for the web with --wasm and --web-content-hash, switch to path URLs so /bookings/42 survives a refresh, copy a booking reference to the clipboard through package:web, deploy to Firebase Hosting with a rewrite to index.html, and compare first-load times of the Wasm and JavaScript builds in Chrome.",
+          "deliverable": "Hosted web build with path URLs, a browser API feature and a load-time comparison",
+          "checks": [["Refresh the browser on /bookings/42", "The booking detail reloads instead of showing a 404", "Browser screenshot"], ["Open the Network tab in Chrome DevTools", "main.dart.wasm is downloaded and the skwasm renderer is used", "Network tab screenshot"], ["Deploy a changed build and reload", "Changed files have new hashed names and the browser fetches them", "Network tab screenshot"]],
+          "objectives": ["Build and host Flutter web apps", "Choose between Wasm and JavaScript builds", "Call browser APIs through JS interop"]
+        },
+        {
+          "topic": "Flutter Desktop for Windows, macOS and Linux",
+          "subtopics": ["Desktop targets, runner projects and desktop flavours", "Impeller as the default desktop renderer from Flutter 3.47", "Native menus with PlatformMenuBar on macOS and MenuBar on Windows and Linux", "Keyboard shortcuts with Shortcuts, Actions and Intents", "Window size, title and position with window_manager", "File pickers, drag and drop and system tray icons", "macOS sandbox entitlements, signing and notarisation", "MSIX packages for Windows, Snap packages for Linux and the experimental multi-window API"],
+          "tools": ["Visual Studio with the Desktop development with C++ workload", "Xcode 27", "msix", "snapcraft"],
+          "lab_task": "Turn the booking app into a desktop app with File and Edit menus, Ctrl+N or Cmd+N and Ctrl+F or Cmd+F shortcuts, a minimum window size of 900 x 600, drag-and-drop import of a 200-row CSV of bookings, an MSIX package for Windows and a signed, notarised app for macOS.",
+          "deliverable": "Windows and macOS builds with menus, shortcuts and CSV import",
+          "checks": [["Press Ctrl+N on Windows and Cmd+N on macOS", "A new booking form opens on both", "Screen recordings"], ["Drop the 200-row CSV onto the window", "Valid rows are imported and invalid rows are listed with line numbers", "Screenshot"], ["Run spctl -a -vv on the macOS app", "The output says accepted with source Notarized Developer ID", "Terminal output"]],
+          "objectives": ["Build desktop apps with menus and shortcuts", "Handle desktop input such as drag and drop", "Package desktop apps for distribution"]
+        },
+        {
+          "topic": "Intermediate Capstone: Offline-First Clinic Appointments App",
+          "subtopics": ["An architecture decision record for layers, state management and data flow", "Firebase sign-in, Firestore sync and FCM reminders", "Offline booking with Drift and an outbox", "Accessibility checks and 2 locales", "Integration and golden tests running in CI", "Dev and prod flavours shipped to mobile and the web"],
+          "tools": ["Riverpod or Bloc", "FlutterFire", "drift", "GitHub Actions or Codemagic"],
+          "lab_task": "In teams of 3, build a clinic appointments app where patients sign in with Firebase Authentication, book one of 30 daily slots offline with Drift and sync to Firestore, get an FCM reminder 24 hours before the visit, use the app in English and one other language with a screen reader, and ship dev and prod flavours through CI to internal testing, TestFlight and Firebase Hosting.",
+          "deliverable": "Repository with an architecture decision record, CI runs, test reports and a 15-minute demo",
+          "checks": [["Book a slot in airplane mode and reconnect", "The booking syncs to Firestore and the slot disappears for other patients", "Demo recording"], ["Run the CI pipeline on the final commit", "Static analysis, unit, widget, golden and integration stages all pass", "CI log"], ["Complete a booking with TalkBack", "Every step is announced and the booking completes", "Screen reader recording"]],
+          "objectives": ["Combine architecture, data and platform skills in one app", "Deliver through automated pipelines", "Defend design decisions in a review"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior Flutter engineers, tech leads and architects who own large apps or several apps. Covers modular architecture with pub workspaces and Melos, the rendering pipeline, custom RenderObjects, Impeller and shaders, FFI with C and Rust, direct native interop, add-to-app, security hardening, store compliance, SDK upgrades, release engineering with staged rollouts and code push, observability, performance engineering, AI features, design systems on material_ui, migration from native and React Native apps, embedded and automotive use, and leading Flutter teams.",
+      "prerequisites": ["Has completed the Intermediate track or has two or more years of production Flutter work", "Can read Kotlin and Swift code and build Android and iOS projects from the command line", "Has used a state management library, CI pipelines and a crash reporting tool in a shipped app"],
+      "outcomes": ["Design modular Flutter codebases with enforced package boundaries for several teams", "Extend Flutter below the widget layer with RenderObjects, shaders, FFI and direct native interop", "Harden, observe and release apps at scale while meeting Google Play and App Store rules", "Plan migrations and SDK upgrades and lead Flutter teams with clear standards"],
+      "days": [
+        {
+          "topic": "Feature Package Architecture for Large Flutter Apps",
+          "subtopics": ["Signs that one app package no longer scales: build times, ownership and merge conflicts", "An app shell, feature packages and core packages", "Dependency rules: features depend on core and contracts, never on each other", "Contract packages with interfaces and route definitions shared between features", "Navigation across feature packages with go_router route builders", "Wiring dependencies in the app shell", "Enforcing boundaries with custom rules in Dart analyzer plugins", "Architecture decision records and fitness checks in CI"],
+          "tools": ["Dart analyzer plugins", "dart pub deps", "go_router", "GitHub CODEOWNERS"],
+          "lab_task": "Split a 180,000-line super app into an app shell, 6 feature packages and 3 core packages, add a checkout contract package used by 2 features, and write an analyzer plugin rule that fails the build when one feature imports another directly.",
+          "deliverable": "Package map with owners, a dependency graph and a boundary rule that fails and then passes",
+          "checks": [["Import the wallet feature from the rewards feature", "The analyzer plugin reports the boundary violation and CI fails", "Analyzer output and CI log"], ["Run dart pub deps --style=tree for the app shell", "Features depend only on core and contract packages", "Dependency tree output"], ["Review the package map with a second team", "Every package has one owning team and a public API file", "Package map with owners"]],
+          "objectives": ["Design package boundaries for large apps", "Enforce dependency rules automatically", "Record architecture decisions"]
+        },
+        {
+          "topic": "Monorepos with Pub Workspaces and Melos",
+          "subtopics": ["Pub workspaces: the workspace list, resolution: workspace and one shared pubspec.lock", "Glob patterns for workspace members", "Melos 7 on top of pub workspaces: scripts, filters and bootstrap", "Testing only the packages changed since main with melos --diff", "Versioning and changelogs from conventional commits with melos version", "Publishing internal packages to a private hosted pub repository", "Shared analysis_options.yaml and dependency overrides", "CI caching and build-time budgets for 30 or more packages"],
+          "tools": ["Pub workspaces", "Melos", "GitHub Actions", "dart pub cache gc"],
+          "lab_task": "Convert a repository of 24 packages and 3 apps from path dependencies to a pub workspace with one pubspec.lock, add Melos scripts for analysis, formatting and tests, make pull request CI test only the packages changed since main, and publish 2 packages to a private hosted repository with generated changelogs.",
+          "deliverable": "Workspace repository with Melos scripts, change-based CI and 2 published package versions",
+          "checks": [["Run dart pub get at the repository root", "One pubspec.lock is created and every package resolves", "Command output and file listing"], ["Change one core package in a pull request", "CI tests that package and its 4 dependents only", "CI log"], ["Run melos version after 2 feat commits", "Minor version bumps and changelog entries are generated", "Git diff"]],
+          "objectives": ["Run large repositories as pub workspaces", "Automate package tasks with Melos", "Cut CI time with change-based testing"]
+        },
+        {
+          "topic": "Inside the Rendering Pipeline: Build, Layout, Paint and Composite",
+          "subtopics": ["The frame lifecycle: vsync, animate, build, layout, paint, composite and rasterise", "SchedulerBinding phases and frame callbacks", "Element updates, Widget.canUpdate and the role of keys", "PipelineOwner, dirty render objects and relayout boundaries", "Painting into layers and repaint boundaries", "The layer tree, the raster thread and the GPU", "Platform views and their compositing cost, including Hybrid Composition++ on Android", "Frame timings from FrameTiming and the timeline"],
+          "tools": ["Flutter DevTools timeline", "debugDumpRenderTree and debugDumpLayerTree", "SchedulerBinding.addTimingsCallback"],
+          "lab_task": "Instrument a trading dashboard with timeline events and FrameTiming callbacks, dump its render and layer trees, show how a setState at the root marks 300 elements dirty, then move the state down, add repaint boundaries and record build, layout and paint times before and after.",
+          "deliverable": "Annotated timeline trace and tree dumps with before-and-after phase timings",
+          "checks": [["Trigger the setState at the root", "The timeline shows a build phase that covers the whole dashboard", "Timeline screenshot"], ["Move the state into the price ticker widget", "Only the ticker rebuilds and the frame's build time falls", "Before-and-after timeline"], ["Wrap the ticker in a RepaintBoundary", "debugDumpLayerTree shows a separate OffsetLayer for the ticker", "Layer tree dump"]],
+          "objectives": ["Explain each phase of a Flutter frame", "Read render and layer tree dumps", "Reduce pipeline work with boundaries"]
+        },
+        {
+          "topic": "Custom RenderObjects and Layout Protocols",
+          "subtopics": ["When a custom RenderObject beats composing widgets or using CustomPainter", "LeafRenderObjectWidget, SingleChildRenderObjectWidget and MultiChildRenderObjectWidget", "RenderBox: performLayout, computeDryLayout and intrinsic sizes", "ParentData, ContainerRenderObjectMixin and positioning children", "paint, PaintingContext and child layers", "hitTestSelf, hitTestChildren and gestures", "markNeedsLayout compared with markNeedsPaint, and updateRenderObject", "Semantics through describeSemanticsConfiguration"],
+          "tools": ["Flutter rendering library source", "Flutter Inspector", "flutter_test golden files"],
+          "lab_task": "Build a TimelineLayout render object that places up to 200 event cards in 2 staggered columns around a centre line, answers intrinsic height queries for a scroll view, hit-tests each card, repaints only the line when the highlight moves, and passes golden tests at 320 and 800 dp widths.",
+          "deliverable": "TimelineLayout package with golden tests and a timing comparison against a Stack-based version",
+          "checks": [["Change the highlighted card", "Only markNeedsPaint is called and no layout pass runs", "Debug log of layout and paint calls"], ["Tap the 37th card in a widget test", "The hit test returns card 37 and its onTap fires", "Test output"], ["Lay out 200 cards with both versions", "The render object version lays out faster than the Stack version", "Timeline measurements"]],
+          "objectives": ["Write custom RenderBox layouts", "Implement hit testing and semantics for render objects", "Decide when to work below the widget layer"]
+        },
+        {
+          "topic": "Impeller, Fragment Shaders and Flutter GPU",
+          "subtopics": ["Why Impeller compiles shaders ahead of time and removes first-run shader jank", "Impeller backends: Metal on Apple platforms and Vulkan with an OpenGL ES fallback on Android", "Impeller as the desktop default from Flutter 3.47 and checking the active backend in the run log", "Fragment shaders: GLSL files, FragmentProgram.fromAsset and setFloat uniforms", "ImageFilter.shader, BackdropFilter and the cost of blurs", "Flutter GPU and flutter_scene for custom 3D rendering, still in preview", "GPU frame captures with the Xcode Metal debugger and Android GPU Inspector", "Reporting rendering bugs with minimal reproductions"],
+          "tools": ["FragmentProgram API", "Flutter DevTools Performance view", "Xcode Metal debugger", "Android GPU Inspector"],
+          "lab_task": "Write a GLSL ripple shader loaded with FragmentProgram.fromAsset, drive its time and touch-position uniforms from a Ticker, measure frame times of a screen with 3 backdrop blurs on a fresh install, and capture one frame in the Xcode Metal debugger or Android GPU Inspector to find the blur passes.",
+          "deliverable": "Shader demo, frame-time measurements and an annotated GPU frame capture",
+          "checks": [["Tap the image", "The ripple starts at the tap position and fades within 800 ms", "Screen recording"], ["Open the blur screen for the first time after a fresh install", "The frame chart shows no shader compilation spikes", "Frame chart screenshot"], ["Capture a frame of the blur screen", "The capture lists the render passes, including the offscreen blur passes", "GPU capture screenshot"]],
+          "objectives": ["Explain how Impeller renders frames", "Write and drive fragment shaders", "Profile GPU work on a device"]
+        },
+        {
+          "topic": "C and Rust Libraries through FFI and Build Hooks",
+          "subtopics": ["dart:ffi types: Pointer, Struct and NativeFunction", "Generating C bindings with package:ffigen", "flutter create --template=package_ffi and hook/build.dart", "Compiling C sources with native_toolchain_c inside a build hook", "Rust crates through flutter_rust_bridge or a Rust build hook", "Native memory: Arena, calloc, malloc and NativeFinalizer", "Calling slow native code from a long-lived helper isolate", "Building for Android ABIs, iOS, macOS, Windows and Linux"],
+          "tools": ["dart:ffi", "package:ffigen", "native_toolchain_c", "flutter_rust_bridge"],
+          "lab_task": "Wrap a C image-hashing library with ffigen in a package_ffi package built by hook/build.dart, expose a Rust crate that computes perceptual hashes through flutter_rust_bridge, hash 1,000 photos on a helper isolate and compare the speed with a pure Dart version.",
+          "deliverable": "FFI package and Rust bridge with benchmark results on Android, iOS and one desktop platform",
+          "checks": [["Build the package_ffi example on Android and macOS", "The build hook compiles the C library for each target with no CMake or Gradle edits", "Build logs"], ["Hash 1,000 photos in Dart and in Rust", "Both produce identical hashes and the Rust version is faster", "Benchmark output"], ["Run a test that allocates 10,000 native structs", "Native memory returns to its baseline after the finalizers run", "Memory measurements"]],
+          "objectives": ["Bind C libraries with ffigen and build hooks", "Integrate Rust code into Flutter apps", "Manage native memory safely"]
+        },
+        {
+          "topic": "Direct Native Interop with FFIgen and JNIgen",
+          "subtopics": ["The serialisation and async overhead of platform channels", "FFIgen for Objective-C and Apple framework APIs, stable in Flutter 3.50", "JNIgen for Java and Kotlin APIs on Android", "Binding configuration files and committing generated bindings", "Synchronous calls on the merged UI and platform thread", "Native object lifetimes, releasing references and arenas", "Pigeon generating FFIgen and JNIgen code under the hood", "Migrating a channel-based plugin to direct interop"],
+          "tools": ["package:ffigen", "package:jnigen", "pigeon", "Android Studio and Xcode 27"],
+          "lab_task": "Replace the battery MethodChannel from the intermediate track with JNIgen bindings to android.os.BatteryManager and FFIgen bindings to UIDevice, call both synchronously from Dart, and measure the latency of 10,000 calls against the channel version.",
+          "deliverable": "Direct-interop battery package with latency measurements and binding configuration files",
+          "checks": [["Make 10,000 calls through the channel and through direct interop", "Direct interop takes less time per call", "Benchmark output"], ["Read the battery level from Dart without await", "An int is returned at once and matches system settings", "Code snippet and screenshot"], ["Regenerate bindings after raising compileSdk", "The diff of generated files is reviewed and all builds pass", "Pull request diff"]],
+          "objectives": ["Call platform APIs directly from Dart", "Manage the lifetimes of native objects", "Migrate plugins from channels to direct interop"]
+        },
+        {
+          "topic": "Add-to-App: Embedding Flutter in Native Apps",
+          "subtopics": ["Module projects with flutter create --template=module", "Android hosts with a Gradle subproject or prebuilt AARs from flutter build aar", "iOS hosts with flutter build swift-package and the FlutterNativeIntegration package", "Pre-warming and caching a FlutterEngine", "FlutterEngineGroup for several lightweight engines", "FlutterActivity, FlutterFragment and FlutterViewController", "Passing user data and navigation events with Pigeon", "Host build settings such as android.builtInKotlin and android.newDsl in gradle.properties"],
+          "tools": ["flutter build aar", "flutter build swift-package", "FlutterEngineGroup", "Android Studio and Xcode 27"],
+          "lab_task": "Embed a Flutter loyalty-card module in an existing Kotlin app and an existing Swift app, pre-warm and cache the engine so the Flutter screen shows its first frame in under 300 ms, pass the signed-in user ID through a Pigeon API and return the selected reward to the native host.",
+          "deliverable": "2 native host apps with the embedded module and startup timings",
+          "checks": [["Open the Flutter screen from the native menu with a cached engine", "The first frame appears in under 300 ms", "Timing log"], ["Sign in on the native side", "The Flutter module shows the same user ID", "Screenshots"], ["Pick a reward in the Flutter screen", "The native host receives the reward ID and closes the Flutter screen", "Native log output"]],
+          "objectives": ["Embed Flutter modules in Android and iOS apps", "Manage engines for fast startup", "Exchange data between native and Flutter code"]
+        },
+        {
+          "topic": "Security Hardening with flutter_secure_storage, Pinning and Obfuscation",
+          "subtopics": ["OWASP MASVS and MASTG as the review baseline", "Keychain and Android Keystore through flutter_secure_storage", "Keeping API keys out of Dart code and --dart-define values", "Certificate pinning with SecurityContext(withTrustedRoots: false) for HttpClient and Dio", "--obfuscate and --split-debug-info, and what obfuscation does not protect", "Root, jailbreak and tamper detection with freeRASP", "Back-end trust with App Check, the Play Integrity API and App Attest", "Testing with MobSF and an intercepting proxy"],
+          "tools": ["flutter_secure_storage", "MobSF", "mitmproxy", "freeRASP"],
+          "lab_task": "Scan the release APK and IPA of a banking demo with MobSF, move a hard-coded API key behind a back-end token exchange, store refresh tokens with flutter_secure_storage, pin the API certificate and prove that mitmproxy can no longer read the traffic, and build with --obfuscate --split-debug-info while keeping the symbol files.",
+          "deliverable": "Security findings report with fixes and before-and-after MobSF results",
+          "checks": [["Send the app's traffic through mitmproxy with its CA installed", "Requests fail the pinning check and no API traffic can be read", "mitmproxy log"], ["Search the release binary for the old API key", "The key is not found", "strings output"], ["Run flutter symbolize on a stack trace from the obfuscated build", "The trace shows readable function names and file lines", "Symbolised stack trace"]],
+          "objectives": ["Assess a Flutter app against MASVS", "Protect secrets, tokens and network traffic", "Ship obfuscated builds that can still be debugged"]
+        },
+        {
+          "topic": "Privacy Manifests, Data Safety and Target API 36 for Flutter Apps",
+          "subtopics": ["Apple privacy manifests, required reason APIs and ITMS-91053 warnings", "Privacy manifests in Flutter plugins and signatures for third-party SDKs", "App Store privacy labels and App Tracking Transparency", "The Google Play Data safety form and the Play SDK Index", "Target API level 36 from 31 August 2026: edge-to-edge and predictive back", "16 KB memory page support for native libraries", "Account deletion, sign-in and payment rules in both stores", "Android developer verification from 30 September 2026 and Xcode 27 builds from April 2027"],
+          "tools": ["Xcode 27 privacy report", "Google Play Console Policy status", "Play SDK Index", "zipalign"],
+          "lab_task": "Audit an app with 34 plugins: generate the Xcode privacy report, add missing required reason entries for UserDefaults and file timestamp APIs, check every SDK in the Play SDK Index, raise targetSdk to 36 and fix edge-to-edge insets and predictive back handling, confirm 16 KB alignment of every .so file, and fill in the Data safety form from the audit.",
+          "deliverable": "Compliance checklist, updated privacy manifest and Data safety answers",
+          "checks": [["Upload the build to App Store Connect", "No ITMS-91053 missing API declaration email arrives", "App Store Connect processing email"], ["Run zipalign -c -P 16 -v 4 on the release APK", "Every native library passes the 16 KB alignment check", "zipalign output"], ["Swipe back on an Android 16 phone from a form with unsaved changes", "PopScope keeps the user on the form and shows a discard dialog", "Screen recording"]],
+          "objectives": ["Meet App Store privacy manifest rules", "Meet Google Play target API, 16 KB and Data safety rules", "Keep a repeatable compliance checklist"]
+        },
+        {
+          "topic": "SDK Upgrades: material_ui, UIScene, SwiftPM and Built-in Kotlin",
+          "subtopics": ["Reading release notes and breaking-change guides before an upgrade", "Moving to the standalone material_ui and cupertino_ui packages with dart fix --code=migrate_design_widgets", "MaterialUiCompatibilityBridge for packages that still import package:flutter/material.dart", "The UIScene lifecycle that Xcode 27 builds require", "Swift Package Manager as the iOS default and CocoaPods trunk going read-only on 2 December 2026", "AGP 9 built-in Kotlin and the android.builtInKotlin and android.newDsl flags", "dart migrate in Dart 3.14 for SDK constraints and code fixes", "Pinning Flutter versions with FVM and running the full test suite on an upgrade branch"],
+          "tools": ["dart fix", "dart migrate", "FVM", "Xcode 27"],
+          "lab_task": "Upgrade a production app from Flutter 3.41 to 3.50: pin both versions with FVM, run dart migrate and dart fix to move to material_ui and cupertino_ui, move the iOS runner to UIScene and Swift Package Manager, remove the kotlin-android plugin for AGP 9 built-in Kotlin, and keep all 600 tests passing on the upgrade branch.",
+          "deliverable": "Upgrade pull request with a migration log, test results and a rollback plan",
+          "checks": [["Search lib/ for package:flutter/material.dart after the migration", "No imports remain", "Search output"], ["Build the iOS app with Xcode 27", "The tool prints Finished migration to UIScene lifecycle and the app launches", "Build log and screenshot"], ["Build Android with android.builtInKotlin=true", "The build succeeds with no kotlin-android plugin applied", "Gradle output"]],
+          "objectives": ["Plan and carry out Flutter SDK upgrades", "Migrate to the standalone design packages", "Handle iOS and Android build system changes"]
+        },
+        {
+          "topic": "Release Trains, Staged Rollouts and Shorebird Code Push",
+          "subtopics": ["Two-week release trains with a code freeze and release branches", "Semantic versions, build numbers and hotfix branches", "Staged rollouts in Play Console and phased releases on the App Store", "Feature flags and kill switches with Firebase Remote Config", "Shorebird code push for Dart-only patches and the store rules it must follow", "Rollback plans: halting a rollout, reverting a flag or shipping a patch", "Release health gates for crash-free sessions and ANR rate", "Release notes, approvals and audit trails"],
+          "tools": ["Google Play Console staged rollouts", "App Store Connect phased release", "Firebase Remote Config", "Shorebird"],
+          "lab_task": "Run a simulated release train: cut release/4.12 from main, roll out to 5%, 20% and 50% of Google Play users with a gate of 99.5% crash-free sessions, ship a Shorebird patch for a Dart null-check crash in 4.12.0, and switch off a faulty checkout_v2 feature with Remote Config within 5 minutes.",
+          "deliverable": "Release runbook, rollout log and patch record for one release train",
+          "checks": [["Push the simulated crash rate above the gate at 20%", "The rollout is halted and the runbook step is logged", "Rollout log"], ["Publish the Shorebird patch", "Patched devices stop reporting the crash once the patch has been applied on a later launch", "Shorebird console and crash dashboard"], ["Turn on the checkout_v2 kill switch", "Clients fall back to the old checkout within 5 minutes", "Remote Config history and app log"]],
+          "objectives": ["Run predictable release trains", "Limit risk with staged rollouts and feature flags", "Patch and roll back production releases"]
+        },
+        {
+          "topic": "Crash Reporting with firebase_crashlytics and sentry_flutter",
+          "subtopics": ["FlutterError.onError, PlatformDispatcher.instance.onError and uncaught async errors", "Firebase Crashlytics with symbol upload for obfuscated builds", "The Sentry Flutter SDK: errors, performance traces and session replay with masking", "Breadcrumbs, user context, environments and release tags", "Native crashes and ANRs from Android and iOS", "Custom spans for cold start, screen loads and API calls", "Alert rules, dashboards and crash-free user targets", "Keeping personal data out of reports and replays"],
+          "tools": ["firebase_crashlytics", "sentry_flutter", "Sentry Dart Plugin", "Firebase CLI crashlytics:symbols:upload"],
+          "lab_task": "Instrument the banking demo with Crashlytics and Sentry side by side, upload symbols for an obfuscated release, add spans for cold start and the transfer API call, turn on session replay with all text masked, trigger 5 seeded crashes (Dart, Kotlin, Swift, an ANR and out of memory) and create an alert for crash-free users below 99.5%.",
+          "deliverable": "Observability dashboard, an alert rule and a triage note for 5 seeded crashes",
+          "checks": [["Trigger the Dart crash in the obfuscated build", "Both tools show readable Dart frames with file and line", "Crashlytics and Sentry issue screenshots"], ["Open a session replay of the transfer screen", "Account numbers and names are masked", "Replay screenshot"], ["Compare cold start spans across 20 launches", "The dashboard shows median and p95 cold start times", "Performance dashboard screenshot"]],
+          "objectives": ["Capture every class of crash", "Trace performance in production", "Protect personal data in telemetry"]
+        },
+        {
+          "topic": "Performance Engineering: Start-up, Memory and App Size",
+          "subtopics": ["Budgets for cold start, frame time, memory and download size", "Measuring start-up with flutter run --trace-startup and Android vitals", "Deferring work with lazy initialisation and deferred imports", "Size analysis with --analyze-size and the DevTools App Size tool", "Android deferred components through Play Feature Delivery", "Finding leaks with leak_tracker and DevTools heap diffs", "Performance benchmarks in CI with integration_test", "Testing on low-end Android Go devices"],
+          "tools": ["flutter run --trace-startup", "DevTools App Size tool", "leak_tracker", "Android vitals in Play Console"],
+          "lab_task": "Set budgets of 1.5 seconds cold start on a Pixel 6a, a 30 MB download and 250 MB peak memory, measure a super app against them, defer 3 SDK initialisations, move 2 features into Android deferred components, fix one leak found with leak_tracker, and add a CI job that fails when the APK grows by more than 2%.",
+          "deliverable": "Performance budget report with before-and-after numbers and a size guard in CI",
+          "checks": [["Run flutter run --trace-startup --profile 10 times", "The median time to first frame is under 1.5 seconds", "start_up_info.json values"], ["Open a pull request that adds a 3 MB asset", "The size guard fails the build", "CI log"], ["Repeat the leaking navigation 50 times after the fix", "The heap returns to its baseline", "Memory view diff"]],
+          "objectives": ["Set and track performance budgets", "Reduce start-up time, memory and size", "Guard performance in CI"]
+        },
+        {
+          "topic": "AI Features with Firebase AI Logic and the GenUI SDK",
+          "subtopics": ["Choosing between on-device models, Firebase AI Logic and your own back end", "Gemini calls from Flutter with firebase_ai and streamed responses", "Firebase App Check, required for Firebase AI Logic from 2 November 2026", "Structured output and function calling into app features", "The GenUI SDK and the A2UI protocol for agent-chosen widgets from your own catalogue", "Guardrails: prompt injection tests, content filters and per-user rate limits", "Evaluating answers with test sets and tracking token cost", "Developer agents with the Dart and Flutter MCP server and Agentic Hot Reload"],
+          "tools": ["firebase_ai", "GenUI SDK (genui)", "Firebase App Check", "Dart and Flutter MCP server"],
+          "lab_task": "Add a trip-planning assistant to the travel app with firebase_ai behind App Check, stream answers into the chat, let the model call searchFlights and holdSeat functions, render results as cards from your own widget catalogue with GenUI, run a test set of 20 prompt-injection prompts and report the token cost per conversation.",
+          "deliverable": "AI assistant feature with an evaluation report, guardrail results and a cost estimate",
+          "checks": [["Ask for flights from London to Lisbon next Friday", "The model calls searchFlights and the app shows flight cards from the catalogue", "Screen recording and function call log"], ["Call the AI endpoint from a client without a valid App Check token", "The request is rejected", "Error log"], ["Run the 20 prompt-injection prompts", "None of them triggers holdSeat without the user's confirmation", "Evaluation report"]],
+          "objectives": ["Build AI features in Flutter apps safely", "Connect model output to app functions and widgets", "Evaluate quality, safety and cost"]
+        },
+        {
+          "topic": "Design Systems on material_ui and cupertino_ui",
+          "subtopics": ["Design tokens for colour, type, spacing, shape and motion", "A branded component library that wraps material_ui widgets", "ThemeExtension and tokens generated from Figma variables", "Platform-adaptive components with cupertino_ui", "Taking weekly material_ui releases separately from Flutter SDK upgrades", "Widgetbook catalogues and Widget Previews for designers and developers", "Golden tests and visual review for every component", "Versioning, deprecations and adoption tracking across apps"],
+          "tools": ["material_ui", "cupertino_ui", "Widgetbook", "Figma variables"],
+          "lab_task": "Build a design system package with tokens exported from Figma variables, 15 branded components that wrap material_ui and cupertino_ui widgets, a Widgetbook catalogue with light, dark and 200% text size use cases, golden tests for every component, and adopt it in 2 apps of the workspace.",
+          "deliverable": "Versioned design system package, Widgetbook catalogue and an adoption report for 2 apps",
+          "checks": [["Change the primary colour token in Figma and regenerate the tokens", "Both apps show the new colour after a package version bump", "Screenshots of both apps"], ["Open the Widgetbook catalogue", "All 15 components have light, dark and 200% text size use cases", "Catalogue screenshot"], ["Upgrade material_ui to the next weekly release", "Golden tests show exactly which components changed", "Golden diff report"]],
+          "objectives": ["Build a token-based design system", "Publish and document components for several apps", "Manage design library upgrades"]
+        },
+        {
+          "topic": "Migrating Native and React Native Apps to Flutter",
+          "subtopics": ["The business case: team skills, code sharing and delivery risk", "Full rewrite compared with incremental migration through add-to-app", "Mapping Android activities, iOS view controllers and React components to widgets", "Mapping Redux or MobX to Riverpod or Bloc and React Navigation to go_router", "Reusing native SDKs through plugins, Pigeon and direct interop", "Migrating stored data: Keychain items, SharedPreferences, SQLite and AsyncStorage", "Parity testing with screenshots and analytics events", "Releasing by feature while keeping store listings and app IDs"],
+          "tools": ["Flutter add-to-app", "pigeon", "Patrol", "Firebase Analytics DebugView"],
+          "lab_task": "Plan the migration of a 40-screen React Native ride-booking app: score every screen for migration risk, move the profile and receipts screens to Flutter through add-to-app, migrate 3 AsyncStorage keys and the stored auth token, and prove parity with screenshot comparisons and matching analytics events.",
+          "deliverable": "Migration plan with a screen risk matrix, 2 migrated screens and a parity report",
+          "checks": [["Update a test phone from the React Native build to the hybrid build", "The user stays signed in and settings are kept", "Screen recording"], ["Compare analytics events for the receipts flow", "Both builds send the same 6 events with the same parameters", "DebugView screenshots"], ["Present the risk matrix", "Each of the 40 screens has a score, an owner and a migration wave", "Migration plan document"]],
+          "objectives": ["Plan migrations from native and React Native apps", "Migrate step by step without losing user data", "Prove feature parity"]
+        },
+        {
+          "topic": "Embedded and Automotive Flutter: Custom Embedders and Yocto",
+          "subtopics": ["Where Flutter runs beyond phones: the 2026 Toyota RAV4 multimedia system and the LG webOS SDK", "The Flutter embedder API and the embedder APIs expanded in Flutter 3.50", "Embedded Linux embedders: ivi-homescreen, flutter-pi and flutter-elinux", "Building device images with the meta-flutter Yocto layer", "Input from touch screens, rotary controllers and hardware keys", "Performance on low-power GPUs and fixed-refresh displays", "Driver distraction rules and automotive interface guidelines", "Over-the-air updates and long-term support for devices"],
+          "tools": ["Raspberry Pi 5", "flutter-pi and flutterpi_tool", "meta-flutter Yocto layer", "ivi-homescreen"],
+          "lab_task": "Run a media dashboard on a Raspberry Pi 5 with flutter-pi in release mode, map a rotary encoder and 2 hardware buttons to focus and select actions, keep frame times under 16 ms at 1080p, and write a one-page plan for moving the same app to a Yocto image with ivi-homescreen.",
+          "deliverable": "Dashboard running on a Raspberry Pi with input mapping and an embedded deployment plan",
+          "checks": [["Turn the rotary encoder 3 steps", "Focus moves through 3 tiles in order", "Video of the device"], ["Play the tile animation at 1080p", "Frame times stay under 16 ms", "Performance overlay screenshot"], ["Review the Yocto plan with the trainer", "The plan names the layer, embedder, target board and update method", "Plan document"]],
+          "objectives": ["Explain how Flutter runs on embedded Linux", "Deploy a Flutter app to a single-board computer", "Plan an embedded or automotive rollout"]
+        },
+        {
+          "topic": "Leading and Growing a Flutter Team",
+          "subtopics": ["Engineering standards: lint sets, formatting, folder rules and naming", "Code review checklists for state, rebuilds, tests and accessibility", "An upgrade policy that keeps apps within one quarter of Flutter stable", "Test strategy and test ownership across teams", "Rules for AI coding agents, Dart and Flutter Agent Skills and reviewing generated code", "Interview loops and skills matrices for Flutter engineers", "Mentoring, pairing and internal tech talks", "Team metrics: lead time, crash-free users, flaky tests and review time"],
+          "tools": ["very_good_analysis or flutter_lints", "GitHub CODEOWNERS", "Dart and Flutter Agent Skills", "DORA metrics dashboard"],
+          "lab_task": "Write a Flutter engineering handbook for a 15-person team with a lint configuration, a 12-point review checklist, an upgrade policy, a test pyramid with targets, rules for AI-generated code and a skills matrix for 3 seniority levels, then run a mock review of a real pull request with the checklist.",
+          "deliverable": "Team handbook and a completed mock review",
+          "checks": [["Review the sample pull request with the checklist", "At least 5 issues are found and each maps to a checklist item", "Review comments"], ["Apply the lint set to the monorepo", "New warnings are counted and a fix-or-ignore plan is agreed", "Analyzer report"], ["Present the skills matrix", "Each level lists observable behaviours for architecture, testing and delivery", "Skills matrix document"]],
+          "objectives": ["Set engineering standards for Flutter teams", "Run effective code reviews", "Grow and assess Flutter engineers"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-App Retail Platform",
+          "subtopics": ["A pub workspace with feature packages and a shared design system", "Native SDK access through direct interop and an FFI pricing module", "Security review, store compliance checklist and privacy manifests", "A release train with staged rollout, flags and code push", "Observability dashboards and performance budgets", "An architecture review, a migration plan and the team handbook"],
+          "tools": ["Melos", "material_ui", "Sentry or Crashlytics", "Shorebird"],
+          "lab_task": "In teams of 4, build a customer app and a staff app for a retail group from one pub workspace with a shared design system and feature packages, a barcode scanner through direct native interop, a C or Rust pricing module through FFI, MASVS fixes, a compliance checklist for both stores, a staged rollout with a kill switch, dashboards against agreed budgets and a 20-minute architecture review.",
+          "deliverable": "Workspace repository, security and compliance reports, release runbook and architecture review slides",
+          "checks": [["Change one design token and rebuild both apps", "Both apps update from a single package change", "Screenshots"], ["Run the release train to 20% with a seeded crash", "The health gate halts the rollout and the kill switch removes the faulty feature", "Rollout and flag logs"], ["Run the security checklist on both apps", "No high-severity findings remain open", "Security report"]],
+          "objectives": ["Design and run a multi-app Flutter platform", "Combine advanced engineering, release and security practice", "Defend architecture decisions to stakeholders"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,573 @@
+{
+  "domain": "Fine-Tuning LLMs",
+  "name": "Fine-Tuning Large Language Models",
+  "category": "Generative AI and Agents",
+  "icon": "brain-circuit",
+  "aliases": ["LLM Fine-Tuning", "LLM Fine Tuning", "Fine-Tuning Large Language Models", "Fine Tuning LLMs", "Finetuning LLMs", "LLM Finetuning", "Fine-Tuning Open-Source LLMs", "Fine-Tuning Open-Weight Models", "Supervised Fine-Tuning", "Instruction Tuning", "LoRA Fine-Tuning", "QLoRA", "PEFT", "RLHF", "Preference Tuning", "Reinforcement Fine-Tuning", "LLM Customisation", "LLM Customization", "Fine-Tuning Llama", "Domain Adaptation of LLMs", "LLM Distillation"],
+  "certifications": ["No single required certification; assessed by training runs, evaluation reports and a deployed model", "Optional: NVIDIA Generative AI LLM certifications", "Optional: Hugging Face course certificates"],
+  "tools": ["Python", "PyTorch", "Hugging Face Transformers, Datasets, PEFT and TRL", "bitsandbytes", "Unsloth", "vLLM", "Weights & Biases or MLflow"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers and ML engineers who build with LLMs and need to adapt open-weight models to their own tasks. Covers when to fine-tune instead of prompting or retrieval, how models are trained, setting up GPUs and libraries, choosing a base model, tokenizers and chat templates, preparing and cleaning training data, supervised fine-tuning with TRL, LoRA and QLoRA, hyperparameters, monitoring training, evaluation with held-out sets and judges, faster training with Unsloth, merging and saving models, serving, managed fine-tuning services and costs, licences and responsible use.",
+      "prerequisites": ["Writes Python and has used an LLM API", "Basic understanding of machine learning training and evaluation", "Access to a GPU, a cloud notebook or a managed fine-tuning service"],
+      "outcomes": ["Decide when fine-tuning is worth it compared with prompting or retrieval", "Prepare clean chat-format datasets and fine-tune open-weight models with LoRA and QLoRA", "Evaluate fine-tuned models against baselines with held-out data and judges", "Merge, save and serve a fine-tuned model and estimate its cost"],
+      "days": [
+        {
+          "topic": "Fine-Tuning LLMs Overview: When to Fine-Tune, Prompt or Retrieve",
+          "subtopics": ["What fine-tuning changes in a model", "Prompting, retrieval and fine-tuning compared", "Problems fine-tuning solves: format, style, task skill and cost", "Problems it does not solve well: fresh facts and missing knowledge", "Full fine-tuning compared with adapters", "Open-weight and closed models", "Managed fine-tuning services", "Typical project stages", "Costs and time at a glance", "The course project: a support assistant for a fictional company"],
+          "tools": ["Decision checklist", "LLM API", "Course project brief"],
+          "lab_task": "Take five candidate use cases, decide for each whether to prompt, retrieve or fine-tune with reasons, and for the course project write the success criteria a fine-tuned model must beat.",
+          "deliverable": "Use case decisions and project success criteria",
+          "checks": [["Decide", "Each use case has a justified approach", "Decision sheet"], ["Define success", "The project has measurable criteria and a baseline", "Success criteria"], ["Explain", "The limits of fine-tuning for new facts are stated correctly", "Notes"]],
+          "objectives": ["Explain what fine-tuning does", "Choose between prompting, retrieval and fine-tuning", "Set success criteria"]
+        },
+        {
+          "topic": "How Language Models Learn: Pretraining, Instruction Tuning and Alignment",
+          "subtopics": ["Next-token prediction", "Pretraining on large text corpora", "Base models and instruct models", "Instruction tuning", "Preference alignment in brief", "Reasoning training in brief", "What changes in weights during fine-tuning", "Why fine-tuned models can forget"],
+          "tools": ["Hugging Face model hub", "Model cards", "Notebook"],
+          "lab_task": "Compare a base model and its instruct version on the same ten prompts, read both model cards and explain the differences in behaviour from their training stages.",
+          "deliverable": "Base and instruct comparison with explanations",
+          "checks": [["Compare", "Both models answer the same prompts", "Notebook output"], ["Read cards", "Training stages are summarised from the model cards", "Notes"], ["Explain", "Behaviour differences are linked to training stages", "Notes"]],
+          "objectives": ["Explain how LLMs are trained", "Tell base and instruct models apart", "Understand what fine-tuning changes"]
+        },
+        {
+          "topic": "Environment Setup: GPUs, Python, PyTorch and Hugging Face",
+          "subtopics": ["GPU options: local, cloud notebooks and rented instances", "GPU memory and why it limits model size", "CUDA drivers and checking the GPU", "Python environments", "Installing PyTorch with GPU support", "Transformers, Datasets, PEFT and TRL", "bitsandbytes for quantised training", "Hugging Face accounts and access tokens", "Gated models and licence acceptance", "Checking the setup with a small model"],
+          "tools": ["Python", "PyTorch", "Hugging Face libraries", "nvidia-smi"],
+          "lab_task": "Set up a GPU environment, install the libraries, log in to Hugging Face, load a small model and generate text, and record GPU memory before and after loading.",
+          "deliverable": "Working training environment with memory notes",
+          "checks": [["Check the GPU", "nvidia-smi and PyTorch both see the GPU", "Terminal output"], ["Load a model", "A small model loads and generates text", "Notebook output"], ["Record memory", "GPU memory use is recorded", "Notes"]],
+          "objectives": ["Set up a fine-tuning environment", "Use Hugging Face libraries", "Understand GPU memory limits"]
+        },
+        {
+          "topic": "Choosing a Base Model: Size, Licence and Benchmarks",
+          "subtopics": ["Model families and sizes", "Memory needed for training and inference", "Licences: Apache 2.0, community licences and restrictions", "Benchmarks and their limits", "Language and domain coverage", "Context length", "Instruct or base starting points", "Shortlisting and testing candidates"],
+          "tools": ["Hugging Face model hub", "Model cards", "Memory estimate sheet"],
+          "lab_task": "Shortlist three open-weight models for the course project by size, licence and language, estimate their memory needs and test each on twenty project prompts.",
+          "deliverable": "Model shortlist with memory estimates and test results",
+          "checks": [["Check licences", "Licence terms are summarised for each model", "Shortlist"], ["Estimate memory", "Training and inference memory is estimated", "Estimate sheet"], ["Test", "Each model is scored on project prompts", "Test results"]],
+          "objectives": ["Choose base models", "Check licences", "Estimate memory needs"]
+        },
+        {
+          "topic": "Tokenizers and Chat Templates",
+          "subtopics": ["How tokenizers split text", "Special tokens", "Chat templates and roles", "apply_chat_template in Transformers", "Matching training and inference formats", "Token counts and cost", "Languages and token efficiency", "Common template mistakes"],
+          "tools": ["Hugging Face Transformers", "Tokenizers", "Notebook"],
+          "lab_task": "Tokenise sample conversations with the chosen model's chat template, count tokens, show what breaks when the wrong template is used and fix it.",
+          "deliverable": "Template notebook with a broken and fixed example",
+          "checks": [["Apply templates", "Conversations are formatted with the model's template", "Notebook output"], ["Count tokens", "Token counts are reported for the dataset sample", "Notebook output"], ["Fix mistakes", "The wrong-template output is shown and corrected", "Notebook output"]],
+          "objectives": ["Use tokenizers", "Apply chat templates", "Avoid format mismatches"]
+        },
+        {
+          "topic": "Preparing a Supervised Fine-Tuning Dataset",
+          "subtopics": ["What a training example looks like", "Prompt and completion format", "Conversation format with roles", "Sources: tickets, documents and expert answers", "Writing gold answers", "Train, validation and test splits", "Dataset size guidelines", "Storing datasets with Hugging Face Datasets"],
+          "tools": ["Hugging Face Datasets", "pandas", "JSONL files"],
+          "lab_task": "Turn two hundred support tickets and expert replies into a conversation-format dataset, split it into train, validation and test sets and push it to a private dataset repository.",
+          "deliverable": "Split dataset in conversation format",
+          "checks": [["Format", "Every example follows the conversation format", "Dataset sample"], ["Split", "No example appears in more than one split", "Notebook check"], ["Store", "The dataset loads from the private repository", "Notebook output"]],
+          "objectives": ["Build fine-tuning datasets", "Split data correctly", "Store datasets"]
+        },
+        {
+          "topic": "Data Quality, Cleaning and Deduplication",
+          "subtopics": ["Why data quality matters more than size", "Removing duplicates and near-duplicates", "Filtering bad and harmful examples", "Personal data and redaction", "Balancing topics and lengths", "Consistent style in answers", "Label noise and expert review", "Data cards"],
+          "tools": ["pandas", "Datasets", "Deduplication tools", "PII detection library"],
+          "lab_task": "Clean the support dataset by removing near-duplicates, redacting personal data, filtering weak answers and balancing topics, then write a data card.",
+          "deliverable": "Cleaned dataset and data card",
+          "checks": [["Deduplicate", "Near-duplicates are found and removed", "Notebook output"], ["Redact", "Personal data is removed", "Redaction report"], ["Document", "The data card states sources, cleaning steps and limits", "Data card"]],
+          "objectives": ["Clean training data", "Protect personal data", "Document datasets"]
+        },
+        {
+          "topic": "Supervised Fine-Tuning with Hugging Face TRL",
+          "subtopics": ["The SFTTrainer", "Loading the model and tokenizer", "Training on completions only", "Training arguments", "Evaluation during training", "Saving checkpoints", "Pushing models to the hub", "Reading training logs"],
+          "tools": ["TRL SFTTrainer", "Transformers", "Weights & Biases or MLflow"],
+          "lab_task": "Fine-tune a small model on the support dataset with SFTTrainer, train on assistant turns only, evaluate on the validation set during training and push the model to a private repository.",
+          "deliverable": "First fine-tuned model with training logs",
+          "checks": [["Train", "Training completes with logged loss", "Training logs"], ["Mask prompts", "Loss is computed on assistant turns only", "Configuration"], ["Save", "The model is pushed to a private repository", "Repository"]],
+          "objectives": ["Run supervised fine-tuning", "Configure TRL", "Save and share models"]
+        },
+        {
+          "topic": "LoRA Adapters: Ranks, Alpha and Target Modules",
+          "subtopics": ["Why low-rank adapters work", "Rank and alpha", "Target modules: attention and MLP layers", "Dropout in adapters", "Trainable parameter counts", "Adapter size on disk", "Choosing settings for a task", "Comparing LoRA with full fine-tuning"],
+          "tools": ["PEFT LoraConfig", "TRL", "Notebook"],
+          "lab_task": "Train three LoRA variants with different ranks and target modules, compare trainable parameters, memory, training time and validation results, and choose a setting.",
+          "deliverable": "LoRA comparison and chosen configuration",
+          "checks": [["Configure", "Three LoRA settings are trained", "Training logs"], ["Compare", "Parameters, memory, time and quality are compared", "Comparison table"], ["Choose", "The chosen setting is justified", "Notes"]],
+          "objectives": ["Configure LoRA", "Compare adapter settings", "Choose settings with evidence"]
+        },
+        {
+          "topic": "QLoRA: Fine-Tuning in 4-Bit on a Single GPU",
+          "subtopics": ["Quantisation in brief", "4-bit NF4 quantisation", "Double quantisation", "Paged optimisers", "Memory savings and trade-offs", "Speed and quality effects", "Loading quantised models with bitsandbytes", "When QLoRA is the right choice"],
+          "tools": ["bitsandbytes", "PEFT", "TRL"],
+          "lab_task": "Fine-tune a seven to eight billion parameter model with QLoRA on one GPU, record memory and time and compare quality with the LoRA run on the smaller model.",
+          "deliverable": "QLoRA run with memory and quality comparison",
+          "checks": [["Fit in memory", "The QLoRA run fits on one GPU", "Memory log"], ["Train", "Training completes with logged loss", "Training logs"], ["Compare", "Quality is compared with the smaller LoRA model", "Comparison table"]],
+          "objectives": ["Run QLoRA", "Measure memory savings", "Weigh quality and cost"]
+        },
+        {
+          "topic": "Training Hyperparameters: Learning Rate, Epochs and Batch Size",
+          "subtopics": ["Learning rate and schedules", "Warm-up", "Epochs and overfitting", "Batch size and gradient accumulation", "Sequence length", "Weight decay", "Seeds and run-to-run variation", "A simple tuning plan"],
+          "tools": ["TRL", "Weights & Biases or MLflow", "Notebook"],
+          "lab_task": "Run a small sweep over learning rate and epochs, compare validation loss and task scores, repeat the best run with two seeds and record the chosen settings.",
+          "deliverable": "Sweep results and chosen hyperparameters",
+          "checks": [["Sweep", "At least four combinations are trained", "Tracking dashboard"], ["Repeat", "The best run is repeated with two seeds", "Training logs"], ["Choose", "Settings are chosen from validation results", "Notes"]],
+          "objectives": ["Tune training hyperparameters", "Use validation results", "Account for run variation"]
+        },
+        {
+          "topic": "Monitoring Training: Loss Curves, Overfitting and Checkpoints",
+          "subtopics": ["Reading training and validation loss", "Signs of overfitting", "Loss spikes and divergence", "Gradient norms", "Early stopping", "Choosing the best checkpoint", "Sample generations during training", "Logging to experiment trackers"],
+          "tools": ["Weights & Biases or MLflow", "TRL callbacks", "Notebook"],
+          "lab_task": "Train with sample generations logged every few hundred steps, spot overfitting in the curves, pick the best checkpoint and show its outputs next to a later one.",
+          "deliverable": "Monitored run and checkpoint choice",
+          "checks": [["Log", "Loss curves and sample generations are logged", "Tracking dashboard"], ["Diagnose", "Overfitting is identified with evidence", "Notes"], ["Choose", "The best checkpoint is justified by validation results", "Notes"]],
+          "objectives": ["Monitor training", "Detect overfitting", "Choose checkpoints"]
+        },
+        {
+          "topic": "Evaluating Fine-Tuned Models: Held-Out Sets and Task Metrics",
+          "subtopics": ["Why loss is not enough", "Held-out test sets", "Exact match, F1 and format checks", "Task-specific metrics", "Comparing with the base model and prompting baseline", "Error analysis", "Human review samples", "Evaluation reports"],
+          "tools": ["Python", "Evaluation scripts", "Spreadsheet"],
+          "lab_task": "Evaluate the fine-tuned model, the base model and a prompted baseline on the test set with task metrics and format checks, and analyse twenty errors.",
+          "deliverable": "Evaluation report with error analysis",
+          "checks": [["Compare", "All three systems are scored on the same test set", "Results table"], ["Analyse", "Twenty errors are grouped by cause", "Error analysis"], ["Conclude", "The report states whether success criteria are met", "Evaluation report"]],
+          "objectives": ["Evaluate fine-tuned models", "Compare with baselines", "Analyse errors"]
+        },
+        {
+          "topic": "LLM-as-Judge Evaluation and Its Limits",
+          "subtopics": ["When automatic metrics fall short", "Writing judge prompts and rubrics", "Pairwise comparison", "Position and length bias", "Agreement with human ratings", "Cost of judging", "Combining judges with metrics", "Reporting judge results honestly"],
+          "tools": ["LLM API", "Evaluation scripts", "Human rating sheet"],
+          "lab_task": "Build a judge rubric for helpfulness and policy accuracy, run pairwise comparisons between models, check agreement with fifty human ratings and correct for position bias.",
+          "deliverable": "Judge setup with agreement analysis",
+          "checks": [["Judge", "Pairwise results are produced for two models", "Results"], ["Check agreement", "Agreement with human ratings is measured", "Agreement table"], ["Reduce bias", "Order swapping reduces position bias", "Comparison"]],
+          "objectives": ["Use LLM judges", "Measure judge reliability", "Report judge limits"]
+        },
+        {
+          "topic": "Fine-Tuning Faster with Unsloth",
+          "subtopics": ["What Unsloth changes", "Supported models", "Loading models in Unsloth", "LoRA and QLoRA in Unsloth", "Speed and memory compared with standard training", "Saving to Hugging Face and GGUF formats", "Free notebook environments", "When to use other tools"],
+          "tools": ["Unsloth", "TRL", "Notebook"],
+          "lab_task": "Repeat the QLoRA run with Unsloth, compare speed, memory and quality with the earlier run, and export the result in GGUF format.",
+          "deliverable": "Unsloth run with comparison and GGUF export",
+          "checks": [["Train", "The Unsloth run completes", "Training logs"], ["Compare", "Speed, memory and quality are compared", "Comparison table"], ["Export", "The GGUF file loads in a local runtime", "Run output"]],
+          "objectives": ["Use Unsloth", "Compare training tools", "Export models"]
+        },
+        {
+          "topic": "Merging Adapters and Saving Models",
+          "subtopics": ["Keeping adapters separate", "Merging adapters into base weights", "Merging with quantised bases", "Saving formats: safetensors and GGUF", "Model cards for fine-tuned models", "Versioning models", "Private and public repositories", "Checking outputs after merging"],
+          "tools": ["PEFT merge_and_unload", "Hugging Face Hub", "Notebook"],
+          "lab_task": "Merge the chosen adapter into the base model, check that outputs match the unmerged version, write a model card and publish the model to a private repository with a version tag.",
+          "deliverable": "Merged model with model card",
+          "checks": [["Merge", "The merged model loads and runs", "Notebook output"], ["Match", "Outputs match the adapter version on test prompts", "Comparison"], ["Document", "The model card lists data, method, evaluation and limits", "Model card"]],
+          "objectives": ["Merge adapters", "Save and version models", "Write model cards"]
+        },
+        {
+          "topic": "Serving a Fine-Tuned Model with vLLM or Ollama",
+          "subtopics": ["Serving options", "vLLM for GPU serving", "OpenAI-compatible endpoints", "Serving LoRA adapters", "Ollama for local use", "Throughput and latency basics in practice", "Applying the chat template at serving time", "Simple load tests"],
+          "tools": ["vLLM", "Ollama", "HTTP client"],
+          "lab_task": "Serve the fine-tuned model with vLLM behind an OpenAI-compatible endpoint, call it from a small client, run a short load test and serve the GGUF version locally with Ollama.",
+          "deliverable": "Running endpoint, client and load test results",
+          "checks": [["Serve", "The endpoint answers requests in the right format", "Client output"], ["Test load", "Latency and throughput are recorded", "Load test results"], ["Run locally", "The GGUF model runs in Ollama", "Terminal output"]],
+          "objectives": ["Serve fine-tuned models", "Use OpenAI-compatible APIs", "Measure serving performance"]
+        },
+        {
+          "topic": "Managed Fine-Tuning Services: OpenAI, Azure, Vertex AI and Bedrock",
+          "subtopics": ["What managed services offer", "Supported methods: supervised, preference and reinforcement fine-tuning", "Data formats and upload", "Training jobs and hyperparameters", "Evaluating managed models", "Pricing for training and inference", "Data use and privacy terms", "Managed compared with self-hosted fine-tuning"],
+          "tools": ["OpenAI fine-tuning API or Azure AI Foundry", "Vertex AI or Amazon Bedrock (optional)", "Evaluation scripts"],
+          "lab_task": "Fine-tune a model through one managed service with the same dataset, evaluate it on the test set and compare quality, cost and effort with the self-hosted run.",
+          "deliverable": "Managed fine-tuning run and comparison",
+          "checks": [["Train", "The managed job completes", "Job details"], ["Evaluate", "The managed model is scored on the same test set", "Results table"], ["Compare", "Quality, cost and data terms are compared", "Comparison"]],
+          "objectives": ["Use managed fine-tuning", "Compare managed and self-hosted options", "Check data terms"]
+        },
+        {
+          "topic": "Costs, Licences and Responsible Fine-Tuning",
+          "subtopics": ["Estimating training cost", "Estimating serving cost", "Licence terms for fine-tuned models", "Data rights for training", "Safety changes after fine-tuning", "Bias in training data", "Documentation and disclosure", "A responsible fine-tuning checklist"],
+          "tools": ["Cost sheet", "Licence summaries", "Responsible AI checklist"],
+          "lab_task": "Estimate the full cost of the course project's training and a month of serving, check licence and data rights, run a short safety check and complete the responsible fine-tuning checklist.",
+          "deliverable": "Cost estimate, rights check and checklist",
+          "checks": [["Cost", "Training and serving costs are estimated with assumptions", "Cost sheet"], ["Check rights", "Licence and data rights are confirmed", "Rights check"], ["Check safety", "Safety checks show no new harmful behaviour or issues are logged", "Checklist"]],
+          "objectives": ["Estimate fine-tuning costs", "Check licences and data rights", "Fine-tune responsibly"]
+        },
+        {
+          "topic": "Beginner Capstone: Fine-Tuned Support Assistant from Data to Endpoint",
+          "subtopics": ["Dataset preparation", "QLoRA fine-tuning", "Evaluation against baselines", "Model card and release", "Serving endpoint"],
+          "tools": ["Hugging Face libraries", "Unsloth or TRL", "vLLM", "Evaluation scripts"],
+          "lab_task": "Deliver the course project end to end: prepare and clean the dataset, fine-tune with QLoRA, evaluate against base and prompted baselines, publish a model card and serve the model behind an endpoint.",
+          "deliverable": "Dataset, model, evaluation report and endpoint",
+          "checks": [["Train", "The fine-tuned model is trained from the cleaned dataset", "Training logs"], ["Beat the baseline", "The model meets the success criteria on the test set", "Evaluation report"], ["Serve", "The endpoint answers test requests", "Client output"]],
+          "objectives": ["Combine beginner fine-tuning skills", "Deliver a fine-tuned model", "Prove value against baselines"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For ML engineers who have fine-tuned models with LoRA and now need better data, alignment methods and scale. Covers designing fine-tuning projects, synthetic data and distillation, instruction data mixtures, preference optimisation with DPO, ORPO and KTO, reinforcement fine-tuning with GRPO, reward models, fine-tuning for tool calling and structured output, domain adaptation, continued pretraining, multi-GPU training, memory and speed techniques, Axolotl and LLaMA-Factory, embedding and reranker models, small models, vision-language models, benchmark and safety evaluation, catastrophic forgetting and reproducible runs.",
+      "prerequisites": ["Has fine-tuned an open-weight model with LoRA or QLoRA", "Evaluates models with held-out sets", "Comfortable with PyTorch and Hugging Face libraries"],
+      "outcomes": ["Build high-quality instruction and preference datasets, including synthetic data", "Align models with DPO and GRPO and fine-tune for tools, formats and domains", "Train efficiently on several GPUs with configured frameworks", "Evaluate capability, safety and regressions before release"],
+      "days": [
+        {
+          "topic": "Designing Fine-Tuning Projects: Goals, Baselines and Success Criteria",
+          "subtopics": ["Framing the task the model must learn", "Choosing baselines: prompting, retrieval and larger models", "Success criteria and acceptance tests", "Data requirements and sources", "Compute and time budgets", "Risks and failure modes", "Iteration plan", "Project documents"],
+          "tools": ["Project template", "Evaluation plan template", "Cost sheet"],
+          "lab_task": "Write a project plan for fine-tuning a model to extract fields from insurance claims, with baselines, acceptance tests, data plan, compute budget and risks.",
+          "deliverable": "Fine-tuning project plan",
+          "checks": [["Baseline", "Strong baselines are defined before training", "Project plan"], ["Accept", "Acceptance tests are measurable", "Evaluation plan"], ["Budget", "Compute and time budgets are estimated", "Cost sheet"]],
+          "objectives": ["Plan fine-tuning projects", "Set baselines", "Define acceptance tests"]
+        },
+        {
+          "topic": "Synthetic Data Generation and Distillation from Larger Models",
+          "subtopics": ["When synthetic data helps", "Generating examples with a larger model", "Seed examples and diversity", "Self-instruct style generation", "Filtering and verifying synthetic data", "Distilling a larger model's behaviour", "Licence terms on model outputs", "Mixing synthetic and human data"],
+          "tools": ["LLM API", "Datasets", "Filtering scripts"],
+          "lab_task": "Generate two thousand synthetic training examples from fifty seeds with a larger model, filter them with automatic checks and a judge, and compare training on human, synthetic and mixed data.",
+          "deliverable": "Synthetic dataset and data mix comparison",
+          "checks": [["Generate", "Synthetic examples cover the seed topics", "Dataset statistics"], ["Filter", "Low-quality examples are removed with recorded rules", "Filter report"], ["Compare", "Models trained on three data mixes are compared", "Results table"]],
+          "objectives": ["Generate synthetic data", "Filter for quality", "Distil from larger models"]
+        },
+        {
+          "topic": "Instruction Data at Scale: Mixtures, Formats and Balance",
+          "subtopics": ["Mixing tasks in one dataset", "Balancing task proportions", "Multi-turn conversations", "System prompts in training data", "Refusals and safe answers", "Formatting rules and consistency", "Sampling and weighting", "Tracking dataset versions"],
+          "tools": ["Datasets", "Data versioning tool", "Notebook"],
+          "lab_task": "Build a mixed instruction dataset from four task sources with planned proportions, include refusal examples, version it and show the effect of two different mixtures.",
+          "deliverable": "Versioned instruction mixture and comparison",
+          "checks": [["Mix", "Task proportions match the plan", "Dataset statistics"], ["Include safety", "Refusal examples are included and tested", "Test results"], ["Version", "Both mixtures are versioned and compared", "Results table"]],
+          "objectives": ["Build instruction mixtures", "Balance tasks", "Version datasets"]
+        },
+        {
+          "topic": "Preference Optimisation with DPO, ORPO and KTO",
+          "subtopics": ["Why preference data improves models", "Chosen and rejected pairs", "Direct preference optimisation", "ORPO without a reference model", "KTO with unpaired feedback", "The beta parameter and its effect", "Collecting preference data", "Evaluating preference-tuned models"],
+          "tools": ["TRL DPOTrainer and ORPOTrainer", "Datasets", "Evaluation scripts"],
+          "lab_task": "Build a preference dataset from ranked answers, train DPO and ORPO on top of the supervised model, and compare win rates and format accuracy against the supervised model.",
+          "deliverable": "Preference-tuned models and comparison",
+          "checks": [["Build pairs", "Chosen and rejected pairs are valid", "Dataset sample"], ["Train", "DPO and ORPO runs complete", "Training logs"], ["Compare", "Win rates against the supervised model are reported", "Results table"]],
+          "objectives": ["Apply preference optimisation", "Build preference data", "Compare alignment methods"]
+        },
+        {
+          "topic": "Reinforcement Fine-Tuning with GRPO and Verifiable Rewards",
+          "subtopics": ["Reinforcement learning for language models", "Group relative policy optimisation", "Verifiable rewards: tests, checkers and exact answers", "Writing reward functions", "Reward hacking", "Sampling and generation settings during training", "Compute cost of reinforcement fine-tuning", "When reinforcement fine-tuning beats supervised training"],
+          "tools": ["TRL GRPOTrainer", "Python reward functions", "vLLM for generation"],
+          "lab_task": "Train a model with GRPO to produce valid JSON that passes a schema and business rules, write the reward functions, watch for reward hacking and compare with supervised training.",
+          "deliverable": "GRPO run with reward functions and comparison",
+          "checks": [["Reward", "Reward functions score schema and rule compliance", "Reward code"], ["Train", "Rewards rise during training without hacking", "Training logs"], ["Compare", "Pass rates are compared with the supervised model", "Results table"]],
+          "objectives": ["Use reinforcement fine-tuning", "Write verifiable rewards", "Detect reward hacking"]
+        },
+        {
+          "topic": "Reward Models and RLHF Concepts in Practice",
+          "subtopics": ["The RLHF pipeline", "Training a reward model", "Reward model evaluation", "Policy optimisation with a reward model", "Over-optimisation", "Human feedback collection", "Costs of full RLHF", "Simpler alternatives"],
+          "tools": ["TRL RewardTrainer", "Datasets", "Evaluation scripts"],
+          "lab_task": "Train a small reward model on preference pairs, measure its accuracy on held-out pairs and use it to rank candidate answers from the supervised model.",
+          "deliverable": "Reward model and ranking evaluation",
+          "checks": [["Train", "The reward model trains on preference pairs", "Training logs"], ["Measure", "Held-out pair accuracy is reported", "Results"], ["Use", "Reranked answers improve judged quality", "Comparison"]],
+          "objectives": ["Explain RLHF", "Train reward models", "Use rewards to rank outputs"]
+        },
+        {
+          "topic": "Fine-Tuning for Tool Calling and Structured Output",
+          "subtopics": ["Tool calling formats", "Training examples with tool calls and results", "JSON and schema compliance", "Refusing when no tool fits", "Multi-step tool use", "Constrained decoding compared with fine-tuning", "Evaluating tool call accuracy", "Keeping general skills"],
+          "tools": ["TRL", "JSON Schema", "Tool calling test set"],
+          "lab_task": "Fine-tune a model to call three business tools with correct arguments and to answer directly when no tool fits, and measure argument accuracy and false tool calls.",
+          "deliverable": "Tool-calling model with evaluation",
+          "checks": [["Format", "Training data follows the model's tool calling format", "Dataset sample"], ["Measure", "Argument accuracy and false calls are reported", "Results table"], ["Compare", "Results are compared with prompting and constrained decoding", "Comparison"]],
+          "objectives": ["Fine-tune for tool calling", "Improve structured output", "Evaluate tool use"]
+        },
+        {
+          "topic": "Fine-Tuning for Domain Language: Legal, Medical and Finance",
+          "subtopics": ["What domain adaptation means", "Domain vocabulary and style", "Expert-written data", "Regulatory and safety constraints", "Domain evaluation sets with experts", "Hallucination risk in specialist domains", "Combining fine-tuning with retrieval", "Sign-off by domain experts"],
+          "tools": ["Domain datasets", "Evaluation scripts", "Expert review sheet"],
+          "lab_task": "Fine-tune a model on expert-written finance answers, build a domain evaluation set with an expert, combine the model with retrieval and get expert sign-off on a sample.",
+          "deliverable": "Domain model, evaluation set and expert review",
+          "checks": [["Train", "The domain model is trained on expert data", "Training logs"], ["Evaluate", "The domain set is scored with expert criteria", "Results table"], ["Sign off", "Expert review findings are recorded", "Review sheet"]],
+          "objectives": ["Adapt models to domains", "Build expert evaluations", "Combine fine-tuning and retrieval"]
+        },
+        {
+          "topic": "Continued Pretraining on Domain Text",
+          "subtopics": ["When continued pretraining helps", "Preparing raw domain text", "Packing and sequence length", "Learning rates for continued pretraining", "Mixing general text to limit forgetting", "Following with instruction tuning", "Measuring perplexity on domain text", "Cost compared with adapters"],
+          "tools": ["Transformers", "Datasets", "Perplexity scripts"],
+          "lab_task": "Continue pretraining a small model on domain documents with a general-text mix, measure domain and general perplexity, then instruction-tune and compare with tuning alone.",
+          "deliverable": "Continued pretraining run and comparison",
+          "checks": [["Prepare", "Domain text is cleaned and packed", "Dataset statistics"], ["Measure", "Domain and general perplexity are reported", "Results table"], ["Compare", "The two-stage model is compared with instruction tuning alone", "Comparison"]],
+          "objectives": ["Run continued pretraining", "Limit forgetting", "Compare training strategies"]
+        },
+        {
+          "topic": "Multi-GPU Training with Accelerate, DeepSpeed and FSDP",
+          "subtopics": ["Data parallel training", "ZeRO stages in DeepSpeed", "Fully sharded data parallel", "Accelerate configuration", "Launching multi-GPU jobs", "Checkpointing sharded models", "Scaling efficiency", "Common multi-GPU errors"],
+          "tools": ["Accelerate", "DeepSpeed", "PyTorch FSDP", "Multi-GPU instance"],
+          "lab_task": "Train the same model on one GPU and on several GPUs with DeepSpeed ZeRO and FSDP, compare memory per GPU and throughput and fix one launch error.",
+          "deliverable": "Multi-GPU runs with scaling comparison",
+          "checks": [["Launch", "Multi-GPU runs complete with both methods", "Training logs"], ["Compare", "Memory per GPU and throughput are compared", "Comparison table"], ["Fix", "The launch error is fixed with a recorded cause", "Notes"]],
+          "objectives": ["Train on several GPUs", "Use DeepSpeed and FSDP", "Measure scaling"]
+        },
+        {
+          "topic": "Memory and Speed: Gradient Checkpointing, Mixed Precision and Packing",
+          "subtopics": ["Where training memory goes", "Gradient checkpointing", "bf16 mixed precision", "Flash attention", "Sequence packing", "Liger kernels and fused operations", "Optimiser memory and 8-bit optimisers", "Measuring the gains"],
+          "tools": ["Transformers", "TRL", "PyTorch profiler"],
+          "lab_task": "Apply gradient checkpointing, bf16, flash attention, packing and an 8-bit optimiser one at a time, and record memory and tokens per second after each change.",
+          "deliverable": "Optimisation log with measurements",
+          "checks": [["Apply", "Each technique is applied separately", "Configuration log"], ["Measure", "Memory and throughput are recorded after each change", "Results table"], ["Choose", "The final configuration is justified", "Notes"]],
+          "objectives": ["Reduce training memory", "Speed up training", "Measure each change"]
+        },
+        {
+          "topic": "Axolotl and LLaMA-Factory for Configured Training Runs",
+          "subtopics": ["Why configuration-driven training", "Axolotl YAML configurations", "Dataset formats in Axolotl", "LLaMA-Factory and its interface", "Supported methods in each tool", "Reproducibility with configuration files", "Running in containers", "Choosing a framework for a team"],
+          "tools": ["Axolotl", "LLaMA-Factory", "Docker"],
+          "lab_task": "Reproduce the supervised run in Axolotl and LLaMA-Factory from configuration files in containers, compare results and effort, and recommend a framework for the team.",
+          "deliverable": "Two configured runs and a recommendation",
+          "checks": [["Configure", "Both tools run from versioned configuration files", "Config files"], ["Reproduce", "Results are close to the earlier run", "Results table"], ["Recommend", "The recommendation compares features and effort", "Recommendation"]],
+          "objectives": ["Use configured training frameworks", "Reproduce runs", "Choose tools for teams"]
+        },
+        {
+          "topic": "Embedding Model and Reranker Fine-Tuning",
+          "subtopics": ["Why fine-tune embeddings", "Training pairs and hard negatives", "Sentence Transformers training", "Contrastive losses", "Reranker fine-tuning", "Retrieval evaluation: recall and MRR", "Effects on retrieval-augmented generation", "Serving custom embeddings"],
+          "tools": ["Sentence Transformers", "Datasets", "Retrieval evaluation scripts"],
+          "lab_task": "Fine-tune an embedding model and a reranker on company question and document pairs with hard negatives, and measure recall and answer quality in a RAG pipeline.",
+          "deliverable": "Fine-tuned retrieval models and RAG comparison",
+          "checks": [["Train", "Embedding and reranker training completes", "Training logs"], ["Measure retrieval", "Recall and MRR improve over the base models", "Results table"], ["Measure answers", "RAG answer quality is compared", "Comparison"]],
+          "objectives": ["Fine-tune embedding models", "Fine-tune rerankers", "Improve retrieval quality"]
+        },
+        {
+          "topic": "Fine-Tuning Small Language Models for Edge and Cost",
+          "subtopics": ["Why small models", "Choosing small model families", "Task specialisation", "Distilling into small models", "Quantised deployment on CPUs and phones", "Latency and cost gains", "Quality limits", "Matching model size to the task"],
+          "tools": ["Small open-weight models", "Unsloth or TRL", "llama.cpp"],
+          "lab_task": "Fine-tune a model under three billion parameters for the extraction task, quantise it for CPU, and compare cost, latency and accuracy with the larger fine-tuned model.",
+          "deliverable": "Small model with cost and quality comparison",
+          "checks": [["Train", "The small model meets a defined accuracy target or the gap is reported", "Results table"], ["Deploy", "The quantised model runs on CPU", "Run output"], ["Compare", "Cost, latency and accuracy are compared with the larger model", "Comparison"]],
+          "objectives": ["Fine-tune small models", "Deploy on modest hardware", "Match model size to tasks"]
+        },
+        {
+          "topic": "Vision-Language Model Fine-Tuning",
+          "subtopics": ["Vision-language model structure", "Image and text training examples", "Document and chart understanding tasks", "LoRA for vision-language models", "Image preprocessing and resolution", "Evaluation of visual tasks", "Memory needs for images", "Data rights for images"],
+          "tools": ["Transformers vision-language models", "TRL", "Image datasets"],
+          "lab_task": "Fine-tune a vision-language model to extract fields from invoice images, evaluate field accuracy and compare with the base model and an OCR plus text model pipeline.",
+          "deliverable": "Fine-tuned vision-language model and comparison",
+          "checks": [["Prepare", "Image and label pairs are prepared", "Dataset sample"], ["Train", "Training completes with logged loss", "Training logs"], ["Compare", "Field accuracy is compared with two alternatives", "Results table"]],
+          "objectives": ["Fine-tune vision-language models", "Prepare image data", "Compare with pipelines"]
+        },
+        {
+          "topic": "Benchmark Evaluation with lm-evaluation-harness",
+          "subtopics": ["Why run standard benchmarks", "The lm-evaluation-harness tool", "Choosing benchmarks for regressions", "Few-shot settings", "Running evaluations on GPUs", "Comparing models fairly", "Custom tasks in the harness", "Benchmark limits"],
+          "tools": ["lm-evaluation-harness", "vLLM backend", "Results table"],
+          "lab_task": "Run general benchmarks on the base and fine-tuned models, add one custom task for the project and report gains and regressions.",
+          "deliverable": "Benchmark report with custom task",
+          "checks": [["Run", "Benchmarks run with the same settings for both models", "Results files"], ["Customise", "The custom task runs in the harness", "Task configuration"], ["Report", "Gains and regressions are reported", "Benchmark report"]],
+          "objectives": ["Run standard benchmarks", "Add custom tasks", "Detect regressions"]
+        },
+        {
+          "topic": "Safety Evaluation and Red Teaming After Fine-Tuning",
+          "subtopics": ["Why fine-tuning can weaken safety", "Safety test sets", "Red teaming prompts", "Jailbreak resistance", "Refusal and over-refusal rates", "Safety classifiers", "Fixing safety regressions", "Release criteria for safety"],
+          "tools": ["Safety test sets", "Red teaming prompts", "Safety classifier"],
+          "lab_task": "Compare refusal, over-refusal and jailbreak results for the base and fine-tuned models, fix one regression by adding safety examples and retest.",
+          "deliverable": "Safety evaluation and fix",
+          "checks": [["Measure", "Safety metrics are reported for both models", "Results table"], ["Find regressions", "Safety regressions are identified", "Findings"], ["Fix", "Added safety examples reduce the regression", "Retest results"]],
+          "objectives": ["Evaluate model safety", "Red team fine-tuned models", "Fix safety regressions"]
+        },
+        {
+          "topic": "Catastrophic Forgetting and Capability Regression",
+          "subtopics": ["What models lose during fine-tuning", "Measuring general capabilities", "Data mixing to retain skills", "Lower learning rates and fewer steps", "Adapters to protect base weights", "Regularisation approaches", "Choosing acceptable trade-offs", "Regression dashboards"],
+          "tools": ["lm-evaluation-harness", "TRL", "Tracking dashboard"],
+          "lab_task": "Measure capability loss after domain fine-tuning, try data mixing and a lower learning rate to reduce it and show the trade-off between domain gains and general losses.",
+          "deliverable": "Forgetting analysis with mitigations",
+          "checks": [["Measure", "General capability loss is quantified", "Results table"], ["Mitigate", "Two mitigations are tested", "Training logs"], ["Decide", "The chosen trade-off is justified", "Notes"]],
+          "objectives": ["Detect forgetting", "Reduce capability loss", "Choose trade-offs"]
+        },
+        {
+          "topic": "Experiment Tracking and Reproducible Training Runs",
+          "subtopics": ["What to record for every run", "Experiment trackers", "Dataset and code versions", "Configuration files", "Seeds and determinism", "Model registries", "Comparing runs", "Reproducing a result months later"],
+          "tools": ["Weights & Biases or MLflow", "Git", "Hugging Face Hub"],
+          "lab_task": "Set up tracking that records data version, code commit, configuration and results for every run, register the best model and have a colleague reproduce one run.",
+          "deliverable": "Tracked runs and a reproduced result",
+          "checks": [["Record", "Each run records data, code and configuration versions", "Tracking dashboard"], ["Register", "The best model is in the registry with its run link", "Registry entry"], ["Reproduce", "A colleague reproduces the run within tolerance", "Reproduction log"]],
+          "objectives": ["Track experiments", "Version data and models", "Reproduce training runs"]
+        },
+        {
+          "topic": "Intermediate Capstone: Preference-Tuned Domain Assistant",
+          "subtopics": ["Domain data with synthetic augmentation", "Supervised and preference training", "Tool calling skills", "Capability and safety evaluation", "Tracked, reproducible runs"],
+          "tools": ["TRL", "Axolotl or Unsloth", "lm-evaluation-harness", "Weights & Biases or MLflow"],
+          "lab_task": "Build a domain assistant with supervised and DPO training on mixed human and synthetic data, add tool calling, evaluate capability, safety and forgetting and present the release decision.",
+          "deliverable": "Trained assistant, evaluation pack and release decision",
+          "checks": [["Train", "Supervised and preference stages are completed and tracked", "Tracking dashboard"], ["Evaluate", "Capability, safety and forgetting results are reported", "Evaluation pack"], ["Decide", "The release decision follows acceptance tests", "Decision note"]],
+          "objectives": ["Combine intermediate fine-tuning skills", "Align a domain assistant", "Make evidence-based release decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior ML engineers and leads who run custom model programmes. Covers fine-tuning strategy, large-scale data pipelines, training larger models on clusters, long-context fine-tuning, advanced adapter methods, model merging, distillation, reinforcement learning at scale, multi-adapter serving, quantisation for deployment, inference optimisation, evaluation platforms and release gates, contamination and privacy, governance and licensing, model security, lifecycle management, cost engineering, training agents for multi-step work and troubleshooting failed runs.",
+      "prerequisites": ["Has trained and released fine-tuned models with preference methods", "Comfortable with multi-GPU training and evaluation tooling", "Responsible for model quality, cost or platform decisions"],
+      "outcomes": ["Decide where custom models pay off and run a fine-tuning programme", "Train, merge, distil and align models at scale", "Serve many fine-tuned models efficiently with quantisation and adapters", "Govern, secure and operate custom models through their lifecycle"],
+      "days": [
+        {
+          "topic": "Fine-Tuning Strategy for an Organisation: When Custom Models Pay Off",
+          "subtopics": ["Use cases where custom models win", "Total cost compared with API models", "Data advantages", "Team skills and platform needs", "Build, buy or managed services", "Portfolio of custom models", "Risks: model churn and maintenance", "Strategy documents for leaders"],
+          "tools": ["Cost model", "Use case portfolio", "Strategy template"],
+          "lab_task": "Assess six use cases for custom models against API baselines on quality, cost and risk, choose a portfolio and present a fine-tuning strategy to role-played engineering leaders.",
+          "deliverable": "Use case assessment and fine-tuning strategy",
+          "checks": [["Assess", "Each use case is compared with an API baseline", "Assessment"], ["Choose", "The portfolio is justified by cost and quality", "Strategy"], ["Present", "Leaders approve or set conditions", "Presentation notes"]],
+          "objectives": ["Decide where custom models pay off", "Build a model portfolio", "Present strategy to leaders"]
+        },
+        {
+          "topic": "Large-Scale Data Pipelines for Training Corpora",
+          "subtopics": ["Data sources at scale", "Distributed processing for text", "Quality filtering with classifiers", "Near-duplicate detection at scale", "Personal data removal at scale", "Data mixtures and sampling weights", "Lineage and dataset cards", "Storage formats for training"],
+          "tools": ["Spark or Ray Data", "Datatrove or similar", "Parquet"],
+          "lab_task": "Build a pipeline that filters, deduplicates and redacts one million documents, produces a weighted training mixture and records lineage in a dataset card.",
+          "deliverable": "Data pipeline, mixture and dataset card",
+          "checks": [["Process", "The pipeline handles the full corpus", "Pipeline logs"], ["Filter", "Quality, duplicate and personal data filters are measured", "Filter report"], ["Document", "Lineage and mixture weights are recorded", "Dataset card"]],
+          "objectives": ["Build training data pipelines", "Filter at scale", "Document lineage"]
+        },
+        {
+          "topic": "Training Larger Models: Sharding, Parallelism and Cluster Jobs",
+          "subtopics": ["Tensor, pipeline and data parallelism", "FSDP2 and ZeRO-3 for large models", "Cluster schedulers such as Slurm and Kubernetes", "Checkpointing and resuming", "Node failures and elastic training", "Network and storage bottlenecks", "Monitoring cluster jobs", "Scaling efficiency targets"],
+          "tools": ["PyTorch FSDP", "DeepSpeed", "Slurm or Kubernetes", "Monitoring tools"],
+          "lab_task": "Run a multi-node fine-tuning job, resume it after a simulated node failure, measure scaling efficiency and find one network or storage bottleneck.",
+          "deliverable": "Cluster run with resume and scaling evidence",
+          "checks": [["Run", "The multi-node job trains", "Job logs"], ["Resume", "Training resumes from checkpoint after failure", "Job logs"], ["Measure", "Scaling efficiency and a bottleneck are reported", "Analysis"]],
+          "objectives": ["Train on clusters", "Recover from failures", "Measure scaling efficiency"]
+        },
+        {
+          "topic": "Long-Context Fine-Tuning",
+          "subtopics": ["Why long context needs special training", "Position encodings and scaling methods", "Long-context data preparation", "Memory techniques for long sequences", "Sequence parallelism", "Evaluating long-context retrieval and reasoning", "Trade-offs with short-context quality", "Serving long-context models"],
+          "tools": ["Transformers", "Ring or sequence parallel implementations", "Long-context evaluation sets"],
+          "lab_task": "Extend a model's effective context with long-document training data, evaluate retrieval across positions and measure any loss on short-context tasks.",
+          "deliverable": "Long-context model with evaluation",
+          "checks": [["Train", "Long-context training completes within memory limits", "Training logs"], ["Evaluate", "Retrieval accuracy by position is reported", "Results chart"], ["Check trade-offs", "Short-context quality is compared", "Results table"]],
+          "objectives": ["Fine-tune for long context", "Evaluate long-context skills", "Manage trade-offs"]
+        },
+        {
+          "topic": "Advanced Adapter Methods: DoRA, rsLoRA and Adapter Composition",
+          "subtopics": ["Limits of standard LoRA", "DoRA weight decomposition", "rsLoRA scaling", "LoRA variants for higher ranks", "Training several adapters", "Composing and stacking adapters", "Adapter routing by task", "Choosing methods with evidence"],
+          "tools": ["PEFT", "TRL", "Evaluation scripts"],
+          "lab_task": "Compare LoRA, DoRA and rsLoRA at two ranks on the domain task, train two task adapters and test composing them for a combined task.",
+          "deliverable": "Adapter method comparison and composition results",
+          "checks": [["Compare", "Methods are compared on quality and cost", "Results table"], ["Compose", "Composed adapters are tested on a combined task", "Results"], ["Recommend", "The method choice is justified", "Notes"]],
+          "objectives": ["Use advanced adapter methods", "Compose adapters", "Choose methods with evidence"]
+        },
+        {
+          "topic": "Model Merging with mergekit",
+          "subtopics": ["Why merge models", "Linear and SLERP merges", "Task arithmetic, TIES and DARE", "Merging fine-tuned variants", "Evaluating merged models", "Licence issues in merges", "Merging adapters", "When merging fails"],
+          "tools": ["mergekit", "lm-evaluation-harness", "Hugging Face Hub"],
+          "lab_task": "Merge a domain model and a general instruct model with three merge methods, evaluate each on domain and general tasks and choose the best merge.",
+          "deliverable": "Merged models with evaluation",
+          "checks": [["Merge", "Three merges are produced", "Merge configurations"], ["Evaluate", "Domain and general scores are compared", "Results table"], ["Choose", "The selected merge is justified", "Notes"]],
+          "objectives": ["Merge models", "Compare merge methods", "Evaluate merged models"]
+        },
+        {
+          "topic": "Knowledge Distillation into Smaller Models",
+          "subtopics": ["Teacher and student models", "Output distillation", "Logit distillation", "Reasoning trace distillation", "Data generation for distillation", "Licence terms on teacher outputs", "Measuring the quality gap", "Cost savings from distillation"],
+          "tools": ["Teacher model API or weights", "TRL", "Evaluation scripts"],
+          "lab_task": "Distil a large teacher into a small student for the extraction task using teacher outputs and reasoning traces, measure the quality gap and the serving cost saved.",
+          "deliverable": "Distilled model with gap and cost analysis",
+          "checks": [["Distil", "The student is trained on teacher data", "Training logs"], ["Measure gap", "Quality gap to the teacher is reported", "Results table"], ["Save cost", "Serving cost savings are calculated", "Cost analysis"]],
+          "objectives": ["Distil models", "Measure quality gaps", "Reduce serving cost"]
+        },
+        {
+          "topic": "Reinforcement Learning from Feedback at Scale",
+          "subtopics": ["Scaling reinforcement fine-tuning", "Generation throughput as the bottleneck", "Using vLLM for rollouts", "Reward services and verifiers", "Stability and KL control", "Curriculum and difficulty", "Monitoring reinforcement runs", "Costs and when to stop"],
+          "tools": ["TRL or OpenRLHF", "vLLM", "Reward services"],
+          "lab_task": "Scale a GRPO run with vLLM rollouts and a reward service, add a difficulty curriculum, monitor stability and decide when to stop from reward and evaluation curves.",
+          "deliverable": "Scaled reinforcement run with monitoring",
+          "checks": [["Scale", "Rollouts use vLLM and throughput is reported", "Training logs"], ["Stabilise", "KL and reward curves stay within limits", "Tracking dashboard"], ["Stop well", "The stopping decision is justified by evaluation", "Notes"]],
+          "objectives": ["Run reinforcement learning at scale", "Keep training stable", "Decide when to stop"]
+        },
+        {
+          "topic": "Multi-Adapter Serving and LoRA Hot-Swapping",
+          "subtopics": ["One base model with many adapters", "vLLM multi-LoRA serving", "Adapter loading and caching", "Routing requests to adapters", "Throughput with many adapters", "Versioning adapters in production", "Tenant isolation", "Monitoring adapter usage"],
+          "tools": ["vLLM", "Adapter registry", "Load testing tool"],
+          "lab_task": "Serve one base model with five adapters in vLLM, route requests by tenant, load test the setup and measure throughput compared with five separate deployments.",
+          "deliverable": "Multi-adapter deployment and load test results",
+          "checks": [["Serve", "Five adapters serve from one base model", "Endpoint tests"], ["Route", "Requests reach the right adapter", "Request logs"], ["Compare", "Throughput and cost are compared with separate deployments", "Comparison"]],
+          "objectives": ["Serve many adapters", "Route by tenant", "Save serving cost"]
+        },
+        {
+          "topic": "Quantisation for Deployment: GGUF, AWQ and GPTQ",
+          "subtopics": ["Post-training quantisation", "GGUF and llama.cpp", "AWQ and GPTQ for GPU serving", "FP8 serving", "Calibration data", "Quality checks after quantisation", "Hardware support", "Choosing a format for a deployment"],
+          "tools": ["llama.cpp", "LLM Compressor or AutoGPTQ", "vLLM"],
+          "lab_task": "Quantise the fine-tuned model to GGUF, AWQ and FP8, evaluate quality on the test set and measure latency and memory on target hardware.",
+          "deliverable": "Quantised models with quality and speed comparison",
+          "checks": [["Quantise", "Three quantised versions are produced", "Model files"], ["Evaluate", "Quality loss is measured for each", "Results table"], ["Choose", "The deployment format is justified", "Notes"]],
+          "objectives": ["Quantise models for serving", "Measure quality loss", "Choose deployment formats"]
+        },
+        {
+          "topic": "Inference Optimisation for Fine-Tuned Models",
+          "subtopics": ["Latency and throughput targets", "Batching and scheduling", "KV cache and prefix caching", "Speculative decoding", "Tensor parallel serving", "Autoscaling GPU servers", "Monitoring serving metrics", "Cost per request"],
+          "tools": ["vLLM or SGLang", "Load testing tool", "Monitoring dashboard"],
+          "lab_task": "Tune a vLLM deployment of the fine-tuned model with batching, prefix caching and speculative decoding, load test it and report latency, throughput and cost per request.",
+          "deliverable": "Tuned deployment and performance report",
+          "checks": [["Tune", "Each optimisation is tested separately", "Configuration log"], ["Load test", "Latency and throughput meet targets or gaps are reported", "Load test results"], ["Cost", "Cost per request is calculated", "Cost table"]],
+          "objectives": ["Optimise model serving", "Measure serving performance", "Reduce cost per request"]
+        },
+        {
+          "topic": "Evaluation Platforms and Release Gates for Custom Models",
+          "subtopics": ["Evaluation suites for each model", "Regression tests on every training run", "Human evaluation programmes", "Online evaluation and A/B tests", "Release gates", "Model comparison dashboards", "Sign-off roles", "Rolling back models"],
+          "tools": ["Evaluation platform", "CI pipeline", "Dashboard tool"],
+          "lab_task": "Build an evaluation pipeline that runs capability, safety and regression suites on each new model, enforces release gates and supports rollback.",
+          "deliverable": "Evaluation pipeline with release gates",
+          "checks": [["Automate", "Suites run for each new model version", "Pipeline runs"], ["Gate", "A model failing a gate is blocked", "Pipeline run"], ["Roll back", "Rollback to the previous model is tested", "Rollback log"]],
+          "objectives": ["Build evaluation platforms", "Gate model releases", "Support rollbacks"]
+        },
+        {
+          "topic": "Data Contamination, Memorisation and Privacy",
+          "subtopics": ["Benchmark contamination", "Detecting overlap between training and test data", "Memorisation of training data", "Extraction attacks", "Privacy-preserving training ideas", "Differential privacy in brief", "Data retention and deletion requests", "Reporting contamination checks"],
+          "tools": ["Overlap detection scripts", "Memorisation tests", "Privacy checklist"],
+          "lab_task": "Check training data for overlap with evaluation sets, run memorisation tests for planted secrets and write the privacy and contamination section of the model card.",
+          "deliverable": "Contamination and memorisation report",
+          "checks": [["Detect overlap", "Overlap with evaluation sets is measured", "Overlap report"], ["Test memorisation", "Planted secrets are tested for extraction", "Test results"], ["Report", "The model card section states checks and results", "Model card"]],
+          "objectives": ["Detect contamination", "Test memorisation", "Protect training data privacy"]
+        },
+        {
+          "topic": "Governance, Licensing and Model Cards",
+          "subtopics": ["Model inventories", "Licence obligations of base models", "Licence terms for training data", "Model cards and system cards", "Approval workflows", "Regulatory duties for model providers and deployers", "Audit trails for training", "Retiring models"],
+          "tools": ["Model registry", "Model card template", "Governance checklist"],
+          "lab_task": "Build a model inventory entry with licence obligations, a complete model card and an approval record for the fine-tuned model, and plan its retirement criteria.",
+          "deliverable": "Inventory entry, model card and approval record",
+          "checks": [["Inventory", "The model is recorded with owner and licences", "Inventory entry"], ["Document", "The model card is complete", "Model card"], ["Approve", "The approval record has sign-offs", "Approval record"]],
+          "objectives": ["Govern custom models", "Meet licence obligations", "Document models"]
+        },
+        {
+          "topic": "Security of Fine-Tuned Models: Backdoors, Poisoning and Supply Chain",
+          "subtopics": ["Data poisoning", "Backdoor triggers", "Malicious model files and safe formats", "Model supply chain checks", "Access to training data and weights", "Prompt injection in fine-tuned assistants", "Security testing before release", "Incident response for models"],
+          "tools": ["safetensors", "Model scanning tools", "Security checklist"],
+          "lab_task": "Plant a backdoor in a copy of the training data, train and detect it with targeted tests, scan downloaded model files and write a model security checklist.",
+          "deliverable": "Backdoor experiment, scan results and checklist",
+          "checks": [["Detect", "Targeted tests reveal the planted backdoor", "Test results"], ["Scan", "Model files are scanned and safe formats used", "Scan output"], ["Secure", "The checklist covers data, weights and supply chain", "Checklist"]],
+          "objectives": ["Secure the training pipeline", "Detect backdoors", "Check model supply chains"]
+        },
+        {
+          "topic": "Continuous Fine-Tuning and Model Lifecycle Management",
+          "subtopics": ["When to retrain", "Feedback data from production", "Drift in tasks and data", "Scheduled and triggered retraining", "Base model upgrades", "Migrating adapters to new base models", "Deprecating old models", "Lifecycle dashboards"],
+          "tools": ["Feedback pipeline", "Model registry", "Scheduling tool"],
+          "lab_task": "Design a lifecycle for the domain model with feedback collection, retraining triggers, base model upgrade tests and deprecation rules, and run one retraining cycle.",
+          "deliverable": "Lifecycle design and one retraining cycle",
+          "checks": [["Design", "Triggers, schedules and deprecation rules are defined", "Lifecycle design"], ["Retrain", "One retraining cycle runs through the gates", "Pipeline run"], ["Upgrade", "A base model upgrade is tested", "Comparison"]],
+          "objectives": ["Manage model lifecycles", "Retrain with feedback", "Plan base model upgrades"]
+        },
+        {
+          "topic": "Cost Engineering for Training and Serving",
+          "subtopics": ["Cost drivers in training", "Spot and reserved GPUs", "Right-sizing models and hardware", "Serving cost per request", "Caching and batching savings", "Cost dashboards", "Budgets and approvals", "Comparing with API costs over time"],
+          "tools": ["Cloud cost tools", "Cost model", "Dashboard tool"],
+          "lab_task": "Build a cost model for training and a year of serving for the custom model, find three savings and compare total cost with an API model at the expected volume.",
+          "deliverable": "Cost model, savings and comparison",
+          "checks": [["Model", "Training and serving costs are modelled", "Cost model"], ["Save", "Three savings are quantified", "Savings list"], ["Compare", "Total cost is compared with an API alternative", "Comparison"]],
+          "objectives": ["Engineer training and serving cost", "Find savings", "Compare with API costs"]
+        },
+        {
+          "topic": "Fine-Tuning Agents and Multi-Step Reasoning",
+          "subtopics": ["Agent trajectories as training data", "Collecting trajectories from strong models", "Filtering successful trajectories", "Training on tool use over many steps", "Reinforcement learning for agent tasks", "Evaluating agents on task success", "Safety limits for agent actions", "When prompting larger models is better"],
+          "tools": ["Agent framework", "TRL", "Agent evaluation tasks"],
+          "lab_task": "Collect and filter agent trajectories for a support workflow, fine-tune a model on them, evaluate task success and safety on held-out tasks and compare with a prompted larger model.",
+          "deliverable": "Agent-tuned model with evaluation",
+          "checks": [["Collect", "Successful trajectories are filtered with rules", "Dataset statistics"], ["Evaluate", "Task success and safety are measured", "Results table"], ["Compare", "Results are compared with a prompted larger model", "Comparison"]],
+          "objectives": ["Fine-tune for agent tasks", "Evaluate multi-step success", "Compare with larger models"]
+        },
+        {
+          "topic": "Troubleshooting Failed Fine-Tuning Runs",
+          "subtopics": ["Loss that does not fall", "Exploding loss and NaNs", "Out-of-memory errors", "Template and masking bugs", "Data leakage and too-good results", "Slow training"],
+          "tools": ["Training logs", "PyTorch profiler", "Tracking dashboard"],
+          "lab_task": "Diagnose four broken runs (a masking bug, NaN loss, an out-of-memory error and leaked test data), fix them and write a troubleshooting guide for the team.",
+          "deliverable": "Diagnoses, fixes and troubleshooting guide",
+          "checks": [["Diagnose", "Each run has a confirmed cause", "Diagnosis notes"], ["Fix", "Fixed runs train correctly", "Training logs"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot fine-tuning runs", "Fix common failures", "Share troubleshooting practice"]
+        },
+        {
+          "topic": "Advanced Capstone: Custom Model Programme from Data to Production",
+          "subtopics": ["Strategy and use case choice", "Data pipeline", "Training, alignment and distillation", "Quantised multi-adapter serving", "Evaluation gates and governance", "Leadership presentation"],
+          "tools": ["Data pipeline tools", "TRL or Axolotl", "vLLM", "Evaluation platform", "Model registry"],
+          "lab_task": "Run a custom model programme for two use cases: build the data pipeline, train and align the models, distil one, serve them with quantised multi-adapter serving behind release gates and present costs and results to leadership.",
+          "deliverable": "Models, pipelines, evaluation pack and leadership presentation",
+          "checks": [["Deliver", "Both models pass their release gates", "Evaluation pack"], ["Operate", "Serving, monitoring and rollback are in place", "Deployment record"], ["Justify", "Costs and value are presented against API baselines", "Presentation notes"]],
+          "objectives": ["Combine advanced fine-tuning skills", "Run a custom model programme", "Justify custom models to leaders"]
+        }
+      ]
+    }
+  }
+}

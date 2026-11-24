@@ -1,0 +1,573 @@
+{
+  "domain": "SAP SD",
+  "name": "SAP SD",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "shopping-cart",
+  "aliases": ["SAP Sales and Distribution", "SAP SD Consultant", "SAP SD on S/4HANA", "S/4HANA SD", "SAP S/4HANA SD", "SAP S/4HANA Sales", "S/4HANA Sales", "SAP Order to Cash", "SAP Order-to-Cash", "SAP Sales and Distribution Consultant"],
+  "certifications": ["SAP Certified Associate - SAP S/4HANA Cloud Private Edition, Sales (C_TS462)", "SAP Certified Associate - Implementation Consultant - SAP S/4HANA Cloud Public Edition, Sales (C_S4CS)"],
+  "tools": ["SAP S/4HANA 2025 training system", "SAP GUI", "SAP Fiori launchpad", "Excel"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For sales coordinators, customer service staff and new consultants with no SAP experience. Covers the sales organisation, customer and material master data, quotations and sales orders, pricing, availability checks, deliveries and goods issue, billing, credit management, returns, sales contracts, third-party and consignment sales, rebates, sales output, reporting and the links to finance and logistics in S/4HANA.",
+      "prerequisites": ["Understands basic selling work: quotations, orders, deliveries and invoices", "Comfortable with business software and spreadsheets", "Access to an SAP S/4HANA training system"],
+      "outcomes": ["Maintain customers and sales master data", "Run order to cash from quotation to invoice in S/4HANA", "Handle pricing, availability, credit blocks and returns", "Run special sales processes and report on sales"],
+      "days": [
+        {
+          "topic": "SAP SD Overview and Navigation in S/4HANA",
+          "subtopics": ["Sales and distribution in the order-to-cash process", "Where SD sits beside MM, FI, CO, PP and LE", "S/4HANA Sales scope", "SAP Fiori launchpad and SAP GUI side by side", "Finding sales apps and transaction codes", "Personalising the launchpad for a sales role", "Document flow from quotation to payment", "The model company: sales organisation 1010, distribution channel 10 and division 00", "Sales roles: sales rep, order clerk, shipping clerk and billing clerk", "Course map and training system rules"],
+          "tools": ["SAP Fiori launchpad", "SAP GUI"],
+          "lab_task": "Log on, add the main sales, shipping and billing apps to a personal page, open an existing sales order and follow its document flow to the delivery, invoice and accounting document.",
+          "deliverable": "Personalised launchpad page and an annotated document-flow screenshot",
+          "checks": [["Open a sales order in the Manage Sales Orders app", "Header, items and sold-to party are shown", "Screenshot"], ["Follow the document flow from the sales order", "Delivery, invoice and accounting documents are listed", "Document flow screenshot"], ["Name the roles in order to cash", "Sales, order, shipping and billing roles described correctly", "Written answer"]],
+          "objectives": ["Explain the scope of SAP SD", "Navigate Fiori and SAP GUI", "Trace a sales document flow"]
+        },
+        {
+          "topic": "Sales Organisation Structure: Sales Areas, Shipping Points and Plants",
+          "subtopics": ["Sales organisation, distribution channel and division", "The sales area", "Sales offices and sales groups", "Assigning sales organisations to company codes", "Delivering plants for sales areas", "Shipping points and loading points", "Credit control area in brief", "Displaying the structure in configuration"],
+          "tools": ["SAP GUI SPRO (display)", "SAP GUI VA01"],
+          "lab_task": "Map the sales structure of the model company: sales organisations, distribution channels, divisions, sales areas, delivering plants and shipping points, and draw it as a diagram.",
+          "deliverable": "Sales structure diagram with values taken from the system",
+          "checks": [["Find the company code of sales organisation 1010", "Company code 1010 is shown", "Screenshot of the assignment"], ["List the sales areas of sales organisation 1010", "Every valid sales area is listed", "Screenshot"], ["Explain why the shipping point is assigned to a plant", "Correct explanation with an example", "Written answer"]],
+          "objectives": ["Explain the sales organisation", "Read sales area settings", "Relate the structure to sales documents"]
+        },
+        {
+          "topic": "Customers as Business Partners",
+          "subtopics": ["Business partner roles FLCU00 and FLCU01", "General data, company code data and sales area data", "Partner functions: sold-to, ship-to, bill-to and payer", "Customer pricing procedure and price group", "Shipping conditions and delivering plant", "Terms of payment and Incoterms", "Customer hierarchies in brief", "Blocking customers for orders, deliveries and billing"],
+          "tools": ["SAP GUI BP", "Manage Business Partner Master Data app", "Manage Customer Master Data app"],
+          "lab_task": "Create a customer as a business partner with company code and sales area data, add a separate ship-to and payer, and set an order block on a second customer.",
+          "deliverable": "Two customer records with partner functions and the blocked-customer test",
+          "checks": [["Create a sales order for the blocked customer", "System prevents the order", "Error message"], ["Create an order for the new customer", "Ship-to and payer default from the partner functions", "Partner tab screenshot"], ["Explain the four main partner functions", "Sold-to, ship-to, bill-to and payer explained correctly", "Written answer"]],
+          "objectives": ["Create customers as business partners", "Maintain sales area data", "Use partner functions"]
+        },
+        {
+          "topic": "Material Master Sales Views and Customer-Material Info Records",
+          "subtopics": ["Sales organisation views of the material master", "Item category group and its effect", "Delivering plant and minimum order quantity", "Sales units and delivery units", "Sales: general/plant view: availability check and loading group", "Material determination and substitution in brief", "Customer-material info records", "Listing and exclusion in brief"],
+          "tools": ["SAP GUI MM02 and VD51", "Manage Product Master Data app"],
+          "lab_task": "Extend a trading good to sales organisation 1010 with sales units, item category group, availability check and loading group, then create a customer-material info record so the customer can order with their own part number.",
+          "deliverable": "Extended material and a customer-material info record",
+          "checks": [["Order with the customer's part number", "System finds the material", "Sales order item"], ["Order below the minimum order quantity", "System warns about the quantity", "Message"], ["Display the sales views", "Item category group and loading group are shown", "Screenshot"]],
+          "objectives": ["Maintain sales views of materials", "Use customer-material info records", "Explain sales-relevant fields"]
+        },
+        {
+          "topic": "Inquiries and Quotations",
+          "subtopics": ["Pre-sales documents in S/4HANA", "Creating inquiries", "Creating quotations with validity dates", "Quotation output to the customer", "Following up open quotations", "Creating orders with reference to quotations", "Reasons for rejection", "Measuring quotation success"],
+          "tools": ["SAP GUI VA11, VA21 and VA01", "Manage Sales Quotations app"],
+          "lab_task": "Create an inquiry and a quotation valid for 30 days for a customer, send the quotation, convert part of it into a sales order and reject the remaining item with a reason.",
+          "deliverable": "Inquiry, quotation, order and the quotation status",
+          "checks": [["Create an order from the quotation", "Order references the quotation items", "Document flow"], ["Reject the remaining item", "Quotation is completed with a reason for rejection", "Status screenshot"], ["Try to reference an expired quotation", "System warns that the validity has ended", "Message"]],
+          "objectives": ["Create inquiries and quotations", "Convert quotations to orders", "Track quotation outcomes"]
+        },
+        {
+          "topic": "Creating and Changing Sales Orders",
+          "subtopics": ["Sales order structure: header, items and schedule lines", "Order types: standard order, rush order and cash sale", "Entering orders in VA01 and the Manage Sales Orders app", "Defaults from customer and material data", "Requested delivery date and confirmed schedule lines", "Changing orders and the change log", "Incomplete orders", "Sales order status and blocks"],
+          "tools": ["SAP GUI VA01, VA02 and VA03", "Manage Sales Orders app", "Create Sales Orders - VA01 app"],
+          "lab_task": "Create a standard order with three items, a rush order and a cash sale, complete an incomplete order, change a quantity and review the change log.",
+          "deliverable": "Three orders, a completed order and a change log",
+          "checks": [["Save an order without a purchase order number when it is required", "Order is saved as incomplete", "Incompletion log"], ["Change an item quantity", "Change log records the old and new quantity", "Change history"], ["Create a rush order", "Delivery is created immediately", "Document flow"]],
+          "objectives": ["Create and change sales orders", "Use sales document types", "Complete incomplete orders"]
+        },
+        {
+          "topic": "Pricing in Sales Orders: Conditions, Discounts and Taxes",
+          "subtopics": ["Condition types for prices, discounts, surcharges and freight", "Price conditions: PPR0 in S/4HANA and PR00 in older systems", "Customer and material discounts", "Manual price changes and limits", "Output tax in sales", "Pricing analysis in the order", "Condition records and validity periods", "Updating prices with new pricing"],
+          "tools": ["SAP GUI VK11, VK13 and VA02", "Manage Prices - Sales app"],
+          "lab_task": "Create a price, a customer discount and a material discount, enter an order, analyse the pricing, change a price manually within limits and update prices after a new price is valid.",
+          "deliverable": "Condition records, an order with pricing analysis and the updated prices",
+          "checks": [["Analyse the order pricing", "Each condition and its source record is shown", "Pricing analysis screenshot"], ["Change the price beyond the allowed limit", "System refuses the change", "Message"], ["Run new pricing after a price change", "Order picks up the new price", "Conditions tab"]],
+          "objectives": ["Read sales pricing", "Maintain condition records", "Analyse prices in orders"]
+        },
+        {
+          "topic": "Availability Check and Delivery Scheduling",
+          "subtopics": ["Availability check in sales orders", "Checking group and scope of check in brief", "Confirmed and unconfirmed quantities", "Backorders", "Delivery scheduling: transit, loading, picking and transportation planning times", "Requested and confirmed delivery dates", "Partial deliveries and complete delivery", "Material availability apps"],
+          "tools": ["SAP GUI VA01, CO09 and MD04", "Monitor Material Coverage app"],
+          "lab_task": "Create orders for a material with limited stock: one fully confirmed, one partly confirmed with a later date and one with complete delivery required, then explain the confirmed dates using the scheduling times.",
+          "deliverable": "Three orders with schedule lines and a scheduling explanation",
+          "checks": [["Order more than the available stock", "Remaining quantity is confirmed on a later date", "Schedule lines"], ["Require complete delivery", "One confirmed date for the full quantity", "Schedule lines"], ["Explain the confirmed delivery date", "Dates traced to scheduling times", "Written answer"]],
+          "objectives": ["Read availability results", "Explain delivery scheduling", "Handle partial confirmations"]
+        },
+        {
+          "topic": "Outbound Deliveries: Picking, Packing and Goods Issue",
+          "subtopics": ["Creating deliveries from orders and the due list", "Delivery structure and item categories", "Picking quantities and lean picking", "Packing with handling units in brief", "Post goods issue and movement type 601", "Stock and accounting effects of goods issue", "Delivery output: delivery note", "Reversing a goods issue"],
+          "tools": ["SAP GUI VL01N, VL02N, VL10B and VL09", "Manage Outbound Deliveries app"],
+          "lab_task": "Create deliveries from the due list, pick the quantities, pack one delivery into a handling unit, post goods issue and reverse one goods issue.",
+          "deliverable": "Deliveries, handling unit, goods issue documents and the reversal",
+          "checks": [["Post goods issue without picking", "System requires the picked quantity", "Error message"], ["Post goods issue", "Stock is reduced and cost of goods sold is posted", "Material and accounting documents"], ["Reverse a goods issue", "Stock is restored", "Material document"]],
+          "objectives": ["Create and process deliveries", "Post goods issue", "Explain shipping postings"]
+        },
+        {
+          "topic": "Billing: Invoices, Credit Memos and Debit Memos",
+          "subtopics": ["Billing types: invoice F2, credit memo G2 and debit memo L2", "Delivery-related and order-related billing", "The billing due list", "Credit and debit memo requests", "Billing blocks", "Accounting documents from billing", "Cancelling invoices", "Invoice output"],
+          "tools": ["SAP GUI VF01, VF04 and VF11", "Create Billing Documents app", "Manage Billing Documents app"],
+          "lab_task": "Bill three deliveries from the due list, create a credit memo request with a billing block, release and bill it, and cancel an invoice.",
+          "deliverable": "Invoices, credit memo, cancellation and accounting documents",
+          "checks": [["Bill the deliveries", "Revenue and receivables are posted", "Accounting document"], ["Bill a credit memo request with a block", "Billing is not possible until the block is removed", "Billing log"], ["Cancel an invoice", "Cancellation document reverses the postings", "Accounting document"]],
+          "objectives": ["Create billing documents", "Handle credit and debit memos", "Explain billing postings"]
+        },
+        {
+          "topic": "Credit Management in Sales",
+          "subtopics": ["Credit management in S/4HANA", "Credit accounts, credit segments and credit limits", "Risk classes and credit scores", "Credit checks in sales orders and deliveries", "Blocked sales documents", "Releasing blocked orders", "Credit exposure", "Documented credit decisions"],
+          "tools": ["SAP GUI UKM_BP and VKM1", "Manage Credit Accounts app", "Manage Documented Credit Decisions app"],
+          "lab_task": "Give a customer a credit limit, create orders until the limit is exceeded, release the blocked order through a documented credit decision and display the credit exposure.",
+          "deliverable": "Credit account, blocked order, credit decision and exposure report",
+          "checks": [["Create an order above the credit limit", "Order is blocked for credit", "Status screenshot"], ["Release the order through the credit decision", "Order is released for delivery", "Credit decision document"], ["Display the credit exposure", "Open orders, deliveries and receivables are shown", "Report"]],
+          "objectives": ["Explain credit management", "Work credit blocks", "Read credit exposure"]
+        },
+        {
+          "topic": "Returns and Complaints",
+          "subtopics": ["Returns process: returns order, returns delivery and credit memo", "Order reasons and returns reasons", "Returns into blocked stock (651)", "Inspection and follow-up actions in brief", "Credit memo for returns", "Free-of-charge subsequent delivery", "Invoice correction requests", "Returns reporting"],
+          "tools": ["SAP GUI VA01, VL01N and VF01", "Manage Customer Returns app"],
+          "lab_task": "Process a customer return with a returns order, receive the goods into blocked stock, issue the credit memo, and handle a second complaint with an invoice correction request.",
+          "deliverable": "Returns order, delivery, credit memo and invoice correction",
+          "checks": [["Receive the returned goods", "Stock goes into blocked stock with movement type 651", "Material document"], ["Issue the credit memo", "Customer account is credited", "Accounting document"], ["Create an invoice correction request", "Correct quantity and price differences shown", "Document"]],
+          "objectives": ["Process customer returns", "Issue credits for complaints", "Explain returns postings"]
+        },
+        {
+          "topic": "Sales Contracts and Customer Scheduling Agreements",
+          "subtopics": ["Quantity contracts and value contracts in sales", "Release orders against sales contracts", "Contract data: validity, cancellation and billing", "Customer scheduling agreements", "Forecast and JIT delivery schedules", "Service contracts in brief", "Contract completion rules", "Monitoring contract consumption"],
+          "tools": ["SAP GUI VA41, VA31 and VA01", "Manage Sales Contracts app", "Manage Sales Scheduling Agreements app"],
+          "lab_task": "Create a quantity contract for a customer, release two orders against it, create a scheduling agreement with delivery schedules and check what remains on the contract.",
+          "deliverable": "Contract, release orders, scheduling agreement and a consumption report",
+          "checks": [["Release more than the contract quantity", "System warns that the contract quantity is exceeded", "Message"], ["Display contract consumption", "Released and open quantities are shown", "Screenshot"], ["Create deliveries from the scheduling agreement", "Deliveries follow the schedule lines", "Document flow"]],
+          "objectives": ["Create sales contracts", "Run scheduling agreements", "Monitor contract use"]
+        },
+        {
+          "topic": "Third-Party and Individual Purchase Order Sales",
+          "subtopics": ["When to use third-party sales", "Item category TAS and schedule line category CS", "The purchase requisition created from the order", "Supplier invoice and customer billing in third-party sales", "Individual purchase orders: TAB and CB", "Goods receipt into sales order stock", "Delivery from sales order stock", "Margins in third-party and individual orders"],
+          "tools": ["SAP GUI VA01, ME21N, MIGO, MIRO and VF01"],
+          "lab_task": "Run a third-party order from sales order to supplier invoice and customer invoice, and an individual purchase order that is received into sales order stock and delivered.",
+          "deliverable": "Document flows for both processes with postings",
+          "checks": [["Save a third-party order", "A purchase requisition is created", "Document flow"], ["Bill the third-party order", "Billing quantity follows the supplier invoice", "Billing document"], ["Receive the individual purchase order", "Stock is in sales order stock (E)", "Stock overview"]],
+          "objectives": ["Run third-party sales", "Run individual purchase order sales", "Compare margins"]
+        },
+        {
+          "topic": "Customer Consignment: Fill-Up, Issue, Pick-Up and Return",
+          "subtopics": ["Consignment stock at the customer", "Consignment fill-up", "Consignment issue and billing", "Consignment pick-up", "Consignment returns", "Special stock W", "Reporting consignment stock", "When consignment is a good fit"],
+          "tools": ["SAP GUI VA01, VL01N, VF01 and MMBE"],
+          "lab_task": "Fill up consignment stock at a customer, issue part of it with an invoice, pick up unsold stock and process a consignment return.",
+          "deliverable": "Consignment documents and stock before and after each step",
+          "checks": [["Post the fill-up", "Stock moves to customer consignment (W) without an invoice", "Stock overview"], ["Post the consignment issue", "Invoice is created for the issued quantity", "Billing document"], ["Post the pick-up", "Stock returns to own stock", "Stock overview"]],
+          "objectives": ["Run customer consignment", "Explain consignment postings", "Report consignment stock"]
+        },
+        {
+          "topic": "Rebates with Condition Contracts",
+          "subtopics": ["Rebates in S/4HANA: condition contract management", "Condition contracts for sales rebates", "Rebate conditions and scales", "Accruals during the year", "Partial and final settlement", "Rebate reporting for customers", "Retroactive rebates", "Why classic SD rebates are not used in S/4HANA"],
+          "tools": ["SAP GUI WCOCO and WB2R_SC", "Manage Condition Contracts app"],
+          "lab_task": "Create a sales rebate condition contract with a scaled rate for a customer, bill orders through the year, check the accruals and run a partial and a final settlement.",
+          "deliverable": "Condition contract, accruals, settlements and a rebate statement",
+          "checks": [["Bill an order for the customer", "Accrual is posted for the rebate", "Accounting document"], ["Reach the next scale level", "Higher rate is used at settlement", "Settlement document"], ["Run the final settlement", "Credit memo for the rebate is created and accruals are reversed", "Settlement documents"]],
+          "objectives": ["Set up rebates with condition contracts", "Explain rebate accruals", "Settle rebates"]
+        },
+        {
+          "topic": "Sales Output: Order Confirmations, Delivery Notes and Invoices",
+          "subtopics": ["Output types for sales documents", "Order confirmation output", "Delivery note output", "Invoice output and electronic invoices", "Email and print channels", "Output preview and reprocessing", "Output history", "Output problems and how to spot them"],
+          "tools": ["SAP GUI VA02, VL02N and VF02", "Manage Sales Orders app", "Manage Billing Documents app"],
+          "lab_task": "Send an order confirmation by email, print a delivery note and send an invoice, then fix and reprocess one failed output.",
+          "deliverable": "Output history for three documents and the reprocessed output",
+          "checks": [["Save a sales order", "Order confirmation is sent", "Output history"], ["Preview the invoice", "Invoice form shows items, prices and taxes", "PDF preview"], ["Reprocess a failed output", "Output status changes to completed", "Output history"]],
+          "objectives": ["Send sales output", "Check output status", "Reprocess failed output"]
+        },
+        {
+          "topic": "Sales Reporting and Analytics",
+          "subtopics": ["Sales lists: VA05, VL06O and VF05", "Incomplete documents and backorders", "Sales overview page", "Sales analytics: incoming orders, sales volume and margins", "Fulfilment KPIs: on-time delivery and order cycle time", "Layouts, variants and exports", "KPIs for sales managers", "Analytics roles and access"],
+          "tools": ["SAP GUI VA05, VL06O and VF05", "Sales Overview Page", "Sales Volume app", "Incoming Sales Orders app"],
+          "lab_task": "Build a sales manager's weekly report with open orders, backorders, incomplete documents, sales volume by customer and on-time delivery, saved as variants and exported.",
+          "deliverable": "Saved variants, an export and a one-page summary",
+          "checks": [["Run the open sales order list", "Only open orders are shown", "Report"], ["Analyse sales volume by customer", "Totals match billed values", "Screenshot"], ["List incomplete documents", "Incomplete orders with missing fields are listed", "Report"]],
+          "objectives": ["Run sales lists", "Use sales analytics", "Report sales KPIs"]
+        },
+        {
+          "topic": "Integration of SD with Finance, MM and Production",
+          "subtopics": ["Revenue postings from billing", "Cost of goods sold from goods issue", "Receivables and incoming payments", "Availability checks that use MRP and stock", "Make-to-order and production orders in brief", "Third-party and stock transfer links to purchasing", "Profitability postings from billing", "Credit management links to receivables"],
+          "tools": ["SAP GUI VA01, VL02N, VF01 and F-28", "Manage Journal Entries app"],
+          "lab_task": "Follow one order through goods issue, billing and incoming payment, showing every document and posting, and trace a make-to-order item to its planned order.",
+          "deliverable": "Document trail with postings and the make-to-order trace",
+          "checks": [["Display the billing accounting document", "Revenue, tax and receivable lines are shown", "Accounting document"], ["Post the incoming payment", "Customer open item is cleared", "Clearing document"], ["Create a make-to-order item", "Requirement appears in MD04", "MD04 screenshot"]],
+          "objectives": ["Explain SD postings in finance", "Trace sales into logistics", "Read integrated document flows"]
+        },
+        {
+          "topic": "Beginner Capstone: Order to Cash for the Model Company",
+          "subtopics": ["Master data for a new customer and material", "Quotation, order and pricing", "Availability, credit check and delivery", "Billing, payment and a return", "Exceptions: credit block and incomplete order", "Process walkthrough and questions"],
+          "tools": ["SAP S/4HANA", "SAP Fiori launchpad", "SAP GUI"],
+          "lab_task": "Run order to cash end to end for a new customer: create the customer and sales views, quote, order with a discount, clear a credit block, deliver with a partial confirmation, bill, post the payment, handle a return and present the trail.",
+          "deliverable": "Document trail, postings and a 10-minute walkthrough",
+          "checks": [["Trace the trail from quotation to payment", "All documents are linked in the document flow", "Document flow"], ["Show the customer account", "Invoice and payment are cleared and the return is credited", "Customer line items"], ["Answer questions on the process", "Correct answers on each step", "Walkthrough"]],
+          "objectives": ["Combine the beginner topics in one process", "Handle exceptions", "Explain order to cash"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For key users and junior consultants who can run order to cash. Covers configuration of the sales organisation, customer master data, sales document types, item and schedule line categories, copy control, pricing, taxes, availability checks, shipping, picking and packing, billing and revenue account determination, credit management, incompletion and free goods, variant configuration, intercompany sales, condition contracts, EDI and returns in S/4HANA.",
+      "prerequisites": ["Can run order to cash in S/4HANA as a user", "Knows customers, sales documents, deliveries and billing documents", "Understands the postings of goods issue and billing"],
+      "outcomes": ["Configure the sales organisation and sales documents", "Configure pricing, taxes, availability checks and credit management", "Configure shipping, billing and revenue account determination", "Set up variant configuration, intercompany sales, rebates, EDI and returns"],
+      "days": [
+        {
+          "topic": "Configuring the Sales and Distribution Organisation",
+          "subtopics": ["Defining sales organisations, distribution channels and divisions", "Setting up sales areas", "Sales offices and sales groups", "Assigning sales organisations to company codes and plants", "Defining and assigning shipping points", "Common distribution channels and divisions", "Business area and credit control area assignment", "Recording configuration in transports"],
+          "tools": ["SAP GUI SPRO", "SAP GUI OVX5, OVX3, OVXG and OVXC", "SAP GUI SE09"],
+          "lab_task": "Configure sales organisation 1020 with two distribution channels, a division, a sales office and a shipping point for plant 1020, all assigned and recorded in one transport.",
+          "deliverable": "Configuration in a released transport with a settings document",
+          "checks": [["Create an order for the new sales area", "Order saves with the new sales area and sales office", "Screenshot"], ["Create a delivery from plant 1020", "New shipping point is determined", "Delivery header"], ["Explain common distribution channels", "Shared master data explained correctly", "Written answer"]],
+          "objectives": ["Configure the sales organisation", "Assign shipping points", "Transport configuration"]
+        },
+        {
+          "topic": "Business Partner Configuration for Customers: Roles, Groupings and Partner Determination",
+          "subtopics": ["Customer roles and role categories", "Groupings, number ranges and customer account groups", "Customer-vendor integration for customers", "Field attributes per role and account group", "Partner function configuration", "Partner determination procedures", "Customer hierarchy types", "Testing partner determination in orders"],
+          "tools": ["SAP GUI SPRO", "SAP GUI BP", "SAP GUI VOPAN"],
+          "lab_task": "Configure a grouping for export customers with its own number range, make the VAT registration number mandatory and add a forwarding agent partner function that is required in export orders.",
+          "deliverable": "Configuration notes, a test customer and a test order",
+          "checks": [["Create an export customer without a VAT number", "System requires the VAT number", "Error message"], ["Create an export order without a forwarding agent", "Order is incomplete for the partner", "Incompletion log"], ["Check the customer number", "Number comes from the new range in BP and customer", "Screenshot"]],
+          "objectives": ["Configure customer business partners", "Configure partner determination", "Test customer settings"]
+        },
+        {
+          "topic": "Sales Document Types and Item Categories",
+          "subtopics": ["Sales document type controls", "Number ranges for sales documents", "Order reasons and delivery and billing blocks", "Item category controls: pricing, billing relevance and schedule lines", "Item category groups", "Copying standard types instead of changing them", "Assigning sales document types to sales areas", "Document type for free-of-charge deliveries"],
+          "tools": ["SAP GUI VOV8, VOV7 and OVAZ", "SAP GUI VA01"],
+          "lab_task": "Create order type ZOR from OR with its own number range, a mandatory order reason and a default delivery block, allowed only for sales organisation 1020.",
+          "deliverable": "Document type configuration and test orders",
+          "checks": [["Create ZOR without an order reason", "System requires the order reason", "Error message"], ["Create ZOR in sales organisation 1010", "Order type is not allowed", "Error message"], ["Save a ZOR order", "Delivery block is set by default", "Order header"]],
+          "objectives": ["Configure sales document types", "Configure item categories", "Restrict document types by sales area"]
+        },
+        {
+          "topic": "Item Category Determination and Schedule Line Categories",
+          "subtopics": ["Item category determination: document type, item category group, usage and higher-level item", "Default and manual item categories", "Schedule line category controls: requirements, availability and movement type", "Schedule line category determination with MRP type", "Free goods and sub-items", "Bills of material in sales: TAP and TAE", "Item categories for third-party and individual purchase orders", "Testing determination with sample orders"],
+          "tools": ["SAP GUI VOV4, VOV6 and VOV5", "SAP GUI VA01"],
+          "lab_task": "Configure item category determination so ZOR uses a new item category for a new item category group, with a schedule line category that passes no requirements, and test it with a sales BOM.",
+          "deliverable": "Determination entries and test orders",
+          "checks": [["Order a material with the new item category group", "New item category is determined", "Item screenshot"], ["Check requirements in MD04", "No requirement is passed", "MD04 screenshot"], ["Order a sales BOM", "Header and component items get the right categories", "Order items"]],
+          "objectives": ["Configure item category determination", "Configure schedule line categories", "Test determination"]
+        },
+        {
+          "topic": "Copy Control for Sales, Delivery and Billing Documents",
+          "subtopics": ["Copy control from sales document to sales document", "From sales document to delivery", "From delivery and order to billing", "Copying requirements", "Data transfer routines", "Pricing type when copying", "Billing quantity and reference rules", "Testing copy control with document flows"],
+          "tools": ["SAP GUI VTAA, VTLA, VTFA and VTFL"],
+          "lab_task": "Set up copy control from quotation to ZOR and from ZOR to delivery and billing, with pricing type B on billing for one item category, and test the full flow.",
+          "deliverable": "Copy control entries and the test document flow",
+          "checks": [["Create ZOR from a quotation", "Items and prices copy as configured", "Order items"], ["Bill with pricing type B", "Prices are recalculated in billing", "Billing conditions"], ["Bill a delivery for an item category without an entry", "Billing is not possible", "Billing log"]],
+          "objectives": ["Configure copy control", "Choose pricing types", "Test document flows"]
+        },
+        {
+          "topic": "Pricing Procedure Configuration: Condition Technique in Sales",
+          "subtopics": ["Condition tables, access sequences and condition types", "Pricing procedure structure: steps, counters, subtotals and requirements", "Pricing procedure determination: sales area, document and customer pricing procedures", "Condition type controls: calculation type, scale and manual changes", "Header and item conditions", "Statistical conditions and cost (VPRS)", "Account keys in the pricing procedure", "Pricing in S/4HANA and table PRCD_ELEMENTS"],
+          "tools": ["SAP GUI V/03, V/07, V/06, V/08 and OVKK"],
+          "lab_task": "Create a customer-group discount with its own condition table and access sequence, add it to a copy of the pricing procedure with a subtotal, determine the procedure for sales organisation 1020 and test it.",
+          "deliverable": "Pricing configuration, condition records and a test order",
+          "checks": [["Create an order for a customer in the group", "Discount is found through the new access sequence", "Pricing analysis"], ["Create an order for another customer", "Discount is not applied", "Pricing analysis"], ["Check the subtotal", "Subtotal shows the net value after discounts", "Conditions tab"]],
+          "objectives": ["Configure pricing procedures", "Build condition tables and access sequences", "Determine pricing procedures"]
+        },
+        {
+          "topic": "Pricing Exclusion, Group Conditions and Price Agreements",
+          "subtopics": ["Condition exclusion groups", "Best price and exclusive conditions", "Group conditions across items", "Header conditions and distribution", "Price agreements for customers", "Pricing date and the pricing date logic", "Rounding and price units", "Mass maintenance of condition records"],
+          "tools": ["SAP GUI OV31 and VK12", "Manage Prices - Sales app"],
+          "lab_task": "Configure an exclusion group so the customer gets the better of a promotion or a customer discount, add a group condition by material group and a header freight condition, and test the results.",
+          "deliverable": "Exclusion and group condition configuration and test orders",
+          "checks": [["Order with both discounts valid", "Only the better discount is applied", "Pricing analysis"], ["Order two items of one material group", "Group scale is reached across items", "Conditions tab"], ["Enter a header freight amount", "Freight is distributed to the items", "Item conditions"]],
+          "objectives": ["Configure condition exclusion", "Use group and header conditions", "Manage price agreements"]
+        },
+        {
+          "topic": "Output Tax Determination in Sales Documents",
+          "subtopics": ["Tax relevance of customers and materials", "Tax classification fields", "Tax condition types and access sequences", "Tax codes from the finance team", "Departure and destination country", "Indian GST in sales: CGST, SGST and IGST in brief", "Tax in billing and the accounting document", "Testing tax for domestic and export sales"],
+          "tools": ["SAP GUI OVK1, OVK3, OVK4 and VK11"],
+          "lab_task": "Set tax classifications so domestic sales are taxed, exports are tax-exempt and one material group uses a reduced rate, and test three orders through billing.",
+          "deliverable": "Tax configuration, condition records and three billed orders",
+          "checks": [["Bill a domestic order", "Full rate tax is posted", "Accounting document"], ["Bill an export order", "No tax is charged", "Billing conditions"], ["Bill the reduced-rate material", "Reduced rate is applied", "Billing conditions"]],
+          "objectives": ["Configure tax determination", "Test tax in billing", "Explain tax postings"]
+        },
+        {
+          "topic": "Availability Check Configuration",
+          "subtopics": ["Checking groups and checking rules", "Scope of check: stocks, receipts and issues", "Replenishment lead time", "Requirement types and requirement classes", "Transfer of requirements", "Rescheduling sales orders", "Advanced available-to-promise in S/4HANA in brief", "Testing confirmations with stock and receipts"],
+          "tools": ["SAP GUI OVZ2, OVZ9 and OVZG", "SAP GUI V_V2"],
+          "lab_task": "Change the scope of check so planned receipts count but replenishment lead time does not, then reschedule open orders after a stock receipt and compare confirmations.",
+          "deliverable": "Scope of check settings, rescheduling log and confirmations before and after",
+          "checks": [["Order with a planned receipt next week", "Quantity is confirmed on the receipt date", "Schedule lines"], ["Run rescheduling after a receipt", "Earlier orders get confirmed first", "Rescheduling log"], ["Explain the requirement class", "Availability and requirement transfer explained correctly", "Written answer"]],
+          "objectives": ["Configure availability checks", "Reschedule orders", "Explain requirement transfer"]
+        },
+        {
+          "topic": "Shipping Configuration: Delivery Types, Routes and Shipping Point Determination",
+          "subtopics": ["Delivery types and delivery item categories", "Shipping point determination: shipping conditions, loading group and plant", "Route determination: departure zone, transportation zone and transportation group", "Transit and transportation lead times on routes", "Delivery splits", "Shipping conditions from customers and order types", "Delivery due list settings", "Testing shipping determination"],
+          "tools": ["SAP GUI 0VLK and OVL2", "SAP GUI 0VRF", "SAP GUI VL01N"],
+          "lab_task": "Configure a delivery type for export deliveries, shipping point determination for express shipping conditions and route determination for two transportation zones, and test them.",
+          "deliverable": "Shipping configuration and test deliveries",
+          "checks": [["Create an express order", "Express shipping point is determined", "Delivery header"], ["Create an order to the second zone", "Route for that zone is determined", "Order shipping tab"], ["Create a delivery with the export type", "New delivery type is used", "Delivery header"]],
+          "objectives": ["Configure delivery types", "Configure shipping point and route determination", "Test shipping settings"]
+        },
+        {
+          "topic": "Picking, Packing and Handling Units",
+          "subtopics": ["Picking with stock room management and with EWM", "Picking locations and storage location determination", "Packing materials and packaging specifications", "Handling units and packing instructions", "Packing in the delivery", "Proof of delivery in brief", "Weights and volumes", "Labels and shipping documents"],
+          "tools": ["SAP GUI SPRO", "SAP GUI VL02N and HU02", "Pack Outbound Deliveries app"],
+          "lab_task": "Configure storage location determination for picking, define a pallet packaging material and pack a delivery into two handling units with weights and labels.",
+          "deliverable": "Picking configuration, packed delivery and labels",
+          "checks": [["Create the delivery", "Picking storage location is determined", "Delivery item"], ["Pack the delivery", "Two handling units with contents are created", "Packing screen"], ["Exceed the pallet weight", "System warns about the allowed weight", "Message"]],
+          "objectives": ["Configure picking", "Pack deliveries into handling units", "Produce shipping documents"]
+        },
+        {
+          "topic": "Billing Configuration: Billing Types, Invoice Lists and Revenue Account Determination",
+          "subtopics": ["Billing type controls", "Number ranges for billing documents", "Invoice combination and invoice splits", "Invoice lists", "Billing plans: periodic and milestone", "Revenue account determination with VKOA", "Account assignment groups for customers and materials", "Transfer to accounting and posting blocks"],
+          "tools": ["SAP GUI VOFA and VKOA", "Create Billing Documents app"],
+          "lab_task": "Create an invoice type with a posting block, configure a periodic billing plan for a service item and set revenue account determination for a new material account assignment group.",
+          "deliverable": "Billing configuration and test billing documents",
+          "checks": [["Bill the service item", "Billing plan dates produce periodic invoices", "Billing plan"], ["Bill the new account assignment group", "Revenue posts to the new account", "Accounting document"], ["Bill with the new invoice type", "Accounting document waits for release", "Billing document status"]],
+          "objectives": ["Configure billing types", "Configure billing plans", "Configure revenue account determination"]
+        },
+        {
+          "topic": "Credit Management Configuration in SAP Credit Management",
+          "subtopics": ["SAP Credit Management in S/4HANA", "Credit segments and their assignment to credit control areas", "Risk classes and check rules", "Credit checks: static, dynamic and maximum document value", "Credit groups and document types", "Automatic credit limit calculation in brief", "Credit management for deliveries", "Testing credit configuration"],
+          "tools": ["SAP GUI SPRO", "SAP GUI UKM_BP and VKM1", "Manage Credit Accounts app"],
+          "lab_task": "Configure a check rule with a dynamic credit check and a maximum document value, assign it to high-risk customers and test orders and deliveries against it.",
+          "deliverable": "Credit configuration and blocked and released test documents",
+          "checks": [["Create an order above the maximum document value", "Order is blocked for credit", "Status screenshot"], ["Create an order within the horizon above the limit", "Dynamic check blocks the order", "Status screenshot"], ["Create an order for a low-risk customer", "Order is not blocked", "Status screenshot"]],
+          "objectives": ["Configure credit management", "Choose credit checks", "Test credit decisions"]
+        },
+        {
+          "topic": "Incompletion Procedures, Text Determination and Free Goods",
+          "subtopics": ["Incompletion procedures and status groups", "Assigning incompletion procedures to documents and items", "Text types and text determination procedures", "Copying texts from customers and materials", "Free goods: inclusive and exclusive", "Free goods determination", "Material determination and substitution", "Listing and exclusion"],
+          "tools": ["SAP GUI OVA2, VOTXN, VBN1 and VB11"],
+          "lab_task": "Make the customer purchase order date required for ZOR, copy a delivery instruction text from the customer to the order and delivery, and set exclusive free goods of 1 per 10 for a material.",
+          "deliverable": "Configuration notes and test documents",
+          "checks": [["Save a ZOR without the purchase order date", "Order is incomplete with a delivery block", "Incompletion log"], ["Create a delivery", "Delivery instruction text is copied", "Text screenshot"], ["Order 10 units", "A free-of-charge item for 1 unit is added", "Order items"]],
+          "objectives": ["Configure incompletion", "Configure text determination", "Set up free goods"]
+        },
+        {
+          "topic": "Variant Configuration for Sales",
+          "subtopics": ["Configurable materials and the KMAT item category group", "Characteristics and values", "Classes of type 300", "Configuration profiles", "Dependencies: preconditions, selection conditions and procedures", "Variant pricing with VA00", "Advanced Variant Configuration in S/4HANA", "Testing configurations in the sales order"],
+          "tools": ["SAP GUI CT04, CL02, CU41 and CU50"],
+          "lab_task": "Create a configurable workstation with colour, memory and warranty characteristics, a dependency that blocks one combination, and variant prices, and configure it in a sales order.",
+          "deliverable": "Configuration model and configured sales orders",
+          "checks": [["Configure the material in an order", "Price changes with the selected values", "Order conditions"], ["Select the blocked combination", "System prevents the selection", "Message"], ["Simulate the configuration in CU50", "Valid values and prices are shown", "Simulation screenshot"]],
+          "objectives": ["Build variant configuration models", "Price variants", "Use configuration in sales"]
+        },
+        {
+          "topic": "Intercompany Sales and Billing",
+          "subtopics": ["Intercompany sales process", "Delivering plant in another company code", "Intercompany billing type IV", "Internal pricing condition PI01", "Customer for the ordering company", "Automatic supplier invoice in the ordering company", "Intercompany postings", "Testing an intercompany flow"],
+          "tools": ["SAP GUI VA01, VL01N, VF01 and VF04"],
+          "lab_task": "Configure and run an intercompany sale where sales organisation 1010 sells from a plant of company code 1710: order, delivery, customer invoice and intercompany invoice.",
+          "deliverable": "Intercompany configuration, documents and postings in both company codes",
+          "checks": [["Create the order with the other company's plant", "Order saves with the intercompany plant", "Order item"], ["Bill the customer", "Customer invoice is posted in the selling company", "Accounting document"], ["Create the intercompany invoice", "IV invoice with PI01 pricing is posted", "Billing document"]],
+          "objectives": ["Configure intercompany sales", "Run intercompany billing", "Explain intercompany postings"]
+        },
+        {
+          "topic": "Condition Contract Configuration for Sales Rebates",
+          "subtopics": ["Condition contract types", "Condition types and tables for rebates", "Business volume selection", "Settlement calendar and settlement types", "Accrual settings", "Settlement documents and output", "Migration from classic SD rebates", "Testing settlements"],
+          "tools": ["SAP GUI SPRO", "SAP GUI WCOCO and WB2R_SC", "Manage Condition Contracts app"],
+          "lab_task": "Configure a condition contract type for quarterly rebates on a product group with accruals and settlement output, then test a quarter of billing and settlement.",
+          "deliverable": "Condition contract configuration and settlement test results",
+          "checks": [["Bill eligible orders", "Accruals post for the product group only", "Accounting documents"], ["Run the quarterly settlement", "Rebate credit memo is created", "Settlement document"], ["Check business volume", "Volume matches billed eligible sales", "Business volume report"]],
+          "objectives": ["Configure condition contracts", "Set up rebate settlements", "Plan the move from classic rebates"]
+        },
+        {
+          "topic": "Sales EDI: Inbound Orders and Outbound Invoices with IDocs",
+          "subtopics": ["EDI in order to cash", "IDoc types ORDERS05 and INVOIC02", "Partner profiles and ports", "Customer-material and customer-plant mapping for EDI", "Inbound order processing and errors", "Outbound order confirmation and invoice", "IDoc monitoring and reprocessing", "EDI with SAP Integration Suite in brief"],
+          "tools": ["SAP GUI WE20, WE19, WE02 and BD87"],
+          "lab_task": "Set up a partner profile for a customer, post an inbound order IDoc with the test tool, fix a mapping error and send the invoice IDoc.",
+          "deliverable": "Partner profile, processed IDocs and the resulting documents",
+          "checks": [["Post a valid inbound order IDoc", "Sales order is created", "IDoc status 53 and order"], ["Post an IDoc with an unknown customer material", "IDoc fails with status 51", "IDoc status record"], ["Bill the order", "INVOIC IDoc is sent", "Outbound IDoc"]],
+          "objectives": ["Configure sales EDI", "Monitor IDocs", "Fix EDI errors"]
+        },
+        {
+          "topic": "Customer Returns Configuration and Advanced Returns Management",
+          "subtopics": ["Returns document types and item categories", "Returns deliveries and movement types", "Credit memo request controls", "Advanced returns management: logistical follow-up and refund codes", "Inspection at the customer or the warehouse", "Returns to supplier in brief", "Return material authorisation numbers", "Testing returns scenarios"],
+          "tools": ["SAP GUI SPRO", "Manage Customer Returns app", "SAP GUI MSR_INSPWH"],
+          "lab_task": "Configure advanced returns management for one returns order type with refund codes and warehouse inspection, and test a return that ends in scrapping and one that goes back to stock.",
+          "deliverable": "Returns configuration and two completed returns",
+          "checks": [["Inspect a return and choose scrap", "Material is scrapped and the refund follows the code", "Documents"], ["Inspect a return and choose stock", "Material moves to unrestricted stock", "Material document"], ["Check the credit memo", "Refund amount follows the refund code", "Billing document"]],
+          "objectives": ["Configure returns", "Use advanced returns management", "Test returns outcomes"]
+        },
+        {
+          "topic": "Intermediate Capstone: SD Configuration for a New Sales Organisation",
+          "subtopics": ["Organisation and customer configuration", "Sales documents, item categories and copy control", "Pricing, taxes, availability and credit", "Shipping, billing and revenue accounts", "Test scripts and evidence", "Design walkthrough"],
+          "tools": ["SAP S/4HANA", "SAP GUI SPRO", "SAP Fiori launchpad"],
+          "lab_task": "Configure SD for new sales organisation 1030: organisation, a customer grouping, an order type with copy control, a pricing procedure with a customer discount, tax, credit checks, shipping point and route determination, and billing with revenue accounts, then test and present.",
+          "deliverable": "Configuration workbook, transports, test scripts with evidence and a 15-minute walkthrough",
+          "checks": [["Run the test scripts", "All scripts pass with evidence", "Test log"], ["Run a full order to cash in 1030", "Order, delivery and invoice post correctly", "Documents"], ["Answer design questions", "Choices explained with alternatives", "Walkthrough"]],
+          "objectives": ["Combine the intermediate topics", "Test configuration", "Explain design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior SD consultants, order-to-cash solution architects and transformation leads. Covers order-to-cash architecture, advanced available-to-promise, SAP Sales Cloud and SAP Commerce Cloud, subscription billing, transportation management, global trade compliance, pricing and margin, Joule and AI, multi-country design, fulfilment monitoring, migration and conversion, extensibility, integration, controls, data volume, testing, troubleshooting and order-to-cash transformation.",
+      "prerequisites": ["Has configured SAP SD in at least one project", "Knows pricing, copy control, availability check, credit and billing configuration", "Understands S/4HANA deployment options and integration basics"],
+      "outcomes": ["Design order-to-cash architectures across S/4HANA, sales channels and logistics", "Lead availability, pricing, trade compliance and AI improvements in sales", "Plan sales migration, conversion, extensions and integration", "Lead order-to-cash transformation with controls, testing and roadmaps"],
+      "days": [
+        {
+          "topic": "Order-to-Cash Solution Architecture in S/4HANA",
+          "subtopics": ["Order-to-cash capability map", "Sales, service and commerce in one landscape", "Differences between S/4HANA Cloud Private Edition and Public Edition for sales", "Fit-to-standard and the clean core", "Where SAP Sales Cloud, SAP Commerce Cloud, TM and GTS fit", "Sales organisation design for shared service centres", "Customer master data ownership", "Architecture decision records"],
+          "tools": ["SAP Signavio Process Navigator", "SAP Business Accelerator Hub", "Diagramming tool"],
+          "lab_task": "Design the order-to-cash solution for a manufacturer that sells through distributors, a web shop and key accounts: sales organisation model, channel components, the split of fulfilment and billing, and three architecture decision records.",
+          "deliverable": "Solution architecture document with diagrams and decision records",
+          "checks": [["Map each sales channel to its components", "Every channel has an order capture and a fulfilment path", "Capability map"], ["Review a decision record", "Alternatives and consequences are stated", "Decision record"], ["Classify the planned extensions", "Each extension has a clean core level", "Extension list"]],
+          "objectives": ["Design order-to-cash architectures", "Choose channel and fulfilment components", "Record architecture decisions"]
+        },
+        {
+          "topic": "Advanced Available-to-Promise: Product Allocation, Backorder Processing and Supply Protection",
+          "subtopics": ["Limits of the classic availability check", "Product allocation: objects, sequences and checks", "Backorder processing strategies: win, gain, redistribute, fill and lose", "Release for delivery", "Supply protection", "Alternative-based confirmation across plants", "Performance of mass availability checks", "Choosing aATP features per customer segment"],
+          "tools": ["Configure Product Allocation app", "Configure BOP Segment app", "Schedule BOP Run app", "Release for Delivery app"],
+          "lab_task": "Set up product allocation for a scarce product by customer region, run backorder processing with win and lose strategies for key and standard customers, and use release for delivery to reallocate a delayed shipment.",
+          "deliverable": "aATP configuration, backorder processing results and release-for-delivery decisions",
+          "checks": [["Create orders above a region's allocation", "Excess quantity is not confirmed", "Schedule lines"], ["Run backorder processing", "Key customers keep or gain confirmations while others lose them", "BOP run result"], ["Reallocate in Release for Delivery", "Confirmations move between orders", "App screenshot"]],
+          "objectives": ["Configure advanced ATP", "Protect supply for priority customers", "Run backorder processing"]
+        },
+        {
+          "topic": "SAP Sales Cloud and SAP Commerce Cloud Integration",
+          "subtopics": ["Lead to cash across SAP Sales Cloud, SAP Commerce Cloud and S/4HANA", "Replicating customers, products and prices", "Quotes in SAP Sales Cloud and orders in S/4HANA", "Web shop order capture with SAP Commerce Cloud", "Real-time availability and price calls", "Order status and invoices back to the front office", "Integration through SAP Integration Suite", "Monitoring and error handling"],
+          "tools": ["SAP Sales Cloud Version 2", "SAP Commerce Cloud", "SAP Integration Suite"],
+          "lab_task": "Replicate customers and prices to SAP Sales Cloud, create a quote there that becomes a sales order in S/4HANA, and show the order status and invoice back in the front office.",
+          "deliverable": "Integration setup, message trace and an end-to-end document trail",
+          "checks": [["Replicate a new customer", "Customer appears in SAP Sales Cloud", "Screenshot"], ["Convert the quote into an order", "Sales order is created in S/4HANA with the quoted prices", "Sales order"], ["Make a replication fail on purpose", "Error is visible in the monitor and reprocessed after the fix", "Monitor screenshot"]],
+          "objectives": ["Integrate front-office sales with S/4HANA", "Design order capture across channels", "Monitor sales integration"]
+        },
+        {
+          "topic": "Subscription and Usage-Based Billing",
+          "subtopics": ["Subscription and usage business models", "Billing plans compared with subscription billing", "SAP Subscription Billing on SAP BTP", "Convergent invoicing in brief", "Rating usage and price tiers", "Contract changes: upgrades, downgrades and cancellations", "Handing revenue recognition to finance", "Choosing a billing solution"],
+          "tools": ["SAP Subscription Billing", "SAP S/4HANA billing plans", "SAP Integration Suite"],
+          "lab_task": "Model a software subscription with a monthly fee and a usage tier, bill three months including an upgrade, and compare the result with an S/4HANA periodic billing plan.",
+          "deliverable": "Subscription model, three months of invoices and a comparison paper",
+          "checks": [["Bill month one", "Fee and usage are charged at the right tier", "Invoice"], ["Upgrade the subscription in month two", "Prorated charges appear", "Invoice"], ["Compare with a periodic billing plan", "Gaps of billing plans are listed", "Comparison paper"]],
+          "objectives": ["Design subscription billing", "Price usage", "Choose a billing solution"]
+        },
+        {
+          "topic": "Transportation Management Integration and Freight Costs",
+          "subtopics": ["Transportation management in S/4HANA", "Freight units from deliveries", "Planning freight orders", "Carrier selection and tendering", "Freight agreements and charge calculation", "Freight settlement with purchasing and finance", "Shipping documents and tracking", "Choosing basic shipping or TM"],
+          "tools": ["SAP S/4HANA Transportation Management", "Transportation cockpit", "Freight order management apps"],
+          "lab_task": "Send deliveries to TM as freight units, plan them onto a freight order with a selected carrier, calculate charges from a freight agreement and settle the freight cost.",
+          "deliverable": "Freight units, freight order, charge calculation and settlement documents",
+          "checks": [["Create the delivery", "A freight unit is built", "Freight unit"], ["Plan the freight order", "Carrier is selected and charges are calculated", "Freight order"], ["Settle the freight", "Freight cost is posted", "Settlement and accounting documents"]],
+          "objectives": ["Integrate shipping with TM", "Calculate freight charges", "Settle freight costs"]
+        },
+        {
+          "topic": "Global Trade and Export Compliance in Order to Cash",
+          "subtopics": ["Export controls and sanctioned party screening", "Embargo checks", "Export licences", "Customs declarations", "SAP Global Trade Services, edition for SAP HANA", "Blocking sales documents for compliance", "Product classification: HS codes and export control classes", "Audit trail for trade decisions"],
+          "tools": ["SAP Global Trade Services, edition for SAP HANA", "SAP GUI VA01 and VL02N"],
+          "lab_task": "Screen customers against a sanctioned party list, block an order to an embargoed country, require an export licence for a controlled product and release a compliant order through to the customs declaration.",
+          "deliverable": "Screening results, blocked and released documents and a trade compliance log",
+          "checks": [["Create an order for a listed party", "Order is blocked for compliance", "Block status"], ["Deliver a controlled product without a licence", "Delivery is blocked", "Delivery status"], ["Release a compliant order", "Customs declaration is created", "Declaration"]],
+          "objectives": ["Apply trade compliance checks", "Handle export licences", "Keep trade audit trails"]
+        },
+        {
+          "topic": "Pricing Strategy and Margin Management at Scale",
+          "subtopics": ["Pricing strategies: list, contract and value-based pricing", "Price lists and price change programmes", "Maintaining condition records at scale", "Margin analysis from billing", "Price leakage: discounts, free goods and rebates", "Pricing performance in large orders", "Pricing governance and approvals", "Price optimisation tools in brief"],
+          "tools": ["Manage Prices - Sales app", "Margin analysis apps", "SAP Analytics Cloud"],
+          "lab_task": "Analyse a year of billing to find price leakage by customer and discount type, design a price change programme with approval rules and model its margin effect.",
+          "deliverable": "Price leakage analysis, change programme and margin model",
+          "checks": [["Run the leakage analysis", "Leakage is quantified by discount type", "Analysis"], ["Load the new price list", "Condition records are valid from the change date", "Condition records"], ["Model the margin effect", "Margin change by segment is shown", "Margin model"]],
+          "objectives": ["Find price leakage", "Govern price changes", "Manage margins"]
+        },
+        {
+          "topic": "Generative AI and Joule in Sales",
+          "subtopics": ["Joule in S/4HANA for sales: order, delivery and invoice status", "AI-assisted sales order entry from emails and PDFs", "Document extraction for customer purchase orders", "Predicted delivery delays and AI insights", "AI-drafted customer communications", "AI governance, privacy and human review", "Checking AI suggestions", "Building a business case for AI in sales"],
+          "tools": ["Joule", "Create Sales Orders - Automatic Extraction app", "SAP AI Core and Generative AI Hub"],
+          "lab_task": "Process ten customer purchase-order PDFs with automatic extraction, check every extracted field before saving, ask Joule for the status of late orders and write a governance note for AI use in customer service.",
+          "deliverable": "Extraction results with checks, prompt log and a governance note",
+          "checks": [["Extract a purchase order PDF", "Customer, materials and quantities are proposed", "Extraction result"], ["Compare an extraction with its PDF", "Every wrong field is found and corrected", "Check sheet"], ["Ask Joule for late orders", "Answer matches the backorder list", "Comparison"]],
+          "objectives": ["Use AI for order entry", "Check AI output", "Govern AI use in sales"]
+        },
+        {
+          "topic": "Multi-Country Order to Cash: Intercompany, Tax and Localisation Design",
+          "subtopics": ["Selling from several countries and plants", "Intercompany and cross-border flows", "Tax determination across countries", "E-invoicing mandates such as Indian e-invoicing and EU ViDA", "Country versions and SAP Document and Reporting Compliance", "Currencies and price lists per country", "A shared order desk across countries", "Design decisions and trade-offs"],
+          "tools": ["SAP Document and Reporting Compliance", "SAP GUI VA01 and VF01", "Diagramming tool"],
+          "lab_task": "Design order to cash for selling in India, Germany and the US from two plants, covering the sales organisation model, intercompany flows, tax and e-invoicing per country and a shared order desk, and test an Indian e-invoice.",
+          "deliverable": "Design paper, flow diagrams and a submitted test e-invoice",
+          "checks": [["Bill an Indian customer", "E-invoice is submitted and the invoice reference number (IRN) is returned", "eDocument cockpit"], ["Review the design", "Each country's tax and invoicing rules are covered", "Design paper"], ["Trace a cross-border order", "Intercompany flow matches the design", "Document flow"]],
+          "objectives": ["Design multi-country order to cash", "Meet e-invoicing mandates", "Run a shared order desk"]
+        },
+        {
+          "topic": "Order Fulfilment Monitoring and Exception Handling",
+          "subtopics": ["Monitoring sales order fulfilment", "Fulfilment issues: credit, incompletion, availability and delivery blocks", "Resolving issues from the sales order fulfilment apps", "Situation handling for sales", "Delivery and billing due lists", "Workload design for order desks", "Fulfilment KPIs", "Escalation paths"],
+          "tools": ["Sales order fulfilment apps", "My Situations app", "SAP GUI VL06O"],
+          "lab_task": "Seed fulfilment issues across 30 orders, resolve them from the fulfilment apps in priority order, set up a situation for blocked key-customer orders and report fulfilment KPIs.",
+          "deliverable": "Resolved issue log, situation configuration and a KPI report",
+          "checks": [["Open the fulfilment monitor", "Orders are grouped by issue type", "Screenshot"], ["Resolve a credit block from the monitor", "Order moves to the next fulfilment step", "Status"], ["Block a key-customer order", "Situation is raised for the responsible clerk", "My Situations screenshot"]],
+          "objectives": ["Monitor order fulfilment", "Resolve fulfilment issues", "Design order desk work"]
+        },
+        {
+          "topic": "Sales Data Migration: Customers, Prices and Open Orders",
+          "subtopics": ["Migration objects: customers, contacts, prices, contracts and open orders", "The Migration Cockpit with staging tables", "Load sequence and dependencies", "Open orders with partial deliveries", "Open receivables handover with finance", "Data quality rules and cleansing", "Reconciliation and sign-off", "Master Data Governance for customers in brief"],
+          "tools": ["Migrate Your Data - Migration Cockpit app", "Staging tables", "Excel"],
+          "lab_task": "Plan and run a mock load of 50 customers, their prices, two contracts and open sales orders through the Migration Cockpit, then reconcile counts and values.",
+          "deliverable": "Migration plan, load logs and a reconciliation sign-off",
+          "checks": [["Load a customer with a missing sales area", "Record is rejected with a message", "Load log"], ["Load prices", "Order pricing matches the legacy prices", "Comparison"], ["Load open orders", "Open quantities and values match the legacy system", "Report"]],
+          "objectives": ["Plan sales migration", "Run mock loads", "Reconcile migrated sales data"]
+        },
+        {
+          "topic": "SD in System Conversions: Simplification Items and Customer Conversion",
+          "subtopics": ["Simplification items for sales", "Converting customers to business partners with CVI", "Status fields moved from VBUK and VBUP into the document tables", "Pricing table PRCD_ELEMENTS replacing KONV", "SD rebates replaced by condition contracts", "Moving to SAP Credit Management", "Changes in output management", "Custom code in sales"],
+          "tools": ["SAP Readiness Check", "Simplification Item Catalog", "SAP GUI CVI_COCKPIT", "ABAP Test Cockpit"],
+          "lab_task": "Analyse a readiness check for an ECC sales system, classify every SD simplification item by effort, plan the move from SD rebates and classic credit management, and find custom code that reads VBUK or KONV.",
+          "deliverable": "Simplification item plan, migration plans and custom code list",
+          "checks": [["Classify the simplification items", "Each item has an effort and an owner", "Plan"], ["Find VBUK and KONV reads", "Custom objects are listed with their replacements", "ATC result"], ["Review the rebate migration plan", "Every open rebate agreement is closed or moved", "Plan"]],
+          "objectives": ["Plan SD in a conversion", "Convert customers to business partners", "Adapt sales custom code"]
+        },
+        {
+          "topic": "Extending Sales: Custom Fields, Custom Logic and Side-by-Side Apps",
+          "subtopics": ["Extension options and clean core levels", "Custom fields in sales orders, deliveries and invoices", "Custom logic with cloud BAdIs for sales", "Developer extensibility with RAP", "Side-by-side apps on SAP BTP", "Released APIs for sales", "Governance of extensions", "Testing extensions"],
+          "tools": ["Custom Fields app", "Custom Logic app", "ABAP Development Tools", "SAP BTP"],
+          "lab_task": "Add a campaign code to sales orders that flows to billing and analytics, add a cloud BAdI check that requires it for one order type, and design a side-by-side portal for distributors.",
+          "deliverable": "Extension objects, test results and a side-by-side design",
+          "checks": [["Save an order without the campaign code", "Custom logic blocks the save", "Error message"], ["Bill the order", "Campaign code appears in the invoice and in analytics", "Screenshot"], ["Review the portal design", "Only released APIs are used", "Design document"]],
+          "objectives": ["Extend sales on a clean core", "Add custom fields and logic", "Design side-by-side apps"]
+        },
+        {
+          "topic": "Order-to-Cash Integration Architecture: APIs, EDI and Events",
+          "subtopics": ["Integration needs in order to cash", "Released OData and SOAP APIs for sales", "EDI with IDocs and B2B messages", "Business events for sales orders and deliveries", "SAP Integration Suite and Trading Partner Management", "Error handling and monitoring", "Securing integrations", "Choosing APIs, EDI or events"],
+          "tools": ["SAP Business Accelerator Hub", "SAP Integration Suite", "SAP Integration Suite, advanced event mesh", "SAP GUI WE02"],
+          "lab_task": "Design and test integration with a distributor: orders created through the API, a business event published when goods issue is posted and invoices sent by EDI, with an error-handling path.",
+          "deliverable": "Integration design, API test calls, event trace and EDI monitor evidence",
+          "checks": [["Create an order through the API", "Order is created with the sent data", "API response"], ["Post goods issue", "Delivery event is published", "Event trace"], ["Send an invoice to a partner with a broken profile", "Error is caught and the invoice is resent after the fix", "Message monitor"]],
+          "objectives": ["Design order-to-cash integration", "Use APIs, EDI and events", "Monitor integration errors"]
+        },
+        {
+          "topic": "Sales Controls, Authorisations and Audit",
+          "subtopics": ["Segregation of duties in order to cash", "Authorisation objects for sales, shipping and billing", "Business roles and catalogues", "Critical combinations: price changes, credit release and billing", "Change logs for prices and credit limits", "Revenue controls", "Continuous control monitoring", "Preparing for audits"],
+          "tools": ["Maintain Business Roles app", "SAP GUI SU24 and SUIM", "SAP Access Control"],
+          "lab_task": "Design roles for order clerk, pricing analyst, credit controller and billing clerk, test them for conflicts and prepare an audit pack with price change and credit release logs.",
+          "deliverable": "Role design, conflict report and audit pack",
+          "checks": [["Run conflict analysis on the roles", "No critical conflicts remain", "Conflict report"], ["Release a credit block as the order clerk", "Order clerk is not authorised", "Error message"], ["Pull the price change logs", "Each change shows user, time and values", "Audit pack"]],
+          "objectives": ["Design sales roles", "Control segregation of duties", "Support revenue audits"]
+        },
+        {
+          "topic": "Performance and Data Volume in Order to Cash",
+          "subtopics": ["Data volume in sales, delivery and billing tables", "Archiving objects SD_VBAK, RV_LIKP and SD_VBRK", "Residence times and archiving sequence", "Information lifecycle management for customer data", "Blocking and deleting personal data of customers", "Performance of mass delivery and billing runs", "Parallel processing in billing", "Planning a data volume programme"],
+          "tools": ["SAP GUI SARA", "SAP Information Lifecycle Management", "SAP GUI VF06"],
+          "lab_task": "Analyse the largest sales tables, archive closed orders, deliveries and invoices in the right sequence, and tune a mass billing run with parallel processing.",
+          "deliverable": "Data volume analysis, archive run logs and billing run comparison",
+          "checks": [["Archive closed sales orders", "Archive file is written and orders are removed from the database", "SARA log"], ["Archive an order with an open invoice", "Order is skipped as not archivable", "Archive log"], ["Run billing in parallel jobs", "Runtime is lower than a single job", "Job logs"]],
+          "objectives": ["Manage sales data volume", "Archive in the right sequence", "Tune mass runs"]
+        },
+        {
+          "topic": "Testing Order to Cash at Scale",
+          "subtopics": ["Test strategy for order to cash", "Process-based test scenarios from fit-to-standard", "Test data for customers, prices and stock", "Automated tests with Tricentis Test Automation for SAP", "Regression after releases and feature packs", "Testing with finance, logistics and channels", "Defect triage", "Test evidence and sign-off"],
+          "tools": ["SAP Cloud ALM test management", "Tricentis Test Automation for SAP", "Excel"],
+          "lab_task": "Write a regression suite for order to cash, automate three scenarios and run the suite before and after a simulated pricing change.",
+          "deliverable": "Test strategy, regression suite, automated scenarios and run report",
+          "checks": [["Run the automated scenarios", "All pass before the change", "Run report"], ["Apply the pricing change and run again", "The affected scenario fails with a clear defect", "Defect record"], ["Review traceability", "Each requirement maps to at least one test", "Traceability matrix"]],
+          "objectives": ["Plan order-to-cash testing", "Automate regression tests", "Manage defects and sign-off"]
+        },
+        {
+          "topic": "Troubleshooting Order-to-Cash Issues",
+          "subtopics": ["A method for analysing incidents", "Pricing errors and the pricing analysis", "Item category and copy control errors", "Revenue account determination errors", "Output and EDI failures", "Orders missing from delivery and billing due lists", "Using change logs, application logs and traces", "Writing root cause and prevention notes"],
+          "tools": ["SAP GUI SLG1 and VF02", "SAP GUI WE02", "SAP for Me"],
+          "lab_task": "Solve five seeded incidents, a wrong price, a missing item category, an invoice not passed to accounting, a failed EDI invoice and an order missing from the delivery due list, and document the root cause and fix of each.",
+          "deliverable": "Five incident reports with root causes, fixes and prevention notes",
+          "checks": [["Fix the accounting transfer", "Invoice is posted to accounting", "Accounting document"], ["Explain the wrong price", "The condition record that caused it is identified", "Pricing analysis"], ["Find the order missing from the due list", "Block or incompletion is identified and fixed", "Analysis"]],
+          "objectives": ["Troubleshoot order-to-cash incidents", "Find root causes", "Prevent repeat incidents"]
+        },
+        {
+          "topic": "Order-to-Cash Transformation Roadmaps and Solution Reviews",
+          "subtopics": ["Assessing order-to-cash maturity", "Value drivers: order cycle time, touchless orders, on-time delivery and DSO", "Roadmap from ECC to S/4HANA and connected channels", "Business case and KPIs", "Change management for sales and customer service", "Solution review checklists", "Design authority and governance", "Presenting to stakeholders"],
+          "tools": ["SAP Signavio Process Insights", "SAP Signavio Process Intelligence", "Excel"],
+          "lab_task": "Review an order-to-cash solution design against a checklist, propose a three-wave roadmap with KPIs and a business case and present it to a mock steering committee.",
+          "deliverable": "Review findings, roadmap, business case and presentation",
+          "checks": [["Review the design", "Findings are rated by risk", "Review report"], ["Build the KPIs", "Each KPI has a baseline and a target", "KPI sheet"], ["Present to the steering committee", "Questions answered with evidence", "Presentation"]],
+          "objectives": ["Review order-to-cash solutions", "Build roadmaps and business cases", "Lead sales transformation"]
+        },
+        {
+          "topic": "Advanced Capstone: Global Order-to-Cash Transformation Blueprint",
+          "subtopics": ["Target architecture and sales organisation", "Channels, availability and pricing design", "Fulfilment, transport and trade compliance", "Controls, AI use and billing models", "Migration and conversion plan", "Board presentation and design defence"],
+          "tools": ["SAP S/4HANA", "SAP Sales Cloud", "SAP Global Trade Services", "SAP Signavio"],
+          "lab_task": "Produce an order-to-cash blueprint for a group selling in three countries through three channels, covering architecture, aATP, pricing, fulfilment and transport, trade compliance, billing models, controls, AI use, migration and the roadmap, prototype two scenarios and present it to a mock board.",
+          "deliverable": "Blueprint, two prototypes, roadmap and a 20-minute presentation",
+          "checks": [["Run the backorder processing prototype", "Priority customers keep their confirmations", "BOP run result"], ["Run the cross-border order prototype", "Order is screened, delivered and e-invoiced", "Documents"], ["Answer board questions", "Blueprint defended with evidence", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one blueprint", "Prove key scenarios", "Lead order-to-cash transformation"]
+        }
+      ]
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
   "domain": "Argo CD",
-  "name": "Argo CD â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "name": "Argo CD – Comprehensive Fundamentals to Advanced Curriculum",
   "aliases": [
     "ArgoCD",
     "GitOps Continuous Delivery"
@@ -26,9 +26,6 @@
         "CLI/UI",
         "Typical workflows",
         "Terminology",
-        "Argo CD terminology and feature mapping for this topic",
-        "Argo CD configuration and implementation considerations",
-        "Argo CD best practices and common mistakes for this topic",
         "GitOps",
         "Application",
         "AppProject",
@@ -112,22 +109,7 @@
         "Parameters",
         "Secrets",
         "Environment-specific configuration",
-        "Validation",
-        "Argo CD terminology and feature mapping for this topic",
-        "Argo CD configuration and implementation considerations",
-        "Argo CD best practices and common mistakes for this topic",
-        "GitOps",
-        "Application",
-        "AppProject",
-        "sync",
-        "auto-sync",
-        "health status",
-        "sync waves",
-        "hooks",
-        "Helm",
-        "Kustomize",
-        "RBAC",
-        "ApplicationSet"
+        "Validation"
       ],
       "tools": [
         "Argo CD",
@@ -200,22 +182,7 @@
         "Caching",
         "Retries",
         "Failure handling",
-        "Notifications",
-        "Argo CD terminology and feature mapping for this topic",
-        "Argo CD configuration and implementation considerations",
-        "Argo CD best practices and common mistakes for this topic",
-        "GitOps",
-        "Application",
-        "AppProject",
-        "sync",
-        "auto-sync",
-        "health status",
-        "sync waves",
-        "hooks",
-        "Helm",
-        "Kustomize",
-        "RBAC",
-        "ApplicationSet"
+        "Notifications"
       ],
       "tools": [
         "Argo CD",
@@ -286,22 +253,7 @@
         "Cloud integration",
         "API/webhook integration",
         "Credential management",
-        "Third-party plugins",
-        "Argo CD terminology and feature mapping for this topic",
-        "Argo CD configuration and implementation considerations",
-        "Argo CD best practices and common mistakes for this topic",
-        "GitOps",
-        "Application",
-        "AppProject",
-        "sync",
-        "auto-sync",
-        "health status",
-        "sync waves",
-        "hooks",
-        "Helm",
-        "Kustomize",
-        "RBAC",
-        "ApplicationSet"
+        "Third-party plugins"
       ],
       "tools": [
         "Argo CD",
@@ -374,22 +326,7 @@
         "Least privilege",
         "Supply-chain concerns",
         "Audit logs",
-        "Policy controls",
-        "Argo CD terminology and feature mapping for this topic",
-        "Argo CD configuration and implementation considerations",
-        "Argo CD best practices and common mistakes for this topic",
-        "GitOps",
-        "Application",
-        "AppProject",
-        "sync",
-        "auto-sync",
-        "health status",
-        "sync waves",
-        "hooks",
-        "Helm",
-        "Kustomize",
-        "RBAC",
-        "ApplicationSet"
+        "Policy controls"
       ],
       "tools": [
         "Argo CD",
@@ -461,22 +398,7 @@
         "State management",
         "Backups",
         "Failure recovery",
-        "Capacity planning",
-        "Argo CD terminology and feature mapping for this topic",
-        "Argo CD configuration and implementation considerations",
-        "Argo CD best practices and common mistakes for this topic",
-        "GitOps",
-        "Application",
-        "AppProject",
-        "sync",
-        "auto-sync",
-        "health status",
-        "sync waves",
-        "hooks",
-        "Helm",
-        "Kustomize",
-        "RBAC",
-        "ApplicationSet"
+        "Capacity planning"
       ],
       "tools": [
         "Argo CD",
@@ -548,22 +470,7 @@
         "Failure diagnosis",
         "Performance bottlenecks",
         "Alerting",
-        "Operational runbooks",
-        "Argo CD terminology and feature mapping for this topic",
-        "Argo CD configuration and implementation considerations",
-        "Argo CD best practices and common mistakes for this topic",
-        "GitOps",
-        "Application",
-        "AppProject",
-        "sync",
-        "auto-sync",
-        "health status",
-        "sync waves",
-        "hooks",
-        "Helm",
-        "Kustomize",
-        "RBAC",
-        "ApplicationSet"
+        "Operational runbooks"
       ],
       "tools": [
         "Argo CD",
@@ -634,22 +541,7 @@
         "Promotion strategy",
         "Policy as code concepts",
         "GitOps/IaC patterns",
-        "Best practices",
-        "Argo CD terminology and feature mapping for this topic",
-        "Argo CD configuration and implementation considerations",
-        "Argo CD best practices and common mistakes for this topic",
-        "GitOps",
-        "Application",
-        "AppProject",
-        "sync",
-        "auto-sync",
-        "health status",
-        "sync waves",
-        "hooks",
-        "Helm",
-        "Kustomize",
-        "RBAC",
-        "ApplicationSet"
+        "Best practices"
       ],
       "tools": [
         "Argo CD",
@@ -723,22 +615,7 @@
         "Deploy",
         "Rollback",
         "Approval gates",
-        "Documentation",
-        "Argo CD terminology and feature mapping for this topic",
-        "Argo CD configuration and implementation considerations",
-        "Argo CD best practices and common mistakes for this topic",
-        "GitOps",
-        "Application",
-        "AppProject",
-        "sync",
-        "auto-sync",
-        "health status",
-        "sync waves",
-        "hooks",
-        "Helm",
-        "Kustomize",
-        "RBAC",
-        "ApplicationSet"
+        "Documentation"
       ],
       "tools": [
         "Argo CD",
@@ -807,5 +684,6 @@
   "review_warnings": [
     "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
   ],
-  "review_status": "unreviewed"
+  "review_status": "unreviewed",
+  "content_cleanup_version": "course-outline-v1"
 }

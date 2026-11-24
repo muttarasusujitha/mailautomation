@@ -17,6 +17,17 @@ def brief():
                     excluded_topics=["Django"], prior_knowledge=["Python"], constraints=[], clarification_questions=[])
 
 
+def outline():
+    return cr.ModuleOutline(
+        topic_groups=[cr.TopicGroup(heading="CSV Validation", lead="", items=[
+            cr.OutlineItem(text="Reading CSV files with pandas", children=[]),
+            cr.OutlineItem(text="Detecting:", children=["Missing values", "Duplicate IDs"])])],
+        principle=cr.Principle(title="", lead="", points=[]),
+        lab=cr.LabOutline(title="Sales Export Clean-up", scenario="A sales export contains missing customer IDs.",
+            lead="Participants:", tasks=["Load the export", "Reject rows without an ID"],
+            verify=["Rows without an ID are rejected with a reason."], deliverables=["Cleaned CSV and rejection report"]))
+
+
 def plan():
     module = cr.PlanModule(title="pandas data preparation", minutes=180, subtopics=["pandas", "CSV validation"],
         tools=["Python"], lab="Clean a CSV dataset with pandas and demonstrate missing-value checks",
@@ -24,7 +35,7 @@ def plan():
         assessment="Submit cleaned CSV and validation evidence", deliverable="Cleaned CSV", scenario="Sales rows contain missing values",
         source_ids=[source()["id"]], prerequisites=["Python functions"],
         preparation_requirements=["Sales CSV with seeded missing values and expected rejected rows"],
-        client_outcome_indices=[0], acceptance_checks=[
+        client_outcome_indices=[0], outline=outline(), acceptance_checks=[
             cr.AcceptanceCheck(input_or_condition="Valid sales row", expected_result="Accepted unchanged", evidence="Cleaned CSV"),
             cr.AcceptanceCheck(input_or_condition="Missing required ID", expected_result="Rejected with reason", evidence="Rejection report"),
             cr.AcceptanceCheck(input_or_condition="Repeated input run", expected_result="Identical partition", evidence="Output comparison")], delivery_steps=[
@@ -48,6 +59,13 @@ def test_dataset_preparation_preserves_provenance_and_invalidates_changed_conten
     assert first["review_status"] == "unreviewed"
     assert first["id"] != changed["id"]
     assert first["source"] == "python.json"
+
+
+def test_module_without_a_course_outline_lab_is_rejected():
+    value = plan()
+    value.days[0].modules[0].outline.lab.tasks = []
+    errors, _ = cr.validate_plan(value, brief(), request(), [source()])
+    assert any("needs a complete course outline" in error for error in errors)
 
 
 def test_valid_plan_and_coverage():
