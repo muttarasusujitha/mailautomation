@@ -7,8 +7,7 @@ import {
   Search, Send, ShieldCheck, Target, Trash2, Users,
 } from 'lucide-react'
 import api from '../utils/api'
-import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, leadSourceLabel, linkedInSearchPayload, newSearchRef, visibleSearchLeads } from '../utils/leadSearchFeedback'
-import { LEAD_PAGE_SIZE, domainChips, leadListParams, listPage, pageToReload, statusCountInView } from '../utils/leadPaging'
+import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, linkedInSearchPayload, mergeSearchLeads, searchResultLeads } from '../utils/leadSearchFeedback'
 import LeadBot from '../components/LeadBot'
 import Pager from '../components/Pager'
 import SearchSourceReport from '../components/SearchSourceReport'
@@ -48,6 +47,72 @@ function relativeTime(value) {
 function initials(value) {
   const words = String(value || '').replace(/[^a-zA-Z0-9\s]/g, ' ').split(/\s+/).filter(Boolean)
   return (words[0]?.[0] || 'L') + (words[1]?.[0] || '')
+}
+
+function leadDomain(lead) {
+  return String(lead?.domain || '').trim() || 'Other'
+}
+
+function leadSearchText(lead) {
+  return [
+    lead?.domain,
+    lead?.trainer_name,
+    lead?.headline,
+    lead?.profile_text,
+    lead?.company_name,
+    lead?.contact_name,
+    lead?.post_text,
+    lead?.notes,
+  ].join(' ').toLowerCase()
+}
+
+function trainerProfileText(lead) {
+  return [
+    lead?.trainer_name,
+    lead?.headline,
+    lead?.profile_text,
+    lead?.snippet,
+    lead?.domain,
+    String(lead?.source_url || '').replace(/[-_/]+/g, ' '),
+  ].join(' ').toLowerCase()
+}
+
+function domainTerms(domain) {
+  const generic = new Set([
+    'trainer',
+    'training',
+    'corporate',
+    'freelance',
+    'technical',
+    'online',
+    'instructor',
+    'consultant',
+    'developer',
+    'india',
+    'indian',
+  ])
+  const terms = String(domain || '').toLowerCase().match(/[a-z0-9+#.]+/g) || []
+  return terms.filter(term => term.length > 1 && !generic.has(term))
+}
+
+function isTrainerProviderProfile(lead) {
+  const url = String(lead?.source_url || lead?.linkedin_url || '')
+  // Profiles already saved as trainers stay in the list. The snippet often has
+  // the person's name only, so a second skill check was hiding every card.
+  if (lead?.lead_type === 'trainer_profile' && /linkedin\.com\/in\/|naukri\.com\//i.test(url)) return true
+  const text = trainerProfileText(lead)
+  const terms = domainTerms(lead?.domain)
+  const hasSkillMatch = !terms.length || terms.some(term => text.includes(term))
+  const hasTrainerUrl = lead?.source_url?.includes('linkedin.com/in/')
+    || lead?.source_url?.includes('linkedin.com/posts/')
+    || lead?.source_url?.includes('linkedin.com/feed/update')
+    || lead?.source_url?.includes('naukri.com/')
+    || lead?.lead_type === 'resume_trainer_post'
+    || lead?.lead_type === 'trainer_profile'
+  const hasTrainerLanguage = /trainer|instructor|corporate training|training consultant|facilitator|coach/i.test(text)
+    || lead?.lead_type === 'trainer_profile'
+    || lead?.lead_type === 'resume_trainer_post'
+  return Boolean(hasTrainerUrl && hasTrainerLanguage && hasSkillMatch)
 }
 
 function leadEmail(lead) {
@@ -173,6 +238,7 @@ export default function LinkedInSearch() {
         : { found: 0, saved_count: 0, warnings: [e.message || 'Unable to complete the search.'], requestFailed: true, searchRef })
       setShowSearchMatches(false)
       toast.error(e.message)
+      await load({ query: '', statusFilter: 'all', searchMode: trainerSearch ? 'trainer' : 'client' })
     } finally {
       if (token === listToken.current) {
         searchingRef.current = false
@@ -213,9 +279,16 @@ export default function LinkedInSearch() {
     setSearchDomains(domains)
     setSearchReport(null)
     setShowSearchMatches(false)
-    setStoredTotal(0)
-    runSearch({ domainText: domains, automatic: true, searchMode: mode })
-    return () => { listToken.current += 1 }
+    let cancelled = false
+    const start = async () => {
+      await load({ query: '', statusFilter: 'all', searchMode: mode })
+      if (!cancelled) await runSearch({ domainText: domains, automatic: true, searchMode: mode })
+    }
+    start()
+    return () => {
+      cancelled = true
+      listToken.current += 1
+    }
   }, [mode])
 
 
@@ -305,8 +378,21 @@ export default function LinkedInSearch() {
 
   const domainOptions = useMemo(() => domainChips(list.counts), [list])
 
-  const showingMatches = showSearchMatches
-    && (searchReport?.results || []).some(lead => lead?.source_url || lead?.linkedin_url || lead?.lead_id)
+  const visibleLeads = useMemo(() => {
+    let rows = leads
+    if (showSearchMatches && searchReport?.results?.length) {
+      const matched = matchingSavedLeads(leads, searchReport.results)
+      const fresh = (searchReport.results || []).filter(item => item?.source_url || item?.url || item?.lead_id)
+      rows = matched.length ? matched : (fresh.length ? fresh : leads)
+    }
+    if (selectedDomain !== 'all') {
+      const selected = selectedDomain.toLowerCase()
+      const filtered = rows.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
+      if (filtered.length) rows = filtered
+    }
+    if (!rows.length && leads.length) return leads
+    return rows
+  }, [leads, selectedDomain, showSearchMatches, searchReport])
 
   const visibleLeads = useMemo(() => (
     showingMatches ? visibleSearchLeads([], searchReport.results, true) : leads
@@ -477,13 +563,13 @@ export default function LinkedInSearch() {
       {isTrainer && <TrustLegend />}
 
       {searching && (
-        <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] px-4 py-3 text-center text-sm text-slate-500">
-          <RefreshCw className="mr-2 inline h-4 w-4 animate-spin text-blue-600" />
-          Fetching {isTrainer ? 'trainer profiles' : 'client posts seeking trainers'} into LinkedIn Search. Saved profiles stay in the list.
+        <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] py-6 text-center text-slate-500">
+          <RefreshCw className="mx-auto mb-3 h-8 w-8 animate-spin text-blue-600" />
+          <p>Fetching {isTrainer ? 'trainer profiles' : 'client posts seeking trainers'} into LinkedIn Search…</p>
+          <p className="mt-1 text-xs text-slate-400">Profiles already saved stay listed below.</p>
         </div>
       )}
-
-      {loading && !visibleLeads.length ? (
+      {loading && !leads.length ? (
         <div className="py-14 text-center text-sm text-slate-400">Loading LinkedIn results...</div>
       ) : visibleLeads.length ? (
         <div className="flex flex-col gap-5">

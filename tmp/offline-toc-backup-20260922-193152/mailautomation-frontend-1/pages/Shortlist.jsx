@@ -622,6 +622,12 @@ function mail2Template(trainer, req) {
 
 
 // AUTO: ToC request sent immediately after selection
+function mailTocAutoTemplate(trainer, req) {
+  return {
+    subject: `Action Required: ToC / Course Agenda – ${req.technology_needed}`,
+    body: `${greeting(trainer)}\n\nPlease share the Training Table of Contents / Course Agenda, including the day-wise session breakdown, any tools or prerequisites required, and estimated preparation time.\n\nOnce we receive these details, we will coordinate with the client and trainer to finalize the agenda.\n\nRegards,\nTrainerSync Team`
+  }
+}
 
 // MANUAL: Training confirmation with contact details â€” sent after ToC is received
 

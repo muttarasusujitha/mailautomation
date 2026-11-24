@@ -279,6 +279,7 @@ export default function Inbox() {
   const inboxProvider = clientInboxCfg.inboxProvider || 'smtp_only'
   const usingGmailApi = inboxProvider === 'gmail_api'
   const connected = usingGmailApi ? !!gmailStatus?.connected : true
+  const needsGoogleRenew = usingGmailApi && !!gmailStatus?.google_reconnect_required
 
   const fetchInbox = async () => {
     setLoading(true)
@@ -368,11 +369,9 @@ export default function Inbox() {
         toast.success('SMTP/IMAP mode is active. Google OAuth skipped.')
         return
       }
-      if (!connected || !gmailStatus?.calendar_connected) {
-        const redirectUri = `${window.location.protocol}//${window.location.hostname}:8002/api/v1/gmail/oauth-callback`
-        const res = await api.get('/gmail/oauth-url', { params: { redirect_uri: redirectUri } })
-        saveGmailOAuthPkce(res.data)
-        window.location.href = res.data.auth_url || res.data.url
+      if (!connected || needsGoogleRenew) {
+        const res = await api.get('/gmail/oauth-url')
+        window.location.href = res.data.auth_url
         return
       }
 
@@ -448,7 +447,7 @@ export default function Inbox() {
           </span>
           {usingGmailApi && (
             <button onClick={connectGmail} className="btn-secondary text-sm">
-              <RefreshCw className="h-4 w-4" /> {!gmailStatus?.calendar_connected ? 'Enable Calendar' : (connected ? 'Renew Watch' : 'Connect Gmail')}
+              <RefreshCw className="h-4 w-4" /> {needsGoogleRenew ? 'Renew Access' : connected ? 'Renew Watch' : 'Connect Gmail'}
             </button>
           )}
           <button onClick={syncNow} disabled={!connected || syncingNow} className="btn-secondary text-sm disabled:opacity-50">

@@ -82,26 +82,30 @@ def matches_requested_skill(profile, search_text) -> bool:
 
 
 def is_current_year_result(profile) -> bool:
-    """Keep a current role. A year two or more years ago, with no Present, is stale."""
+    """Drop a page that only names a year older than last year.
+
+    "2019 - Present" and "since 2019" are current trainers. A bare older year,
+    with no sign the person is still training, is a stale page.
+    """
     current_year = datetime.utcnow().year
     haystack = " ".join([
         str(profile.get("title") or ""),
         str(profile.get("snippet") or ""),
         str(profile.get("content") or ""),
     ])
-    if re.search(r"\b(?:present|current)\b", haystack, re.IGNORECASE):
+    if re.search(r"\b(present|current|since)\b", haystack, re.IGNORECASE):
         return True
     years = [int(year) for year in re.findall(r"\b20\d{2}\b", haystack)]
-    if not years:
-        return True
-    return max(years) >= current_year - 1
+    return not years or max(years) >= current_year - 1
 
 
 def has_trainer_language(profile) -> bool:
+    url = str(profile.get("source_url") or profile.get("url") or "")
     haystack = " ".join([
         str(profile.get("title") or ""),
         str(profile.get("snippet") or ""),
         str(profile.get("content") or ""),
+        url.replace("-", " "),
     ])
     return bool(_TRAINER_LANGUAGE.search(haystack))
 

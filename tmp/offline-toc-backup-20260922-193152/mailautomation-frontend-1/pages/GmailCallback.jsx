@@ -31,25 +31,20 @@ export default function GmailCallback({ onLogin }) {
       }
 
       try {
-        const codeVerifier = consumeGmailOAuthPkce(state || '')
-        const redirectUri = `${window.location.protocol}//${window.location.hostname}:8002/api/v1/gmail/oauth-callback`
-        await api.post('/gmail/oauth-callback', {
+        const redirectUri = params.get('oauth_redirect_uri') || `${window.location.origin}/auth/callback`
+        const oauthResult = await api.post('/gmail/oauth-callback', {
           code,
-          state,
-          code_verifier: codeVerifier,
           redirect_uri: redirectUri,
         })
 
+        const googleReconnectRequired = !!oauthResult.data?.google_reconnect_required
         try {
           await api.post('/gmail/renew-watch')
-          const statusRes = await api.get('/gmail/auth-status')
-          const normalized = normalizeGmailStatus(statusRes.data || {})
-          const calendarReady = Boolean(normalized.calendar_connected)
           setStatus({
-            type: calendarReady ? 'success' : 'warning',
-            message: calendarReady
-              ? 'Gmail and Google Calendar connected. Inbox watch renewed.'
-              : 'Gmail connected. Google Calendar scope is still being confirmed.',
+            type: googleReconnectRequired ? 'warning' : 'success',
+            message: googleReconnectRequired
+              ? 'Gmail connected and inbox watch renewed. Calendar or Drive permission still needs Renew Access.'
+              : 'Gmail, Calendar, and Drive connected. Inbox watch renewed.',
           })
         } catch (watchError) {
           setStatus({
@@ -59,19 +54,15 @@ export default function GmailCallback({ onLogin }) {
         }
 
         sessionStorage.setItem('ts_auth', JSON.stringify({ loggedIn: true }))
-        if (typeof onLogin === 'function') {
-          onLogin()
-          navigate('/admin', { replace: true })
-        } else {
-          setTimeout(() => window.location.assign('/admin'), 2200)
-        }
+        onLogin?.()
+        setTimeout(() => navigate('/admin', { replace: true }), 2200)
       } catch (e) {
         setStatus({ type: 'error', message: e.message })
       }
     }
 
     finishAuth()
-  }, [navigate, params])
+  }, [navigate, onLogin, params])
 
   let Icon = Loader2
   let tone = 'text-blue-700 bg-blue-50 border-blue-200'

@@ -141,6 +141,7 @@ jobs:
         run: npm run build
 
   docker-build-push:
+    # Validate Docker builds on pull requests; publish images only from main.
     if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     name: Stage 3 - Docker Build & Push
     needs:
@@ -257,8 +258,7 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
-          build-args: |
-            VITE_GOOGLE_CLIENT_ID=${{ matrix.image == 'frontend' && secrets.VITE_GOOGLE_CLIENT_ID || '' }}
+          # Pull requests build images for validation but never publish them.
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
 
@@ -334,10 +334,6 @@ jobs:
 
       - name: Check Deployment Disk Space
         shell: bash
-        env:
-          # Stage 3 builds on hosted runners. EC2 only pulls images one at a
-          # time, so it needs a smaller, deployment-specific reserve.
-          MIN_DOCKER_FREE_GIB: "5"
         run: bash .github/scripts/check-docker-space.sh
 
       # Pull everything before changing running containers. Never prune volumes:
@@ -354,25 +350,11 @@ jobs:
       - name: Start Backend
         working-directory: ${{ github.workspace }}
         run: |
-          set -euo pipefail
           docker compose -f microservices/docker-compose.yml -f microservices/docker-compose.registry.yml up -d --no-build --pull never --wait --wait-timeout 180
+
       - name: Start Frontend
         working-directory: ${{ github.workspace }}
         run: |
-          set -euo pipefail
-          frontend_image="${IMAGE_PREFIX}/frontend:latest"
-          while IFS= read -r container_id; do
-            [ -n "$container_id" ] || continue
-            running_image="$(docker inspect --format '{{.Config.Image}}' "$container_id")"
-            running_service="$(docker inspect --format '{{ index .Config.Labels "com.docker.compose.service" }}' "$container_id")"
-            if [ "$running_image" = "$frontend_image" ] || { [ "$running_service" = "frontend" ] && [[ "$running_image" == *trainersync/frontend* ]]; }; then
-              echo "Stopping the previous TrainerSync frontend container $container_id ($running_image) to release port 5174."
-              docker stop "$container_id"
-            else
-              echo "Port 5174 is held by unrelated container $container_id ($running_image, service=$running_service); refusing to stop it."
-              exit 1
-            fi
-          done < <(docker ps --filter publish=5174 --format '{{.ID}}')
           docker compose -f docker-compose.yml -f docker-compose.registry.yml up -d --no-build --pull never --wait --wait-timeout 120 frontend
 
       - name: Verify LinkedIn Bot Deployment
