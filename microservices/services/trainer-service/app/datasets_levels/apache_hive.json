@@ -1,0 +1,573 @@
+{
+  "domain": "Apache Hive",
+  "name": "Apache Hive",
+  "category": "Data Engineering and Analytics",
+  "icon": "database",
+  "aliases": ["Hive", "Hive Data Warehouse", "HiveQL", "Hive LLAP", "Hive Metastore", "Hive on Tez", "Apache Hive Administration", "Hive 4"],
+  "certifications": [],
+  "tools": ["Apache Hive 4", "Beeline", "HiveServer2", "Hive Metastore", "Apache Tez", "LLAP", "Apache Iceberg", "Apache Ranger", "Apache Atlas", "Spark SQL", "Trino", "Docker", "Kubernetes", "YARN"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For data engineers, analysts and DBAs who completed a general Hadoop or SQL course and now want to work with Apache Hive itself. Covers running Hive 4 in Docker, the HiveServer2, Driver and Metastore query lifecycle, metastore schema and schematool, managed versus external tables, HiveQL types, loading, joins, grouping sets, window functions, lateral views, partitions, SerDes, ORC tables, Java UDFs, configuration layers, EXPLAIN plans, and a web log warehouse capstone.",
+      "prerequisites": ["Writes SQL joins, aggregates and subqueries against a relational database", "Knows what HDFS, YARN and a file format are at the level of an introductory Hadoop course", "Has a laptop with Docker Desktop or Docker Engine, 8 GB RAM free and a terminal"],
+      "outcomes": ["Run Hive 4 locally and query it through Beeline using JDBC URLs, scripts and variables", "Explain how HiveServer2, the Driver, the Metastore and the execution engine cooperate on one query", "Write HiveQL with complex types, window functions, grouping sets, lateral views and partitioned ORC tables", "Read EXPLAIN output and the HiveServer2 web UI to explain why a query is slow or wrong"],
+      "days": [
+        {
+          "topic": "Running Hive 4 in Docker and Connecting with Beeline",
+          "subtopics": ["Official apache/hive image and the SERVICE_NAME=hiveserver2 variable", "Ports 10000 (Thrift), 10002 (HiveServer2 web UI) and 9083 (metastore)", "Embedded Derby metastore and why it is for labs only", "Beeline JDBC URL jdbc:hive2://localhost:10000/", "Beeline meta-commands: !connect, !tables, !outputformat, !quit", "Running scripts with beeline -f and inline queries with -e", "Passing values with --hivevar and --hiveconf", "Why the old Hive CLI was replaced by Beeline", "Inspecting container logs with docker logs"],
+          "tools": ["Docker", "Beeline", "HiveServer2", "Hive 4", "HiveServer2 web UI"],
+          "lab_task": "Run docker run -d -p 10000:10000 -p 10002:10002 --env SERVICE_NAME=hiveserver2 --name hive4 apache/hive:4.0.0. Connect with docker exec -it hive4 beeline -u 'jdbc:hive2://localhost:10000/'. Create database lab1 and table t(id int, name string), insert 3 rows, run SELECT count(*) FROM t, then open http://localhost:10002 and note the session and query counts.",
+          "deliverable": "Terminal transcript of the container start, the Beeline session and a screenshot of the HiveServer2 web UI",
+          "checks": [["docker ps --filter name=hive4", "Container shows Up with 0.0.0.0:10000 and 0.0.0.0:10002 mapped", "docker ps output"], ["SHOW DATABASES in Beeline", "Result contains default and the new lab1 database", "Beeline result table"], ["INSERT 3 rows then SELECT count(*) FROM lab1.t", "Returns 3", "Beeline result table"]],
+          "objectives": ["Start HiveServer2 from the official image and map the Thrift and web UI ports", "Connect with Beeline using a JDBC URL and run scripts with -f and -e", "Locate session and query information in the HiveServer2 web UI"]
+        },
+        {
+          "topic": "Query Lifecycle Walkthrough: HiveServer2, Driver and Metastore Architecture",
+          "subtopics": ["Thrift session handling in HiveServer2", "Parser, semantic analyzer and the AST", "Metastore lookups for table and partition metadata", "Calcite-based optimizer and operator tree", "Physical plan compiled into a Tez DAG", "Task execution in YARN containers or LLAP daemons", "Result fetch and the fetch task", "Where each hive-site.xml property is read", "Hive on Spark and Hive on MR are no longer the path to learn"],
+          "tools": ["HiveServer2", "Hive Metastore", "Tez", "Beeline", "HiveServer2 web UI"],
+          "lab_task": "In Beeline run SET hive.execution.engine; then EXPLAIN SELECT name, count(*) FROM lab1.t GROUP BY name. Open the HiveServer2 web UI Query tab, copy the running and historical query plan, and draw a diagram labelling each of parse, analyze, optimize, compile and execute with the log line or UI field that proves it.",
+          "deliverable": "One-page lifecycle diagram plus the EXPLAIN output annotated with stages and the metastore calls involved",
+          "checks": [["SET hive.execution.engine;", "Prints hive.execution.engine=tez", "Beeline output"], ["EXPLAIN of the GROUP BY query", "Plan lists Reducer 2 <- Map 1 (SIMPLE_EDGE)", "EXPLAIN text"], ["Query tab of the web UI after running the query", "Completed query appears with its SQL text and a non-zero duration", "UI screenshot"]],
+          "objectives": ["Name the components a query touches from submission to result", "Identify the Tez DAG vertices in an EXPLAIN plan", "Distinguish compile-time work from run-time work using the web UI"]
+        },
+        {
+          "topic": "Metastore Schema, schematool and the Backing RDBMS",
+          "subtopics": ["Metastore as the catalog for databases, tables, partitions and columns", "Core tables: DBS, TBLS, SDS, COLUMNS_V2, PARTITIONS", "Embedded, local and remote metastore modes", "Connection properties: javax.jdo.option.ConnectionURL and ConnectionDriverName", "schematool -dbType postgres -initSchema", "schematool -info and -upgradeSchema", "Starting the service with hive --service metastore on port 9083", "hive.metastore.uris=thrift://host:9083", "Reading TBLS and SDS with plain SQL"],
+          "tools": ["schematool", "PostgreSQL", "Hive Metastore", "psql", "Docker Compose"],
+          "lab_task": "Start PostgreSQL 16 and the apache/hive image with SERVICE_NAME=metastore and DB_DRIVER=postgres in Docker Compose, running schematool -dbType postgres -initSchema first. Create table lab1.orders in Hive, then in psql run SELECT \"TBL_NAME\",\"TBL_TYPE\" FROM \"TBLS\" and join to \"SDS\" to find its LOCATION.",
+          "deliverable": "Compose file, schematool -info output and the psql query showing the table's TBL_TYPE and LOCATION",
+          "checks": [["schematool -dbType postgres -info", "Prints Hive distribution version and metastore schema version that match", "schematool output"], ["SELECT \"TBL_NAME\",\"TBL_TYPE\" FROM \"TBLS\" in psql", "Row orders with TBL_TYPE MANAGED_TABLE", "psql result"], ["Join TBLS to SDS on SD_ID", "LOCATION ends with /lab1.db/orders", "psql result"]],
+          "objectives": ["Initialise and inspect a remote metastore schema with schematool", "Explain which metadata lives in the RDBMS and which stays in HDFS", "Point HiveServer2 at a metastore with hive.metastore.uris"]
+        },
+        {
+          "topic": "Managed and External Tables in Hive 4 and the Warehouse Directories",
+          "subtopics": ["hive.metastore.warehouse.dir for managed tables", "hive.metastore.warehouse.external.dir for external tables", "Hive 3 and 4 default: managed tables are transactional ORC", "CREATE EXTERNAL TABLE ... LOCATION", "DROP behaviour: data deleted for managed, kept for external", "external.table.purge=true", "Converting with ALTER TABLE ... SET TBLPROPERTIES('EXTERNAL'='TRUE')", "DESCRIBE FORMATTED fields: Table Type, Location, Table Parameters", "hive.create.as.external.legacy and the legacy behaviour"],
+          "tools": ["Beeline", "HDFS shell", "Hive Metastore", "HiveServer2"],
+          "lab_task": "Create managed table m1 and external table e1 over /data/lab/e1 with CREATE EXTERNAL TABLE ... STORED AS ORC LOCATION. Insert one row into each, run DESCRIBE FORMATTED on both and record Table Type, Location and transactional. DROP both tables and run hdfs dfs -ls on each location to show which data remained.",
+          "deliverable": "Comparison table of DESCRIBE FORMATTED output and the post-DROP hdfs listing",
+          "checks": [["DESCRIBE FORMATTED m1", "Table Type MANAGED_TABLE and transactional=true under Table Parameters", "Beeline output"], ["DESCRIBE FORMATTED e1", "Table Type EXTERNAL_TABLE and Location /data/lab/e1", "Beeline output"], ["hdfs dfs -ls /data/lab/e1 after DROP TABLE e1", "ORC data file is still listed", "Shell output"]],
+          "objectives": ["Choose managed or external for a given data ownership case", "Read table type, location and transactional flag from DESCRIBE FORMATTED", "Predict what DROP TABLE does to the data for each type"]
+        },
+        {
+          "topic": "Databases, DDL Statements and Table Properties",
+          "subtopics": ["CREATE DATABASE with LOCATION, MANAGEDLOCATION and DBPROPERTIES", "ALTER DATABASE SET OWNER and SET LOCATION", "CREATE TABLE ... LIKE and CREATE TABLE ... AS SELECT", "COMMENT on tables and columns", "TBLPROPERTIES such as orc.compress and transactional", "ALTER TABLE ADD COLUMNS, CHANGE COLUMN and REPLACE COLUMNS", "RENAME TABLE and what happens to its directory", "SHOW CREATE TABLE and SHOW TBLPROPERTIES", "Constraints: PRIMARY KEY DISABLE NOVALIDATE, NOT NULL, DEFAULT, CHECK"],
+          "tools": ["Beeline", "HiveQL", "Hive Metastore", "HDFS shell"],
+          "lab_task": "Create database sales_db with COMMENT and DBPROPERTIES('owner'='lab'). Create customers with a NOT NULL id, DEFAULT 'NEW' status and a PRIMARY KEY DISABLE NOVALIDATE. Run ALTER TABLE customers ADD COLUMNS (region string), rename it to customers_v2, and capture SHOW CREATE TABLE before and after plus the new HDFS directory name.",
+          "deliverable": "DDL script and SHOW CREATE TABLE outputs before and after the changes",
+          "checks": [["INSERT a row into customers omitting status", "status is stored as NEW", "SELECT result"], ["INSERT a row with id NULL", "Statement fails with a constraint violation error naming the NOT NULL column", "Beeline error message"], ["SHOW CREATE TABLE customers_v2", "Lists region column and the table name customers_v2", "SHOW CREATE TABLE text"]],
+          "objectives": ["Write DDL with constraints, defaults and properties", "Evolve a table schema with ALTER TABLE and verify the result", "Explain what a rename changes in the metastore and in storage"]
+        },
+        {
+          "topic": "HiveQL Data Types, Complex Types and Type Conversion",
+          "subtopics": ["Numeric types: TINYINT to BIGINT, DECIMAL(p,s), FLOAT, DOUBLE", "STRING, VARCHAR(n), CHAR(n) differences", "TIMESTAMP, TIMESTAMP WITH LOCAL TIME ZONE and DATE", "ARRAY, MAP, STRUCT and UNIONTYPE", "Accessing elements: arr[0], m['k'], s.field", "Implicit and explicit casts with CAST(x AS type)", "NULL results from failed casts", "DECIMAL overflow and precision rules", "Creating complex literals with array(), map(), named_struct()"],
+          "tools": ["Beeline", "HiveQL", "HiveServer2"],
+          "lab_task": "Create table events(id int, tags array<string>, attrs map<string,string>, geo struct<lat:double,lon:double>) and insert rows with array(), map() and named_struct(). Query tags[0], attrs['device'] and geo.lat. Then run SELECT CAST('abc' AS INT), CAST('2026-13-45' AS DATE) and 1/3 cast to DECIMAL(5,2), and record each result.",
+          "deliverable": "Query log with each result and a short note on which casts return NULL",
+          "checks": [["SELECT CAST('abc' AS INT)", "Returns NULL, not an error", "Beeline result"], ["SELECT tags[0], attrs['device'], geo.lat FROM events LIMIT 1", "Returns the first tag, the device value and the latitude of the inserted row", "Beeline result"], ["SELECT CAST(1/3 AS DECIMAL(5,2))", "Returns 0.33", "Beeline result"]],
+          "objectives": ["Choose the correct type for money, time and identifiers", "Build and read ARRAY, MAP and STRUCT values", "Predict when a cast returns NULL"]
+        },
+        {
+          "topic": "Loading Data with LOAD DATA, INSERT OVERWRITE, Multi-Insert and CTAS",
+          "subtopics": ["LOAD DATA LOCAL INPATH versus LOAD DATA INPATH", "LOAD DATA moves files and does not validate format", "INSERT INTO versus INSERT OVERWRITE", "Multi-insert: FROM src INSERT ... INSERT ...", "CREATE TABLE AS SELECT and its limits on partitioned tables", "INSERT OVERWRITE DIRECTORY for export", "EXPORT TABLE and IMPORT TABLE", "Format mismatch symptoms: NULL columns and garbled rows", "Staging directories and .hive-staging cleanup"],
+          "tools": ["Beeline", "HiveQL", "HDFS shell", "Docker"],
+          "lab_task": "Copy a 1,000-row CSV into the container, run hdfs dfs -put to /tmp/stage, create a text staging table with ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' and LOAD DATA INPATH it. Then use one multi-insert statement to write rows into an ORC table and an aggregate table, and export totals with INSERT OVERWRITE DIRECTORY '/tmp/out'.",
+          "deliverable": "SQL script, row counts per table and a listing of /tmp/out",
+          "checks": [["SELECT count(*) on the staging table after LOAD DATA", "Returns 1000", "Beeline result"], ["hdfs dfs -ls /tmp/stage after LOAD DATA INPATH", "File no longer listed because it was moved into the table directory", "Shell output"], ["Multi-insert statement run once", "Both target tables are populated by a single query with one Tez DAG", "Row counts and web UI query entry"]],
+          "objectives": ["Load files into tables with the correct LOAD DATA variant", "Populate several tables from one scan with multi-insert", "Recognise format mismatch symptoms after a load"]
+        },
+        {
+          "topic": "Join Types, Join Hints and Skewed Key Behaviour in HiveQL",
+          "subtopics": ["Inner, left, right, full outer and cross joins", "LEFT SEMI JOIN versus IN and EXISTS", "MAPJOIN hint and hive.auto.convert.join", "STREAMTABLE hint and join ordering", "Implicit cross join protection and hive.strict.checks.cartesian.product", "Non-equi join conditions and what Hive accepts", "NULL keys never match in equality joins", "Join output differences visible in EXPLAIN", "Selecting a join key with high cardinality"],
+          "tools": ["Beeline", "HiveQL", "HiveServer2 web UI"],
+          "lab_task": "Create orders (1M generated rows) and a 50-row products table. Run the join with and without SET hive.auto.convert.join=false, compare EXPLAIN for Map Join Operator versus Merge Join Operator, and record elapsed time from beeline. Then insert a NULL product_id row and show it is dropped by an inner join but kept by a LEFT JOIN.",
+          "deliverable": "Two EXPLAIN outputs, timing comparison and a note on the NULL key behaviour",
+          "checks": [["EXPLAIN with hive.auto.convert.join=true on the small products table", "Plan contains Map Join Operator with a broadcast edge", "EXPLAIN text"], ["Same query with hive.auto.convert.join=false", "Plan uses a Reducer with Merge Join Operator and SIMPLE_EDGE shuffle", "EXPLAIN text"], ["Inner join versus LEFT JOIN with a NULL product_id row", "Inner join excludes the NULL row and LEFT JOIN returns it with NULL product columns", "Result rows"]],
+          "objectives": ["Pick join types and hints for given requirements", "Read join operators in an EXPLAIN plan", "Explain NULL-key behaviour in equality joins"]
+        },
+        {
+          "topic": "Aggregation with GROUPING SETS, ROLLUP, CUBE and GROUPING__ID",
+          "subtopics": ["GROUP BY with HAVING and column aliases", "Distinct aggregates and count(DISTINCT) cost", "GROUPING SETS syntax", "WITH ROLLUP and WITH CUBE", "grouping() function and GROUPING__ID", "collect_list, collect_set and percentile_approx", "Aggregate NULL handling", "hive.map.aggr and map-side aggregation", "Reading sort and group operators in EXPLAIN"],
+          "tools": ["Beeline", "HiveQL", "HiveServer2 web UI"],
+          "lab_task": "On a sales(region, product, month, amount) table with 10,000 rows run SELECT region, product, sum(amount) with GROUP BY region, product WITH ROLLUP and again with GROUPING SETS ((region,product),(region),()). Add grouping(region) to label subtotal rows, then count rows returned and confirm both forms give the same result set.",
+          "deliverable": "Queries with outputs and a table explaining each grouping level",
+          "checks": [["WITH ROLLUP over region and product", "Returns detail rows, one subtotal per region and one grand total row", "Result set"], ["grouping(region) on the grand total row", "Returns 1 for that row and 0 for detail rows", "Result column"], ["WITH CUBE over region and product versus ROLLUP", "CUBE returns extra rows with NULL region and a concrete product", "Row count comparison"]],
+          "objectives": ["Produce subtotals and grand totals in one query", "Distinguish real NULLs from subtotal NULLs with grouping()", "Use collect_set and percentile_approx correctly"]
+        },
+        {
+          "topic": "Window Functions and Analytic Queries in HiveQL",
+          "subtopics": ["OVER (PARTITION BY ... ORDER BY ...)", "row_number, rank and dense_rank", "lag and lead with default values", "first_value and last_value frame traps", "ROWS BETWEEN versus RANGE BETWEEN", "Running totals and moving averages", "ntile and percent_rank", "Named windows with the WINDOW clause", "Memory and sort cost of wide partitions"],
+          "tools": ["Beeline", "HiveQL", "HiveServer2 web UI"],
+          "lab_task": "On orders(customer_id, order_ts, amount) compute row_number per customer, a running sum with ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW, a 3-row moving average, and lag(amount,1,0) for the previous order. Return the top 3 orders per customer using row_number in a subquery and check against a hand count for two customers.",
+          "deliverable": "SQL file with results for two sample customers verified by hand",
+          "checks": [["row_number() OVER (PARTITION BY customer_id ORDER BY order_ts)", "Numbers restart at 1 for every customer", "Result rows"], ["lag(amount,1,0) on a customer's first order", "Returns 0 for the first row", "Result rows"], ["Top 3 per customer filter", "No customer returns more than 3 rows", "count per customer query"]],
+          "objectives": ["Write ranking, running total and lag/lead queries", "Choose ROWS or RANGE frames deliberately", "Filter top-N per group with window functions"]
+        },
+        {
+          "topic": "Lateral View, explode and Querying Complex Types",
+          "subtopics": ["LATERAL VIEW explode(array)", "posexplode for array positions", "explode on MAP columns returning key and value", "LATERAL VIEW OUTER for empty arrays", "inline() for arrays of structs", "get_json_object and json_tuple", "split, str_to_map and named_struct", "Flattening nested structs with dot notation", "Row multiplication risk and count checks"],
+          "tools": ["Beeline", "HiveQL", "HiveServer2"],
+          "lab_task": "Load 5 JSON-like rows into raw(id int, payload string). Use get_json_object and json_tuple to extract user and items, split items into an array, then LATERAL VIEW posexplode to produce one row per item with its position. Show that an empty array row disappears without OUTER and appears with LATERAL VIEW OUTER.",
+          "deliverable": "Query script and result tables with and without OUTER",
+          "checks": [["LATERAL VIEW explode on a row whose array is empty", "Row is missing from the output", "Result rows"], ["LATERAL VIEW OUTER explode on the same row", "Row appears with NULL in the exploded column", "Result rows"], ["posexplode of a 3-element array", "Returns positions 0, 1 and 2 with the matching values", "Result rows"]],
+          "objectives": ["Flatten arrays, maps and structs into rows", "Extract JSON fields with built-in functions", "Control row multiplication and verify counts"]
+        },
+        {
+          "topic": "Date, String and Conditional Functions with Hive-Specific Behaviour",
+          "subtopics": ["current_date, current_timestamp and unix_timestamp", "from_unixtime, date_format and to_date", "date_add, date_sub, datediff and add_months", "trunc and date truncation by unit", "regexp_extract, regexp_replace and rlike", "substr, concat_ws, split and initcap", "CASE, IF, COALESCE, NVL and NULLIF", "Time zone handling with hive.local.time.zone", "Parsing failures that return NULL"],
+          "tools": ["Beeline", "HiveQL", "HiveServer2"],
+          "lab_task": "Given a table of raw log lines like '2026-03-02T10:15:30Z GET /a?id=7 200', use regexp_extract to split into ts, method, path and status, convert ts with to_date and date_format to yyyy-MM, compute datediff against current_date, and use CASE to bucket status codes into 2xx, 4xx and 5xx. Count rows per bucket and per month.",
+          "deliverable": "SQL script and a result table of rows per month and status bucket",
+          "checks": [["regexp_extract on a malformed line", "Returns an empty string for the missing group", "Result rows"], ["date_format(to_date('2026-03-02'),'yyyy-MM')", "Returns 2026-03", "Beeline result"], ["datediff('2026-03-10','2026-03-02')", "Returns 8", "Beeline result"]],
+          "objectives": ["Parse semi-structured log text with regexp_extract", "Convert and truncate dates with Hive functions", "Handle NULLs and parse failures with conditional functions"]
+        },
+        {
+          "topic": "Subqueries, Common Table Expressions and Set Operations",
+          "subtopics": ["WITH clause CTEs and reuse", "Correlated subqueries in WHERE with EXISTS and NOT EXISTS", "IN and NOT IN with NULL pitfalls", "Scalar subqueries", "UNION ALL versus UNION DISTINCT", "INTERSECT and EXCEPT in Hive 2.2 and later", "Subqueries in FROM and inline views", "hive.optimize.cte.materialize.threshold", "CTE evaluated twice versus materialised"],
+          "tools": ["Beeline", "HiveQL", "HiveServer2 web UI"],
+          "lab_task": "Write a query returning customers who ordered in 2025 but not in 2026 using NOT EXISTS, then again using EXCEPT and again using a LEFT JOIN with IS NULL, and confirm all return the same count. Show the NOT IN NULL trap by adding one NULL customer_id to the right side. Set hive.optimize.cte.materialize.threshold=2 and compare EXPLAIN.",
+          "deliverable": "Three equivalent queries, the NULL trap demonstration and EXPLAIN comparison",
+          "checks": [["NOT EXISTS, EXCEPT and LEFT JOIN IS NULL variants", "All three return the same customer count", "Count output"], ["NOT IN against a subquery containing NULL", "Returns zero rows", "Result rows"], ["EXPLAIN with cte materialize threshold 2 for a CTE used twice", "Plan shows the CTE written to a temporary table and read twice", "EXPLAIN text"]],
+          "objectives": ["Express anti-joins three ways and compare them", "Avoid NOT IN with nullable columns", "Control CTE materialisation"]
+        },
+        {
+          "topic": "Static and Dynamic Partitions: Loading, Pruning and Directory Layout",
+          "subtopics": ["PARTITIONED BY columns are directories, not data columns", "Static INSERT ... PARTITION (dt='2026-03-01')", "Dynamic partition insert and hive.exec.dynamic.partition.mode=nonstrict", "hive.exec.max.dynamic.partitions and .pernode limits", "SHOW PARTITIONS and DESCRIBE FORMATTED t PARTITION (...)", "Partition pruning visible in EXPLAIN", "ALTER TABLE ADD and DROP PARTITION", "Why a high-cardinality partition key hurts", "MSCK REPAIR TABLE for directories written outside Hive"],
+          "tools": ["Beeline", "HiveQL", "HDFS shell", "HiveServer2 web UI"],
+          "lab_task": "Create logs_p PARTITIONED BY (dt string) STORED AS ORC. Insert 30 days of data with one dynamic partition statement after SET hive.exec.dynamic.partition.mode=nonstrict. Run SHOW PARTITIONS, list the directories with hdfs dfs -ls, then EXPLAIN SELECT count(*) WHERE dt='2026-03-05' and confirm only one partition is read. Trigger the 1000 partition limit with a generated range and capture the error.",
+          "deliverable": "Script, SHOW PARTITIONS output, EXPLAIN excerpt and the limit error text",
+          "checks": [["SHOW PARTITIONS logs_p", "Lists 30 entries dt=2026-03-01 through dt=2026-03-30", "SHOW PARTITIONS output"], ["EXPLAIN SELECT count(*) FROM logs_p WHERE dt='2026-03-05'", "Plan reads one partition and shows no scan of other dt values", "EXPLAIN text"], ["Insert generating more than hive.exec.max.dynamic.partitions", "Fails with 'Number of dynamic partitions created is ... which is more than 1000'", "Beeline error"]],
+          "objectives": ["Load partitioned tables statically and dynamically", "Confirm pruning in EXPLAIN", "Recognise partition-count limits and over-partitioning"]
+        },
+        {
+          "topic": "SerDes and Text Formats: OpenCSVSerde, JsonSerDe and RegexSerDe",
+          "subtopics": ["Role of SerDe versus InputFormat and OutputFormat", "LazySimpleSerDe and ROW FORMAT DELIMITED", "OpenCSVSerde: quotes and all-string columns", "JsonSerDe and JSON column mapping", "RegexSerDe with input.regex", "skip.header.line.count table property", "serialization.null.format", "Schema on read and rows that fail to parse", "Converting text tables to ORC with CTAS"],
+          "tools": ["Beeline", "HiveQL", "HDFS shell", "OpenCSVSerde", "JsonSerDe"],
+          "lab_task": "Create three external tables over a quoted CSV with a header, a JSON-lines file and an Apache access log using OpenCSVSerde with skip.header.line.count=1, org.apache.hadoop.hive.serde2.JsonSerDe and RegexSerDe. Query each, note that OpenCSVSerde returns every column as string, then CTAS each into ORC with CAST columns and compare file sizes with hdfs dfs -du -h.",
+          "deliverable": "Three DDL statements, query results and an ORC versus text size table",
+          "checks": [["SELECT count(*) on the CSV table with a header row", "Count equals data lines only because skip.header.line.count=1", "Count versus wc -l"], ["DESCRIBE of the OpenCSVSerde table", "Every column is of type string", "DESCRIBE output"], ["hdfs dfs -du -h on text versus ORC copies", "ORC copy is smaller than the text copy", "du output"]],
+          "objectives": ["Choose a SerDe for CSV, JSON and regex-parsed logs", "Apply table properties such as skip.header.line.count", "Convert raw text tables into typed ORC tables"]
+        },
+        {
+          "topic": "ORC Tables: Stripes, Compression and orcfiledump",
+          "subtopics": ["ORC file layout: stripes, row groups, footer", "Row index and min/max statistics", "orc.compress: ZLIB, SNAPPY, ZSTD, NONE", "orc.stripe.size and orc.row.index.stride", "orc.bloom.filter.columns and orc.bloom.filter.fpp", "hive --orcfiledump -d and -j", "Reading file metadata from beeline with SELECT INPUT__FILE__NAME", "Sorting data before writing to improve min/max pruning", "Choosing ORC over text for warehouse tables"],
+          "tools": ["Beeline", "HiveQL", "orcfiledump", "HDFS shell"],
+          "lab_task": "Create two ORC tables from the same 5M-row data, one with orc.compress=SNAPPY and one with ZSTD, and one more sorted by customer_id with orc.bloom.filter.columns='customer_id'. Dump a file with hive --orcfiledump -j -p and read stripe count and compression. Compare bytes with hdfs dfs -du and rows read for WHERE customer_id=42 in the Tez summary.",
+          "deliverable": "Table of size, stripe count and rows read for each variant with orcfiledump excerpts",
+          "checks": [["hive --orcfiledump on a data file", "Prints Compression kind and the number of stripes", "orcfiledump output"], ["Size of SNAPPY versus ZSTD copy", "ZSTD copy is smaller by a measured percentage", "hdfs du -h output"], ["Point lookup on the sorted bloom-filter table", "Fewer rows read than on the unsorted table", "Tez print summary counters"]],
+          "objectives": ["Create ORC tables with chosen compression and indexing properties", "Inspect ORC file metadata with orcfiledump", "Show how sorting and bloom filters reduce rows read"]
+        },
+        {
+          "topic": "Writing Java UDFs, UDAFs and Permanent Functions",
+          "subtopics": ["UDF versus GenericUDF versus UDAF versus UDTF", "Maven project with hive-exec as a provided dependency", "Extending GenericUDF: initialize, evaluate, getDisplayString", "ADD JAR and CREATE TEMPORARY FUNCTION", "CREATE FUNCTION db.fn AS 'class' USING JAR 'hdfs://...'", "Permanent functions stored in the metastore", "Null handling and deterministic annotations", "Unit testing a GenericUDF without a cluster", "Python alternative with TRANSFORM and its cost"],
+          "tools": ["Java", "Maven", "Beeline", "HDFS shell", "hive-exec"],
+          "lab_task": "Build a Maven project with a GenericUDF mask_email(string) returning a***@domain.com, package the jar, hdfs dfs -put it to /udf/, then run CREATE FUNCTION lab1.mask_email AS 'com.lab.MaskEmail' USING JAR 'hdfs:///udf/mask.jar'. Call it on 100 rows, test NULL input and reconnect with a new Beeline session to prove the function is permanent.",
+          "deliverable": "Maven project, jar, registration SQL and query results including the NULL case",
+          "checks": [["SELECT lab1.mask_email('alice@example.com')", "Returns a****@example.com style masked value that keeps the domain", "Beeline result"], ["SELECT lab1.mask_email(NULL)", "Returns NULL without an exception", "Beeline result"], ["SHOW FUNCTIONS LIKE 'lab1.*' in a new session", "lab1.mask_email is listed", "Beeline output"]],
+          "objectives": ["Implement a GenericUDF and package it correctly", "Register temporary and permanent functions", "Handle NULLs and test the UDF outside the cluster"]
+        },
+        {
+          "topic": "Configuration Layers: hive-site.xml, SET, hiveconf and hivevar",
+          "subtopics": ["hive-default.xml.template versus hive-site.xml", "HiveServer2 restart-required versus session-level properties", "SET property; to read and SET property=value; to change", "hive.conf.restricted.list and hive.conf.hidden.list", "--hiveconf at launch and --hivevar substitution with ${hivevar:x}", ".hiverc and beeline-site.xml", "Environment variables HIVE_CONF_DIR and HADOOP_CONF_DIR", "Precedence order of settings", "Listing all values with SET -v"],
+          "tools": ["Beeline", "hive-site.xml", "HiveServer2", "Docker"],
+          "lab_task": "Mount a hive-site.xml that sets hive.exec.dynamic.partition.mode=nonstrict into the container. In Beeline run SET hive.exec.dynamic.partition.mode;, override it with SET to strict, and confirm it reverts in a new session. Run beeline -f report.sql --hivevar run_date=2026-03-01 using ${hivevar:run_date}, and try SET on a restricted property to capture the error.",
+          "deliverable": "Config file, session transcript and the restricted-property error",
+          "checks": [["SET hive.exec.dynamic.partition.mode; in a fresh session", "Prints nonstrict from hive-site.xml", "Beeline output"], ["SET same property to strict and open a second session", "Second session still prints nonstrict", "Two Beeline outputs"], ["SET on a property in hive.conf.restricted.list", "Fails with 'Cannot modify <property> at runtime. It is in the list of parameters that can't be modified at runtime'", "Beeline error"]],
+          "objectives": ["Locate where a setting is defined and which value wins", "Use hivevar substitution in scripts", "Explain why some properties cannot be changed per session"]
+        },
+        {
+          "topic": "Reading Query Plans with EXPLAIN and the HiveServer2 Web UI",
+          "subtopics": ["EXPLAIN, EXPLAIN EXTENDED and EXPLAIN FORMATTED", "EXPLAIN CBO and EXPLAIN VECTORIZATION", "Reading Map and Reducer vertices and edge types", "Statistics: Num rows and Data size estimates", "Filter, Select, Group By and Map Join operators", "Query tab, Drilldown and Local Logs in the web UI", "hive.tez.exec.print.summary=true", "Operation logging with hive.server2.logging.operation.enabled", "Spotting full scans and missing stats"],
+          "tools": ["Beeline", "HiveQL", "HiveServer2 web UI", "Tez"],
+          "lab_task": "Create a 2M-row partitioned fact table and a 100-row dimension. Run EXPLAIN, EXPLAIN CBO and EXPLAIN VECTORIZATION on a join with a filter, annotate vertices, edges and row estimates, then execute with SET hive.tez.exec.print.summary=true and compare estimated rows with the actual records from the summary.",
+          "deliverable": "Annotated plans and a table of estimated versus actual rows per vertex",
+          "checks": [["EXPLAIN on a filtered, partitioned query", "Plan includes a Filter Operator and a pruned partition list", "EXPLAIN text"], ["EXPLAIN CBO on the join", "Prints a Calcite tree starting with HiveProject and HiveJoin", "EXPLAIN CBO output"], ["Run with hive.tez.exec.print.summary=true", "Summary table lists VERTICES with Map 1 and Reducer 2 and their record counts", "Beeline summary"]],
+          "objectives": ["Read vertices, edges and operators in an EXPLAIN plan", "Compare estimated and actual row counts", "Use the web UI and operation logs to find a slow stage"]
+        },
+        {
+          "topic": "Beginner Capstone: Web Log Analytics Warehouse on Hive 4",
+          "subtopics": ["Design raw, cleaned and aggregated schemas", "External raw table with a SerDe", "Partitioned ORC cleaned table with dynamic partitions", "Aggregate tables using grouping sets and window functions", "Permanent masking UDF for IP addresses", "Validation queries and EXPLAIN evidence"],
+          "tools": ["Docker", "Beeline", "HiveQL", "ORC", "HDFS shell"],
+          "lab_task": "Generate 500,000 access-log lines, expose them as an external RegexSerDe table, build a partitioned ORC table by date with regexp_extract parsing, add daily and top-10-path aggregate tables with row_number, and mask client IPs through your UDF. Write a validation script checking row counts, partition counts and a pruned-partition EXPLAIN.",
+          "deliverable": "Git-style folder with DDL, load scripts, validation script and a 2-page design note with measured results",
+          "checks": [["Row count raw table versus cleaned table", "Cleaned count equals raw count minus parse failures, which are counted separately", "Validation script output"], ["EXPLAIN for a single-day query on the cleaned table", "Reads one partition only", "EXPLAIN text"], ["Top-10 paths table", "Exactly 10 rows per day with ranks 1 to 10", "Query result"]],
+          "objectives": ["Build a layered Hive warehouse from raw logs to aggregates", "Apply partitioning, ORC and UDFs together", "Prove correctness and pruning with validation queries"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who can write HiveQL and run Hive 4 and now need to make it fast, transactional and governed. Covers the Tez engine, cost-based optimisation and statistics, vectorisation, join strategies, partition and bucket design, ACID tables and compaction, MERGE for slowly changing dimensions, materialised views, LLAP, Iceberg tables in Hive 4, HiveServer2 high availability, Kerberos and LDAP authentication, Ranger policies with row filters and masking, storage handlers, cloud object storage, YARN queues, and a governed warehouse capstone.",
+      "prerequisites": ["Completed the beginner level or writes HiveQL with partitions, ORC tables and window functions", "Can read EXPLAIN output and use Beeline and the HiveServer2 web UI", "Has access to a Hive 4 environment with YARN and Tez, either a lab cluster or a Docker Compose stack with a remote metastore"],
+      "outcomes": ["Tune queries using Tez settings, statistics, vectorisation and the right join strategy, and prove gains with counters", "Operate ACID tables, including compaction, MERGE and locks, and explain their metadata", "Create, query and maintain Iceberg tables from Hive 4 including time travel and partition evolution", "Apply authentication and Ranger row filter and masking policies and expose external data through storage handlers and cloud storage"],
+      "days": [
+        {
+          "topic": "Tez Execution Engine: DAGs, Containers and Sessions",
+          "subtopics": ["Tez DAG, vertices and edge types: SIMPLE_EDGE, BROADCAST_EDGE, CUSTOM_SIMPLE_EDGE", "Application Master and container reuse", "tez.am.resource.memory.mb and hive.tez.container.size", "hive.server2.tez.default.queues and session pools", "hive.server2.tez.sessions.per.default.queue", "Tez UI and ATS timeline for finished DAGs", "Counters: SPILLED_RECORDS, SHUFFLE_BYTES, GC_TIME_MILLIS", "Why Hive on MapReduce is retired", "tez-site.xml versus hive-site.xml", "Killing a DAG and reading its application log"],
+          "tools": ["Tez", "YARN", "Beeline", "Tez UI", "HiveServer2 web UI"],
+          "lab_task": "Run a 3-way join on a 50M-row fact table with SET hive.tez.exec.print.summary=true. Open the application in the Tez UI or yarn logs -applicationId, note vertices, task counts and SHUFFLE_BYTES. Change hive.tez.container.size from 2048 to 4096 and tez.am.resource.memory.mb to 2048, rerun, and compare wall time and SPILLED_RECORDS in a table.",
+          "deliverable": "Comparison table of runtime and counters for both configurations with the Tez UI DAG screenshot",
+          "checks": [["Run the join with print summary on", "Summary lists each vertex with TOTAL, COMPLETED and FAILED task counts", "Beeline summary output"], ["Tez UI DAG view of the application", "Shows the DAG graph with Map vertices feeding Reducer vertices", "UI screenshot"], ["Rerun with container size 4096", "SPILLED_RECORDS is lower or equal compared with 2048 and the value is recorded", "Counter table"]],
+          "objectives": ["Explain Tez DAG vertices, edges and container reuse", "Size containers and the Application Master for Hive queries", "Read Tez counters to judge a configuration change"]
+        },
+        {
+          "topic": "Cost-Based Optimisation and Column Statistics",
+          "subtopics": ["Calcite-based CBO and hive.cbo.enable", "Table and partition stats: numRows, rawDataSize, totalSize", "ANALYZE TABLE ... COMPUTE STATISTICS and FOR COLUMNS", "hive.stats.autogather and hive.stats.column.autogather", "hive.compute.query.using.stats answering count(*) from stats", "DESCRIBE FORMATTED col to read column stats", "Join reordering driven by estimates", "hive.stats.fetch.column.stats and histogram support", "Detecting stale stats after external writes"],
+          "tools": ["Beeline", "HiveQL", "Hive Metastore", "Tez"],
+          "lab_task": "Create a fact table by CTAS with autogather off, then run EXPLAIN on a 3-table join and note Num rows: 1 estimates. Run ANALYZE TABLE ... COMPUTE STATISTICS FOR COLUMNS on all three tables, rerun EXPLAIN, and record the changed join order and row estimates. Then SELECT count(*) with hive.compute.query.using.stats=true and confirm it finishes without a Tez job.",
+          "deliverable": "Before and after EXPLAIN plans with the join order and estimates tabulated",
+          "checks": [["EXPLAIN before ANALYZE", "Operators show Statistics with Basic stats: PARTIAL or COMPLETE with column stats NONE", "EXPLAIN text"], ["EXPLAIN after ANALYZE ... FOR COLUMNS", "Column stats: COMPLETE and estimates match the real row counts within 10 percent", "EXPLAIN text"], ["SELECT count(*) with compute.query.using.stats=true", "Result returns from metadata with no Tez DAG launched", "Beeline output and web UI"]],
+          "objectives": ["Gather and verify table and column statistics", "Show how statistics change join order and estimates", "Detect stale or missing stats from a plan"]
+        },
+        {
+          "topic": "Vectorised Execution and ORC Predicate Pushdown",
+          "subtopics": ["hive.vectorized.execution.enabled and reduce-side vectorisation", "Row batches of 1024 rows", "EXPLAIN VECTORIZATION DETAIL and notVectorizedReason", "Unsupported expressions and UDFs that block vectorisation", "hive.optimize.index.filter and ORC predicate pushdown", "Row-group skipping through min/max and bloom filters", "Parquet and ORC reader differences", "Data type choices that vectorise well", "Measuring effect with CPU time counters"],
+          "tools": ["Beeline", "HiveQL", "Tez", "ORC"],
+          "lab_task": "On a 20M-row ORC table run SELECT sum(amount) WHERE customer_id BETWEEN 100 AND 200 with hive.vectorized.execution.enabled=false then true, using EXPLAIN VECTORIZATION DETAIL to confirm vectorized: true. Add a Java UDF to the query to break vectorisation, read the notVectorizedReason text, and tabulate CPU_MILLISECONDS and rows read for each run.",
+          "deliverable": "Table of runs with CPU time, rows read and the notVectorizedReason text for the UDF case",
+          "checks": [["EXPLAIN VECTORIZATION DETAIL with vectorisation on", "Map vertex shows vectorized: true with enabled: true", "EXPLAIN text"], ["Same query with a non-vectorised UDF in the projection", "Plan reports a notVectorizedReason naming the UDF expression", "EXPLAIN text"], ["Run with vectorisation off versus on", "CPU_MILLISECONDS is lower with vectorisation on by the measured percentage", "Counter table"]],
+          "objectives": ["Verify vectorisation from the plan", "Identify what blocks vectorisation", "Quantify ORC predicate pushdown effects"]
+        },
+        {
+          "topic": "Join Strategies: Map Join, Bucket Map Join and Sort-Merge-Bucket",
+          "subtopics": ["hive.auto.convert.join and hive.auto.convert.join.noconditionaltask.size", "Broadcast join memory limits and OutOfMemoryError symptoms", "Bucket map join with hive.optimize.bucketmapjoin", "Sort-merge-bucket join with hive.auto.convert.sortmerge.join", "Both tables must use the same bucket count multiple and sort order", "Dynamically partitioned hash join and semijoin reduction", "hive.tez.dynamic.semijoin.reduction", "Dynamic partition pruning with hive.tez.dynamic.partition.pruning", "Choosing between strategies from EXPLAIN"],
+          "tools": ["Beeline", "HiveQL", "Tez", "HiveServer2 web UI"],
+          "lab_task": "Create orders and customers both CLUSTERED BY (customer_id) SORTED BY (customer_id) INTO 32 BUCKETS, load 30M and 2M rows, and join them under three settings: noconditionaltask.size small, bucketmapjoin on, and sortmerge join on. Record the join operator in each EXPLAIN, shuffle bytes and run time. Then join a partitioned fact to a filtered dimension and show dynamic partition pruning in the plan.",
+          "deliverable": "Table of strategies, operators seen in EXPLAIN, shuffle bytes and elapsed time",
+          "checks": [["EXPLAIN with sort-merge settings on bucketed sorted tables", "Plan shows Merge Join Operator with no shuffle edge between the two Maps", "EXPLAIN text"], ["Join with broadcast threshold below the small table size", "Plan falls back to a SIMPLE_EDGE shuffle join", "EXPLAIN text"], ["Join of partitioned fact to a filtered dimension", "Plan contains Dynamic Partitioning Event Operator and fewer partitions are read", "EXPLAIN and counters"]],
+          "objectives": ["Select and force a join strategy and confirm it in EXPLAIN", "State the table layout conditions for bucket and sort-merge joins", "Demonstrate dynamic partition pruning"]
+        },
+        {
+          "topic": "Partitioning Design: Pruning, Dynamic Partition Limits and MSCK",
+          "subtopics": ["Choosing partition keys from query predicates and cardinality", "Target partition size of hundreds of MB, not KB", "Partition count effect on metastore load and HS2 memory", "hive.metastore.limit.partition.request and hive.metastore.partition.inherit.table.properties", "Dynamic partition inserts producing many small files and hive.optimize.sort.dynamic.partition", "MSCK REPAIR TABLE ... SYNC PARTITIONS", "hive.msck.path.validation and invalid directory names", "Partition retention with retention period tables property", "Partition columns in views and joins"],
+          "tools": ["Beeline", "HiveQL", "HDFS shell", "Hive Metastore", "psql"],
+          "lab_task": "Load 400 days of data into three layouts: partitioned by day, by day and hour, and by customer_id. Count partitions with SHOW PARTITIONS, count files with hdfs dfs -count, and time SELECT count(*) WHERE dt='2026-03-01'. Write 3 directories outside Hive and register them with MSCK REPAIR TABLE ... SYNC PARTITIONS, then delete one directory and confirm SYNC drops it.",
+          "deliverable": "Comparison of partition counts, file counts and run times for the three layouts, plus the MSCK outputs",
+          "checks": [["SHOW PARTITIONS for the customer_id layout", "Returns one partition per customer, many times more than the day layout", "Row count"], ["MSCK REPAIR TABLE t SYNC PARTITIONS after adding 3 directories", "Output lists Partitions not in metastore: 3 entries then added", "Beeline output"], ["MSCK after deleting one directory with SYNC PARTITIONS", "Output shows the missing partition removed from the metastore", "SHOW PARTITIONS diff"]],
+          "objectives": ["Choose partition keys using cardinality and file-size targets", "Measure the metastore and file-count cost of over-partitioning", "Repair metadata with MSCK REPAIR TABLE ... SYNC PARTITIONS"]
+        },
+        {
+          "topic": "Bucketing Design and Data Skew Handling",
+          "subtopics": ["CLUSTERED BY (col) INTO n BUCKETS and SORTED BY", "Bucket file naming and hashing by murmur3 in bucketing version 2", "Bucketing for joins, sampling and ACID table row identity", "TABLESAMPLE (BUCKET x OUT OF y ON col)", "Skew join detection with hive.optimize.skewjoin and hive.skewjoin.key", "SKEWED BY and list bucketing", "Hot-key salting patterns in HiveQL", "Choosing bucket count relative to data size and cluster slots", "Verifying with SELECT INPUT__FILE__NAME, count(*)"],
+          "tools": ["Beeline", "HiveQL", "HDFS shell", "Tez"],
+          "lab_task": "Create a 16-bucket table on customer_id and load 10M rows, then confirm 16 files with SELECT INPUT__FILE__NAME, count(*) GROUP BY 1. Run TABLESAMPLE(BUCKET 1 OUT OF 16 ON customer_id). Then build a skewed join with one key holding 40 percent of rows, observe one slow reducer in the Tez UI, and fix it by salting the key with rand() buckets and compare task durations.",
+          "deliverable": "Bucket file listing, sampling result and before and after task duration table for the skewed join",
+          "checks": [["SELECT INPUT__FILE__NAME, count(*) FROM t GROUP BY INPUT__FILE__NAME", "Returns 16 distinct bucket file names with similar counts", "Query result"], ["TABLESAMPLE(BUCKET 1 OUT OF 16 ON customer_id) count", "Returns roughly one sixteenth of the total rows", "Count output"], ["Skewed join before and after salting", "Longest reducer duration drops while total results are unchanged", "Tez UI task durations and count equality"]],
+          "objectives": ["Design bucketed tables and verify bucket files", "Detect a skewed key from task durations", "Remove skew with salting and prove the results are identical"]
+        },
+        {
+          "topic": "ACID Tables: Delta Files, Transaction Manager and Locks",
+          "subtopics": ["Required settings: hive.support.concurrency=true and hive.txn.manager=org.apache.hadoop.hive.ql.lockmgr.DbTxnManager", "Full ACID versus insert-only transactional tables", "base_N, delta_N_N and delete_delta directories", "ValidWriteIdList and snapshot isolation", "Transaction tables TXNS, TXN_COMPONENTS and HIVE_LOCKS in the metastore", "SHOW TRANSACTIONS and SHOW LOCKS", "Lock types: shared read, shared write, exclusive", "Write-write conflict and abort behaviour", "Reading ACID tables from other engines"],
+          "tools": ["Beeline", "HiveQL", "Hive Metastore", "psql", "HDFS shell"],
+          "lab_task": "Create a transactional ORC table, insert 3 batches, run UPDATE and DELETE on some rows, then list the table directory with hdfs dfs -ls -R to identify base, delta and delete_delta folders. Run SHOW TRANSACTIONS and SHOW LOCKS while a long query is running, then start two concurrent UPDATEs on the same row from two Beeline sessions and capture the outcome.",
+          "deliverable": "Directory listing annotated by folder type, SHOW LOCKS output and the conflict result of the concurrent updates",
+          "checks": [["hdfs dfs -ls -R on the table after 3 inserts and one UPDATE", "Shows delta_ directories for inserts and delete_delta plus delta for the update", "Directory listing"], ["SHOW LOCKS during a running SELECT", "Lists a SHARED_READ lock for the table", "SHOW LOCKS output"], ["Two concurrent UPDATEs on the same row", "One commits and the other aborts with a write conflict error", "Both Beeline outputs"]],
+          "objectives": ["Explain base, delta and delete_delta layout", "Enable and verify the DbTxnManager settings", "Inspect transactions and locks and predict conflicts"]
+        },
+        {
+          "topic": "Compaction: Initiator, Worker, Cleaner and Tuning",
+          "subtopics": ["Minor versus major compaction", "Initiator, Worker and Cleaner threads in the metastore", "hive.compactor.initiator.on and hive.compactor.worker.threads", "Thresholds hive.compactor.delta.num.threshold and hive.compactor.delta.pct.threshold", "ALTER TABLE t COMPACT 'major' AND WAIT", "SHOW COMPACTIONS states: initiated, working, ready for cleaning, succeeded, failed", "Compaction queue properties and compactor.mapred.job.queue.name", "Why readers still see old deltas until the Cleaner runs", "Failed compaction diagnosis from the metastore log"],
+          "tools": ["Beeline", "HiveQL", "Hive Metastore", "HDFS shell", "YARN"],
+          "lab_task": "On a transactional table with 12 small deltas, run SHOW COMPACTIONS, then ALTER TABLE t COMPACT 'minor' AND WAIT and later COMPACT 'major'. After each, list the table directory with hdfs dfs -ls and record the number of delta and base folders and the SHOW COMPACTIONS state. Lower hive.compactor.delta.num.threshold to 5 and show automatic compaction firing after 6 more inserts.",
+          "deliverable": "Timeline table of directory counts and compaction states after each step",
+          "checks": [["ALTER TABLE t COMPACT 'minor' AND WAIT", "SHOW COMPACTIONS reports Type MINOR and State succeeded and the delta count drops", "SHOW COMPACTIONS output"], ["ALTER TABLE t COMPACT 'major' AND WAIT", "A single base_ directory exists and old delta directories are removed after the Cleaner runs", "hdfs directory listing"], ["6 inserts with delta.num.threshold set to 5", "Automatic compaction entry appears in SHOW COMPACTIONS without a manual command", "SHOW COMPACTIONS output"]],
+          "objectives": ["Run and monitor major and minor compactions", "Tune thresholds and worker threads", "Diagnose a compaction that fails or stays queued"]
+        },
+        {
+          "topic": "MERGE, UPDATE and DELETE for Slowly Changing Dimensions",
+          "subtopics": ["MERGE INTO target USING source ON ... WHEN MATCHED THEN UPDATE/DELETE", "WHEN NOT MATCHED THEN INSERT", "Multiple WHEN MATCHED clauses with predicates", "Type 1 overwrite and type 2 history patterns", "Cardinality check: error when a target row matches more than one source row", "Partitioned and bucketed MERGE performance", "Staging table design and idempotent reruns", "Deletes as delete deltas and their read cost", "MERGE on Iceberg tables in Hive 4"],
+          "tools": ["Beeline", "HiveQL", "Hive Metastore"],
+          "lab_task": "Create dim_customer(id, name, city, valid_from, valid_to, is_current) as a transactional table and a staging table with 1,000 changes. Write a type 2 MERGE that closes the current row and inserts the new version, run it, then run it again to prove it is idempotent. Make the source contain duplicate keys and capture the cardinality violation error.",
+          "deliverable": "MERGE script, before and after row counts and the duplicate-key error output",
+          "checks": [["Run the type 2 MERGE once", "Changed customers have one closed row and one current row each", "Query per customer"], ["Run the same MERGE a second time", "Row counts do not change", "count(*) before and after"], ["MERGE with duplicate source keys", "Fails with a MERGE cardinality violation error naming the duplicated target row", "Beeline error"]],
+          "objectives": ["Write type 1 and type 2 MERGE statements", "Make MERGE jobs idempotent", "Recognise and fix cardinality violations"]
+        },
+        {
+          "topic": "Materialized Views and Query Rewriting",
+          "subtopics": ["CREATE MATERIALIZED VIEW ... STORED AS ORC AS SELECT", "Automatic rewriting with hive.materializedview.rewriting", "SHOW MATERIALIZED VIEWS and DESCRIBE FORMATTED", "ALTER MATERIALIZED VIEW ... REBUILD", "Incremental rebuild for insert-only and for update/delete sources", "Staleness controls: rewriting.time.window and DISABLE REWRITE", "Views over ACID tables only for incremental maintenance", "Cost-based choice between the view and the base table", "Storing the view in Iceberg or ORC"],
+          "tools": ["Beeline", "HiveQL", "Hive Metastore", "Tez"],
+          "lab_task": "Create a materialized view of daily revenue by region on a 50M-row transactional fact table. Run the original aggregate query, confirm in EXPLAIN that it scans the view, insert 100,000 rows into the base table, observe that the plan no longer rewrites (stale), run ALTER MATERIALIZED VIEW ... REBUILD, and compare run times before the view, after, and after rebuild.",
+          "deliverable": "Plan screenshots for each state and a run-time table",
+          "checks": [["EXPLAIN of the aggregate query after the view exists", "TableScan reads the materialized view name instead of the fact table", "EXPLAIN text"], ["EXPLAIN after inserting 100,000 base rows", "Plan reads the base table because the view is outdated", "EXPLAIN text"], ["EXPLAIN after ALTER MATERIALIZED VIEW REBUILD", "Plan reads the view again and results equal the base-table aggregate", "EXPLAIN and result diff"]],
+          "objectives": ["Create materialised views and confirm automatic rewriting", "Rebuild incrementally and manage staleness", "Judge when a view is worth the maintenance cost"]
+        },
+        {
+          "topic": "LLAP Daemons: Cache, Executors and Query Fragments",
+          "subtopics": ["LLAP daemon as long-running YARN service", "hive.execution.mode=llap and hive.llap.execution.mode=all or only", "hive.llap.io.enabled and the columnar cache", "hive.llap.daemon.num.executors and hive.llap.io.memory.size", "hive.llap.daemon.yarn.container.mb and Xmx headroom", "ZooKeeper registration under @llap0", "LLAP web UI at port 15002 and daemon metrics", "Cache hit counters CACHE_HIT_BYTES and CACHE_MISS_BYTES", "When LLAP is not helpful: long ETL scans", "UDFs allowed in LLAP and hive.llap.skip.compile.udf.check"],
+          "tools": ["LLAP", "Tez", "Beeline", "YARN", "ZooKeeper"],
+          "lab_task": "On a lab cluster with an LLAP service named llap0, run the same dashboard query five times with hive.llap.execution.mode=all, then with LLAP disabled (hive.execution.mode=container). Read CACHE_HIT_BYTES and CACHE_MISS_BYTES from the print summary, open the LLAP daemon UI for executor use, and tabulate first-run versus fifth-run latency in both modes.",
+          "deliverable": "Latency table over five runs for both modes with cache counters and the daemon UI screenshot",
+          "checks": [["Run 1 versus run 5 of the query in LLAP mode", "Run 5 shows higher CACHE_HIT_BYTES and lower elapsed time than run 1", "Print summary counters"], ["Same query in container mode", "No LLAP IO counters appear and run times do not improve across runs", "Print summary"], ["LLAP daemon web UI during the queries", "Executors show active fragments and the cache usage grows", "UI screenshot"]],
+          "objectives": ["Run queries on LLAP and read cache counters", "Explain the memory components of an LLAP daemon", "Decide which workloads should use LLAP"]
+        },
+        {
+          "topic": "Iceberg Tables in Hive 4: Creating and Querying",
+          "subtopics": ["CREATE TABLE ... STORED BY ICEBERG", "Format version 2 with TBLPROPERTIES('format-version'='2')", "write.format.default as orc, parquet or avro", "PARTITIONED BY SPEC with identity, bucket, truncate, day and month transforms", "Catalog choice: HiveCatalog default versus iceberg.catalog table property", "INSERT, UPDATE, DELETE and MERGE on Iceberg", "Reading with FOR SYSTEM_VERSION AS OF and FOR SYSTEM_TIME AS OF", "SELECT from the metadata tables such as db.t.snapshots", "Differences from native ACID tables"],
+          "tools": ["Beeline", "HiveQL", "Apache Iceberg", "Hive Metastore", "HDFS shell"],
+          "lab_task": "Create an Iceberg v2 table events PARTITIONED BY SPEC (day(event_ts), bucket(8, user_id)) STORED BY ICEBERG, insert 100,000 rows, UPDATE 500, DELETE 200, then query lab.events.snapshots and lab.events.files. Read the table with FOR SYSTEM_VERSION AS OF the first snapshot id and confirm the original count, and list the data and metadata folders.",
+          "deliverable": "DDL, snapshot listing, time-travel counts and the table directory tree",
+          "checks": [["SELECT count(*) FROM lab.events.snapshots", "Returns one row per committed write, 3 or more after the DML", "Query result"], ["SELECT count(*) FOR SYSTEM_VERSION AS OF first_snapshot_id", "Returns 100000", "Query result"], ["hdfs dfs -ls on the table location", "Contains data/ and metadata/ directories with .metadata.json files", "Directory listing"]],
+          "objectives": ["Create partition-transform Iceberg tables from Hive", "Run row-level DML on Iceberg tables", "Query snapshots and metadata tables"]
+        },
+        {
+          "topic": "Iceberg Maintenance, Time Travel and Partition Evolution in Hive",
+          "subtopics": ["ALTER TABLE ... EXECUTE ROLLBACK(snapshot-id or timestamp)", "EXECUTE EXPIRE_SNAPSHOTS and retention", "Orphan file risk and removal", "ALTER TABLE ... SET PARTITION SPEC to evolve partitioning", "Old and new partition layouts coexisting in one table", "Schema evolution: add, rename and drop columns", "Compaction of small files through the compaction support in Hive 4", "ALTER TABLE ... CONVERT TO ICEBERG for existing tables", "Branches and tags where the installed version supports them"],
+          "tools": ["Beeline", "HiveQL", "Apache Iceberg", "HDFS shell"],
+          "lab_task": "On lab.events, run ALTER TABLE ... SET PARTITION SPEC (month(event_ts)) and insert new rows, then confirm old and new data files coexist via lab.events.partitions. Break the table with a bad DELETE, restore it with ALTER TABLE lab.events EXECUTE ROLLBACK(<snapshot>), then EXPIRE_SNAPSHOTS older than a timestamp and recount metadata snapshots and files.",
+          "deliverable": "Evolution and rollback script with snapshot counts before and after each step",
+          "checks": [["Query lab.events.partitions after SET PARTITION SPEC", "Shows entries with the old spec and the new spec side by side", "Metadata query result"], ["ALTER TABLE EXECUTE ROLLBACK to the pre-DELETE snapshot", "count(*) returns the original row count", "Count output"], ["EXECUTE EXPIRE_SNAPSHOTS older than the cutoff", "lab.events.snapshots shows fewer rows and old snapshots can no longer be read", "Snapshot query and error"]],
+          "objectives": ["Evolve partition specs without rewriting data", "Roll back and expire snapshots safely", "Convert an existing Hive table to Iceberg"]
+        },
+        {
+          "topic": "HiveServer2 High Availability, ZooKeeper Discovery and Load Balancing",
+          "subtopics": ["hive.server2.support.dynamic.service.discovery=true", "hive.server2.zookeeper.namespace=hiveserver2", "Beeline URL with serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2", "Binary versus HTTP transport: hive.server2.transport.mode and port 10001", "Sticky sessions and why a load balancer must keep a session on one host", "hive.server2.thrift.max.worker.threads", "hive.server2.idle.session.timeout and idle.operation.timeout", "Graceful shutdown with hive --service hiveserver2 --deregister", "Connection limits per user and per IP"],
+          "tools": ["HiveServer2", "ZooKeeper", "Beeline", "HAProxy", "Docker Compose"],
+          "lab_task": "Run two HiveServer2 containers and a three-node ZooKeeper ensemble in Compose. Connect Beeline with jdbc:hive2://zk1:2181,zk2:2181,zk3:2181/;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2 ten times, count which instance served each with SELECT current_user(), host from logs, stop one instance, and show new connections succeed on the other.",
+          "deliverable": "Compose file, connection distribution table and the failover transcript",
+          "checks": [["zkCli.sh ls /hiveserver2", "Lists two znodes, one per HiveServer2 instance", "zkCli output"], ["Ten Beeline connections through ZooKeeper discovery", "Both instances serve at least one connection", "Log or web UI session counts"], ["docker stop of one HiveServer2 then a new Beeline connection", "Connection succeeds on the remaining instance and the stopped znode disappears", "zkCli listing and Beeline output"]],
+          "objectives": ["Configure dynamic service discovery for HiveServer2", "Choose binary or HTTP transport for a load balancer", "Test failover and clean deregistration"]
+        },
+        {
+          "topic": "Authentication in HiveServer2: Kerberos, LDAP, SSL and doAs",
+          "subtopics": ["hive.server2.authentication: NONE, LDAP, KERBEROS, CUSTOM, PAM", "Kerberos principal and keytab: hive.server2.authentication.kerberos.principal", "hive.server2.authentication.ldap.url and baseDN", "TLS for Thrift: hive.server2.use.ssl and keystore properties", "Beeline URLs with principal=hive/_HOST@REALM and ssl=true", "hive.server2.enable.doAs impersonation versus running as the hive user", "Proxy user settings hadoop.proxyuser.hive.hosts", "Metastore Kerberos with hive.metastore.sasl.enabled", "Common errors: GSS initiate failed, Clock skew"],
+          "tools": ["HiveServer2", "Kerberos", "LDAP", "Beeline", "OpenSSL"],
+          "lab_task": "With a lab MIT KDC or OpenLDAP, configure HiveServer2 for LDAP over TLS. Create a keystore with keytool, set hive.server2.use.ssl=true, connect with Beeline ssl=true;sslTrustStore=..., then log in with a valid and an invalid password. Set hive.server2.enable.doAs=true and show the HDFS owner of a new table directory changes to your user.",
+          "deliverable": "Config snippets, successful and failed login transcripts and HDFS owner listings for both doAs settings",
+          "checks": [["Beeline login with the wrong LDAP password", "Fails with 'Error validating the login' and exit code 1", "Beeline error"], ["Beeline login with ssl=true and the correct truststore", "Connection opens and SELECT current_user() returns the LDAP user", "Beeline output"], ["CREATE TABLE with doAs true versus false", "HDFS owner of the directory is the end user with true and hive with false", "hdfs dfs -ls output"]],
+          "objectives": ["Configure LDAP or Kerberos authentication with TLS", "Explain doAs impersonation and its HDFS effects", "Diagnose common authentication errors"]
+        },
+        {
+          "topic": "Apache Ranger Policies for Hive: Row Filters and Column Masking",
+          "subtopics": ["Ranger Hive plugin and RangerHiveAuthorizerFactory", "hive.security.authorization.manager and the plugin service name", "Resource-based policies: database, table, column, udf, url", "Access types: select, update, create, drop, alter, index, lock, all", "Row-level filter policies with a filter expression", "Dynamic column masking: partial, hash, nullify, date show year, custom", "Policy conditions by user, group and role", "Audit to Solr or OpenSearch and the Ranger audit UI", "Policy refresh interval and Ranger admin outage behaviour"],
+          "tools": ["Apache Ranger", "HiveServer2", "Beeline", "Ranger Admin UI", "Hive Metastore"],
+          "lab_task": "In Ranger Admin create a hive service and policies on customers: analyst group gets select on all columns, with a row filter region='EU' and a partial mask on email and a hash mask on national_id. Connect as an analyst user in Beeline, run SELECT * FROM customers, then as an admin, compare outputs, and read the matching Ranger access audit entries.",
+          "deliverable": "Screenshots of the policies, both users' query results and the matching audit records",
+          "checks": [["SELECT * FROM customers as analyst", "Returns only region EU rows with email partially masked and national_id hashed", "Beeline result"], ["analyst runs DROP TABLE customers", "Fails with 'Permission denied: user [analyst] does not have [DROP] privilege on [sales_db/customers]'", "Beeline error"], ["Ranger audit tab filtered on user analyst", "Shows allowed select and denied drop events with the policy id", "Audit screenshot"]],
+          "objectives": ["Create Hive resource policies in Ranger", "Apply row filters and column masks", "Verify decisions through audit events"]
+        },
+        {
+          "topic": "Storage Handlers: JDBC and Kafka Tables in Hive",
+          "subtopics": ["STORED BY 'org.apache.hive.storage.jdbc.JdbcStorageHandler'", "Table properties hive.sql.database.type, hive.sql.jdbc.url, hive.sql.table and credentials by keystore", "Predicate and projection pushdown to the source", "Partitioned reads with hive.sql.partitionColumn and numPartitions", "KafkaStorageHandler: kafka.topic and kafka.bootstrap.servers", "Metadata columns __key, __partition, __offset and __timestamp", "Reading a Kafka window with timestamp filters", "Writing back to Kafka and exactly-once settings", "CTAS from the source into ORC as the ingestion pattern"],
+          "tools": ["Beeline", "HiveQL", "PostgreSQL", "Apache Kafka", "JdbcStorageHandler"],
+          "lab_task": "Create a Hive table on a PostgreSQL orders table using JdbcStorageHandler and run a filtered query, checking the generated SQL in the PostgreSQL log. Create a Kafka-backed table on topic clicks, query __offset and __timestamp for the last 10 minutes, then CTAS both into ORC tables and compare row counts to the sources.",
+          "deliverable": "Two DDL statements, the pushdown SQL seen at PostgreSQL and the row-count comparison",
+          "checks": [["Hive query with WHERE amount > 100 on the JDBC table", "PostgreSQL log shows a SELECT with the WHERE amount > 100 clause", "PostgreSQL log line"], ["SELECT __partition, __offset FROM clicks_kafka LIMIT 5", "Returns partition and offset values from the topic", "Beeline result"], ["CTAS of the JDBC table into ORC", "ORC row count equals the PostgreSQL SELECT count(*)", "Count comparison"]],
+          "objectives": ["Expose relational and Kafka data as Hive tables", "Confirm pushdown from the source logs", "Use CTAS for repeatable ingestion"]
+        },
+        {
+          "topic": "Cloud Object Storage with Hive: S3A, ADLS and GCS Tables",
+          "subtopics": ["fs.s3a.endpoint, fs.s3a.access.key and credential providers", "s3a:// external tables and warehouse.external.dir on object storage", "Rename cost and the S3A committers: directory and magic", "fs.s3a.committer.name", "hive.blobstore.optimizations.enabled", "Listing latency and partition discovery cost", "Eventual consistency removed: S3 strong consistency today", "abfs:// and gs:// connectors and auth settings", "Statistics and small file effects on object storage"],
+          "tools": ["MinIO", "S3A", "Hive Metastore", "Beeline", "HDFS shell"],
+          "lab_task": "Start MinIO, create bucket warehouse and configure Hive core-site.xml with fs.s3a.endpoint, path.style.access=true and credentials. Create an external ORC table at s3a://warehouse/events/, insert 1M rows with the magic committer enabled, and compare insert time and file count to the HDFS version. Run aws s3 ls --endpoint-url against the bucket to confirm no _temporary leftovers.",
+          "deliverable": "Configuration, timing comparison with HDFS and the bucket listing",
+          "checks": [["INSERT into the s3a:// external table", "Succeeds and the bucket contains ORC files under events/", "aws s3 ls --recursive output"], ["Listing the bucket after the job", "No _temporary directory remains", "aws s3 ls output"], ["Insert time on s3a versus HDFS", "Both run times and file counts are recorded with the difference stated", "Comparison table"]],
+          "objectives": ["Configure S3A and create Hive tables on object storage", "Explain rename cost and committer choices", "Compare object storage and HDFS behaviour for Hive writes"]
+        },
+        {
+          "topic": "Capacity Scheduler Queues and Hive Sessions on YARN",
+          "subtopics": ["Capacity Scheduler queue hierarchy: capacity, maximum-capacity and user-limit-factor", "Mapping HiveServer2 sessions to queues with tez.queue.name", "hive.server2.tez.default.queues and hive.server2.tez.initialize.default.sessions", "Queue mapping by user or group", "Preemption and Tez container loss", "Queue placement per workload: ETL, BI, ad hoc", "Containers requested versus granted in the YARN UI", "Detecting a pending application on a full queue", "Admission control with hive.server2.tez.sessions.per.default.queue"],
+          "tools": ["YARN", "Capacity Scheduler", "Tez", "Beeline", "YARN ResourceManager UI"],
+          "lab_task": "Define queues etl (60 percent) and bi (40 percent) in capacity-scheduler.xml and refresh with yarn rmadmin -refreshQueues. Run a heavy aggregate with SET tez.queue.name=etl while a short query runs on bi. Record application states and elapsed times in the ResourceManager UI, then saturate etl and show that bi queries are not delayed.",
+          "deliverable": "capacity-scheduler.xml, queue screenshots and a latency table with and without etl saturation",
+          "checks": [["yarn queue -status bi", "Prints queue capacity 40.0 percent and state RUNNING", "Command output"], ["bi query while etl is saturated", "bi query finishes within the same time range as when etl is idle", "Latency table"], ["Submit to a queue name that does not exist", "Fails with an error that the queue does not exist or is not a leaf queue", "Beeline error"]],
+          "objectives": ["Configure Capacity Scheduler queues for Hive workloads", "Route sessions to queues with tez.queue.name", "Measure isolation under load"]
+        },
+        {
+          "topic": "Intermediate Capstone: Governed Warehouse with ACID, Iceberg and Ranger",
+          "subtopics": ["Schema design with ACID dimension and Iceberg fact tables", "Type 2 MERGE pipeline with idempotent reruns", "Compaction and snapshot maintenance schedule", "Ranger masking and row filters per role", "Statistics, join strategy and LLAP or Tez tuning evidence", "Runbook with metrics and rollback steps"],
+          "tools": ["Hive 4", "Tez", "Apache Iceberg", "Apache Ranger", "Beeline", "LLAP"],
+          "lab_task": "Build a retail warehouse: a transactional dim_customer maintained by type 2 MERGE, an Iceberg fact_sales partitioned by day and bucket(16, customer_id), a materialized view of daily revenue, and Ranger masking of email and a region row filter. Load 20M fact rows, tune one slow query with stats and a join change, schedule compaction and snapshot expiry, and document a rollback.",
+          "deliverable": "Repository with DDL, MERGE, Ranger policy export JSON, tuning log with before and after counters, and a runbook",
+          "checks": [["Tuned query before and after", "Elapsed time improves by a documented percentage with the changed plan shown in EXPLAIN", "Counter and EXPLAIN comparison"], ["Analyst login queries dim_customer", "Email is masked and only the permitted region rows are returned", "Beeline output"], ["Rollback of fact_sales to an earlier snapshot", "Row count equals the recorded pre-change count", "count(*) outputs"]],
+          "objectives": ["Combine ACID, Iceberg and Ranger in one governed design", "Tune and prove a performance improvement", "Document maintenance and rollback operations"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior data engineers, platform engineers and architects who run or migrate Hive estates. Covers Hive Metastore internals and performance, the Calcite compiler and plan debugging, Tez and LLAP sizing, skew and small-file diagnosis, ACID at scale, workload management resource plans, replication with REPL DUMP and REPL LOAD, a shared standalone metastore, Iceberg engineering in Hive 4, converting Hive tables to Iceberg, migrating HiveQL to Spark SQL and Trino, moving to EMR, Dataproc and Glue, Hive on Kubernetes, tag-based Ranger policy, upgrades, TPC-DS benchmarking, incident playbooks and a migration capstone.",
+      "prerequisites": ["Completed the intermediate level or operates Hive with ACID tables, Tez and Ranger in production", "Reads Tez counters, EXPLAIN plans and metastore tables to diagnose problems", "Has a lab with a remote metastore database, YARN or Kubernetes, and access to Spark and Trino for comparison runs"],
+      "outcomes": ["Diagnose slow and failing Hive workloads from compiler plans, Tez counters, LLAP metrics and metastore load", "Operate ACID, workload management and replication for a multi-tenant Hive platform", "Plan and execute migrations of Hive tables and HiveQL to Iceberg, Spark SQL, Trino and cloud services with measurable validation", "Run Hive on Kubernetes and manage upgrades, benchmarks and incident response with documented runbooks"],
+      "days": [
+        {
+          "topic": "Hive Metastore Internals: Schema, Events and Metadata Performance",
+          "subtopics": ["Metastore Thrift API and the ObjectStore with DataNucleus", "Table groups: DBS, TBLS, PARTITIONS, PARTITION_KEY_VALS, SDS, SERDES", "Slow partition listing and the direct SQL path via hive.metastore.try.direct.sql", "Backing database indexes and connection pool sizing", "hive.metastore.server.max.threads", "Metastore client cache and hive.metastore.client.socket.timeout", "NOTIFICATION_LOG and hive.metastore.event.db.listener.timetolive", "Housekeeping: partition stats and txn cleanup tasks", "Reading JDBC wait events from PostgreSQL or MySQL slow logs"],
+          "tools": ["Hive Metastore", "PostgreSQL", "psql", "Beeline", "pg_stat_statements"],
+          "lab_task": "Create a table with 100,000 partitions, then time SHOW PARTITIONS and a query with a dt range filter via the HiveServer2 log. Enable pg_stat_statements, rerun, and list the top 3 SQL statements by total time. Toggle hive.metastore.try.direct.sql off and on, and record the change in elapsed time and number of metastore queries.",
+          "deliverable": "Report with timings, top SQL statements and a recommendation for indexes and metastore settings",
+          "checks": [["SELECT count(*) FROM \"PARTITIONS\" in the backing database", "Returns 100000 for the test table", "psql result"], ["pg_stat_statements top 3 by total_exec_time", "Statements touching PARTITIONS and PARTITION_KEY_VALS lead the list", "Query output"], ["Query with direct SQL off versus on", "Elapsed time is lower with direct SQL on by the recorded factor", "Timing table"]],
+          "objectives": ["Navigate the metastore schema to answer operational questions", "Find the metadata bottleneck with database statistics", "Tune the direct SQL and thread settings"]
+        },
+        {
+          "topic": "Query Compiler Internals: Calcite, Operator Trees and Plan Debugging",
+          "subtopics": ["Compilation phases: parse, semantic analysis, CBO, physical planning", "Calcite rule application and HiveRelOptUtil", "EXPLAIN CBO and EXPLAIN COST", "Operator tree classes: TableScan, ReduceSink, GroupBy, MapJoin", "Query hints such as /*+ MAPJOIN(t) */ and /*+ SEMIJOIN */", "Debug logging for org.apache.hadoop.hive.ql.optimizer", "hive.cbo.enable=false as a diagnostic, not a fix", "Plan regressions between versions and how to bisect", "Reading a Tez DAG JSON from EXPLAIN FORMATTED"],
+          "tools": ["Beeline", "HiveQL", "EXPLAIN", "Calcite", "HiveServer2"],
+          "lab_task": "Take three queries that regress after a lab upgrade or a stats change. For each, capture EXPLAIN CBO, EXPLAIN FORMATTED and EXPLAIN COST output, diff the joins and Statistics, and apply one hint or stats fix. Write a one-page playbook of steps with the before and after Tez counters, and record whether hive.cbo.enable=false changes the plan.",
+          "deliverable": "Three plan-diff reports and a one-page regression playbook",
+          "checks": [["EXPLAIN CBO diff between good and bad plan", "Join order differs and the changed relation is named in the diff", "Diff output"], ["Apply a MAPJOIN hint to the regressed query", "EXPLAIN shows Map Join Operator and runtime drops in the Tez summary", "EXPLAIN and counters"], ["Run with hive.cbo.enable=false", "Plan differs from the CBO plan and the difference is explained", "Plan diff"]],
+          "objectives": ["Read CBO and operator-tree plans precisely", "Isolate a plan regression with a controlled diff", "Apply hints and stats fixes with evidence"]
+        },
+        {
+          "topic": "Tez Tuning: Container Sizing, Auto Reducer Parallelism and Shuffle",
+          "subtopics": ["hive.tez.container.size and hive.tez.java.opts at 80 percent of container", "hive.exec.reducers.bytes.per.reducer and hive.tez.auto.reducer.parallelism", "tez.grouping.min-size and tez.grouping.max-size for split grouping", "tez.runtime.io.sort.mb and tez.runtime.shuffle.fetch.buffer.percent", "tez.runtime.compress and codec choice", "Speculative execution and task retries: tez.am.task.max.failed.attempts", "Memory errors: Container killed by YARN for exceeding memory limits", "GC tuning and reading GC_TIME_MILLIS", "Tuning method: one change per run"],
+          "tools": ["Tez", "YARN", "Beeline", "Tez UI", "GC logs"],
+          "lab_task": "Pick a 200M-row aggregation that spills. Run a baseline then change one setting per run: container size, java.opts ratio, grouping max-size, reducers.bytes.per.reducer, and shuffle compression. Record elapsed time, SPILLED_RECORDS, GC_TIME_MILLIS and reducer count. Force a 'Container killed by YARN for exceeding memory limits' error by shrinking container.size, and capture the message and fix.",
+          "deliverable": "Tuning log with a row per change and a final recommended configuration",
+          "checks": [["Run with hive.tez.container.size too small for the shuffle", "Task fails with 'Container killed by YARN for exceeding memory limits' or an OutOfMemoryError", "Tez UI diagnostics"], ["Set reducers.bytes.per.reducer to a larger value", "Reducer count in the print summary drops and run time changes by the recorded amount", "Summary table"], ["Best configuration versus baseline", "Elapsed time and SPILLED_RECORDS are both lower than the baseline with a measured percentage", "Tuning log"]],
+          "objectives": ["Tune Tez memory, parallelism and shuffle one factor at a time", "Diagnose memory kills and spill from counters", "Record a repeatable tuning log"]
+        },
+        {
+          "topic": "LLAP Tuning and Sizing: Memory, Cache Hit Rate and Daemon Scaling",
+          "subtopics": ["Daemon memory model: executors, cache and headroom", "Sizing num.executors to cores and io.memory.size to hot data", "hive.llap.io.allocator.mmap and direct memory limits", "LLAP metrics: cache hit ratio, executor queue length, fragment wait time", "llap.queue.name and capacity reservations", "Scaling the LLAP service with llapstatus and the YARN service API", "Cache eviction policies and what gets cached", "Security: LLAP with Ranger and the ZooKeeper ACLs", "When to use LLAP versus container mode for ETL"],
+          "tools": ["LLAP", "Tez", "YARN", "Beeline", "llapstatus"],
+          "lab_task": "Run a 20-query BI replay at concurrency 1, 4 and 8 against LLAP with io.memory.size at 8 GB, then 16 GB. Use hive --service llapstatus to confirm daemon count and read cache hit ratio and executor queue metrics. Plot p50 and p95 latency per concurrency and conclude the smallest daemon size meeting a 5-second p95.",
+          "deliverable": "Latency chart, cache hit ratio table and a sizing recommendation",
+          "checks": [["hive --service llapstatus", "Reports STATE RUNNING_ALL with the expected daemon count", "llapstatus output"], ["p95 latency at concurrency 8 with 8 GB versus 16 GB cache", "16 GB cache shows lower p95 and higher cache hit ratio", "Latency table"], ["Concurrency raised above executor count", "Fragment wait time and executor queue length rise measurably", "LLAP metrics"]],
+          "objectives": ["Size LLAP executors and cache from workload data", "Read LLAP metrics to find saturation", "Choose LLAP or container mode per workload"]
+        },
+        {
+          "topic": "Skew, Data Layout and Small Files: Diagnosing Slow Queries from Counters",
+          "subtopics": ["Straggler detection from task duration histograms in Tez UI", "Skewed group-by with hive.groupby.skewindata", "Skew join settings and hint-based salting", "Small file causes: dynamic partitions, streaming, over-bucketing", "hive.merge.tezfiles and hive.merge.smallfiles.avgsize", "hive.exec.reducers.max and file count per dynamic partition", "Sort-based dynamic partition insert", "Counting files per partition from the metastore and HDFS", "Layout rewrite jobs and rollout order"],
+          "tools": ["Tez", "Beeline", "HDFS shell", "Tez UI", "HiveQL"],
+          "lab_task": "Load streaming-style data into a day-and-hour partitioned table so each partition holds about 200 files under 1 MB. Measure query time, then enable hive.merge.tezfiles=true with hive.merge.smallfiles.avgsize and re-insert, then rewrite with INSERT OVERWRITE ... DISTRIBUTE BY. Compare file counts using hdfs dfs -count and the NameNode object count, and query time across all three layouts.",
+          "deliverable": "Before and after table of file count, average file size and query time with the exact settings used",
+          "checks": [["hdfs dfs -count on one partition before rewrite", "Reports about 200 files", "hdfs output"], ["After merge settings and rewrite", "File count per partition falls to the target of under 10", "hdfs output"], ["Same query on both layouts", "Elapsed time and task count are lower after the rewrite", "Timing and task count table"]],
+          "objectives": ["Diagnose skew and small files from counters and file listings", "Fix layout with merge settings and rewrite jobs", "Quantify the benefit before rollout"]
+        },
+        {
+          "topic": "ACID at Scale: Compaction Backlog, Transaction Metadata Cleanup and Aborts",
+          "subtopics": ["Compaction queue growth and COMPACTION_QUEUE table review", "Worker thread sizing against YARN capacity", "Aborted transactions and hive.compactor.abortedtxn.threshold", "TXNS and TXN_COMPONENTS growth and cleaning", "hive.txn.timeout and heartbeat failures", "Open transaction long-runners and cleaner blockage", "Metastore housekeeping threads and hive.metastore.housekeeping.threads.on", "Write ID allocation contention", "Metrics: compaction_initiator_cycle and open transaction counts"],
+          "tools": ["Hive Metastore", "psql", "Beeline", "YARN", "HDFS shell"],
+          "lab_task": "Generate 2,000 inserts over 10 transactional tables with a script and an aborted-writer script. Track queue depth in COMPACTION_QUEUE and counts in TXNS every minute for 30 minutes. Hold a read transaction open and show the Cleaner cannot remove old deltas. Raise worker threads from 2 to 6 and show the backlog clears faster, with a chart of queue depth over time.",
+          "deliverable": "Chart and table of queue depth, TXNS size and Cleaner behaviour with a tuned configuration",
+          "checks": [["SELECT count(*) FROM \"COMPACTION_QUEUE\" during the load", "Shows a growing number of initiated entries", "psql output over time"], ["Long-open read transaction", "Cleaner does not remove obsolete deltas until the transaction ends", "hdfs listing before and after"], ["Worker threads raised from 2 to 6", "Backlog clears in a shorter measured time than the baseline", "Queue depth chart"]],
+          "objectives": ["Monitor compaction and transaction tables as health signals", "Explain what blocks the Cleaner", "Size worker threads against cluster capacity"]
+        },
+        {
+          "topic": "Workload Management: Resource Plans, Pools and Triggers",
+          "subtopics": ["CREATE RESOURCE PLAN and ALTER RESOURCE PLAN ... ENABLE ACTIVATE", "CREATE POOL with ALLOC_FRACTION and QUERY_PARALLELISM", "CREATE TRIGGER ... WHEN ELAPSED_TIME > 60000 DO MOVE TO pool", "Triggers on BYTES_READ, SHUFFLE_BYTES and DAG counters with KILL actions", "CREATE MAPPING by USER, GROUP or APPLICATION", "Default pool and fallback behaviour", "Works with LLAP only and sessions per pool", "Monitoring with SHOW RESOURCE PLAN and the web UI", "Testing plans without affecting production"],
+          "tools": ["LLAP", "HiveQL", "Beeline", "HiveServer2 web UI", "Tez"],
+          "lab_task": "Create resource plan prod with pools bi (alloc_fraction 0.7, query_parallelism 8) and etl (0.3, 2). Map group analysts to bi and svc_etl to etl. Add a trigger moving queries from bi to etl after 30 seconds and one killing any query reading over 500 GB. ALTER RESOURCE PLAN prod ENABLE ACTIVATE, run a slow and fast query as analysts, and record which pool each lands in.",
+          "deliverable": "Resource plan DDL, mapping table and evidence of pool moves and kills",
+          "checks": [["SHOW RESOURCE PLAN prod", "Lists pools bi and etl, the mapping rules and the triggers", "Command output"], ["Slow analyst query after 30 seconds", "Query is moved from pool bi to etl according to the trigger", "Web UI or log entry"], ["Query exceeding BYTES_READ limit", "Terminated with a trigger KILL error message naming the trigger", "Beeline error"]],
+          "objectives": ["Design pools and triggers from workload profiles", "Activate and verify a resource plan", "Explain limits of WM compared with YARN queues"]
+        },
+        {
+          "topic": "Replication and Disaster Recovery with REPL DUMP and REPL LOAD",
+          "subtopics": ["Bootstrap and incremental replication", "REPL DUMP db WITH (...) and REPL LOAD db FROM 'path'", "Replication of managed ACID, external tables and metadata", "hive.repl.rootdir and hive.repl.replica.functions.root.dir", "Replication metrics via the replication_metrics table and SHOW REPLICATION STATUS", "Failover and failback procedure", "External table data copied with DistCp and the REPL options", "Notification events retention requirement", "Ranger policy replication through the Ranger repl hooks"],
+          "tools": ["HiveQL", "Beeline", "DistCp", "HDFS shell", "Hive Metastore"],
+          "lab_task": "With two lab clusters, run REPL DUMP sales_db on the primary, REPL LOAD sales_db_dr on the replica, then add data to a managed ACID table and an external table and run an incremental dump and load. Read REPL STATUS sales_db_dr, compare row counts and checksums on both sides, and rehearse a failover by making the replica writable.",
+          "deliverable": "Replication runbook with dump and load outputs, validation counts and failover steps",
+          "checks": [["REPL STATUS sales_db_dr after the incremental load", "Returns the last replicated event id matching the dump", "Beeline output"], ["count(*) on the ACID and external tables on both clusters", "Counts are identical on primary and replica", "Count outputs"], ["Inserts after failover on the replica", "Succeed and are readable, and the old primary does not contain them", "Count comparison"]],
+          "objectives": ["Run bootstrap and incremental replication", "Validate replicas with counts and event ids", "Rehearse failover and failback"]
+        },
+        {
+          "topic": "Hive Metastore as a Shared Catalog: Standalone HMS with Spark, Trino and Flink",
+          "subtopics": ["Standalone metastore service without HiveServer2", "Metastore Thrift clients in Spark: spark.sql.catalogImplementation=hive and hive.metastore.uris", "Trino hive connector with hive.metastore.uri", "Flink HiveCatalog for streaming jobs", "Iceberg HiveCatalog and the lock settings", "Table type visibility: ACID tables are not safe for all engines", "hive.metastore.warehouse.dir ownership and permissions", "Version compatibility: spark.sql.hive.metastore.version and jars", "Multi-engine authorization: Ranger or storage-level controls"],
+          "tools": ["Hive Metastore", "Spark SQL", "Trino", "Flink", "Beeline", "Iceberg"],
+          "lab_task": "Run a standalone metastore and register an external Parquet table and an Iceberg table from Hive. Query both from Spark SQL (spark.sql.catalogImplementation=hive) and Trino (hive.metastore.uri), recording results. Try reading a managed transactional ORC table from Spark and Trino, capture each result or error, and write a compatibility table by table type and engine.",
+          "deliverable": "Engine compatibility matrix with queries, row counts and error messages",
+          "checks": [["count(*) on the external Parquet table from Hive, Spark and Trino", "All three return the same count", "Three result outputs"], ["Iceberg table queried from Spark and Trino", "Both read the data written from Hive and match the Hive count", "Result outputs"], ["Managed transactional ORC table read from Spark", "Fails or returns incomplete data without extra support, and the error or gap is recorded", "Spark output"]],
+          "objectives": ["Share one metastore among multiple engines safely", "Predict compatibility by table type", "Configure Spark and Trino against HMS"]
+        },
+        {
+          "topic": "Iceberg Engineering in Hive 4: Row-Level Operations, Delete Files and Compaction",
+          "subtopics": ["Copy-on-write versus merge-on-read: write.delete.mode, write.update.mode, write.merge.mode", "Position and equality delete files", "Small file and delete file accumulation", "Hive 4 compaction for Iceberg tables with OPTIMIZE-style major and minor options", "Table metrics from lab.t.files and lab.t.delete_files", "Manifest lists and manifest rewriting", "Concurrent writers and optimistic commit retry: commit.retry.num-retries", "Sorted writes and write.distribution-mode", "Cost comparison against native ACID tables"],
+          "tools": ["Beeline", "HiveQL", "Apache Iceberg", "HDFS shell", "Hive Metastore"],
+          "lab_task": "On two copies of an Iceberg table, set write.delete.mode to copy-on-write on one and merge-on-read on the other. Run 20 batches of UPDATE and DELETE on 1 percent of rows, then compare file counts in the .files and .delete_files metadata tables, write time and read time. Run compaction on the merge-on-read table and recount delete files.",
+          "deliverable": "Comparison table of files, delete files, write and read times before and after compaction",
+          "checks": [["SELECT count(*) FROM lab.t_mor.delete_files after 20 batches", "Returns more than 0 delete files while the copy-on-write table has none", "Metadata query output"], ["Write time per batch, COW versus MOR", "MOR batches are faster by the measured percentage and COW rewrites more data files", "Timing table"], ["Delete file count after compaction", "Drops to 0 or near 0 and read time improves", "Metadata query output"]],
+          "objectives": ["Choose copy-on-write or merge-on-read for a workload", "Monitor delete files and manifests", "Compact Iceberg tables and measure the effect"]
+        },
+        {
+          "topic": "Migrating Hive Tables to Iceberg: CONVERT TO ICEBERG and Rollback Plans",
+          "subtopics": ["Inventory: format, partitioning, size and ACID status per table", "ALTER TABLE ... CONVERT TO ICEBERG in place", "CTAS or INSERT migration into new Iceberg tables", "Partition spec mapping from Hive columns", "Validating counts, checksums and sampled rows", "Cutover with views, table renames and dual reads", "Rollback: keep the source until validation passes", "Permissions and Ranger policies per table", "Downstream readers and unsupported engines"],
+          "tools": ["Beeline", "HiveQL", "Apache Iceberg", "Hive Metastore", "Apache Ranger"],
+          "lab_task": "Take 5 lab tables: 2 external Parquet, 2 ORC managed non-ACID, 1 partitioned ORC. Run ALTER TABLE ... CONVERT TO ICEBERG on those that qualify and CTAS for the rest. Validate each with count(*), sum of a numeric column and an md5 over 1,000 sampled rows ordered by key, document failures, and write a cutover and rollback script.",
+          "deliverable": "Migration inventory, validation report per table and the cutover/rollback script",
+          "checks": [["count(*) and sum(amount) before and after conversion", "Both values are identical for every migrated table", "Validation report"], ["SHOW CREATE TABLE after CONVERT TO ICEBERG", "Table shows the Iceberg storage handler and a metadata location", "SHOW CREATE TABLE"], ["Rollback script executed on a test table", "Original table is restored and count(*) equals the recorded value", "Count output"]],
+          "objectives": ["Build a migration inventory and choose a method per table", "Validate migrated data with counts, sums and hashes", "Prepare a tested rollback"]
+        },
+        {
+          "topic": "HiveQL to Spark SQL Migration: Semantics, Bucketing and ACID Gaps",
+          "subtopics": ["Function and syntax differences: nvl, date_add, lateral view and TRANSFORM scripts", "Spark's own SQL parser and spark.sql.ansi.enabled behaviour", "Hive bucketing versus Spark bucketing compatibility", "spark.sql.legacy settings for Hive-compatible results", "Reading ACID tables: Hive Warehouse Connector, compaction first, or move to Iceberg", "Hive UDFs in Spark via CREATE FUNCTION and the jar path", "Partition overwrite mode: spark.sql.sources.partitionOverwriteMode=dynamic", "Result diffing: ordering, rounding, NULL ordering", "Shuffle partition tuning with spark.sql.shuffle.partitions"],
+          "tools": ["Spark SQL", "Beeline", "HiveQL", "Hive Metastore", "Iceberg"],
+          "lab_task": "Take 15 production HiveQL queries and run each in Hive and Spark SQL against the same data. Record syntax errors, result diffs with EXCEPT in both directions, and run times. Group failures by cause: functions, NULL ordering, ANSI mode and bucketing. Fix them, set spark.sql.shuffle.partitions per query, and produce a pass-rate table.",
+          "deliverable": "Migration test report with 15 queries, causes, fixes and final pass rate",
+          "checks": [["EXCEPT diff in both directions on each migrated query", "Both diffs return 0 rows for every query marked passed", "Diff counts"], ["Query with a Hive-only function or syntax", "Spark raises a parse or analysis error that names the function", "Spark error text"], ["Run time per query in Hive and Spark", "A table lists each time and the faster engine", "Timing table"]],
+          "objectives": ["Translate HiveQL constructs to Spark SQL with diff proof", "Handle bucketing, ACID and UDF gaps", "Report a measurable pass rate"]
+        },
+        {
+          "topic": "HiveQL to Trino Migration: Dialect, Connector and Performance Differences",
+          "subtopics": ["Dialect changes: LATERAL VIEW explode to CROSS JOIN UNNEST", "collect_set to array_distinct(array_agg)", "nvl and coalesce", "date_add and date_diff signature changes", "Casting and integer division differences", "The Hive connector: hive.metastore.uri and hive.non-managed-table-writes-enabled", "Reading ACID tables and delete delta limits", "Iceberg connector as the cleaner target", "Memory limits: query.max-memory and spill", "Result validation by hashing sorted output"],
+          "tools": ["Trino", "HiveQL", "Beeline", "Hive Metastore", "Iceberg"],
+          "lab_task": "Translate 12 Hive queries into Trino SQL, including two lateral view queries and one collect_set. Run on the same ORC and Iceberg tables, compare results by hash of sorted output, and record latency from EXPLAIN ANALYZE. Capture the error from reading a table with unsupported properties, and list each dialect rule you applied.",
+          "deliverable": "Dialect rule sheet, 12 translated queries and a validation table with hashes and latencies",
+          "checks": [["lateral view explode query rewritten with CROSS JOIN UNNEST", "Returns the same row count and hash as the Hive query", "Hash comparison"], ["EXPLAIN ANALYZE of the heaviest query in Trino", "Shows stage wall times and rows scanned per stage", "EXPLAIN ANALYZE output"], ["Query that exceeds query.max-memory", "Fails with 'Query exceeded per-node memory limit' and the setting is documented", "Trino error"]],
+          "objectives": ["Convert Hive-specific constructs to Trino SQL", "Validate results by hashing", "Decide when Trino or Spark suits a Hive workload"]
+        },
+        {
+          "topic": "Moving Hive to the Cloud: EMR, Dataproc and Glue Catalog Patterns",
+          "subtopics": ["Amazon EMR with Hive and the AWS Glue Data Catalog as metastore", "Dataproc with Dataproc Metastore service", "Azure options for Hive workloads in current services", "Externalising the metastore to RDS or Cloud SQL", "Table data on s3://, gs:// or abfs:// instead of HDFS", "Transient clusters with persistent metastore", "Cost levers: spot or preemptible task nodes and autoscaling", "Network, IAM roles and Ranger or Lake Formation", "Cutover plan: dual-run and compare"],
+          "tools": ["Amazon EMR", "AWS Glue Data Catalog", "Dataproc", "S3", "Beeline", "Terraform"],
+          "lab_task": "Write Terraform or CLI steps for a transient EMR cluster with Hive configured to use the Glue Data Catalog (hive.metastore.client.factory.class set to the Glue client factory). Register an external ORC table on S3, run 5 benchmark queries, terminate the cluster, start a new one, and show the table still exists. Record cost per run from the billing data.",
+          "deliverable": "IaC files, query results, cost per run and a persistence demonstration",
+          "checks": [["SHOW TABLES on a new transient cluster", "Lists the table created by the previous cluster via the shared catalog", "Beeline output"], ["aws glue get-table for the registered table", "Returns StorageDescriptor.Location starting with s3://", "CLI JSON"], ["Cost per benchmark run", "Cost is calculated from instance hours and recorded alongside run time", "Cost table"]],
+          "objectives": ["Externalise a Hive metastore to a managed catalog", "Run Hive on transient cloud clusters", "Estimate cost per workload run"]
+        },
+        {
+          "topic": "Hive on Kubernetes: Containerised HiveServer2, Metastore and Storage",
+          "subtopics": ["Official apache/hive images with SERVICE_NAME=metastore and hiveserver2", "Deployments, Services and ConfigMaps for hive-site.xml", "Secrets for database and object store credentials", "Metastore backend: managed PostgreSQL versus in-cluster operator", "Tez on Kubernetes limits and why LLAP-style long-running pods are common", "Object storage via S3A and IRSA or workload identity", "Liveness and readiness probes on ports 10000 and 9083", "Autoscaling HiveServer2 and sticky sessions", "Log shipping and metrics with JMX exporter"],
+          "tools": ["Kubernetes", "Helm", "Apache Hive", "PostgreSQL", "MinIO", "kubectl"],
+          "lab_task": "Deploy PostgreSQL, MinIO, a metastore Deployment and a HiveServer2 Deployment on kind using kubectl apply. Use a ConfigMap for hive-site.xml and Secrets for credentials, run schematool as an init container, then port-forward 10000 and use Beeline to create an external table on s3a://. Kill the HiveServer2 pod and measure the recovery time.",
+          "deliverable": "Kubernetes manifests, Beeline verification transcript and measured pod recovery time",
+          "checks": [["kubectl get pods", "metastore and hiveserver2 pods are Running 1/1", "kubectl output"], ["Beeline through kubectl port-forward and CREATE EXTERNAL TABLE on s3a", "Table is created and an INSERT writes objects visible in MinIO", "Beeline and bucket listing"], ["kubectl delete pod of hiveserver2", "A new pod becomes Ready within the recorded time and Beeline reconnects", "kubectl watch output"]],
+          "objectives": ["Package Hive services with Kubernetes manifests", "Handle configuration and secrets safely", "Test recovery and readiness probes"]
+        },
+        {
+          "topic": "Fine-Grained Access Control at Scale: Tag Policies, Auditing and Hive Hooks",
+          "subtopics": ["Atlas classifications and Ranger tag-based policies", "Propagation of tags through lineage", "Deny policies and exceptions ordering", "Masking by tag across all tables", "Ranger audit volume and retention in Solr, OpenSearch or HDFS", "Hive hooks: hive.exec.post.hooks and the Atlas hook for lineage", "Metastore event listeners for DDL audit", "Auditing impersonation and doAs identities", "Policy as code: export and import of Ranger JSON", "Access review reports"],
+          "tools": ["Apache Ranger", "Apache Atlas", "Beeline", "HiveQL", "Ranger Admin UI"],
+          "lab_task": "Tag the email columns of 10 tables with an Atlas classification PII via the REST API, create one tag-based Ranger policy that masks PII for group analysts, then query all 10 tables as an analyst. Export the policies as JSON and import into a second Ranger service, and build a report of denied accesses over 24 hours from the audit store.",
+          "deliverable": "Tag script, one tag-based policy, exported JSON and a denied-access report",
+          "checks": [["Query email column on each of the 10 tagged tables as analyst", "All 10 return masked values with no table-specific policy", "Query outputs"], ["Add a new table and tag its email column", "The mask applies on the first query after the tag sync with no policy edit", "Query output"], ["Ranger audit filtered by result=denied", "Lists the denied events with user, resource and policy id", "Audit export"]],
+          "objectives": ["Apply tag-based masking across many tables", "Capture audit and lineage with hooks", "Manage Ranger policies as code"]
+        },
+        {
+          "topic": "Hive Upgrade Planning: 3.x to 4.x, Metastore Schema and Behaviour Changes",
+          "subtopics": ["Release notes review: removed and deprecated features", "Metastore schema upgrade with schematool -upgradeSchema and a backup first", "Behaviour changes in default table type and CBO", "Configuration property diffs between versions", "Rolling upgrade order: metastore, then HiveServer2, then LLAP", "Client compatibility: Beeline JDBC driver and Spark metastore client", "Regression test set from production queries", "Rollback limits after a schema upgrade", "Stakeholder communication and freeze windows"],
+          "tools": ["schematool", "PostgreSQL", "Beeline", "HiveQL", "Docker Compose"],
+          "lab_task": "Back up a lab metastore with pg_dump, take schematool -info output on the old version, run -upgradeSchema using the new distribution, and run a replay of 25 saved queries on old and new versions. Diff row counts and EXPLAIN plans, list every changed hive-site.xml default using SET -v from both, and restore the pg_dump to rehearse rollback.",
+          "deliverable": "Upgrade runbook, schema before and after, query diff report and rollback rehearsal notes",
+          "checks": [["schematool -info after upgrade", "Metastore schema version equals the new distribution's version", "schematool output"], ["Replay of 25 queries", "Row counts match on all 25 or each difference is documented with a cause", "Diff report"], ["pg_restore of the backup and schematool -info", "Schema version returns to the original value", "schematool output"]],
+          "objectives": ["Plan an upgrade with backups and tested rollback", "Run schema upgrades and configuration diffs", "Prove behaviour parity with a query replay"]
+        },
+        {
+          "topic": "Benchmarking with TPC-DS and Performance Regression Gates",
+          "subtopics": ["TPC-DS data generation at a chosen scale factor", "Loading text then ORC or Iceberg", "Running the 99 queries with timing capture", "Stable benchmark rules: warm-up, three runs and median", "Comparing engines on identical hardware", "Statistics collection before benchmark runs", "Regression thresholds in CI", "Storing results in a table for trend analysis", "Common benchmark mistakes: caching, stale stats, different data layouts"],
+          "tools": ["TPC-DS", "Beeline", "Tez", "LLAP", "Python", "HiveQL"],
+          "lab_task": "Generate TPC-DS at scale factor 10, load into ORC with ANALYZE ... FOR COLUMNS, run all 99 queries 3 times each through a Python wrapper using beeline --outputformat=csv2, and store median time per query in a results table. Repeat after changing one setting such as LLAP on, and write a gate that fails when any query regresses over 20 percent.",
+          "deliverable": "Benchmark scripts, results table and a regression gate script with a sample pass and fail",
+          "checks": [["Result table row count", "Contains 99 queries with 3 timings each", "Query on results table"], ["Gate run on identical configurations", "Exits 0 with no query above the 20 percent threshold", "Script exit code"], ["Gate run after degrading stats", "Exits non-zero and lists the regressed queries", "Script output"]],
+          "objectives": ["Run a repeatable TPC-DS benchmark on Hive", "Store medians and compare configurations", "Automate regression gates"]
+        },
+        {
+          "topic": "Incident Response Playbooks for HiveServer2, Metastore and Tez",
+          "subtopics": ["HiveServer2 hangs: thread dumps with jstack and open session counts", "Metastore database connection exhaustion", "Slow partition listing and metastore timeouts", "HiveServer2 OutOfMemoryError from large result sets and many partitions", "Stuck Tez sessions and orphaned YARN applications", "ZooKeeper session loss and HA flapping", "Lock pile-ups: SHOW LOCKS and the HIVE_LOCKS table", "Triage order, communication and post-incident reviews", "Alerts from JMX metrics: open sessions, queries active, GC pauses"],
+          "tools": ["HiveServer2", "jstack", "Hive Metastore", "psql", "YARN", "JMX"],
+          "lab_task": "Reproduce three faults in a lab: an HS2 heap exhaustion from SELECT * on a 100,000-partition table, metastore DB connection exhaustion by lowering the pool, and a lock pile-up from a stuck transaction. For each, record symptoms, the log lines, commands used to diagnose (jstack, jcmd GC.heap_info, SHOW LOCKS), the fix and a Prometheus alert expression.",
+          "deliverable": "Three incident playbooks with symptoms, diagnostic commands, fixes and alert rules",
+          "checks": [["HS2 heap exhaustion fault", "Log shows java.lang.OutOfMemoryError: Java heap space and jcmd output shows old gen full", "Log excerpt and jcmd output"], ["Metastore pool exhausted", "Client errors report failing to obtain a connection and the fix raises the pool size or reduces concurrency", "Log excerpt"], ["Stuck transaction lock pile-up", "SHOW LOCKS lists waiting locks behind one long transaction and aborting it clears them", "SHOW LOCKS before and after"]],
+          "objectives": ["Diagnose HiveServer2 and metastore faults with standard tools", "Write fix and alert steps for each fault", "Run a post-incident review"]
+        },
+        {
+          "topic": "Advanced Capstone: Migrating a Hive Warehouse to Iceberg with Spark and Trino Access",
+          "subtopics": ["Inventory and risk classification of source tables", "Iceberg conversion plan with validation and rollback", "Shared metastore access from Hive, Spark and Trino", "Ranger and workload management for the new platform", "TPC-DS or replayed-query benchmark before and after", "Runbook, cost and cutover decision document"],
+          "tools": ["Hive 4", "Apache Iceberg", "Spark SQL", "Trino", "Apache Ranger", "Hive Metastore"],
+          "lab_task": "Starting from a 40-table lab Hive warehouse with ACID, ORC and Parquet tables, migrate it to Iceberg tables using CONVERT TO ICEBERG or CTAS, validate every table with counts, sums and hashes, run 25 replayed queries in Hive, Spark and Trino, apply Ranger masking and a WM plan, and deliver a cutover plan with rollback and a before/after benchmark.",
+          "deliverable": "Migration repository, validation report, benchmark table, Ranger and WM configuration, cutover and rollback plan",
+          "checks": [["Validation report for all 40 tables", "Every table shows matching counts and sums or a documented exception", "Validation report"], ["25 replayed queries in Hive, Spark and Trino", "Results match and the median latency per engine is tabulated", "Result diff and timing table"], ["Rollback drill on 3 tables", "Original tables are restored with identical counts within the target time", "Count outputs and timings"]],
+          "objectives": ["Deliver an end-to-end Hive to Iceberg migration with validation", "Serve the same tables to Hive, Spark and Trino", "Present a cutover and rollback decision with data"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,570 @@
+{
+  "title": "Engineering, Security & Product",
+  "overview": "Reference curriculum draft for client adaptation",
+  "days": [
+    {
+      "day": 1,
+      "modules": [
+        {
+          "topic": "M1 - Best Practices for Cursor & Lovable Implementation",
+          "code": "M1",
+          "reference_day": 1,
+          "minutes": 90,
+          "subtopics": [
+            "Set up Cursor and Lovable so every developer on a shared repository gets AI output that follows sample organisation coding standards."
+          ],
+          "learning_objectives": [
+            "Set up Cursor and Lovable so every developer on a shared repository gets AI output that follows sample organisation coding standards."
+          ],
+          "lab": "Write rules and prompt files on a shared sample repository, then test them with a prompt that tries to break the standards.",
+          "deliverable": "Repository rules and prompt file set",
+          "assessment": "Sample changes pass the standards checklist",
+          "scenarios": [
+            {
+              "id": "M1.1",
+              "situation": "Two developers on the same repository get different code styles from the same AI tool.",
+              "activity": "Write a shared rules file and prompt library, then run the same prompt in two developer setups.",
+              "outcome": "Consistent AI output regardless of who prompts it.",
+              "evidence": "Side-by-side outputs both pass the standards checklist."
+            },
+            {
+              "id": "M1.2",
+              "situation": "The AI suggests code that breaks the team's naming and error-handling standard.",
+              "activity": "Encode the standard as a rule, re-run the prompt, and compare with the earlier result.",
+              "outcome": "The known violation is no longer generated.",
+              "evidence": "Before and after diff shows the violation removed."
+            },
+            {
+              "id": "M1.3",
+              "situation": "A team lead needs one AI setup rolled out across the whole team.",
+              "activity": "Draft the rollout steps: rules in repo, tool settings, review workflow, and a short onboarding guide.",
+              "outcome": "A new developer can adopt the setup without help.",
+              "evidence": "A peer follows the guide and gets compliant output."
+            },
+            {
+              "id": "M1.4",
+              "situation": "Product and platform teams need different rules on the same codebase.",
+              "activity": "Layer team-level rules on top of the shared base and test both.",
+              "outcome": "Common standards with room for team-specific needs.",
+              "evidence": "Each team's sample prompt passes its own checklist."
+            }
+          ],
+          "source_locator": "Day-wise Plan!A5:K5",
+          "title": "M1 - Best Practices for Cursor & Lovable Implementation",
+          "scenario": "Two developers on the same repository get different code styles from the same AI tool.\nThe AI suggests code that breaks the team's naming and error-handling standard.\nA team lead needs one AI setup rolled out across the whole team.\nProduct and platform teams need different rules on the same codebase."
+        },
+        {
+          "topic": "M2 - Rapid Prototyping & UI and UX Enhancement",
+          "code": "M2",
+          "reference_day": 1,
+          "minutes": 105,
+          "subtopics": [
+            "Take a written product idea to a rendered, demonstrable frontend enhancement for a sample sample organisation dashboard."
+          ],
+          "learning_objectives": [
+            "Take a written product idea to a rendered, demonstrable frontend enhancement for a sample sample organisation dashboard."
+          ],
+          "lab": "Build from brief to working UI in Lovable and Cursor, then iterate on stakeholder feedback.",
+          "deliverable": "Working UI prototype",
+          "assessment": "Prototype rendered and demonstrated within the lab window",
+          "scenarios": [
+            {
+              "id": "M2.1",
+              "situation": "A product manager wants a new filter and summary panel on the product dashboard.",
+              "activity": "Turn a written brief into a rendered frontend in Lovable.",
+              "outcome": "A clickable prototype replaces a slide discussion.",
+              "evidence": "Prototype rendered and demonstrated."
+            },
+            {
+              "id": "M2.2",
+              "situation": "Mid-review, stakeholders ask for a trend chart and a different layout.",
+              "activity": "Iterate the prototype with follow-up prompts and compare versions.",
+              "outcome": "Change requests handled in minutes rather than a new design cycle.",
+              "evidence": "Updated prototype shown with both changes applied."
+            },
+            {
+              "id": "M2.3",
+              "situation": "Engineering must decide what to keep from the prototype.",
+              "activity": "Move the prototype into Cursor and list components, states, and open questions.",
+              "outcome": "Clear line between throwaway prototype and code worth keeping.",
+              "evidence": "Engineering handoff notes reviewed by the group."
+            },
+            {
+              "id": "M2.4",
+              "situation": "The prototype must match brand and design rules.",
+              "activity": "Add design tokens and layout rules to the prompt and rules file.",
+              "outcome": "Prototypes look consistent without manual clean-up.",
+              "evidence": "Result checked against a small design checklist."
+            }
+          ],
+          "source_locator": "Day-wise Plan!A6:K6",
+          "title": "M2 - Rapid Prototyping & UI and UX Enhancement",
+          "scenario": "A product manager wants a new filter and summary panel on the product dashboard.\nMid-review, stakeholders ask for a trend chart and a different layout.\nEngineering must decide what to keep from the prototype.\nThe prototype must match brand and design rules."
+        },
+        {
+          "topic": "M3 - Automating Code Refactoring & Unit Tests",
+          "code": "M3",
+          "reference_day": 1,
+          "minutes": 90,
+          "subtopics": [
+            "Refactor legacy code for performance and prove nothing broke using generated unit and integration tests."
+          ],
+          "learning_objectives": [
+            "Refactor legacy code for performance and prove nothing broke using generated unit and integration tests."
+          ],
+          "lab": "Analyse a legacy module in Cursor, refactor it, and generate tests that validate the change.",
+          "deliverable": "Refactored module with a passing test suite",
+          "assessment": "Tests pass; performance change measured on the sample",
+          "scenarios": [
+            {
+              "id": "M3.1",
+              "situation": "A legacy function with nested loops slows a key report.",
+              "activity": "Analyse it in Cursor, refactor for performance, and compare timings.",
+              "outcome": "Faster function with the same results.",
+              "evidence": "Timing comparison and passing tests."
+            },
+            {
+              "id": "M3.2",
+              "situation": "A module has no tests and the team fears changing it.",
+              "activity": "Generate unit tests that capture current behaviour before any change.",
+              "outcome": "A safety net exists before refactoring starts.",
+              "evidence": "Generated tests pass on the original code."
+            },
+            {
+              "id": "M3.3",
+              "situation": "A refactor touches an API endpoint used by other services.",
+              "activity": "Generate integration tests for the endpoint and run them after the change.",
+              "outcome": "Confidence that consumers of the endpoint are unaffected.",
+              "evidence": "Integration tests pass on the refactored endpoint."
+            },
+            {
+              "id": "M3.4",
+              "situation": "A team adds an LLM feature (for example RAG over internal documents) to a product. Include if the agentic topics in the TOC are confirmed in scope.",
+              "activity": "Review the feature for prompt injection and unsafe data exposure and propose safeguards.",
+              "outcome": "Team recognises AI-specific risks in code they ship.",
+              "evidence": "Findings list with proposed safeguards."
+            }
+          ],
+          "source_locator": "Day-wise Plan!A7:K7",
+          "title": "M3 - Automating Code Refactoring & Unit Tests",
+          "scenario": "A legacy function with nested loops slows a key report.\nA module has no tests and the team fears changing it.\nA refactor touches an API endpoint used by other services.\nA team adds an LLM feature (for example RAG over internal documents) to a product. Include if the agentic topics in the TOC are confirmed in scope."
+        },
+        {
+          "topic": "M4 - CI and CD Pipeline Optimization & Cost Reduction",
+          "code": "M4",
+          "reference_day": 1,
+          "minutes": 75,
+          "subtopics": [
+            "Find pipeline bottlenecks and tool sprawl from build logs and propose script changes that cut compute time and cost."
+          ],
+          "learning_objectives": [
+            "Find pipeline bottlenecks and tool sprawl from build logs and propose script changes that cut compute time and cost."
+          ],
+          "lab": "Analyse historical build logs with AI and generate scripting improvements.",
+          "deliverable": "Ranked bottleneck list with estimated savings",
+          "assessment": "Bottlenecks identified on sample logs; savings estimate documented",
+          "scenarios": [
+            {
+              "id": "M4.1",
+              "situation": "The main pipeline takes too long and blocks releases.",
+              "activity": "Analyse build logs to find the slowest stages and propose caching or parallel steps.",
+              "outcome": "A ranked plan to shorten build time.",
+              "evidence": "Bottleneck list backed by log evidence."
+            },
+            {
+              "id": "M4.2",
+              "situation": "Several overlapping linters and scanners run in the same pipeline.",
+              "activity": "Identify overlaps and propose which tools to consolidate.",
+              "outcome": "Less tool sprawl and lower compute cost.",
+              "evidence": "Consolidation proposal with rationale."
+            },
+            {
+              "id": "M4.3",
+              "situation": "Flaky tests cause repeated reruns.",
+              "activity": "Find repeated failures in logs and suggest quarantine or fix steps.",
+              "outcome": "Fewer wasted reruns.",
+              "evidence": "Flaky test list drawn from the logs."
+            },
+            {
+              "id": "M4.4",
+              "situation": "Finance asks what the pipeline improvements are worth.",
+              "activity": "Turn findings into an estimated saving with stated assumptions.",
+              "outcome": "Engineering efficiency linked to operational savings.",
+              "evidence": "Estimate documented with assumptions."
+            }
+          ],
+          "source_locator": "Day-wise Plan!A8:K8",
+          "title": "M4 - CI and CD Pipeline Optimization & Cost Reduction",
+          "scenario": "The main pipeline takes too long and blocks releases.\nSeveral overlapping linters and scanners run in the same pipeline.\nFlaky tests cause repeated reruns.\nFinance asks what the pipeline improvements are worth."
+        }
+      ],
+      "focus_area": "M1 - Best Practices for Cursor & Lovable Implementation / M2 - Rapid Prototyping & UI and UX Enhancement / M3 - Automating Code Refactoring & Unit Tests / M4 - CI and CD Pipeline Optimization & Cost Reduction",
+      "subtopics": [
+        "Set up Cursor and Lovable so every developer on a shared repository gets AI output that follows sample organisation coding standards.",
+        "Take a written product idea to a rendered, demonstrable frontend enhancement for a sample sample organisation dashboard.",
+        "Refactor legacy code for performance and prove nothing broke using generated unit and integration tests.",
+        "Find pipeline bottlenecks and tool sprawl from build logs and propose script changes that cut compute time and cost."
+      ],
+      "learning_objectives": [
+        "Set up Cursor and Lovable so every developer on a shared repository gets AI output that follows sample organisation coding standards.",
+        "Take a written product idea to a rendered, demonstrable frontend enhancement for a sample sample organisation dashboard.",
+        "Refactor legacy code for performance and prove nothing broke using generated unit and integration tests.",
+        "Find pipeline bottlenecks and tool sprawl from build logs and propose script changes that cut compute time and cost."
+      ],
+      "lab": "Write rules and prompt files on a shared sample repository, then test them with a prompt that tries to break the standards.\nBuild from brief to working UI in Lovable and Cursor, then iterate on stakeholder feedback.\nAnalyse a legacy module in Cursor, refactor it, and generate tests that validate the change.\nAnalyse historical build logs with AI and generate scripting improvements.",
+      "minutes": 360,
+      "date": "02-Nov-2026",
+      "timing": "To be confirmed",
+      "hours_per_day": 6.0,
+      "morning_session": {
+        "time": "To be confirmed"
+      },
+      "afternoon_session": {
+        "time": "To be confirmed"
+      },
+      "minimum_planned_minutes": 100
+    },
+    {
+      "day": 2,
+      "modules": [
+        {
+          "topic": "M5 - Foundations of AI-Assisted Security",
+          "code": "M5",
+          "reference_day": 2,
+          "minutes": 90,
+          "subtopics": [
+            "Share code and configuration with AI tools for security review without exposing proprietary IP."
+          ],
+          "learning_objectives": [
+            "Share code and configuration with AI tools for security review without exposing proprietary IP."
+          ],
+          "lab": "Redact and scope a sample codebase and server configuration, then run an AI review with an approved tool.",
+          "deliverable": "AI-assisted security review method and checklist",
+          "assessment": "No marked proprietary strings exposed during the review",
+          "scenarios": [
+            {
+              "id": "M5.1",
+              "situation": "A developer wants AI to review a config file that contains secrets and internal hostnames.",
+              "activity": "Redact secrets, swap hostnames for placeholders, then run the review.",
+              "outcome": "Useful review without exposing sensitive values.",
+              "evidence": "No marked strings appear in the AI prompt."
+            },
+            {
+              "id": "M5.2",
+              "situation": "Teams are unsure which AI tool is allowed for which kind of code.",
+              "activity": "Build a simple decision table: public, internal, restricted, with allowed tools for each.",
+              "outcome": "Everyone knows what can go where.",
+              "evidence": "Decision table reviewed and agreed."
+            },
+            {
+              "id": "M5.3",
+              "situation": "A server or infrastructure configuration needs a quick misconfiguration check.",
+              "activity": "Review a sample configuration with AI and verify each finding by hand.",
+              "outcome": "Faster reviews with human confirmation kept in place.",
+              "evidence": "Each AI finding marked confirmed or rejected."
+            }
+          ],
+          "source_locator": "Day-wise Plan!A9:K9",
+          "title": "M5 - Foundations of AI-Assisted Security",
+          "scenario": "A developer wants AI to review a config file that contains secrets and internal hostnames.\nTeams are unsure which AI tool is allowed for which kind of code.\nA server or infrastructure configuration needs a quick misconfiguration check."
+        },
+        {
+          "topic": "M6 - Live Vulnerability Scanning",
+          "code": "M6",
+          "reference_day": 2,
+          "minutes": 105,
+          "subtopics": [
+            "Find SQL injection, cross-site scripting and authentication bypass in a live repository and generate validated patches."
+          ],
+          "learning_objectives": [
+            "Find SQL injection, cross-site scripting and authentication bypass in a live repository and generate validated patches."
+          ],
+          "lab": "Run a live assessment on a deliberately insecure repository, patch each finding, and re-test.",
+          "deliverable": "Findings report with validated patch code",
+          "assessment": "Seeded critical vulnerabilities identified and correctly patched",
+          "scenarios": [
+            {
+              "id": "M6.1",
+              "situation": "The login and search endpoints build SQL from user input.",
+              "activity": "Confirm the SQL injection in the insecure repository and patch with parameterised queries.",
+              "outcome": "Injection path closed.",
+              "evidence": "Exploit attempt fails after the patch."
+            },
+            {
+              "id": "M6.2",
+              "situation": "An admin route is reachable without a proper role check.",
+              "activity": "Identify the authentication bypass and generate a fix.",
+              "outcome": "Access control enforced.",
+              "evidence": "Unauthorised request is now rejected."
+            },
+            {
+              "id": "M6.3",
+              "situation": "A comment and profile field render unescaped user input.",
+              "activity": "Find the cross-site scripting flaw and add output encoding.",
+              "outcome": "Injected script no longer runs.",
+              "evidence": "Test payload displays as text."
+            },
+            {
+              "id": "M6.4",
+              "situation": "An AI-suggested patch fixes one flaw but breaks a feature.",
+              "activity": "Run the test suite against each patch and adjust the ones that fail.",
+              "outcome": "Patches are validated, not trusted blindly.",
+              "evidence": "All patches pass tests before sign-off."
+            }
+          ],
+          "source_locator": "Day-wise Plan!A10:K10",
+          "title": "M6 - Live Vulnerability Scanning",
+          "scenario": "The login and search endpoints build SQL from user input.\nAn admin route is reachable without a proper role check.\nA comment and profile field render unescaped user input.\nAn AI-suggested patch fixes one flaw but breaks a feature."
+        },
+        {
+          "topic": "M7 - Process Flow Security & Threat Modelling",
+          "code": "M7",
+          "reference_day": 2,
+          "minutes": 90,
+          "subtopics": [
+            "Produce a STRIDE threat model from a cloud topology map, covering ingress points, lateral movement and mitigations."
+          ],
+          "learning_objectives": [
+            "Produce a STRIDE threat model from a cloud topology map, covering ingress points, lateral movement and mitigations."
+          ],
+          "lab": "Map a sample sample organisation cloud operations architecture and generate and refine a STRIDE model with AI.",
+          "deliverable": "STRIDE threat model with a mitigation for each threat",
+          "assessment": "Seeded threats identified, each with a mitigation",
+          "scenarios": [
+            {
+              "id": "M7.1",
+              "situation": "A new cloud service is exposed through an API gateway.",
+              "activity": "Map the service and use STRIDE to list spoofing, tampering and exposure threats at each ingress point.",
+              "outcome": "Threats identified before the service goes live.",
+              "evidence": "Threat list covers every ingress point."
+            },
+            {
+              "id": "M7.2",
+              "situation": "A compromised low-privilege workload could reach the database.",
+              "activity": "Trace the lateral movement path and propose segmentation and least-privilege fixes.",
+              "outcome": "Blast radius of a breach reduced.",
+              "evidence": "Path diagram with a mitigation at each hop."
+            },
+            {
+              "id": "M7.3",
+              "situation": "The team plans to give an AI assistant access to logs and internal data.",
+              "activity": "Threat model the AI component itself, including data leakage and prompt injection.",
+              "outcome": "AI features reviewed like any other system component.",
+              "evidence": "Threats and mitigations added to the model."
+            },
+            {
+              "id": "M7.4",
+              "situation": "Security wants a repeatable review method for future architecture changes.",
+              "activity": "Turn the exercise into a reusable prompt and checklist.",
+              "outcome": "Threat modelling becomes routine.",
+              "evidence": "Template used on a second sample diagram."
+            }
+          ],
+          "source_locator": "Day-wise Plan!A11:K11",
+          "title": "M7 - Process Flow Security & Threat Modelling",
+          "scenario": "A new cloud service is exposed through an API gateway.\nA compromised low-privilege workload could reach the database.\nThe team plans to give an AI assistant access to logs and internal data.\nSecurity wants a repeatable review method for future architecture changes."
+        },
+        {
+          "topic": "M8 - Building the SecOps AI Assistant",
+          "code": "M8",
+          "reference_day": 2,
+          "minutes": 75,
+          "subtopics": [
+            "Design a local SecOps AI assistant that analyses firewall logs and raises alerts before incidents escalate."
+          ],
+          "learning_objectives": [
+            "Design a local SecOps AI assistant that analyses firewall logs and raises alerts before incidents escalate."
+          ],
+          "lab": "Design the assistant, analyse sample firewall and anomaly logs, write alert logic, and present the concept.",
+          "deliverable": "Assistant design, prototype on sample logs, alert rules, presentation",
+          "assessment": "Seeded anomalies detected; presentation shows usable logic, relevance and feasibility",
+          "scenarios": [
+            {
+              "id": "M8.1",
+              "situation": "A spike of denied connections comes from a single source in the firewall log.",
+              "activity": "Have the assistant summarise and classify the activity.",
+              "outcome": "Analysts see the pattern in seconds.",
+              "evidence": "Assistant flags the seeded source."
+            },
+            {
+              "id": "M8.2",
+              "situation": "Outbound data volume rises sharply at an unusual hour.",
+              "activity": "Write alert logic for the anomaly and test it on sample logs.",
+              "outcome": "Early warning of possible data exfiltration.",
+              "evidence": "Alert fires on the seeded event."
+            },
+            {
+              "id": "M8.3",
+              "situation": "Analysts are overwhelmed by noisy alerts.",
+              "activity": "Add thresholds and context to reduce false positives and discuss the trade-off.",
+              "outcome": "Alerts worth acting on.",
+              "evidence": "Alert volume drops on the sample without missing the seeded events."
+            },
+            {
+              "id": "M8.4",
+              "situation": "The on-call analyst needs a quick incident handoff.",
+              "activity": "Have the assistant produce a short incident summary from log evidence.",
+              "outcome": "Faster, clearer handoffs.",
+              "evidence": "Summary includes source, timeline and suggested next step."
+            }
+          ],
+          "source_locator": "Day-wise Plan!A12:K12",
+          "title": "M8 - Building the SecOps AI Assistant",
+          "scenario": "A spike of denied connections comes from a single source in the firewall log.\nOutbound data volume rises sharply at an unusual hour.\nAnalysts are overwhelmed by noisy alerts.\nThe on-call analyst needs a quick incident handoff."
+        }
+      ],
+      "focus_area": "M5 - Foundations of AI-Assisted Security / M6 - Live Vulnerability Scanning / M7 - Process Flow Security & Threat Modelling / M8 - Building the SecOps AI Assistant",
+      "subtopics": [
+        "Share code and configuration with AI tools for security review without exposing proprietary IP.",
+        "Find SQL injection, cross-site scripting and authentication bypass in a live repository and generate validated patches.",
+        "Produce a STRIDE threat model from a cloud topology map, covering ingress points, lateral movement and mitigations.",
+        "Design a local SecOps AI assistant that analyses firewall logs and raises alerts before incidents escalate."
+      ],
+      "learning_objectives": [
+        "Share code and configuration with AI tools for security review without exposing proprietary IP.",
+        "Find SQL injection, cross-site scripting and authentication bypass in a live repository and generate validated patches.",
+        "Produce a STRIDE threat model from a cloud topology map, covering ingress points, lateral movement and mitigations.",
+        "Design a local SecOps AI assistant that analyses firewall logs and raises alerts before incidents escalate."
+      ],
+      "lab": "Redact and scope a sample codebase and server configuration, then run an AI review with an approved tool.\nRun a live assessment on a deliberately insecure repository, patch each finding, and re-test.\nMap a sample sample organisation cloud operations architecture and generate and refine a STRIDE model with AI.\nDesign the assistant, analyse sample firewall and anomaly logs, write alert logic, and present the concept.",
+      "minutes": 360,
+      "date": "03-Nov-2026",
+      "timing": "To be confirmed",
+      "hours_per_day": 6.0,
+      "morning_session": {
+        "time": "To be confirmed"
+      },
+      "afternoon_session": {
+        "time": "To be confirmed"
+      },
+      "minimum_planned_minutes": 100
+    }
+  ],
+  "planning_method": "offline_reference_draft",
+  "source_file": "Execution_Plan_Engineering_Security_Product.xlsx",
+  "requirement_brief": {
+    "audience": "Working practitioners"
+  },
+  "quality": {
+    "status": "requires_review",
+    "validation_errors": [],
+    "review_warnings": [
+      "Reference draft requires client-scope and subject-matter review before delivery"
+    ],
+    "missing_requested_topics": []
+  },
+  "learning_outcomes": [
+    "Set up Cursor and Lovable so every developer on a shared repository gets AI output that follows sample organisation coding standards.",
+    "Take a written product idea to a rendered, demonstrable frontend enhancement for a sample sample organisation dashboard.",
+    "Refactor legacy code for performance and prove nothing broke using generated unit and integration tests.",
+    "Find pipeline bottlenecks and tool sprawl from build logs and propose script changes that cut compute time and cost.",
+    "Share code and configuration with AI tools for security review without exposing proprietary IP.",
+    "Find SQL injection, cross-site scripting and authentication bypass in a live repository and generate validated patches.",
+    "Produce a STRIDE threat model from a cloud topology map, covering ingress points, lateral movement and mitigations.",
+    "Design a local SecOps AI assistant that analyses firewall logs and raises alerts before incidents escalate."
+  ],
+  "domain": "Engineering Security Product",
+  "duration_days": 2,
+  "level": "intermediate",
+  "mode": "Online",
+  "generation_mode": "reference_draft",
+  "requested_generation_mode": "template",
+  "technology_allocations": [],
+  "training_dates": "2026-11-02",
+  "hours_per_day": 6.0,
+  "ai_toc_template": {
+    "template_name": "daily_training_schedule_v1",
+    "internal_only": true,
+    "fields": [
+      "Sr No",
+      "Date",
+      "Day",
+      "Timings",
+      "Hours",
+      "Main Topic",
+      "Subtopics",
+      "Practical / Hands-on",
+      "Daily Outcome",
+      "Day Summary"
+    ],
+    "trainer_owned_fields": [
+      "Day Summary"
+    ],
+    "sunday_excluded": true,
+    "rows": [
+      {
+        "sr_no": 1,
+        "date": "02-Nov-2026",
+        "day": "Day 1",
+        "timings": "To be confirmed",
+        "hours": 6.0,
+        "main_topic": "M1 - Best Practices for Cursor & Lovable Implementation / M2 - Rapid Prototyping & UI and UX Enhancement / M3 - Automating Code Refactoring & Unit Tests / M4 - CI and CD Pipeline Optimization & Cost Reduction",
+        "subtopics": [
+          "Set up Cursor and Lovable so every developer on a shared repository gets AI output that follows sample organisation coding standards.",
+          "Take a written product idea to a rendered, demonstrable frontend enhancement for a sample sample organisation dashboard.",
+          "Refactor legacy code for performance and prove nothing broke using generated unit and integration tests.",
+          "Find pipeline bottlenecks and tool sprawl from build logs and propose script changes that cut compute time and cost."
+        ],
+        "practical_hands_on": "Write rules and prompt files on a shared sample repository, then test them with a prompt that tries to break the standards.\nBuild from brief to working UI in Lovable and Cursor, then iterate on stakeholder feedback.\nAnalyse a legacy module in Cursor, refactor it, and generate tests that validate the change.\nAnalyse historical build logs with AI and generate scripting improvements.",
+        "daily_outcome": "Set up Cursor and Lovable so every developer on a shared repository gets AI output that follows sample organisation coding standards.; Take a written product idea to a rendered, demonstrable frontend enhancement for a sample sample organisation dashboard.",
+        "day_summary": ""
+      },
+      {
+        "sr_no": 2,
+        "date": "03-Nov-2026",
+        "day": "Day 2",
+        "timings": "To be confirmed",
+        "hours": 6.0,
+        "main_topic": "M5 - Foundations of AI-Assisted Security / M6 - Live Vulnerability Scanning / M7 - Process Flow Security & Threat Modelling / M8 - Building the SecOps AI Assistant",
+        "subtopics": [
+          "Share code and configuration with AI tools for security review without exposing proprietary IP.",
+          "Find SQL injection, cross-site scripting and authentication bypass in a live repository and generate validated patches.",
+          "Produce a STRIDE threat model from a cloud topology map, covering ingress points, lateral movement and mitigations.",
+          "Design a local SecOps AI assistant that analyses firewall logs and raises alerts before incidents escalate."
+        ],
+        "practical_hands_on": "Redact and scope a sample codebase and server configuration, then run an AI review with an approved tool.\nRun a live assessment on a deliberately insecure repository, patch each finding, and re-test.\nMap a sample sample organisation cloud operations architecture and generate and refine a STRIDE model with AI.\nDesign the assistant, analyse sample firewall and anomaly logs, write alert logic, and present the concept.",
+        "daily_outcome": "Share code and configuration with AI tools for security review without exposing proprietary IP.; Find SQL injection, cross-site scripting and authentication bypass in a live repository and generate validated patches.",
+        "day_summary": ""
+      }
+    ]
+  },
+  "ai_lab_cost_template": {
+    "template_name": "lab_cost_input_v1",
+    "internal_only": true,
+    "inputs": {
+      "technology": "Engineering Security Product",
+      "participants": "To be confirmed",
+      "cloud_provider": "To be confirmed",
+      "cloud_region": "To be confirmed",
+      "lab_type": "To be confirmed",
+      "hours_per_day": 6.0
+    },
+    "rows": [
+      {
+        "day": "Day 1",
+        "main_topic": "M1 - Best Practices for Cursor & Lovable Implementation / M2 - Rapid Prototyping & UI and UX Enhancement / M3 - Automating Code Refactoring & Unit Tests / M4 - CI and CD Pipeline Optimization & Cost Reduction",
+        "practical_hands_on": "Write rules and prompt files on a shared sample repository, then test them with a prompt that tries to break the standards.\nBuild from brief to working UI in Lovable and Cursor, then iterate on stakeholder feedback.\nAnalyse a legacy module in Cursor, refactor it, and generate tests that validate the change.\nAnalyse historical build logs with AI and generate scripting improvements.",
+        "tool_or_service": "Write rules and prompt files on a shared sample repository, then test them with a prompt that tries to break the standards.\nBuild from brief to working UI in Lovable and Cursor, then iterate on stakeholder feedback.\nAnalyse a legacy module in Cursor, refactor it, and generate tests that validate the change.\nAnalyse historical build logs with AI and generate scripting improvements.",
+        "resource_type": "Managed database / database lab",
+        "configuration": "To be sized from participant count and hands-on scope",
+        "quantity": "To be confirmed",
+        "usage_hours": 6.0,
+        "pricing_source": "Configured provider rate card; replace with approved live pricing when available",
+        "assumptions_notes": "Generated from the same AI ToC day row; verify provider region and paid licences."
+      },
+      {
+        "day": "Day 2",
+        "main_topic": "M5 - Foundations of AI-Assisted Security / M6 - Live Vulnerability Scanning / M7 - Process Flow Security & Threat Modelling / M8 - Building the SecOps AI Assistant",
+        "practical_hands_on": "Redact and scope a sample codebase and server configuration, then run an AI review with an approved tool.\nRun a live assessment on a deliberately insecure repository, patch each finding, and re-test.\nMap a sample sample organisation cloud operations architecture and generate and refine a STRIDE model with AI.\nDesign the assistant, analyse sample firewall and anomaly logs, write alert logic, and present the concept.",
+        "tool_or_service": "Redact and scope a sample codebase and server configuration, then run an AI review with an approved tool.\nRun a live assessment on a deliberately insecure repository, patch each finding, and re-test.\nMap a sample sample organisation cloud operations architecture and generate and refine a STRIDE model with AI.\nDesign the assistant, analyse sample firewall and anomaly logs, write alert logic, and present the concept.",
+        "resource_type": "Software / tool lab",
+        "configuration": "To be sized from participant count and hands-on scope",
+        "quantity": "To be confirmed",
+        "usage_hours": 6.0,
+        "pricing_source": "Configured provider rate card; replace with approved live pricing when available",
+        "assumptions_notes": "Generated from the same AI ToC day row; verify provider region and paid licences."
+      }
+    ]
+  },
+  "excel_layout": "execution_plan"
+}

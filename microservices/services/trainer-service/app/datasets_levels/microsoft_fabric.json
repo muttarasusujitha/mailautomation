@@ -1,0 +1,573 @@
+{
+  "domain": "Microsoft Fabric",
+  "name": "Microsoft Fabric for Data Engineering and Analytics",
+  "category": "Data Engineering and Analytics",
+  "icon": "layers-3",
+  "aliases": ["MS Fabric", "Microsoft Fabric Training", "Fabric Data Engineering", "Fabric Data Engineer", "Fabric Analytics Engineer", "Fabric Lakehouse", "Fabric Data Warehouse", "Fabric Real-Time Intelligence", "Fabric Data Factory", "OneLake", "DP-600", "DP-700"],
+  "certifications": ["Microsoft Certified: Fabric Analytics Engineer Associate (DP-600)", "Microsoft Certified: Fabric Data Engineer Associate (DP-700)", "Microsoft Certified: Azure Data Fundamentals (DP-900)"],
+  "tools": ["Microsoft Fabric", "OneLake", "Lakehouse", "Data Warehouse", "Data Factory pipelines", "Dataflows Gen2", "Spark notebooks", "Eventhouse and KQL", "Power BI", "Microsoft Purview"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For data analysts, BI developers and data engineers starting with Microsoft Fabric. Covers workspaces and capacities, OneLake, lakehouses and the SQL analytics endpoint, Dataflows Gen2, pipelines, Spark notebooks, Delta tables and the medallion architecture, the Fabric Data Warehouse, shortcuts, mirroring, Power BI semantic models, Direct Lake, Real-Time Intelligence with Eventstreams and Eventhouses, KQL, Activator alerts, data science notebooks, sharing and roles, Copilot in Fabric and monitoring.",
+      "prerequisites": ["Writes basic SQL queries", "Has used Power BI or Excel for reporting", "Understands tables, files and simple data pipelines"],
+      "outcomes": ["Build lakehouses and warehouses in Fabric on OneLake", "Load and transform data with pipelines, dataflows and notebooks", "Serve data to Power BI with Direct Lake and analyse streams with KQL", "Share, secure and monitor Fabric items"],
+      "days": [
+        {
+          "topic": "Microsoft Fabric Overview, Workspaces and Trial Setup",
+          "subtopics": ["What Microsoft Fabric is: one SaaS platform for analytics", "Fabric workloads: Data Factory, Data Engineering, Warehouse, Real-Time Intelligence, Data Science and Power BI", "OneLake as the single data lake", "Capacities and F SKUs", "Starting a Fabric trial", "Workspaces and items", "The Fabric portal and navigation", "Licences for creators and viewers", "How Fabric relates to Azure Synapse and Power BI", "The course project: retail sales analytics"],
+          "tools": ["Microsoft Fabric", "Fabric trial capacity", "Power BI service"],
+          "lab_task": "Start a Fabric trial, create workspaces for development and production, explore each workload's items and sketch the retail sales analytics solution.",
+          "deliverable": "Workspaces and solution sketch",
+          "checks": [["Start the trial", "Trial capacity assigned to the workspace", "Capacity screenshot"], ["Explore workloads", "One item created in each main workload", "Workspace screenshot"], ["Sketch the solution", "Sources, layers and reports listed", "Solution sketch"]],
+          "objectives": ["Explain what Fabric offers", "Set up workspaces", "Navigate Fabric workloads"]
+        },
+        {
+          "topic": "OneLake: One Copy of Data for the Organisation",
+          "subtopics": ["OneLake structure: tenant, workspaces and items", "Delta Parquet as the common format", "OneLake file explorer", "Accessing OneLake with ADLS APIs", "OneLake catalogue", "Item permissions in OneLake", "One copy of data across engines", "OneLake compared with separate data lakes"],
+          "tools": ["OneLake", "OneLake file explorer", "Azure Storage Explorer"],
+          "lab_task": "Upload sales files to OneLake, browse them with the file explorer and Azure Storage Explorer, read the same table from two engines and find items in the OneLake catalogue.",
+          "deliverable": "OneLake exploration notes",
+          "checks": [["Browse OneLake", "Files visible through the file explorer", "Screenshot"], ["Use ADLS APIs", "Storage Explorer lists OneLake data", "Screenshot"], ["Share one copy", "Same Delta table read by Spark and SQL", "Query results"]],
+          "objectives": ["Explain OneLake", "Access OneLake with familiar tools", "Use one copy of data"]
+        },
+        {
+          "topic": "Lakehouses: Files, Tables and the SQL Analytics Endpoint",
+          "subtopics": ["Creating a lakehouse", "Files and Tables sections", "Loading files into Delta tables", "The SQL analytics endpoint", "Querying with T-SQL", "Views on the SQL analytics endpoint", "Default semantic models", "When to use a lakehouse"],
+          "tools": ["Fabric Lakehouse", "SQL analytics endpoint"],
+          "lab_task": "Create a sales lakehouse, load CSV and Parquet files into Delta tables, query them through the SQL analytics endpoint and create reporting views.",
+          "deliverable": "Sales lakehouse with views",
+          "checks": [["Load tables", "Delta tables created from the files", "Lakehouse screenshot"], ["Query with SQL", "T-SQL queries return correct totals", "Query results"], ["Create views", "Views available for reporting", "Endpoint screenshot"]],
+          "objectives": ["Build lakehouses", "Query with the SQL analytics endpoint", "Prepare data for reports"]
+        },
+        {
+          "topic": "Loading Data with Dataflows Gen2",
+          "subtopics": ["Power Query in Fabric", "Connecting to sources", "Transformations without code", "Data destinations", "Refresh and scheduling", "Staging and performance", "Incremental refresh options", "When to use dataflows or notebooks"],
+          "tools": ["Dataflows Gen2", "Power Query Online"],
+          "lab_task": "Build a Dataflow Gen2 that loads products and stores from a database and a SharePoint list, cleans them and writes to lakehouse tables on a schedule.",
+          "deliverable": "Scheduled dataflow",
+          "checks": [["Transform data", "Cleaned tables match the rules", "Data preview"], ["Write to the lakehouse", "Dataflow output lands in Delta tables", "Lakehouse screenshot"], ["Schedule refresh", "Refresh runs on schedule", "Refresh history"]],
+          "objectives": ["Load data with Dataflows Gen2", "Transform with Power Query", "Schedule refreshes"]
+        },
+        {
+          "topic": "Data Pipelines in Fabric Data Factory",
+          "subtopics": ["Pipelines, activities and runs", "Copy activity", "Connections and gateways", "Parameters", "Control flow: ForEach, If and Until", "Running notebooks and dataflows from pipelines", "Schedules and triggers", "Monitoring pipeline runs"],
+          "tools": ["Fabric Data Factory", "On-premises data gateway"],
+          "lab_task": "Build a pipeline that copies daily sales files into the lakehouse, loops over stores with ForEach, runs a cleaning notebook and sends an alert on failure.",
+          "deliverable": "Orchestration pipeline",
+          "checks": [["Copy files", "Daily files copied into the lakehouse", "Run output"], ["Loop over stores", "ForEach processes each store", "Run details"], ["Alert on failure", "Failure sends a notification", "Alert screenshot"]],
+          "objectives": ["Build pipelines in Fabric", "Orchestrate activities", "Monitor runs"]
+        },
+        {
+          "topic": "Spark Notebooks for Data Engineering",
+          "subtopics": ["Fabric notebooks", "PySpark and Spark SQL", "Reading and writing lakehouse tables", "The default lakehouse", "Notebook resources and environments", "Visualising data in notebooks", "Scheduling notebooks", "Notebook best practices"],
+          "tools": ["Fabric notebooks", "PySpark", "Spark SQL"],
+          "lab_task": "Clean and join sales, products and stores in a PySpark notebook, write curated Delta tables, schedule the notebook and document it.",
+          "deliverable": "Cleaning notebook and curated tables",
+          "checks": [["Join data", "Curated table joins all three sources correctly", "Query results"], ["Write Delta tables", "Curated tables saved in the lakehouse", "Lakehouse screenshot"], ["Schedule", "Notebook runs on schedule", "Run history"]],
+          "objectives": ["Engineer data with Spark notebooks", "Write Delta tables", "Schedule notebooks"]
+        },
+        {
+          "topic": "Delta Tables and the Medallion Architecture",
+          "subtopics": ["Bronze, silver and gold layers", "Delta Lake features: ACID, schema enforcement and time travel", "Upserts with MERGE", "Schema evolution", "Lakehouses per layer", "Naming conventions", "Data quality between layers", "Documenting the architecture"],
+          "tools": ["Delta Lake", "Fabric Lakehouse", "Spark"],
+          "lab_task": "Organise the solution into bronze, silver and gold lakehouses, upsert changes with MERGE, enforce schemas and query an earlier table version with time travel.",
+          "deliverable": "Medallion layers with documentation",
+          "checks": [["Upsert with MERGE", "Changed rows updated and new rows inserted", "Query results"], ["Enforce schemas", "Bad schema write rejected", "Error output"], ["Time travel", "Earlier version of a table queried", "Query results"]],
+          "objectives": ["Apply the medallion architecture", "Use Delta features", "Document data layers"]
+        },
+        {
+          "topic": "Fabric Data Warehouse and T-SQL",
+          "subtopics": ["When to use the warehouse", "Creating tables and loading data", "COPY INTO and INSERT SELECT", "Cross-database queries with lakehouses", "Views, functions and stored procedures", "Transactions", "Warehouse security basics", "Warehouse compared with the SQL analytics endpoint"],
+          "tools": ["Fabric Data Warehouse", "T-SQL", "SQL editor"],
+          "lab_task": "Build a sales warehouse with dimension and fact tables loaded with COPY INTO, join to lakehouse tables across databases and wrap loading logic in stored procedures.",
+          "deliverable": "Sales warehouse with load procedures",
+          "checks": [["Load with COPY INTO", "Fact table loaded from files", "Row counts"], ["Query across items", "Warehouse query joins lakehouse tables", "Query results"], ["Run procedures", "Load procedure runs in a transaction", "Procedure output"]],
+          "objectives": ["Build a Fabric warehouse", "Load and transform with T-SQL", "Choose warehouse or lakehouse"]
+        },
+        {
+          "topic": "Shortcuts to External Data",
+          "subtopics": ["What shortcuts are", "OneLake shortcuts between items", "Shortcuts to ADLS, Amazon S3 and Google Cloud Storage", "Shortcuts to Dataverse", "Permissions through shortcuts", "Caching for shortcuts", "When to use shortcuts or copies", "Governance of shortcuts"],
+          "tools": ["OneLake shortcuts", "ADLS Gen2 or Amazon S3"],
+          "lab_task": "Create shortcuts to sales history in ADLS and supplier data in S3, query them alongside lakehouse tables and decide which data to copy instead.",
+          "deliverable": "Shortcuts and decision notes",
+          "checks": [["Query a shortcut", "External data queried without copying", "Query results"], ["Check permissions", "Users without source access cannot read the data", "Error output"], ["Decide copy or shortcut", "Choice made per dataset with reasons", "Decision notes"]],
+          "objectives": ["Use shortcuts", "Combine external and Fabric data", "Choose shortcuts or copies"]
+        },
+        {
+          "topic": "Mirroring Operational Databases into Fabric",
+          "subtopics": ["What mirroring does", "Mirroring Azure SQL Database, Cosmos DB and Snowflake", "Open mirroring", "Near real-time replication", "Querying mirrored data", "Costs and limits", "Monitoring replication", "Mirroring compared with pipelines"],
+          "tools": ["Fabric mirroring", "Azure SQL Database"],
+          "lab_task": "Mirror an Azure SQL orders database into Fabric, change rows in the source, watch them appear, and join mirrored data to the lakehouse.",
+          "deliverable": "Mirrored database with monitoring notes",
+          "checks": [["Replicate changes", "Source changes appear within minutes", "Query timestamps"], ["Join data", "Mirrored orders joined with lakehouse products", "Query results"], ["Monitor", "Replication status checked in the monitor", "Screenshot"]],
+          "objectives": ["Mirror databases into Fabric", "Query mirrored data", "Monitor replication"]
+        },
+        {
+          "topic": "Power BI Semantic Models on Fabric Data",
+          "subtopics": ["Semantic models in Fabric", "Building a star schema model", "Measures with DAX", "Relationships and hierarchies", "Model view and properties", "Refresh in Fabric", "Sharing semantic models", "Certifying and endorsing models"],
+          "tools": ["Power BI", "Fabric semantic models"],
+          "lab_task": "Build a sales semantic model on the gold layer with a star schema, core DAX measures and hierarchies, and endorse it for reuse.",
+          "deliverable": "Endorsed semantic model",
+          "checks": [["Build the model", "Relationships form a star schema", "Model view screenshot"], ["Write measures", "Sales and margin measures match SQL totals", "Comparison table"], ["Endorse", "Model marked as promoted or certified", "Screenshot"]],
+          "objectives": ["Model Fabric data for Power BI", "Write core measures", "Share trusted models"]
+        },
+        {
+          "topic": "Direct Lake Mode",
+          "subtopics": ["How Direct Lake works", "Direct Lake compared with Import and DirectQuery", "Framing and refresh", "Fallback to DirectQuery", "Guardrails and limits", "Designing tables for Direct Lake", "Performance monitoring", "When to choose each mode"],
+          "tools": ["Direct Lake", "Power BI", "Fabric Lakehouse"],
+          "lab_task": "Build a Direct Lake report on the gold lakehouse, compare its speed and freshness with Import mode, trigger and explain a fallback and fix the cause.",
+          "deliverable": "Direct Lake report and comparison",
+          "checks": [["Use Direct Lake", "Report reads lakehouse data without import", "Model settings screenshot"], ["Compare modes", "Speed and freshness compared with Import", "Comparison table"], ["Fix a fallback", "Fallback cause found and removed", "Performance analyzer output"]],
+          "objectives": ["Use Direct Lake", "Compare storage modes", "Avoid fallbacks"]
+        },
+        {
+          "topic": "Real-Time Intelligence: Eventstreams and Eventhouses",
+          "subtopics": ["Real-time analytics in Fabric", "Eventstreams for ingestion", "Sources: Event Hubs, Kafka and custom apps", "Transformations in eventstreams", "Eventhouses and KQL databases", "Routing to destinations", "Real-time dashboards", "Use cases for streaming data"],
+          "tools": ["Eventstream", "Eventhouse", "KQL database", "Real-Time Dashboard"],
+          "lab_task": "Stream point-of-sale events through an eventstream into an eventhouse, filter and route them, and build a real-time dashboard of sales per minute.",
+          "deliverable": "Real-time sales dashboard",
+          "checks": [["Ingest events", "Events arrive in the KQL database", "Query results"], ["Route events", "Filtered events reach a second destination", "Eventstream screenshot"], ["Show live data", "Dashboard updates every minute", "Screen recording"]],
+          "objectives": ["Stream data into Fabric", "Store events in eventhouses", "Build real-time dashboards"]
+        },
+        {
+          "topic": "KQL Querysets for Streaming Data",
+          "subtopics": ["Kusto Query Language basics", "where, project, summarize and extend", "Time series functions", "Joins in KQL", "Materialised views", "Update policies", "Querysets and saving queries", "KQL compared with SQL"],
+          "tools": ["KQL queryset", "Eventhouse"],
+          "lab_task": "Write KQL queries for sales per store per minute, top products in the last hour and anomalies, create a materialised view and save the queryset.",
+          "deliverable": "KQL queryset with materialised view",
+          "checks": [["Summarise by time", "Sales per minute charted correctly", "Query results"], ["Find anomalies", "Anomaly function flags unusual minutes", "Query results"], ["Create a materialised view", "View returns pre-aggregated results", "Query results"]],
+          "objectives": ["Query streams with KQL", "Use time series functions", "Pre-aggregate with materialised views"]
+        },
+        {
+          "topic": "Alerts and Actions with Activator",
+          "subtopics": ["What Activator does", "Objects, properties and rules", "Triggers from eventstreams and reports", "Conditions and thresholds", "Actions: email, Teams and Power Automate", "Testing rules", "Avoiding alert floods", "Use cases"],
+          "tools": ["Activator", "Eventstream", "Microsoft Teams", "Power Automate"],
+          "lab_task": "Create Activator rules that alert store managers in Teams when sales drop sharply and start a Power Automate flow when a freezer temperature goes too high.",
+          "deliverable": "Alert rules with test evidence",
+          "checks": [["Fire a sales alert", "Teams message sent when sales drop", "Teams screenshot"], ["Start a flow", "Power Automate flow runs on the temperature rule", "Flow run history"], ["Prevent floods", "Repeated events do not send repeated alerts", "Rule history"]],
+          "objectives": ["Act on data with Activator", "Build alert rules", "Trigger automated actions"]
+        },
+        {
+          "topic": "Data Science Notebooks and Experiments in Fabric",
+          "subtopics": ["Data Science in Fabric", "Exploring data with pandas and Spark", "Training models in notebooks", "Experiments and MLflow tracking", "Model registry in Fabric", "Batch scoring with PREDICT", "Semantic link to Power BI models", "Sharing results"],
+          "tools": ["Fabric notebooks", "MLflow", "scikit-learn", "SynapseML"],
+          "lab_task": "Train a sales forecasting model in a notebook, track runs with MLflow experiments, register the best model and score new data in batch into the lakehouse.",
+          "deliverable": "Experiment, registered model and scored table",
+          "checks": [["Track runs", "Runs compared in the experiment", "Experiment screenshot"], ["Register a model", "Best model saved in the registry", "Model screenshot"], ["Score in batch", "Forecasts written to a lakehouse table", "Query results"]],
+          "objectives": ["Train models in Fabric", "Track experiments", "Score data in batch"]
+        },
+        {
+          "topic": "Workspaces, Roles and Sharing",
+          "subtopics": ["Workspace roles: admin, member, contributor and viewer", "Item permissions and sharing", "Sharing semantic models and reports", "Apps for report consumers", "Row-level security for reports", "Organising workspaces by team and stage", "Capacity assignment", "Common permission mistakes"],
+          "tools": ["Fabric workspaces", "Power BI apps", "Row-level security"],
+          "lab_task": "Set workspace roles for engineers, analysts and viewers, share a lakehouse read-only, publish an app and add row-level security so managers see only their region.",
+          "deliverable": "Permission design and app",
+          "checks": [["Set roles", "Each person can do only what their role allows", "Test notes"], ["Share read-only", "Analyst reads the lakehouse but cannot change it", "Error output"], ["Apply row-level security", "Managers see only their region", "Report screenshots"]],
+          "objectives": ["Manage Fabric access", "Share items safely", "Apply row-level security"]
+        },
+        {
+          "topic": "Copilot in Fabric",
+          "subtopics": ["Copilot experiences in Fabric", "Copilot for notebooks", "Copilot for Data Factory and dataflows", "Copilot for the warehouse and SQL", "Copilot for Power BI reports", "Capacity and tenant requirements", "Checking Copilot output", "Responsible use"],
+          "tools": ["Copilot in Fabric", "Notebooks", "Power BI"],
+          "lab_task": "Use Copilot to write a notebook transformation, a T-SQL query and a report page, check each result for errors and record where Copilot helped and where it was wrong.",
+          "deliverable": "Copilot evaluation notes",
+          "checks": [["Generate code", "Copilot-written notebook code runs after review", "Notebook output"], ["Check a query", "Copilot SQL checked against known totals", "Comparison table"], ["Record findings", "Strengths and mistakes recorded", "Evaluation notes"]],
+          "objectives": ["Use Copilot in Fabric", "Check generated work", "Use AI responsibly"]
+        },
+        {
+          "topic": "Monitoring Hub and Capacity Metrics",
+          "subtopics": ["The monitoring hub", "Pipeline, notebook and refresh history", "Capacity units and consumption", "The Fabric Capacity Metrics app", "Throttling and smoothing in simple terms", "Finding expensive items", "Alerts on failures", "Daily operations checks"],
+          "tools": ["Monitoring hub", "Fabric Capacity Metrics app"],
+          "lab_task": "Review a day of runs in the monitoring hub, install the Capacity Metrics app, find the three most expensive items and set failure alerts for the pipeline.",
+          "deliverable": "Operations checklist and cost findings",
+          "checks": [["Review runs", "Failed runs found with causes", "Monitoring hub screenshot"], ["Find costly items", "Top three capacity consumers identified", "Metrics app screenshot"], ["Alert on failures", "Alert sent when the pipeline fails", "Alert screenshot"]],
+          "objectives": ["Monitor Fabric workloads", "Read capacity usage", "Run daily checks"]
+        },
+        {
+          "topic": "Beginner Capstone: Sales Analytics Lakehouse",
+          "subtopics": ["Design", "Build", "Report", "Operate"],
+          "tools": ["Microsoft Fabric", "Lakehouse", "Pipelines", "Notebooks", "Power BI", "Eventstream"],
+          "lab_task": "Build the retail sales solution with ingestion pipelines, medallion lakehouses, a warehouse, a Direct Lake report, a real-time sales dashboard, alerts and secure sharing, then demo it.",
+          "deliverable": "Fabric solution and demo recording",
+          "checks": [["Demo the solution", "Data flows from sources to reports and live dashboards", "Demo recording"], ["Check numbers", "Report totals match source data", "Reconciliation table"], ["Show security", "Users see only what their roles allow", "Test notes"]],
+          "objectives": ["Combine the beginner topics in one solution", "Build end to end in Fabric", "Present data products"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For data engineers and analytics engineers building production Fabric solutions. Covers lakehouse and warehouse architecture choices, Spark environments and performance, Delta maintenance and V-Order, incremental loads and CDC, metadata-driven pipelines, warehouse modelling, Direct Lake semantic models, real-time solutions, data quality, Git integration and deployment pipelines, REST APIs and automation, security and OneLake security, Purview governance, SQL database in Fabric, MLflow models, capacity planning, cost control, Synapse migration and DP-600 and DP-700 preparation.",
+      "prerequisites": ["Has built a lakehouse, pipeline and report in Fabric", "Writes SQL and basic PySpark", "Understands Power BI semantic models"],
+      "outcomes": ["Design and build production Fabric solutions", "Automate delivery with Git, deployment pipelines and APIs", "Secure, govern and tune Fabric workloads and capacity", "Prepare for the DP-600 and DP-700 exams"],
+      "days": [
+        {
+          "topic": "Fabric Architecture Patterns: Lakehouse, Warehouse or Both",
+          "subtopics": ["Lakehouse-centred designs", "Warehouse-centred designs", "Hybrid designs with both", "Workspaces per layer, team or domain", "Real-time and batch together", "Where Power BI models sit", "Decision criteria: skills, workloads and security", "Documenting the architecture"],
+          "tools": ["Microsoft Fabric", "Architecture diagrams"],
+          "lab_task": "Design the architecture for three scenarios: a SQL-heavy finance team, a Spark-heavy data science team and a mixed retail company, and justify each choice.",
+          "deliverable": "Three architecture designs",
+          "checks": [["Design for finance", "Warehouse-centred design justified by skills and workloads", "Design document"], ["Design for data science", "Lakehouse-centred design justified", "Design document"], ["Design for retail", "Hybrid design with clear boundaries", "Design document"]],
+          "objectives": ["Choose Fabric architectures", "Organise workspaces", "Document decisions"]
+        },
+        {
+          "topic": "Advanced Spark in Fabric: Environments, Libraries and Performance",
+          "subtopics": ["Environments and Spark pools", "Installing libraries", "Starter pools and session start times", "Spark configuration for performance", "Native execution engine", "High concurrency sessions", "Spark job definitions", "Reading the Spark monitoring views"],
+          "tools": ["Fabric Environments", "Spark job definitions", "Spark monitoring"],
+          "lab_task": "Create an environment with pinned libraries, enable the native execution engine, tune a slow notebook and move a production job into a Spark job definition.",
+          "deliverable": "Environment and tuned job",
+          "checks": [["Pin libraries", "Notebook uses the environment's library versions", "Environment screenshot"], ["Tune the job", "Run time reduced after tuning", "Run history comparison"], ["Use a job definition", "Production job runs as a Spark job definition", "Run history"]],
+          "objectives": ["Manage Spark environments", "Tune Spark in Fabric", "Productionise Spark jobs"]
+        },
+        {
+          "topic": "Delta Table Maintenance: Optimize, V-Order and Vacuum",
+          "subtopics": ["Small files and their cost", "OPTIMIZE and bin compaction", "V-Order and its effect on reads", "Z-Order for selective filters", "VACUUM and retention", "Table maintenance from the lakehouse", "Scheduling maintenance", "Measuring the gains"],
+          "tools": ["Delta Lake", "Fabric Lakehouse", "Spark"],
+          "lab_task": "Measure file counts and query times on a busy table, run OPTIMIZE with V-Order and Z-Order, vacuum old files and schedule maintenance.",
+          "deliverable": "Maintenance job with measurements",
+          "checks": [["Compact files", "File count reduced after OPTIMIZE", "Table details"], ["Speed up reads", "Filtered queries faster after Z-Order", "Timing table"], ["Vacuum safely", "Old files removed after the retention period", "Storage comparison"]],
+          "objectives": ["Maintain Delta tables", "Use V-Order and Z-Order", "Schedule maintenance"]
+        },
+        {
+          "topic": "Incremental Loading and Change Data Capture Patterns",
+          "subtopics": ["Full and incremental loads", "Watermark columns", "Change data capture from sources", "Merging changes into silver tables", "Handling deletes", "Late-arriving data", "Idempotent reruns", "Testing incremental logic"],
+          "tools": ["Fabric pipelines", "Notebooks", "Delta MERGE"],
+          "lab_task": "Replace a full daily reload with watermark-based incremental loads and CDC merges, handle deletes and late data, and prove a rerun gives the same result.",
+          "deliverable": "Incremental pipeline with tests",
+          "checks": [["Load incrementally", "Only changed rows processed", "Run metrics"], ["Handle deletes", "Deleted source rows removed or flagged", "Query results"], ["Rerun safely", "Rerun produces identical tables", "Comparison report"]],
+          "objectives": ["Load data incrementally", "Apply CDC merges", "Make pipelines idempotent"]
+        },
+        {
+          "topic": "Orchestrating Complex Pipelines with Parameters and Metadata",
+          "subtopics": ["Metadata-driven pipeline design", "Control tables", "Parameters and expressions", "Invoking child pipelines", "Error handling and retries", "Logging pipeline runs", "Reusable patterns", "Testing pipelines"],
+          "tools": ["Fabric Data Factory", "Warehouse control tables"],
+          "lab_task": "Build a metadata-driven framework that loads 20 source tables from a control table, logs each run, retries failures and lets new tables be added without new pipelines.",
+          "deliverable": "Metadata-driven framework",
+          "checks": [["Add a table", "New source loaded by adding a control row", "Run history"], ["Retry failures", "Failed table retried and logged", "Run log table"], ["Log runs", "Every run recorded with counts and duration", "Log table"]],
+          "objectives": ["Build metadata-driven pipelines", "Handle errors and retries", "Log pipeline runs"]
+        },
+        {
+          "topic": "Warehouse Modelling: Star Schemas, Views and Stored Procedures",
+          "subtopics": ["Dimensional modelling in the warehouse", "Surrogate keys", "Slowly changing dimensions", "Fact table loading patterns", "Views for semantic layers", "Stored procedures for transformations", "Statistics and query performance", "Testing warehouse logic"],
+          "tools": ["Fabric Data Warehouse", "T-SQL"],
+          "lab_task": "Build a star schema with type 2 customer history, load facts with surrogate keys through stored procedures and test the results against source totals.",
+          "deliverable": "Star schema with tests",
+          "checks": [["Track history", "Changed customers keep history rows", "Query results"], ["Load facts", "Facts link to the right dimension versions", "Query results"], ["Test totals", "Warehouse totals match the source", "Test output"]],
+          "objectives": ["Model data in the warehouse", "Load dimensions and facts", "Test warehouse logic"]
+        },
+        {
+          "topic": "Semantic Model Design for Direct Lake at Scale",
+          "subtopics": ["Direct Lake on lakehouses and warehouses", "Table and column design for Direct Lake", "Large models and guardrails", "Composite designs", "Calculation groups and field parameters", "Refresh and framing control", "Performance testing", "Model ownership and reuse"],
+          "tools": ["Power BI", "Direct Lake", "Tabular Editor"],
+          "lab_task": "Design a Direct Lake model over a large gold layer within guardrails, add calculation groups, control framing during loads and test performance with many users.",
+          "deliverable": "Scalable Direct Lake model",
+          "checks": [["Stay within guardrails", "No fallback at the target data size", "Performance analyzer output"], ["Control framing", "Reports show consistent data during loads", "Test notes"], ["Load test", "Model answers queries for many users within target", "Load test results"]],
+          "objectives": ["Design large Direct Lake models", "Control refresh behaviour", "Test model performance"]
+        },
+        {
+          "topic": "Real-Time Analytics Solutions with Eventhouse and KQL",
+          "subtopics": ["Real-time architecture in Fabric", "Ingestion at scale", "Update policies and transformations", "Retention and caching policies", "Materialised views for dashboards", "Joining streams with reference data", "Real-time dashboards and Power BI", "Operating eventhouses"],
+          "tools": ["Eventhouse", "KQL", "Eventstream", "Real-Time Dashboard"],
+          "lab_task": "Build a fleet tracking solution with high-volume ingestion, update policies, retention rules, materialised views and dashboards joined to vehicle reference data.",
+          "deliverable": "Real-time fleet solution",
+          "checks": [["Ingest at volume", "Ingestion keeps up with the event rate", "Ingestion metrics"], ["Transform on ingest", "Update policy writes cleaned records", "Query results"], ["Apply retention", "Old data removed by policy", "Table statistics"]],
+          "objectives": ["Build real-time solutions", "Transform data on ingestion", "Manage retention and caching"]
+        },
+        {
+          "topic": "Data Quality and Testing in Fabric Pipelines",
+          "subtopics": ["Quality rules for each layer", "Validation in notebooks", "Great Expectations or custom checks", "Quarantine tables", "Failing pipelines on bad data", "Reporting quality results", "Unit testing transformation code", "Data contracts with source teams"],
+          "tools": ["Fabric notebooks", "Great Expectations or pandera", "Pipelines"],
+          "lab_task": "Add quality checks between bronze and silver, quarantine bad rows, fail the pipeline on critical rules, unit test a transformation and publish a quality report.",
+          "deliverable": "Quality framework with reports",
+          "checks": [["Quarantine bad rows", "Bad rows moved to quarantine with reasons", "Query results"], ["Fail on critical rules", "Pipeline stops on a critical failure", "Run history"], ["Test transformations", "Unit tests pass", "Test output"]],
+          "objectives": ["Build quality checks", "Quarantine bad data", "Report data quality"]
+        },
+        {
+          "topic": "Git Integration and Deployment Pipelines",
+          "subtopics": ["Workspace Git integration with Azure DevOps or GitHub", "Branching and commits for Fabric items", "Deployment pipelines across stages", "Deployment rules for connections and parameters", "Variable libraries", "Handling items that do not support Git", "Promoting changes safely", "Rollback approaches"],
+          "tools": ["Fabric Git integration", "Deployment pipelines", "Azure DevOps or GitHub"],
+          "lab_task": "Connect development workspaces to Git, work in a feature branch, promote changes through development, test and production with deployment rules and roll back a bad change.",
+          "deliverable": "Source-controlled solution with deployment pipeline",
+          "checks": [["Commit items", "Notebooks and pipelines stored in Git", "Repository screenshot"], ["Promote changes", "Change moved to production with the right connections", "Deployment history"], ["Roll back", "Bad change reverted from Git", "Commit history"]],
+          "objectives": ["Source-control Fabric items", "Promote changes through stages", "Roll back safely"]
+        },
+        {
+          "topic": "Fabric REST APIs and Automation with Python",
+          "subtopics": ["Fabric REST APIs", "Authentication with service principals", "Creating and updating items by API", "Running pipelines and notebooks by API", "Semantic Link and sempy for automation", "Fabric CLI", "Scheduling automation", "Error handling and logging"],
+          "tools": ["Fabric REST APIs", "Python", "Semantic Link", "Fabric CLI"],
+          "lab_task": "Write Python automation that creates a workspace from a template, deploys items, runs a pipeline and refreshes a semantic model with a service principal.",
+          "deliverable": "Automation scripts",
+          "checks": [["Create a workspace", "Workspace created and configured by script", "API output"], ["Run a pipeline", "Pipeline run started and tracked by script", "API output"], ["Refresh a model", "Semantic model refreshed through Semantic Link", "Refresh history"]],
+          "objectives": ["Automate Fabric with APIs", "Use service principals", "Script common tasks"]
+        },
+        {
+          "topic": "Security: Workspace Roles, Item Permissions, OneLake Security and Row-Level Security",
+          "subtopics": ["Layers of security in Fabric", "Workspace roles and item permissions", "OneLake security roles for folders and tables", "SQL security: GRANT, row-level and column-level security", "Dynamic data masking", "Power BI row-level and object-level security", "Sensitivity labels", "Testing security as different users"],
+          "tools": ["OneLake security", "Fabric Data Warehouse", "Power BI", "Microsoft Purview labels"],
+          "lab_task": "Secure the sales solution so regional teams see only their rows in SQL and reports, finance columns are masked, raw data is limited to engineers and labels follow the data.",
+          "deliverable": "Security design with test results",
+          "checks": [["Filter rows", "Regional users see only their region in SQL and reports", "Query results"], ["Mask columns", "Finance columns masked for analysts", "Query results"], ["Limit raw data", "Only engineers read bronze tables", "Error output"]],
+          "objectives": ["Secure Fabric data in layers", "Apply row and column security", "Label sensitive data"]
+        },
+        {
+          "topic": "Governance with Microsoft Purview and Domains",
+          "subtopics": ["Domains in Fabric", "Endorsement and certification", "Microsoft Purview for Fabric", "Lineage across items", "Data catalogue and discovery", "Sensitivity labels and DLP policies", "Audit logs", "Governance reporting"],
+          "tools": ["Fabric domains", "Microsoft Purview", "Fabric admin portal"],
+          "lab_task": "Organise workspaces into domains, certify key items, review lineage from source to report, apply a DLP policy for sensitive data and report on governance.",
+          "deliverable": "Governance setup and report",
+          "checks": [["Use domains", "Workspaces grouped into business domains", "Admin portal screenshot"], ["Trace lineage", "Lineage shown from source to report", "Lineage view screenshot"], ["Apply DLP", "Policy flags a semantic model with sensitive data", "Policy alert"]],
+          "objectives": ["Govern Fabric with domains", "Use Purview for Fabric", "Track lineage"]
+        },
+        {
+          "topic": "SQL Database in Fabric for Operational Workloads",
+          "subtopics": ["What SQL database in Fabric offers", "Creating and managing the database", "Automatic replication to OneLake", "Building apps on the database", "Querying operational data in analytics", "Security and backups", "Performance basics for applications", "When to use it or Azure SQL"],
+          "tools": ["SQL database in Fabric", "T-SQL", "GraphQL API in Fabric"],
+          "lab_task": "Create a SQL database in Fabric for a store inventory app, expose it through the Fabric GraphQL API, query the replicated data from a lakehouse and compare with Azure SQL.",
+          "deliverable": "Operational database with analytics access",
+          "checks": [["Build the app data", "Inventory app reads and writes the database", "API responses"], ["Use replicated data", "Lakehouse queries see recent inventory changes", "Query results"], ["Compare options", "Fabric SQL database compared with Azure SQL", "Comparison table"]],
+          "objectives": ["Use SQL database in Fabric", "Combine operational and analytical data", "Choose database options"]
+        },
+        {
+          "topic": "Machine Learning Models with MLflow in Fabric",
+          "subtopics": ["ML lifecycle in Fabric", "Feature preparation in the lakehouse", "Tracking with MLflow autologging", "Comparing runs", "Registering and versioning models", "Batch scoring with PREDICT", "Monitoring model results in Power BI", "Retraining on a schedule"],
+          "tools": ["Fabric Data Science", "MLflow", "SynapseML", "Power BI"],
+          "lab_task": "Build a churn model with autologged experiments, register versions, score customers weekly with PREDICT and monitor model accuracy in a Power BI report.",
+          "deliverable": "ML pipeline with monitoring report",
+          "checks": [["Compare runs", "Best run chosen from tracked metrics", "Experiment screenshot"], ["Score weekly", "Scheduled scoring writes new predictions", "Run history"], ["Monitor accuracy", "Report shows accuracy over time", "Report screenshot"]],
+          "objectives": ["Run ML lifecycles in Fabric", "Version and score models", "Monitor model results"]
+        },
+        {
+          "topic": "Capacity Planning, Smoothing and Throttling",
+          "subtopics": ["Capacity units and SKUs", "Interactive and background operations", "Smoothing and bursting", "Throttling stages", "Reading the Capacity Metrics app in depth", "Sizing capacity for workloads", "Separating workloads across capacities", "Autoscale options"],
+          "tools": ["Fabric Capacity Metrics app", "Fabric admin portal"],
+          "lab_task": "Analyse a week of capacity use, explain smoothing and a throttling event, size capacity for next year and decide which workloads need their own capacity.",
+          "deliverable": "Capacity plan",
+          "checks": [["Explain throttling", "Throttling event explained from metrics", "Metrics screenshot"], ["Size capacity", "SKU recommended with headroom", "Capacity plan"], ["Separate workloads", "Workloads assigned to capacities with reasons", "Capacity plan"]],
+          "objectives": ["Plan Fabric capacity", "Understand smoothing and throttling", "Separate workloads"]
+        },
+        {
+          "topic": "Cost Monitoring and Optimisation",
+          "subtopics": ["What drives Fabric cost", "Finding expensive items and operations", "Optimising Spark, pipelines and refreshes", "Pausing and scaling capacities", "Reserved capacity pricing", "Storage costs in OneLake", "Chargeback by workspace", "Cost reviews"],
+          "tools": ["Fabric Capacity Metrics app", "Azure Cost Management"],
+          "lab_task": "Find the costliest items, cut their consumption with tuning and scheduling changes, plan pausing for test capacities and produce a chargeback report by workspace.",
+          "deliverable": "Cost optimisation report",
+          "checks": [["Cut consumption", "Capacity use of top items reduced", "Before and after metrics"], ["Pause test capacity", "Test capacity paused outside working hours", "Schedule evidence"], ["Report chargeback", "Cost per workspace reported", "Chargeback report"]],
+          "objectives": ["Control Fabric costs", "Optimise expensive items", "Report cost by team"]
+        },
+        {
+          "topic": "Migrating from Azure Synapse and Data Factory to Fabric",
+          "subtopics": ["Mapping Synapse and ADF features to Fabric", "Migrating pipelines", "Migrating Spark notebooks and pools", "Migrating dedicated SQL pools to the warehouse", "Using shortcuts during migration", "Testing migrated workloads", "Cutover planning", "Migration tools and assistants"],
+          "tools": ["Azure Synapse Analytics", "Azure Data Factory", "Fabric migration assistants"],
+          "lab_task": "Migrate a Synapse workspace's pipeline, notebook and dedicated pool tables to Fabric, test results against the source and plan cutover.",
+          "deliverable": "Migration pilot and cutover plan",
+          "checks": [["Migrate a pipeline", "Pipeline runs in Fabric with the same output", "Comparison report"], ["Migrate tables", "Warehouse tables match the dedicated pool", "Row and total counts"], ["Plan cutover", "Cutover steps, risks and rollback listed", "Cutover plan"]],
+          "objectives": ["Plan Synapse to Fabric migrations", "Migrate workloads", "Validate migrated results"]
+        },
+        {
+          "topic": "DP-600 and DP-700 Exam Preparation",
+          "subtopics": ["DP-600 skills measured", "DP-700 skills measured", "Choosing the right exam", "Practice labs for weak areas", "Question styles and case studies", "Time management", "Microsoft Learn practice assessments", "Booking and exam rules"],
+          "tools": ["Microsoft Learn", "Practice assessments", "Fabric trial"],
+          "lab_task": "Map each skill area of both exams to course labs, take a practice assessment, redo labs for the weakest areas and write a two-week study plan.",
+          "deliverable": "Skills map and study plan",
+          "checks": [["Map skills", "Every skill area linked to a lab", "Skills map"], ["Take a practice test", "Score of 75 percent or more", "Score report"], ["Plan revision", "Weak areas scheduled", "Study plan"]],
+          "objectives": ["Prepare for Fabric exams", "Find weak areas", "Plan revision"]
+        },
+        {
+          "topic": "Intermediate Capstone: Governed Enterprise Lakehouse",
+          "subtopics": ["Design", "Build", "Secure and govern", "Deliver"],
+          "tools": ["Microsoft Fabric", "Git", "Deployment pipelines", "Purview", "Power BI", "Eventhouse"],
+          "lab_task": "Build an enterprise lakehouse with metadata-driven incremental loads, quality checks, a star schema warehouse, Direct Lake models, real-time data, layered security, Git and deployment pipelines and governance, then present it.",
+          "deliverable": "Solution, deployment evidence and presentation",
+          "checks": [["Demo the solution", "Data flows from sources to governed reports", "Demo recording"], ["Show delivery", "Change promoted through stages from Git", "Deployment history"], ["Show security", "Row, column and item security work for three roles", "Test evidence"]],
+          "objectives": ["Combine the intermediate topics in one solution", "Deliver production Fabric solutions", "Prove governance and security"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For data architects, platform owners and senior engineers. Covers enterprise tenant and capacity design, domains and data mesh, workload isolation, Spark and warehouse performance engineering, Direct Lake internals, real-time intelligence at scale, enterprise CI/CD with APIs and Terraform, private links and customer-managed keys, governance and compliance at scale, hybrid designs with Databricks and Snowflake, zero-copy mirroring and shortcuts, legacy warehouse migration, data agents and Copilot readiness, FinOps, observability, disaster recovery, centres of excellence and troubleshooting.",
+      "prerequisites": ["Has delivered production solutions on Fabric", "Strong SQL, Spark and Power BI modelling skills", "Understands Azure networking and identity"],
+      "outcomes": ["Architect Fabric platforms for large organisations", "Engineer performance, security and cost at scale", "Lead migrations and hybrid designs with other platforms", "Run Fabric as a governed, observable and resilient service"],
+      "days": [
+        {
+          "topic": "Enterprise Fabric Architecture and Tenant Design",
+          "subtopics": ["Tenant settings and their impact", "Capacity and workspace topology", "Domains, subdomains and ownership", "Environments: development, test and production", "Shared and team-owned items", "Integration with Azure landing zones", "Reference architectures", "Architecture decision records"],
+          "tools": ["Fabric admin portal", "Architecture diagrams", "Decision records"],
+          "lab_task": "Design the tenant, capacity, domain and workspace topology for a 20,000-employee company with six business units, and record the key decisions.",
+          "deliverable": "Enterprise architecture and decision records",
+          "checks": [["Design topology", "Capacities, domains and workspaces mapped to units", "Architecture diagram"], ["Configure tenant settings", "Settings chosen and justified", "Settings register"], ["Record decisions", "Decisions list options and consequences", "Decision records"]],
+          "objectives": ["Architect Fabric for enterprises", "Design tenant settings", "Record decisions"]
+        },
+        {
+          "topic": "Domains, Workspaces and Data Mesh on Fabric",
+          "subtopics": ["Data mesh principles", "Domains as ownership boundaries", "Data products in Fabric", "Contracts between domains", "Self-service platform features", "Federated governance", "Discovering data products in the OneLake catalogue", "Measuring data product success"],
+          "tools": ["Fabric domains", "OneLake catalogue", "Endorsements"],
+          "lab_task": "Define three domains with data products, contracts and owners, publish products to the catalogue, consume one across domains through shortcuts and measure use.",
+          "deliverable": "Data mesh design and products",
+          "checks": [["Publish products", "Products discoverable in the catalogue", "Catalogue screenshot"], ["Consume across domains", "Product used by another domain through a shortcut", "Query results"], ["Measure use", "Product usage reported", "Usage report"]],
+          "objectives": ["Apply data mesh on Fabric", "Publish data products", "Run federated governance"]
+        },
+        {
+          "topic": "Multi-Capacity Strategy and Workload Isolation",
+          "subtopics": ["Why separate capacities", "Isolating production from development", "Separating real-time, BI and engineering loads", "Capacity regions and data residency", "Moving workspaces between capacities", "Surge protection", "Chargeback with multiple capacities", "Reviewing capacity strategy"],
+          "tools": ["Fabric admin portal", "Capacity Metrics app"],
+          "lab_task": "Design a multi-capacity strategy that protects production BI from engineering spikes, place workspaces by region for residency and test surge protection.",
+          "deliverable": "Capacity strategy with tests",
+          "checks": [["Protect BI", "Engineering spike no longer slows production reports", "Metrics comparison"], ["Meet residency", "Workspaces placed in required regions", "Configuration evidence"], ["Test surge protection", "Surge settings limit a runaway workload", "Metrics screenshot"]],
+          "objectives": ["Design capacity strategies", "Isolate workloads", "Meet residency needs"]
+        },
+        {
+          "topic": "Large-Scale Spark Performance Engineering in Fabric",
+          "subtopics": ["Profiling Spark jobs in Fabric", "Partitioning and file sizes for large tables", "Join strategies and skew", "Native execution engine behaviour", "Caching and broadcast", "Concurrency and session management", "Cost per job", "Performance budgets"],
+          "tools": ["Spark monitoring", "Native execution engine", "Spark job definitions"],
+          "lab_task": "Profile the slowest production job on a billion-row table, fix skew and file layout, tune joins and caching and cut cost per run, recording each gain.",
+          "deliverable": "Spark performance report",
+          "checks": [["Fix skew", "Task times even out after the fix", "Spark UI screenshots"], ["Cut run time", "Job faster after tuning", "Run history comparison"], ["Cut cost", "Capacity use per run reduced", "Metrics comparison"]],
+          "objectives": ["Tune Spark at scale", "Fix skew and layout", "Reduce job cost"]
+        },
+        {
+          "topic": "Warehouse Performance and Concurrency Engineering",
+          "subtopics": ["How the warehouse engine executes queries", "Statistics and query plans", "Table design for large facts", "Result set caching", "Concurrency and workload management", "Load patterns that avoid contention", "Monitoring with query insights", "Performance budgets"],
+          "tools": ["Fabric Data Warehouse", "Query insights", "T-SQL"],
+          "lab_task": "Analyse slow and concurrent queries with query insights, redesign large fact loads, refresh statistics and prove reports stay fast while loads run.",
+          "deliverable": "Warehouse performance report",
+          "checks": [["Find slow queries", "Slowest queries identified in query insights", "Query insights output"], ["Avoid contention", "Reports stay fast during loads", "Load test results"], ["Refresh statistics", "Plans improve after statistics refresh", "Plan comparison"]],
+          "objectives": ["Tune the Fabric warehouse", "Manage concurrency", "Monitor query performance"]
+        },
+        {
+          "topic": "Direct Lake Internals and Fallback Behaviour",
+          "subtopics": ["Transcoding and column loading", "Memory and paging behaviour", "Framing in detail", "Fallback rules and guardrails", "Direct Lake on OneLake and on SQL endpoints", "Designing Delta tables for Direct Lake", "Monitoring with DMVs and traces", "Troubleshooting slow Direct Lake reports"],
+          "tools": ["Direct Lake", "DAX Studio", "Tabular Editor", "DMVs"],
+          "lab_task": "Trace column loading and memory use for a large Direct Lake model, reproduce each fallback cause, redesign tables to avoid them and document the rules.",
+          "deliverable": "Direct Lake engineering guide",
+          "checks": [["Trace loading", "Column loading observed with DMVs", "DMV output"], ["Avoid fallbacks", "Redesigned model shows no fallback", "Trace output"], ["Document rules", "Rules for table design written", "Engineering guide"]],
+          "objectives": ["Explain Direct Lake internals", "Prevent fallbacks", "Tune large models"]
+        },
+        {
+          "topic": "Real-Time Intelligence at Scale",
+          "subtopics": ["High-throughput ingestion architecture", "Eventhouse sharding and partitioning", "Hot and cold cache policies", "Query performance at scale", "Multi-tenant real-time solutions", "Integrating with Kafka and Event Hubs at scale", "Cost control for real-time workloads", "Operating real-time platforms"],
+          "tools": ["Eventhouse", "Eventstream", "KQL", "Event Hubs or Kafka"],
+          "lab_task": "Scale an IoT solution to a million events per minute with partitioning, cache policies and materialised views, keep queries within targets and control cost.",
+          "deliverable": "Scaled real-time platform report",
+          "checks": [["Handle the volume", "Ingestion keeps up at a million events per minute", "Ingestion metrics"], ["Meet query targets", "Dashboard queries within target latency", "Query statistics"], ["Control cost", "Cost per million events reported", "Cost report"]],
+          "objectives": ["Scale real-time intelligence", "Tune eventhouse policies", "Control real-time cost"]
+        },
+        {
+          "topic": "CI/CD at Enterprise Scale: Terraform, APIs and Pipelines",
+          "subtopics": ["Infrastructure as code for Fabric", "Terraform provider for Fabric", "fabric-cicd and API-based deployment", "Branching strategies for many teams", "Automated testing in pipelines", "Environment configuration and secrets", "Approvals and audit", "Measuring delivery performance"],
+          "tools": ["Terraform Fabric provider", "fabric-cicd", "Azure DevOps or GitHub Actions"],
+          "lab_task": "Provision capacities, workspaces and permissions with Terraform, deploy items with a CI/CD pipeline that runs tests and approvals, and measure lead time for changes.",
+          "deliverable": "Enterprise CI/CD setup",
+          "checks": [["Provision with Terraform", "Workspaces and roles created from code", "Terraform output"], ["Deploy with tests", "Pipeline blocks a change that fails tests", "Pipeline log"], ["Measure delivery", "Lead time for changes reported", "Metrics report"]],
+          "objectives": ["Automate Fabric delivery at scale", "Use infrastructure as code", "Gate changes with tests"]
+        },
+        {
+          "topic": "Advanced Security: Private Links, Customer-Managed Keys and Network Controls",
+          "subtopics": ["Network security options in Fabric", "Private links for the tenant and workspaces", "Managed private endpoints", "Outbound access protection", "Customer-managed keys", "Conditional access for Fabric", "Securing gateways and connections", "Security reviews"],
+          "tools": ["Azure Private Link", "Managed private endpoints", "Azure Key Vault", "Microsoft Entra ID"],
+          "lab_task": "Design and apply network controls for a regulated workspace with private links, managed private endpoints to sources, outbound protection and customer-managed keys, then review.",
+          "deliverable": "Security architecture and review",
+          "checks": [["Restrict access", "Workspace reachable only through private networking", "Connection tests"], ["Reach sources privately", "Notebooks reach sources through managed private endpoints", "Run output"], ["Use customer keys", "Workspace encrypted with a customer-managed key", "Configuration evidence"]],
+          "objectives": ["Secure Fabric networks", "Use customer-managed keys", "Review security designs"]
+        },
+        {
+          "topic": "Data Governance, Lineage and Compliance at Scale",
+          "subtopics": ["Governance operating models", "Purview Unified Catalog with Fabric", "Lineage across Fabric and external systems", "Data quality at scale", "Retention and deletion", "Regulatory compliance", "Audit and reporting", "Governance metrics"],
+          "tools": ["Microsoft Purview", "Fabric admin APIs", "Audit logs"],
+          "lab_task": "Set up enterprise governance with catalogued data products, quality rules, lineage into external systems, retention rules and an audit report for a regulator.",
+          "deliverable": "Governance programme and audit report",
+          "checks": [["Catalogue products", "Products listed with owners and quality scores", "Catalogue screenshot"], ["Trace lineage", "Lineage covers external sources and reports", "Lineage view"], ["Answer an audit", "Auditor questions answered from logs and lineage", "Audit report"]],
+          "objectives": ["Govern Fabric at scale", "Meet regulatory needs", "Report governance"]
+        },
+        {
+          "topic": "Hybrid Architectures: Fabric with Databricks and Snowflake",
+          "subtopics": ["Why companies run several platforms", "OneLake shortcuts to Databricks and Snowflake data", "Mirroring Snowflake and Databricks Unity Catalog", "Open formats: Delta and Iceberg", "Choosing where each workload runs", "Security across platforms", "Cost across platforms", "Avoiding duplicate pipelines"],
+          "tools": ["Microsoft Fabric", "Azure Databricks", "Snowflake", "OneLake shortcuts"],
+          "lab_task": "Connect Fabric to Databricks and Snowflake data without copies, serve Power BI from all three, decide where each workload belongs and estimate total cost.",
+          "deliverable": "Hybrid design and cost estimate",
+          "checks": [["Read without copies", "Fabric queries Databricks and Snowflake data through shortcuts or mirroring", "Query results"], ["Place workloads", "Each workload assigned a platform with reasons", "Decision table"], ["Estimate cost", "Total cost across platforms estimated", "Cost model"]],
+          "objectives": ["Design hybrid data platforms", "Share data without copies", "Place workloads well"]
+        },
+        {
+          "topic": "Mirroring and Shortcuts Architecture for Zero-Copy Data",
+          "subtopics": ["Zero-copy patterns", "Shortcut chains and their limits", "Mirroring at scale", "Open mirroring for custom sources", "Security and lineage with zero-copy data", "Performance of shortcuts", "Cost of mirroring", "Designing zero-copy architectures"],
+          "tools": ["OneLake shortcuts", "Fabric mirroring", "Open mirroring"],
+          "lab_task": "Design a zero-copy architecture for ten sources using shortcuts, mirroring and open mirroring, test performance and security, and compare cost with copying.",
+          "deliverable": "Zero-copy architecture with tests",
+          "checks": [["Mirror a custom source", "Open mirroring replicates a custom source", "Query results"], ["Test performance", "Shortcut queries meet targets or exceptions are listed", "Timing table"], ["Compare cost", "Zero-copy and copy costs compared", "Cost table"]],
+          "objectives": ["Design zero-copy architectures", "Use mirroring at scale", "Weigh cost and performance"]
+        },
+        {
+          "topic": "Migrating Legacy Data Warehouses to Fabric",
+          "subtopics": ["Assessing legacy warehouses", "Schema and code conversion", "Migrating SQL Server, Teradata and Oracle warehouses", "Data migration strategies", "Rebuilding ETL in Fabric", "Parallel runs and reconciliation", "Cutover and decommissioning", "Programme planning"],
+          "tools": ["Fabric migration tools", "Assessment tools", "Fabric Data Warehouse"],
+          "lab_task": "Assess a legacy SQL Server warehouse, convert its schema and procedures, migrate data and one ETL flow, run in parallel and reconcile results.",
+          "deliverable": "Migration assessment and pilot report",
+          "checks": [["Assess", "Objects classified by migration effort", "Assessment sheet"], ["Convert code", "Converted procedures produce matching results", "Comparison report"], ["Reconcile", "Parallel run totals match", "Reconciliation report"]],
+          "objectives": ["Plan warehouse migrations", "Convert schemas and code", "Reconcile parallel runs"]
+        },
+        {
+          "topic": "AI on Fabric: Data Agents and Copilot Readiness",
+          "subtopics": ["AI features across Fabric", "Fabric data agents", "Preparing semantic models for AI", "Grounding agents on lakehouses and warehouses", "Copilot readiness checklists", "Security for AI access to data", "Evaluating AI answers", "Governance for AI features"],
+          "tools": ["Fabric data agents", "Copilot in Fabric", "Power BI semantic models"],
+          "lab_task": "Build a data agent over the sales warehouse and semantic model, prepare descriptions and synonyms, evaluate answers to 30 business questions and secure what it can see.",
+          "deliverable": "Data agent with evaluation report",
+          "checks": [["Answer questions", "Agent answers most test questions correctly", "Evaluation report"], ["Improve answers", "Accuracy rises after adding descriptions and synonyms", "Before and after results"], ["Limit access", "Agent cannot reveal data the user cannot see", "Test notes"]],
+          "objectives": ["Build AI features on Fabric", "Prepare data for AI", "Evaluate and secure AI answers"]
+        },
+        {
+          "topic": "FinOps for Fabric",
+          "subtopics": ["FinOps principles for SaaS analytics", "Unit economics for data products", "Capacity reservations and pay-as-you-go", "Showback and chargeback models", "Budget controls", "Optimisation backlogs", "Forecasting", "Reporting to finance"],
+          "tools": ["Fabric Capacity Metrics app", "Azure Cost Management", "Power BI"],
+          "lab_task": "Build a FinOps report with cost per data product, chargeback by business unit, a reservation recommendation and a three-month optimisation backlog.",
+          "deliverable": "FinOps report and backlog",
+          "checks": [["Cost data products", "Cost per data product calculated", "FinOps report"], ["Recommend reservations", "Reservation savings estimated", "Recommendation"], ["Plan optimisation", "Backlog ranked by savings", "Optimisation backlog"]],
+          "objectives": ["Run FinOps for Fabric", "Calculate unit costs", "Forecast and control spend"]
+        },
+        {
+          "topic": "Monitoring and Observability at Scale",
+          "subtopics": ["What to monitor across a tenant", "Workspace monitoring and Eventhouse logs", "Admin monitoring and audit data", "Alerting on failures and SLAs", "Data freshness monitoring", "Operational dashboards", "Incident processes", "Observability as a platform service"],
+          "tools": ["Workspace monitoring", "Admin monitoring", "KQL", "Activator"],
+          "lab_task": "Turn on workspace monitoring, query logs with KQL, alert on pipeline failures and stale data with Activator, and build a tenant operations dashboard.",
+          "deliverable": "Observability setup and dashboard",
+          "checks": [["Query logs", "Failed operations found with KQL", "Query results"], ["Alert on stale data", "Alert fires when a table is not refreshed on time", "Alert notification"], ["Build the dashboard", "Dashboard shows health across workspaces", "Dashboard screenshot"]],
+          "objectives": ["Observe Fabric at scale", "Alert on failures and staleness", "Run operations dashboards"]
+        },
+        {
+          "topic": "Disaster Recovery and Business Continuity in Fabric",
+          "subtopics": ["Fabric resilience and regions", "Capacity disaster recovery settings", "OneLake data replication", "Recovering items and workspaces", "Git as a recovery source", "Recovery objectives per data product", "DR drills", "Business continuity plans"],
+          "tools": ["Fabric capacity settings", "Git integration", "OneLake"],
+          "lab_task": "Set recovery objectives for key data products, enable DR for a capacity, rebuild a workspace from Git and data replicas in another region and measure recovery time.",
+          "deliverable": "DR plan and drill report",
+          "checks": [["Rebuild from Git", "Workspace items restored from Git", "Deployment log"], ["Recover data", "Data available from the replica region", "Query results"], ["Meet objectives", "Recovery time within the objective", "Drill report"]],
+          "objectives": ["Plan Fabric disaster recovery", "Recover workspaces and data", "Run DR drills"]
+        },
+        {
+          "topic": "Center of Excellence and Adoption Strategy",
+          "subtopics": ["Why a centre of excellence", "Roles and operating model", "Standards and guardrails", "Training and community", "Support models", "Adoption metrics", "Roadmaps", "Executive sponsorship"],
+          "tools": ["Adoption dashboards", "Training plans", "Standards documents"],
+          "lab_task": "Design a Fabric centre of excellence with roles, standards, training paths, support and adoption metrics, and present a twelve-month roadmap to sponsors.",
+          "deliverable": "CoE design and roadmap",
+          "checks": [["Define roles", "Roles and responsibilities agreed", "Operating model"], ["Track adoption", "Adoption dashboard built", "Dashboard screenshot"], ["Present the roadmap", "Sponsor questions answered", "Meeting notes"]],
+          "objectives": ["Run a Fabric centre of excellence", "Drive adoption", "Plan the roadmap"]
+        },
+        {
+          "topic": "Troubleshooting Production Fabric Issues",
+          "subtopics": ["Incident triage across workloads", "Capacity throttling incidents", "Failing pipelines and notebooks", "Slow or broken reports", "Mirroring and shortcut problems", "Permission and security issues", "Evidence collection and support cases", "Post-incident reviews"],
+          "tools": ["Monitoring hub", "Capacity Metrics app", "Workspace monitoring", "Support tools"],
+          "lab_task": "Work through four incidents: capacity throttling, a broken incremental load, a Direct Lake fallback and a permission change that hid data, restore service and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by metrics or logs", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
+          "objectives": ["Troubleshoot Fabric in production", "Find root causes", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Analytics Platform on Fabric",
+          "subtopics": ["Architecture", "Build", "Operations", "Defence"],
+          "tools": ["Microsoft Fabric", "Terraform", "Purview", "Databricks or Snowflake", "Power BI"],
+          "lab_task": "Design and build an enterprise analytics platform with tenant and capacity topology, domains and data products, zero-copy integration, private networking, CI/CD, AI agents, FinOps and DR, then defend it to an architecture panel.",
+          "deliverable": "Platform design, evidence and defence",
+          "checks": [["Prove isolation", "Production BI protected from other workloads", "Metrics evidence"], ["Prove delivery", "Changes flow through automated CI/CD", "Pipeline history"], ["Defend the design", "Panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one platform", "Architect Fabric at enterprise scale", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}

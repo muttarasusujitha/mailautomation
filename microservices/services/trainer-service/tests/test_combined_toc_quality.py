@@ -27,7 +27,7 @@ def test_intermediate_combined_programme_keeps_requested_scope_and_specific_labs
         assert technology in " ".join(titles)
     assert all(day.get("lab") for day in toc["days"])
     assert all("guided hands-on exercise" not in day["lab"].lower() for day in toc["days"])
-    assert toc["days"][0]["focus_area"] == "Source, Build and Artifact Strategy"
+    assert toc["days"][0]["focus_area"] == "DevOps: Source, Build and Artifact Strategy"
     assert toc["days"][-1]["focus_area"].endswith("Capstone")
 
 
@@ -72,7 +72,7 @@ def test_advanced_combined_programme_uses_expert_modules_not_intermediate_module
 
     assert len(advanced["days"]) == 20
     assert advanced["quality"]["status"] == "approved"
-    assert advanced["days"][0]["focus_area"] == "Platform Engineering and Golden Paths"
+    assert advanced["days"][0]["focus_area"] == "DevOps: Platform Engineering and Golden Paths"
     assert advanced["days"][0]["focus_area"] != intermediate["days"][0]["focus_area"]
     content = " ".join(
         " ".join([day["focus_area"], *day["subtopics"], day["lab"]])

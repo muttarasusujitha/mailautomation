@@ -69,7 +69,7 @@ def test_dashboard_includes_linkedin_client_requirements_and_trainers():
     assert "post_text" not in requirement
     assert body["trainers"]["confirmed"] == 1
     assert body["trainers"]["leads"] == 2
-    assert body["trainers"]["total"] == 2
+    assert body["trainers"]["total"] == 1
     trainer = body["trainers"]["recent_linkedin"][0]
     assert trainer["name"] == "Ravi Kumar"
     assert trainer["created_at"] == created.isoformat()

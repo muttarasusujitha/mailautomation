@@ -11,12 +11,12 @@ from app.tasks.meet_start_notices import (
 )
 
 
-def test_notice_window_targets_five_minutes_before_interview():
+def test_notice_window_targets_ten_minutes_before_interview():
     now = datetime(2026, 9, 3, 10, 0)
     start, end = _notice_window(now)
-    assert start == now + timedelta(minutes=4)
-    assert end == now + timedelta(minutes=6)
-    assert start <= now + timedelta(minutes=5) <= end
+    assert start == now + timedelta(minutes=9)
+    assert end == now + timedelta(minutes=11)
+    assert start <= now + timedelta(minutes=10) <= end
 
 
 def test_failed_notice_is_eligible_for_bounded_retry():
@@ -24,8 +24,8 @@ def test_failed_notice_is_eligible_for_bounded_retry():
     query = _due_notice_query(now)
     retry = query["$and"][-1]["$or"][1]
 
-    assert retry["interview_at"]["$gte"] == now - timedelta(minutes=30)
-    assert retry["interview_at"]["$lt"] == now + timedelta(minutes=4)
+    assert retry["interview_at"]["$gte"] == now
+    assert retry["interview_at"]["$lt"] == now + timedelta(minutes=9)
     assert query["$and"][1]["$or"][1]["meet_start_notice_retry_count"]["$lt"] == 3
 
 
@@ -36,7 +36,7 @@ def test_notice_body_asks_recipient_to_join_early():
         interview_link="https://meet.google.com/example",
         interview_date="03 September 2026, 10:10 AM IST",
     )
-    assert "starts in 5 minutes" in body
+    assert "starts in 10 minutes" in body
     assert "join a few minutes before" in body
     assert "https://meet.google.com/example" in body
 
@@ -70,7 +70,7 @@ def test_rescheduled_interview_gets_a_new_reminder_key():
     )
 
 
-def test_client_invite_does_not_use_client_address_as_trainer_address():
+def test_client_invite_is_not_sent_a_pre_meeting_reminder():
     recipients = _notice_recipients(
         {
             "mail_type": "client_interview_schedule",
@@ -81,13 +81,14 @@ def test_client_invite_does_not_use_client_address_as_trainer_address():
         }
     )
 
-    assert recipients == [
-        {"email": "client@example.com", "name": "Deepika", "role": "client"},
-        {"email": "sujithaofficial784@gmail.com", "name": "Clahan Technologies", "role": "clahan"},
-    ]
+    assert recipients == []
 
 
-def test_same_address_is_only_notified_once_per_source_log():
+def test_unrelated_log_is_not_a_pre_meeting_reminder():
+    assert _notice_recipients({"mail_type": "mail3", "to_email": "trainer@example.com"}) == []
+
+
+def test_pre_meeting_reminder_only_targets_trainer():
     recipients = _notice_recipients(
         {
             "mail_type": "mail4",
@@ -98,12 +99,11 @@ def test_same_address_is_only_notified_once_per_source_log():
         }
     )
 
-    assert len(recipients) == 2
+    assert len(recipients) == 1
     assert recipients[0]["email"] == "shared@example.com"
-    assert recipients[1]["role"] == "clahan"
 
 
-def test_ten_minute_notice_includes_trainer_client_and_clahan():
+def test_ten_minute_notice_only_includes_trainer():
     recipients = _notice_recipients(
         {
             "mail_type": "mail4",
@@ -112,11 +112,7 @@ def test_ten_minute_notice_includes_trainer_client_and_clahan():
             "client_name": "Client Team",
         }
     )
-    assert [(item["email"], item["role"]) for item in recipients] == [
-        ("trainer@example.com", "trainer"),
-        ("client@example.com", "client"),
-        ("sujithaofficial784@gmail.com", "clahan"),
-    ]
+    assert [(item["email"], item["role"]) for item in recipients] == [("trainer@example.com", "trainer")]
 
 
 def test_dry_run_previews_due_notices_without_delivery_or_database_writes(monkeypatch):

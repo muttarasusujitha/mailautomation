@@ -1,0 +1,573 @@
+{
+  "domain": "JavaScript",
+  "name": "JavaScript",
+  "category": "Programming Languages",
+  "icon": "braces",
+  "aliases": ["Modern JavaScript", "JavaScript Programming", "Core JavaScript", "Vanilla JavaScript", "Advanced JavaScript", "JavaScript Developer", "ES6", "ECMAScript", "JavaScript ES6"],
+  "certifications": ["JS Institute JSE Certified Entry-Level JavaScript Programmer (JSE-40-01)", "JS Institute JSA Certified Associate JavaScript Programmer (JSA-41-01)", "Certiport IT Specialist JavaScript (INF-302)"],
+  "tools": ["Google Chrome and Chrome DevTools", "Firefox Developer Tools", "Visual Studio Code", "Node.js 26 LTS and npm 11", "Vite 8", "Vitest 5", "ESLint 10", "Prettier"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For people new to programming or new to JavaScript who want to write it confidently in the browser. Covers values and types, operators, functions, scope and closures, objects, arrays and their methods, strings, dates and Intl, destructuring, modules, the DOM, events and forms, promises, fetch and JSON, errors, developer tools and localStorage, ending with a small app built without a framework.",
+      "prerequisites": ["Uses a computer, files and folders and a modern web browser confidently", "Has seen or edited a simple HTML page", "No previous programming experience is required"],
+      "outcomes": ["Write clear JavaScript with functions, objects, arrays, modules and modern operators", "Build interactive pages with the DOM, events and validated forms", "Load and save data with fetch, JSON, promises, async/await and localStorage", "Find and fix bugs with browser developer tools and error handling"],
+      "days": [
+        {
+          "topic": "JavaScript in the Browser: Scripts, the Console and Editor Setup",
+          "subtopics": ["Where JavaScript runs: browser engines (V8, SpiderMonkey, JavaScriptCore) and server runtimes", "ECMAScript, TC39 and the yearly editions up to ES2026", "Adding scripts with <script src> and type=\"module\"", "Script loading order, defer and async", "The DevTools Console as a scratchpad", "console.log, console.table, console.warn and console.error", "Installing VS Code with the Live Preview extension", "Serving pages over http://localhost instead of file://", "Statements, expressions, comments and semicolons", "Formatting on save with Prettier"],
+          "tools": ["Google Chrome and Chrome DevTools", "Visual Studio Code", "Live Preview extension for VS Code", "Prettier"],
+          "lab_task": "Create index.html and app.js, load the script with defer, print the page title, the current time and a console.table of three products, then switch to type=\"module\" and show that a top-level var no longer becomes a property of window.",
+          "deliverable": "Starter project folder with index.html, app.js and Console screenshots",
+          "checks": [["Open index.html through Live Preview on localhost", "Console shows the title, the time and a three-row table with no errors", "Console screenshot"], ["Declare var total = 5 in a classic script and evaluate window.total", "window.total returns 5", "Console output"], ["Repeat the declaration in a type=\"module\" script", "window.total is undefined", "Console output"]],
+          "objectives": ["Load JavaScript into a web page with the right script attributes", "Run and inspect code in the Console", "Set up an editor and a local server for the course"]
+        },
+        {
+          "topic": "Values, Types and Variables",
+          "subtopics": ["The seven primitive types and objects", "Declaring variables with let and const", "Why var is avoided in new code", "typeof and the typeof null quirk", "Numbers as 64-bit floating point: why 0.1 + 0.2 is not 0.3", "NaN, Infinity, Number.isNaN and Number.isInteger", "BigInt for integers beyond Number.MAX_SAFE_INTEGER", "Explicit conversion with Number(), String(), parseInt and parseFloat", "Implicit coercion with + and comparisons", "Naming rules, camelCase and reserved words"],
+          "tools": ["Chrome DevTools Console", "Visual Studio Code", "MDN Web Docs JavaScript reference"],
+          "lab_task": "Write price.js that stores product prices in const variables, shows that 0.1 + 0.2 !== 0.3, fixes the basket total by working in whole pence, converts the strings '12.50', '12,50' and ' 7 ' to numbers and labels each result with typeof.",
+          "deliverable": "price.js with commented Console output for every conversion",
+          "checks": [["Evaluate 0.1 + 0.2 === 0.3", "Returns false", "Console output"], ["Add 1050 and 250 pence and format the sum with (sum / 100).toFixed(2)", "Prints 13.00", "Console output"], ["Reassign a const variable", "TypeError: Assignment to constant variable", "Console error"]],
+          "objectives": ["Choose let or const for each variable", "Identify JavaScript types with typeof", "Avoid floating-point and conversion mistakes"]
+        },
+        {
+          "topic": "Operators, Equality and Control Flow",
+          "subtopics": ["Arithmetic, assignment, increment and remainder operators", "Strict equality (===) versus loose equality (==)", "Truthy and falsy values", "Logical operators &&, || and ! with short-circuiting", "Nullish coalescing (??) and optional chaining (?.)", "if, else if, else and the conditional operator", "switch statements and fall-through", "Loops: for, while, do...while, break and continue"],
+          "tools": ["Chrome DevTools Console", "Visual Studio Code"],
+          "lab_task": "Write delivery.js that loops over basket totals from £0 to £120 in £10 steps and prints the delivery charge for each: £4.99 under £50, free from £50, plus £5 when an express flag is true, using ?? for a missing discount code and ?. for an optional customer address.",
+          "deliverable": "delivery.js and a Console table of the 13 basket totals with their charges",
+          "checks": [["Compare '5' == 5 and '5' === 5", "First is true and second is false", "Console output"], ["Run the loop for a £50 basket without express", "Delivery charge is £0.00", "Console output"], ["Read order.customer?.address?.postcode when customer is missing", "Returns undefined without throwing", "Console output"]],
+          "objectives": ["Use strict equality and logical operators correctly", "Write conditions and loops for business rules", "Handle missing values with ?? and ?."]
+        },
+        {
+          "topic": "Functions: Declarations, Arrow Functions and Return Values",
+          "subtopics": ["Function declarations and function expressions", "Arrow functions and implicit returns", "Parameters, arguments and default values", "Return values and early returns", "Pure functions and side effects", "Functions as values: passing callbacks", "Small, single-purpose functions with clear names", "Documenting functions with JSDoc comments"],
+          "tools": ["Visual Studio Code", "Chrome DevTools Console"],
+          "lab_task": "Refactor delivery.js into calculateDelivery(totalPence, express = false), applyDiscount(totalPence, percent = 0) and formatPrice(pence), document each with JSDoc, and pass formatPrice as a callback to a printReport function that prints 13 rows.",
+          "deliverable": "delivery.js rewritten as documented functions with a printed report",
+          "checks": [["Call calculateDelivery(3000)", "Returns 499", "Console output"], ["Call calculateDelivery(3000, true)", "Returns 999", "Console output"], ["Hover over formatPrice in VS Code", "Tooltip shows the JSDoc description and parameter types", "Editor screenshot"]],
+          "objectives": ["Write functions with parameters, defaults and return values", "Pass functions as callbacks", "Document functions so others can use them"]
+        },
+        {
+          "topic": "Scope, Hoisting and Closures",
+          "subtopics": ["Global, module, function and block scope", "Hoisting of var and function declarations", "The temporal dead zone for let and const", "Lexical scope and the scope chain", "Closures: functions that keep access to outer variables", "Private state with closures: counters and once()", "The var-in-a-loop closure bug", "Reading closures in the DevTools Scope pane"],
+          "tools": ["Chrome DevTools Sources panel", "Visual Studio Code"],
+          "lab_task": "Build createCounter() returning increment, decrement and value functions, write once(fn) that runs fn only on the first call, reproduce the var-in-a-loop bug where three setTimeout callbacks print 3, 3, 3, fix it with let so they print 0, 1, 2, and inspect the closure at a breakpoint.",
+          "deliverable": "closures.js with the counter, once() and both loop versions, plus a Scope pane screenshot",
+          "checks": [["Call counter.increment() three times and then counter.value()", "Returns 3", "Console output"], ["Call a once-wrapped function twice", "Body runs once and the second call returns the first result", "Console output"], ["Pause inside increment() at a breakpoint", "Scope pane lists count under Closure", "DevTools screenshot"]],
+          "objectives": ["Predict which variables code can reach", "Use closures to keep private state", "Fix scope bugs in loops"]
+        },
+        {
+          "topic": "Objects, Arrays, Maps and Sets",
+          "subtopics": ["Object literals, properties and methods", "Dot and bracket notation and computed keys", "Object.keys, Object.values and Object.entries", "Array basics: index, length, push, pop, shift, unshift and splice", "includes, indexOf and at() for negative indexes", "References: two variables, one object", "Map for keyed data and Set for unique values", "ES2025 Set methods: union, intersection and difference"],
+          "tools": ["Chrome DevTools Console", "console.table", "Visual Studio Code"],
+          "lab_task": "Model a catalogue of 12 books as an array of objects, add and remove books with push and splice, count books per genre in a Map, find authors common to two reading lists with Set.prototype.intersection(), and show that assigning a book to a second variable does not copy it.",
+          "deliverable": "catalogue.js with the book data, genre counts and reading-list comparison",
+          "checks": [["push a new book and read books.length", "Length changes from 12 to 13", "Console output"], ["Intersect two Sets of author names", "Only the shared authors are returned", "Console output"], ["Change a property through a second variable pointing at the same book", "The book in the array changes too", "Console output"]],
+          "objectives": ["Model data with objects, arrays, Maps and Sets", "Read and update nested data", "Explain reference behaviour when assigning objects"]
+        },
+        {
+          "topic": "Array Methods: map, filter, reduce, find and toSorted",
+          "subtopics": ["forEach versus map", "filter, find and findLast", "some, every and includes", "reduce for totals and lookups", "sort with comparator functions and the in-place trap", "Copying methods from ES2023: toSorted, toReversed, toSpliced and with", "Object.groupBy and Map.groupBy", "Chaining methods without losing readability"],
+          "tools": ["Chrome DevTools Console", "console.table", "Visual Studio Code"],
+          "lab_task": "Load an array of 50 orders, compute total revenue with reduce, list the five largest orders with toSorted and slice, group orders by status with Object.groupBy, find the first refunded order with find, and show that sort() changes the original array while toSorted() does not.",
+          "deliverable": "orders.js with each answer printed and checked against the answer sheet",
+          "checks": [["Sum revenue with reduce", "Total matches the answer sheet figure", "Console output"], ["Run Object.groupBy(orders, (o) => o.status)", "Object with paid, pending and refunded keys", "console.table output"], ["Compare the original array after toSorted() and after sort()", "toSorted() leaves it unchanged and sort() reorders it", "Console output"]],
+          "objectives": ["Transform and filter data with array methods", "Summarise data with reduce and groupBy", "Choose copying methods over mutating ones"]
+        },
+        {
+          "topic": "Strings, Template Literals and Regular Expressions",
+          "subtopics": ["String methods: slice, includes, startsWith, padStart and trim", "Template literals and multi-line strings", "split, join and replaceAll", "Unicode, emoji, length and normalize()", "Comparing text with localeCompare", "Regular expression literals and the g, i, u and v flags", "Capture groups and named groups", "Escaping user input with RegExp.escape (ES2025)"],
+          "tools": ["Chrome DevTools Console", "regex101", "Visual Studio Code"],
+          "lab_task": "Write slugify(title) and a UK postcode check, extract order numbers such as ORD-2026-00451 from a block of text with named capture groups, build an order email with a template literal, and search user-typed text containing dots and brackets with RegExp.escape().",
+          "deliverable": "text-tools.js with test calls and their output",
+          "checks": [["Call slugify('Café Menu & Prices 2026')", "Returns 'cafe-menu-prices-2026'", "Console output"], ["Match 'Order ORD-2026-00451 shipped' against the order pattern", "groups.year is '2026' and groups.seq is '00451'", "Console output"], ["Search for 'v1.2 (beta)' with and without RegExp.escape()", "Only the escaped pattern finds the exact text", "Console output"]],
+          "objectives": ["Clean and format text with string methods", "Write and test regular expressions", "Handle Unicode and user input safely"]
+        },
+        {
+          "topic": "Dates, Times and Intl Formatting",
+          "subtopics": ["Creating Date objects and the zero-based month trap", "Timestamps, Date.now() and ISO 8601 strings", "Local time, UTC and how date-only strings are parsed", "Temporal PlainDate, ZonedDateTime and Duration (Chrome 144+, Firefox 139+, a polyfill for Safari)", "Intl.DateTimeFormat with locales and time zones", "Intl.NumberFormat for currencies, percentages and units", "Intl.RelativeTimeFormat and Intl.ListFormat", "Reading the user's locale from navigator.language"],
+          "tools": ["Chrome DevTools Console", "Intl API", "Temporal polyfill (@js-temporal/polyfill)"],
+          "lab_task": "Build a delivery-estimate widget that adds 3 working days to an order date, shows the result in en-GB, de-DE and ja-JP formats, formats 1234.5 as GBP, EUR and JPY, says 'in 3 days' with Intl.RelativeTimeFormat, and compares month arithmetic in Date and Temporal.",
+          "deliverable": "Delivery widget page with Console output for each locale",
+          "checks": [["Format 1234.5 with Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' })", "Shows £1,234.50", "Console output"], ["Create new Date(2026, 0, 31) and call setMonth(1)", "Date rolls over to 3 March 2026", "Console output"], ["Add { months: 1 } to Temporal.PlainDate.from('2026-01-31')", "Result is 2026-02-28", "Console output"]],
+          "objectives": ["Create and calculate dates without common bugs", "Format dates, numbers and lists for different locales", "Decide when to use Temporal instead of Date"]
+        },
+        {
+          "topic": "Destructuring, Spread and Rest",
+          "subtopics": ["Array destructuring and swapping values", "Object destructuring with renaming and defaults", "Nested destructuring and when to stop", "Options objects as function parameters", "Spread for copying and merging arrays and objects", "Rest parameters and rest properties", "Shallow copies versus structuredClone() deep copies", "Why destructuring defaults ignore null"],
+          "tools": ["Chrome DevTools Console", "Visual Studio Code"],
+          "lab_task": "Rewrite createOrder, calculateDelivery and formatPrice to take options objects with defaults, merge default settings with user settings using spread, remove a password field with rest properties, and prove that a spread copy shares nested objects while structuredClone() does not.",
+          "deliverable": "Refactored order functions and a copy-behaviour test script",
+          "checks": [["Call createOrder({ items }) without a currency", "Currency defaults to 'GBP'", "Console output"], ["Change a nested property on a spread copy", "The original nested object changes too", "Console output"], ["Change the same property on a structuredClone() copy", "The original stays unchanged", "Console output"]],
+          "objectives": ["Unpack values with destructuring", "Copy and merge data with spread and rest", "Choose between shallow and deep copies"]
+        },
+        {
+          "topic": "Debugging with Browser Developer Tools",
+          "subtopics": ["Elements panel: inspecting and editing the live DOM", "Console filters, live expressions and $0", "Sources panel breakpoints and stepping over, into and out", "Conditional breakpoints and logpoints", "Watch expressions and the call stack", "Network panel: status codes, timing and throttling", "Equivalent tools in Firefox Developer Tools and Safari Web Inspector", "Console insights: AI explanations of errors and how to check them"],
+          "tools": ["Chrome DevTools", "Firefox Developer Tools", "Safari Web Inspector"],
+          "lab_task": "Debug a supplied basket page with three planted bugs (a wrong total, an item that reappears after removal and a failing image request) using a conditional breakpoint, a logpoint and the Network panel, then record the cause and fix for each bug.",
+          "deliverable": "Bug report with cause, fix and before-and-after screenshots for each bug",
+          "checks": [["Set a conditional breakpoint with item.price > 100", "Execution pauses only for items over £100", "DevTools screenshot"], ["Reload with the Network panel open", "The broken image request shows status 404", "Network panel screenshot"], ["Apply the three fixes and reload", "Basket total and item list match the expected values", "Screenshot"]],
+          "objectives": ["Find bugs with breakpoints instead of guesswork", "Read network requests and status codes", "Describe a bug with its cause, fix and evidence"]
+        },
+        {
+          "topic": "ES Modules: import, export and Import Maps",
+          "subtopics": ["Why modules: file scope and explicit dependencies", "Named exports and default exports", "Renaming imports and namespace imports", "Module scripts: deferred, strict and loaded with CORS", "Dynamic import() for loading code on demand", "Import maps for bare specifiers", "JSON modules with import attributes (ES2025)", "Top-level await and module evaluation order"],
+          "tools": ["Chrome DevTools Network panel", "Visual Studio Code", "Live Preview extension for VS Code"],
+          "lab_task": "Split the basket page into cart.js, format.js and main.js with named exports, import products.json with { type: 'json' }, load receipt.js with import() only when the user clicks Print, and map the bare specifier 'utils' to a local file with an import map.",
+          "deliverable": "Basket page split into ES modules with an import map",
+          "checks": [["Open the page from file:// instead of localhost", "Module request is blocked by CORS", "Console error"], ["Click Print for the first time", "Network panel shows receipt.js loading only then", "Network panel screenshot"], ["Import products.json without the type attribute", "Load fails with a MIME type error", "Console error"]],
+          "objectives": ["Organise code into ES modules", "Load code and JSON on demand", "Resolve bare specifiers in the browser"]
+        },
+        {
+          "topic": "The DOM: Selecting, Creating and Updating Elements",
+          "subtopics": ["The DOM tree: nodes, elements and text", "querySelector, querySelectorAll and NodeList", "textContent versus innerHTML and the XSS risk", "createElement, append, prepend, replaceChildren and remove", "Attributes, dataset and classList", "Cloning markup from a <template> element", "DocumentFragment for batching inserts", "Moving around the tree with closest, children and parentElement"],
+          "tools": ["Chrome DevTools Elements panel", "Visual Studio Code"],
+          "lab_task": "Render the 12-book catalogue into a card grid from a <template>, add and remove cards, toggle a read class, store each book id in data-id, and show that a title containing <img src=x onerror=alert(1)> runs script through innerHTML but displays as text through textContent.",
+          "deliverable": "Catalogue page rendered from data with a written note on safe DOM updates",
+          "checks": [["Render the catalogue", "12 cards appear in the grid", "Elements panel screenshot"], ["Insert the malicious title with textContent", "Markup shows as plain text and no alert runs", "Screenshot"], ["Remove one card with element.remove()", "Card count drops to 11", "Console output"]],
+          "objectives": ["Select and change elements with the DOM API", "Build markup from data and templates", "Prefer textContent to innerHTML for untrusted text"]
+        },
+        {
+          "topic": "Events: Listeners, Bubbling and Delegation",
+          "subtopics": ["addEventListener and removeEventListener", "The event object: target, currentTarget and type", "Capturing and bubbling phases", "Event delegation on a parent element", "preventDefault and stopPropagation", "Keyboard events and event.key values", "Listener options: once, passive and signal", "Custom events with CustomEvent and dispatchEvent"],
+          "tools": ["Chrome DevTools Event Listeners pane", "monitorEvents() in the Console", "Visual Studio Code"],
+          "lab_task": "Add one delegated click listener to the catalogue grid that handles Mark as read, Delete and Details buttons on every card, add keyboard shortcuts (/ focuses search, Escape clears it), and dispatch a book:removed custom event that updates a book counter.",
+          "deliverable": "Interactive catalogue with delegated events and keyboard shortcuts",
+          "checks": [["Click Delete on a card added after page load", "The delegated listener removes it", "Screenshots before and after"], ["Press / anywhere on the page", "Search box receives focus", "Screenshot"], ["Delete a book", "book:removed fires with the book id and the counter decreases", "Console log of event.detail"]],
+          "objectives": ["Handle user actions with event listeners", "Use delegation for dynamic content", "Create and listen for custom events"]
+        },
+        {
+          "topic": "Forms in JavaScript: FormData, Validation and Submission",
+          "subtopics": ["The submit event and preventDefault", "Reading values with FormData and Object.fromEntries", "input, change and blur events", "The Constraint Validation API: validity, checkValidity and reportValidity", "Custom messages with setCustomValidity", "Inline error messages linked with aria-describedby", "Preventing double submission", "Resetting forms and keeping input after an error"],
+          "tools": ["Chrome DevTools", "Visual Studio Code"],
+          "lab_task": "Build an add-book form with a required title, an ISBN-13 pattern, a year between 1450 and 2026 and a genre select, validate on submit with the Constraint Validation API, show inline errors, convert FormData to an object and add the book to the grid.",
+          "deliverable": "Validated add-book form connected to the catalogue",
+          "checks": [["Submit with an empty title", "Inline error appears and no book is added", "Screenshot"], ["Enter the year 2030", "Range message shows next to the year field", "Screenshot"], ["Submit a valid book", "Logged object has title, isbn, year and genre", "Console output"]],
+          "objectives": ["Read and validate form input with JavaScript", "Show clear, accessible error messages", "Turn form data into objects for the app"]
+        },
+        {
+          "topic": "Asynchronous Code with Promises, async and await",
+          "subtopics": ["Single thread, blocking code and why async exists", "Callbacks and nested callbacks", "Creating promises with resolve and reject", "then, catch and finally", "async functions and await", "Sequential versus parallel awaits", "Promise.all for independent tasks", "Common mistakes: a missing await and async callbacks in forEach"],
+          "tools": ["Chrome DevTools Console", "performance.now()", "Visual Studio Code"],
+          "lab_task": "Write wait(ms) with a promise, simulate three slow lookups taking 1, 2 and 3 seconds, run them in sequence and in parallel with Promise.all, time both with performance.now(), and rewrite a three-step then() chain as async/await.",
+          "deliverable": "async-demo.js with timings for the sequential and parallel runs",
+          "checks": [["Run the three lookups in sequence", "Takes about 6 seconds", "Console timing"], ["Run them with Promise.all", "Takes about 3 seconds", "Console timing"], ["Log the result of an async function called without await", "Logs a pending Promise instead of the value", "Console output"]],
+          "objectives": ["Explain why JavaScript uses asynchronous code", "Write and chain promises", "Use async/await for sequential and parallel work"]
+        },
+        {
+          "topic": "Calling Web APIs with fetch and JSON",
+          "subtopics": ["HTTP methods, URLs and query strings with URLSearchParams", "fetch() and the Response object", "response.ok and status codes such as 200, 400, 404 and 500", "Parsing JSON with response.json() and JSON.parse", "Sending JSON with POST, headers and JSON.stringify", "What a CORS error means", "Loading, empty and error states in the page", "Inspecting requests and responses in the Network panel"],
+          "tools": ["Chrome DevTools Network panel", "Open-Meteo forecast API", "JSONPlaceholder"],
+          "lab_task": "Call the Open-Meteo forecast API for London (latitude 51.51, longitude -0.13), show today's maximum temperature and a 7-day table, handle the 400 response for an invalid latitude, and POST a new note to jsonplaceholder.typicode.com/posts.",
+          "deliverable": "Forecast page with loading and error states and a working POST request",
+          "checks": [["Request the London forecast", "Page shows 7 daily rows", "Screenshot"], ["Request latitude 200", "response.ok is false, status is 400 and the page shows an error message", "Network panel screenshot"], ["POST a note to /posts", "Response status is 201 and the body has id 101", "Network panel screenshot"]],
+          "objectives": ["Request and send JSON with fetch", "Check status codes before using data", "Show loading and error states"]
+        },
+        {
+          "topic": "Errors and Exceptions: try, catch, finally and Custom Errors",
+          "subtopics": ["Built-in errors: TypeError, ReferenceError, SyntaxError and RangeError", "throw, try, catch and finally", "Error messages, error.cause and custom error names", "try/catch around await", "Network failures versus HTTP error statuses", "Timeouts with AbortSignal.timeout()", "Global error and unhandledrejection events", "Error.isError() (ES2026) and friendly messages for users"],
+          "tools": ["Chrome DevTools Console", "Chrome DevTools Network panel", "Visual Studio Code"],
+          "lab_task": "Write getJSON(url) that throws an error with the HTTP status in error.cause for non-2xx responses, aborts after 5 seconds with AbortSignal.timeout(5000), shows a Retry button when the forecast fails, and logs unhandled promise rejections with a window listener.",
+          "deliverable": "getJSON helper with error handling and screenshots of each failure case",
+          "checks": [["Tick Offline in the Network panel and load the forecast", "fetch rejects with a TypeError and the Retry button appears", "Screenshot"], ["Use a custom throttling profile with 6,000 ms latency", "Request aborts with a TimeoutError", "Console output"], ["Reject a promise that has no catch", "The unhandledrejection listener logs the reason", "Console output"]],
+          "objectives": ["Throw and catch errors with useful messages", "Handle network, HTTP and timeout failures", "Report unexpected errors instead of hiding them"]
+        },
+        {
+          "topic": "Saving State with localStorage and sessionStorage",
+          "subtopics": ["The Web Storage API: setItem, getItem, removeItem and clear", "Storing objects with JSON.stringify and JSON.parse", "localStorage versus sessionStorage lifetimes", "Per-origin limits and QuotaExceededError", "The storage event for syncing tabs", "Versioning saved data and recovering from bad values", "What not to store: tokens and personal data", "Viewing and editing storage in the Application panel"],
+          "tools": ["Chrome DevTools Application panel", "Visual Studio Code"],
+          "lab_task": "Save the catalogue and the theme and sort preferences to localStorage under versioned keys, restore them on load, sync changes between two open tabs with the storage event, and fall back to defaults when the saved JSON is corrupted in the Application panel.",
+          "deliverable": "Catalogue that keeps its data across reloads and tabs",
+          "checks": [["Add a book and reload", "The book is still listed", "Screenshot"], ["Change the theme in one tab", "The second tab switches theme through the storage event", "Screen recording"], ["Replace the saved value with invalid JSON and reload", "App loads defaults and logs a warning", "Console output"]],
+          "objectives": ["Save and restore app state in the browser", "Keep tabs in sync", "Decide what is safe to store in the browser"]
+        },
+        {
+          "topic": "Beginner Capstone: Weather Trip Planner in Plain JavaScript",
+          "subtopics": ["Planning modules, data shapes and screens", "Place search with the Open-Meteo geocoding API", "Adding and editing trips through a validated form", "Forecast cards formatted with Intl", "Saving trips in localStorage", "Error, empty and offline states"],
+          "tools": ["Visual Studio Code", "Chrome DevTools", "Open-Meteo geocoding and forecast APIs", "Lighthouse"],
+          "lab_task": "Build a trip planner without frameworks: search for a city with the Open-Meteo geocoding API, add trips with dates through a validated form, show a 7-day forecast for each trip in the user's locale, keep trips in localStorage, and handle offline and API errors with clear messages.",
+          "deliverable": "Trip planner in ES modules with a README, a Lighthouse accessibility report and a 5-minute demo",
+          "checks": [["Search for 'Paris'", "Matching places appear with their countries", "Screenshot"], ["Add a trip and reload the page", "Trip and its forecast come back from localStorage", "Screenshot"], ["Go offline and refresh the forecasts", "An error message shows and saved trips stay visible", "Screenshot"]],
+          "objectives": ["Plan and build a small app from modules", "Combine the DOM, forms, fetch and storage in one app", "Present and explain working code"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who already write everyday browser JavaScript and want to know how the language and platform work underneath. Covers prototypes, classes, this, iterators and the event loop, cancellation and streams, Web Workers, IndexedDB and service workers, Vite builds and Vitest tests, functional and design patterns, rendering performance, accessible DOM code, front-end security and REST and GraphQL clients.",
+      "prerequisites": ["Writes JavaScript with functions, arrays, objects and ES modules", "Has used fetch, promises and async/await in a browser page", "Uses browser developer tools and has Node.js 26 LTS installed"],
+      "outcomes": ["Explain prototypes, this, classes, iterators and the event loop and use them correctly", "Write asynchronous browser code with cancellation, streams, workers and offline storage", "Build, test and profile front-end code with Vite 8 and Vitest 5", "Write accessible, secure DOM code that talks to REST and GraphQL APIs"],
+      "days": [
+        {
+          "topic": "Prototypes and the Prototype Chain",
+          "subtopics": ["[[Prototype]], Object.getPrototypeOf and __proto__", "Property lookup along the chain", "Object.create and null-prototype objects", "Constructor functions and the prototype property", "Own versus inherited properties with Object.hasOwn", "Shadowing and why for...in walks the chain", "Prototype pollution in merge and clone code", "Reading [[Prototype]] in the DevTools object view"],
+          "tools": ["Chrome DevTools Console", "Node.js 26 REPL", "Visual Studio Code"],
+          "lab_task": "Build a vehicle hierarchy three ways (constructor functions, Object.create and object literals with __proto__), trace a method lookup through three prototype levels, show how a naive deep merge of JSON.parse('{\"__proto__\":{\"isAdmin\":true}}') pollutes Object.prototype, and fix it with Object.hasOwn checks and null-prototype targets.",
+          "deliverable": "prototypes.js with the three hierarchies and a fixed merge function",
+          "checks": [["Call car.describe(), which is defined two levels up", "Method is found and the prototype chain shows three levels", "Console output"], ["Run the naive merge on the polluting JSON", "({}).isAdmin returns true", "Console output"], ["Run the fixed merge on the same input", "({}).isAdmin is undefined", "Console output"]],
+          "objectives": ["Explain how property lookup uses the prototype chain", "Create objects with chosen prototypes", "Prevent prototype pollution"]
+        },
+        {
+          "topic": "Classes: Fields, Private Members, Accessors and Inheritance",
+          "subtopics": ["Class declarations and how they map to prototypes", "Constructors and public class fields", "Private fields and methods with #", "Getters, setters and static members", "Static initialisation blocks", "extends, super and overriding methods", "Extending Error and EventTarget", "Composition instead of deep inheritance"],
+          "tools": ["Visual Studio Code", "Chrome DevTools Console", "Node.js 26"],
+          "lab_task": "Write a BankAccount class with a #balance private field, deposit and withdraw methods that throw InsufficientFundsError (extending Error), a static fromJSON factory and a SavingsAccount subclass that adds monthly interest, then show that #balance cannot be read outside the class.",
+          "deliverable": "accounts.js with BankAccount, SavingsAccount and InsufficientFundsError",
+          "checks": [["Add console.log(account.#balance) to main.js outside the class", "Module fails to load with SyntaxError: Private field '#balance' must be declared in an enclosing class", "Console error"], ["Withdraw more than the balance", "InsufficientFundsError is thrown with the shortfall in error.cause", "Console output"], ["Check savings instanceof BankAccount and apply interest", "Returns true and the balance grows by the monthly rate", "Console output"]],
+          "objectives": ["Write classes with private state and accessors", "Use inheritance where it fits and composition where it does not", "Create custom error types"]
+        },
+        {
+          "topic": "this and Binding: call, apply, bind and Arrow Functions",
+          "subtopics": ["The four binding rules: default, implicit, explicit and new", "Losing this when a method is passed as a callback", "call and apply", "bind and partial application", "Arrow functions and lexical this", "this in event listeners and handleEvent objects", "Arrow-function class fields for handlers", "globalThis and this at the top level of a module"],
+          "tools": ["Chrome DevTools Sources panel", "Visual Studio Code"],
+          "lab_task": "Reproduce five this bugs in a stopwatch widget (a method passed to setTimeout, an event listener, an array callback, a destructured method and a nested function), fix each with bind, an arrow function or a handleEvent object, and note which binding rule applied.",
+          "deliverable": "Stopwatch widget with the five bugs fixed and a binding-rule table",
+          "checks": [["Call a destructured method: const { tick } = stopwatch; tick()", "TypeError: Cannot read properties of undefined", "Console error"], ["Register stopwatch.tick.bind(stopwatch) with setInterval", "Display counts up once per second", "Screenshot"], ["Log this at the top level of a module", "Logs undefined", "Console output"]],
+          "objectives": ["Predict the value of this in any call", "Fix lost bindings with bind or arrow functions", "Choose a handler style for classes and listeners"]
+        },
+        {
+          "topic": "Iterators, Generators and Iterator Helpers",
+          "subtopics": ["The iteration protocol: Symbol.iterator and next()", "Making a class iterable", "Generator functions and yield", "Lazy and infinite sequences", "ES2025 iterator helpers: map, filter, take, drop, flatMap and toArray", "Iterator.from (ES2025) and Iterator.concat (ES2026)", "Async iterators and for await...of", "Array.fromAsync (ES2026)"],
+          "tools": ["Chrome DevTools Console", "Node.js 26", "PokéAPI"],
+          "lab_task": "Write a range() generator, an iterable DateRange class that yields each day between two dates, and a paginate(url) async generator that follows the next links of the PokéAPI list endpoint with ?limit=20, then use iterator helpers to take the first 10 matches without building full arrays.",
+          "deliverable": "iterators.js with range, DateRange and paginate and their test calls",
+          "checks": [["Spread new DateRange('2026-03-01', '2026-03-07')", "Array of 7 dates", "Console output"], ["Run range(1, Infinity).filter(isPrime).take(10).toArray()", "First 10 primes, ending with 29", "Console output"], ["Collect three pages of paginate() with Array.fromAsync", "60 items from 3 requests", "Network panel screenshot"]],
+          "objectives": ["Implement the iteration protocol", "Write lazy sequences with generators", "Process paged data with async iterators"]
+        },
+        {
+          "topic": "The Event Loop: Tasks, Microtasks, Timers and Rendering",
+          "subtopics": ["Call stack, task queues and the event loop", "Microtasks: promise reactions and queueMicrotask", "setTimeout(fn, 0), nesting clamps and minimum delays", "Where rendering fits: requestAnimationFrame and frames", "Long tasks and delayed input", "Microtask starvation", "setInterval drift and self-correcting timers", "Timer throttling in background tabs"],
+          "tools": ["Chrome DevTools Performance panel", "Chrome DevTools Console", "Visual Studio Code"],
+          "lab_task": "Predict and then verify the output order of a 12-line puzzle that mixes console.log, setTimeout, Promise.then, queueMicrotask, await and requestAnimationFrame, record a 2-second busy loop in the Performance panel, and build a countdown timer that stays accurate in a background tab.",
+          "deliverable": "Event loop puzzle answers, a Performance trace and the self-correcting countdown",
+          "checks": [["Run the ordering puzzle", "Synchronous logs come first, then microtasks, then the timeout callback, matching the prediction", "Console output and prediction sheet"], ["Click a button during the 2-second busy loop", "Trace shows a long task and the click is handled only after it ends", "Performance trace"], ["Leave the countdown in a background tab for 5 minutes", "Remaining time is still correct when the tab returns", "Screenshots with clock times"]],
+          "objectives": ["Explain the order in which tasks and microtasks run", "Spot long tasks in a trace", "Write timers that stay accurate"]
+        },
+        {
+          "topic": "Promise Combinators and Cancellation with AbortController",
+          "subtopics": ["Promise.all, allSettled, race and any", "AggregateError from Promise.any", "Promise.withResolvers (ES2024) and Promise.try (ES2025)", "AbortController and AbortSignal", "AbortSignal.timeout and AbortSignal.any", "Removing listeners with the signal option", "Limiting concurrency with a promise pool", "Retries with exponential backoff and jitter"],
+          "tools": ["Chrome DevTools Network panel", "Visual Studio Code", "Course mock API"],
+          "lab_task": "Build a search box that aborts the previous request on each keystroke, load three dashboard widgets with Promise.allSettled so one failure does not blank the page, race two mirror URLs with Promise.any, and upload 20 files to the course mock API with at most 3 requests in flight and retries with backoff.",
+          "deliverable": "async-tools.js with the search, dashboard, mirror and upload pool code",
+          "checks": [["Type 'london' quickly in the search box", "Earlier requests show as cancelled and only the last completes", "Network panel screenshot"], ["Make one widget endpoint return 500", "Two widgets render and one shows its error state", "Screenshot"], ["Upload 20 files through the pool", "No more than 3 uploads run at the same time", "Network waterfall screenshot"]],
+          "objectives": ["Choose the right Promise combinator", "Cancel work with AbortController", "Control concurrency and retries"]
+        },
+        {
+          "topic": "Streams API: Readers, Transforms and Backpressure",
+          "subtopics": ["ReadableStream, WritableStream and TransformStream", "Reading response.body with getReader()", "TextDecoderStream and splitting lines", "pipeThrough and pipeTo chains", "Backpressure, highWaterMark and queuing strategies", "CompressionStream and DecompressionStream", "Download progress from Content-Length", "Cancelling a stream with an AbortSignal"],
+          "tools": ["Chrome DevTools Performance monitor", "Visual Studio Code", "Course file server"],
+          "lab_task": "Stream a 50 MB newline-delimited JSON file from the course server, parse it line by line with a TransformStream, update a progress bar from Content-Length, render the first rows before the download finishes, and gzip a CSV export with CompressionStream.",
+          "deliverable": "Streaming import page and a gzip export function",
+          "checks": [["Start the 50 MB import", "First rows render before the download completes", "Screenshot with timings"], ["Watch the JS heap in the Performance monitor during the import", "Heap stays flat instead of growing with the file size", "Performance monitor screenshot"], ["Export 10 MB of CSV through CompressionStream('gzip')", "File is smaller and gunzip restores the original", "File sizes and terminal output"]],
+          "objectives": ["Process large responses incrementally", "Build transform pipelines that respect backpressure", "Compress data in the browser"]
+        },
+        {
+          "topic": "Web Workers: Moving Work Off the Main Thread",
+          "subtopics": ["Dedicated workers and module workers", "postMessage and the structured clone algorithm", "Transferable objects: ArrayBuffer, MessagePort and OffscreenCanvas", "Errors, messageerror and terminate()", "Comlink for function-call style messaging", "Worker pools sized from navigator.hardwareConcurrency", "SharedWorker and BroadcastChannel across tabs", "Measuring main-thread time saved"],
+          "tools": ["Chrome DevTools Performance panel", "Comlink", "Visual Studio Code"],
+          "lab_task": "Move a CSV parse and statistics job for 200,000 rows into a module worker, transfer the ArrayBuffer instead of copying it, expose the worker through Comlink, and compare main-thread blocking before and after in the Performance panel while typing in a text box.",
+          "deliverable": "Worker-based CSV statistics module with before-and-after traces",
+          "checks": [["Parse the CSV on the main thread while typing", "Typing freezes and the trace shows a task longer than 1 second", "Performance trace"], ["Parse it in the worker while typing", "Typing stays responsive and the long task leaves the main thread", "Performance trace"], ["Read buffer.byteLength after transferring it", "byteLength is 0 in the sender", "Console output"]],
+          "objectives": ["Run CPU-heavy code in workers", "Pass data efficiently between threads", "Prove the user-facing benefit with traces"]
+        },
+        {
+          "topic": "IndexedDB: Object Stores, Indexes, Transactions and Versioning",
+          "subtopics": ["Databases, object stores and key paths", "Opening a database and the upgradeneeded event", "readonly and readwrite transactions", "Indexes and IDBKeyRange queries", "Cursors for large result sets", "The idb promise wrapper", "Schema migrations between versions", "Quotas, navigator.storage.persist() and eviction"],
+          "tools": ["Chrome DevTools Application panel", "idb library", "Visual Studio Code"],
+          "lab_task": "Store 5,000 inspection records in an IndexedDB database with inspections and photos stores, add a compound index on siteId and status, query open inspections for site 42 with a key range, migrate from version 1 to 2 by adding a priority field, and report usage with navigator.storage.estimate().",
+          "deliverable": "db.js data layer with migrations and query functions",
+          "checks": [["Query the siteId and status index for site 42 and 'open'", "Only matching records are returned", "console.table output"], ["Open the database at version 2", "The upgrade adds priority to every existing record", "Application panel screenshot"], ["Abort a readwrite transaction after 50 writes", "None of the 50 writes are stored", "Record counts before and after"]],
+          "objectives": ["Design object stores and indexes for queries", "Write safe transactions and migrations", "Manage storage quotas and persistence"]
+        },
+        {
+          "topic": "Service Workers: Caching Strategies and Offline Use",
+          "subtopics": ["Registration, scope and the lifecycle", "install, activate and fetch events", "The Cache Storage API", "Cache-first, network-first and stale-while-revalidate", "Offline fallback pages", "Updating with skipWaiting, clients.claim and an update prompt", "Workbox strategies and precaching", "Debugging in the Application panel with Offline mode"],
+          "tools": ["Chrome DevTools Application panel", "Workbox", "Visual Studio Code"],
+          "lab_task": "Add a service worker to the inspection app that precaches the app shell, serves API GET requests stale-while-revalidate, shows offline.html for uncached pages, and offers a Reload button when a new version is waiting.",
+          "deliverable": "sw.js with three caching strategies and an update prompt",
+          "checks": [["Reload with Offline ticked in DevTools", "App shell loads from the service worker", "Network panel showing (ServiceWorker) in the Size column"], ["Open an uncached page while offline", "offline.html is shown", "Screenshot"], ["Deploy a changed sw.js", "Update banner appears and Reload activates the new version", "Application panel screenshot"]],
+          "objectives": ["Cache resources with the right strategy", "Make an app usable offline", "Ship service worker updates safely"]
+        },
+        {
+          "topic": "Bundling with Vite 8: Dev Server, Builds and Code Splitting",
+          "subtopics": ["Why bundle: dependencies, minification and long-term caching", "Scaffolding with npm create vite@latest", "Dev server, hot module replacement and import.meta.env", "Production builds with Rolldown, the Vite 8 bundler", "Code splitting with import() and manual chunks", "Static assets, hashed file names and the public folder", "Browser targets with build.target", "ESLint 10 with an eslint.config.js flat config"],
+          "tools": ["Vite 8", "Node.js 26 LTS", "npm", "ESLint 10"],
+          "lab_task": "Move the inspection app into a Vite 8 project, put the reports screen in its own chunk with import(), set VITE_API_URL for development and production modes, add ESLint 10 with the recommended flat config, and compare chunk sizes in the build output.",
+          "deliverable": "Vite project with a production build, a chunk size table and lint configuration",
+          "checks": [["Run npm run build", "dist/assets has hashed files and a separate reports chunk", "Build output"], ["Open the reports screen in the built app", "The reports chunk loads only on the first visit", "Network panel screenshot"], ["Run npx eslint .", "Zero errors after fixes", "Terminal output"]],
+          "objectives": ["Build and split a front end with Vite", "Configure modes and environment values", "Lint code with a flat config"]
+        },
+        {
+          "topic": "Unit Testing with Vitest 5: Mocks, Fake Timers and DOM Tests",
+          "subtopics": ["Test files, describe, it and expect", "Arrange, act, assert and test names", "Edge cases and table-driven tests with it.each", "Mocks and spies with vi.fn and vi.spyOn", "Fake timers with vi.useFakeTimers", "Mocking HTTP with Mock Service Worker (MSW)", "DOM tests in jsdom or happy-dom", "Coverage with @vitest/coverage-v8 and thresholds"],
+          "tools": ["Vitest 5", "MSW", "jsdom", "Vitest extension for VS Code"],
+          "lab_task": "Write Vitest tests for the price, date and validation modules with it.each tables, test the retry-with-backoff helper with fake timers, mock the inspections API with MSW, and set an 80% line coverage threshold that fails the run when unmet.",
+          "deliverable": "Test suite with a coverage report and threshold configuration",
+          "checks": [["Run npx vitest run", "All tests pass", "Test report"], ["Advance fake timers by the first backoff delay", "The second attempt fires exactly then", "Test output"], ["Delete tests until coverage falls below 80%", "Run fails with a coverage threshold error", "Terminal output"]],
+          "objectives": ["Write fast, readable unit tests", "Isolate code with mocks and fake timers", "Enforce coverage in the test run"]
+        },
+        {
+          "topic": "Functional Patterns and Immutable Data",
+          "subtopics": ["Pure functions and predictable output", "Higher-order functions and composition with pipe()", "Currying and partial application", "Immutable updates with spread, toSorted and with()", "Object.freeze and its shallow limit", "Structural sharing with Immer", "Memoisation and cache keys", "Reducers for state transitions"],
+          "tools": ["Vitest 5", "Immer", "Visual Studio Code"],
+          "lab_task": "Refactor the inspection list's sort, filter and search code into pure functions composed with pipe(), replace in-place mutations with immutable updates, write a reducer for inspection status changes, and memoise the summary calculation for 5,000 records.",
+          "deliverable": "Refactored list module with reducer tests and timing results",
+          "checks": [["Call the reducer twice with the same state and action", "Results are equal and the input state is unchanged", "Vitest output"], ["Freeze the state and run the old mutating code", "TypeError: Cannot assign to read only property", "Console error"], ["Call the memoised summary twice with the same input", "The second call returns from cache in under 1 ms", "Timing log"]],
+          "objectives": ["Write data code without side effects", "Update state without mutation", "Speed up repeated work with memoisation"]
+        },
+        {
+          "topic": "Design Patterns for JavaScript Applications",
+          "subtopics": ["Module singletons and their testing cost", "Observer and publish/subscribe with EventTarget", "Factory functions versus classes", "Strategy objects for swappable behaviour", "Proxy and Reflect for validation and logging", "Wrapper functions for retry, timing and caching", "Dependency injection without a framework", "Choosing a pattern and avoiding over-engineering"],
+          "tools": ["Visual Studio Code", "Vitest 5", "Chrome DevTools"],
+          "lab_task": "Refactor the inspection app's sync code to use an EventTarget event bus, a strategy object for CSV, JSON and PDF exports, a Proxy that validates writes to the settings object, and constructor injection of the API client so tests can pass a fake.",
+          "deliverable": "Refactored sync and export modules with a pattern decision log",
+          "checks": [["Set settings.syncInterval = -5 through the Proxy", "The write is rejected with a RangeError", "Console error"], ["Switch the export strategy from CSV to JSON", "The same export call produces a JSON file", "Exported files"], ["Run the sync tests with a fake API client", "Tests pass with no network calls", "Vitest output"]],
+          "objectives": ["Apply common patterns in idiomatic JavaScript", "Use Proxy and Reflect for cross-cutting rules", "Make code testable through injection"]
+        },
+        {
+          "topic": "Rendering Performance: Layout Thrashing, Debounce and Throttle",
+          "subtopics": ["Style, layout, paint and composite as seen from scripts", "Forced synchronous layout and layout thrashing", "Batching DOM reads before writes", "requestAnimationFrame for visual updates", "Debounce and throttle for input, scroll and resize", "Passive listeners, IntersectionObserver and ResizeObserver", "Breaking up long tasks with scheduler.yield() and a setTimeout fallback", "Measuring Interaction to Next Paint in the Performance panel"],
+          "tools": ["Chrome DevTools Performance panel", "web-vitals 6", "Visual Studio Code"],
+          "lab_task": "Profile a list of 2,000 cards whose resize handler reads offsetHeight and writes styles in the same loop, remove the thrashing by batching reads and writes, debounce the search box at 300 ms, replace a scroll handler with IntersectionObserver for lazy loading, and record INP before and after.",
+          "deliverable": "Before-and-after Performance traces with INP figures and the fixed code",
+          "checks": [["Record a window resize before the fix", "Trace shows repeated Layout events with forced reflow warnings", "Performance trace"], ["Record the same resize after batching", "One layout per frame and no forced reflow warnings", "Performance trace"], ["Type 'pump' quickly in the search box", "Filter runs once, 300 ms after the last key", "Console call count"]],
+          "objectives": ["Find and remove layout thrashing", "Rate-limit expensive handlers", "Measure responsiveness with INP"]
+        },
+        {
+          "topic": "Accessible DOM Scripting: Focus, Keyboard and Live Regions",
+          "subtopics": ["Native elements first, ARIA second", "Moving focus after content changes", "Keyboard support: tab order, roving tabindex and arrow keys", "Modal dialogs with <dialog>, showModal() and focus return", "Updating aria-expanded, aria-controls and aria-selected from script", "Live regions for status messages", "The inert attribute for hidden content", "Testing with NVDA, VoiceOver and axe DevTools"],
+          "tools": ["axe DevTools", "NVDA", "VoiceOver", "Chrome DevTools Accessibility pane"],
+          "lab_task": "Make the inspection app's tabs, filter disclosure and delete-confirmation dialog keyboard and screen reader accessible with roving tabindex, aria-expanded, focus return after the dialog closes and a polite live region that announces the result count.",
+          "deliverable": "Accessible tabs, disclosure and dialog with an axe report and test notes",
+          "checks": [["Open, confirm and close the dialog with the keyboard only", "Focus moves into the dialog and returns to the trigger button", "Screen recording"], ["Filter the list with NVDA or VoiceOver running", "The result count is announced", "Screen reader recording"], ["Run axe DevTools on each screen", "No critical or serious issues", "axe report"]],
+          "objectives": ["Manage focus in dynamic interfaces", "Keep ARIA state in sync with the DOM", "Test with real assistive technology"]
+        },
+        {
+          "topic": "Front-End Security: XSS, CSP, CSRF and Trusted Types",
+          "subtopics": ["DOM XSS sources and sinks", "Safe DOM APIs, setHTML() and DOMPurify", "Content Security Policy with nonces and strict-dynamic", "Trusted Types with require-trusted-types-for 'script'", "CSRF: SameSite cookies, tokens and Fetch Metadata headers", "Session cookies versus tokens in localStorage", "Third-party scripts and Subresource Integrity", "CSP violation reports with the Reporting API"],
+          "tools": ["Chrome DevTools Console and Issues panel", "DOMPurify", "Google CSP Evaluator"],
+          "lab_task": "Exploit a planted DOM XSS in the training app's notes field, fix it with textContent and setHTML() with a DOMPurify fallback, roll out a nonce-based CSP with Trusted Types first in report-only mode and then enforced, and protect the sync endpoint with SameSite=Lax cookies and a CSRF token.",
+          "deliverable": "Security fixes, CSP header configuration and a violation report log",
+          "checks": [["Save a note containing <img src=x onerror=alert(1)>", "After the fix no script runs and the note shows safely", "Screenshot"], ["Assign a string to innerHTML with Trusted Types enforced", "The browser throws a TypeError and sends a violation report", "Console error and report log"], ["Send a cross-site POST to the sync endpoint without the token", "The server rejects it with 403", "Network panel screenshot"]],
+          "objectives": ["Find and fix DOM XSS", "Deploy CSP and Trusted Types without breaking the app", "Protect state-changing requests from CSRF"]
+        },
+        {
+          "topic": "REST Clients in the Browser: CORS, Auth, Caching and Retries",
+          "subtopics": ["An API client module with a base URL and JSON helpers", "CORS preflight requests and allowed headers", "Cookie sessions with credentials: 'include' versus bearer tokens", "ETags, If-None-Match and 304 responses", "Offset, cursor and Link header pagination", "Idempotency keys for safe retries", "RFC 9457 problem details for errors", "Optimistic updates with rollback"],
+          "tools": ["Chrome DevTools Network panel", "Course REST API", "Vitest 5", "MSW"],
+          "lab_task": "Write api.js for the inspections REST API with JSON helpers, an ApiError for RFC 9457 problem responses, ETag caching with If-None-Match, cursor pagination and retries that reuse an Idempotency-Key header, then use it for optimistic status updates with rollback on failure.",
+          "deliverable": "api.js client with tests for caching, errors, pagination and retries",
+          "checks": [["Fetch the same inspection twice", "The second response is 304 and the cached body is used", "Network panel screenshot"], ["Send an invalid status to trigger a 422", "The client throws ApiError with the problem title and field errors", "Console output"], ["Make the status update fail with 503", "The UI rolls back to the previous status and shows a message", "Screenshot"]],
+          "objectives": ["Build a reusable REST client", "Handle CORS, authentication and caching correctly", "Retry safely and roll back failed updates"]
+        },
+        {
+          "topic": "GraphQL from the Browser: Queries, Mutations and Caching",
+          "subtopics": ["GraphQL over HTTP: POST bodies and response media types", "Queries with variables and fragments", "Mutations that return the changed fields", "Errors and partial data in one response", "Persisted queries and cacheable GET requests", "Normalised caches keyed by __typename and id", "Plain fetch versus urql with Graphcache", "Cursor connections for pagination"],
+          "tools": ["Chrome DevTools Network panel", "urql and Graphcache", "GraphiQL"],
+          "lab_task": "Query the course GraphQL endpoint with plain fetch for inspections using variables and a fragment, handle a response with both data and errors, add a mutation that changes an inspection's status, and count network requests with and without urql's Graphcache.",
+          "deliverable": "GraphQL client module and a request count comparison",
+          "checks": [["Send a query with an unknown field", "The response has an errors array with a location and no data", "Network panel screenshot"], ["Query a field whose resolver fails", "The response has partial data and errors and the UI shows what loaded", "Screenshot"], ["Repeat the list query with Graphcache enabled", "No second network request is sent", "Network panel screenshot"]],
+          "objectives": ["Call GraphQL APIs without heavy tooling", "Handle errors and partial data", "Decide when a caching client is worth it"]
+        },
+        {
+          "topic": "Intermediate Capstone: Offline-First Field Inspection App",
+          "subtopics": ["Module plan, classes and immutable state", "IndexedDB storage and service worker caching", "Photo compression in a worker", "REST sync with retries and a GraphQL dashboard", "Vite build and Vitest coverage", "Performance, accessibility and security checks"],
+          "tools": ["Vite 8", "Vitest 5", "Chrome DevTools", "axe DevTools", "Lighthouse"],
+          "lab_task": "Build an offline-first inspection app with Vite 8: record inspections and photos offline in IndexedDB, compress photos in a worker, sync to the REST API with retries when back online, show a GraphQL summary dashboard, and ship with line coverage above 80%, no serious axe issues and an enforced CSP with Trusted Types.",
+          "deliverable": "Repository with the app, coverage and Lighthouse reports, and a 10-minute demo",
+          "checks": [["Create two inspections offline and reconnect", "Both sync once and show as synced", "Network log and screenshot"], ["Run npx vitest run --coverage", "Tests pass with line coverage above 80%", "Coverage report"], ["Run Lighthouse and axe on the production build", "No serious accessibility issues and no CSP violations", "Lighthouse and axe reports"]],
+          "objectives": ["Combine offline storage, workers and sync in one app", "Ship a tested, secure build", "Explain design decisions in a demo"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior developers, tech leads and front-end architects responsible for large JavaScript products. Covers V8 internals and garbage collection, memory leak hunting, codebase and monorepo structure, micro-frontends and Web Components, bundler internals, Core Web Vitals at scale, npm supply-chain security, runtimes, WebAssembly, ES2025 and ES2026 features, shared-memory concurrency, observability, test strategy, planning a move to TypeScript and leading JavaScript teams.",
+      "prerequisites": ["Builds and ships production JavaScript applications with a bundler and automated tests", "Understands the event loop, promises, workers and browser storage", "Has worked in a codebase shared by several developers or teams"],
+      "outcomes": ["Explain engine behaviour (JIT tiers, hidden classes, garbage collection) and fix speed and memory problems with evidence", "Structure large JavaScript codebases, monorepos, micro-frontends and shared Web Components", "Secure the npm supply chain and choose runtimes, WebAssembly and concurrency features with clear trade-offs", "Set test, observability, TypeScript adoption and team standards for JavaScript products"],
+      "days": [
+        {
+          "topic": "Inside V8: Parsing, Ignition and the JIT Tiers",
+          "subtopics": ["Scanner, parser and lazy parsing with preparsing", "Ignition bytecode and the accumulator register", "Sparkplug, the baseline compiler", "Maglev, the mid-tier optimising compiler", "TurboFan and the Turboshaft backend", "Feedback vectors and when functions tier up", "On-stack replacement for hot loops", "Code caching and explicit compile hints"],
+          "tools": ["Node.js 26 with V8 flags", "Chrome DevTools Performance panel", "Perfetto UI"],
+          "lab_task": "Print the bytecode of a sum function with node --print-bytecode --print-bytecode-filter=sum, trace its tier-up with --trace-opt and --trace-deopt over 100,000 calls, and compare run times with default flags, --no-maglev and --no-opt.",
+          "deliverable": "Bytecode listing, tier-up trace and benchmark table with a short explanation",
+          "checks": [["Run node --print-bytecode --print-bytecode-filter=sum", "The listing shows Ldar, Add and Return bytecodes", "Terminal output"], ["Run the benchmark with --trace-opt", "The log shows sum marked for optimisation and compiled by Maglev and TurboFan", "Trace log"], ["Compare default, --no-maglev and --no-opt runs", "Run times differ by tier and are recorded in a table", "Benchmark table"]],
+          "objectives": ["Explain how V8 turns source code into machine code", "Read bytecode and tier-up traces", "Relate JIT tiers to measured performance"]
+        },
+        {
+          "topic": "Hidden Classes, Inline Caches and Deoptimisation",
+          "subtopics": ["Hidden classes (maps) and transition trees", "Property order and properties added after construction", "Monomorphic, polymorphic and megamorphic inline caches", "Array elements kinds: packed, holey, SMI and double", "Deoptimisation triggers and deopt loops", "delete, changing types and other shape breakers", "V8 intrinsics with --allow-natives-syntax", "Benchmarks that measure the right thing"],
+          "tools": ["Node.js 26", "Deopt Explorer for VS Code", "Vitest bench"],
+          "lab_task": "Create Point objects with properties added in different orders, confirm the different hidden classes with %HaveSameMap, make a hot function megamorphic by passing it six object shapes, measure the slowdown with vitest bench, and remove the deopt reported by Deopt Explorer.",
+          "deliverable": "Shape experiments, benchmark results and the deopt fix",
+          "checks": [["Run %HaveSameMap on {x, y} and {y, x} objects", "Returns false", "Terminal output"], ["Benchmark the function with one shape and with six", "The six-shape version is measurably slower", "vitest bench report"], ["Rerun Deopt Explorer after the fix", "The deopt for the hot function is gone", "Deopt Explorer screenshot"]],
+          "objectives": ["Explain how object shapes affect speed", "Diagnose deoptimisations with tools", "Keep hot paths monomorphic"]
+        },
+        {
+          "topic": "Garbage Collection in V8: Generations, Orinoco and Weak References",
+          "subtopics": ["Reachability, roots and retained objects", "The young generation and the Scavenger", "The old generation and mark-compact", "Concurrent and incremental marking in Orinoco", "Allocation rate and GC pauses in traces", "WeakMap, WeakSet and WeakRef", "FinalizationRegistry and why callbacks may never run", "Heap limits and --max-old-space-size"],
+          "tools": ["Node.js 26 with --trace-gc", "Chrome DevTools Performance and Memory panels"],
+          "lab_task": "Generate allocation churn in a render loop that creates 1 million short-lived objects per second, observe minor and major collections with --trace-gc and in a Performance trace, reduce the allocation rate by reusing objects, and build a WeakRef cache whose entries disappear after garbage collection.",
+          "deliverable": "GC logs, before-and-after traces and the WeakRef cache",
+          "checks": [["Run the churn script with --trace-gc", "The log shows frequent Scavenge lines and occasional Mark-Compact lines", "GC log"], ["Record the render loop before and after object reuse", "Minor GC count per second falls", "Performance traces"], ["Drop strong references to a cached value and call gc() under --expose-gc", "deref() returns undefined", "Terminal output"]],
+          "objectives": ["Explain generational garbage collection", "Reduce GC pressure in hot code", "Use weak references correctly"]
+        },
+        {
+          "topic": "Memory Leak Hunting with Heap Snapshots and Detached Elements",
+          "subtopics": ["Leak patterns: listeners, timers, caches, closures and detached DOM", "The three-snapshot technique", "Comparison view, retainers and retained size", "The Detached elements profile in the Memory panel", "Allocation timelines and allocation sampling", "Leaks in single-page navigation and long sessions", "Removing listeners in bulk with AbortController", "Automated leak checks with MemLab"],
+          "tools": ["Chrome DevTools Memory panel", "MemLab", "Puppeteer"],
+          "lab_task": "Find and fix four planted leaks in a dashboard single-page app (a window resize listener, an uncleared setInterval, an unbounded Map cache and a detached modal tree) using snapshot comparison and the Detached elements profile, then add a MemLab scenario that fails CI if the modal leak returns.",
+          "deliverable": "Leak report with retainer paths, fixes and a MemLab CI job",
+          "checks": [["Open and close the modal 20 times and compare snapshots", "20 detached modal trees are retained before the fix", "Heap snapshot comparison"], ["Repeat after the fix", "No detached modal trees remain", "Detached elements profile"], ["Run the MemLab scenario on the leaking build", "MemLab prints the leak trace and the job fails", "CI log"]],
+          "objectives": ["Find leaks from snapshot evidence", "Fix common causes of leaks", "Stop leaks returning with automated checks"]
+        },
+        {
+          "topic": "Large Codebase Structure: Boundaries, Layers and Ownership",
+          "subtopics": ["Feature folders versus layer folders", "Public entry points and the package.json exports field", "Dependency rules with dependency-cruiser and eslint-plugin-boundaries", "Finding and breaking circular dependencies", "Shared code: a small core versus duplication", "CODEOWNERS and ownership maps", "Architecture decision records", "Change hotspots and coupling from git history"],
+          "tools": ["dependency-cruiser", "ESLint 10 with eslint-plugin-boundaries", "GitHub CODEOWNERS"],
+          "lab_task": "Map the dependencies of a supplied 300-module front end with dependency-cruiser, break two circular dependencies, define feature boundaries with entry-point-only imports, enforce the rules in CI, and write two architecture decision records.",
+          "deliverable": "Dependency report, boundary rules in CI and two decision records",
+          "checks": [["Run dependency-cruiser on the original code", "The report lists cycles and boundary violations", "HTML report"], ["Import another feature's internal file", "Lint fails with the boundary rule message", "CI log"], ["Rerun the report after refactoring", "Zero cycles and zero boundary violations", "HTML report"]],
+          "objectives": ["Define module boundaries for a large codebase", "Enforce dependency rules automatically", "Record structural decisions"]
+        },
+        {
+          "topic": "JavaScript Monorepos: pnpm Workspaces, Task Graphs and Changesets",
+          "subtopics": ["When a monorepo helps and when it hurts", "pnpm 11 workspaces and the workspace: protocol", "Shared dependency versions with the catalog: protocol", "Task graphs and caching with Turborepo", "Affected-only builds and tests in CI", "Versions and changelogs with Changesets", "Internal packages: source-only or prebuilt", "Publishing internal packages to a private registry"],
+          "tools": ["pnpm 11", "Turborepo", "Changesets", "GitHub Actions"],
+          "lab_task": "Combine three repositories (web app, design system and utils) into a pnpm workspace, share versions through catalog: entries, define Turborepo build and test tasks with caching, run only affected tests in GitHub Actions, and release the utils package with Changesets.",
+          "deliverable": "Monorepo with workspace, Turborepo and Changesets configuration and a CI workflow",
+          "checks": [["Run turbo run build twice", "The second run reports FULL TURBO with every task cached", "Terminal output"], ["Change only the utils package and push", "CI runs tests for utils and its dependants only", "CI log"], ["Run changeset version after a minor change", "The utils version and CHANGELOG.md are updated", "Git diff"]],
+          "objectives": ["Organise several apps and packages in one repository", "Speed up CI with task caching and affected runs", "Version and release internal packages"]
+        },
+        {
+          "topic": "Micro-Frontends with Module Federation 2.0 and Import Maps",
+          "subtopics": ["When micro-frontends are worth the cost", "Composition options: build time, server side, iframes and runtime", "Module Federation 2.0 remotes, exposes and manifests", "Shared singletons and version mismatches", "Native import maps as a lighter alternative", "Isolation: styles, globals and failure containment", "Communication through events and the URL", "Independent deployment and rollback"],
+          "tools": ["Module Federation 2.0 (@module-federation/enhanced)", "Rspack 2", "Chrome DevTools Network panel"],
+          "lab_task": "Split a shell and two remotes (catalogue and checkout) with Module Federation 2.0 and a manifest, share one copy of a date library as a singleton, load a third remote through a native import map, and show a fallback when the checkout remote is down.",
+          "deliverable": "Shell and remotes with a composition diagram and a failure test",
+          "checks": [["Load the shell", "Both remotes render and mf-manifest.json appears in the Network panel", "Network panel screenshot"], ["Deploy a remote that requires a newer major version of the shared singleton", "The federation runtime logs an unsatisfied version warning", "Console output"], ["Stop the checkout server", "The shell shows the fallback and other routes keep working", "Screenshot"]],
+          "objectives": ["Decide whether micro-frontends fit", "Compose applications at runtime", "Contain failures between teams' code"]
+        },
+        {
+          "topic": "Web Components: Lifecycle, Shadow DOM and Form-Associated Elements",
+          "subtopics": ["customElements.define and naming rules", "Lifecycle callbacks: connected, disconnected, adopted and attributeChanged", "Attributes versus properties and reflection", "Shadow DOM, slots and ::part", "Declarative Shadow DOM for server-rendered markup", "Form-associated elements with ElementInternals", "Scoped custom element registries", "Documenting components with a Custom Elements Manifest"],
+          "tools": ["Lit", "Chrome DevTools Elements panel", "Custom Elements Manifest analyzer", "Vitest browser mode"],
+          "lab_task": "Build a <rating-input> custom element that takes part in forms through ElementInternals, reflects its value attribute, exposes ::part(star) for styling, renders server-side with Declarative Shadow DOM, and is registered by two micro-frontends in scoped registries without a name clash.",
+          "deliverable": "rating-input package with tests, a manifest and a demo page",
+          "checks": [["Submit a form containing <rating-input name=\"score\">", "FormData contains score with the chosen value", "Console output"], ["Mark it required and submit with no value", "Submission is blocked through setValidity", "Screenshot"], ["Load the page with JavaScript disabled", "Stars render from Declarative Shadow DOM", "Screenshot"]],
+          "objectives": ["Build standards-based components", "Integrate custom elements with forms", "Share components across teams safely"]
+        },
+        {
+          "topic": "How Bundlers Work: Module Graphs, Tree Shaking and Source Maps",
+          "subtopics": ["Resolving, loading and building the module graph", "Transforms with Oxc, SWC or Babel", "Tree shaking, sideEffects and /* @__PURE__ */ annotations", "Scope hoisting and chunking", "Source maps: mappings, names and debug IDs", "Writing a Vite and Rolldown plugin with resolveId, load and transform", "Codemods with jscodeshift or ast-grep", "Moving from webpack to Vite or Rspack"],
+          "tools": ["Vite 8 and Rolldown", "AST Explorer", "jscodeshift", "Rspack 2"],
+          "lab_task": "Write a Vite 8 plugin that replaces __BUILD_INFO__ with the git commit and build time, show why a utility import is not tree-shaken until the package declares sideEffects: false, run a codemod that converts 120 require() calls to imports, and confirm that source maps map a production error to its original line.",
+          "deliverable": "Plugin source, codemod, bundle size comparison and decoded stack trace",
+          "checks": [["Build with the plugin", "The bundle contains the commit hash in place of __BUILD_INFO__", "Bundle excerpt"], ["Add sideEffects: false and rebuild", "Unused utilities disappear and the chunk shrinks", "Size comparison"], ["Throw an error in the production build and decode the stack", "The original file and line are shown", "Decoded stack trace"]],
+          "objectives": ["Explain what a bundler does at each stage", "Extend builds with plugins and codemods", "Debug production code with source maps"]
+        },
+        {
+          "topic": "Core Web Vitals at Scale: Field Data and INP Attribution",
+          "subtopics": ["LCP, INP and CLS thresholds at the 75th percentile", "Field data from CrUX and Search Console versus lab data", "The web-vitals 6 attribution build", "Long Animation Frames API script attribution", "Soft navigations in single-page apps", "Segmenting by template, device and country", "Performance budgets with Lighthouse CI", "Prioritising fixes across many pages and teams"],
+          "tools": ["web-vitals 6", "CrUX API and dashboard", "Chrome DevTools Performance panel", "Lighthouse CI"],
+          "lab_task": "Add the web-vitals attribution build to a 40-page product site, send LCP, INP and CLS with page template and device class to a collection endpoint, find the worst INP interaction from Long Animation Frame script data, fix it, and add Lighthouse CI budgets that block regressions.",
+          "deliverable": "RUM dashboard, INP fix with evidence and a Lighthouse CI budget file",
+          "checks": [["Query the RUM data by page template", "p75 INP per template is shown and the worst template is identified", "Dashboard screenshot"], ["Inspect LoAF attribution for the worst interaction", "The responsible script URL and function are named", "Attribution log"], ["Open a pull request that adds 150 KB of JavaScript", "Lighthouse CI fails the budget", "CI log"]],
+          "objectives": ["Measure Core Web Vitals from real users", "Trace slow interactions to code", "Stop regressions with budgets"]
+        },
+        {
+          "topic": "npm Supply-Chain Security: Lockfiles, Provenance and Trusted Publishing",
+          "subtopics": ["Attack patterns: typosquatting, account takeover and worms such as Shai-Hulud", "Lockfiles, npm ci and exact installs", "Blocking install scripts with pnpm approve-builds and npm ignore-scripts", "Release-age cooldowns: npm min-release-age and pnpm minimumReleaseAge", "npm audit, OSV-Scanner and automated update pull requests", "Provenance attestations and npm audit signatures", "Trusted publishing with OIDC from GitHub Actions", "npm token changes: classic tokens revoked, short-lived sessions and 2FA"],
+          "tools": ["npm 11", "pnpm 11", "OSV-Scanner", "GitHub Actions"],
+          "lab_task": "Audit a front end with 900 dependencies using npm audit and OSV-Scanner, block install scripts except for an approved list, set a 7-day release-age cooldown, move a package's publish workflow from a stored token to trusted publishing with provenance, and verify the tree with npm audit signatures.",
+          "deliverable": "Supply-chain report, hardened install settings and a trusted publishing workflow",
+          "checks": [["Run npm audit signatures", "Packages report verified registry signatures, and attestations where published", "Terminal output"], ["Install a test package with a postinstall script", "pnpm blocks the script until it is approved", "Terminal output"], ["Publish a release from GitHub Actions with trusted publishing", "npm shows a provenance statement linked to the workflow run", "npm package page screenshot"]],
+          "objectives": ["Assess dependency risk with evidence", "Harden installs and publishing", "Respond to registry security changes"]
+        },
+        {
+          "topic": "Portable JavaScript Across Node.js, Deno, Bun and Edge Runtimes",
+          "subtopics": ["What ECMAScript defines and what runtimes add", "WinterTC (Ecma TC55) and the Minimum Common Web API (ECMA-429)", "Node.js 26 LTS: Temporal by default, type stripping and the permission model", "Deno 2: permissions, JSR and npm compatibility", "Bun 1.3: built-in APIs and compatibility gaps", "Edge runtimes such as Cloudflare Workers and their limits", "Runtime-specific code behind package.json export conditions", "One test suite on three runtimes"],
+          "tools": ["Node.js 26 LTS", "Deno 2.9", "Bun 1.3", "Wrangler"],
+          "lab_task": "Write a small library that signs and verifies request payloads using only Web Crypto, fetch and URL, publish it with export conditions for node, deno, bun and workerd, and run the same test suite and a request benchmark on Node.js 26, Deno 2 and Bun 1.3.",
+          "deliverable": "Portable library, CI matrix and benchmark table with runtime versions",
+          "checks": [["Run the test suite on all three runtimes", "All tests pass on each runtime", "CI matrix log"], ["Call Deno.readTextFile in shared code and run the tests on Node.js", "Tests fail with ReferenceError: Deno is not defined", "Test output"], ["Run the request benchmark", "Requests per second for each runtime are recorded with versions and hardware", "Benchmark table"]],
+          "objectives": ["Write code that runs on several runtimes", "Isolate runtime-specific code", "Compare runtimes with your own measurements"]
+        },
+        {
+          "topic": "WebAssembly Interop: Loading, Memory and Calling Costs",
+          "subtopics": ["When WebAssembly helps and when JavaScript is fast enough", "WebAssembly.instantiateStreaming and the application/wasm MIME type", "Imports, exports and WebAssembly.Memory", "Passing strings and typed arrays across the boundary", "Wasm 3.0: garbage collection, exception handling and memory64", "JS String Builtins for string-heavy modules", "Importing .wasm as a module: the ESM integration proposal and bundler plugins", "Running Wasm in a worker"],
+          "tools": ["WebAssembly Binary Toolkit (wat2wasm)", "Chrome DevTools", "Vite 8"],
+          "lab_task": "Load a prebuilt image-filter .wasm module with instantiateStreaming, pass a 4-megapixel ImageData buffer through linear memory with a single copy, compare filter times with the JavaScript version, then move both into a worker and record the main-thread time saved.",
+          "deliverable": "Wasm loader module, benchmark table and worker version",
+          "checks": [["Serve the .wasm file as application/octet-stream", "instantiateStreaming fails with a TypeError about the MIME type", "Console error"], ["Run the JavaScript and Wasm filters 10 times each", "Median times are recorded for both", "Benchmark table"], ["Call a tiny exported function 1 million times", "The per-call boundary cost is measured and documented", "Benchmark notes"]],
+          "objectives": ["Load and call WebAssembly from JavaScript", "Share memory across the boundary efficiently", "Decide with data when Wasm is worth it"]
+        },
+        {
+          "topic": "From TC39 to Production: ES2025 and ES2026 Features",
+          "subtopics": ["TC39 stages 0 to 4 and the yearly ECMA-262 edition", "ES2025: iterator helpers, Set methods and Promise.try", "ES2025: import attributes, JSON modules, RegExp.escape, RegExp modifiers and Float16Array", "ES2026: Array.fromAsync, Error.isError and Math.sumPrecise", "ES2026: Uint8Array base64 and hex, Iterator.concat, Map getOrInsert and JSON.parse source text access", "At Stage 4 for ES2027: Temporal, using declarations, Atomics.pause and Iterator.zip", "Checking support with Baseline and MDN compatibility data", "Adopting safely with browserslist targets, core-js and lint rules"],
+          "tools": ["TC39 proposals repository", "MDN browser compatibility data", "core-js", "ESLint 10 with eslint-plugin-es-x"],
+          "lab_task": "Replace hand-written helpers in a utility package with ES2025 and ES2026 built-ins (Set.prototype.union, Promise.try, RegExp.escape, Math.sumPrecise, Uint8Array.fromBase64 and Map.prototype.getOrInsertComputed), check each against the team's browser targets with Baseline data, polyfill gaps with core-js, and add a lint rule for unsupported features.",
+          "deliverable": "Modernised utility package with a feature support matrix",
+          "checks": [["Sum [1e20, 0.1, -1e20] with reduce and with Math.sumPrecise", "reduce returns 0 and Math.sumPrecise returns 0.1", "Console output"], ["Run the tests in the oldest target browser", "Polyfilled features pass", "Test report"], ["Use a using declaration in shared code", "The lint rule flags it as unsupported for the targets", "Lint output"]],
+          "objectives": ["Follow how features move through TC39", "Use ES2025 and ES2026 features where targets allow", "Adopt new built-ins without breaking users"]
+        },
+        {
+          "topic": "SharedArrayBuffer, Atomics and Cross-Origin Isolation",
+          "subtopics": ["Cross-origin isolation with COOP and COEP headers", "COEP credentialless for third-party embeds", "Sharing a SharedArrayBuffer between the main thread and workers", "Data races and lost updates", "Atomics.load, store, add and compareExchange", "Atomics.wait in workers and Atomics.waitAsync on the main thread", "A lock-free ring buffer for a producer and a consumer", "Spin-waiting with Atomics.pause"],
+          "tools": ["Chrome DevTools", "Vite 8 dev server headers", "Node.js 26 worker_threads"],
+          "lab_task": "Serve the app with Cross-Origin-Opener-Policy: same-origin and Cross-Origin-Embedder-Policy: require-corp, share a SharedArrayBuffer between four workers, show lost updates with plain increments, fix them with Atomics.add, and stream audio-meter samples from a worker to the UI through a ring buffer.",
+          "deliverable": "Isolated app configuration, race demonstration and ring buffer module",
+          "checks": [["Check crossOriginIsolated without the headers", "Returns false and SharedArrayBuffer is undefined", "Console output"], ["Run 4 workers doing 1 million plain increments each", "The final count is below 4,000,000", "Console output"], ["Repeat with Atomics.add", "The final count is exactly 4,000,000", "Console output"]],
+          "objectives": ["Enable cross-origin isolation safely", "Coordinate threads with Atomics", "Build shared-memory data structures"]
+        },
+        {
+          "topic": "Observing Production Front Ends: RUM, Errors and Traces",
+          "subtopics": ["Signals to collect: errors, vitals, traces, logs and business events", "Error tracking with Sentry and uploaded source maps", "OpenTelemetry web tracing for page loads and fetch", "Propagating traceparent through CORS to the back end", "Sampling, rate limits and cost", "Privacy: PII scrubbing, consent and retention", "The Reporting API for CSP, deprecation and crash reports", "Front-end SLOs, dashboards and alerts"],
+          "tools": ["Sentry", "OpenTelemetry JavaScript SDK", "Grafana", "Reporting API"],
+          "lab_task": "Instrument the product site with OpenTelemetry web tracing for page loads and fetch calls, propagate traceparent so one trace covers browser and API, send errors to Sentry with uploaded source maps and PII scrubbing, and define a 99.5% error-free sessions SLO with an alert.",
+          "deliverable": "Instrumentation code, trace screenshots, SLO definition and alert rule",
+          "checks": [["Load a page that calls two APIs", "One trace shows browser and server spans with the same trace ID", "Trace viewer screenshot"], ["Throw an error in production code", "Sentry shows the original source line and no email addresses", "Sentry event screenshot"], ["Raise the test error rate above the SLO threshold", "The alert reaches the team channel", "Alert notification"]],
+          "objectives": ["Choose and collect front-end telemetry", "Connect browser and server traces", "Run front ends against SLOs with privacy controls"]
+        },
+        {
+          "topic": "Test Strategy: Test Levels, Browser Mode and Mutation Testing",
+          "subtopics": ["Risk-based strategy: pyramid, trophy and what to test where", "Unit tests in Node versus Vitest browser mode", "Component and visual tests with toMatchScreenshot", "Consumer-driven contract tests with Pact", "End-to-end tests: a few stable journeys with Playwright", "Mutation testing with StrykerJS", "Flaky test policy and quarantine", "Reviewing AI-generated tests"],
+          "tools": ["Vitest 5 browser mode", "Playwright", "StrykerJS", "Pact JS"],
+          "lab_task": "Write a test strategy that maps the product site's top 10 risks to test levels, move DOM-heavy tests from jsdom to Vitest browser mode, raise the pricing module's StrykerJS mutation score to at least 80%, and cut the end-to-end suite to the journeys that protect revenue.",
+          "deliverable": "Test strategy document, mutation reports and the reduced end-to-end suite",
+          "checks": [["Run StrykerJS on the pricing module", "The report shows surviving mutants and the baseline score", "Stryker HTML report"], ["Add tests for the survivors and rerun", "Mutation score is 80% or higher", "Stryker HTML report"], ["Run the same DOM tests in jsdom and in browser mode", "A layout-dependent bug fails only in browser mode", "Test output"]],
+          "objectives": ["Set a risk-based test strategy", "Measure test quality with mutation testing", "Balance test levels for speed and confidence"]
+        },
+        {
+          "topic": "Planning a Move to TypeScript: JSDoc, checkJs and a Roadmap",
+          "subtopics": ["Costs, benefits and risks for this codebase", "JSDoc types with // @ts-check", "allowJs, checkJs and a strictness ladder", "TypeScript 7 and its native compiler", "Erasable syntax and type stripping in Node.js 26", "Converting leaf modules first", "Types for third-party packages", "Tracking progress with type coverage"],
+          "tools": ["TypeScript 7", "Visual Studio Code", "type-coverage", "Node.js 26 LTS"],
+          "lab_task": "Assess a 60,000-line JavaScript codebase, turn on checkJs for two folders with JSDoc types, record the error count per folder, convert five leaf modules to TypeScript with erasableSyntaxOnly, and write a six-month adoption plan with milestones and a type-coverage target.",
+          "deliverable": "Baseline error counts, five converted modules and the adoption plan",
+          "checks": [["Run tsc --noEmit with checkJs on the two folders", "The error count per folder is recorded as the baseline", "Compiler output"], ["Convert the five leaf modules and run the tests", "Tests pass and type coverage rises", "type-coverage report"], ["Review the plan with the team leads", "Milestones, owners and the strictness ladder are agreed", "Signed-off plan"]],
+          "objectives": ["Judge whether and how to adopt TypeScript", "Start with JSDoc and checkJs at low risk", "Plan a staged migration with measurable targets"]
+        },
+        {
+          "topic": "Leading JavaScript Teams: Standards, Reviews and Mentoring",
+          "subtopics": ["A shared ESLint and Prettier configuration package", "Code review standards and pull request size", "Dependency policy for adding, updating and removing packages", "An upgrade calendar for Node.js, browser targets and tooling", "RFCs for large changes", "Rules for AI coding assistants and generated code", "Mentoring, pairing and a skills matrix", "Delivery metrics: lead time, change failure rate and bundle size trends"],
+          "tools": ["ESLint 10", "Prettier", "Renovate", "GitHub dependency review action"],
+          "lab_task": "Write the team's JavaScript handbook: a shared ESLint 10 config package, a pull request template with a 400-line guideline, a dependency policy enforced by the dependency review action, an AI-assistant policy, a quarterly upgrade calendar and a skills matrix for six developers, then review two real pull requests against it.",
+          "deliverable": "Engineering handbook, shared config package and two recorded reviews",
+          "checks": [["Install the shared ESLint config in two repositories", "Both lint with the same rules and zero errors", "CI logs"], ["Review two pull requests with the new template", "Each review records findings against the handbook", "Review comments"], ["Open a pull request that adds a package with a disallowed licence", "The dependency review check fails", "CI log"]],
+          "objectives": ["Set standards that tools enforce", "Run reviews and upgrades on a predictable rhythm", "Grow developers' skills deliberately"]
+        },
+        {
+          "topic": "Advanced Capstone: Modernising a Multi-Team JavaScript Platform",
+          "subtopics": ["Baseline: performance, memory, dependencies and tests", "Monorepo restructure with enforced boundaries", "A shared custom element and one federated remote", "Supply-chain hardening and trusted publishing", "RUM, tracing and Core Web Vitals budgets", "TypeScript adoption plan and team handbook"],
+          "tools": ["pnpm 11 and Turborepo", "Module Federation 2.0", "Vite 8", "web-vitals 6", "OpenTelemetry JavaScript SDK", "Chrome DevTools"],
+          "lab_task": "Take the supplied legacy platform (three apps, 400 modules and 1,100 dependencies), move it into a pnpm monorepo with enforced boundaries, ship a shared custom element and one federated remote, fix the top memory leak and the worst INP interaction, harden publishing with provenance, and present a TypeScript adoption plan with measured before-and-after results.",
+          "deliverable": "Monorepo, before-and-after metrics report, decision records and a 20-minute review presentation",
+          "checks": [["Compare p75 INP and LCP before and after on the RUM dashboard", "Both improve and meet the 200 ms and 2.5 s thresholds", "RUM dashboard export"], ["Run the boundary and supply-chain checks in CI", "Zero boundary violations and verified signatures for all packages", "CI log"], ["Present to the review panel", "The panel accepts the plan with recorded actions", "Review minutes"]],
+          "objectives": ["Assess and modernise a large JavaScript platform", "Combine structure, performance and security work with evidence", "Lead stakeholders through a technical plan"]
+        }
+      ]
+    }
+  }
+}

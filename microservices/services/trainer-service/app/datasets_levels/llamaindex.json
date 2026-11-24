@@ -1,0 +1,573 @@
+{
+  "domain": "LlamaIndex",
+  "name": "LlamaIndex",
+  "category": "Generative AI and Agents",
+  "icon": "layers",
+  "aliases": ["Data Framework for LLM Apps", "Llama Index", "LlamaIndex Python", "LlamaIndex RAG", "LlamaIndex Agents", "LlamaIndex Workflows", "LlamaIndex Framework", "LlamaIndex Developer"],
+  "certifications": [],
+  "tools": ["LlamaIndex", "llama-index-core", "LlamaParse", "LlamaCloud", "Ollama", "Qdrant", "Chroma", "Arize Phoenix", "OpenTelemetry", "FastAPI", "pytest", "Docker", "Jupyter"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python developers who are new to LlamaIndex and want to build retrieval-augmented generation applications over their own data. Covers installing llama-index-core and integration packages, the Settings object, Documents and Nodes, readers and SimpleDirectoryReader, node parsers and chunking, embeddings, VectorStoreIndex, persistence, retrievers, query engines and response modes, prompt templates, metadata filters, chat engines with memory, simple tools and function agents, first Workflows, and a document question-answering capstone.",
+      "prerequisites": ["Writes Python 3.10 or later with functions, classes, type hints, virtual environments and pip or uv", "Can call a REST API with an API key held in an environment variable, and knows what an LLM prompt and an embedding are", "Has an OpenAI-compatible API key or a local Ollama install, and a laptop with 8 GB of RAM and rights to install Python packages"],
+      "outcomes": ["Install and configure LlamaIndex with a chosen LLM and embedding model and run a first query over local files", "Load documents, split them into nodes with metadata, build and persist a VectorStoreIndex and reload it", "Tune retrieval and response synthesis with top-k, filters, postprocessors and prompt templates, and read source nodes", "Build a chat engine and a small function agent and deliver a cited document question-answering app with a recorded test set"],
+      "days": [
+        {
+          "topic": "LlamaIndex Packages, Settings and First Query",
+          "subtopics": ["What LlamaIndex is and the data framework role it plays next to LLM APIs", "llama-index-core compared with the llama-index starter bundle", "Integration packages named llama-index-llms-*, llama-index-embeddings-* and llama-index-vector-stores-*", "Creating a virtual environment with python -m venv or uv venv", "Setting OPENAI_API_KEY or running a local model through Ollama", "The global Settings object: Settings.llm, Settings.embed_model, Settings.chunk_size", "SimpleDirectoryReader and VectorStoreIndex.from_documents in five lines", "index.as_query_engine().query() and the Response object", "Why ServiceContext no longer exists in current releases"],
+          "tools": ["Python", "pip or uv", "llama-index", "OpenAI API or Ollama", "Jupyter"],
+          "lab_task": "Create a venv, run pip install llama-index, put three .txt files in ./data, set Settings.llm and Settings.embed_model explicitly, build VectorStoreIndex.from_documents(SimpleDirectoryReader('data').load_data()), ask one question with as_query_engine().query(), and print str(response) plus response.source_nodes[0].score.",
+          "deliverable": "Notebook with the install log, the three data files and the first answer with its top source score",
+          "checks": [["Run pip show llama-index-core after install", "A Version line is printed and Location points to the venv site-packages", "Terminal output"], ["Ask a question whose answer is in only one of the three files", "response.source_nodes[0].node.metadata['file_name'] names that file", "Printed metadata"], ["Unset OPENAI_API_KEY with no other LLM configured and run the query", "An authentication error is raised before any answer is produced", "Exception trace"]],
+          "objectives": ["Install LlamaIndex packages and choose models through Settings", "Run an index and query over local files", "Explain which package provides which component"]
+        },
+        {
+          "topic": "Documents, Nodes and Metadata Models",
+          "subtopics": ["Document as a container for text, metadata and an id_", "TextNode and the relationship to its source Document", "NodeRelationship.SOURCE, PREVIOUS, NEXT and PARENT", "Metadata dictionaries and what gets embedded or sent to the LLM", "excluded_embed_metadata_keys and excluded_llm_metadata_keys", "Reading text through get_content(metadata_mode=...)", "doc_id and ref_doc_id and how updates depend on them", "Building Documents by hand from a database row", "ImageNode and IndexNode as other node types"],
+          "tools": ["llama-index-core", "Python", "Jupyter"],
+          "lab_task": "Build five Document objects by hand from a list of dicts, give each a metadata key 'department' and 'year', exclude 'year' from embedding with excluded_embed_metadata_keys, print get_content(metadata_mode=MetadataMode.EMBED) and MetadataMode.LLM for one document, then convert them to TextNodes and print each node's source relationship.",
+          "deliverable": "Notebook showing both metadata modes and the node relationship graph for five documents",
+          "checks": [["Print get_content(metadata_mode=MetadataMode.EMBED) for a document that excludes 'year'", "The output contains department but not year", "Printed text"], ["Print node.relationships[NodeRelationship.SOURCE].node_id", "The value equals the id_ of the parent Document", "Printed ids"], ["Create two Documents with the same text and no id_", "Each gets a different auto-generated UUID id_", "Printed ids"]],
+          "objectives": ["Create Documents and Nodes with metadata", "Control which metadata reaches embeddings and the LLM", "Trace node relationships back to the source document"]
+        },
+        {
+          "topic": "Readers, SimpleDirectoryReader and LlamaHub Loaders",
+          "subtopics": ["SimpleDirectoryReader with input_dir, input_files and recursive=True", "required_exts and exclude to filter files", "file_metadata callbacks to add custom metadata", "Default readers for PDF, DOCX, Markdown, CSV and images", "Reading with num_workers for parallel loading", "Installing loaders from LlamaHub such as llama-index-readers-web and llama-index-readers-database", "SimpleWebPageReader and its html2text dependency", "DatabaseReader with a SQLAlchemy URI and a SQL query", "Handling encoding errors and empty files"],
+          "tools": ["SimpleDirectoryReader", "LlamaHub", "llama-index-readers-web", "SQLite", "Python"],
+          "lab_task": "Prepare a folder with 4 PDFs, 3 Markdown files and 2 CSV files. Load it with SimpleDirectoryReader(input_dir, recursive=True, required_exts=['.pdf','.md'], file_metadata=lambda p: {'source_path': p}), count documents per extension, then load one web page with SimpleWebPageReader and compare character counts.",
+          "deliverable": "Loader script with a per-extension document count table and one web page comparison",
+          "checks": [["Load the folder with required_exts=['.pdf','.md']", "No Document has a file_type of csv", "Counter output"], ["Pass a path that does not exist as input_dir", "ValueError or FileNotFoundError is raised naming the path", "Exception message"], ["Inspect metadata of a PDF document", "It contains file_name, file_path and the custom source_path key", "Printed metadata"]],
+          "objectives": ["Load mixed file types with SimpleDirectoryReader", "Attach custom metadata at load time", "Install and use a LlamaHub reader"]
+        },
+        {
+          "topic": "Node Parsers and Chunking with SentenceSplitter",
+          "subtopics": ["Why chunk size and overlap change retrieval quality", "SentenceSplitter(chunk_size, chunk_overlap) and token counting", "TokenTextSplitter and SimpleNodeParser history", "MarkdownNodeParser and HTMLNodeParser", "CodeSplitter for source files", "get_nodes_from_documents and the show_progress flag", "Include-metadata effects on effective chunk size", "Setting Settings.node_parser or passing transformations=", "Measuring chunk length distribution"],
+          "tools": ["SentenceSplitter", "MarkdownNodeParser", "CodeSplitter", "tiktoken", "Python"],
+          "lab_task": "Split one 20-page PDF with SentenceSplitter at chunk_size 128, 512 and 1024 with chunk_overlap 20, record node count and mean token length for each setting with tiktoken, then split a Markdown file with MarkdownNodeParser and print the header_path metadata of the first three nodes.",
+          "deliverable": "Table of node counts and mean token lengths for three chunk sizes plus the Markdown header paths",
+          "checks": [["Split with chunk_size=128 and then 1024", "The 128 setting produces more nodes than the 1024 setting", "Node count table"], ["Check the largest node at chunk_size=512", "Token count does not exceed 512 plus the metadata length", "tiktoken count"], ["Parse a Markdown file with H1 and H2 headings", "Nodes carry a header_path metadata value such as /Title/Section/", "Printed metadata"]],
+          "objectives": ["Choose chunk size and overlap deliberately", "Use format-aware node parsers", "Measure the effect of chunking on node counts"]
+        },
+        {
+          "topic": "Embeddings and Similarity Search",
+          "subtopics": ["What an embedding vector is and why dimension must match the index", "OpenAIEmbedding and the model name parameter", "HuggingFaceEmbedding with a local sentence-transformers model", "OllamaEmbedding for local models", "embed_batch_size and rate limits", "get_text_embedding versus get_query_embedding", "Cosine similarity with similarity() from llama_index.core.embeddings", "Changing embedding model requires re-indexing", "Query and document instruction prefixes for some models"],
+          "tools": ["OpenAIEmbedding", "HuggingFaceEmbedding", "OllamaEmbedding", "NumPy", "Jupyter"],
+          "lab_task": "Embed ten short sentences with two embedding models (one hosted, one local through HuggingFaceEmbedding), print the vector length of each, compute cosine similarity between a query and all ten sentences with the similarity() helper, and list the top three matches per model to see where the models disagree.",
+          "deliverable": "Comparison notebook with vector dimensions and top-three rankings for both models",
+          "checks": [["Call len(embed_model.get_text_embedding('hello'))", "The length equals the model's documented dimension and differs between the two models", "Printed lengths"], ["Compute similarity of a sentence with itself", "Result is 1.0 within floating-point tolerance", "Printed value"], ["Build an index with model A then query it using model B", "Retrieval returns poor or errors with a dimension mismatch, showing re-indexing is needed", "Observed output"]],
+          "objectives": ["Generate and compare embeddings from two providers", "Compute similarity between texts", "Explain why the embedding model must stay fixed for an index"]
+        },
+        {
+          "topic": "VectorStoreIndex, StorageContext and Persistence",
+          "subtopics": ["VectorStoreIndex.from_documents versus from_vector_store", "The default in-memory SimpleVectorStore", "StorageContext.from_defaults(persist_dir=...)", "index.storage_context.persist() and the files it writes", "load_index_from_storage and index_id", "Docstore, index store and vector store roles", "insert, delete_ref_doc and refresh_ref_docs", "Inspecting index.docstore.docs", "Cost of rebuilding an index on every start"],
+          "tools": ["VectorStoreIndex", "StorageContext", "SimpleVectorStore", "Python"],
+          "lab_task": "Build a VectorStoreIndex over 30 documents, persist it to ./storage, list the generated files (docstore.json, index_store.json, default__vector_store.json), restart the interpreter, reload with load_index_from_storage, insert one new Document, delete another with delete_ref_doc, and compare docstore size before and after.",
+          "deliverable": "Persistence script and a listing of the storage folder before and after changes",
+          "checks": [["List ./storage after persist()", "docstore.json, index_store.json and a vector store json file exist", "Directory listing"], ["Reload the index in a new process and run the same query", "The same top source node id is returned as before the restart", "Printed node id"], ["Call delete_ref_doc on one document id", "len(index.docstore.docs) drops by the number of nodes of that document", "Before and after counts"]],
+          "objectives": ["Persist and reload an index", "Update an index by inserting and deleting documents", "Describe the three stores inside a StorageContext"]
+        },
+        {
+          "topic": "Retrievers, Top-K and Node Scores",
+          "subtopics": ["index.as_retriever(similarity_top_k=...)", "NodeWithScore and reading score and node.text", "VectorIndexRetriever versus query engine", "similarity_top_k trade-offs between recall and prompt size", "Retrieval modes of a vector store: default, sparse, hybrid", "Using retrieve() and aretrieve()", "SummaryIndex and its retriever as a contrast", "Inspecting retrieved text before synthesis", "Why scores from different vector stores are not comparable"],
+          "tools": ["VectorIndexRetriever", "NodeWithScore", "Jupyter", "Python"],
+          "lab_task": "Create a retriever with similarity_top_k=2, 5 and 10 on the persisted index, run the same five questions, print rank, score and first 80 characters of each node, mark manually whether the relevant node appears in the top 2, 5 and 10, and compute recall at each k as a short table.",
+          "deliverable": "Recall-at-k table for five questions and retrieved node listings",
+          "checks": [["Call retriever.retrieve with similarity_top_k=5", "A list of exactly 5 NodeWithScore objects is returned", "len() output"], ["Compare scores within one result list", "Scores are sorted in descending order", "Printed scores"], ["Compare recall at k=2 and k=10 for the five questions", "Recall at 10 is greater than or equal to recall at 2", "Recall table"]],
+          "objectives": ["Retrieve nodes directly and inspect scores", "Measure recall at several top-k values", "Distinguish retrieval from answer synthesis"]
+        },
+        {
+          "topic": "Query Engines and Response Synthesizers",
+          "subtopics": ["RetrieverQueryEngine.from_args and as_query_engine shortcuts", "get_response_synthesizer(response_mode=...)", "compact, refine, tree_summarize, simple_summarize and no_text modes", "Number of LLM calls per mode", "streaming=True and print_response_stream", "response.source_nodes and response.metadata", "Async queries with aquery", "Custom response_synthesizer passed to the engine", "Handling empty retrieval results"],
+          "tools": ["RetrieverQueryEngine", "get_response_synthesizer", "Python", "OpenAI API or Ollama"],
+          "lab_task": "Run one question with response_mode='compact', 'refine' and 'tree_summarize' at similarity_top_k=8, count LLM calls using a CallbackManager with LlamaDebugHandler, record answer length and latency per mode, and run once with streaming=True to print tokens as they arrive.",
+          "deliverable": "Mode comparison table with LLM call counts, latency and answer lengths",
+          "checks": [["Run refine mode with top_k=8 on long chunks", "More LLM calls are recorded than for compact mode", "LlamaDebugHandler event counts"], ["Use response_mode='no_text'", "No LLM call is made and response.source_nodes is populated", "Event log"], ["Query with streaming=True", "Tokens print incrementally and response_gen yields multiple items", "Terminal output"]],
+          "objectives": ["Select a response mode for a given context size", "Count and compare LLM calls per mode", "Stream answers to a caller"]
+        },
+        {
+          "topic": "Prompt Templates and Prompt Customisation",
+          "subtopics": ["PromptTemplate and ChatPromptTemplate", "Template variables such as context_str and query_str", "get_prompts() to list prompts inside a query engine", "update_prompts() with keys like response_synthesizer:text_qa_template", "Refine prompt and its extra variables", "Prompt functions mapping and partial formatting", "Instructing the model to answer only from context", "Version-controlling prompts in files", "Testing a prompt change against fixed questions"],
+          "tools": ["PromptTemplate", "ChatPromptTemplate", "get_prompts", "update_prompts", "Python"],
+          "lab_task": "Call query_engine.get_prompts() and print the keys, replace the text_qa_template with a PromptTemplate that answers only from context and replies 'Not in the documents.' otherwise, run 10 questions of which 3 are unanswerable, and count how many unanswerable ones now return the fallback sentence.",
+          "deliverable": "Prompt file, before and after answers, and a count of correct refusals out of three",
+          "checks": [["Print list(query_engine.get_prompts().keys())", "Keys include response_synthesizer:text_qa_template and response_synthesizer:refine_template", "Printed keys"], ["Ask the three unanswerable questions with the new prompt", "At least 2 of 3 return the fallback sentence", "Answer log"], ["Remove {query_str} from the template and run a query", "A KeyError or formatting error is raised naming the missing variable", "Exception text"]],
+          "objectives": ["Inspect and replace internal prompts", "Write a grounded answering prompt", "Evaluate a prompt change on fixed questions"]
+        },
+        {
+          "topic": "Metadata Filters and Filtered Retrieval",
+          "subtopics": ["MetadataFilter and MetadataFilters objects", "FilterOperator values: EQ, GT, IN, CONTAINS", "FilterCondition AND and OR", "Passing filters= to as_retriever and as_query_engine", "Which vector stores support which operators", "Metadata design: year, department, doc_type, language", "Why filters are applied before or during vector search", "Debugging empty results caused by wrong value types", "Auto-retrieval with VectorIndexAutoRetriever"],
+          "tools": ["MetadataFilters", "FilterOperator", "VectorIndexAutoRetriever", "Python"],
+          "lab_task": "Index 60 documents tagged with department (hr, finance, legal) and year (2022 to 2025), build a retriever filtered with department == 'legal' AND year >= 2024, run three questions, verify every returned node satisfies both conditions, then try a string '2024' against the integer year field and note the result.",
+          "deliverable": "Filtered retrieval script and a result table proving every node satisfies the filter",
+          "checks": [["Retrieve with department == 'legal' and year >= 2024", "Every returned node.metadata satisfies both conditions", "Assertion output"], ["Filter on a department value that does not exist", "The retriever returns an empty list", "len() output"], ["Compare string '2024' with an integer year field", "Result is empty or differs from the integer filter, showing a type mismatch", "Both result counts"]],
+          "objectives": ["Add metadata at ingestion that supports filtering", "Apply composite filters to retrievers", "Diagnose filters that return nothing"]
+        },
+        {
+          "topic": "Chat Engines and ChatMemoryBuffer",
+          "subtopics": ["index.as_chat_engine(chat_mode=...)", "Chat modes: condense_question, context, condense_plus_context, simple, best", "ChatMemoryBuffer.from_defaults(token_limit=...)", "chat, stream_chat and reset", "chat_history as a list of ChatMessage", "system_prompt for tone and scope", "How condensed questions are produced", "Memory token limits and truncation behaviour", "Persisting chat history to a file"],
+          "tools": ["CondensePlusContextChatEngine", "ChatMemoryBuffer", "ChatMessage", "Python"],
+          "lab_task": "Create a chat engine with chat_mode='condense_plus_context' and a ChatMemoryBuffer(token_limit=1500), hold a 6-turn conversation where turns 3 and 5 use pronouns such as 'it' and 'that policy', print the condensed question for those turns, then call reset() and ask turn 5 again to see the difference.",
+          "deliverable": "Transcript of the six-turn chat with condensed questions and the post-reset answer",
+          "checks": [["Ask a follow-up using the pronoun 'it'", "The condensed question names the subject from the previous turn", "Condensed question log"], ["Call chat_engine.reset() then repeat the follow-up", "The engine cannot resolve 'it' and answers generically or asks for clarification", "Answer text"], ["Set token_limit=100 and hold a long chat", "Oldest messages are dropped and len(chat_history) stops growing", "History length"]],
+          "objectives": ["Build a chat engine with a chosen chat mode", "Control memory size with a token limit", "Explain condensing of follow-up questions"]
+        },
+        {
+          "topic": "LLM Wrappers, Chat Messages and Local Models with Ollama",
+          "subtopics": ["The LLM base class: complete, chat, stream_complete, stream_chat", "ChatMessage and MessageRole", "OpenAI, Anthropic and Ollama LLM classes", "Ollama(model=..., request_timeout=...) and context_window", "temperature, max_tokens and additional_kwargs", "Async methods acomplete and achat", "Token counting with TokenCountingHandler", "Handling timeouts and rate-limit errors", "Switching Settings.llm without changing application code"],
+          "tools": ["Ollama", "OpenAI LLM class", "TokenCountingHandler", "Python"],
+          "lab_task": "Run the same prompt through llm.complete and llm.chat on one hosted model and one local Ollama model with temperature 0, record token counts with TokenCountingHandler and latency for each, then set Ollama request_timeout=2 on a long prompt and capture the timeout exception.",
+          "deliverable": "Comparison table of tokens, latency and answer text for two models, plus the timeout trace",
+          "checks": [["Call llm.complete twice with temperature=0", "Both outputs are identical or nearly identical for the same prompt", "Printed outputs"], ["Read token_counter.total_llm_token_count after the calls", "Count is greater than zero and equals prompt plus completion tokens", "Counter values"], ["Use a 2-second request_timeout on a long generation", "A timeout exception is raised instead of a result", "Exception trace"]],
+          "objectives": ["Call LLMs through the LlamaIndex interface", "Compare hosted and local models", "Track tokens and handle timeouts"]
+        },
+        {
+          "topic": "Structured Output with Pydantic Programs",
+          "subtopics": ["llm.as_structured_llm(output_cls=...)", "Pydantic models as output schemas", "LLMTextCompletionProgram and FunctionCallingProgram", "query_engine with output_cls", "Field descriptions as extraction hints", "Handling ValidationError from malformed output", "Lists of objects and optional fields", "Comparing text parsing with function-calling modes", "Retrying with a corrective message"],
+          "tools": ["Pydantic", "as_structured_llm", "LLMTextCompletionProgram", "Python"],
+          "lab_task": "Define a Pydantic Invoice model with vendor, invoice_number, total as float and line_items as a list, extract it from 10 invoice text samples with as_structured_llm, count how many pass validation, and make one sample fail by removing the total to observe the ValidationError.",
+          "deliverable": "Extraction script, validated JSON for ten samples and the captured ValidationError",
+          "checks": [["Run extraction on ten invoice texts", "At least 8 of 10 return a valid Invoice object", "Validation counter"], ["Check the total field type of each result", "Every total is a float, not a string", "isinstance assertions"], ["Extract from a text with no total amount", "A pydantic ValidationError or a None value for an optional field is produced", "Exception or output"]],
+          "objectives": ["Extract typed objects from text", "Handle validation failures", "Choose a program type for a model"]
+        },
+        {
+          "topic": "Summary, Keyword and Tree Indexes",
+          "subtopics": ["SummaryIndex and its default of sending all nodes", "TreeIndex and hierarchical summarisation", "KeywordTableIndex and keyword extraction", "Retriever modes: default, llm, embedding", "When a non-vector index is better than a vector index", "Build cost versus query cost", "Using SummaryIndex for whole-document summaries", "Index comparison on the same corpus", "Choosing indexes by question type"],
+          "tools": ["SummaryIndex", "TreeIndex", "KeywordTableIndex", "Python"],
+          "lab_task": "Build SummaryIndex, TreeIndex and KeywordTableIndex over the same 10 documents, ask one summary question ('summarise the refund policy') and one specific fact question, record LLM calls, latency and answer quality on a 1-to-5 scale for each index, and report which index suits each question type.",
+          "deliverable": "Three-index comparison table of calls, latency and rated quality for two question types",
+          "checks": [["Query SummaryIndex with default settings", "All nodes are sent to the synthesizer, so call count grows with node count", "Call counter"], ["Ask the specific fact question on the KeywordTableIndex", "Retrieved nodes contain the keyword extracted from the question", "Retrieved node text"], ["Compare vector and summary indexes on the summary question", "The summary index answer covers more sections of the document", "Rated answers"]],
+          "objectives": ["Build non-vector indexes", "Match index type to question type", "Compare build and query cost"]
+        },
+        {
+          "topic": "Callbacks, Debug Handlers and Simple Tracing",
+          "subtopics": ["CallbackManager and LlamaDebugHandler", "CBEventType values: LLM, RETRIEVE, EMBEDDING, SYNTHESIZE", "Printing event pairs and payloads", "set_global_handler('simple') for quick tracing", "Token counts per event", "Instrumentation module and dispatcher events at a glance", "Where to attach handlers: Settings.callback_manager", "Cost of verbose logging", "Reading a trace to find a slow step"],
+          "tools": ["LlamaDebugHandler", "CallbackManager", "set_global_handler", "Python"],
+          "lab_task": "Attach LlamaDebugHandler to Settings.callback_manager, run one query, call get_event_pairs(CBEventType.RETRIEVE) and get_event_pairs(CBEventType.LLM), print the payload keys, then switch to set_global_handler('simple') and compare what is shown for the same query.",
+          "deliverable": "Trace notes listing events fired for one query and the payload keys for each type",
+          "checks": [["Run one query with the debug handler attached", "Event pairs exist for RETRIEVE, EMBEDDING and LLM", "get_event_pairs output"], ["Inspect an LLM event payload", "It contains the formatted prompt and the response text", "Payload keys"], ["Time retrieval versus LLM events", "The LLM event is the longest step and its duration is printed", "Timing table"]],
+          "objectives": ["Attach callback handlers to a query", "Read events to locate latency", "Use simple global tracing"]
+        },
+        {
+          "topic": "Tools, FunctionTool and QueryEngineTool",
+          "subtopics": ["FunctionTool.from_defaults(fn=...) and docstring-driven descriptions", "ToolMetadata name and description", "QueryEngineTool.from_defaults for an index", "Tool call outputs: ToolOutput and raw_output", "Type hints that become the tool schema", "return_direct and when to use it", "Writing good tool descriptions", "Calling tools manually with tool.call()", "Error returns instead of exceptions"],
+          "tools": ["FunctionTool", "QueryEngineTool", "ToolMetadata", "Python"],
+          "lab_task": "Wrap three plain Python functions (add, get_exchange_rate from a stub dictionary, and word_count) with FunctionTool.from_defaults, wrap the document query engine as a QueryEngineTool named 'policy_docs', print each tool's metadata.get_parameters_dict(), and call each tool manually with tool.call().",
+          "deliverable": "Tool definitions with printed parameter schemas and manual call results",
+          "checks": [["Print metadata.get_parameters_dict() for add(a: int, b: int)", "Schema lists a and b as integer properties", "Printed dict"], ["Call add_tool.call(a=2, b=3)", "ToolOutput raw_output equals 5", "Printed output"], ["Call the tool with a string for a typed integer argument", "An error output or exception reports the type problem", "Error text"]],
+          "objectives": ["Wrap functions and query engines as tools", "Write descriptions models can use", "Call tools directly for testing"]
+        },
+        {
+          "topic": "Function Agents and Simple ReAct Loops",
+          "subtopics": ["FunctionAgent with tools, llm and system_prompt", "ReActAgent thought, action and observation loop", "await agent.run(user_msg=...)", "Streaming agent events with handler.stream_events()", "Tool selection when two tools overlap", "max_iterations and runaway loops", "Agent memory across runs with a Context", "Which models support native function calling", "When an agent is the wrong choice"],
+          "tools": ["FunctionAgent", "ReActAgent", "asyncio", "QueryEngineTool"],
+          "lab_task": "Build a FunctionAgent with the policy_docs QueryEngineTool and a calculator tool, run five questions that need the documents, the calculator or both, stream tool-call events to print each call name and arguments, and record how many tool calls each question used.",
+          "deliverable": "Agent script and a log of tool calls per question for five questions",
+          "checks": [["Ask a pure arithmetic question", "Only the calculator tool is called and the answer is numerically correct", "Tool call log"], ["Ask a question needing both a policy lookup and arithmetic", "Both tools are called, the document tool first", "Event stream"], ["Set a very low max_iterations on a multi-step question", "The agent stops with an iteration or step limit error", "Exception text"]],
+          "objectives": ["Create an agent from tools", "Observe tool calls in an event stream", "Limit runaway loops"]
+        },
+        {
+          "topic": "First Workflows with Steps and Events",
+          "subtopics": ["Workflow class and the @step decorator", "StartEvent and StopEvent", "Custom Event subclasses with typed fields", "Step signatures using ev: and ctx: Context", "await workflow.run(topic=...)", "timeout and verbose parameters", "Branching by returning different event types", "draw_all_possible_flows to render a diagram", "Error propagation from a failed step"],
+          "tools": ["Workflow", "step decorator", "StartEvent", "StopEvent", "Python"],
+          "lab_task": "Write a Workflow with three steps: load text, retrieve with a retriever, and synthesise an answer, connected by custom events. Run it with verbose=True and timeout=60, render the graph with draw_all_possible_flows to workflow.html, then raise ValueError in step two and capture the surfaced exception.",
+          "deliverable": "Workflow module, the rendered workflow.html and the captured exception output",
+          "checks": [["Run the three-step workflow with verbose=True", "Steps run in order and each step name is printed once", "Verbose log"], ["Open workflow.html", "The diagram shows StartEvent leading through both custom events to StopEvent", "Rendered file"], ["Raise ValueError inside the second step", "workflow.run raises an exception that names that step", "Exception trace"]],
+          "objectives": ["Write a Workflow with typed events", "Run and visualise a workflow", "Understand error propagation between steps"]
+        },
+        {
+          "topic": "Evaluating a First RAG App with Faithfulness and Relevancy",
+          "subtopics": ["Why evaluate retrieval and generation separately", "FaithfulnessEvaluator and RelevancyEvaluator", "CorrectnessEvaluator with reference answers", "EvaluationResult fields: passing, score, feedback", "Building a ten-question test set by hand", "BatchEvalRunner with workers=", "Judge model choice and its bias", "Reading failed cases rather than only averages", "Recording results in a CSV"],
+          "tools": ["FaithfulnessEvaluator", "RelevancyEvaluator", "BatchEvalRunner", "pandas"],
+          "lab_task": "Write 10 questions with reference answers over your document set, run FaithfulnessEvaluator and RelevancyEvaluator through BatchEvalRunner(workers=4), save passing, score and feedback to eval.csv, and read the feedback of the lowest two cases to decide whether the problem is retrieval or generation.",
+          "deliverable": "eval.csv with ten rows and a half-page diagnosis of the two weakest cases",
+          "checks": [["Run BatchEvalRunner on ten questions", "Results contain ten EvaluationResult entries per evaluator", "len() output"], ["Evaluate an answer made up without using any context", "FaithfulnessEvaluator returns passing=False", "Evaluation result"], ["Open eval.csv", "It has columns for query, passing, score and feedback", "CSV file"]],
+          "objectives": ["Run automatic evaluators on a test set", "Interpret scores and feedback", "Separate retrieval faults from generation faults"]
+        },
+        {
+          "topic": "Beginner Capstone: Cited Document Question Answering App",
+          "subtopics": ["Load a folder of PDFs and Markdown with metadata", "Chunk with SentenceSplitter and persist a VectorStoreIndex", "Customised grounded prompt with a refusal sentence", "Chat engine with memory and source citations", "One FunctionTool for a lookup", "Ten-question evaluation and README"],
+          "tools": ["LlamaIndex", "SimpleDirectoryReader", "VectorStoreIndex", "ChatMemoryBuffer", "pytest", "Ollama or OpenAI API"],
+          "lab_task": "Build a command-line app that loads 15 documents, persists the index, answers questions with file name and page citations from response.source_nodes, supports a chat mode with memory, refuses out-of-scope questions, and passes a pytest file of 10 question checks with at least 8 passing.",
+          "deliverable": "Repository with app, persisted index instructions, pytest suite, evaluation CSV and a README listing settings used",
+          "checks": [["Run pytest on the ten-question suite", "At least 8 of 10 tests pass", "pytest summary line"], ["Ask a question that is not in the documents", "The app replies with the configured refusal sentence and no citations", "Terminal transcript"], ["Ask a question answered by one document", "The answer prints that document's file name and page label as a citation", "Terminal transcript"]],
+          "objectives": ["Assemble loaders, index, engine and chat into one app", "Test the app against a fixed question set", "Document settings so another person can reproduce the result"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built a first LlamaIndex RAG app and now need it to be accurate, maintainable and measurable. Covers ingestion pipelines with caching, document management, Chroma and Qdrant vector stores, hybrid and fusion retrieval, metadata extractors, sentence-window and auto-merging retrieval, reranking, routers and sub-question engines, text-to-SQL, LlamaParse, retrieval evaluation with hit rate and MRR, synthetic test sets, multi-tool agents, branching and parallel Workflows, tracing with Arize Phoenix, async patterns, and a measured retrieval-improvement capstone.",
+      "prerequisites": ["Has built and queried a VectorStoreIndex with SimpleDirectoryReader, a custom prompt and a chat engine", "Reads Python async code with async and await and uses pydantic models and pytest", "Can run Docker locally to start Qdrant or Chroma, and has API keys for an LLM, an embedding model and optionally LlamaCloud"],
+      "outcomes": ["Build an incremental ingestion pipeline with cache and docstore deduplication feeding a production vector store", "Improve retrieval with hybrid search, fusion, sentence-window, auto-merging and reranking, and prove each gain with hit rate and MRR", "Route and decompose questions across documents, SQL tables and tools with routers, sub-question engines and agents", "Trace and test a multi-step Workflow with Phoenix and a regression test set"],
+      "days": [
+        {
+          "topic": "Ingestion Pipelines, Transformations and Caching",
+          "subtopics": ["IngestionPipeline(transformations=[...]) and run(documents=...)", "Transformation components: node parsers, extractors, embeddings", "IngestionCache and cache keys per transformation", "pipeline.persist() and pipeline.load()", "num_workers for multiprocessing", "Attaching a vector_store so run() writes nodes directly", "Why embeddings are the costly step to cache", "Remote caches with Redis or MongoDB", "Measuring first-run versus second-run time"],
+          "tools": ["IngestionPipeline", "IngestionCache", "SentenceSplitter", "OpenAIEmbedding", "Redis"],
+          "lab_task": "Build an IngestionPipeline with SentenceSplitter(chunk_size=512) and an embedding model over 200 documents, time the first run, persist the cache to ./pipeline_storage, run it again unchanged, then change chunk_size to 256 and run a third time, and record seconds and embedding calls for each of the three runs.",
+          "deliverable": "Pipeline script with a three-run table of seconds, node counts and embedding calls",
+          "checks": [["Run the pipeline a second time with the same documents and cache", "Embedding calls drop to 0 and the run is markedly faster", "Timing and call counter"], ["Change chunk_size from 512 to 256", "Cache keys change and embeddings are recomputed for all nodes", "Embedding call counter"], ["Inspect ./pipeline_storage after persist()", "A cache file exists and can be loaded with pipeline.load()", "Directory listing"]],
+          "objectives": ["Compose transformations into an ingestion pipeline", "Cache expensive steps", "Explain what invalidates a cache entry"]
+        },
+        {
+          "topic": "Docstores, Upserts and Duplicate Handling",
+          "subtopics": ["DocstoreStrategy.UPSERTS, DUPLICATES_ONLY and UPSERTS_AND_DELETE", "SimpleDocumentStore and RedisDocumentStore", "Stable doc_id from file path to enable upserts", "How document hash comparison detects changes", "index.refresh_ref_docs() for existing indexes", "Deleting stale nodes when a source file disappears", "Race conditions with parallel ingestion runs", "Auditing what changed after each run", "Schema of ref_doc_info"],
+          "tools": ["DocstoreStrategy", "SimpleDocumentStore", "RedisDocumentStore", "Qdrant"],
+          "lab_task": "Ingest 50 files with filename_as_id=True and docstore_strategy=UPSERTS_AND_DELETE, edit 5 files, delete 3 files, add 4 files, rerun, and report how many documents were added, updated and removed from the docstore and from the vector store count.",
+          "deliverable": "Before and after table of docstore and vector store counts after the edit, delete and add steps",
+          "checks": [["Rerun ingestion after editing 5 of 50 files", "Only the 5 changed documents are re-embedded", "Pipeline logs and call counter"], ["Delete 3 source files and rerun with UPSERTS_AND_DELETE", "Their nodes no longer exist in the vector store", "Vector store count"], ["Rerun with no changes at all", "Zero documents are added, updated or deleted", "Pipeline output"]],
+          "objectives": ["Make ingestion idempotent", "Choose a docstore strategy", "Remove stale content from retrieval"]
+        },
+        {
+          "topic": "Chroma and Qdrant Vector Store Integrations",
+          "subtopics": ["ChromaVectorStore with PersistentClient and collection names", "QdrantVectorStore with QdrantClient and collection_name", "Distance metrics and vector size at collection creation", "Running Qdrant in Docker on port 6333", "StorageContext.from_defaults(vector_store=...)", "VectorStoreIndex.from_vector_store to reconnect", "stores_text and what is stored in the payload", "Batch size and upsert limits", "Deleting by ref_doc_id"],
+          "tools": ["ChromaVectorStore", "QdrantVectorStore", "Docker", "qdrant-client", "chromadb"],
+          "lab_task": "Start Qdrant with docker run -p 6333:6333 qdrant/qdrant, index 500 nodes into a Qdrant collection and the same nodes into a Chroma persistent collection, query both with ten questions, compare top-3 overlap, and reconnect with from_vector_store after restarting the Python process.",
+          "deliverable": "Script for both stores with a top-3 overlap table and a reconnect proof",
+          "checks": [["Open http://localhost:6333/collections after indexing", "The collection appears with a points_count of 500", "Browser or curl output"], ["Restart Python and call VectorStoreIndex.from_vector_store", "Queries return results without re-embedding any document", "Embedding call counter"], ["Delete one document by ref_doc_id", "The point count falls by the number of nodes of that document", "Collection count"]],
+          "objectives": ["Connect LlamaIndex to Chroma and Qdrant", "Reconnect to an existing collection", "Compare results across two stores"]
+        },
+        {
+          "topic": "Hybrid Search with BM25 and Vector Retrieval",
+          "subtopics": ["Why keyword search finds IDs and rare terms that embeddings miss", "BM25Retriever from llama-index-retrievers-bm25", "Building BM25 from nodes in the docstore", "Vector store hybrid mode with vector_store_query_mode='hybrid' and alpha", "Sparse models such as SPLADE in Qdrant", "Combining two retrievers manually with reciprocal rank fusion", "Tokenisation and stemming differences", "Query types where BM25 wins", "Index size and memory"],
+          "tools": ["BM25Retriever", "QdrantVectorStore hybrid mode", "NodeWithScore", "Python"],
+          "lab_task": "Build a BM25Retriever and a vector retriever over 400 nodes, run 15 questions of which 5 contain product codes such as 'ERR-4471', compare top-5 results from each, then merge them by reciprocal rank fusion and record which of the three finds the relevant node for the code questions.",
+          "deliverable": "Comparison matrix of BM25, vector and merged recall on code and prose questions",
+          "checks": [["Search for an exact code like ERR-4471", "BM25 returns the node containing it at rank 1 while the vector retriever may not", "Top-5 listing"], ["Ask a paraphrased question with no shared keywords", "The vector retriever finds the relevant node and BM25 may miss it", "Top-5 listing"], ["Merge both with reciprocal rank fusion", "Recall on the 15 questions is at least as high as the better single retriever", "Recall table"]],
+          "objectives": ["Add keyword retrieval to a vector index", "Merge ranked lists", "Pick a retriever for each question type"]
+        },
+        {
+          "topic": "Fusion Retrieval and Query Rewriting",
+          "subtopics": ["QueryFusionRetriever with num_queries and mode", "Modes: reciprocal_rerank, relative_score and dist_based_score", "LLM-generated query variants", "HyDE with HyDEQueryTransform", "StepDecomposeQueryTransform", "TransformQueryEngine wrapping a base engine", "Cost of extra LLM calls per question", "Inspecting generated queries", "When rewriting hurts precision"],
+          "tools": ["QueryFusionRetriever", "HyDEQueryTransform", "TransformQueryEngine", "Python"],
+          "lab_task": "Create a QueryFusionRetriever over a vector and a BM25 retriever with num_queries=4 and mode='reciprocal_rerank', print the generated query variants for five questions, compare hit rate at k=5 with num_queries=1 versus 4, and add HyDEQueryTransform to a vector engine for a comparison.",
+          "deliverable": "Experiment table of hit rate for single query, fusion with 4 queries and HyDE on the same test set",
+          "checks": [["Set num_queries=4 and run a question", "Four query variants are generated and logged", "Printed queries"], ["Compare hit rate at k=5 for num_queries=1 and 4", "The two values are both recorded and the difference is reported", "Hit-rate table"], ["Count LLM calls for fusion versus the plain retriever", "Fusion makes at least one extra LLM call per question", "Call counter"]],
+          "objectives": ["Generate and fuse multiple query variants", "Apply HyDE", "Weigh retrieval gains against extra LLM cost"]
+        },
+        {
+          "topic": "Metadata Extractors for Titles, Questions and Summaries",
+          "subtopics": ["TitleExtractor, QuestionsAnsweredExtractor, SummaryExtractor and KeywordExtractor", "EntityExtractor and its model dependency", "Using extractors as pipeline transformations", "SummaryExtractor with summaries=['prev','self','next']", "Extra metadata inflating chunk size and embedding text", "Excluding extracted keys from embeddings", "Cost per node of one LLM call per extractor", "Measuring retrieval change from added metadata", "Idempotent extraction through the cache"],
+          "tools": ["TitleExtractor", "QuestionsAnsweredExtractor", "SummaryExtractor", "IngestionPipeline"],
+          "lab_task": "Add TitleExtractor and QuestionsAnsweredExtractor(questions=3) to the pipeline over 100 nodes, print metadata of three nodes, compare hit rate at k=5 on 20 questions with and without the extracted fields in the embedded text, and report the added LLM calls and token cost.",
+          "deliverable": "Report of hit rate with and without extractors plus the LLM call count and token cost",
+          "checks": [["Run QuestionsAnsweredExtractor(questions=3) on 100 nodes", "Each node has a questions_this_excerpt_can_answer metadata field", "Printed metadata"], ["Count LLM calls for 100 nodes with two extractors", "About 200 LLM calls are made unless cached", "Call counter"], ["Compare hit rate at k=5 with and without extracted metadata", "Both values are reported with the change in points", "Evaluation table"]],
+          "objectives": ["Enrich nodes with LLM-generated metadata", "Control which metadata is embedded", "Weigh retrieval gain against ingestion cost"]
+        },
+        {
+          "topic": "Sentence-Window Retrieval",
+          "subtopics": ["SentenceWindowNodeParser with window_size", "window and original_text metadata keys", "MetadataReplacementPostProcessor(target_metadata_key='window')", "Embedding single sentences but answering with surrounding text", "Window size trade-offs", "Combining with a reranker", "Checking that replaced text reaches the LLM", "Comparing with plain SentenceSplitter at equal token budgets", "Failure with very short sentences"],
+          "tools": ["SentenceWindowNodeParser", "MetadataReplacementPostProcessor", "VectorStoreIndex", "Python"],
+          "lab_task": "Parse a 30-page document with SentenceWindowNodeParser(window_size=3), index single sentences, query with MetadataReplacementPostProcessor, print the sentence and its window for three hits, and compare hit rate and answer correctness on 15 questions against SentenceSplitter at 512 tokens.",
+          "deliverable": "Side-by-side results of sentence-window versus 512-token chunks on 15 questions",
+          "checks": [["Print node.metadata['window'] for a hit", "It holds the matched sentence plus 3 sentences on each side", "Printed window"], ["Check text sent to the LLM after the postprocessor", "Node text equals the window, not the single sentence", "Debug handler payload"], ["Set window_size=0 or 1 and query", "Windows shrink and answers lose surrounding context on at least one question", "Answer comparison"]],
+          "objectives": ["Embed fine-grained text but synthesise with context", "Configure window size", "Compare with plain chunking fairly"]
+        },
+        {
+          "topic": "Hierarchical Nodes and Auto-Merging Retrieval",
+          "subtopics": ["HierarchicalNodeParser with chunk_sizes=[2048, 512, 128]", "get_leaf_nodes and get_root_nodes", "Storing all levels in the docstore but indexing leaves only", "AutoMergingRetriever and simple_ratio_thresh", "Parent merging when most children match", "Reading NodeRelationship.PARENT and CHILD", "Docstore requirement for parent lookup", "Choosing sizes by document type", "Debugging when merging never fires"],
+          "tools": ["HierarchicalNodeParser", "AutoMergingRetriever", "StorageContext", "SimpleDocumentStore"],
+          "lab_task": "Parse documents with chunk_sizes=[2048,512,128], add all nodes to the docstore, index only leaf nodes, wrap the base retriever in AutoMergingRetriever with simple_ratio_thresh=0.4, and count how many of 20 queries return merged parent nodes of 512 or 2048 tokens.",
+          "deliverable": "Script and a count of queries that produced merged parents, with sample node sizes",
+          "checks": [["Index leaf nodes only and keep all levels in the docstore", "Vector store count equals the number of leaf nodes", "Count comparison"], ["Run 20 queries with simple_ratio_thresh=0.4", "Some queries return parent nodes larger than 128 tokens", "Token length listing"], ["Remove parent nodes from the docstore and query", "Merging fails or never happens, showing the docstore dependency", "Observed behaviour"]],
+          "objectives": ["Build a node hierarchy", "Merge leaf matches into parents", "Explain the docstore requirement"]
+        },
+        {
+          "topic": "Reranking and Node Postprocessors",
+          "subtopics": ["SimilarityPostprocessor(similarity_cutoff=...)", "KeywordNodePostprocessor with required and excluded keywords", "LLMRerank with choice_batch_size and top_n", "SentenceTransformerRerank with a cross-encoder model", "Cohere and other hosted rerankers as integrations", "Retrieve wide then rerank narrow: top_k 20 then top_n 4", "Latency and cost of each reranker", "LongContextReorder for the middle-lost effect", "Chaining postprocessors in order"],
+          "tools": ["SentenceTransformerRerank", "LLMRerank", "SimilarityPostprocessor", "LongContextReorder"],
+          "lab_task": "Retrieve similarity_top_k=20, then apply SimilarityPostprocessor(0.3), then SentenceTransformerRerank(top_n=4), over 25 questions, and compare hit rate at 4 and per-query latency against plain top-4 retrieval and against LLMRerank(top_n=4).",
+          "deliverable": "Three-way table of hit rate at 4, latency per query and cost for plain, cross-encoder and LLM reranking",
+          "checks": [["Retrieve 20 and rerank to 4", "Exactly 4 nodes reach the synthesizer", "len(source_nodes)"], ["Set similarity_cutoff higher than every score", "No nodes pass and the engine answers with empty context or a fallback", "Observed response"], ["Compare latency of cross-encoder and LLM reranking", "The LLM reranker is slower and costs tokens, the cross-encoder does not", "Timing table"]],
+          "objectives": ["Add postprocessors after retrieval", "Rerank with cross-encoders and LLMs", "Balance recall, precision and latency"]
+        },
+        {
+          "topic": "Router Query Engines and Selectors",
+          "subtopics": ["RouterQueryEngine with QueryEngineTool choices", "LLMSingleSelector and PydanticSingleSelector", "LLMMultiSelector for multiple targets", "Writing tool descriptions that discriminate", "RouterRetriever for retrieval-only routing", "Vector index versus summary index route", "Selector reasoning in the response metadata", "Misrouting cases and fallback tools", "Evaluating router accuracy on labelled questions"],
+          "tools": ["RouterQueryEngine", "PydanticSingleSelector", "QueryEngineTool", "SummaryIndex"],
+          "lab_task": "Build a router over a VectorStoreIndex engine described for specific facts and a SummaryIndex engine described for whole-document summaries, label 20 questions with the correct route, run them, and compute router accuracy plus a confusion count of misrouted questions.",
+          "deliverable": "Router script and a 2x2 confusion table of routed versus expected engine on 20 questions",
+          "checks": [["Run the 20 labelled questions", "Router accuracy is computed as correct routes divided by 20", "Accuracy value"], ["Make both tool descriptions identical", "Accuracy drops compared with distinct descriptions", "Before and after accuracy"], ["Print response.metadata['selector_result']", "It shows the chosen index and the reason text", "Printed metadata"]],
+          "objectives": ["Route questions to the right engine", "Write discriminating tool descriptions", "Measure routing accuracy"]
+        },
+        {
+          "topic": "Sub-Question Engines and Multi-Document Comparison",
+          "subtopics": ["SubQuestionQueryEngine.from_defaults with QueryEngineTool per document", "Question generator and its prompt", "Decomposing a comparison into per-document questions", "Sub-question answers stored in source_nodes", "use_async for parallel sub-questions", "Metadata name and description per document", "Cost growth with number of documents", "Failure modes: duplicate or irrelevant sub-questions", "Comparing with a single big index"],
+          "tools": ["SubQuestionQueryEngine", "QueryEngineTool", "OpenAIQuestionGenerator", "asyncio"],
+          "lab_task": "Create one query engine for each of four annual reports, wrap them as tools with distinct descriptions, ask 'Compare revenue growth across 2022 to 2025' with SubQuestionQueryEngine, print generated sub-questions, count LLM calls with use_async True and False, and compare the answer with a single combined index.",
+          "deliverable": "Sub-question logs, call counts and a comparison with the single-index answer",
+          "checks": [["Print generated sub-questions for the comparison", "One sub-question targets each of the four report tools", "Printed sub-questions"], ["Time use_async=True against use_async=False", "The async run finishes faster for the same number of calls", "Timing values"], ["Ask the same comparison on a single combined index", "The answer misses at least one year or mixes years, unlike the sub-question answer", "Answer comparison"]],
+          "objectives": ["Decompose multi-document questions", "Run sub-questions concurrently", "Compare to single-index retrieval"]
+        },
+        {
+          "topic": "Text-to-SQL and Structured Data Query Engines",
+          "subtopics": ["SQLDatabase with a SQLAlchemy engine", "NLSQLTableQueryEngine with tables=[...]", "SQLTableRetrieverQueryEngine and an object index of tables", "Schema context and column descriptions", "Generated SQL in response.metadata['sql_query']", "Read-only database users and statement allow-lists", "PandasQueryEngine and why it needs sandboxing", "Hybrid questions across SQL and documents", "Wrong-join and hallucinated-column failures"],
+          "tools": ["NLSQLTableQueryEngine", "SQLDatabase", "SQLAlchemy", "SQLite", "PostgreSQL"],
+          "lab_task": "Load a 4-table SQLite sales database, create NLSQLTableQueryEngine, ask 12 questions, print the generated SQL for each, mark correct results against hand-written SQL, and repeat on a read-only database user to confirm a deliberately requested DELETE is refused.",
+          "deliverable": "Table of 12 questions with generated SQL, correctness flag and the refused DELETE evidence",
+          "checks": [["Ask 'total sales by region for 2025'", "response.metadata['sql_query'] contains GROUP BY region and the totals match your SQL", "SQL and result"], ["Ask the engine to delete all orders on a read-only user", "The database raises a permission or read-only error and no rows change", "Error text and row count"], ["Ask about a column that does not exist", "The generated SQL fails or the answer states the data is missing, not an invented figure", "Response text"]],
+          "objectives": ["Query relational data in natural language", "Inspect and validate generated SQL", "Restrict the database user"]
+        },
+        {
+          "topic": "LlamaParse for Complex PDFs, Tables and Layouts",
+          "subtopics": ["LlamaParse(result_type='markdown') and LLAMA_CLOUD_API_KEY", "Parsing mode and parsing_instruction options", "Using LlamaParse inside SimpleDirectoryReader with file_extractor", "Page-level metadata and page separators", "Tables in Markdown and how they chunk", "Comparing with the default PDF reader on a table-heavy file", "Free page allowance and credit usage", "Handling scanned pages and multi-column layouts", "Caching parsed output to avoid repeat charges"],
+          "tools": ["LlamaParse", "LlamaCloud", "SimpleDirectoryReader", "MarkdownNodeParser"],
+          "lab_task": "Parse a 15-page financial PDF with two tables using the default reader and with LlamaParse(result_type='markdown'), save both outputs, count recognised table rows, index each, and ask three table questions to compare answers against the PDF numbers.",
+          "deliverable": "Side-by-side parse outputs, table row counts and answer accuracy on three table questions",
+          "checks": [["Parse the PDF with LlamaParse in markdown mode", "Tables appear as Markdown pipe tables in the output", "Saved .md file"], ["Ask a question needing one table cell value", "The LlamaParse index returns the exact cell value, the default reader index may not", "Answer comparison"], ["Run LlamaParse without LLAMA_CLOUD_API_KEY set", "An authentication or missing key error is raised", "Exception text"]],
+          "objectives": ["Parse layout-heavy documents", "Plug LlamaParse into a reader", "Control parsing cost"]
+        },
+        {
+          "topic": "Retrieval Evaluation with Hit Rate and MRR",
+          "subtopics": ["RetrieverEvaluator.from_metric_names(['hit_rate','mrr'])", "Query and expected_ids pairs", "EmbeddingQAFinetuneDataset as a dataset format", "evaluate_dataset and aevaluate_dataset", "Reading the metric dict and mean_score", "Precision, recall and NDCG metrics", "Per-query results to find systematic misses", "Comparing chunk sizes with the same dataset", "Reporting uncertainty on a small test set"],
+          "tools": ["RetrieverEvaluator", "HitRate", "MRR", "EmbeddingQAFinetuneDataset", "pandas"],
+          "lab_task": "Create a 30-question dataset with expected node ids, run RetrieverEvaluator with hit_rate and mrr on retrievers built at chunk sizes 256, 512 and 1024, put mean hit rate and MRR in a table, and list the five questions every setting missed.",
+          "deliverable": "Evaluation table for three chunk sizes and a list of the always-missed questions",
+          "checks": [["Evaluate three chunk sizes on one dataset", "A table shows mean hit_rate and mrr for each of the three", "Results table"], ["Check MRR against hit rate", "MRR is less than or equal to hit rate for every setting", "Printed values"], ["List questions missed by all three settings", "Each is inspected and a cause such as bad expected id or missing text is written down", "Diagnosis notes"]],
+          "objectives": ["Build a retrieval test set", "Compute hit rate and MRR", "Use per-query results to find causes"]
+        },
+        {
+          "topic": "Synthetic Test Sets and Embedding Fine-Tuning Data",
+          "subtopics": ["generate_question_context_pairs from nodes", "num_questions_per_chunk and the question prompt", "Filtering low-quality generated questions", "Train and validation splits of nodes", "EmbeddingQAFinetuneDataset save_json and from_json", "SentenceTransformersFinetuneEngine for a small fine-tune", "Evaluating a fine-tuned embedding with hit rate", "Leakage when train and test share chunks", "Cost of generating questions"],
+          "tools": ["generate_question_context_pairs", "EmbeddingQAFinetuneDataset", "SentenceTransformersFinetuneEngine", "sentence-transformers"],
+          "lab_task": "Generate 2 questions for each of 150 nodes, remove duplicates and trivial questions, split nodes 80/20 by document, save the datasets to JSON, fine-tune a small sentence-transformers model on the training split for 2 epochs, and compare hit rate at k=5 on the validation split before and after.",
+          "deliverable": "Saved train and validation JSON plus before and after hit rate for the fine-tuned embedding",
+          "checks": [["Generate 2 questions for each of 150 nodes", "Up to 300 queries exist before filtering and the final count is reported", "len(dataset.queries)"], ["Split by document not by chunk", "No validation document id appears in the training split", "Set intersection result"], ["Compare base and fine-tuned hit rate on validation", "Both values are reported and any gain or loss is stated honestly", "Evaluation table"]],
+          "objectives": ["Generate synthetic questions", "Avoid train and test leakage", "Fine-tune and evaluate an embedding model"]
+        },
+        {
+          "topic": "Agents with Multiple Tools and Context State",
+          "subtopics": ["FunctionAgent with several QueryEngineTools and functions", "Context and ctx.store for state between runs", "Passing ctx to agent.run to keep memory", "Tool descriptions that avoid overlap", "Tools that write state, such as saving notes", "Streaming ToolCall and ToolCallResult events", "Timeouts and retries for flaky tools", "Evaluating tool selection on labelled tasks", "Prompt guidance for when not to call a tool"],
+          "tools": ["FunctionAgent", "Context", "ToolCallResult", "QueryEngineTool"],
+          "lab_task": "Build an agent with a document search tool, a SQL tool, a calculator and a save_note tool, run 15 labelled tasks while storing notes in ctx.store, record which tools each task called against expected tools, and report tool-selection accuracy and failed calls.",
+          "deliverable": "Agent script and a tool-selection accuracy table over 15 labelled tasks",
+          "checks": [["Run a task requiring only SQL", "Only the SQL tool is called and the document tool is not", "Tool call log"], ["Reuse the same Context for a second run", "The second run can read the note saved in the first via ctx.store", "Printed note"], ["Run 15 labelled tasks", "Tool-selection accuracy is computed from expected versus actual tool names", "Accuracy value"]],
+          "objectives": ["Give an agent several tools", "Keep state in a Context", "Measure tool selection"]
+        },
+        {
+          "topic": "Workflows with Branching, Loops and Parallel Steps",
+          "subtopics": ["Returning different events to branch", "Looping by emitting an event the same step handles", "ctx.send_event and num_workers on @step", "ctx.collect_events to wait for several events", "Fan-out over retrieved documents and fan-in synthesis", "retry_policy for flaky steps", "Streaming progress with ctx.write_event_to_stream", "Workflow timeouts and WorkflowTimeoutError", "Unit testing steps in isolation"],
+          "tools": ["Workflow", "Context.collect_events", "ctx.send_event", "retry_policy", "pytest"],
+          "lab_task": "Write a Workflow that retrieves 6 nodes, fans out one summarise step per node with num_workers=4, collects the six results with collect_events, and loops back to retrieval once if the final answer is shorter than 100 characters, then time it against a sequential version.",
+          "deliverable": "Workflow code, a timing comparison of parallel versus sequential runs and a loop-trigger test",
+          "checks": [["Run the parallel Workflow with num_workers=4 on 6 nodes", "It finishes faster than the sequential version for the same LLM latency", "Timing values"], ["Check collect_events", "The fan-in step runs exactly once after all 6 events arrive", "Step execution log"], ["Force a short answer", "The loop runs one extra retrieval and then stops", "Verbose log"]],
+          "objectives": ["Fan out and fan in with events", "Add loops and retries", "Stream progress from steps"]
+        },
+        {
+          "topic": "Observability with Arize Phoenix and OpenInference Tracing",
+          "subtopics": ["set_global_handler('arize_phoenix') versus manual instrumentation", "Running Phoenix locally with phoenix.launch_app()", "LlamaIndexInstrumentor from openinference", "Reading spans for retrieval, embedding, LLM and synthesis", "Attributes: token counts, retrieved documents, scores", "OTLP export to another backend", "Tagging traces with session and user ids", "Finding the slowest span in a query", "Redacting sensitive text from traces"],
+          "tools": ["Arize Phoenix", "OpenInference", "OpenTelemetry", "LlamaIndexInstrumentor"],
+          "lab_task": "Start Phoenix locally, register the LlamaIndexInstrumentor, run 20 queries from your agent or query engine, open the UI, find the slowest trace and its slowest span, record the retrieved document count and prompt token count for that trace, and tag traces with a session id.",
+          "deliverable": "Screenshots or exported trace summary of the slowest trace with span durations and token counts",
+          "checks": [["Run 20 queries with the instrumentor registered", "20 traces appear in the Phoenix UI", "Trace count"], ["Open the slowest trace", "The longest span is identified by name and duration in milliseconds", "Span detail"], ["Open the LLM span of one query", "Prompt and completion token counts are shown", "Span attributes"]],
+          "objectives": ["Trace a LlamaIndex app", "Find slow or costly spans", "Attach session metadata to traces"]
+        },
+        {
+          "topic": "Async Execution, Streaming and Concurrency Limits",
+          "subtopics": ["aquery, aretrieve and achat across the API", "asyncio.gather over many queries", "Semaphores to respect provider rate limits", "Retry with backoff using tenacity", "Async ingestion with num_workers", "Streaming responses over server-sent events", "Blocking calls hidden in async code", "Event loop errors in notebooks and nest_asyncio", "Measuring throughput in queries per second"],
+          "tools": ["asyncio", "aquery", "Semaphore", "tenacity", "Python"],
+          "lab_task": "Run 40 queries sequentially, then with asyncio.gather limited by a Semaphore(8), measure total time and queries per second for both, inject a simulated 429 error on 10 percent of calls with tenacity retry, and report failed versus recovered calls.",
+          "deliverable": "Throughput table for sequential and concurrent runs plus retry statistics",
+          "checks": [["Run 40 queries with Semaphore(8)", "Total time is lower than sequential and the queries per second figure is reported", "Timing output"], ["Inject 429 errors on 10 percent of calls with retry enabled", "Most calls recover and the number of unrecovered calls is reported", "Retry statistics"], ["Call asyncio.run inside a running notebook loop", "A RuntimeError about a running event loop appears and is fixed with await or nest_asyncio", "Error text"]],
+          "objectives": ["Run queries concurrently within rate limits", "Handle transient provider errors", "Measure throughput"]
+        },
+        {
+          "topic": "Intermediate Capstone: Measured Retrieval Improvement for a Company Knowledge Base",
+          "subtopics": ["Ingest 100 or more mixed documents with LlamaParse, pipeline cache and docstore upserts", "Baseline retrieval with hit rate and MRR on 40 questions", "Three improvements chosen from hybrid, reranking, sentence-window and auto-merging", "Router or agent layer over documents and a SQL table", "Phoenix traces for the slowest queries", "Final report with gains, latency and cost per query"],
+          "tools": ["LlamaIndex", "IngestionPipeline", "Qdrant", "LlamaParse", "Arize Phoenix", "pytest"],
+          "lab_task": "Build a baseline index of at least 100 documents with a Qdrant store, measure hit rate and MRR on 40 labelled questions, add three retrieval improvements one at a time re-measuring after each, trace the slowest queries in Phoenix, and write a report showing gains, latency per query and cost per query.",
+          "deliverable": "Repository with pipeline, evaluation dataset, results table for baseline plus three improvements, Phoenix screenshots and a decision memo",
+          "checks": [["Re-run evaluation after each improvement", "The report lists hit rate and MRR for baseline and each of three steps", "Results table"], ["Re-ingest with no source changes", "Zero embeddings are recomputed because of the cache and docstore", "Call counter"], ["Run pytest regression test with a minimum hit rate", "The test fails when hit rate falls below the stated threshold", "pytest output"]],
+          "objectives": ["Improve retrieval with measured experiments", "Keep ingestion incremental", "Report gains against latency and cost"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers who run LlamaIndex RAG and agent systems and need to extend, scale, secure and operate them. Covers property graph indexes and graph retrieval, agentic RAG with document agents, AgentWorkflow handoff, human-in-the-loop and resumable Workflows, reflection loops, MCP tools, multimodal RAG, LlamaExtract, LlamaCloud indexes, custom components, the instrumentation module, cost and latency control, regression gates in CI, tenant isolation, serving over FastAPI, failure diagnosis, and a production-grade agentic RAG capstone.",
+      "prerequisites": ["Has delivered a LlamaIndex RAG app with ingestion pipelines, reranking, evaluation and tracing", "Writes async Python services with FastAPI, pydantic and pytest, and can read vector store and graph database documentation", "Has access to a hosted or local LLM that supports tool calling, Docker for Neo4j or Qdrant, and optionally a LlamaCloud account"],
+      "outcomes": ["Design graph, agentic and multi-agent retrieval systems with Workflows and AgentWorkflow and choose them only where they beat a plain pipeline", "Extend LlamaIndex with custom retrievers, postprocessors, embeddings and instrumentation handlers", "Control cost, latency, access and quality with caching, budgets, tenant filters and CI regression gates", "Serve and troubleshoot a production RAG service with traces, metrics and a documented runbook"],
+      "days": [
+        {
+          "topic": "Property Graph Indexes and Graph Retrieval",
+          "subtopics": ["PropertyGraphIndex.from_documents and the property graph store interface", "SimplePropertyGraphStore and Neo4jPropertyGraphStore", "EntityNode, Relation and ChunkNode", "SimpleLLMPathExtractor and ImplicitPathExtractor", "VectorContextRetriever and LLMSynonymRetriever", "TextToCypherRetriever and its safety limits", "Combining graph and vector retrieval with sub_retrievers", "Visualising the graph with save_networkx_graph", "When graph retrieval beats chunk retrieval"],
+          "tools": ["PropertyGraphIndex", "Neo4jPropertyGraphStore", "SimpleLLMPathExtractor", "Neo4j", "Docker"],
+          "lab_task": "Start Neo4j in Docker, build a PropertyGraphIndex over 50 documents with SimpleLLMPathExtractor, count nodes and relations with a Cypher query, ask 10 multi-hop questions with a graph retriever and with a vector retriever, and compare correct answers between them.",
+          "deliverable": "Graph build script, Cypher counts and a table of multi-hop question accuracy for graph versus vector retrieval",
+          "checks": [["Run MATCH (n) RETURN count(n) in Neo4j after indexing", "The count is greater than zero and matches the entity count reported by the index", "Cypher output"], ["Ask a two-hop question such as which manager's team owns a service", "The graph retriever returns the connecting relation path in its context", "Retrieved triplets"], ["Compare 10 multi-hop questions on graph and vector retrieval", "Graph retrieval answers at least as many correctly and the numbers are reported", "Accuracy table"]],
+          "objectives": ["Build a property graph index", "Retrieve through graph paths", "Decide when graph retrieval adds value"]
+        },
+        {
+          "topic": "Schema-Guided Knowledge Graph Extraction",
+          "subtopics": ["SchemaLLMPathExtractor with possible_entities and possible_relations", "Strict versus open schemas", "kg_validation_schema as allowed triples", "DynamicLLMPathExtractor for evolving schemas", "Entity resolution and duplicate nodes such as 'IBM' and 'I.B.M.'", "Extraction precision measured on a labelled sample", "Cost of extraction per chunk", "Incremental graph updates when documents change", "Storing provenance with source chunk ids"],
+          "tools": ["SchemaLLMPathExtractor", "DynamicLLMPathExtractor", "Neo4j", "Pydantic"],
+          "lab_task": "Define a schema of Person, Company and Product entities with WORKS_AT and MAKES relations, extract from 100 chunks using SchemaLLMPathExtractor with strict=True, hand-label 30 extracted triples for precision, count duplicate entity names, and add a normalisation step that merges them.",
+          "deliverable": "Schema file, precision score on 30 labelled triples and a duplicate-entity before and after count",
+          "checks": [["Run extraction with strict=True", "No relation outside the declared schema appears in the graph", "Cypher distinct relation types"], ["Hand-label 30 triples", "Precision is computed as correct triples divided by 30", "Labelling sheet"], ["Run entity normalisation", "The count of duplicate entity names falls and is reported before and after", "Count comparison"]],
+          "objectives": ["Constrain extraction with a schema", "Measure extraction precision", "Resolve duplicate entities"]
+        },
+        {
+          "topic": "Agentic RAG with Document Agents and Tool Retrieval",
+          "subtopics": ["One agent per document as a QueryEngineTool wrapper", "A top-level agent choosing among document agents", "ObjectIndex over tools with an object retriever", "Tool retrieval when there are more than 20 tools", "Summary tool plus fact tool per document", "Latency from nested agent calls", "Controlling depth to avoid loops", "Compare against a router and a flat index", "Trace nesting in Phoenix"],
+          "tools": ["FunctionAgent", "ObjectIndex", "QueryEngineTool", "VectorStoreIndex"],
+          "lab_task": "Create a document agent with a vector tool and a summary tool for each of 20 documents, put the 20 agents in an ObjectIndex, build a top-level agent that retrieves 3 tools per question, and compare accuracy and latency on 25 questions against a flat vector index.",
+          "deliverable": "Agentic and flat RAG comparison of accuracy, latency and LLM calls for 25 questions",
+          "checks": [["Query the top-level agent with a question about one document", "Only the relevant document agent's tools are retrieved and called", "Tool call log"], ["Compare latency with the flat index", "The agentic version uses more LLM calls and higher latency, both reported", "Timing and call counts"], ["Ask a cross-document question", "At least two document agents are called and the answer cites both", "Trace or call log"]],
+          "objectives": ["Structure agents per document", "Retrieve tools through an ObjectIndex", "Weigh agentic accuracy against latency"]
+        },
+        {
+          "topic": "AgentWorkflow and Multi-Agent Handoff",
+          "subtopics": ["AgentWorkflow with agents=[...] and root_agent", "can_handoff_to and the handoff tool", "Shared state through initial_state and ctx.store", "Research agent, writer agent and reviewer agent roles", "Streaming AgentStream and AgentOutput events", "Handoff loops and how to detect them", "Per-agent system prompts and tool scope", "Comparing handoff with a coded Workflow", "Max step limits"],
+          "tools": ["AgentWorkflow", "FunctionAgent", "Context", "AgentStream"],
+          "lab_task": "Build an AgentWorkflow with research, writer and reviewer FunctionAgents, give research a document search tool, let it hand off to writer then reviewer, keep a draft in shared state, run 10 briefs, and count handoffs and tokens per brief.",
+          "deliverable": "Multi-agent script with per-brief handoff counts, token totals and final drafts",
+          "checks": [["Run one brief", "Events show research then writer then reviewer in that order", "Event stream"], ["Read ctx.store state after the run", "The draft key holds the writer's text and a reviewer verdict key exists", "Printed state"], ["Remove can_handoff_to from the writer", "The workflow cannot reach the reviewer and ends at the writer", "Event log"]],
+          "objectives": ["Coordinate several agents with handoff", "Share state between agents", "Detect looping handoffs"]
+        },
+        {
+          "topic": "Human-in-the-Loop Workflows and Event Streaming",
+          "subtopics": ["InputRequiredEvent and HumanResponseEvent", "ctx.wait_for_event with a waiter_event", "Streaming events to a UI with handler.stream_events()", "Approval gates before tool actions that change data", "Timeouts for human replies", "Handling a rejection path", "Audit log of approvals", "Testing with a scripted human response", "Concurrent workflow runs with separate handlers"],
+          "tools": ["Workflow", "InputRequiredEvent", "HumanResponseEvent", "asyncio"],
+          "lab_task": "Create a Workflow that drafts a refund decision, emits InputRequiredEvent for approval above 500 pounds, resumes after HumanResponseEvent, writes an audit line for each decision, and run 6 test cases with scripted approvals, rejections and one timeout.",
+          "deliverable": "Workflow with six scripted cases and an audit log showing approved, rejected and timed-out decisions",
+          "checks": [["Run a refund of 800 pounds", "The workflow pauses and emits InputRequiredEvent before any action", "Event stream"], ["Send a rejection response", "The rejection path runs and no refund action is executed", "Audit log"], ["Send no response and let the timeout expire", "The run ends with a timeout error and an audit line marks it as unapproved", "Exception and log"]],
+          "objectives": ["Pause a workflow for human input", "Build approval and rejection paths", "Log decisions for audit"]
+        },
+        {
+          "topic": "Workflow Context Serialization and Resumable Runs",
+          "subtopics": ["JsonSerializer and JsonPickleSerializer for Context", "ctx.to_dict(serializer=...) and Context.from_dict", "Resuming a run with ctx=restored_ctx", "Storing contexts in Redis or a database", "What can and cannot be serialised in ctx.store", "Idempotent steps for safe resume", "Versioning workflows against saved contexts", "Crash tests mid-run", "Cleaning up old contexts"],
+          "tools": ["Context", "JsonSerializer", "Redis", "Workflow"],
+          "lab_task": "Run a four-step Workflow, serialise the Context to Redis after step two using JsonSerializer, kill the process, restore with Context.from_dict, resume, and show that steps one and two do not run again while steps three and four complete with the same stored state.",
+          "deliverable": "Resume demo with logs from both processes and a check that completed steps are not repeated",
+          "checks": [["Kill the process after step two and resume from the stored context", "Steps three and four run and steps one and two do not", "Both logs"], ["Compare ctx.store values before and after resume", "Stored values are equal", "Printed state"], ["Store a non-serialisable object in ctx.store", "Serialisation fails with a clear error naming the type", "Exception text"]],
+          "objectives": ["Persist and restore Workflow contexts", "Make steps safe to resume", "Know the limits of serialisation"]
+        },
+        {
+          "topic": "Reflection and Self-Correcting Retrieval Loops",
+          "subtopics": ["Retrieve, grade, rewrite and retry as a Workflow", "Relevance grading with a small model", "Query rewriting after a failed grade", "Maximum retry count to bound cost", "Web search fallback as a tool", "Hallucination check against sources", "Logging each loop iteration", "Comparing with a single-pass pipeline on hard questions", "When reflection increases cost without gain"],
+          "tools": ["Workflow", "FaithfulnessEvaluator", "QueryFusionRetriever", "Python"],
+          "lab_task": "Implement a corrective Workflow that grades retrieved nodes for relevance, rewrites the query once if fewer than 2 nodes pass, retries retrieval, checks the answer with FaithfulnessEvaluator, and run 30 hard questions against a single-pass pipeline to compare accuracy, loops and cost.",
+          "deliverable": "Corrective workflow, 30-question comparison with accuracy, average loops and tokens per question",
+          "checks": [["Run 30 hard questions in both modes", "Accuracy, average loops and tokens per question are reported for each mode", "Comparison table"], ["Set maximum retries to 1", "No question triggers more than one rewrite", "Loop counter"], ["Ask an unanswerable question", "The workflow ends with a refusal after the retry budget, not an invented answer", "Final answer"]],
+          "objectives": ["Build a corrective retrieval loop", "Bound retries and cost", "Prove the loop helps with data"]
+        },
+        {
+          "topic": "Model Context Protocol Tools for LlamaIndex Agents",
+          "subtopics": ["The MCP client and server roles", "McpToolSpec from llama-index-tools-mcp", "Connecting over stdio and over HTTP transports", "to_tool_list_async to get FunctionTools", "Allow-lists of tool names", "Serving a LlamaIndex query engine as an MCP server", "Authorisation and trust for third-party servers", "Timeouts and server crashes", "Prompt injection through tool descriptions and results"],
+          "tools": ["llama-index-tools-mcp", "McpToolSpec", "FunctionAgent", "MCP server"],
+          "lab_task": "Run a local MCP server that exposes two tools, load them with McpToolSpec, give them to a FunctionAgent next to a document tool, call each tool through the agent, filter to an allow-list of one tool, and test a tool result containing the text 'ignore previous instructions' to see how the agent responds.",
+          "deliverable": "Agent with MCP tools, an allow-list demonstration and notes on the injection test",
+          "checks": [["List tools loaded through McpToolSpec", "Both server tools appear with names and descriptions", "Printed tool list"], ["Apply an allow-list of one tool name", "The agent can no longer call the other tool", "Tool list and call log"], ["Return injected text from a tool", "The agent's handling is recorded and the mitigation, such as a system prompt rule or output filtering, is written down", "Test notes"]],
+          "objectives": ["Use MCP tools in a LlamaIndex agent", "Expose a query engine as a tool server", "Defend against tool-borne instructions"]
+        },
+        {
+          "topic": "Multimodal RAG with Images, Charts and Tables",
+          "subtopics": ["ImageNode, ImageDocument and multimodal embeddings", "MultiModalVectorStoreIndex with separate text and image stores", "Multimodal LLMs and image_documents on completion", "Captioning images at ingestion", "Chart and table screenshots from parsed PDFs", "Retrieving both text and image nodes", "Image storage and cost", "Evaluating multimodal answers manually", "Failure with low-resolution scans"],
+          "tools": ["MultiModalVectorStoreIndex", "ImageNode", "CLIP embeddings", "Qdrant"],
+          "lab_task": "Extract 40 images and 40 text chunks from a product manual, index them with a text and an image collection, ask 12 questions that need a diagram, record whether the retrieved set contains the right image, and compare answers with and without passing the image to a multimodal model.",
+          "deliverable": "Multimodal pipeline, retrieval hit table for 12 diagram questions and answer comparison",
+          "checks": [["Ask a question answerable only from a diagram", "The right ImageNode appears in the top-3 retrieved images in most cases and the rate is reported", "Retrieved image ids"], ["Answer once with text only and once with the image attached", "The image-attached answer includes a detail not present in the text-only answer", "Answer comparison"], ["Index a blurred image", "Retrieval for that image's question fails or ranks it lower, which is recorded", "Rank result"]],
+          "objectives": ["Index text and images together", "Retrieve images for questions", "Judge when images improve answers"]
+        },
+        {
+          "topic": "LlamaExtract and Structured Extraction at Scale",
+          "subtopics": ["LlamaExtract agents defined by a Pydantic or JSON schema", "Creating and versioning an extraction agent", "Running extraction on a batch of files", "Field-level confidence and citations where available", "Schema design: required versus optional fields", "Comparing with as_structured_llm over parsed text", "Validating and reconciling results in code", "Credit usage and batch size", "Human review queue for low-confidence values"],
+          "tools": ["LlamaExtract", "LlamaCloud", "Pydantic", "pandas"],
+          "lab_task": "Define a schema for 8 contract fields, create an extraction agent, run it on 50 contracts, compare each field with a hand-labelled sample of 10 contracts, compute per-field accuracy, and route fields that are missing or low-confidence to a review CSV.",
+          "deliverable": "Schema, extraction results for 50 contracts, per-field accuracy table and the review CSV",
+          "checks": [["Run the agent on 50 contracts", "A structured record is returned per contract and the number of failures is reported", "Result counts"], ["Compare 10 labelled contracts", "Per-field accuracy is calculated for each of the 8 fields", "Accuracy table"], ["Find records with a missing required field", "They appear in the review CSV with the file name and field", "CSV file"]],
+          "objectives": ["Extract structured data from many documents", "Measure field-level accuracy", "Route uncertain values to review"]
+        },
+        {
+          "topic": "LlamaCloud Indexes and the Retrieval API",
+          "subtopics": ["LlamaCloudIndex.from_documents and project and organisation names", "Managed ingestion, chunking and embedding settings", "as_retriever and as_query_engine against a cloud index", "Retrieval parameters such as dense and sparse top-k and reranking", "Data sources and syncing", "Comparing managed retrieval with a self-hosted Qdrant pipeline", "Data residency and what leaves your network", "Pricing and credit awareness", "Migrating between self-hosted and managed indexes"],
+          "tools": ["LlamaCloudIndex", "LlamaCloud", "LlamaParse", "Qdrant"],
+          "lab_task": "Create a LlamaCloudIndex from 60 documents, query it with 20 labelled questions, compare hit rate and latency with your self-hosted Qdrant pipeline, change one retrieval parameter in the cloud index, and write a build-versus-buy table with data residency noted.",
+          "deliverable": "Comparison of managed and self-hosted retrieval with hit rate, latency and a decision table",
+          "checks": [["Run 20 labelled questions on both systems", "Hit rate and median latency are recorded for each", "Comparison table"], ["Change one retrieval parameter on the cloud index and rerun", "The metric change is reported next to the parameter value", "Before and after table"], ["List what data is sent to LlamaCloud", "The table names documents, metadata and queries as leaving your environment", "Decision table"]],
+          "objectives": ["Use a managed index", "Compare managed and self-hosted retrieval", "State data residency implications"]
+        },
+        {
+          "topic": "Custom Retrievers, Query Engines and Postprocessors",
+          "subtopics": ["Subclassing BaseRetriever and implementing _retrieve", "Returning NodeWithScore objects", "Subclassing BaseNodePostprocessor with _postprocess_nodes", "CustomQueryEngine with a custom_query method", "Async variants _aretrieve", "Composing retrievers with ordering and deduplication", "Unit tests with fake nodes and stub LLMs", "MockLLM and MockEmbedding for tests", "Publishing a component as an internal package"],
+          "tools": ["BaseRetriever", "BaseNodePostprocessor", "CustomQueryEngine", "MockLLM", "pytest"],
+          "lab_task": "Write a custom retriever that merges vector and BM25 results with deduplication by node id, a postprocessor that drops nodes older than a date in metadata, and a CustomQueryEngine that adds a disclaimer, then test all three with MockLLM, MockEmbedding and 8 pytest cases.",
+          "deliverable": "Package of three components with eight passing pytest cases that make no network calls",
+          "checks": [["Run pytest with MockLLM and MockEmbedding", "8 tests pass with no network access", "pytest summary"], ["Feed duplicate node ids from both retrievers", "The merged result contains each node id once", "Test assertion"], ["Pass nodes with dates before the cut-off", "The postprocessor removes them and keeps newer nodes", "Test assertion"]],
+          "objectives": ["Extend the framework with custom components", "Test without calling real models", "Package a reusable component"]
+        },
+        {
+          "topic": "Custom LLM, Embedding and Vector Store Classes",
+          "subtopics": ["Subclassing CustomLLM with metadata, complete and stream_complete", "LLMMetadata: context_window, num_output, is_chat_model", "BaseEmbedding with _get_query_embedding and _get_text_embedding", "Implementing BasePydanticVectorStore: add, delete, query", "VectorStoreQuery and VectorStoreQueryResult", "Adapting an internal embedding service", "Batching and retries inside the class", "Conformance tests against an index", "Contributing an integration package"],
+          "tools": ["CustomLLM", "BaseEmbedding", "BasePydanticVectorStore", "VectorStoreQuery", "pytest"],
+          "lab_task": "Implement a CustomLLM that calls an internal HTTP endpoint, a BaseEmbedding wrapper over a local model, and a small BasePydanticVectorStore backed by SQLite with cosine search, then run a VectorStoreIndex end-to-end on them and pass 10 conformance tests.",
+          "deliverable": "Three custom classes and a conformance test file with ten passing tests",
+          "checks": [["Build VectorStoreIndex with the custom store and embedding", "from_documents completes and queries return nodes", "Query output"], ["Delete a ref_doc_id from the custom store", "Its nodes no longer come back from query", "Query result"], ["Return a wrong vector size from the embedding", "The store raises a dimension error during add", "Exception text"]],
+          "objectives": ["Implement the abstract interfaces", "Wrap an internal service", "Verify a custom store with tests"]
+        },
+        {
+          "topic": "Instrumentation Module, Custom Event Handlers and Spans",
+          "subtopics": ["get_dispatcher(__name__) and root dispatcher", "BaseEventHandler and event classes", "BaseSpanHandler and span lifecycle", "Events: LLMChatStartEvent, RetrievalStartEvent, EmbeddingEndEvent", "Adding custom events to your own components", "Metrics handler for tokens and latency", "Context propagation across async tasks", "Sampling to reduce overhead", "Difference from the older callback system"],
+          "tools": ["llama_index.core.instrumentation", "BaseEventHandler", "BaseSpanHandler", "OpenTelemetry"],
+          "lab_task": "Register a custom event handler that counts LLM tokens and retrieval node counts per query, a span handler that logs span durations, run 30 queries, export a CSV of query id, retrieved nodes, tokens and latency, and add a custom event to your custom retriever.",
+          "deliverable": "Handlers, a 30-row metrics CSV and the custom event emitted from your own retriever",
+          "checks": [["Run 30 queries with both handlers", "The CSV has 30 rows with tokens and latency filled in", "CSV file"], ["Emit a custom event from the retriever", "The event handler receives it with the node count", "Handler log"], ["Compare handler totals with provider usage", "Token totals match the provider usage page within a small, stated margin", "Comparison note"]],
+          "objectives": ["Instrument with the dispatcher", "Capture spans and events", "Build a usage metrics export"]
+        },
+        {
+          "topic": "Prompt Caching, Cost Control and Latency Budgets",
+          "subtopics": ["Provider prompt caching and stable prompt prefixes", "Caching embeddings and query results", "Smaller models for grading and rewriting", "Reducing top-k and context length", "response_mode choices and their LLM call counts", "Per-query token budgets and hard limits", "Latency budget by stage: retrieval, rerank, generation", "Streaming for perceived latency", "Cost per 1,000 queries model"],
+          "tools": ["TokenCountingHandler", "Redis", "Phoenix", "Python"],
+          "lab_task": "Measure cost and p95 latency for 100 queries on your pipeline, then apply a query-result cache, a smaller model for rewriting, top_k reduced from 10 to 5 and compact mode, re-measure after each change, and report cost per 1,000 queries and p95 latency for each step.",
+          "deliverable": "Optimisation log with cost per 1,000 queries and p95 latency after each change plus quality check",
+          "checks": [["Measure baseline over 100 queries", "Tokens, cost per 1,000 queries and p95 latency are recorded", "Metrics table"], ["Apply each optimisation in turn and rerun the 40-question evaluation", "Each row shows cost, latency and hit rate so quality loss is visible", "Results table"], ["Repeat an identical query with the cache enabled", "The second call makes zero LLM calls and returns faster", "Call counter and timing"]],
+          "objectives": ["Measure cost and latency per stage", "Apply optimisations one at a time", "Check quality does not regress"]
+        },
+        {
+          "topic": "Evaluation Pipelines with Regression Gates in CI",
+          "subtopics": ["Versioned evaluation datasets in the repository", "Retrieval gates: hit rate and MRR thresholds", "Answer gates: faithfulness and correctness scores with confidence margin", "Running evaluators with BatchEvalRunner in pytest", "Caching judge calls to control cost", "Pinning model names and temperature 0", "Tracking flaky judge results across runs", "GitHub Actions workflow that fails the build", "Reporting a metric trend over commits"],
+          "tools": ["pytest", "BatchEvalRunner", "GitHub Actions", "FaithfulnessEvaluator", "CorrectnessEvaluator"],
+          "lab_task": "Add a 40-question dataset and a pytest module that asserts hit rate at least 0.8 and mean faithfulness at least 0.85, run it in a GitHub Actions workflow, break retrieval on a branch by setting chunk_size to 32 and confirm the build fails, then restore it and confirm it passes.",
+          "deliverable": "CI workflow file, evaluation tests and a pull request showing one failed and one passing run",
+          "checks": [["Break retrieval with chunk_size=32 on a branch", "The pytest evaluation fails with the hit rate below 0.8", "CI log"], ["Restore chunk_size", "The CI job passes and prints both metrics", "CI log"], ["Run the same evaluation twice", "Judge scores differ by no more than the stated tolerance", "Two result files"]],
+          "objectives": ["Gate changes on retrieval and answer metrics", "Control evaluation cost and flakiness", "Run evaluations in CI"]
+        },
+        {
+          "topic": "Access Control and Tenant Isolation in Retrieval",
+          "subtopics": ["Per-tenant metadata filters enforced server-side", "Separate collections or namespaces per tenant", "Row-level permissions carried as node metadata", "Filtering by user group before retrieval, not after", "Preventing prompt content from leaking across tenants", "Chat memory isolation by user id", "Audit logging of retrieved document ids", "Testing isolation with canary documents", "PII redaction before indexing and in traces"],
+          "tools": ["MetadataFilters", "Qdrant", "FastAPI", "pytest"],
+          "lab_task": "Index documents for three tenants with a tenant_id and an allowed_groups field, force the tenant filter in a retriever wrapper that callers cannot bypass, plant a canary string in each tenant, run 50 cross-tenant probe queries, and prove no canary from another tenant appears in any answer or trace.",
+          "deliverable": "Isolation wrapper, 50-probe test results and an audit log of retrieved document ids",
+          "checks": [["Run 50 probe queries as tenant A asking for tenant B's canary", "Zero responses or sources contain tenant B data", "Test report"], ["Call the wrapper without a tenant id", "It raises an error instead of searching all data", "Exception text"], ["Inspect traces and logs", "Retrieved document ids are logged but raw text of restricted documents is not", "Log sample"]],
+          "objectives": ["Enforce tenant filters on every query", "Test isolation with canaries", "Keep logs and memory separate per tenant"]
+        },
+        {
+          "topic": "Serving Query Engines and Workflows over FastAPI",
+          "subtopics": ["FastAPI app with a lifespan that loads the index once", "Request models and response models with sources", "Streaming with StreamingResponse and server-sent events", "Running Workflows per request and handling timeouts", "Concurrency limits and worker counts", "Health and readiness endpoints", "Rate limiting and API keys", "Containerising with Docker and a non-root user", "Load test with 50 concurrent users"],
+          "tools": ["FastAPI", "uvicorn", "Docker", "Locust or k6", "Workflow"],
+          "lab_task": "Wrap a query engine and a Workflow in a FastAPI service with /query, /stream and /healthz, load the index at startup, containerise it, run a load test of 50 concurrent users for 2 minutes, and report p50 and p95 latency, error rate and memory per worker.",
+          "deliverable": "Service code, Dockerfile and a load test report with p50, p95, error rate and memory",
+          "checks": [["Call /healthz after startup", "It returns HTTP 200 only after the index has loaded", "curl output"], ["Run 50 concurrent users for 2 minutes", "p50, p95 and error rate are recorded and error rate stays under a stated target", "Load test report"], ["Call /stream", "Tokens arrive incrementally as server-sent events", "curl -N output"]],
+          "objectives": ["Serve LlamaIndex components as an API", "Stream responses", "Load test and report capacity"]
+        },
+        {
+          "topic": "Troubleshooting Retrieval Quality and Failure Modes",
+          "subtopics": ["A fault tree from empty answers to wrong answers", "Checking parse output before blaming the model", "Chunk boundaries splitting answers", "Embedding mismatch between ingestion and query time", "Metadata filters silently excluding data", "Stale index after document changes", "Truncated context from context_window limits", "Lost-in-the-middle ordering", "Using traces and per-query metrics to isolate the stage"],
+          "tools": ["Arize Phoenix", "LlamaDebugHandler", "RetrieverEvaluator", "Python"],
+          "lab_task": "Receive a pipeline with five seeded faults (wrong embedding model at query time, a metadata filter typo, chunk_size 32, a stale index and a truncated context), diagnose each from traces and retrieval metrics, fix them one at a time, and record the hit rate before and after each fix.",
+          "deliverable": "Diagnosis report with the symptom, evidence, fix and metric change for each of five faults",
+          "checks": [["Identify the embedding mismatch", "Query and index embedding model names differ in the logged configuration", "Config diff"], ["Fix the metadata filter typo", "Retrieved node count rises from 0 to the expected number", "Before and after count"], ["Fix all five faults", "Final hit rate is at least the documented baseline of the clean pipeline", "Metric table"]],
+          "objectives": ["Isolate failures by pipeline stage", "Use evidence from traces and metrics", "Verify each fix with a metric"]
+        },
+        {
+          "topic": "Advanced Capstone: Production Agentic RAG Service",
+          "subtopics": ["Ingestion with LlamaParse, pipeline cache, upserts and a production vector store", "Workflow with retrieval, grading, correction and an approval step", "Tenant isolation and audit logging", "Phoenix tracing and cost per query reporting", "CI regression gate on hit rate and faithfulness", "Runbook with failure modes and rollback"],
+          "tools": ["LlamaIndex", "Workflow", "Qdrant", "FastAPI", "Arize Phoenix", "GitHub Actions"],
+          "lab_task": "Deliver a FastAPI service with an ingestion pipeline, a corrective retrieval Workflow, tenant filters, Phoenix tracing and a CI gate, load test it with 50 concurrent users, run 100 evaluation questions, and present metrics for accuracy, p95 latency, cost per query and isolation results.",
+          "deliverable": "Repository, CI run, load test report, evaluation report with 100 questions and a runbook",
+          "checks": [["Run the CI gate with the final configuration", "The job passes with hit rate and faithfulness at or above the stated thresholds", "CI log"], ["Run 50 cross-tenant probe queries", "No canary from another tenant is returned", "Test report"], ["Run the 50-user load test", "p95 latency and cost per query are reported and meet the documented targets", "Load report"]],
+          "objectives": ["Deliver a complete agentic RAG service", "Prove quality, isolation and capacity with data", "Document operation and failure handling"]
+        }
+      ]
+    }
+  }
+}

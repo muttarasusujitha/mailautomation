@@ -1,6 +1,6 @@
 {
   "domain": "Firebase",
-  "name": "Firebase â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "name": "Firebase – Comprehensive Fundamentals to Advanced Curriculum",
   "aliases": [
     "Google Firebase",
     "Firebase Platform"
@@ -27,9 +27,6 @@
         "Installation or managed setup",
         "Client tools",
         "Basic administration",
-        "Firebase terminology and feature mapping for this topic",
-        "Firebase configuration and implementation considerations",
-        "Firebase best practices and common mistakes for this topic",
         "Cloud Firestore",
         "Realtime Database",
         "Firebase Authentication",
@@ -112,21 +109,7 @@
         "Relationships or document structure",
         "Schema design patterns",
         "Normalization/denormalization considerations",
-        "Naming conventions",
-        "Firebase terminology and feature mapping for this topic",
-        "Firebase configuration and implementation considerations",
-        "Firebase best practices and common mistakes for this topic",
-        "Cloud Firestore",
-        "Realtime Database",
-        "Firebase Authentication",
-        "Cloud Functions",
-        "Cloud Storage",
-        "Firebase Hosting",
-        "FCM",
-        "Security Rules",
-        "Firebase Emulator Suite",
-        "Analytics",
-        "Crashlytics"
+        "Naming conventions"
       ],
       "tools": [
         "Firebase Console",
@@ -198,21 +181,7 @@
         "Filtering",
         "Sorting",
         "Pagination",
-        "Parameterization",
-        "Firebase terminology and feature mapping for this topic",
-        "Firebase configuration and implementation considerations",
-        "Firebase best practices and common mistakes for this topic",
-        "Cloud Firestore",
-        "Realtime Database",
-        "Firebase Authentication",
-        "Cloud Functions",
-        "Cloud Storage",
-        "Firebase Hosting",
-        "FCM",
-        "Security Rules",
-        "Firebase Emulator Suite",
-        "Analytics",
-        "Crashlytics"
+        "Parameterization"
       ],
       "tools": [
         "Firebase Console",
@@ -283,21 +252,7 @@
         "Indexes",
         "Query planning",
         "Query optimization",
-        "Common anti-patterns",
-        "Firebase terminology and feature mapping for this topic",
-        "Firebase configuration and implementation considerations",
-        "Firebase best practices and common mistakes for this topic",
-        "Cloud Firestore",
-        "Realtime Database",
-        "Firebase Authentication",
-        "Cloud Functions",
-        "Cloud Storage",
-        "Firebase Hosting",
-        "FCM",
-        "Security Rules",
-        "Firebase Emulator Suite",
-        "Analytics",
-        "Crashlytics"
+        "Common anti-patterns"
       ],
       "tools": [
         "Firebase Console",
@@ -369,21 +324,7 @@
         "Locking/conflict behavior",
         "Retries",
         "Idempotency",
-        "Concurrency patterns",
-        "Firebase terminology and feature mapping for this topic",
-        "Firebase configuration and implementation considerations",
-        "Firebase best practices and common mistakes for this topic",
-        "Cloud Firestore",
-        "Realtime Database",
-        "Firebase Authentication",
-        "Cloud Functions",
-        "Cloud Storage",
-        "Firebase Hosting",
-        "FCM",
-        "Security Rules",
-        "Firebase Emulator Suite",
-        "Analytics",
-        "Crashlytics"
+        "Concurrency patterns"
       ],
       "tools": [
         "Firebase Console",
@@ -455,21 +396,7 @@
         "Encryption at rest",
         "Secrets handling",
         "Least privilege",
-        "Auditing",
-        "Firebase terminology and feature mapping for this topic",
-        "Firebase configuration and implementation considerations",
-        "Firebase best practices and common mistakes for this topic",
-        "Cloud Firestore",
-        "Realtime Database",
-        "Firebase Authentication",
-        "Cloud Functions",
-        "Cloud Storage",
-        "Firebase Hosting",
-        "FCM",
-        "Security Rules",
-        "Firebase Emulator Suite",
-        "Analytics",
-        "Crashlytics"
+        "Auditing"
       ],
       "tools": [
         "Firebase Console",
@@ -541,21 +468,7 @@
         "Failover",
         "Disaster recovery",
         "RPO/RTO",
-        "Operational runbooks",
-        "Firebase terminology and feature mapping for this topic",
-        "Firebase configuration and implementation considerations",
-        "Firebase best practices and common mistakes for this topic",
-        "Cloud Firestore",
-        "Realtime Database",
-        "Firebase Authentication",
-        "Cloud Functions",
-        "Cloud Storage",
-        "Firebase Hosting",
-        "FCM",
-        "Security Rules",
-        "Firebase Emulator Suite",
-        "Analytics",
-        "Crashlytics"
+        "Operational runbooks"
       ],
       "tools": [
         "Firebase Console",
@@ -628,21 +541,7 @@
         "Memory/storage tuning",
         "Index tuning",
         "Scaling",
-        "Troubleshooting",
-        "Firebase terminology and feature mapping for this topic",
-        "Firebase configuration and implementation considerations",
-        "Firebase best practices and common mistakes for this topic",
-        "Cloud Firestore",
-        "Realtime Database",
-        "Firebase Authentication",
-        "Cloud Functions",
-        "Cloud Storage",
-        "Firebase Hosting",
-        "FCM",
-        "Security Rules",
-        "Firebase Emulator Suite",
-        "Analytics",
-        "Crashlytics"
+        "Troubleshooting"
       ],
       "tools": [
         "Firebase Console",
@@ -715,21 +614,7 @@
         "Error handling",
         "Retries",
         "Testing",
-        "CI integration",
-        "Firebase terminology and feature mapping for this topic",
-        "Firebase configuration and implementation considerations",
-        "Firebase best practices and common mistakes for this topic",
-        "Cloud Firestore",
-        "Realtime Database",
-        "Firebase Authentication",
-        "Cloud Functions",
-        "Cloud Storage",
-        "Firebase Hosting",
-        "FCM",
-        "Security Rules",
-        "Firebase Emulator Suite",
-        "Analytics",
-        "Crashlytics"
+        "CI integration"
       ],
       "tools": [
         "Firebase Console",
@@ -804,21 +689,7 @@
         "Performance",
         "Monitoring",
         "Backup",
-        "Documentation",
-        "Firebase terminology and feature mapping for this topic",
-        "Firebase configuration and implementation considerations",
-        "Firebase best practices and common mistakes for this topic",
-        "Cloud Firestore",
-        "Realtime Database",
-        "Firebase Authentication",
-        "Cloud Functions",
-        "Cloud Storage",
-        "Firebase Hosting",
-        "FCM",
-        "Security Rules",
-        "Firebase Emulator Suite",
-        "Analytics",
-        "Crashlytics"
+        "Documentation"
       ],
       "tools": [
         "Firebase Console",
@@ -887,5 +758,6 @@
   "review_warnings": [
     "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
   ],
-  "review_status": "unreviewed"
+  "review_status": "unreviewed",
+  "content_cleanup_version": "course-outline-v1"
 }

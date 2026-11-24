@@ -1,0 +1,573 @@
+{
+  "domain": "Java Full Stack",
+  "name": "Java Full Stack",
+  "category": "Web and Full Stack Development",
+  "icon": "layers",
+  "aliases": ["Java Fullstack", "Java Full Stack Development", "Java Full Stack Developer", "Spring Boot Full Stack", "Java React Full Stack", "Java Angular Full Stack", "Java Microservices Full Stack", "Full Stack Java"],
+  "certifications": ["Oracle Certified Professional: Java SE 21 Developer", "AWS Certified Developer - Associate", "Certified Kubernetes Application Developer (CKAD)"],
+  "tools": ["JDK 21", "Spring Boot", "Maven", "IntelliJ IDEA", "PostgreSQL", "React with TypeScript", "Vite", "Docker", "GitHub Actions", "Terraform", "AWS", "Playwright", "Kubernetes"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who know basic programming and are new to building complete web applications with Java. Covers Java 21 language essentials, a Spring Boot REST API, PostgreSQL with Flyway and Spring Data JPA, validation and error handling, a React and TypeScript frontend with typed API calls, password-based login, backend and frontend tests, and running the stack in Docker Compose, ending with a working booking application.",
+      "prerequisites": ["Has written small programs in Java or another language and understands variables, loops and functions", "Knows basic HTML and can use a terminal and Git commands such as clone, commit and push", "Has a laptop with permission to install a JDK, Node.js, Docker and an IDE"],
+      "outcomes": ["Build and run a Spring Boot REST API backed by PostgreSQL with versioned migrations", "Build a React and TypeScript client that calls the API with typed requests, forms and server state", "Add registration, login and protected routes with hashed passwords", "Test both tiers and run the whole stack from a clean clone with Docker Compose"],
+      "days": [
+        {
+          "topic": "Stack Map and Workstation for the Booking Platform",
+          "subtopics": ["Browser, React SPA, Spring Boot API, PostgreSQL request path", "The running case study: an appointment booking platform", "Java 21 LTS and why teams pin an LTS", "Installing a JDK with SDKMAN or a vendor installer", "Node.js LTS and npm for the frontend", "Docker Desktop or Podman for local services", "IntelliJ IDEA and VS Code extensions for Java and TypeScript", "Git, GitHub and a repository with backend and frontend folders", "Checking tool versions with java -version, mvn -v, node -v and docker version"],
+          "tools": ["JDK 21", "Maven", "Node.js", "Docker", "Git", "IntelliJ IDEA"],
+          "lab_task": "Install JDK 21, Maven, Node.js LTS and Docker. Run java -version, mvn -v, node -v and docker run hello-world and save the output. Create a Git repository called booking-platform with backend/ and frontend/ folders and a README that draws the request path from browser to PostgreSQL. Push it to GitHub and record the first commit hash.",
+          "deliverable": "Repository booking-platform with README diagram and a tool-version log",
+          "checks": [["Run java -version", "Output reports openjdk version \"21\" with a 21.0.x build", "Terminal capture"], ["Run docker run hello-world", "Prints 'Hello from Docker!' and exits with code 0", "Terminal capture and echo $?"], ["Open the GitHub repository page", "backend/ and frontend/ folders and README.md are present on the main branch", "Repository URL and screenshot"]],
+          "objectives": ["Explain the path of one request through the browser, API and database", "Install and verify a Java 21, Node.js and container toolchain", "Create a shared repository structure for both tiers"]
+        },
+        {
+          "topic": "Java 21 Language Essentials for Service Code",
+          "subtopics": ["Records for immutable request and response types", "Sealed interfaces and exhaustive switch", "Pattern matching for instanceof and switch", "Text blocks for SQL and JSON samples", "var and when to avoid it", "Optional used at API boundaries, not in fields", "Streams for mapping and grouping lists", "java.time types: Instant, LocalDate, ZonedDateTime", "Immutable collections with List.of and Map.of"],
+          "tools": ["JDK 21", "jshell", "Maven", "JUnit 5", "IntelliJ IDEA"],
+          "lab_task": "In a Maven module backend/domain create records Appointment(UUID id, Instant startsAt, Duration length) and a sealed interface BookingResult with Confirmed and Rejected records. Write a switch expression without default that maps each result to a message. Add a JUnit 5 test with 4 cases for overlap detection using Instant and run mvn test, expecting 4 passed.",
+          "deliverable": "domain module with records, a sealed result type and 4 passing tests",
+          "checks": [["Compile the switch over BookingResult after adding a third record without handling it", "javac reports 'the switch expression does not cover all possible input values'", "Compiler output"], ["Run mvn test in the domain module", "Tests run: 4, Failures: 0, Errors: 0", "Surefire report"], ["Call Appointment.endsAt() for a 45-minute length", "Returns startsAt plus exactly 45 minutes in UTC", "Test assertion output"]],
+          "objectives": ["Model request and result types with records and sealed interfaces", "Use switch pattern matching with compiler-checked exhaustiveness", "Handle dates and durations with java.time"]
+        },
+        {
+          "topic": "Maven Repository Layout with a Frontend Module",
+          "subtopics": ["Parent POM and child modules", "Dependency management and BOM imports", "Maven lifecycle: validate, compile, test, package, verify", "Plugins: compiler, surefire, failsafe", "Wrapper scripts mvnw and mvnw.cmd", "Pinning the Java release with maven.compiler.release", "frontend-maven-plugin and why many teams keep npm separate", ".gitignore for target/ and node_modules/", "Branching with feature branches and pull requests"],
+          "tools": ["Maven", "Maven Wrapper", "Git", "GitHub", "JDK 21"],
+          "lab_task": "Turn backend/ into a parent POM with modules api and domain, set maven.compiler.release to 21 and add the Maven wrapper with mvn wrapper:wrapper. Run ./mvnw -q verify and confirm a BUILD SUCCESS. Add a .gitignore for target/ and node_modules/, create branch feature/layout, open a pull request and record that the diff contains no build output.",
+          "deliverable": "Multi-module Maven build with wrapper and an open pull request",
+          "checks": [["Run ./mvnw -q verify from backend/", "Build finishes with BUILD SUCCESS and exit code 0", "Terminal output"], ["Run git status after a build", "target/ directories are not listed as untracked", "git status output"], ["Set maven.compiler.release to 17 and compile a record pattern", "Compilation fails with a Java 21 feature error", "Compiler message"]],
+          "objectives": ["Structure a multi-module Maven project with a wrapper", "Run the Maven lifecycle and read its output", "Use feature branches and pull requests for changes"]
+        },
+        {
+          "topic": "Spring Boot Skeleton with Spring Initializr and Actuator",
+          "subtopics": ["Generating a project at start.spring.io with Web, Validation, Data JPA, PostgreSQL Driver, Flyway and Actuator", "The @SpringBootApplication entry point", "Component scanning and bean creation", "application.yml and profiles", "Spring Boot DevTools and restart", "Actuator endpoints health and info", "Exposing only the endpoints needed with management.endpoints.web.exposure.include", "Running with ./mvnw spring-boot:run", "Reading the startup log and the port it binds"],
+          "tools": ["Spring Boot", "Spring Initializr", "Actuator", "Maven", "curl"],
+          "lab_task": "Generate the api module with Spring Initializr using Java 21, Maven and dependencies Web, Validation, Data JPA, PostgreSQL, Flyway and Actuator. Start it with ./mvnw spring-boot:run -Dspring-boot.run.profiles=local, set management.endpoints.web.exposure.include=health,info and call curl -s localhost:8080/actuator/health, expecting {\"status\":\"UP\"}.",
+          "deliverable": "Running Spring Boot api module with a working health endpoint",
+          "checks": [["curl localhost:8080/actuator/health", "Returns HTTP 200 with {\"status\":\"UP\"}", "curl output"], ["curl localhost:8080/actuator/env", "Returns HTTP 404 because env is not exposed", "curl -i output"], ["Start the app with --server.port=9090", "Log line 'Tomcat started on port 9090'", "Application log"]],
+          "objectives": ["Generate and run a Spring Boot application", "Configure profiles and Actuator exposure", "Read startup logs to confirm port and configuration"]
+        },
+        {
+          "topic": "Designing the Booking Domain: Records, Entities and Relationships",
+          "subtopics": ["Identifying entities: Customer, Provider, Service, Appointment", "Value objects versus entities", "Primary keys: UUID versus identity columns", "JPA annotations @Entity, @Id, @Column, @Enumerated", "One-to-many and many-to-one mappings", "Owning side and mappedBy", "Why equals and hashCode on entities need care", "Entity versus DTO responsibilities", "Drawing the schema as an ER diagram"],
+          "tools": ["Spring Data JPA", "Hibernate", "PostgreSQL", "draw.io", "IntelliJ IDEA"],
+          "lab_task": "Draw an ER diagram for Customer, Provider, ServiceOffering and Appointment. Implement the four JPA entities in the api module with UUID ids, @ManyToOne from Appointment to the other three, @Enumerated(EnumType.STRING) status and fetch = LAZY. Start the app with spring.jpa.hibernate.ddl-auto=validate and note the validation errors that appear before migrations exist.",
+          "deliverable": "ER diagram and four JPA entities with a recorded startup validation failure",
+          "checks": [["Start the app with ddl-auto=validate and no tables", "Startup fails with 'Schema-validation: missing table [appointment]'", "Application log"], ["Inspect the Appointment entity", "status column uses EnumType.STRING, not ORDINAL", "Source code screenshot"], ["Inspect every @ManyToOne", "All declare fetch = FetchType.LAZY", "Source code review"]],
+          "objectives": ["Map domain concepts to JPA entities and relationships", "Choose key and enum mapping strategies deliberately", "Explain why schema validation needs migrations"]
+        },
+        {
+          "topic": "PostgreSQL Schema and Flyway Migrations for the Platform",
+          "subtopics": ["Running PostgreSQL in a container with docker run and a named volume", "psql basics: \\dt, \\d table, \\l", "Data types: uuid, timestamptz, text, numeric", "Primary keys, foreign keys and unique constraints", "CHECK constraints for status values", "Indexes for foreign keys and time ranges", "Flyway naming V1__init.sql", "flyway_schema_history and checksums", "Never editing an applied migration"],
+          "tools": ["PostgreSQL", "Flyway", "psql", "Docker", "DBeaver"],
+          "lab_task": "Run postgres in Docker with docker run -d -e POSTGRES_PASSWORD=dev -p 5432:5432 postgres:16. Write V1__init.sql creating customer, provider, service_offering and appointment with foreign keys, a CHECK on status and an index on appointment(provider_id, starts_at). Start the app so Flyway applies it, then run \\dt and select * from flyway_schema_history in psql.",
+          "deliverable": "V1 migration, a running database and psql evidence of the history table",
+          "checks": [["Run \\dt in psql after startup", "Lists the 4 tables plus flyway_schema_history", "psql output"], ["Edit V1__init.sql after it has been applied and restart", "Flyway aborts with a checksum mismatch validation error", "Application log"], ["Insert an appointment with status 'BOGUS'", "PostgreSQL raises a check constraint violation, SQLSTATE 23514", "psql error"]],
+          "objectives": ["Create a relational schema with constraints and indexes", "Apply versioned migrations with Flyway", "Explain why applied migrations are immutable"]
+        },
+        {
+          "topic": "REST Endpoints for Bookings with Controllers and DTOs",
+          "subtopics": ["Resource naming: /api/appointments and /api/providers/{id}", "HTTP verbs and status codes 200, 201, 204, 404, 409", "@RestController, @RequestMapping and @PathVariable", "Request and response DTO records", "Location header on 201", "Mapping entities to DTOs by hand before using MapStruct", "Query parameters with @RequestParam", "Jackson date serialisation as ISO-8601", "Calling endpoints with curl and an .http file"],
+          "tools": ["Spring MVC", "Jackson", "curl", "IntelliJ HTTP Client", "Postman"],
+          "lab_task": "Add AppointmentController with POST /api/appointments returning 201 and a Location header, GET /api/appointments/{id}, GET /api/appointments?providerId= and DELETE returning 204. Use record DTOs, not entities. Save an .http file with one request per endpoint and run it, capturing status codes 201, 200, 200 and 204 in order.",
+          "deliverable": "Appointment controller, DTO records and an .http file with recorded responses",
+          "checks": [["POST a valid appointment", "HTTP 201 with a Location header ending in the new UUID", "curl -i output"], ["GET /api/appointments/{unknown UUID}", "HTTP 404", "curl -i output"], ["Inspect the JSON of a created appointment", "startsAt is formatted like 2026-03-02T09:30:00Z", "Response body"]],
+          "objectives": ["Design resource-oriented endpoints with correct status codes", "Separate API DTOs from persistence entities", "Exercise an API from the command line and an HTTP client"]
+        },
+        {
+          "topic": "Validation and Problem Details Error Responses",
+          "subtopics": ["Bean Validation annotations: @NotNull, @Size, @Future, @Email", "@Valid on request bodies", "Validating path and query values with @Validated", "MethodArgumentNotValidException", "@RestControllerAdvice and @ExceptionHandler", "RFC 9457 ProblemDetail responses", "spring.mvc.problemdetails.enabled", "Custom exceptions for 404 and 409", "Never leaking stack traces or SQL in error bodies"],
+          "tools": ["Bean Validation", "Spring MVC", "ProblemDetail", "curl", "JUnit 5"],
+          "lab_task": "Add @NotNull, @Future and @Size(max=500) constraints to the create-appointment DTO. Write a @RestControllerAdvice that returns ProblemDetail with an errors array of field and message. POST an appointment with startsAt in the past and an empty providerId, expecting HTTP 400 with application/problem+json and two field errors. Add a MockMvc test asserting both.",
+          "deliverable": "Validated DTOs, a global exception handler and a MockMvc test for 400 responses",
+          "checks": [["POST with startsAt one day in the past", "HTTP 400, Content-Type application/problem+json, field startsAt in errors", "curl -i output"], ["Trigger a NullPointerException through a test endpoint", "Response is HTTP 500 with no stack trace in the body", "Response body"], ["Run the MockMvc validation test", "1 test, 0 failures", "Surefire report"]],
+          "objectives": ["Validate input at the API boundary", "Return consistent RFC 9457 problem responses", "Keep internal details out of error bodies"]
+        },
+        {
+          "topic": "Wiring Services to Postgres through Spring Data JPA",
+          "subtopics": ["JpaRepository and derived query methods", "@Query with JPQL and named parameters", "@Transactional on service methods and its default rollback rules", "Service layer between controller and repository", "Open Session in View and spring.jpa.open-in-view=false", "Showing SQL with spring.jpa.show-sql and the logging category org.hibernate.SQL", "Pagination with Pageable", "Saving versus merging entities", "Seeding data with Flyway repeatable or test fixtures"],
+          "tools": ["Spring Data JPA", "Hibernate", "PostgreSQL", "psql", "IntelliJ IDEA"],
+          "lab_task": "Create AppointmentRepository with findByProviderIdAndStartsAtBetween and an AppointmentService with @Transactional create and cancel methods. Set spring.jpa.open-in-view=false and enable logging.level.org.hibernate.SQL=DEBUG. Create 3 appointments through the API, then GET them by provider and count the SQL statements in the log for one request, recording the number.",
+          "deliverable": "Repository and service layer with a SQL log excerpt for one GET request",
+          "checks": [["POST 3 appointments then GET by providerId", "Response array length is 3", "curl output"], ["Throw a RuntimeException inside create after save", "Row is rolled back and select count(*) from appointment is unchanged", "psql output"], ["Read the log for one GET request", "Statements are logged by org.hibernate.SQL and their number is recorded", "Log excerpt"]],
+          "objectives": ["Use Spring Data repositories and derived queries", "Place transaction boundaries in the service layer", "Read the SQL Hibernate generates"]
+        },
+        {
+          "topic": "TypeScript and Vite Frontend Scaffold",
+          "subtopics": ["npm create vite@latest with the react-ts template", "tsconfig strict mode and what it catches", "Project layout: src/pages, src/components, src/api", "ESLint and Prettier configuration", "Vite dev server and hot module replacement", "Environment values with import.meta.env and the VITE_ prefix", "npm scripts dev, build and preview", "Reading the production build output sizes", "Type-only imports and module resolution"],
+          "tools": ["Vite", "TypeScript", "Node.js", "ESLint", "Prettier", "npm"],
+          "lab_task": "Inside frontend/ run npm create vite@latest . -- --template react-ts and install dependencies. Turn on \"strict\": true, add ESLint with the typescript-eslint rules, add the scripts lint and typecheck, then run npm run dev and open http://localhost:5173. Run npm run build and record the size of the gzipped JavaScript bundle printed by Vite.",
+          "deliverable": "Vite React TypeScript app with lint and typecheck scripts and a recorded build size",
+          "checks": [["Run npm run typecheck with a string assigned to a number variable", "tsc reports error TS2322", "Terminal output"], ["Run npm run build", "Vite prints dist/ asset sizes with gzip values and exits 0", "Build log"], ["Open localhost:5173", "The default page renders and hot reload updates after an edit", "Browser screenshot"]],
+          "objectives": ["Scaffold a React and TypeScript project with Vite", "Enable strict type checking and linting", "Read build output to understand bundle size"]
+        },
+        {
+          "topic": "React Pages, Components and Routing for Bookings",
+          "subtopics": ["Function components and JSX", "Props typed with TypeScript interfaces", "useState for local state", "Lists rendered with stable keys", "Conditional rendering for loading, empty and error states", "React Router createBrowserRouter and route objects", "Links and useParams", "Layout routes with Outlet", "Folder structure by feature"],
+          "tools": ["React", "React Router", "TypeScript", "Vite", "React DevTools"],
+          "lab_task": "Create pages /appointments (list), /appointments/:id (detail) and /appointments/new using React Router with a shared layout and Outlet. Build an AppointmentCard component with typed props and render a hard-coded list of 5 items with stable id keys. Add a NotFound route and verify with the React DevTools component tree that the layout renders once during navigation.",
+          "deliverable": "Routed React pages with typed components and mock data",
+          "checks": [["Visit /appointments/does-not-exist-route", "NotFound page renders inside the layout", "Browser screenshot"], ["Render the 5-item list", "No 'Each child in a list should have a unique key' warning appears in the console", "Console capture"], ["Click between list and detail pages", "URL changes without a full page reload and the Network tab shows no document request", "DevTools capture"]],
+          "objectives": ["Build typed React components and routes", "Render lists and state-dependent views correctly", "Organise pages with layout routes"]
+        },
+        {
+          "topic": "Typed API Client and Server State with TanStack Query",
+          "subtopics": ["fetch wrapper with base URL and JSON handling", "Typing responses with TypeScript interfaces", "Why server state differs from UI state", "QueryClient and QueryClientProvider", "useQuery with query keys", "isPending, isError and error handling", "Stale time and refetching", "Retry behaviour and disabling it in tests", "Parsing problem+json errors into a typed ApiError"],
+          "tools": ["TanStack Query", "TypeScript", "fetch API", "React", "Browser DevTools"],
+          "lab_task": "Replace the hard-coded list with an api/appointments.ts client and a useAppointments hook built on useQuery with the key ['appointments', providerId]. Show loading, error and empty states. Stop the backend, reload and confirm the error state shows after the default 3 retries, then restart it and confirm data appears. Record the number of network requests in DevTools for each case.",
+          "deliverable": "API client module, query hook and screenshots of loading, error and data states",
+          "checks": [["Stop the backend and reload the page", "Error state is shown after 4 failed requests (1 try plus 3 retries)", "DevTools Network tab"], ["Switch tabs and return within the stale time", "No new request is sent", "DevTools Network tab"], ["Backend returns problem+json 404", "ApiError carries status 404 and the detail text", "Console output"]],
+          "objectives": ["Fetch typed data from the Spring Boot API", "Manage loading, error and cached states with TanStack Query", "Convert API error bodies into typed errors"]
+        },
+        {
+          "topic": "Forms, Client Validation and Mapping Server Errors",
+          "subtopics": ["Controlled inputs versus uncontrolled with react-hook-form", "Schema validation with Zod and zodResolver", "Date and time inputs and time zones", "Disabling submit while a mutation is pending", "useMutation for POST requests", "Showing field errors from a 400 problem response", "Invalidating queries after success", "Accessible labels and aria-invalid", "Preventing double submits"],
+          "tools": ["react-hook-form", "Zod", "TanStack Query", "React", "Browser DevTools"],
+          "lab_task": "Build the new-appointment form with react-hook-form and a Zod schema (provider required, startsAt in the future, notes max 500). Submit with useMutation and, on a 400 problem response, map each errors[].field to setError. Submit a past date and confirm the server message appears on the field. Submit a valid form twice quickly and confirm exactly one POST is sent.",
+          "deliverable": "Booking form with client validation, server error mapping and no double submit",
+          "checks": [["Submit with startsAt in the past", "Field error is displayed without any network request when the Zod rule fails", "DevTools Network tab"], ["Bypass client validation by editing the payload", "Server 400 errors appear under the matching fields", "Screenshot"], ["Double-click Submit on a valid form", "Only one POST /api/appointments request is sent", "Network tab"]],
+          "objectives": ["Validate forms on the client and the server", "Send mutations and refresh cached lists", "Make forms accessible and safe from double submission"]
+        },
+        {
+          "topic": "CORS, Dev Proxy and Running Both Tiers Together",
+          "subtopics": ["Same-origin policy and what a preflight is", "The OPTIONS request and Access-Control-Allow-* headers", "Spring MVC CorsConfigurationSource", "Allowed origins per profile, never * with credentials", "Vite server.proxy for /api in development", "Why a same-origin deployment avoids CORS entirely", "Reading CORS errors in the browser console", "Running both tiers with one script"],
+          "tools": ["Spring MVC", "Vite", "curl", "Browser DevTools", "npm"],
+          "lab_task": "First call the API directly from the Vite origin without a proxy or CORS config and record the browser error. Add a CorsConfigurationSource that allows http://localhost:5173 for GET, POST, PUT and DELETE on /api/**. Then remove it and configure server.proxy in vite.config.ts so /api goes to localhost:8080. Verify with curl -i -X OPTIONS and the DevTools Network tab for each approach.",
+          "deliverable": "Working CORS configuration, working dev proxy and notes on when each applies",
+          "checks": [["Request /api from localhost:5173 with no CORS config", "Console shows 'blocked by CORS policy: No Access-Control-Allow-Origin header'", "Browser console"], ["curl -i -X OPTIONS with Origin http://localhost:5173", "Response includes Access-Control-Allow-Origin: http://localhost:5173", "curl output"], ["Call with Origin https://evil.example", "No Access-Control-Allow-Origin header is returned and status is 403", "curl output"]],
+          "objectives": ["Diagnose and fix CORS errors", "Configure a development proxy for same-origin calls", "Restrict allowed origins by environment"]
+        },
+        {
+          "topic": "Registration and Login with Spring Security Password Hashing",
+          "subtopics": ["Spring Security filter chain and SecurityFilterChain bean", "PasswordEncoder and BCrypt cost factor", "Storing only hashes in the app_user table", "UserDetailsService and loading users", "Registration endpoint with validation", "Login endpoint returning a short-lived token", "Why not to write your own crypto", "Disabling CSRF only for stateless token APIs and why", "Rate limiting login attempts as a concept"],
+          "tools": ["Spring Security", "BCrypt", "PostgreSQL", "curl", "Flyway"],
+          "lab_task": "Add migration V2 for app_user(id, email unique, password_hash, role). Add POST /api/auth/register storing a BCryptPasswordEncoder hash and POST /api/auth/login that returns an access token for valid credentials and HTTP 401 otherwise. Permit /api/auth/** and require authentication elsewhere. Query the table with psql and confirm the stored value starts with $2a$ or $2b$.",
+          "deliverable": "Registration and login endpoints with hashed passwords and a locked-down API",
+          "checks": [["select password_hash from app_user in psql", "Value begins with $2a$10$ or $2b$10$ and is not the plain text", "psql output"], ["GET /api/appointments with no token", "HTTP 401", "curl -i output"], ["POST /api/auth/login with a wrong password", "HTTP 401 with a generic message, not 'user not found'", "curl output"]],
+          "objectives": ["Store passwords as salted hashes", "Configure a Spring Security filter chain", "Return identical errors for unknown users and wrong passwords"]
+        },
+        {
+          "topic": "Session Tokens in the Browser and Protected Pages",
+          "subtopics": ["Where a SPA keeps tokens: memory, localStorage, cookies", "XSS and CSRF trade-offs for each", "Attaching Authorization: Bearer headers in the API client", "AuthContext and a useAuth hook", "Protected routes that redirect to /login", "Handling 401 by clearing state", "Logout and token lifetime", "Showing user email and role in the header", "Not logging tokens"],
+          "tools": ["React", "React Router", "TanStack Query", "Browser DevTools", "Spring Security"],
+          "lab_task": "Build /login and /register pages that call the auth endpoints, keep the access token in memory in an AuthContext and add it as Authorization: Bearer in the API client. Add a ProtectedRoute that redirects unauthenticated users to /login with the return path. Force a 401 by shortening token life to 60 seconds and confirm the app sends the user to /login and clears cached queries.",
+          "deliverable": "Login flow with protected routes and automatic sign-out on 401",
+          "checks": [["Open /appointments while signed out", "Browser is redirected to /login?redirect=/appointments", "Screenshot"], ["Inspect an authenticated API call", "Request carries the Authorization: Bearer header", "DevTools Network tab"], ["Wait for the 60-second token to expire and click a page", "User is returned to /login and query cache is cleared", "Screen recording or screenshot"]],
+          "objectives": ["Implement client-side authentication state", "Protect routes and attach credentials to API calls", "Describe the XSS and CSRF trade-offs of token storage"]
+        },
+        {
+          "topic": "Backend Unit and Slice Tests with JUnit 5 and MockMvc",
+          "subtopics": ["Test pyramid for a Spring Boot service", "JUnit 5 lifecycle and assertions", "AssertJ fluent assertions", "Mockito mocks and @Mock versus @MockitoBean", "@WebMvcTest for controllers", "@DataJpaTest and what it does not start", "Using the H2 database versus a real PostgreSQL and why parity matters", "Test naming and given-when-then", "JaCoCo coverage report"],
+          "tools": ["JUnit 5", "Mockito", "AssertJ", "MockMvc", "JaCoCo", "Maven Surefire"],
+          "lab_task": "Write 6 tests: 3 plain unit tests for AppointmentService overlap rules with Mockito, 2 @WebMvcTest tests for the controller (201 and 400), and 1 @DataJpaTest for findByProviderIdAndStartsAtBetween. Run ./mvnw verify with the JaCoCo plugin and open target/site/jacoco/index.html. Record the line coverage of the service package and break one rule to confirm a test fails.",
+          "deliverable": "Six passing backend tests and a JaCoCo coverage report",
+          "checks": [["Run ./mvnw test", "Tests run: 6, Failures: 0, Errors: 0", "Surefire summary"], ["Remove the overlap check from the service", "The overlap test fails with an AssertJ expected-versus-actual message", "Test output"], ["Open the JaCoCo HTML report", "Service package shows line coverage above 80 percent", "Report screenshot"]],
+          "objectives": ["Write fast unit and slice tests", "Mock collaborators and assert behaviour", "Measure coverage and use failing tests as evidence"]
+        },
+        {
+          "topic": "Frontend Tests with Vitest and Testing Library",
+          "subtopics": ["Vitest configuration with jsdom", "Testing Library queries: getByRole, findByText", "User interaction with userEvent", "Testing loading, error and success states", "Mock Service Worker to fake the API", "Wrapping components with QueryClientProvider and a router", "Avoiding implementation details in tests", "Coverage with v8", "Running tests in CI mode"],
+          "tools": ["Vitest", "Testing Library", "Mock Service Worker", "jsdom", "npm"],
+          "lab_task": "Install vitest, @testing-library/react, @testing-library/user-event and msw. Write 5 tests: list renders 3 appointments from an msw handler, empty state, error state on a 500, form shows a Zod error for a past date, and a successful submit calls POST once. Run npx vitest run --coverage and record passing count and statement coverage.",
+          "deliverable": "Five Vitest tests with msw handlers and a coverage summary",
+          "checks": [["Run npx vitest run", "5 passed, 0 failed", "Terminal output"], ["msw handler returns HTTP 500", "The component shows the error message with role alert", "Test assertion output"], ["Query the submit button with getByRole('button', {name: /book/i})", "Query succeeds without test ids", "Test source"]],
+          "objectives": ["Test React components through user-visible behaviour", "Mock the API with Mock Service Worker", "Cover loading, error and success states"]
+        },
+        {
+          "topic": "First Container Images and a Compose Stack for Local Runs",
+          "subtopics": ["Image versus container", "Writing a Dockerfile for the Spring Boot jar", "Running as a non-root user", "Building the frontend with nginx serving static files", ".dockerignore", "docker build, run, ps, logs and exec", "Docker Compose services: db, api, web", "Healthchecks with depends_on condition service_healthy", "Named volumes and networks", "Passing configuration via environment variables"],
+          "tools": ["Docker", "Docker Compose", "nginx", "PostgreSQL", "Spring Boot"],
+          "lab_task": "Write backend/Dockerfile (eclipse-temurin 21 JRE, non-root user, copy the jar) and frontend/Dockerfile (node build stage, nginx serve stage with /api proxied to api). Add compose.yaml with db, api and web, a pg_isready healthcheck and depends_on service_healthy. Run docker compose up --build -d, then docker compose ps and curl localhost:8080/actuator/health.",
+          "deliverable": "Dockerfiles and compose.yaml that start the whole stack with one command",
+          "checks": [["Run docker compose ps", "db, api and web are listed as running and db is healthy", "Terminal output"], ["Run docker compose exec api id", "Output shows a non-root uid, not uid=0(root)", "Terminal output"], ["Open http://localhost in a browser", "The React app loads and lists appointments from the API", "Screenshot"]],
+          "objectives": ["Containerise a Spring Boot API and a React build", "Compose a multi-service local environment", "Run application containers as a non-root user"]
+        },
+        {
+          "topic": "Beginner Capstone: Appointment Booking App Running in Compose",
+          "subtopics": ["Scope: register, log in, create, list and cancel appointments", "Acceptance criteria written as Given-When-Then", "Backend and frontend test evidence", "One-command start with Docker Compose", "README with architecture diagram and run instructions", "Demonstration script covering the happy path and one error path"],
+          "tools": ["Spring Boot", "React", "PostgreSQL", "Docker Compose", "JUnit 5", "Vitest"],
+          "lab_task": "Integrate everything built so far: from a clean clone run docker compose up --build and use the app to register, log in, create two appointments, reject an overlapping one with a 409 problem response and cancel one. Run ./mvnw verify and npm test, then capture counts. Write acceptance criteria for the 5 user stories and tick each with a screenshot or log line.",
+          "deliverable": "Tagged v0.1.0 repository with README, passing test runs and an acceptance checklist",
+          "checks": [["Clone the repo fresh and run docker compose up --build", "All 3 services start and the app is usable at http://localhost", "Terminal output and screenshot"], ["Create an appointment overlapping an existing one", "API returns HTTP 409 and the UI shows the conflict message", "Screenshot and curl -i output"], ["Run ./mvnw verify and npm test", "Both finish with zero failures and the test counts are recorded", "Terminal output"]],
+          "objectives": ["Deliver a working two-tier application from a clean clone", "Demonstrate happy and failure paths with evidence", "Document how to run, test and extend the project"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built a basic Spring Boot and React application and now need production-quality practices. Covers layered design, JPA query tuning, concurrency control, JWT resource servers and refresh tokens, OpenAPI contracts, Redis caching, background jobs, S3 uploads, Testcontainers and Playwright tests, observability, hardened images, GitHub Actions pipelines and a cloud deployment on AWS with Terraform.",
+      "prerequisites": ["Has built a Spring Boot REST API with Spring Data JPA and a React client that calls it", "Can write unit tests with JUnit 5 and run containers with Docker Compose", "Has a GitHub account and an AWS account or sandbox with permission to create ECS, RDS, S3 and IAM resources"],
+      "outcomes": ["Design secure, concurrent and efficient booking workflows across API, database and UI", "Automate build, test, scan and publish steps for both tiers in a pipeline", "Provision and deploy the platform on AWS with Terraform, ECS Fargate, RDS and CloudFront", "Collect logs, metrics and traces and prove quality with unit, integration and browser tests"],
+      "days": [
+        {
+          "topic": "Layered Service Design: Ports, Services and Mappers",
+          "subtopics": ["Controller, service, repository responsibilities", "Package by feature versus package by layer", "Constructor injection and final fields", "MapStruct mappers with componentModel spring", "Domain exceptions versus HTTP exceptions", "Keeping entities out of controllers", "Transaction scripts versus rich domain objects", "ArchUnit rules to enforce layering", "Command and query DTO naming"],
+          "tools": ["Spring Boot", "MapStruct", "ArchUnit", "Maven", "IntelliJ IDEA"],
+          "lab_task": "Refactor the api module into packages booking, provider and identity. Replace hand-written DTO mapping with a MapStruct mapper, make all injected fields final with constructor injection and add an ArchUnit test that fails if a class in ..web.. imports from ..persistence.. directly. Run ./mvnw test, then add one illegal import and record the ArchUnit failure message.",
+          "deliverable": "Feature-packaged backend with MapStruct mappers and an ArchUnit layering test",
+          "checks": [["Run ./mvnw test after the refactor", "All existing tests still pass with 0 failures", "Surefire report"], ["Add an import of a repository into a controller", "ArchUnit test fails naming the offending class", "Test output"], ["Inspect target/generated-sources", "BookingMapperImpl.java exists and is annotated @Component", "File listing"]],
+          "objectives": ["Organise a Spring Boot codebase by feature and layer", "Generate mapping code with MapStruct", "Enforce architecture rules with automated tests"]
+        },
+        {
+          "topic": "JPA Query Tuning: Fetch Plans, Projections and Pagination",
+          "subtopics": ["The N+1 select problem and how to see it", "JOIN FETCH and @EntityGraph", "Interface and record projections", "Pageable and Page versus Slice", "Count queries and their cost", "Keyset pagination for large tables", "Hibernate statistics with hibernate.generate_statistics", "EXPLAIN ANALYZE in PostgreSQL", "Adding the right composite index"],
+          "tools": ["Hibernate", "Spring Data JPA", "PostgreSQL", "EXPLAIN ANALYZE", "psql"],
+          "lab_task": "Seed 50,000 appointments with a SQL generate_series script. Load the list endpoint with lazy provider and customer relations and count statements with hibernate.generate_statistics=true, expecting 1+2N. Fix it with an @EntityGraph and then a DTO projection, and run EXPLAIN ANALYZE on the filtered query before and after adding an index on (provider_id, starts_at). Record statement counts and execution times.",
+          "deliverable": "Before and after table of statement counts and query timings with the EXPLAIN plans",
+          "checks": [["Load a page of 20 appointments with lazy relations", "Hibernate statistics show 41 prepared statements", "Statistics log line"], ["Load the same page with @EntityGraph or a projection", "Statement count drops to 2 (data and count)", "Statistics log line"], ["EXPLAIN ANALYZE after adding the composite index", "Plan shows Index Scan instead of Seq Scan", "psql output"]],
+          "objectives": ["Detect and remove N+1 queries", "Choose projections and pagination styles", "Read PostgreSQL query plans and add targeted indexes"]
+        },
+        {
+          "topic": "Optimistic Locking and Double-Booking Prevention",
+          "subtopics": ["Race conditions in booking systems", "@Version and OptimisticLockException", "Mapping to HTTP 409 and retry guidance", "Pessimistic locks with PESSIMISTIC_WRITE and their costs", "PostgreSQL exclusion constraints with tstzrange and btree_gist", "Idempotency keys for POST", "Testing concurrency with ExecutorService and CountDownLatch", "Isolation levels: READ COMMITTED versus SERIALIZABLE", "Deadlock symptoms"],
+          "tools": ["Spring Data JPA", "PostgreSQL", "JUnit 5", "Flyway", "ExecutorService"],
+          "lab_task": "Add a migration with an EXCLUDE USING gist (provider_id WITH =, tstzrange(starts_at, ends_at) WITH &&) constraint and a version column with @Version. Write a JUnit test that fires 20 concurrent POSTs for the same slot with a CountDownLatch and asserts exactly 1 succeeds and 19 return HTTP 409. Map DataIntegrityViolationException and OptimisticLockException to problem+json 409.",
+          "deliverable": "Double-booking protection backed by a database constraint and a concurrency test",
+          "checks": [["Run the 20-thread booking test", "Exactly 1 request returns 201 and 19 return 409", "Test output"], ["Insert an overlapping row directly in psql", "ERROR: conflicting key value violates exclusion constraint", "psql error"], ["Update the same entity from two sessions", "Second update fails with an optimistic lock exception mapped to 409", "Application log"]],
+          "objectives": ["Prevent double booking at the database level", "Handle optimistic locking conflicts as 409 responses", "Write a deterministic concurrency test"]
+        },
+        {
+          "topic": "JWT Resource Server with Roles and Method Authorisation",
+          "subtopics": ["JWT structure: header, payload, signature", "Signing with RS256 or ES256 versus HS256 secrets", "spring-boot-starter-oauth2-resource-server", "Claims: sub, exp, iat, aud, roles", "JwtAuthenticationConverter for authorities", "@EnableMethodSecurity and @PreAuthorize", "Ownership checks: customers see only their own appointments", "401 versus 403", "Clock skew and token expiry", "Testing with SecurityMockMvcRequestPostProcessors.jwt()"],
+          "tools": ["Spring Security", "JWT", "Nimbus JOSE", "MockMvc", "jwt.io"],
+          "lab_task": "Replace the hand-made token with a signed JWT (RS256, 15-minute expiry, roles claim) issued by the login endpoint, and configure the app as an oauth2 resource server. Add @PreAuthorize(\"hasRole('PROVIDER')\") on provider endpoints and an ownership check on GET /api/appointments/{id}. Write MockMvc tests for 401 with no token, 403 for a customer on a provider endpoint and 200 for the owner.",
+          "deliverable": "JWT-secured API with role and ownership rules and three authorisation tests",
+          "checks": [["Call a provider endpoint with a customer token", "HTTP 403", "curl -i output"], ["Call any endpoint with an expired token", "HTTP 401 with a WWW-Authenticate: Bearer error=\"invalid_token\" header", "curl -i output"], ["Customer A requests customer B's appointment", "HTTP 404 or 403 and no data is returned", "Test output"]],
+          "objectives": ["Validate signed JWTs in a Spring Boot resource server", "Apply role-based and ownership-based authorisation", "Test security rules without a running identity server"]
+        },
+        {
+          "topic": "Refresh Tokens and Cookie-Based Sessions for the SPA",
+          "subtopics": ["Why short access tokens need refresh tokens", "Refresh token rotation and reuse detection", "Storing refresh tokens hashed in the database", "HttpOnly, Secure and SameSite cookie attributes", "CSRF protection when cookies are used", "CookieCsrfTokenRepository and the X-XSRF-TOKEN header", "Silent refresh in the API client on a 401", "Single-flight refresh to avoid parallel calls", "Logout that revokes server-side"],
+          "tools": ["Spring Security", "HttpOnly cookies", "React", "TanStack Query", "PostgreSQL"],
+          "lab_task": "Issue a refresh token as a cookie with HttpOnly, Secure, SameSite=Strict and Path=/api/auth, stored as a SHA-256 hash with rotation on every use. In the React API client add a single-flight refresh on 401 and retry the request once. Replay an already-used refresh token with curl and confirm the whole token family is revoked and the response is HTTP 401.",
+          "deliverable": "Rotating refresh tokens in cookies with silent refresh and reuse detection",
+          "checks": [["Inspect the Set-Cookie header on login", "Contains HttpOnly; Secure; SameSite=Strict; Path=/api/auth", "curl -i output"], ["Replay a used refresh token", "HTTP 401 and all tokens in that family are marked revoked", "curl output and psql query"], ["Fire 5 parallel requests with an expired access token", "Exactly one POST /api/auth/refresh is sent", "DevTools Network tab"]],
+          "objectives": ["Implement refresh token rotation with reuse detection", "Configure secure cookie attributes and CSRF defences", "Refresh tokens silently without duplicate calls"]
+        },
+        {
+          "topic": "OpenAPI Contract First and Generated TypeScript Clients",
+          "subtopics": ["Contract first versus code first", "Writing openapi.yaml for the booking API", "springdoc-openapi to publish /v3/api-docs", "Generating types with openapi-typescript or an OpenAPI Generator", "Keeping the spec in the repository and diffing it in pull requests", "Detecting breaking changes with openapi-diff", "Examples and error schemas", "Versioning with a /api/v1 prefix", "Swagger UI exposure per environment"],
+          "tools": ["OpenAPI", "springdoc-openapi", "openapi-typescript", "Swagger UI", "Spring Boot"],
+          "lab_task": "Write openapi.yaml for appointments and auth, generate TypeScript types with npx openapi-typescript openapi.yaml -o src/api/schema.d.ts and switch the API client to them. Add springdoc, export /v3/api-docs to a file in CI and fail the build when it differs from the committed spec. Rename a response field and confirm both the diff check and tsc fail.",
+          "deliverable": "Committed OpenAPI spec, generated TypeScript types and a spec drift check",
+          "checks": [["Rename a response field in the DTO", "The spec drift check fails and lists the changed path", "CI or script output"], ["Run npm run typecheck after regenerating types from the changed spec", "tsc reports TS2339 on the renamed property", "Terminal output"], ["Open /swagger-ui/index.html in the local profile", "Lists every appointment and auth operation", "Screenshot"]],
+          "objectives": ["Treat the API description as a shared contract", "Generate typed clients and detect drift", "Control documentation exposure per environment"]
+        },
+        {
+          "topic": "Caching Reads with Redis and Spring Cache",
+          "subtopics": ["Where caching helps and where it hurts", "@EnableCaching, @Cacheable, @CacheEvict and @CachePut", "Cache keys and SpEL expressions", "Redis as the cache store with spring-boot-starter-data-redis", "TTL configuration and JSON serialisation", "Cache stampede and negative caching", "Never caching per-user data under shared keys", "Measuring hit ratio with Actuator cache and Micrometer metrics", "HTTP caching with ETag and Cache-Control"],
+          "tools": ["Redis", "Spring Cache", "Micrometer", "Actuator", "Docker Compose"],
+          "lab_task": "Add a redis service to compose.yaml and cache GET /api/providers and provider availability with @Cacheable, a 5-minute TTL and @CacheEvict on update. Send 100 requests with hey or curl, read cache.gets with result hit and miss from /actuator/metrics, and use redis-cli KEYS 'providers*' to inspect entries. Evict on update and confirm the next call is a miss.",
+          "deliverable": "Redis-backed read cache with hit ratio evidence and correct eviction",
+          "checks": [["Send 100 identical GET requests", "cache.gets shows 99 hits and 1 miss", "/actuator/metrics output"], ["Update a provider then GET it", "Next response is a miss and returns the new data", "Metrics and response body"], ["Run redis-cli TTL on a cached key", "Returns a positive value of 300 or less", "redis-cli output"]],
+          "objectives": ["Cache read-heavy endpoints with explicit keys and TTLs", "Evict stale entries on writes", "Prove cache effectiveness with metrics"]
+        },
+        {
+          "topic": "Background Work: Scheduled Jobs, Events and Email Notifications",
+          "subtopics": ["@Scheduled with cron and fixedDelay", "@Async with a bounded ThreadPoolTaskExecutor", "ApplicationEventPublisher and @TransactionalEventListener(AFTER_COMMIT)", "JavaMailSender and a local Mailpit SMTP server", "Reminder emails 24 hours before an appointment", "Making jobs idempotent with a sent_at column", "ShedLock to run a job once across instances", "Failure handling and retry with Spring Retry", "Not sending email inside the DB transaction"],
+          "tools": ["Spring Scheduling", "JavaMailSender", "Mailpit", "ShedLock", "Docker Compose"],
+          "lab_task": "Add Mailpit to compose.yaml. Publish an AppointmentConfirmed event and send the email in an @TransactionalEventListener(AFTER_COMMIT) handler on an @Async executor with 2 core threads. Add a @Scheduled(cron = \"0 0 * * * *\") reminder job protected by ShedLock and a reminder_sent_at column. Create 3 appointments due tomorrow, run the job twice and confirm exactly 3 emails in Mailpit.",
+          "deliverable": "Confirmation and reminder emails that are idempotent and sent after commit",
+          "checks": [["Roll back a booking transaction on purpose", "No confirmation email arrives in Mailpit", "Mailpit inbox screenshot"], ["Run the reminder job twice for 3 due appointments", "Mailpit holds exactly 3 reminder emails", "Mailpit API /api/v1/messages count"], ["Start two api instances", "ShedLock row shows only one holder per run", "psql select from shedlock"]],
+          "objectives": ["Run safe scheduled and asynchronous work", "Send notifications only after a transaction commits", "Make jobs idempotent and single-run across instances"]
+        },
+        {
+          "topic": "File Uploads with Presigned S3 URLs",
+          "subtopics": ["Why not stream large files through the API", "Presigned PUT and GET URLs and expiry", "AWS SDK for Java v2 S3Presigner", "LocalStack S3 in Compose for development", "Content-type and size limits with presigned POST policies", "Object keys that avoid user-controlled paths", "Storing metadata in PostgreSQL", "Direct browser upload with fetch and progress", "Virus scanning and lifecycle rules as follow-ups"],
+          "tools": ["AWS SDK for Java v2", "Amazon S3", "LocalStack", "React", "aws CLI"],
+          "lab_task": "Add LocalStack to compose.yaml and create a bucket with awslocal s3 mb s3://booking-docs. Add POST /api/attachments/upload-url that returns a 5-minute presigned PUT URL for a key of attachments/{uuid}, restricted to PDF and PNG. In React upload a file straight to the URL with fetch and then save its metadata via the API. Confirm the object with awslocal s3 ls and that an expired URL returns 403.",
+          "deliverable": "Direct-to-S3 upload flow with presigned URLs and stored metadata",
+          "checks": [["Upload a PNG with the presigned URL", "S3 responds HTTP 200 and awslocal s3 ls lists attachments/<uuid>", "CLI output"], ["Use the URL after 5 minutes", "S3 responds HTTP 403 with code AccessDenied or Request has expired", "curl output"], ["Request an upload URL for an .exe file", "API returns HTTP 400 with a content-type error", "curl output"]],
+          "objectives": ["Upload files directly to object storage", "Constrain presigned URLs by time, type and key", "Store file metadata separately from file bytes"]
+        },
+        {
+          "topic": "Integration Tests with Testcontainers and Flyway",
+          "subtopics": ["Why mocks and H2 miss real defects", "@SpringBootTest with RANDOM_PORT", "Testcontainers PostgreSQL and @ServiceConnection", "Reusing containers to keep tests fast", "Flyway running against the real engine in tests", "Testing the exclusion constraint and the JPA queries", "REST-assured or WebTestClient against the live app", "Test data builders", "Separating unit tests (Surefire) from integration tests (Failsafe)"],
+          "tools": ["Testcontainers", "JUnit 5", "REST-assured", "Maven Failsafe", "PostgreSQL"],
+          "lab_task": "Add Testcontainers with a PostgreSQLContainer annotated @ServiceConnection and write 5 integration tests with REST-assured that run the real Flyway migrations: register and login, create an appointment, reject an overlap with 409, forbid cross-user access with 403 and cancel with 204. Run ./mvnw verify and record test count and total duration. Confirm docker ps showed a postgres container during the run.",
+          "deliverable": "Five Testcontainers-backed integration tests running under Failsafe",
+          "checks": [["Run ./mvnw verify", "Failsafe reports Tests run: 5, Failures: 0", "Failsafe summary"], ["Delete V2 migration locally and rerun", "Tests fail at startup on a missing app_user table, proving real migrations run", "Test log"], ["Run docker ps during the tests", "A postgres container started by Testcontainers is listed", "Terminal output"]],
+          "objectives": ["Test the application against a real PostgreSQL", "Run migrations inside integration tests", "Separate unit and integration test phases"]
+        },
+        {
+          "topic": "React Query Mutations, Optimistic Updates and Pagination UI",
+          "subtopics": ["useMutation callbacks onMutate, onError and onSettled", "Optimistic cancel of an appointment with rollback", "Query invalidation versus setQueryData", "Server pagination with page and size parameters", "keepPreviousData to avoid flicker", "Infinite scroll with useInfiniteQuery", "Debounced search input", "Skeleton loaders", "Handling 409 conflicts in the UI"],
+          "tools": ["TanStack Query", "React", "TypeScript", "MSW", "Vitest"],
+          "lab_task": "Implement cancel with an optimistic update: remove the card immediately in onMutate, restore it in onError and invalidate in onSettled. Add a paged table (page size 20) with a debounced provider search. Throttle the network to Slow 3G and force a 500 on DELETE using an msw handler; confirm the card returns and an error toast appears. Add a Vitest test for the rollback.",
+          "deliverable": "Optimistic cancel with rollback, paged table and a rollback test",
+          "checks": [["Cancel while the API returns HTTP 500", "The card disappears then reappears and an error toast is shown", "Screen recording"], ["Type 'den' quickly in the search box", "Only one request is sent after the 300 ms debounce", "DevTools Network tab"], ["Run the rollback Vitest test", "The test passes and asserts the item is back in the list", "Terminal output"]],
+          "objectives": ["Implement optimistic updates with safe rollback", "Build server-paged and searchable lists", "Surface conflicts and failures clearly in the UI"]
+        },
+        {
+          "topic": "Role-Aware UI, Route Guards and Error Boundaries",
+          "subtopics": ["Reading roles from the token or a /api/me endpoint", "Hiding UI is not security: the API still enforces", "Role-based route guards", "Permission-aware components such as <Can>", "Error boundaries and the react-error-boundary package", "Handling 403 pages versus 404 pages", "Lazy loading routes with React.lazy and Suspense", "Preserving return-to paths", "Testing guarded routes"],
+          "tools": ["React", "React Router", "react-error-boundary", "TanStack Query", "Vitest"],
+          "lab_task": "Add GET /api/me returning id, email and roles. Create a RequireRole route guard and a <Can role=\"PROVIDER\"> component, lazy load the provider dashboard with React.lazy, and wrap routes in an ErrorBoundary with a retry button. Sign in as customer and provider and compare menus. As a customer call the provider endpoint with curl to prove the API still returns 403. Add 3 Vitest tests for the guard.",
+          "deliverable": "Role-aware navigation and guarded routes with an error boundary and tests",
+          "checks": [["Open /provider/dashboard as a customer", "A 403 page renders and no provider data request succeeds", "Screenshot and Network tab"], ["Throw an error inside a child component", "Error boundary fallback with a Retry button renders instead of a blank page", "Screenshot"], ["Run the 3 guard tests", "3 passed, covering anonymous, customer and provider", "Vitest output"]],
+          "objectives": ["Show UI based on roles while enforcing rules on the server", "Contain rendering failures with error boundaries", "Split provider-only code into lazy chunks"]
+        },
+        {
+          "topic": "End-to-End Browser Tests with Playwright",
+          "subtopics": ["Where end-to-end tests fit in the pyramid", "Installing Playwright with npx playwright install --with-deps", "Locators: getByRole, getByLabel", "Auto-waiting and web-first assertions", "Test isolation with fresh storage state", "Reusing login via storageState", "Seeding data through the API or SQL", "Traces and the trace viewer", "Running against the Compose stack", "Flaky test causes and fixes"],
+          "tools": ["Playwright", "Docker Compose", "TypeScript", "Playwright Trace Viewer", "npm"],
+          "lab_task": "Write 4 Playwright tests against the Compose stack: register and log in, book an appointment, see a conflict message when booking the same slot, and cancel. Save the logged-in state with storageState in a setup project. Run npx playwright test --trace on and open the report with npx playwright show-report. Run the suite 10 times with --repeat-each=10 and record the pass rate.",
+          "deliverable": "Four Playwright tests with trace artefacts and a flakiness measurement",
+          "checks": [["Run npx playwright test", "4 passed, 0 failed", "Playwright report"], ["Run with --repeat-each=10", "40 of 40 runs pass, or flaky ones are listed and fixed", "Terminal output"], ["Open a failed test trace", "The viewer shows the action, DOM snapshot and network call at the point of failure", "Trace viewer screenshot"]],
+          "objectives": ["Write reliable browser tests with web-first assertions", "Reuse authentication state and seed data", "Debug failures with traces"]
+        },
+        {
+          "topic": "Structured Logging, Metrics and Traces with Micrometer",
+          "subtopics": ["Logs, metrics and traces as three signals", "JSON logs with Spring Boot structured logging", "MDC and correlation ids", "Micrometer counters, timers and the @Timed annotation", "Prometheus endpoint /actuator/prometheus", "Micrometer Tracing with OpenTelemetry bridge", "Propagating traceparent from the browser fetch", "Prometheus and Grafana in Compose", "Cardinality: never use user ids as labels"],
+          "tools": ["Micrometer", "Prometheus", "Grafana", "OpenTelemetry", "Actuator"],
+          "lab_task": "Enable JSON logging with logging.structured.format.console=ecs and add the trace id to every line. Expose /actuator/prometheus, add a Timer named booking.create and a Counter booking.conflicts, and run Prometheus and Grafana from Compose. Generate 200 requests and build a Grafana panel with the p95 of http_server_requests_seconds. Find one request's logs by trace id.",
+          "deliverable": "Dashboards for request latency and conflicts plus trace-linked JSON logs",
+          "checks": [["curl localhost:8080/actuator/prometheus | grep booking_conflicts", "Metric line with a non-zero count after forcing a conflict", "curl output"], ["Search the logs for one trace id", "All log lines of that request share the same trace id and are valid JSON", "Log excerpt"], ["Open the Grafana panel", "p95 latency for POST /api/appointments is shown in milliseconds", "Dashboard screenshot"]],
+          "objectives": ["Emit structured logs, metrics and traces from Spring Boot", "Correlate a request across signals", "Build a latency dashboard in Grafana"]
+        },
+        {
+          "topic": "Multi-Stage Docker Builds and Image Hardening",
+          "subtopics": ["Multi-stage Dockerfiles and layer caching", "Spring Boot layered jars with java -Djarmode=tools", "Buildpacks with spring-boot:build-image", "JRE-only base images and distroless variants", "Non-root users and read-only root filesystem", "JVM container flags: -XX:MaxRAMPercentage", "HEALTHCHECK instructions", "Scanning images with Trivy", "SBOMs with Syft", "Tagging with the git SHA, not latest"],
+          "tools": ["Docker BuildKit", "Trivy", "Syft", "Spring Boot", "Docker Compose"],
+          "lab_task": "Rewrite backend/Dockerfile as a multi-stage build using layered jar extraction and -XX:MaxRAMPercentage=75, run as uid 10001 and add a read-only root filesystem in Compose with a tmpfs for /tmp. Compare image size and rebuild time after a one-line code change. Run trivy image --severity HIGH,CRITICAL and syft to produce an SBOM. Record the numbers before and after.",
+          "deliverable": "Hardened image with size, rebuild-time and vulnerability scan comparison",
+          "checks": [["Change one Java file and rebuild", "Dependency layers show CACHED and rebuild time drops versus the single-layer build", "docker build output"], ["Run docker compose exec api touch /app/x", "Fails with Read-only file system", "Terminal output"], ["Run trivy image", "Report shows the count of HIGH and CRITICAL findings with the base image digest", "Trivy output"]],
+          "objectives": ["Build small, cache-friendly Java images", "Run containers with least privilege", "Scan images and produce an SBOM"]
+        },
+        {
+          "topic": "GitHub Actions Pipeline: Build, Test, Scan, Publish",
+          "subtopics": ["Workflow triggers: pull_request, push, workflow_dispatch", "Jobs, needs and a matrix", "actions/setup-java with cache: maven", "actions/setup-node with npm caching", "Service containers versus Testcontainers on runners", "Uploading test and coverage artefacts", "Dependency review and CodeQL", "Building and pushing images to GHCR with docker/build-push-action", "Least-privilege permissions: for GITHUB_TOKEN", "Branch protection and required checks"],
+          "tools": ["GitHub Actions", "GHCR", "CodeQL", "Maven", "Docker Buildx"],
+          "lab_task": "Create .github/workflows/ci.yml with parallel backend (./mvnw verify) and frontend (npm ci, lint, typecheck, test, build) jobs, caching for Maven and npm and permissions: contents: read. Add a publish job on main that pushes ghcr.io/<owner>/booking-api:<sha>. Turn on branch protection requiring both checks. Open a pull request with a failing test, confirm the merge is blocked, then fix it.",
+          "deliverable": "CI workflow with caching, required checks and image publishing to GHCR",
+          "checks": [["Open a PR with a deliberately failing test", "The backend check fails and the merge button is blocked", "PR screenshot"], ["Re-run the workflow with no dependency changes", "Cache restore log shows 'Cache restored' for Maven and npm", "Actions log"], ["Merge to main", "ghcr.io image tagged with the commit SHA appears in Packages", "GitHub Packages page"]],
+          "objectives": ["Automate build and test for both tiers", "Publish images from CI with minimal token permissions", "Protect the main branch with required checks"]
+        },
+        {
+          "topic": "Infrastructure as Code for AWS with Terraform",
+          "subtopics": ["State, plan and apply workflow", "Providers and version pinning", "Remote state in S3 with locking", "Modules for network, database and service", "VPC with public and private subnets across 2 AZs", "Security groups as the only inbound rules", "RDS PostgreSQL in private subnets", "Variables, outputs and sensitive values", "terraform fmt, validate and tflint", "Drift and terraform plan -detailed-exitcode"],
+          "tools": ["Terraform", "AWS", "tflint", "aws CLI", "S3 backend"],
+          "lab_task": "Write Terraform for a VPC with 2 public and 2 private subnets, an RDS PostgreSQL instance (db.t4g.micro, not publicly accessible, storage_encrypted = true) and an S3 bucket plus ECR repository. Use an S3 remote backend with locking. Run terraform fmt -check, validate, plan -out tf.plan and apply, then terraform plan -detailed-exitcode, expecting exit code 0. Destroy the stack at the end.",
+          "deliverable": "Terraform code for network, database and registry with a clean second plan",
+          "checks": [["Run terraform plan -detailed-exitcode after apply", "Exit code 0 meaning no changes", "Terminal output"], ["aws rds describe-db-instances", "PubliclyAccessible is false and StorageEncrypted is true", "CLI JSON"], ["Try psql from a laptop to the RDS endpoint", "Connection times out because only the app security group is allowed", "Terminal output"]],
+          "objectives": ["Provision AWS networking and a database as code", "Store state remotely with locking", "Detect configuration drift with plan"]
+        },
+        {
+          "topic": "Deploying to ECS Fargate with RDS and CloudFront",
+          "subtopics": ["ECR image push and image tags", "ECS cluster, task definition and service on Fargate", "Task and execution IAM roles", "Secrets Manager injection into container secrets", "Application Load Balancer, target groups and health checks", "Static React build in a private S3 bucket behind CloudFront with origin access control", "CloudFront behaviour routing /api/* to the ALB", "ACM certificates and Route 53", "Rolling deployments and circuit breaker rollback"],
+          "tools": ["Amazon ECS", "AWS Fargate", "Amazon CloudFront", "AWS ALB", "AWS Secrets Manager", "Amazon RDS"],
+          "lab_task": "Push the API image to ECR and create an ECS Fargate service (2 tasks, 0.5 vCPU, 1 GB) behind an ALB with health check path /actuator/health, reading the database password from Secrets Manager. Upload the React build to S3 and serve it through CloudFront with /api/* routed to the ALB. Open the CloudFront URL, book an appointment and then deploy a bad image to trigger the ECS deployment circuit breaker rollback.",
+          "deliverable": "Running cloud deployment of both tiers with a demonstrated automatic rollback",
+          "checks": [["curl -I https://<distribution>.cloudfront.net/", "HTTP 200 with a CloudFront x-cache header", "curl output"], ["Deploy an image that fails its health check", "ECS marks the deployment FAILED and rolls back to the previous task definition", "ECS service events"], ["aws ecs describe-tasks", "The task shows secrets injected and no plain text password in the task definition", "CLI output"]],
+          "objectives": ["Deploy a containerised API and a static SPA on AWS", "Inject secrets without storing them in images or code", "Use health checks and rollback to limit bad releases"]
+        },
+        {
+          "topic": "Environment Config, Secrets and Release Promotion",
+          "subtopics": ["Twelve-factor configuration", "Spring profiles versus environment variables", "@ConfigurationProperties with validation", "GitHub Environments with required reviewers", "OIDC from GitHub Actions to AWS roles instead of long-lived keys", "Promoting the same image from staging to production", "Database migration timing in a release", "Feature flags with a simple table or Unleash", "Rollback and the roll-forward policy", "Release notes and semantic versioning"],
+          "tools": ["GitHub Environments", "AWS IAM OIDC", "Spring Boot", "Terraform", "Feature flags"],
+          "lab_task": "Add staging and production GitHub Environments, with required reviewers on production. Configure the workflow to assume an AWS role using aws-actions/configure-aws-credentials with OIDC and no stored access keys. Promote the same image digest from staging to production, run Flyway on startup and record that the digest in both environments matches. Add one feature flag and toggle it without redeploying.",
+          "deliverable": "Staged release workflow using OIDC and one immutable image digest",
+          "checks": [["Search repository secrets and variables", "No AWS_ACCESS_KEY_ID or AWS_SECRET_ACCESS_KEY exists", "Settings screenshot"], ["Compare image digests of staging and production", "Both services run the identical sha256 digest", "aws ecs describe-services output"], ["Toggle the feature flag in staging", "Behaviour changes without a new deployment", "Before and after responses"]],
+          "objectives": ["Keep configuration outside the image", "Authenticate CI to the cloud without long-lived keys", "Promote an immutable artefact through environments"]
+        },
+        {
+          "topic": "Intermediate Capstone: Cloud-Hosted Booking Platform with CI/CD",
+          "subtopics": ["Scope: roles, notifications, uploads and reporting on AWS", "Pull request to production pipeline with required checks", "Test evidence across unit, integration and end-to-end layers", "Dashboard and alert baseline", "Cost and teardown notes", "Runbook with rollback steps"],
+          "tools": ["Spring Boot", "React", "Terraform", "GitHub Actions", "Amazon ECS", "Playwright"],
+          "lab_task": "Integrate the course work: merge a feature through a pull request that triggers CI, builds the image, deploys to staging, runs Playwright against it, waits for production approval and deploys. Use Terraform for the infrastructure. Demonstrate role-based access, an upload, a reminder email and a conflict. Collect test counts, the Grafana dashboard, monthly cost estimate from the AWS Pricing Calculator and a rollback drill.",
+          "deliverable": "Cloud-hosted platform, working pipeline, test and metrics evidence, cost estimate and runbook",
+          "checks": [["Merge a small UI change through the pipeline", "Staging deploy, Playwright run and gated production deploy all complete in order", "Actions run summary"], ["Run the rollback drill by redeploying the previous digest", "Production serves the previous version within 10 minutes", "Service events and curl output"], ["Review the Terraform plan after the demo", "terraform plan -detailed-exitcode returns 0", "Terminal output"]],
+          "objectives": ["Deliver a full-stack feature from commit to cloud with automation", "Prove quality with layered test evidence and monitoring", "Document operations, cost and rollback"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior developers and tech leads who own the design and operation of full stack Java systems. Covers architecture decisions, Spring Modulith, OIDC with a backend-for-frontend, virtual threads, the outbox pattern with Kafka, zero-downtime schema changes, row-level security multi-tenancy, load and contract testing, Kubernetes with Helm and Argo CD, OpenTelemetry and SLOs, security hardening, resilience, cost and disaster recovery, and incident troubleshooting.",
+      "prerequisites": ["Has delivered a Java and React application to a cloud environment with CI/CD", "Understands SQL, HTTP, OAuth 2.0 basics and container fundamentals", "Has access to a Kubernetes test cluster such as kind or a managed sandbox and to an AWS account"],
+      "outcomes": ["Make and record architecture decisions and enforce them with automated checks", "Operate a multi-tenant, observable platform against measured SLOs, capacity and recovery targets", "Release changes safely with zero-downtime migrations, GitOps and metrics-gated canaries", "Diagnose production incidents across browser, API and database with evidence"],
+      "days": [
+        {
+          "topic": "Architecture Decision Records for the Booking Platform",
+          "subtopics": ["Forces behind architecture decisions", "Writing ADRs with context, decision and consequences", "Quality attributes: latency, availability, cost and changeability", "Modular monolith versus services decision criteria", "Team size and deployment independence", "Build, buy or managed service", "Fitness functions as automated checks", "Reviewing ADRs in pull requests", "Revisiting and superseding decisions"],
+          "tools": ["ADR Tools", "Structurizr", "C4 model", "ArchUnit", "GitHub"],
+          "lab_task": "Write 5 ADRs in docs/adr/ covering monolith versus services, database choice, authentication approach, frontend hosting and event transport. Draw C4 context and container diagrams in Structurizr DSL. Turn two decisions into ArchUnit or script fitness functions that run in CI, then break one on purpose and record the failing output.",
+          "deliverable": "Five ADRs, C4 diagrams and two automated fitness functions",
+          "checks": [["Open docs/adr/", "Five numbered ADRs each with Status, Context, Decision and Consequences sections", "Directory listing"], ["Violate a module dependency rule", "The fitness function fails the CI job with the offending package named", "CI log"], ["Render the Structurizr workspace", "Context and container views show browser, SPA, API, database and queue", "Diagram export"]],
+          "objectives": ["Record and defend architecture decisions", "Evaluate trade-offs against quality attributes", "Enforce decisions with automated checks"]
+        },
+        {
+          "topic": "Modular Monolith Boundaries with Spring Modulith",
+          "subtopics": ["Application modules as top-level packages", "Allowed and forbidden dependencies", "Module API packages and internal packages", "ApplicationModules.verify()", "Event-based communication with @ApplicationModuleListener", "Event publication registry in the database", "Module integration tests with @ApplicationModuleTest", "Generated documentation with Documenter", "Path to extracting a service later"],
+          "tools": ["Spring Modulith", "Spring Boot", "JUnit 5", "PlantUML", "PostgreSQL"],
+          "lab_task": "Split the app into modules booking, identity, notifications and billing. Add Spring Modulith and a test calling ApplicationModules.of(Application.class).verify(). Replace the direct call from booking into notifications with a published event handled by @ApplicationModuleListener and the persistent event publication registry. Generate component diagrams with Documenter and confirm an illegal dependency fails verify().",
+          "deliverable": "Verified module structure, event-driven notification hand-off and generated docs",
+          "checks": [["Add a call from identity into booking internals", "ApplicationModules.verify() fails naming the violated module", "Test output"], ["Stop the notification handler mid-event and restart", "Incomplete event publication is resubmitted and the email is sent once", "event_publication table and Mailpit"], ["Run Documenter", "PlantUML files for each module are written to target/spring-modulith-docs", "File listing"]],
+          "objectives": ["Enforce module boundaries inside one deployable", "Decouple modules through persistent events", "Document module structure from the code"]
+        },
+        {
+          "topic": "OIDC with Keycloak and the Backend-for-Frontend Pattern",
+          "subtopics": ["OAuth 2.0 authorisation code flow with PKCE", "OpenID Connect ID tokens and scopes", "Running Keycloak in Compose with a realm export", "Realms, clients, roles and groups", "Why SPAs holding tokens is risky", "Backend-for-Frontend with Spring Cloud Gateway or Spring Security oauth2Login", "Session cookie to the browser, tokens kept server-side", "Logout with RP-initiated logout", "Token relay to the resource API", "Refresh and session timeouts"],
+          "tools": ["Keycloak", "OpenID Connect", "Spring Security", "Spring Cloud Gateway", "React"],
+          "lab_task": "Import a booking realm into Keycloak with roles CUSTOMER and PROVIDER and a public-to-BFF confidential client. Configure a Spring Boot BFF using oauth2Login so the browser gets only an HttpOnly session cookie while the access token is relayed to the API. Remove the SPA's token handling, test login, role mapping and RP-initiated logout, and prove no token is visible in localStorage or JavaScript.",
+          "deliverable": "Keycloak-backed login with a BFF that keeps tokens away from the browser",
+          "checks": [["Inspect localStorage and document.cookie after login", "No access or refresh token is readable by JavaScript", "DevTools Application tab"], ["Start login", "Authorisation request contains code_challenge and code_challenge_method=S256", "Browser network trace"], ["Log in as a customer and call a provider endpoint", "API returns HTTP 403 from the realm role mapping", "curl or UI evidence"]],
+          "objectives": ["Apply the authorisation code flow with PKCE", "Keep tokens out of browser JavaScript with a BFF", "Map identity provider roles to application authorities"]
+        },
+        {
+          "topic": "Virtual Threads and Connection Pool Sizing",
+          "subtopics": ["Platform threads versus virtual threads in Java 21", "spring.threads.virtual.enabled=true", "What blocks and what pins a carrier thread", "synchronized pinning and ReentrantLock", "HikariCP pool size and the real limit: PostgreSQL connections", "Little's law for sizing", "Semaphores to protect scarce resources", "Measuring with Micrometer hikaricp metrics and JFR jdk.VirtualThreadPinned", "Where virtual threads do not help: CPU-bound work"],
+          "tools": ["Virtual Threads", "HikariCP", "JFR", "k6", "Micrometer"],
+          "lab_task": "Run the API with 200 platform threads, then with spring.threads.virtual.enabled=true, against a k6 test of 500 virtual users calling an endpoint that sleeps 200 ms in the database. Record throughput and p95. Set hikari.maximum-pool-size=10, watch hikaricp.connections.pending in Actuator, then record JFR jdk.VirtualThreadPinned events. Pick a pool size from Little's law and justify it.",
+          "deliverable": "Benchmark table of platform versus virtual threads with a justified pool size",
+          "checks": [["Run the k6 test on both configurations", "Table shows requests per second and p95 for each configuration", "k6 summary output"], ["Hold 500 users with pool size 10", "hikaricp.connections.pending is above 0 and the timeout error 'Connection is not available' is reproducible", "Actuator metric and log"], ["Record JFR for 60 seconds", "Count of jdk.VirtualThreadPinned events is reported, with stack of any pinning code", "JFR summary"]],
+          "objectives": ["Decide when virtual threads help a Spring Boot service", "Size connection pools using measured data", "Detect thread pinning with JFR"]
+        },
+        {
+          "topic": "Transactional Outbox and Kafka Events for Notifications",
+          "subtopics": ["Dual-write problem between database and broker", "Outbox table written in the business transaction", "Polling publisher versus Debezium CDC", "Kafka topics, partitions and keys", "Spring for Apache Kafka producers and idempotent consumers", "Consumer groups and offset commits", "Dead letter topics and retry topics", "Event schema versioning with JSON Schema or Avro", "At-least-once delivery and deduplication"],
+          "tools": ["Apache Kafka", "Spring for Apache Kafka", "Debezium", "PostgreSQL", "Kafka UI"],
+          "lab_task": "Add an outbox table written in the same transaction as the appointment insert and a poller that publishes AppointmentBooked events to Kafka keyed by provider id (3 partitions). Write a notifications consumer with a processed_event table for deduplication and a DLT. Kill the broker during 100 bookings, restart it and confirm 100 events delivered and 0 duplicates sent as email.",
+          "deliverable": "Outbox-based event publishing with idempotent consumption and failure recovery",
+          "checks": [["Stop Kafka during 100 bookings, then start it", "All 100 outbox rows end as published and the topic holds 100 events", "kafka-console-consumer count and psql"], ["Redeliver the same event twice", "Exactly one email is sent and processed_event has one row", "Mailpit count and psql"], ["Publish a malformed event", "It lands on the dead letter topic after the configured retries", "Kafka UI screenshot"]],
+          "objectives": ["Avoid dual-write inconsistency with an outbox", "Consume Kafka events idempotently", "Handle poison messages with dead letter topics"]
+        },
+        {
+          "topic": "Zero-Downtime Schema Changes with Expand and Contract",
+          "subtopics": ["Why rolling deploys mean two app versions share one schema", "Backward-compatible migrations: add nullable, backfill, switch, drop", "Expand and contract phases across releases", "Online index creation with CREATE INDEX CONCURRENTLY", "Locks taken by ALTER TABLE and lock_timeout", "Batched backfills", "Dual writes and read switching", "Flyway outOfOrder and callbacks", "Rollback of data changes"],
+          "tools": ["Flyway", "PostgreSQL", "k6", "pg_stat_activity", "Docker Compose"],
+          "lab_task": "Rename appointment.notes to appointment.customer_notes without downtime. Release 1 adds the new column and writes both, a batched job backfills 1,000,000 rows in chunks of 10,000, release 2 reads the new column, release 3 drops the old one. Run k6 at 50 requests per second throughout and show 0 failed requests while inspecting pg_stat_activity for lock waits.",
+          "deliverable": "Three-release expand and contract plan executed with zero failed requests",
+          "checks": [["Run k6 for the whole rollout", "http_req_failed rate is 0.00 percent", "k6 summary"], ["Create an index with CONCURRENTLY while writing", "Writes continue and no query waits on a lock for over 1 second", "pg_stat_activity output"], ["Run old app version against the migrated schema", "It still works because the old column remains until release 3", "curl output"]],
+          "objectives": ["Plan schema changes compatible with rolling deploys", "Backfill large tables in batches", "Avoid blocking locks in PostgreSQL"]
+        },
+        {
+          "topic": "Multi-Tenancy with Row-Level Security in PostgreSQL",
+          "subtopics": ["Tenancy models: database, schema or shared tables", "tenant_id on every table", "PostgreSQL row-level security with CREATE POLICY", "Setting the tenant with SET LOCAL app.tenant_id per transaction", "Hibernate tenant identifier resolver", "Tenant from the JWT claim, never a request header alone", "Preventing superuser bypass: FORCE ROW LEVEL SECURITY and a non-owner role", "Tenant-aware caches and unique constraints", "Noisy neighbour limits"],
+          "tools": ["PostgreSQL RLS", "Hibernate", "Spring Security", "Flyway", "JUnit 5"],
+          "lab_task": "Add tenant_id to all tables and enable ROW LEVEL SECURITY with FORCE and a policy USING (tenant_id = current_setting('app.tenant_id')::uuid). Run the app as a non-owner role. Resolve the tenant from a JWT claim in a filter and apply SET LOCAL per transaction. Write a test with two tenants that proves a query without a tenant returns 0 rows and tenant A cannot read tenant B.",
+          "deliverable": "Tenant isolation enforced in the database with isolation tests",
+          "checks": [["Query appointment with app.tenant_id unset", "Zero rows or an error, never rows from other tenants", "psql output"], ["Tenant A requests tenant B's appointment id", "HTTP 404", "Integration test output"], ["Include tenant_id in Redis cache keys and unique indexes", "Two tenants can store the same provider slug without collision", "psql and redis-cli output"]],
+          "objectives": ["Isolate tenant data with row-level security", "Propagate tenant context safely from the token", "Test cross-tenant leakage"]
+        },
+        {
+          "topic": "Search and Reporting with Read Models",
+          "subtopics": ["Separating command and query paths", "Read model tables or materialised views", "REFRESH MATERIALIZED VIEW CONCURRENTLY", "PostgreSQL full-text search with tsvector and GIN indexes", "Trigram search with pg_trgm", "When to introduce OpenSearch", "Updating read models from events", "Eventual consistency in the UI", "CSV export streaming with StreamingResponseBody", "Pagination of reports"],
+          "tools": ["PostgreSQL full-text search", "pg_trgm", "Spring Data JPA", "Materialized views", "Kafka"],
+          "lab_task": "Create a provider_search view with a tsvector column and GIN index, add a pg_trgm index for typo-tolerant names and expose GET /api/search?q=. Build a daily_utilisation materialised view refreshed CONCURRENTLY by a scheduled job and stream a 100,000-row CSV export without loading it in memory. Compare EXPLAIN ANALYZE with and without the indexes on 500,000 rows.",
+          "deliverable": "Search endpoint, reporting view and a streamed export with timing evidence",
+          "checks": [["Search 'denist' with pg_trgm", "Provider named 'Dentist Clinic' is returned in the top results", "curl output"], ["EXPLAIN ANALYZE the search with GIN present", "Plan uses Bitmap Index Scan and runs under 20 ms on 500,000 rows", "psql output"], ["Download the CSV export of 100,000 rows", "Heap use stays flat in JFR or Actuator and the file has 100,001 lines including the header", "wc -l and metrics"]],
+          "objectives": ["Design read models for search and reporting", "Use PostgreSQL full-text and trigram search", "Stream large exports safely"]
+        },
+        {
+          "topic": "Frontend Performance: Bundle Budgets, Code Splitting and Core Web Vitals",
+          "subtopics": ["Core Web Vitals: LCP, INP and CLS and their targets", "Lighthouse and WebPageTest", "Bundle analysis with rollup-plugin-visualizer", "Route-level code splitting and dynamic import", "Image formats, sizing and loading=lazy", "Fonts and preload", "React Profiler and avoiding needless renders", "Memoisation only where measured", "Compression, Brotli and Cache-Control immutable on hashed assets", "Performance budgets in CI"],
+          "tools": ["Lighthouse", "Vite", "React Profiler", "rollup-plugin-visualizer", "Chrome DevTools"],
+          "lab_task": "Measure the deployed CloudFront site with Lighthouse in mobile mode, then add route-level splitting, Brotli, immutable cache headers on hashed assets and image sizing. Use rollup-plugin-visualizer to remove or replace the largest dependency. Add Lighthouse CI with a budget of LCP under 2.5 s and a JavaScript budget of 200 KB gzipped, and record before and after scores.",
+          "deliverable": "Before and after Lighthouse report and a budget that fails CI when exceeded",
+          "checks": [["Run Lighthouse CI on the optimised build", "LCP is under 2500 ms and the performance score rises from the baseline", "Lighthouse report"], ["Add a large library to the main bundle", "The CI budget check fails with the size over 200 KB", "CI log"], ["Request /assets/index-<hash>.js", "Response has Cache-Control: public, max-age=31536000, immutable and content-encoding br", "curl -I output"]],
+          "objectives": ["Measure and improve Core Web Vitals", "Reduce bundle size with analysis and code splitting", "Enforce performance budgets in CI"]
+        },
+        {
+          "topic": "Server-Sent Events and WebSockets for Live Availability",
+          "subtopics": ["Polling, long polling, SSE and WebSockets compared", "SseEmitter and Flux<ServerSentEvent>", "EventSource and automatic reconnect with Last-Event-ID", "STOMP over WebSocket with Spring messaging", "Authenticating real-time connections", "Fan-out across instances with Redis pub/sub or Kafka", "Backpressure and heartbeat events", "Proxies, idle timeouts on ALB and CloudFront", "Updating the TanStack Query cache from events"],
+          "tools": ["Server-Sent Events", "Spring MVC", "EventSource", "Redis pub/sub", "TanStack Query"],
+          "lab_task": "Add GET /api/providers/{id}/availability/stream returning text/event-stream with a heartbeat every 15 seconds. When a booking commits, publish an event through Redis so every API instance pushes it. In React use EventSource to update the query cache so a second browser sees the slot disappear within 1 second. Run 2 API replicas and verify delivery across them and reconnect after killing one.",
+          "deliverable": "Live availability across two API instances with reconnect handling",
+          "checks": [["Book a slot in browser A", "Browser B removes the slot within 1 second", "Screen recording"], ["Kill the instance serving the stream", "EventSource reconnects and resumes from Last-Event-ID without missing the event", "DevTools Network and log"], ["Open 3 idle streams for 10 minutes", "Heartbeats keep them open through the load balancer idle timeout", "curl -N output"]],
+          "objectives": ["Choose between polling, SSE and WebSockets", "Broadcast events across multiple instances", "Keep real-time connections alive through proxies"]
+        },
+        {
+          "topic": "Contract and Mutation Testing Across the Tiers",
+          "subtopics": ["Consumer-driven contracts between SPA and API", "Pact consumer tests in TypeScript and provider verification in Java", "Pact Broker and can-i-deploy", "Schema-based contract testing as the lighter alternative", "Mutation testing with PIT for Java and Stryker for TypeScript", "Interpreting mutation score and survivors", "Test data management", "Quality gates in CI", "Deleting low-value tests"],
+          "tools": ["Pact", "PIT", "Stryker", "JUnit 5", "GitHub Actions"],
+          "lab_task": "Write a Pact consumer test for GET /api/appointments in the frontend, publish the pact file and verify it in the Spring Boot provider with the Pact JUnit 5 extension. Run PIT with mvn org.pitest:pitest-maven:mutationCoverage on the booking service and Stryker on the form schema. Raise the mutation score by killing at least 5 surviving mutants and fail CI below 70 percent on the booking package.",
+          "deliverable": "Pact contract verified by the provider and mutation scores with a CI gate",
+          "checks": [["Change a response field name in the provider", "Pact verification fails and names the interaction and missing field", "Provider test output"], ["Run PIT on the booking service", "Report shows mutation score and surviving mutants, then a higher score after new tests", "PIT HTML report"], ["Set the gate to 70 percent and lower the score", "The CI job fails with the threshold message", "CI log"]],
+          "objectives": ["Verify tier-to-tier contracts automatically", "Use mutation testing to judge test quality", "Gate pipelines on meaningful quality metrics"]
+        },
+        {
+          "topic": "Load Testing with k6 and Capacity Findings",
+          "subtopics": ["Load, stress, soak and spike tests", "Workload models: open versus closed", "k6 scripts, scenarios and thresholds", "Realistic data and think time", "Ramping-arrival-rate executor", "Reading http_req_duration percentiles", "Finding the bottleneck: CPU, pool, database or network", "Test environment parity", "Reporting capacity as requests per second at a target p95", "Never load testing production without approval"],
+          "tools": ["k6", "Grafana", "Prometheus", "PostgreSQL", "Amazon ECS"],
+          "lab_task": "Write a k6 script with the scenarios browse (80 percent GET) and book (20 percent POST) using ramping-arrival-rate up to 200 requests per second and thresholds p95<400ms and http_req_failed<1 percent. Run it against staging, identify the first saturated resource with Grafana (CPU, Hikari pending, database CPU) and apply one fix. Report the sustained requests per second before and after the fix.",
+          "deliverable": "k6 test suite and a capacity report with one measured bottleneck fix",
+          "checks": [["Run k6 with the thresholds", "Summary shows pass or fail for p95 below 400 ms and error rate below 1 percent", "k6 output"], ["Ramp until thresholds fail", "First saturated resource is named with its metric value at the failure point", "Grafana screenshot"], ["Apply the fix and rerun", "Sustained requests per second at p95 under 400 ms increases by a recorded amount", "Before and after table"]],
+          "objectives": ["Design realistic load tests with thresholds", "Locate bottlenecks with metrics", "Report capacity in measurable terms"]
+        },
+        {
+          "topic": "Kubernetes Deployment with Helm and Probes",
+          "subtopics": ["Pods, Deployments, Services and Ingress", "Liveness, readiness and startup probes mapped to Actuator health groups", "management.endpoint.health.probes.enabled", "Resource requests and limits with JVM memory settings", "Horizontal Pod Autoscaler on CPU and custom metrics", "Helm chart structure, values files and helm template", "ConfigMaps and Secrets", "Pod disruption budgets and graceful shutdown", "server.shutdown=graceful", "kind or minikube locally"],
+          "tools": ["Kubernetes", "Helm", "kind", "kubectl", "Spring Boot Actuator"],
+          "lab_task": "Create a Helm chart for the API and frontend with readiness probe /actuator/health/readiness, liveness probe /actuator/health/liveness, requests 250m CPU and 512Mi memory, limits 1 CPU and 768Mi, an HPA at 70 percent CPU and a PodDisruptionBudget. Deploy to kind with helm upgrade --install, load test to scale to 3 pods, then run kubectl rollout restart and prove no failed requests with graceful shutdown.",
+          "deliverable": "Helm chart deployed to kind with autoscaling and a zero-error rolling restart",
+          "checks": [["Run helm template and kubectl apply --dry-run=server", "Manifests are valid and no schema errors are reported", "Terminal output"], ["Generate load with k6", "kubectl get hpa shows replicas rising from 1 to 3", "kubectl output"], ["Run kubectl rollout restart under constant load", "k6 reports 0 failed requests", "k6 summary"]],
+          "objectives": ["Package and deploy a Spring Boot service with Helm", "Map Actuator health groups to Kubernetes probes", "Scale and restart without dropping requests"]
+        },
+        {
+          "topic": "GitOps Delivery with Argo CD and Progressive Rollouts",
+          "subtopics": ["Pull-based delivery versus push-based CI deploys", "Git as the source of truth for manifests", "Argo CD Applications, sync policy and self-heal", "Separate config repository and image updater", "App-of-apps for environments", "Argo Rollouts canary steps and analysis", "Metrics-based promotion using Prometheus queries", "Rollback by git revert", "Drift detection", "Secrets with External Secrets or Sealed Secrets"],
+          "tools": ["Argo CD", "Argo Rollouts", "Helm", "Prometheus", "kubectl"],
+          "lab_task": "Install Argo CD in kind and create an Application pointing at the config repository with automated sync, prune and selfHeal. Change a replica count with kubectl and watch self-heal revert it. Convert the API Deployment to an Argo Rollout with canary steps 10, 50 and 100 percent and a Prometheus analysis requiring error rate under 1 percent. Release a version that returns 500s and confirm automatic abort.",
+          "deliverable": "GitOps repository with self-healing sync and an automatically aborted bad canary",
+          "checks": [["kubectl scale the API deployment manually", "Argo CD reverts the replica count to the Git value within 3 minutes", "argocd app get output"], ["Release the canary with 20 percent errors", "Analysis fails and the rollout aborts with the stable version still serving 100 percent", "kubectl argo rollouts get output"], ["git revert the release commit", "Argo CD syncs and the previous version returns", "Argo CD history"]],
+          "objectives": ["Deliver changes through Git with Argo CD", "Run metrics-gated canary releases", "Roll back by reverting commits"]
+        },
+        {
+          "topic": "Observability with OpenTelemetry, SLOs and Alerts",
+          "subtopics": ["OpenTelemetry SDK and Java agent, and browser instrumentation", "OTel Collector pipelines", "Traces in Tempo or Jaeger, metrics in Prometheus, logs in Loki", "Propagating W3C traceparent from React through Spring", "Service level indicators from request metrics", "SLO targets and error budgets", "Multi-window burn-rate alerts", "Alert routing and runbook links", "Avoiding alert fatigue"],
+          "tools": ["OpenTelemetry", "Grafana Tempo", "Prometheus", "Alertmanager", "Loki"],
+          "lab_task": "Add the OpenTelemetry Java agent to the API and @opentelemetry/sdk-trace-web to the SPA, send OTLP to a Collector, and view one booking trace spanning browser, API and PostgreSQL in Tempo. Define an SLO of 99.5 percent of POST /api/appointments under 500 ms over 30 days, write a burn-rate alert rule (14.4x over 1 hour and 5 minutes) and trigger it with a fault injected delay.",
+          "deliverable": "End-to-end trace, SLO definition and a firing burn-rate alert with runbook link",
+          "checks": [["Book from the UI and open the trace", "One trace shows spans from the browser, the API and a PostgreSQL query", "Tempo screenshot"], ["Inject a 800 ms delay on 10 percent of requests", "The burn-rate alert fires within the short window", "Alertmanager screenshot"], ["Open the alert", "It carries a runbook_url annotation pointing to a documented procedure", "Alert payload"]],
+          "objectives": ["Trace one request across the browser, API and database", "Define SLIs and SLOs from real metrics", "Create actionable burn-rate alerts"]
+        },
+        {
+          "topic": "Application Security Hardening and Supply Chain Checks",
+          "subtopics": ["OWASP Top 10 mapped to this stack", "Security headers: CSP, HSTS, X-Content-Type-Options, Referrer-Policy", "Content Security Policy with nonces for a Vite build", "Input validation, output encoding and React XSS sinks", "SQL injection and parameterised JPQL", "SSRF and URL fetching", "Dependency scanning with OWASP Dependency-Check and npm audit", "Dependabot and Renovate", "SBOM and image signing with cosign", "Secret scanning with gitleaks", "Rate limiting at the edge"],
+          "tools": ["OWASP ZAP", "Dependency-Check", "cosign", "gitleaks", "Spring Security"],
+          "lab_task": "Set a strict CSP, HSTS and frame protection through Spring Security and CloudFront response headers, then run an OWASP ZAP baseline scan with docker run zaproxy/zap-stable zap-baseline.py against staging and fix every FAIL. Add gitleaks, Dependency-Check and npm audit to CI, sign the container image with cosign and verify the signature. Record the number of alerts before and after.",
+          "deliverable": "Hardened headers, clean ZAP baseline and signed images with scanning in CI",
+          "checks": [["Run zap-baseline.py before and after hardening", "FAIL-NEW count drops to 0", "ZAP report"], ["Commit a fake AWS key in a test branch", "gitleaks fails the pipeline and names the file and rule", "CI log"], ["Run cosign verify on the pushed image", "Signature verified against the expected identity", "cosign output"]],
+          "objectives": ["Harden HTTP responses against common web attacks", "Scan code, dependencies and secrets in CI", "Sign and verify container images"]
+        },
+        {
+          "topic": "Resilience: Timeouts, Circuit Breakers and Degraded Modes",
+          "subtopics": ["Failure modes of dependencies: slow, down, wrong", "Timeouts on every outbound call: RestClient, JDBC, Redis", "Retries with exponential backoff and jitter, and retry budgets", "Resilience4j circuit breaker, bulkhead and rate limiter", "Fallbacks and graceful degradation of the UI", "Idempotency for retried POSTs", "Toxiproxy and Chaos Mesh for fault injection", "Health indicators that report degraded versus down", "Load shedding with 503 and Retry-After"],
+          "tools": ["Resilience4j", "Toxiproxy", "Spring Boot", "k6", "Micrometer"],
+          "lab_task": "Put Toxiproxy between the API and the email provider and Redis. Configure RestClient timeouts of 2 seconds, a Resilience4j circuit breaker (failureRateThreshold 50, slidingWindowSize 20, waitDurationInOpenState 30s) and a fallback queuing the email. Add 5 seconds of latency through Toxiproxy and confirm bookings still return 201 under 500 ms. Show the breaker state in /actuator/circuitbreakers.",
+          "deliverable": "Fault-tolerant booking path proven with injected latency and outages",
+          "checks": [["Inject 5 seconds latency into the email provider", "POST /api/appointments still returns 201 in under 500 ms", "curl timing output"], ["Keep the failure going", "/actuator/circuitbreakers shows the state OPEN, then HALF_OPEN after 30 seconds", "Actuator output"], ["Take Redis down", "Reads fall back to the database and the health endpoint reports redis DOWN while the API stays available", "curl output"]],
+          "objectives": ["Set timeouts and breakers on all remote calls", "Degrade features instead of failing requests", "Prove resilience with fault injection"]
+        },
+        {
+          "topic": "Cost, Scaling and Disaster Recovery on AWS",
+          "subtopics": ["Cost drivers: NAT gateways, RDS, data transfer and idle environments", "AWS Cost Explorer, tags and budgets", "ECS service auto scaling on ALB request count", "Fargate Spot and Graviton images", "RDS Multi-AZ versus read replicas versus Aurora", "Backups, PITR and restore tests", "RPO and RTO targets", "Cross-region replication of S3 and database snapshots", "Runbooks and game days", "Teardown automation for non-production"],
+          "tools": ["AWS Cost Explorer", "Amazon RDS", "ECS Auto Scaling", "AWS Backup", "Terraform"],
+          "lab_task": "Tag all Terraform resources with project and env, set a budget alert at 80 percent of a chosen monthly amount and add ECS target tracking on ALBRequestCountPerTarget. Perform a restore drill: take an RDS snapshot, restore to point-in-time five minutes ago into a new instance and measure the time. Write RPO and RTO statements from the measurements and propose three cost cuts with estimated savings.",
+          "deliverable": "Cost report, autoscaling policy and a timed restore drill with RPO and RTO",
+          "checks": [["Run the RDS point-in-time restore", "The new instance is available and the elapsed minutes are recorded as the measured RTO", "Console or CLI timestamps"], ["Query the restored database", "Last appointment row is at most 5 minutes older than the incident time", "psql output"], ["Open Cost Explorer grouped by tag env", "Spend is attributed to staging and production with no untagged group above 5 percent", "Cost Explorer screenshot"]],
+          "objectives": ["Control spend with tagging, budgets and right-sizing", "Set autoscaling from request metrics", "Measure recovery against RPO and RTO"]
+        },
+        {
+          "topic": "Troubleshooting Production Incidents Across the Tiers",
+          "subtopics": ["Incident roles and a triage checklist", "Reading the user symptom: 4xx versus 5xx versus slow", "Browser DevTools, HAR files and console errors", "CloudFront and ALB access logs", "Spring Boot thread dumps with jcmd Thread.print and heap dumps with jcmd GC.heap_dump", "Slow query diagnosis with pg_stat_statements", "Lock waits and connection exhaustion", "Memory leaks and OutOfMemoryError", "Blameless post-incident reviews"],
+          "tools": ["jcmd", "pg_stat_statements", "Chrome DevTools", "CloudWatch Logs Insights", "Grafana"],
+          "lab_task": "Diagnose three seeded faults in staging: a missing index causing slow bookings, a leaked connection that exhausts the Hikari pool, and a memory leak in a cache. For each, state the symptom, collect evidence with pg_stat_statements, a jcmd Thread.print dump and a heap histogram from jcmd GC.class_histogram, fix it and verify with a metric. Write a blameless post-incident review for one fault.",
+          "deliverable": "Three evidence-based diagnoses and one blameless post-incident review",
+          "checks": [["Exhaust the connection pool", "Thread dump shows threads waiting in HikariPool.getConnection and the leaking caller is identified", "jcmd output"], ["Query pg_stat_statements ordered by mean_exec_time", "The slow booking query is at the top with its mean time in ms", "psql output"], ["After fixing the memory leak", "Heap histogram shows the leaking class count no longer grows across two samples 5 minutes apart", "jcmd output"]],
+          "objectives": ["Triage incidents systematically across browser, API and database", "Capture and read thread dumps, heap histograms and query statistics", "Write blameless post-incident reviews"]
+        },
+        {
+          "topic": "Advanced Capstone: Production-Ready Booking Platform",
+          "subtopics": ["Scope: multi-tenant, OIDC-secured, observable platform on AWS or Kubernetes", "Non-functional targets for latency, availability and recovery", "Evidence package: tests, load report, SLOs, security scan", "Release through GitOps with canary", "Operational readiness review", "Final demonstration and defence"],
+          "tools": ["Spring Boot", "React", "Terraform", "Argo CD", "OpenTelemetry", "k6"],
+          "lab_task": "Assemble the final platform: Keycloak or OIDC login with BFF, tenant isolation via RLS, outbox events, live availability and observability. Deploy through the pipeline and GitOps with a canary. Run k6 at 200 requests per second with p95 under 400 ms, a ZAP baseline with 0 FAIL, a restore drill and one fault injection. Present an operational readiness checklist with every item linked to evidence.",
+          "deliverable": "Production-ready platform, evidence package and operational readiness review",
+          "checks": [["Run the k6 acceptance test at 200 requests per second", "p95 is below 400 ms and error rate below 1 percent", "k6 summary"], ["Inject a dependency fault during the demo", "Users keep booking, a burn-rate or health alert fires and the runbook is followed", "Dashboard and alert screenshots"], ["Review the readiness checklist", "Every item links to a test report, trace, scan result or drill record", "Checklist document"]],
+          "objectives": ["Integrate security, data, delivery and operations into one platform", "Prove non-functional targets with measurements", "Defend design decisions in an operational readiness review"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,573 @@
+{
+  "domain": "Docker Compose",
+  "name": "Docker Compose",
+  "category": "DevOps and CI/CD",
+  "icon": "layers",
+  "aliases": ["Compose", "Docker Compose v2", "Compose Specification", "compose.yaml", "Multi-Container Docker Applications", "Docker Compose Training", "Docker Compose for Developers", "Compose to Kubernetes with Kompose"],
+  "certifications": [],
+  "tools": ["Docker Compose v2", "Docker Engine", "Docker Desktop", "Docker Buildx and Bake", "Docker Compose watch", "Testcontainers", "Kompose", "Compose Bridge", "Traefik", "GitHub Actions", "conftest", "cosign", "yq", "Visual Studio Code"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, testers and junior operations engineers who can build and run single containers with the Docker CLI and now need to run multi-container applications with Docker Compose v2. Covers the Compose Specification and compose.yaml, the docker compose command set, services, ports, named and bind volumes, project networks and service DNS, environment files and variable interpolation, depends_on with healthchecks, restart policies, building images from Compose, profiles, override files, logs and day-to-day debugging, and a three-service web application capstone.",
+      "prerequisites": ["Builds an image from a Dockerfile and runs it with docker run, -p, -v and -e", "Reads and writes YAML with correct indentation, lists and mappings", "Has Docker Desktop or Docker Engine with the docker compose plugin installed and permission to run containers"],
+      "outcomes": ["Describe a multi-container application in compose.yaml and run, inspect and remove it with docker compose", "Connect services over the project network, persist data in named volumes and publish only the ports that clients need", "Configure services with .env files, environment and env_file, and order startup with depends_on and healthchecks", "Use builds, profiles and compose.override.yaml to run the same project for development and testing"],
+      "days": [
+        {
+          "topic": "Compose v2 Setup and the compose.yaml File",
+          "subtopics": ["What Compose solves compared with a series of docker run commands", "Compose v2 as a Docker CLI plugin: docker compose instead of the old docker-compose binary", "Checking the install with docker compose version", "The Compose Specification and why the top-level version key is obsolete", "Default file names: compose.yaml, compose.yml and the legacy docker-compose.yml", "Top-level elements: name, services, networks, volumes, configs and secrets", "Project name from the directory, the name key, -p and COMPOSE_PROJECT_NAME", "docker compose up, up -d, ps and down", "Container naming: <project>-<service>-<index>", "Validating a file with docker compose config"],
+          "tools": ["Docker Desktop", "Docker Engine", "docker compose", "Visual Studio Code", "Docker VS Code extension"],
+          "lab_task": "Run docker compose version, then create compose.yaml with name: hello and one service web using image nginx:alpine with ports \"8080:80\". Run docker compose config, docker compose up -d and docker compose ps, curl http://localhost:8080 and record the status code. Add version: \"3.8\" at the top, run docker compose config again and record the warning. Finish with docker compose down and confirm docker ps shows no hello containers.",
+          "deliverable": "Setup notes with docker compose version output, compose.yaml, ps output and the obsolete-version warning",
+          "checks": [["Run docker compose ps after docker compose up -d", "One container named hello-web-1 with status Up and 0.0.0.0:8080->80/tcp", "Terminal output"], ["Add version: \"3.8\" and run docker compose config", "A warning says the attribute version is obsolete and will be ignored", "Terminal output"], ["Run docker compose down then docker ps -a --filter label=com.docker.compose.project=hello", "No containers are listed", "Terminal output"]],
+          "objectives": ["Install and verify Docker Compose v2", "Write a minimal compose.yaml that follows the Compose Specification", "Start, inspect and remove a Compose project"]
+        },
+        {
+          "topic": "Defining Services: Images, Commands and Ports",
+          "subtopics": ["The services map and service naming rules", "image with tags and digests, and why latest is risky", "command and entrypoint overrides in string and list form", "ports short syntax HOST:CONTAINER and binding to 127.0.0.1", "ports long syntax with target, published, protocol and host_ip", "expose for container-only ports", "working_dir, user and hostname", "pull_policy values: always, missing, never and build", "docker compose pull and docker compose images", "docker compose port to find a published port"],
+          "tools": ["docker compose", "Docker Hub", "curl", "redis:7-alpine image", "nginx:alpine image"],
+          "lab_task": "Write a project with services web (nginx:alpine, published on 127.0.0.1:8081:80) and cache (redis:7-alpine, command redis-server --save \"\" --appendonly no, no published ports). Run docker compose pull, up -d, images and port web 80. Then run docker compose exec cache redis-cli ping and try redis-cli -p 6379 ping from the host. Record which calls succeed and why.",
+          "deliverable": "compose.yaml with two services plus a table of reachable and unreachable ports",
+          "checks": [["Run docker compose port web 80", "Output is 127.0.0.1:8081", "Terminal output"], ["Run docker compose exec cache redis-cli ping", "Reply is PONG", "Terminal output"], ["Run redis-cli -p 6379 ping from the host", "Connection refused because the cache port is not published", "Terminal output"]],
+          "objectives": ["Define services from pinned images", "Override command and publish ports deliberately", "Explain the difference between ports and expose"]
+        },
+        {
+          "topic": "Everyday docker compose Commands",
+          "subtopics": ["up, start, stop, restart and down and what each keeps", "down --volumes and down --rmi local", "--remove-orphans after a service is deleted from the file", "logs with -f, --tail, --since and -t", "exec into a running service and run --rm for one-off containers", "ps with --all, --services and --format json", "top, events and stats-style inspection", "cp between a service container and the host", "docker compose ls to list projects on the host", "Running commands from another directory with -f and --project-directory"],
+          "tools": ["docker compose", "jq", "curl", "Docker Desktop dashboard"],
+          "lab_task": "Using yesterday's project, run docker compose stop, then start, then restart web and compare container IDs with docker compose ps -q. Delete the cache service from compose.yaml and run up -d with and without --remove-orphans. Run docker compose run --rm web nginx -t, copy /etc/nginx/nginx.conf out with docker compose cp, and list projects with docker compose ls --format json | jq length.",
+          "deliverable": "Command reference sheet with observed behaviour for each lifecycle command",
+          "checks": [["Run up -d after removing cache from the file, without --remove-orphans", "A warning reports orphan containers for the project", "Terminal output"], ["Run docker compose run --rm web nginx -t", "Output ends with nginx: configuration file /etc/nginx/nginx.conf test is successful", "Terminal output"], ["Compare container IDs before and after docker compose stop and start", "The IDs are identical because the containers were not recreated", "ID list"]],
+          "objectives": ["Use the lifecycle commands without losing state by accident", "Inspect logs and processes of a project", "Run one-off tasks with run --rm and exec"]
+        },
+        {
+          "topic": "Project Networks and Service Discovery",
+          "subtopics": ["The default network <project>_default created by up", "Service names as DNS names on the project network", "Container hostnames and network aliases", "Defining custom networks under the top-level networks key", "Attaching a service to several networks", "internal: true networks with no outbound access", "Network isolation between frontend and backend tiers", "External networks shared between projects", "docker network ls and docker network inspect for a project", "Port publishing versus service-to-service traffic"],
+          "tools": ["docker compose", "docker network", "busybox", "nicolaka/netshoot", "nginx:alpine image"],
+          "lab_task": "Create services proxy, api (traefik/whoami) and db (postgres:17-alpine) with networks frontend and backend, where backend has internal: true. Attach proxy to frontend, api to both and db to backend. From proxy run wget -qO- http://api; from proxy try nslookup db; from db try wget to an internet address. Record each result and the output of docker network ls --filter label=com.docker.compose.project.",
+          "deliverable": "Network diagram and a reachability matrix for the three services",
+          "checks": [["Run nslookup db inside proxy", "The name does not resolve because proxy is not on backend", "Terminal output"], ["Run wget -qO- http://api inside proxy", "The whoami response lists the api container hostname", "Terminal output"], ["List networks for the project", "Two networks named <project>_frontend and <project>_backend exist", "docker network ls output"]],
+          "objectives": ["Explain how Compose names and creates networks", "Use service DNS names instead of IP addresses", "Isolate tiers with multiple and internal networks"]
+        },
+        {
+          "topic": "Named Volumes, Bind Mounts and tmpfs in Compose",
+          "subtopics": ["Named volumes declared under the top-level volumes key", "Short syntax SOURCE:TARGET[:MODE] and read-only :ro mounts", "Long syntax with type, source, target, read_only and volume.nocopy", "Bind mounts for source code and config files", "tmpfs mounts and the tmpfs key", "Volume naming <project>_<volume> and the name key", "external volumes created outside Compose", "What docker compose down keeps and what down -v deletes", "File ownership and UID problems with bind mounts", "Backing up a named volume with a throwaway container"],
+          "tools": ["docker compose", "docker volume", "postgres:17-alpine image", "alpine image", "tar"],
+          "lab_task": "Run postgres:17-alpine with a named volume pgdata at /var/lib/postgresql/data and a read-only bind mount of ./init to /docker-entrypoint-initdb.d. Create a table and insert 3 rows with psql. Run docker compose down then up -d and count rows. Back the volume up to pgdata.tar.gz with docker run --rm -v <project>_pgdata:/data alpine tar. Finally run down -v and count rows again.",
+          "deliverable": "Volume lab log with row counts after down, down -v and the backup archive",
+          "checks": [["Count rows after docker compose down and up -d", "SELECT count(*) returns 3", "psql output"], ["Count rows after docker compose down -v and up -d", "The table no longer exists and psql reports relation does not exist", "psql output"], ["Write to the read-only init mount from inside the container", "The write fails with Read-only file system", "Terminal output"]],
+          "objectives": ["Persist service data in named volumes", "Mount host files safely with bind mounts", "Back up and remove volumes deliberately"]
+        },
+        {
+          "topic": "Environment Variables, .env Files and Interpolation",
+          "subtopics": ["environment as a map and as a list", "env_file with one or several files and the required: false long form", "The project .env file and what it is used for", "Interpolation syntax ${VAR} and $VAR", "Defaults with ${VAR:-default} and ${VAR-default}", "Required values with ${VAR:?message}", "Escaping a literal dollar sign with $$", "--env-file to choose a different .env file", "Precedence: run -e, shell interpolation, environment, env_file, image ENV", "Checking the result with docker compose config and --environment"],
+          "tools": ["docker compose", ".env files", "env command", "Visual Studio Code"],
+          "lab_task": "Build a compose.yaml where image is nginx:${NGINX_TAG:-alpine}, APP_MODE comes from env_file app.env and DB_PASSWORD uses ${DB_PASSWORD:?set DB_PASSWORD}. Run docker compose config with no .env, then with DB_PASSWORD in .env, then with --env-file staging.env. Run docker compose run --rm -e APP_MODE=cli web env | grep APP_MODE and record the winning value in each case.",
+          "deliverable": "Precedence table showing the resolved value of each variable in four runs",
+          "checks": [["Run docker compose config without DB_PASSWORD set", "The command fails with required variable DB_PASSWORD is missing a value: set DB_PASSWORD", "Terminal output"], ["Run config with NGINX_TAG unset", "The resolved image is nginx:alpine", "docker compose config output"], ["Run docker compose run --rm -e APP_MODE=cli web env", "APP_MODE=cli is printed, overriding the env_file value", "Terminal output"]],
+          "objectives": ["Pass configuration through environment and env_file", "Use interpolation defaults and required values", "Predict which source wins for a variable"]
+        },
+        {
+          "topic": "Startup Order with depends_on and Healthchecks",
+          "subtopics": ["Why containers that start are not the same as services that are ready", "depends_on short form and its limits", "Long form conditions: service_started, service_healthy and service_completed_successfully", "healthcheck test with CMD and CMD-SHELL", "interval, timeout, retries, start_period and start_interval", "pg_isready, redis-cli ping and curl -f as health commands", "Health status in docker compose ps: starting, healthy and unhealthy", "The error dependency failed to start: container is unhealthy", "One-shot migration services with service_completed_successfully", "depends_on restart: true for dependants of a restarted service"],
+          "tools": ["docker compose", "postgres:17-alpine image", "pg_isready", "curl", "docker inspect"],
+          "lab_task": "Add a healthcheck to db with test [\"CMD-SHELL\",\"pg_isready -U app\"], interval 5s and retries 10. Add a migrate service that runs psql -f schema.sql and an api service that depends on db with service_healthy and on migrate with service_completed_successfully. Run docker compose up -d and time how long api waits. Break the healthcheck command and record the error from up.",
+          "deliverable": "compose.yaml with health-gated startup plus timings and the failure output",
+          "checks": [["Run docker compose ps while db starts", "db shows health: starting, then healthy", "Terminal output"], ["Change the healthcheck to pg_isready -U wronghost -h nowhere and run up", "Up fails with dependency failed to start: container <project>-db-1 is unhealthy", "Terminal output"], ["Make migrate exit 1 and run up", "Up reports that service migrate did not complete successfully with exit 1 and api is not started", "Terminal output"]],
+          "objectives": ["Write healthchecks that reflect real readiness", "Gate startup on health and completion conditions", "Diagnose dependency failures from Compose output"]
+        },
+        {
+          "topic": "Building Images from Compose",
+          "subtopics": ["build: . short form and the build mapping", "context, dockerfile and dockerfile_inline", "build args and how they differ from runtime environment", "target to pick a multi-stage build stage", "Combining image and build to tag what Compose builds", "docker compose build, build --no-cache and build --pull", "up --build and when Compose rebuilds automatically", "The .dockerignore file in the build context", "Image naming <project>-<service> when no image is set", "Inspecting builds with --progress plain"],
+          "tools": ["docker compose", "BuildKit", "Dockerfile", ".dockerignore", "Python 3 or Node.js"],
+          "lab_task": "Write a two-stage Dockerfile for a small Python or Node API with stages dev and prod. In compose.yaml set build.context ., build.target prod, build.args APP_VERSION=1.0.0 and image shop/api:1.0.0. Run docker compose build, check docker image ls shop/api, then change target to dev and rebuild. Add node_modules or .venv to .dockerignore and compare the reported context transfer size.",
+          "deliverable": "Dockerfile, compose build section and a table of image sizes and context sizes",
+          "checks": [["Run docker image ls shop/api after docker compose build", "Tag 1.0.0 is listed", "Terminal output"], ["Print APP_VERSION inside the image with docker compose run --rm api", "The value 1.0.0 passed as a build arg is printed", "Terminal output"], ["Rebuild after adding entries to .dockerignore", "The transferred build context is smaller than the first build", "Build output"]],
+          "objectives": ["Build service images from Compose", "Pass build args and select stages", "Control image tags and rebuild behaviour"]
+        },
+        {
+          "topic": "Restart Policies and Container Lifecycle Settings",
+          "subtopics": ["restart values: no, always, on-failure and unless-stopped", "on-failure with a maximum retry count", "How restart behaves after docker compose stop and after a daemon restart", "stop_signal and stop_grace_period", "init: true to reap zombie processes and forward signals", "Exit codes 0, 1, 137 and 143 and what they mean", "docker compose ps --all to see exited containers", "Restart counts with docker inspect", "Crash loops and how to spot them in logs", "Choosing a policy for databases, workers and one-shot jobs"],
+          "tools": ["docker compose", "docker inspect", "alpine image", "tini"],
+          "lab_task": "Create a worker service that runs sh -c 'echo start; sleep 3; exit 1' with restart: on-failure:3. Run up -d, wait 30 seconds and read RestartCount with docker inspect. Change it to restart: unless-stopped with a process that ignores SIGTERM, set stop_grace_period: 5s, and time docker compose stop. Repeat with init: true and record both stop times and the exit codes.",
+          "deliverable": "Restart experiment log with restart counts, stop times and exit codes",
+          "checks": [["Read RestartCount after 30 seconds with on-failure:3", "RestartCount is 3 and the container stays exited", "docker inspect output"], ["Time docker compose stop on a process that ignores SIGTERM", "Stop takes about 5 seconds and the exit code is 137", "time output and ps --all"], ["Stop the same service with init: true and a SIGTERM handler", "Stop completes in under 1 second with exit code 143 or 0", "time output"]],
+          "objectives": ["Choose restart policies per service type", "Shut services down cleanly with signals and grace periods", "Read exit codes to explain why a container stopped"]
+        },
+        {
+          "topic": "Profiles for Optional Services",
+          "subtopics": ["The profiles attribute on a service", "Services without profiles always start", "--profile on the command line and several profiles at once", "COMPOSE_PROFILES in the shell or the .env file", "Starting a profiled service by name", "Dependencies between profiled and unprofiled services", "Typical profiles: debug, tools, test and monitoring", "docker compose config --profiles", "Stopping and removing profiled services with down", "Naming conventions for profiles in a team"],
+          "tools": ["docker compose", "adminer image", "mailpit image", ".env files"],
+          "lab_task": "Add adminer with profiles [tools] and mailpit with profiles [debug] to the shop project. Run docker compose up -d and count running services, then run with --profile tools, then with COMPOSE_PROFILES=tools,debug. List profiles with docker compose config --profiles. Run docker compose down without the profile and check whether adminer is still running, then repeat with --profile tools.",
+          "deliverable": "Profile matrix showing which services start for each command",
+          "checks": [["Run docker compose config --profiles", "The output lists debug and tools", "Terminal output"], ["Run up -d with COMPOSE_PROFILES=tools,debug", "Both adminer and mailpit appear in docker compose ps", "Terminal output"], ["Run docker compose up -d with no profile flags", "Neither adminer nor mailpit is started", "Terminal output"]],
+          "objectives": ["Group optional services with profiles", "Activate profiles from the CLI and environment", "Clean up profiled services correctly"]
+        },
+        {
+          "topic": "compose.override.yaml and Multiple Compose Files",
+          "subtopics": ["Automatic loading of compose.override.yaml", "Combining files with repeated -f flags", "COMPOSE_FILE and the path separator", "Merge rules for single values, mappings and sequences", "Ports, expose and volumes merging instead of replacing", "command and entrypoint replaced by the later file", "Relative paths resolved from the first file's directory", "A base file plus dev and test overrides", "Viewing the merged model with docker compose config", "Keeping production settings out of the override file"],
+          "tools": ["docker compose", "diff", "Visual Studio Code"],
+          "lab_task": "Split the shop project into compose.yaml (images, networks, volumes), compose.override.yaml (bind-mounted source, debug ports, LOG_LEVEL=debug) and compose.test.yaml (test database, no bind mounts). Run docker compose config > dev.yaml and docker compose -f compose.yaml -f compose.test.yaml config > test.yaml, then diff them. Record which keys were replaced and which were merged.",
+          "deliverable": "Three Compose files plus the diff of the dev and test merged models",
+          "checks": [["Run docker compose config with no -f flags", "The override's bind mount and LOG_LEVEL=debug appear in the result", "dev.yaml"], ["Run config with -f compose.yaml -f compose.test.yaml", "The override file is not loaded and no source bind mount appears", "test.yaml"], ["Define ports in both base and override for one service", "The merged service lists the ports from both files", "docker compose config output"]],
+          "objectives": ["Layer Compose files for different environments", "Predict merge results for common keys", "Verify the final model before running it"]
+        },
+        {
+          "topic": "Reading Logs and Debugging a Compose Project",
+          "subtopics": ["docker compose logs for all services or a single service", "Colour, prefixes, --no-log-prefix and timestamps", "docker compose ps --all to find exited containers", "Exit codes and the last log lines of a failed container", "docker compose exec with sh or bash for inspection", "docker compose events --json", "Common failures: port is already allocated, no such service, unhealthy dependency", "YAML errors and how docker compose config reports line numbers", "Using nicolaka/netshoot on the project network", "A debugging checklist from config to logs to exec"],
+          "tools": ["docker compose", "nicolaka/netshoot", "jq", "docker inspect"],
+          "lab_task": "The trainer supplies a broken project with four faults: a tab in YAML, a port already used by another container, a wrong DB_HOST value and a healthcheck that always fails. For each fault, capture the first command that revealed it (config, up, logs or exec), the exact error text and the fix. Finish with docker compose up -d --wait returning exit code 0.",
+          "deliverable": "Fault log listing each error message, the command that found it and the fix",
+          "checks": [["Run docker compose config on the file with a tab", "A YAML parse error with a line number is printed", "Terminal output"], ["Run up while host port 8080 is in use", "Error contains Bind for 0.0.0.0:8080 failed: port is already allocated", "Terminal output"], ["Run docker compose up -d --wait after all fixes", "The command exits with code 0", "echo $? output"]],
+          "objectives": ["Locate failures with config, logs, ps and exec", "Recognise the most common Compose error messages", "Follow a repeatable debugging order"]
+        },
+        {
+          "topic": "Configs and Secrets in Compose",
+          "subtopics": ["Top-level configs with file, environment and content sources", "Mounting a config into a service and the default target path", "Top-level secrets with file and environment sources", "Secrets mounted under /run/secrets/<name>", "The _FILE convention used by official images such as postgres", "Why secrets are safer than plain environment variables", "Seeing what docker inspect exposes for env versus secrets", "Long syntax with target, uid, gid and mode", "Keeping secret files out of Git with .gitignore", "Limits of Compose secrets on a single host"],
+          "tools": ["docker compose", "postgres:17-alpine image", "openssl", "docker inspect", ".gitignore"],
+          "lab_task": "Generate a password with openssl rand -hex 24 > secrets/db_password.txt. Declare it as secret db_password and give it to postgres with POSTGRES_PASSWORD_FILE=/run/secrets/db_password. Add a config nginx_conf from ./nginx.conf mounted at /etc/nginx/conf.d/default.conf. Run docker inspect on the db container and search for the password, then log in with psql to confirm the secret works.",
+          "deliverable": "compose.yaml with configs and secrets, inspect output and a working login",
+          "checks": [["Run docker compose exec db cat /run/secrets/db_password", "The generated 48-character hex password is printed", "Terminal output"], ["Search docker inspect output for the password value", "No match is found", "grep output"], ["Run git status after adding secrets/ to .gitignore", "secrets/db_password.txt is not listed as untracked", "git status output"]],
+          "objectives": ["Deliver config files and secrets through Compose", "Use the _FILE pattern with official images", "Explain the protection secrets give and their limits"]
+        },
+        {
+          "topic": "Develop Mode with docker compose watch",
+          "subtopics": ["The develop section and the watch list", "Watch actions: sync, rebuild and sync+restart", "path, target and ignore rules", "docker compose watch and up --watch", "When bind mounts are still the better choice", "File sync speed on macOS and Windows", "Rebuilding on dependency file changes such as package.json or requirements.txt", "Restarting a service after a config change", "Watch output and how to read the sync messages", "Image requirements for sync: a shell and writable target"],
+          "tools": ["docker compose watch", "Node.js", "Python 3", "Visual Studio Code"],
+          "lab_task": "Add develop.watch to the api service with action sync from ./src to /app/src, action rebuild on package.json or requirements.txt, and action sync+restart on ./config. Run docker compose watch, edit a route handler and time how long until curl shows the change. Add a dependency and confirm a rebuild. Edit a config file and confirm the container restarts.",
+          "deliverable": "compose.yaml develop section and a table of change type, watch action and reload time",
+          "checks": [["Edit a file under ./src while watch runs", "The watch output reports files synced and curl returns the new response within 5 seconds", "Terminal output"], ["Add a package to package.json or requirements.txt", "Watch rebuilds the image and recreates the api container", "Terminal output"], ["Edit a file in ./config", "The api container restarts and its container ID stays the same", "docker compose ps output"]],
+          "objectives": ["Configure watch actions for code, dependencies and config", "Choose between watch and bind mounts", "Shorten the edit-to-result loop for a team"]
+        },
+        {
+          "topic": "Scaling Services and Replicas",
+          "subtopics": ["docker compose up --scale service=N", "deploy.replicas in the Compose file", "Why fixed host ports block scaling", "Port ranges and leaving the host port empty", "container_name and why it prevents scaling", "DNS round robin between replicas on the project network", "Putting a reverse proxy in front of replicas", "Scaling stateless workers versus stateful databases", "docker compose ps showing indexed containers", "Scaling back down and which containers are removed"],
+          "tools": ["docker compose", "traefik/whoami image", "nginx:alpine image", "curl"],
+          "lab_task": "Run traefik/whoami as service api with ports \"8080:80\" and try --scale api=3; record the error. Remove the host port, add an nginx proxy that forwards to http://api, and scale to 3. Send 30 requests with a curl loop and count distinct Hostname values. Scale down to 1 and note which container index remains.",
+          "deliverable": "Scaling report with the port error, request distribution and scale-down result",
+          "checks": [["Scale api to 3 with a fixed host port 8080", "Starting fails with port is already allocated for the second replica", "Terminal output"], ["Send 30 requests through the proxy after scaling to 3", "Three distinct Hostname values appear", "curl loop output"], ["Run docker compose up -d --scale api=1", "Only <project>-api-1 remains", "docker compose ps output"]],
+          "objectives": ["Scale stateless services with Compose", "Avoid configuration that blocks scaling", "Balance traffic across replicas"]
+        },
+        {
+          "topic": "YAML Anchors, Extension Fields and Reuse",
+          "subtopics": ["YAML anchors &name and aliases *name", "Merge keys <<: *defaults", "Top-level x- extension fields", "Sharing logging, healthcheck and environment blocks", "Limits of YAML merge on lists", "How docker compose config expands anchors", "Readability trade-offs of heavy reuse", "Naming conventions for extension fields", "Using extends for a single service template", "Keeping one source of truth for common labels"],
+          "tools": ["docker compose", "yamllint", "Visual Studio Code YAML extension"],
+          "lab_task": "Create x-common with restart: unless-stopped, a logging block and labels team: shop. Apply it to api, worker and web with <<: *common, overriding restart for worker only. Run yamllint compose.yaml and docker compose config, then confirm each service has the shared labels. Count the lines of the file before and after the refactor.",
+          "deliverable": "Refactored compose.yaml with anchors and a before-and-after line count",
+          "checks": [["Run docker compose config after the refactor", "api, worker and web each show label team: shop", "Merged output"], ["Inspect worker in the merged output", "worker shows its own restart value instead of unless-stopped", "Merged output"], ["Count lines with wc -l before and after", "The refactored file has fewer lines than the original", "wc output"]],
+          "objectives": ["Remove repetition with anchors and x- fields", "Override shared values for a single service", "Check the expanded model with config"]
+        },
+        {
+          "topic": "Running Databases and Message Brokers in Compose",
+          "subtopics": ["Official images for PostgreSQL, MySQL, Redis and RabbitMQ", "Initialisation scripts in /docker-entrypoint-initdb.d", "Healthchecks for each data service", "Persisting data and avoiding anonymous volumes", "Exposing database ports only on 127.0.0.1", "Seeding test data with a one-shot service", "Admin tools as profiled services", "Resetting state with down -v", "Pinning major versions for data compatibility", "Connection strings using service names"],
+          "tools": ["docker compose", "postgres:17-alpine image", "redis:7-alpine image", "rabbitmq:4-management image", "psql"],
+          "lab_task": "Add postgres, redis and rabbitmq:4-management with healthchecks and named volumes, publish postgres only on 127.0.0.1:5432 and the RabbitMQ UI on 127.0.0.1:15672. Add a seed service that loads 100 products and exits. Make api depend on all three being healthy and seed completing. Run up -d --wait and record total startup time, then verify the product count.",
+          "deliverable": "Data services compose file, startup timing and seed verification",
+          "checks": [["Run docker compose up -d --wait", "All long-running services report healthy and the command exits 0", "Terminal output"], ["Count products with psql", "SELECT count(*) FROM products returns 100", "psql output"], ["Check the published database port from another machine on the network", "The connection is refused because the port is bound to 127.0.0.1 only", "Terminal output"]],
+          "objectives": ["Run common backing services safely in Compose", "Seed data with one-shot services", "Connect applications with service names"]
+        },
+        {
+          "topic": "Resource Limits and Logging Options for Services",
+          "subtopics": ["deploy.resources.limits for cpus and memory", "deploy.resources.reservations", "mem_limit and cpus as older service-level keys", "OOM kills and exit code 137", "docker stats for live usage", "logging driver and options", "json-file with max-size and max-file", "The local logging driver", "Where container logs are stored on the host", "Choosing limits from measured usage"],
+          "tools": ["docker compose", "docker stats", "polinux/stress image", "docker inspect"],
+          "lab_task": "Run a stress service with deploy.resources.limits.memory: 128M and command stress --vm 1 --vm-bytes 200M. Record the exit code and OOMKilled flag. Set cpus: \"0.5\" on a CPU-bound service and read docker stats. Add logging json-file with max-size 1m and max-file 3, generate 10 MB of logs and count the log files on the host or with docker inspect LogPath.",
+          "deliverable": "Limits and logging report with OOM evidence, CPU readings and log rotation proof",
+          "checks": [["Run the stress service with a 128M limit and 200M allocation", "The container exits with code 137 and State.OOMKilled is true", "docker inspect output"], ["Read docker stats for the service limited to 0.5 CPUs", "CPU % stays near 50%", "docker stats output"], ["Generate 10 MB of logs with max-size 1m and max-file 3", "No more than 3 log files exist for the container", "File listing"]],
+          "objectives": ["Set CPU and memory limits for services", "Configure log rotation", "Diagnose OOM kills"]
+        },
+        {
+          "topic": "Compose Projects for a Team Repository",
+          "subtopics": ["Where compose.yaml lives in a repository", "Committing .env.example and ignoring .env", "Naming projects with the name key", "Documenting make or task commands that wrap docker compose", "Onboarding: one command to start the stack", "Consistent image tags with ${TAG:-dev}", "Linting Compose files in pre-commit hooks", "docker compose config --quiet as a validation gate", "README sections for ports, profiles and reset steps", "Keeping developer-only services behind profiles"],
+          "tools": ["docker compose", "Make", "pre-commit", "yamllint", "Git"],
+          "lab_task": "Organise the shop repository with compose.yaml, compose.override.yaml, .env.example and a Makefile with targets up, down, reset, logs and test. Add a pre-commit hook that runs docker compose config --quiet. Ask a colleague to clone the repo and start the stack from the README, timing them from clone to a healthy stack. Record every question they had to ask.",
+          "deliverable": "Repository layout, Makefile, pre-commit config and onboarding timing notes",
+          "checks": [["Commit a compose file with an undefined service in depends_on", "The pre-commit hook fails with depends on undefined service", "Hook output"], ["Run make up on a fresh clone with .env copied from .env.example", "All services become healthy without editing files", "Terminal output"], ["Run git check-ignore .env", "The output shows .env is ignored", "Terminal output"]],
+          "objectives": ["Package a Compose stack for a team", "Validate Compose files automatically", "Reduce onboarding time to one documented command"]
+        },
+        {
+          "topic": "Beginner Capstone: Three-Service Web Application with Compose",
+          "subtopics": ["Requirements for a web, api and database stack", "Networks, volumes and published ports design", "Environment, secrets and healthcheck-gated startup", "Development override with watch and a test profile", "Validation, reset and documentation", "Demonstration and peer review"],
+          "tools": ["docker compose", "docker compose watch", "postgres:17-alpine image", "nginx:alpine image", "Make", "curl"],
+          "lab_task": "Build a notes application with nginx serving a frontend and proxying /api to an API service, and PostgreSQL storing notes in a named volume. Use a secret for the database password, health-gated depends_on, a migrate one-shot service, a dev override with watch and a test profile that runs API tests. A fresh clone must reach a healthy stack with make up in under 3 minutes.",
+          "deliverable": "Git repository with Compose files, Makefile, README and a recorded demo",
+          "checks": [["Run make up on a fresh clone and time it", "All services are healthy in under 3 minutes", "Terminal recording"], ["Create a note, run docker compose down and up -d, then list notes", "The note is still returned by the API", "curl output"], ["Run docker compose --profile test run --rm tests", "Tests pass and the command exits 0", "Test output"]],
+          "objectives": ["Combine services, networks, volumes and secrets into one project", "Provide development and test workflows with Compose", "Present a reproducible multi-container application"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already run day-to-day stacks with Docker Compose and now own shared Compose files for a team or a small production host. Covers the merge model in depth with !reset and !override, include and extends for modular projects, advanced build options such as build secrets, SSH, caches and multi-platform builds, healthcheck design, network and volume drivers, hardening service definitions, single-host production with a reverse proxy and TLS, remote contexts, Compose in CI pipelines, integration tests with Testcontainers, observability stacks, backups, OCI publishing of Compose applications and a capstone that ships a tested stack through CI to a server.",
+      "prerequisites": ["Writes compose.yaml files with services, networks, volumes, depends_on healthchecks and profiles without help", "Uses docker compose config, logs, exec and run to diagnose a failing project", "Has used a CI system such as GitHub Actions or GitLab CI and can SSH to a Linux server"],
+      "outcomes": ["Structure large Compose projects with include, extends, multiple files and the !reset and !override merge tags", "Build secure, cached and multi-platform images from Compose and harden service runtime settings", "Run Compose stacks on a single production host with TLS, backups, log rotation and controlled updates", "Run Compose in CI and in integration tests with Testcontainers, with reliable readiness checks"],
+      "days": [
+        {
+          "topic": "The Compose Merge Model, !reset and !override",
+          "subtopics": ["How Compose loads, interpolates, merges and validates files", "Merge behaviour for scalars, mappings and sequences", "Keys merged by unique value: ports, expose, dns and tmpfs", "Keys merged by target: volumes and secrets", "Replacing a whole value with the !override tag", "Removing an inherited value with the !reset tag", "Merge order with -f, COMPOSE_FILE and override files", "docker compose config --no-interpolate and --no-normalize"],
+          "tools": ["docker compose", "diff", "yq", "Visual Studio Code"],
+          "lab_task": "Start from a base file where api publishes 8080:80 and 9229:9229 and has three environment keys. Write a prod override that removes 9229 with ports: !override, deletes one environment key with !reset null and replaces the healthcheck. Run docker compose -f compose.yaml -f compose.prod.yaml config and use yq to extract api.ports and api.environment. Repeat without the tags and diff the two results.",
+          "deliverable": "Merge experiment notes with both merged outputs and the diff",
+          "checks": [["Merge with ports: !override [\"8080:80\"]", "api.ports contains only 8080:80", "yq output"], ["Merge with DEBUG: !reset null in environment", "DEBUG is absent from api.environment", "yq output"], ["Merge the same override without the tags", "api.ports contains both 8080:80 and 9229:9229", "yq output"]],
+          "objectives": ["Predict how Compose merges each key type", "Remove or replace inherited values with !reset and !override", "Verify overrides before deploying them"]
+        },
+        {
+          "topic": "Modular Projects with include",
+          "subtopics": ["The top-level include element", "Short form paths and long form with path, project_directory and env_file", "Relative path resolution inside included files", "Conflicts when two files define the same resource", "include compared with -f merging", "Sharing a platform file for databases and observability", "Interpolation and .env handling per included file", "Remote include from Git or OCI and its trust risks"],
+          "tools": ["docker compose", "Git", "tree", "yq"],
+          "lab_task": "Split a monorepo stack into platform/compose.yaml (postgres, redis), observability/compose.yaml (otel-collector, grafana) and app/compose.yaml that includes both. Give observability its own .env via env_file in the include. Run docker compose config from app/, then define a second redis in app/compose.yaml and record the conflict error. Fix it and list services with config --services.",
+          "deliverable": "Modular project tree, merged config and the conflict error text",
+          "checks": [["Run docker compose config --services from app/", "Services from platform, observability and app are all listed", "Terminal output"], ["Define redis in both app and platform files", "Compose stops with an error that the included file defines a conflicting service redis", "Terminal output"], ["Read the grafana environment in the merged output", "Values come from observability/.env instead of app/.env", "Merged config"]],
+          "objectives": ["Compose a project from independently owned files", "Resolve paths and variables correctly in included files", "Choose include or -f for a given layout"]
+        },
+        {
+          "topic": "Service Templates with extends",
+          "subtopics": ["extends with file and service keys", "Extending a service in the same file", "What extends copies and how local keys override it", "Relative paths in extended files", "Building a base service catalogue for a team", "extends compared with anchors and include", "Avoiding deep extends chains", "Reading the result with docker compose config"],
+          "tools": ["docker compose", "yq", "Visual Studio Code"],
+          "lab_task": "Create common/services.yaml with a base-python service that sets restart, logging, read_only, healthcheck and a user. Make api and worker extend it from file common/services.yaml, overriding command and healthcheck test for worker. Run docker compose config and compare the logging, user and healthcheck of both services. Change logging in the base once and confirm both services pick it up.",
+          "deliverable": "Base service catalogue and the merged config for api and worker",
+          "checks": [["Run config after extending base-python", "api and worker both show the base logging options and user", "Merged config"], ["Override healthcheck.test in worker only", "worker shows its own test while api keeps the base test", "Merged config"], ["Change max-size in the base file once", "Both services show the new max-size value", "Merged config"]],
+          "objectives": ["Reuse service definitions across files with extends", "Override template values per service", "Compare extends with other reuse mechanisms"]
+        },
+        {
+          "topic": "Build Secrets, SSH Forwarding and Additional Contexts",
+          "subtopics": ["Why build args must not carry secrets", "build.secrets and RUN --mount=type=secret", "build.ssh with default and RUN --mount=type=ssh", "additional_contexts for sharing files across builds", "Using another service's image as a build context with service:name", "Checking image history for leaked values", "Private package registries during builds", "dockerfile_inline for small helper images"],
+          "tools": ["docker compose", "BuildKit", "ssh-agent", "docker history", "dive"],
+          "lab_task": "Build an image that downloads a private package using a token. First pass the token as a build arg and find it with docker history --no-trunc. Then move it to build.secrets with a file source and RUN --mount=type=secret,id=npm_token, rebuild and search history again. Clone a private Git dependency with build.ssh: [default] and an ssh-agent key.",
+          "deliverable": "Build file, Dockerfile and history output before and after the fix",
+          "checks": [["Search docker history --no-trunc after the build-arg version", "The token value appears in the history", "grep output"], ["Search history after switching to build.secrets", "The token value does not appear", "grep output"], ["Build with build.ssh and no agent key loaded", "The git clone step fails with Permission denied (publickey)", "Build output"]],
+          "objectives": ["Pass credentials to builds without leaking them", "Use SSH forwarding and additional contexts", "Audit images for secrets in layers"]
+        },
+        {
+          "topic": "Build Caching, Bake and Multi-Platform Images from Compose",
+          "subtopics": ["cache_from and cache_to with registry and gha caches", "Layer ordering for dependency caching", "build.platforms for linux/amd64 and linux/arm64", "build.tags for extra image tags", "Building through Bake from Compose and reading its output", "docker buildx bake --print with a Compose file", "Pushing built images with docker compose push", "Measuring cold and warm build times"],
+          "tools": ["docker compose", "docker buildx", "Docker Bake", "QEMU", "Docker Hub or a private registry"],
+          "lab_task": "Add cache_from and cache_to type=registry,ref=<registry>/shop/api:cache,mode=max to the api build and platforms linux/amd64 and linux/arm64. Run docker buildx bake -f compose.yaml --print to view the build plan, then build and push. Remove local images and caches with docker builder prune -af and rebuild, recording cold and warm times. Inspect the manifest with docker buildx imagetools inspect.",
+          "deliverable": "Build timing table and the multi-platform manifest listing",
+          "checks": [["Run docker buildx imagetools inspect on the pushed tag", "Manifests for linux/amd64 and linux/arm64 are listed", "Terminal output"], ["Rebuild after docker builder prune -af using the registry cache", "Warm build time is less than half the cold build time", "Timing table"], ["Run docker buildx bake -f compose.yaml --print", "A JSON build plan with an api target and both platforms is printed", "Terminal output"]],
+          "objectives": ["Speed up Compose builds with remote caches", "Produce multi-platform images from Compose", "Read and use the Bake build plan"]
+        },
+        {
+          "topic": "Designing Healthchecks and Readiness for Real Services",
+          "subtopics": ["Liveness versus readiness in a Compose context", "HTTP health endpoints with curl -f or wget --spider", "Images without curl: distroless and custom health binaries", "start_period and start_interval for slow starters", "Healthchecks that check dependencies and why they cascade", "docker inspect .State.Health.Log for failure output", "docker compose up --wait and --wait-timeout", "docker compose wait for one-shot services"],
+          "tools": ["docker compose", "curl", "docker inspect", "jq", "distroless images"],
+          "lab_task": "Write healthchecks for a Java or .NET API with a 40-second start, a distroless Go service with a built-in /healthz probe command and nginx. Tune start_period and start_interval so up --wait finishes as early as possible without false failures. Make the API health endpoint return 503 and read the last three probe results with docker inspect --format '{{json .State.Health}}' | jq.",
+          "deliverable": "Healthcheck definitions, tuned timings and inspected health logs",
+          "checks": [["Run docker compose up -d --wait --wait-timeout 120", "The command exits 0 once all services report healthy", "Terminal output"], ["Make the API health endpoint return 503", "The service becomes unhealthy after the configured retries", "docker compose ps output"], ["Read .State.Health.Log with jq", "The last entries show a non-zero ExitCode and the probe output", "jq output"]],
+          "objectives": ["Write healthchecks that match real readiness", "Handle images that lack shell tools", "Use --wait and health logs to diagnose startup"]
+        },
+        {
+          "topic": "Network Drivers, IPAM and Cross-Project Networking",
+          "subtopics": ["bridge driver options and network naming", "ipam config with subnet and gateway", "Static ipv4_address and when to avoid it", "Aliases and links compared", "Sharing an external network between projects", "network_mode: host, none and service:<name>", "IPv6 with enable_ipv6", "MTU and driver_opts for VPN and cloud hosts"],
+          "tools": ["docker compose", "docker network", "nicolaka/netshoot", "iproute2"],
+          "lab_task": "Create an external network edge with docker network create edge. Put a Traefik proxy project and two application projects on it, each also keeping a private default network. Give the backend network subnet 172.30.10.0/24 with ipam. Run a sidecar with network_mode: service:api and confirm it shares the api's IP. Test that app1 cannot reach app2's database by name.",
+          "deliverable": "Network design, compose files for three projects and test results",
+          "checks": [["Run ip addr in the sidecar using network_mode: service:api", "The sidecar shows the same IP as the api container", "Terminal output"], ["Inspect the backend network", "IPAM shows subnet 172.30.10.0/24", "docker network inspect output"], ["Resolve app2's db from app1 api", "The name does not resolve", "nslookup output"]],
+          "objectives": ["Configure network drivers and address ranges", "Connect several projects through an external network", "Share network namespaces deliberately"]
+        },
+        {
+          "topic": "Volume Drivers, NFS and Data Lifecycle",
+          "subtopics": ["Local driver options for NFS and CIFS", "driver_opts type, o and device", "Volume labels and naming", "external volumes managed outside the project", "Read-only roots with writable volumes and tmpfs", "Volume ownership with init containers", "Snapshot-style backups with a helper service", "Restoring and verifying a volume"],
+          "tools": ["docker compose", "docker volume", "NFS server", "restic", "alpine image"],
+          "lab_task": "Define a volume media with driver local and driver_opts type nfs, o addr=<nfs-host>,rw,nfsvers=4 and device :/exports/media. Mount it into two services, write a file from one and read it from the other. Add a backup service in a tools profile that runs restic backup /data on a named volume, then restore into a new volume and compare checksums with sha256sum.",
+          "deliverable": "Volume definitions, backup and restore logs with checksum comparison",
+          "checks": [["Write a file from service A to the NFS volume", "Service B reads identical content", "Terminal output"], ["Compare sha256sum of original and restored files", "The checksums match", "Checksum output"], ["Run docker volume inspect on media", "Options show type nfs and the configured device", "Terminal output"]],
+          "objectives": ["Use volume drivers for shared storage", "Back up and restore Compose volumes", "Manage volume ownership and lifecycle"]
+        },
+        {
+          "topic": "Hardening Service Definitions in compose.yaml",
+          "subtopics": ["Running as a non-root user with user", "read_only: true with tmpfs for writable paths", "cap_drop: [ALL] and adding back single capabilities", "security_opt no-new-privileges:true", "Avoiding privileged and mounting the Docker socket", "Binding admin ports to 127.0.0.1", "pids_limit and ulimits", "Checking a project with docker compose config and policy rules"],
+          "tools": ["docker compose", "Docker Scout", "Trivy", "conftest", "docker inspect"],
+          "lab_task": "Harden the shop stack: set user to a non-root UID, read_only: true with tmpfs /tmp, cap_drop: [ALL] with NET_BIND_SERVICE only where needed, no-new-privileges and pids_limit: 200. Run the app tests. Write a conftest policy over docker compose config --format json that fails if any service lacks cap_drop or mounts /var/run/docker.sock, and run it on the original and hardened files.",
+          "deliverable": "Hardened compose file, policy file and policy results for both versions",
+          "checks": [["Run conftest on the original compose config JSON", "Policy failures list each service without cap_drop", "conftest output"], ["Run conftest on the hardened config", "0 failures are reported", "conftest output"], ["Write to / inside a read_only service", "The write fails with Read-only file system", "Terminal output"]],
+          "objectives": ["Apply least privilege to every service", "Automate checks on Compose files", "Keep apps working under a read-only root"]
+        },
+        {
+          "topic": "Reverse Proxy and TLS for Compose Stacks",
+          "subtopics": ["Why a single proxy owns ports 80 and 443", "Traefik with Docker labels and the provider for Compose", "Caddy with automatic HTTPS", "Routing rules by host and path", "Let's Encrypt certificates and persistent storage for them", "Exposing only the proxy and keeping apps internal", "Security headers and redirect from HTTP to HTTPS", "Rate limiting and basic auth middleware for admin tools"],
+          "tools": ["docker compose", "Traefik", "Caddy", "Let's Encrypt", "curl", "openssl"],
+          "lab_task": "Add Traefik to the stack with only ports 80 and 443 published, a named volume for acme.json and labels on web and api for Host(`shop.example.test`) and PathPrefix(`/api`). Use a local CA or the Let's Encrypt staging endpoint. Check the HTTP-to-HTTPS redirect, the certificate issuer with openssl s_client, and that the api port is not reachable directly from the host.",
+          "deliverable": "Proxy configuration, labels and TLS verification output",
+          "checks": [["Request http://shop.example.test with curl -I", "The response is a 301 or 308 redirect to https", "curl output"], ["Check the certificate with openssl s_client -connect shop.example.test:443", "The issuer is the configured staging or local CA", "openssl output"], ["Connect to the api container port from the host", "The connection is refused because the api publishes no ports", "Terminal output"]],
+          "objectives": ["Put a reverse proxy in front of Compose services", "Terminate TLS and route by host and path", "Keep application ports private"]
+        },
+        {
+          "topic": "Single-Host Production with Docker Compose",
+          "subtopics": ["When one host and Compose are enough", "A production compose file without bind-mounted source", "Pinning images by digest", "restart: unless-stopped and starting at boot", "systemd units that run docker compose up -d", "Pulling and recreating with up -d --pull always --no-deps", "Rolling back to the previous image tag", "Disk cleanup with docker system df and prune"],
+          "tools": ["docker compose", "systemd", "Docker Engine", "Ubuntu Server", "Watchtower or a CI deploy job"],
+          "lab_task": "On a Linux VM, install Docker Engine and deploy the shop stack from compose.prod.yaml with images pinned by digest. Create a systemd unit that runs docker compose up -d at boot, reboot and confirm the stack is healthy. Update the api to a new digest with up -d --no-deps api, measure the time without a healthy api, then roll back to the previous digest.",
+          "deliverable": "Production compose file, systemd unit and update and rollback log",
+          "checks": [["Reboot the host and run docker compose ps", "All services are running and healthy without manual commands", "Terminal output"], ["Run docker compose up -d --no-deps api with a new digest", "Only the api container is recreated", "docker compose ps output with container ages"], ["Run docker system df before and after docker image prune -a", "Reclaimable image space drops", "Terminal output"]],
+          "objectives": ["Run a Compose stack reliably on one server", "Update and roll back services with pinned images", "Keep the host clean and bootable"]
+        },
+        {
+          "topic": "Remote Docker Contexts and Deploying over SSH",
+          "subtopics": ["docker context create with host=ssh://user@server", "DOCKER_HOST and docker context use", "What runs locally and what runs on the remote engine", "Bind mounts and build contexts with a remote engine", "Building locally and pushing versus building on the server", "SSH key and known_hosts setup for CI", "Restricting the deploy user", "Listing remote projects with docker compose ls"],
+          "tools": ["docker context", "docker compose", "OpenSSH", "ssh-agent"],
+          "lab_task": "Create a context prod with docker context create prod --docker host=ssh://deploy@<server>. Run docker --context prod compose -f compose.prod.yaml up -d from your laptop. Add a bind mount of ./config and observe what the remote container sees. Replace it with a Compose config, redeploy and verify. List remote projects with docker --context prod compose ls.",
+          "deliverable": "Context setup notes and a comparison of bind mount and config behaviour remotely",
+          "checks": [["Run docker --context prod compose ls", "The shop project is listed with status running", "Terminal output"], ["Deploy with a bind mount of ./config to a remote engine", "The container sees the server's path, not the laptop's files", "Terminal output"], ["Deploy after switching to a Compose config", "The container reads the laptop's config content", "Terminal output"]],
+          "objectives": ["Deploy Compose projects to remote engines", "Avoid local-path assumptions on remote hosts", "Secure SSH-based deployments"]
+        },
+        {
+          "topic": "Running Compose in CI Pipelines",
+          "subtopics": ["Docker Compose availability on GitHub Actions and GitLab runners", "docker compose up -d --wait as a CI gate", "--exit-code-from and --abort-on-container-exit for test containers", "Collecting logs on failure with docker compose logs", "Unique project names per job with -p", "Caching builds in CI", "Cleaning up with down -v --remove-orphans in an always step", "Docker-in-Docker versus the host socket on runners"],
+          "tools": ["GitHub Actions", "GitLab CI", "docker compose", "docker/setup-buildx-action", "docker/setup-compose-action"],
+          "lab_task": "Write a GitHub Actions workflow that builds the shop stack, runs docker compose -p ci-${{ github.run_id }} up -d --wait, then docker compose run --rm tests. On failure upload docker compose logs --no-color as an artifact, and always run down -v. Break one test and confirm the job fails and the log artifact contains the api output.",
+          "deliverable": "CI workflow file and links to one passing and one failing run",
+          "checks": [["Push a commit with passing tests", "The workflow passes and the cleanup step runs", "Actions run log"], ["Push a commit with a failing test", "The job fails and the log artifact is uploaded", "Actions run page"], ["Run docker compose up --abort-on-container-exit --exit-code-from tests locally with a failing test", "The command exits with the tests container's non-zero code", "echo $? output"]],
+          "objectives": ["Use Compose as the test environment in CI", "Make CI failures debuggable with collected logs", "Isolate and clean up concurrent jobs"]
+        },
+        {
+          "topic": "Integration Testing with Testcontainers and Compose",
+          "subtopics": ["Testcontainers modules for Compose in Java, Python, Go and Node.js", "ComposeContainer in Java and withExposedService", "testcontainers.compose.DockerCompose in Python", "Wait strategies: health, log message and listening port", "Mapped ports and service host lookup", "Testcontainers for single dependencies versus a full Compose file", "Running Testcontainers tests in CI", "Ryuk and resource cleanup"],
+          "tools": ["Testcontainers", "JUnit 5", "pytest", "docker compose", "Testcontainers Desktop"],
+          "lab_task": "Write an integration test in Java or Python that starts compose.test.yaml with Testcontainers, waits for api with a health-based wait strategy, gets the mapped port, posts an order and reads it back. Run the test twice in parallel and confirm no port conflicts. Kill the test process mid-run and check with docker ps that Ryuk removed the containers within a minute.",
+          "deliverable": "Integration test code, test report and cleanup evidence",
+          "checks": [["Run the integration test", "The test passes and reports the created order ID", "Test report"], ["Run two copies of the test at the same time", "Both pass with different mapped ports", "Test logs"], ["Kill the test process mid-run and wait 60 seconds", "docker ps shows no containers from that test session", "docker ps output"]],
+          "objectives": ["Drive Compose environments from test code", "Wait for readiness and discover mapped ports", "Keep test environments isolated and cleaned up"]
+        },
+        {
+          "topic": "Observability Stack Alongside a Compose Application",
+          "subtopics": ["Logging drivers and shipping logs to Loki or Elasticsearch", "OpenTelemetry Collector as a Compose service", "Prometheus scraping services on the project network", "cAdvisor for per-container metrics", "Grafana with provisioned data sources", "Labels for service and environment names", "Putting the observability stack behind a monitoring profile", "Resource cost of the monitoring stack"],
+          "tools": ["docker compose", "OpenTelemetry Collector", "Prometheus", "Grafana", "Loki", "cAdvisor"],
+          "lab_task": "Add an observability/compose.yaml with otel-collector, prometheus, loki, grafana and cadvisor under profile monitoring, included from the main file. Send api traces and metrics to the collector over OTLP and ship logs to Loki. Provision Grafana data sources from files. Generate 1,000 requests and find a slow request trace and its logs in Grafana.",
+          "deliverable": "Observability compose file, provisioning files and screenshots of metrics, logs and a trace",
+          "checks": [["Query up in Prometheus", "Every scrape target returns 1", "Prometheus UI screenshot"], ["Search Loki for service=api after the load", "Log lines from the api container are returned", "Grafana Explore screenshot"], ["Run docker compose up -d without the monitoring profile", "None of the observability services start", "docker compose ps output"]],
+          "objectives": ["Run an observability stack beside an application", "Collect metrics, logs and traces from Compose services", "Keep monitoring optional with profiles"]
+        },
+        {
+          "topic": "Database Migrations, Seeding and Backups in Compose",
+          "subtopics": ["Migration tools as one-shot services: Flyway, Liquibase, Alembic and Prisma", "service_completed_successfully as a migration gate", "Idempotent seed scripts", "pg_dump and mysqldump from a helper service", "Scheduled backups with a cron container", "Off-host backup storage with S3-compatible targets", "Restore drills into a fresh volume", "Avoiding data loss during docker compose down -v"],
+          "tools": ["docker compose", "Flyway", "pg_dump", "MinIO", "rclone"],
+          "lab_task": "Add a flyway service that runs migrate against postgres and exits, and gate api on it with service_completed_successfully. Add a backup service on a tools profile that runs pg_dump -Fc and uploads to a MinIO bucket with rclone. Run the backup, drop the database, restore with pg_restore into a fresh volume and compare row counts on three tables.",
+          "deliverable": "Migration and backup services, backup log and restore comparison table",
+          "checks": [["Run docker compose up -d on an empty database", "flyway exits 0 and the schema history table shows all migrations", "psql output"], ["Run the backup service", "A .dump file appears in the MinIO bucket", "rclone ls output"], ["Restore into a fresh volume and count rows", "Row counts on all three tables match the originals", "Comparison table"]],
+          "objectives": ["Run migrations safely as part of startup", "Back up databases from Compose", "Prove backups by restoring them"]
+        },
+        {
+          "topic": "Publishing Compose Applications as OCI Artifacts",
+          "subtopics": ["Why distribute a Compose application through a registry", "docker compose publish and what it uploads", "Running a published application with -f oci://", "Restrictions on bind mounts and local build contexts in published files", "Handling environment variables and secrets in published applications", "Versioning published application tags", "Registry permissions for publishers and consumers", "Comparing OCI publishing with Git-based distribution"],
+          "tools": ["docker compose", "Docker Hub or a private OCI registry", "oras", "docker login"],
+          "lab_task": "Prepare a compose.yaml for distribution with only images, named volumes and configs. Publish it with docker compose publish <registry>/shop/stack:1.0.0, then run docker compose -f oci://<registry>/shop/stack:1.0.0 up -d on another machine. Try publishing a file with a bind mount and record the response. List the published artifact layers with oras manifest fetch.",
+          "deliverable": "Publishable compose file, publish output and a run from the OCI reference",
+          "checks": [["Run docker compose -f oci://<registry>/shop/stack:1.0.0 config", "The merged model of the published stack is printed", "Terminal output"], ["Run the published stack on a second machine", "All services start healthy without cloning the repository", "docker compose ps output"], ["Fetch the artifact manifest with oras", "The manifest lists the Compose file as a layer", "oras output"]],
+          "objectives": ["Distribute a Compose application through a registry", "Prepare Compose files for portable use", "Version and run published stacks"]
+        },
+        {
+          "topic": "Compose for Local Kubernetes-Bound Microservices",
+          "subtopics": ["Keeping Compose and Kubernetes manifests aligned", "Same images, same environment names, same health endpoints", "Mapping depends_on to Kubernetes probes and init containers", "Mapping volumes to PersistentVolumeClaims", "Mapping profiles and overrides to environments", "Dev containers that use a Compose file", "Local service mocks with WireMock or Mockoon", "Deciding when local Kubernetes is worth the cost"],
+          "tools": ["docker compose", "Dev Containers", "WireMock", "kubectl", "kind"],
+          "lab_task": "Take three microservices that ship to Kubernetes and write a Compose file that uses the same images, environment variable names and /healthz and /readyz endpoints. Add a WireMock service for an external payment API. Open the repository in a dev container defined by devcontainer.json with dockerComposeFile. Produce a table mapping each Compose key to its Kubernetes equivalent.",
+          "deliverable": "Compose file, devcontainer.json and a Compose-to-Kubernetes mapping table",
+          "checks": [["Open the repository in the dev container", "The dev container attaches to the workspace service and the other services start", "Editor screenshot"], ["Call the payment endpoint through the api", "WireMock returns the stubbed response and logs the request", "WireMock request journal"], ["Compare environment variable names in Compose and the Kubernetes Deployment", "Every name in the Deployment exists in the Compose file", "Comparison table"]],
+          "objectives": ["Keep local Compose environments aligned with Kubernetes", "Use Compose with dev containers and mocks", "Map Compose concepts to Kubernetes objects"]
+        },
+        {
+          "topic": "Compose Troubleshooting at Scale",
+          "subtopics": ["Reading verbose output with --verbose and --progress plain", "docker compose events for recreate loops", "Why Compose recreates a container: config hash and labels", "docker compose config --hash for change detection", "Diagnosing DNS failures on project networks", "Disk full, inode exhaustion and log growth", "Daemon logs with journalctl -u docker", "Writing a runbook for repeat incidents"],
+          "tools": ["docker compose", "journalctl", "nicolaka/netshoot", "jq", "df"],
+          "lab_task": "The trainer runs a stack with five planted problems: containers recreated on every up, a service that resolves the wrong DNS name, a full disk from logs, an unhealthy dependency hidden behind a profile, and a missing external network. For each, record the symptom, commands used, the root cause and a runbook entry. Use docker compose config --hash \"*\" to explain the recreate loop.",
+          "deliverable": "Five-entry runbook with commands, root causes and fixes",
+          "checks": [["Run docker compose config --hash \"*\" twice with no edits", "One service's hash changes between runs, revealing a non-deterministic value", "Terminal output"], ["Run up with the external network missing", "Compose reports that network edge declared as external could not be found", "Terminal output"], ["Check disk use with df -h after rotating logs", "Free space on /var/lib/docker rises above 20%", "df output"]],
+          "objectives": ["Diagnose recreate loops, DNS and disk problems", "Use hashes, events and daemon logs as evidence", "Write runbooks for Compose incidents"]
+        },
+        {
+          "topic": "Intermediate Capstone: Tested Compose Stack Shipped through CI to a Server",
+          "subtopics": ["Modular files with include and production overrides", "Hardened services, secrets and TLS proxy", "CI with Compose tests and Testcontainers integration tests", "Deployment to a server over a Docker context with rollback", "Backups, observability and runbook", "Demonstration and review"],
+          "tools": ["docker compose", "GitHub Actions", "Testcontainers", "Traefik", "docker context", "Prometheus"],
+          "lab_task": "Ship the shop stack: include-based files, a hardened compose.prod.yaml with digests and secrets, Traefik with TLS, CI that runs up --wait, API tests and Testcontainers tests, then deploys over a Docker context only from main. Include nightly pg_dump to object storage, a monitoring profile and a rollback script. Deploy a broken image and roll back in under 5 minutes.",
+          "deliverable": "Repository, CI run links, server URL, runbook and rollback recording",
+          "checks": [["Merge a change to main", "CI tests pass and the server runs the new api digest", "CI log and docker compose images output"], ["Deploy an image whose healthcheck fails and run the rollback script", "The previous digest is healthy again within 5 minutes", "Timed terminal recording"], ["Run the policy check on compose.prod.yaml", "0 policy failures are reported", "conftest output"]],
+          "objectives": ["Integrate modular Compose, CI and deployment", "Operate a production Compose stack with backups and monitoring", "Recover from a bad release quickly"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior engineers, platform teams and architects who set Compose standards across many teams and decide when Compose stops being the right tool. Covers the Compose Specification and the compose-go library, schema and policy enforcement, golden templates, rootless hosts, zero-downtime updates on a single host, supply chain controls for Compose applications, external secret managers, GPU and AI workloads, lifecycle hooks, preview environments and large CI fleets, disaster recovery, Swarm stacks as a comparison point, and moving stacks to Kubernetes with Kompose and Compose Bridge, ending with a migration and governance capstone.",
+      "prerequisites": ["Runs production or shared CI Compose stacks with include, overrides, healthchecks, secrets and a reverse proxy", "Reads Go, Python or another language well enough to write small tooling that parses YAML or JSON", "Knows core Kubernetes objects: Deployment, StatefulSet, Service, Ingress, ConfigMap, Secret and PersistentVolumeClaim"],
+      "outcomes": ["Enforce Compose standards across teams with schema validation, policy as code and shared templates", "Operate Compose hosts with rootless engines, zero-downtime updates, signed images, external secrets and tested disaster recovery", "Run Compose at CI scale with preview environments per pull request and controlled cost", "Plan and carry out a migration from Compose to Kubernetes with Kompose or Compose Bridge, and refine the output for production"],
+      "days": [
+        {
+          "topic": "Compose Specification Internals and the compose-go Library",
+          "subtopics": ["Structure of the Compose Specification and its JSON schema", "Loading stages: parse, interpolate, merge, normalise and validate", "The compose-go library used by Docker Compose", "Loading a project with cli.NewProjectOptions and cli.ProjectFromOptions", "Canonical JSON output from docker compose config --format json", "Extension fields and how tools read x- keys", "Labels Compose sets: com.docker.compose.project, service and config-hash", "How the config hash drives container recreation"],
+          "tools": ["Go", "compose-go", "docker compose", "check-jsonschema", "jq"],
+          "lab_task": "Write a Go program with compose-go that loads compose.yaml plus overrides, applies profiles, and prints each service with its image, published ports and the value of an x-owner extension field. Compare its output with docker compose config --format json | jq. Validate the raw file against the Compose Specification JSON schema with check-jsonschema and introduce an unknown key to see the failure.",
+          "deliverable": "compose-go inspection tool, sample output and schema validation results",
+          "checks": [["Run the tool on the shop project", "Every service is listed with its image, ports and owner matching config --format json", "Tool output and jq output"], ["Add an unknown key such as imagee to a service and validate", "Schema validation fails naming the additional property imagee", "check-jsonschema output"], ["Read the com.docker.compose.config-hash label before and after changing an environment value", "The label value changes", "docker inspect output"]],
+          "objectives": ["Explain how Compose loads and normalises a project", "Build tooling on compose-go", "Validate files against the specification schema"]
+        },
+        {
+          "topic": "Policy as Code for Compose Files Across Teams",
+          "subtopics": ["Rules worth enforcing: digests, non-root, cap_drop, no Docker socket, log limits", "Writing Rego policies over docker compose config --format json", "conftest in pre-commit and CI", "Warnings versus denials and exception lists", "Testing policies with conftest verify", "Versioning and publishing a shared policy bundle", "Reporting violations per team", "Rolling out new rules without breaking every pipeline"],
+          "tools": ["Open Policy Agent", "conftest", "docker compose", "GitHub Actions", "pre-commit"],
+          "lab_task": "Write a Rego policy bundle with 8 rules for Compose: image pinned by digest, user set and not root, cap_drop includes ALL, no privileged, no docker.sock mount, logging max-size set, healthcheck defined, ports bound to 127.0.0.1 unless labelled public. Add unit tests with conftest verify. Run the bundle against 5 team repositories and produce a violation count per rule.",
+          "deliverable": "Policy bundle with tests and a violation report across 5 repositories",
+          "checks": [["Run conftest verify on the bundle", "All policy unit tests pass", "conftest output"], ["Run conftest test on a file that mounts /var/run/docker.sock", "A deny message names the offending service", "conftest output"], ["Run the bundle on a repository with an approved exception label", "The excepted rule produces a warning instead of a failure", "conftest output"]],
+          "objectives": ["Codify Compose standards as policies", "Test and version policy bundles", "Roll out rules across many repositories"]
+        },
+        {
+          "topic": "Golden Compose Templates for Platform Teams",
+          "subtopics": ["What a platform team should own versus product teams", "Shared include files for proxy, observability and data services", "Distributing templates through Git, OCI artifacts or scaffolding tools", "Versioning templates and handling breaking changes", "Parameterising with interpolation instead of copy and paste", "Template documentation and examples", "Measuring adoption across repositories", "Deprecating old patterns safely"],
+          "tools": ["docker compose", "Backstage", "cookiecutter", "OCI registry", "Renovate"],
+          "lab_task": "Build a versioned template set: platform/observability.yaml, platform/proxy.yaml and a cookiecutter or Backstage scaffold that creates a new service repository with compose.yaml including them. Publish version 1.0.0 and 1.1.0 with a changed Grafana image. Configure Renovate to open a pull request bumping the template version in a sample repository, and measure the time from release to merged update.",
+          "deliverable": "Template repository, scaffold, Renovate config and adoption notes",
+          "checks": [["Scaffold a new service and run docker compose up -d --wait", "The new service and all platform services become healthy", "Terminal output"], ["Release template 1.1.0", "Renovate opens a pull request updating the template reference", "Pull request link"], ["Run the policy bundle on the scaffolded repository", "0 violations are reported", "conftest output"]],
+          "objectives": ["Design shared Compose building blocks", "Distribute and version templates", "Keep many repositories current with automated updates"]
+        },
+        {
+          "topic": "Rootless Engines and User Namespaces for Compose Hosts",
+          "subtopics": ["Rootless Docker installation with dockerd-rootless-setuptool.sh", "DOCKER_HOST for the rootless socket", "Privileged ports and net.ipv4.ip_unprivileged_port_start", "userns-remap in daemon.json", "Volume ownership and subordinate UID ranges", "Networking differences in rootless mode", "cgroup v2 delegation for resource limits", "Which Compose features break without root"],
+          "tools": ["Docker Engine rootless", "docker compose", "systemd", "slirp4netns or pasta", "Ubuntu Server"],
+          "lab_task": "On a fresh VM install rootless Docker for user deploy, set DOCKER_HOST=unix:///run/user/$(id -u)/docker.sock and run the shop stack. Record which services fail and why: binding port 443, memory limits, NFS volumes. Fix port binding with net.ipv4.ip_unprivileged_port_start=80 and limits with cgroup v2 delegation. Show that a container breakout as root maps to the deploy user on the host.",
+          "deliverable": "Rootless host build notes, failure list and fixes",
+          "checks": [["Start Traefik on port 443 before changing sysctl", "The bind fails with permission denied", "docker compose logs output"], ["Run ps -o user on the host for a container's root process", "The process runs as the deploy user or a subordinate UID", "ps output"], ["Apply a 256M memory limit after enabling delegation", "docker stats shows a 256MiB limit", "docker stats output"]],
+          "objectives": ["Run Compose on rootless engines", "Work around port, network and cgroup limits", "Explain the security gain of user namespaces"]
+        },
+        {
+          "topic": "Zero-Downtime Updates for Compose Services on One Host",
+          "subtopics": ["Why up -d stops the old container before starting the new one", "Scaling to two replicas, waiting for health and removing the old one", "Blue-green with two services and proxy labels", "Draining connections with stop_grace_period and proxy health checks", "Database schema changes compatible with two app versions", "Automating the switch with a script or rollout plugin", "Measuring errors during a release", "Rolling back a failed switch"],
+          "tools": ["docker compose", "Traefik", "k6", "Bash", "curl"],
+          "lab_task": "Run k6 at 50 requests per second against the api through Traefik. Release a new image with plain docker compose up -d and count errors. Then script a rollout: scale api to 2 with --no-recreate, wait for the new container to be healthy, stop and remove the old container, scale back to 1. Repeat the release under load and compare error counts.",
+          "deliverable": "Rollout script, k6 summaries for both methods and a rollback test",
+          "checks": [["Release with plain docker compose up -d under load", "k6 reports failed requests during the switch", "k6 summary"], ["Release with the rollout script under load", "k6 reports 0 failed requests", "k6 summary"], ["Run the rollout with an image that fails its healthcheck", "The script aborts and the old container keeps serving", "Script output and docker compose ps"]],
+          "objectives": ["Update Compose services without dropping requests", "Coordinate proxy health and graceful shutdown", "Build safe rollback into release scripts"]
+        },
+        {
+          "topic": "Supply Chain Controls for Compose Applications",
+          "subtopics": ["Pinning every image by digest and automating digest updates", "SBOM and provenance attestations from bake builds", "Signing images with cosign or Docker Content Trust", "Verifying signatures before docker compose up", "Scanning every image in a Compose file with Docker Scout or Trivy", "Mirroring base images into a private registry", "Failing CI on critical vulnerabilities with an exception process", "Recording what was deployed for audit"],
+          "tools": ["cosign", "Docker Scout", "Trivy", "docker buildx bake", "Renovate", "Harbor"],
+          "lab_task": "Build the shop images with docker buildx bake -f compose.yaml --set '*.attest=type=sbom' --set '*.attest=type=provenance,mode=max' --push. Sign each digest with cosign. Write a predeploy script that reads images from docker compose config --images, runs cosign verify and trivy image --severity CRITICAL --exit-code 1, and only then runs up -d. Test it with one unsigned image.",
+          "deliverable": "Signed images, predeploy script and test results for signed and unsigned images",
+          "checks": [["Run the predeploy script with all images signed and clean", "Verification passes and the stack starts", "Script output"], ["Swap one image for an unsigned digest", "cosign verify fails and the script exits before up", "Script output"], ["Inspect an image with docker buildx imagetools inspect --format '{{json .SBOM}}'", "An SBOM listing packages is returned", "Terminal output"]],
+          "objectives": ["Pin, sign and verify every image a Compose file uses", "Gate deployments on signatures and scans", "Keep an audit record of deployed digests"]
+        },
+        {
+          "topic": "Secrets Manager Integration for Compose Stacks",
+          "subtopics": ["Limits of file-based Compose secrets on shared hosts", "SOPS-encrypted env and secret files in Git", "HashiCorp Vault Agent writing secrets to tmpfs", "Cloud secret stores: AWS Secrets Manager, Azure Key Vault, Google Secret Manager", "Rotating a secret and restarting only affected services", "Keeping secrets out of docker compose config output and CI logs"],
+          "tools": ["SOPS", "age", "HashiCorp Vault", "docker compose", "AWS Secrets Manager"],
+          "lab_task": "Encrypt secrets/db.env with sops --age and commit it. In the deploy script decrypt to a tmpfs path and reference it as a Compose secret. Then replace SOPS with a Vault Agent service that renders db_password to a shared tmpfs volume. Rotate the password in Vault, confirm the file changes and restart only api with docker compose restart api. Check CI logs for leaks.",
+          "deliverable": "Encrypted secret files, Vault Agent config, rotation log and log scan result",
+          "checks": [["Run git grep for the plain password value", "No match is found in the repository", "git grep output"], ["Rotate the password in Vault", "The rendered file changes within the agent's template interval", "File timestamps and content hash"], ["Search the CI job log for the password", "No occurrence is found", "Log search output"]],
+          "objectives": ["Keep Compose secrets encrypted at rest", "Feed secrets from an external manager", "Rotate secrets with minimal restarts"]
+        },
+        {
+          "topic": "GPU and AI Model Workloads in Compose",
+          "subtopics": ["NVIDIA Container Toolkit setup on the host", "deploy.resources.reservations.devices with driver, count, device_ids and capabilities", "The gpus shorthand where supported", "Sharing one GPU between services and its limits", "Model weights in named volumes and download services", "Inference servers such as vLLM, Ollama and Triton as services", "The top-level models element with Docker Model Runner where available", "Health and readiness for slow-loading models"],
+          "tools": ["NVIDIA Container Toolkit", "nvidia-smi", "docker compose", "vLLM", "Ollama", "Docker Model Runner"],
+          "lab_task": "On a GPU host, run ollama with deploy.resources.reservations.devices driver nvidia, count 1, capabilities [gpu], and a named volume for models. Add a pull-model one-shot service and gate the api on it with service_completed_successfully. Use a healthcheck with start_period 300s. Run nvidia-smi inside the container and record GPU memory, then measure tokens per second for a fixed prompt.",
+          "deliverable": "GPU compose file, nvidia-smi output and inference timing",
+          "checks": [["Run docker compose exec ollama nvidia-smi", "The GPU model and memory use are listed", "Terminal output"], ["Remove the devices reservation and rerun the prompt", "Tokens per second drop because inference falls back to CPU", "Timing table"], ["Recreate the ollama container", "The model is not downloaded again because it is stored in the named volume", "Container logs"]],
+          "objectives": ["Give Compose services access to GPUs", "Run model servers with persistent weights", "Design readiness for slow model loads"]
+        },
+        {
+          "topic": "Lifecycle Hooks, Provider Services and Compose Extensions",
+          "subtopics": ["post_start and pre_stop hooks on services", "Hook user, privileged and environment options", "Hooks compared with entrypoint scripts and one-shot services", "Provider services for resources not run as containers", "Docker CLI plugins that extend docker compose", "Reading x- fields in custom tooling", "Keeping extensions portable across Compose versions", "Documenting minimum Compose versions"],
+          "tools": ["docker compose", "Docker CLI plugins", "Go", "Bash"],
+          "lab_task": "Add a post_start hook to the api that warms a cache by calling an internal endpoint, and a pre_stop hook that tells the proxy to drain the instance. Measure first-request latency with and without the hook. Write a small CLI plugin docker-compose-owners that reads x-owner from docker compose config --format json and prints a table. Record the minimum Compose version your file needs.",
+          "deliverable": "Compose file with hooks, latency comparison and the CLI plugin source",
+          "checks": [["Measure first-request latency after up with the post_start hook", "Latency is lower than without the hook", "curl timing output"], ["Run docker compose stop api with the pre_stop hook", "Proxy logs show the instance marked as draining before stop", "Proxy logs"], ["Run docker compose-owners", "A table of services and owners matching x-owner is printed", "Terminal output"]],
+          "objectives": ["Use lifecycle hooks for startup and shutdown work", "Extend Compose with plugins and extension fields", "State version requirements for advanced features"]
+        },
+        {
+          "topic": "Preview Environments per Pull Request with Compose",
+          "subtopics": ["Project names derived from pull request numbers", "Hostnames such as pr-123.preview.example.com with proxy labels", "Wildcard DNS and wildcard certificates", "Seeding preview data and masking production data", "Resource quotas per preview on a shared host", "Automatic teardown on merge, close or timeout", "Cost and capacity tracking per preview", "Security of untrusted pull request code"],
+          "tools": ["GitHub Actions", "docker compose", "Traefik", "docker context", "Cloudflare DNS or Route 53"],
+          "lab_task": "Write a workflow that, on pull request open or update, deploys docker compose -p pr-${PR} with PR=${{ github.event.number }} to a preview host over a Docker context, using a Traefik Host rule pr-${PR}.preview.example.com and per-service memory limits. Comment the URL on the pull request. On close run down -v. Open 3 pull requests and check that all previews run in parallel.",
+          "deliverable": "Preview workflow, host capacity sheet and three live preview URLs",
+          "checks": [["Open a pull request", "A comment with the preview URL appears and the URL returns 200", "Pull request comment and curl output"], ["Close the pull request", "docker compose ls on the host no longer lists pr-<number>", "Terminal output"], ["Run three previews at the same time", "All three respond on their own hostnames", "curl output for each host"]],
+          "objectives": ["Create isolated environments per pull request", "Route and secure many projects on one host", "Clean up previews automatically"]
+        },
+        {
+          "topic": "Compose CI at Fleet Scale",
+          "subtopics": ["Parallel test shards each with its own project", "Shared build caches and registry caches across runners", "Prebuilt images instead of building in every job", "Reducing up --wait time with tuned healthchecks", "Cleaning dangling volumes and networks on long-lived runners", "Flaky test detection tied to service logs", "Measuring pipeline time per stage", "Cost per pipeline run"],
+          "tools": ["GitHub Actions", "GitLab CI", "docker compose", "docker buildx", "Testcontainers Cloud"],
+          "lab_task": "Take a suite that runs for 25 minutes against a Compose stack. Build images once and push to a registry cache, split tests into 4 shards each with docker compose -p ci-${RUN}-${SHARD}, tune healthchecks with start_interval, and add a cleanup job. Record total time, time to healthy stack and runner disk use before and after. Report the cost change per run.",
+          "deliverable": "Pipeline before-and-after metrics with the new workflow file",
+          "checks": [["Run the optimised pipeline", "Total time is below half of the original 25 minutes", "CI timing summary"], ["Measure up --wait duration per shard", "The healthy stack is reached faster than before tuning", "CI step timings"], ["Check runner disk after 20 runs", "No dangling ci-* volumes or networks remain", "docker volume ls and docker network ls output"]],
+          "objectives": ["Scale Compose-based test suites across runners", "Cut time to a healthy stack", "Control runner resources and cost"]
+        },
+        {
+          "topic": "Load and Resilience Testing Environments in Compose",
+          "subtopics": ["Production-like resource limits in test stacks", "k6 or Locust as Compose services", "Injecting latency and faults with Toxiproxy", "Killing and pausing containers during tests", "Collecting metrics during tests with Prometheus", "Repeatable baselines with pinned data and images", "Comparing results between commits", "Limits of single-host load tests"],
+          "tools": ["k6", "Toxiproxy", "Prometheus", "Grafana", "docker compose", "Pumba"],
+          "lab_task": "Add a loadtest profile with k6, Toxiproxy between api and postgres, Prometheus and Grafana. Run a 10-minute k6 test at 200 requests per second and record p95 latency. Add 200 ms latency to the database through Toxiproxy and rerun. Run docker compose kill -s SIGKILL redis mid-test and record the error rate and recovery time. Save thresholds in the k6 script.",
+          "deliverable": "Load test profile, k6 scripts and a results report with three scenarios",
+          "checks": [["Run the baseline k6 test", "p95 latency is reported and the thresholds pass", "k6 summary"], ["Add 200 ms Toxiproxy latency to the database link", "p95 latency rises by at least 200 ms", "k6 summary"], ["Kill redis during the test", "Errors stop and the error rate returns to 0 after redis restarts", "Grafana panel screenshot"]],
+          "objectives": ["Build repeatable performance environments with Compose", "Inject faults into service dependencies", "Compare resilience results between versions"]
+        },
+        {
+          "topic": "Disaster Recovery for Compose Hosts",
+          "subtopics": ["What must be recoverable: Compose files, env, secrets, volumes and images", "Infrastructure as code for the host with cloud-init or Ansible", "Volume backups with consistent snapshots", "Recovery time and recovery point objectives", "Restoring to a new host from scratch", "Registry availability during recovery", "Runbooks and regular recovery drills", "Testing backups automatically"],
+          "tools": ["Ansible", "cloud-init", "restic", "docker compose", "S3-compatible storage"],
+          "lab_task": "Write an Ansible playbook that installs Docker Engine, fetches the Compose files, decrypts secrets, restores the latest restic snapshots into named volumes and runs docker compose up -d --wait. Destroy the production VM and time recovery to a new VM from the playbook. Compare the newest restored order timestamp with the last order before the failure to measure data loss.",
+          "deliverable": "Recovery playbook, drill timing and measured recovery point",
+          "checks": [["Run the playbook against an empty VM", "The stack is healthy and serving within the 30-minute recovery time target", "Ansible output and timing"], ["Compare the newest restored order with the last pre-failure order", "The gap is within the 1-hour recovery point target", "SQL query output"], ["Run the automated weekly restore test", "The restore job reports matching row counts", "Job log"]],
+          "objectives": ["Define recovery targets for Compose hosts", "Automate rebuild and restore", "Prove recovery with timed drills"]
+        },
+        {
+          "topic": "Swarm Stacks as a Multi-Host Comparison for Compose Files",
+          "subtopics": ["docker stack deploy -c compose.yaml and what it ignores", "deploy keys that only Swarm uses: placement, update_config and rollback_config", "Overlay networks and the routing mesh", "Swarm secrets and configs compared with Compose ones", "No build support in stacks", "Rolling updates with order: start-first", "Where Swarm still fits and its ecosystem limits", "Lessons that carry over to Kubernetes"],
+          "tools": ["Docker Swarm", "docker stack", "docker compose", "Docker Engine"],
+          "lab_task": "Create a 3-node Swarm, deploy the shop compose file with docker stack deploy -c compose.prod.yaml shop and list warnings for ignored keys. Set api deploy.replicas 3 with update_config parallelism 1 and order start-first, run a k6 test during an update and count errors. Drain one node and watch tasks reschedule. Write a one-page comparison of Compose, Swarm and Kubernetes for this stack.",
+          "deliverable": "Swarm deploy notes, update test results and a comparison page",
+          "checks": [["Deploy a compose file that contains a build section", "The build section is ignored with a warning and the image must already exist", "Terminal output"], ["Run a rolling update with order start-first under k6 load", "k6 reports 0 failed requests", "k6 summary"], ["Drain one node with docker node update --availability drain", "Its tasks move to the remaining nodes", "docker service ps output"]],
+          "objectives": ["Run Compose files on Swarm and know the differences", "Use rolling update settings", "Compare multi-host options for a Compose stack"]
+        },
+        {
+          "topic": "Migrating Compose Stacks to Kubernetes with Kompose",
+          "subtopics": ["When to move from Compose to Kubernetes", "kompose convert -f compose.yaml -o k8s/", "What Kompose creates: Deployments, Services, PersistentVolumeClaims and ConfigMaps", "Kompose labels: kompose.service.type, kompose.service.expose and kompose.volume.size", "kompose.controller.type for StatefulSets and DaemonSets", "Healthchecks converted to probes", "What Kompose cannot convert: depends_on ordering, build-only services and bind mounts", "Generating a Helm chart with kompose convert -c"],
+          "tools": ["Kompose", "kubectl", "kind", "Helm", "docker compose"],
+          "lab_task": "Add Kompose labels to the shop compose file: kompose.service.type LoadBalancer for web, kompose.service.expose shop.local for web, kompose.volume.size 5Gi for pgdata and kompose.controller.type statefulset for db. Run kompose convert -f compose.yaml -o k8s/ and kubectl apply -f k8s/ on a kind cluster. List every resource created and every Compose key Kompose skipped or warned about.",
+          "deliverable": "Labelled compose file, generated manifests and a gap list",
+          "checks": [["Run kompose convert on the labelled file", "Manifests include a StatefulSet for db and a PersistentVolumeClaim requesting 5Gi", "k8s/ directory listing"], ["Run kubectl apply -f k8s/ on kind", "All pods reach Running", "kubectl get pods output"], ["Read warnings from kompose convert", "Unsupported keys are named in the output", "Terminal output"]],
+          "objectives": ["Convert a Compose stack with Kompose", "Steer conversion with Kompose labels", "Identify what still needs manual work"]
+        },
+        {
+          "topic": "Hardening Kompose Output for Production Kubernetes",
+          "subtopics": ["Replacing depends_on with readiness probes and init containers", "Turning env and env_file into ConfigMaps and Secrets", "Resource requests and limits from Compose deploy.resources", "Ingress or Gateway API routes instead of LoadBalancer Services", "Security contexts mapped from user, read_only and cap_drop", "Kustomize overlays or Helm values for environments", "Comparing behaviour between Compose and the cluster", "Keeping Compose for local development after migration"],
+          "tools": ["kubectl", "Kustomize", "Helm", "kube-linter", "kind", "Kompose"],
+          "lab_task": "Take the Kompose output from yesterday and refine it: add readiness probes and an init container that waits for the database, move secrets to Kubernetes Secrets, add requests and limits, a securityContext with runAsNonRoot and readOnlyRootFilesystem, and an Ingress. Run kube-linter lint k8s/ before and after and record the warning counts. Run the same API test suite against Compose and the cluster.",
+          "deliverable": "Refined manifests or chart, kube-linter results and test results on both platforms",
+          "checks": [["Run kube-linter lint on the raw Kompose output", "Warnings are reported for missing resources and security context", "kube-linter output"], ["Run kube-linter on the refined manifests", "0 warnings are reported for the enabled checks", "kube-linter output"], ["Run the API test suite against the cluster", "The same tests that pass on Compose pass on Kubernetes", "Test reports"]],
+          "objectives": ["Refine generated manifests into production quality", "Map Compose security and resource settings to Kubernetes", "Prove behaviour matches between platforms"]
+        },
+        {
+          "topic": "Compose Bridge and Custom Conversion Templates",
+          "subtopics": ["Compose Bridge in Docker Desktop and what it generates", "Default Kubernetes output and Kustomize overlays", "Custom transformation templates for company standards", "Packaging transformations as images", "Comparing Compose Bridge output with Kompose output", "Keeping conversion in CI so manifests stay in sync", "Review workflow for generated manifests", "Deciding when to stop generating and hand-maintain manifests"],
+          "tools": ["Compose Bridge", "Docker Desktop", "Kompose", "Kustomize", "kubectl", "diff"],
+          "lab_task": "Convert the shop stack with Compose Bridge and with Kompose and diff the outputs by resource type. Write a custom Compose Bridge transformation that adds company labels, a NetworkPolicy per service and resource limits read from deploy.resources. Run the conversion in CI and fail the job if the committed manifests differ from freshly generated ones.",
+          "deliverable": "Conversion comparison, custom transformation and CI drift check",
+          "checks": [["Diff Compose Bridge and Kompose outputs", "A table lists resource types each tool produced", "Diff report"], ["Run the custom transformation", "Every generated Deployment carries the company labels and a matching NetworkPolicy exists", "kubectl get networkpolicy output"], ["Edit compose.yaml without regenerating and push", "The CI drift check fails", "CI log"]],
+          "objectives": ["Use Compose Bridge for conversion", "Encode company standards in transformations", "Keep generated manifests in sync with Compose"]
+        },
+        {
+          "topic": "Platform Architecture Decisions: Compose, Swarm, Nomad or Kubernetes",
+          "subtopics": ["Decision criteria: team size, host count, availability target and skills", "Total cost of operation for each option", "Compose as a permanent developer tool and a temporary production tool", "Hybrid models: Compose locally, Kubernetes in production", "Architecture decision records for runtime platforms", "Exit criteria that trigger a migration"],
+          "tools": ["Architecture decision records", "docker compose", "Kubernetes", "HashiCorp Nomad", "Docker Swarm"],
+          "lab_task": "For three case studies supplied by the trainer (a 2-person startup, a 40-service SaaS and a regulated internal tool), write an architecture decision record choosing Compose, Swarm, Nomad or Kubernetes. Score each option on 6 weighted criteria, estimate monthly operating hours, and state the exit criteria that would trigger the next migration. Defend one decision in a 10-minute review.",
+          "deliverable": "Three decision records with scoring matrices and exit criteria",
+          "checks": [["Review the startup decision record", "It names a concrete metric, such as host count or uptime target, that triggers migration", "Decision record"], ["Change one criterion weight in the SaaS scoring matrix", "The recorded sensitivity analysis shows whether the choice changes", "Scoring spreadsheet"], ["Present one decision to the review panel", "The panel accepts it or records required changes", "Review notes"]],
+          "objectives": ["Choose a runtime platform with explicit criteria", "Record decisions and their exit conditions", "Explain Compose's long-term role in a hybrid model"]
+        },
+        {
+          "topic": "Advanced Troubleshooting of Compose and Engine Interactions",
+          "subtopics": ["Tracing Compose API calls with --verbose and Docker Engine debug logs", "Race conditions in parallel startup and COMPOSE_PARALLEL_LIMIT", "Containers stuck in Created or Removing", "Network namespace leaks and stale endpoints", "Build cache corruption and docker builder prune", "Version skew between Compose, Buildx and Engine"],
+          "tools": ["docker compose", "journalctl", "strace", "nsenter", "docker buildx"],
+          "lab_task": "The trainer prepares a host with four faults: a stale network endpoint blocking up, a container stuck in Removing, build failures from a corrupted cache and a race where 30 services hit a registry rate limit. Diagnose each with --verbose output, daemon debug logs and nsenter. Fix the race with COMPOSE_PARALLEL_LIMIT and a registry mirror. Write a root cause note for each fault.",
+          "deliverable": "Four root cause notes with evidence and fixes",
+          "checks": [["Run docker compose --verbose up on the stale endpoint fault", "The output shows the API call that fails with endpoint already exists", "Verbose output"], ["Set COMPOSE_PARALLEL_LIMIT=4 and rerun the 30-service pull", "No toomanyrequests errors appear", "Pull output"], ["Run docker builder prune -af and rebuild", "The previously failing build succeeds", "Build output"]],
+          "objectives": ["Trace Compose behaviour down to the Engine API", "Fix concurrency and resource leak problems", "Write evidence-based root cause notes"]
+        },
+        {
+          "topic": "Advanced Capstone: Compose Governance and Kubernetes Migration Plan",
+          "subtopics": ["Policy bundle and golden templates for teams", "Signed, scanned and zero-downtime production Compose host", "Preview environments and recovery drill", "Kompose or Compose Bridge migration of one service group", "Decision record and roadmap", "Presentation to an architecture board"],
+          "tools": ["docker compose", "conftest", "cosign", "Kompose", "Compose Bridge", "kubectl"],
+          "lab_task": "For a 12-service organisation stack: publish a policy bundle and template set, run the production host with signed images and a zero-downtime rollout script, give every pull request a preview environment, and pass a timed recovery drill. Then migrate 4 services to Kubernetes with Kompose or Compose Bridge, refine the manifests and run the same test suite on both platforms. Present an ADR and roadmap.",
+          "deliverable": "Governance repository, operations evidence, migrated manifests, ADR and board presentation",
+          "checks": [["Run the policy bundle across all 12 services", "0 denials are reported", "conftest output"], ["Release under k6 load with the rollout script", "k6 reports 0 failed requests", "k6 summary"], ["Run the shared test suite against Compose and Kubernetes for the 4 migrated services", "Both runs pass with identical test counts", "Test reports"]],
+          "objectives": ["Combine governance, operations and migration work", "Prove production readiness with measured evidence", "Present a platform plan to decision makers"]
+        }
+      ]
+    }
+  }
+}

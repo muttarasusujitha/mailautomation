@@ -34,14 +34,20 @@ def _html_to_text(value: str) -> str:
 
 def _fix_mojibake(value: str) -> str:
     text = str(value or "")
-    if not any(marker in text for marker in ("â", "ð", "Ã")):
-        return text
-    try:
-        repaired = text.encode("cp1252", errors="ignore").decode("utf-8", errors="ignore")
-        return repaired or text
-    except Exception:
-        return text
-
+    markers = tuple(chr(code) for code in (0x00C3, 0x00C2, 0x00E2, 0x00F0, 0x00EF))
+    for _ in range(3):
+        if not any(marker in text for marker in markers):
+            break
+        try:
+            repaired = text.encode("cp1252").decode("utf-8")
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            break
+        current_score = sum(text.count(marker) for marker in markers)
+        repaired_score = sum(repaired.count(marker) for marker in markers)
+        if repaired == text or repaired_score >= current_score:
+            break
+        text = repaired
+    return text
 
 def _decode_message_part(part: Any) -> str:
     payload = part.get_payload(decode=True)
@@ -79,7 +85,7 @@ MAX_CLIENT_SCOPE_MESSAGE_BYTES = 6 * 1024 * 1024
 
 def _decode_header(value: str) -> str:
     try:
-        return str(make_header(decode_header(value or "")))
+        return _fix_mojibake(str(make_header(decode_header(value or ""))))
     except Exception:
         return str(value or "")
 
@@ -370,7 +376,7 @@ def send_gmail_oauth(
         logger.exception("Gmail OAuth send failed to %s", to)
         if is_send_quota_error(exc) and settings.effective_gmail_fallback_pass:
             logger.warning("Primary Gmail OAuth sender hit quota; retrying with fallback SMTP sender")
-            return send_smtp(
+            fallback_success, fallback_error = send_smtp(
                 to,
                 subject,
                 body,
@@ -386,6 +392,13 @@ def send_gmail_oauth(
                 attachments=attachments,
                 message_id_header=message_id_header,
             )
+            if fallback_success:
+                return True, ""
+            # Preserve Google's retry timestamp even when the SMTP fallback
+            # has a separate transport problem.  Workflow callers use it to
+            # defer the next attempt rather than marking the message as a
+            # permanent manual failure or repeatedly retrying immediately.
+            return False, f"{_friendly_send_error(exc)} SMTP fallback failed: {fallback_error}"
         return False, _friendly_send_error(exc)
 
 
@@ -639,9 +652,12 @@ def check_imap_replies(
                             html_text = _html_to_text(_decode_message_part(msg))
                         else:
                             body_text = _decode_message_part(msg)
+                    # A multipart/alternative email contains equivalent
+                    # plain-text and HTML renderings of one message. Prefer
+                    # the authored plain-text body; appending the HTML
+                    # alternative can pollute intent extraction with layout,
+                    # navigation, and promotional copy from the email design.
                     body_text = body_text or html_text
-                    if body_text and html_text and html_text not in body_text:
-                        body_text = f"{body_text}\n\n{html_text}"
 
                     try:
                         date_hdr = msg.get("Date", "")
@@ -708,13 +724,13 @@ def check_gmail_api_replies(
     """Poll Gmail API inbox for recent messages using OAuth."""
     service, error = _load_oauth_service()
     if not service:
-        logger.warning("Gmail API check skipped: %s", error)
-        return []
+        raise RuntimeError(f"Gmail API inbox polling is unavailable: {error or 'OAuth service could not be loaded'}")
 
     if search_query:
         query = search_query
     else:
         query_parts = [
+            "in:inbox",
             f"newer_than:{max(1, int(since_days))}d",
             "-in:sent",
             "-in:trash",
@@ -729,8 +745,10 @@ def check_gmail_api_replies(
             query_parts.append("(" + " OR ".join(f"from:{sender}" for sender in sender_filters[:100]) + ")")
         else:
             query_parts.append(
-                '("training requirement" OR "trainer requirement" OR "requirement for" OR '
-                '"please share suitable trainer" OR "trainer profiles" OR "commercials" OR "TOC")'
+                '(training OR trainer OR trainers OR requirement OR requirements OR instructor OR '
+                'facilitator OR batch OR workshop OR course OR "corporate learning" OR '
+                'commercials OR TOC OR interview OR selected OR approved OR proceed OR '
+                'rejected OR availability OR slot)'
             )
         query = " ".join(query_parts)
 
@@ -743,6 +761,7 @@ def check_gmail_api_replies(
             maxResults=max(1, min(max_messages, 500)),
         ).execute()
         messages = response.get("messages") or []
+        logger.info("Gmail API inbox query returned %s message(s)", len(messages))
         for item in messages[:max_messages]:
             gmail_id = item.get("id")
             if not gmail_id:
@@ -771,15 +790,15 @@ def check_gmail_api_replies(
                 if msg.is_multipart():
                     for part in msg.walk():
                         if part.get_content_type() == "text/plain":
-                            body_text = part.get_payload(decode=True).decode("utf-8", errors="ignore")
+                            body_text = _decode_message_part(part)
                             break
                     if not body_text:
                         for part in msg.walk():
                             if part.get_content_type() == "text/html":
-                                body_text = part.get_payload(decode=True).decode("utf-8", errors="ignore")
+                                body_text = _html_to_text(_decode_message_part(part))
                                 break
                 else:
-                    body_text = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
+                    body_text = _decode_message_part(msg)
 
                 # Gmail API returns the complete RFC822 message in raw mode.
                 # Capture safe client scope documents here just as the IMAP
@@ -864,6 +883,7 @@ def check_gmail_api_replies(
                     break
                 logger.exception("Gmail API message fetch failed for %s", gmail_id)
                 continue
-    except Exception:
+    except Exception as exc:
         logger.exception("Gmail API inbox check failed")
+        raise RuntimeError(f"Gmail API inbox check failed: {exc}") from exc
     return replies

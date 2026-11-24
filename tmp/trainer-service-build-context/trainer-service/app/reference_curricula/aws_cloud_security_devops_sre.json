@@ -1,0 +1,548 @@
+{
+  "name": "AWS Cloud Security, DevOps & SRE",
+  "audience": "",
+  "version": "reference-import-v2",
+  "source_file": "AWS_Security_DevOps_SRE_10Day_Training_Plan_1.xlsx",
+  "source_sha256": "ad3b0fa03133e32ac47454f3bad6e3aee28e8d558023e9e9144a4b2dfc519de7",
+  "review_status": "unreviewed",
+  "review_warnings": [],
+  "usage": "Reference examples only; original client brief and subject-matter approval not supplied.",
+  "modules": [
+    {
+      "topic": "Zero-Trust Identity Architecture  +  Multi-Account Security",
+      "module_group": "Module 1 — Enterprise IAM, Governance & Cryptographic Security",
+      "reference_day": 1,
+      "subtopics": [
+        "Zero-Trust Identity Architecture: principle of least privilege, IAM permission boundaries, condition keys (enforcing source IP, MFA, SSL via aws:SecureTransport), cross-account sts:AssumeRole",
+        "Multi-Account Security: AWS Control Tower, SCPs for hard preventative boundaries (e.g., blocking region usage, disallowing public S3)"
+      ],
+      "learning_objectives": [
+        "Apply least-privilege IAM with permission boundaries and condition keys (source IP, MFA, SSL); configure cross-account sts:AssumeRole",
+        "Enforce multi-account guardrails using Control Tower and SCPs"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A3:F3",
+      "lab": "Use a prepared sandbox to test an allowed and denied IAM action, then exercise a cross-account role and inspect the guardrail result.",
+      "deliverable": "IAM policy, role trust policy and permission test matrix",
+      "assessment": "Expected allowed actions succeed and prohibited actions are denied; capture both results.",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Zero-Trust Identity Architecture: principle of least privilege, IAM permission boundaries, condition keys (enforcing source IP, MFA, SSL via aws:SecureTransport), cross-account sts:AssumeRole; Multi-Account Security: AWS Control Tower, SCPs for hard preventative boundaries (e.g., blocking region usage, disallowing public S3)",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Use a prepared sandbox to test an allowed and denied IAM action, then exercise a cross-account role and inspect the guardrail result.",
+          "evidence": "IAM policy, role trust policy and permission test matrix"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Expected allowed actions succeed and prohibited actions are denied; capture both results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "deliverable",
+        "assessment",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Key Management & Secrets  +  Credential Security",
+      "module_group": "Module 1 — Enterprise IAM, Governance & Cryptographic Security",
+      "reference_day": 2,
+      "subtopics": [
+        "Key Management & Secrets: AWS KMS architecture (symmetric vs. asymmetric, Customer Managed Keys vs. AWS Managed, key rotation, KMS key policies)",
+        "Credential Security: Secrets Manager (automated rotation via Lambda) vs. SSM Parameter Store (hierarchical parameters, KMS encryption)"
+      ],
+      "learning_objectives": [
+        "Explain KMS architecture and configure key rotation and KMS key policies",
+        "Secure credentials with Secrets Manager (Lambda rotation) and SSM Parameter Store"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A4:F4",
+      "lab": "Encrypt sample data with a sandbox KMS key, retrieve a test secret and inspect a prepared rotation workflow.",
+      "deliverable": "Key policy, secret retrieval example and rotation test record",
+      "assessment": "Authorised retrieval succeeds, unauthorised retrieval fails, and the sample application retrieves the rotated test secret.",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Key Management & Secrets: AWS KMS architecture (symmetric vs. asymmetric, Customer Managed Keys vs. AWS Managed, key rotation, KMS key policies); Credential Security: Secrets Manager (automated rotation via Lambda) vs. SSM Parameter Store (hierarchical parameters, KMS encryption)",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Encrypt sample data with a sandbox KMS key, retrieve a test secret and inspect a prepared rotation workflow.",
+          "evidence": "Key policy, secret retrieval example and rotation test record"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Authorised retrieval succeeds, unauthorised retrieval fails, and the sample application retrieves the rotated test secret.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "deliverable",
+        "assessment",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Micro-Segmentation  +  Stateless vs. Stateful Inspection",
+      "module_group": "Module 2 — Network Perimeter, Zero Egress & Traffic Inspection",
+      "reference_day": 3,
+      "subtopics": [
+        "Micro-Segmentation: multi-tier VPC subnet segregation (Public, App-private, Database-isolated) with strict Security Group chaining (referencing security groups instead of IP CIDRs)",
+        "Stateless vs. Stateful Inspection: NACLs as subnet-level stateless packet filters vs. Security Groups as stateful firewalls"
+      ],
+      "learning_objectives": [
+        "Design multi-tier VPC segmentation with Security Group chaining",
+        "Differentiate stateless NACLs from stateful Security Groups"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A5:F5",
+      "lab": "Configure a prepared three-tier VPC with security-group references and compare a security-group rule with a NACL rule.",
+      "deliverable": "Network diagram, rule set and connectivity matrix",
+      "assessment": "Application-to-database traffic succeeds while direct public-to-database traffic fails.",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Micro-Segmentation: multi-tier VPC subnet segregation (Public, App-private, Database-isolated) with strict Security Group chaining (referencing security groups instead of IP CIDRs); Stateless vs. Stateful Inspection: NACLs as subnet-level stateless packet filters vs. Security Groups as stateful firewalls",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Configure a prepared three-tier VPC with security-group references and compare a security-group rule with a NACL rule.",
+          "evidence": "Network diagram, rule set and connectivity matrix"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Application-to-database traffic succeeds while direct public-to-database traffic fails.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "deliverable",
+        "assessment",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Egress Control & PrivateLink  +  Network Threat Visibility",
+      "module_group": "Module 2 — Network Perimeter, Zero Egress & Traffic Inspection",
+      "reference_day": 4,
+      "subtopics": [
+        "Egress Control & PrivateLink: removing public internet routes for backend infrastructure using VPC Endpoints (Interface Endpoints via PrivateLink and S3/DynamoDB Gateway Endpoints)",
+        "Network Threat Visibility: enabling and analyzing VPC Flow Logs with CloudWatch Logs Insights and Athena to detect port scans and anomalous outbound traffic"
+      ],
+      "learning_objectives": [
+        "Remove public egress using PrivateLink Interface Endpoints and S3/DynamoDB Gateway Endpoints",
+        "Analyze VPC Flow Logs with Logs Insights and Athena to detect port scans and anomalous outbound traffic"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A6:F6",
+      "lab": "Replace a sample backend's public service route with an endpoint, then query supplied flow logs for seeded anomalous connections.",
+      "deliverable": "Endpoint configuration and annotated log queries",
+      "assessment": "The required service remains reachable over the private path and seeded anomalous flows are identified.",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Egress Control & PrivateLink: removing public internet routes for backend infrastructure using VPC Endpoints (Interface Endpoints via PrivateLink and S3/DynamoDB Gateway Endpoints); Network Threat Visibility: enabling and analyzing VPC Flow Logs with CloudWatch Logs Insights and Athena to detect port scans and anomalous outbound traffic",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Replace a sample backend's public service route with an endpoint, then query supplied flow logs for seeded anomalous connections.",
+          "evidence": "Endpoint configuration and annotated log queries"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "The required service remains reachable over the private path and seeded anomalous flows are identified.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "deliverable",
+        "assessment",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "WAFv2 Core Architecture  +  AWS Managed Rule Sets  +  Custom Rule Development",
+      "module_group": "Module 3 — Deep Dive: AWS WAF, DDoS & Edge Security",
+      "reference_day": 5,
+      "subtopics": [
+        "WAFv2 Core Architecture: Web ACL structure, association with CloudFront, Application Load Balancers (ALBs), and API Gateways",
+        "AWS Managed Rule Sets (AMRs): implementing and tuning the Core Rule Set (CRS / OWASP Top 10), Known Bad Inputs, and SQLi Rule Sets",
+        "Custom Rule Development: string matching, regex patterns, Geo-blocking rules, and header-based inspections (enforcing custom secret tokens between CloudFront and ALB)"
+      ],
+      "learning_objectives": [
+        "Structure WAFv2 Web ACLs and associate with CloudFront, ALBs and API Gateways",
+        "Implement and tune AWS Managed Rule Sets (CRS/OWASP, Known Bad Inputs, SQLi)",
+        "Develop custom rules — string, regex, geo-blocking, header-based inspection"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A7:F7",
+      "lab": "Attach a sandbox Web ACL to a prepared application and test managed and custom rules with labelled sample requests.",
+      "deliverable": "Web ACL configuration and request test matrix",
+      "assessment": "Record each expected rule match alongside a benign request that should remain permitted.",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: WAFv2 Core Architecture: Web ACL structure, association with CloudFront, Application Load Balancers (ALBs), and API Gateways; AWS Managed Rule Sets (AMRs): implementing and tuning the Core Rule Set (CRS / OWASP Top 10), Known Bad Inputs, and SQLi Rule Sets; Custom Rule Development: string matching, regex patterns, Geo-blocking rules, and header-based inspections (enforcing custom secret tokens between CloudFront and ALB)",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Attach a sandbox Web ACL to a prepared application and test managed and custom rules with labelled sample requests.",
+          "evidence": "Web ACL configuration and request test matrix"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Record each expected rule match alongside a benign request that should remain permitted.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "deliverable",
+        "assessment",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Rate-Based Rules  +  Bot Control  +  Rule Tuning  +  DDoS & Central Governance",
+      "module_group": "Module 3 — Deep Dive: AWS WAF, DDoS & Edge Security",
+      "reference_day": 6,
+      "subtopics": [
+        "Count-mode observation before rule promotion",
+        "Labelled benign and malicious request fixtures",
+        "Rule-match evidence and benign false positives",
+        "Rate-based rule aggregation and test limits",
+        "Promotion and rollback criteria",
+        "Bot Control, Shield and central policy scope as demonstrations"
+      ],
+      "learning_objectives": [
+        "Trace each fixture request to observed WAF rule evidence",
+        "Reduce the seeded false positive while retaining matches for both suspicious fixtures",
+        "Explain why a small passing fixture is insufficient evidence for production promotion"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A8:F8",
+      "lab": "Use a prepared training Web ACL in Count mode. Replay ten labelled requests containing eight benign cases and two suspicious cases against the isolated lab application. Capture the matched rule for each request, investigate the seeded benign false positive and adjust the candidate rule. Demonstrate rate-rule behaviour separately using a bounded trainer-controlled request run.",
+      "deliverable": "Ten-row request/result matrix, before-and-after rule configuration, false-positive investigation and promotion/rollback decision",
+      "assessment": "All ten request IDs have traceable results. Both suspicious fixtures still match the intended rule; none of the eight benign fixtures matches it after tuning. Record remaining coverage limits and a rollback condition. Count mode is not reported as having blocked a request.",
+      "delivery_steps": [
+        {
+          "minutes": 35,
+          "method": "Demonstration",
+          "activity": "Trace Count-mode matches and distinguish matches from blocks",
+          "evidence": "Annotated request log"
+        },
+        {
+          "minutes": 95,
+          "method": "Guided lab",
+          "activity": "Run ten cases and investigate the false positive",
+          "evidence": "Baseline request/result matrix"
+        },
+        {
+          "minutes": 65,
+          "method": "Independent exercise",
+          "activity": "Tune and rerun cases; observe bounded rate-rule demo",
+          "evidence": "Comparison matrix and tuning rationale"
+        },
+        {
+          "minutes": 45,
+          "method": "Assessment",
+          "activity": "Defend promotion criteria and discuss optional central controls",
+          "evidence": "Decision with limitations and rollback conditions"
+        }
+      ],
+      "delivery_basis": "Authored scenario and acceptance checks; sample assets must be prepared before delivery",
+      "proposed_fields": [
+        "lab",
+        "deliverable",
+        "assessment",
+        "delivery_steps",
+        "subtopics",
+        "scenario",
+        "learning_objectives",
+        "prerequisites",
+        "preparation_requirements",
+        "source_urls",
+        "minutes"
+      ],
+      "preparation_requirements": [
+        "Trainer-owned isolated application, Web ACL, logs and labelled request fixtures with expected matches",
+        "Prepare the false-positive rule and cap the separate rate test; do not use production traffic",
+        "Confirm account access and service availability; paid optional features may use recorded demonstrations"
+      ],
+      "original_reference_content": {
+        "subtopics": [
+          "Rate-Based Rules & Abuse Mitigation: dynamic rate limiting per IP to mitigate brute-force attacks and Layer 7 HTTP flood DDoS",
+          "Bot Control & Fraud Protection: Bot Control managed rules, Challenge/CAPTCHA actions, Account Takeover Prevention (ATP) basics",
+          "Rule Tuning & Zero False-Positive Testing: Count mode, sampled request inspection, and CloudWatch metrics before promoting rules to Block",
+          "DDoS Protection & Central Governance: AWS Shield Standard vs. Shield Advanced, with AWS Firewall Manager to enforce WAF policies across multiple AWS accounts"
+        ],
+        "scenario": null,
+        "lab": "Tune a prepared WAF policy in Count mode using a synthetic request set; compare rule matches and benign false positives before proposing Block mode.",
+        "deliverable": "Rule tuning report with rate-rule settings and promotion decision",
+        "learning_objectives": [
+          "Configure rate-based rules against brute-force and L7 HTTP flood DDoS",
+          "Apply Bot Control, Challenge/CAPTCHA and ATP basics",
+          "Tune rules with Count mode, sampled requests and CloudWatch metrics before Block",
+          "Compare Shield Standard vs. Advanced and govern WAF policy across accounts with Firewall Manager"
+        ],
+        "assessment": "Seeded abusive requests match the intended rules and benign matches are explicitly investigated.",
+        "prerequisites": null,
+        "preparation_requirements": [
+          "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+        ],
+        "source_urls": null
+      },
+      "scenario": "A candidate WAF rule matches both suspicious requests and a legitimate search request. The team must decide whether to promote it without blocking ordinary users.",
+      "prerequisites": [
+        "Web ACL associations, HTTP requests and basic CloudWatch log navigation"
+      ],
+      "source_urls": [
+        "https://docs.aws.amazon.com/waf/latest/developerguide/web-acl-testing.html"
+      ],
+      "duration_basis": "Proposed pilot teaching budget; trainer feasibility review required",
+      "content_quality_stage": "authored_pilot_pending_lab_validation",
+      "review_status": "unreviewed"
+    },
+    {
+      "topic": "Storage & Data Perimeter  +  Database Defense-in-Depth",
+      "module_group": "Module 4 — Compute, Data Security & Threat Detection",
+      "reference_day": 7,
+      "subtopics": [
+        "Storage & Data Perimeter: S3 Bucket Policies (explicit denies for non-TLS, unencrypted uploads), S3 Block Public Access, Object Lock (WORM compliance), EBS default volume encryption",
+        "Database Defense-in-Depth: RDS encryption at rest, IAM database authentication, TLS enforcement, Secrets Manager integration"
+      ],
+      "learning_objectives": [
+        "Harden the S3/EBS data perimeter with bucket policies, Block Public Access, Object Lock and default encryption",
+        "Apply RDS defense-in-depth: encryption at rest, IAM database authentication, TLS, Secrets Manager"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A9:F9",
+      "lab": "Apply sample S3 and database access controls in a sandbox and compare TLS and access-policy test results.",
+      "deliverable": "Storage and database hardening checklist with test evidence",
+      "assessment": "Disallowed access fails and the authorised TLS connection succeeds; record encryption settings.",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Storage & Data Perimeter: S3 Bucket Policies (explicit denies for non-TLS, unencrypted uploads), S3 Block Public Access, Object Lock (WORM compliance), EBS default volume encryption; Database Defense-in-Depth: RDS encryption at rest, IAM database authentication, TLS enforcement, Secrets Manager integration",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Apply sample S3 and database access controls in a sandbox and compare TLS and access-policy test results.",
+          "evidence": "Storage and database hardening checklist with test evidence"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Disallowed access fails and the authorised TLS connection succeeds; record encryption settings.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "deliverable",
+        "assessment",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Continuous Threat Detection  +  Vulnerability Assessment",
+      "module_group": "Module 4 — Compute, Data Security & Threat Detection",
+      "reference_day": 8,
+      "subtopics": [
+        "Continuous Threat Detection: Amazon GuardDuty (anomaly detection using VPC Flow Logs, DNS logs, and CloudTrail event analysis)",
+        "Vulnerability Assessment: Amazon Inspector for automated CVE scans on EC2 instances and ECR container images"
+      ],
+      "learning_objectives": [
+        "Operate GuardDuty continuous threat detection across Flow Logs, DNS logs and CloudTrail",
+        "Run automated CVE assessment with Amazon Inspector on EC2 and ECR images"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A10:F10",
+      "lab": "Triage supplied GuardDuty sample findings and Inspector scan results, mapping each to an affected sample asset and remediation action.",
+      "deliverable": "Prioritised findings register with asset mapping",
+      "assessment": "Every seeded critical finding has an affected asset, supporting evidence and a justified remediation priority.",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Continuous Threat Detection: Amazon GuardDuty (anomaly detection using VPC Flow Logs, DNS logs, and CloudTrail event analysis); Vulnerability Assessment: Amazon Inspector for automated CVE scans on EC2 instances and ECR container images",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Triage supplied GuardDuty sample findings and Inspector scan results, mapping each to an affected sample asset and remediation action.",
+          "evidence": "Prioritised findings register with asset mapping"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Every seeded critical finding has an affected asset, supporting evidence and a justified remediation priority.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "deliverable",
+        "assessment",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Compliance & Posture Management  +  Automated Remediation",
+      "module_group": "Module 5 — Security Automation, IaC & Incident Simulation Capstone",
+      "reference_day": 9,
+      "subtopics": [
+        "Compliance & Posture Management: AWS Config rules for automated drift detection (e.g., flagging unencrypted volumes, open SSH ports) and AWS Security Hub for CSPM benchmarking against CIS AWS Foundations",
+        "Automated Remediation: EventBridge-triggered Lambda functions to auto-revoke compromised IAM credentials or isolate infected EC2 instances"
+      ],
+      "learning_objectives": [
+        "Manage posture with AWS Config drift detection and Security Hub CSPM against CIS AWS Foundations",
+        "Build EventBridge-triggered Lambda automated remediation (revoke IAM credentials, isolate EC2)"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A11:F11",
+      "lab": "Use a prepared non-compliant sandbox resource to exercise a Config detection and an EventBridge-triggered remediation workflow.",
+      "deliverable": "Detection rule, remediation function and before/after evidence",
+      "assessment": "The seeded deviation is detected, the expected sandbox change occurs, and repeat execution has no unintended effect.",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Compliance & Posture Management: AWS Config rules for automated drift detection (e.g., flagging unencrypted volumes, open SSH ports) and AWS Security Hub for CSPM benchmarking against CIS AWS Foundations; Automated Remediation: EventBridge-triggered Lambda functions to auto-revoke compromised IAM credentials or isolate infected EC2 instances",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Use a prepared non-compliant sandbox resource to exercise a Config detection and an EventBridge-triggered remediation workflow.",
+          "evidence": "Detection rule, remediation function and before/after evidence"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "The seeded deviation is detected, the expected sandbox change occurs, and repeat execution has no unintended effect.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "deliverable",
+        "assessment",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Hands-on Attack & Defense Capstone",
+      "module_group": "Module 5 — Security Automation, IaC & Incident Simulation Capstone",
+      "reference_day": 10,
+      "subtopics": [
+        "Deploy an enterprise 3-tier architecture with CloudFormation or Terraform",
+        "Attach AWS WAF to the ALB with rate limiting, geo-blocking, and OWASP protections",
+        "Live Attack Lab: simulate an SQL injection attempt, an XSS payload, and an HTTP flood attack using tools like curl or ab to observe WAF metrics, blocked request traces, and CloudWatch alarms in real time"
+      ],
+      "learning_objectives": [
+        "Deploy a 3-tier architecture via CloudFormation/Terraform and defend it with WAF (rate limiting, geo-blocking, OWASP)",
+        "Execute a live attack lab (SQLi, XSS, HTTP flood via curl/ab) and observe WAF metrics, blocked-request traces and CloudWatch alarms"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A12:F12",
+      "lab": "Deploy a prepared three-tier IaC starter in an isolated training account, attach WAF, and replay bounded SQLi, XSS and request-rate test cases against the training application.",
+      "deliverable": "IaC deployment, WAF configuration and attack/defence evidence report",
+      "assessment": "The training application serves benign traffic, seeded cases produce expected rule matches, and logs support each reported result.",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Deploy an enterprise 3-tier architecture with CloudFormation or Terraform; Attach AWS WAF to the ALB with rate limiting, geo-blocking, and OWASP protections; Live Attack Lab: simulate an SQL injection attempt, an XSS payload, and an HTTP flood attack using tools like curl or ab to observe WAF metrics, blocked request traces, and CloudWatch alarms in real time",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deploy a prepared three-tier IaC starter in an isolated training account, attach WAF, and replay bounded SQLi, XSS and request-rate test cases against the training application.",
+          "evidence": "IaC deployment, WAF configuration and attack/defence evidence report"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "The training application serves benign traffic, seeded cases produce expected rule matches, and logs support each reported result.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "deliverable",
+        "assessment",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    }
+  ]
+}

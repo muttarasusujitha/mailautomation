@@ -1,0 +1,573 @@
+{
+  "domain": "Azure DevOps",
+  "name": "Azure DevOps",
+  "category": "DevOps and CI/CD",
+  "icon": "workflow",
+  "aliases": ["ADO", "Azure Boards/Pipelines/Repos", "Azure DevOps Services", "Azure DevOps Server", "Azure Pipelines", "Azure DevOps Engineer", "AZ-400", "VSTS"],
+  "certifications": ["Microsoft Certified: DevOps Engineer Expert"],
+  "tools": ["Azure Boards", "Azure Repos", "Azure Pipelines", "Azure Artifacts", "Azure Test Plans", "Azure DevOps CLI (az devops)", "Azure DevOps REST API", "Azure Pipelines agent", "Managed DevOps Pools", "Bicep", "Terraform", "GitHub Advanced Security for Azure DevOps", "GitHub Enterprise Importer", "Visual Studio Code"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, testers, team leads and operations engineers who are new to Azure DevOps Services. Covers organisations, projects, access levels and permissions, Azure Boards work items, backlogs, sprints and queries, Azure Repos with pull requests and branch policies, a first YAML pipeline with triggers, variables, tests and artifacts, Microsoft-hosted agents, Azure Artifacts feeds, a first workload identity federation service connection, an App Service deployment, Azure Test Plans, wikis and dashboards, and a capstone that takes one team project from backlog to a running web app.",
+      "prerequisites": ["Uses Git from the command line: clone, branch, commit, push and pull", "Has built and tested a small application in a language such as C#, Java, Python or JavaScript", "Has a Microsoft Entra ID or Microsoft account, an Azure subscription with Contributor rights on a resource group, and the Azure CLI installed"],
+      "outcomes": ["Create an Azure DevOps organisation and project and give each team member the right access level and security group", "Plan work in Azure Boards with work items, backlogs, sprints, boards and WIQL queries", "Protect a main branch in Azure Repos with pull requests, reviewers and build validation", "Write a YAML pipeline that builds, tests, publishes artifacts and deploys to Azure App Service through a workload identity federation service connection"],
+      "days": [
+        {
+          "topic": "Azure DevOps Organisation and Project Setup",
+          "subtopics": ["Azure DevOps Services at dev.azure.com compared with on-premises Azure DevOps Server", "The five services: Boards, Repos, Pipelines, Test Plans and Artifacts", "Creating an organisation and choosing its geography", "Connecting the organisation to a Microsoft Entra ID tenant", "Projects, teams and the default project team", "Private and public project visibility and the organisation policy that controls it", "Turning individual services on or off in Project settings", "Installing the azure-devops extension for the Azure CLI", "az devops configure --defaults for organisation and project", "Organisation settings: billing, policies, extensions and usage"],
+          "tools": ["Azure DevOps portal", "Azure CLI", "azure-devops CLI extension", "Microsoft Entra ID"],
+          "lab_task": "Create an organisation at dev.azure.com, run az extension add --name azure-devops, then az devops configure --defaults organization=https://dev.azure.com/<org>. Create a private project with az devops project create --name Contoso.Shop --process Agile --visibility private, disable Test Plans in Project settings > Overview, and list projects with az devops project list -o table.",
+          "deliverable": "Setup record with the organisation URL, project settings screenshot and az devops project list output",
+          "checks": [["Run az devops project list -o table", "Contoso.Shop is listed with visibility private", "CLI output"], ["Run az devops project show --project Contoso.Shop --query capabilities.processTemplate", "templateName is Agile", "CLI output"], ["Open the project after disabling Test Plans", "Test Plans no longer appears in the left navigation", "Portal screenshot"]],
+          "objectives": ["Explain the five Azure DevOps services and how they relate", "Create an organisation and a project from the portal and the CLI", "Configure CLI defaults so later commands need no organisation flag"]
+        },
+        {
+          "topic": "Access Levels, Security Groups and Permissions in Azure DevOps",
+          "subtopics": ["Access levels: Stakeholder, Basic, Basic + Test Plans and Visual Studio subscriber", "Free Basic users and how billing applies to additional users", "Organisation groups: Project Collection Administrators and Project Collection Valid Users", "Project groups: Project Administrators, Contributors, Readers and Build Administrators", "Allow, Deny, Not set and how inheritance resolves them", "Adding users and Entra ID groups with az devops user add and az devops security group membership add", "Group rules that assign access levels automatically", "Personal access tokens: scopes, expiry and why Microsoft recommends Entra ID tokens instead"],
+          "tools": ["Azure DevOps portal", "Azure CLI", "Microsoft Entra ID", "Personal access tokens"],
+          "lab_task": "Add three test users: one Stakeholder (product owner), one Basic (developer) and one Basic + Test Plans (tester) with az devops user add --email-id <mail> --license-type stakeholder. Put the developer in Contributors and the product owner in Readers, then sign in as each and record which of Boards, Repos and Pipelines they can open and edit.",
+          "deliverable": "Access matrix showing each user's access level, group and what they could do in each service",
+          "checks": [["Sign in as the Stakeholder user and open Repos > Files", "Repos is unavailable to the user because Stakeholder access does not include code in private projects", "Portal screenshot"], ["Run az devops user list --query \"items[].accessLevel.licenseDisplayName\"", "Three entries: Stakeholder, Basic and Basic + Test Plans", "CLI output"], ["Set Deny on Contribute for the developer on one repository", "A push from that user fails with TF401027 You need the Git 'GenericContribute' permission", "Git client output"]],
+          "objectives": ["Choose the access level each team role needs", "Assign users to built-in security groups", "Explain how Allow, Deny and inheritance combine"]
+        },
+        {
+          "topic": "Azure Boards Work Items and Process Templates",
+          "subtopics": ["Process templates: Basic, Agile, Scrum and CMMI", "Agile work item types: Epic, Feature, User Story, Task, Bug and Issue", "Work item states and the To Do, Doing and Done state categories", "Required fields, the Description and Acceptance Criteria fields", "Parent-child, related, predecessor-successor and duplicate links", "Area paths and iteration paths as classification fields", "Tags, mentions with @ and discussion comments", "Creating work items with az boards work-item create and the work item REST API"],
+          "tools": ["Azure Boards", "Azure CLI", "Azure DevOps REST API"],
+          "lab_task": "In Contoso.Shop create one Epic (Online ordering), two Features and six User Stories with acceptance criteria, using az boards work-item create --type \"User Story\" --title <t> for the stories. Link each story to its Feature as a child with az boards work-item relation add --relation-type parent, then open the Epic and check the hierarchy and that every story has an area path.",
+          "deliverable": "Work item hierarchy with one Epic, two Features and six linked User Stories",
+          "checks": [["Open the Epic and expand its child links", "Two Features appear, each with three child User Stories", "Portal screenshot"], ["Run az boards work-item create without --type", "The command fails because the argument --type is required", "CLI output"], ["Move a User Story directly from New to Closed", "The state change is saved and Closed maps to the Completed state category", "Work item history"]],
+          "objectives": ["Compare the four default processes", "Create and link work items into a hierarchy", "Use area and iteration paths to classify work"]
+        },
+        {
+          "topic": "Backlogs, Sprints and Capacity Planning in Azure Boards",
+          "subtopics": ["Portfolio backlogs for Epics and Features and the product backlog for stories", "Ordering the backlog with Backlog Priority (Stack Rank)", "Iterations: creating sprints with start and end dates", "Selecting team iterations in Team configuration", "Sprint planning: dragging stories into a sprint and breaking them into tasks", "Capacity per person per day and days off", "Remaining Work and the sprint burndown chart", "Story Points, velocity and the forecast tool"],
+          "tools": ["Azure Boards", "Azure CLI", "Sprint burndown widget"],
+          "lab_task": "Create Sprint 1 and Sprint 2 as two-week iterations with az boards iteration project create --name \"Sprint 1\" --start-date and --finish-date, add both to the team with az boards iteration team add, set capacity of 6 hours per day for three members, move four stories into Sprint 1, add tasks with Remaining Work totalling 150 hours, and compare work against capacity.",
+          "deliverable": "Sprint 1 plan with capacity settings, task breakdown and the capacity bar screenshot",
+          "checks": [["Open Sprint 1 > Capacity after entering 6 hours per day for 3 people over 10 working days", "Total team capacity shows 180 hours", "Portal screenshot"], ["Add tasks totalling 150 hours of Remaining Work", "The work bar shows 150 of 180 hours and stays green", "Sprint planning pane"], ["Run az boards iteration team list --team \"Contoso.Shop Team\"", "Sprint 1 and Sprint 2 are listed with their dates", "CLI output"]],
+          "objectives": ["Order a product backlog", "Plan a sprint against team capacity", "Read the burndown and velocity charts"]
+        },
+        {
+          "topic": "Kanban Boards, Queries and WIQL in Azure Boards",
+          "subtopics": ["Board columns mapped to work item states", "Split columns for Doing and Done", "WIP limits and what happens when a column exceeds them", "Swimlanes and card styling rules", "Definition of Done per column", "Query editor: flat list, tree and direct links queries", "WIQL syntax with @project, @me, @currentIteration and @today macros", "Running WIQL with az boards query --wiql and charting query results"],
+          "tools": ["Azure Boards", "Azure CLI", "WIQL"],
+          "lab_task": "Configure the Stories board with columns New, Ready, In Progress (WIP limit 3, split), Review and Closed and add an Expedite swimlane. Save a shared query of active bugs and run az boards query --wiql \"SELECT [System.Id] FROM WorkItems WHERE [System.TeamProject] = @project AND [System.WorkItemType] = 'Bug' AND [System.State] = 'Active'\" after creating four bugs and resolving one.",
+          "deliverable": "Configured board, a saved shared query and the WIQL output",
+          "checks": [["Move a fourth card into In Progress when the WIP limit is 3", "The column header shows 4/3 highlighted in red", "Board screenshot"], ["Run the WIQL query after creating 4 bugs and resolving 1", "3 work item IDs are returned", "CLI output"], ["Use the macro @me in a query run by the developer user", "Only work items assigned to the developer are listed", "Query results"]],
+          "objectives": ["Configure a Kanban board with WIP limits and swimlanes", "Write WIQL queries using macros", "Share queries and chart their results"]
+        },
+        {
+          "topic": "Azure Repos Git Repositories and Cloning",
+          "subtopics": ["Git and Team Foundation Version Control (TFVC) in Azure Repos", "Creating, importing and renaming repositories with az repos create and az repos import create", "Clone URLs: HTTPS with Git Credential Manager and SSH keys", "Default branch name and the initial README and .gitignore", "Files, Commits, Pushes and Branches views", "Repository settings: case enforcement, maximum file size and reserved names", "Linking commits to work items by mentioning #ID in the commit message", "Forks within an organisation"],
+          "tools": ["Azure Repos", "Git", "Git Credential Manager", "Azure CLI"],
+          "lab_task": "Create a repository with az repos create --name shop-web, clone it with git clone https://dev.azure.com/<org>/Contoso.Shop/_git/shop-web, add a small web app and a .gitignore, and push a commit whose message includes #<story id>. Then set the maximum file size policy to 10 MB and try to push a 20 MB file.",
+          "deliverable": "Populated shop-web repository with a commit linked to a User Story and the blocked large-file push",
+          "checks": [["Open the User Story mentioned in the commit message", "The Development section lists the commit as a linked item", "Work item screenshot"], ["Push a commit containing a 20 MB file with the 10 MB file size policy on", "The push is rejected with an error naming the file and the size limit", "Git client output"], ["Run az repos list --query \"[].name\" -o tsv", "shop-web is listed", "CLI output"]],
+          "objectives": ["Create, import and clone Azure Repos Git repositories", "Link commits to work items", "Apply repository-level settings that block bad pushes"]
+        },
+        {
+          "topic": "Pull Requests and Code Review in Azure Repos",
+          "subtopics": ["Creating a pull request from a topic branch in the portal and with az repos pr create", "Draft pull requests and publishing them", "Required and optional reviewers and reviewer groups", "Votes: Approve, Approve with suggestions, Wait for author and Reject", "Inline comments, suggestions and resolving threads", "Linking work items to a pull request", "Merge types: merge (no fast-forward), squash, rebase and fast-forward, and semi-linear", "Auto-complete, deleting the source branch and transitioning linked work items"],
+          "tools": ["Azure Repos", "Azure CLI", "Git"],
+          "lab_task": "Create branch feature/cart, push two commits and open a pull request with az repos pr create --source-branch feature/cart --target-branch main --work-items <id> --draft true. Publish it, have a second user leave a comment and approve with az repos pr set-vote --id <pr> --vote approve, set auto-complete with squash merge, and confirm the linked story moves to Closed.",
+          "deliverable": "Completed pull request with review thread, squash commit on main and the updated story state",
+          "checks": [["Complete the pull request with squash merge", "main gains exactly one new commit for the two feature commits", "git log --oneline output"], ["Run az repos pr show --id <pr> --query status", "Status is completed", "CLI output"], ["Open the linked User Story after completion with the transition option on", "The story state is Closed", "Work item history"]],
+          "objectives": ["Run a pull request from draft to completion", "Choose the right merge type for a team", "Link code review to planned work"]
+        },
+        {
+          "topic": "Branch Policies and Branch Permissions in Azure Repos",
+          "subtopics": ["Minimum number of reviewers and resetting votes on new pushes", "Check for linked work items", "Check for comment resolution", "Limit merge types", "Build validation policies and their expiry", "Automatically included reviewers by path", "Branch security: Force push, Bypass policies when pushing and Bypass policies when completing pull requests", "Creating policies with az repos policy commands and cross-repository policies for branch patterns"],
+          "tools": ["Azure Repos", "Azure CLI", "Branch policies"],
+          "lab_task": "On shop-web main add policies with az repos policy approver-count create --minimum-approver-count 1 --creator-vote-counts false --allow-downvotes false --reset-on-source-push true --blocking true --enabled true --branch main --repository-id <id>, plus work-item-linking and comment-required policies. Try a direct push to main, then open a PR with no linked work item and record which policies block it.",
+          "deliverable": "Policy list for main and evidence of each blocked action",
+          "checks": [["Push a commit directly to main", "Push rejected with TF402455 Pushes to this branch are not permitted; you must use a pull request", "Git client output"], ["Open a pull request with no linked work item", "The Work items must be linked policy shows as failed and Complete is disabled", "Pull request screenshot"], ["Run az repos policy list --branch main --repository-id <id> --query \"length(@)\"", "Returns 3", "CLI output"]],
+          "objectives": ["Protect a branch with review and work item policies", "Explain which permissions let users bypass policies", "Manage policies from the CLI"]
+        },
+        {
+          "topic": "First YAML Pipeline in Azure Pipelines",
+          "subtopics": ["YAML pipelines compared with classic build and release pipelines", "azure-pipelines.yml: trigger, pool, steps", "script, bash, pwsh and task steps", "Task names with major versions such as DotNetCoreCLI@2 and UseNode@1", "Creating a pipeline with az pipelines create --yml-path", "Run summary, job logs and step timing", "Run numbers with the name property, $(Date:yyyyMMdd) and $(Rev:r)", "Validating YAML in the editor and the task assistant"],
+          "tools": ["Azure Pipelines", "Azure CLI", "Visual Studio Code", "Azure Pipelines VS Code extension"],
+          "lab_task": "Add azure-pipelines.yml to shop-web with trigger: main, pool vmImage: ubuntu-latest, a UseNode@1 task, then npm ci and npm run build steps, and name: $(Date:yyyyMMdd)$(Rev:.r). Register it with az pipelines create --name shop-web-ci --yml-path azure-pipelines.yml --repository shop-web --repository-type tfsgit --branch main and run it twice.",
+          "deliverable": "Working CI pipeline, YAML file and the two run numbers",
+          "checks": [["Run az pipelines runs list --pipeline-ids <id> --query \"[].result\"", "Both runs show succeeded", "CLI output"], ["Read the run number of the second run on the same day", "It ends in .2, for example 20261123.2", "Run summary"], ["Misspell steps as step in the YAML and save", "The run fails to start with a message that step is an unexpected value", "Pipeline error output"]],
+          "objectives": ["Write and register a first YAML pipeline", "Read run summaries and step logs", "Use tasks and scripts in the same job"]
+        },
+        {
+          "topic": "Pipeline Triggers, Path Filters and Scheduled Runs",
+          "subtopics": ["CI triggers with branches include and exclude", "Path filters for monorepo folders", "batch: true to combine queued commits", "trigger: none for manual-only pipelines", "Why YAML pr triggers do not apply to Azure Repos and build validation is used instead", "Scheduled triggers with cron syntax in UTC and always: false", "Skipping CI with [skip ci] in the commit message", "Build.Reason values: IndividualCI, BatchedCI, PullRequest, Schedule and Manual"],
+          "tools": ["Azure Pipelines", "Azure Repos", "Git"],
+          "lab_task": "Change shop-web-ci to trigger on main and release/* with a path filter include of src/* and exclude of docs/*, and add schedules: - cron: \"0 2 * * 1-5\" with always: false. Push a docs-only change, a src change and a commit with [skip ci], then echo $(Build.Reason) in a step and record which pushes started runs.",
+          "deliverable": "Trigger test table listing each push and whether a run started with its Build.Reason",
+          "checks": [["Push a change that only touches docs/readme.md", "No pipeline run is queued", "Pipeline runs list"], ["Push a change to src/app.js on main", "A run starts and the step prints IndividualCI", "Job log"], ["Push a src change whose message contains [skip ci]", "No run is queued for that commit", "Pipeline runs list"]],
+          "objectives": ["Configure branch and path filters", "Schedule nightly runs that skip unchanged code", "Explain how pull request validation works for Azure Repos"]
+        },
+        {
+          "topic": "Pipeline Variables, Predefined Variables and Expressions",
+          "subtopics": ["Defining variables at pipeline, stage and job level", "Macro syntax $(var), template expressions ${{ }} and runtime expressions $[ ]", "When each syntax is evaluated: compile time or run time", "Predefined variables: Build.SourceBranch, Build.BuildId, Agent.OS and Build.ArtifactStagingDirectory", "Secret variables set in the pipeline UI and why they are not mapped into scripts automatically", "Mapping a secret into a script with env:", "Variables settable at queue time", "Setting a variable from a script with ##vso[task.setvariable]", "Expression functions: eq, ne, and, or, contains, startsWith and format", "Runtime parameters with a values list shown at queue time"],
+          "tools": ["Azure Pipelines", "Azure CLI", "Logging commands"],
+          "lab_task": "Add variables configuration: Release and a runtime parameter environment with values dev and test. Create a secret variable apiKey in the UI, print it directly and through env: API_KEY: $(apiKey) with a length check, set a variable with echo \"##vso[task.setvariable variable=buildTag]web-$(Build.BuildId)\" and read it in the next step. Queue with az pipelines run --parameters environment=test.",
+          "deliverable": "Variables exercise YAML with logs for each syntax and the masked secret",
+          "checks": [["Print $(apiKey) in a script step", "The log shows *** in place of the value", "Job log"], ["Read $(buildTag) in the step after setvariable", "Prints web- followed by the numeric build ID", "Job log"], ["Queue with az pipelines run --parameters environment=prod", "The run is rejected because prod is not an allowed value", "CLI output"]],
+          "objectives": ["Choose between macro, template and runtime expression syntax", "Handle secret variables safely", "Pass values between steps with logging commands"]
+        },
+        {
+          "topic": "Running Tests and Publishing Results in Azure Pipelines",
+          "subtopics": ["Running unit tests with dotnet test, npm test, pytest or mvn test", "JUnit, NUnit, VSTest (TRX) and xUnit result formats", "PublishTestResults@2 and the Tests tab", "condition: succeededOrFailed() so failed tests still publish", "Code coverage in Cobertura format and PublishCodeCoverageResults@2", "Failing a pipeline on test failures and failTaskOnFailedTests", "Test run attachments and history per test", "Build validation of pull requests with test results"],
+          "tools": ["Azure Pipelines", "PublishTestResults@2", "PublishCodeCoverageResults@2", "Jest", "pytest"],
+          "lab_task": "Add a Jest or pytest suite of at least 12 tests to shop-web with JUnit and Cobertura reporters, publish results with PublishTestResults@2 (testResultsFormat: JUnit, condition: succeededOrFailed()) and coverage with PublishCodeCoverageResults@2. Break one test on purpose, run the pipeline, and read the Tests and Code Coverage tabs.",
+          "deliverable": "Pipeline with published test results and coverage, plus the failed-test run",
+          "checks": [["Run the pipeline with all 12 tests passing", "Tests tab shows 12 passed and 100% pass rate", "Tests tab screenshot"], ["Run with one test broken on purpose", "Tests tab shows 1 failed of 12 and the run result is failed", "Run summary"], ["Open the Code Coverage tab", "A line coverage percentage from the Cobertura file is shown", "Coverage tab screenshot"]],
+          "objectives": ["Run tests in a pipeline and publish their results", "Publish code coverage", "Use conditions so results publish after failures"]
+        },
+        {
+          "topic": "Pipeline Artifacts and Build Outputs in Azure Pipelines",
+          "subtopics": ["Pipeline artifacts compared with build artifacts and Azure Artifacts packages", "PublishPipelineArtifact@1 and the publish shortcut", "DownloadPipelineArtifact@2 and the download shortcut", "Build.ArtifactStagingDirectory and Pipeline.Workspace", "Artifact naming and immutability within a run", ".artifactignore files", "Downloading artifacts with az pipelines runs artifact download", "Run retention and how it removes artifacts"],
+          "tools": ["Azure Pipelines", "Azure CLI", "PublishPipelineArtifact@1"],
+          "lab_task": "Zip the shop-web build output into $(Build.ArtifactStagingDirectory)/web.zip and publish it as artifact drop with PublishPipelineArtifact@1. Add a second job with dependsOn that uses download: current, artifact: drop and lists the files. Then run az pipelines runs artifact download --run-id <id> --artifact-name drop --path ./drop and compare checksums.",
+          "deliverable": "Two-job pipeline that publishes and consumes the drop artifact, plus the locally downloaded copy",
+          "checks": [["Open the run's Published artifacts link", "One artifact named drop containing web.zip is listed", "Run summary screenshot"], ["Compare sha256sum of web.zip in the second job and in the local download", "Both checksums match", "Job log and terminal output"], ["Publish a second artifact also named drop in the same run", "The step fails because an artifact with that name already exists", "Job log"]],
+          "objectives": ["Publish and download pipeline artifacts", "Pass build output between jobs", "Retrieve artifacts from the CLI"]
+        },
+        {
+          "topic": "Microsoft-Hosted Agents and Parallel Jobs",
+          "subtopics": ["What a Microsoft-hosted agent is: a fresh VM for every job", "Images: ubuntu-latest, windows-latest and macOS images, and the installed software list", "Image label changes when a latest label moves to a newer OS", "Free grant of parallel jobs and minutes for private projects", "Buying additional Microsoft-hosted parallel jobs", "Job timeouts with timeoutInMinutes and the maximum per tier", "Agent pools and the Azure Pipelines pool", "Seeing queued jobs and parallel job usage in Organisation settings"],
+          "tools": ["Azure Pipelines", "Microsoft-hosted agents", "Azure CLI"],
+          "lab_task": "Add a matrix-free pipeline with three jobs on ubuntu-latest, windows-latest and macos-latest that print the OS version and the installed Node.js version, and set timeoutInMinutes: 5 on a job that runs sleep 600. Queue it twice at the same time and record how jobs queue against the organisation's parallel job count.",
+          "deliverable": "Agent comparison table with OS and tool versions, timeout evidence and a queue-time screenshot",
+          "checks": [["Run the sleep 600 job with timeoutInMinutes: 5", "The job is cancelled with The job running on agent ... ran longer than the maximum time of 5 minutes", "Job log"], ["Print $(Agent.OS) on the three jobs", "Values are Linux, Windows_NT and Darwin", "Job logs"], ["Queue two runs with one free parallel job", "The second run's jobs wait in the queue until the first job finishes", "Parallel jobs page screenshot"]],
+          "objectives": ["Choose a Microsoft-hosted image", "Explain parallel job limits and timeouts", "Diagnose jobs waiting for an agent"]
+        },
+        {
+          "topic": "Azure Artifacts Feeds and Package Publishing",
+          "subtopics": ["Organisation-scoped and project-scoped feeds", "Supported package types: NuGet, npm, Maven, Python, Cargo and Universal Packages", "Feed permissions: Feed Reader, Feed and Upstream Reader (Collaborator), Feed Publisher (Contributor) and Feed Owner", "The project Build Service identity and the rights it needs to publish", "Connecting npm with a project .npmrc and the npmAuthenticate@0 task", "Publishing npm packages from a pipeline", "Universal Packages with az artifacts universal publish", "Free storage allowance and the Storage page"],
+          "tools": ["Azure Artifacts", "npm", "Azure CLI", "npmAuthenticate@0"],
+          "lab_task": "Create a project-scoped feed shop-packages, add a .npmrc pointing to https://pkgs.dev.azure.com/<org>/Contoso.Shop/_packaging/shop-packages/npm/registry/, and publish @contoso/price-utils 1.0.0 from a pipeline that runs npmAuthenticate@0 and npm publish. Publish a Universal Package with az artifacts universal publish --feed shop-packages --name config --version 1.0.0 --path ./config.",
+          "deliverable": "Feed with the npm package and a Universal Package, plus the pipeline log",
+          "checks": [["Publish @contoso/price-utils 1.0.0 from the pipeline", "The package appears in the feed with version 1.0.0", "Feed screenshot"], ["Run npm publish for version 1.0.0 a second time", "npm fails with a 409 conflict because the version already exists", "npm output"], ["Remove Contributor rights from the Build Service on the feed and publish 1.0.1", "Publish fails with 403 because the identity lacks permission to add packages", "Pipeline log"]],
+          "objectives": ["Create and secure an Azure Artifacts feed", "Publish packages from a pipeline", "Explain feed roles and the Build Service identity"]
+        },
+        {
+          "topic": "Service Connections and Workload Identity Federation Basics",
+          "subtopics": ["What a service connection is and which pipelines may use it", "Azure Resource Manager service connection types", "Workload identity federation compared with client secrets and certificates", "How Azure Pipelines issues an OIDC token and Entra ID trusts it", "Issuer and subject identifier values shown on the connection", "Automatic creation with an app registration or managed identity", "Scoping the connection to one resource group", "Granting access to all pipelines versus per-pipeline approval", "Using the connection in AzureCLI@2 with azureSubscription", "Security roles on a service connection: User, Creator and Administrator"],
+          "tools": ["Azure Pipelines", "Microsoft Entra ID", "Azure CLI", "AzureCLI@2"],
+          "lab_task": "Create an Azure Resource Manager service connection named sc-shop-dev using workload identity federation (automatic), scoped to resource group rg-shop-dev. Leave Grant access permission to all pipelines unticked, add an AzureCLI@2 step running az group show -n rg-shop-dev, approve the permission prompt on the first run, and then try az group list from the same step.",
+          "deliverable": "Working federated service connection, the approval prompt and the scoped az output",
+          "checks": [["Run the pipeline for the first time after adding the connection", "The run pauses with This pipeline needs permission to access a resource before this run can continue", "Run summary screenshot"], ["Run az group show -n rg-shop-dev in AzureCLI@2", "JSON for rg-shop-dev is returned with provisioningState Succeeded", "Job log"], ["Open the connection details", "The issuer starts with https://vstoken.dev.azure.com/ and the subject starts with sc://", "Service connection screenshot"]],
+          "objectives": ["Explain why workload identity federation removes stored secrets", "Create a resource-group-scoped Azure connection", "Control which pipelines may use a connection"]
+        },
+        {
+          "topic": "Deploying a Web App to Azure App Service from Azure Pipelines",
+          "subtopics": ["Creating an App Service plan and web app with the Azure CLI", "Build stage output as a zip package", "AzureWebApp@1 inputs: azureSubscription, appType, appName and package", "Linux and Windows web apps and the runtime stack setting", "App settings with the appSettings input", "Checking the deployment in the Deployment Center log", "Smoke testing the app URL with curl from the pipeline", "Rolling back by redeploying an earlier artifact"],
+          "tools": ["Azure Pipelines", "Azure App Service", "AzureWebApp@1", "Azure CLI", "curl"],
+          "lab_task": "Create app-shop-dev with az webapp create on a B1 Linux plan. Add a deploy job that downloads the drop artifact and runs AzureWebApp@1 with azureSubscription: sc-shop-dev, appType: webAppLinux and package: $(Pipeline.Workspace)/drop/web.zip, then a step running curl -fsS https://app-shop-dev.azurewebsites.net/health. Redeploy an older run's artifact to roll back.",
+          "deliverable": "Deployed web app, pipeline YAML and the health check output before and after rollback",
+          "checks": [["Run curl -fsS on /health after the deployment", "HTTP 200 with the expected health JSON is returned", "Job log"], ["Deploy with an appName that does not exist", "AzureWebApp@1 fails reporting the resource could not be found", "Job log"], ["Redeploy the artifact from an earlier run", "The /version endpoint returns the earlier build ID", "curl output"]],
+          "objectives": ["Deploy a build artifact to App Service", "Verify a deployment with a smoke test", "Roll back by redeploying an earlier artifact"]
+        },
+        {
+          "topic": "Azure Test Plans for Manual and Exploratory Testing",
+          "subtopics": ["The Basic + Test Plans access level", "Test plans, static suites, requirement-based suites and query-based suites", "Test cases with steps, expected results and shared steps", "Parameters and shared parameters for data-driven manual tests", "Configurations such as browser and operating system", "Running tests with the web Test Runner and marking steps passed or failed", "Creating a bug from a failed step with repro steps filled in", "Exploratory testing with the Test & Feedback browser extension"],
+          "tools": ["Azure Test Plans", "Test & Feedback extension", "Azure Boards"],
+          "lab_task": "Re-enable Test Plans, create the test plan Release 1.0 with a requirement-based suite for two User Stories, and write five test cases with shared login steps and a parameter table of three users. Run them with the Test Runner against app-shop-dev, fail one step and create a bug from it, then record an exploratory session with the Test & Feedback extension.",
+          "deliverable": "Test plan with suites, run results, one linked bug and an exploratory session record",
+          "checks": [["Fail a step in the Test Runner and choose Create bug", "A Bug is created with the repro steps and linked to the test case", "Bug work item"], ["Open the requirement-based suite's progress chart after the run", "4 passed and 1 failed are shown", "Progress report screenshot"], ["Run a parameterised test case with 3 parameter rows", "The runner shows 3 iterations to execute", "Test Runner screenshot"]],
+          "objectives": ["Organise manual tests into plans and suites", "Run tests and raise bugs with repro steps", "Run an exploratory testing session"]
+        },
+        {
+          "topic": "Wikis, Dashboards and Notifications in Azure DevOps",
+          "subtopics": ["Project wiki compared with publishing code as wiki", "Wiki Markdown: tables, Mermaid diagrams, work item links and the table of contents", "Dashboards and team-scoped dashboards", "Widgets: Query results, Burndown, Build history, Deployment status and Test results trend", "Notification subscriptions for a user and for a team", "Delivery to email, Microsoft Teams and Slack", "Status badges for pipelines in a README", "Project-level home page and summary"],
+          "tools": ["Azure DevOps Wiki", "Dashboards", "Microsoft Teams", "Azure Pipelines"],
+          "lab_task": "Publish the shop-web docs folder as a code wiki, add a page with a Mermaid flowchart and a link to a work item with #ID, and build a team dashboard with Query tile (active bugs), Build history and Sprint burndown widgets. Create a team subscription that emails the team when a build on main fails, then break the build and confirm delivery.",
+          "deliverable": "Published code wiki, team dashboard and evidence of the failure notification",
+          "checks": [["Open the wiki page with the Mermaid block", "The flowchart renders as a diagram instead of text", "Wiki screenshot"], ["Break the build on main with the subscription active", "The team receives an email for the failed build within a few minutes", "Email screenshot"], ["Add the Query tile widget for the active bugs query", "The tile shows the same count as the query, for example 3", "Dashboard screenshot"]],
+          "objectives": ["Document a project in a wiki", "Build a dashboard for a team", "Set up notifications that reach the right people"]
+        },
+        {
+          "topic": "Capstone: Team Project from Backlog to App Service Release",
+          "subtopics": ["Planning the capstone backlog and sprint in Azure Boards", "Branch policies and pull request flow on main", "CI pipeline with tests, coverage and artifacts", "Deployment to App Service through a federated service connection", "Manual test plan run and bug triage", "Dashboard and wiki handover"],
+          "tools": ["Azure Boards", "Azure Repos", "Azure Pipelines", "Azure Artifacts", "Azure Test Plans", "Azure App Service"],
+          "lab_task": "In a new project, plan one Feature with three User Stories in a sprint, protect main with reviewer, work-item and build validation policies, and deliver each story through a pull request. The YAML pipeline must test, publish coverage and an artifact, and deploy to App Service with a federated connection. Finish with a manual test run and a dashboard.",
+          "deliverable": "Capstone project with backlog, protected repository, pipeline, deployed app, test run and dashboard",
+          "checks": [["Review the three User Stories at the end", "Each story is Closed and linked to a completed pull request and a successful run", "Work item links"], ["Push directly to main", "The push is rejected by the branch policy", "Git client output"], ["Call the deployed /health endpoint", "HTTP 200 is returned from the App Service URL", "curl output"]],
+          "objectives": ["Combine Boards, Repos, Pipelines, Artifacts and Test Plans in one delivery", "Deliver work through protected pull requests and CI", "Release to Azure and show the outcome on a dashboard"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already run single-stage YAML pipelines in Azure DevOps and now own delivery for a team. Covers multi-stage pipelines, dependencies, conditions and output variables, matrix and container jobs, step, job and stage templates with typed parameters, variable groups linked to Azure Key Vault, environments with approvals and checks, deployment job strategies, self-hosted agents and pool administration, caching, workload identity federation in depth, Bicep and Terraform pipelines, container builds to Azure Container Registry, Azure Artifacts upstream sources and views, automated tests linked to Test Plans, Delivery Plans and Analytics views, the REST API and service hooks, and a capstone multi-stage release with infrastructure and a slot swap.",
+      "prerequisites": ["Has written and run a YAML pipeline in Azure Pipelines with triggers, variables, tests and artifacts", "Has deployed to Azure through an Azure Resource Manager service connection", "Can read Bicep or Terraform files and run the Azure CLI against a subscription where they can create resource groups and role assignments"],
+      "outcomes": ["Design multi-stage YAML pipelines from reusable templates with typed parameters, conditions and output variables", "Gate releases with environments, approvals, checks and deployment job strategies", "Run self-hosted agents and deploy Bicep and Terraform through workload identity federation without stored secrets", "Manage packages, automated test results, delivery plans and automation through Azure Artifacts, Test Plans, Analytics and the REST API"],
+      "days": [
+        {
+          "topic": "Multi-Stage YAML Pipelines with Stages and Jobs",
+          "subtopics": ["The stages > jobs > steps hierarchy and when to omit levels", "Stage dependsOn and running stages in parallel", "Agent jobs, agentless (server) jobs and deployment jobs", "Stage and job display names and the run graph", "Rerunning a failed stage or job", "Skipping stages at queue time", "Job-level pool and workspace clean settings", "Stage-level variables and lockBehavior"],
+          "tools": ["Azure Pipelines", "Azure CLI", "Visual Studio Code"],
+          "lab_task": "Convert shop-web-ci into a pipeline with stages Build, Test (two parallel jobs: unit and lint) and Package, where Package dependsOn both Build and Test. Add a server job with the Delay@1 task for 1 minute. Break the lint job, rerun only the failed job from the run page, then queue a run that skips Package from the Stages to run dialog.",
+          "deliverable": "Multi-stage YAML file, run graph screenshot and rerun evidence",
+          "checks": [["View the run graph", "Unit and lint run side by side and Package starts only after both finish", "Run graph screenshot"], ["Rerun only the failed lint job after fixing it", "The attempt number on the lint job is 2 and the other jobs keep attempt 1", "Job details"], ["Queue the run with Package deselected", "Package shows as skipped and the run result is succeeded", "Run summary"]],
+          "objectives": ["Structure a pipeline into stages and jobs", "Control order and parallelism with dependsOn", "Rerun and skip stages deliberately"]
+        },
+        {
+          "topic": "Job Dependencies, Conditions and Output Variables",
+          "subtopics": ["Default conditions: succeeded() and how dependsOn affects them", "Custom conditions with eq(variables['Build.SourceBranch'], 'refs/heads/main')", "always(), failed(), succeededOrFailed() and canceled()", "Output variables with ##vso[task.setvariable variable=x;isOutput=true]", "Reading outputs in a later job with dependencies.Job.outputs['step.var']", "Reading outputs across stages with stageDependencies.Stage.Job.outputs['step.var']", "Using outputs in job and stage conditions", "Naming steps so outputs can be referenced", "continueOnError and the SucceededWithIssues result", "retryCountOnTaskFailure for flaky steps"],
+          "tools": ["Azure Pipelines", "Logging commands", "Bash"],
+          "lab_task": "Add a Detect job with a step named diff that sets isOutput=true variable webChanged to true when git diff --name-only HEAD~1 touches src/. Make a Deploy stage run only when stageDependencies.Build.Detect.outputs['diff.webChanged'] is 'true' and the branch is main. Add a cleanup job with condition: always() and a step with retryCountOnTaskFailure: 2.",
+          "deliverable": "Pipeline YAML with conditional stages and run evidence for changed and unchanged code",
+          "checks": [["Push a docs-only change to main", "The Deploy stage shows as skipped because its condition evaluated to false", "Run graph"], ["Push a src change to main", "Deploy runs and its log prints webChanged=true", "Job log"], ["Make the build fail", "The cleanup job still runs because of always()", "Run graph"]],
+          "objectives": ["Write custom conditions on jobs and stages", "Pass output variables across jobs and stages", "Handle flaky and cleanup steps explicitly"]
+        },
+        {
+          "topic": "Matrix Strategies, Parallelism and Container Jobs",
+          "subtopics": ["strategy: matrix with named legs and per-leg variables", "maxParallel to limit concurrent legs", "strategy: parallel for test slicing with System.JobPositionInPhase and System.TotalJobsInPhase", "Container jobs with container: image", "Service containers for databases with services:", "Docker resources under resources: containers", "Container jobs on Linux and Windows agents", "Choosing a matrix versus separate jobs"],
+          "tools": ["Azure Pipelines", "Docker", "PostgreSQL"],
+          "lab_task": "Run shop-web tests in a matrix of Node.js 20, 22 and 24 with maxParallel: 2. Add an integration test job that runs inside container node:22 with a service container postgres:16 mapped as db, and connect to it at host db port 5432. Then split a slow test suite into 3 slices with strategy: parallel: 3 and record total duration before and after.",
+          "deliverable": "Matrix, container and parallel slicing YAML with a timing comparison table",
+          "checks": [["Open the run with the three-leg matrix and maxParallel: 2", "Three jobs named after the legs appear and no more than two run at the same time", "Run timeline"], ["Run pg_isready -h db -p 5432 in the container job", "Output reports db:5432 - accepting connections", "Job log"], ["Print System.JobPositionInPhase in the parallel: 3 job", "Values 1, 2 and 3 appear across the three slices", "Job logs"]],
+          "objectives": ["Fan out jobs with matrix and parallel strategies", "Run jobs and service dependencies in containers", "Reduce total pipeline time by slicing tests"]
+        },
+        {
+          "topic": "Step, Job and Stage Templates in Azure Pipelines",
+          "subtopics": ["Why templates: reuse, consistency and central fixes", "Step templates inserted with - template: steps/build.yml", "Job and stage templates", "Variable templates", "Storing templates in a separate repository with resources: repositories", "Referencing a template with @alias and pinning ref to a tag", "Expanded YAML in the run's Download full YAML option", "Template nesting and size limits"],
+          "tools": ["Azure Pipelines", "Azure Repos", "Git"],
+          "lab_task": "Create repository pipeline-templates with steps/node-build.yml, jobs/test.yml and stages/build.yml. In shop-web declare resources: repositories: - repository: templates type: git name: Contoso.Shop/pipeline-templates ref: refs/tags/v1.0.0 and call - template: stages/build.yml@templates. Tag v1.0.1 with a change and show shop-web keeps using v1.0.0 until ref is updated.",
+          "deliverable": "Template repository with tagged releases and a consumer pipeline that uses them",
+          "checks": [["Download the full YAML of a shop-web run", "The template steps appear expanded inline with no template keywords", "Expanded YAML file"], ["Reference a template path that does not exist", "Run fails to start with an error that the file could not be found in repository templates", "Pipeline error output"], ["Push a change tagged v1.0.1 without updating ref", "The shop-web run still executes the v1.0.0 steps", "Job log"]],
+          "objectives": ["Extract steps, jobs and stages into templates", "Consume versioned templates from another repository", "Inspect the expanded pipeline"]
+        },
+        {
+          "topic": "Template Parameters, Expressions and Each Loops",
+          "subtopics": ["parameters with type, default and values", "Parameter types: string, number, boolean, object, step, stepList, job, jobList, stage and stageList", "Template expressions ${{ parameters.x }} and compile-time evaluation", "${{ if }}, ${{ elseif }} and ${{ else }} for conditional insertion", "${{ each }} loops over object and list parameters", "Inserting caller steps with stepList parameters", "Functions in template expressions: coalesce, convertToJson, join and replace", "Why runtime variables are not available to ${{ }} expressions"],
+          "tools": ["Azure Pipelines", "YAML"],
+          "lab_task": "Write stages/deploy.yml with an object parameter environments (name, serviceConnection, approvals) and a stepList parameter preDeploySteps. Use ${{ each env in parameters.environments }} to generate one stage per environment and ${{ if eq(env.name, 'prod') }} to add an extra smoke test job. Call it with dev, test and prod and pass a number to a boolean parameter.",
+          "deliverable": "Parameterised deploy template, caller pipeline and expanded YAML",
+          "checks": [["Call the template with three environments", "The run graph shows three Deploy stages named for dev, test and prod", "Run graph"], ["Pass the string 'yes' to a boolean parameter", "Validation fails with an error that the value is not a valid boolean", "Pipeline error output"], ["Inspect the expanded YAML", "The smoke test job appears only in the prod stage", "Expanded YAML file"]],
+          "objectives": ["Type and validate template parameters", "Generate stages with each loops", "Insert content conditionally at compile time"]
+        },
+        {
+          "topic": "Variable Groups, Library and Azure Key Vault Secrets",
+          "subtopics": ["Variable groups in Pipelines > Library", "Referencing a group with variables: - group: name", "Linking a variable group to Azure Key Vault secrets", "Key Vault access for the service connection identity: Key Vault Secrets User role", "The AzureKeyVault@2 task with SecretsFilter", "Pipeline permissions and approvals on variable groups", "Variable precedence: queue time, pipeline, stage, job and group", "Secure files and DownloadSecureFile@1", "Creating groups with az pipelines variable-group create", "Rotating a secret without editing pipelines"],
+          "tools": ["Azure Pipelines", "Azure Key Vault", "Azure CLI", "AzureKeyVault@2"],
+          "lab_task": "Create kv-shop-dev, grant the sc-shop-dev identity Key Vault Secrets User, add secret DbPassword, and link it in a variable group vg-shop-dev-kv. Create a plain group with az pipelines variable-group create --name vg-shop-dev --variables region=uksouth. Reference both groups, print region, check the length of $(DbPassword) through env:, then rotate the secret and rerun.",
+          "deliverable": "Two variable groups, Key Vault role assignment and logs before and after rotation",
+          "checks": [["Print $(region) from vg-shop-dev", "Log shows uksouth", "Job log"], ["Print $(DbPassword) directly", "Log shows *** because the value is masked", "Job log"], ["Remove the Key Vault Secrets User role and run again", "The run fails reading the vault with a Forbidden error for the secret list or get operation", "Job log"]],
+          "objectives": ["Centralise configuration in variable groups", "Pull secrets from Azure Key Vault with a federated identity", "Explain variable precedence"]
+        },
+        {
+          "topic": "Environments, Approvals and Checks",
+          "subtopics": ["Environments as deployment targets with history", "Environment resources: Kubernetes namespaces and virtual machines", "Approvals with approvers, minimum count, timeout and allow approvers to approve their own runs", "Branch control checks for refs/heads/main", "Business hours checks", "Invoke REST API, Invoke Azure Function and Query Azure Monitor alerts checks", "Exclusive lock and lockBehavior: sequential or runLatest", "Deployment history per environment and traceability to commits and work items"],
+          "tools": ["Azure Pipelines", "Environments", "Azure Monitor"],
+          "lab_task": "Create environments shop-dev, shop-test and shop-prod. On shop-prod add an approval by a group with a 24-hour timeout, a Branch control check allowing only refs/heads/main and an Exclusive lock. Run a deployment from a feature branch, then from main, approve it, and queue two main runs at once to see the lock behaviour.",
+          "deliverable": "Environment configuration screenshots and run evidence for each check",
+          "checks": [["Deploy to shop-prod from refs/heads/feature/x", "The Branch control check fails and the stage does not start", "Checks panel screenshot"], ["Deploy from main and wait for approval", "The stage waits with status Waiting and starts after the approval is recorded", "Run summary"], ["Open shop-prod Deployments after the approved run", "The run is listed with its commits and linked work items", "Environment history screenshot"]],
+          "objectives": ["Model release targets as environments", "Gate deployments with approvals and automated checks", "Serialise deployments with exclusive locks"]
+        },
+        {
+          "topic": "Deployment Jobs and Strategies: runOnce, Rolling and Canary",
+          "subtopics": ["The deployment job keyword and environment: name.resource", "Lifecycle hooks: preDeploy, deploy, routeTraffic, postRouteTraffic and on: failure / success", "runOnce strategy", "rolling strategy with maxParallel for virtual machine resources", "canary strategy with increments for Kubernetes resources", "Automatic artifact download in deployment jobs and download: none", "Registering virtual machines as environment resources with the registration script", "Tagging VM resources and targeting tags"],
+          "tools": ["Azure Pipelines", "Environments", "Azure Virtual Machines", "Bash"],
+          "lab_task": "Register two Linux VMs as resources in shop-test with the environment registration script and tags web. Write a deployment job with strategy: rolling, maxParallel: 1, deploy steps that copy and restart the app, and a postRouteTraffic step that curls /health. Make the health check fail on the first VM and confirm the second VM is not updated and on: failure runs.",
+          "deliverable": "Deployment job YAML, VM resource list and rolling deployment logs",
+          "checks": [["Run the rolling deployment with both VMs healthy", "Each VM is updated in turn, one at a time", "Run timeline"], ["Fail the health check on the first VM", "The second VM is not deployed and the on: failure hook runs", "Job logs"], ["Open the shop-test environment Resources tab", "Two VM resources tagged web are shown as online", "Environment screenshot"]],
+          "objectives": ["Write deployment jobs with lifecycle hooks", "Choose runOnce, rolling or canary for a target", "Stop a rollout when a health check fails"]
+        },
+        {
+          "topic": "Self-Hosted Agents on Linux and Windows",
+          "subtopics": ["When to self-host: network access, tooling, caching and cost", "Downloading the agent and running ./config.sh --unattended with --url, --auth pat or --auth sp, --pool and --agent", "Running as a service with ./svc.sh install and start on Linux and --runAsService on Windows", "Agent work folder layout: _work, s, a, b and _tool", "Agent updates and the minimum agent version setting", "Outbound-only communication and required URLs", "Agent pools at organisation level and project permissions", "Removing an agent with ./config.sh remove"],
+          "tools": ["Azure Pipelines agent", "Bash", "PowerShell", "Azure CLI"],
+          "lab_task": "Create an agent pool linux-build, install the agent on an Ubuntu VM with ./config.sh --unattended --url https://dev.azure.com/<org> --auth pat --token <pat> --pool linux-build --agent build01, and run it as a service with sudo ./svc.sh install && sudo ./svc.sh start. Point a job at pool: linux-build, list the _work folder, then stop the service and observe the queued job.",
+          "deliverable": "Registered self-hosted agent, service status output and a job that ran on it",
+          "checks": [["Run az pipelines agent list --pool-id <id> --query \"[].status\"", "build01 reports online", "CLI output"], ["Run a job on pool linux-build", "The job log shows Agent name: build01", "Job log"], ["Stop the agent service and queue a job", "The job waits with no agent available in pool linux-build", "Run summary"]],
+          "objectives": ["Install and register a self-hosted agent", "Run the agent as a service", "Diagnose jobs that wait for an agent"]
+        },
+        {
+          "topic": "Agent Capabilities, Demands and Pool Administration",
+          "subtopics": ["System capabilities discovered from the agent environment", "User capabilities added in the portal", "demands: with exists and -equals", "Pool security roles: Reader, Service Account, Administrator and User", "Project-level pool permissions and pipeline permissions", "Maintenance jobs and work folder cleanup", "Azure Virtual Machine Scale Set agent pools and their settings", "Agent pool analytics and queue time"],
+          "tools": ["Azure Pipelines agent", "Azure Virtual Machine Scale Sets", "Azure CLI"],
+          "lab_task": "Add user capability java17=true to build01 and a second agent build02 without it. Add demands: - java17 -equals true to a job and run it five times, then add a demand no agent meets. Turn on maintenance jobs for linux-build with work folder cleanup after 7 days, and restrict the pool to the Contoso.Shop project.",
+          "deliverable": "Capability and demand YAML, run history showing agent selection and pool settings",
+          "checks": [["Run the job with the java17 demand five times", "All five runs execute on build01", "Run history"], ["Add a demand that no agent meets", "The job fails with No agent found in pool linux-build which satisfies the specified demands", "Job log"], ["Open the pool's maintenance history after the schedule runs", "A maintenance job is listed for each agent", "Pool screenshot"]],
+          "objectives": ["Route jobs to agents with demands", "Administer pool security and maintenance", "Choose between static and scale set agents"]
+        },
+        {
+          "topic": "Pipeline Caching and Build Performance in Azure Pipelines",
+          "subtopics": ["Cache@2 with key, restoreKeys and path", "Key segments from files, strings and \"$(Agent.OS)\"", "Caching npm, NuGet, Maven, pip and Gradle", "cacheHitVar to skip restore steps", "Cache scope by branch and pull request", "Shallow fetch with fetchDepth and fetchTags", "Sparse checkout with sparseCheckoutDirectories", "Reading step durations to find the slowest steps"],
+          "tools": ["Azure Pipelines", "Cache@2", "npm", "NuGet"],
+          "lab_task": "Add Cache@2 with key: 'npm | \"$(Agent.OS)\" | package-lock.json', restoreKeys: 'npm | \"$(Agent.OS)\"' and path: $(npm_config_cache) before npm ci, set fetchDepth: 1 on checkout, and record step durations over three runs: cold, warm and after changing package-lock.json. Set cacheHitVar and skip a restore step on a hit.",
+          "deliverable": "Cached pipeline YAML and a duration table for cold, warm and changed-lockfile runs",
+          "checks": [["Run the pipeline a second time with no dependency change", "The Cache step logs Cache restored from key and npm ci is faster than the cold run", "Job log and timing table"], ["Change package-lock.json and run again", "The exact key misses and the restoreKeys prefix is used", "Job log"], ["Check git log in the checkout with fetchDepth: 1", "git rev-list --count HEAD returns 1", "Job log"]],
+          "objectives": ["Cache dependencies between runs", "Reduce checkout time", "Measure build performance changes"]
+        },
+        {
+          "topic": "Workload Identity Federation for Azure Resource Manager Connections",
+          "subtopics": ["Federated credentials on an app registration or a user-assigned managed identity", "Issuer https://vstoken.dev.azure.com/<organisation id> and subject sc://<org>/<project>/<connection>", "Manual creation with az identity federated-credential create", "Converting a secret-based connection to workload identity federation", "Role assignments at the right scope with least privilege", "addSpnToEnvironment in AzureCLI@2 and the idToken, servicePrincipalId and tenantId variables", "Short token lifetime and long-running jobs", "Troubleshooting the no matching federated identity record error"],
+          "tools": ["Azure Pipelines", "Microsoft Entra ID", "Azure CLI", "Managed identities"],
+          "lab_task": "Create user-assigned identity id-shop-test, add a federated credential with az identity federated-credential create --issuer <issuer> --subject sc://<org>/Contoso.Shop/sc-shop-test --audiences api://AzureADTokenExchange, grant Contributor on rg-shop-test, and create the connection manually. Then change one character of the subject and record the error.",
+          "deliverable": "Manually created federated connection, role assignment and the mismatch error",
+          "checks": [["Run az account show in AzureCLI@2 with sc-shop-test", "user.type is servicePrincipal and the tenant matches", "Job log"], ["Change the subject on the federated credential and rerun", "Login fails with an AADSTS error saying no matching federated identity record was found", "Job log"], ["Run az role assignment list --assignee <principal id> --all", "Exactly one assignment: Contributor on rg-shop-test", "CLI output"]],
+          "objectives": ["Build a federated connection by hand", "Apply least-privilege roles to pipeline identities", "Troubleshoot federation failures"]
+        },
+        {
+          "topic": "Bicep Deployments from Azure Pipelines with What-If",
+          "subtopics": ["Bicep files and parameter files (.bicepparam)", "Building and linting with az bicep build and az bicep lint", "az deployment group what-if output and change types", "Publishing what-if output in the run summary", "Approving infrastructure changes before applying", "az deployment group create with --mode Incremental", "Deployment outputs passed to later jobs", "Deployment names and history in the resource group"],
+          "tools": ["Azure Pipelines", "Bicep", "Azure CLI", "AzureCLI@2"],
+          "lab_task": "Write main.bicep for an App Service plan, web app and staging slot with dev.bicepparam and test.bicepparam. Add a Validate stage running az bicep lint and az deployment group what-if, an approval on shop-test, and a Deploy stage running az deployment group create --name shop-$(Build.BuildId) that sets the web app hostname as an output variable for a smoke test.",
+          "deliverable": "Bicep files, infrastructure pipeline and what-if output stored in the run",
+          "checks": [["Run what-if against an empty resource group", "Output lists the plan, site and slot with change type Create", "Job log"], ["Run what-if again after deployment without changes", "Output reports no changes for the resources", "Job log"], ["Read the hostname output in the smoke test job", "curl to the hostname returns HTTP 200", "Job log"]],
+          "objectives": ["Validate Bicep before deployment", "Gate infrastructure changes on what-if review", "Pass deployment outputs to later jobs"]
+        },
+        {
+          "topic": "Terraform Plan and Apply Pipelines with Azure Pipelines",
+          "subtopics": ["Remote state in an Azure Storage account with use_azuread_auth", "The Terraform task extension and the AzureCLI@2 alternative", "OIDC login for the azurerm provider: ARM_USE_OIDC, ARM_CLIENT_ID, ARM_TENANT_ID and ARM_OIDC_TOKEN", "terraform plan -out=tfplan and publishing the plan as an artifact", "Applying the exact saved plan after approval", "-detailed-exitcode to detect drift", "State locking with blob leases", "Separating plan and apply permissions"],
+          "tools": ["Azure Pipelines", "Terraform", "Azure Storage", "AzureCLI@2"],
+          "lab_task": "Configure an azurerm backend in a storage account and authenticate with AzureCLI@2 addSpnToEnvironment: true, exporting ARM_USE_OIDC=true, ARM_OIDC_TOKEN=$idToken, ARM_CLIENT_ID and ARM_TENANT_ID. Run terraform plan -out=tfplan -detailed-exitcode in a Plan stage, publish tfplan, and apply it in an Apply stage behind the shop-test approval. Cause drift in the portal and rerun.",
+          "deliverable": "Terraform pipeline with saved plan artifact, approval and drift detection run",
+          "checks": [["Run plan with no infrastructure changes", "terraform plan exits with code 0 and reports No changes", "Job log"], ["Change a tag in the portal and rerun plan", "Exit code is 2 and the plan shows 1 to change", "Job log"], ["Run two pipelines against the same state at once", "The second fails with Error acquiring the state lock", "Job log"]],
+          "objectives": ["Run Terraform with federated credentials and remote state", "Apply only reviewed plans", "Detect drift in a scheduled pipeline"]
+        },
+        {
+          "topic": "Container Builds and Azure Container Registry Pushes from Azure Pipelines",
+          "subtopics": ["Docker Registry service connections for Azure Container Registry", "Docker@2 with command buildAndPush, repository and tags", "Tagging images with $(Build.BuildId) and the commit SHA", "az acr build as an agentless build alternative", "Multi-stage Dockerfiles and build cache", "Image labels for source and build traceability", "ACR retention and repository permissions", "Scanning images before push"],
+          "tools": ["Azure Pipelines", "Docker", "Azure Container Registry", "Docker@2", "Azure CLI"],
+          "lab_task": "Create acrshop<unique>, add a Docker Registry service connection for it, and add a Docker@2 step with command: buildAndPush, repository: shop-web and tags: $(Build.BuildId) and $(Build.SourceVersion). Add an OCI label with the run URL, then run az acr repository show-tags --name acrshop<unique> --repository shop-web and inspect the label.",
+          "deliverable": "Container pipeline, pushed image tags and label inspection output",
+          "checks": [["Run az acr repository show-tags after two runs", "Four tags are listed: two build IDs and two commit SHAs", "CLI output"], ["Inspect the pushed image labels", "org.opencontainers.image.source and the run URL label are present", "docker inspect output"], ["Push with a connection to a different registry", "Push fails with unauthorized: authentication required", "Job log"]],
+          "objectives": ["Build and push images from Azure Pipelines", "Tag images for traceability", "Choose between agent builds and ACR Tasks"]
+        },
+        {
+          "topic": "Azure Artifacts Upstream Sources, Views and Retention",
+          "subtopics": ["Upstream sources: npmjs, nuget.org, PyPI, Maven Central and other feeds", "Saving upstream packages into the feed and outage protection", "Feed views: @Local, @Prerelease and @Release", "Promoting a package version to a view", "Consuming a view URL from another team", "Retention policies: maximum versions per package and days since last download", "Deleting, deprecating and unlisting versions", "Pipeline authentication tasks: NuGetAuthenticate@1, PipAuthenticate@1 and TwineAuthenticate@1"],
+          "tools": ["Azure Artifacts", "npm", "NuGet", "Azure CLI"],
+          "lab_task": "Add npmjs as an upstream source to shop-packages, install lodash through the feed and confirm it is saved. Publish @contoso/price-utils 1.1.0-beta.1 and 1.1.0, promote 1.1.0 to @Release, and point a consumer .npmrc at shop-packages@Release. Set retention to keep 5 versions per package and publish 7 versions.",
+          "deliverable": "Feed with upstream, promoted release view and retention evidence",
+          "checks": [["Install lodash through the feed", "lodash appears in the feed with source npmjs", "Feed screenshot"], ["Run npm view @contoso/price-utils versions against the @Release view", "Only 1.1.0 is returned", "npm output"], ["Publish 7 versions with retention set to 5", "After the retention job, 5 versions remain in the feed", "Feed screenshot"]],
+          "objectives": ["Proxy public registries through a feed", "Release packages through views", "Control feed storage with retention"]
+        },
+        {
+          "topic": "Automated Test Plans Integration and Flaky Test Management",
+          "subtopics": ["Associating automated tests with test cases", "Running tests from a test plan with VSTest@3 and testSelector: testPlan", "Test run results flowing back to the test plan", "Requirement traceability from User Story to test results", "Flaky test detection settings and the flaky label", "Test Analytics: pass rate trend and top failing tests", "Rerunning failed tests and test retries", "Manual and automated results in one progress report"],
+          "tools": ["Azure Test Plans", "Azure Pipelines", "VSTest@3", "Visual Studio"],
+          "lab_task": "Associate three MSTest tests with test cases in Release 1.0 from Visual Studio Test Explorer, then run them in a pipeline with VSTest@3 using testSelector: testPlan, testPlan, testSuite and testConfiguration. Enable flaky test detection in Project settings > Test management and make one test fail randomly, then review Test Analytics after 10 runs.",
+          "deliverable": "Automated test plan run, traceability report and flaky test analysis",
+          "checks": [["Open the test suite after the pipeline run", "The three automated test cases show the outcome from the pipeline run", "Test suite screenshot"], ["Review the randomly failing test after 10 runs", "It is marked as flaky in the Tests tab", "Tests tab screenshot"], ["Open Test Analytics for the pipeline", "Pass rate trend and the top failing test are shown", "Analytics screenshot"]],
+          "objectives": ["Link automated tests to test cases", "Trace requirements to test results", "Detect and manage flaky tests"]
+        },
+        {
+          "topic": "Azure Boards Delivery Plans and Analytics Views",
+          "subtopics": ["Delivery Plans across several teams and backlog levels", "Field criteria and card fields on plans", "Dependency links and dependency lines on a plan", "Markers for milestones", "Cumulative flow, lead time and cycle time widgets", "Analytics views for Power BI", "Connecting Power BI to an Analytics view", "Team configuration that makes plans accurate: iterations and area paths"],
+          "tools": ["Azure Boards", "Delivery Plans", "Power BI", "Analytics"],
+          "lab_task": "Create two teams Web and Payments with their own area paths and sprints, put Features on both backlogs, add a predecessor-successor link from a Web feature to a Payments feature in a later sprint, and build a Delivery Plan with both teams and a release marker. Add Lead Time and Cumulative Flow widgets and publish an Analytics view to Power BI.",
+          "deliverable": "Delivery Plan with dependency, flow widgets and a Power BI report",
+          "checks": [["Open the plan with the predecessor scheduled after its successor", "The dependency line is drawn in red to show a scheduling problem", "Plan screenshot"], ["Add the Cycle Time widget for User Stories", "Average cycle time in days is shown for closed stories", "Dashboard screenshot"], ["Load the Analytics view in Power BI Desktop", "The work item table loads with the selected fields", "Power BI screenshot"]],
+          "objectives": ["Plan work across teams with Delivery Plans", "Measure flow with lead time, cycle time and cumulative flow", "Report on Boards data in Power BI"]
+        },
+        {
+          "topic": "Azure DevOps REST API and Service Hooks Automation",
+          "subtopics": ["REST URL format https://dev.azure.com/{org}/{project}/_apis/...?api-version=7.1", "Authentication with Microsoft Entra tokens for resource 499b84ac-1321-427f-aa17-267ca6975798 and with PATs", "Creating work items with JSON Patch (application/json-patch+json)", "Queuing pipeline runs with the Runs API", "Continuation tokens and $top for paging", "Rate limits and the Retry-After header", "Service hooks: Web Hooks, Azure Service Bus and Teams", "az devops invoke and the client libraries for .NET and Python"],
+          "tools": ["Azure DevOps REST API", "Azure CLI", "curl", "Service hooks"],
+          "lab_task": "Get a token with az account get-access-token --resource 499b84ac-1321-427f-aa17-267ca6975798, then use curl to create a Bug via PATCH .../_apis/wit/workitems/$Bug?api-version=7.1 with a JSON Patch body and queue a run with POST .../_apis/pipelines/<id>/runs. Add a Web Hooks service hook for build completed that posts to a test endpoint.",
+          "deliverable": "REST script for work items and runs, plus the received service hook payload",
+          "checks": [["PATCH a Bug with Content-Type application/json-patch+json", "HTTP 200 with the new work item id and fields", "curl output"], ["Send the same request with Content-Type application/json", "HTTP 400 or 415 rejecting the content type", "curl output"], ["Complete a build with the service hook active", "The endpoint receives an event with eventType build.complete", "Endpoint request log"]],
+          "objectives": ["Call the REST API with Entra tokens", "Automate work items and pipeline runs", "React to events with service hooks"]
+        },
+        {
+          "topic": "Capstone: Multi-Stage Pipeline with Bicep, Approvals and Slot Swap",
+          "subtopics": ["Template repository with versioned build and deploy templates", "Bicep infrastructure stage with what-if review", "dev, test and prod environments with approvals and branch control", "Federated service connections per environment and Key Vault variable groups", "Staging slot deployment, smoke test and slot swap", "Release report from environment history and Analytics"],
+          "tools": ["Azure Pipelines", "Bicep", "Azure App Service", "Azure Key Vault", "Environments", "Azure Artifacts"],
+          "lab_task": "Build a pipeline from versioned templates that lints and runs what-if on Bicep, deploys infrastructure and code to dev, test and prod with one federated connection and Key Vault group per environment, and gates prod with approval, branch control and an exclusive lock. In prod deploy to the staging slot, smoke test it and swap with AzureAppServiceManage@0.",
+          "deliverable": "Capstone pipeline, template repository tag, environment history and release report",
+          "checks": [["Run from a feature branch", "dev deploys and the prod stage is blocked by branch control", "Checks panel screenshot"], ["Approve prod from main", "The staging slot passes the smoke test and the swap completes", "Job log"], ["Call the production URL after the swap", "/version returns the new build ID", "curl output"]],
+          "objectives": ["Assemble templates, infrastructure and approvals into one release", "Promote a build through three environments", "Release to production with a slot swap"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform engineers, DevOps leads and Azure DevOps administrators who run Azure DevOps for many teams. Covers pipeline security hardening and protected resources, required templates with extends, Managed DevOps Pools and KEDA-scaled agents, AKS canary releases with KubernetesManifest, App Service blue-green releases, Bicep deployment stacks, GitHub Advanced Security for Azure DevOps (secret scanning, push protection, CodeQL and dependency scanning), supply chain integrity, organisation governance with Entra ID and audit streaming, inherited process customisation, monorepo and multi-repository design, pipeline troubleshooting, OData and DORA reporting, Azure DevOps Server administration and migration to Azure DevOps Services, migration of repositories and pipelines to GitHub, and a capstone secured platform pipeline.",
+      "prerequisites": ["Has built multi-stage YAML pipelines with templates, environments, approvals and deployment jobs", "Administers or co-administers an Azure DevOps organisation or Azure DevOps Server collection", "Has Owner or User Access Administrator rights on an Azure subscription, can run kubectl against an AKS cluster and read Bicep"],
+      "outcomes": ["Harden an organisation so pipelines can only use approved templates, resources, agents and identities", "Run elastic agent capacity with Managed DevOps Pools or KEDA and release to AKS and App Service with progressive strategies", "Find and block leaked secrets, vulnerable code and vulnerable dependencies with GitHub Advanced Security for Azure DevOps", "Plan and run migrations from Azure DevOps Server to Azure DevOps Services and from Azure Repos and Pipelines to GitHub"],
+      "days": [
+        {
+          "topic": "Pipeline Security Hardening: Protected Resources and Job Scopes",
+          "subtopics": ["Organisation and project pipeline settings: limit job authorization scope to the current project", "Protect access to repositories in YAML pipelines", "Disable creation of classic build and release pipelines", "Limit variables that can be set at queue time and enable shell tasks arguments validation", "Project Build Service and Project Collection Build Service identities and their permissions", "System.AccessToken scope and persistCredentials", "Pipeline permissions on service connections, agent pools, environments, variable groups, secure files and repositories", "Pull requests from forks: secrets, approvals and building fork PRs"],
+          "tools": ["Azure Pipelines", "Azure DevOps portal", "Azure DevOps REST API", "Azure CLI"],
+          "lab_task": "In a hardening project turn on Limit job authorization scope to current project, Protect access to repositories in YAML pipelines and Limit variables that can be set at queue time. From a pipeline, try git clone of a repository in another project using System.AccessToken, then queue a run overriding an undeclared variable, and finally remove the Build Service's Contribute on the repo and try git push.",
+          "deliverable": "Hardening settings checklist with the blocked action evidence for each setting",
+          "checks": [["Clone a repository from another project with System.AccessToken", "Clone fails with an authentication error because the job token is limited to the current project", "Job log"], ["Queue a run setting a variable not marked settable at queue time", "Queueing fails with an error that the variable cannot be set at queue time", "CLI output"], ["git push from the pipeline after removing Contribute", "Push fails with TF401027 for the Build Service identity", "Job log"]],
+          "objectives": ["Apply organisation-wide pipeline hardening settings", "Limit what the pipeline identity can reach", "Protect secrets from untrusted pull requests"]
+        },
+        {
+          "topic": "Required Templates and Extends-Based Governance",
+          "subtopics": ["extends: templates compared with includes", "Required template checks on service connections, environments and pools", "Restricting step targets and commands with target and settableVariables", "Blocking custom steps with typed stepList parameters and each-loop validation", "Template repositories with branch protection and tags", "Pipeline decorators as an alternative and their cost", "Detecting unauthorised pipelines with the REST API", "Exception process for teams that need custom steps"],
+          "tools": ["Azure Pipelines", "Azure Repos", "Environments", "Azure DevOps REST API"],
+          "lab_task": "Write secure/pipeline.yml in a locked template repo that extends a build and deploy flow, takes a stepList parameter and rejects any step whose task is not in an allow list using ${{ each }} and ${{ if }}. Add a Required template check on sc-shop-prod pointing at that file and ref, then run one pipeline that extends it and one that uses the connection directly.",
+          "deliverable": "Governance template, required template check and the allowed and blocked runs",
+          "checks": [["Run a pipeline that uses sc-shop-prod without extending the template", "The Required template check fails and the stage does not run", "Checks panel screenshot"], ["Run a pipeline that extends secure/pipeline.yml at the approved ref", "The check passes and the deployment proceeds", "Run summary"], ["Pass a script step not on the allow list", "Template expansion fails with the custom error from the template", "Pipeline error output"]],
+          "objectives": ["Enforce a pipeline structure with extends templates", "Bind protected resources to approved templates", "Design an exception process for platform rules"]
+        },
+        {
+          "topic": "Managed DevOps Pools Provisioning and Scaling",
+          "subtopics": ["Managed DevOps Pools compared with Microsoft-hosted, scale set and self-hosted agents", "Prerequisites: the Microsoft.DevOpsInfrastructure resource provider, a Dev Center and a Dev Center project", "Defining a pool with the Microsoft.DevOpsInfrastructure/pools resource in Bicep", "Images: Azure Pipelines images, marketplace images and Azure Compute Gallery images", "Stateless and stateful agents and grace periods", "Standby agent schedules and scaling to zero", "Virtual network injection for private resources", "Monitoring pool usage, queue time and cost"],
+          "tools": ["Managed DevOps Pools", "Bicep", "Azure CLI", "Azure Monitor"],
+          "lab_task": "Register Microsoft.DevOpsInfrastructure, create a Dev Center project, and deploy a Microsoft.DevOpsInfrastructure/pools resource in Bicep with maximumConcurrency 4, an Ubuntu Azure Pipelines image, stateless agents, a standby schedule for working hours and a subnet in vnet-build. Run a job that reaches a private storage endpoint and measure queue time inside and outside the standby window.",
+          "deliverable": "Managed DevOps Pool Bicep, private network test and a queue-time comparison",
+          "checks": [["Queue 6 jobs with maximumConcurrency 4", "4 jobs run and 2 wait until agents are free", "Run timeline"], ["Run curl to the private storage endpoint from a pool agent", "The request succeeds over the private IP while a Microsoft-hosted agent cannot resolve it", "Job logs"], ["Queue a job outside the standby window", "Queue time is longer than inside the window because an agent is provisioned on demand", "Queue time table"]],
+          "objectives": ["Provision Managed DevOps Pools with infrastructure as code", "Give agents private network access", "Balance standby capacity against cost"]
+        },
+        {
+          "topic": "Elastic Self-Hosted Agents on Kubernetes with KEDA",
+          "subtopics": ["Running the Azure Pipelines agent in a container image", "Agent registration with environment variables and --once for one job per pod", "The KEDA azure-pipelines scaler: poolID, organizationURLFromEnv and targetPipelinesQueueLength", "ScaledJob compared with ScaledObject for agents", "Placeholder agents so jobs can be queued when no agents exist", "Authentication with a PAT secret or workload identity", "Docker-in-Docker alternatives: BuildKit and Kaniko", "Pod resource limits and node pool isolation"],
+          "tools": ["Azure Kubernetes Service", "KEDA", "Azure Pipelines agent", "kubectl", "Helm"],
+          "lab_task": "Build an agent image whose start script runs config.sh --unattended and run.sh --once, deploy it to AKS as a KEDA ScaledJob with the azure-pipelines trigger pointing at pool aks-agents, and register one offline placeholder agent. Queue 10 jobs, watch kubectl get jobs -w, and confirm pods are removed after each job.",
+          "deliverable": "Agent container image, KEDA ScaledJob manifest and scaling evidence",
+          "checks": [["Queue 10 jobs with maxReplicaCount 5", "kubectl shows at most 5 agent jobs running at the same time", "kubectl output"], ["Wait after the queue empties", "Agent pods drop to 0", "kubectl get pods output"], ["Delete the placeholder agent and remove all agents from the pool", "New runs fail because no agent in pool aks-agents can satisfy the job", "Run summary"]],
+          "objectives": ["Run ephemeral agents in Kubernetes", "Scale agents on queue length with KEDA", "Isolate agent workloads in a cluster"]
+        },
+        {
+          "topic": "AKS Deployments with KubernetesManifest and Canary Promotion",
+          "subtopics": ["Kubernetes environment resources and namespaces", "Service connections for AKS with workload identity federation", "KubernetesManifest@1 actions: deploy, bake, createSecret, promote and reject", "strategy: canary with percentage and baseline and canary workloads", "Comparing baseline and canary metrics before promotion", "Manual promotion through an approval and automated promotion through a check", "imagePullSecrets and ACR attach", "Rollback with kubectl rollout undo"],
+          "tools": ["Azure Kubernetes Service", "KubernetesManifest@1", "Azure Pipelines", "kubectl", "Azure Monitor"],
+          "lab_task": "Add namespace shop as a Kubernetes resource in environment shop-aks. Deploy with KubernetesManifest@1 action: deploy, strategy: canary, percentage: 25 and image acrshop.azurecr.io/shop-web:$(Build.BuildId), then add a stage behind an approval that runs action: promote and a failure path with action: reject. Release a build that returns HTTP 500 and reject it.",
+          "deliverable": "Canary pipeline YAML, deployment objects during the canary and promote and reject runs",
+          "checks": [["Run kubectl get deploy -n shop during the canary", "shop-web, shop-web-baseline and shop-web-canary deployments exist", "kubectl output"], ["Approve promotion of a healthy canary", "Only shop-web remains and it runs the new image tag", "kubectl output"], ["Reject a canary that returns HTTP 500", "The canary and baseline workloads are removed and shop-web keeps the old image", "kubectl output"]],
+          "objectives": ["Release to AKS with a canary strategy", "Decide promotion from metrics", "Roll back a failed canary"]
+        },
+        {
+          "topic": "App Service Blue-Green Releases with Slots and Health Gates",
+          "subtopics": ["Production and staging slots and slot-specific settings", "Deploying to a slot with AzureWebApp@1 deployToSlotOrASE and slotName", "Warm-up with applicationInitialization and WEBSITE_SWAP_WARMUP_PING_PATH", "Swap with AzureAppServiceManage@0 and swap with preview", "Health check path and instance replacement", "Query Azure Monitor alerts as a post-deployment gate", "Traffic routing a percentage of users to a slot", "Swapping back as a rollback"],
+          "tools": ["Azure App Service", "AzureAppServiceManage@0", "Azure Monitor", "Azure Pipelines"],
+          "lab_task": "Deploy build N to the staging slot of app-shop-prod, set WEBSITE_SWAP_WARMUP_PING_PATH=/health, route 10% of traffic to staging with az webapp traffic-routing set, and add a Query Azure Monitor alerts check on the prod environment for an HTTP 5xx alert. Swap with AzureAppServiceManage@0, then trigger the alert and swap back.",
+          "deliverable": "Slot release pipeline, traffic routing evidence, gate result and rollback log",
+          "checks": [["Call the site 100 times with 10% routing to staging", "About 10 responses carry the staging build ID", "curl loop output"], ["Swap after the warm-up path returns 200", "Production returns build N with no failed requests during the swap", "Job log and availability test"], ["Fire the 5xx alert before the next release", "The Azure Monitor check fails and the swap stage does not start", "Checks panel screenshot"]],
+          "objectives": ["Release App Service changes with slots", "Gate releases on Azure Monitor alerts", "Roll back by swapping slots"]
+        },
+        {
+          "topic": "Deployment Stacks and Multi-Environment Bicep Promotion",
+          "subtopics": ["Deployment stacks compared with plain deployments", "az stack group create with --action-on-unmanage detachAll or deleteResources", "Deny settings: denyDelete and denyWriteAndDelete with excluded principals", "Bicep modules in an Azure Container Registry module registry", "Versioned modules and br: references", "One template with .bicepparam per environment", "Promoting the same module versions from dev to prod", "Detecting and removing unmanaged resources"],
+          "tools": ["Bicep", "Azure CLI", "Azure Container Registry", "Azure Pipelines"],
+          "lab_task": "Publish modules webapp and sql to an ACR module registry as version 1.0.0 with az bicep publish, reference them with br: in main.bicep, and deploy dev and prod with az stack group create --action-on-unmanage deleteResources --deny-settings-mode denyDelete. Remove the sql module from main.bicep and redeploy dev, then try deleting the web app in prod from the portal.",
+          "deliverable": "Module registry, stack-based pipeline and evidence of cleanup and deny settings",
+          "checks": [["Redeploy dev after removing the sql module", "The SQL resources are deleted by the stack", "az stack group show output"], ["Delete the prod web app in the portal", "The delete is blocked by a deny assignment from the stack", "Portal error screenshot"], ["Run the prod deployment with modules at 1.0.0", "The prod stack lists the same module resources as dev", "az stack group show output"]],
+          "objectives": ["Manage environment lifecycles with deployment stacks", "Share Bicep modules through a registry", "Protect production resources from manual change"]
+        },
+        {
+          "topic": "GitHub Advanced Security for Azure DevOps: Secret Scanning and Push Protection",
+          "subtopics": ["Enabling Advanced Security per repository, project or organisation", "Billing by active committers and the separate Secret Protection and Code Security offers", "Push protection and the error shown on a blocked push", "Bypassing push protection with skip-secret-scanning:true in the commit message and auditing it", "Repository scanning of history and secret alerts", "Validity checks and closing alerts", "Rotating leaked credentials as the real fix", "Advanced Security permissions and alert views"],
+          "tools": ["GitHub Advanced Security for Azure DevOps", "Azure Repos", "Git"],
+          "lab_task": "Enable secret protection on shop-web, commit a test Azure Storage account key into config.js and push it. Record the block, remove the secret with git commit --amend, then push a historical secret on a branch created before enabling. Review the alert under Repos > Advanced Security, rotate the key and close the alert as revoked.",
+          "deliverable": "Push protection evidence, secret alert lifecycle and rotation record",
+          "checks": [["Push a commit containing a storage account key", "The push is rejected with an error identifying the secret type, file and line", "Git client output"], ["Open Repos > Advanced Security after the history scan", "A secret alert for the historical commit is listed", "Alerts screenshot"], ["Close the alert as revoked after rotation", "The alert state shows closed with the reason revoked", "Alert details"]],
+          "objectives": ["Enable secret protection for Azure Repos", "Handle blocked pushes and bypasses", "Run the secret alert lifecycle through rotation"]
+        },
+        {
+          "topic": "CodeQL and Dependency Scanning in Azure Pipelines",
+          "subtopics": ["AdvancedSecurity-Codeql-Init@1, AdvancedSecurity-Codeql-Autobuild@1 and AdvancedSecurity-Codeql-Analyze@1", "Languages and build modes for CodeQL", "AdvancedSecurity-Dependency-Scanning@1 and supported package ecosystems", "Alerts on the default branch and on pull requests", "Pull request annotations and a build validation gate", "Dismissing alerts as false positive or used in tests", "Scheduling scans for languages without a build", "Self-hosted agent requirements for CodeQL bundles"],
+          "tools": ["GitHub Advanced Security for Azure DevOps", "CodeQL", "Azure Pipelines", "Azure Repos"],
+          "lab_task": "Add a security pipeline with AdvancedSecurity-Codeql-Init@1 (languages: javascript), AdvancedSecurity-Codeql-Analyze@1 and AdvancedSecurity-Dependency-Scanning@1, make it a build validation policy on main, then open a pull request that adds a SQL string concatenation and a package version with a known advisory. Fix both and rerun.",
+          "deliverable": "Security pipeline, pull request annotations and the alert list before and after the fix",
+          "checks": [["Open the pull request with the injected query", "A CodeQL annotation for SQL injection appears on the changed line", "Pull request screenshot"], ["Review dependency alerts after the scan", "An alert names the vulnerable package and the first patched version", "Alerts screenshot"], ["Merge the fix and rerun the scan on main", "Both alerts move to fixed", "Alert history"]],
+          "objectives": ["Run CodeQL and dependency scanning in Azure Pipelines", "Gate pull requests on security findings", "Triage and dismiss alerts with a reason"]
+        },
+        {
+          "topic": "Supply Chain Integrity: Pinned Tasks, SBOMs and Artifact Provenance",
+          "subtopics": ["Pinning tasks to full versions such as Task@2.247.1 and when to do it", "Marketplace extension review and the extension approval process", "Generating an SBOM with the Microsoft sbom-tool in a pipeline", "Storing SBOMs and hashes with the pipeline artifact", "Signing container images with Notation and Azure Key Vault", "Evaluate artifact checks on environments", "Immutable artifact flow: build once, deploy many", "Retention leases so release artifacts are kept"],
+          "tools": ["Azure Pipelines", "Microsoft SBOM Tool", "Notation", "Azure Key Vault", "Azure Container Registry"],
+          "lab_task": "Pin every task in shop-web to a full version, run sbom-tool generate -b $(Build.ArtifactStagingDirectory) -bc . -pn shop-web -pv $(Build.BuildNumber) -ps Contoso and publish the _manifest folder with the drop. Sign the image with notation sign using a Key Vault key, verify it in the deploy stage with notation verify, and add a retention lease to the release run through the REST API.",
+          "deliverable": "Pinned pipeline, SBOM in the artifact, signature verification and retention lease",
+          "checks": [["Open the drop artifact", "_manifest/spdx_2.2/manifest.spdx.json is present", "Artifact screenshot"], ["Run notation verify on an unsigned tag", "Verification fails because no signature is found", "Job log"], ["GET .../_apis/build/retention/leases for the run", "One lease is returned for the release run", "REST response"]],
+          "objectives": ["Control which task and extension versions run", "Produce SBOMs and signed artifacts", "Keep release evidence with retention leases"]
+        },
+        {
+          "topic": "Organisation Governance: Entra ID, Conditional Access and Audit Streaming",
+          "subtopics": ["Connecting and changing the Entra ID tenant of an organisation", "Conditional Access policy enforcement for Azure DevOps", "Organisation policies: third-party OAuth, SSH, public projects and external guest access", "Restricting organisation creation to allowed users in the tenant", "PAT policies: maximum lifetime, restricting full-scoped and global PATs", "Auditing events and the Auditing page", "Audit streams to Log Analytics, Splunk and Azure Event Grid", "Kusto queries over audit data"],
+          "tools": ["Microsoft Entra ID", "Azure DevOps Auditing", "Log Analytics", "Azure Monitor"],
+          "lab_task": "Turn off public projects and SSH authentication, set a maximum PAT lifetime of 30 days and block full-scoped PATs in Microsoft Entra ID tenant policies, then create an audit stream to a Log Analytics workspace. Create a PAT with full scope, change a branch policy and delete a pipeline, then query the stream for those events with KQL.",
+          "deliverable": "Policy settings, audit stream configuration and KQL query results",
+          "checks": [["Create a full-scoped PAT after the tenant policy is set", "Creation is blocked with a message that full-scoped PATs are restricted", "Portal screenshot"], ["Query the workspace for branch policy changes", "An audit event for the policy update is returned with the actor's UPN", "KQL output"], ["Clone a repository over SSH", "The connection is refused because SSH authentication is disabled", "Git client output"]],
+          "objectives": ["Enforce identity and access policy at organisation level", "Stream audit events to a SIEM", "Investigate changes with audit queries"]
+        },
+        {
+          "topic": "Inherited Process Customisation and Work Item Rules at Scale",
+          "subtopics": ["System, inherited and hosted XML processes", "Creating an inherited process and changing projects to it", "Custom work item types, fields, picklists and layouts", "Custom states and state categories", "Work item rules: conditions and actions such as make required and restrict state transitions", "Backlog levels and custom portfolio levels", "Process changes through the Work Item Tracking Process REST API", "Field limits and the impact of many custom fields on queries"],
+          "tools": ["Azure Boards", "Azure DevOps REST API", "Azure CLI"],
+          "lab_task": "Create inherited process Contoso Agile, add a custom picklist field Custom.RiskLevel (Low, Medium, High), a state Ready for Release in the Resolved category and a rule that makes Custom.RiskLevel required when the state changes to Ready for Release. Move two projects to it and add the field to a third project via the Process REST API.",
+          "deliverable": "Inherited process definition, rule test and the REST calls used",
+          "checks": [["Move a story to Ready for Release with no risk level", "Save fails because Custom.RiskLevel is required", "Work item screenshot"], ["Run az devops project show for the migrated projects", "processTemplate templateName is Contoso Agile for both", "CLI output"], ["Query Custom.RiskLevel = 'High' across projects", "Only stories with risk High are returned", "Query results"]],
+          "objectives": ["Customise processes with inheritance", "Enforce workflow rules on work items", "Roll process changes out to many projects"]
+        },
+        {
+          "topic": "Monorepo and Multi-Repository Pipeline Design in Azure Pipelines",
+          "subtopics": ["One pipeline per component with path filters versus one orchestrating pipeline", "Multiple checkout steps and the s/<repo name> folder layout", "Repository resource triggers", "Pipeline resource triggers and consuming artifacts from another pipeline", "Detecting changed components with git diff and output variables", "Avoiding redundant runs with batch and concurrency limits", "Shared versioning across components with counter()", "Folder structure and naming for hundreds of pipelines"],
+          "tools": ["Azure Pipelines", "Azure Repos", "Git", "Azure CLI"],
+          "lab_task": "Split shop into api and web components in one repo and a shared-lib repo. Give api and web their own pipelines with path filters, add a release pipeline with resources: pipelines for both and trigger on completion, and check out shop and shared-lib in one job. Version with $[counter(variables['major'], 0)] and push changes to each folder.",
+          "deliverable": "Component pipelines, release pipeline with pipeline resources and a trigger test table",
+          "checks": [["Push a change under web/ only", "Only the web pipeline runs, then the release pipeline triggers from it", "Runs list"], ["List $(Pipeline.Workspace)/s in the multi-checkout job", "Folders shop and shared-lib are present", "Job log"], ["Run the release pipeline three times with major 2", "Version patch numbers are 0, 1 and 2", "Run names"]],
+          "objectives": ["Choose a pipeline layout for monorepos", "Chain pipelines with pipeline resources", "Combine several repositories in one job"]
+        },
+        {
+          "topic": "Pipeline Troubleshooting with Diagnostic Logs and Agent Traces",
+          "subtopics": ["system.debug=true and verbose logs", "Downloading full logs and reading the initialise job step", "Agent _diag folder logs: Agent_*.log and Worker_*.log", "Common failures: no agent found, timeouts, authorisation to resources and template expansion errors", "YAML expansion errors and validation with the Preview API", "Network failures to dev.azure.com and required domains", "Service connection and federation errors", "Status page and service health for Azure DevOps"],
+          "tools": ["Azure Pipelines", "Azure Pipelines agent", "Azure DevOps REST API", "Azure CLI"],
+          "lab_task": "Reproduce four failures in a lab project: an unmet demand, a template that references an undefined parameter, an unauthorised variable group and a blocked egress rule on a self-hosted agent. For each, collect logs with system.debug=true, read the Worker log in _diag, validate the YAML with POST .../_apis/pipelines/<id>/preview?api-version=7.1 and write the root cause and fix.",
+          "deliverable": "Troubleshooting runbook with symptom, evidence, root cause and fix for four failures",
+          "checks": [["Call the preview API for the bad template", "The response reports the undefined parameter without starting a run", "REST response"], ["Run with system.debug=true", "Log lines prefixed with ##[debug] appear in every step", "Job log"], ["Block outbound HTTPS to dev.azure.com on the agent", "The agent shows offline and _diag logs show connection failures", "Agent log excerpt"]],
+          "objectives": ["Collect the right diagnostics for a failing pipeline", "Validate YAML without running it", "Write runbooks for recurring failures"]
+        },
+        {
+          "topic": "Pipeline Analytics, OData Reporting and DORA Metrics",
+          "subtopics": ["The Analytics service and its entity sets for pipelines, tests and work items", "OData queries with $filter, $apply, $select and aggregate", "Pipeline pass rate, duration and failure trend reports", "Deployment frequency from environment deployment records", "Lead time for changes from commit to production deployment", "Change failure rate and time to restore from incidents and bugs", "Power BI with the OData feed and Entra authentication", "Analytics permissions and data latency"],
+          "tools": ["Analytics", "Power BI", "Azure DevOps REST API", "OData"],
+          "lab_task": "Query https://analytics.dev.azure.com/<org>/<project>/_odata/v4.0-preview/PipelineRuns with $filter on pipeline name and CompletedDate and $apply=groupby((RunOutcome), aggregate($count as Count)) to get pass rate for 30 days. Build a Power BI report with deployment frequency, lead time, change failure rate and time to restore for shop-prod.",
+          "deliverable": "OData queries, Power BI DORA report and definitions of each metric",
+          "checks": [["Run the groupby query for the last 30 days", "Counts per outcome are returned and add up to the runs in the pipeline history", "OData response"], ["Compute deployment frequency for shop-prod", "The number matches the count on the environment Deployments tab", "Report and portal screenshots"], ["Query with a user that has no Analytics permission", "HTTP 401 or 403 is returned", "curl output"]],
+          "objectives": ["Query Azure DevOps data with OData", "Calculate the four DORA metrics", "Publish delivery reports in Power BI"]
+        },
+        {
+          "topic": "Azure DevOps Server Administration and Upgrades",
+          "subtopics": ["Azure DevOps Server architecture: application tier, SQL Server data tier and search", "Collections and the configuration database", "Azure DevOps Server Administration Console and TfsConfig", "Backups with the scheduled backups wizard and restoring to a new server", "Upgrade paths, pre-upgrade checks and testing with a cloned environment", "Self-hosted agents and Azure DevOps Server compatibility", "Patches and security updates", "Monitoring job agent and activity logs"],
+          "tools": ["Azure DevOps Server", "SQL Server", "TfsConfig", "PowerShell"],
+          "lab_task": "On a lab Azure DevOps Server, create collection LabCollection, configure scheduled backups to a share, and run TfsConfig collection /detach /collectionName:LabCollection then attach it again. Restore the backup set to a second server, run the upgrade wizard in pre-production mode, and record which checks pass and how long the upgrade takes.",
+          "deliverable": "Server runbook with backup, detach-attach and pre-production upgrade evidence",
+          "checks": [["Detach LabCollection with TfsConfig", "The collection shows as offline in the Administration Console", "Console screenshot"], ["Attach LabCollection again", "Projects in the collection open in the web portal", "Portal screenshot"], ["Run the pre-production upgrade on the restored server", "The readiness checks pass and the upgrade completes with no errors", "Upgrade log"]],
+          "objectives": ["Administer collections on Azure DevOps Server", "Back up and restore a server", "Rehearse upgrades safely"]
+        },
+        {
+          "topic": "Migrating Azure DevOps Server Collections to Azure DevOps Services",
+          "subtopics": ["Data Migration Tool phases: validate, prepare and import", "Supported source versions and upgrading first", "Identity mapping from Active Directory to Microsoft Entra ID", "Migrator validate /collection: and the validation output", "Process template validation errors and fixes", "Dry runs and the import specification file", "Detaching the collection and creating a DACPAC or SQL Azure copy", "Post-migration tasks: agents, service connections and URLs"],
+          "tools": ["Data Migration Tool", "Azure DevOps Server", "Microsoft Entra ID", "SQL Server"],
+          "lab_task": "Run Migrator validate /collection:http://ados:8080/tfs/LabCollection /tenantDomainName:contoso.onmicrosoft.com, fix one process validation error, then run Migrator prepare and review the identity map log. Detach the collection, generate a DACPAC, run a dry-run import with Migrator import /importFile:import.json and list the post-migration tasks you complete.",
+          "deliverable": "Migration plan with validation output, identity map, dry-run import and cutover checklist",
+          "checks": [["Run Migrator validate on a collection with a customised process", "Validation lists the process errors with file names", "Validation log"], ["Run Migrator prepare", "An identity map file lists users as active or historical", "Identity map file"], ["Run the dry-run import", "A new organisation is created and its projects contain the migrated history", "Portal screenshot"]],
+          "objectives": ["Validate a collection for migration", "Map on-premises identities to Entra ID", "Run a dry-run import and plan cutover"]
+        },
+        {
+          "topic": "Migrating Azure Repos to GitHub with GitHub Enterprise Importer",
+          "subtopics": ["GitHub Enterprise Importer and the gh ado2gh extension", "Tokens: ADO_PAT and GH_PAT scopes", "gh ado2gh inventory-report for repositories, pipelines and size", "gh ado2gh generate-script for a whole organisation", "gh ado2gh migrate-repo and what is migrated: history, pull requests and comments", "Locking source repositories and disabling the old repo", "Mapping users with mannequins and reclaiming them", "Rewiring pipelines with gh ado2gh rewire-pipeline and linking Boards with gh ado2gh integrate-boards"],
+          "tools": ["GitHub Enterprise Importer", "GitHub CLI", "Azure Repos", "Azure Pipelines", "Azure Boards"],
+          "lab_task": "Install gh extension install github/gh-ado2gh, set ADO_PAT and GH_PAT, run gh ado2gh inventory-report --ado-org <org>, then gh ado2gh migrate-repo --ado-org <org> --ado-team-project Contoso.Shop --ado-repo shop-web --github-org <gh-org> --github-repo shop-web. Rewire shop-web-ci with gh ado2gh rewire-pipeline and link Boards with integrate-boards.",
+          "deliverable": "Inventory CSV files, migration log, migrated GitHub repository and rewired pipeline",
+          "checks": [["Run inventory-report", "CSV files for orgs, team projects, repos and pipelines are written", "Directory listing"], ["Compare commit counts after migrate-repo", "git rev-list --count --all matches in Azure Repos and GitHub", "Terminal output"], ["Push to the GitHub repository after rewire-pipeline", "shop-web-ci runs in Azure Pipelines from the GitHub source", "Run summary"]],
+          "objectives": ["Inventory and plan an Azure Repos migration", "Migrate repositories with history and pull requests", "Keep Azure Pipelines and Azure Boards working after the move"]
+        },
+        {
+          "topic": "Rewiring Azure Pipelines and Boards During a GitHub Migration",
+          "subtopics": ["Options after moving code: keep Azure Pipelines, keep Boards, or move both", "Azure Pipelines GitHub App and GitHub service connections", "YAML pr triggers and status checks for GitHub repositories", "Azure Boards app for GitHub and AB#ID links", "GitHub Actions Importer audit and dry-run for Azure DevOps pipelines", "Mapping variable groups, service connections and environments to GitHub equivalents", "Workload identity federation for the new runner identity", "Cutover sequencing and freeze windows"],
+          "tools": ["Azure Pipelines", "Azure Boards", "GitHub Actions Importer", "GitHub CLI", "GitHub"],
+          "lab_task": "Install the Azure Boards app on the GitHub organisation, connect it to Contoso.Shop and push a commit with AB#<id>. Add pr: branches: include: main to shop-web-ci and make it a required status check on GitHub. Run gh actions-importer audit azure-devops --output-dir audit and record the pipelines that convert fully, partially or not at all.",
+          "deliverable": "Coexistence configuration, AB# link evidence and the importer audit summary",
+          "checks": [["Push a commit with AB#<id> to GitHub", "The work item shows a GitHub commit link in Development", "Work item screenshot"], ["Open a GitHub pull request against main", "The shop-web-ci status check runs and blocks merging until it passes", "Pull request screenshot"], ["Open the audit summary", "Each pipeline is counted as successful, partially successful, unsupported or failed", "audit_summary.md"]],
+          "objectives": ["Run Azure Pipelines and Boards against GitHub repositories", "Assess pipelines for conversion", "Sequence a phased cutover"]
+        },
+        {
+          "topic": "Capstone: Secured Platform Pipeline with Managed Pools, AKS Canary and GHAS",
+          "subtopics": ["Hardened organisation settings and required template governance", "Managed DevOps Pool with private network access", "Secret protection, CodeQL and dependency scanning gates", "Signed images, SBOMs and canary release to AKS", "Audit stream and DORA report", "Migration readiness assessment for GitHub"],
+          "tools": ["Azure Pipelines", "Managed DevOps Pools", "GitHub Advanced Security for Azure DevOps", "Azure Kubernetes Service", "Bicep", "Power BI"],
+          "lab_task": "Build a platform for two teams: hardened pipeline settings, a required extends template on prod connections, a Managed DevOps Pool on a private subnet, GHAS scans as build validation, an SBOM and signed image per build, and a canary release to AKS with promote or reject. Stream audit logs, publish a DORA report and write a GitHub migration readiness note.",
+          "deliverable": "Platform repository, governance settings, release evidence, DORA report and readiness note",
+          "checks": [["Run a team pipeline that does not extend the required template", "The prod stage is blocked by the Required template check", "Checks panel screenshot"], ["Open a pull request with a leaked secret and a vulnerable package", "The push is blocked and the dependency alert fails build validation", "Git output and pull request screenshot"], ["Promote a healthy canary on AKS", "Production runs the signed image and the release appears in the DORA report", "kubectl output and report screenshot"]],
+          "objectives": ["Combine governance, security and progressive delivery in one platform", "Prove releases with signatures, SBOMs and audit data", "Assess the platform for a future move to GitHub"]
+        }
+      ]
+    }
+  }
+}

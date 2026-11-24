@@ -47,6 +47,21 @@ def test_every_bank_has_ten_unique_options():
         assert len(variants) == len(set(variants)) == 10
 
 
+def test_professional_requirement_thanks_is_not_varied():
+    body = "Thank you for sharing the DevOps requirement. We have noted the topics, 7 training days, Offline delivery mode, and 3 lab hours per day."
+    assert vary_template(body, [], seed="x") == body
+    with_us = "Thank you for sharing the DevOps requirement with us. We have noted the topics."
+    assert vary_template(with_us, [], seed="x") == with_us
+    for opening in (
+        "Thank you for sending over the Python training requirement.",
+        "Thank you for providing the DevOps training requirements.",
+        "Thank you for sending us the DevOps requirement.",
+        "Thank you for sharing the DevOps training details.",
+        "Thank you for sharing your DevOps training requirements.",
+    ):
+        assert vary_template(opening, [], seed="x") == opening
+
+
 def test_unmatched_answers_and_quoted_messages_are_not_rewritten():
     text = "The confirmed amount is INR 20,000.\n> Thank you for the update.\nNo discount is approved."
     assert vary_template(text, [], seed="x") == text

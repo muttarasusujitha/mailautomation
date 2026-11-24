@@ -19,6 +19,7 @@ class Settings(BaseSettings):
 
     # Internal service URLs (for HTTP calls between services)
     EMAIL_SERVICE_URL: str = "http://email-service:8002"
+    TRAINER_SERVICE_URL: str = "http://trainer-service:8004"
     NOTIFICATION_SERVICE_URL: str = "http://notification-service:8003"
     CORE_API_URL: str = "http://core-api:8001"
     INTERNAL_SERVICE_TOKEN: str = ""
