@@ -12,6 +12,23 @@
       "summary": "For Python developers new to AI agents. Covers what agents are, how LLMs call tools, the agent loop, memory, planning, retrieval for agents, a first look at LangGraph, CrewAI and MCP, and safe limits, ending with a working single-agent assistant.",
       "prerequisites": ["Writes basic Python: functions, classes, packages and virtual environments", "Has called a REST API", "Access to an LLM API key or a local Ollama install"],
       "outcomes": ["Explain how agents differ from chatbots and fixed workflows", "Build agents that use tools, memory and retrieval", "Build a first graph-based agent with LangGraph", "Add step limits, logging and approval for risky actions"],
+      "course_outcomes": [
+        {"outcome": "Set up an agent environment and make structured LLM calls", "topics": ["Agentic AI Overview and Environment Setup", "LLM Calls for Agents: Messages, Roles and Structured Replies"]},
+        {"outcome": "Let a model call functions as tools", "topics": ["Tool Calling: Letting Models Use Functions"]},
+        {"outcome": "Build a reason-act-observe agent loop", "topics": ["The Agent Loop: Reason, Act, Observe"]},
+        {"outcome": "Write agent instructions and policies", "topics": ["Prompting Agents: Instructions, Personas and Policies"]},
+        {"outcome": "Give agents conversation and long-term memory", "topics": ["Agent Memory: Conversation, Summaries and Long-Term Facts"]},
+        {"outcome": "Search documents as an agent tool", "topics": ["Retrieval for Agents: Searching Documents as a Tool"]},
+        {"outcome": "Plan and break down tasks", "topics": ["Planning and Task Decomposition"]},
+        {"outcome": "Build LangGraph agents with checkpoints and human approval", "topics": ["LangGraph Essentials: States, Nodes and Edges", "Checkpoints, Persistence and Human Approval in LangGraph"]},
+        {"outcome": "Build multi-agent teams with hand-offs and CrewAI", "topics": ["Multi-Agent Systems: Roles and Hand-Offs", "Role-Based Agent Teams with CrewAI"]},
+        {"outcome": "Connect agents to tools with the Model Context Protocol", "topics": ["Connecting Agents to Tools with the Model Context Protocol"]},
+        {"outcome": "Build agents that work with code, data and the web", "topics": ["Agents That Work with Code and Data", "Browser and Web Agents"]},
+        {"outcome": "Limit agents with permissions and guardrails", "topics": ["Agent Safety: Permissions, Limits and Guardrails"]},
+        {"outcome": "Test, evaluate and trace agents, including their cost", "topics": ["Testing and Evaluating Agents", "Observability for Agents: Tracing Steps and Costs"]},
+        {"outcome": "Deploy an agent as a service", "topics": ["Deploying an Agent as a Service"]},
+        {"outcome": "Deliver an IT helpdesk agent", "topics": ["Beginner Capstone: IT Helpdesk Agent"]}
+      ],
       "days": [
         {
           "topic": "Agentic AI Overview and Environment Setup",
@@ -201,6 +218,23 @@
       "summary": "For developers who have built a simple agent. Covers production agent design with LangGraph, multi-agent patterns, agent protocols, enterprise tool integration, retrieval-heavy agents, evaluation, guardrails, observability, cost control and deployment on cloud agent platforms.",
       "prerequisites": ["Has built a tool-using agent in Python", "Knows LangGraph or a similar framework at a basic level", "Comfortable with REST APIs, Docker and Git"],
       "outcomes": ["Design agent workflows that are reliable and observable", "Build multi-agent systems with clear hand-offs and protocols", "Evaluate, secure and control the cost of agents", "Deploy agents on cloud agent platforms"],
+      "course_outcomes": [
+        {"outcome": "Choose between router, workflow and autonomous agent designs", "topics": ["Agent Design Patterns: Routers, Workflows and Autonomous Loops"]},
+        {"outcome": "Build subgraphs and parallel branches in LangGraph", "topics": ["Advanced LangGraph: Subgraphs, Parallel Branches and Reducers"]},
+        {"outcome": "Engineer agent state, memory and context", "topics": ["Agent State, Memory and Context Engineering"]},
+        {"outcome": "Design supervisor, swarm and hierarchical multi-agent systems", "topics": ["Multi-Agent Architectures: Supervisor, Swarm and Hierarchical Teams"]},
+        {"outcome": "Connect agents with MCP and agent-to-agent protocols", "topics": ["Agent Protocols: MCP and Agent-to-Agent Communication"]},
+        {"outcome": "Integrate agents with enterprise APIs, databases and SaaS", "topics": ["Enterprise Tool Integration: APIs, Databases and SaaS Systems"]},
+        {"outcome": "Build agentic RAG that plans its retrieval", "topics": ["Agentic RAG: Agents That Plan Their Retrieval"]},
+        {"outcome": "Add human-in-the-loop approvals", "topics": ["Human-in-the-Loop Workflows and Approvals"]},
+        {"outcome": "Evaluate trajectories, outcomes and costs, and enforce safe autonomy", "topics": ["Evaluating Agents: Trajectories, Outcomes and Costs", "Guardrails, Policies and Safe Autonomy"]},
+        {"outcome": "Debug and replay agent runs and cut cost and latency", "topics": ["Observability, Debugging and Replay of Agent Runs", "Cost and Latency Engineering for Agents"]},
+        {"outcome": "Trigger agents from events, schedules and webhooks", "topics": ["Event-Driven Agents: Triggers, Schedules and Webhooks"]},
+        {"outcome": "Build agents with AutoGen, Semantic Kernel and the OpenAI Agents SDK", "topics": ["Multi-Agent Collaboration with AutoGen and Semantic Kernel", "Building Agents with the OpenAI Agents SDK"]},
+        {"outcome": "Deploy agents on cloud platforms with durable execution", "topics": ["Cloud Agent Platforms: Azure AI Foundry, Amazon Bedrock Agents and Vertex AI Agent Builder", "Deploying Agents at Scale with Durable Execution"]},
+        {"outcome": "Secure agentic systems and design agent user experience", "topics": ["Security for Agentic Systems", "Agent Product Design and User Experience"]},
+        {"outcome": "Deliver a multi-agent business process automation", "topics": ["Intermediate Capstone: Multi-Agent Business Process Automation"]}
+      ],
       "days": [
         {
           "topic": "Agent Design Patterns: Routers, Workflows and Autonomous Loops",
@@ -389,6 +423,23 @@
       "summary": "For engineers and architects running agents in production. Covers agent architecture at enterprise scale, reasoning models, learning agents, computer-use and coding agents, formal safety, security, governance, multi-agent platforms, evaluation research and the economics of agentic systems.",
       "prerequisites": ["Has built and deployed a multi-agent system", "Uses evaluation, tracing and guardrails in practice", "Comfortable with cloud platforms and distributed systems"],
       "outcomes": ["Architect agent platforms for many teams", "Use reasoning models, learning and computer-use agents well", "Govern, secure and evaluate autonomous systems at scale", "Make sound build, buy and cost decisions for agentic AI"],
+      "course_outcomes": [
+        {"outcome": "Design an enterprise agent platform", "topics": ["Enterprise Agent Platform Architecture"]},
+        {"outcome": "Use reasoning models and test-time compute", "topics": ["Reasoning Models and Test-Time Compute"]},
+        {"outcome": "Improve agents from feedback and fine-tuning", "topics": ["Learning Agents: Feedback, Self-Improvement and Fine-Tuning"]},
+        {"outcome": "Build computer-use and coding agents", "topics": ["Computer-Use and Desktop Automation Agents", "Coding Agents and Software Engineering Automation"]},
+        {"outcome": "Constrain agent actions with verification and test them adversarially", "topics": ["Formal Safety: Verification, Constraints and Safe Action Spaces", "Advanced Agent Security and Adversarial Testing"]},
+        {"outcome": "Govern autonomous agents under regulation", "topics": ["Governance, Accountability and Regulation for Autonomous Systems"]},
+        {"outcome": "Evaluate agents with benchmarks and simulation", "topics": ["Evaluation Research for Agents: Benchmarks and Simulation Environments"]},
+        {"outcome": "Connect agents across vendors and orchestrate many agents", "topics": ["Agent Interoperability Across Vendors and Clouds", "Large-Scale Multi-Agent Orchestration"]},
+        {"outcome": "Use knowledge graphs for structured reasoning", "topics": ["Knowledge Graphs and Structured Reasoning for Agents"]},
+        {"outcome": "Build voice and real-time agents", "topics": ["Voice and Real-Time Agents"]},
+        {"outcome": "Govern privacy for agent memory and retrieval", "topics": ["Privacy and Data Governance for Agent Memory and Retrieval"]},
+        {"outcome": "Deploy agents in regulated industries and build their operating model", "topics": ["Agents in Regulated Industries: Banking, Healthcare and Insurance", "Economics and Operating Model of Agentic AI"]},
+        {"outcome": "Respond to agent incidents and lead architecture reviews", "topics": ["Production Incident Response for Agents", "Agentic AI Strategy and Architecture Reviews"]},
+        {"outcome": "Handle long-horizon tasks, recovery and goal drift", "topics": ["Edge Cases: Long-Horizon Tasks, Recovery and Goal Drift"]},
+        {"outcome": "Deliver a governed enterprise agent platform", "topics": ["Advanced Capstone: Governed Enterprise Agent Platform"]}
+      ],
       "days": [
         {
           "topic": "Enterprise Agent Platform Architecture",
