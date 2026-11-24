@@ -486,6 +486,23 @@ def _ensure_trainer_mail1_commercial_section(body: str, requirement: Dict[str, A
     return f"{text.rstrip()}\n\n{insert.rstrip()}"
 
 
+def _append_missing_offer_confirmation(body: str, requirement: Dict[str, Any], trainer=None) -> str:
+    """Ensure a proposal Mail 1 asks the trainer to confirm an actual offer once."""
+    if not _is_proposal_requirement(requirement):
+        return body
+    section = _trainer_mail1_commercial_section(requirement, trainer)
+    if not section:
+        return body
+    text = _ensure_trainer_mail1_commercial_section(body, requirement, trainer)
+    if re.search(r"\bplease\s+confirm\s+the\s+offered\b", text, re.I):
+        return text
+    confirmation = (
+        "Please confirm the offered trainer commercial and your availability. "
+        "If it does not work for you, let us know for review."
+    )
+    return f"{text.rstrip()}\n\n{confirmation}"
+
+
 def _replace_trainer_mail1_commercial(body: str, requirement: Dict[str, Any]) -> str:
     commercial_text = _trainer_mail1_commercial_text(requirement)
     if not commercial_text:
@@ -4140,6 +4157,7 @@ async def send_shortlist_mail(
                     body = _clean_confirmed_mail1_body(trainer_name, requirement, domain, t)
                 if payload.mail_type in ("mail1", "first"):
                     body = _ensure_trainer_mail1_commercial_section(body, requirement, t)
+                    body = _append_missing_offer_confirmation(body, requirement, t)
                     body = _ensure_mail1_slot_examples(body)
                     missing_documents = [label for label in requested_documents(requirement) if label.lower() not in body.lower()]
                     if missing_documents:
@@ -4297,8 +4315,7 @@ async def send_shortlist_mail(
                 if mail_type in {"mail1", "first"}:
                     body = _normalize_trainer_mail1_body(body)
                     if _is_proposal_requirement(requirement):
-                        if "confirm the offered commercials" not in body.lower():
-                            body += "\n\nPlease confirm the offered commercials and your availability."
+                        body = _append_missing_offer_confirmation(body, requirement, t)
                     else:
                         body = _strip_trainer_offer_confirmation(body)
                         body = _ensure_trainer_mail1_commercial_section(body, requirement, t)
