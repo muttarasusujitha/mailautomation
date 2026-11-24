@@ -7,11 +7,31 @@
   "certifications": ["ISTQB Certified Tester Foundation Level (CTFL)", "ISTQB Advanced Level Test Analyst", "ISTQB Advanced Level Test Automation Engineering", "ISTQB Agile Tester"],
   "tools": ["Jira", "TestRail or Zephyr", "Postman", "Selenium", "Playwright", "JMeter"],
   "review_status": "unreviewed",
+  "sources": [
+    {"title": "ISTQB Certified Tester Foundation Level (CTFL) v4.0", "url": "https://istqb.org/certifications/certified-tester-foundation-level-ctfl-v4-0/", "checked": "Found in a web search on 2026-11-24; page not opened"},
+    {"title": "ISTQB certifications", "url": "https://istqb.org/certifications/", "checked": "Found in a web search on 2026-11-24; page not opened"}
+  ],
   "levels": {
     "beginner": {
       "summary": "For new testers and people moving into QA. Covers why testing matters, the testing process, test levels and types, test design techniques, writing test cases, defect reporting, exploratory testing, API and database checks, agile testing, a first look at automation, and ISTQB Foundation preparation, ending with a full test cycle for a web application.",
       "prerequisites": ["Comfortable using web and mobile applications", "Basic understanding of how software is built", "No programming experience needed for most days"],
       "outcomes": ["Plan and run tests using the testing process and ISTQB terms", "Design test cases with black-box techniques", "Report clear defects and track them to closure", "Test web pages, APIs and data and take first steps in automation"],
+      "course_outcomes": [
+        {"outcome": "Explain the test process, test levels and test types using ISTQB terms", "topics": ["Software Testing Overview and Course Setup", "The Test Process and Test Levels", "Test Types: Functional, Non-Functional and Regression"]},
+        {"outcome": "Design test cases with equivalence partitioning and boundary value analysis", "topics": ["Test Design: Equivalence Partitioning and Boundary Value Analysis"]},
+        {"outcome": "Design test cases from decision tables, state transitions and use cases", "topics": ["Test Design: Decision Tables, State Transitions and Use Cases"]},
+        {"outcome": "Run time-boxed exploratory test sessions and record what was found", "topics": ["Experience-Based and Exploratory Testing"]},
+        {"outcome": "Write test cases and organise them into suites traced to requirements", "topics": ["Writing Test Cases and Test Suites"]},
+        {"outcome": "Report defects a developer can reproduce and track them through the defect life cycle", "topics": ["Defect Reporting and the Defect Life Cycle"]},
+        {"outcome": "Find defects in requirements and code through reviews and static testing", "topics": ["Static Testing and Reviews"]},
+        {"outcome": "Test web applications, APIs with Postman and data with SQL queries", "topics": ["Testing Web Applications", "API Testing with Postman", "Database Testing with SQL"]},
+        {"outcome": "Work as a tester in an agile team and test mobile applications", "topics": ["Testing in Agile Teams", "Mobile Application Testing"]},
+        {"outcome": "Automate a first regression check and run a basic load test", "topics": ["First Steps in Test Automation", "Performance Testing: Load, Stress and Response Times"]},
+        {"outcome": "Run basic security checks as a tester", "topics": ["Security Testing for Testers"]},
+        {"outcome": "Estimate test effort and report progress and quality to stakeholders", "topics": ["Test Management, Estimation and Reporting"]},
+        {"outcome": "Answer ISTQB Foundation Level practice questions under exam conditions", "topics": ["ISTQB Foundation Level Exam Preparation"]},
+        {"outcome": "Plan, run and report a full test cycle for a web application", "topics": ["Beginner Capstone: Full Test Cycle for a Web Application"]}
+      ],
       "days": [
         {
           "topic": "Software Testing Overview and Course Setup",
@@ -199,6 +219,23 @@
       "summary": "For testers with some experience who are moving into automation. Covers programming for testers, automation frameworks for web, API and mobile, behaviour-driven development, test data, CI/CD integration, performance and accessibility testing, contract testing, test strategy and ISTQB Advanced topics.",
       "prerequisites": ["Has worked as a manual tester or on a QA team", "Knows test design techniques and defect management", "Basic programming in Python, Java or JavaScript"],
       "outcomes": ["Build maintainable automation for web, API and mobile", "Run automated tests in CI/CD pipelines", "Plan performance, accessibility and contract testing", "Write test strategies for agile and DevOps teams"],
+      "course_outcomes": [
+        {"outcome": "Write test code with functions, classes and assertions", "topics": ["Programming for Testers"]},
+        {"outcome": "Automate web tests with Selenium WebDriver and Playwright using the Page Object Model", "topics": ["Web Automation with Selenium WebDriver", "Page Object Model and Framework Design", "Modern Web Automation with Playwright"]},
+        {"outcome": "Automate API tests and write BDD scenarios with Cucumber", "topics": ["API Test Automation", "Behaviour-Driven Development with Cucumber"]},
+        {"outcome": "Create and manage test data so automated tests are repeatable", "topics": ["Test Data Management"]},
+        {"outcome": "Run automated tests in a CI pipeline on every change", "topics": ["Continuous Integration for Tests"]},
+        {"outcome": "Automate mobile tests with Appium", "topics": ["Mobile Test Automation with Appium"]},
+        {"outcome": "Run load tests with JMeter or k6 and report response times against targets", "topics": ["Performance Testing with JMeter and k6"]},
+        {"outcome": "Test an application for accessibility and report the failures found", "topics": ["Accessibility Testing"]},
+        {"outcome": "Test microservices with contract and integration tests, and catch UI changes with visual regression tests", "topics": ["Contract and Integration Testing for Microservices", "Visual Regression Testing"]},
+        {"outcome": "Write a test strategy for an agile and DevOps team, including testing in production", "topics": ["Test Strategy for Agile and DevOps Teams", "Testing in Production and Observability for QA"]},
+        {"outcome": "Test data and ETL pipelines for completeness and correctness", "topics": ["Testing Data and ETL Pipelines"]},
+        {"outcome": "Use AI assistants to generate and review tests, and check what they produce", "topics": ["AI-Assisted Testing"]},
+        {"outcome": "Track quality metrics and use them to prevent defects", "topics": ["Defect Prevention, Metrics and Quality Reporting"]},
+        {"outcome": "Answer ISTQB Advanced and Agile Tester practice questions", "topics": ["ISTQB Advanced and Agile Tester Exam Preparation"]},
+        {"outcome": "Deliver an automation framework that runs in a CI pipeline", "topics": ["Intermediate Capstone: Automation Framework and CI Pipeline"]}
+      ],
       "days": [
         {
           "topic": "Programming for Testers",
@@ -386,6 +423,22 @@
       "summary": "For senior QA engineers, SDETs, test architects and QA leads. Covers test architecture at scale, advanced automation design, performance engineering, chaos and resilience testing, security test automation, testing AI and ML systems, quality engineering in DevOps, test environments and data at scale, QA leadership, metrics and building a QA function.",
       "prerequisites": ["Builds and maintains automation frameworks in CI", "Knows performance, API and contract testing", "Has led testing for a product or release"],
       "outcomes": ["Architect test automation and environments for large systems", "Lead performance, resilience and security testing", "Test AI and data systems", "Lead quality engineering and QA teams"],
+      "course_outcomes": [
+        {"outcome": "Design a test architecture and automation patterns for a large system", "topics": ["Test Architecture for Large Systems", "Advanced Automation Design Patterns"]},
+        {"outcome": "Find and fix the causes of flaky tests and measure test reliability", "topics": ["Flaky Tests and Test Reliability Engineering"]},
+        {"outcome": "Plan performance, capacity and resilience tests, including chaos experiments", "topics": ["Performance Engineering and Capacity Testing", "Chaos Engineering and Resilience Testing"]},
+        {"outcome": "Automate security tests in the delivery pipeline", "topics": ["Security Test Automation"]},
+        {"outcome": "Test microservices and event-driven systems end to end", "topics": ["Testing Microservices and Event-Driven Systems"]},
+        {"outcome": "Test AI and machine learning systems for accuracy, bias and drift", "topics": ["Testing AI and Machine Learning Systems"]},
+        {"outcome": "Provision test environments with infrastructure as code and supply privacy-safe test data at scale", "topics": ["Test Environments and Infrastructure as Code", "Test Data at Scale and Privacy"]},
+        {"outcome": "Build quality engineering into a DevOps pipeline", "topics": ["Quality Engineering in DevOps"]},
+        {"outcome": "Apply model-based and property-based testing to find edge cases", "topics": ["Model-Based and Property-Based Testing"]},
+        {"outcome": "Scale mobile testing on device farms and run an accessibility compliance programme", "topics": ["Mobile Testing at Scale with Device Farms", "Accessibility Programmes and Compliance"]},
+        {"outcome": "Build and lead a QA function and report quality economics to leadership", "topics": ["QA Leadership and Building a QA Function", "Quality Metrics, Economics and Reporting to Leadership"]},
+        {"outcome": "Meet testing requirements in regulated industries and plan a tool selection or migration", "topics": ["Testing in Regulated Industries", "Test Automation Tool Selection and Migration"]},
+        {"outcome": "Lead the response to a release quality crisis", "topics": ["Troubleshooting Release Quality Crises"]},
+        {"outcome": "Deliver a quality engineering strategy for a platform", "topics": ["Advanced Capstone: Quality Engineering Strategy for a Platform"]}
+      ],
       "days": [
         {
           "topic": "Test Architecture for Large Systems",

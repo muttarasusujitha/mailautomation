@@ -12,6 +12,10 @@
   ],
   "tools": ["Azure portal", "Azure CLI", "Bicep", "Terraform"],
   "review_status": "unreviewed",
+  "sources": [
+    {"title": "What is the Azure Well-Architected Framework", "url": "https://learn.microsoft.com/en-us/azure/well-architected/what-is-well-architected-framework", "checked": "Found in a web search on 2026-11-24; page not opened"},
+    {"title": "Azure Well-Architected Framework pillars", "url": "https://learn.microsoft.com/en-us/azure/well-architected/pillars", "checked": "Found in a web search on 2026-11-24; page not opened"}
+  ],
   "levels": {
     "beginner": {
       "summary": "No cloud experience assumed. Participants learn the core Azure services for identity, compute, storage, networking, databases and monitoring, and deploy a small web application.",
@@ -25,6 +29,22 @@
         "Organise resources with management groups, subscriptions, resource groups and tags",
         "Deploy and secure virtual machines, storage accounts, virtual networks and Azure SQL",
         "Deploy, monitor and cost-control a simple web application on Azure"
+      ],
+      "course_outcomes": [
+        {"outcome": "Explain cloud service models, Azure regions and availability zones, and the shared responsibility model", "topics": ["Cloud Computing Concepts and Azure Global Infrastructure"]},
+        {"outcome": "Control access with Microsoft Entra ID users, groups and role-based access control", "topics": ["Microsoft Entra ID Users, Groups and Role-Based Access"]},
+        {"outcome": "Organise resources with subscriptions, resource groups and Azure Resource Manager", "topics": ["Resource Groups, Subscriptions and Azure Resource Manager"]},
+        {"outcome": "Deploy virtual machines in a virtual network secured with network security groups", "topics": ["Azure Virtual Machines", "Azure Virtual Networks and Network Security Groups"]},
+        {"outcome": "Store and share files with storage accounts and Blob Storage", "topics": ["Azure Storage Accounts and Blob Storage"]},
+        {"outcome": "Make a workload highly available with Azure Load Balancer and Virtual Machine Scale Sets", "topics": ["Azure Load Balancer and Virtual Machine Scale Sets"]},
+        {"outcome": "Deploy a web app to App Service with an Azure SQL Database or Cosmos DB back end", "topics": ["Azure App Service Web Apps", "Azure SQL Database", "Azure Cosmos DB"]},
+        {"outcome": "Serve an application globally with Azure DNS, Front Door and CDN", "topics": ["Azure DNS, Front Door and CDN"]},
+        {"outcome": "Monitor resources with Azure Monitor and Log Analytics and raise alerts", "topics": ["Azure Monitor, Log Analytics and Alerts"]},
+        {"outcome": "Automate tasks with the Azure CLI and PowerShell, and deploy infrastructure with Bicep", "topics": ["Azure CLI, PowerShell and Scripting", "Infrastructure as Code with Bicep"]},
+        {"outcome": "Build a serverless function and run containers from Container Registry on Container Apps", "topics": ["Azure Functions Serverless", "Containers on Azure: Container Registry and Container Apps"]},
+        {"outcome": "Protect secrets with Key Vault and managed identities, and check compliance with Defender for Cloud and Azure Policy", "topics": ["Azure Key Vault and Managed Identities", "Cloud Security with Microsoft Defender for Cloud and Azure Policy"]},
+        {"outcome": "Control costs with Cost Management and review a design against the Well-Architected Framework", "topics": ["Cost Management and the Azure Well-Architected Framework"]},
+        {"outcome": "Deliver a highly available web application on Azure with monitoring and cost controls", "topics": ["Beginner Capstone: Highly Available Web Application on Azure"]}
       ],
       "days": [
         {
@@ -222,6 +242,23 @@
         "Build infrastructure with Bicep and Terraform modules",
         "Run containers on AKS and integration workflows with Service Bus, Event Grid and Logic Apps",
         "Deliver workloads through pipelines with monitoring, Application Insights and cost controls"
+      ],
+      "course_outcomes": [
+        {"outcome": "Set up management groups, subscriptions and landing zone guardrails for several teams", "topics": ["Management Groups, Subscriptions and Landing Zone Concepts"]},
+        {"outcome": "Build a hub-and-spoke network with Azure Firewall controlling traffic between spokes", "topics": ["Hub-and-Spoke Networking with Azure Firewall"]},
+        {"outcome": "Build reusable infrastructure with Terraform and Bicep modules, registries and deployment stacks", "topics": ["Terraform for Azure", "Bicep at Scale: Modules, Registries and Deployment Stacks"]},
+        {"outcome": "Run containerised workloads on Azure Kubernetes Service", "topics": ["Azure Kubernetes Service Clusters"]},
+        {"outcome": "Connect services with Service Bus, Event Grid, Logic Apps and API Management", "topics": ["Integration Services: Service Bus, Event Grid and Logic Apps", "API Management"]},
+        {"outcome": "Tune Azure SQL and Cosmos DB and add Azure Cache for Redis where it helps", "topics": ["Data Services: Azure SQL Tuning, Cosmos DB Patterns and Azure Cache for Redis"]},
+        {"outcome": "Deliver releases through Azure DevOps or GitHub Actions with slot, revision or blue/green deployments", "topics": ["CI/CD with Azure DevOps and GitHub Actions", "Deployment Strategies: Slots, Revisions and Blue/Green on Azure"]},
+        {"outcome": "Trace requests across services with Application Insights", "topics": ["Application Insights and Distributed Tracing"]},
+        {"outcome": "Protect workloads with WAF, DDoS Protection and Microsoft Sentinel", "topics": ["Workload Protection: WAF, DDoS Protection and Microsoft Sentinel"]},
+        {"outcome": "Back up workloads, test recovery with Site Recovery and automate patching with Update Manager", "topics": ["Backup, Site Recovery and Business Continuity", "Operations with Azure Automation and Update Manager"]},
+        {"outcome": "Cut the running cost of Azure workloads with measured changes", "topics": ["Cost Optimisation for Running Azure Workloads"]},
+        {"outcome": "Plan migration and hybrid management with Azure Migrate and Azure Arc", "topics": ["Hybrid and Migration with Azure Migrate and Azure Arc"]},
+        {"outcome": "Build data pipelines with Data Factory and Microsoft Fabric, and integrate Azure OpenAI into an application", "topics": ["Analytics with Microsoft Fabric and Azure Data Factory", "Azure OpenAI and AI Services Integration"]},
+        {"outcome": "Enforce governance with Azure Policy as code and compliance reports", "topics": ["Governance: Azure Policy as Code and Compliance Reporting"]},
+        {"outcome": "Deliver an event-driven order platform on Azure through a pipeline with monitoring", "topics": ["Intermediate Capstone: Event-Driven Order Platform on Azure"]}
       ],
       "days": [
         {
@@ -447,6 +484,23 @@
         "Build platforms and guardrails that teams can self-serve",
         "Run security, cost and reliability programmes with measurable results",
         "Lead architecture reviews and justify trade-offs with evidence"
+      ],
+      "course_outcomes": [
+        {"outcome": "Implement an enterprise-scale landing zone for many subscriptions", "topics": ["Enterprise-Scale Landing Zone Implementation"]},
+        {"outcome": "Design a multi-region active-active architecture and test its resilience with Azure Chaos Studio", "topics": ["Multi-Region Active-Active Architecture on Azure", "Resilience Engineering with Azure Chaos Studio"]},
+        {"outcome": "Design identity with Conditional Access and workload identities", "topics": ["Identity Architecture: Conditional Access and Workload Identities"]},
+        {"outcome": "Run security operations at scale with Defender XDR and Sentinel", "topics": ["Security Operations at Scale with Defender XDR and Sentinel"]},
+        {"outcome": "Protect data with encryption, key management and confidential computing", "topics": ["Data Protection: Encryption, Key Management and Confidential Computing"]},
+        {"outcome": "Build a self-service platform with golden paths, AKS fleet multi-tenancy and GitOps progressive delivery with Flux", "topics": ["Platform Engineering on Azure with Golden Paths", "AKS Fleet Management and Multi-Tenancy", "GitOps with Flux and Progressive Delivery on AKS"]},
+        {"outcome": "Design serverless, integration and event architectures that scale", "topics": ["Serverless and Integration at Scale", "Enterprise Integration Patterns and Event Architecture"]},
+        {"outcome": "Design a data platform with Microsoft Fabric and Databricks", "topics": ["Data Platform Architecture with Fabric and Databricks"]},
+        {"outcome": "Run a FinOps practice with costs and savings tracked per team", "topics": ["FinOps Practice on Azure"]},
+        {"outcome": "Automate compliance evidence for audits", "topics": ["Compliance Automation and Audit Readiness on Azure"]},
+        {"outcome": "Find and fix performance bottlenecks in Azure workloads with load tests", "topics": ["Performance Engineering for Azure Workloads"]},
+        {"outcome": "Run production generative AI on Azure AI Foundry", "topics": ["Production Generative AI on Azure AI Foundry"]},
+        {"outcome": "Plan a large-scale migration and modernisation programme", "topics": ["Large-Scale Migration and Modernisation Strategy on Azure"]},
+        {"outcome": "Run SRE practice with SLOs, error budgets and incident command, and lead architecture reviews that justify trade-offs", "topics": ["SRE Practice on Azure: SLOs, Error Budgets and Incident Command", "Azure Architecture Reviews and Trade-off Decisions"]},
+        {"outcome": "Deliver a multi-region enterprise platform design on Azure", "topics": ["Advanced Capstone: Multi-Region Enterprise Platform on Azure"]}
       ],
       "days": [
         {

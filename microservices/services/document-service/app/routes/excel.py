@@ -535,6 +535,10 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
         ("Certificate", text(toc.get("certificate")) or "Certificate of completion"),
         ("Target Certifications", certifications or TBC),
     ]
+    references = [item for item in toc.get("references") or [] if isinstance(item, dict) and text(item.get("url"))]
+    if references:
+        facts.append(("Official References", "\n".join(
+            f"{text(item.get('title')) or text(item.get('url'))}: {text(item.get('url'))}" for item in references)))
     r = 4
     for label, value in facts:
         put(overview, r, 1, label, bold=True, fill=BAND, valign="center")

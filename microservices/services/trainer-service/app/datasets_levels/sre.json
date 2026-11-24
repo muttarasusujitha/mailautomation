@@ -7,11 +7,31 @@
   "certifications": ["DevOps Institute SRE Foundation (PeopleCert)", "DevOps Institute SRE Practitioner (PeopleCert)", "Google Cloud Professional Cloud DevOps Engineer (covers SRE practices)"],
   "tools": ["Prometheus", "Grafana", "OpenTelemetry", "Sloth or Pyrra", "PagerDuty or incident.io", "k6", "Chaos Mesh or LitmusChaos", "Kubernetes"],
   "review_status": "unreviewed",
+  "sources": [
+    {"title": "Google SRE books", "url": "https://sre.google/books/", "checked": "Found in a web search on 2026-11-24; page not opened"},
+    {"title": "Site Reliability Engineering, second edition", "url": "https://cloud.google.com/blog/products/devops-sre/sre-book-second-edition", "checked": "Found in a web search on 2026-11-24; page not opened"}
+  ],
   "levels": {
     "beginner": {
       "summary": "For operations engineers, developers and DevOps engineers who are starting site reliability engineering. Covers SRE principles, a lab with the course service and its monitoring stack, availability targets and the cost of nines, SLIs, SLOs and error budgets, error budget policies, golden signals, RED and USE, burn-rate alerting, logs, metrics and traces, toil, incident response, on-call, blameless postmortems, release engineering, capacity planning and load testing, overload protection, production readiness reviews, chaos experiments and systematic troubleshooting. Covers the DevOps Institute SRE Foundation topics.",
       "prerequisites": ["Runs or supports a web application in production or test", "Comfortable with Linux, the command line and basic scripting", "Has used a monitoring tool or dashboard"],
       "outcomes": ["Set SLIs, SLOs and error budget policies with product owners", "Build monitoring and burn-rate alerts that page only for user-facing problems", "Run incidents, on-call rotations and blameless postmortems", "Plan capacity, release safely, protect services from overload and troubleshoot systematically"],
+      "course_outcomes": [
+        {"outcome": "Explain SRE and set availability targets from the cost of each extra nine", "topics": ["SRE Overview: Reliability as a Feature", "Lab Setup: Course Service, Prometheus, Grafana and Load Generator", "Embracing Risk: Availability Targets and the Cost of Nines"]},
+        {"outcome": "Choose SLIs and set SLOs and error budgets with product owners", "topics": ["Service Level Indicators: Choosing What to Measure", "Service Level Objectives and Error Budgets"]},
+        {"outcome": "Write an error budget policy that says what happens when the budget runs out", "topics": ["Error Budget Policies: What Happens When the Budget Runs Out"]},
+        {"outcome": "Monitor services with the golden signals, RED and USE, and alert on SLO burn rates", "topics": ["Monitoring Distributed Systems: Golden Signals, RED and USE", "Alerting on SLOs: Burn Rates and Actionable Pages"]},
+        {"outcome": "Correlate logs, metrics and traces to explain a problem", "topics": ["Observability Basics: Logs, Metrics and Traces Together"]},
+        {"outcome": "Measure toil and automate it away", "topics": ["Eliminating Toil: Measuring and Automating Operational Work"]},
+        {"outcome": "Run an incident with clear roles and communication", "topics": ["Incident Response: Roles, Communication and Mitigation"]},
+        {"outcome": "Set up a sustainable on-call rotation and write blameless postmortems", "topics": ["On-Call: Rotations, Handoffs and Sustainable Load", "Blameless Postmortems and Learning from Incidents"]},
+        {"outcome": "Release safely with staged rollouts and rollbacks", "topics": ["Release Engineering: Safe Rollouts and Rollbacks"]},
+        {"outcome": "Plan capacity from load tests and protect services from overload with timeouts, retries and graceful degradation", "topics": ["Capacity Planning and Load Testing", "Handling Overload: Timeouts, Retries and Graceful Degradation"]},
+        {"outcome": "Run a production readiness review", "topics": ["Production Readiness Reviews"]},
+        {"outcome": "Run a safe chaos experiment with a hypothesis and a limited blast radius", "topics": ["Chaos Engineering: Hypotheses, Blast Radius and Safe Experiments"]},
+        {"outcome": "Troubleshoot production systems with a systematic method", "topics": ["Troubleshooting Production Systems: A Systematic Method"]},
+        {"outcome": "Deliver a reliability baseline for a service", "topics": ["Beginner Capstone: Reliability Baseline for the Course Service"]}
+      ],
       "days": [
         {
           "topic": "SRE Overview: Reliability as a Feature",
@@ -199,6 +219,21 @@
       "summary": "For SREs and senior operations engineers who run services in production. Covers SLO tooling and catalogues, latency SLOs with histograms, dependency and critical path analysis, tracing for SREs, major incident command, incident analysis, runbooks and automated remediation, Kubernetes reliability, database reliability, disaster recovery tests, load balancing, chaos engineering programmes, deployment safety, observability pipelines, alert quality, capacity forecasting, performance engineering, reliability for AI services and AIOps and SRE agents.",
       "prerequisites": ["Has set SLOs and burn-rate alerts for a service", "Has been on call and handled incidents", "Comfortable with Kubernetes, Prometheus and a scripting language"],
       "outcomes": ["Run SLOs, dependencies and alerts for many services from a catalogue", "Lead major incidents and learning reviews, and automate remediation", "Prove disaster recovery, database and Kubernetes reliability with tests and experiments", "Control telemetry cost, plan capacity and apply SRE practices to AI services and AI assistants"],
+      "course_outcomes": [
+        {"outcome": "Run SLOs for many services from a service catalogue, including latency SLOs built on histograms", "topics": ["SLO Engineering at Scale: SLO Platforms and Service Catalogues", "Latency SLOs with Histograms and Percentile Pitfalls"]},
+        {"outcome": "Map dependencies and critical paths and trace tail latency", "topics": ["Dependency Management and Critical Path Analysis", "Distributed Tracing for SREs: Sampling, Tail Latency and Service Graphs"]},
+        {"outcome": "Command a major incident and lead a learning review that finds contributing factors", "topics": ["Major Incident Command: Coordination, Escalation and Customer Communication", "Incident Analysis: Contributing Factors, Learning Reviews and Trends"]},
+        {"outcome": "Write runbooks and automate remediation", "topics": ["Runbooks and Automated Remediation"]},
+        {"outcome": "Make Kubernetes workloads and databases reliable with probes, disruption budgets, replication and failover", "topics": ["Kubernetes Reliability: Probes, Disruption Budgets and Autoscaling", "Database Reliability: Replication, Failover and Backups"]},
+        {"outcome": "Test disaster recovery against RPO and RTO with a regional failover", "topics": ["Disaster Recovery: RPO, RTO and Regional Failover Tests"]},
+        {"outcome": "Manage traffic for reliability and run game days and continuous chaos experiments", "topics": ["Load Balancing and Traffic Management for Reliability", "Chaos Engineering Programmes: Game Days and Continuous Experiments"]},
+        {"outcome": "Reduce deployment risk with change risk assessment, flags and freezes", "topics": ["Deployment Safety at Scale: Change Risk, Flags and Freezes"]},
+        {"outcome": "Control telemetry cost with OpenTelemetry Collector pipelines and sampling", "topics": ["Observability Pipelines: OpenTelemetry Collector, Sampling and Cost Control"]},
+        {"outcome": "Measure and cut alert noise", "topics": ["Alert Quality: Measuring Noise, Tuning and Paging Reviews"]},
+        {"outcome": "Forecast capacity and tune autoscaling and efficiency", "topics": ["Capacity Management with Forecasting and Autoscaling Policies", "Performance Engineering for SREs: Profiling and Efficiency"]},
+        {"outcome": "Set reliability SLIs for AI services and use AI agents in incident response with checks", "topics": ["Reliability for AI Services: LLM Latency, Quality SLIs and Rate Limits", "AIOps and SRE Agents in Incident Response"]},
+        {"outcome": "Deliver a production SRE programme for a microservice estate", "topics": ["Intermediate Capstone: Production SRE Programme for a Microservice Estate"]}
+      ],
       "days": [
         {
           "topic": "SLO Engineering at Scale: SLO Platforms and Service Catalogues",
@@ -386,6 +421,22 @@
       "summary": "For SRE leads, staff engineers and heads of reliability. Covers SRE organisation design, reliability strategy and investment, business SLOs and SLAs, multi-region architecture, global traffic engineering, cross-organisation incident management, resilience engineering, continuous chaos in production, data system reliability, observability strategy, toil elimination programmes, design reviews, security and reliability, cost and reliability, platform SRE, AI-assisted operations, operational resilience regulations such as the EU DORA regulation, building an SRE practice and reliability case studies with SRE Practitioner preparation.",
       "prerequisites": ["Leads reliability work for several teams or a whole service estate", "Has run major incidents, SLO programmes and disaster recovery tests", "Takes part in architecture and investment decisions"],
       "outcomes": ["Design SRE organisations, strategies and investment cases", "Architect multi-region systems, traffic engineering and data reliability", "Lead cross-organisation incidents, resilience engineering and continuous chaos", "Govern observability, cost, security, AI operations and regulatory resilience across the organisation"],
+      "course_outcomes": [
+        {"outcome": "Design an SRE organisation and a reliability strategy with a risk register and an investment case", "topics": ["SRE Organisation Design: Team Models, Engagement and Charters", "Reliability Strategy: Risk Registers, Investment and Roadmaps"]},
+        {"outcome": "Set business SLOs from customer journeys and contracts", "topics": ["Business SLOs: Customer Journeys, Contracts and SLAs"]},
+        {"outcome": "Architect multi-region systems with automated global traffic failover", "topics": ["Multi-Region Architecture for High Availability", "Global Traffic Engineering and Failover Automation"]},
+        {"outcome": "Lead cross-organisation incidents, including regulator notifications", "topics": ["Cross-Organisation Incident Management and Regulator Notifications"]},
+        {"outcome": "Apply resilience engineering and run continuous chaos in production with guardrails", "topics": ["Resilience Engineering: Safety-II, Adaptive Capacity and Near Misses", "Continuous Chaos in Production: Automated Experiments and Guardrails"]},
+        {"outcome": "Set freshness and correctness SLOs for data systems", "topics": ["Reliability of Data Systems: Freshness, Correctness and Pipeline SLOs"]},
+        {"outcome": "Set an observability strategy and run toil elimination programmes", "topics": ["Observability Strategy: Telemetry Standards, Cost and Vendor Choices", "Toil Elimination Programmes and Self-Service Operations"]},
+        {"outcome": "Review designs for failure modes and shared security and reliability risks", "topics": ["Design Reviews for Reliability: Failure Modes and Architecture Risks", "Security and Reliability Together: Shared Incidents and Safe Defaults"]},
+        {"outcome": "Improve efficiency without losing reliability, including for shared platforms", "topics": ["Cost and Reliability: Efficiency Without Losing Nines", "Platform SRE: Reliability of Shared Infrastructure"]},
+        {"outcome": "Govern AI-assisted operations with guardrails and evaluation", "topics": ["AI-Assisted Operations at Scale: Agents, Guardrails and Evaluation"]},
+        {"outcome": "Meet operational resilience regulations such as EU DORA", "topics": ["Operational Resilience Regulations: EU DORA, Testing and Reporting"]},
+        {"outcome": "Build an SRE practice with hiring, training and career paths", "topics": ["Building an SRE Practice: Hiring, Training and Career Paths"]},
+        {"outcome": "Analyse reliability case studies and answer practitioner exam questions", "topics": ["Reliability Case Studies and SRE Practitioner Exam Preparation"]},
+        {"outcome": "Deliver an organisation-wide reliability programme", "topics": ["Advanced Capstone: Organisation-Wide Reliability Programme"]}
+      ],
       "days": [
         {
           "topic": "SRE Organisation Design: Team Models, Engagement and Charters",

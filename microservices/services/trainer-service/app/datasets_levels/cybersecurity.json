@@ -7,11 +7,32 @@
   "certifications": ["CompTIA Security+", "CompTIA CySA+", "EC-Council Certified Ethical Hacker (CEH)", "ISC2 CISSP", "Microsoft Certified: Security Operations Analyst Associate (SC-200)"],
   "tools": ["Kali Linux", "Wireshark", "Nmap", "Splunk or Microsoft Sentinel", "Burp Suite", "VirtualBox lab"],
   "review_status": "unreviewed",
+  "sources": [
+    {"title": "OWASP Top 10", "url": "https://owasp.org/projects/top-ten", "checked": "Found in a web search on 2026-11-24; page not opened"},
+    {"title": "OWASP Developer Guide: Top 10", "url": "https://devguide.owasp.org/en/07-training-education/05-top-ten/", "checked": "Found in a web search on 2026-11-24; page not opened"}
+  ],
   "levels": {
     "beginner": {
       "summary": "For IT staff and graduates starting in security. Covers security principles, threats and attacks, networking and operating system security, cryptography, identity and access, web application risks, vulnerability scanning, logging and SIEM basics, incident response, policies and compliance, and Security+ preparation, all in an isolated practice lab.",
       "prerequisites": ["Basic IT knowledge: files, networks, users and passwords", "Comfortable with Windows and a command line", "A laptop able to run virtual machines"],
       "outcomes": ["Explain security principles, common threats and defences", "Secure Windows and Linux systems and networks at a basic level", "Find vulnerabilities and read security logs", "Follow an incident response process and prepare for Security+"],
+      "course_outcomes": [
+        {"outcome": "Explain security principles and recognise common threats, attacks and social engineering", "topics": ["Cybersecurity Overview and Lab Setup", "Threats, Attacks and Social Engineering"]},
+        {"outcome": "Read network traffic and discover hosts and services with scanning tools", "topics": ["Networking for Security", "Network Scanning and Discovery"]},
+        {"outcome": "Harden Windows and Linux systems against common attacks", "topics": ["Securing Windows Systems", "Securing Linux Systems"]},
+        {"outcome": "Apply encryption, hashing and access management correctly", "topics": ["Cryptography Essentials", "Identity and Access Management"]},
+        {"outcome": "Find OWASP Top 10 weaknesses in a web application", "topics": ["Web Application Security and the OWASP Top 10"]},
+        {"outcome": "Scan for vulnerabilities and plan patching by risk", "topics": ["Vulnerability Scanning and Patching"]},
+        {"outcome": "Configure firewalls and intrusion detection, and investigate alerts in a SIEM", "topics": ["Firewalls, IDS and Network Defence", "Logging, Monitoring and a First SIEM"]},
+        {"outcome": "Protect endpoints against malware", "topics": ["Endpoint Security and Malware Defence"]},
+        {"outcome": "Follow an incident response process to detect, contain and recover", "topics": ["Incident Response: Detect, Contain and Recover"]},
+        {"outcome": "Apply basic cloud security controls", "topics": ["Cloud Security Basics"]},
+        {"outcome": "Write security policies and assess risk against a framework", "topics": ["Security Policies, Risk and Compliance"]},
+        {"outcome": "Automate security tasks with scripts", "topics": ["Scripting for Security Tasks"]},
+        {"outcome": "Run a security awareness activity", "topics": ["Security Awareness and Human Factors"]},
+        {"outcome": "Answer Security+ practice questions under exam conditions", "topics": ["CompTIA Security+ Exam Preparation"]},
+        {"outcome": "Secure a small office network end to end", "topics": ["Beginner Capstone: Securing a Small Office Network"]}
+      ],
       "days": [
         {
           "topic": "Cybersecurity Overview and Lab Setup",
@@ -199,6 +220,23 @@
       "summary": "For security analysts and engineers. Covers SOC operations, detection engineering with SIEM and MITRE ATT&CK, network and endpoint detection, threat intelligence, vulnerability management programmes, penetration testing of networks, web apps and Active Directory, cloud security, digital forensics, malware analysis, DevSecOps and security frameworks.",
       "prerequisites": ["Knows networking, Windows and Linux security and basic SIEM use", "Has done Security+ level study", "Comfortable with scripting in Python or PowerShell"],
       "outcomes": ["Run SOC operations and build detections mapped to MITRE ATT&CK", "Test networks, web applications and Active Directory in authorised labs", "Investigate incidents with forensics and malware analysis", "Build vulnerability management and DevSecOps programmes"],
+      "course_outcomes": [
+        {"outcome": "Run SOC operations and write detections mapped to MITRE ATT&CK", "topics": ["Security Operations Centre Operations", "Detection Engineering with SIEM and MITRE ATT&CK"]},
+        {"outcome": "Use threat intelligence to prioritise detections", "topics": ["Threat Intelligence"]},
+        {"outcome": "Monitor networks and endpoints with network security monitoring and EDR", "topics": ["Network Security Monitoring", "Endpoint Detection and Response"]},
+        {"outcome": "Run a vulnerability management programme with risk-based priorities", "topics": ["Vulnerability Management Programmes"]},
+        {"outcome": "Test networks, web applications and Active Directory in an authorised lab following a penetration testing method", "topics": ["Penetration Testing Methodology", "Web Application Penetration Testing", "Active Directory Security"]},
+        {"outcome": "Secure AWS and Azure workloads", "topics": ["Cloud Security in AWS and Azure"]},
+        {"outcome": "Investigate incidents with digital forensics and static and dynamic malware analysis", "topics": ["Digital Forensics and Incident Investigation", "Malware Analysis: Static and Dynamic Techniques"]},
+        {"outcome": "Protect identities with privileged access management", "topics": ["Identity Security and Privileged Access Management"]},
+        {"outcome": "Build security into software delivery with DevSecOps", "topics": ["Secure Software Development and DevSecOps"]},
+        {"outcome": "Defend against phishing", "topics": ["Email and Phishing Defence"]},
+        {"outcome": "Automate security response with Python and SOAR", "topics": ["Security Automation with Python and SOAR"]},
+        {"outcome": "Apply security frameworks to manage risk", "topics": ["Security Frameworks and Risk Management in Practice"]},
+        {"outcome": "Run incident response exercises from written playbooks", "topics": ["Incident Response Exercises and Playbooks"]},
+        {"outcome": "Answer CySA+ and CEH practice questions", "topics": ["CySA+ and CEH Exam Preparation"]},
+        {"outcome": "Deliver a SOC detection and response engagement", "topics": ["Intermediate Capstone: SOC Detection and Response Engagement"]}
+      ],
       "days": [
         {
           "topic": "Security Operations Centre Operations",
@@ -386,6 +424,21 @@
       "summary": "For senior analysts, security engineers, architects and security leaders. Covers threat hunting, red, blue and purple teaming, advanced Active Directory and cloud attacks and defences, container and Kubernetes security, zero trust, security architecture, detection as code, advanced forensics and reverse engineering, OT and AI security, application security programmes and security leadership.",
       "prerequisites": ["Has worked in security operations, testing or engineering", "Knows ATT&CK, SIEM, EDR and penetration testing", "Scripts confidently in Python or PowerShell"],
       "outcomes": ["Hunt threats and emulate adversaries", "Design zero trust and secure architectures", "Lead advanced investigations and security programmes", "Govern security risk and report to boards"],
+      "course_outcomes": [
+        {"outcome": "Hunt for threats from a written hypothesis", "topics": ["Threat Hunting"]},
+        {"outcome": "Emulate adversaries and validate detections with purple team exercises", "topics": ["Adversary Emulation and Red Teaming", "Purple Teaming and Detection Validation"]},
+        {"outcome": "Attack and defend Active Directory, Entra ID and cloud environments in an authorised lab", "topics": ["Advanced Active Directory and Entra ID Attacks and Defences", "Advanced Cloud Attack and Defence"]},
+        {"outcome": "Secure containers and Kubernetes", "topics": ["Container and Kubernetes Security"]},
+        {"outcome": "Design a zero trust architecture and review security designs", "topics": ["Zero Trust Architecture", "Security Architecture and Design Reviews"]},
+        {"outcome": "Manage detections as code with security data engineering", "topics": ["Detection as Code and Security Data Engineering"]},
+        {"outcome": "Lead advanced forensic investigations and reverse engineer malware", "topics": ["Advanced Digital Forensics and Incident Response", "Malware Reverse Engineering"]},
+        {"outcome": "Secure OT and ICS environments and AI systems", "topics": ["OT and ICS Security", "Security for AI Systems"]},
+        {"outcome": "Run application security and third-party supply chain risk programmes", "topics": ["Application Security Programmes", "Third-Party and Software Supply Chain Risk"]},
+        {"outcome": "Report security risk to a board and lead the response to a ransomware crisis", "topics": ["Security Leadership, Governance and Board Reporting", "Crisis Management and Ransomware Response Leadership"]},
+        {"outcome": "Apply privacy engineering to protect data", "topics": ["Privacy Engineering and Data Security"]},
+        {"outcome": "Answer CISSP practice questions across all domains", "topics": ["CISSP Exam Preparation"]},
+        {"outcome": "Deliver an enterprise security programme with an adversary simulation", "topics": ["Advanced Capstone: Enterprise Security Programme and Adversary Simulation"]}
+      ],
       "days": [
         {
           "topic": "Threat Hunting",

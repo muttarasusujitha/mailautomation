@@ -11,6 +11,10 @@
   ],
   "tools": ["Python 3.12", "VS Code", "pip", "pytest", "Git"],
   "review_status": "unreviewed",
+  "sources": [
+    {"title": "Python documentation", "url": "https://www.python.org/doc/", "checked": "Found in a web search on 2026-11-24; page not opened"},
+    {"title": "The Python Tutorial (3.13)", "url": "https://docs.python.org/3.13/tutorial/", "checked": "Found in a web search on 2026-11-24; page not opened"}
+  ],
   "levels": {
     "beginner": {
       "summary": "No programming experience assumed. Participants learn Python syntax, data structures, functions, files and testing, and finish with a working command-line tool.",
@@ -24,6 +28,22 @@
         "Store and process data with lists, dictionaries, sets, files, CSV and JSON",
         "Handle errors, debug failing code and write first unit tests with pytest",
         "Build a small command-line application from a written requirement"
+      ],
+      "course_outcomes": [
+        {"outcome": "Write and run Python scripts with variables, numbers, strings and type conversion", "topics": ["Python Setup, Variables and Basic Syntax", "Numbers, Strings and Type Conversion"]},
+        {"outcome": "Control program flow with conditions and loops", "topics": ["Conditions and Boolean Logic", "Loops: for, while, break and continue"]},
+        {"outcome": "Store and process data with lists, tuples, dictionaries and sets", "topics": ["Lists and Tuples", "Dictionaries and Sets"]},
+        {"outcome": "Write functions with parameters and return values", "topics": ["Functions: Parameters, Return Values and Scope"]},
+        {"outcome": "Process and format text", "topics": ["String Processing and Formatting"]},
+        {"outcome": "Read and write files and handle errors with exceptions", "topics": ["Reading and Writing Files", "Errors and Exception Handling"]},
+        {"outcome": "Use the standard library and install packages in a virtual environment", "topics": ["Modules, Packages and the Standard Library", "Virtual Environments and pip"]},
+        {"outcome": "Work with dates and times", "topics": ["Working with Dates and Times"]},
+        {"outcome": "Write list comprehensions and use built-in functions", "topics": ["List Comprehensions and Built-in Functions"]},
+        {"outcome": "Model data with classes and objects", "topics": ["Introduction to Classes and Objects"]},
+        {"outcome": "Read and write CSV and JSON data", "topics": ["Working with CSV and JSON Data"]},
+        {"outcome": "Debug failing code and write first unit tests with pytest", "topics": ["Debugging Python Code", "Writing First Unit Tests with pytest"]},
+        {"outcome": "Build a command-line script with argparse", "topics": ["Command-Line Scripts with argparse"]},
+        {"outcome": "Deliver an expense tracker command-line application", "topics": ["Beginner Capstone: Expense Tracker CLI"]}
       ],
       "days": [
         {
@@ -221,6 +241,20 @@
         "Build, test and package a FastAPI service",
         "Use concurrency and asyncio where they help, and explain when they do not"
       ],
+      "course_outcomes": [
+        {"outcome": "Write idiomatic Python that follows PEP 8 and passes Ruff, Black and pre-commit checks", "topics": ["Pythonic Code and PEP 8 Style", "Code Quality Tooling: Ruff, Black and pre-commit"]},
+        {"outcome": "Design classes with inheritance, composition, dunder methods and data classes", "topics": ["Object-Oriented Design: Inheritance and Composition", "Dunder Methods and Data Classes"]},
+        {"outcome": "Write iterators, generators, decorators and context managers", "topics": ["Iterators and Generators", "Decorators and Closures", "Context Managers"]},
+        {"outcome": "Add type hints and check them with mypy", "topics": ["Type Hints and mypy"]},
+        {"outcome": "Use advanced collections, itertools and regular expressions", "topics": ["Advanced Collections and itertools", "Regular Expressions"]},
+        {"outcome": "Configure logging and settings for an application", "topics": ["Logging and Configuration"]},
+        {"outcome": "Test code with pytest fixtures and mocks", "topics": ["Testing with pytest Fixtures and Mocks"]},
+        {"outcome": "Call REST APIs with requests and analyse data with pandas", "topics": ["Working with REST APIs using requests", "Data Analysis with pandas"]},
+        {"outcome": "Store data with sqlite3 and SQLAlchemy", "topics": ["Databases with sqlite3 and SQLAlchemy"]},
+        {"outcome": "Build a REST API with FastAPI and package the project", "topics": ["Building a REST API with FastAPI", "Packaging a Python Project"]},
+        {"outcome": "Use threads, processes or asyncio where they help, and explain when they do not", "topics": ["Concurrency with Threads and Processes", "Async Programming with asyncio"]},
+        {"outcome": "Deliver an inventory REST service", "topics": ["Intermediate Capstone: Inventory REST Service"]}
+      ],
       "days": [
         {
           "topic": "Pythonic Code and PEP 8 Style",
@@ -416,6 +450,21 @@
         "Design maintainable, secure, observable Python services",
         "Profile and optimise CPU, memory and I/O bottlenecks with measured results",
         "Deliver and operate a containerised async service with CI/CD"
+      ],
+      "course_outcomes": [
+        {"outcome": "Explain the Python data model, metaclasses and descriptors", "topics": ["Python Data Model and Object Internals", "Metaclasses and Descriptors"]},
+        {"outcome": "Diagnose memory problems and profile and optimise slow code with measured results", "topics": ["Memory Management and Garbage Collection", "Profiling and Performance Optimization"]},
+        {"outcome": "Speed up numeric code with NumPy vectorisation and Cython", "topics": ["High-Performance Python: NumPy Vectorisation and Cython"]},
+        {"outcome": "Handle cancellation and backpressure in asyncio and choose multiprocessing when the GIL limits threads", "topics": ["Advanced asyncio: Tasks, Cancellation and Backpressure", "Multiprocessing and the GIL"]},
+        {"outcome": "Apply design patterns, clean architecture and dependency injection", "topics": ["Design Patterns in Python", "Clean Architecture and Dependency Injection"]},
+        {"outcome": "Find edge cases with property-based testing and measure coverage", "topics": ["Advanced Testing: Property-Based Testing and Coverage"]},
+        {"outcome": "Write secure Python code", "topics": ["Secure Python Coding"]},
+        {"outcome": "Speed up APIs with caching and run background work with Celery", "topics": ["API Performance and Caching", "Distributed Task Queues with Celery"]},
+        {"outcome": "Containerise a Python service and deliver it through CI/CD", "topics": ["Containerising Python Services with Docker", "CI/CD for Python Projects"]},
+        {"outcome": "Add structured logging, metrics and tracing and troubleshoot production problems", "topics": ["Observability: Structured Logging, Metrics and Tracing", "Production Troubleshooting"]},
+        {"outcome": "Extend Python with C or Rust", "topics": ["Extending Python with C and Rust"]},
+        {"outcome": "Refactor a large codebase safely", "topics": ["Large Codebase Maintenance and Refactoring"]},
+        {"outcome": "Deliver a production-grade async service", "topics": ["Advanced Capstone: Production-Grade Async Service"]}
       ],
       "days": [
         {

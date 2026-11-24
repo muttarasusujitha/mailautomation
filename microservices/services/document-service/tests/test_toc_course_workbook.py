@@ -300,3 +300,12 @@ def test_tables_have_filters_a_mode_dropdown_and_check_cells():
     assessment = wb["Assessment"]
     total = next(r for r in range(1, 30) if assessment.cell(r, 1).value == "Total")
     assert assessment.cell(total, 3).value == f'=IF(B{total}=100,"OK","Weights must total 100")'
+
+
+def test_course_overview_lists_official_references_only_when_the_toc_has_them():
+    ws = _workbook(SAMPLE)["Course Overview"]
+    assert "Official References" not in [ws.cell(r, 1).value for r in range(4, 20)]
+    toc = {**SAMPLE, "references": [{"title": "Kubernetes documentation", "url": "https://kubernetes.io/docs/home/"}]}
+    ws = _workbook(toc)["Course Overview"]
+    labels = {ws.cell(r, 1).value: ws.cell(r, 2).value for r in range(4, 20)}
+    assert labels["Official References"] == "Kubernetes documentation: https://kubernetes.io/docs/home/"

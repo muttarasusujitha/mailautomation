@@ -7,11 +7,28 @@
   "certifications": ["Databricks Certified Data Engineer Associate", "Microsoft Certified: Fabric Data Engineer Associate (DP-700)", "AWS Certified Data Engineer - Associate (DEA-C01)", "Google Cloud Professional Data Engineer"],
   "tools": ["Python 3.12", "PostgreSQL", "Apache Spark", "Apache Airflow", "dbt", "Docker", "Git"],
   "review_status": "unreviewed",
+  "sources": [
+    {"title": "Apache Spark documentation", "url": "https://spark.apache.org/documentation", "checked": "Found in a web search on 2026-11-24; page not opened"}
+  ],
   "levels": {
     "beginner": {
       "summary": "For analysts, developers and graduates moving into data engineering. Covers the role, Python and SQL for data, file formats, data modelling, building batch ETL pipelines, loading databases, scheduling, data quality, a first look at Spark, Airflow and cloud storage, ending with a working end-to-end pipeline.",
       "prerequisites": ["Basic Python: variables, loops, functions and lists", "Basic SQL: SELECT, WHERE, JOIN and GROUP BY", "Comfortable with a terminal and installing software"],
       "outcomes": ["Build batch pipelines that extract, clean, transform and load data", "Choose file formats and model data for analytics", "Schedule pipelines and check data quality", "Use Spark and Airflow for simple jobs"],
+      "course_outcomes": [
+        {"outcome": "Set up a data engineering environment and transform data with Python, pandas and SQL", "topics": ["Data Engineering Overview and Environment Setup", "Python for Data Engineering", "pandas for Data Transformation", "SQL for Data Engineers"]},
+        {"outcome": "Choose CSV, JSON, Parquet or Avro for a use case and model data for analytics", "topics": ["File Formats: CSV, JSON, Parquet and Avro", "Data Modelling for Analytics"]},
+        {"outcome": "Build a batch ETL pipeline that ingests data from APIs and databases", "topics": ["Building a Batch ETL Pipeline", "Ingesting Data from APIs and Databases"]},
+        {"outcome": "Add data quality checks that stop bad data from loading", "topics": ["Data Quality Checks"]},
+        {"outcome": "Schedule pipelines and orchestrate them with Apache Airflow", "topics": ["Scheduling and Running Pipelines", "Apache Airflow Essentials"]},
+        {"outcome": "Process large data sets with PySpark", "topics": ["Distributed Processing with PySpark"]},
+        {"outcome": "Load data into a data lake and a data warehouse", "topics": ["Cloud Storage and Data Lakes", "Data Warehouse Concepts and Loading"]},
+        {"outcome": "Transform data in SQL with dbt", "topics": ["Transformations in SQL with dbt Essentials"]},
+        {"outcome": "Run pipelines in containers and test them", "topics": ["Containers for Data Pipelines", "Testing Data Pipelines"]},
+        {"outcome": "Monitor pipelines with logs and alerts", "topics": ["Logging, Monitoring and Alerting for Pipelines"]},
+        {"outcome": "Protect sensitive data in pipelines", "topics": ["Data Security and Privacy Basics"]},
+        {"outcome": "Deliver an end-to-end sales data pipeline", "topics": ["Beginner Capstone: End-to-End Sales Data Pipeline"]}
+      ],
       "days": [
         {
           "topic": "Data Engineering Overview and Environment Setup",
@@ -199,6 +216,21 @@
       "summary": "For data engineers who have built batch pipelines. Covers lakehouse architecture, Spark in depth, Delta Lake and table formats, production Airflow and dbt, streaming with Kafka and Spark, change data capture, cloud data platforms, data quality at scale, CI/CD, governance and cost.",
       "prerequisites": ["Has built batch pipelines with Python and SQL", "Has used Airflow or another orchestrator", "Knows the basics of Spark and data modelling"],
       "outcomes": ["Design lakehouse platforms and build pipelines with Spark and Delta Lake", "Build streaming and change data capture pipelines", "Run production orchestration, dbt and data quality", "Deploy pipelines on a cloud data platform with CI/CD"],
+      "course_outcomes": [
+        {"outcome": "Compare warehouse, lake and lakehouse architectures for a stated need", "topics": ["Data Platform Architecture: Warehouse, Lake and Lakehouse"]},
+        {"outcome": "Build and tune Spark DataFrame pipelines on Delta Lake", "topics": ["Spark DataFrames in Depth", "Spark Performance Tuning", "Delta Lake and Open Table Formats"]},
+        {"outcome": "Run production orchestration with Airflow and incremental dbt models", "topics": ["Production Orchestration with Airflow", "Advanced dbt: Incremental Models, Macros and Packages"]},
+        {"outcome": "Ingest data with managed tools such as Airbyte, Fivetran or Azure Data Factory", "topics": ["Managed Ingestion Tools: Airbyte, Fivetran and Azure Data Factory"]},
+        {"outcome": "Model data at scale with Data Vault, wide tables and semantic layers", "topics": ["Data Modelling at Scale: Data Vault, Wide Tables and Semantic Layers"]},
+        {"outcome": "Build streaming and change data capture pipelines with Kafka and Spark Structured Streaming", "topics": ["Streaming with Apache Kafka", "Stream Processing with Spark Structured Streaming", "Change Data Capture"]},
+        {"outcome": "Deploy pipelines on Databricks, Microsoft Fabric or AWS Glue and load Snowflake or BigQuery", "topics": ["Cloud Data Platforms: Databricks, Microsoft Fabric and AWS Glue", "Cloud Data Warehouses: Snowflake and BigQuery"]},
+        {"outcome": "Monitor data quality and observability at scale", "topics": ["Data Quality and Observability at Scale"]},
+        {"outcome": "Deploy data platforms with infrastructure as code and CI/CD", "topics": ["Infrastructure as Code for Data Platforms", "CI/CD for Data Pipelines"]},
+        {"outcome": "Govern data with catalogues and access control", "topics": ["Data Governance, Catalogues and Access Control"]},
+        {"outcome": "Serve batch and streaming data to BI and applications", "topics": ["Batch and Streaming Serving for BI and Applications"]},
+        {"outcome": "Track and reduce data platform costs", "topics": ["Cost Management for Data Platforms"]},
+        {"outcome": "Deliver a lakehouse with batch and streaming pipelines", "topics": ["Intermediate Capstone: Lakehouse with Batch and Streaming Pipelines"]}
+      ],
       "days": [
         {
           "topic": "Data Platform Architecture: Warehouse, Lake and Lakehouse",
@@ -386,6 +418,20 @@
       "summary": "For senior data engineers and data architects. Covers platform architecture at scale, data mesh and data products, Spark and table format internals, real-time systems with Flink, data contracts, metadata and lineage, privacy engineering, ML and AI data pipelines, reliability, migration from legacy platforms and data strategy.",
       "prerequisites": ["Has run production data pipelines on a cloud platform", "Knows Spark, a table format, streaming and orchestration", "Leads design work on a data team"],
       "outcomes": ["Architect data platforms and data products for many teams", "Tune engines and table formats at scale", "Build real-time, ML and AI data systems", "Govern, secure and run data platforms reliably and cost-effectively"],
+      "course_outcomes": [
+        {"outcome": "Architect an enterprise data platform with data products and data contracts", "topics": ["Enterprise Data Platform Architecture", "Data Mesh and Data Products", "Data Contracts and Schema Management"]},
+        {"outcome": "Tune Spark internals and Delta Lake and Iceberg tables at scale", "topics": ["Spark Internals and Advanced Optimisation", "Table Format Internals: Delta Lake and Apache Iceberg at Scale"]},
+        {"outcome": "Build real-time systems with Apache Flink and real-time analytics stores", "topics": ["Real-Time Data Systems with Apache Flink", "Real-Time Analytics Stores"]},
+        {"outcome": "Query across sources with Trino federation", "topics": ["Distributed Query Engines and Federation with Trino"]},
+        {"outcome": "Track metadata, lineage and data observability", "topics": ["Metadata, Lineage and Observability Platforms"]},
+        {"outcome": "Engineer privacy controls into data platforms", "topics": ["Privacy Engineering for Data Platforms"]},
+        {"outcome": "Build data pipelines for machine learning and generative AI", "topics": ["Data Engineering for Machine Learning", "Data Pipelines for Generative AI"]},
+        {"outcome": "Run data platforms reliably with DataOps and platform engineering", "topics": ["Reliability Engineering for Data Platforms", "DataOps and Platform Engineering for Data Teams"]},
+        {"outcome": "Plan the migration of a legacy data platform", "topics": ["Migrating Legacy Data Platforms"]},
+        {"outcome": "Control performance and cost at petabyte scale across clouds", "topics": ["Performance and Cost at Petabyte Scale", "Multi-Cloud and Hybrid Data Architectures"]},
+        {"outcome": "Troubleshoot production data platforms and lead architecture reviews", "topics": ["Troubleshooting Production Data Platforms", "Data Strategy and Architecture Reviews"]},
+        {"outcome": "Deliver a governed data platform with real-time and AI products", "topics": ["Advanced Capstone: Governed Data Platform with Real-Time and AI Products"]}
+      ],
       "days": [
         {
           "topic": "Enterprise Data Platform Architecture",

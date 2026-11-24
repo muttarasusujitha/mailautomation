@@ -7,11 +7,29 @@
   "certifications": ["Oracle Database Administration 2019 Certified Professional (1Z0-082 and 1Z0-083)", "Oracle Database SQL Certified Associate (1Z0-071)", "Oracle Cloud Database Services Certified Professional"],
   "tools": ["Oracle Database 19c and 23ai", "SQL*Plus", "SQL Developer", "RMAN", "Data Pump", "Oracle Enterprise Manager", "Oracle Linux"],
   "review_status": "unreviewed",
+  "sources": [
+    {"title": "Oracle AI Database 26ai New Features Guide", "url": "https://docs.oracle.com/en/database/oracle/oracle-database/26/nfcoa/oracle-ai-database-26ai-new-features-guide.pdf", "checked": "Found in a web search on 2026-11-24; page not opened"}
+  ],
   "levels": {
     "beginner": {
       "summary": "For junior DBAs, developers and support engineers new to Oracle Database. Covers architecture, installation, the multitenant model, instance start-up and shut-down, networking, storage, users and security, schema objects, the data dictionary, undo and redo, transactions and locks, Data Pump, RMAN backups, the scheduler, monitoring and day-to-day DBA tasks.",
       "prerequisites": ["Writes basic SQL queries", "Comfortable on the Linux command line", "Knows what a relational database is"],
       "outcomes": ["Install Oracle Database and create container and pluggable databases", "Manage storage, users, privileges and schema objects", "Take and restore backups with RMAN and Data Pump", "Carry out daily DBA checks and fix common problems"],
+      "course_outcomes": [
+        {"outcome": "Explain Oracle Database architecture and install a database", "topics": ["Oracle Database Architecture Overview and Installation Setup"]},
+        {"outcome": "Connect with SQL*Plus and SQL Developer and configure the listener and service names", "topics": ["SQL*Plus, SQL Developer and Connecting", "Oracle Net: Listener and Service Names"]},
+        {"outcome": "Create container and pluggable databases and start and stop them safely", "topics": ["Multitenant Architecture: CDBs and PDBs", "Starting Up and Shutting Down the Database"]},
+        {"outcome": "Manage tablespaces, data files, users, roles and privileges", "topics": ["Tablespaces and Data Files", "Users, Roles and Privileges"]},
+        {"outcome": "Create tables, constraints, sequences, indexes and views", "topics": ["Schema Objects: Tables, Constraints and Sequences", "Indexes and Views"]},
+        {"outcome": "Query the data dictionary and dynamic performance views", "topics": ["The Data Dictionary and Dynamic Performance Views"]},
+        {"outcome": "Explain undo, redo and archive logs and how transactions and locks behave", "topics": ["Undo, Redo and Archive Logs", "Transactions, Locks and Concurrency"]},
+        {"outcome": "Export and import data with Data Pump", "topics": ["Data Pump Export and Import"]},
+        {"outcome": "Back up with RMAN and recover from common failure scenarios", "topics": ["Backups with RMAN", "Restore and Recovery Scenarios"]},
+        {"outcome": "Automate tasks with the Scheduler and run daily DBA checks", "topics": ["Automating Tasks with the Scheduler", "Monitoring and Daily DBA Checks"]},
+        {"outcome": "Gather statistics and run simple performance checks", "topics": ["Statistics and Simple Performance Checks"]},
+        {"outcome": "Explain how release updates are applied", "topics": ["Patching Awareness and Release Updates"]},
+        {"outcome": "Deliver a protected application database", "topics": ["Beginner Capstone: Building and Protecting an Application Database"]}
+      ],
       "days": [
         {
           "topic": "Oracle Database Architecture Overview and Installation Setup",
@@ -199,6 +217,22 @@
       "summary": "For DBAs who run Oracle databases day to day. Covers RMAN strategies, flashback, memory, AWR, ASH and ADDM, SQL tuning, optimizer statistics, partitioning, Data Guard, ASM, Resource Manager, unified auditing, TDE, PDB cloning and refresh, Enterprise Manager, transportable tablespaces, patching, PL/SQL for DBAs, Autonomous Database on OCI and the 1Z0-083 exam.",
       "prerequisites": ["Administers Oracle Database with RMAN and Data Pump", "Knows the multitenant model", "Reads basic execution plans"],
       "outcomes": ["Design backup and recovery with RMAN and flashback", "Diagnose performance with AWR, ASH and SQL tuning tools", "Run Data Guard standbys and ASM storage", "Secure, patch and clone databases and work with Oracle Cloud"],
+      "course_outcomes": [
+        {"outcome": "Design RMAN backup strategies with a recovery catalog and recover with flashback", "topics": ["RMAN Backup Strategies and the Recovery Catalog", "Flashback Technologies"]},
+        {"outcome": "Size SGA and PGA memory", "topics": ["Memory Management: SGA and PGA"]},
+        {"outcome": "Diagnose performance with AWR, ASH and ADDM and tune SQL with execution plans and advisors", "topics": ["AWR, ASH and ADDM Performance Diagnosis", "SQL Tuning with Execution Plans and Advisors"]},
+        {"outcome": "Manage optimizer statistics and partition large tables and indexes", "topics": ["Optimizer Statistics Management", "Partitioning Tables and Indexes"]},
+        {"outcome": "Run a Data Guard physical standby and manage storage with ASM", "topics": ["Data Guard Physical Standby", "Automatic Storage Management"]},
+        {"outcome": "Control workloads with Resource Manager", "topics": ["Resource Manager and Workload Control"]},
+        {"outcome": "Audit and encrypt databases with Unified Auditing, TDE and network encryption", "topics": ["Unified Auditing", "Transparent Data Encryption and Network Encryption"]},
+        {"outcome": "Clone, refresh and relocate pluggable databases and move data with transportable tablespaces", "topics": ["PDB Cloning, Refresh and Relocation", "Transportable Tablespaces and Cross-Platform Moves"]},
+        {"outcome": "Monitor databases with Enterprise Manager Cloud Control", "topics": ["Oracle Enterprise Manager Cloud Control"]},
+        {"outcome": "Patch databases with OPatch and out-of-place homes", "topics": ["Patching with OPatch, Out-of-Place Homes and Fleet Patching"]},
+        {"outcome": "Write PL/SQL to automate DBA tasks", "topics": ["PL/SQL for DBAs"]},
+        {"outcome": "Run databases on OCI and Autonomous Database", "topics": ["Oracle Databases on OCI and Autonomous Database"]},
+        {"outcome": "Answer 1Z0-083 practice questions", "topics": ["Database Administration II Certification Preparation (1Z0-083)"]},
+        {"outcome": "Deliver a protected and tuned production database", "topics": ["Intermediate Capstone: Protected and Tuned Production Database"]}
+      ],
       "days": [
         {
           "topic": "RMAN Backup Strategies and the Recovery Catalog",
@@ -386,6 +420,21 @@
       "summary": "For senior DBAs and database architects. Covers Real Application Clusters, Data Guard broker and fast-start failover, Maximum Availability Architecture, GoldenGate, Exadata, deep performance troubleshooting, SQL plan management, Database In-Memory, application containers, AutoUpgrade, migration to the cloud, Database Vault and hardening, information lifecycle management, sharding, JSON and AI Vector Search in 23ai, automation, licensing and production incidents.",
       "prerequisites": ["Runs production Oracle databases with RMAN and Data Guard", "Tunes SQL with AWR and execution plans", "Knows Linux and storage administration"],
       "outcomes": ["Design highly available Oracle platforms with RAC, Data Guard and GoldenGate", "Solve hard performance problems and keep plans stable", "Upgrade and migrate large databases with little downtime", "Secure, automate and run Oracle estates cost-effectively"],
+      "course_outcomes": [
+        {"outcome": "Design and administer RAC with Application Continuity", "topics": ["Real Application Clusters Architecture", "RAC Administration and Application Continuity"]},
+        {"outcome": "Configure Data Guard Broker with fast-start failover and design to Maximum Availability Architecture", "topics": ["Data Guard Broker and Fast-Start Failover", "Maximum Availability Architecture Design"]},
+        {"outcome": "Replicate data with Oracle GoldenGate", "topics": ["Oracle GoldenGate Replication"]},
+        {"outcome": "Explain Exadata smart features and when they apply", "topics": ["Exadata Concepts and Smart Features"]},
+        {"outcome": "Solve hard performance problems from wait, latch and mutex evidence and keep plans stable with SQL Plan Management", "topics": ["Advanced Performance Troubleshooting: Waits, Latches and Mutexes", "SQL Plan Management and Plan Stability"]},
+        {"outcome": "Use Database In-Memory and multitenant at scale with application containers", "topics": ["Database In-Memory", "Multitenant at Scale and Application Containers"]},
+        {"outcome": "Upgrade to 23ai with AutoUpgrade and migrate databases to the cloud with little downtime", "topics": ["Upgrading to 23ai with AutoUpgrade", "Migrating Oracle Databases to the Cloud"]},
+        {"outcome": "Harden databases with Database Vault", "topics": ["Database Vault and Security Hardening"]},
+        {"outcome": "Manage large data volumes with Information Lifecycle Management and sharding", "topics": ["Information Lifecycle Management and Large Data Volumes", "Oracle Sharding and Globally Distributed Databases"]},
+        {"outcome": "Use JSON Duality Views and AI Vector Search in 23ai", "topics": ["JSON, Duality Views and AI Vector Search in 23ai"]},
+        {"outcome": "Automate Oracle operations and control licensing costs", "topics": ["Automating Oracle Operations", "Oracle Licensing, Consolidation and Cost Control"]},
+        {"outcome": "Troubleshoot production Oracle incidents", "topics": ["Troubleshooting Production Oracle Incidents"]},
+        {"outcome": "Deliver a mission-critical Oracle platform design", "topics": ["Advanced Capstone: Mission-Critical Oracle Platform"]}
+      ],
       "days": [
         {
           "topic": "Real Application Clusters Architecture",

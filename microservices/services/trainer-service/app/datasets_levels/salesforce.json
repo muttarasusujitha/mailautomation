@@ -7,11 +7,29 @@
   "certifications": ["Salesforce Certified Administrator", "Salesforce Certified Platform App Builder", "Salesforce Certified Platform Developer I", "Salesforce Certified Agentforce Specialist", "Salesforce Certified Application Architect"],
   "tools": ["Salesforce Developer Edition org", "Trailhead", "Data Loader", "VS Code with Salesforce Extensions", "Salesforce CLI"],
   "review_status": "unreviewed",
+  "sources": [
+    {"title": "Get Started with Trailhead", "url": "https://trailhead.salesforce.com/content/learn/trails/learn_salesforce_with_trailhead", "checked": "Found in a web search on 2026-11-24; page not opened"}
+  ],
   "levels": {
     "beginner": {
       "summary": "For new Salesforce administrators, business analysts and users moving into admin roles. Covers CRM concepts, the Salesforce org, standard and custom objects, the security and sharing model, data management, page layouts, validation, reports and dashboards, Flow, Sales Cloud and Service Cloud processes, and Administrator exam preparation.",
       "prerequisites": ["Understands basic business processes such as sales and customer support", "Comfortable with web applications and spreadsheets", "A free Salesforce Developer Edition org"],
       "outcomes": ["Configure a Salesforce org with objects, fields, layouts and apps", "Set up users, profiles, permission sets and sharing", "Load and manage data and build reports and dashboards", "Automate simple processes with Flow and support Sales and Service teams"],
+      "course_outcomes": [
+        {"outcome": "Set up an org and explain the standard Salesforce data model", "topics": ["Salesforce and CRM Overview and Org Setup", "Standard Objects and the Data Model"]},
+        {"outcome": "Build custom objects, fields and relationships and configure page layouts, record types and Lightning apps", "topics": ["Custom Objects, Fields and Relationships", "Page Layouts, Record Types and Lightning App Builder"]},
+        {"outcome": "Set up users, profiles, roles and permission sets and configure the sharing model", "topics": ["Users, Profiles, Roles and Permission Sets", "Security and Sharing Model"]},
+        {"outcome": "Import, export and clean data and enforce data rules with validation rules", "topics": ["Data Management: Import, Export and Data Quality", "Validation Rules and Data Rules"]},
+        {"outcome": "Build reports and dashboards that answer business questions", "topics": ["Reports and Dashboards"]},
+        {"outcome": "Automate processes with Flow Builder and approval processes", "topics": ["Flow Builder Essentials: Screen and Record-Triggered Flows", "Approval Processes and Notifications"]},
+        {"outcome": "Configure Sales Cloud and Service Cloud for sales and support teams", "topics": ["Sales Cloud: Leads, Opportunities and Forecasts", "Service Cloud: Cases, Queues and Knowledge"]},
+        {"outcome": "Set up collaboration with Chatter and activities and install AppExchange packages", "topics": ["Chatter, Activities and Collaboration", "AppExchange and Managed Packages"]},
+        {"outcome": "Release changes from a sandbox with change sets", "topics": ["Sandboxes, Change Sets and Releases"]},
+        {"outcome": "Build an Experience Cloud site", "topics": ["Experience Cloud Sites"]},
+        {"outcome": "Turn on Einstein and AI features as an admin", "topics": ["Einstein and AI Features for Admins"]},
+        {"outcome": "Answer Salesforce Administrator practice questions", "topics": ["Salesforce Administrator Exam Preparation"]},
+        {"outcome": "Deliver a CRM implementation for a training company", "topics": ["Beginner Capstone: CRM Implementation for a Training Company"]}
+      ],
       "days": [
         {
           "topic": "Salesforce and CRM Overview and Org Setup",
@@ -199,6 +217,22 @@
       "summary": "For administrators moving into advanced configuration and development. Covers advanced Flow, Apex, SOQL, triggers and testing, Lightning Web Components, integrations with REST APIs and platform events, security in depth, Salesforce DX and source-driven development, Experience Cloud and Service Cloud in depth, CPQ basics, Agentforce and Platform Developer I preparation.",
       "prerequisites": ["Holds or is ready for the Administrator certification", "Configures objects, security, flows and reports", "Basic programming knowledge in any language"],
       "outcomes": ["Build complex automation with Flow and Apex", "Build Lightning Web Components", "Integrate Salesforce with other systems", "Use source-driven development and pass Platform Developer I"],
+      "course_outcomes": [
+        {"outcome": "Build complex flows with subflows, loops and error handling", "topics": ["Advanced Flow: Subflows, Loops and Error Handling"]},
+        {"outcome": "Write Apex with SOQL and SOSL queries", "topics": ["Apex Programming Essentials", "SOQL and SOSL"]},
+        {"outcome": "Write bulk-safe triggers with a trigger framework and test them to the required coverage", "topics": ["Apex Triggers and Trigger Frameworks", "Apex Testing and Code Coverage"]},
+        {"outcome": "Run asynchronous Apex for long or scheduled work", "topics": ["Asynchronous Apex"]},
+        {"outcome": "Build Lightning Web Components that communicate, navigate and are tested", "topics": ["Lightning Web Components Essentials", "Lightning Web Components: Communication, Navigation and Testing"]},
+        {"outcome": "Integrate Salesforce through REST APIs, platform events and change data capture", "topics": ["Integration with REST APIs", "Platform Events and Change Data Capture"]},
+        {"outcome": "Secure data as an admin and a developer", "topics": ["Security in Depth for Admins and Developers"]},
+        {"outcome": "Develop from source with Salesforce DX", "topics": ["Salesforce DX and Source-Driven Development"]},
+        {"outcome": "Import large data volumes with quality checks", "topics": ["Data Quality and Large Data Imports"]},
+        {"outcome": "Configure Omni-Channel and messaging in Service Cloud and Experience Cloud for partners and customers", "topics": ["Service Cloud in Depth: Omni-Channel and Messaging", "Experience Cloud for Partners and Customers"]},
+        {"outcome": "Explain CPQ quote-to-cash and the Salesforce marketing products", "topics": ["Salesforce CPQ and Quote-to-Cash", "Marketing on Salesforce: Account Engagement and Marketing Cloud"]},
+        {"outcome": "Build agents with Agentforce and Einstein", "topics": ["Agentforce and Einstein for Builders"]},
+        {"outcome": "Answer Platform Developer I practice questions", "topics": ["Platform Developer I Exam Preparation"]},
+        {"outcome": "Deliver a custom sales and service application", "topics": ["Intermediate Capstone: Custom Sales and Service Application"]}
+      ],
       "days": [
         {
           "topic": "Advanced Flow: Subflows, Loops and Error Handling",
@@ -386,6 +420,21 @@
       "summary": "For senior developers, technical architects and Salesforce leads. Covers architecture at enterprise scale, large data volumes, integration architecture with MuleSoft, security and identity architecture, multi-org strategy, advanced Apex and LWC design, DevOps and release management, Data Cloud, Agentforce at scale, performance, governance, technical debt and architect certification preparation.",
       "prerequisites": ["Builds Apex, LWC and integrations professionally", "Holds Platform Developer I or equivalent experience", "Has led or worked on a Salesforce implementation"],
       "outcomes": ["Architect Salesforce solutions for large enterprises", "Design integrations, security and data at scale", "Run Salesforce DevOps and governance", "Lead AI and Data Cloud initiatives and prepare for architect certifications"],
+      "course_outcomes": [
+        {"outcome": "Design Salesforce solution architectures for large enterprises", "topics": ["Salesforce Solution Architecture"]},
+        {"outcome": "Design for large data volumes and integrations with MuleSoft", "topics": ["Large Data Volumes and Performance", "Integration Architecture and MuleSoft"]},
+        {"outcome": "Design identity, access and security architecture with Salesforce Shield", "topics": ["Identity and Access Architecture", "Security Architecture and Salesforce Shield"]},
+        {"outcome": "Choose a multi-org strategy and plan org consolidation", "topics": ["Multi-Org Strategy and Org Consolidation"]},
+        {"outcome": "Apply advanced Apex design patterns and Lightning Web Components UI architecture", "topics": ["Advanced Apex Design Patterns", "Advanced Lightning Web Components and UI Architecture"]},
+        {"outcome": "Run DevOps and release management at scale", "topics": ["DevOps and Release Management at Scale"]},
+        {"outcome": "Design Data Cloud, Customer 360 and Agentforce solutions at enterprise scale", "topics": ["Data Cloud and Customer 360", "Agentforce at Enterprise Scale"]},
+        {"outcome": "Deliver analytics with CRM Analytics and Tableau", "topics": ["Analytics with CRM Analytics and Tableau"]},
+        {"outcome": "Set up governance with a centre of excellence and a testing strategy for programmes", "topics": ["Governance, Centre of Excellence and Org Health", "Testing Strategy for Salesforce Programmes"]},
+        {"outcome": "Plan a migration from a legacy CRM and use industry clouds", "topics": ["Migration to Salesforce from Legacy CRM", "Industry Clouds: Financial Services and Health"]},
+        {"outcome": "Lead technical teams on Salesforce programmes and prepare for architect certifications", "topics": ["Technical Leadership on Salesforce Programmes", "Architect Certification Preparation"]},
+        {"outcome": "Troubleshoot production Salesforce orgs", "topics": ["Troubleshooting Production Salesforce Orgs"]},
+        {"outcome": "Deliver an enterprise Salesforce architecture", "topics": ["Advanced Capstone: Enterprise Salesforce Architecture"]}
+      ],
       "days": [
         {
           "topic": "Salesforce Solution Architecture",
