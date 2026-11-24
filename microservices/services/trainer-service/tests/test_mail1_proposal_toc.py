@@ -9,7 +9,7 @@ import pytest
 from app.routes import shortlists
 
 
-def setup_delivery(monkeypatch, requirement, document_status=200, toc=None, existing=None, email_response=None):
+def setup_delivery(monkeypatch, requirement, document_status=200, toc=None, existing=None, email_response=None, toc_sequence=None):
     trainer = {"trainer_id": "T-TEST", "name": "Test Trainer", "email": "trainer@example.com"}
     shortlist = {"top_trainers": [trainer]}
     db = {
@@ -19,7 +19,7 @@ def setup_delivery(monkeypatch, requirement, document_status=200, toc=None, exis
     monkeypatch.setattr(shortlists, "_sync_shortlist_with_trainers", AsyncMock(return_value=shortlist))
     monkeypatch.setattr(shortlists, "_ai_trainer_mail1", AsyncMock(return_value=None))
     monkeypatch.setattr(shortlists.asyncio, "sleep", AsyncMock())
-    generate = AsyncMock(return_value=toc)
+    generate = AsyncMock(side_effect=toc_sequence) if toc_sequence else AsyncMock(return_value=toc)
     monkeypatch.setattr(shortlists, "_build_toc", generate)
     calls = []
 
@@ -107,6 +107,30 @@ def test_mail1_attaches_labeled_draft_for_review_required_toc(monkeypatch):
     mail = calls[-1][1]
     assert "DRAFT FOR REVIEW" in mail["attachments"][0]["filename"]
     assert "draft ToC/course agenda is attached for your review" in mail["body"]
+
+
+def test_mail1_regenerates_toc_with_quality_warnings_before_delivery(monkeypatch):
+    rejected_toc = {
+        "title": "DevOps",
+        "quality": {
+            "status": "requires_regeneration",
+            "validation_errors": ["Missing requested scope"],
+        },
+        "days": [{"day": 1, "title": "Intro"}],
+    }
+    repaired_toc = {
+        "title": "DevOps",
+        "quality": {"status": "approved", "validation_errors": []},
+        "days": [{"day": 1, "title": "AWS and Azure foundations"}],
+    }
+    result, calls, generate = setup_delivery(
+        monkeypatch, requirement(), document_status=200, toc_sequence=[rejected_toc, repaired_toc],
+    )
+
+    assert result["sent"] == 1
+    assert generate.await_count == 2
+    assert "Missing requested scope" in generate.await_args_list[1].kwargs["quality_feedback"]
+    assert calls[0][1] == {"toc": repaired_toc}
 
 
 def test_mail1_does_not_report_sent_when_email_service_says_in_progress(monkeypatch):
