@@ -245,15 +245,19 @@ def test_people_search_keeps_paging_until_the_fifty_profile_target():
 
     def locate(selector):
         if 'listitem' in selector:
-            raise AssertionError('content fallback started before people pages were exhausted')
+            cards = MagicMock()
+            cards.first.wait_for = AsyncMock(side_effect=TimeoutError())
+            return cards
         return people
 
     page.locator.side_effect = locate
     with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
         rows = asyncio.run(collect_trainer_profiles(page, 'SAP trainer', '', 50))
+    people_opens = [call for call in page.goto.await_args_list if '/search/results/people/' in call.args[0]]
     assert len(rows) == 6
-    assert page.goto.await_count > 6
-    assert all('page=' in call.args[0] for call in page.goto.await_args_list)
+    assert len(people_opens) > 6
+    assert all('page=' in call.args[0] for call in people_opens)
+    assert any('/search/results/content/' in call.args[0] for call in page.goto.await_args_list)
 
 
 def test_scanning_two_hundred_people_returns_fifty_trainers():
@@ -489,6 +493,45 @@ def test_name_only_cards_stop_paging_and_use_post_authors():
     assert 'Soft Skills' in rows[0]['content']
     people_opens = [call for call in page.goto.await_args_list if '/search/results/people/' in call.args[0]]
     assert len(people_opens) == 3
+
+
+def test_one_people_match_still_collects_post_authors_until_the_target():
+    from app.clients.linkedin_browser import collect_trainer_profiles
+    page = MagicMock()
+    page.goto = AsyncMock(return_value=MagicMock(status=200))
+    page.wait_for_timeout = AsyncMock()
+    page.mouse.wheel = AsyncMock()
+    page.content = AsyncMock(return_value='<html></html>')
+    people = MagicMock()
+    people.first.wait_for = AsyncMock()
+    people.evaluate_all = AsyncMock(side_effect=[
+        [{'url': 'https://www.linkedin.com/in/ada', 'text': 'Ada\nDevOps Trainer\nHyderabad'}],
+        [],
+        [],
+        [],
+        [],
+    ])
+    trainer = {
+        'links': [{'url': 'https://www.linkedin.com/in/ben', 'title': 'Ben'}],
+        'content': 'Ben\nDevOps corporate trainer\nFollow\nWorkshops',
+    }
+    cards = MagicMock()
+    cards.first.wait_for = AsyncMock()
+    cards.last.scroll_into_view_if_needed = AsyncMock()
+    cards.last.hover = AsyncMock()
+    cards.evaluate_all = AsyncMock(return_value=[trainer])
+
+    def locate(selector):
+        return cards if 'listitem' in selector else people
+
+    page.locator.side_effect = locate
+    with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
+        rows = asyncio.run(collect_trainer_profiles(page, 'Devops trainer', '', 5))
+    assert [row['url'] for row in rows] == [
+        'https://www.linkedin.com/in/ada',
+        'https://www.linkedin.com/in/ben',
+    ]
+    assert any('/search/results/content/' in call.args[0] for call in page.goto.await_args_list)
 
 
 def test_account_failure_is_explicit_and_stops_other_domains():

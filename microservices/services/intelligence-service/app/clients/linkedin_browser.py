@@ -464,15 +464,19 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
         # Verification and rate limits require human action, not another search.
         raise
     except TimeoutError:
+        if results and (len(results) >= limit or timed_out()):
+            return results
+        if timed_out():
+            raise PartialSearchError('Trainer search reached its time limit.', results)
+    except Exception:
+        # People layouts vary; continue with the content search below.
+        pass
+    # A short people list is not the finished search. Post authors can still
+    # fill the target while time remains.
+    if len(results) >= limit or timed_out():
         if results:
             return results
         raise PartialSearchError('Trainer search reached its time limit.', results)
-    except Exception:
-        logger.warning('People search layout failed for %s; trying post search.', domain)
-    if results or timed_out():
-        # Posts are only a fallback when people search contributed nothing.
-        # Running them after a partial people result is what exhausted the time budget.
-        return results
     phrases = ('"corporate trainer"', '"trainer" "I am"', '"technical trainer"',
                '"instructor"', '"freelance trainer"',
                '"training consultant"', '"trainer" "delivered"', '"trainer" "workshop"')
