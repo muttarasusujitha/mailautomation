@@ -78,3 +78,41 @@ def test_po_persists_calculated_total_not_submitted_total():
     result = asyncio.run(generate_purchase_order(payload, db))
     assert result['purchase_order']['total_amount'] == 200
     assert db['purchase_orders'].inserted[0]['items'][0]['amount'] == 200
+
+
+def test_offline_invoice_items_include_only_clahan_arranged_costs():
+    items = offline_expense_items({
+        'offline_logistics': {
+            'owners': {'travel': 'clahan', 'accommodation': 'client', 'food': 'needs_review'},
+            'actual_expenses': {'travel': 8000, 'accommodation': 6000, 'food': 900},
+        },
+    })
+    assert items == [{
+        'description': 'Offline travel expense', 'quantity': 1,
+        'rate': 8000.0, 'amount': 8000.0,
+    }]
+
+
+class _Invoices(_Collection):
+    async def insert_one(self, document):
+        self.document = document
+
+
+def test_lab_invoice_is_a_separate_client_invoice():
+    invoices = _Invoices()
+    db = {
+        'lab_cost_requests': _Collection({
+            'requirement_id': 'LAB-1', 'client_name': 'Acme',
+            'client_email': 'client@example.com', 'technology_needed': 'DevOps',
+        }),
+        'requirements': _Collection(),
+        'invoices': invoices,
+    }
+    result = asyncio.run(generate_lab_invoice(
+        'LAB-1', LabInvoiceRequest(lab_amount=7000, gst_rate=18), db,
+    ))
+    invoice = result['invoice']
+    assert invoice['invoice_kind'] == 'lab'
+    assert invoice['lab_requirement_id'] == 'LAB-1'
+    assert invoice['total_amount'] == 7000
+    assert invoice['balance_due'] == 8260
