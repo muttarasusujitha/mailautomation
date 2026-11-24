@@ -39,6 +39,45 @@ def profiles_from_text(raw, limit=25):
     lowered = text.lower()
     if 'linkedin.com/in/' not in lowered or ('"navigationurl"' not in lowered and '"actiontarget"' not in lowered):
         return []
+    decoder = json.JSONDecoder()
+    parsed_rows, parsed_seen = [], set()
+    index = 0
+    while index < len(text):
+        start = text.find('{', index)
+        if start < 0:
+            break
+        try:
+            root, end = decoder.raw_decode(text, start)
+        except json.JSONDecodeError:
+            index = start + 1
+            continue
+        index = max(end, start + 1)
+        stack = [root]
+        while stack:
+            item = stack.pop()
+            if isinstance(item, list):
+                stack.extend(item[:100])
+                continue
+            if not isinstance(item, dict):
+                continue
+            url = item.get('navigationUrl') or item.get('actionTarget')
+            public_id = str(item.get('publicIdentifier') or '').lower()
+            title = item.get('title')
+            title = title.get('text', '') if isinstance(title, dict) else str(title or '')
+            subtitle = item.get('primarySubtitle') or item.get('headline') or ''
+            subtitle = subtitle.get('text', '') if isinstance(subtitle, dict) else str(subtitle)
+            summary = item.get('summary') or item.get('secondarySubtitle') or ''
+            summary = summary.get('text', '') if isinstance(summary, dict) else str(summary)
+            content = '\n'.join(part.strip() for part in (title, subtitle, summary) if part and part.strip())
+            if (isinstance(url, str) and '/in/' in url and public_id != 'me' and content
+                    and url not in parsed_seen):
+                parsed_seen.add(url)
+                parsed_rows.append({'url': url.split('?', 1)[0].rstrip('/'), 'title': title.strip(), 'content': content[:5000]})
+                if len(parsed_rows) >= limit:
+                    return parsed_rows
+            stack.extend(value for value in item.values() if isinstance(value, (dict, list)))
+    if parsed_rows:
+        return parsed_rows
     matches = list(_NAV_URL.finditer(text))
     rows, seen, previous_end = [], set(), 0
     for index, match in enumerate(matches):
@@ -47,10 +86,15 @@ def profiles_from_text(raw, limit=25):
         if url in seen:
             previous_end = match.end()
             continue
-        # Keep the headline that belongs to this result. The next profile's
-        # title often follows the URL, so do not read past the next result.
+        # Search payloads put the title and headline next to each navigation URL.
+        # Start at this result's title so the previous card's details cannot
+        # make a different profile look like a skill match.
+        title_start = text.rfind('"title"', previous_end, match.start())
+        start = title_start if title_start >= 0 else max(previous_end, match.start() - 700)
         after = match.end() + 220 if next_start < 0 else min(match.end() + 220, next_start)
-        window = text[max(previous_end, match.start() - 700):after]
+        window = text[start:after]
+        if re.search(r'"publicIdentifier"\s*:\s*"me"', window, re.IGNORECASE):
+            continue
         previous_end = match.end()
         parts = []
         for found in _TEXT.finditer(window):

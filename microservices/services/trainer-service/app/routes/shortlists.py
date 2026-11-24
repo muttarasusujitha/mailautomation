@@ -496,6 +496,23 @@ def _ensure_trainer_mail1_commercial_section(body: str, requirement: Dict[str, A
     return _strip_confirmed_trainer_offer_confirmation(text, requirement)
 
 
+def _append_missing_offer_confirmation(body: str, requirement: Dict[str, Any], trainer=None) -> str:
+    """Ensure a proposal Mail 1 asks the trainer to confirm an actual offer once."""
+    if not _is_proposal_requirement(requirement):
+        return body
+    section = _trainer_mail1_commercial_section(requirement, trainer)
+    if not section:
+        return body
+    text = _ensure_trainer_mail1_commercial_section(body, requirement, trainer)
+    if re.search(r"\bplease\s+confirm\s+the\s+offered\b", text, re.I):
+        return text
+    confirmation = (
+        "Please confirm the offered trainer commercial and your availability. "
+        "If it does not work for you, let us know for review."
+    )
+    return f"{text.rstrip()}\n\n{confirmation}"
+
+
 def _replace_trainer_mail1_commercial(body: str, requirement: Dict[str, Any]) -> str:
     commercial_text = _trainer_mail1_commercial_text(requirement)
     if not commercial_text:
@@ -634,6 +651,24 @@ def _proposal_slot_request_flow(requirement: Dict[str, Any]) -> bool:
     return "proposal" in flow_value or _is_proposal_requirement(requirement)
 
 
+def _is_affirmative_availability_reply(trainer: Dict[str, Any]) -> bool:
+    """Treat a bare affirmative on a proposal as interest, not dated availability."""
+    availability = _clean(
+        trainer.get("availability")
+        or trainer.get("available_dates")
+        or trainer.get("availability_text")
+        or trainer.get("slot_reply_text")
+        or trainer.get("slots")
+    )
+    if not availability or _dated_slot_option_count(availability):
+        return False
+    return bool(re.fullmatch(
+        r"(?:yes|yeah|yep|okay|ok|confirmed|available|interested|yes,?\s*(?:i am|i'm)?\s*interested)[.!\s]*",
+        availability,
+        flags=re.IGNORECASE,
+    ))
+
+
 def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> List[str]:
     """Return only details the platform cannot already source from the trainer record."""
     requested = _mail1_requested_items(requirement)
@@ -649,14 +684,14 @@ def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict
         or trainer.get("slots")
     )
 
-    commercial_only_reply = _stored_commercial_only_reply(trainer)
+    commercial_only_reply = _is_affirmative_availability_reply(trainer)
     for item in requested:
         label = item.lower()
         if "availability" in label or "slot" in label:
             if commercial_only_reply:
                 missing.append("Exactly three interview/discussion slots (date, time, and time zone)")
             elif not availability:
-                missing.append("Tentative availability for the proposed engagement" if _is_proposal_requirement(requirement) else "Availability for the specified training dates")
+                missing.append("Tentative availability for the proposed engagement" if _proposal_slot_request_flow(requirement) else "Availability for the specified training dates")
         elif "linkedin" in label or "linked in" in label:
             if not _trainer_has_verified_detail(trainer, "linkedin"):
                 missing.append("LinkedIn profile")
@@ -741,7 +776,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     ]
     technology_detail = domain + (f" including {', '.join(dict.fromkeys(skills[:6]))}" if skills else "")
     details = [f"- Technology: {technology_detail}"]
-    is_proposal = _is_proposal_requirement(requirement)
+    is_proposal = _proposal_slot_request_flow(requirement)
     if audience:
         details.append(f"- Audience: {audience}")
     if location:
@@ -801,7 +836,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         )
     ]
     selected = [
-        "updated profile/CV" if "profile" in item.lower() else item
+        "updated CV" if "profile" in item.lower() else item
         for item in selected
     ]
     if any('linkedin' in item.lower() for item in requested_items) and not _trainer_has_verified_detail(trainer, 'linkedin'):
@@ -811,11 +846,15 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     selected.extend(requested_documents(requirement))
     ask = ", ".join(dict.fromkeys(selected))
     known_dates = bool(dates) and not re.search(r"to be confirmed|\btbc\b|\btbd\b", dates, re.I)
-    availability = "availability for the stated training dates" if known_dates else "tentative availability; calendar dates remain to be confirmed"
+    availability = (
+        "availability for this schedule" if known_dates
+        else "tentative availability for the proposed engagement" if is_proposal
+        else "availability for this schedule"
+    )
     request_line = (
-        f"Please confirm your interest, delivery feasibility and {availability}. Please share your {ask}.\n\n"
+        f"Please confirm you can deliver this scope and your {availability}. Please share your {ask}.\n\n"
         if ask else
-        f"Please confirm your interest, delivery feasibility and {availability}.\n\n"
+        f"Please confirm you can deliver this scope and your {availability}.\n\n"
     )
     if is_proposal:
         commercial_offer = _trainer_mail1_commercial_section(requirement, trainer)
@@ -835,10 +874,11 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     if not _proposal_slot_request_flow(requirement) or _client_requested_interview_slots(requirement):
         slot_request = (
             "Please also share three convenient interview/discussion slots, with the date, time, and time zone.\n"
+            "Format only. Replace each placeholder with your own availability. These are not the client's dates:\n"
             "Example:\n"
-            "- [your available date], [time] IST\n"
-            "- [your available date], [time] IST\n"
-            "- [your available date], [time] IST\n\n"
+            "- [Your available date 1], [time], [time zone]\n"
+            "- [Your available date 2], [time], [time zone]\n"
+            "- [Your available date 3], [time], [time zone]\n\n"
             "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
         )
     introduction = ("We are contacting you about a proposed corporate training engagement." if is_proposal else "We are contacting you about a confirmed client training requirement.")
@@ -850,12 +890,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         f"{chr(10).join(details)}\n\n"
         f"{request_line}"
         f"{commercial_request}"
-        f"Please also share exactly three convenient interview/discussion slots{slot_context}, with the date, time, and time zone.\n"
-        "Format only. Replace each placeholder with your own availability. These are not the client's dates:\n"
-        "- [Your available date 1], [time], [time zone]\n"
-        "- [Your available date 2], [time], [time zone]\n"
-        "- [Your available date 3], [time], [time zone]\n\n"
-        "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
+        f"{slot_request}"
         "Regards,\n"
         "Clahan Technologies"
     )
@@ -1212,7 +1247,10 @@ def _requested_client_attachments(requirement: Dict[str, Any]) -> tuple[bool, bo
     if explicit_lab_cost_request:
         wants_lab_cost = True
     elif broader_lab_mention:
-        wants_lab_cost = False
+        # Keep the lab scope attached when the client calls out setup/access;
+        # the separate explicit-request check controls whether its absence
+        # blocks delivery.
+        wants_lab_cost = True
     else:
         wants_lab_cost = bool(requirement.get("lab_cost_requested"))
     return wants_profile, wants_toc, wants_lab_cost
@@ -2446,6 +2484,8 @@ async def _ai_trainer_mail1(
 def _ensure_mail1_slot_examples(body: str) -> str:
     """Replace placeholder examples with fresh, concrete format-only examples."""
     text = str(body or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+    if all(f"[Your available date {index}]" in text for index in (1, 2, 3)):
+        return text
     cleaned_lines: List[str] = []
     in_example_block = False
     for line in text.splitlines():
@@ -2467,14 +2507,12 @@ def _ensure_mail1_slot_examples(body: str) -> str:
         cleaned_lines.append(line.rstrip())
     text = "\n".join(cleaned_lines).strip()
     if not re.search(r"\b(?:three|3)\b.{0,100}\bslots\b", text, flags=re.IGNORECASE):
-        text = (
-            f"{text}\n\nPlease share three convenient interview/discussion slots that you are actually available for, "
-            "including the date, time, and time zone."
-        ).strip()
+        text = f"{text}\n\nPlease also share exactly three convenient interview/discussion slots, with the date, time, and time zone.".strip()
     slot_examples = (
-        "\n\nExample format only; these sample dates and times are illustrative, not booked appointments. "
-        "Please replace them with your actual availability:\n"
-        f"{_sample_availability_slots()}"
+        "\n\nFormat only. Replace each placeholder with your own availability. These are not the client's dates:\n"
+        "- [Your available date 1], [time], [time zone]\n"
+        "- [Your available date 2], [time], [time zone]\n"
+        "- [Your available date 3], [time], [time zone]"
     )
     closing = re.search(r"\n\s*Regards,\s*Clahan Technologies\.?\s*$", text, flags=re.IGNORECASE)
     if closing:
@@ -2713,7 +2751,7 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
             timing=_clean(requirement.get("timing") or requirement.get("session_timing")),
             # Default to three training hours when no daily training hours were supplied.
             # Lab hours describe the lab environment and should not override training hours.
-            hours_per_day=duration_inputs.get("hours_per_day") or 3,
+            hours_per_day=duration_inputs.get("hours_per_day") or 7,
             participant_count=_safe_int(requirement.get("participant_count") or requirement.get("participants"), 0) or None,
             cloud_provider=_clean(requirement.get("cloud_provider")),
             cloud_region=_clean(requirement.get("cloud_region") or requirement.get("region")),
@@ -4177,7 +4215,9 @@ async def send_shortlist_mail(
                     body = _clean_confirmed_mail1_body(trainer_name, requirement, domain, t)
                 if payload.mail_type in ("mail1", "first"):
                     body = _ensure_trainer_mail1_commercial_section(body, requirement, t)
-                    body = _ensure_mail1_slot_examples(body)
+                    body = _append_missing_offer_confirmation(body, requirement, t)
+                    if not _proposal_slot_request_flow(requirement) or _client_requested_interview_slots(requirement):
+                        body = _ensure_mail1_slot_examples(body)
                     missing_documents = [label for label in requested_documents(requirement) if label.lower() not in body.lower()]
                     if missing_documents:
                         body = _insert_before_signature(body, "Please also attach your " + " and ".join(missing_documents) + ".")
@@ -4334,8 +4374,26 @@ async def send_shortlist_mail(
                 if mail_type in {"mail1", "first"}:
                     body = _normalize_trainer_mail1_body(body)
                     body = _strip_confirmed_trainer_offer_confirmation(body, requirement)
-                    if _is_proposal_requirement(requirement) and "confirm the offered commercials" not in body.lower():
-                        body += "\n\nPlease confirm the offered commercials and your availability."
+                    if _is_proposal_requirement(requirement):
+                        body = _append_missing_offer_confirmation(body, requirement, t)
+                    else:
+                        body = _ensure_trainer_mail1_commercial_section(body, requirement, t)
+                    if not _proposal_slot_request_flow(requirement) or _client_requested_interview_slots(requirement):
+                        if "These are not the client's dates" not in body:
+                            if "[Your available date 1]" in body:
+                                body = _insert_before_signature(
+                                    body,
+                                    "Format only. Replace each placeholder with your own availability. These are not the client's dates.",
+                                )
+                            else:
+                                body = _insert_before_signature(
+                                    body,
+                                    "Please also share exactly three convenient interview/discussion slots, with the date, time, and time zone.\n"
+                                    "Format only. Replace each placeholder with your own availability. These are not the client's dates:\n"
+                                    "- [Your available date 1], [time], [time zone]\n"
+                                    "- [Your available date 2], [time], [time zone]\n"
+                                    "- [Your available date 3], [time], [time zone]",
+                                )
                 send_payload["body"] = body
                 if mail_type in {"mail1", "first"}:
                     # Mail 1 is already written by _ai_trainer_mail1 when AI is
@@ -5039,6 +5097,10 @@ async def send_client_slots(
 
     technology = _clean(req.get("technology_needed") or req.get("technology") or req.get("domain")) or "training"
     client_name = _clean(payload.client_name or req.get("client_name") or req.get("client_company")) or "Client"
+    provisional_scope = not bool(
+        _clean(req.get("duration_text") or req.get("duration") or req.get("duration_days") or req.get("duration_hours"))
+        and _clean(req.get("training_dates") or req.get("preferred_dates") or req.get("dates") or req.get("timeline"))
+    )
     attachments: List[Dict[str, str]] = []
     requested_evidence = requested_documents(req)
     if requested_evidence:
@@ -5057,12 +5119,18 @@ async def send_client_slots(
     # the profile, ToC, lab workbook, and slots as a single package even when
     # the original requirement did not separately enumerate every document.
     wants_profile = True
+    _, _, wants_lab_cost = _requested_client_attachments(req)
     confirmed_handoff = not _is_proposal_requirement(req)
-    if confirmed_handoff:
-        # A confirmed handoff always prices the lab from the ToC. That estimate
-        # is not gated on a separate "lab cost" phrase, and a broader lab
-        # mention must not suppress it or stop the rest of the handoff.
-        wants_lab_cost = True
+    broad_lab_delivery_note = bool(re.search(
+        r"\blab(?:oratory)?\s+(?:requirements?|required\s+tools?|setup|access|support|availability|preference|environment)\b"
+        r"|\b(?:local|cloud)\s+lab(?:oratory)?\b"
+        r"|\blab(?:oratory)?\b.{0,80}\b(?:required\s+tools?|local|cloud|access)\b",
+        _client_requirement_text(req), flags=re.IGNORECASE | re.DOTALL,
+    ))
+    # The complete trainer-to-client package includes a lab estimate even when
+    # no separate lab-cost phrase was captured. A broad setup/access note is
+    # not a price request and suppresses the workbook while preserving delivery.
+    wants_lab_cost = not broad_lab_delivery_note
     client_toc_supplied = _has_client_supplied_toc(req)
     profile_pdf = None
     profile_selection: Dict[str, Any] = {"source": "database", "score": 0.0}
@@ -5114,7 +5182,8 @@ async def send_client_slots(
     client_toc_attachments = [] if confirmed_handoff else (
         _client_toc_scope_attachments(req) if client_toc_supplied else []
     )
-    toc_data = await _build_toc(req, trainer, db)
+    toc_requirement = {**req, "duration_days": 1} if provisional_scope else req
+    toc_data = await _build_toc(toc_requirement, trainer, db)
     if confirmed_handoff and not toc_data and client_toc_topics:
         toc_data = {
             "title": technology,
@@ -5134,7 +5203,8 @@ async def send_client_slots(
                 "missing_requested_topics": (toc_data.get("quality") or {}).get("missing_requested_topics") or [],
             })
     toc_attachment: Optional[bytes] = None
-    if confirmed_handoff:
+    _, wants_toc, _ = _requested_client_attachments(req)
+    if confirmed_handoff and not wants_toc:
         # The ToC stays off the client email. A missing workbook input is
         # recorded later; it does not drop the profile and the three slots.
         pass
@@ -5163,7 +5233,7 @@ async def send_client_slots(
             raise HTTPException(502, "Could not generate the required ToC attachment for the client handoff")
     else:
         raise HTTPException(502, "Could not generate the required ToC for the client handoff")
-    if toc_attachment and not confirmed_handoff:
+    if toc_attachment and (not confirmed_handoff or wants_toc):
         attachments.append({
             "filename": f"{technology} - Training ToC.xlsx",
             "content_base64": base64.b64encode(toc_attachment).decode(),
@@ -5557,7 +5627,7 @@ async def send_client_slots(
         "approved_at": datetime.utcnow(),
         "slot_text": slots_text,
         "lab_quote_requests": lab_quote_requests,
-        "lab_quote_valid_until": min(quote_expiries),
+        "lab_quote_valid_until": min(quote_expiries) if quote_expiries else None,
         "profile_source": profile_selection.get("source"),
         "profile_requirement_score": profile_selection.get("score"),
         "email_payload": email_payload,

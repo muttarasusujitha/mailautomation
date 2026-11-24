@@ -394,12 +394,8 @@ export default function LinkedInSearch() {
     return rows
   }, [leads, selectedDomain, showSearchMatches, searchReport])
 
-  const visibleLeads = useMemo(() => (
-    showingMatches ? visibleSearchLeads([], searchReport.results, true) : leads
-  ), [leads, showingMatches, searchReport])
-
   // The saved list's cards count every page of the open status tab and domain, from the server.
-  const visibleStats = useMemo(() => (showingMatches ? {
+  const visibleStats = useMemo(() => (showSearchMatches ? {
     total: visibleLeads.length,
     new: visibleLeads.filter(item => item.status === 'new').length,
     contacted: visibleLeads.filter(item => item.status === 'contacted').length,
@@ -409,7 +405,7 @@ export default function LinkedInSearch() {
     new: statusCountInView(list.counts, filter, 'new'),
     contacted: statusCountInView(list.counts, filter, 'contacted'),
     converted: statusCountInView(list.counts, filter, 'converted'),
-  }), [showingMatches, visibleLeads, list, filter])
+  }), [showSearchMatches, visibleLeads, list, filter])
 
   const cards = useMemo(() => [
     [isTrainer ? 'Trainer Profiles' : 'Client Posts', visibleStats.total, isTrainer ? Users : BriefcaseBusiness, 'text-slate-700'],
@@ -507,7 +503,7 @@ export default function LinkedInSearch() {
       <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] p-3">
         <div className="mb-2 flex items-center justify-between gap-3">
           <p className="text-sm font-bold text-slate-800">Domain Results</p>
-          <span className="text-xs font-semibold text-slate-400">{showingMatches ? `${visibleLeads.length} latest search matches` : `${list.total} saved in this view`}</span>
+          <span className="text-xs font-semibold text-slate-400">{showSearchMatches ? `${visibleLeads.length} latest search matches` : `${list.total} saved in this view`}</span>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
@@ -663,7 +659,7 @@ export default function LinkedInSearch() {
         </div>
       )}
 
-      {!showingMatches && <Pager page={list.page} pages={list.pages} total={list.total} pageSize={LEAD_PAGE_SIZE} loading={loading} onPage={changePage} noun={isTrainer ? 'saved profiles' : 'saved posts'} />}
+      {!showSearchMatches && <Pager page={list.page} pages={list.pages} total={list.total} pageSize={LEAD_PAGE_SIZE} loading={loading} onPage={changePage} noun={isTrainer ? 'saved profiles' : 'saved posts'} />}
     </div>
   )
 }
