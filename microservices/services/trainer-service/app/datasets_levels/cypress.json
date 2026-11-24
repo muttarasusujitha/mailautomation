@@ -1,0 +1,573 @@
+{
+  "domain": "Cypress",
+  "name": "Cypress Test Automation",
+  "category": "Testing and QA",
+  "icon": "check-square",
+  "aliases": ["Cypress.io", "Cypress Testing", "Cypress Automation", "Cypress Automation Testing", "Cypress Test Automation", "Cypress with JavaScript", "Cypress with TypeScript", "Cypress TypeScript", "Cypress Component Testing", "Cypress Cloud", "Cypress Framework"],
+  "certifications": ["No official Cypress certification; assessed by capstone projects", "ISTQB Advanced Level Test Automation Engineering (CTAL-TAE)", "ISTQB Certified Tester Foundation Level (CTFL)"],
+  "tools": ["Cypress", "Node.js and npm", "JavaScript or TypeScript", "VS Code", "Cypress Cloud", "GitHub Actions"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For manual testers and front-end developers starting test automation with Cypress. Covers installing Cypress, JavaScript for testers, writing specs, selecting elements, interacting with pages, assertions, retry-ability, fixtures, custom commands, cy.intercept, forms, iframes and new tabs, cy.session, cy.request, configuration and environments, screenshots and videos, headless and CI runs, page objects or app actions, and debugging.",
+      "prerequisites": ["Knows how to test a web application by hand", "Basic programming in any language", "Can use a terminal and install Node.js"],
+      "outcomes": ["Write readable Cypress tests that use retry-ability instead of fixed waits", "Stub network calls and prepare state with cy.request and cy.session", "Organise suites with fixtures, custom commands and environments", "Run Cypress headless in CI and debug failures with the command log, screenshots and videos"],
+      "days": [
+        {
+          "topic": "Cypress Overview, Installation and Project Setup",
+          "subtopics": ["What Cypress is and how it runs inside the browser", "Cypress compared with Selenium and Playwright", "Supported browsers: Chrome, Edge, Firefox and Electron", "Installing Cypress with npm", "The launchpad and choosing end-to-end or component testing", "The generated folders and cypress.config file", "Running specs with cypress open", "Running headless with cypress run", "The command log and time travel", "Example specs and how to remove them"],
+          "tools": ["Node.js and npm", "Cypress", "VS Code"],
+          "lab_task": "Install Cypress in a sample front-end project, run the example specs in the interactive runner and headless in two browsers, and explore the command log.",
+          "deliverable": "Working Cypress project with first runs",
+          "checks": [["Install", "Cypress opens and lists the example specs", "Screenshot"], ["Run headless", "cypress run passes in two browsers", "Terminal output"], ["Use time travel", "A snapshot of an earlier command is inspected", "Screenshot"]],
+          "objectives": ["Install Cypress", "Explain how Cypress runs", "Run specs interactively and headless"]
+        },
+        {
+          "topic": "JavaScript Essentials for Cypress Testers",
+          "subtopics": ["Variables, constants and data types", "Functions and arrow functions", "Objects and arrays", "Modules: import and export", "Callbacks and why Cypress commands are not promises", "then and wrap for working with yielded values", "Common JavaScript mistakes in Cypress code", "Linting with ESLint"],
+          "tools": ["JavaScript", "Node.js", "VS Code", "ESLint"],
+          "lab_task": "Write helper functions for test data in a module, use .then to work with a yielded value, and fix three examples where a developer treated Cypress commands like promises.",
+          "deliverable": "Helper module and fixed examples",
+          "checks": [["Write helpers", "Helpers are imported and used in a spec", "Spec code"], ["Use yielded values", "Values are read with .then or aliases, not return values", "Code review"], ["Fix mistakes", "All three broken examples pass", "Terminal output"]],
+          "objectives": ["Write JavaScript for Cypress", "Work with yielded values", "Avoid treating commands as promises"]
+        },
+        {
+          "topic": "Writing Tests with describe, it and Hooks",
+          "subtopics": ["Spec files and the Mocha structure", "describe, context and it", "before, beforeEach, afterEach and after", "cy.visit and baseUrl", "Test titles that describe behaviour", ".only and .skip", "Test isolation between tests", "Reading failure messages"],
+          "tools": ["Cypress", "Sample web application"],
+          "lab_task": "Write a spec with five tests for a sample web shop using describe blocks and hooks, run only one test with .only and read a deliberately failing test's message.",
+          "deliverable": "Spec with five passing tests",
+          "checks": [["Write tests", "Five tests pass in the runner", "Terminal output"], ["Use hooks", "Shared navigation is in beforeEach", "Spec code"], ["Read failures", "The failing test's cause is noted from its message", "Notes"]],
+          "objectives": ["Structure Cypress specs", "Use hooks", "Read failures"]
+        },
+        {
+          "topic": "Selecting Elements: Selectors, data-cy and Best Practices",
+          "subtopics": ["cy.get with CSS selectors", "cy.contains for text", "data-cy and data-test attributes", "find, within and eq for scoping", "Why brittle selectors break tests", "The Selector Playground", "Agreeing test attributes with developers", "Selectors for tables and lists"],
+          "tools": ["Cypress", "Selector Playground", "Browser developer tools"],
+          "lab_task": "Replace ten brittle selectors in an old suite with data-cy attributes or text-based selectors, scope table checks with within, and agree attribute naming with a developer.",
+          "deliverable": "Rewritten selectors and naming agreement",
+          "checks": [["Use stable selectors", "At least eight selectors use data-cy or text", "Code review"], ["Scope", "Table checks are scoped with within", "Spec code"], ["Agree naming", "Developers accept the attribute naming rule", "Agreement note"]],
+          "objectives": ["Select elements reliably", "Use data attributes", "Scope queries"]
+        },
+        {
+          "topic": "Interacting with Elements: Click, Type, Check and Select",
+          "subtopics": ["click, dblclick and rightclick", "type with special keys", "clear and focus", "check, uncheck and select", "selectFile for uploads", "trigger for custom events", "Actionability checks", "Why force: true hides real problems"],
+          "tools": ["Cypress", "Sample forms application"],
+          "lab_task": "Automate a registration form with text fields, dropdowns, checkboxes, radio buttons and a file upload, submit it and check the confirmation page.",
+          "deliverable": "Automated form spec",
+          "checks": [["Fill every field", "All field types are filled with Cypress commands", "Spec code"], ["Upload", "The uploaded file name appears on the confirmation page", "Test output"], ["Avoid forcing", "No command uses force: true", "Code review"]],
+          "objectives": ["Interact with page elements", "Upload files", "Understand actionability"]
+        },
+        {
+          "topic": "Assertions with should and expect",
+          "subtopics": ["Implicit assertions with should", "Chaining with and", "Common chainers: be.visible, have.text, have.length", "Explicit assertions with expect", "Assertions on URLs and titles", "Negative assertions and their traps", "Assertions inside should callbacks", "Writing clear assertion messages"],
+          "tools": ["Cypress", "Chai assertions"],
+          "lab_task": "Add assertions to the web shop spec for visibility, text, counts, URLs and classes, and rewrite two negative assertions that passed for the wrong reason.",
+          "deliverable": "Spec with complete assertions",
+          "checks": [["Assert behaviour", "Each test asserts a visible outcome", "Spec code"], ["Fix negatives", "Both negative assertions fail when the bug is reintroduced", "Test output"], ["Use callbacks", "One complex check uses a should callback", "Spec code"]],
+          "objectives": ["Write Cypress assertions", "Avoid false passes", "Use should callbacks"]
+        },
+        {
+          "topic": "Retry-Ability and How Cypress Waits",
+          "subtopics": ["Queries, assertions and retry-ability", "Default timeouts and changing them", "Why cy.wait with a number is a smell", "Waiting on aliases instead", "Commands that do not retry", "Detached elements and re-querying", "Loading spinners and dynamic content", "Writing tests that are stable by design"],
+          "tools": ["Cypress", "Sample application with slow loading"],
+          "lab_task": "Remove every fixed cy.wait from a flaky spec using retry-able queries and aliased requests, then run the spec twenty times to confirm it is stable.",
+          "deliverable": "Stable spec with no fixed waits",
+          "checks": [["Remove fixed waits", "No cy.wait with a number remains", "Code review"], ["Stay stable", "The spec passes twenty runs in a row", "Terminal output"], ["Explain", "Notes explain which commands retry and which do not", "Notes"]],
+          "objectives": ["Use retry-ability", "Remove fixed waits", "Write stable tests"]
+        },
+        {
+          "topic": "Fixtures and Test Data",
+          "subtopics": ["The fixtures folder", "cy.fixture and aliases", "Fixtures for stubbed responses", "Generating data with libraries such as Faker", "Unique data per run", "Environment-specific data", "Keeping fixtures small and readable", "Cleaning up created data"],
+          "tools": ["Cypress", "JSON fixtures", "Faker"],
+          "lab_task": "Create fixtures for users and products, use them in tests and stubs, generate unique sign-up data with Faker and clean up created users after each test.",
+          "deliverable": "Fixture files and data-driven tests",
+          "checks": [["Use fixtures", "Tests load data from fixture files", "Spec code"], ["Generate data", "Each run uses unique sign-up data", "Test output"], ["Clean up", "Created users are deleted after tests", "Application data or logs"]],
+          "objectives": ["Manage test data with fixtures", "Generate unique data", "Clean up after tests"]
+        },
+        {
+          "topic": "Custom Commands",
+          "subtopics": ["When to write a custom command", "Cypress.Commands.add", "Parent, child and dual commands", "Overwriting existing commands", "Typing custom commands for editor help", "Login and API helper commands", "Keeping commands small", "Documenting commands"],
+          "tools": ["Cypress", "VS Code"],
+          "lab_task": "Write custom commands for login, adding a product to the cart and checking a toast message, use them across three specs and document them.",
+          "deliverable": "Command file and refactored specs",
+          "checks": [["Write commands", "Three commands are defined and used", "Code review"], ["Reduce duplication", "Repeated steps across specs are replaced by commands", "Commit diff"], ["Document", "Each command has a usage comment", "Command file"]],
+          "objectives": ["Write custom commands", "Reduce duplication", "Document shared helpers"]
+        },
+        {
+          "topic": "Network Stubbing with cy.intercept",
+          "subtopics": ["Spying on requests", "Aliasing and waiting with cy.wait('@alias')", "Stubbing responses with fixtures", "Simulating errors and delays", "Matching by method, URL and query", "Modifying requests and responses", "Asserting on request bodies", "When to stub and when to hit the real back end"],
+          "tools": ["Cypress", "Sample application with an API"],
+          "lab_task": "Spy on the product API, stub empty, error and slow responses with fixtures, assert on the request body sent by a form and decide which tests should use the real back end.",
+          "deliverable": "Network stubbing specs with a stubbing policy",
+          "checks": [["Stub cases", "Empty, error and slow cases are tested", "Test output"], ["Wait on aliases", "Tests wait for aliased requests", "Spec code"], ["Assert requests", "The form's request body is checked", "Spec code"]],
+          "objectives": ["Spy on and stub requests", "Test error and slow cases", "Decide when to stub"]
+        },
+        {
+          "topic": "Testing Forms and Validation",
+          "subtopics": ["Required fields and error messages", "Input formats and boundaries", "Client-side and server-side validation", "Disabled and enabled states", "Multi-step forms", "Autocomplete and date pickers", "Data-driven validation tests", "Accessibility of error messages"],
+          "tools": ["Cypress", "Sample forms application"],
+          "lab_task": "Test a multi-step form's validation for required fields, formats and boundaries with data-driven tests, including a server-side validation error stubbed with cy.intercept.",
+          "deliverable": "Form validation spec",
+          "checks": [["Cover validation", "Required, format and boundary rules are tested", "Test output"], ["Test server errors", "A stubbed server validation error is shown to the user", "Test output"], ["Use data", "Validation cases come from a data list", "Spec code"]],
+          "objectives": ["Test form validation", "Use data-driven tests", "Check server-side errors"]
+        },
+        {
+          "topic": "Handling Iframes, New Tabs and Alerts in Cypress",
+          "subtopics": ["Why iframes need special handling", "Getting the iframe body", "Plugins for iframes", "Links that open new tabs", "Testing the link target instead of switching tabs", "Alerts and confirms with cy.on", "Window prompts with cy.stub", "Known limits and workarounds"],
+          "tools": ["Cypress", "cypress-iframe plugin", "Sample application with frames"],
+          "lab_task": "Test a payment form inside an iframe, check a link that opens a new tab without leaving the test, and handle a confirm dialog and a prompt.",
+          "deliverable": "Spec covering iframes, tabs and dialogs",
+          "checks": [["Use the iframe", "Fields inside the iframe are filled and checked", "Test output"], ["Handle tabs", "The new-tab link is checked through its target and URL", "Spec code"], ["Handle dialogs", "Confirm and prompt behaviours are tested", "Test output"]],
+          "objectives": ["Work with iframes", "Handle new tabs", "Test browser dialogs"]
+        },
+        {
+          "topic": "Sessions and Login with cy.session",
+          "subtopics": ["Why logging in through the UI each time is slow", "cy.session and caching login", "Validating cached sessions", "Logging in through the API", "Different users and roles", "Session clearing between tests", "Keeping credentials out of code", "Measuring time saved"],
+          "tools": ["Cypress", "cy.session", "Environment variables"],
+          "lab_task": "Add a login command that uses cy.session and the API for an admin and a normal user, validate the session and compare suite time before and after.",
+          "deliverable": "Session-based login with timing comparison",
+          "checks": [["Cache sessions", "Login runs once per user per run", "Command log"], ["Validate", "Expired sessions are detected and recreated", "Test output"], ["Save time", "Suite time drops after the change", "Timing comparison"]],
+          "objectives": ["Cache logins with cy.session", "Test several roles", "Keep credentials safe"]
+        },
+        {
+          "topic": "API Requests with cy.request",
+          "subtopics": ["cy.request for GET, POST, PUT and DELETE", "Checking status, headers and bodies", "Authentication headers", "Creating data before UI tests", "API-only specs", "Chaining requests", "Handling failures on purpose", "When API checks belong elsewhere"],
+          "tools": ["Cypress", "Sample REST API"],
+          "lab_task": "Write API specs for create, read, update and delete of products, then use cy.request to prepare data for a UI test and remove it afterwards.",
+          "deliverable": "API specs and an API-backed UI test",
+          "checks": [["Test the API", "All four operations have status and body checks", "Test output"], ["Prepare data", "The UI test uses data created with cy.request", "Spec code"], ["Clean up", "Created products are deleted after the test", "Application data or logs"]],
+          "objectives": ["Call APIs from Cypress", "Prepare state for UI tests", "Write API specs"]
+        },
+        {
+          "topic": "Cypress Configuration and Environments",
+          "subtopics": ["cypress.config options", "baseUrl, viewport and timeouts", "Environment variables with Cypress.env", "Configuration per environment", "Secrets and the CYPRESS_ prefix", "Spec patterns and exclusions", "Retries configuration", "Overriding config from the command line"],
+          "tools": ["Cypress", "cypress.config", "Environment files"],
+          "lab_task": "Configure the suite for local, test and staging environments with environment variables, set retries for run mode only and run the suite against two environments.",
+          "deliverable": "Environment-aware configuration",
+          "checks": [["Switch environments", "The same suite runs against two environments", "Terminal output"], ["Protect secrets", "No credentials are stored in config files", "Code review"], ["Set retries", "Retries apply in run mode only", "Config file"]],
+          "objectives": ["Configure Cypress", "Manage environments", "Keep secrets out of code"]
+        },
+        {
+          "topic": "Screenshots, Videos and the Command Log",
+          "subtopics": ["Automatic screenshots on failure", "cy.screenshot for evidence", "Video recording settings", "Reading the command log after a failure", "Console output and debugging information", "Reporters for run mode", "Keeping artefacts small", "Sharing evidence with developers"],
+          "tools": ["Cypress", "Mochawesome or JUnit reporter"],
+          "lab_task": "Enable videos for failed specs, take evidence screenshots in a checkout test, add a JUnit reporter and share one failure with a developer using the artefacts.",
+          "deliverable": "Configured artefacts and a shared failure report",
+          "checks": [["Capture evidence", "Failed specs have screenshots and videos", "Artefact folder"], ["Report", "A JUnit file is produced", "Output folder"], ["Share", "The developer can reproduce the failure from the evidence", "Developer reply"]],
+          "objectives": ["Capture test evidence", "Configure reporters", "Share failures usefully"]
+        },
+        {
+          "topic": "Running Cypress Headless and in CI",
+          "subtopics": ["cypress run options", "The official Cypress GitHub Action", "Starting the application before tests", "Caching the Cypress binary", "Running on pull requests", "Uploading screenshots and videos as artefacts", "Choosing browsers in CI", "Reading CI failures"],
+          "tools": ["GitHub Actions", "Cypress", "GitHub repository"],
+          "lab_task": "Add a GitHub Actions workflow that starts the app, runs Cypress headless on every pull request, uploads artefacts and fails the build on test failures.",
+          "deliverable": "Working CI workflow",
+          "checks": [["Run on PRs", "The workflow runs on a pull request", "Workflow run"], ["Start the app", "Tests run only after the app is ready", "Workflow log"], ["Keep evidence", "Screenshots and videos are downloadable", "Artefact list"]],
+          "objectives": ["Run Cypress in CI", "Start applications for tests", "Publish artefacts"]
+        },
+        {
+          "topic": "Page Objects or App Actions in Cypress",
+          "subtopics": ["Page objects in Cypress", "App actions through the application's own code", "Custom commands as an alternative", "Trade-offs of each approach", "Keeping specs readable", "Avoiding over-abstraction", "Folder structure for helpers", "Choosing an approach as a team"],
+          "tools": ["Cypress", "VS Code"],
+          "lab_task": "Implement the same checkout test three ways (page objects, custom commands and app actions), compare readability and maintenance and choose an approach for the team.",
+          "deliverable": "Three implementations and a team decision",
+          "checks": [["Implement", "All three versions pass", "Terminal output"], ["Compare", "A comparison table covers readability and maintenance", "Comparison table"], ["Decide", "The team decision is recorded with reasons", "Decision note"]],
+          "objectives": ["Compare abstraction approaches", "Keep specs readable", "Choose a team approach"]
+        },
+        {
+          "topic": "Debugging Cypress Tests",
+          "subtopics": ["Time travel and snapshots", "cy.log, cy.debug and cy.pause", "Browser developer tools during a run", "Debugging in run mode with logs", "Common errors: detached elements, timeouts and cross-origin", "Reproducing CI failures locally", "Isolating a failing test", "A debugging checklist"],
+          "tools": ["Cypress", "Browser developer tools", "VS Code"],
+          "lab_task": "Diagnose three broken specs (a timeout, a detached element and a cross-origin error) using the command log, cy.pause and developer tools, and write a debugging checklist.",
+          "deliverable": "Diagnosis notes, fixes and a checklist",
+          "checks": [["Diagnose", "Each failure has a recorded cause", "Diagnosis notes"], ["Fix", "All three specs pass after the fixes", "Terminal output"], ["Share", "The checklist covers the steps used", "Checklist"]],
+          "objectives": ["Debug Cypress tests", "Fix common errors", "Reproduce CI failures"]
+        },
+        {
+          "topic": "Beginner Capstone: Cypress Test Suite for a Single-Page App",
+          "subtopics": ["Critical journeys", "Selectors and custom commands", "Stubs and fixtures", "Sessions and API setup", "CI pipeline", "Evidence and reports"],
+          "tools": ["Cypress", "GitHub Actions", "Fixtures", "cy.intercept"],
+          "lab_task": "Build a Cypress suite for a single-page web shop covering search, cart, checkout and account with data-cy selectors, custom commands, cy.session, stubbed error cases and a CI workflow with artefacts.",
+          "deliverable": "Complete Cypress suite with CI",
+          "checks": [["Cover journeys", "Each critical journey has passing tests", "Test output"], ["Structure well", "Commands, fixtures and sessions are used consistently", "Code review"], ["Run in CI", "The suite runs on pull requests with artefacts", "Workflow run"]],
+          "objectives": ["Combine beginner Cypress skills", "Build a maintainable suite", "Run it in CI"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For testers and developers who write Cypress tests and now build a team framework. Covers component testing, TypeScript, test architecture with tasks and plugins, cross-origin testing, Cypress Cloud parallelisation and recording, flaky test detection and Test Replay, visual regression, accessibility, database seeding with cy.task, mocking time and browser APIs, BDD with Cucumber, code coverage, testing GraphQL and REST back ends, multi-environment pipelines, reporting, files, SSO flows, Docker and Cypress's known limits.",
+      "prerequisites": ["Writes Cypress tests with selectors, intercepts and custom commands", "Comfortable with JavaScript or TypeScript and Git", "Has run Cypress in CI"],
+      "outcomes": ["Build a Cypress framework with end-to-end and component tests", "Run suites in parallel with Cypress Cloud and control flakiness", "Add visual, accessibility and BDD tests where they add value", "Handle complex flows such as cross-origin logins, files and seeded data"],
+      "days": [
+        {
+          "topic": "Component Testing with Cypress for React and Vue",
+          "subtopics": ["What component tests cover", "Configuring component testing", "Mounting components with props", "Testing events and emitted values", "Stubbing child components and network calls", "Styling and providers in component tests", "Component tests compared with end-to-end tests", "Running component tests in CI"],
+          "tools": ["Cypress component testing", "React or Vue", "Vite or webpack"],
+          "lab_task": "Configure component testing for a React or Vue app, test a button, a form and a data table with props and events, and run them in CI next to end-to-end specs.",
+          "deliverable": "Component test specs in CI",
+          "checks": [["Mount components", "Three components are mounted and tested", "Test output"], ["Test events", "Events and props are checked", "Spec code"], ["Run in CI", "Component and end-to-end specs both run in the pipeline", "Workflow run"]],
+          "objectives": ["Write Cypress component tests", "Test props and events", "Combine component and end-to-end tests"]
+        },
+        {
+          "topic": "Cypress with TypeScript",
+          "subtopics": ["Configuring TypeScript for Cypress", "Typing custom commands", "Typed fixtures and API responses", "Type-safe page objects or helpers", "Shared types with the application", "Linting and type checking in CI", "Migrating a JavaScript suite", "Common type errors and fixes"],
+          "tools": ["Cypress", "TypeScript", "ESLint"],
+          "lab_task": "Convert a JavaScript Cypress suite to TypeScript, type the custom commands and fixtures, reuse application types for API responses and add type checks to CI.",
+          "deliverable": "TypeScript suite with type checks in CI",
+          "checks": [["Convert", "All specs pass after conversion", "Terminal output"], ["Type commands", "Custom commands have type declarations", "Code review"], ["Check types", "Type checking runs in CI and passes", "Workflow run"]],
+          "objectives": ["Use TypeScript with Cypress", "Type commands and fixtures", "Enforce types in CI"]
+        },
+        {
+          "topic": "Test Architecture: Folder Structure, Tasks and Plugins",
+          "subtopics": ["Folder layout for specs, support files and fixtures", "The support file and global hooks", "cy.task and the Node process", "Plugins and setupNodeEvents", "Sharing helpers between end-to-end and component tests", "Naming conventions", "Code review rules for tests", "A contributor guide"],
+          "tools": ["Cypress", "ESLint", "GitHub"],
+          "lab_task": "Restructure a growing suite into an agreed layout, move Node-side helpers into tasks, write a contributor guide and have a colleague add a spec using the guide alone.",
+          "deliverable": "Restructured suite and contributor guide",
+          "checks": [["Structure", "Specs, support files and fixtures follow the layout", "Repository tree"], ["Use tasks", "Node-side helpers run through cy.task", "Config and specs"], ["Onboard", "A colleague adds a passing spec using the guide", "Pull request"]],
+          "objectives": ["Design Cypress test architecture", "Use tasks and plugins", "Make suites easy to extend"]
+        },
+        {
+          "topic": "Cross-Origin Testing with cy.origin",
+          "subtopics": ["Why cross-origin steps used to fail", "cy.origin and its rules", "Passing values into cy.origin", "Login through a third-party identity provider", "Payment and redirect flows", "Limits inside cy.origin", "Avoiding cross-origin steps with API login", "Debugging cross-origin errors"],
+          "tools": ["Cypress", "cy.origin", "Test identity provider"],
+          "lab_task": "Automate a login that redirects to a test identity provider with cy.origin, pass credentials safely, then add an API-based login and compare both approaches.",
+          "deliverable": "Cross-origin login test and comparison",
+          "checks": [["Use cy.origin", "The redirect login completes in the test", "Test output"], ["Pass values", "Credentials are passed with the args option", "Spec code"], ["Compare", "Speed and stability of both logins are compared", "Comparison note"]],
+          "objectives": ["Test cross-origin flows", "Use cy.origin correctly", "Choose between UI and API login"]
+        },
+        {
+          "topic": "Parallelisation and Recording with Cypress Cloud",
+          "subtopics": ["Recording runs to Cypress Cloud", "Record keys and project IDs", "Parallel runs across CI machines", "Load balancing by spec duration", "Grouping runs by browser or type", "Run history and analytics", "Costs and plan limits", "Alternatives when Cloud is not available"],
+          "tools": ["Cypress Cloud", "GitHub Actions matrix", "Cypress"],
+          "lab_task": "Record runs to Cypress Cloud, run the suite in parallel on four CI machines, group runs by browser and compare total time with a single machine.",
+          "deliverable": "Parallel recorded pipeline with timing comparison",
+          "checks": [["Record", "Runs appear in Cypress Cloud with history", "Cloud dashboard"], ["Parallelise", "Four machines share the specs", "Workflow timings"], ["Compare", "Parallel time is compared with a single machine", "Timing comparison"]],
+          "objectives": ["Record runs to Cypress Cloud", "Run tests in parallel", "Weigh Cloud costs and alternatives"]
+        },
+        {
+          "topic": "Flaky Test Detection and Test Replay",
+          "subtopics": ["What makes Cypress tests flaky", "Retries and flaky detection in Cloud", "Test Replay for failed and flaky tests", "Common causes: timing, data, order and environment", "Fixing compared with quarantining", "Flake alerts", "Tracking flakiness over time", "Writing a team flakiness policy"],
+          "tools": ["Cypress Cloud", "Test Replay", "Issue tracker"],
+          "lab_task": "Find flaky tests from Cloud history, use Test Replay to diagnose three, fix them and write a team policy for retries, quarantine and ownership.",
+          "deliverable": "Flake report, fixes and policy",
+          "checks": [["Detect", "Flaky tests are listed with rates from Cloud history", "Flake report"], ["Fix", "The three tests pass fifty repeated runs", "Terminal output"], ["Set policy", "The policy covers retries, quarantine and owners", "Policy document"]],
+          "objectives": ["Detect flaky tests", "Diagnose with Test Replay", "Manage flakiness as a team"]
+        },
+        {
+          "topic": "Visual Regression Testing with Cypress Plugins",
+          "subtopics": ["Visual testing options for Cypress", "Snapshot plugins and cloud services", "Baselines and thresholds", "Hiding dynamic content", "Consistent browsers and fonts in Docker", "Reviewing visual changes", "Component-level visual tests", "When visual tests are worth it"],
+          "tools": ["Cypress", "Visual testing plugin or service", "Docker"],
+          "lab_task": "Add visual tests for five pages and three components with a plugin, hide dynamic areas, generate baselines in Docker and review an intended design change.",
+          "deliverable": "Visual test set with a reviewed change",
+          "checks": [["Create baselines", "Baselines exist for pages and components", "Snapshot folder or service"], ["Stay stable", "Visual tests pass in CI without false failures", "Workflow run"], ["Review changes", "The intended change is approved", "Review record"]],
+          "objectives": ["Add visual testing", "Keep baselines stable", "Review visual changes"]
+        },
+        {
+          "topic": "Accessibility Testing with cypress-axe",
+          "subtopics": ["Installing cypress-axe and axe-core", "injectAxe and checkA11y", "Scoping and filtering rules", "Reporting violations clearly", "Keyboard navigation tests", "Accessibility in component tests", "Accessibility gates in CI", "Limits of automated checks"],
+          "tools": ["Cypress", "cypress-axe", "axe-core"],
+          "lab_task": "Add accessibility scans to five pages and two components, write a keyboard-only checkout test and report the top violations with WCAG references.",
+          "deliverable": "Accessibility specs and a violations report",
+          "checks": [["Scan", "Scans run for five pages and two components", "Test output"], ["Test keyboards", "Checkout completes with the keyboard only", "Test output"], ["Report", "Top violations include WCAG references", "Violations report"]],
+          "objectives": ["Automate accessibility checks", "Test keyboard access", "Report accessibility issues"]
+        },
+        {
+          "topic": "Database Seeding and Cleanup with cy.task",
+          "subtopics": ["Why UI seeding is slow", "Tasks that call the database or seed scripts", "Resetting state before specs", "Per-test data compared with per-suite data", "Seeding through APIs instead of the database", "Protecting real environments", "Speed of seeding strategies", "Cleanup after failures"],
+          "tools": ["Cypress", "cy.task", "Database client or seed scripts"],
+          "lab_task": "Write tasks that reset and seed the database before each spec, use them in three specs and make sure a failed test still leaves a clean database.",
+          "deliverable": "Seeding tasks and specs",
+          "checks": [["Seed", "Each spec starts from known data", "Test output"], ["Reset after failure", "A forced failure still leaves clean data", "Database check"], ["Protect environments", "Tasks refuse to run against production URLs", "Task code"]],
+          "objectives": ["Seed data with tasks", "Reset state reliably", "Protect real environments"]
+        },
+        {
+          "topic": "Mocking Time, Geolocation and Browser APIs",
+          "subtopics": ["cy.clock and cy.tick", "Testing timers and timeouts", "Stubbing geolocation", "Stubbing window methods with cy.stub", "Clipboard and permissions", "Local storage and cookies", "Offline behaviour", "Restoring stubs"],
+          "tools": ["Cypress", "cy.clock", "cy.stub"],
+          "lab_task": "Test a session timeout warning with cy.clock, a store locator with stubbed geolocation and a copy-to-clipboard button with a stubbed clipboard.",
+          "deliverable": "Specs for time, location and browser APIs",
+          "checks": [["Control time", "The timeout test runs without real waiting", "Spec code"], ["Stub location", "The store list matches the stubbed coordinates", "Test output"], ["Stub APIs", "The clipboard stub records the copied text", "Test output"]],
+          "objectives": ["Control time in tests", "Stub browser APIs", "Test location-based features"]
+        },
+        {
+          "topic": "BDD with the Cypress Cucumber Preprocessor",
+          "subtopics": ["When BDD helps and when it does not", "Feature files and Gherkin", "Step definitions in Cypress", "Sharing steps across features", "Tags and running subsets", "Data tables and scenario outlines", "Living documentation reports", "Avoiding BDD anti-patterns"],
+          "tools": ["Cypress", "@badeball/cypress-cucumber-preprocessor", "Gherkin"],
+          "lab_task": "Write feature files for checkout with business stakeholders, implement step definitions, run tagged scenarios and produce a report the stakeholders can read.",
+          "deliverable": "Feature files, steps and a readable report",
+          "checks": [["Write with business", "Scenarios are reviewed by a business stakeholder", "Review notes"], ["Implement", "All scenarios pass", "Test output"], ["Report", "The report shows scenarios in business language", "Report"]],
+          "objectives": ["Use BDD with Cypress", "Write useful Gherkin", "Share living documentation"]
+        },
+        {
+          "topic": "Code Coverage for Front-End Tests",
+          "subtopics": ["What coverage tells and does not tell", "Instrumenting the application", "The @cypress/code-coverage plugin", "Combining end-to-end and component coverage", "Finding untested code paths", "Coverage targets and their risks", "Coverage in CI", "Using coverage to remove redundant tests"],
+          "tools": ["Cypress", "@cypress/code-coverage", "Istanbul"],
+          "lab_task": "Instrument a sample app, collect coverage from end-to-end and component tests, find two untested paths, add tests for them and remove one redundant test.",
+          "deliverable": "Coverage report and new tests",
+          "checks": [["Collect coverage", "A combined coverage report is produced", "Coverage report"], ["Close gaps", "Two untested paths get tests", "Spec code"], ["Remove waste", "One redundant test is removed with a reason", "Commit diff"]],
+          "objectives": ["Measure front-end coverage", "Find untested code", "Avoid coverage traps"]
+        },
+        {
+          "topic": "Testing GraphQL and REST Back Ends Through the UI",
+          "subtopics": ["Intercepting GraphQL operations by name", "Stubbing GraphQL responses", "REST and GraphQL in the same app", "Asserting on query variables", "Error responses in GraphQL", "Pagination and caching behaviour", "Keeping stubs close to the schema", "Choosing which calls to stub"],
+          "tools": ["Cypress", "cy.intercept", "GraphQL schema"],
+          "lab_task": "Intercept GraphQL queries and mutations by operation name, stub an error and an empty result, check the variables sent by a search and keep stubs aligned with the schema.",
+          "deliverable": "GraphQL stubbing specs",
+          "checks": [["Intercept by name", "Each operation is aliased by its name", "Spec code"], ["Test errors", "Error and empty results are shown correctly", "Test output"], ["Check variables", "Search variables are asserted", "Spec code"]],
+          "objectives": ["Test GraphQL front ends", "Stub operations by name", "Keep stubs aligned with schemas"]
+        },
+        {
+          "topic": "Multi-Environment Pipelines with GitHub Actions and Jenkins",
+          "subtopics": ["Pipeline stages: smoke, regression and nightly", "Running against test and staging environments", "Jenkins pipelines for Cypress", "Containers in pipelines", "Secrets per environment", "Notifications on failures", "Scheduling nightly runs", "Pipeline duration targets"],
+          "tools": ["GitHub Actions", "Jenkins", "Docker"],
+          "lab_task": "Build pipelines that run smoke tests on pull requests, regression on merges to main and a nightly run against staging, with notifications and environment secrets.",
+          "deliverable": "Multi-stage pipelines in GitHub Actions or Jenkins",
+          "checks": [["Stage tests", "Smoke, regression and nightly stages run the right specs", "Pipeline config"], ["Use environments", "Each stage targets the right environment with its secrets", "Pipeline config"], ["Notify", "Failures send a notification", "Notification screenshot"]],
+          "objectives": ["Design test pipelines", "Run against several environments", "Notify teams of failures"]
+        },
+        {
+          "topic": "Reporting with Mochawesome and Allure",
+          "subtopics": ["Reporter options in Cypress", "Mochawesome reports and merging", "Allure for Cypress", "Screenshots and videos in reports", "Trend reports across runs", "Linking tests to tickets", "Reports for managers and developers", "Publishing reports from CI"],
+          "tools": ["Mochawesome", "Allure", "GitHub Pages or Jenkins"],
+          "lab_task": "Produce merged Mochawesome and Allure reports with screenshots, link tests to ticket IDs and publish the reports from CI.",
+          "deliverable": "Published reports with ticket links",
+          "checks": [["Merge reports", "One report covers all specs", "Report"], ["Attach evidence", "Failed tests show screenshots in the report", "Report screenshot"], ["Publish", "Reports are reachable from each CI run", "Report link"]],
+          "objectives": ["Configure reporting", "Attach evidence", "Publish reports"]
+        },
+        {
+          "topic": "File Upload, Download and PDF Checks",
+          "subtopics": ["selectFile for uploads", "Drag-and-drop uploads", "The downloads folder", "Reading files with cy.readFile", "Checking PDF content with a task", "Large files and timeouts", "Cleaning up files", "Testing file validation errors"],
+          "tools": ["Cypress", "cy.readFile", "PDF parsing task"],
+          "lab_task": "Test a document upload with validation errors, download an invoice and check its PDF text through a task, and clean up the downloads folder.",
+          "deliverable": "File handling specs",
+          "checks": [["Upload", "Valid and invalid uploads are tested", "Test output"], ["Check PDFs", "The PDF contains the order number and total", "Test output"], ["Clean up", "Downloads are removed after tests", "Spec code"]],
+          "objectives": ["Test uploads and downloads", "Verify file contents", "Keep file tests clean"]
+        },
+        {
+          "topic": "Authentication Flows: SSO, OAuth and Tokens",
+          "subtopics": ["Login flows in modern apps", "Logging in programmatically with tokens", "SSO redirects with cy.origin", "OAuth and OpenID Connect test tenants", "Multi-factor authentication with test secrets", "Token storage and refresh", "Role-based access tests", "Securing test credentials"],
+          "tools": ["Cypress", "cy.session", "Test identity provider"],
+          "lab_task": "Implement token-based programmatic login for three roles, a single SSO redirect test with MFA from a test secret and role-based access checks on five pages.",
+          "deliverable": "Authentication specs for roles, SSO and MFA",
+          "checks": [["Log in programmatically", "Three roles log in through the API", "Spec code"], ["Pass MFA", "The one-time code comes from the test secret", "Spec code"], ["Check access", "Each role sees only its allowed pages", "Test output"]],
+          "objectives": ["Test authentication flows", "Handle SSO and MFA", "Check role-based access"]
+        },
+        {
+          "topic": "Cypress and Docker",
+          "subtopics": ["The official Cypress Docker images", "Matching image and Cypress versions", "Running specs in containers locally", "Docker Compose with the app and database", "Browsers inside images", "Shared memory and resource settings", "Caching in containerised pipelines", "Fixing container-only failures"],
+          "tools": ["Docker", "Docker Compose", "Cypress Docker images"],
+          "lab_task": "Run the app, database and Cypress together with Docker Compose, use the official image in CI and fix one failure that only appears in the container.",
+          "deliverable": "Docker Compose setup and container pipeline",
+          "checks": [["Compose", "App, database and tests start together", "Terminal output"], ["Use images", "CI runs Cypress in the official image", "Pipeline config"], ["Fix", "The container-only failure has a recorded cause and fix", "Notes and commit"]],
+          "objectives": ["Run Cypress in containers", "Compose apps and tests", "Fix container issues"]
+        },
+        {
+          "topic": "Cypress Limitations and Workarounds",
+          "subtopics": ["Multiple tabs and windows", "Multiple browsers in one test", "Native events and hover", "Iframes and cross-origin limits", "WebKit support status", "Long-running and very large suites", "When another tool is a better fit", "Documenting workarounds for the team"],
+          "tools": ["Cypress", "Playwright for comparison", "Team wiki"],
+          "lab_task": "List the limits that affect your product, implement workarounds for two of them, and decide for one scenario whether Cypress or another tool should cover it.",
+          "deliverable": "Limits list, workarounds and a tool decision",
+          "checks": [["List limits", "Each limit is linked to a product scenario", "Limits list"], ["Work around", "Two workarounds pass in tests", "Test output"], ["Decide", "The tool decision is justified", "Decision note"]],
+          "objectives": ["Know Cypress limits", "Apply workarounds", "Choose tools for edge cases"]
+        },
+        {
+          "topic": "Intermediate Capstone: Component and End-to-End Suite with Cypress Cloud",
+          "subtopics": ["Component and end-to-end coverage", "TypeScript framework", "Seeding and authentication", "Accessibility and visual checks", "Parallel recorded runs", "Flakiness policy and reports"],
+          "tools": ["Cypress", "Cypress Cloud", "TypeScript", "cypress-axe"],
+          "lab_task": "Build a TypeScript Cypress framework with component and end-to-end tests, seeded data, programmatic login, accessibility and visual checks and parallel recorded runs, and hand it to a colleague to extend.",
+          "deliverable": "Team framework, pipeline and handover notes",
+          "checks": [["Build", "Component and end-to-end suites both pass", "Test output"], ["Run in parallel", "Recorded parallel runs meet the time target", "Cloud dashboard"], ["Hand over", "A colleague adds a spec without help", "Pull request"]],
+          "objectives": ["Combine intermediate Cypress skills", "Build a team framework", "Run and report at scale"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For automation leads, SDETs and front-end quality engineers who run Cypress for several teams. Covers Cypress at scale in monorepos, writing plugins, large-suite performance, advanced network control and contract checks, micro-frontends, security checks, AI-assisted test creation, data strategy, Cloud coverage and accessibility insights, ephemeral environments, migration between Cypress and Playwright, real-time apps, governance, quality gates, feature flags, design systems, CI cost, a centre of excellence and troubleshooting.",
+      "prerequisites": ["Has built and maintained a Cypress framework used by a team", "Strong JavaScript or TypeScript and CI skills", "Understands test strategy and the test pyramid"],
+      "outcomes": ["Run Cypress across many teams and repositories with shared code", "Keep large suites fast, stable and cost-effective", "Extend Cypress with plugins and connect it to quality gates", "Lead tool strategy, governance and migrations for front-end testing"],
+      "days": [
+        {
+          "topic": "Cypress at Scale: Monorepos and Shared Test Libraries",
+          "subtopics": ["Cypress in monorepos", "Shared commands and helpers as packages", "Per-team configuration", "Versioning shared libraries", "Ownership of specs and shared code", "Running only affected projects", "Upgrading Cypress across teams", "Keeping teams independent"],
+          "tools": ["Cypress", "npm workspaces or Nx", "Internal package registry"],
+          "lab_task": "Move three teams' suites into a monorepo with a shared commands package, run only affected projects on pull requests and upgrade Cypress for one team without breaking others.",
+          "deliverable": "Monorepo layout, shared package and upgrade record",
+          "checks": [["Share", "All teams use the shared package", "Package files"], ["Run affected", "Pull requests run only affected projects", "Pipeline log"], ["Upgrade safely", "One team's upgrade leaves the others passing", "CI runs"]],
+          "objectives": ["Run Cypress across teams", "Share code safely", "Manage upgrades"]
+        },
+        {
+          "topic": "Writing Cypress Plugins and Custom Tasks",
+          "subtopics": ["The plugin events API", "before:run and after:spec events", "Writing reusable tasks", "Browser launch options", "Packaging a plugin", "Testing plugins", "Documentation and examples", "Maintaining plugins over Cypress upgrades"],
+          "tools": ["Cypress", "Node.js", "Internal package registry"],
+          "lab_task": "Write a plugin that seeds data through tasks, uploads failed spec artefacts after each spec and sets browser launch flags, then package it with tests for other teams.",
+          "deliverable": "Published plugin with tests and documentation",
+          "checks": [["Use events", "The plugin reacts to before:run and after:spec", "Plugin code and logs"], ["Test", "The plugin has its own passing tests", "CI run"], ["Document", "Usage is documented with examples", "README"]],
+          "objectives": ["Extend Cypress with plugins", "Package reusable tasks", "Maintain plugins"]
+        },
+        {
+          "topic": "Performance of Large Cypress Suites",
+          "subtopics": ["Where suite time goes", "Spec size and test isolation costs", "Login and seeding costs", "Network stubbing for speed", "Parallel balancing", "Selecting specs by change", "Measuring and setting time targets", "CI cost per run"],
+          "tools": ["Cypress", "Cypress Cloud analytics", "Pipeline metrics"],
+          "lab_task": "Profile a slow suite, cut login and seeding time, split oversized specs, add change-based spec selection and report the new duration and CI cost.",
+          "deliverable": "Performance analysis and optimised pipeline",
+          "checks": [["Profile", "The slowest specs and causes are listed", "Analysis"], ["Optimise", "Suite duration drops by an agreed target", "Timing comparison"], ["Report cost", "CI cost per run is compared before and after", "Cost report"]],
+          "objectives": ["Speed up large suites", "Reduce CI cost", "Select specs by change"]
+        },
+        {
+          "topic": "Advanced Network Control: Dynamic Stubs and Contract Checks",
+          "subtopics": ["Dynamic responses with route handlers", "Stateful stubs across requests", "Recording real responses for fixtures", "Validating stubs against OpenAPI schemas", "Contract tests with Pact for front ends", "Detecting drift between stubs and services"],
+          "tools": ["Cypress", "Pact", "OpenAPI validator"],
+          "lab_task": "Build stateful stubs for a cart API, validate all fixtures against the OpenAPI schema in CI and add a Pact contract for the cart service.",
+          "deliverable": "Stateful stubs, schema checks and a Pact contract",
+          "checks": [["Keep state", "The stubbed cart remembers added items", "Test output"], ["Validate fixtures", "Invalid fixtures fail the schema check", "CI run"], ["Add contracts", "The provider verifies the Pact contract", "Pact broker or CI log"]],
+          "objectives": ["Build realistic stubs", "Keep stubs honest", "Add contract tests"]
+        },
+        {
+          "topic": "Testing Micro-Frontends with Cypress",
+          "subtopics": ["Micro-frontend architectures", "Testing each micro-frontend in isolation", "Integration tests for the composed shell", "Stubbing other teams' fragments", "Versions and deployment timing", "Ownership of shared journeys", "Pipelines across repositories", "Reporting across teams"],
+          "tools": ["Cypress", "Module federation sample", "Multi-repo pipelines"],
+          "lab_task": "Test two micro-frontends in isolation with stubbed neighbours, add a small set of journey tests for the composed shell and agree ownership of shared journeys.",
+          "deliverable": "Isolated and composed tests with an ownership map",
+          "checks": [["Isolate", "Each micro-frontend has its own passing suite", "CI runs"], ["Compose", "Journey tests pass on the composed shell", "Test output"], ["Assign ownership", "Shared journeys have named owners", "Ownership map"]],
+          "objectives": ["Test micro-frontends", "Balance isolated and composed tests", "Share ownership of journeys"]
+        },
+        {
+          "topic": "Security Testing Checks Within Cypress Suites",
+          "subtopics": ["What front-end tests can check for security", "Security headers and cookie flags", "Access control across roles", "Cross-site scripting checks on inputs", "Content Security Policy violations", "Working with security teams"],
+          "tools": ["Cypress", "OWASP ZAP", "Security headers checklist"],
+          "lab_task": "Add specs that check headers, cookie flags, role-based access and script injection on key forms, proxy a run through OWASP ZAP and triage findings with developers.",
+          "deliverable": "Security specs and a triaged findings list",
+          "checks": [["Check headers", "Weak headers or cookie flags fail a test", "Test output"], ["Test access", "Lower roles cannot reach restricted pages", "Test output"], ["Triage", "ZAP findings have owners", "Findings list"]],
+          "objectives": ["Add security checks to Cypress", "Test access control", "Work with security tools"]
+        },
+        {
+          "topic": "AI-Assisted Test Creation and Maintenance for Cypress",
+          "subtopics": ["AI coding assistants for Cypress specs", "Generating tests from user stories", "Repairing broken selectors with AI help", "Reviewing AI output for value and stability", "Risks: wrong assertions and hidden coverage gaps", "Team rules for AI-generated tests", "Measuring effort and quality changes", "Keeping humans responsible for test intent"],
+          "tools": ["AI coding assistant", "Cypress", "Code review tools"],
+          "lab_task": "Generate specs for a new feature from its user stories with an AI assistant, review and fix them, repair two broken selectors with AI help and record time and defects found.",
+          "deliverable": "Reviewed generated specs and an effort record",
+          "checks": [["Generate", "Generated specs run against the feature", "Spec files"], ["Review", "Weak or wrong assertions are corrected", "Review notes"], ["Measure", "Time and defects are recorded", "Effort record"]],
+          "objectives": ["Use AI with Cypress", "Review generated tests", "Set rules for AI use"]
+        },
+        {
+          "topic": "Test Data Strategy for Many Teams",
+          "subtopics": ["Data needs across teams and environments", "Synthetic data generation", "Seeding services and APIs", "Data isolation per run and per team", "Privacy and masking", "Long-lived reference data", "Ownership of data tools", "Measuring data-related failures"],
+          "tools": ["Data generation library", "Seeding service", "Cypress tasks"],
+          "lab_task": "Design a data strategy for three teams with synthetic data, a seeding API, per-run isolation and masking rules, and measure data-related failures before and after.",
+          "deliverable": "Data strategy and failure comparison",
+          "checks": [["Isolate", "Runs from different teams do not share mutable data", "Test output"], ["Protect privacy", "No real personal data is used", "Data review"], ["Improve", "Data-related failures drop after the change", "Failure comparison"]],
+          "objectives": ["Design test data strategy", "Isolate data across teams", "Protect privacy"]
+        },
+        {
+          "topic": "UI Coverage and Accessibility Insights in Cypress Cloud",
+          "subtopics": ["What UI Coverage shows", "Finding untested pages and elements", "Cypress Accessibility reports", "Combining coverage with risk", "Prioritising new tests", "Sharing insights with product teams", "Costs and when to use these features", "Alternatives without Cloud"],
+          "tools": ["Cypress Cloud", "UI Coverage", "Cypress Accessibility"],
+          "lab_task": "Review UI Coverage and accessibility reports for a recorded suite, find the three riskiest untested areas, add tests for them and report progress to the product team.",
+          "deliverable": "Insight review, new tests and a progress report",
+          "checks": [["Find gaps", "Three high-risk untested areas are identified", "Insight review"], ["Close gaps", "New tests cover those areas", "Spec code"], ["Report", "The product team receives coverage and accessibility progress", "Report"]],
+          "objectives": ["Use Cloud insights", "Prioritise tests by risk", "Report coverage progress"]
+        },
+        {
+          "topic": "Ephemeral Environments and Preview Deployments for Cypress",
+          "subtopics": ["Preview environments per pull request", "Waiting for deployments to be ready", "Seeding preview data", "Secrets and URLs per preview", "Running suites against previews", "Cleaning up previews", "Cost and quota control", "When shared environments are still needed"],
+          "tools": ["Preview environment platform", "Cypress", "GitHub Actions"],
+          "lab_task": "Run Cypress against a preview environment for each pull request with readiness checks and seeded data, and remove the environment after the run.",
+          "deliverable": "Preview environment pipeline",
+          "checks": [["Create previews", "Each pull request gets its own environment", "Pipeline log"], ["Wait for readiness", "Tests start only after readiness passes", "Pipeline log"], ["Clean up", "Previews are removed after runs", "Platform dashboard"]],
+          "objectives": ["Test against preview environments", "Seed preview data", "Control environment cost"]
+        },
+        {
+          "topic": "Migrating Between Cypress and Playwright",
+          "subtopics": ["Reasons teams move in either direction", "Mapping commands, intercepts and fixtures", "Converting custom commands", "Running both tools side by side", "Choosing which tests to move first", "Measuring stability, speed and maintenance", "Training the team", "Retiring the old suite"],
+          "tools": ["Cypress", "Playwright", "Migration tracker"],
+          "lab_task": "Migrate ten specs between Cypress and Playwright, run both suites side by side for a week and compare stability, speed and maintenance effort.",
+          "deliverable": "Migrated tests, comparison and a recommendation",
+          "checks": [["Migrate", "Ten migrated tests pass", "Terminal output"], ["Compare", "Stability, speed and effort are compared", "Comparison table"], ["Recommend", "The recommendation states which tool to keep and why", "Recommendation note"]],
+          "objectives": ["Compare Cypress and Playwright", "Migrate tests", "Decide on evidence"]
+        },
+        {
+          "topic": "Testing Real-Time Apps: WebSockets and Server-Sent Events",
+          "subtopics": ["Real-time features in web apps", "Observing WebSocket traffic", "Stubbing real-time messages", "Server-sent events", "Ordering and timing of updates", "Reconnects and offline handling", "Testing at the API layer instead", "Keeping real-time tests stable"],
+          "tools": ["Cypress", "WebSocket mock server", "Sample real-time application"],
+          "lab_task": "Test a live order tracker that uses WebSockets and a notification feed using server-sent events, including reconnect behaviour, with stubbed messages.",
+          "deliverable": "Real-time feature specs",
+          "checks": [["Stub messages", "Stubbed updates appear in the UI in order", "Test output"], ["Reconnect", "The UI recovers after a dropped connection", "Test output"], ["Stay stable", "Specs pass twenty repeated runs", "Terminal output"]],
+          "objectives": ["Test real-time features", "Stub WebSocket and SSE messages", "Test reconnects"]
+        },
+        {
+          "topic": "Code Review Standards for Cypress Code",
+          "subtopics": ["Coding standards for specs and commands", "Review checklists", "Lint rules for Cypress", "Naming and tagging standards", "Deleting low-value specs", "Dependency and upgrade policy", "Measuring test code quality", "Balancing standards with speed"],
+          "tools": ["ESLint with eslint-plugin-cypress", "Code review tools", "Test inventory"],
+          "lab_task": "Write standards and a review checklist for Cypress code, apply them to twenty specs and remove or rewrite those that add no value.",
+          "deliverable": "Standards, checklist and cleanup record",
+          "checks": [["Set standards", "Standards cover selectors, waits, data and naming", "Standards document"], ["Review", "Twenty specs are reviewed with the checklist", "Review records"], ["Clean up", "Low-value specs are removed or rewritten with reasons", "Cleanup record"]],
+          "objectives": ["Set code standards", "Review specs consistently", "Remove low-value tests"]
+        },
+        {
+          "topic": "Quality Gates and Release Decisions from Cypress Results",
+          "subtopics": ["Quality gates in pipelines", "Pass rate, flake rate and coverage thresholds", "Blocking and non-blocking checks", "Release readiness reports", "Exceptions and overrides", "Linking gates to risk", "Communicating gate results", "Reviewing gates over time"],
+          "tools": ["CI pipelines", "Cypress Cloud or reports", "Dashboard tool"],
+          "lab_task": "Define quality gates for pull requests and releases from Cypress results, implement them in the pipeline and produce a release readiness report for a sample release.",
+          "deliverable": "Gate definitions, pipeline changes and readiness report",
+          "checks": [["Define gates", "Each gate has a threshold and a reason", "Gate definitions"], ["Enforce", "A failing gate blocks the pipeline", "Pipeline run"], ["Report readiness", "The report shows gate results and risks", "Readiness report"]],
+          "objectives": ["Define quality gates", "Enforce them in pipelines", "Support release decisions"]
+        },
+        {
+          "topic": "Testing Feature Flags and Experiments",
+          "subtopics": ["Feature flags in front-end apps", "Forcing flag states in tests", "Testing both sides of a flag", "A/B experiment variants", "Cleaning up tests when flags are removed", "Flag combinations and risk", "Avoiding flag-related flakiness", "Working with product teams on flags"],
+          "tools": ["Cypress", "Feature flag service", "cy.intercept"],
+          "lab_task": "Force flag states through stubs or the flag service API, test both variants of two features and set up a check that flags old tests when a flag is removed.",
+          "deliverable": "Flag-aware specs and a cleanup check",
+          "checks": [["Force states", "Each flag state is set explicitly in tests", "Spec code"], ["Cover variants", "Both variants pass for two features", "Test output"], ["Clean up", "Removed flags trigger a review of their tests", "Check output"]],
+          "objectives": ["Test feature flags", "Cover experiment variants", "Keep flag tests tidy"]
+        },
+        {
+          "topic": "Cypress for Design Systems and Component Libraries",
+          "subtopics": ["Testing shared components", "Component tests for every variant", "Accessibility per component", "Visual baselines for components", "Documentation sites and stories", "Versioning and breaking changes", "Consumer tests in product teams", "Release checks for the library"],
+          "tools": ["Cypress component testing", "Storybook", "cypress-axe"],
+          "lab_task": "Add component, accessibility and visual tests for ten components of a design system, and a release check that runs consumer smoke tests from two product teams.",
+          "deliverable": "Design system test suite and release check",
+          "checks": [["Cover variants", "Each component variant has a test", "Test output"], ["Check accessibility", "Every component passes axe checks or has an issue logged", "Test output"], ["Protect consumers", "Consumer smoke tests run before library releases", "Pipeline run"]],
+          "objectives": ["Test design systems", "Cover component variants", "Protect consuming teams"]
+        },
+        {
+          "topic": "Cost and Speed Optimisation of CI for Cypress",
+          "subtopics": ["CI minutes and runner costs", "Caching dependencies and the Cypress binary", "Choosing runner sizes", "Parallelism compared with cost", "Skipping unchanged work", "Scheduling heavy runs", "Cloud plan costs", "Reporting cost per change"],
+          "tools": ["CI provider billing", "Cypress Cloud", "Pipeline metrics"],
+          "lab_task": "Analyse a month of CI spend for Cypress, apply caching, runner sizing and scheduling changes and report the cost per pull request before and after.",
+          "deliverable": "Cost analysis and optimised pipeline",
+          "checks": [["Analyse spend", "Spend is broken down by pipeline and stage", "Cost analysis"], ["Optimise", "Cost per pull request drops with no loss of coverage", "Comparison"], ["Report", "The report shows savings and trade-offs", "Cost report"]],
+          "objectives": ["Reduce CI cost", "Keep feedback fast", "Report automation costs"]
+        },
+        {
+          "topic": "Building a Front-End Test Automation Centre of Excellence",
+          "subtopics": ["Purpose and services of a centre of excellence", "Standards, templates and shared tools", "Training and mentoring", "Office hours and support", "Measuring adoption and quality", "Funding and staffing", "Avoiding becoming a bottleneck", "Communicating value"],
+          "tools": ["Team wiki", "Training plan", "Dashboard tool"],
+          "lab_task": "Design a centre of excellence for front-end testing with services, standards, a training plan and adoption measures, and present it to role-played engineering leaders.",
+          "deliverable": "Centre of excellence plan and presentation",
+          "checks": [["Define services", "Services and support model are described", "Plan"], ["Plan training", "The training plan covers levels and teams", "Training plan"], ["Measure", "Adoption and quality measures have targets", "Plan"]],
+          "objectives": ["Build a centre of excellence", "Enable teams", "Measure value"]
+        },
+        {
+          "topic": "Troubleshooting Cypress Failures in CI",
+          "subtopics": ["Failures that only appear in CI", "Resource limits and memory crashes", "Browser and version differences", "Environment and data problems", "Reading videos, screenshots and logs together", "Reproducing CI conditions locally"],
+          "tools": ["Cypress", "Docker", "CI logs"],
+          "lab_task": "Diagnose four CI-only Cypress failures, including a browser crash and a data problem, reproduce two locally in the CI image and write a troubleshooting guide.",
+          "deliverable": "Diagnoses, fixes and a troubleshooting guide",
+          "checks": [["Diagnose", "Each failure has a confirmed cause", "Diagnosis notes"], ["Reproduce", "Two failures are reproduced in the CI image", "Terminal output"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot CI failures", "Reproduce CI conditions", "Share practice with the team"]
+        },
+        {
+          "topic": "Advanced Capstone: Cypress Quality Platform for a Product Organisation",
+          "subtopics": ["Shared libraries and plugins", "Fast, affordable pipelines", "Quality gates", "Coverage and accessibility insights", "Governance and standards", "Strategy presentation"],
+          "tools": ["Cypress", "Cypress Cloud", "Internal package registry", "Dashboard tool"],
+          "lab_task": "Design and build a Cypress platform for three teams with shared packages and plugins, change-based selection, quality gates, coverage insights and standards, and present it to engineering leadership.",
+          "deliverable": "Platform, gates, dashboards and strategy presentation",
+          "checks": [["Share", "All three teams use the shared packages", "Repositories and CI"], ["Gate quality", "Gates block failing changes and releases", "Pipeline runs"], ["Win support", "Leadership approves the platform plan", "Presentation notes"]],
+          "objectives": ["Combine advanced Cypress skills", "Build a platform for many teams", "Lead front-end quality at scale"]
+        }
+      ]
+    }
+  }
+}

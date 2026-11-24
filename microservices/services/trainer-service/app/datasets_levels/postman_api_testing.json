@@ -1,0 +1,573 @@
+{
+  "domain": "Postman API Testing",
+  "name": "API Testing with Postman",
+  "category": "Testing and QA",
+  "icon": "send",
+  "aliases": ["Postman", "Postman API", "Postman API Testing Training", "Postman Testing", "Postman Automation", "API Testing with Postman", "API Testing", "API Test Automation with Postman", "Postman Collections", "Newman", "Postman and Newman"],
+  "certifications": ["Postman Academy badges", "ISTQB Certified Tester Foundation Level (CTFL)", "ISTQB Advanced Level Test Automation Engineering (CTAL-TAE)"],
+  "tools": ["Postman", "Newman", "Postman CLI", "Postman mock servers", "Postman monitors", "GitHub Actions"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For manual testers, developers and analysts starting API testing with Postman. Covers HTTP and REST for testers, sending requests, collections, variables and environments, authorisation, writing tests with pm.test, JSON and schema validation, pre-request scripts, chaining requests, data-driven runs, negative testing, CRUD workflows, mock servers, documentation, Newman and the Postman CLI, GraphQL, the Postman console and sharing work in workspaces.",
+      "prerequisites": ["Understands what a web application does from the user's side", "Basic JavaScript is helpful but not required", "Can install desktop software or use the Postman web app"],
+      "outcomes": ["Send and organise API requests in collections with variables and environments", "Write Postman tests that check status, headers, bodies and JSON schemas", "Build data-driven and chained API test flows including negative cases", "Run collections from the command line and share work through workspaces"],
+      "days": [
+        {
+          "topic": "Postman Overview, Workspaces and API Testing Setup",
+          "subtopics": ["What API testing is and why it matters", "Postman desktop app and web app", "Accounts, workspaces and their types", "The request builder and response viewer", "History, collections and environments panes", "Importing a collection or an OpenAPI file", "Sending a first request to a public API", "Saving requests into a collection", "Postman settings worth changing", "Course API and project overview"],
+          "tools": ["Postman", "Sample REST API", "OpenAPI file"],
+          "lab_task": "Set up Postman, create a team workspace, import the course API's OpenAPI file, send five requests and save them in a collection.",
+          "deliverable": "Workspace with an imported API and a first collection",
+          "checks": [["Import", "The OpenAPI file creates a collection of requests", "Collection screenshot"], ["Send", "Five requests return successful responses", "Response screenshots"], ["Organise", "Requests are saved in named folders", "Collection screenshot"]],
+          "objectives": ["Set up Postman", "Explain where API testing fits", "Send and save requests"]
+        },
+        {
+          "topic": "HTTP for API Testers: Requests, Responses and Status Codes",
+          "subtopics": ["Clients, servers, requests and responses", "URLs, paths and query parameters", "GET, POST, PUT, PATCH and DELETE", "Status code families and common codes", "Request and response headers", "JSON and other content types", "Idempotency and safe methods", "REST resource naming"],
+          "tools": ["Postman", "Sample REST API", "Browser developer tools"],
+          "lab_task": "Send each method to the course API, record the status codes and headers returned, cause four different error codes on purpose and explain each.",
+          "deliverable": "Method and status code worksheet",
+          "checks": [["Use methods", "Each method is sent with the correct body or none", "Request screenshots"], ["Cause errors", "Four error codes are triggered and explained", "Worksheet"], ["Read headers", "Content type and caching headers are identified", "Worksheet"]],
+          "objectives": ["Explain HTTP for testing", "Use REST methods correctly", "Interpret status codes and headers"]
+        },
+        {
+          "topic": "Sending Requests: Parameters, Bodies and Headers in Postman",
+          "subtopics": ["Query and path parameters", "Request bodies: raw JSON, form data and URL encoded", "Headers and presets", "Cookies in Postman", "Uploading files in requests", "Saving examples of responses", "Code snippets from requests", "Request settings such as redirects and timeouts"],
+          "tools": ["Postman", "Sample REST API"],
+          "lab_task": "Build requests that search with query parameters, create a resource with a JSON body, upload a file with form data and save example responses for each.",
+          "deliverable": "Requests with saved examples",
+          "checks": [["Use parameters", "Search results change with the query parameters", "Response screenshots"], ["Send bodies", "JSON and form data requests are accepted", "Responses"], ["Save examples", "Each request has a saved example response", "Collection screenshot"]],
+          "objectives": ["Build requests in Postman", "Send different body types", "Save examples"]
+        },
+        {
+          "topic": "Collections and Folders",
+          "subtopics": ["Collections as test suites", "Folders by feature or flow", "Collection and folder descriptions", "Ordering requests", "Duplicating and moving requests", "Collection-level authorisation and scripts", "Exporting and importing collections", "Naming conventions"],
+          "tools": ["Postman", "Sample REST API"],
+          "lab_task": "Organise twenty requests into a collection with folders for users, products and orders, add descriptions, set collection-level authorisation and export the collection.",
+          "deliverable": "Organised and documented collection",
+          "checks": [["Organise", "Requests are grouped into feature folders", "Collection screenshot"], ["Inherit auth", "Requests inherit authorisation from the collection", "Request settings"], ["Export", "The exported file imports cleanly into a new workspace", "Import screenshot"]],
+          "objectives": ["Organise collections", "Use folders and descriptions", "Share collections as files"]
+        },
+        {
+          "topic": "Variables and Environments",
+          "subtopics": ["Variable scopes: global, collection, environment, data and local", "Initial and current values", "Environments for dev, test and staging", "Using {{variables}} in URLs, headers and bodies", "Setting variables from scripts", "Sensitive values and secret types", "Switching environments", "Variable precedence when names clash", "Exporting and sharing environments", "Common variable mistakes"],
+          "tools": ["Postman", "Environments"],
+          "lab_task": "Create dev and test environments with base URLs and credentials, replace hard-coded values in the collection with variables and run the same requests against both environments.",
+          "deliverable": "Environment files and a variable-driven collection",
+          "checks": [["Remove hard-coding", "No request contains a hard-coded host or token", "Collection review"], ["Switch", "The same requests pass against both environments", "Response screenshots"], ["Protect secrets", "Sensitive values are marked secret and not shared as initial values", "Environment settings"]],
+          "objectives": ["Use variable scopes", "Manage environments", "Protect sensitive values"]
+        },
+        {
+          "topic": "Authorisation: API Keys, Basic, Bearer Tokens and OAuth 2.0",
+          "subtopics": ["Authentication compared with authorisation", "API keys in headers or query strings", "Basic authentication", "Bearer tokens and JWTs", "OAuth 2.0 grant types in Postman", "Fetching and refreshing tokens", "Inheriting authorisation from collections and folders", "Storing tokens safely in variables", "Testing access for different roles", "Testing missing and invalid credentials"],
+          "tools": ["Postman", "Sample API with auth", "jwt.io decoder"],
+          "lab_task": "Configure API key, basic, bearer and OAuth 2.0 authorisation for different endpoints, test each role's access and check the API's response to missing and expired tokens.",
+          "deliverable": "Auth-configured collection with access tests",
+          "checks": [["Configure auth", "Each auth type works on its endpoint", "Response screenshots"], ["Test roles", "Each role gets allowed and forbidden responses correctly", "Test results"], ["Test bad credentials", "Missing and expired tokens return 401 or 403", "Test results"]],
+          "objectives": ["Configure API authorisation", "Test role-based access", "Test credential failures"]
+        },
+        {
+          "topic": "Writing Tests with pm.test and pm.expect",
+          "subtopics": ["The Scripts tab: pre-request and post-response", "pm.test and test names", "pm.response.to.have.status", "pm.expect with Chai assertions", "Checking headers and response time", "Reading JSON with pm.response.json", "Test results in the response pane", "Writing clear test names"],
+          "tools": ["Postman", "Sample REST API"],
+          "lab_task": "Add tests to ten requests that check status, content type, response time and key fields in the JSON body, and make one test fail on purpose to read the result.",
+          "deliverable": "Collection with post-response tests",
+          "checks": [["Check status and headers", "Every request checks status and content type", "Script review"], ["Check bodies", "Key fields are asserted with pm.expect", "Script review"], ["Read failures", "The failing test's message identifies the problem", "Screenshot"]],
+          "objectives": ["Write Postman tests", "Use Chai assertions", "Read test results"]
+        },
+        {
+          "topic": "Validating JSON Responses and Schemas",
+          "subtopics": ["Navigating nested JSON", "Arrays and lengths", "Data types and formats", "JSON Schema basics in practice", "pm.response.to.have.jsonSchema", "Reusing schemas from the OpenAPI definition", "Partial compared with full validation", "Schema failures and messages"],
+          "tools": ["Postman", "JSON Schema", "OpenAPI file"],
+          "lab_task": "Write JSON Schemas for the user and order responses, validate them in tests, then change the API sample to break the schema and confirm the test catches it.",
+          "deliverable": "Schema tests for two resources",
+          "checks": [["Validate", "Both responses pass schema validation", "Test results"], ["Catch changes", "A broken field type fails the schema test", "Test results"], ["Check arrays", "Array lengths and item types are checked", "Script review"]],
+          "objectives": ["Validate JSON responses", "Use JSON Schema", "Catch contract changes"]
+        },
+        {
+          "topic": "Pre-Request Scripts and Dynamic Data",
+          "subtopics": ["What pre-request scripts are for", "Generating timestamps, IDs and random data", "Dynamic variables such as $randomEmail", "Computing signatures and hashes", "Setting headers from scripts", "Collection and folder-level scripts", "Order of script execution", "Keeping scripts readable"],
+          "tools": ["Postman", "Dynamic variables", "CryptoJS in the Postman sandbox"],
+          "lab_task": "Generate unique emails and order references with pre-request scripts, compute a request signature header and move shared scripts to the collection level.",
+          "deliverable": "Collection with pre-request scripts",
+          "checks": [["Generate data", "Each run creates unique emails and references", "Run results"], ["Sign requests", "The signed request is accepted by the API", "Response screenshot"], ["Share scripts", "Shared logic lives at collection level", "Script review"]],
+          "objectives": ["Write pre-request scripts", "Generate dynamic data", "Understand script order"]
+        },
+        {
+          "topic": "Chaining Requests: Passing Data Between Requests",
+          "subtopics": ["Why requests depend on each other", "Saving response values to variables", "Using saved values in later requests", "Controlling flow with pm.execution.setNextRequest", "Skipping requests", "Chained flows for create, read, update and delete", "Cleaning up chained data", "Debugging chains"],
+          "tools": ["Postman", "Collection Runner"],
+          "lab_task": "Build a chained flow that logs in, creates an order, reads it, updates it and deletes it, passing the token and order ID between requests, and run it end to end.",
+          "deliverable": "Chained flow that runs end to end",
+          "checks": [["Pass values", "Token and order ID are passed through variables", "Script review"], ["Run end to end", "The flow passes in the Collection Runner", "Runner results"], ["Clean up", "The created order is deleted at the end", "Response screenshot"]],
+          "objectives": ["Chain requests", "Control execution flow", "Clean up test data"]
+        },
+        {
+          "topic": "Collection Runner and Data-Driven Tests with CSV and JSON",
+          "subtopics": ["The Collection Runner", "Iterations and delays", "Data files in CSV and JSON", "pm.iterationData in scripts", "Expected results in data files", "Running selected folders", "Exporting run results", "Reading results for each iteration"],
+          "tools": ["Postman", "Collection Runner", "CSV and JSON data files"],
+          "lab_task": "Run a sign-up request with a CSV file of twenty rows including valid, boundary and invalid data with expected status codes, and export the results.",
+          "deliverable": "Data file, data-driven tests and exported results",
+          "checks": [["Drive by data", "Each row runs as an iteration", "Runner results"], ["Check expectations", "Each iteration checks its expected status from the file", "Script review"], ["Export", "Results are exported and shared", "Results file"]],
+          "objectives": ["Run data-driven tests", "Use data files", "Review iteration results"]
+        },
+        {
+          "topic": "Negative Testing: Errors, Validation and Edge Cases",
+          "subtopics": ["Why negative tests find the most bugs", "Missing and extra fields", "Wrong types and formats", "Boundary values", "Invalid IDs and missing resources", "Duplicate requests and conflicts", "Error response formats", "Writing negative test cases"],
+          "tools": ["Postman", "Sample REST API"],
+          "lab_task": "Write twenty negative tests for the order API covering missing fields, wrong types, boundaries, unknown IDs and duplicates, and report any responses that leak internal details.",
+          "deliverable": "Negative test folder and a defect list",
+          "checks": [["Cover negatives", "All five categories have tests", "Collection review"], ["Check error format", "Error responses follow the documented format", "Test results"], ["Report leaks", "Responses with stack traces or internal details are reported", "Defect list"]],
+          "objectives": ["Design negative tests", "Check error handling", "Report API defects"]
+        },
+        {
+          "topic": "Testing CRUD Workflows End to End",
+          "subtopics": ["Create, read, update and delete as a lifecycle", "Checking state after each step", "PATCH compared with PUT", "Soft and hard deletes", "Pagination and filtering", "Sorting checks", "Concurrent updates", "Cleaning up after workflows"],
+          "tools": ["Postman", "Collection Runner"],
+          "lab_task": "Test the full lifecycle of a product with state checks after each step, test pagination and sorting on the list endpoint, and try two concurrent updates.",
+          "deliverable": "CRUD workflow folder with lifecycle tests",
+          "checks": [["Check state", "Each step verifies the stored state", "Test results"], ["Test lists", "Pagination and sorting behave as documented", "Test results"], ["Test concurrency", "The concurrent update result is recorded and explained", "Test notes"]],
+          "objectives": ["Test resource lifecycles", "Verify state changes", "Test list endpoints"]
+        },
+        {
+          "topic": "Mock Servers for Testing Without a Back End",
+          "subtopics": ["Why mock servers help testers and front-end teams", "Creating a mock server from a collection", "Example responses and matching", "Mocking error responses", "Using mock URLs in environments", "Private and public mocks", "Keeping mocks in step with the API", "Limits of Postman mocks"],
+          "tools": ["Postman mock servers", "Example responses"],
+          "lab_task": "Create a mock server for an API that is not built yet, add success and error examples, point an environment at the mock and run the collection's tests against it.",
+          "deliverable": "Mock server and a mock environment",
+          "checks": [["Create the mock", "The mock returns the saved examples", "Response screenshots"], ["Mock errors", "Error examples are returned for chosen requests", "Response screenshots"], ["Test against mocks", "The collection runs against the mock environment", "Runner results"]],
+          "objectives": ["Create mock servers", "Mock errors", "Test before the back end exists"]
+        },
+        {
+          "topic": "API Documentation in Postman",
+          "subtopics": ["Documentation generated from collections", "Descriptions with Markdown", "Examples in documentation", "Publishing documentation", "Keeping docs in step with tests", "Documentation for internal and external users", "Reviewing documentation as a tester", "Reporting documentation defects"],
+          "tools": ["Postman documentation", "Markdown"],
+          "lab_task": "Write descriptions for the collection, folders and five key requests with examples, publish the documentation and review it for gaps against the real API behaviour.",
+          "deliverable": "Published documentation and a review list",
+          "checks": [["Describe", "The collection, folders and key requests have descriptions", "Documentation page"], ["Publish", "The documentation is viewable by the team", "Documentation link"], ["Review", "Gaps between docs and behaviour are listed", "Review list"]],
+          "objectives": ["Document APIs in Postman", "Publish documentation", "Review documentation as a tester"]
+        },
+        {
+          "topic": "Running Collections from the Command Line with Newman and Postman CLI",
+          "subtopics": ["Why run from the command line", "Installing Newman", "newman run with environments and data files", "Reporters: CLI, JUnit and htmlextra", "The Postman CLI", "Exit codes and failing builds", "Running in a CI pipeline", "Choosing Newman or Postman CLI"],
+          "tools": ["Newman", "Postman CLI", "newman-reporter-htmlextra", "GitHub Actions"],
+          "lab_task": "Export the collection and environment, run them with Newman and the Postman CLI, produce an HTML report and add the run to a GitHub Actions workflow that fails on test failures.",
+          "deliverable": "Command-line runs, HTML report and CI workflow",
+          "checks": [["Run with Newman", "The collection runs with the environment and data file", "Terminal output"], ["Report", "An HTML report is produced", "Report file"], ["Fail builds", "A failing test fails the workflow", "Workflow run"]],
+          "objectives": ["Run collections from the command line", "Produce reports", "Add API tests to CI"]
+        },
+        {
+          "topic": "Testing GraphQL APIs in Postman",
+          "subtopics": ["GraphQL basics in practice", "Queries, mutations and variables", "Introspection and schema in Postman", "Testing GraphQL responses and errors", "Partial data and the errors array", "Authorisation in GraphQL", "Pagination patterns", "Differences from REST testing"],
+          "tools": ["Postman", "Sample GraphQL API"],
+          "lab_task": "Import a GraphQL schema, write queries and mutations with variables, test successful responses and errors, and compare how errors are reported with the REST API.",
+          "deliverable": "GraphQL request set with tests",
+          "checks": [["Query", "Queries and mutations return expected data", "Test results"], ["Test errors", "Errors are checked in the errors array", "Script review"], ["Compare", "Differences from REST testing are listed", "Comparison notes"]],
+          "objectives": ["Test GraphQL APIs", "Handle GraphQL errors", "Compare GraphQL and REST testing"]
+        },
+        {
+          "topic": "Debugging with the Postman Console",
+          "subtopics": ["Opening the Postman console", "Request and response details", "console.log in scripts", "Network and proxy issues", "SSL certificate problems", "Timeouts and slow responses", "Script errors and their messages", "A debugging routine for failing requests"],
+          "tools": ["Postman console", "Postman proxy settings"],
+          "lab_task": "Diagnose four failing requests (a wrong header, a script error, a certificate problem and a timeout) with the console and logs, and write a debugging checklist.",
+          "deliverable": "Diagnosis notes and a debugging checklist",
+          "checks": [["Diagnose", "Each failure has a recorded cause", "Diagnosis notes"], ["Fix", "All four requests succeed after fixes", "Response screenshots"], ["Share", "The checklist covers the steps used", "Checklist"]],
+          "objectives": ["Debug requests and scripts", "Use the console", "Solve common connection problems"]
+        },
+        {
+          "topic": "Sharing Work: Workspaces, Forks and Version Control",
+          "subtopics": ["Team workspaces and roles", "Forking collections", "Pull requests and merges in Postman", "Comments and reviews", "Version history and restoring", "Git integration for collections", "Avoiding conflicting edits", "A team working agreement"],
+          "tools": ["Postman team workspace", "Forks and pull requests", "Git"],
+          "lab_task": "Fork the team collection, add tests in your fork, open a pull request, review a colleague's pull request and merge both changes without conflicts.",
+          "deliverable": "Merged forks and review comments",
+          "checks": [["Fork", "Changes are made in a fork", "Fork screenshot"], ["Review", "Review comments are added and resolved", "Pull request screenshot"], ["Merge", "Both changes are in the main collection", "Collection history"]],
+          "objectives": ["Collaborate in workspaces", "Use forks and pull requests", "Track collection history"]
+        },
+        {
+          "topic": "Beginner Capstone: Tested Collection for a Booking API",
+          "subtopics": ["Requests and folders", "Environments and variables", "Authorisation", "Positive, negative and data-driven tests", "Chained workflows", "Newman run in CI"],
+          "tools": ["Postman", "Newman", "GitHub Actions", "Sample booking API"],
+          "lab_task": "Build a complete tested collection for a booking API with environments, authorisation, schema checks, negative and data-driven tests and a chained booking flow, and run it in CI with an HTML report.",
+          "deliverable": "Tested collection, environments, data file and CI workflow",
+          "checks": [["Cover the API", "Every endpoint has positive and negative tests", "Collection review"], ["Chain flows", "The booking flow passes end to end", "Runner results"], ["Run in CI", "The collection runs in CI with an HTML report", "Workflow run"]],
+          "objectives": ["Combine beginner Postman skills", "Build a complete API test collection", "Run it in CI"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For testers and developers who use Postman daily and need automated, maintainable API suites. Covers API test design techniques, contract testing against OpenAPI, reusable scripts with the package library, OAuth 2.0 and JWT flows, CI automation with Newman, monitors, performance runs, microservice APIs, Postman Flows, WebSocket and gRPC, API security checks against the OWASP list, test data, back-end state checks, third-party mocks, reporting, governance rules, Git and secrets with Postman Vault, and AI help with Postbot.",
+      "prerequisites": ["Writes Postman tests with variables, environments and chained requests", "Basic JavaScript", "Has run a collection with Newman or the Postman CLI"],
+      "outcomes": ["Design API test suites with clear coverage of behaviour and contracts", "Automate API tests in CI with monitors, reports and safe secrets", "Test security, performance and non-REST protocols from Postman", "Keep large collections maintainable with shared scripts, reviews and governance"],
+      "days": [
+        {
+          "topic": "Test Design for APIs: Equivalence, Boundaries and State",
+          "subtopics": ["Applying test design techniques to APIs", "Equivalence partitions for parameters", "Boundary values for numbers, strings and dates", "State transition tests for resources", "Decision tables for business rules", "Pairwise combinations of parameters", "Traceability to requirements", "Choosing what not to test"],
+          "tools": ["Postman", "Test design worksheet", "OpenAPI file"],
+          "lab_task": "Design tests for an order API using partitions, boundaries, a state transition model and a decision table, implement the highest-value cases and map them to requirements.",
+          "deliverable": "Test design worksheet and implemented tests",
+          "checks": [["Apply techniques", "Each technique produces documented cases", "Design worksheet"], ["Implement", "The highest-value cases run in Postman", "Runner results"], ["Trace", "Tests map to requirements", "Traceability table"]],
+          "objectives": ["Apply test design to APIs", "Model resource states", "Prioritise API tests"]
+        },
+        {
+          "topic": "Contract Testing with OpenAPI in Postman",
+          "subtopics": ["API definitions as contracts", "Importing and linking OpenAPI definitions", "Validating requests and responses against the definition", "Detecting breaking changes", "Generating collections from definitions", "Keeping tests and definitions in step", "Versioning API definitions", "Contract checks in CI"],
+          "tools": ["Postman", "OpenAPI definition", "Newman"],
+          "lab_task": "Link the collection to the API's OpenAPI definition, validate responses against it, introduce a breaking change in a sample and show the contract check failing in CI.",
+          "deliverable": "Contract-validated collection and CI check",
+          "checks": [["Validate", "Responses are validated against the definition", "Test results"], ["Catch breaks", "The breaking change fails the check", "CI run"], ["Stay in step", "Tests and definition are versioned together", "Repository or version history"]],
+          "objectives": ["Use OpenAPI as a contract", "Detect breaking changes", "Run contract checks in CI"]
+        },
+        {
+          "topic": "Reusable Scripts: Package Library and Collection-Level Scripts",
+          "subtopics": ["Repeated code across requests", "Collection and folder-level scripts", "The Postman package library", "Importing packages with pm.require", "Shared assertion helpers", "Versioning shared scripts", "Testing helper code", "Keeping scripts readable"],
+          "tools": ["Postman package library", "Postman scripts"],
+          "lab_task": "Move repeated assertions and setup into a shared package, use it from three collections with pm.require and change one helper in one place.",
+          "deliverable": "Shared script package used by three collections",
+          "checks": [["Share", "Three collections import the package", "Script review"], ["Reduce duplication", "Repeated assertion code is removed", "Before-and-after comparison"], ["Change once", "One helper change applies to all collections", "Run results"]],
+          "objectives": ["Reuse scripts", "Use the package library", "Maintain shared code"]
+        },
+        {
+          "topic": "Advanced Authentication: OAuth 2.0 Flows, JWT and Signed Requests",
+          "subtopics": ["Authorisation code with PKCE", "Client credentials for service APIs", "Refresh tokens and expiry", "Decoding and checking JWT claims", "HMAC-signed requests", "Mutual TLS with client certificates"],
+          "tools": ["Postman", "Test identity provider", "Client certificates"],
+          "lab_task": "Configure authorisation code with PKCE and client credentials flows, test token expiry and refresh, check JWT claims in tests and call an endpoint that needs a client certificate.",
+          "deliverable": "Auth flows with claim and certificate tests",
+          "checks": [["Run flows", "Both OAuth flows obtain working tokens", "Response screenshots"], ["Check claims", "Tests assert roles and expiry in the JWT", "Script review"], ["Use certificates", "The mutual TLS endpoint accepts the configured certificate", "Response screenshot"]],
+          "objectives": ["Test modern auth flows", "Validate tokens", "Use client certificates"]
+        },
+        {
+          "topic": "API Test Automation in CI with Newman and GitHub Actions",
+          "subtopics": ["Collections as code", "Running Newman in GitHub Actions", "Environments and secrets in CI", "Running on pull requests and schedules", "Parallel runs by folder", "Publishing reports", "Failing builds on test failures", "Notifications"],
+          "tools": ["Newman", "GitHub Actions", "newman-reporter-htmlextra"],
+          "lab_task": "Store the collection in Git, run it with Newman in GitHub Actions on pull requests and nightly, split folders into parallel jobs, publish HTML reports and notify the team on failures.",
+          "deliverable": "CI workflow with reports and notifications",
+          "checks": [["Run on events", "The workflow runs on pull requests and nightly", "Workflow runs"], ["Parallelise", "Folders run as parallel jobs", "Workflow timings"], ["Notify", "A failure sends a team notification", "Notification screenshot"]],
+          "objectives": ["Automate API tests in CI", "Use secrets safely", "Report and notify on results"]
+        },
+        {
+          "topic": "Monitors for Scheduled API Checks",
+          "subtopics": ["What monitors do", "Choosing collections for monitors", "Schedules and regions", "Environments for monitors", "Alerts and integrations", "Reading monitor results", "Costs and limits", "Monitors compared with CI runs"],
+          "tools": ["Postman monitors", "Slack or Microsoft Teams integration"],
+          "lab_task": "Create a monitor that runs a smoke collection every hour from two regions, alert the team chat on failures and review a week of results.",
+          "deliverable": "Monitor with alerts and a weekly review",
+          "checks": [["Schedule", "The monitor runs hourly from two regions", "Monitor settings"], ["Alert", "A forced failure sends an alert", "Alert screenshot"], ["Review", "The weekly review lists failures and causes", "Review notes"]],
+          "objectives": ["Schedule API checks", "Configure alerts", "Use monitors alongside CI"]
+        },
+        {
+          "topic": "Performance Testing with the Postman Collection Runner",
+          "subtopics": ["What Postman performance runs can and cannot do", "Virtual users and load profiles", "Response time and error rate metrics", "Choosing requests for a performance run", "Data files in performance runs", "Comparing runs", "When to move to a dedicated load tool", "Reporting results to developers"],
+          "tools": ["Postman Collection Runner performance mode", "Sample API"],
+          "lab_task": "Run a performance test with a ramp-up profile on three key endpoints, find the slowest endpoint and error threshold, and compare two runs after a configuration change.",
+          "deliverable": "Performance run results and a comparison",
+          "checks": [["Run load", "The ramp-up profile completes for three endpoints", "Run report"], ["Find limits", "The slowest endpoint and error threshold are identified", "Analysis notes"], ["Compare", "Two runs are compared with conclusions", "Comparison"]],
+          "objectives": ["Run basic performance tests", "Read performance metrics", "Know when to use load tools"]
+        },
+        {
+          "topic": "Testing Microservice APIs and Dependencies",
+          "subtopics": ["APIs that call other services", "Testing services in isolation with mocks", "End-to-end flows across services", "Correlation IDs and tracing", "Eventual consistency and polling", "Timeouts and retries", "Versioned APIs", "Service ownership and contacts"],
+          "tools": ["Postman", "Mock servers", "Sample microservices"],
+          "lab_task": "Test an order flow across three services, isolate one service with a mock of its dependency, poll for an eventually consistent result and check correlation IDs in responses.",
+          "deliverable": "Cross-service and isolated test folders",
+          "checks": [["Test across services", "The order flow passes end to end", "Runner results"], ["Isolate", "The mocked dependency lets one service be tested alone", "Runner results"], ["Handle eventual consistency", "Polling waits for the result with a timeout", "Script review"]],
+          "objectives": ["Test microservice APIs", "Isolate services", "Handle eventual consistency"]
+        },
+        {
+          "topic": "Postman Flows for Workflow Testing",
+          "subtopics": ["What Postman Flows are", "Blocks, connections and data", "Building a multi-step workflow visually", "Conditions and loops", "Using collection requests in a flow", "Running and debugging flows", "Sharing flows", "When to use flows or scripts"],
+          "tools": ["Postman Flows", "Postman collections"],
+          "lab_task": "Build a flow that creates an order, waits for payment status, branches on the result and posts a summary, then compare it with the same logic written in scripts.",
+          "deliverable": "Working flow and a comparison note",
+          "checks": [["Build the flow", "The flow runs from start to summary", "Flow run screenshot"], ["Branch", "Both payment outcomes take the right branch", "Flow runs"], ["Compare", "The note compares flows with scripts for this case", "Comparison note"]],
+          "objectives": ["Build workflows with Flows", "Use conditions and loops", "Choose flows or scripts"]
+        },
+        {
+          "topic": "Testing WebSocket, gRPC and Server-Sent Events in Postman",
+          "subtopics": ["Protocols beyond REST", "WebSocket requests and messages", "Socket.IO events", "gRPC with protobuf definitions", "Server streaming and client streaming", "Server-sent events", "Checking messages in tests", "Protocol-specific error cases"],
+          "tools": ["Postman", "Sample WebSocket and gRPC services", "Protobuf files"],
+          "lab_task": "Test a WebSocket chat service by sending and checking messages, call a gRPC service with a protobuf definition including a streaming method and check an error case for each.",
+          "deliverable": "WebSocket and gRPC request sets with checks",
+          "checks": [["Test WebSockets", "Sent and received messages are checked", "Message log"], ["Test gRPC", "Unary and streaming calls return expected data", "Response screenshots"], ["Test errors", "Each protocol has a checked error case", "Test notes"]],
+          "objectives": ["Test non-REST protocols", "Use protobuf definitions", "Check streaming responses"]
+        },
+        {
+          "topic": "API Security Checks Against the OWASP API Security Top 10",
+          "subtopics": ["The OWASP API Security Top 10", "Broken object level authorisation tests", "Broken authentication checks", "Excessive data exposure", "Rate limiting checks", "Injection in parameters"],
+          "tools": ["Postman", "OWASP API Security Top 10", "Sample vulnerable API"],
+          "lab_task": "Test a deliberately vulnerable API for object-level authorisation, authentication weaknesses, data exposure and missing rate limits, and write findings with severity and evidence.",
+          "deliverable": "Security test folder and findings report",
+          "checks": [["Test authorisation", "Another user's object cannot be read or changed", "Test results"], ["Find exposure", "Responses with unnecessary sensitive fields are reported", "Findings report"], ["Check rate limits", "Missing rate limiting is demonstrated or ruled out", "Test notes"]],
+          "objectives": ["Test APIs for common risks", "Report security findings", "Work with security teams"]
+        },
+        {
+          "topic": "Test Data Management for API Suites",
+          "subtopics": ["Data needs for API tests", "Creating data through APIs", "Seed endpoints and fixtures", "Unique data for parallel runs", "Cleaning up reliably", "Reference data and lookups", "Masking and privacy", "Data problems as a cause of failures"],
+          "tools": ["Postman", "Data files", "Seed endpoints"],
+          "lab_task": "Redesign a suite so each run creates its own data, cleans it up even after failures and uses masked reference data, then run two copies in parallel without collisions.",
+          "deliverable": "Data-independent suite with parallel run evidence",
+          "checks": [["Create own data", "Each run creates the data it needs", "Runner results"], ["Clean up", "Data is removed after failures too", "Database or API check"], ["Run in parallel", "Two runs pass at the same time", "Runner results"]],
+          "objectives": ["Manage API test data", "Run suites in parallel", "Protect privacy in test data"]
+        },
+        {
+          "topic": "Validating Back-End State Through Helper APIs and Events",
+          "subtopics": ["Checking that writes really persisted", "Helper or admin endpoints for verification", "Reading audit logs and events", "Message queues and their test endpoints", "Checking side effects such as emails", "Avoiding direct database access from Postman", "Agreeing test hooks with developers", "Security of test-only endpoints"],
+          "tools": ["Postman", "Helper endpoints", "Mail catcher"],
+          "lab_task": "Verify that an order creates an audit entry, a queue event and a confirmation email using helper endpoints, and document the test endpoints agreed with developers.",
+          "deliverable": "Side-effect checks and an agreed test-endpoint list",
+          "checks": [["Verify persistence", "The audit entry exists after the order", "Test results"], ["Verify side effects", "The event and email are found", "Test results"], ["Secure test endpoints", "Test endpoints are disabled outside test environments", "Agreement document"]],
+          "objectives": ["Verify back-end effects", "Use helper endpoints", "Agree test hooks safely"]
+        },
+        {
+          "topic": "Mocking Third-Party Services and Error Scenarios",
+          "subtopics": ["Third-party APIs in tests", "Mocking payment, SMS and email providers", "Simulating timeouts and rate limits", "Simulating partial outages", "Switching between real sandboxes and mocks", "Contract checks for third-party mocks", "Keeping mocks realistic", "Ownership of shared mocks"],
+          "tools": ["Postman mock servers", "Third-party sandbox APIs"],
+          "lab_task": "Mock a payment provider with success, decline, timeout and rate-limit responses, run the order suite against each case and compare with the provider's sandbox.",
+          "deliverable": "Third-party mock and scenario results",
+          "checks": [["Mock cases", "All four provider responses are mocked", "Mock examples"], ["Test behaviour", "The order API handles each case as specified", "Test results"], ["Compare", "Mock and sandbox responses are compared", "Comparison notes"]],
+          "objectives": ["Mock third-party services", "Test failure scenarios", "Keep mocks realistic"]
+        },
+        {
+          "topic": "Reporting: htmlextra Reports and Test Dashboards",
+          "subtopics": ["Report needs for testers, developers and managers", "newman-reporter-htmlextra options", "JUnit reports for CI dashboards", "Trend tracking across runs", "Linking failures to tickets", "Summaries for chat channels", "Postman run history", "Choosing what to report"],
+          "tools": ["newman-reporter-htmlextra", "JUnit reporter", "CI dashboard"],
+          "lab_task": "Configure htmlextra and JUnit reports, show trends across ten runs in the CI dashboard and post a run summary with failure links to the team chat.",
+          "deliverable": "Report configuration, trend view and chat summary",
+          "checks": [["Report", "HTML and JUnit reports are produced", "Report files"], ["Track trends", "The dashboard shows ten runs", "Dashboard screenshot"], ["Summarise", "The chat summary links to failures", "Chat message"]],
+          "objectives": ["Report API test results", "Track trends", "Share summaries"]
+        },
+        {
+          "topic": "Collaboration: Reviews, Comments and API Governance Rules",
+          "subtopics": ["Reviewing collections and tests", "Comments on requests and lines", "API governance rules for definitions", "Naming and style rules for APIs", "Linting API definitions", "Roles and permissions in workspaces", "Change logs for collections", "A team review checklist"],
+          "tools": ["Postman team workspace", "API governance rules", "Spectral or similar linter"],
+          "lab_task": "Write a review checklist for collections, review a colleague's changes with comments, lint an API definition against style rules and fix the findings.",
+          "deliverable": "Review checklist, review comments and lint results",
+          "checks": [["Review", "Comments are added and resolved", "Review screenshot"], ["Lint", "The definition passes the style rules after fixes", "Lint output"], ["Set rules", "The checklist covers naming, tests and variables", "Checklist"]],
+          "objectives": ["Review collections", "Apply governance rules", "Collaborate on API quality"]
+        },
+        {
+          "topic": "Version Control for Collections with Git",
+          "subtopics": ["Why collections belong in version control", "Exporting collections and environments to Git", "Postman Git integration", "Branches, pull requests and reviews", "Handling merge conflicts in collection files", "Running tests from the repository in CI", "Tagging versions with releases", "Keeping Postman and Git in step"],
+          "tools": ["Git", "GitHub", "Postman Git integration or export"],
+          "lab_task": "Put the collection and environments in a Git repository, change tests on a branch, review and merge through a pull request and run the tagged version in CI.",
+          "deliverable": "Versioned collection with a merged pull request",
+          "checks": [["Version", "Collection and environments are in the repository", "Repository tree"], ["Review", "Changes merge through a reviewed pull request", "Pull request"], ["Release", "A tagged version runs in CI", "Workflow run"]],
+          "objectives": ["Version collections with Git", "Review test changes", "Link tests to releases"]
+        },
+        {
+          "topic": "Postman Vault, Secrets and Safe Sharing",
+          "subtopics": ["Why secrets leak from collections", "Secret variable types", "Postman Vault and vault references", "Environment sharing rules", "Secrets in CI pipelines", "Secret scanning in Postman and Git", "Rotating leaked credentials", "A team secrets policy"],
+          "tools": ["Postman Vault", "CI secrets", "Secret scanner"],
+          "lab_task": "Move all credentials into Postman Vault and CI secrets, scan the workspace and repository for leaked secrets, rotate one leaked test credential and write a secrets policy.",
+          "deliverable": "Secret-free collection, scan results and policy",
+          "checks": [["Use the vault", "Requests reference vault secrets", "Request screenshots"], ["Scan", "Scans report no remaining secrets", "Scan output"], ["Set policy", "The policy covers storage, sharing and rotation", "Policy document"]],
+          "objectives": ["Protect secrets", "Use Postman Vault", "Respond to leaks"]
+        },
+        {
+          "topic": "AI Assistance in Postman: Postbot for Tests and Debugging",
+          "subtopics": ["What Postbot can do", "Generating tests from responses", "Explaining and fixing script errors", "Generating documentation", "Checking AI-generated tests for value", "Data privacy when using AI features", "Team rules for AI use", "Measuring time saved"],
+          "tools": ["Postman Postbot", "Postman collections"],
+          "lab_task": "Use Postbot to generate tests for five requests and to fix a broken script, review every generated assertion and record what you kept, changed and removed.",
+          "deliverable": "Reviewed AI-generated tests and a review log",
+          "checks": [["Generate", "Postbot produces tests for five requests", "Script review"], ["Review", "Weak or wrong assertions are corrected", "Review log"], ["Protect data", "No confidential data is sent to AI features against policy", "Policy checklist"]],
+          "objectives": ["Use AI assistance in Postman", "Review generated tests", "Follow data rules"]
+        },
+        {
+          "topic": "Intermediate Capstone: Automated API Regression Pack in CI",
+          "subtopics": ["Test design and coverage", "Contract checks", "Shared scripts", "Security and negative tests", "CI with reports and monitors", "Secrets and versioning"],
+          "tools": ["Postman", "Newman", "GitHub Actions", "Postman monitors", "Postman Vault"],
+          "lab_task": "Build an API regression pack for a sample microservice application with designed tests, contract checks, shared scripts, security and negative tests, versioned in Git, running in CI with reports and an hourly monitor.",
+          "deliverable": "Regression pack, CI workflow, monitor and handover notes",
+          "checks": [["Cover behaviour", "Tests trace to requirements and contracts", "Traceability table"], ["Automate", "CI and monitor runs pass and report", "Workflow and monitor results"], ["Hand over", "A colleague runs and extends the pack from the notes", "Pull request"]],
+          "objectives": ["Combine intermediate Postman skills", "Build a regression pack", "Automate and monitor API quality"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For API test leads, SDETs and quality engineers responsible for API quality across many services. Covers API test strategy for platforms, consumer-driven contracts with Pact, moving to code-based tests, performance with k6, security testing in depth, asynchronous and event-driven APIs, governance at scale, service virtualisation, synthetic monitoring, resilience testing, privacy, GraphQL at scale, testing AI and LLM APIs, Postman enterprise administration, metrics, extending Newman, partner APIs, building team skills and troubleshooting.",
+      "prerequisites": ["Has built automated API suites with Postman and Newman", "Understands microservices and CI pipelines", "Writes JavaScript confidently"],
+      "outcomes": ["Set API test strategy across a platform and choose the right tool for each layer", "Add contracts, performance, security and resilience testing to API quality", "Govern API design and testing across many teams", "Lead API testing practice, metrics and capability building"],
+      "days": [
+        {
+          "topic": "API Testing Strategy for Large Platforms",
+          "subtopics": ["API landscape mapping", "Risk-based coverage across services", "Layers: unit, contract, component, integration and end to end", "Where Postman fits and where code-based tools fit", "Ownership by service teams", "Environments and data at platform scale", "Strategy metrics", "Reviewing strategy each year"],
+          "tools": ["API inventory", "Risk map", "Strategy template"],
+          "lab_task": "Map the APIs of a case platform, rate risk per service, decide test layers and tools for each, and present the strategy to role-played engineering leaders.",
+          "deliverable": "API inventory, risk map and strategy",
+          "checks": [["Map", "Every service has its APIs and consumers listed", "API inventory"], ["Assign layers", "Each risk has a test layer and tool", "Strategy"], ["Present", "Leaders approve the strategy or set conditions", "Presentation notes"]],
+          "objectives": ["Set API test strategy", "Balance test layers", "Assign ownership"]
+        },
+        {
+          "topic": "Consumer-Driven Contract Testing with Pact Alongside Postman",
+          "subtopics": ["Why schema checks are not enough between teams", "Consumer-driven contracts", "Writing consumer tests with Pact", "Provider verification", "The Pact Broker and can-i-deploy", "Where Postman tests still help", "Rolling out contracts across teams", "Common contract testing mistakes"],
+          "tools": ["Pact", "Pact Broker", "Postman"],
+          "lab_task": "Write Pact consumer tests for a front end calling an order service, verify them on the provider, gate deployment with can-i-deploy and remove duplicated Postman checks.",
+          "deliverable": "Pact contracts, verification and deployment gate",
+          "checks": [["Write contracts", "Consumer tests publish a contract", "Pact Broker"], ["Verify", "The provider verifies the contract in CI", "CI run"], ["Gate", "can-i-deploy blocks an incompatible change", "Pipeline run"]],
+          "objectives": ["Use consumer-driven contracts", "Gate deployments", "Combine Pact with Postman"]
+        },
+        {
+          "topic": "Moving from Postman to Code-Based API Tests: When and How",
+          "subtopics": ["Signs a suite has outgrown Postman", "Code-based options: REST Assured, pytest with requests and Playwright API tests", "Mapping Postman tests to code", "Keeping Postman for exploration and documentation", "Running both during transition", "Developer ownership of API tests", "Skills needed by the team", "Measuring the effect of the move"],
+          "tools": ["Postman", "REST Assured or pytest", "CI pipeline"],
+          "lab_task": "Port twenty Postman tests to a code-based framework, run both suites for a week and recommend which tests stay in Postman and which move to code.",
+          "deliverable": "Ported tests, comparison and recommendation",
+          "checks": [["Port", "Twenty ported tests pass", "Test output"], ["Compare", "Maintenance, speed and ownership are compared", "Comparison table"], ["Recommend", "The recommendation splits tests by purpose", "Recommendation note"]],
+          "objectives": ["Decide when to move to code", "Port API tests", "Keep Postman where it helps"]
+        },
+        {
+          "topic": "API Performance Engineering with k6 and Postman Collections",
+          "subtopics": ["Performance goals for APIs", "Converting collections to k6 scripts", "Load, stress, spike and soak tests", "Thresholds as pass and fail criteria", "Test data and correlation in k6", "Monitoring the system under test", "Analysing bottlenecks with developers", "Performance tests in CI"],
+          "tools": ["k6", "Postman-to-k6 converter", "Grafana"],
+          "lab_task": "Convert a collection to a k6 script, run load and spike tests with thresholds against a sample service, find the bottleneck with monitoring data and add a short run to CI.",
+          "deliverable": "k6 scripts, results analysis and CI step",
+          "checks": [["Convert and run", "Load and spike tests complete", "k6 output"], ["Find bottlenecks", "The bottleneck is identified with monitoring evidence", "Analysis"], ["Gate", "A threshold breach fails the CI step", "Pipeline run"]],
+          "objectives": ["Engineer API performance tests", "Set thresholds", "Analyse bottlenecks"]
+        },
+        {
+          "topic": "API Security Testing in Depth: Authorisation, Injection and Abuse Cases",
+          "subtopics": ["Threat modelling an API", "Authorisation matrices by role and object", "Mass assignment and property-level authorisation", "Injection: SQL, NoSQL and command", "Server-side request forgery", "Business logic abuse cases"],
+          "tools": ["Postman", "OWASP ZAP or Burp Suite", "Authorisation matrix"],
+          "lab_task": "Threat model an API, build and run an authorisation matrix across roles and objects, test for mass assignment, injection and SSRF, and write findings with reproduction steps.",
+          "deliverable": "Threat model, authorisation matrix tests and findings",
+          "checks": [["Model threats", "Threats are mapped to endpoints", "Threat model"], ["Test authorisation", "Every role and object combination is tested", "Matrix results"], ["Report", "Findings have severity and reproduction steps", "Findings report"]],
+          "objectives": ["Test API security in depth", "Use authorisation matrices", "Find abuse cases"]
+        },
+        {
+          "topic": "Testing Event-Driven and Asynchronous APIs",
+          "subtopics": ["Asynchronous patterns: callbacks, webhooks and queues", "AsyncAPI definitions", "Testing webhooks with a receiver", "Kafka and queue test tools", "Ordering, duplicates and retries", "Idempotency checks", "Timeouts and dead-letter queues", "Observability for async flows"],
+          "tools": ["Postman", "Webhook receiver", "Kafka test tools", "AsyncAPI definition"],
+          "lab_task": "Test a payment webhook flow with a receiver, check retries and idempotency on duplicate events, and verify that failed messages reach a dead-letter queue.",
+          "deliverable": "Asynchronous flow tests and findings",
+          "checks": [["Receive webhooks", "Webhooks are received and validated", "Receiver log"], ["Check idempotency", "Duplicate events do not create duplicate payments", "Test results"], ["Check failures", "Failed messages reach the dead-letter queue", "Queue inspection"]],
+          "objectives": ["Test asynchronous APIs", "Check retries and idempotency", "Verify failure handling"]
+        },
+        {
+          "topic": "Governance at Scale: API Linting, Style Rules and Breaking-Change Checks",
+          "subtopics": ["Why governance matters across many teams", "API style guides", "Linting definitions with rule sets", "Breaking-change detection between versions", "Governance in pull requests", "Exceptions and waivers", "Reporting governance status", "Keeping rules useful, not bureaucratic"],
+          "tools": ["Spectral", "OpenAPI diff tool", "Postman API governance"],
+          "lab_task": "Write an API style rule set, lint five definitions, add breaking-change detection to pull requests and report governance status across teams.",
+          "deliverable": "Rule set, lint results, PR check and status report",
+          "checks": [["Lint", "All five definitions are linted with results", "Lint output"], ["Detect breaks", "A breaking change is flagged on a pull request", "Pull request check"], ["Report", "The status report shows each team's compliance", "Report"]],
+          "objectives": ["Govern APIs at scale", "Detect breaking changes", "Report governance status"]
+        },
+        {
+          "topic": "Service Virtualisation and Environments for Many Teams",
+          "subtopics": ["Shared and team-owned mocks", "Service virtualisation tools", "Recording and replaying traffic", "Stateful virtual services", "Environment strategy for API testing", "Versioning virtual services", "Ownership and support", "Costs and trade-offs"],
+          "tools": ["WireMock or similar", "Postman mock servers", "Environment catalogue"],
+          "lab_task": "Replace an unstable shared dependency with a stateful virtual service, version it, publish it for three teams and compare test stability before and after.",
+          "deliverable": "Virtual service, version policy and stability comparison",
+          "checks": [["Virtualise", "The virtual service handles the main flows with state", "Test results"], ["Version", "Teams can pin a virtual service version", "Version policy"], ["Improve stability", "Failure rate drops after the change", "Stability comparison"]],
+          "objectives": ["Virtualise services", "Support many teams", "Improve test stability"]
+        },
+        {
+          "topic": "Testing APIs in Production: Synthetic Monitoring and Canary Checks",
+          "subtopics": ["Why test in production", "Safe synthetic transactions", "Canary releases and API checks", "Feature flags and API versions", "Alerting and on-call integration", "Data hygiene in production tests", "Legal and compliance limits", "Combining monitoring with tests"],
+          "tools": ["Postman monitors or a synthetic monitoring tool", "Feature flag service", "Alerting tool"],
+          "lab_task": "Design safe synthetic checks for a production API with marked test data, add canary checks for a new version and connect alerts to the on-call tool.",
+          "deliverable": "Synthetic checks, canary checks and alert routing",
+          "checks": [["Stay safe", "Synthetic data is marked and cleaned", "Data policy and logs"], ["Check canaries", "Canary checks compare old and new versions", "Check results"], ["Alert", "Failures page the on-call engineer", "Alert test"]],
+          "objectives": ["Test APIs in production safely", "Check canary releases", "Connect tests to alerting"]
+        },
+        {
+          "topic": "Chaos and Resilience Testing for APIs",
+          "subtopics": ["Resilience patterns: timeouts, retries and circuit breakers", "Injecting faults in dependencies", "Latency and error injection", "Testing graceful degradation", "Steady-state hypotheses", "Running experiments safely", "Recording and sharing results", "Fixing weaknesses found"],
+          "tools": ["Fault injection tool", "Postman", "Monitoring dashboard"],
+          "lab_task": "Define a steady state for an order API, inject latency and errors into its dependency, check timeouts, retries and circuit breakers and report the weaknesses found.",
+          "deliverable": "Experiment plan, results and weakness report",
+          "checks": [["Define steady state", "Steady-state measures are agreed before the experiment", "Experiment plan"], ["Inject faults", "Latency and errors are injected and observed", "Results"], ["Report", "Weaknesses have owners and fixes planned", "Weakness report"]],
+          "objectives": ["Test API resilience", "Inject faults safely", "Improve resilience"]
+        },
+        {
+          "topic": "Data Privacy and Compliance in API Test Data",
+          "subtopics": ["Personal data in APIs", "GDPR and India's DPDP Act in testing", "Synthetic data generation", "Masking and tokenisation", "Logs and reports that leak data", "Retention of test artefacts", "Audits and evidence", "Privacy checks in pipelines"],
+          "tools": ["Synthetic data tool", "Masking tool", "Log scanner"],
+          "lab_task": "Audit a test suite, its logs and reports for personal data, replace real data with synthetic data, add a pipeline check for leaks and write a retention rule for artefacts.",
+          "deliverable": "Privacy audit, clean suite and pipeline check",
+          "checks": [["Audit", "Personal data in tests, logs and reports is found", "Audit report"], ["Replace", "No real personal data remains", "Data review"], ["Prevent", "A leak check runs in the pipeline", "Pipeline run"]],
+          "objectives": ["Protect privacy in API testing", "Use synthetic data", "Prevent data leaks"]
+        },
+        {
+          "topic": "Testing GraphQL at Scale: Complexity, Federation and Caching",
+          "subtopics": ["Query complexity and depth limits", "Federation and subgraphs", "Persisted queries", "Caching and cache invalidation", "Authorisation per field", "Schema change management", "Performance of resolvers", "Contract checks for GraphQL"],
+          "tools": ["Postman", "GraphQL schema tools", "k6"],
+          "lab_task": "Test a federated GraphQL API for depth limits, field authorisation, persisted queries and cache behaviour, and add a schema check that catches breaking changes.",
+          "deliverable": "GraphQL test folder and schema check",
+          "checks": [["Enforce limits", "Deep and complex queries are rejected", "Test results"], ["Check fields", "Restricted fields are hidden from lower roles", "Test results"], ["Catch changes", "A breaking schema change fails the check", "CI run"]],
+          "objectives": ["Test GraphQL at scale", "Check federation and caching", "Manage schema changes"]
+        },
+        {
+          "topic": "Testing AI and LLM APIs: Non-Deterministic Responses",
+          "subtopics": ["How LLM APIs differ from normal APIs", "Testing structure instead of exact text", "Evaluation sets and scoring", "Guardrails and safety checks", "Latency, tokens and cost", "Rate limits and fallbacks", "Prompt injection tests", "Monitoring quality over time"],
+          "tools": ["Postman", "LLM API sandbox", "Evaluation spreadsheet"],
+          "lab_task": "Test an LLM-backed API with an evaluation set, check response structure, safety refusals and prompt injection resistance, and record latency and token cost per request.",
+          "deliverable": "LLM API tests, evaluation results and cost report",
+          "checks": [["Check structure", "Responses match the expected JSON structure", "Test results"], ["Test safety", "Injection and unsafe prompts are handled correctly", "Evaluation results"], ["Measure cost", "Latency and tokens per request are recorded", "Cost report"]],
+          "objectives": ["Test non-deterministic APIs", "Evaluate LLM responses", "Measure AI API cost"]
+        },
+        {
+          "topic": "Postman Enterprise Administration: Teams, Roles and Audit",
+          "subtopics": ["Organising teams and workspaces", "Roles and permissions", "Single sign-on and user provisioning", "Audit logs", "Private API networks", "Workspace policies and data controls", "Licence management", "Administration routines"],
+          "tools": ["Postman Enterprise admin console", "Identity provider", "Audit logs"],
+          "lab_task": "Design the workspace and role structure for five teams, configure SSO-based access in a sandbox, review audit logs for risky sharing and write an administration routine.",
+          "deliverable": "Workspace design, access configuration and admin routine",
+          "checks": [["Design", "Each team has workspaces with defined roles", "Workspace design"], ["Control access", "Access follows identity provider groups", "Configuration screenshots"], ["Audit", "Risky sharing found in logs is resolved", "Audit notes"]],
+          "objectives": ["Administer Postman for an organisation", "Control access", "Audit use"]
+        },
+        {
+          "topic": "API Quality Metrics and Reporting to Leadership",
+          "subtopics": ["What API quality means to the business", "Defect, coverage and escape metrics", "Contract and governance compliance", "Performance and availability measures", "Test suite health: flakiness and duration", "Dashboards for leaders", "Linking metrics to incidents", "Avoiding vanity metrics"],
+          "tools": ["Dashboard tool", "Test results database", "Incident data"],
+          "lab_task": "Build an API quality dashboard with coverage, escapes, contract compliance, performance and suite health, and present the three most important findings to role-played leaders.",
+          "deliverable": "Quality dashboard and leadership briefing",
+          "checks": [["Measure", "The dashboard shows all five metric groups", "Dashboard"], ["Link to incidents", "Escaped defects are linked to incidents", "Dashboard"], ["Brief", "Leaders receive three findings with actions", "Briefing notes"]],
+          "objectives": ["Measure API quality", "Report to leadership", "Link metrics to outcomes"]
+        },
+        {
+          "topic": "Extending Newman: Custom Reporters and Pipelines",
+          "subtopics": ["Newman as a Node.js library", "Running collections programmatically", "Writing a custom reporter", "Sending results to databases and dashboards", "Dynamic environments and data at run time", "Parallel execution with scripts", "Packaging tools for other teams", "Maintaining custom tooling"],
+          "tools": ["Newman library", "Node.js", "Dashboard database"],
+          "lab_task": "Write a Node.js runner that executes several collections in parallel with Newman, a custom reporter that writes results to a database, and package it for other teams.",
+          "deliverable": "Packaged runner and reporter with documentation",
+          "checks": [["Run programmatically", "Several collections run in parallel from the script", "Terminal output"], ["Report", "Results are stored in the database", "Database records"], ["Package", "Another team installs and runs the tool", "Usage record"]],
+          "objectives": ["Extend Newman", "Build custom reporting", "Package tools for teams"]
+        },
+        {
+          "topic": "Partner and Public API Testing: Sandboxes and Certification Suites",
+          "subtopics": ["Public and partner API programmes", "Sandboxes for partners", "Certification test suites for integrators", "Versioning and deprecation communication", "Rate limits and quotas", "Documentation and examples quality", "Support and feedback loops", "Measuring partner success"],
+          "tools": ["Postman public workspace", "Sandbox environment", "Certification collection"],
+          "lab_task": "Build a certification collection that partners run in a sandbox to prove their integration, publish it with documentation and define how partner results are reviewed.",
+          "deliverable": "Certification collection, documentation and review process",
+          "checks": [["Certify", "The collection checks every required integration behaviour", "Collection review"], ["Publish", "Partners can fork and run it from a public workspace", "Workspace link"], ["Review", "The review process defines pass criteria and support", "Process document"]],
+          "objectives": ["Test partner integrations", "Publish certification suites", "Support external developers"]
+        },
+        {
+          "topic": "Building API Testing Skills in a QA Team",
+          "subtopics": ["Skills map for API testing", "Assessing current skills", "Learning paths from manual to automated API testing", "Pairing and code reviews as teaching", "Communities of practice", "Measuring growth", "Hiring for API testing", "Keeping skills current"],
+          "tools": ["Skills matrix", "Learning path template", "Team wiki"],
+          "lab_task": "Assess a QA team's API testing skills, design learning paths for three levels, run a pairing session and define how growth will be measured over a quarter.",
+          "deliverable": "Skills assessment, learning paths and measures",
+          "checks": [["Assess", "Each team member has a skills rating", "Skills matrix"], ["Plan learning", "Paths exist for three levels with activities", "Learning paths"], ["Measure", "Growth measures have quarterly targets", "Measures"]],
+          "objectives": ["Build team capability", "Teach API testing", "Measure skill growth"]
+        },
+        {
+          "topic": "Troubleshooting Intermittent API Test Failures",
+          "subtopics": ["Types of intermittent failures", "Environment and dependency instability", "Data collisions", "Timing and eventual consistency", "Rate limits and throttling", "Reading logs, traces and run history together"],
+          "tools": ["Run history", "Logs and traces", "Newman reports"],
+          "lab_task": "Diagnose four intermittent API test failures from run history, logs and traces, fix or stabilise each and write a troubleshooting guide.",
+          "deliverable": "Diagnoses, fixes and a troubleshooting guide",
+          "checks": [["Diagnose", "Each failure has a confirmed cause", "Diagnosis notes"], ["Stabilise", "Fixed tests pass fifty repeated runs", "Run results"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot intermittent failures", "Use logs and traces", "Share troubleshooting practice"]
+        },
+        {
+          "topic": "Advanced Capstone: API Quality Platform for a Microservices Estate",
+          "subtopics": ["Strategy and ownership", "Contracts and governance", "Performance and resilience", "Security and privacy", "Metrics and dashboards", "Leadership presentation"],
+          "tools": ["Postman", "Pact", "k6", "Spectral", "Dashboard tool"],
+          "lab_task": "Design and build API quality for a microservices estate with a strategy, contract gates, governance checks, performance and resilience tests, privacy controls and a quality dashboard, and present it to engineering leadership.",
+          "deliverable": "API quality platform, dashboard and strategy presentation",
+          "checks": [["Gate quality", "Contract and governance gates run on pull requests", "Pipeline runs"], ["Cover risks", "Performance, security and resilience tests exist for critical services", "Test inventory"], ["Win support", "Leadership approves the plan", "Presentation notes"]],
+          "objectives": ["Combine advanced API testing skills", "Build API quality for an estate", "Lead API quality practice"]
+        }
+      ]
+    }
+  }
+}

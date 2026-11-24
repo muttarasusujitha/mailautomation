@@ -1,0 +1,309 @@
+﻿{
+    "openapi":  "3.1.0",
+    "info":  {
+                 "title":  "Scheduler Service",
+                 "description":  "Celery beat scheduler â inbox polling, interview reminders, follow-ups",
+                 "version":  "1.0.0"
+             },
+    "paths":  {
+                  "/api/v1/scheduler/tasks/inbox-poll":  {
+                                                             "post":  {
+                                                                          "tags":  [
+                                                                                       "tasks"
+                                                                                   ],
+                                                                          "summary":  "Trigger Inbox Poll",
+                                                                          "operationId":  "trigger_inbox_poll_api_v1_scheduler_tasks_inbox_poll_post",
+                                                                          "responses":  {
+                                                                                            "200":  {
+                                                                                                        "description":  "Successful Response",
+                                                                                                        "content":  {
+                                                                                                                        "application/json":  "@{schema=}"
+                                                                                                                    }
+                                                                                                    }
+                                                                                        }
+                                                                      }
+                                                         },
+                  "/api/v1/scheduler/tasks/interview-reminders":  {
+                                                                      "post":  {
+                                                                                   "tags":  [
+                                                                                                "tasks"
+                                                                                            ],
+                                                                                   "summary":  "Trigger Interview Reminders",
+                                                                                   "operationId":  "trigger_interview_reminders_api_v1_scheduler_tasks_interview_reminders_post",
+                                                                                   "responses":  {
+                                                                                                     "200":  {
+                                                                                                                 "description":  "Successful Response",
+                                                                                                                 "content":  {
+                                                                                                                                 "application/json":  "@{schema=}"
+                                                                                                                             }
+                                                                                                             }
+                                                                                                 }
+                                                                               }
+                                                                  },
+                  "/api/v1/scheduler/tasks/followup-reminders":  {
+                                                                     "post":  {
+                                                                                  "tags":  [
+                                                                                               "tasks"
+                                                                                           ],
+                                                                                  "summary":  "Trigger Followup Reminders",
+                                                                                  "operationId":  "trigger_followup_reminders_api_v1_scheduler_tasks_followup_reminders_post",
+                                                                                  "responses":  {
+                                                                                                    "200":  {
+                                                                                                                "description":  "Successful Response",
+                                                                                                                "content":  {
+                                                                                                                                "application/json":  "@{schema=}"
+                                                                                                                            }
+                                                                                                            }
+                                                                                                }
+                                                                              }
+                                                                 },
+                  "/api/v1/scheduler/tasks/followup2-reminders":  {
+                                                                      "post":  {
+                                                                                   "tags":  [
+                                                                                                "tasks"
+                                                                                            ],
+                                                                                   "summary":  "Trigger Followup2 Reminders",
+                                                                                   "operationId":  "trigger_followup2_reminders_api_v1_scheduler_tasks_followup2_reminders_post",
+                                                                                   "responses":  {
+                                                                                                     "200":  {
+                                                                                                                 "description":  "Successful Response",
+                                                                                                                 "content":  {
+                                                                                                                                 "application/json":  "@{schema=}"
+                                                                                                                             }
+                                                                                                             }
+                                                                                                 }
+                                                                               }
+                                                                  },
+                  "/api/v1/scheduler/tasks/followup3-reminders":  {
+                                                                      "post":  {
+                                                                                   "tags":  [
+                                                                                                "tasks"
+                                                                                            ],
+                                                                                   "summary":  "Trigger Followup3 Reminders",
+                                                                                   "operationId":  "trigger_followup3_reminders_api_v1_scheduler_tasks_followup3_reminders_post",
+                                                                                   "responses":  {
+                                                                                                     "200":  {
+                                                                                                                 "description":  "Successful Response",
+                                                                                                                 "content":  {
+                                                                                                                                 "application/json":  "@{schema=}"
+                                                                                                                             }
+                                                                                                             }
+                                                                                                 }
+                                                                               }
+                                                                  },
+                  "/api/v1/scheduler/tasks/create-test-log":  {
+                                                                  "post":  {
+                                                                               "tags":  [
+                                                                                            "tasks"
+                                                                                        ],
+                                                                               "summary":  "Create Test Log",
+                                                                               "operationId":  "create_test_log_api_v1_scheduler_tasks_create_test_log_post",
+                                                                               "requestBody":  {
+                                                                                                   "content":  {
+                                                                                                                   "application/json":  {
+                                                                                                                                            "schema":  "@{$ref=#/components/schemas/TestLogRequest}"
+                                                                                                                                        }
+                                                                                                               },
+                                                                                                   "required":  true
+                                                                                               },
+                                                                               "responses":  {
+                                                                                                 "200":  {
+                                                                                                             "description":  "Successful Response",
+                                                                                                             "content":  {
+                                                                                                                             "application/json":  "@{schema=}"
+                                                                                                                         }
+                                                                                                         },
+                                                                                                 "422":  {
+                                                                                                             "description":  "Validation Error",
+                                                                                                             "content":  {
+                                                                                                                             "application/json":  "@{schema=}"
+                                                                                                                         }
+                                                                                                         }
+                                                                                             }
+                                                                           }
+                                                              },
+                  "/api/v1/scheduler/tasks/cleanup-logs":  {
+                                                               "post":  {
+                                                                            "tags":  [
+                                                                                         "tasks"
+                                                                                     ],
+                                                                            "summary":  "Trigger Log Cleanup",
+                                                                            "operationId":  "trigger_log_cleanup_api_v1_scheduler_tasks_cleanup_logs_post",
+                                                                            "responses":  {
+                                                                                              "200":  {
+                                                                                                          "description":  "Successful Response",
+                                                                                                          "content":  {
+                                                                                                                          "application/json":  "@{schema=}"
+                                                                                                                      }
+                                                                                                      }
+                                                                                          }
+                                                                        }
+                                                           },
+                  "/api/v1/scheduler/tasks/status/{task_id}":  {
+                                                                   "get":  {
+                                                                               "tags":  [
+                                                                                            "tasks"
+                                                                                        ],
+                                                                               "summary":  "Get Task Status",
+                                                                               "operationId":  "get_task_status_api_v1_scheduler_tasks_status__task_id__get",
+                                                                               "parameters":  [
+                                                                                                  {
+                                                                                                      "name":  "task_id",
+                                                                                                      "in":  "path",
+                                                                                                      "required":  true,
+                                                                                                      "schema":  {
+                                                                                                                     "type":  "string",
+                                                                                                                     "title":  "Task Id"
+                                                                                                                 }
+                                                                                                  }
+                                                                                              ],
+                                                                               "responses":  {
+                                                                                                 "200":  {
+                                                                                                             "description":  "Successful Response",
+                                                                                                             "content":  {
+                                                                                                                             "application/json":  "@{schema=}"
+                                                                                                                         }
+                                                                                                         },
+                                                                                                 "422":  {
+                                                                                                             "description":  "Validation Error",
+                                                                                                             "content":  {
+                                                                                                                             "application/json":  "@{schema=}"
+                                                                                                                         }
+                                                                                                         }
+                                                                                             }
+                                                                           }
+                                                               },
+                  "/health":  {
+                                  "get":  {
+                                              "summary":  "Health",
+                                              "operationId":  "health_health_get",
+                                              "responses":  {
+                                                                "200":  {
+                                                                            "description":  "Successful Response",
+                                                                            "content":  {
+                                                                                            "application/json":  "@{schema=}"
+                                                                                        }
+                                                                        }
+                                                            }
+                                          }
+                              }
+              },
+    "components":  {
+                       "schemas":  {
+                                       "HTTPValidationError":  {
+                                                                   "properties":  {
+                                                                                      "detail":  {
+                                                                                                     "items":  {
+                                                                                                                   "$ref":  "#/components/schemas/ValidationError"
+                                                                                                               },
+                                                                                                     "type":  "array",
+                                                                                                     "title":  "Detail"
+                                                                                                 }
+                                                                                  },
+                                                                   "type":  "object",
+                                                                   "title":  "HTTPValidationError"
+                                                               },
+                                       "TestLogRequest":  {
+                                                              "properties":  {
+                                                                                 "to":  {
+                                                                                            "type":  "string",
+                                                                                            "title":  "To"
+                                                                                        },
+                                                                                 "requirement_id":  {
+                                                                                                        "anyOf":  [
+                                                                                                                      "@{type=string}",
+                                                                                                                      "@{type=null}"
+                                                                                                                  ],
+                                                                                                        "title":  "Requirement Id",
+                                                                                                        "default":  "TEST-REQ"
+                                                                                                    },
+                                                                                 "mail_type":  {
+                                                                                                   "anyOf":  [
+                                                                                                                 "@{type=string}",
+                                                                                                                 "@{type=null}"
+                                                                                                             ],
+                                                                                                   "title":  "Mail Type",
+                                                                                                   "default":  "mail1_reminder"
+                                                                                               },
+                                                                                 "hours_ago":  {
+                                                                                                   "anyOf":  [
+                                                                                                                 "@{type=integer}",
+                                                                                                                 "@{type=null}"
+                                                                                                             ],
+                                                                                                   "title":  "Hours Ago",
+                                                                                                   "default":  4
+                                                                                               },
+                                                                                 "trainer_name":  {
+                                                                                                      "anyOf":  [
+                                                                                                                    "@{type=string}",
+                                                                                                                    "@{type=null}"
+                                                                                                                ],
+                                                                                                      "title":  "Trainer Name",
+                                                                                                      "default":  "Test Trainer"
+                                                                                                  }
+                                                                             },
+                                                              "type":  "object",
+                                                              "required":  [
+                                                                               "to"
+                                                                           ],
+                                                              "title":  "TestLogRequest"
+                                                          },
+                                       "TriggerResponse":  {
+                                                               "properties":  {
+                                                                                  "task_id":  {
+                                                                                                  "type":  "string",
+                                                                                                  "title":  "Task Id"
+                                                                                              },
+                                                                                  "task_name":  {
+                                                                                                    "type":  "string",
+                                                                                                    "title":  "Task Name"
+                                                                                                },
+                                                                                  "status":  {
+                                                                                                 "type":  "string",
+                                                                                                 "title":  "Status"
+                                                                                             }
+                                                                              },
+                                                               "type":  "object",
+                                                               "required":  [
+                                                                                "task_id",
+                                                                                "task_name",
+                                                                                "status"
+                                                                            ],
+                                                               "title":  "TriggerResponse"
+                                                           },
+                                       "ValidationError":  {
+                                                               "properties":  {
+                                                                                  "loc":  {
+                                                                                              "items":  {
+                                                                                                            "anyOf":  " "
+                                                                                                        },
+                                                                                              "type":  "array",
+                                                                                              "title":  "Location"
+                                                                                          },
+                                                                                  "msg":  {
+                                                                                              "type":  "string",
+                                                                                              "title":  "Message"
+                                                                                          },
+                                                                                  "type":  {
+                                                                                               "type":  "string",
+                                                                                               "title":  "Error Type"
+                                                                                           },
+                                                                                  "input":  {
+                                                                                                "title":  "Input"
+                                                                                            },
+                                                                                  "ctx":  {
+                                                                                              "type":  "object",
+                                                                                              "title":  "Context"
+                                                                                          }
+                                                                              },
+                                                               "type":  "object",
+                                                               "required":  [
+                                                                                "loc",
+                                                                                "msg",
+                                                                                "type"
+                                                                            ],
+                                                               "title":  "ValidationError"
+                                                           }
+                                   }
+                   }
+}

@@ -1,0 +1,204 @@
+﻿import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
+import { Bot, Pause, Play, Search } from 'lucide-react'
+import api from '../utils/api'
+import { collectionOutcomeLines } from '../utils/leadSearchFeedback'
+
+function stamp(value) {
+  if (!value) return ''
+  const text = String(value)
+  const date = new Date(text.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(text) ? text : `${text}Z`)
+  return Number.isNaN(date.getTime()) ? text : date.toLocaleString(undefined, { timeZoneName: 'short' })
+}
+
+function domainList(value) {
+  return String(value || '').split(',').map(item => item.trim()).filter(Boolean).slice(0, 4)
+}
+
+function CollectionOutcomes({ outcomes }) {
+  return collectionOutcomeLines(outcomes).map(line => (
+    <p key={line} className="text-sm text-slate-600">{line}</p>
+  ))
+}
+
+function outcomeWarnings(config) {
+  const messages = []
+  const push = (value) => {
+    const text = typeof value === 'string' ? value.trim() : String(value?.error || '').trim()
+    if (text && !messages.includes(text)) messages.push(text)
+  }
+  for (const outcome of config?.domain_outcomes || []) {
+    push(outcome.primary_error)
+    for (const warning of outcome.warnings || []) push(warning)
+  }
+  push(config?.last_error)
+  return messages
+}
+
+export default function LeadBot({ mode = 'trainer', onRefresh, onUseDomains, onViewResults }) {
+  const isTrainer = mode === 'trainer'
+  const [config, setConfig] = useState(null)
+  const [domainsText, setDomainsText] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [connection, setConnection] = useState(null)
+  const [showConnection, setShowConnection] = useState(false)
+  const [verifying, setVerifying] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    const refresh = () => api.get('/linkedin-leads/bot/connection/status')
+      .then(res => { if (active) setConnection(res.data) })
+      .catch(() => { if (active) setConnection({ state: 'unavailable', message: 'Unable to load LinkedIn connection status.' }) })
+    refresh()
+    const timer = window.setInterval(refresh, 15000)
+    return () => { active = false; window.clearInterval(timer) }
+  }, [])
+
+  const verifyConnection = async () => {
+    setVerifying(true)
+    try {
+      const res = await api.post('/linkedin-leads/bot/connection/verify', {}, { timeout: 75000 })
+      setConnection(res.data)
+    } catch (error) {
+      toast.error(error.message || 'Unable to verify LinkedIn connection')
+    } finally { setVerifying(false) }
+  }
+
+  useEffect(() => {
+    let stop = false
+    const pull = async (replaceDomains) => {
+      try {
+        const res = await api.get(`/linkedin-leads/bot/${mode}`)
+        if (stop) return
+        setConfig(res.data || {})
+        if (replaceDomains) setDomainsText((res.data?.domains || []).join(', '))
+      } catch (error) {
+        if (!stop) toast.error(error.message || 'Unable to load the collection bot')
+      }
+    }
+    pull(true)
+    const timer = window.setInterval(() => pull(false), 15000)
+    return () => {
+      stop = true
+      window.clearInterval(timer)
+    }
+  }, [mode])
+
+  const save = async (enabled) => {
+    const domains = domainList(domainsText)
+    if (isTrainer && enabled && !domains.length) {
+      toast.error('Enter at least one trainer domain.')
+      return
+    }
+    setSaving(true)
+    try {
+      const res = await api.put(`/linkedin-leads/bot/${mode}`, {
+        enabled,
+        domain_source: isTrainer ? 'manual' : (config?.domain_source || 'all'),
+        domains: domains.length ? domains : (config?.domains || []),
+        interval_minutes: isTrainer ? 60 : 10,
+      })
+      setConfig(res.data || {})
+      setDomainsText((res.data?.domains || domains).join(', '))
+      toast.success(enabled ? 'Collection bot enabled' : 'Collection bot paused')
+      if (enabled) onRefresh?.()
+    } catch (error) {
+      toast.error(error.message || 'Unable to save the collection bot')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const warnings = outcomeWarnings(config)
+  const runLabel = config?.status || 'not started'
+
+  return (
+    <section className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] p-4 space-y-3">
+      <div className="flex items-start gap-3">
+        <Bot className="mt-0.5 h-5 w-5 text-blue-700" />
+        <div>
+          <h2 className="text-sm font-bold text-slate-900">
+            {isTrainer ? 'Automatic trainer profile collection' : 'Automatic client requirement collection'}
+          </h2>
+          <p className="mt-1 text-xs text-slate-500">
+            {isTrainer
+              ? 'Automatic collection uses your connected LinkedIn account. Manual LinkedIn searches fall back to public indexed results if LinkedIn limits the session. No paid API or outreach emails. Matches require review.'
+              : 'Automatic collection uses your connected LinkedIn account. Manual LinkedIn searches fall back to public indexed results if LinkedIn limits the session. No paid API or outreach emails. Matches require review.'}
+          </p>
+        </div>
+      </div>
+
+      <label className="block text-xs font-semibold text-slate-600">
+        LinkedIn connection: {connection?.state?.replaceAll('_', ' ') || 'checking'}
+      </label>
+      <p className="text-sm text-slate-700" role="status">{connection?.message}</p>
+      {connection?.retry_after && (
+        <p className="text-sm text-amber-800" role="status">
+          Account searches are cooling down until {stamp(connection.retry_after)} after LinkedIn rejected requests.
+          Enabled bots can retry on their next scheduled run after that time; results are not guaranteed.
+        </p>
+      )}
+      <button type="button" className="btn-secondary text-sm" onClick={() => setShowConnection(value => !value)} aria-expanded={showConnection}>
+        Connect / reconnect LinkedIn
+      </button>
+      {showConnection && (
+        <div className="rounded border bg-white p-3 space-y-3 text-sm">
+          <p>The bot needs its own LinkedIn sign-in on the server. Signing into LinkedIn in your normal browser does not connect this bot.</p>
+          <p>Ask your server administrator to open the bot’s sign-in helper on a display-enabled server session, complete LinkedIn verification, and wait for “SESSION_READY”. This app does not yet provide an embedded server login window.</p>
+          <p>After the server login is complete, verify the connection here, then enable collection.</p>
+          <button type="button" className="btn-primary text-sm" disabled={verifying || connection?.state === 'paused'} onClick={verifyConnection}>
+            {verifying ? 'Verifying LinkedIn…' : 'Verify server connection'}
+          </button>
+          {connection?.retry_after && <p>Retry after: {stamp(connection.retry_after)}</p>}
+        </div>
+      )}
+
+      <label className="block text-xs font-semibold text-slate-600">
+        Domains (up to four)
+        <input
+          className="input mt-1 bg-[#eaf6ff]"
+          value={domainsText}
+          onChange={event => setDomainsText(event.target.value)}
+          placeholder={isTrainer ? 'DevOps trainer, Python, soft skills' : 'Optional when all-domain collection is on'}
+        />
+      </label>
+
+      <div className="flex flex-wrap gap-2">
+        <button type="button" onClick={() => save(true)} disabled={saving} className="btn-primary text-sm disabled:opacity-50">
+          <Play className="h-4 w-4" /> Enable / save bot
+        </button>
+        <button type="button" onClick={() => save(false)} disabled={saving} className="btn-secondary text-sm disabled:opacity-50">
+          <Pause className="h-4 w-4" /> Pause bot
+        </button>
+        {onUseDomains && (
+          <button type="button" onClick={() => onUseDomains(domainList(domainsText))} className="btn-secondary text-sm">
+            <Search className="h-4 w-4" /> Use bot domains for search
+          </button>
+        )}
+        <button type="button" onClick={() => (onViewResults || onRefresh)?.()} className="btn-secondary text-sm">
+          View collected profiles
+        </button>
+      </div>
+
+      <p className="text-sm font-semibold text-slate-800">
+        {config?.enabled ? 'Enabled' : 'Paused'} · Last automatic run: {runLabel} · Found: {config?.found || 0} · Saved: {config?.saved || 0}
+      </p>
+      {!isTrainer && Number(config?.target || 0) > 0 && (
+        <p className="text-xs text-slate-600">
+          Overall scan target: {config.target} training-request posts
+          {!config.target_met && ' (target not reached in this run)'}
+        </p>
+      )}
+      <p className="text-xs text-slate-500">This panel shows the automatic collection run. Searches started with Find Profiles or Find Client Posts report their results below.</p>
+      <CollectionOutcomes outcomes={config?.domain_outcomes} />
+      {warnings.map(message => <p key={message} className="text-sm text-amber-800">Previous run: {message}</p>)}
+      {isTrainer && <p className="text-xs text-slate-500">Saved counts new profiles only. Existing profiles keep their original domain label.</p>}
+      {(config?.last_finished || config?.next_run) && (
+        <p className="text-xs text-slate-500">
+          {config.last_finished ? `Last completed: ${stamp(config.last_finished)}` : 'Not completed yet'}
+          {config.next_run ? ` · Next run: ${stamp(config.next_run)}` : ''}
+        </p>
+      )}
+    </section>
+  )
+}

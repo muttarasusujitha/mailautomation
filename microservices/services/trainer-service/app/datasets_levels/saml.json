@@ -1,0 +1,573 @@
+{
+  "domain": "SAML",
+  "name": "SAML",
+  "category": "Cybersecurity and Identity",
+  "icon": "shield",
+  "aliases": ["Security Assertion Markup Language", "SAML 2.0", "SAML SSO", "SAML Federation", "SAML Authentication", "SAML Assertions"],
+  "certifications": [],
+  "tools": ["SAML 2.0", "python3-saml", "Keycloak", "SAML-tracer", "xmlsec1", "OpenSSL", "Okta", "Entra ID", "ADFS", "Shibboleth IdP", "Spring Security SAML", "SimpleSAMLphp", "Browser DevTools", "samltool.com"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For web developers, identity engineers and administrators new to SAML who need to add SAML 2.0 single sign-on to applications. Covers the roles of Identity and Service Providers, the Web Browser SSO profile, reading assertions, the AuthnRequest and Response protocol, HTTP-Redirect and HTTP-POST bindings, metadata and entity descriptors, NameID formats, attribute mapping, XML signatures, certificates with OpenSSL and xmlsec1, SP-initiated and IdP-initiated SSO, single logout and common errors, using Keycloak, SimpleSAMLphp, python3-saml and SAML-tracer in a safe lab.",
+      "prerequisites": ["Comfortable with HTTP requests, redirects, cookies and browser developer tools", "Can read and edit XML and JSON and run commands in a terminal", "Has a lab machine with rights to run Keycloak or SimpleSAMLphp, Python with python3-saml, OpenSSL and xmlsec1"],
+      "outcomes": ["Explain the SAML roles, message layers and the Web Browser SSO profile", "Read, decode and validate SAML assertions, metadata and signatures", "Configure a python3-saml service provider against a Keycloak or SimpleSAMLphp IdP", "Run SP-initiated and IdP-initiated SSO and single logout, and diagnose common errors"],
+      "days": [
+        {
+          "topic": "SAML 2.0 Single Sign-On Concepts and Roles",
+          "subtopics": ["Identity Provider and Service Provider roles", "Assertion, protocol, binding and profile layers", "Web Browser SSO profile at a glance", "Trust established through exchanged metadata", "Public-key signing versus assertion encryption", "Entity IDs as stable federation identifiers", "Front-channel browser redirects versus back-channel calls", "How SAML differs from OAuth and OpenID Connect", "Where SAML fits in enterprise SSO today", "Glossary: AuthnRequest, Response, ACS, SLO"],
+          "tools": ["Keycloak", "SAML-tracer", "Browser DevTools", "samltool.com"],
+          "lab_task": "Draw the SP-initiated Web Browser SSO sequence end to end: user hits a protected app, the SP issues an AuthnRequest, the IdP authenticates and returns a signed Response to the ACS URL. Label each message, binding and the entityID of both parties, then confirm your diagram against one real login captured with SAML-tracer.",
+          "deliverable": "Annotated SSO sequence diagram with entityIDs, bindings and message names, plus one captured trace",
+          "checks": [["Count the HTTP messages in a basic SP-initiated SSO login", "Exactly two browser redirects carry the AuthnRequest and the Response", "SAML-tracer export"], ["Identify which party signs the Response", "The Identity Provider signs it with its private key", "Diagram annotation"], ["State the destination of the SAML Response", "It posts to the Service Provider ACS URL", "Trace screenshot"]],
+          "objectives": ["Name the SAML roles and message layers", "Explain the Web Browser SSO profile flow", "Distinguish SAML from OAuth and OIDC"]
+        },
+        {
+          "topic": "Reading a SAML Assertion XML Document",
+          "subtopics": ["saml:Assertion root and its ID and IssueInstant", "saml:Issuer and the issuing entityID", "saml:Subject, NameID and SubjectConfirmation", "saml:Conditions with NotBefore and NotOnOrAfter", "AudienceRestriction naming the intended SP", "AuthnStatement with AuthnInstant and SessionIndex", "AttributeStatement carrying user claims", "ds:Signature position and the signed Reference URI", "Namespaces: saml, samlp, ds and xenc", "Base64 and inflate steps to reveal the XML"],
+          "tools": ["xmlsec1", "OpenSSL", "SAML-tracer", "samltool.com"],
+          "lab_task": "Take one captured SAML Response, base64-decode it and pretty-print the XML with xmllint. Locate and label the Issuer, Subject NameID, Conditions, AudienceRestriction, AuthnStatement SessionIndex and the AttributeStatement. Record the assertion ID and the NotOnOrAfter value, then explain which element binds the assertion to your SP.",
+          "deliverable": "Pretty-printed assertion with every major element labelled and the ID and expiry recorded",
+          "checks": [["Decode the Response and run xmllint --format", "Readable indented XML with saml:Assertion as a child of samlp:Response", "Terminal output"], ["Read the AudienceRestriction value", "It equals the Service Provider entityID", "Highlighted XML"], ["Find the element carrying the logout correlation value", "The AuthnStatement SessionIndex attribute holds it", "Annotated assertion"]],
+          "objectives": ["Navigate the structure of a SAML assertion", "Locate subject, conditions and attributes", "Decode a captured Response to readable XML"]
+        },
+        {
+          "topic": "The AuthnRequest and Response Protocol Flow",
+          "subtopics": ["samlp:AuthnRequest fields: ID, Destination, IssueInstant", "AssertionConsumerServiceURL and ProtocolBinding", "NameIDPolicy and the requested NameID Format", "samlp:Response and the samlp:Status element", "StatusCode values such as Success and Responder", "InResponseTo linking a Response to its request", "The RelayState parameter round-trip", "Request signing versus response signing", "Replaying a request and why Destination matters", "Minimal AuthnRequest you can craft by hand"],
+          "tools": ["python3-saml", "Keycloak", "SAML-tracer", "curl"],
+          "lab_task": "Trigger an SP-initiated login and capture both the AuthnRequest and the Response with SAML-tracer. Record the request ID, then confirm the Response InResponseTo attribute matches it. Read the samlp:StatusCode, then force a failure by tampering with the ACS URL and capture the resulting error StatusCode value.",
+          "deliverable": "Side-by-side request and response capture with the InResponseTo match and a forced error status recorded",
+          "checks": [["Compare the AuthnRequest ID with the Response InResponseTo", "The two values are identical", "Trace comparison"], ["Read the StatusCode of a successful login", "It is urn:oasis:names:tc:SAML:2.0:status:Success", "Response XML"], ["Tamper with the Destination and resubmit", "The IdP rejects the request with a Requester error status", "Error screenshot"]],
+          "objectives": ["Explain AuthnRequest and Response fields", "Verify request-to-response correlation", "Interpret SAML status codes"]
+        },
+        {
+          "topic": "HTTP-Redirect and HTTP-POST Bindings",
+          "subtopics": ["HTTP-Redirect: DEFLATE, base64 and URL-encode", "The SAMLRequest, SAMLResponse and RelayState query parameters", "SigAlg and Signature parameters on redirect", "HTTP-POST: base64 in a self-submitting form", "Why large messages avoid HTTP-Redirect", "Binding selection advertised in metadata", "Front-channel browser delivery of both bindings", "Decoding each binding back to XML", "RelayState size limit of 80 bytes", "Choosing a binding for request versus response"],
+          "tools": ["SAML-tracer", "Browser DevTools", "samltool.com", "python3-saml"],
+          "lab_task": "Capture one login using HTTP-Redirect for the AuthnRequest and HTTP-POST for the Response. For the redirect, URL-decode the SAMLRequest, base64-decode and inflate it to XML. For the POST, decode the form field. Note the SigAlg parameter on the redirect and confirm the Response arrives in a hidden form field named SAMLResponse.",
+          "deliverable": "Decoded request and response for both bindings with the SigAlg and form field names documented",
+          "checks": [["Inflate the HTTP-Redirect SAMLRequest", "You recover valid samlp:AuthnRequest XML", "Decoded XML"], ["Inspect how the Response is delivered", "A self-submitting HTML form POSTs SAMLResponse to the ACS", "DevTools capture"], ["Read the SigAlg query parameter", "It names the RSA-SHA256 signature algorithm URI", "URL screenshot"]],
+          "objectives": ["Decode HTTP-Redirect and HTTP-POST messages", "Explain when each binding is used", "Read signature parameters on redirects"]
+        },
+        {
+          "topic": "Service Provider Metadata and Entity Descriptors",
+          "subtopics": ["EntityDescriptor and its entityID attribute", "SPSSODescriptor and protocolSupportEnumeration", "AssertionConsumerService index, binding and location", "SingleLogoutService endpoints", "KeyDescriptor use=signing and use=encryption", "NameIDFormat elements the SP accepts", "WantAssertionsSigned and AuthnRequestsSigned flags", "Organization and ContactPerson blocks", "validUntil and cacheDuration lifetimes", "Exchanging metadata URLs versus static files"],
+          "tools": ["python3-saml", "SimpleSAMLphp", "Keycloak", "samltool.com"],
+          "lab_task": "Generate SP metadata from a python3-saml settings file and inspect it. Identify the entityID, every AssertionConsumerService with its index and binding, the SingleLogoutService, and both signing and encryption KeyDescriptors. Confirm WantAssertionsSigned is set, then validate the XML against the SAML metadata schema with xmllint.",
+          "deliverable": "Validated SP metadata with each endpoint, key descriptor and flag documented in a short table",
+          "checks": [["Validate the metadata against the SAML schema", "xmllint reports the document validates with no errors", "Validation output"], ["Read the AssertionConsumerService binding", "It is the HTTP-POST binding URI", "Metadata excerpt"], ["Check the WantAssertionsSigned attribute", "It is set to true on the SPSSODescriptor", "Highlighted attribute"]],
+          "objectives": ["Read and generate SP metadata", "Identify ACS and SLO endpoints", "Validate metadata against the schema"]
+        },
+        {
+          "topic": "Identity Provider Metadata and Key Descriptors",
+          "subtopics": ["IDPSSODescriptor and supported protocols", "SingleSignOnService bindings and locations", "IdP SingleLogoutService endpoints", "Signing certificate inside the KeyDescriptor", "Multiple KeyDescriptors during key rollover", "NameIDFormat values the IdP issues", "WantAuthnRequestsSigned on the IdP", "Extracting the X.509 certificate from metadata", "Fingerprinting the IdP certificate", "Importing IdP metadata into an SP"],
+          "tools": ["Keycloak", "Entra ID", "Okta", "xmlsec1"],
+          "lab_task": "Download IdP metadata from Keycloak at its descriptor URL. Extract the signing X.509 certificate, write it to a PEM file and read its subject, issuer and validity with openssl x509 -noout -text. Compute the SHA-256 fingerprint, then confirm the SingleSignOnService advertises both HTTP-Redirect and HTTP-POST bindings.",
+          "deliverable": "IdP certificate PEM with its decoded details, SHA-256 fingerprint and the list of SSO bindings",
+          "checks": [["Decode the extracted certificate with openssl x509", "Subject, issuer and NotAfter dates are printed", "openssl output"], ["Count SingleSignOnService bindings in the metadata", "Both HTTP-Redirect and HTTP-POST are advertised", "Metadata excerpt"], ["Compute the certificate SHA-256 fingerprint", "A 64-character hex fingerprint is produced", "Fingerprint value"]],
+          "objectives": ["Read IdP metadata and endpoints", "Extract and inspect the IdP certificate", "Prepare IdP metadata for SP import"]
+        },
+        {
+          "topic": "NameID Formats and the Subject Element",
+          "subtopics": ["emailAddress format and its meaning", "persistent format for stable pseudonyms", "transient format for anonymous sessions", "unspecified format and its ambiguity", "NameQualifier and SPNameQualifier scoping", "SubjectConfirmation method bearer", "SubjectConfirmationData Recipient and NotOnOrAfter", "NameIDPolicy AllowCreate on requests", "Choosing a NameID for account linking", "Persistent IDs and user privacy"],
+          "tools": ["Keycloak", "python3-saml", "SAML-tracer", "samltool.com"],
+          "lab_task": "Configure a Keycloak SAML client to issue the persistent NameID format, then log in and record the NameID value and its Format attribute. Switch the client to emailAddress format and log in again. Compare both assertions and confirm the SubjectConfirmationData Recipient equals your ACS URL in each case.",
+          "deliverable": "Two assertions showing persistent and emailAddress NameIDs with the Recipient value confirmed",
+          "checks": [["Request the persistent format and inspect the NameID", "The Format attribute is the persistent URN and the value is opaque", "Assertion excerpt"], ["Switch to emailAddress format and log in", "The NameID value is the user email address", "Assertion excerpt"], ["Read SubjectConfirmationData Recipient", "It equals the Service Provider ACS URL", "Highlighted XML"]],
+          "objectives": ["Distinguish the common NameID formats", "Configure the NameID an IdP issues", "Validate subject confirmation data"]
+        },
+        {
+          "topic": "SP-Initiated SSO Walkthrough with Keycloak",
+          "subtopics": ["Creating a SAML client realm in Keycloak", "Importing SP metadata into the client", "Setting the valid redirect and ACS URLs", "Issuing the AuthnRequest from the SP", "Keycloak login page and user authentication", "The signed Response returned to the ACS", "Session establishment on the SP side", "RelayState carrying the original deep link", "Verifying the login with SAML-tracer", "Logging the decoded assertion for review"],
+          "tools": ["Keycloak", "python3-saml", "SAML-tracer", "Browser DevTools"],
+          "lab_task": "Register a python3-saml SP as a SAML client in Keycloak, set the ACS and redirect URLs, and complete one SP-initiated login. Capture the full flow in SAML-tracer and confirm the Response is signed, posts to your ACS and that your app establishes a session. Save the decoded assertion to a file for review.",
+          "deliverable": "Working SP-initiated login with a captured trace and the decoded assertion saved to disk",
+          "checks": [["Complete the login from the SP start URL", "The app establishes an authenticated session for the user", "App screenshot"], ["Inspect the Response in SAML-tracer", "The Response carries a valid IdP signature", "Trace detail"], ["Check the ACS target of the posted Response", "It matches the ACS URL configured in Keycloak", "Config and trace"]],
+          "objectives": ["Configure a Keycloak SAML client", "Run an SP-initiated login end to end", "Verify the flow from captured traces"]
+        },
+        {
+          "topic": "IdP-Initiated SSO and the Unsolicited Response",
+          "subtopics": ["IdP dashboard application tiles", "Unsolicited Response without InResponseTo", "Why InResponseTo must be absent here", "RelayState as the target resource hint", "Risks of unsolicited assertions", "SP acceptance of IdP-initiated logins", "Configuring a default RelayState", "Keycloak IDP-initiated SSO URL", "Comparing SP-initiated and IdP-initiated flows", "When to disable IdP-initiated SSO"],
+          "tools": ["Keycloak", "Okta", "SAML-tracer", "python3-saml"],
+          "lab_task": "Trigger an IdP-initiated login from Keycloak using its IDP-initiated SSO URL for your client. Capture the Response and confirm it has no InResponseTo attribute. Set a default RelayState so the user lands on a chosen page, then verify your SP accepts the unsolicited assertion and establishes a session.",
+          "deliverable": "IdP-initiated login capture showing the missing InResponseTo and a working default RelayState landing",
+          "checks": [["Inspect the unsolicited Response", "The InResponseTo attribute is absent from the Response", "Trace detail"], ["Follow the configured default RelayState", "The user lands on the chosen target page after login", "App screenshot"], ["Compare with an SP-initiated Response", "The SP-initiated Response does carry an InResponseTo value", "Side-by-side traces"]],
+          "objectives": ["Explain IdP-initiated SSO and its risks", "Configure a default RelayState target", "Contrast solicited and unsolicited responses"]
+        },
+        {
+          "topic": "Attribute Statements and Claim Mapping",
+          "subtopics": ["saml:Attribute Name and NameFormat", "AttributeValue elements and multi-valued claims", "FriendlyName versus the formal Name URI", "Common claims: email, displayName, groups", "Mapping IdP user fields to SAML attributes", "How the SP reads attributes after login", "Attribute NameFormat uri versus basic", "eduPerson and SCIM-style attribute names", "Missing attribute handling on the SP", "Transforming attribute values at release"],
+          "tools": ["Keycloak", "python3-saml", "Okta", "Shibboleth IdP"],
+          "lab_task": "In Keycloak add protocol mappers that release email, a display name and a multi-valued groups attribute to your SAML client. Log in and confirm each appears in the assertion AttributeStatement with the expected NameFormat. In python3-saml read the attributes after login and print the groups list to confirm it has more than one value.",
+          "deliverable": "Assertion with three released attributes and SP-side output showing the parsed multi-valued groups",
+          "checks": [["Inspect the AttributeStatement after login", "Email, display name and groups attributes are present", "Assertion excerpt"], ["Read the groups attribute on the SP", "The parsed value is a list with multiple members", "App output"], ["Read the email attribute NameFormat", "It is the URI NameFormat value", "Highlighted XML"]],
+          "objectives": ["Map IdP fields to SAML attributes", "Release and read multi-valued claims", "Confirm attribute NameFormat values"]
+        },
+        {
+          "topic": "XML Digital Signatures on Assertions and Responses",
+          "subtopics": ["Enveloped signature over Response or Assertion", "ds:SignedInfo, Reference and DigestValue", "Canonicalization method c14n", "SignatureMethod rsa-sha256", "The signed Reference URI and the ID attribute", "KeyInfo carrying the X.509 certificate", "Verifying a signature with xmlsec1", "Signing the Response, the Assertion, or both", "Why the digest covers the referenced element", "Detecting a broken or missing signature"],
+          "tools": ["xmlsec1", "OpenSSL", "SAML-tracer", "samltool.com"],
+          "lab_task": "Save one signed SAML Response and verify its signature with xmlsec1 using the IdP certificate. Read the SignatureMethod and DigestMethod from SignedInfo. Then change one character inside the signed assertion, re-run verification and confirm xmlsec1 reports a digest or signature mismatch so the tampering is detected.",
+          "deliverable": "A passing xmlsec1 verification and a failing one after tampering, with the algorithms recorded",
+          "checks": [["Verify the untouched Response with xmlsec1", "Verification succeeds and reports OK", "xmlsec1 output"], ["Read the SignatureMethod in SignedInfo", "It is the rsa-sha256 algorithm URI", "XML excerpt"], ["Alter one byte of the assertion and re-verify", "xmlsec1 reports a signature or digest failure", "xmlsec1 output"]],
+          "objectives": ["Explain enveloped XML signature structure", "Verify a signature with xmlsec1", "Detect tampering through digest failure"]
+        },
+        {
+          "topic": "Inspecting Flows with SAML-tracer",
+          "subtopics": ["Installing the SAML-tracer browser extension", "Capturing requests and responses live", "The SAML tab showing decoded XML", "Reading the summary of parties and bindings", "Exporting a trace to a JSON file", "Correlating redirects across the flow", "Spotting RelayState in each message", "Reading the parsed assertion attributes", "Masking sensitive values before sharing", "Comparing a good and a failed login capture"],
+          "tools": ["SAML-tracer", "Browser DevTools", "Keycloak", "python3-saml"],
+          "lab_task": "Use SAML-tracer to capture a complete SP-initiated login. From the SAML tab, read the decoded AuthnRequest and Response without manual base64 work. Export the trace to JSON, then redact the NameID and any email before sharing. Identify the RelayState value as it travels through the flow.",
+          "deliverable": "A redacted SAML-tracer JSON export annotated with the AuthnRequest, Response and RelayState",
+          "checks": [["Open the SAML tab for a captured Response", "The decoded assertion XML is shown without manual decoding", "Tool screenshot"], ["Track RelayState through the messages", "The same RelayState value appears on request and response", "Annotated trace"], ["Export and redact the trace", "A JSON file is produced with NameID and email removed", "Redacted file"]],
+          "objectives": ["Capture SSO flows with SAML-tracer", "Read decoded messages in the tool", "Export and safely share a trace"]
+        },
+        {
+          "topic": "The Assertion Consumer Service and RelayState",
+          "subtopics": ["ACS URL as the SP landing endpoint", "Multiple ACS endpoints by index", "AssertionConsumerServiceIndex on requests", "Matching Response Destination to the ACS", "RelayState carrying the original URL", "Validating RelayState against an allowlist", "Open redirect risk from unchecked RelayState", "Default RelayState for IdP-initiated logins", "Posting the Response into the ACS handler", "Session creation after ACS processing"],
+          "tools": ["python3-saml", "Keycloak", "SAML-tracer", "Browser DevTools"],
+          "lab_task": "Implement an ACS handler in python3-saml that processes the posted Response, validates it and reads RelayState. Make the handler redirect only to RelayState values on an allowlist and reject external URLs. Log in with a deep link in RelayState and confirm the user returns there; then attempt an external RelayState and confirm it is refused.",
+          "deliverable": "ACS handler that honours allowlisted RelayState and blocks external redirects, with both outcomes logged",
+          "checks": [["Log in with an allowlisted deep link in RelayState", "The user is redirected to the original deep link", "App log"], ["Submit an external URL as RelayState", "The handler refuses the redirect and logs a rejection", "Rejection log"], ["Compare Response Destination with the ACS URL", "The two values match exactly", "Trace and config"]],
+          "objectives": ["Process a Response at the ACS endpoint", "Use RelayState to restore the target URL", "Prevent open-redirect abuse of RelayState"]
+        },
+        {
+          "topic": "Conditions, Audience Restriction and Time Windows",
+          "subtopics": ["saml:Conditions NotBefore and NotOnOrAfter", "Clock skew tolerance on the SP", "AudienceRestriction and the Audience URI", "OneTimeUse and ProxyRestriction conditions", "SubjectConfirmationData NotOnOrAfter", "Recipient matching the ACS URL", "Rejecting expired assertions", "Why audience must equal the SP entityID", "Time synchronisation with NTP", "Diagnosing NotBefore failures from skew"],
+          "tools": ["python3-saml", "SAML-tracer", "xmlsec1", "samltool.com"],
+          "lab_task": "Capture an assertion and record its NotBefore, NotOnOrAfter and AudienceRestriction. In python3-saml confirm a login succeeds inside the window. Then set the server clock forward past NotOnOrAfter, replay the same assertion and confirm the SP rejects it as expired. Note the allowed clock-skew setting.",
+          "deliverable": "Timing analysis showing acceptance inside the window and rejection once the assertion has expired",
+          "checks": [["Process the assertion within its validity window", "The SP accepts it and creates a session", "App log"], ["Replay the assertion after NotOnOrAfter passes", "The SP rejects it as expired", "Rejection log"], ["Read the AudienceRestriction value", "It equals the Service Provider entityID", "Assertion excerpt"]],
+          "objectives": ["Interpret SAML condition elements", "Enforce assertion validity windows", "Diagnose clock-skew failures"]
+        },
+        {
+          "topic": "Certificates, Key Pairs and xmlsec1 Basics",
+          "subtopics": ["RSA key pair generation with OpenSSL", "Self-signed X.509 for a lab IdP or SP", "PEM and DER certificate encodings", "Reading certificate subject, issuer and validity", "Computing SHA-256 certificate fingerprints", "Embedding certificates in SAML metadata", "Signing an XML file with xmlsec1", "Verifying a signed XML file with xmlsec1", "Private-key protection and file permissions", "Certificate expiry and renewal reminders"],
+          "tools": ["OpenSSL", "xmlsec1", "Keycloak", "python3-saml"],
+          "lab_task": "Generate a 2048-bit RSA key and a self-signed certificate with OpenSSL for a lab SP. Read its validity with openssl x509 -noout -dates and compute the SHA-256 fingerprint. Sign a sample XML document with xmlsec1 using the key, then verify it with the certificate and confirm the signature validates.",
+          "deliverable": "A lab key pair, decoded certificate details, fingerprint and a signed-then-verified sample XML file",
+          "checks": [["Generate the key and self-signed certificate", "OpenSSL writes a valid key file and X.509 certificate", "Terminal output"], ["Read the certificate validity dates", "NotBefore and NotAfter dates are printed", "openssl output"], ["Sign and verify a sample XML with xmlsec1", "Verification reports the signature is OK", "xmlsec1 output"]],
+          "objectives": ["Generate keys and certificates with OpenSSL", "Inspect certificate details and fingerprints", "Sign and verify XML with xmlsec1"]
+        },
+        {
+          "topic": "Running a Local IdP with SimpleSAMLphp",
+          "subtopics": ["Installing SimpleSAMLphp in a lab", "Enabling the saml2 IdP module", "Configuring the example authsource users", "Publishing IdP metadata", "Registering an SP in the IdP metadata store", "Mapping test users to attributes", "Signing assertions with the IdP key", "Testing login from the admin page", "Reading the SimpleSAMLphp log file", "Resetting state between test logins"],
+          "tools": ["SimpleSAMLphp", "python3-saml", "SAML-tracer", "OpenSSL"],
+          "lab_task": "Stand up SimpleSAMLphp as a lab IdP, enable the IdP module and define two test users with attributes in the example authsource. Publish the IdP metadata and register your python3-saml SP. Complete a login as one test user and confirm the released attributes appear in the assertion, using the SimpleSAMLphp log to trace the flow.",
+          "deliverable": "A running SimpleSAMLphp IdP with two test users and a successful login releasing the expected attributes",
+          "checks": [["Open the published IdP metadata URL", "Valid IDPSSODescriptor metadata is served", "Browser view"], ["Log in as a defined test user", "Authentication succeeds and attributes are released", "Assertion excerpt"], ["Check the SimpleSAMLphp log for the login", "The log records the authentication and attribute release", "Log excerpt"]],
+          "objectives": ["Run a local SAML IdP for testing", "Define test users and attribute release", "Trace logins through IdP logs"]
+        },
+        {
+          "topic": "Connecting a python3-saml Service Provider",
+          "subtopics": ["Installing python3-saml and its dependencies", "The settings.json and advanced_settings structure", "sp block: entityID, ACS and SLS URLs", "idp block: SSO URL, SLO URL and x509cert", "Generating SP metadata from settings", "Building the login redirect with the toolkit", "Processing the Response at the ACS", "Reading NameID, attributes and SessionIndex", "Enabling wantAssertionsSigned", "Handling toolkit error arrays"],
+          "tools": ["python3-saml", "Keycloak", "SAML-tracer", "samltool.com"],
+          "lab_task": "Configure a python3-saml SP with entityID, ACS and SLS URLs and the IdP SSO URL and certificate. Enable wantAssertionsSigned. Build the login URL, complete SSO against Keycloak and process the Response at the ACS. Print the NameID, attributes and SessionIndex, and show the toolkit error list is empty on success.",
+          "deliverable": "A working python3-saml SP printing NameID, attributes and SessionIndex with no toolkit errors",
+          "checks": [["Complete a login and read the error list", "The toolkit reports an empty error array", "App output"], ["Print the authenticated NameID", "The expected user identifier is shown", "App output"], ["Read the SessionIndex from the assertion", "A non-empty SessionIndex value is captured", "App output"]],
+          "objectives": ["Configure a python3-saml SP", "Process and read a SAML Response", "Capture identity and session data"]
+        },
+        {
+          "topic": "Single Logout Request and Response Basics",
+          "subtopics": ["SLO goal: end sessions across parties", "samlp:LogoutRequest with NameID and SessionIndex", "samlp:LogoutResponse and its status", "Front-channel SLO over HTTP-Redirect", "SP-initiated versus IdP-initiated logout", "Why SessionIndex ties logout to a session", "Signing LogoutRequest and LogoutResponse", "Partial logout and best-effort semantics", "Testing SLO against Keycloak", "Clearing the local SP session on logout"],
+          "tools": ["python3-saml", "Keycloak", "SAML-tracer", "xmlsec1"],
+          "lab_task": "Implement SP-initiated SLO in python3-saml. After login, build a signed LogoutRequest carrying the user NameID and SessionIndex and send it to the IdP SLO endpoint. Capture the LogoutResponse, confirm a Success status and verify the local SP session is cleared and a protected page now prompts for login again.",
+          "deliverable": "A working SP-initiated SLO with a captured signed LogoutRequest and a Success LogoutResponse",
+          "checks": [["Send the LogoutRequest and read the response status", "The LogoutResponse status is Success", "Trace detail"], ["Confirm the LogoutRequest carries the session data", "Both NameID and SessionIndex are present", "Request XML"], ["Visit a protected page after logout", "The SP requires a fresh login", "App screenshot"]],
+          "objectives": ["Explain the SAML SLO message pair", "Trigger SP-initiated single logout", "Clear local sessions on logout"]
+        },
+        {
+          "topic": "Common SAML Errors and Status Codes",
+          "subtopics": ["StatusCode Responder, Requester and VersionMismatch", "Invalid audience rejection on the SP", "Signature validation failures", "Expired assertion NotOnOrAfter errors", "Clock-skew NotBefore failures", "ACS or Destination mismatch errors", "Unknown or wrong IdP certificate", "Missing or wrong entityID", "Reading SP toolkit error arrays", "Turning errors into user-friendly messages"],
+          "tools": ["python3-saml", "SAML-tracer", "Keycloak", "xmlsec1"],
+          "lab_task": "Deliberately break three things in turn against your python3-saml SP: use a wrong IdP certificate, set a mismatched audience, and replay an expired assertion. For each, capture the toolkit error and the SAML status, record the exact error string and write one clear remediation step a support engineer could follow.",
+          "deliverable": "An error catalogue of three failures, each with the captured message, cause and a remediation step",
+          "checks": [["Process a Response signed by a wrong certificate", "The toolkit reports a signature validation error", "Error log"], ["Process an assertion with a mismatched audience", "The toolkit reports an invalid audience error", "Error log"], ["Replay an expired assertion", "The toolkit reports an assertion-expired error", "Error log"]],
+          "objectives": ["Recognise common SAML failure modes", "Map status codes to root causes", "Write actionable remediation notes"]
+        },
+        {
+          "topic": "Capstone: Keycloak IdP to python3-saml SP SSO",
+          "subtopics": ["Keycloak realm and SAML client setup", "python3-saml SP settings and metadata", "Attribute mappers for email and groups", "Signed assertions and verified signatures", "SP-initiated login with RelayState deep link", "Single logout clearing both sessions"],
+          "tools": ["Keycloak", "python3-saml", "SAML-tracer", "xmlsec1", "OpenSSL"],
+          "lab_task": "Build an end-to-end lab: configure Keycloak as the IdP and a python3-saml SP, exchange metadata and release email and groups attributes. Demonstrate an SP-initiated login that honours a RelayState deep link, verify the assertion signature with the IdP certificate, then perform single logout and confirm both the SP and IdP sessions end.",
+          "deliverable": "A complete working SAML lab with documented config, a captured login and a verified logout",
+          "checks": [["Complete SP-initiated login with a deep link", "The user lands on the deep-link page with a session", "App screenshot"], ["Verify the assertion signature", "Verification against the IdP certificate succeeds", "xmlsec1 output"], ["Perform single logout", "Both SP and IdP sessions are ended", "SLO trace"]],
+          "objectives": ["Integrate a real IdP and SP end to end", "Release and consume user attributes", "Demonstrate login and single logout"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers integrating applications with production identity providers. Covers configuring Entra ID, Okta, ADFS, Shibboleth and Keycloak as SAML IdPs, Spring Security SAML and python3-saml service providers, attribute and NameID mapping, assertion encryption, signature validation and trust pinning, the HTTP-Artifact binding, RelayState deep-link handling, just-in-time provisioning, session and logout management, ForceAuthn and AuthnContext including MFA step-up, metadata generation and validation, RSA-SHA256 signing, and mapping groups to application authorization across multiple IdPs.",
+      "prerequisites": ["Completed the beginner level or has run a SAML SSO flow end to end", "Has administrative access to at least one IdP such as Keycloak, Okta, Entra ID or ADFS in a test tenant", "Can build and run a Python or Spring Boot service provider and edit its SAML settings"],
+      "outcomes": ["Configure Entra ID, Okta, ADFS, Shibboleth or Keycloak as a SAML identity provider", "Map NameID, attributes, groups and roles reliably between an IdP and an SP", "Enable assertion encryption, strict signature validation and SHA-256 signing", "Handle sessions, RelayState, just-in-time provisioning, MFA step-up and single logout"],
+      "days": [
+        {
+          "topic": "Configuring Entra ID as a SAML Identity Provider",
+          "subtopics": ["Enterprise application and SAML single sign-on blade", "Identifier (entityID) and Reply URL (ACS)", "Sign-on URL and RelayState for the app", "Claims: Unique User Identifier and extra claims", "Federation Metadata XML download", "Token signing certificate and rollover", "User and group assignment to the app", "Conditional Access interaction with SAML", "Testing with the Entra SSO test button", "Reading the sign-in logs for SAML errors"],
+          "tools": ["Entra ID", "python3-saml", "SAML-tracer", "samltool.com"],
+          "lab_task": "In Entra ID create an enterprise application, set the Identifier and Reply URL to your SP values and map the NameID to user email. Add a groups claim, download the Federation Metadata XML and import it into your python3-saml SP. Assign a test user, run the Entra test login and confirm the groups claim arrives in the assertion.",
+          "deliverable": "An Entra enterprise app configured for SAML with federation metadata imported and a successful test login",
+          "checks": [["Run the Entra SSO test for the app", "The test reports a successful SAML sign-in", "Entra test result"], ["Inspect the assertion for the groups claim", "The configured groups claim is present", "Assertion excerpt"], ["Import the federation metadata into the SP", "The SP loads the IdP SSO URL and certificate without error", "SP config"]],
+          "objectives": ["Configure Entra ID for SAML SSO", "Map NameID and additional claims", "Validate sign-in from Entra logs"]
+        },
+        {
+          "topic": "Configuring Okta as a SAML Identity Provider",
+          "subtopics": ["Creating a SAML 2.0 app integration", "Single sign-on URL and Audience URI", "Name ID format and application username", "Attribute statements and group attribute filters", "Okta IdP metadata and certificate", "Assigning users and groups to the app", "RelayState default for the app", "SAML assertion signing options", "Preview the SAML assertion in Okta", "Okta System Log for SSO troubleshooting"],
+          "tools": ["Okta", "python3-saml", "SAML-tracer", "samltool.com"],
+          "lab_task": "In Okta create a SAML 2.0 app integration with your ACS as the single sign-on URL and your entityID as the Audience URI. Add email and a filtered group attribute statement. Use Okta's Preview the SAML Assertion to inspect the output, import Okta metadata into your SP, assign a user and complete a login.",
+          "deliverable": "An Okta SAML app with attribute statements, previewed assertion and a working login into the SP",
+          "checks": [["Use Preview the SAML Assertion in Okta", "A valid signed assertion with the configured attributes is shown", "Okta preview"], ["Complete a login into the SP", "The SP establishes a session for the Okta user", "App screenshot"], ["Check the group attribute statement", "Only groups matching the filter are released", "Assertion excerpt"]],
+          "objectives": ["Create an Okta SAML app integration", "Configure attribute statements and filters", "Troubleshoot using the Okta System Log"]
+        },
+        {
+          "topic": "ADFS Relying Party Trusts and Claim Rules",
+          "subtopics": ["Adding a relying party trust from metadata", "Federation service identifier and endpoints", "Claim rules language and pass-through rules", "Transform rules from LDAP attributes", "Name ID claim via the nameidentifier type", "Token-signing certificate and rollover", "SAML versus WS-Federation endpoints", "Secure hash algorithm SHA-256 on the trust", "Sign-out endpoints for SLO", "ADFS event log for failed tokens"],
+          "tools": ["ADFS", "python3-saml", "SAML-tracer", "samltool.com"],
+          "lab_task": "Add a relying party trust in ADFS from your SP metadata. Write claim rules that send the email LDAP attribute as the NameID and pass group membership as a role claim. Set the secure hash algorithm to SHA-256, then complete a login and confirm the NameID and role claims arrive as configured in the assertion.",
+          "deliverable": "An ADFS relying party trust with claim rules producing the expected NameID and role claims",
+          "checks": [["Complete a login through the ADFS trust", "The SP receives a valid signed token and signs the user in", "App screenshot"], ["Inspect the NameID claim", "It carries the user email from the transform rule", "Assertion excerpt"], ["Read the secure hash algorithm on the trust", "It is set to SHA-256", "ADFS trust properties"]],
+          "objectives": ["Create an ADFS relying party trust", "Author claim rules for NameID and roles", "Set SHA-256 token signing"]
+        },
+        {
+          "topic": "Shibboleth IdP Attribute Resolution and Release",
+          "subtopics": ["attribute-resolver connectors and definitions", "LDAP data connector for user lookup", "Scoped attributes such as eduPersonScopedAffiliation", "attribute-filter release policies per SP", "Mapping to SAML2 attribute encoders", "persistent NameID generation configuration", "relying-party overrides per SP", "metadata-providers for SP metadata", "idp-process.log for resolution tracing", "Reloading service configuration without restart"],
+          "tools": ["Shibboleth IdP", "python3-saml", "SAML-tracer", "xmlsec1"],
+          "lab_task": "In a Shibboleth IdP define an LDAP connector and resolve email and eduPersonScopedAffiliation. Write an attribute-filter policy releasing both to your SP only. Register the SP metadata, then log in and confirm the scoped affiliation and email appear in the assertion while an unreleased attribute is withheld.",
+          "deliverable": "A Shibboleth attribute-filter policy releasing only the intended attributes to the registered SP",
+          "checks": [["Log in and inspect released attributes", "Email and scoped affiliation are present in the assertion", "Assertion excerpt"], ["Check an attribute not in the release policy", "That attribute is absent from the assertion", "Assertion excerpt"], ["Review idp-process.log for the login", "The log shows attribute resolution and filtering steps", "Log excerpt"]],
+          "objectives": ["Resolve attributes from LDAP in Shibboleth", "Write per-SP attribute release policies", "Trace resolution in the IdP log"]
+        },
+        {
+          "topic": "Keycloak SAML Client Scopes and Mappers",
+          "subtopics": ["SAML client scopes and default assignment", "User Property and User Attribute mappers", "Role list mapper and group membership mapper", "Hardcoded attribute and script mappers", "NameID mapper and format selection", "Signing and encryption client settings", "Force POST binding and name ID format options", "Client-specific assertion lifespan", "Exporting client SAML metadata", "Testing mappers from the Keycloak admin console"],
+          "tools": ["Keycloak", "python3-saml", "SAML-tracer", "samltool.com"],
+          "lab_task": "In Keycloak build a client scope with a role list mapper, a user attribute mapper for department and a group membership mapper. Attach it to your SAML client, log in and confirm the roles, department and group paths appear in the assertion. Set the NameID mapper to email format and verify the Subject NameID is the user email.",
+          "deliverable": "A Keycloak client scope with three mappers producing roles, department and groups in the assertion",
+          "checks": [["Log in and inspect the role list attribute", "The user realm and client roles are listed", "Assertion excerpt"], ["Read the NameID after setting the email mapper", "The Subject NameID is the user email address", "Assertion excerpt"], ["Check the group membership mapper output", "Group paths are released as a multi-valued attribute", "Assertion excerpt"]],
+          "objectives": ["Build reusable SAML client scopes", "Configure role, attribute and group mappers", "Control the NameID format per client"]
+        },
+        {
+          "topic": "Spring Security SAML Service Provider Configuration",
+          "subtopics": ["spring-security-saml2-service-provider dependency", "RelyingPartyRegistration and its builder", "AssertingPartyDetails from IdP metadata", "Signing and decryption credentials", "Saml2WebSsoAuthenticationFilter flow", "assertingPartyDetails wantAuthnRequestsSigned", "Mapping assertion attributes to authorities", "Custom ResponseAuthenticationConverter", "singleLogout configuration", "Actuator and logs for SAML debugging"],
+          "tools": ["Spring Security SAML", "python3-saml", "SAML-tracer", "Keycloak"],
+          "lab_task": "Configure a Spring Boot app with spring-security-saml2-service-provider. Build a RelyingPartyRegistration from Keycloak IdP metadata with signing and decryption credentials. Map a groups attribute to granted authorities with a custom converter, then log in and confirm an authenticated principal with the expected authorities reaches a secured endpoint.",
+          "deliverable": "A Spring Security SAML SP authenticating against Keycloak with attributes mapped to authorities",
+          "checks": [["Access a secured endpoint after login", "The authenticated principal reaches the endpoint successfully", "App response"], ["Inspect granted authorities on the principal", "They match the groups released in the assertion", "Debug log"], ["Trigger login without a registration match", "Spring returns a SAML relying party not found error", "Error log"]],
+          "objectives": ["Configure a Spring Security SAML SP", "Map SAML attributes to authorities", "Debug Spring SAML authentication"]
+        },
+        {
+          "topic": "Encrypting Assertions and EncryptedID Handling",
+          "subtopics": ["xenc:EncryptedData inside EncryptedAssertion", "Session key wrapped with the SP public key", "Block cipher aes256-cbc or aes256-gcm", "rsa-oaep key transport algorithm", "SP decryption key in the KeyDescriptor", "EncryptedID protecting the NameID", "Enabling assertion encryption on the IdP", "Decrypting with xmlsec1 and a private key", "Encryption versus signing trade-offs", "When transport TLS is not enough"],
+          "tools": ["xmlsec1", "Keycloak", "python3-saml", "OpenSSL"],
+          "lab_task": "Enable assertion encryption on a Keycloak client using your SP encryption certificate. Capture an EncryptedAssertion and confirm the assertion body is not readable in the raw XML. Decrypt it with xmlsec1 and the SP private key, then confirm the recovered NameID and attributes match what the IdP released.",
+          "deliverable": "An encrypted assertion captured and successfully decrypted to recover the original claims",
+          "checks": [["Inspect the raw encrypted Response", "An EncryptedAssertion is present and the claims are not readable", "Raw XML"], ["Decrypt the assertion with xmlsec1", "The plaintext assertion with NameID and attributes is recovered", "Decrypted XML"], ["Read the key transport algorithm used", "It is the rsa-oaep algorithm URI", "EncryptedKey excerpt"]],
+          "objectives": ["Explain SAML assertion encryption", "Enable encryption on the IdP", "Decrypt assertions with the SP key"]
+        },
+        {
+          "topic": "Signature Validation Rules and Trust Anchors",
+          "subtopics": ["Validating against the configured IdP certificate", "Pinning by certificate rather than CA chain", "Rejecting signatures from unknown keys", "Checking the signed element matches the ID", "Enforcing signature on Response or Assertion", "Disallowing unsigned assertions", "Certificate fingerprint pinning options", "Handling multiple valid IdP certificates", "KeyInfo spoofing and ignoring embedded keys", "Logging the validating certificate subject"],
+          "tools": ["python3-saml", "xmlsec1", "Keycloak", "SAML-tracer"],
+          "lab_task": "Harden python3-saml to require signed assertions and validate only against the configured IdP certificate, ignoring any certificate embedded in KeyInfo. Verify a genuine login passes. Then craft a Response signed by an attacker key with that key placed in KeyInfo and confirm your SP rejects it rather than trusting the embedded certificate.",
+          "deliverable": "A validation configuration that pins the IdP certificate and rejects attacker-supplied embedded keys",
+          "checks": [["Process a genuine signed assertion", "Validation succeeds against the pinned IdP certificate", "App log"], ["Submit a Response signed by an unknown key in KeyInfo", "The SP rejects it as an untrusted signature", "Rejection log"], ["Submit an unsigned assertion", "The SP refuses it because signing is required", "Rejection log"]],
+          "objectives": ["Pin trust to the configured IdP key", "Reject unknown or embedded signing keys", "Require signatures on assertions"]
+        },
+        {
+          "topic": "HTTP-Artifact Binding and the Artifact Resolution Service",
+          "subtopics": ["SAMLart artifact token on the front channel", "TypeCode, EndpointIndex and SourceID", "ArtifactResolve request on the back channel", "ArtifactResponse returning the assertion", "SOAP over TLS for artifact resolution", "ArtifactResolutionService in metadata", "Why artifacts avoid passing assertions in the browser", "Mutual TLS or signing on the ARS", "One-time artifact consumption", "Comparing Artifact with POST binding"],
+          "tools": ["Shibboleth IdP", "SimpleSAMLphp", "SAML-tracer", "curl"],
+          "lab_task": "Configure an IdP and SP that support HTTP-Artifact. Trigger a login and capture the SAMLart value delivered to the browser. Observe the back-channel ArtifactResolve SOAP call and the ArtifactResponse carrying the assertion. Confirm the artifact cannot be resolved a second time because it is consumed once.",
+          "deliverable": "An Artifact-binding login capture showing the front-channel artifact and the back-channel resolution",
+          "checks": [["Capture the front-channel redirect", "A SAMLart artifact value is delivered instead of the assertion", "Trace detail"], ["Observe the ArtifactResolve exchange", "An ArtifactResponse returns the full assertion over the back channel", "SOAP capture"], ["Attempt to resolve the same artifact twice", "The second resolution fails because the artifact is consumed", "ARS log"]],
+          "objectives": ["Explain the HTTP-Artifact binding", "Trace front and back channel steps", "Enforce one-time artifact use"]
+        },
+        {
+          "topic": "RelayState Deep Links and Return URL Handling",
+          "subtopics": ["RelayState purpose across both flows", "Encoding the original request URL", "Default RelayState for IdP-initiated logins", "Allowlisting return targets", "Open redirect prevention patterns", "RelayState 80-byte guidance", "Opaque state keys versus raw URLs", "Preserving query parameters through SSO", "RelayState and SLO return handling", "Testing deep-link restoration"],
+          "tools": ["python3-saml", "Keycloak", "SAML-tracer", "Browser DevTools"],
+          "lab_task": "Implement return-URL handling that stores the original deep link under an opaque RelayState key in server-side state rather than passing the raw URL. After SSO, resolve the key back to the URL and redirect only if it is internal. Verify a deep link with query parameters is restored exactly and an external key is rejected.",
+          "deliverable": "A RelayState scheme using opaque keys that restores internal deep links and blocks external ones",
+          "checks": [["Log in from a deep link with query parameters", "The user returns to the exact URL including its query string", "App log"], ["Resolve a RelayState key that maps to an external URL", "The redirect is refused", "Rejection log"], ["Inspect the RelayState value on the wire", "It is an opaque key, not the raw destination URL", "Trace detail"]],
+          "objectives": ["Carry deep links safely through SSO", "Use opaque RelayState keys", "Prevent open-redirect abuse"]
+        },
+        {
+          "topic": "Just-in-Time User Provisioning from Attributes",
+          "subtopics": ["Creating local accounts on first SSO login", "Mapping NameID to a stable local key", "Populating profile fields from attributes", "Updating attributes on each login", "Role and group sync from claims", "Handling missing required attributes", "Persistent NameID for account linking", "Deactivation when access is removed", "Avoiding duplicate accounts", "Auditing JIT account creation"],
+          "tools": ["python3-saml", "Keycloak", "Okta", "SAML-tracer"],
+          "lab_task": "Add just-in-time provisioning to a python3-saml SP: on first login create a local user keyed by the persistent NameID and fill name, email and roles from attributes. On a later login with changed roles, update the existing account rather than creating a new one. Confirm no duplicate account is created across repeated logins.",
+          "deliverable": "A JIT provisioning flow that creates accounts on first login and updates them on later logins",
+          "checks": [["Log in a brand-new user", "A local account is created from the assertion attributes", "Database row"], ["Log in again after changing a role claim", "The existing account is updated with the new role", "Database row"], ["Log in the same user repeatedly", "No duplicate account is created", "Account count"]],
+          "objectives": ["Provision accounts from SAML attributes", "Key accounts to a stable NameID", "Keep profiles in sync on login"]
+        },
+        {
+          "topic": "Session Management and SAML Logout Propagation",
+          "subtopics": ["Local SP session versus IdP session", "SessionIndex linking the two", "Session fixation prevention on login", "Idle and absolute session timeouts", "Propagating logout to the IdP", "Receiving IdP-initiated LogoutRequest", "Clearing cookies and server-side state", "Back-channel versus front-channel SLO", "Multiple SP sessions for one IdP session", "Logging session create and destroy events"],
+          "tools": ["python3-saml", "Keycloak", "SAML-tracer", "Spring Security SAML"],
+          "lab_task": "Implement session handling on the SP that records the SessionIndex at login and regenerates the session id to prevent fixation. Handle an IdP-initiated LogoutRequest by matching its SessionIndex, clearing the local session and returning a LogoutResponse. Confirm a protected page requires re-login afterward.",
+          "deliverable": "An SP session layer that resists fixation and honours IdP-initiated logout by SessionIndex",
+          "checks": [["Compare session ids before and after login", "The session id is regenerated at authentication", "Session log"], ["Receive an IdP-initiated LogoutRequest", "The matching local session is cleared and a Success LogoutResponse is returned", "SLO trace"], ["Access a protected page after logout", "The SP requires a new login", "App screenshot"]],
+          "objectives": ["Link SP sessions to SessionIndex", "Prevent session fixation at login", "Honour IdP-initiated logout"]
+        },
+        {
+          "topic": "ForceAuthn, IsPassive and AuthnContext Classes",
+          "subtopics": ["ForceAuthn demanding fresh authentication", "IsPassive for silent SSO attempts", "NoPassive status when interaction is needed", "RequestedAuthnContext in the AuthnRequest", "Comparison attribute exact, minimum, better", "PasswordProtectedTransport context class", "AuthnContextClassRef in the response", "Mapping context classes to assurance levels", "Re-authentication for sensitive actions", "Testing ForceAuthn against Keycloak"],
+          "tools": ["python3-saml", "Keycloak", "SAML-tracer", "Entra ID"],
+          "lab_task": "Send an AuthnRequest with ForceAuthn set and confirm Keycloak re-prompts for credentials even within an active session. Send a second request with IsPassive and confirm a NoPassive status when login would require interaction. Read the AuthnContextClassRef returned in a normal login and record its value.",
+          "deliverable": "Captures showing ForceAuthn re-prompting, IsPassive returning NoPassive, and the returned context class",
+          "checks": [["Send ForceAuthn within an active session", "The IdP re-prompts the user for credentials", "Trace and screenshot"], ["Send IsPassive when interaction is required", "The IdP returns a NoPassive status", "Response XML"], ["Read the AuthnContextClassRef in a normal login", "It names the PasswordProtectedTransport class", "Assertion excerpt"]],
+          "objectives": ["Use ForceAuthn and IsPassive correctly", "Request specific AuthnContext classes", "Interpret returned context references"]
+        },
+        {
+          "topic": "Multi-Factor Step-Up with AuthnContext Requests",
+          "subtopics": ["Requesting an MFA AuthnContext class", "Vendor context refs for MFA", "Comparison minimum for step-up", "Entra ID authentication strength claims", "Okta authentication policies for SAML apps", "Keycloak authentication flows and conditions", "Mapping satisfied MFA to a response class", "Failing closed when MFA is unmet", "Step-up only for sensitive operations", "Verifying the returned context matches"],
+          "tools": ["Entra ID", "Okta", "Keycloak", "SAML-tracer"],
+          "lab_task": "Configure the IdP to require MFA when the SP requests a multi-factor AuthnContext. From the SP send a RequestedAuthnContext for MFA with comparison minimum. Complete the MFA challenge, then confirm the returned AuthnContextClassRef reflects multi-factor authentication and that a request without satisfying MFA is refused.",
+          "deliverable": "A step-up flow where an MFA AuthnContext request forces and confirms multi-factor authentication",
+          "checks": [["Request an MFA context and complete the challenge", "The returned AuthnContextClassRef indicates multi-factor authentication", "Assertion excerpt"], ["Attempt the flow without completing MFA", "The IdP refuses to issue a satisfying assertion", "Error or status"], ["Send a request with comparison minimum", "A context at or above the requested strength is returned", "Response XML"]],
+          "objectives": ["Request MFA via AuthnContext", "Confirm step-up in the response", "Fail closed when MFA is unmet"]
+        },
+        {
+          "topic": "SP Metadata Generation and Validation Tooling",
+          "subtopics": ["Generating metadata from SP settings", "Declaring ACS endpoints and indices", "Advertising SLO endpoints", "Publishing signing and encryption certificates", "WantAssertionsSigned and AuthnRequestsSigned flags", "Setting validUntil and cacheDuration", "Signing the metadata document itself", "Validating against the SAML metadata schema", "Linting with samltool.com", "Serving metadata at a stable URL"],
+          "tools": ["python3-saml", "samltool.com", "xmlsec1", "SimpleSAMLphp"],
+          "lab_task": "Generate SP metadata from python3-saml settings, sign the metadata document with xmlsec1 and set a validUntil one year out. Validate it against the SAML metadata schema with xmllint and run it through samltool.com. Confirm both signing and encryption certificates are published and that the ACS endpoints carry correct indices.",
+          "deliverable": "Signed, schema-valid SP metadata with both certificates and validity, served at a stable URL",
+          "checks": [["Validate the metadata against the schema", "xmllint reports the document is valid", "Validation output"], ["Verify the metadata document signature", "xmlsec1 confirms the metadata signature is valid", "xmlsec1 output"], ["Check the published KeyDescriptors", "Both signing and encryption certificates are present", "Metadata excerpt"]],
+          "objectives": ["Generate and sign SP metadata", "Validate metadata against the schema", "Publish certificates and endpoints"]
+        },
+        {
+          "topic": "Signing with RSA-SHA256 and Canonicalization Choices",
+          "subtopics": ["SignatureMethod rsa-sha256 over rsa-sha1", "DigestMethod sha256", "Exclusive canonicalization exc-c14n", "InclusiveNamespaces PrefixList", "Why SHA-1 signatures are deprecated", "Transforms: enveloped-signature then c14n", "Namespace handling that breaks digests", "Configuring algorithms in python3-saml", "Verifying algorithm choices with xmlsec1", "Negotiating algorithms with an IdP"],
+          "tools": ["python3-saml", "xmlsec1", "Keycloak", "samltool.com"],
+          "lab_task": "Configure python3-saml to sign requests with rsa-sha256 and exclusive canonicalization, and to reject rsa-sha1 signatures from the IdP. Capture a signed AuthnRequest and confirm the SignatureMethod and DigestMethod are the SHA-256 URIs. Then present a SHA-1 signed response and confirm the SP rejects the weak algorithm.",
+          "deliverable": "A signing configuration enforcing SHA-256 and exclusive c14n, with a weak-algorithm rejection demonstrated",
+          "checks": [["Read the SignatureMethod on a signed request", "It is the rsa-sha256 algorithm URI", "Request XML"], ["Read the DigestMethod used", "It is the sha256 algorithm URI", "SignedInfo excerpt"], ["Present a SHA-1 signed response", "The SP rejects it as a disallowed algorithm", "Rejection log"]],
+          "objectives": ["Enforce SHA-256 SAML signatures", "Apply exclusive canonicalization", "Reject deprecated algorithms"]
+        },
+        {
+          "topic": "Attribute Encoding, Formats and Multi-Valued Claims",
+          "subtopics": ["Attribute Name as a URI or OID", "NameFormat uri, basic and unspecified", "FriendlyName for human readability", "Multiple AttributeValue elements", "String, boolean and dateTime value types", "eduPerson attribute OIDs", "SCIM and LDAP source mappings", "Empty and null value handling", "Delimited versus repeated multi-value styles", "SP parsing of multi-valued attributes"],
+          "tools": ["Shibboleth IdP", "Keycloak", "python3-saml", "SAML-tracer"],
+          "lab_task": "Release three attributes with different encodings: email as a URI NameFormat string, an eduPersonEntitlement as an OID-named multi-valued attribute, and a boolean flag. On the SP parse each, confirming the multi-valued entitlement becomes a list and the boolean is read correctly rather than as the string true.",
+          "deliverable": "Three attributes released with distinct encodings and parsed correctly on the SP side",
+          "checks": [["Parse the multi-valued entitlement attribute", "It is read as a list with more than one value", "App output"], ["Read the email attribute NameFormat", "It is the URI NameFormat", "Assertion excerpt"], ["Parse the boolean flag attribute", "It is interpreted as a boolean rather than the literal string", "App output"]],
+          "objectives": ["Choose attribute Name and NameFormat", "Release multi-valued attributes", "Parse typed values on the SP"]
+        },
+        {
+          "topic": "Debugging Failed Logins from IdP and SP Logs",
+          "subtopics": ["Correlating a request ID across logs", "Reading python3-saml error arrays", "Keycloak server log SAML entries", "Okta System Log event detail", "Entra ID sign-in log error codes", "ADFS event log token failures", "Capturing the exact assertion that failed", "Distinguishing config from clock errors", "Reproducing with a saved Response", "Writing a root-cause note"],
+          "tools": ["SAML-tracer", "python3-saml", "Keycloak", "Okta"],
+          "lab_task": "Given a reported failed login, capture the Response with SAML-tracer, correlate the request ID with the IdP and SP logs, and classify the failure as signature, audience, timing or endpoint. Reproduce it from the saved Response against your SP, then write a root-cause note naming the faulty setting and the fix.",
+          "deliverable": "A debugging report correlating logs to one captured Response with a named root cause and fix",
+          "checks": [["Correlate the request ID across IdP and SP logs", "The same request ID is found in both logs", "Log excerpts"], ["Reproduce the failure from the saved Response", "The SP reproduces the identical error", "SP log"], ["Classify the failure cause", "The report names it as a signature, audience, timing or endpoint error", "Root-cause note"]],
+          "objectives": ["Correlate SAML events across logs", "Reproduce failures from captures", "Document a clear root cause"]
+        },
+        {
+          "topic": "Mapping Groups and Roles to Application Authorization",
+          "subtopics": ["Releasing group membership as attributes", "Group paths versus flat group names", "Mapping groups to application roles", "Role claims versus group claims", "Least-privilege default when unmapped", "Caching group-to-role mappings", "Handling very large group lists", "Nested groups flattened at the IdP", "Revoking access when groups change", "Auditing authorization decisions"],
+          "tools": ["Keycloak", "Okta", "python3-saml", "Spring Security SAML"],
+          "lab_task": "Release a groups attribute from the IdP and implement a mapping table on the SP that converts groups to application roles, defaulting to no access when a group is unmapped. Log in a user in an admin group and confirm admin access; log in a user with only unmapped groups and confirm they receive the least-privilege default.",
+          "deliverable": "A group-to-role mapping that grants mapped privileges and denies access for unmapped groups",
+          "checks": [["Log in a user in a mapped admin group", "The user is granted the admin application role", "Authorization log"], ["Log in a user with only unmapped groups", "The user receives the least-privilege default and is denied admin", "Authorization log"], ["Remove a user from the admin group and re-login", "Admin access is no longer granted", "Authorization log"]],
+          "objectives": ["Map SAML groups to app roles", "Default to least privilege", "Revoke access on group change"]
+        },
+        {
+          "topic": "Capstone: Multi-IdP SP Onboarding with Okta and Entra ID",
+          "subtopics": ["One SP trusting two IdPs", "Per-IdP RelayParty settings", "IdP discovery or selection at login", "Consistent NameID and attribute mapping across IdPs", "Group-to-role mapping normalised per IdP", "Separate signing certificates per IdP trust"],
+          "tools": ["Okta", "Entra ID", "python3-saml", "SAML-tracer", "Spring Security SAML"],
+          "lab_task": "Onboard a single SP to both Okta and Entra ID. Configure per-IdP settings keyed by entityID, add an IdP selection step, and normalise NameID and group-to-role mapping so a user from either IdP reaches the same role. Demonstrate successful logins from both IdPs and confirm identical authorization outcomes for equivalent users.",
+          "deliverable": "An SP federated to two IdPs with per-IdP config, IdP selection and normalised authorization",
+          "checks": [["Log in via Okta", "The user is authenticated and mapped to the correct role", "App screenshot"], ["Log in via Entra ID with an equivalent user", "The same role is granted as the Okta user", "Authorization log"], ["Select an IdP at the discovery step", "The AuthnRequest goes to the chosen IdP SSO URL", "Trace detail"]],
+          "objectives": ["Trust multiple IdPs from one SP", "Normalise identity and roles across IdPs", "Provide IdP selection at login"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior identity engineers running SAML at scale and in federations. Covers certificate and dual-key rollover without downtime, metadata aggregates, per-entity MDQ and automated refresh, the InCommon and eduGAIN federation trust model, security hardening against XML signature wrapping, XXE and replay tested on systems you own, strict audience and recipient validation, single logout across many SPs, attribute release policies and entity categories with GDPR considerations, high availability for IdP and artifact resolution, load testing, auditing and monitoring, CI metadata validation, and migrating from SAML to OpenID Connect.",
+      "prerequisites": ["Completed the intermediate level or operates SAML integrations in production", "Comfortable with PKI, XML signatures and reading SAML metadata and assertions in depth", "Has a lab with multiple IdP and SP instances and owns the systems used for security testing"],
+      "outcomes": ["Execute certificate and key rollover and manage federation metadata at scale", "Harden SAML deployments against signature wrapping, XXE and replay on systems you own", "Operate single logout, high availability and monitoring across multiple service providers", "Plan and run a migration from SAML to OpenID Connect while preserving identity and roles"],
+      "days": [
+        {
+          "topic": "Certificate Rollover Without Downtime",
+          "subtopics": ["Overlap window with old and new certificates", "Publishing both keys in IdP metadata", "SP accepting either signing certificate", "Ordering: publish, then switch signing", "Automated metadata refresh timing", "Communicating the rollover schedule", "Rolling SP decryption certificates", "Verifying validations during the overlap", "Removing the retired certificate safely", "Rollback plan if validation breaks"],
+          "tools": ["Keycloak", "python3-saml", "xmlsec1", "OpenSSL"],
+          "lab_task": "Plan and execute an IdP signing-certificate rollover with zero downtime. Publish both old and new certificates in metadata, have the SP trust both, switch the IdP to sign with the new key, and confirm logins keep succeeding throughout. After the overlap window, remove the old certificate and verify only the new one validates.",
+          "deliverable": "A documented rollover run showing uninterrupted logins and clean removal of the retired certificate",
+          "checks": [["Log in during the overlap window", "Logins succeed whether signed by the old or new key", "Login logs"], ["Switch signing to the new key and log in", "The SP validates against the new certificate", "Validation log"], ["Remove the old certificate and present an old-key signature", "The SP now rejects signatures from the retired key", "Rejection log"]],
+          "objectives": ["Plan an overlapping certificate rollover", "Keep logins working during the switch", "Retire old keys safely"]
+        },
+        {
+          "topic": "Dual Signing Keys and Key Rollover in Metadata",
+          "subtopics": ["Multiple signing KeyDescriptors in metadata", "use attribute omitted to allow both roles", "SP logic for trying each candidate key", "Preferred key ordering at signing time", "Encryption key rollover considerations", "Metadata validUntil driving refresh", "Signed metadata during key changes", "Fingerprint inventory of active keys", "Automating key generation and publication", "Detecting stale cached metadata"],
+          "tools": ["Keycloak", "python3-saml", "xmlsec1", "samltool.com"],
+          "lab_task": "Publish IdP metadata containing two signing KeyDescriptors and configure the SP to accept a signature from either. Confirm an assertion signed by key A and one signed by key B both validate. Then expire key A in metadata, refresh the SP and confirm only key B is accepted while key A is treated as untrusted.",
+          "deliverable": "Metadata carrying two signing keys with SP validation against both, then correct expiry of one key",
+          "checks": [["Validate an assertion signed by the first key", "It validates against the first KeyDescriptor", "Validation log"], ["Validate an assertion signed by the second key", "It validates against the second KeyDescriptor", "Validation log"], ["Expire the first key and present its signature", "The SP treats the first key as untrusted", "Rejection log"]],
+          "objectives": ["Publish and consume multiple signing keys", "Validate against any trusted key", "Expire keys cleanly in metadata"]
+        },
+        {
+          "topic": "Metadata Aggregates and Automated Refresh",
+          "subtopics": ["Aggregated metadata with many EntityDescriptors", "EntitiesDescriptor wrapping element", "Signing the aggregate at the federation", "Verifying the aggregate signature on load", "Scheduled refresh and cacheDuration", "Filtering an aggregate to needed entities", "Memory and parse cost of large aggregates", "Failing safe on refresh errors", "Pinning the federation signing key", "Logging refresh success and failure"],
+          "tools": ["Shibboleth IdP", "xmlsec1", "curl", "SimpleSAMLphp"],
+          "lab_task": "Consume a signed metadata aggregate: verify its signature against the federation signing certificate before trusting any entity, filter it to the SPs and IdPs you need, and schedule a refresh honouring cacheDuration. Simulate a refresh fetch failure and confirm the SP keeps using the last good metadata rather than losing trust.",
+          "deliverable": "An aggregate-consuming setup that verifies the federation signature and fails safe on refresh errors",
+          "checks": [["Load the aggregate with a valid federation signature", "Entities are trusted only after the aggregate signature verifies", "Load log"], ["Tamper with the aggregate signature", "The whole aggregate is rejected and no entity is loaded", "Rejection log"], ["Simulate a refresh fetch failure", "The SP continues using the last good metadata", "Refresh log"]],
+          "objectives": ["Verify signed metadata aggregates", "Refresh metadata on a schedule", "Fail safe when refresh fails"]
+        },
+        {
+          "topic": "Federations: InCommon and eduGAIN Trust Model",
+          "subtopics": ["Multilateral federation versus bilateral trust", "InCommon as a US research federation", "eduGAIN interfederation of national federations", "Federation operator metadata signing", "Registration authority and entity provenance", "Metadata registration policy obligations", "Entity categories signalling behaviour", "Scalability of many-to-many trust", "Opting entities into interfederation", "Trust rooted in the federation signing key"],
+          "tools": ["Shibboleth IdP", "xmlsec1", "curl", "SimpleSAMLphp"],
+          "lab_task": "Study a research-federation trust model. Fetch a federation metadata aggregate, identify the registrationAuthority on sample entities, and confirm every entity is covered by the single federation signature. Explain how an SP in one national federation can trust an IdP in another through interfederation, naming the shared signing root.",
+          "deliverable": "A trust-model analysis mapping federation signing, registration authority and interfederation reach",
+          "checks": [["Verify the aggregate against the federation key", "All entities are covered by one trusted signature", "Verification log"], ["Read the registrationAuthority on an entity", "It names the registering federation operator", "Metadata excerpt"], ["Trace trust to an entity from another federation", "Trust resolves through the shared interfederation signing root", "Analysis note"]],
+          "objectives": ["Explain multilateral federation trust", "Read registration authority provenance", "Describe interfederation via eduGAIN"]
+        },
+        {
+          "topic": "Metadata Query Protocol and Per-Entity MDQ",
+          "subtopics": ["MDQ fetching one entity on demand", "SHA-1 transform of entityID in the URL path", "Per-entity signatures in MDQ responses", "Caching MDQ results with validity", "Scaling beyond monolithic aggregates", "MDQ server and client roles", "Verifying each entity signature on fetch", "Fallback when MDQ is unavailable", "Reducing memory with lazy loading", "Monitoring MDQ latency and errors"],
+          "tools": ["Shibboleth IdP", "curl", "xmlsec1", "SimpleSAMLphp"],
+          "lab_task": "Use a per-entity MDQ endpoint to fetch metadata for a single entityID on demand. Build the request path from the entity identifier transform, verify the per-entity signature on the response, and cache it per its validity. Confirm an unknown entityID returns not found and that a cached entity is reused until it expires.",
+          "deliverable": "An MDQ client that fetches, verifies and caches single entities and handles unknown identifiers",
+          "checks": [["Fetch a known entity by its MDQ path", "A per-entity metadata document is returned and its signature verifies", "Fetch log"], ["Request an unknown entityID", "The MDQ endpoint returns a not-found response", "HTTP status"], ["Request a cached entity again before expiry", "The cached copy is reused without a new fetch", "Cache log"]],
+          "objectives": ["Fetch metadata on demand with MDQ", "Verify per-entity signatures", "Cache and expire MDQ results"]
+        },
+        {
+          "topic": "XML Signature Wrapping Attack Analysis",
+          "subtopics": ["Signature wrapping moving the signed element", "Attacker injecting a forged unsigned assertion", "ID reference confusion in the document", "Processing the signed versus the read element", "Defences: process only the signed element", "Schema hardening and strict ID handling", "Known library CVEs and their fixes", "Testing wrapping against your own SP", "Rejecting multiple assertions", "Logging mismatches between signed and used nodes"],
+          "tools": ["xmlsec1", "python3-saml", "SAML-tracer", "OpenSSL"],
+          "lab_task": "On an SP you own, craft a signature-wrapping test: take a genuinely signed assertion and wrap it so a forged assertion sits where the SP reads identity while the original signed element stays elsewhere. Confirm a hardened python3-saml processes only the signed element and rejects the forgery, then record the exact rejection.",
+          "deliverable": "A documented wrapping test on your own SP proving it binds identity to the signed element",
+          "checks": [["Submit a wrapped Response with a forged assertion", "The SP uses the signed assertion and rejects the forged identity", "Rejection log"], ["Submit a Response with two assertions", "The SP refuses because multiple assertions are present", "Rejection log"], ["Submit the unmodified signed Response", "The SP accepts it and signs in the genuine user", "App log"]],
+          "objectives": ["Explain XML signature wrapping", "Test wrapping on a system you own", "Bind identity to the signed element"]
+        },
+        {
+          "topic": "Preventing XXE in SAML Response Parsing",
+          "subtopics": ["External entity declarations in XML", "Classic XXE file read and SSRF vectors", "Billion laughs entity expansion", "Disabling DTDs in the SAML parser", "lxml resolve_entities and no_network flags", "Library defaults across SAML toolkits", "Rejecting DOCTYPE in SAML messages", "Entity expansion limits", "Testing a benign payload on your own SP", "Logging and alerting on blocked DTDs"],
+          "tools": ["python3-saml", "xmlsec1", "SAML-tracer", "OpenSSL"],
+          "lab_task": "Confirm your python3-saml SP parses SAML securely against XML external entities. On your own SP, submit a Response containing a DOCTYPE with a benign external entity and confirm the parser refuses the DTD rather than resolving it. Then submit an entity-expansion payload and confirm it is rejected without exhausting memory.",
+          "deliverable": "Evidence that the SP rejects DTDs and entity expansion payloads without resolving external entities",
+          "checks": [["Submit a Response with a DOCTYPE and external entity", "The parser refuses the DTD and does not resolve the entity", "Rejection log"], ["Submit an entity-expansion payload", "The parser rejects it without exhausting memory", "Resource and error log"], ["Submit a normal DTD-free Response", "It parses and the login succeeds", "App log"]],
+          "objectives": ["Describe XXE risks in SAML parsing", "Disable DTDs and external entities", "Test XXE defences on your own SP"]
+        },
+        {
+          "topic": "Replay Protection and Assertion Uniqueness",
+          "subtopics": ["Bearer assertions and the replay window", "Tracking assertion IDs already consumed", "InResponseTo matching an outstanding request", "NotOnOrAfter bounding the replay window", "Recipient and Destination checks", "Request ID cache lifetime", "Distributed replay cache across SP nodes", "OneTimeUse condition handling", "Replaying a captured Response as a test", "Alerting on duplicate assertion IDs"],
+          "tools": ["python3-saml", "Keycloak", "SAML-tracer", "OpenSSL"],
+          "lab_task": "Add replay protection to a python3-saml SP: record each consumed assertion ID until its NotOnOrAfter and reject any repeat. Validate InResponseTo against outstanding request IDs. Capture one valid Response, replay it and confirm the second attempt is refused as a duplicate while the original login succeeded.",
+          "deliverable": "A replay-protected SP that consumes each assertion once and rejects replays within the validity window",
+          "checks": [["Submit a captured Response a second time", "The SP rejects it as a replayed assertion ID", "Rejection log"], ["Submit a Response whose InResponseTo has no outstanding request", "The SP rejects the unsolicited correlation", "Rejection log"], ["Submit the original Response once", "The first use is accepted and the login succeeds", "App log"]],
+          "objectives": ["Implement assertion replay protection", "Validate InResponseTo correlation", "Bound the replay window by validity"]
+        },
+        {
+          "topic": "Hardening python3-saml Against Known Pitfalls",
+          "subtopics": ["strict mode and why it is mandatory", "wantAssertionsSigned and wantMessagesSigned", "rejectDeprecatedAlgorithm settings", "wantNameIdEncrypted where required", "Comment-injection in NameID canonicalization", "Validating audience and destination strictly", "Disabling lowercaseUrlencoding mismatches", "signatureAlgorithm and digestAlgorithm pinning", "Reviewing advanced_settings security block", "Regression tests for each hardening flag"],
+          "tools": ["python3-saml", "xmlsec1", "Keycloak", "SAML-tracer"],
+          "lab_task": "Audit a python3-saml advanced_settings security block and turn on strict mode, wantAssertionsSigned, wantMessagesSigned and rejectDeprecatedAlgorithm. Add a regression test for each flag that submits a Response violating it and asserts rejection. Confirm a fully valid login still succeeds with every hardening flag enabled.",
+          "deliverable": "A hardened python3-saml security block with a passing regression test per flag",
+          "checks": [["Submit an unsigned assertion with wantAssertionsSigned on", "The SP rejects the unsigned assertion", "Test output"], ["Submit a SHA-1 signature with deprecated algorithms rejected", "The SP rejects the deprecated algorithm", "Test output"], ["Submit a fully valid Response", "The login succeeds with all hardening flags on", "Test output"]],
+          "objectives": ["Audit python3-saml security settings", "Enable and test hardening flags", "Keep valid logins working"]
+        },
+        {
+          "topic": "Audience and Recipient Validation Hardening",
+          "subtopics": ["AudienceRestriction equals the SP entityID", "SubjectConfirmationData Recipient equals the ACS", "Response Destination equals the ACS URL", "Multiple audiences and strictness", "Rejecting mismatched or missing audience", "Canonical comparison of URLs", "Trailing slash and case pitfalls", "Per-ACS index validation", "Logging the compared values on failure", "Tests for each mismatch case"],
+          "tools": ["python3-saml", "Keycloak", "SAML-tracer", "samltool.com"],
+          "lab_task": "Tighten audience and recipient validation on your SP. Require the AudienceRestriction to equal the SP entityID, the Recipient to equal the ACS URL and the Response Destination to match the ACS. Write tests that mutate each value in turn and confirm rejection, and log the expected and received values on every failure.",
+          "deliverable": "Strict audience and recipient validation with per-mismatch tests and diagnostic logging",
+          "checks": [["Submit a Response with a wrong audience", "The SP rejects it for an audience mismatch", "Rejection log"], ["Submit a Response with a wrong Recipient", "The SP rejects it for a recipient mismatch", "Rejection log"], ["Submit a Response with a wrong Destination", "The SP rejects it for a destination mismatch", "Rejection log"]],
+          "objectives": ["Enforce strict audience checks", "Validate Recipient and Destination", "Log compared values on failure"]
+        },
+        {
+          "topic": "Single Logout Across Multiple Service Providers",
+          "subtopics": ["IdP tracking all active SP sessions", "Front-channel chained LogoutRequests", "Back-channel SOAP logout to each SP", "Partial logout and best-effort status", "SessionIndex correlation per SP", "Ordering and timeouts across SPs", "Idempotent logout handling on each SP", "User experience during chained redirects", "Testing SLO with three SPs", "Reconciling sessions after partial failure"],
+          "tools": ["Keycloak", "python3-saml", "SimpleSAMLphp", "SAML-tracer"],
+          "lab_task": "Register three SPs with one IdP and establish sessions in all. Trigger SLO from one SP and trace the IdP logging out the others by front-channel redirects. Make one SP time out and confirm the IdP reports a partial logout status while the reachable SPs are cleared. Verify each SP handles a repeated LogoutRequest idempotently.",
+          "deliverable": "A three-SP SLO run showing chained logout, a partial-logout status and idempotent handling",
+          "checks": [["Trigger SLO and follow the chain", "The IdP logs the user out of all reachable SPs", "SLO trace"], ["Make one SP time out during SLO", "The IdP returns a partial logout status", "LogoutResponse status"], ["Resend a LogoutRequest to an already-logged-out SP", "The SP handles it idempotently and returns Success", "SP log"]],
+          "objectives": ["Coordinate SLO across many SPs", "Handle partial-logout outcomes", "Make logout idempotent per SP"]
+        },
+        {
+          "topic": "SAML Attribute Release Policies at Scale",
+          "subtopics": ["Per-SP release policies in the IdP", "Default-deny attribute release", "Entity-category driven release", "Consent and transparency to users", "Minimising attributes to what is needed", "Scoped attributes and value filters", "Bulk policy management for many SPs", "Auditing what each SP receives", "Testing release against policy expectations", "Change control for release policies"],
+          "tools": ["Shibboleth IdP", "Keycloak", "SAML-tracer", "python3-saml"],
+          "lab_task": "Design scalable attribute release: default-deny, release per-SP only the attributes each needs, and drive a common set by entity category. For two SPs with different needs, confirm each receives exactly its allowed attributes and nothing more. Add an audit that records the attribute set released to each SP on every login.",
+          "deliverable": "Per-SP release policies with default-deny, verified minimal release and a per-login audit",
+          "checks": [["Log in to the first SP", "Only that SP's allowed attributes are released", "Assertion and audit"], ["Log in to the second SP with different needs", "A different, correct attribute set is released", "Assertion and audit"], ["Request an attribute outside any policy", "It is withheld under default-deny", "Assertion excerpt"]],
+          "objectives": ["Design per-SP release policies", "Enforce default-deny and minimisation", "Audit released attributes"]
+        },
+        {
+          "topic": "High Availability for IdP and Artifact Resolution",
+          "subtopics": ["Stateless IdP nodes behind a load balancer", "Shared session and replay state", "Sticky sessions versus shared stores", "Replicating the artifact store", "Signing key availability across nodes", "Health checks for SSO endpoints", "Zero-downtime configuration reloads", "Back-channel ARS behind the balancer", "Failover testing under load", "Observability of node health"],
+          "tools": ["Keycloak", "Shibboleth IdP", "curl", "SAML-tracer"],
+          "lab_task": "Run two IdP nodes behind a load balancer with a shared session and replay store. Confirm a login started on one node completes on the other, and that artifact resolution works regardless of which node serves it. Kill one node mid-session and confirm active logins continue through the surviving node.",
+          "deliverable": "A two-node IdP cluster proving session continuity and artifact resolution across a node failure",
+          "checks": [["Start a login on one node and finish on another", "The login completes across nodes using shared state", "Session trace"], ["Resolve an artifact through either node", "Resolution succeeds regardless of node", "ARS log"], ["Kill one node mid-session", "Active logins continue through the surviving node", "Failover log"]],
+          "objectives": ["Run IdP nodes with shared state", "Keep artifact resolution available", "Survive node failure without logout"]
+        },
+        {
+          "topic": "Load Testing and Performance of SSO Flows",
+          "subtopics": ["Modelling realistic login concurrency", "Scripting the full SP-initiated flow", "Cost of XML signing and verification", "Assertion encryption overhead", "Replay-cache contention under load", "Measuring p95 login latency", "IdP throughput limits and queueing", "Caching metadata to cut parse cost", "Identifying the slowest step", "Capacity planning from results"],
+          "tools": ["curl", "Keycloak", "python3-saml", "SAML-tracer"],
+          "lab_task": "Script the full SP-initiated SSO flow and drive it at increasing concurrency against your lab IdP and SP. Measure p95 login latency and throughput, and isolate how much time signing, verification and encryption add. Identify the slowest step and record the concurrency at which p95 latency first exceeds your target.",
+          "deliverable": "A load-test report with throughput, p95 latency, the slowest step and a capacity recommendation",
+          "checks": [["Drive the flow at rising concurrency", "Throughput and p95 latency are measured at each level", "Results table"], ["Compare signed-only with encrypted assertions", "Encryption adds measurable extra latency per login", "Comparison chart"], ["Find the p95 latency breach point", "The concurrency where p95 first exceeds the target is identified", "Report note"]],
+          "objectives": ["Load test a full SSO flow", "Attribute latency to crypto steps", "Plan capacity from measurements"]
+        },
+        {
+          "topic": "Auditing and Monitoring SAML Authentication Events",
+          "subtopics": ["Events to log: login, logout, failures", "Correlation IDs across IdP and SP", "Capturing status codes and error causes", "Avoiding assertion secrets in logs", "Shipping events to a SIEM", "Dashboards for login success rate", "Alerting on failure spikes", "Detecting replay and wrapping attempts", "Retention and privacy of auth logs", "Tamper-evident audit trails"],
+          "tools": ["python3-saml", "Keycloak", "SAML-tracer", "curl"],
+          "lab_task": "Instrument the SP and IdP to emit structured audit events for login success, failure and logout, each with a correlation ID and status, while redacting assertion contents. Ship them to a log store, build a success-rate view and set an alert that fires when the failure rate crosses a threshold. Trigger failures to confirm the alert.",
+          "deliverable": "Structured, redacted SAML audit events with a success-rate dashboard and a working failure alert",
+          "checks": [["Generate login, failure and logout events", "Each is recorded with a correlation ID and status code", "Audit log"], ["Inspect a logged event for secrets", "No assertion contents or NameID secrets are present", "Log sample"], ["Drive the failure rate past the threshold", "The configured alert fires", "Alert notification"]],
+          "objectives": ["Emit structured SAML audit events", "Avoid logging sensitive assertion data", "Alert on authentication anomalies"]
+        },
+        {
+          "topic": "Migrating from SAML to OpenID Connect",
+          "subtopics": ["Comparing SAML assertions and OIDC tokens", "Mapping NameID to the OIDC subject", "Attribute claims to OIDC ID token claims", "Front-channel SAML to OIDC code flow", "Reusing the same IdP for both protocols", "Phased per-application cutover", "Session and logout model differences", "RelayState versus the OIDC state parameter", "Rollback path during migration", "Decommissioning SAML endpoints"],
+          "tools": ["Keycloak", "python3-saml", "Okta", "SAML-tracer"],
+          "lab_task": "Plan a migration of one application from SAML to OpenID Connect on the same IdP. Map the SAML NameID and key attributes to equivalent OIDC claims, stand up the OIDC client, and cut the app over behind a flag. Confirm the user identity and roles match across both protocols so authorization is unchanged after the switch.",
+          "deliverable": "A per-app SAML-to-OIDC migration with a claim mapping proving identity and roles are preserved",
+          "checks": [["Compare the SAML NameID with the OIDC subject", "They resolve to the same stable user identifier", "Mapping table"], ["Compare roles from SAML attributes and OIDC claims", "The same roles are derived under both protocols", "Authorization log"], ["Toggle the app to OIDC and back", "The migration flag switches protocols without losing identity", "App config and log"]],
+          "objectives": ["Map SAML identity to OIDC claims", "Cut an app over behind a flag", "Preserve authorization across protocols"]
+        },
+        {
+          "topic": "Running SAML and OIDC Side by Side During Migration",
+          "subtopics": ["One IdP serving both protocols", "Shared user store and attributes", "Per-application protocol selection", "Consistent identifiers across protocols", "Dual-protocol session coherence", "Logout spanning SAML and OIDC apps", "Monitoring both protocol paths", "Avoiding divergent role mappings", "Gradual traffic shift and canaries", "Sunset criteria for SAML"],
+          "tools": ["Keycloak", "python3-saml", "Okta", "SAML-tracer"],
+          "lab_task": "Operate a mixed estate where some apps use SAML and others OIDC against one IdP. Keep a single user identity and role source so both protocols agree. Log a user into one SAML app and one OIDC app, then confirm a logout strategy that ends both sessions, and monitor each protocol path separately for errors.",
+          "deliverable": "A dual-protocol deployment with consistent identity, a cross-protocol logout and per-path monitoring",
+          "checks": [["Log into a SAML app and an OIDC app as one user", "Both resolve to the same identity and roles", "Session logs"], ["Trigger the logout strategy", "Both the SAML and OIDC sessions are ended", "Logout traces"], ["Review per-protocol monitoring", "Errors are tracked separately for the SAML and OIDC paths", "Dashboards"]],
+          "objectives": ["Serve SAML and OIDC from one IdP", "Keep identity consistent across both", "Coordinate cross-protocol logout"]
+        },
+        {
+          "topic": "Entity Categories, R&S and GDPR Attribute Release",
+          "subtopics": ["Entity category attribute in metadata", "Research and Scholarship category", "Automatic release for R&S entities", "Data protection code of conduct category", "Lawful basis for attribute transfer", "Minimising personal data released", "Scoped identifiers reducing linkability", "Documenting purpose and retention", "Honouring user consent requirements", "Auditing category-driven release"],
+          "tools": ["Shibboleth IdP", "SAML-tracer", "python3-saml", "samltool.com"],
+          "lab_task": "Tag an SP with the Research and Scholarship entity category and configure the IdP to release the R&S attribute bundle automatically to such SPs while withholding extra personal data. Confirm an R&S SP receives the minimal bundle and a non-categorised SP receives less, and document the lawful basis and retention for the release.",
+          "deliverable": "Category-driven attribute release honouring R&S with documented lawful basis and minimisation",
+          "checks": [["Log in to an R&S-tagged SP", "The minimal R&S attribute bundle is released automatically", "Assertion and audit"], ["Log in to a non-categorised SP", "Fewer attributes are released than to the R&S SP", "Assertion excerpt"], ["Review the release documentation", "A lawful basis and retention period are recorded", "Policy document"]],
+          "objectives": ["Use entity categories for release", "Apply R&S minimal attribute bundles", "Document lawful basis and retention"]
+        },
+        {
+          "topic": "Scripted Metadata Validation in CI Pipelines",
+          "subtopics": ["Schema validation of SP and IdP metadata", "Checking certificate expiry windows", "Asserting required endpoints and bindings", "Verifying signed-metadata signatures", "Failing the build on policy violations", "Diffing metadata against a baseline", "Alerting before certificates expire", "Scanning for weak signature algorithms", "Gating deploys on metadata health", "Reporting results as build artifacts"],
+          "tools": ["xmlsec1", "samltool.com", "curl", "python3-saml"],
+          "lab_task": "Write a CI check that validates your SP metadata against the schema, verifies its signature, asserts the expected ACS and SLO endpoints, and fails if any published certificate expires within thirty days. Run it against good metadata to pass, then against metadata with a near-expiry certificate and confirm the build fails with a clear message.",
+          "deliverable": "A CI metadata-validation script that passes healthy metadata and fails on near-expiry certificates",
+          "checks": [["Run the check against valid, current metadata", "The check passes with no violations", "CI output"], ["Run it against metadata missing the SLO endpoint", "The check fails citing the missing endpoint", "CI output"], ["Run it against a certificate expiring within thirty days", "The check fails with an expiry warning", "CI output"]],
+          "objectives": ["Validate metadata automatically in CI", "Gate on certificate expiry", "Fail builds on policy violations"]
+        },
+        {
+          "topic": "Capstone: Federation-Ready IdP with SLO and Rollover",
+          "subtopics": ["Federation-signed metadata consumption", "Multi-SP SSO and single logout", "Dual signing keys and scheduled rollover", "Encrypted assertions and strict validation", "Replay, wrapping and XXE defences verified", "CI metadata validation and monitoring"],
+          "tools": ["Keycloak", "python3-saml", "xmlsec1", "Shibboleth IdP", "SAML-tracer"],
+          "lab_task": "Build a federation-ready deployment: an IdP consuming signed federation metadata serving multiple SPs with encrypted assertions and strict validation. Demonstrate single logout across SPs, a zero-downtime signing-key rollover, and that replay, signature-wrapping and XXE attempts on your own SPs are rejected. Add CI metadata validation and audit monitoring.",
+          "deliverable": "A hardened, federation-ready SAML deployment with SLO, key rollover, verified defences and CI checks",
+          "checks": [["Perform SLO across multiple SPs", "All participating SP sessions are ended", "SLO traces"], ["Execute a signing-key rollover during active use", "Logins continue uninterrupted through the rollover", "Login logs"], ["Replay a captured assertion against your SP", "The SP rejects the replayed assertion", "Rejection log"]],
+          "objectives": ["Operate a federation-ready IdP and SPs", "Combine SLO, rollover and encryption", "Prove replay, wrapping and XXE defences"]
+        }
+      ]
+    }
+  }
+}

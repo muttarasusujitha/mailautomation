@@ -1,0 +1,22 @@
+{
+  "typeCheckingMode": "basic",
+  "reportGeneralTypeIssues": false,
+  "reportOptionalMemberAccess": false,
+  "reportOptionalSubscript": false,
+  "reportOptionalOperand": false,
+  "reportOptionalIterable": false,
+  "reportOptionalContextManager": false,
+  "reportOptionalCallOperand": false,
+  "reportConstantRedefinition": false,
+  "reportIncompatibleMethodOverride": false,
+  "reportIncompatibleVariableOverride": false,
+  "reportInconsistentConstructor": false,
+  "reportUnusedVariable": false,
+  "reportUnnecessaryIsInstance": false,
+  "reportUnnecessaryCast": false,
+  "reportUnnecessaryComparison": false,
+  "reportPrivateUsage": false,
+  "reportUnboundVariable": "warning",
+  "include": ["backend"],
+  "exclude": ["**/node_modules", "**/venv", "**/__pycache__"]
+}

@@ -1,0 +1,573 @@
+{
+  "domain": "VPN",
+  "name": "VPN",
+  "category": "Networking",
+  "icon": "network",
+  "aliases": ["Virtual Private Network", "Secure Tunneling", "VPN Engineering", "IPsec VPN", "WireGuard VPN", "Site-to-Site VPN", "Remote Access VPN", "Enterprise VPN"],
+  "certifications": ["Cisco CCNP Security", "CompTIA Network+", "AWS Certified Advanced Networking - Specialty", "Microsoft Certified: Azure Network Engineer Associate", "Google Cloud Professional Cloud Network Engineer"],
+  "tools": ["WireGuard", "OpenVPN", "strongSwan", "Libreswan", "FRRouting", "Tailscale", "Headscale", "NetBird", "ocserv and OpenConnect", "tcpdump", "Wireshark", "AWS Site-to-Site VPN", "Azure VPN Gateway", "Google Cloud HA VPN"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For network and systems engineers, cloud engineers and support staff who can configure Linux hosts and IP routing but have not built VPNs. Covers how tunnels encapsulate traffic, the cryptography behind them, WireGuard, OpenVPN with Easy-RSA, IPsec with IKEv2 and strongSwan, tunnel and transport mode, remote access with EAP, split tunnelling and split DNS, NAT traversal, MTU and MSS clamping, gateway firewall rules, a first Tailscale mesh, packet captures and a structured method for tunnels that will not come up, ending with a branch office and remote worker capstone.",
+      "prerequisites": ["Configures IPv4 addresses, subnets and static routes and explains what a default gateway does", "Works in a Linux shell with sudo, systemctl, journalctl and a text editor such as vim or nano", "Has two or more Linux VMs (for example Ubuntu 24.04 or Debian 12) that can reach each other, with root access and permission to install packages"],
+      "outcomes": ["Build and verify WireGuard, OpenVPN and strongSwan IKEv2 tunnels between Linux hosts", "Choose between site-to-site and remote access, tunnel and transport mode, and full and split tunnelling for a stated requirement", "Fix the common causes of broken tunnels: proposal and key mismatches, blocked ports, NAT, MTU and missing routes", "Capture and read VPN traffic with tcpdump and Wireshark to prove what is and is not encrypted"],
+      "days": [
+        {
+          "topic": "How VPNs Work: Tunnels, Encapsulation and Trust",
+          "subtopics": ["What a VPN protects and what it does not protect", "Encapsulation: outer and inner IP headers", "Underlay and overlay networks", "Site-to-site compared with remote access", "Layer 3 (tun) compared with Layer 2 (tap) tunnels", "Protocol families: IPsec, WireGuard, OpenVPN and TLS VPNs", "Confidentiality, integrity and peer authentication", "Threat model: untrusted Wi-Fi, ISP visibility and insider risk"],
+          "tools": ["ip", "Linux network namespaces", "tcpdump", "Wireshark"],
+          "lab_task": "Create two network namespaces (ip netns add a; ip netns add b) joined by a veth pair, then add a GRE tunnel in each with ip link add gre1 type gre local <A> remote <B> and inner addresses 10.99.0.1/30 and 10.99.0.2/30. Ping across the tunnel while running tcpdump -nn -i veth-a, and label the outer and inner headers in the capture. Note that GRE adds no encryption.",
+          "deliverable": "Annotated capture showing outer and inner headers, plus a one-page note on what a VPN adds to plain GRE",
+          "checks": [["Run ip netns exec a ping -c 5 10.99.0.2", "5 packets transmitted, 5 received, 0% packet loss", "Ping output"], ["Capture on veth-a during the ping", "Every packet is IP protocol 47 (GRE) carrying an ICMP echo between 10.99.0.1 and 10.99.0.2", "tcpdump output"], ["Open the capture in Wireshark and expand the ICMP payload", "The payload bytes are readable in clear text because GRE does not encrypt", "Wireshark screenshot"]],
+          "objectives": ["Explain encapsulation with outer and inner headers", "Distinguish site-to-site from remote access VPNs", "State what a VPN protects against and what it leaves exposed"]
+        },
+        {
+          "topic": "IP Addressing, Routing and NAT for VPN Engineers",
+          "subtopics": ["CIDR and subnetting for tunnel and LAN ranges", "RFC 1918 ranges and choosing ranges that will not overlap", "Routing tables and longest-prefix match", "Predicting the egress path with ip route get", "Default routes and route metrics", "Source NAT, masquerade and port translation", "Policy routing with ip rule and extra routing tables", "IPv6 addresses on tunnels and why IPv6 needs its own plan"],
+          "tools": ["ip route", "ip rule", "nftables", "conntrack", "ipcalc"],
+          "lab_task": "Write an addressing plan for HQ 10.10.0.0/16, branch 10.20.0.0/16 and remote users 10.30.0.0/24. In a namespace lab, add the routes, run ip route get 10.20.1.5 to confirm the egress interface, add an nftables masquerade rule for the outside interface, then add ip rule add from 10.30.0.0/24 lookup 100 and prove which table a user address uses.",
+          "deliverable": "Addressing plan table plus command outputs proving each routing decision",
+          "checks": [["Run ip route get 10.20.1.5 on the HQ router", "Output shows via the branch-facing next hop and the expected dev", "Terminal output"], ["curl an outside host from the LAN, then run conntrack -L", "The entry shows the LAN source translated to the router's outside address", "conntrack output"], ["Run ip route get 1.1.1.1 from 10.30.0.5 iif veth-u", "The lookup uses the default route from table 100, not the main table", "Terminal output"]],
+          "objectives": ["Plan non-overlapping address ranges for a VPN", "Predict forwarding decisions with ip route get", "Apply source NAT and policy routing on Linux"]
+        },
+        {
+          "topic": "Cryptography for Tunnels: Ciphers, Hashes, Key Exchange and PKI",
+          "subtopics": ["AEAD ciphers: AES-GCM and ChaCha20-Poly1305", "Hashes, HMAC and pseudo-random functions", "Diffie-Hellman and elliptic-curve groups: Curve25519, P-256, P-384", "Perfect forward secrecy", "Pre-shared keys compared with certificates", "X.509 certificates, CAs, chains, SAN and EKU", "Revocation with CRLs and OCSP", "Weak algorithms to reject: DES, 3DES, MD5, SHA-1 and DH group 2"],
+          "tools": ["openssl", "wg", "strongSwan pki"],
+          "lab_task": "Create a root CA with openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:P-256, issue a gateway certificate with subjectAltName DNS:vpn.example.test and extendedKeyUsage serverAuth, and verify it with openssl verify -CAfile ca.crt gw.crt. Then generate a WireGuard key pair with wg genkey | tee priv | wg pubkey > pub and record the key sizes.",
+          "deliverable": "CA, gateway certificate and WireGuard key pair, with a table of algorithms to allow and reject",
+          "checks": [["Run openssl verify -CAfile ca.crt gw.crt", "Prints gw.crt: OK", "Terminal output"], ["Verify gw.crt against a second, unrelated CA", "Fails with error 20: unable to get local issuer certificate", "Terminal output"], ["Run wc -c pub on the WireGuard public key file", "45 bytes: 44 Base64 characters for a 32-byte key plus a newline", "Terminal output"]],
+          "objectives": ["Select AEAD ciphers and key exchange groups for a tunnel", "Build and verify a simple certificate chain", "Explain perfect forward secrecy"]
+        },
+        {
+          "topic": "WireGuard First Tunnel with wg and wg-quick",
+          "subtopics": ["The Interface section: PrivateKey, ListenPort and Address", "Peer sections: PublicKey, Endpoint and AllowedIPs", "/etc/wireguard/wg0.conf and wg-quick up and down", "The DNS and MTU keys used by wg-quick", "Handshake on first packet and the silent-by-default design", "Reading wg show: latest handshake and transfer", "Start at boot with systemctl enable wg-quick@wg0", "Opening UDP 51820 in the host firewall"],
+          "tools": ["wg", "wg-quick", "systemd", "ping"],
+          "lab_task": "On two Linux VMs generate keys, then write wg0.conf with Address 10.66.0.1/24 and 10.66.0.2/24, ListenPort 51820, and a Peer section holding the other side's PublicKey, Endpoint and AllowedIPs 10.66.0.x/32. Run wg-quick up wg0 on both, ping 10.66.0.2, and record the latest handshake and transfer counters from wg show. Enable the unit at boot.",
+          "deliverable": "Both wg0.conf files with private keys redacted, plus wg show output from each VM",
+          "checks": [["Run wg show wg0 after the ping", "latest handshake is under 1 minute old and transfer is non-zero in both directions", "wg show output"], ["Replace the peer PublicKey with a wrong key and ping again", "100% packet loss and no latest handshake line for the peer", "ping and wg show output"], ["Run systemctl is-enabled wg-quick@wg0", "Prints enabled", "Terminal output"]],
+          "objectives": ["Configure a point-to-point WireGuard tunnel", "Read handshake and transfer state with wg show", "Make the tunnel persistent across reboots"]
+        },
+        {
+          "topic": "WireGuard Peers, AllowedIPs and Cryptokey Routing",
+          "subtopics": ["AllowedIPs as both an outbound route and an inbound source filter", "Hub-and-spoke with one server and many clients", "Routing a LAN behind a peer", "IP forwarding with net.ipv4.ip_forward=1", "PersistentKeepalive = 25 for peers behind NAT", "Roaming: endpoint updates from authenticated packets", "Adding peers live with wg set and wg syncconf", "PresharedKey as an extra symmetric layer"],
+          "tools": ["wg", "wg-quick", "sysctl", "tcpdump"],
+          "lab_task": "Turn VM1 into a hub for two clients. Add client B live with wg set wg0 peer <pubkey> allowed-ips 10.66.0.3/32, put 192.168.50.0/24 behind client A by adding it to A's AllowedIPs on the hub, enable net.ipv4.ip_forward=1, and ping 192.168.50.10 from B. Then send a packet from B with a source outside its AllowedIPs and check the hub drops it.",
+          "deliverable": "Hub configuration, routing diagram and evidence that cryptokey routing filters spoofed sources",
+          "checks": [["Ping 192.168.50.10 from client B", "Replies arrive through the hub", "Ping output"], ["Send a packet from B with source 10.66.0.9, which is not in B's AllowedIPs", "The hub drops it silently: tcpdump -i wg0 on the hub shows nothing", "tcpdump output"], ["Edit wg0.conf and run wg syncconf wg0 <(wg-quick strip wg0)", "Existing peers keep their handshake and the new peer appears", "wg show output"]],
+          "objectives": ["Design a hub-and-spoke WireGuard network", "Use AllowedIPs to route LANs and filter sources", "Change peers without restarting the interface"]
+        },
+        {
+          "topic": "OpenVPN Server with Easy-RSA PKI",
+          "subtopics": ["OpenVPN 2.6: TLS control channel and data channel", "tun compared with tap", "Easy-RSA: init-pki, build-ca, gen-req and sign-req", "server.conf: port, proto, dev, server, ca, cert and key", "tls-crypt to hide and protect the control channel", "data-ciphers AES-256-GCM:CHACHA20-POLY1305", "Data channel offload (DCO) kernel module", "Logging with verb, status and the systemd unit"],
+          "tools": ["OpenVPN", "Easy-RSA", "systemd", "ss"],
+          "lab_task": "Run easyrsa init-pki, easyrsa build-ca nopass, easyrsa gen-req server nopass and easyrsa sign-req server server, then openvpn --genkey tls-crypt tc.key. Write server.conf with proto udp, port 1194, dev tun, server 10.8.0.0 255.255.255.0, tls-crypt tc.key and data-ciphers AES-256-GCM:CHACHA20-POLY1305. Start openvpn-server@server and read the log.",
+          "deliverable": "Working OpenVPN server with its PKI layout and server.conf",
+          "checks": [["Run journalctl -u openvpn-server@server after start", "The log contains Initialization Sequence Completed", "Journal output"], ["Run ss -ulpn", "openvpn is listening on UDP 1194", "Terminal output"], ["Connect a client whose profile lacks tc.key", "The server logs a tls-crypt unwrapping error and no session is created", "Server log"]],
+          "objectives": ["Build an OpenVPN PKI with Easy-RSA", "Configure an OpenVPN server with modern ciphers", "Protect the control channel with tls-crypt"]
+        },
+        {
+          "topic": "OpenVPN Client Profiles, Routes and Pushed Options",
+          "subtopics": ["Client certificates with easyrsa build-client-full", "Inline .ovpn profiles with <ca>, <cert>, <key> and <tls-crypt>", "push \"route ...\" and push \"redirect-gateway def1\"", "Pushing DNS servers to clients", "client-config-dir with ifconfig-push and iroute", "remote-cert-tls server to stop server impersonation", "duplicate-cn and one session per certificate", "Connecting with openvpn --config and OpenVPN Connect"],
+          "tools": ["OpenVPN", "Easy-RSA", "OpenVPN Connect"],
+          "lab_task": "Run easyrsa build-client-full alice nopass and assemble alice.ovpn with the CA, certificate, key and tls-crypt key inline, plus remote-cert-tls server. On the server push route 10.10.0.0 255.255.0.0 and create ccd/alice with ifconfig-push 10.8.0.50 255.255.255.0. Connect and check the client address and routes, then connect a second client with the same profile.",
+          "deliverable": "alice.ovpn with keys redacted, the ccd file, and client route output",
+          "checks": [["Run ip addr show tun0 on the client", "The address is 10.8.0.50", "Terminal output"], ["Run ip route on the client", "10.10.0.0/16 points to dev tun0", "Terminal output"], ["Connect a second client with the same certificate while duplicate-cn is off", "The server drops the first session for that common name", "Server log"]],
+          "objectives": ["Build portable inline client profiles", "Push routes and fixed addresses to clients", "Explain one-certificate-per-user enforcement"]
+        },
+        {
+          "topic": "IPsec Building Blocks: IKEv2, ESP, SAs and SPIs",
+          "subtopics": ["IKEv2 exchanges: IKE_SA_INIT and IKE_AUTH", "IKE SA compared with Child SA", "ESP (IP protocol 50) and AH (IP protocol 51)", "SPIs and sequence numbers", "Proposals: encryption, integrity, PRF and key exchange group", "Traffic selectors", "Rekeying and lifetimes", "UDP 500, UDP 4500 and NAT traversal"],
+          "tools": ["strongSwan", "tcpdump", "Wireshark"],
+          "lab_task": "Capture a strongSwan tunnel being established with tcpdump -nn -i eth0 -w ike.pcap 'udp port 500 or udp port 4500 or esp', then ping across it. In Wireshark identify IKE_SA_INIT and IKE_AUTH, record the initiator and responder IKE SPIs and the two ESP SPIs, and match them against swanctl --list-sas output.",
+          "deliverable": "Annotated capture with a table of IKE and ESP SPIs matched to swanctl output",
+          "checks": [["Apply the Wireshark filter isakmp", "Four messages: an IKE_SA_INIT request and response, then an IKE_AUTH request and response", "Wireshark screenshot"], ["Apply the filter esp and compare SPIs", "Each direction has its own SPI and both match the Child SA in swanctl --list-sas", "Capture and swanctl output"], ["Expand an IKE_AUTH message", "Its body is an Encrypted and Authenticated payload with no readable identities", "Wireshark screenshot"]],
+          "objectives": ["Describe the IKEv2 exchanges and the SAs they create", "Identify IKE and ESP traffic on the wire", "Map SPIs between captures and daemon output"]
+        },
+        {
+          "topic": "strongSwan Site-to-Site with swanctl and Pre-Shared Keys",
+          "subtopics": ["The charon daemon and the vici interface", "swanctl.conf: connections, local, remote and children", "local_ts and remote_ts", "proposals and esp_proposals", "The secrets ike section for pre-shared keys", "swanctl --load-all, --initiate, --list-conns and --list-sas", "start_action = trap or start", "Common errors: NO_PROPOSAL_CHOSEN, AUTHENTICATION_FAILED, TS_UNACCEPTABLE"],
+          "tools": ["strongSwan", "swanctl", "journalctl"],
+          "lab_task": "Link 10.1.0.0/24 and 10.2.0.0/24 with two strongSwan gateways. In swanctl.conf set version = 2, proposals = aes256gcm16-prfsha384-ecp384, a child net with matching local_ts and remote_ts and esp_proposals = aes256gcm16-ecp384, and a 32-character random PSK in secrets. Run swanctl --load-all and swanctl --initiate --child net, then ping host to host.",
+          "deliverable": "Both swanctl.conf files with the PSK redacted, plus list-sas output and error log excerpts",
+          "checks": [["Run swanctl --list-sas after the ping", "The IKE SA is ESTABLISHED and child net is INSTALLED, TUNNEL", "swanctl output"], ["Change the PSK on one gateway and initiate again", "The log shows AUTHENTICATION_FAILED", "journalctl output"], ["Set esp_proposals to aes128gcm16 on one side only", "The child fails with NO_PROPOSAL_CHOSEN", "journalctl output"]],
+          "objectives": ["Configure an IKEv2 site-to-site tunnel with swanctl", "Load and initiate connections and read SA state", "Recognise the three most common IKE errors"]
+        },
+        {
+          "topic": "Tunnel Mode versus Transport Mode",
+          "subtopics": ["Tunnel mode adds a new outer IP header", "Transport mode keeps the original header", "Host-to-host protection with transport mode", "GRE over IPsec transport mode for routing protocols", "Per-packet overhead in each mode", "mode = transport in a swanctl child", "Why cloud VPN gateways use tunnel mode", "Reading the mode in ip xfrm state"],
+          "tools": ["strongSwan", "ip xfrm", "tcpdump"],
+          "lab_task": "Configure a host-to-host child between 192.0.2.10 and 192.0.2.20 with mode = transport, then a second connection with mode = tunnel for the same hosts. Send ping -s 1000 in each mode, capture ESP on the underlay, compare packet sizes, and read the mode field with ip xfrm state.",
+          "deliverable": "Comparison table of packet sizes and use cases for each mode",
+          "checks": [["Run ip xfrm state in each configuration", "Shows mode transport for the first and mode tunnel for the second", "Terminal output"], ["Compare ESP packet lengths for ping -s 1000 in both modes", "Tunnel-mode packets are about 20 bytes larger, the size of the extra IPv4 header", "tcpdump output"], ["Run swanctl --list-sas in transport mode", "The child is shown as INSTALLED, TRANSPORT", "swanctl output"]],
+          "objectives": ["Explain the difference between tunnel and transport mode", "Configure a transport-mode child", "Calculate the overhead of each mode"]
+        },
+        {
+          "topic": "Remote Access VPN with IKEv2 and EAP",
+          "subtopics": ["Road-warrior design with one gateway and many clients", "Virtual IP pools with the pools section", "EAP-MSCHAPv2 compared with EAP-TLS", "Server certificates with serverAuth EKU and a SAN matching the hostname", "Native clients on Windows, macOS, iOS and the strongSwan Android app", "Pushing DNS servers with pool attributes", "Identities: id and eap_id", "Removing a user's access"],
+          "tools": ["strongSwan", "swanctl", "Windows IKEv2 client", "strongSwan for Android"],
+          "lab_task": "Configure a strongSwan connection rw with a pool 10.30.0.0/24, a server certificate for vpn.example.test, remote auth = eap-mschapv2 with eap_id = %any, and two users in the secrets section. Connect from the Windows built-in client or the strongSwan Android app using the hostname, then list leases with swanctl --list-pools --leases.",
+          "deliverable": "rw connection configuration and evidence of two clients connected",
+          "checks": [["Run swanctl --list-pools --leases with a user connected", "The user holds an online lease from 10.30.0.0/24", "swanctl output"], ["Connect using the gateway IP address instead of vpn.example.test", "The client rejects the server certificate because the name does not match", "Client error message"], ["Connect with a wrong password", "The gateway logs an EAP failure and the client is refused", "journalctl output"]],
+          "objectives": ["Build an IKEv2 remote access gateway", "Issue server certificates that native clients accept", "Assign virtual IPs and DNS to clients"]
+        },
+        {
+          "topic": "Full Tunnel versus Split Tunnelling",
+          "subtopics": ["Full tunnel with 0.0.0.0/0 and ::/0", "Split include lists", "Split exclude lists", "IPv6 leaks when only IPv4 is tunnelled", "WireGuard AllowedIPs choices and wg-quick policy routing", "OpenVPN redirect-gateway compared with pushed routes", "IKEv2 traffic selectors for remote access", "Policy trade-offs: bandwidth, local devices and compliance"],
+          "tools": ["wg-quick", "OpenVPN", "curl", "ip route"],
+          "lab_task": "Configure a WireGuard client twice: first with AllowedIPs = 10.10.0.0/16 (split), then with AllowedIPs = 0.0.0.0/0 (full, IPv4 only). In each mode run curl https://ifconfig.me and ip route get 1.1.1.1. In full mode also run ip -6 route get 2606:4700:4700::1111 to find the IPv6 leak, then fix it by adding ::/0.",
+          "deliverable": "Decision table of split and full tunnel trade-offs with test evidence for each mode",
+          "checks": [["In split mode run ip route get 1.1.1.1", "The route uses the physical interface, not wg0", "Terminal output"], ["In full mode run curl https://ifconfig.me", "Returns the VPN gateway's public IP", "Terminal output"], ["With AllowedIPs 0.0.0.0/0 only, run ip -6 route get 2606:4700:4700::1111", "IPv6 leaves through the physical interface, a leak that disappears after adding ::/0", "Terminal output before and after"]],
+          "objectives": ["Configure split and full tunnelling", "Detect and close IPv6 leaks", "Justify a tunnelling policy to stakeholders"]
+        },
+        {
+          "topic": "DNS over the Tunnel: Resolvers, Leaks and Split DNS",
+          "subtopics": ["Pushing DNS servers to VPN clients", "systemd-resolved per-link DNS servers", "Routing domains such as ~corp.example", "The wg-quick DNS key", "OpenVPN DNS options", "Windows NRPT rules for split DNS", "Detecting DNS leaks", "Encrypted DNS in browsers and its effect on VPN DNS"],
+          "tools": ["resolvectl", "dig", "tcpdump", "wg-quick"],
+          "lab_task": "On a Linux client with systemd-resolved, run resolvectl dns wg0 10.10.0.53 and resolvectl domain wg0 ~corp.example. Resolve app.corp.example and example.com with resolvectl query while running tcpdump on wg0 and on eth0 for port 53, and prove which interface each query used.",
+          "deliverable": "Split DNS configuration with captures proving where each query went",
+          "checks": [["Run resolvectl query app.corp.example", "The answer is returned via link wg0", "resolvectl output"], ["Run tcpdump -ni eth0 port 53 during the corp query", "No packets for app.corp.example appear on eth0", "tcpdump output"], ["Run resolvectl query example.com", "The answer is returned via link eth0", "resolvectl output"]],
+          "objectives": ["Configure split DNS for VPN clients", "Prove where DNS queries are sent", "Explain how DNS leaks happen"]
+        },
+        {
+          "topic": "NAT Traversal: UDP 4500, Keepalives and CGNAT",
+          "subtopics": ["Why plain ESP breaks behind NAT", "NAT detection payloads in IKE_SA_INIT", "UDP encapsulation of ESP on port 4500", "NAT keepalives", "NAT and conntrack mapping timeouts", "WireGuard PersistentKeepalive", "Carrier-grade NAT and double NAT", "Port forwarding compared with relays"],
+          "tools": ["strongSwan", "nftables", "tcpdump", "WireGuard"],
+          "lab_task": "Place the strongSwan initiator behind an nftables masquerade router, bring the tunnel up and capture the change from UDP 500 to UDP 4500. Then put a WireGuard client behind the same NAT with net.netfilter.nf_conntrack_udp_timeout=30, leave it idle for 3 minutes and ping it from the hub, first without and then with PersistentKeepalive = 25.",
+          "deliverable": "Capture and notes explaining NAT detection and keepalive results",
+          "checks": [["Run swanctl --list-sas on the initiator", "The IKE SA endpoints use port 4500", "swanctl output"], ["Run tcpdump -ni eth0 'esp or udp port 4500' on the NAT router", "ESP is carried inside UDP 4500 and no bare protocol 50 packets appear", "tcpdump output"], ["Ping the idle WireGuard client from the hub after 3 minutes", "It fails without keepalives and succeeds with PersistentKeepalive = 25", "Ping output for both runs"]],
+          "objectives": ["Explain how IKEv2 detects NAT", "Keep NAT mappings alive for idle tunnels", "Recognise CGNAT limits on inbound connections"]
+        },
+        {
+          "topic": "MTU, Fragmentation and TCP MSS Clamping",
+          "subtopics": ["MTU, MSS and encapsulation overhead", "WireGuard overhead of 60 bytes over IPv4 and 80 over IPv6, and the 1420 default", "ESP overhead with AES-GCM", "Path MTU discovery and ICMP fragmentation needed", "Symptom: ping works but large HTTPS transfers hang", "Testing with ping -M do -s", "MSS clamping with nftables tcp option maxseg size set rt mtu", "Setting a tunnel MTU explicitly"],
+          "tools": ["ping", "nftables", "tcpdump", "curl"],
+          "lab_task": "With wg0 at MTU 1420, run ping -M do -s 1392 10.66.0.2 and then -s 1393. Drop ICMP type 3 on the path to break PMTUD and show a large curl download stalls when the underlay MTU is lowered to 1400. Add an nftables forward rule tcp flags syn tcp option maxseg size set rt mtu and repeat the download.",
+          "deliverable": "MTU test results, the clamping rule and a before-and-after capture of the SYN MSS",
+          "checks": [["Run ping -M do -s 1392 10.66.0.2", "Replies arrive, because 1392 + 28 = 1420", "Ping output"], ["Run ping -M do -s 1393 10.66.0.2", "Fails with message too long, mtu=1420", "Ping output"], ["Repeat the curl download after adding MSS clamping", "The download completes and the SYN shows a clamped MSS", "curl and tcpdump output"]],
+          "objectives": ["Calculate tunnel overhead and safe MTU values", "Diagnose PMTUD black holes", "Apply TCP MSS clamping"]
+        },
+        {
+          "topic": "Firewall Rules and Ports for VPN Traffic",
+          "subtopics": ["Ports: UDP 500 and 4500, ESP, UDP 51820, UDP or TCP 1194, TCP 443", "Input rules on the gateway", "Forward rules between tunnel and LAN", "Matching decrypted IPsec traffic with meta ipsec in nftables", "Default deny with established and related", "Limiting what remote users can reach", "Logging dropped packets with a prefix", "Cloud security groups and NSGs in front of gateways"],
+          "tools": ["nftables", "conntrack", "nmap", "journalctl"],
+          "lab_task": "Write an nftables ruleset with input policy drop that allows udp dport {500, 4500, 51820, 1194} and meta l4proto esp, and a forward chain that lets iifname \"wg0\" reach only ip daddr 10.10.20.0/24 on tcp dport {22, 443}, logging the rest with prefix \"vpn-drop \". Test allowed and denied flows from a VPN client and read the rule counters.",
+          "deliverable": "Commented nftables ruleset with counters and log excerpts from the tests",
+          "checks": [["SSH from a VPN client to 10.10.20.5 then run nft list ruleset", "The accept rule counter has increased", "nft output"], ["curl 10.10.30.5 from the VPN client", "The connection times out and the journal shows a vpn-drop entry", "curl and journal output"], ["Run nmap -Pn -p 22 against the gateway public IP from outside", "Port 22 is reported filtered", "nmap output"]],
+          "objectives": ["Open only the ports a VPN gateway needs", "Restrict what tunnel users can reach", "Use counters and logs to verify firewall policy"]
+        },
+        {
+          "topic": "Mesh Overlays with Tailscale: Tailnets, ACLs and MagicDNS",
+          "subtopics": ["Coordination server compared with the data plane", "WireGuard as the data plane", "Node keys and key expiry", "tailscale up, status and ping", "MagicDNS names", "Subnet routers with --advertise-routes", "Exit nodes with --advertise-exit-node", "Access policy with groups, tags and grants"],
+          "tools": ["Tailscale", "tailscale CLI", "Tailscale admin console"],
+          "lab_task": "Join three devices to a tailnet with tailscale up, enable MagicDNS, and test with tailscale ping node2. On one Linux node enable forwarding and run tailscale up --advertise-routes=192.168.50.0/24, then approve the route in the admin console. Write a policy that lets only group:admins reach tag:server on TCP 22 and test it from an admin and a non-admin.",
+          "deliverable": "Tailnet policy file and test results for allowed and denied access",
+          "checks": [["Run tailscale ping node2", "Returns pong from node2 with a direct ip:port path", "Terminal output"], ["Run tailscale status on any node", "Lists the other two nodes with their 100.x addresses", "Terminal output"], ["SSH to tag:server port 22 as a non-admin user", "The connection times out", "Terminal output"]],
+          "objectives": ["Explain how a mesh overlay differs from a hub VPN", "Publish a subnet route and an exit node", "Restrict access with tailnet policy"]
+        },
+        {
+          "topic": "Packet Captures for VPN Traffic with tcpdump and Wireshark",
+          "subtopics": ["Capturing on the underlay compared with the tunnel interface", "BPF filters: esp, udp port 4500, udp port 51820", "Decrypting IKEv2 and ESP with the strongSwan save-keys plugin", "The Wireshark WireGuard dissector", "Reading ESP sequence numbers to spot loss and replay", "Capture rotation with -C and -W", "Correlating timestamps across two hosts", "Handling captures that contain secrets"],
+          "tools": ["tcpdump", "Wireshark", "strongSwan save-keys plugin"],
+          "lab_task": "Ping 20 times across a WireGuard tunnel while running tcpdump -i eth0 -w under.pcap udp port 51820 and tcpdump -i wg0 -w over.pcap icmp, then compare counts. Next enable the strongSwan save-keys plugin in a lab only, bring an IPsec tunnel up, load the exported tables into Wireshark and decrypt IKE_AUTH and ESP.",
+          "deliverable": "Two captures with a comparison table and a decrypted IKE_AUTH screenshot",
+          "checks": [["Count ICMP packets in over.pcap", "40 packets: 20 requests and 20 replies", "Wireshark statistics"], ["Count WireGuard transport data messages in under.pcap", "At least 40, one per ICMP packet", "Wireshark statistics"], ["Open IKE_AUTH after loading the save-keys tables", "IDi, IDr and AUTH payloads are readable", "Wireshark screenshot"]],
+          "objectives": ["Choose the right interface and filter for a VPN capture", "Decrypt lab IPsec traffic for analysis", "Handle captures with key material safely"]
+        },
+        {
+          "topic": "Diagnosing Tunnels That Will Not Come Up",
+          "subtopics": ["A layered method: reachability, ports, IKE, Child SA, routing, firewall", "Reading charon logs with journalctl -u strongswan", "Raising log levels per subsystem in charon", "WireGuard: why there is no handshake", "OpenVPN: TLS key negotiation failed to occur within 60 seconds", "Missing return routes and asymmetric routing", "rp_filter drops", "Clock skew and expired certificates"],
+          "tools": ["journalctl", "swanctl", "wg", "tcpdump"],
+          "lab_task": "The trainer breaks five tunnels: a wrong PSK, blocked UDP 500, mismatched traffic selectors, a missing return route and a wrong WireGuard Endpoint port. For each fault record the symptom, the command that proved the cause and the fix, and restore each tunnel within 15 minutes.",
+          "deliverable": "Fault log with symptom, evidence command, root cause and fix for all five faults",
+          "checks": [["Fault: UDP 500 blocked", "The initiator log shows repeated IKE_SA_INIT retransmits and then gives up", "journalctl output"], ["Fault: mismatched traffic selectors", "The responder logs TS_UNACCEPTABLE", "journalctl output"], ["Fault: missing return route", "tcpdump on the remote LAN host shows echo requests arriving but no replies entering the tunnel", "tcpdump output"]],
+          "objectives": ["Apply a layered diagnostic method", "Read daemon logs to find the failing stage", "Restore broken tunnels under time pressure"]
+        },
+        {
+          "topic": "Beginner Capstone: Branch Office and Remote Worker VPN",
+          "subtopics": ["Requirements and addressing plan for HQ, branch and remote users", "strongSwan IKEv2 site-to-site tunnel between HQ and branch", "WireGuard remote access for five users with split tunnelling and split DNS", "Firewall policy, MTU and MSS settings", "Test plan with captures and failure drills", "Runbook and handover"],
+          "tools": ["strongSwan", "WireGuard", "nftables", "systemd-resolved", "tcpdump"],
+          "lab_task": "Link HQ 10.10.0.0/16 and branch 10.20.0.0/16 with IKEv2 and AES-GCM using start_action = start. Give five WireGuard users in 10.30.0.0/24 split-tunnel access to HQ only on TCP 22 and 443, with split DNS for corp.example and MSS clamping. Prove each requirement with commands, then restart the branch gateway and show the tunnel returns within 2 minutes.",
+          "deliverable": "Design document, configuration files with secrets redacted, test evidence and a runbook",
+          "checks": [["Run swanctl --list-sas and ping from branch to HQ", "Child INSTALLED and 0% packet loss", "swanctl and ping output"], ["From a remote user run curl https://intranet.corp.example and curl https://ifconfig.me", "The intranet returns HTTP 200 and ifconfig.me shows the user's own ISP address", "curl output"], ["Restart strongSwan on the branch gateway", "The Child SA is re-established within 2 minutes", "Timestamps from journalctl"]],
+          "objectives": ["Combine site-to-site and remote access designs", "Verify a VPN against written requirements", "Document a VPN for handover"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already run basic WireGuard, OpenVPN or strongSwan tunnels and now need production designs. Covers route-based and policy-based VPNs, XFRM interfaces, libreswan interop, certificate authentication with revocation, BGP over tunnels with FRRouting, redundancy with DPD and BFD, AWS Site-to-Site VPN, Azure VPN Gateway, Google Cloud HA VPN and a multi-cloud interconnect, OpenVPN revocation, MFA for remote access, TLS VPNs with ocserv, self-hosted mesh with Headscale and NetBird, vendor interop, overlapping subnets, monitoring and configuration as code, ending with a hybrid cloud capstone.",
+      "prerequisites": ["Has built and debugged WireGuard and strongSwan IKEv2 tunnels and can read swanctl --list-sas and wg show output", "Understands TCP/IP routing, NAT and MTU, and can read tcpdump captures", "Has lab accounts in AWS, Azure and Google Cloud (or at least one of them) with rights to create VPN gateways, and accepts the hourly charges"],
+      "outcomes": ["Design route-based IPsec tunnels with BGP, BFD and redundant paths that fail over in seconds", "Connect on-premises gateways to AWS Site-to-Site VPN, Azure VPN Gateway and Google Cloud HA VPN", "Run remote access with certificates, revocation and multi-factor authentication", "Operate self-hosted mesh overlays and monitor VPNs with metrics, alerts and configuration as code"],
+      "days": [
+        {
+          "topic": "Route-Based versus Policy-Based VPNs",
+          "subtopics": ["Policy-based: traffic selectors decide what is encrypted", "Route-based: a tunnel interface and the routing table decide", "Wide 0.0.0.0/0 selectors for route-based tunnels", "Child SA growth with many subnet pairs", "Why dynamic routing needs route-based tunnels", "Vendor terms: crypto maps, VTIs and route-based VPNs", "Cloud gateway support for each model", "Migrating from policy-based to route-based"],
+          "tools": ["strongSwan", "ip xfrm", "ip route"],
+          "lab_task": "Build a policy-based strongSwan tunnel with three children, one per subnet pair, and count the Child SAs. Rebuild it as route-based with one child using 0.0.0.0/0 selectors and an XFRM interface. Then add a fourth remote subnet with only ip route add 10.2.4.0/24 dev ipsec0 and no strongSwan change.",
+          "deliverable": "Side-by-side design comparison with list-sas output from both models",
+          "checks": [["Run swanctl --list-sas on the policy-based design", "Three Child SAs are INSTALLED", "swanctl output"], ["Run swanctl --list-sas on the route-based design", "One Child SA with selectors 0.0.0.0/0 === 0.0.0.0/0", "swanctl output"], ["Add 10.2.4.0/24 with ip route only and ping a host in it", "Replies arrive without reloading strongSwan", "Ping and ip route output"]],
+          "objectives": ["Compare route-based and policy-based designs", "Convert a policy-based tunnel to route-based", "Explain the scaling limits of selector-based designs"]
+        },
+        {
+          "topic": "Linux XFRM Interfaces and VTIs for Route-Based IPsec",
+          "subtopics": ["XFRM interfaces and the if_id key", "ip link add ipsec0 type xfrm if_id 42", "if_id_in and if_id_out in swanctl children", "Legacy VTI interfaces with marks", "Stopping strongSwan installing routes with charon.install_routes = no", "Interface counters and errors", "Firewalling per tunnel interface", "Several tunnels to one peer"],
+          "tools": ["strongSwan", "iproute2", "nftables"],
+          "lab_task": "Create ipsec0 with ip link add ipsec0 type xfrm dev eth0 if_id 42, set if_id_in = 42 and if_id_out = 42 with 0.0.0.0/0 selectors in the child, set install_routes = no in charon, add ip route 10.2.0.0/16 dev ipsec0, ping 100 times across it, and check interface counters and XFRM state.",
+          "deliverable": "XFRM interface setup script, swanctl child and counter evidence",
+          "checks": [["Run ip -s link show ipsec0 after 100 pings", "TX and RX packet counters are each at least 100", "Terminal output"], ["Run ip xfrm state", "Both SAs show if_id 0x2a", "Terminal output"], ["Run ip route get 10.3.0.1, a prefix not routed to ipsec0", "The route uses eth0, showing only routed prefixes enter the tunnel", "Terminal output"]],
+          "objectives": ["Build a route-based tunnel with an XFRM interface", "Separate tunnel routing from the IKE daemon", "Monitor per-tunnel counters"]
+        },
+        {
+          "topic": "libreswan Site-to-Site with ipsec.conf and NSS",
+          "subtopics": ["The pluto daemon", "conn sections: left, right, leftsubnet, rightsubnet and authby", "ike= and esp= algorithm strings", "NSS database setup with ipsec initnss and certutil", "ipsec auto --add, --up and --down", "ipsec trafficstatus and ipsec status", "Log locations and plutodebug", "Interop with strongSwan peers"],
+          "tools": ["libreswan", "strongSwan", "NSS certutil"],
+          "lab_task": "Bring up a tunnel between a libreswan gateway and a strongSwan gateway. In /etc/ipsec.d/s2s.conf set ikev2=insist, authby=secret, leftsubnet and rightsubnet, ike=aes_gcm256-sha2_384;dh20 and esp=aes_gcm256. Run ipsec auto --add s2s and ipsec auto --up s2s, ping across, and compare libreswan and strongSwan views of the SA.",
+          "deliverable": "libreswan and strongSwan configs with an interop notes page",
+          "checks": [["Run ipsec auto --up s2s", "Output reports an established IKE SA and an established Child SA", "Terminal output"], ["Run ipsec trafficstatus after pinging", "inBytes and outBytes are non-zero", "Terminal output"], ["Run swanctl --list-sas on the strongSwan side", "The IKE SA is ESTABLISHED with the libreswan peer's identity", "swanctl output"]],
+          "objectives": ["Configure libreswan with ipsec.conf", "Translate algorithm strings between implementations", "Prove interoperability between two IKEv2 stacks"]
+        },
+        {
+          "topic": "Certificate Authentication for IPsec with X.509, CRLs and OCSP",
+          "subtopics": ["Gateway certificates with SAN and EKU", "Identity matching: id must match a SAN", "The swanctl x509, x509ca and private directories", "Intermediate CAs and sending the chain", "CRL distribution points and fetching", "OCSP responders", "revocation = strict, ifuri or relaxed", "Monitoring certificate expiry"],
+          "tools": ["strongSwan pki", "swanctl", "openssl"],
+          "lab_task": "Use pki --gen --type ecdsa --size 384 and pki --issue to build a root, an intermediate and two gateway certificates with SANs gw1.example.test and gw2.example.test, each with a CRL distribution point. Set auth = pubkey with matching id and revocation = strict, bring the tunnel up, then revoke gw2 with pki --signcrl, publish the CRL and reconnect.",
+          "deliverable": "PKI scripts, swanctl auth sections and logs from valid, revoked and mismatched tests",
+          "checks": [["Connect with both valid certificates", "swanctl --list-sas shows the IKE SA ESTABLISHED", "swanctl output"], ["Reconnect after revoking gw2", "The log shows the certificate was revoked and authentication fails", "journalctl output"], ["Set remote id to gw3.example.test", "The log reports constraint check failed: identity 'gw3.example.test' required", "journalctl output"]],
+          "objectives": ["Authenticate gateways with certificates", "Enforce revocation checking", "Match IKE identities to certificate names"]
+        },
+        {
+          "topic": "Dynamic Routing over Tunnels with BGP and FRRouting",
+          "subtopics": ["Why VPNs use BGP", "eBGP over /30 or link-local 169.254.x.x inside addresses", "Private ASNs 64512 to 65534", "FRR bgpd configuration with vtysh", "Advertising with network statements and redistribute", "Prefix lists and route maps", "FRR's ebgp-requires-policy default", "Timers and convergence"],
+          "tools": ["FRRouting", "vtysh", "strongSwan", "iproute2"],
+          "lab_task": "Over a route-based tunnel with inside addresses 169.254.10.1/30 and 169.254.10.2/30, run FRR with ASNs 65001 and 65002. Advertise 10.1.0.0/16 and 10.2.0.0/16 through prefix lists and route maps, first omitting the route maps to see the default policy, then adding them. Check show bgp summary and ip route.",
+          "deliverable": "FRR configs for both sides with show command output",
+          "checks": [["Run show bgp summary without route maps", "The neighbor shows (Policy) and no prefixes are exchanged", "vtysh output"], ["Run show bgp summary with route maps applied", "The neighbor is established with PfxRcd 1", "vtysh output"], ["Run ip route show 10.2.0.0/16", "Shows proto bgp via 169.254.10.2 dev ipsec0", "Terminal output"]],
+          "objectives": ["Run eBGP across an IPsec tunnel", "Filter routes with prefix lists and route maps", "Verify learned routes in the kernel"]
+        },
+        {
+          "topic": "Redundant Tunnels, Dead Peer Detection and BFD",
+          "subtopics": ["Two tunnels over two ISPs", "dpd_delay and dpd_action: clear, trap or restart", "IKEv2 liveness checks", "BFD in FRR for sub-second detection", "BGP timers compared with BFD", "Active-standby with local preference or AS-path prepend", "ECMP across tunnels", "Testing failover by blocking UDP"],
+          "tools": ["FRRouting bfdd", "strongSwan", "nftables", "ping"],
+          "lab_task": "Run two route-based tunnels with BGP on each and BFD peers at receive-interval 300, transmit-interval 300 and detect-multiplier 3. Start ping -i 0.2 across the tunnels, block UDP 4500 for tunnel A with nftables, count lost replies, then unblock it and confirm dpd_action = restart brings the Child SA back.",
+          "deliverable": "Failover test report with measured loss and recovery times",
+          "checks": [["Run show bfd peers with both tunnels healthy", "Both peers show Status: up", "vtysh output"], ["Block tunnel A during ping -i 0.2", "Traffic moves to tunnel B with 5 or fewer lost replies", "Ping statistics"], ["Unblock tunnel A", "The Child SA is re-established and BGP over A returns to Established", "journalctl and vtysh output"]],
+          "objectives": ["Design redundant tunnels", "Detect failure quickly with BFD", "Measure failover in packets lost"]
+        },
+        {
+          "topic": "AWS Site-to-Site VPN with Virtual Private and Transit Gateways",
+          "subtopics": ["Customer gateway, virtual private gateway and transit gateway", "Two tunnels per VPN connection on separate AWS endpoints", "Static compared with dynamic (BGP) routing", "Inside tunnel CIDRs as /30 blocks from 169.254.0.0/16", "Tunnel options: IKE version, phase 1 and phase 2 algorithms, DPD", "Downloading the device sample configuration", "Route propagation to VPC route tables", "CloudWatch TunnelState monitoring"],
+          "tools": ["AWS CLI", "AWS Site-to-Site VPN", "strongSwan", "FRRouting", "Amazon CloudWatch"],
+          "lab_task": "Run aws ec2 create-customer-gateway --type ipsec.1 --public-ip <ip> --bgp-asn 65010, create and attach a virtual private gateway, then create-vpn-connection --type ipsec.1. Download the config with get-vpn-connection-device-sample-configuration, build both tunnels on strongSwan with FRR BGP, and enable route propagation on the VPC route table.",
+          "deliverable": "Working dual-tunnel AWS VPN with CLI commands, gateway config and telemetry",
+          "checks": [["Run aws ec2 describe-vpn-connections --query 'VpnConnections[0].VgwTelemetry[*].Status'", "Returns [\"UP\", \"UP\"]", "CLI output"], ["Run show bgp summary on the customer gateway", "Two neighbors established, each receiving the VPC CIDR", "vtysh output"], ["View the TunnelState metric in CloudWatch", "Both tunnels report 1", "CloudWatch graph"]],
+          "objectives": ["Create an AWS Site-to-Site VPN with BGP", "Configure a Linux customer gateway for both tunnels", "Monitor AWS tunnel health"]
+        },
+        {
+          "topic": "Azure VPN Gateway: Active-Active, BGP and Local Network Gateways",
+          "subtopics": ["GatewaySubnet sizing", "VPN gateway SKUs and zone-redundant AZ SKUs", "RouteBased VPN type", "Local network gateways as the on-premises object", "Connections with shared keys and custom IPsec/IKE policy", "Active-active with two public IPs", "BGP with APIPA addresses and the default ASN 65515", "Point-to-site with OpenVPN and Microsoft Entra ID"],
+          "tools": ["Azure CLI", "Azure VPN Gateway", "strongSwan", "FRRouting"],
+          "lab_task": "Create a GatewaySubnet, then az network vnet-gateway create --gateway-type Vpn --vpn-type RouteBased --sku VpnGw2AZ with two public IPs for active-active and --asn 65515. Create a local network gateway with --bgp-peering-address, then az network vpn-connection create --shared-key and --enable-bgp. Build both tunnels from strongSwan and FRR.",
+          "deliverable": "Active-active Azure VPN with BGP and evidence of learned routes",
+          "checks": [["Run az network vnet-gateway list-bgp-peer-status", "Both on-premises peers show state Connected", "CLI output"], ["Run az network vpn-connection show --query connectionStatus", "Returns Connected", "CLI output"], ["Run az network vnet-gateway list-learned-routes", "The on-premises prefix appears with origin EBgp", "CLI output"]],
+          "objectives": ["Deploy an active-active Azure VPN gateway", "Peer BGP with Azure over APIPA addresses", "Verify Azure learned routes"]
+        },
+        {
+          "topic": "Google Cloud HA VPN with Cloud Router",
+          "subtopics": ["HA VPN gateways with two interfaces", "External VPN gateway resources and redundancy types", "Cloud Router and BGP sessions", "Link-local BGP addresses from 169.254.0.0/16", "Topology requirements for the 99.99% SLA", "Supported IKE ciphers", "Regional compared with global dynamic routing mode", "Custom advertised ranges"],
+          "tools": ["gcloud CLI", "Google Cloud HA VPN", "Cloud Router", "strongSwan"],
+          "lab_task": "Run gcloud compute vpn-gateways create ha-gw, external-vpn-gateways create onprem --interfaces 0=<ip1>,1=<ip2>, and routers create cr1 --asn 65020. Create tunnels t0 and t1 on interfaces 0 and 1 with --ike-version 2 and --router cr1, add router interfaces and BGP peers, configure both tunnels on-premises, then stop t0 on-premises.",
+          "deliverable": "HA VPN build script and failover evidence",
+          "checks": [["Run gcloud compute vpn-tunnels describe t0 --format='value(status)'", "Returns ESTABLISHED", "CLI output"], ["Run gcloud compute routers get-status cr1", "Both BGP peers show status UP with learned routes", "CLI output"], ["Stop t0 on-premises while pinging a VM", "Traffic continues over t1 once the BGP session on t0 times out", "Ping output with timestamps"]],
+          "objectives": ["Deploy HA VPN with two tunnels", "Configure Cloud Router BGP peers", "Meet the SLA topology rules"]
+        },
+        {
+          "topic": "Multi-Cloud VPN Interconnect between AWS, Azure and Google Cloud",
+          "subtopics": ["Non-overlapping address plan across clouds", "ASN plan per cloud gateway", "Matching IKE and IPsec parameters between providers", "Inside-address ranges each provider accepts", "Transit choice: a hub cloud or on-premises", "Route quotas per provider", "Cost: gateway hours, tunnel hours and egress", "Measuring latency and throughput between clouds"],
+          "tools": ["AWS CLI", "Azure CLI", "gcloud CLI", "iperf3"],
+          "lab_task": "Connect an AWS transit gateway to Google Cloud HA VPN using four tunnels and BGP, and connect Azure VPN Gateway to AWS with APIPA inside addresses from 169.254.21.0/24. Exchange routes by BGP, ping VM to VM across each pair of clouds, and record latency with ping and throughput with iperf3 -P 4.",
+          "deliverable": "Multi-cloud topology diagram, parameter matrix and measured latency and throughput",
+          "checks": [["Ping a Google Cloud VM's private IP from an AWS VM", "Replies arrive over the VPN", "Ping output"], ["Inspect each cloud's learned or effective routes", "Every cloud has routes to the other two", "Route table exports"], ["Run iperf3 -P 4 across one tunnel", "Throughput is recorded and stays below the provider's per-tunnel limit", "iperf3 output"]],
+          "objectives": ["Plan addresses and ASNs across three clouds", "Match IPsec parameters between providers", "Measure cross-cloud performance"]
+        },
+        {
+          "topic": "OpenVPN with Certificates, tls-crypt-v2 and Revocation",
+          "subtopics": ["tls-crypt-v2 per-client keys", "easyrsa revoke and easyrsa gen-crl", "crl-verify in server.conf", "verify-x509-name on clients", "tls-version-min 1.2 and tls-groups", "reneg-sec and key renegotiation", "The management interface for live sessions", "Checking data channel offload status"],
+          "tools": ["OpenVPN", "Easy-RSA", "openssl"],
+          "lab_task": "Generate a server key with openvpn --genkey tls-crypt-v2-server and per-client keys with --genkey tls-crypt-v2-client. Connect alice and bob, revoke bob with easyrsa revoke bob and easyrsa gen-crl, set crl-verify, disconnect bob through the management interface with kill bob, and try to reconnect him.",
+          "deliverable": "Updated server.conf, client profiles and revocation evidence",
+          "checks": [["Reconnect bob after revocation", "The server log shows a certificate verify error for a revoked certificate", "Server log"], ["Send status to the management interface", "Only alice is listed", "Management output"], ["Run openssl crl -in crl.pem -noout -text", "Bob's serial number is under Revoked Certificates", "Terminal output"]],
+          "objectives": ["Issue per-client control channel keys", "Revoke users and enforce the CRL", "Manage live sessions"]
+        },
+        {
+          "topic": "MFA for Remote Access: RADIUS, TOTP and SAML",
+          "subtopics": ["Factor design: certificate plus password plus one-time code", "RADIUS with FreeRADIUS", "The strongSwan eap-radius plugin", "OpenVPN auth-user-pass-verify and the PAM plugin", "TOTP codes with oathtool", "SAML and OIDC web login in commercial and cloud VPN clients", "Push approvals and number matching", "Brute-force protection with fail2ban"],
+          "tools": ["OpenVPN", "FreeRADIUS", "oathtool", "fail2ban"],
+          "lab_task": "Add auth-user-pass-verify /etc/openvpn/mfa.sh via-file and script-security 2 to an OpenVPN server that already requires certificates. The script checks the password and verifies the 6-digit code with oathtool --totp -b against the user's secret. Add a fail2ban jail on AUTH_FAILED lines with maxretry 5, then test correct, expired and repeated wrong codes.",
+          "deliverable": "MFA script, server config and fail2ban jail with test results",
+          "checks": [["Connect with a valid certificate, password and current code", "The client connects", "Client log"], ["Connect with a code older than 90 seconds", "The client receives AUTH_FAILED", "Client log"], ["Fail authentication 5 times from one address", "fail2ban-client status openvpn lists that address as banned", "fail2ban output"]],
+          "objectives": ["Add a second factor to VPN logins", "Integrate VPN authentication with RADIUS or scripts", "Protect login endpoints from brute force"]
+        },
+        {
+          "topic": "SSL/TLS VPNs: Browser Portals, DTLS and OpenConnect",
+          "subtopics": ["TLS VPN model: TLS on TCP 443 for control and DTLS for data", "Clientless portals compared with full-tunnel clients", "ocserv configuration: auth, ipv4-network, route and dns", "OpenConnect protocol support for several vendor gateways", "Certificate and password authentication on ocserv", "Falling back from DTLS to TLS when UDP is blocked", "Attack surface of internet-facing TLS VPN appliances", "occtl for sessions and statistics"],
+          "tools": ["ocserv", "OpenConnect", "occtl", "nftables"],
+          "lab_task": "Install ocserv with auth = \"plain[passwd=/etc/ocserv/passwd]\", tcp-port and udp-port 443, ipv4-network 10.40.0.0/24 and route 10.10.0.0/16. Add a user with ocpasswd -c /etc/ocserv/passwd alice, connect with openconnect https://vpn.example.test, check occtl show users, then block UDP 443 and confirm the session keeps working.",
+          "deliverable": "ocserv configuration and evidence of DTLS and TLS-only operation",
+          "checks": [["Run occtl show users", "alice is listed with an address from 10.40.0.0/24", "occtl output"], ["Read the openconnect client output", "It reports an established DTLS connection", "Client output"], ["Block UDP 443 and ping an HQ host", "The session continues over TLS only and pings still succeed", "Client output and ping"]],
+          "objectives": ["Explain how TLS VPNs carry traffic", "Deploy an open-source TLS VPN gateway", "Assess the exposure of TLS VPN portals"]
+        },
+        {
+          "topic": "Self-Hosted Control Plane with Headscale",
+          "subtopics": ["Headscale architecture: coordination server, DERP and database", "config.yaml: server_url, listen_addr, prefixes and dns", "Users and pre-auth keys", "Registering nodes with tailscale up --login-server", "Policy files in Headscale", "The embedded DERP server", "Approving subnet routes", "Backup and upgrade of Headscale"],
+          "tools": ["Headscale", "Tailscale client", "Caddy or nginx for TLS"],
+          "lab_task": "Deploy Headscale behind TLS at https://hs.example.test, create user ops, create a reusable pre-auth key, and join three nodes with tailscale up --login-server https://hs.example.test --authkey <key>. Advertise and approve a subnet route with the headscale CLI, then load a policy file that blocks one node from reaching TCP 22 on another.",
+          "deliverable": "Headscale config, policy file and command evidence",
+          "checks": [["Run headscale nodes list", "Three nodes are listed as online", "CLI output"], ["Run tailscale status on a node", "The other two nodes appear with 100.64.x.x addresses", "CLI output"], ["SSH from the blocked node", "The connection times out", "Terminal output"]],
+          "objectives": ["Self-host a Tailscale-compatible control plane", "Register nodes with pre-auth keys", "Apply access policy in Headscale"]
+        },
+        {
+          "topic": "NetBird Mesh: Management, Signal, Relay and Policies",
+          "subtopics": ["NetBird components: management, signal, relay and dashboard", "Identity provider login with OIDC", "Setup keys for servers", "netbird up and netbird status -d", "Groups and access policies", "Network routes and routing peers", "DNS nameserver groups", "Posture checks"],
+          "tools": ["NetBird", "netbird CLI", "NetBird dashboard"],
+          "lab_task": "Register two servers with netbird up --setup-key <key> and a laptop through OIDC login. Create groups dev and servers with a policy allowing dev to reach servers on TCP 22 only, and add a network route 10.50.0.0/24 through a routing peer. Check connection types with netbird status -d.",
+          "deliverable": "NetBird policy, route configuration and access test results",
+          "checks": [["Run netbird status -d on the laptop", "Both servers show Connected with connection type P2P or Relayed", "CLI output"], ["SSH to a server from a dev peer, then from a peer outside dev", "The dev peer connects and the other times out", "Terminal output"], ["Run ip route get 10.50.0.10 on the laptop", "The route uses the NetBird interface wt0", "Terminal output"]],
+          "objectives": ["Deploy a NetBird mesh", "Control access with groups and policies", "Route private subnets through a mesh"]
+        },
+        {
+          "topic": "Interoperability between Vendors: Proposals, Traffic Selectors and Lifetimes",
+          "subtopics": ["Proposal matching and ordering", "IKE and Child SA lifetimes, rekey compared with reauthentication", "Traffic selector narrowing", "Identity types: IP address, FQDN, user FQDN and DN", "Legacy IKEv1 peers and migration", "IKEv2 message fragmentation (RFC 7383)", "Reading a vendor configuration export", "Building an interop test matrix"],
+          "tools": ["strongSwan", "Wireshark", "vendor configuration exports"],
+          "lab_task": "Translate a supplied vendor configuration export into swanctl.conf. Then test three cases: the peer offers 10.1.0.0/16 while local_ts is 10.1.1.0/24, a large certificate chain with fragmentation = yes, and an IP identity on one side against an FQDN on the other. Record the result of each case.",
+          "deliverable": "Interop matrix with the result and log line for each case",
+          "checks": [["Peer proposes 10.1.0.0/16 against local_ts 10.1.1.0/24", "The Child SA installs with the narrowed selector 10.1.1.0/24", "swanctl output"], ["Bring up IKE_AUTH with a large chain and fragmentation = yes", "The capture shows Encrypted Fragment payloads", "Wireshark capture"], ["Use an IP identity against an FQDN identity", "No matching peer config is found and authentication fails", "journalctl output"]],
+          "objectives": ["Translate vendor configurations into strongSwan", "Predict selector narrowing and lifetime behaviour", "Diagnose identity mismatches"]
+        },
+        {
+          "topic": "Overlapping Subnets and NAT Inside Tunnels",
+          "subtopics": ["Why overlaps happen: mergers and default ranges", "1:1 prefix translation (NETMAP)", "Translating before encryption so selectors use the mapped ranges", "nftables prefix snat and dnat", "Managed NAT options on cloud VPN gateways", "DNS answers that must match translated addresses", "Logging translated flows", "Alternatives: renumbering and application proxies"],
+          "tools": ["nftables", "strongSwan", "conntrack", "tcpdump"],
+          "lab_task": "Both sites use 192.168.1.0/24. Map site A to 10.201.1.0/24 and site B to 10.202.1.0/24 with nftables prefix snat and dnat on each gateway, set traffic selectors to 10.201.1.0/24 and 10.202.1.0/24, then ping host 192.168.1.20 at site B as 10.202.1.20 from site A.",
+          "deliverable": "NAT design, nftables rules and translated flow evidence",
+          "checks": [["Ping 10.202.1.20 from a site A host", "Replies come from the site B host 192.168.1.20", "Ping output"], ["Run tcpdump on the site B LAN", "Packets arrive from a 10.201.1.x source", "tcpdump output"], ["Run conntrack -L on the site A gateway", "The entry shows the original 192.168.1.x and the translated 10.201.1.x tuples", "conntrack output"]],
+          "objectives": ["Connect overlapping networks with 1:1 NAT", "Align traffic selectors with translated ranges", "Trace translated flows"]
+        },
+        {
+          "topic": "VPN Monitoring: Tunnel State, Logs and Metrics",
+          "subtopics": ["What to monitor: SA state, handshake age, bytes, rekeys and errors", "strongSwan vici events and swanctl --list-sas --raw", "Prometheus exporters for WireGuard and strongSwan", "Alert rules for stale WireGuard handshakes", "Cloud metrics for AWS, Azure and Google Cloud tunnels", "Log shipping and the log lines worth alerting on", "Synthetic probes through tunnels", "Capacity trends and rekey rates"],
+          "tools": ["Prometheus", "Alertmanager", "Grafana", "blackbox_exporter"],
+          "lab_task": "Run a WireGuard exporter and a strongSwan exporter and scrape them with Prometheus. Write an alert that fires when a peer's latest handshake is older than 180 seconds, add a blackbox_exporter ICMP probe through the tunnel, then stop one peer and watch the alert fire.",
+          "deliverable": "Prometheus config, alert rules and a Grafana panel screenshot",
+          "checks": [["Query the handshake metric in Prometheus", "One series per peer is returned", "Prometheus query result"], ["Stop one peer for 5 minutes", "The stale handshake alert is firing in Alertmanager", "Alertmanager screenshot"], ["Query probe_success for the tunnel probe", "It is 1 while the tunnel is up and 0 while it is down", "Prometheus graph"]],
+          "objectives": ["Choose the right VPN health signals", "Alert on stale tunnels", "Probe tunnels end to end"]
+        },
+        {
+          "topic": "Automating Peer and Tunnel Configuration as Code",
+          "subtopics": ["A source of truth for peers and addresses", "Templating wg0.conf and swanctl.conf with Ansible and Jinja2", "Handling private keys and PSKs with Ansible Vault", "Idempotent reloads with wg syncconf and swanctl --load-conns", "Terraform resources for cloud VPNs", "Drift detection", "Onboarding and offboarding peers", "Reviewing and testing configuration changes"],
+          "tools": ["Ansible", "Ansible Vault", "Terraform", "WireGuard"],
+          "lab_task": "Write an Ansible role that renders wg0.conf from peers.yml with secrets in Ansible Vault and applies it with wg syncconf. Run it twice to show idempotence, add a peer by editing peers.yml only, and define one aws_vpn_connection in Terraform. Change a tunnel option in the console and run terraform plan.",
+          "deliverable": "Ansible role, Terraform module and run logs",
+          "checks": [["Run the playbook a second time", "The recap shows changed=0", "Ansible output"], ["Add a peer to peers.yml and run the playbook", "wg show lists the new peer", "wg show output"], ["Run terraform plan after the console change", "The plan shows 1 to change", "Terraform output"]],
+          "objectives": ["Manage VPN configuration from a source of truth", "Keep VPN secrets out of plain text", "Detect configuration drift"]
+        },
+        {
+          "topic": "Intermediate Capstone: Hybrid Cloud Hub with Redundant BGP Tunnels",
+          "subtopics": ["Design: an on-premises hub connected to AWS, Azure and Google Cloud", "Route-based IPsec with strong authentication", "BGP with filters and BFD on every tunnel", "Remote access with MFA landing on the hub", "Monitoring and alerting", "Failover test report"],
+          "tools": ["strongSwan", "FRRouting", "AWS Site-to-Site VPN", "Azure VPN Gateway", "Google Cloud HA VPN", "Prometheus"],
+          "lab_task": "Build an on-premises hub with two ISP links connected to all three clouds using two tunnels per cloud, BGP with prefix filters, and BFD where the peer supports it. Remote users log in with certificate plus TOTP and reach VMs in every cloud. Fail ISP1 during a continuous ping and record loss, then restore it and confirm alerts cleared.",
+          "deliverable": "Design document, configs, dashboards and a failover test report",
+          "checks": [["Inspect routes in each cloud", "Each cloud has routes to on-premises and the other two clouds", "Route table exports"], ["Fail ISP1 during ping -i 0.2", "Loss stays below the target written in the design document", "Ping statistics"], ["Log in as a remote user with MFA and curl a VM in each cloud", "All three return HTTP 200", "curl output"]],
+          "objectives": ["Combine cloud and on-premises VPNs in one routed design", "Prove redundancy with measured failover", "Operate the design with monitoring and runbooks"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior network, security and platform engineers who already run routed, redundant VPNs in production and now own a VPN platform at scale. Covers throughput engineering, post-quantum key exchange, hub-and-spoke with hundreds of spokes, AWS Transit Gateway ECMP and Accelerated VPN, Azure Virtual WAN, Google Cloud HA VPN SLA design, BGP path control, gateway hardening, short-lived certificates, device posture, gateway high availability, kernel-level debugging, nested-tunnel MTU, WireGuard encryption in Kubernetes, incident response, restrictive networks, FIPS and CNSA 2.0, mesh policy as code, and a one-day comparison of VPN with ZTNA, ending with a global platform capstone.",
+      "prerequisites": ["Operates route-based IPsec with BGP and BFD and has connected at least one cloud provider VPN", "Reads ip xfrm, swanctl, wg and FRR output fluently and debugs from packet captures", "Has lab access to Linux hosts with root, a Kubernetes cluster, and at least one cloud account with VPN quotas"],
+      "outcomes": ["Engineer VPN gateways for measured throughput, scale and high availability", "Apply post-quantum, FIPS and CNSA 2.0 cryptography requirements to IKEv2 and WireGuard designs", "Harden, monitor and respond to incidents on internet-facing VPN infrastructure", "Decide where VPNs, mesh overlays and ZTNA each fit and plan migrations between them"],
+      "days": [
+        {
+          "topic": "VPN Throughput Engineering: Multi-Core, Offload and Benchmarks",
+          "subtopics": ["Measuring with iperf3 -P and -R, throughput compared with packets per second", "Why one SA often runs on one CPU core", "AES-NI compared with ChaCha20-Poly1305 performance", "Multiple SAs and per-CPU SAs (RFC 9611) where kernel and daemon support them", "NIC ESP offload", "GRO and GSO for WireGuard", "OpenVPN data channel offload", "RPS, IRQ affinity and softirq tuning"],
+          "tools": ["iperf3", "mpstat", "openssl speed", "ethtool"],
+          "lab_task": "Baseline iperf3 -c 10.2.0.10 -t 30 with -P 1 and -P 8 through an AES-GCM IPsec tunnel and a WireGuard tunnel while running mpstat -P ALL 1 to find the saturated core. Run openssl speed -evp aes-256-gcm and -evp chacha20-poly1305, apply one tuning change, and repeat each test three times.",
+          "deliverable": "Benchmark report with before-and-after throughput, CPU profiles and the change applied",
+          "checks": [["Run mpstat during the single-stream IPsec test", "One core is near 100% with most time in softirq", "mpstat output"], ["Compare openssl speed results for the two ciphers", "Bytes per second for AES-256-GCM and ChaCha20-Poly1305 at 16 KB blocks are recorded", "openssl output"], ["Repeat iperf3 three times after tuning", "The median throughput change is recorded as a percentage against the baseline", "Results table"]],
+          "objectives": ["Benchmark VPN throughput reproducibly", "Find CPU bottlenecks in tunnel processing", "Apply and measure one tuning change at a time"]
+        },
+        {
+          "topic": "Post-Quantum Key Exchange in IKEv2 and WireGuard",
+          "subtopics": ["Harvest-now-decrypt-later risk", "ML-KEM as standardised in FIPS 203", "Hybrid key exchange with IKEv2 multiple key exchanges (RFC 9370)", "The IKE_INTERMEDIATE exchange (RFC 9242)", "strongSwan proposal syntax with ke1_mlkem768", "IKE fragmentation with larger key shares", "WireGuard PresharedKey as a post-quantum hedge and Rosenpass", "Vendor readiness and interop testing"],
+          "tools": ["strongSwan", "Wireshark", "wg"],
+          "lab_task": "On strongSwan 6 gateways built with ML-KEM support, set proposals = aes256gcm16-prfsha384-x25519-ke1_mlkem768 and fragmentation = yes. Bring the tunnel up while capturing, find the IKE_INTERMEDIATE exchange, then test against a peer without ML-KEM. For WireGuard add a PresharedKey generated with wg genpsk to every peer.",
+          "deliverable": "Hybrid post-quantum configuration, capture and a readiness note for each peer type",
+          "checks": [["Run swanctl --list-sas", "The IKE SA algorithm line lists ML-KEM-768 as an additional key exchange", "swanctl output"], ["Inspect the capture", "An IKE_INTERMEDIATE exchange sits between IKE_SA_INIT and IKE_AUTH", "Wireshark capture"], ["Connect a peer without ML-KEM while ML-KEM is required", "Negotiation fails with NO_PROPOSAL_CHOSEN", "journalctl output"]],
+          "objectives": ["Explain the post-quantum threat to VPN key exchange", "Configure hybrid ML-KEM key exchange in IKEv2", "Add a post-quantum hedge to WireGuard"]
+        },
+        {
+          "topic": "Scaling Hub-and-Spoke to Hundreds of Spokes",
+          "subtopics": ["Hub capacity: IKE SAs, Child SAs, CPU and memory", "Spoke-to-spoke traffic through the hub or direct", "Certificate-based spoke onboarding with wildcard remote identities", "Address and ASN allocation per spoke", "BGP dynamic neighbours with bgp listen range", "Rekey storms and rand_time jitter", "Load testing IKE with the strongSwan load-tester plugin", "Hub pairs and spoke dual-homing"],
+          "tools": ["strongSwan load-tester", "FRRouting", "swanctl"],
+          "lab_task": "Enable the strongSwan load-tester plugin on a test initiator and open 500 IKE SAs against the hub. Record establishment rate, hub CPU and resident memory. On the hub configure FRR with bgp listen range 169.254.0.0/16 peer-group SPOKES, connect 20 spokes and set rekey_time with rand_time so rekeys spread out.",
+          "deliverable": "Hub sizing report with per-SA memory and a dynamic BGP configuration",
+          "checks": [["Run swanctl --stats on the hub", "500 IKE SAs are reported established", "swanctl output"], ["Divide the hub's resident memory growth by the SA count", "A per-SA memory figure is recorded for the sizing model", "Calculation sheet"], ["Run show bgp summary on the hub", "20 neighbours appear, marked with * as dynamic", "vtysh output"]],
+          "objectives": ["Size a VPN hub from measured data", "Onboard spokes without per-spoke hub config", "Avoid rekey storms"]
+        },
+        {
+          "topic": "AWS Transit Gateway ECMP and Accelerated VPN at Scale",
+          "subtopics": ["Per-tunnel bandwidth limits and ECMP across tunnels", "The VpnEcmpSupport transit gateway option", "Accelerated Site-to-Site VPN through AWS Global Accelerator", "Transit gateway route tables, associations and propagations", "Segmentation with several route tables", "TunnelDataIn and TunnelDataOut metrics and Transit Gateway Flow Logs", "Tunnel endpoint maintenance and lifecycle control", "Route quotas per BGP session"],
+          "tools": ["AWS CLI", "AWS Transit Gateway", "Amazon CloudWatch", "iperf3"],
+          "lab_task": "Create a transit gateway with --options VpnEcmpSupport=enable, then two accelerated VPN connections with EnableAcceleration=true to two customer gateways, giving four BGP tunnels with equal AS paths. Run iperf3 with 16 parallel flows from on-premises to a VPC and watch TunnelDataOut across all four tunnels.",
+          "deliverable": "ECMP VPN design with CloudWatch evidence and aggregate throughput results",
+          "checks": [["Run aws ec2 describe-transit-gateways", "Options show VpnEcmpSupport set to enable", "CLI output"], ["View TunnelDataOut for the four tunnels during the test", "All four tunnels carry traffic", "CloudWatch graph"], ["Sum the iperf3 result", "Aggregate throughput is higher than one tunnel achieved alone", "iperf3 output"]],
+          "objectives": ["Scale AWS VPN bandwidth with ECMP", "Use accelerated VPN for long-distance sites", "Segment VPN routing with transit gateway route tables"]
+        },
+        {
+          "topic": "Azure Virtual WAN Hubs and Point-to-Site at Scale",
+          "subtopics": ["Virtual WAN hub VPN gateways and scale units", "VPN sites and links", "User VPN with OpenVPN and Microsoft Entra ID", "Hub routing: route tables, labels and propagation", "Branch-to-branch transit", "Address pools per user group", "NAT rules on VPN gateways", "IKEDiagnosticLog, TunnelDiagnosticLog and P2SDiagnosticLog"],
+          "tools": ["Azure CLI", "Azure Virtual WAN", "Log Analytics", "Azure VPN Client"],
+          "lab_task": "Run az network vwan create, az network vhub create and az network vpn-gateway create --scale-unit 2. Add two VPN sites and connect them. Configure user VPN with Entra ID and two user groups mapped to separate address pools. Send diagnostics to Log Analytics and query IKEDiagnosticLog.",
+          "deliverable": "Virtual WAN design with KQL queries and test results",
+          "checks": [["Run a KQL query on IKEDiagnosticLog", "Entries show IKE SAs established for both sites", "Log Analytics result"], ["Connect one user from each group", "Each user receives an address from their group's pool", "Azure VPN Client details"], ["Run traceroute from branch 1 to branch 2", "The path transits the Virtual WAN hub", "traceroute output"]],
+          "objectives": ["Deploy Virtual WAN VPN at scale", "Assign address pools by identity group", "Troubleshoot with Azure diagnostic logs"]
+        },
+        {
+          "topic": "Google Cloud HA VPN over Cloud Interconnect and SLA Design",
+          "subtopics": ["HA VPN over Cloud Interconnect to encrypt private links", "Encrypted VLAN attachments", "99.99% compared with 99.9% topologies", "Active-active compared with active-passive using advertised route priority", "Cloud Router custom advertisements", "Adding tunnels for bandwidth", "Cloud Monitoring metrics for tunnels", "Network Connectivity Center hubs with VPN spokes"],
+          "tools": ["gcloud CLI", "Google Cloud HA VPN", "Cloud Router", "Cloud Monitoring"],
+          "lab_task": "Connect two VPCs with HA VPN to HA VPN. Make it active-passive with gcloud compute routers update-bgp-peer --advertised-route-priority=200 on the interface 1 peers, check the chosen path with gcloud compute routers get-status, then delete the tunnel on interface 0 and measure the switchover. Chart the outage in Cloud Monitoring.",
+          "deliverable": "SLA topology review and failover evidence",
+          "checks": [["Run gcloud compute routers get-status before the failure", "The best route uses the interface 0 tunnel with the lower priority value", "CLI output"], ["Run get-status after deleting the interface 0 tunnel", "The route moves to the interface 1 tunnel", "CLI output"], ["Chart the tunnel metrics in Cloud Monitoring", "The outage window is visible and its length is recorded", "Chart screenshot"]],
+          "objectives": ["Design HA VPN topologies that meet the SLA", "Control active and passive paths with route priority", "Plan encrypted transport over Interconnect"]
+        },
+        {
+          "topic": "BGP Policy over VPNs: AS-Path Prepending, MED and Route Filtering",
+          "subtopics": ["Inbound compared with outbound path control", "AS-path prepending for backup tunnels", "MED and local preference", "maximum-prefix limits to protect peers", "Summarising before advertising", "Communities for tagging routes", "Preventing transit leaks between clouds", "Route maps with match and set in FRR"],
+          "tools": ["FRRouting", "vtysh", "cloud route tables"],
+          "lab_task": "With two tunnels to the same cloud, prepend your ASN twice on the backup tunnel's outbound route map and set local-preference 200 inbound on the primary. Add neighbor maximum-prefix 100 and have a lab peer advertise 150 prefixes. Add a filter that stops cloud A's prefixes being advertised to cloud B.",
+          "deliverable": "Route policy configuration and evidence of each control working",
+          "checks": [["Run show bgp ipv4 unicast 10.2.0.0/16", "The best path uses the primary tunnel with local preference 200", "vtysh output"], ["Inspect the cloud's learned routes", "The backup route shows an AS path two hops longer", "Cloud route output"], ["Advertise 150 prefixes from the lab peer", "The session drops to Idle (PfxCt)", "vtysh output"]],
+          "objectives": ["Steer traffic across tunnels with BGP attributes", "Protect sessions with prefix limits", "Stop unintended transit between clouds"]
+        },
+        {
+          "topic": "Hardening IPsec and WireGuard Gateways",
+          "subtopics": ["Minimal services and exposed ports", "Allow only strong proposals", "Disable IKEv1 and aggressive mode", "Cookies and half-open SA thresholds against IKE floods", "Permissions on keys and secrets", "Patching and tracking advisories", "Isolating the management plane", "Host hardening baselines and audit logs"],
+          "tools": ["ike-scan", "nmap", "strongSwan", "auditd"],
+          "lab_task": "On your own lab gateway only, run ike-scan for IKEv1 and nmap -sU -p 500,4500 to list what is exposed, remove weak proposals and IKEv1, set mode 600 on /etc/swanctl/private and /etc/wireguard/wg0.conf, and lower charon.cookie_threshold. Then open many half-open SAs from a test host and capture the gateway's responses.",
+          "deliverable": "Hardening checklist with before-and-after scan results",
+          "checks": [["Run ike-scan in IKEv1 mode against the gateway", "No handshake is returned", "ike-scan output"], ["Run stat on the key and config files", "Mode 600 owned by root", "stat output"], ["Open half-open SAs above cookie_threshold", "The gateway replies with a COOKIE notify", "Wireshark capture"]],
+          "objectives": ["Reduce the attack surface of VPN gateways", "Enforce strong cryptography only", "Resist IKE flooding"]
+        },
+        {
+          "topic": "Short-Lived Certificates and Automated Enrolment for VPN Clients",
+          "subtopics": ["Why short lifetimes reduce reliance on revocation", "A private CA with step-ca", "ACME, SCEP and EST enrolment", "Device certificates through MDM", "Renewal automation with systemd timers or step ca renew --daemon", "HSM or KMS protection for CA keys", "CRL and OCSP at scale", "Rotating trust anchors"],
+          "tools": ["step-ca", "step CLI", "strongSwan", "openssl"],
+          "lab_task": "Run step-ca with an intermediate trusted by strongSwan. Issue a 24-hour client certificate with step ca certificate alice alice.crt alice.key --not-after 24h, connect, then run step ca renew --daemon to renew before expiry. Separately issue a 5-minute certificate, let it expire and try to connect.",
+          "deliverable": "CA setup, renewal configuration and connection logs",
+          "checks": [["Run openssl x509 -in alice.crt -noout -enddate", "The end date is 24 hours after issue", "openssl output"], ["Connect with the expired 5-minute certificate", "The gateway rejects it as expired", "journalctl output"], ["Check alice.crt after the renewal daemon runs", "A new serial number with a later end date", "openssl output"]],
+          "objectives": ["Run a private CA for VPN clients", "Automate certificate renewal", "Rely on expiry rather than revocation"]
+        },
+        {
+          "topic": "Device Posture and Conditional Access for Remote Access VPN",
+          "subtopics": ["Posture signals: OS version, disk encryption and EDR status", "Checking posture before and after connection", "NetBird posture checks", "Tailscale device posture", "Entra ID conditional access for Azure user VPN", "Certificate-bound device identity", "Quarantine networks and remediation", "Privacy limits on posture data"],
+          "tools": ["NetBird", "Tailscale", "Microsoft Entra ID"],
+          "lab_task": "In NetBird create posture checks for a minimum client version, a minimum OS version and a required running process, and attach them to the policy for the servers group. Connect a compliant laptop and a non-compliant one, then stop the required process on the compliant laptop and time how long access lasts.",
+          "deliverable": "Posture policy and test results for compliant and non-compliant devices",
+          "checks": [["SSH from the compliant laptop", "Access is allowed", "Terminal output"], ["Stop the required process", "Access is removed and the time taken is recorded", "Terminal output with timestamps"], ["View the peer in the dashboard", "The failing posture check is named", "Dashboard screenshot"]],
+          "objectives": ["Tie VPN access to device health", "Configure posture checks in a mesh overlay", "Balance posture enforcement with privacy"]
+        },
+        {
+          "topic": "High-Availability VPN Gateways with Keepalived and State Sync",
+          "subtopics": ["Active-standby with VRRP through keepalived", "Floating public IPs on premises and in cloud", "The strongSwan HA plugin and its limits", "Failover by fast reconnect compared with SA sync", "WireGuard HA with the same key on two nodes and its risks", "conntrackd for forwarded flows", "Avoiding split brain", "Measuring failover"],
+          "tools": ["keepalived", "conntrackd", "strongSwan", "WireGuard"],
+          "lab_task": "Run two gateways with keepalived holding a VIP and identical strongSwan configs, plus conntrackd for forwarded flows. With an SSH session and ping -i 0.2 running through the tunnel, stop keepalived on the master and measure how long until the peer re-establishes through DPD on the backup.",
+          "deliverable": "HA design, configs and a failover timing report",
+          "checks": [["Run ip addr on the backup after the master stops", "The VIP is present on the backup", "Terminal output"], ["Count lost pings during failover", "The loss window in seconds is recorded and compared with the DPD settings", "Ping statistics"], ["Type in the SSH session after failover", "The session continues without reconnecting", "Terminal recording"]],
+          "objectives": ["Build active-standby VPN gateways", "Preserve forwarded flows across failover", "Measure and tune failover time"]
+        },
+        {
+          "topic": "Kernel-Level Debugging with ip xfrm, Counters and Daemon Logs",
+          "subtopics": ["ip xfrm state and ip xfrm policy", "ip -s xfrm state counters: replay and integrity failures", "/proc/net/xfrm_stat counters", "ip xfrm monitor", "charon log levels per subsystem: ike, cfg, knl, net, enc", "WireGuard dynamic debug", "Finding drops with nstat and dropwatch", "Replay window problems"],
+          "tools": ["iproute2", "tc netem", "strongSwan", "dropwatch"],
+          "lab_task": "Create three faults and read /proc/net/xfrm_stat before and after each: delete the inbound SA with ip xfrm state delete src <peer> dst <local> proto esp spi <spi>, reorder ESP packets with tc qdisc add dev eth0 root netem reorder 50% delay 50ms with a replay window of 32, and install an outbound block policy with ip xfrm policy add ... action block.",
+          "deliverable": "Fault table mapping each fault to its counter and log line",
+          "checks": [["Delete the inbound SA and send traffic", "XfrmInNoStates increases", "xfrm_stat before and after"], ["Apply netem reordering", "XfrmInStateSeqError increases", "xfrm_stat before and after"], ["Install the outbound block policy", "XfrmOutPolBlock increases", "xfrm_stat before and after"]],
+          "objectives": ["Read kernel IPsec state and counters", "Link counters to root causes", "Debug below the IKE daemon"]
+        },
+        {
+          "topic": "MTU at Scale: PMTUD Black Holes, PLPMTUD and Nested Tunnels",
+          "subtopics": ["Nested encapsulation: WireGuard over IPsec, VXLAN over VPN", "Calculating stacked overhead", "PMTUD black holes from filtered ICMP", "PLPMTUD (RFC 8899) and net.ipv4.tcp_mtu_probing", "IPv6: no fragmentation by routers", "Fragmenting before or after encryption", "Provider MTU limits on cloud VPNs", "Fleet-wide MTU audits"],
+          "tools": ["ping", "tracepath", "tcpdump", "sysctl"],
+          "lab_task": "Run WireGuard inside an IPsec tunnel and calculate the largest inner packet. Write a script that binary-searches ping -M do -s sizes and compare its result with the calculation. Then drop ICMP type 3 on the path, start a large transfer with tcp_mtu_probing=0, and repeat with tcp_mtu_probing=1.",
+          "deliverable": "Overhead calculation, search script and black-hole test results",
+          "checks": [["Run the binary-search script", "The largest working size matches the calculation or the difference is explained", "Script output"], ["Transfer with ICMP blocked and tcp_mtu_probing=0", "The transfer stalls with repeated retransmissions of full-size segments", "tcpdump output"], ["Transfer with tcp_mtu_probing=1", "The transfer completes after TCP lowers its segment size", "Transfer output"]],
+          "objectives": ["Calculate MTU for stacked tunnels", "Detect and work around PMTUD black holes", "Audit MTU across a fleet"]
+        },
+        {
+          "topic": "VPN Encryption Inside Kubernetes Clusters with WireGuard",
+          "subtopics": ["Node-to-node encryption with Cilium WireGuard", "Calico WireGuard mode", "Key distribution by the CNI", "Verifying encryption on the wire", "Overhead and CNI MTU", "Reaching on-premises networks from pods through site-to-site gateways", "Joining clusters to a mesh overlay with the Tailscale operator", "Performance cost of in-cluster encryption"],
+          "tools": ["Cilium", "Helm", "tcpdump", "iperf3"],
+          "lab_task": "Install Cilium with --set encryption.enabled=true --set encryption.type=wireguard, run cilium encrypt status, capture between two nodes while pods talk, then run iperf3 pod to pod with encryption on and off and compare.",
+          "deliverable": "Cluster encryption config, capture evidence and a performance comparison",
+          "checks": [["Run cilium encrypt status", "Encryption shows Wireguard with one peer per other node", "CLI output"], ["Capture between nodes during pod traffic", "Pod traffic appears only as UDP 51871 WireGuard packets", "tcpdump output"], ["Compare iperf3 results with encryption on and off", "The throughput difference is recorded as a percentage", "Results table"]],
+          "objectives": ["Encrypt pod traffic between nodes", "Verify in-cluster encryption on the wire", "Measure its performance cost"]
+        },
+        {
+          "topic": "Incident Response for Exposed VPN Appliances and Key Compromise",
+          "subtopics": ["Why internet-facing VPN appliances are frequent targets", "Tracking vendor advisories and the CISA Known Exploited Vulnerabilities catalog", "Indicators: config changes, new accounts and unusual logins", "Vendor integrity checking tools", "Rotating PSKs, certificates and WireGuard keys", "Revoking sessions and forcing reauthentication", "Preserving logs and building a timeline", "Communication and service restoration"],
+          "tools": ["Ansible", "strongSwan", "WireGuard", "log analysis tools"],
+          "lab_task": "Using supplied VPN logs that show logins from an unusual network, build a timeline from first sighting to containment. Rotate every WireGuard key with an Ansible play, replace the PSKs on three site-to-site tunnels one at a time without an outage, and prove the old keys no longer work.",
+          "deliverable": "Incident timeline, rotation runbook and verification evidence",
+          "checks": [["Connect with an old WireGuard private key", "No handshake completes", "wg show output"], ["Run swanctl --list-sas after the PSK rotation", "All three tunnels are ESTABLISHED", "swanctl output"], ["Review the timeline", "Each event cites its log source and timestamp", "Timeline document"]],
+          "objectives": ["Respond to a suspected VPN compromise", "Rotate VPN credentials with minimal outage", "Build an evidence-based timeline"]
+        },
+        {
+          "topic": "Restrictive Networks: TCP Fallback, Port 443 and Relay Servers",
+          "subtopics": ["Captive portals and networks that block UDP", "OpenVPN over TCP 443 and TCP-over-TCP meltdown", "IKE over TCP (RFC 9329) in vendor products", "DTLS to TLS fallback in TLS VPNs", "Tailscale DERP relays", "NetBird relay servers", "WireGuard on UDP 443", "Measuring the latency cost of relays"],
+          "tools": ["OpenVPN", "Tailscale", "NetBird", "nftables"],
+          "lab_task": "Block all UDP egress on a client network with nftables. Confirm an OpenVPN UDP profile fails and a proto tcp-client port 443 profile connects. Run tailscale ping to a peer, note it goes through DERP, remove the block, and compare latency direct and relayed.",
+          "deliverable": "Fallback test matrix with latency measurements",
+          "checks": [["Run tailscale ping with UDP blocked", "Replies report via DERP with a region code", "CLI output"], ["Compare tailscale ping latency relayed and direct", "The extra latency in milliseconds is recorded", "Results table"], ["Connect OpenVPN with proto tcp-client on port 443", "The log shows Initialization Sequence Completed", "Client log"]],
+          "objectives": ["Keep remote access working on restrictive networks", "Explain the costs of TCP tunnels and relays", "Measure relay penalties"]
+        },
+        {
+          "topic": "Compliance-Grade Cryptography: FIPS 140-3 and CNSA 2.0",
+          "subtopics": ["What FIPS 140-3 validation covers and what FIPS mode means", "WireGuard's fixed primitives and FIPS implications", "strongSwan and libreswan with a FIPS-validated crypto module", "CNSA 2.0 algorithms: AES-256, SHA-384, ML-KEM-1024 and ML-DSA-87", "Transition timelines and how to track them", "Audit evidence: config dumps and negotiated proposals", "Disallowed algorithm lists", "Documenting exceptions"],
+          "tools": ["libreswan", "strongSwan", "openssl"],
+          "lab_task": "On a RHEL-family host booted in FIPS mode, confirm cat /proc/sys/crypto/fips_enabled returns 1. Configure the gateway to allow only AES-256-GCM, SHA-384 and P-384, connect a compliant peer, then a peer offering only ChaCha20-Poly1305, and build an evidence pack.",
+          "deliverable": "FIPS configuration and an audit evidence pack",
+          "checks": [["Run cat /proc/sys/crypto/fips_enabled", "Returns 1", "Terminal output"], ["Connect a peer offering only ChaCha20-Poly1305", "Negotiation fails with NO_PROPOSAL_CHOSEN", "Gateway log"], ["Show the SA for the compliant peer", "Lists AES-GCM 256 and the P-384 group", "SA status output"]],
+          "objectives": ["Configure VPNs for FIPS environments", "Map CNSA 2.0 requirements to VPN settings", "Produce compliance evidence"]
+        },
+        {
+          "topic": "Large-Scale Mesh Overlays: Policy as Code, Exit Nodes and Subnet Routers",
+          "subtopics": ["Tailnet policy files in Git with CI deployment", "The tests section of the policy file", "Tags and autoApprovers for routes and exit nodes", "Redundant subnet routers", "Exit node selection and app connectors", "Ephemeral nodes and auth key lifetimes", "Audit logs and network flow logs", "Equivalent features in Headscale and NetBird"],
+          "tools": ["Tailscale", "Tailscale GitOps action", "Git", "CI pipeline"],
+          "lab_task": "Keep the tailnet policy in Git and deploy it from CI. Add tests asserting group:dev can reach tag:db:5432 and cannot reach tag:prod:22, then push a change that breaks one test. Set autoApprovers for 10.60.0.0/24, run two subnet routers for it, stop the primary, and join an ephemeral node then log it out.",
+          "deliverable": "Policy repository, CI pipeline and failover evidence",
+          "checks": [["Push a policy change that violates a test", "The CI job fails and the policy is not applied", "CI log"], ["Stop the primary subnet router during a ping", "Traffic moves to the secondary router", "Ping output"], ["Log out the ephemeral node", "It disappears from tailscale status without manual removal", "CLI output"]],
+          "objectives": ["Manage mesh policy as tested code", "Run redundant subnet routers", "Control node lifecycles at scale"]
+        },
+        {
+          "topic": "ZTNA Compared with VPN: Migration Planning and Coexistence",
+          "subtopics": ["Network-level access compared with per-application access", "Identity-aware proxies and connectors", "Where VPNs still fit: site-to-site, legacy protocols and bulk transfer", "Mapping VPN users and flows to applications", "Phased migration and coexistence", "Measuring risk reduction as reachable hosts per user", "Cost and operations comparison", "Writing a decision record"],
+          "tools": ["VPN flow logs", "spreadsheet or Python", "architecture decision record template"],
+          "lab_task": "Take one week of VPN flow logs, count distinct destinations per user group, and classify each destination as web, SSH or RDP, or legacy. Write a plan that moves the five most used web apps to ZTNA while site-to-site IPsec stays, and calculate how many hosts each group can reach before and after.",
+          "deliverable": "Flow analysis, migration plan and decision record",
+          "checks": [["Analyse the flow logs", "A table lists distinct destinations per group with their category", "Analysis output"], ["Compare reachable hosts before and after", "The reduction is given as a percentage per group", "Calculation sheet"], ["Review the plan", "Every legacy protocol has a named access path", "Plan document"]],
+          "objectives": ["Compare VPN and ZTNA access models", "Base migration decisions on flow data", "Plan coexistence of VPN and ZTNA"]
+        },
+        {
+          "topic": "Advanced Capstone: Global Multi-Region VPN Platform with Failover and Audit",
+          "subtopics": ["Requirements: three regions, 200 sites, 5,000 remote users", "Hub pairs per region with BGP policy and BFD", "Hybrid post-quantum IKEv2 and short-lived certificates", "Cloud VPN integration with ECMP and SLA topologies", "Monitoring, hardening and incident runbooks", "Load, failover and compliance test report"],
+          "tools": ["strongSwan", "FRRouting", "keepalived", "step-ca", "Prometheus", "AWS Transit Gateway"],
+          "lab_task": "Build a reduced version of a global platform: two regions, each with an HA hub pair, 50 load-tester spokes, ECMP to one cloud, hybrid ML-KEM proposals and 24-hour certificates. Fail a hub, a region link and the CA in turn, recording loss and recovery. Deliver a sizing model scaled to 200 sites and an audit evidence pack.",
+          "deliverable": "Platform design, sizing model, test report and audit evidence pack",
+          "checks": [["Stop the active hub in region 1", "Spokes re-establish on the standby within the target in the design", "Timestamps and ping statistics"], ["Stop the CA and force a client renewal", "Existing tunnels stay up and the renewal failure alert fires", "Alertmanager and swanctl output"], ["Check negotiated proposals on all spokes", "Every SA uses the approved hybrid proposal", "Exported SA report"]],
+          "objectives": ["Design a VPN platform for global scale", "Prove resilience with fault injection", "Deliver audit-ready documentation"]
+        }
+      ]
+    }
+  }
+}

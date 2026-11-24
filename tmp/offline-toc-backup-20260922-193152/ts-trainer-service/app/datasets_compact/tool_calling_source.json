@@ -1,0 +1,462 @@
+{
+    "domain":  "Tool Calling",
+    "name":  "Tool Calling â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "LLM Tool Use",
+                    "Agent Tool Invocation"
+                ],
+    "tools":  [
+                  "LLM APIs",
+                  "Tool registries",
+                  "Python/JavaScript"
+              ],
+    "certifications":  [
+                           "Tool Calling official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Foundations and Setup",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Use cases",
+                                       "Terminology",
+                                       "Environment setup",
+                                       "SDK/runtime setup",
+                                       "First example",
+                                       "Tool Calling terminology and feature mapping for this topic",
+                                       "Tool Calling configuration and implementation considerations",
+                                       "Tool Calling best practices and common mistakes for this topic",
+                                       "tool registry",
+                                       "tool descriptions",
+                                       "argument schemas",
+                                       "selection",
+                                       "execution",
+                                       "result handling",
+                                       "multi-tool workflows",
+                                       "permissions",
+                                       "timeouts",
+                                       "retries",
+                                       "audit logs",
+                                       "sandboxing"
+                                   ],
+                     "tools":  [
+                                   "LLM APIs",
+                                   "Tool registries",
+                                   "Python/JavaScript"
+                               ],
+                     "lab_task":  "Set up Tool Calling and run a first working example.",
+                     "technology":  "Tool Calling",
+                     "technology_id":  "tool-calling",
+                     "learning_objectives":  [
+                                                 "Explain the Foundations and Setup concepts in the context of Tool Calling.",
+                                                 "Configure or implement the key Tool Calling features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Foundations and Setup practically using Tool Calling.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Data and Representations",
+                     "subtopics":  [
+                                       "Inputs",
+                                       "Outputs",
+                                       "Token/embedding/model concepts as applicable",
+                                       "Data preparation",
+                                       "Schemas",
+                                       "Metadata",
+                                       "Validation",
+                                       "Preprocessing",
+                                       "Tool Calling terminology and feature mapping for this topic",
+                                       "Tool Calling configuration and implementation considerations",
+                                       "Tool Calling best practices and common mistakes for this topic",
+                                       "tool registry",
+                                       "tool descriptions",
+                                       "argument schemas",
+                                       "selection",
+                                       "execution",
+                                       "result handling",
+                                       "multi-tool workflows",
+                                       "permissions",
+                                       "timeouts",
+                                       "retries",
+                                       "audit logs",
+                                       "sandboxing"
+                                   ],
+                     "tools":  [
+                                   "LLM APIs",
+                                   "Tool registries",
+                                   "Python/JavaScript"
+                               ],
+                     "lab_task":  "Prepare representative data for Tool Calling.",
+                     "technology":  "Tool Calling",
+                     "technology_id":  "tool-calling",
+                     "learning_objectives":  [
+                                                 "Explain the Core Data and Representations concepts in the context of Tool Calling.",
+                                                 "Configure or implement the key Tool Calling features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Data and Representations practically using Tool Calling.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Core APIs or Algorithms",
+                     "subtopics":  [
+                                       "Primary API/algorithm",
+                                       "Parameters",
+                                       "Configuration",
+                                       "Batching",
+                                       "Error handling",
+                                       "Reproducibility",
+                                       "Result interpretation",
+                                       "Tool Calling terminology and feature mapping for this topic",
+                                       "Tool Calling configuration and implementation considerations",
+                                       "Tool Calling best practices and common mistakes for this topic",
+                                       "tool registry",
+                                       "tool descriptions",
+                                       "argument schemas",
+                                       "selection",
+                                       "execution",
+                                       "result handling",
+                                       "multi-tool workflows",
+                                       "permissions",
+                                       "timeouts",
+                                       "retries",
+                                       "audit logs",
+                                       "sandboxing"
+                                   ],
+                     "tools":  [
+                                   "LLM APIs",
+                                   "Tool registries",
+                                   "Python/JavaScript"
+                               ],
+                     "lab_task":  "Implement the core workflow for Tool Calling.",
+                     "technology":  "Tool Calling",
+                     "technology_id":  "tool-calling",
+                     "learning_objectives":  [
+                                                 "Explain the Core APIs or Algorithms concepts in the context of Tool Calling.",
+                                                 "Configure or implement the key Tool Calling features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core APIs or Algorithms practically using Tool Calling.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Advanced Techniques",
+                     "subtopics":  [
+                                       "Advanced features",
+                                       "Optimization",
+                                       "Caching",
+                                       "Streaming",
+                                       "Structured outputs",
+                                       "Hybrid techniques",
+                                       "Performance trade-offs",
+                                       "Tool Calling terminology and feature mapping for this topic",
+                                       "Tool Calling configuration and implementation considerations",
+                                       "Tool Calling best practices and common mistakes for this topic",
+                                       "tool registry",
+                                       "tool descriptions",
+                                       "argument schemas",
+                                       "selection",
+                                       "execution",
+                                       "result handling",
+                                       "multi-tool workflows",
+                                       "permissions",
+                                       "timeouts",
+                                       "retries",
+                                       "audit logs",
+                                       "sandboxing"
+                                   ],
+                     "tools":  [
+                                   "LLM APIs",
+                                   "Tool registries",
+                                   "Python/JavaScript"
+                               ],
+                     "lab_task":  "Implement an advanced Tool Calling workflow.",
+                     "technology":  "Tool Calling",
+                     "technology_id":  "tool-calling",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Techniques concepts in the context of Tool Calling.",
+                                                 "Configure or implement the key Tool Calling features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Techniques practically using Tool Calling.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Evaluation",
+                     "subtopics":  [
+                                       "Quality metrics",
+                                       "Offline evaluation",
+                                       "Online evaluation concepts",
+                                       "Test sets",
+                                       "Failure analysis",
+                                       "Regression testing",
+                                       "Human review",
+                                       "Tool Calling terminology and feature mapping for this topic",
+                                       "Tool Calling configuration and implementation considerations",
+                                       "Tool Calling best practices and common mistakes for this topic",
+                                       "tool registry",
+                                       "tool descriptions",
+                                       "argument schemas",
+                                       "selection",
+                                       "execution",
+                                       "result handling",
+                                       "multi-tool workflows",
+                                       "permissions",
+                                       "timeouts",
+                                       "retries",
+                                       "audit logs",
+                                       "sandboxing"
+                                   ],
+                     "tools":  [
+                                   "LLM APIs",
+                                   "Tool registries",
+                                   "Python/JavaScript"
+                               ],
+                     "lab_task":  "Create an evaluation harness for Tool Calling.",
+                     "technology":  "Tool Calling",
+                     "technology_id":  "tool-calling",
+                     "learning_objectives":  [
+                                                 "Explain the Evaluation concepts in the context of Tool Calling.",
+                                                 "Configure or implement the key Tool Calling features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Evaluation practically using Tool Calling.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Safety and Security",
+                     "subtopics":  [
+                                       "Prompt/input security where relevant",
+                                       "Data privacy",
+                                       "Secrets",
+                                       "Access control",
+                                       "Abuse prevention",
+                                       "Policy controls",
+                                       "Auditability",
+                                       "Tool Calling terminology and feature mapping for this topic",
+                                       "Tool Calling configuration and implementation considerations",
+                                       "Tool Calling best practices and common mistakes for this topic",
+                                       "tool registry",
+                                       "tool descriptions",
+                                       "argument schemas",
+                                       "selection",
+                                       "execution",
+                                       "result handling",
+                                       "multi-tool workflows",
+                                       "permissions",
+                                       "timeouts",
+                                       "retries",
+                                       "audit logs",
+                                       "sandboxing"
+                                   ],
+                     "tools":  [
+                                   "LLM APIs",
+                                   "Tool registries",
+                                   "Python/JavaScript"
+                               ],
+                     "lab_task":  "Add safety and security controls.",
+                     "technology":  "Tool Calling",
+                     "technology_id":  "tool-calling",
+                     "learning_objectives":  [
+                                                 "Explain the Safety and Security concepts in the context of Tool Calling.",
+                                                 "Configure or implement the key Tool Calling features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Safety and Security practically using Tool Calling.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Production Architecture",
+                     "subtopics":  [
+                                       "Service architecture",
+                                       "Scalability",
+                                       "Latency",
+                                       "Cost",
+                                       "Caching",
+                                       "Fallbacks",
+                                       "Observability",
+                                       "Reliability",
+                                       "Tool Calling terminology and feature mapping for this topic",
+                                       "Tool Calling configuration and implementation considerations",
+                                       "Tool Calling best practices and common mistakes for this topic",
+                                       "tool registry",
+                                       "tool descriptions",
+                                       "argument schemas",
+                                       "selection",
+                                       "execution",
+                                       "result handling",
+                                       "multi-tool workflows",
+                                       "permissions",
+                                       "timeouts",
+                                       "retries",
+                                       "audit logs",
+                                       "sandboxing"
+                                   ],
+                     "tools":  [
+                                   "LLM APIs",
+                                   "Tool registries",
+                                   "Python/JavaScript"
+                               ],
+                     "lab_task":  "Design a production architecture.",
+                     "technology":  "Tool Calling",
+                     "technology_id":  "tool-calling",
+                     "learning_objectives":  [
+                                                 "Explain the Production Architecture concepts in the context of Tool Calling.",
+                                                 "Configure or implement the key Tool Calling features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Production Architecture practically using Tool Calling.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "APIs",
+                                       "Databases/vector stores",
+                                       "Tools/functions",
+                                       "Agents or workflows",
+                                       "Web/backend integration",
+                                       "Streaming",
+                                       "Testing",
+                                       "Tool Calling terminology and feature mapping for this topic",
+                                       "Tool Calling configuration and implementation considerations",
+                                       "Tool Calling best practices and common mistakes for this topic",
+                                       "tool registry",
+                                       "tool descriptions",
+                                       "argument schemas",
+                                       "selection",
+                                       "execution",
+                                       "result handling",
+                                       "multi-tool workflows",
+                                       "permissions",
+                                       "timeouts",
+                                       "retries",
+                                       "audit logs",
+                                       "sandboxing"
+                                   ],
+                     "tools":  [
+                                   "LLM APIs",
+                                   "Tool registries",
+                                   "Python/JavaScript"
+                               ],
+                     "lab_task":  "Integrate Tool Calling into an application.",
+                     "technology":  "Tool Calling",
+                     "technology_id":  "tool-calling",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of Tool Calling.",
+                                                 "Configure or implement the key Tool Calling features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using Tool Calling.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "Operations and Optimization",
+                     "subtopics":  [
+                                       "Monitoring",
+                                       "Tracing",
+                                       "Cost tracking",
+                                       "Versioning",
+                                       "Rollbacks",
+                                       "Performance tuning",
+                                       "Incident handling",
+                                       "Tool Calling terminology and feature mapping for this topic",
+                                       "Tool Calling configuration and implementation considerations",
+                                       "Tool Calling best practices and common mistakes for this topic",
+                                       "tool registry",
+                                       "tool descriptions",
+                                       "argument schemas",
+                                       "selection",
+                                       "execution",
+                                       "result handling",
+                                       "multi-tool workflows",
+                                       "permissions",
+                                       "timeouts",
+                                       "retries",
+                                       "audit logs",
+                                       "sandboxing"
+                                   ],
+                     "tools":  [
+                                   "LLM APIs",
+                                   "Tool registries",
+                                   "Python/JavaScript"
+                               ],
+                     "lab_task":  "Monitor and optimize a production-style workload.",
+                     "technology":  "Tool Calling",
+                     "technology_id":  "tool-calling",
+                     "learning_objectives":  [
+                                                 "Explain the Operations and Optimization concepts in the context of Tool Calling.",
+                                                 "Configure or implement the key Tool Calling features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Operations and Optimization practically using Tool Calling.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  10,
+                     "topic":  "Capstone AI Project",
+                     "subtopics":  [
+                                       "Requirements",
+                                       "Data",
+                                       "Implementation",
+                                       "Evaluation",
+                                       "Safety",
+                                       "Observability",
+                                       "Deployment",
+                                       "Documentation",
+                                       "Tool Calling terminology and feature mapping for this topic",
+                                       "Tool Calling configuration and implementation considerations",
+                                       "Tool Calling best practices and common mistakes for this topic",
+                                       "tool registry",
+                                       "tool descriptions",
+                                       "argument schemas",
+                                       "selection",
+                                       "execution",
+                                       "result handling",
+                                       "multi-tool workflows",
+                                       "permissions",
+                                       "timeouts",
+                                       "retries",
+                                       "audit logs",
+                                       "sandboxing"
+                                   ],
+                     "tools":  [
+                                   "LLM APIs",
+                                   "Tool registries",
+                                   "Python/JavaScript"
+                               ],
+                     "lab_task":  "Build an end-to-end production-style project using Tool Calling.",
+                     "technology":  "Tool Calling",
+                     "technology_id":  "tool-calling",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone AI Project concepts in the context of Tool Calling.",
+                                                 "Configure or implement the key Tool Calling features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone AI Project practically using Tool Calling.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "tool-calling"
+}
