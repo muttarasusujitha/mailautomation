@@ -16,6 +16,34 @@ def money(value):
     return value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
 
+def offline_expense_items(requirement):
+    """Return confirmed trainer travel and accommodation expenses as invoice rows."""
+    logistics = (requirement or {}).get('offline_logistics') or {}
+    expenses = logistics.get('actual_expenses') or {}
+    descriptions = {
+        'travel': 'Trainer travel expenses',
+        'accommodation': 'Trainer accommodation expenses',
+        'food': 'Trainer meal expenses',
+    }
+    rows = []
+    for category, description in descriptions.items():
+        raw_amount = expenses.get(category)
+        if raw_amount in (None, ''):
+            continue
+        try:
+            amount = money(number(raw_amount, f'{description} amount'))
+        except ValueError:
+            continue
+        if amount > 0:
+            rows.append({
+                'description': description,
+                'quantity': 1,
+                'rate': float(amount),
+                'amount': float(amount),
+            })
+    return rows
+
+
 def calculate_document(items, total_amount=0, gst_rate=0, *, description='Training services', duration=0, day_rate=0):
     """Recompute every line; caller-supplied amount fields are never authoritative."""
     rows = []

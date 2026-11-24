@@ -45,6 +45,12 @@ class FinanceRejectRequest(BaseModel):
     reason: str
 
 
+class LiveFlightQuoteRequest(BaseModel):
+    origin_iata: str
+    destination_iata: str
+    departure_date: str
+
+
 def _clean(value: Any) -> str:
     return str(value or "").strip()
 
@@ -134,6 +140,59 @@ async def list_finance_approvals(db: AsyncIOMotorDatabase = Depends(get_db)):
             "status": "pending_human_approval" if task.get("status") == "awaiting_finance_approval" else task.get("status"),
         })
     return {"approvals": rows, "pending": sum(1 for row in rows if row.get("status") == "pending_human_approval")}
+
+
+@router.get("/travel-bookings")
+async def list_travel_bookings(db: AsyncIOMotorDatabase = Depends(get_db)):
+    tasks = await db["travel_booking_tasks"].find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
+    bookings = []
+    for task in tasks:
+        requirement = await db["requirements"].find_one(
+            {"requirement_id": task.get("requirement_id")},
+            {"_id": 0, "client_name": 1, "client_company": 1, "client_email": 1},
+        ) or {}
+        bookings.append({
+            **task,
+            "client_name": _clean(requirement.get("client_name") or requirement.get("client_company")),
+            "live_supplier_search": bool(task.get("live_flight_search")),
+        })
+    return {"bookings": bookings}
+
+
+@router.post("/travel-bookings/{booking_task_id}/live-flight-quotes")
+async def live_flight_quotes(
+    booking_task_id: str,
+    payload: LiveFlightQuoteRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    task = await db["travel_booking_tasks"].find_one(
+        {"booking_task_id": booking_task_id}, {"_id": 0},
+    )
+    if not task:
+        raise HTTPException(404, "Travel booking task not found")
+    if not task.get("ticket_required"):
+        raise HTTPException(409, "This booking does not require a flight")
+    raw_quotes = await search_amadeus_flights(
+        origin_iata=payload.origin_iata.strip().upper(),
+        destination_iata=payload.destination_iata.strip().upper(),
+        departure_date=payload.departure_date.strip(),
+    )
+    quotes = [{key: value for key, value in quote.items() if key != "raw_offer"} for quote in raw_quotes]
+    await db["travel_booking_tasks"].update_one(
+        {"booking_task_id": booking_task_id},
+        {"$set": {
+            "live_flight_search": {
+                "origin_iata": payload.origin_iata.strip().upper(),
+                "destination_iata": payload.destination_iata.strip().upper(),
+                "departure_date": payload.departure_date.strip(),
+                "quotes": quotes,
+                "searched_at": datetime.utcnow(),
+            },
+            "live_supplier_raw_offers": [quote.get("raw_offer") for quote in raw_quotes if quote.get("raw_offer")],
+            "updated_at": datetime.utcnow(),
+        }},
+    )
+    return {"success": True, "booking_task_id": booking_task_id, "quotes": quotes}
 
 
 @router.get("/approvals/{finance_id}/source-document")
@@ -345,7 +404,7 @@ async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveReque
             # Generate distinct documents in one approved finance action. A lab
             # commercial is never added to the trainer PO or training invoice.
             attachments = []
-            for document in [invoice, *([lab_invoice] if lab_invoice else [])]:
+            for document in [invoice]:
                 invoice_document = {**document, "created_at": now}
                 pdf = await client.post(f"{doc_url}/api/v1/documents/pdf/invoice", json=jsonable_encoder({key: value for key, value in invoice_document.items() if key != "_id"}))
                 pdf.raise_for_status()
@@ -354,7 +413,7 @@ async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveReque
                 attachments.append({"filename": f"{document['invoice_id']}.pdf", "content_base64": base64.b64encode(pdf.content).decode(), "subtype": "pdf"})
             finance_name = str(payload.client_name or "").strip()
             finance_greeting = f"Hello {finance_name}," if finance_name and finance_name.lower() not in {"client", "team"} else "Hello,"
-            invoice_label = "invoices" if lab_invoice else "invoice"
+            invoice_label = "invoice"
             finance_body = (
                 f"{finance_greeting}\n\n"
                 f"Please find the {invoice_label} attached against PO {payload.po_number}.\n\n"
