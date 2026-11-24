@@ -748,6 +748,12 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         if "ai_enriched_days" in toc and toc["ai_enriched_days"] < len(toc.get("days") or []):
             used_generation_mode = "ai_partial"
             toc["generation_warning"] = "Some days retained reference content because AI enrichment failed. Review before sharing."
+        # AI-planned days get the same module detail as dataset ToCs when they teach a dataset module.
+        try:
+            from app.module_design_store import attach_to_ai_toc
+            attach_to_ai_toc(toc, payload.domain)
+        except Exception:
+            logger.exception("Could not link stored module designs to the AI ToC; keeping it without them")
     reference_unusable = False
     if toc is None:
         # Reference curricula keep their own modules. When AI is unavailable or

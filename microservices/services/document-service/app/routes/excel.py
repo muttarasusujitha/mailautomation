@@ -242,6 +242,74 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
         # Authored designs say "Lab check" or "Lab:"; number them for this module's position.
         return re.sub(r"\bLab(?=\s+checks?\b|:)", f"Lab {module_no}", value)
 
+    # Modules without a design are filled from their own course-dataset checks and objectives,
+    # by rules only: nothing is invented, so a cell stays blank when the dataset has no source.
+    STOP = {"with", "from", "that", "this", "your", "into", "after", "before", "using", "when", "each",
+            "their", "them", "then", "they", "what", "which", "while", "about", "every", "without", "between",
+            "shown", "show", "make", "made", "only", "same", "other", "than", "more", "most", "used", "uses"}
+    FAILURE_RE = re.compile(r"#[A-Z0-9/]+!?|\b(?:errors?|fails?|failed|failure|denied|rejected|refused|blocked|"
+                            r"exceptions?|rolls?\s+back|rolled\s+back|warnings?|violations?|alerts?\s+fires?|crash(?:es)?)\b",
+                            re.I)
+
+    def check_parts(item: Any):
+        """(what to do, expected result, evidence) from a dataset check in any stored shape."""
+        if isinstance(item, dict):
+            return (text(item.get("input_or_condition") or item.get("check")), text(item.get("expected_result")),
+                    text(item.get("evidence")))
+        if isinstance(item, (list, tuple)):
+            values = [text(value) for value in item] + ["", "", ""]
+            return values[0], values[1], values[2]
+        return text(item), "", ""
+
+    def stems(value: str) -> set:
+        return {word[:5] for word in re.findall(r"[a-z0-9]+", value.lower()) if len(word) > 3 and word not in STOP}
+
+    # Objectives that start with one of these verbs read as a question ("How would you restore ...?").
+    VERBS = set("""analyse analyze apply assess automate back build calculate choose clean collect compare
+        configure connect create debug decide define deploy describe design detect diagnose distinguish document
+        enable estimate evaluate explain export filter find fix format handle identify implement import improve
+        install integrate interpret investigate load maintain manage map measure migrate model monitor navigate
+        optimise optimize organise organize perform plan prepare present prevent prioritise prioritize protect
+        query read recover reduce refactor report resolve restore review run save scale schedule secure select
+        set share solve store structure summarise summarize test track transform troubleshoot tune update
+        upgrade use validate verify visualise visualize write""".split())
+
+    def matched_check(objective: str, checks: List[tuple], module_no: int) -> str:
+        """The module's lab check that tests this objective, or '' when that is not clear.
+
+        A link needs two shared words and one clear best check; a single shared word linked
+        unrelated pairs ("Monitor identity activity" to "Collect") across the dataset.
+        """
+        wanted = stems(objective)
+        scored = sorted(((len(wanted & stems(f"{c} {e}")), -index) for index, (c, e, _) in enumerate(checks)),
+                        reverse=True)
+        if not scored or scored[0][0] < 2 or (len(scored) > 1 and scored[1][0] == scored[0][0]):
+            return ""
+        return f"Lab {module_no} check: {checks[-scored[0][1]][0]}"
+
+    def derived_rubric(checks: List[tuple]) -> List[List[str]]:
+        rows = []
+        for condition, expected, evidence in checks:
+            if not (condition and expected):
+                continue
+            proof = f", evidence: {evidence}" if evidence else ""
+            rows.append([condition, f"{expected}; done without help{proof}", f"{expected}; done with a hint",
+                         "Attempted; the result is incomplete", "Not attempted or not working"])
+        return rows[:5]
+
+    def derived_quiz(checks: List[tuple], objectives: List[str], subtopics: List[str]) -> List[str]:
+        questions = [f"{condition.rstrip('.')}: what result should you see, and how do you show it?"
+                     for condition, expected, _ in checks if condition and expected]
+        for objective in objectives:
+            verb, _, rest = objective.rstrip(".").partition(" ")
+            if verb.lower() in VERBS and rest:
+                questions.append(f"How would you {verb.lower()} {rest}?")
+        for subtopic in subtopics:
+            if len(questions) >= 5 or len(questions) < 2:
+                break  # sub-topic questions only top up a module that has its own specific questions
+            questions.append(f"Explain, with an example from this module's lab: {subtopic.rstrip('.')}.")
+        return list(dict.fromkeys(questions))[:6]
+
     days = list(toc.get("days") or [])
     try:
         hours_per_day = int(toc.get("hours_per_day") or 7)
@@ -256,7 +324,8 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
     for i, day in enumerate(days, 1):
         outline = day.get("outline") if isinstance(day.get("outline"), dict) else {}
         lab = outline.get("lab") if isinstance(outline.get("lab"), dict) else {}
-        design = outline.get("design") if isinstance(outline.get("design"), dict) else {}
+        # A hand-authored outline design wins over a model-drafted day design.
+        design = next((value for value in (outline.get("design"), day.get("design")) if isinstance(value, dict) and value), {})
         topic = text(day.get("focus_area") or day.get("module") or day.get("title") or day.get("topic")) or f"Module {i}"
         subs = lines(day.get("subtopics"))
         if not subs:
@@ -269,11 +338,13 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
             lab_title = head if head and len(head) <= 60 else f"{topic} Lab"
         tasks = lines(lab.get("tasks")) or lines(lab_text.split(":", 1)[1] if ":" in lab_text else lab_text)
         seeded = design.get("seeded_failure") if isinstance(design.get("seeded_failure"), dict) else {}
-        checks = day.get("acceptance_checks") or lab.get("verify") or []
+        checks = day.get("acceptance_checks") or lab.get("verify") or day.get("checks") or []
+        if not isinstance(checks, list):
+            checks = []
+        dataset_checks = [parts for parts in (check_parts(item) for item in checks) if parts[0]]
         success = ""
-        if checks:
-            first = checks[0]
-            success = text(first.get("expected_result") or first.get("input_or_condition")) if isinstance(first, dict) else text(first)
+        if dataset_checks:
+            success = dataset_checks[0][1] or dataset_checks[0][0]
         if not success:
             success = text(day.get("assessment")).split("\n")[0]
         try:
@@ -304,15 +375,20 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
                     name, part_subs = f"Lab {i}: {lab_title}", tasks
                 else:
                     part_subs = []
+                failure = ""
+                if name == "Troubleshooting a seeded failure":
+                    # A dataset check whose expected result is an error is the module's planned failure.
+                    failure = next((f"{c}: {e}" for c, e, _ in dataset_checks if e and FAILURE_RE.search(e)), "")
                 rows.append({"topic": name, "subs": part_subs, "minutes": part_minutes, "mode": part_mode,
-                             "failure": "", "practice": ""})
+                             "failure": failure, "practice": ""})
 
         outcomes = []
         for item in design.get("outcomes") or []:
             if isinstance(item, dict) and text(item.get("outcome")):
                 outcomes.append((text(item.get("outcome")), numbered(text(item.get("assessed_by")), i) or f"Lab {i} checks"))
         if not outcomes:
-            outcomes = [(obj, f"Lab {i} checks") for obj in lines(day.get("learning_objectives"))[:5]]
+            outcomes = [(obj, matched_check(obj, dataset_checks, i) or f"Lab {i} checks")
+                        for obj in lines(day.get("learning_objectives") or day.get("objectives"))[:5]]
         if not outcomes:
             outcomes = [(f"Complete Lab {i}: {lab_title}", f"Lab {i} rubric")]
 
@@ -322,10 +398,12 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
             "lab_title": lab_title, "tasks": tasks, "seeded": seeded,
             "scenario": text(lab.get("scenario") or day.get("scenario")),
             "deliverable": text(lab.get("deliverables") or day.get("deliverable")),
-            "success": success, "objectives": lines(day.get("learning_objectives")),
+            "success": success, "objectives": lines(day.get("learning_objectives") or day.get("objectives")),
             "is_capstone": is_capstone, "rows": rows, "outcomes": outcomes,
-            "quiz": lines(design.get("quiz")),
-            "rubric": [r for r in design.get("lab_rubric") or [] if isinstance(r, (list, tuple)) and len(r) == 5],
+            "quiz": lines(design.get("quiz")) or ([] if is_capstone else derived_quiz(
+                dataset_checks, lines(day.get("learning_objectives") or day.get("objectives")), subs)),
+            "rubric": [r for r in design.get("lab_rubric") or [] if isinstance(r, (list, tuple)) and len(r) == 5]
+            or derived_rubric(dataset_checks),
             "environment": [e for e in design.get("lab_environment") or [] if isinstance(e, dict) and text(e.get("tool"))],
             "tools": lines(day.get("tools")),
         })
@@ -533,6 +611,9 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
         table_header(sched, sh, ["Day", "Start", "End", "Module No.", "Module Name", "Session Type"])
         r = sh
         lunch = 60 if hours_per_day >= 6 else 0
+        # Lab time on the schedule is the lab-access time the Lab Cost Estimate prices, so the two always agree.
+        from shared.lab_cost_inputs import course_workbook_lab_hours
+        priced_lab_minutes = round(course_workbook_lab_hours(hours_per_day) * 60)
         for m in modules:
             blocks = []
             for row in m["rows"]:
@@ -541,9 +622,18 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
                     blocks[-1][1] += row["minutes"]
                 else:
                     blocks.append([kind, row["minutes"]])
+            lab_minutes = sum(b[1] for b in blocks if b[0] == "Lab")
+            if lab_minutes and not m["is_capstone"] and m["minutes"] == hours_per_day * 60 and lab_minutes != priced_lab_minutes:
+                # Move the difference to theory so the day length stays the same.
+                for block in blocks:
+                    if block[0] == "Lab":
+                        block[1] = round(block[1] * priced_lab_minutes / lab_minutes)
+                theory = next((b for b in blocks if b[0] == "Theory"), None)
+                if theory:
+                    theory[1] += m["minutes"] - sum(b[1] for b in blocks)
             clock, taught, lunch_taken = 9 * 60, 0, not lunch
             for kind, block_minutes in blocks:
-                if not lunch_taken and taught >= 150:
+                if not lunch_taken and taught >= 120:  # lunch after the morning theory block
                     clock += lunch
                     lunch_taken = True
                 r += 1
@@ -1206,17 +1296,13 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     package = str(values.get("lab_package") or "standard").strip().lower()
     assumptions_ws["B18"] = package.title() if package in {"basic", "standard", "advanced"} else "Standard"
     assumptions_ws["B19"] = as_positive_int("quote_validity_days", 7)
-    # Lab workbooks are client quotations. Apply Clahan's standard service
-    # uplift to the final client amount; raw provider cost remains part of
-    # the calculation/audit trail, not the amount offered to the client.
-    client_lab_markup_percent = values["clahan_margin_percent"]
-    if client_lab_markup_percent > 100:
-        raise ValueError("client_lab_markup_percent cannot exceed 100")
-    # Keep the markup factor out of visible client cells and the formula bar.
+    # Quote the lab at provider cost plus Clahan's markup, before tax.
+    client_price_uplift = values["client_lab_markup_percent"] / 100
+    # Keep the uplift out of visible client cells and the formula bar.
     # The client sees only the resulting estimate on the Client Estimate sheet.
     internal_calc_ws = workbook.create_sheet("Internal Calculation")
     internal_calc_ws["A1"] = "Client adjustment factor"
-    internal_calc_ws["B1"] = client_lab_markup_percent / 100
+    internal_calc_ws["B1"] = client_price_uplift
     internal_calc_ws["B1"].number_format = "0%"
     internal_calc_ws.sheet_state = "veryHidden"
 
@@ -1566,7 +1652,7 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
         ("Price-change review threshold", as_number("price_change_review_threshold_percent", 5, 0), "%", "Escalate for review when refreshed pricing changes beyond this threshold"),
         ("Lab architecture", values.get('architecture_note') or 'Caller-supplied per-day resource mapping', 'assumption', 'Quantities are total resources; learner VMs scale with participants, shared services do not'),
         ("FX status", 'Published rate fetched for quote' if values.get('fx_rate_source') else 'Unverified', 'status', 'Latest published observation; see FX date and source'),
-        ("Support pricing status", 'Configured' if support > 0 or values.get('advanced_support_per_participant_day') else 'Unconfigured / zero charge', 'status', 'No support price is invented. Confirm the applied tier rate before client approval'),
+        ("Support pricing status", 'Configured' if any(values.get(k) is not None for k in ('lab_support_per_participant_day', 'lab_support_per_participant')) else 'Unconfigured / zero charge', 'status', 'No support price is invented. Confirm the applied tier rate before client approval'),
         ("Quote approval status", 'Draft — commercial review required', 'status', 'Provider verification covers selected resource rates only; confirm architecture, access hours, support, FX, taxes and exclusions'),
     ]
     for row, values_row in enumerate(provenance_rows, start=28):
@@ -2246,6 +2332,20 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
         raise HTTPException(422, error)
     # The lab-cost template has 30 day rows. Refuse longer programmes before
     # refreshing live prices or planning lab resources.
+    assumptions = dict(payload.get("assumptions") or {})
+    from shared.lab_cost_inputs import lab_quote_scope
+    count = assumptions.get("participant_count", toc.get("participant_count"))
+    if count in (None, ""):
+        assumptions["sample_quote"] = True
+    try:
+        toc, assumptions["participant_count"], assumptions["hours_per_day"] = lab_quote_scope(
+            toc, count, assumptions.get("hours_per_day"))
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    if assumptions.get("sample_quote") and assumptions.get("lab_day_mapping"):
+        rows = assumptions["lab_day_mapping"]
+        first = rows[0] if isinstance(rows, list) else rows.get("1", rows.get(1))
+        assumptions["lab_day_mapping"] = [{**first, "active_days": 1}] if first else None
     lab_days = 0
     for day in toc.get("days") or []:
         if isinstance(day, dict):
@@ -2255,7 +2355,6 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
                 lab_days += 1
     if lab_days > 30:
         raise HTTPException(422, f"Lab cost estimates support training durations from 1 to 30 days; this ToC has {lab_days} days")
-    assumptions = payload.get("assumptions") if isinstance(payload.get("assumptions"), dict) else {}
     from shared.lab_cost_inputs import validate_lab_cost_inputs, validate_lab_pricing_coverage
     from shared.live_lab_pricing import refresh_rates, refresh_exchange_rate, automatic_pricing_selections
     from starlette.concurrency import run_in_threadpool

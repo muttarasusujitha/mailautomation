@@ -679,6 +679,29 @@ async def approve_lab_cost_request(requirement_id: str, db: AsyncIOMotorDatabase
     attachments = request.get("pending_attachments") or []
     if not any(str(item.get("subtype") or "").endswith("spreadsheetml.sheet") and item.get("content_base64") for item in attachments):
         raise HTTPException(422, "The pending request has no workbook to send")
+    from shared.lab_cost_inputs import quote_expiry
+    lab_file = next((item for item in attachments if "lab cost" in item.get("filename", "").lower()), {})
+    try:
+        quote_expiry(lab_file.get("quote_valid_until"))
+    except ValueError:
+        from app.routes.inbox import _create_revised_lab_cost_attachment, _create_standalone_toc_attachments
+        agenda = {"toc": request.get("quote_toc")}
+        fresh = await _create_revised_lab_cost_attachment(db, request, request.get("lab_context") or {}, source_agenda=agenda)
+        if not fresh:
+            raise HTTPException(503, "Could not refresh the expired lab estimate. Approval is still pending.")
+        replacements = [fresh]
+        if request.get("toc_requested"):
+            toc_files = await _create_standalone_toc_attachments(
+                technology=request.get("technology_needed"), duration_days=request.get("duration_days"),
+                toc_data=agenda["toc"])
+            if not toc_files:
+                raise HTTPException(503, "Could not render the agenda for the refreshed estimate.")
+            replacements.extend(toc_files)
+        await db["lab_cost_requests"].update_one(
+            {"requirement_id": requirement_id, "status": "awaiting_review", "pending_attachments": attachments},
+            {"$set": {"pending_attachments": replacements, "quote_toc": agenda["toc"],
+                      "rate_change_summary": fresh["pricing_review_reasons"], "updated_at": datetime.utcnow()}})
+        raise HTTPException(409, "Pricing was refreshed. Review the updated workbook before approving.")
     reply = request.get("pending_reply") or {}
     subject = str(reply.get("subject") or (source or {}).get("subject") or "Lab Cost Estimate")
     if not subject.lower().startswith("re:"):
@@ -694,7 +717,7 @@ async def approve_lab_cost_request(requirement_id: str, db: AsyncIOMotorDatabase
         raise HTTPException(422, "A saved attachment is invalid") from exc
     now = datetime.utcnow()
     claim = await db["lab_cost_requests"].update_one(
-        {"requirement_id": requirement_id, "status": "awaiting_review"},
+        {"requirement_id": requirement_id, "status": "awaiting_review", "pending_attachments": attachments},
         {"$set": {"status": "sending_approved", "approved_at": now, "updated_at": now}},
     )
     if not claim.modified_count:
@@ -721,7 +744,8 @@ async def approve_lab_cost_request(requirement_id: str, db: AsyncIOMotorDatabase
     })
     await db["lab_cost_requests"].update_one(
         {"requirement_id": requirement_id},
-        {"$set": {"status": "toc_and_lab_sent" if request.get("toc_requested") else "estimate_sent", "sent_at": now, "updated_at": now},
+        {"$set": {"status": "toc_and_lab_sent" if request.get("toc_requested") else "estimate_sent", "sent_at": now,
+                  "lab_client_price": float(lab_file.get("client_lab_amount") or 0), "updated_at": now},
          "$unset": {"pending_attachments": "", "pending_reply": "", "send_error": ""}},
     )
     if source_id:
@@ -991,9 +1015,10 @@ def _lab_request_context(body: str, extracted: Dict[str, Any]) -> Dict[str, Any]
     if cluster_count_match:
         known_inputs["cluster_count"] = int(cluster_count_match.group(1))
 
-    # Participant count changes the quote materially, so it must come from the
-    # client instead of being silently replaced by a costing default.
-    if known_inputs.get("participant_count"):
+    if known_inputs.get("participant_count") in (None, ""):
+        known_inputs["participant_count"] = 1
+        known_inputs["participant_count_source"] = "default"
+    else:
         known_inputs["participant_count_source"] = "client"
     # Use the agreed standard lab-access window when the client has not
     # specified one. A later client reply always replaces this baseline.
@@ -1179,7 +1204,7 @@ async def _load_reply_workflow_context(
             sort=[("created_at", -1)],
         ) or {}
         purchase_order = await db["purchase_orders"].find_one(
-            {"requirement_id": requirement_id},
+            {"requirement_id": requirement_id, "po_id": {"$not": {"$regex": "^TPO-"}}},
             {"_id": 0},
             sort=[("created_at", -1)],
         ) or {}

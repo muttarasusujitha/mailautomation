@@ -282,6 +282,7 @@ jobs:
         env:
           RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
           RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
         run: |
           cp .env.example .env
           set_env() {
@@ -295,6 +296,7 @@ jobs:
           }
           set_env GMAIL_USER "${{ secrets.GMAIL_USER }}"
           set_env GEMINI_API_KEY "${{ secrets.GEMINI_API_KEY }}"
+          set_env TAVILY_API_KEY "$TAVILY_API_KEY"
           set_env AI_PROVIDER "gemini"
           set_env GEMINI_MODEL "gemini-2.5-flash"
           set_env USE_LLM_FOR_EMAILS "true"

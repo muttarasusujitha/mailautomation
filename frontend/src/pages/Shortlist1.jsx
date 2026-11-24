@@ -2552,6 +2552,12 @@ function OfflineTravelAgent({ trainer, req }) {
   }))
   const [busy, setBusy] = useState('')
   const [sent, setSent] = useState({ trainer: saved.trainer_request_status === 'sent', client: saved.client_request_status === 'sent' })
+  const [booking, setBooking] = useState(() => ({
+    ticket_required: true,
+    hotel_required: false,
+    client_authorization_text: saved.client_confirmed_travel_terms || '',
+  }))
+  const [bookingStatus, setBookingStatus] = useState(saved.booking_status || '')
   const finalPackageChecklist = [
     { label: 'Client confirmed the exact training address', done: Boolean(saved.client_confirmed_venue), optional: false },
     { label: 'Client confirmed the Google Maps pin', done: Boolean(saved.client_confirmed_maps_url && saved.map_pin_confirmed), optional: false },
@@ -2595,6 +2601,20 @@ function OfflineTravelAgent({ trainer, req }) {
     }
   }
 
+  const createBookingTask = async () => {
+    setBusy('booking')
+    try {
+      const result = await api.post(`/shortlists/logistics/${encodeURIComponent(req.requirement_id)}/${encodeURIComponent(trainer.trainer_id)}/booking-task`, booking)
+      const task = result.data?.booking_task || {}
+      setBookingStatus(task.status || 'awaiting_finance_approval')
+      toast.success(result.data?.already_exists ? 'The client-authorized booking task already exists.' : 'Booking task sent to finance. No ticket or hotel has been purchased.')
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || 'Could not create the travel booking task')
+    } finally {
+      setBusy('')
+    }
+  }
+
   return <section className="mt-4 rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div><h4 className="font-bold text-amber-950">Post-interview travel coordinator</h4><p className="mt-1 text-xs text-slate-600">For the selected trainer only. Confirm the offline venue and costs before anyone books.</p></div>
@@ -2630,6 +2650,17 @@ function OfflineTravelAgent({ trainer, req }) {
         <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-bold text-slate-900">Final travel package checklist</p><span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${saved.final_package_ready || finalPackageReady && saved.status !== 'client_details_forward_failed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'}`}>{saved.final_package_ready ? 'Sent to selected trainer' : saved.status === 'client_details_forward_failed' ? 'Trainer email failed — retry needed' : finalPackageReady ? 'Required details complete' : 'On hold — awaiting client confirmation'}</span></div>
         <ul className="mt-2 grid gap-1.5 sm:grid-cols-2">{finalPackageChecklist.map(item => <li key={item.label} className="flex items-start gap-2 text-xs text-slate-700"><span className={`font-bold ${item.done ? 'text-emerald-700' : item.optional ? 'text-slate-400' : 'text-amber-700'}`}>{item.done ? '✓' : item.optional ? '○' : '○'}</span><span>{item.label}{item.optional && !item.done ? ' — optional until booked' : ''}</span></li>)}</ul>
         <p className="mt-2 text-[11px] text-slate-600">The app holds the final trainer handoff until the client confirms the address, exact pin, and travel/stay terms. Booking PDFs are included when available.</p>
+      </div>
+      <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50/70 p-3">
+        <p className="text-xs font-bold text-slate-900">Clahan-managed booking</p>
+        <p className="mt-1 text-[11px] text-slate-600">Use only when the verified client reply clearly says Clahan should arrange or book the trainer’s travel or stay. Finance approval is required before a human booker can purchase anything.</p>
+        <div className="mt-2 flex flex-wrap gap-4 text-xs font-semibold text-slate-700">
+          <label className="flex items-center gap-2"><input type="checkbox" checked={booking.ticket_required} onChange={event => setBooking(current => ({ ...current, ticket_required: event.target.checked }))} /> Ticket</label>
+          <label className="flex items-center gap-2"><input type="checkbox" checked={booking.hotel_required} onChange={event => setBooking(current => ({ ...current, hotel_required: event.target.checked }))} /> Hotel / stay</label>
+        </div>
+        <label className="mt-2 block text-xs font-semibold text-slate-700">Client authorization for Clahan to book<textarea value={booking.client_authorization_text} onChange={event => setBooking(current => ({ ...current, client_authorization_text: event.target.value }))} placeholder="Paste the client’s explicit instruction, for example: Clahan will arrange the trainer ticket." className="mt-1 block min-h-16 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+        {bookingStatus && <p className={`mt-2 text-xs font-bold ${bookingStatus === 'ready_to_book' ? 'text-emerald-800' : 'text-blue-800'}`}>Booking status: {bookingStatus.replaceAll('_', ' ')}{bookingStatus === 'awaiting_finance_approval' ? ' — no purchase has been made.' : ''}</p>}
+        <button type="button" disabled={Boolean(busy) || !finalPackageReady || Boolean(bookingStatus)} onClick={createBookingTask} className="mt-2 rounded-lg bg-blue-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{busy === 'booking' ? 'Creating booking task…' : bookingStatus ? 'Booking task created' : 'Create client-authorized booking task'}</button>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         <button type="button" disabled={Boolean(busy)} onClick={save} className="rounded-lg bg-slate-800 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{busy === 'save' ? 'Saving…' : 'Save travel plan'}</button>

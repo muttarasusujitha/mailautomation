@@ -1,0 +1,573 @@
+{
+  "domain": "WebSocket",
+  "name": "WebSocket",
+  "category": "Backend, APIs and Web Servers",
+  "icon": "network",
+  "aliases": ["WebSockets", "Real-Time Web Communication", "WebSocket Programming", "WebSocket Development", "Real-Time Web Applications", "RFC 6455", "WebSocket APIs", "Socket.IO and WebSocket"],
+  "certifications": [],
+  "tools": ["Browser WebSocket API", "ws (Node.js)", "Socket.IO", "websocat", "wscat", "Postman", "Redis", "NGINX", "HAProxy", "Autobahn Testsuite", "k6", "Wireshark", "Prometheus", "OpenTelemetry"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who know HTTP and one programming language and are new to real-time communication. Covers why polling, SSE and WebSocket exist, the RFC 6455 handshake, frames, opcodes and masking, the browser WebSocket API, text and binary messages, close codes, inspecting traffic, Node.js servers with ws, broadcasting and rooms, heartbeats, reconnection with backoff, message design, subprotocols, Socket.IO basics, Python and Java servers, NGINX proxying, TLS and Origin checks, testing, and a real-time chat capstone.",
+      "prerequisites": ["Writes working code in JavaScript, Python or Java and runs it from a terminal", "Understands HTTP requests, response status codes and headers", "Has Node.js 22 or later, a Chromium or Firefox browser and permission to install npm packages and Docker"],
+      "outcomes": ["Explain the handshake and frame format of RFC 6455 and read them in a packet capture", "Build WebSocket servers and clients in Node.js, Python and Java with correct close codes and heartbeats", "Design reconnecting clients and typed messages that survive disconnects", "Deliver a tested chat application behind NGINX with TLS, Origin checks and size limits"],
+      "days": [
+        {
+          "topic": "Real-Time Web Overview: Polling, Long Polling, SSE and WebSocket",
+          "subtopics": ["Request-response HTTP and why servers cannot push", "Short polling: cost of empty responses and added latency", "Long polling: held requests, timeouts and reconnect gaps", "Server-Sent Events: one-way text stream over HTTP", "WebSocket: full-duplex messages over one TCP connection", "Typical uses: chat, dashboards, games, trading, collaboration", "When not to use WebSocket: infrequent updates, cacheable data, simple notifications", "RFC 6455 and the WHATWG WebSocket living standard", "ws:// and wss:// URL schemes and default ports 80 and 443", "Lab environment: Node.js 22 or later, a browser and websocat"],
+          "tools": ["Node.js", "Browser DevTools", "curl", "websocat"],
+          "lab_task": "Build three Node.js endpoints that deliver the time once per second: short polling with setInterval and fetch, a long-poll endpoint, and an SSE endpoint. Count requests made in 60 seconds from the browser Network tab for each and record them in a table next to a WebSocket baseline of 1 connection.",
+          "deliverable": "Comparison table of request counts, headers per update and latency for polling, long polling, SSE and WebSocket",
+          "checks": [["Poll /time every second for 60 seconds with fetch", "About 60 HTTP requests appear in the Network tab", "DevTools Network screenshot"], ["Open the SSE endpoint with EventSource", "One request stays pending and the content type is text/event-stream", "Response headers"], ["Connect websocat to a ws:// echo server and type 5 lines", "5 echoed lines are returned over a single connection", "Terminal transcript"]],
+          "objectives": ["Compare polling, long polling, SSE and WebSocket by cost and latency", "Choose a transport for a stated use case", "Read ws:// and wss:// URLs correctly"]
+        },
+        {
+          "topic": "The WebSocket Handshake: HTTP Upgrade and Sec-WebSocket-Accept",
+          "subtopics": ["GET request with Upgrade: websocket and Connection: Upgrade", "Sec-WebSocket-Key as 16 random bytes in base64", "Sec-WebSocket-Version: 13 and the 426 response for other versions", "Computing Sec-WebSocket-Accept: SHA-1 of key plus the fixed GUID, base64", "The 101 Switching Protocols response", "Origin header sent by browsers", "Failed handshakes: 400, 401, 403 and 426 responses", "After the handshake: the TCP stream carries frames, not HTTP"],
+          "tools": ["curl", "openssl", "Node.js", "Wireshark"],
+          "lab_task": "Compute Sec-WebSocket-Accept for the key dGhlIHNhbXBsZSBub25jZQ== with openssl sha1 -binary and base64, then send the handshake by hand with curl -i --http1.1 -H 'Upgrade: websocket' -H 'Connection: Upgrade' -H 'Sec-WebSocket-Version: 13' against a local ws server and compare the returned accept value.",
+          "deliverable": "Handshake worksheet with the request, the 101 response and the accept computation",
+          "checks": [["Compute the accept value for key dGhlIHNhbXBsZSBub25jZQ==", "The result is s3pPLMBiTxaQ9kYGzzhZRbK+xOo=", "Terminal output"], ["Send the upgrade request with Sec-WebSocket-Version: 8", "The server answers 426 Upgrade Required with a Sec-WebSocket-Version: 13 header", "curl -i output"], ["Send the valid upgrade request with curl", "Status line is HTTP/1.1 101 Switching Protocols", "curl -i output"]],
+          "objectives": ["Describe each handshake header and its purpose", "Compute Sec-WebSocket-Accept by hand", "Diagnose a handshake that returns a status other than 101"]
+        },
+        {
+          "topic": "Frames, Opcodes and Masking in RFC 6455",
+          "subtopics": ["Frame layout: FIN, RSV1-3, opcode, MASK bit, payload length", "Opcodes 0x0 continuation, 0x1 text, 0x2 binary, 0x8 close, 0x9 ping, 0xA pong", "Payload length encoding: 7 bits, 16 bits after 126, 64 bits after 127", "Client-to-server masking with a 4-byte key and XOR", "Why masking exists: protecting caching proxies from crafted traffic", "Fragmentation with FIN=0 and continuation frames", "Control frame limits: 125 bytes and never fragmented", "Protocol error 1002 for an unmasked client frame"],
+          "tools": ["Wireshark", "Python", "Node.js", "websocat"],
+          "lab_task": "Decode the RFC 6455 example by hand: the masked text frame 81 85 37 fa 21 3d 7f 9f 4d 51 58 holds the word Hello. Write a 20-line Python or Node.js function that unmasks it, then capture a real frame from websocat on loopback with Wireshark using the display filter websocket and match the opcode, mask bit and length.",
+          "deliverable": "Frame decoder script and an annotated Wireshark capture of one text frame",
+          "checks": [["Unmask 81 85 37 fa 21 3d 7f 9f 4d 51 58 with the script", "The decoded payload is Hello with opcode 0x1", "Script output"], ["Send a 200-byte text message and inspect the frame in Wireshark", "Payload length byte is 126 followed by a 16-bit length of 200", "Wireshark packet details"], ["Send a client frame with the MASK bit cleared to a ws server", "The server closes the connection with code 1002", "Server log"]],
+          "objectives": ["Read the fields of a WebSocket frame", "Unmask a client frame by hand", "Explain fragmentation and control frame rules"]
+        },
+        {
+          "topic": "Browser WebSocket API: Open, Message, Error and Close Events",
+          "subtopics": ["new WebSocket(url, protocols) and the readyState values 0 to 3", "onopen, onmessage, onerror and onclose and addEventListener equivalents", "send() and InvalidStateError when called while CONNECTING", "bufferedAmount as a measure of queued data", "close(code, reason) and the allowed codes", "CloseEvent properties: code, reason and wasClean", "Why onerror gives no detail and how to read the close code instead", "No custom headers from browser code and the options that remain", "Mixed content: ws:// blocked from an https page"],
+          "tools": ["Browser DevTools", "JavaScript", "websocat", "Node.js"],
+          "lab_task": "Write an HTML page with a small client that connects to ws://localhost:8080, logs readyState at each event, sends a message on open, and prints code, reason and wasClean in onclose. Then call send() before open to trigger InvalidStateError, call close(1000) and close(1234), and note which one throws.",
+          "deliverable": "Client page with an event log table of readyState values and close event properties",
+          "checks": [["Call ws.send('x') immediately after new WebSocket()", "InvalidStateError is thrown in the console", "Console screenshot"], ["Call ws.close(1234)", "InvalidAccessError is thrown because 1234 is not 1000 or 3000-4999", "Console screenshot"], ["Call ws.close(1000, 'done') on an open socket", "onclose fires with code 1000, reason done and wasClean true", "Logged event"]],
+          "objectives": ["Use every event and the readyState values of the browser WebSocket", "Handle send and close errors correctly", "Explain what browser code cannot control in the handshake"]
+        },
+        {
+          "topic": "Text and Binary Messages: Blob, ArrayBuffer and JSON",
+          "subtopics": ["Text frames as UTF-8 and the 1007 close code for invalid UTF-8", "Binary frames and binaryType: blob or arraybuffer", "Reading an ArrayBuffer with DataView and Uint8Array", "JSON.stringify and JSON.parse with try/catch for bad input", "Sending images and files as binary frames", "Endianness and a small header: type byte plus length", "Message size versus frame size and why the API hides frames", "Compare payload sizes: JSON, MessagePack and raw binary"],
+          "tools": ["JavaScript", "Node.js", "ws", "Browser DevTools"],
+          "lab_task": "Send the same sensor reading, {id:7, temp:21.5, ts:1730000000}, as JSON text and as a 13-byte binary frame built with DataView (uint8 id, float32 temp, float64 ts). Set ws.binaryType = 'arraybuffer', decode both on the server, and show the byte counts for each message in DevTools.",
+          "deliverable": "Encoder and decoder code with a size comparison of the JSON and binary frames",
+          "checks": [["Send the binary reading with binaryType 'arraybuffer'", "The server receives 13 bytes and decodes temp as 21.5", "Server log"], ["Send the JSON version of the same reading", "Payload is about 40 bytes of text and decodes to the same values", "DevTools frame view"], ["Send the text frame {bad json to the server", "The server catches the parse error and replies with an error message without crashing", "Server log and reply"]],
+          "objectives": ["Send and receive text and binary frames", "Decode binary messages with DataView", "Choose a message encoding based on size and tooling"]
+        },
+        {
+          "topic": "Close Codes and Clean Shutdown",
+          "subtopics": ["The close handshake: Close frame, echo and TCP shutdown", "Status codes 1000, 1001, 1002, 1003, 1007, 1008, 1009, 1011", "1005 and 1006 are never sent on the wire", "1012 service restart and 1013 try again later from the IANA registry", "Private application codes in 4000-4999", "Reason strings limited to 123 bytes", "Abnormal closure: killed process, proxy timeout, network loss", "Server shutdown: close every socket with 1001 and wait for the drain"],
+          "tools": ["ws", "Node.js", "websocat", "Wireshark"],
+          "lab_task": "Add handlers to a ws server that closes with 1008 when the message is 'forbidden', with 1009 via maxPayload when the message is over 1 KiB, and with 4001 for an application error. On SIGTERM close all clients with 1001 and exit. Log the code the browser sees for each case and for kill -9 on the server.",
+          "deliverable": "Close code table with trigger, code seen by the client and the log line",
+          "checks": [["Send a 2 KiB message to a server with maxPayload 1024", "The client sees close code 1009", "Client log"], ["Run kill -9 on the server process while a client is connected", "The client sees code 1006 with wasClean false", "Client log"], ["Send SIGTERM to the server", "Clients see code 1001 and the process exits with status 0", "Client and shell output"]],
+          "objectives": ["Pick the right close code for each condition", "Implement a graceful shutdown of a ws server", "Distinguish a clean close from an abnormal one"]
+        },
+        {
+          "topic": "Inspecting Traffic with DevTools, websocat and wscat",
+          "subtopics": ["Chrome and Firefox WebSocket frame viewers in the Network tab", "Filtering by WS and reading the Messages pane", "websocat for connecting, listening and piping stdin", "wscat -c and wscat -l for client and server", "Postman WebSocket requests and saved messages", "Adding headers with websocat -H and wscat -H", "Capturing wss:// traffic with SSLKEYLOGFILE and Wireshark", "Reading ping, pong and close frames in captures"],
+          "tools": ["Browser DevTools", "websocat", "wscat", "Postman", "Wireshark"],
+          "lab_task": "Start websocat -s 8080 as an echo server. Connect with wscat -c ws://localhost:8080 and with a Postman WebSocket request, send 10 messages from each, then capture the same session with Wireshark on loopback and export the frames with the filter websocket as a CSV file. Count text, ping and close frames.",
+          "deliverable": "Capture file, CSV export and a one-page guide to inspecting WebSocket traffic",
+          "checks": [["Run wscat -c ws://localhost:8080 and type hello", "hello is echoed back and appears in the Wireshark capture as a text frame", "Terminal and capture"], ["Filter the capture with websocket.opcode == 8", "One close frame per side is shown at the end of the session", "Wireshark filter result"], ["Open the same URL in Postman and send a JSON message", "The message appears in the Messages pane marked as sent and received", "Postman screenshot"]],
+          "objectives": ["Inspect WebSocket traffic in the browser, a CLI and Wireshark", "Send test messages without writing client code", "Find handshake and close frames in a capture"]
+        },
+        {
+          "topic": "Node.js Echo Server with the ws Library",
+          "subtopics": ["npm install ws and the WebSocketServer class", "new WebSocketServer({ port: 8080 }) and the connection event", "ws.on('message', (data, isBinary) => ...) and converting Buffer to string", "ws.send(data, { binary }) and the send callback", "readyState checks before send: WebSocket.OPEN", "Attaching ws to an existing http server and the upgrade event", "Client side use of ws for tests and scripts", "The built-in WebSocket client in Node.js 22 and later"],
+          "tools": ["Node.js", "ws", "npm", "websocat"],
+          "lab_task": "Create a project with npm init -y and npm install ws. Write server.js that echoes every message in upper case, logs remote address and message size on connection and close, and shares port 8080 with an http server that returns 200 on GET /health. Test with websocat and a 10-line Node.js client using the global WebSocket.",
+          "deliverable": "Working server.js and client.js with a short README of run commands",
+          "checks": [["Send 'hello' with websocat to ws://localhost:8080", "The reply is HELLO", "Terminal output"], ["Run curl -i http://localhost:8080/health", "Status 200 is returned from the same port", "curl output"], ["Disconnect the client", "The server logs the close with code 1005 or 1000 and the connection count returns to 0", "Server log"]],
+          "objectives": ["Build a working WebSocket server with ws", "Share a port between HTTP routes and WebSocket upgrades", "Write a Node.js client for scripts and tests"]
+        },
+        {
+          "topic": "Broadcasting and Rooms with ws Client Sets",
+          "subtopics": ["wss.clients as a Set of connected sockets", "Broadcast to all except the sender", "Skipping sockets that are not OPEN", "Rooms as a Map of room name to Set of sockets", "Join and leave messages and cleaning up on close", "Per-socket state: id, username and rooms", "Unique connection ids with crypto.randomUUID()", "Memory leaks from sockets left in a Map"],
+          "tools": ["ws", "Node.js", "websocat", "wscat"],
+          "lab_task": "Extend the echo server with {type:'join', room} and {type:'say', room, text} messages. Keep a Map of room to Set of sockets, broadcast say messages only to members of the same room except the sender, and remove sockets from every room on close. Connect 3 wscat clients to two rooms and verify delivery.",
+          "deliverable": "Room server source and a delivery matrix of senders and receivers",
+          "checks": [["Client A and B join room red, client C joins room blue, A sends a message", "B receives it and C does not", "Three terminal logs"], ["Close client B and send another message from A", "No error is thrown and the room Set has 1 member", "Server log"], ["Send a say message to a room the sender has not joined", "The server replies with an error message and delivers nothing", "Reply and log"]],
+          "objectives": ["Broadcast messages to selected clients", "Manage room membership and clean up on close", "Avoid leaks from stale socket references"]
+        },
+        {
+          "topic": "Ping, Pong and Heartbeat Detection",
+          "subtopics": ["Control frames ping 0x9 and pong 0xA", "Browsers answer pings automatically and expose no ping API", "Server heartbeat: ws.ping() on an interval and an isAlive flag", "terminate() for connections that miss a pong", "Half-open TCP connections and why they appear", "Idle timeouts of proxies and load balancers, often 60 seconds", "Application-level ping messages when the client must measure latency", "Choosing an interval: below the shortest idle timeout"],
+          "tools": ["ws", "Node.js", "Wireshark", "websocat"],
+          "lab_task": "Add a 30-second heartbeat to the ws server: set ws.isAlive = true on pong, ping all clients on an interval, and call terminate() on any that did not answer. Lower the interval to 5 seconds for the lab, block a client with iptables or by suspending websocat with kill -STOP, and time how long the server takes to drop it.",
+          "deliverable": "Heartbeat module and a timing log showing detection of a dead client",
+          "checks": [["Connect websocat and watch traffic for 20 seconds with a 5 s interval", "About 4 ping frames from the server and 4 pong frames from the client are captured", "Wireshark capture"], ["Suspend the client with kill -STOP and wait 12 seconds", "The server terminates the socket and the client count drops by 1", "Server log"], ["Resume the client with kill -CONT after termination", "The client sees the connection closed and must reconnect", "Client output"]],
+          "objectives": ["Implement server-side heartbeats", "Detect and remove dead connections", "Choose heartbeat intervals against proxy idle timeouts"]
+        },
+        {
+          "topic": "Client Reconnection with Exponential Backoff",
+          "subtopics": ["Why connections drop: Wi-Fi changes, sleep, deploys and proxy timeouts", "Reconnect loop on close, never on error alone", "Exponential backoff: base 500 ms, factor 2, cap 30 s", "Full jitter: random delay between 0 and the cap", "Resetting the backoff after a stable connection", "navigator.onLine and the online event as hints only", "Queueing outgoing messages while offline and a size limit", "Libraries: reconnecting-websocket and the Socket.IO built-in logic"],
+          "tools": ["JavaScript", "Browser DevTools", "ws", "Node.js"],
+          "lab_task": "Write a ReconnectingSocket class with base 500 ms, factor 2, cap 30 s and full jitter. Start a ws server, connect, kill the server, and log each retry delay for 10 attempts. Restart the server after attempt 5 and verify the client reconnects and the delay counter resets to the base value.",
+          "deliverable": "ReconnectingSocket class and a log of 10 retry delays with the reset point",
+          "checks": [["Stop the server and let the client retry 6 times", "Maximum delay per attempt grows 500, 1000, 2000, 4000, 8000, 16000 ms before jitter", "Client log"], ["Restart the server after attempt 5", "The client reconnects on the next attempt and the next delay is at most 500 ms", "Client log"], ["Call close(1000) from the application", "No reconnect is attempted", "Client log"]],
+          "objectives": ["Implement reconnection with backoff and jitter", "Stop reconnecting after a deliberate close", "Explain why jitter prevents synchronized retries"]
+        },
+        {
+          "topic": "Message Design: JSON Envelopes, Types and Acknowledgements",
+          "subtopics": ["Envelope fields: type, id, ts and payload", "Request-response over a socket with correlation ids", "Event messages versus command messages", "Versioning with a v field or a subprotocol", "Validating input with JSON Schema or Zod", "Error messages with code and message fields", "Acknowledgements with a timeout and a retry rule", "Keeping messages small: ids instead of full objects"],
+          "tools": ["JavaScript", "Zod", "ws", "Node.js"],
+          "lab_task": "Define an envelope {v:1, type, id, ts, payload}. On the server, validate each message with Zod, answer {type:'ack', id} on success and {type:'error', id, code:'bad_payload'} on failure. On the client, write request(type, payload) that returns a Promise resolved on ack and rejected after 3000 ms with a timeout error.",
+          "deliverable": "Message schema file, server validator and a promise-based client request function",
+          "checks": [["Send a valid chat message", "An ack with the same id arrives within 100 ms on loopback", "Client log"], ["Send a message missing the payload field", "An error message with code bad_payload and the same id is returned", "Client log"], ["Stop the server from answering and send a request", "The Promise rejects after 3000 ms with a timeout error", "Test output"]],
+          "objectives": ["Design a typed message envelope", "Implement request-response over a socket", "Validate untrusted input at the socket boundary"]
+        },
+        {
+          "topic": "Subprotocols and Sec-WebSocket-Protocol Negotiation",
+          "subtopics": ["The client protocols list and the server's single choice", "Registered subprotocol names such as graphql-transport-ws and mqtt", "Custom names such as chat.v1 and chat.v2", "ws handleProtocols option and the protocols Set", "Reading ws.protocol on the client", "Handshake failure when the server selects nothing: client closes with 1002", "Using the subprotocol header to carry a token and why it is a trade-off", "Extensions versus subprotocols: Sec-WebSocket-Extensions"],
+          "tools": ["ws", "Node.js", "websocat", "Browser DevTools"],
+          "lab_task": "Configure a ws server with handleProtocols that accepts chat.v2 first and chat.v1 as a fallback. From a browser page, connect with ['chat.v3', 'chat.v2'], then ['chat.v1'], then ['other'] and log ws.protocol, readyState and close code for each. Confirm the header in the DevTools handshake view.",
+          "deliverable": "Negotiation test table with request list, selected protocol and result",
+          "checks": [["Connect with ['chat.v3','chat.v2']", "ws.protocol equals chat.v2", "Console log"], ["Connect with ['other'] against a server that rejects it", "The connection fails and the close code is 1006 in the browser", "Console log"], ["Open the DevTools handshake of the first connection", "Response header Sec-WebSocket-Protocol: chat.v2 is present", "DevTools screenshot"]],
+          "objectives": ["Negotiate subprotocols on client and server", "Version a message format with subprotocol names", "Explain subprotocols versus extensions"]
+        },
+        {
+          "topic": "Socket.IO Fundamentals: Events, Namespaces and Rooms",
+          "subtopics": ["What Socket.IO adds: events, acknowledgements, rooms, reconnection and fallbacks", "Socket.IO is not a plain WebSocket and a plain client cannot connect", "Server: new Server(httpServer, { cors }) and io.on('connection')", "socket.emit, socket.on and io.emit", "Acknowledgement callbacks and socket.timeout(5000).emit", "Rooms: socket.join, io.to(room).emit and socket.broadcast.emit", "Namespaces such as /admin and /chat", "Client: io(url, { auth }) and the connect, disconnect and connect_error events", "Default ping settings pingInterval 25000 and pingTimeout 20000", "Engine.IO transports and the upgrade from polling to websocket"],
+          "tools": ["Socket.IO", "Node.js", "npm", "Browser DevTools", "Postman"],
+          "lab_task": "Build a Socket.IO 4 server with a /chat namespace, a join event that calls socket.join, and a message event with an acknowledgement callback. Write a browser client that joins room 'a', sends a message and prints the ack. In DevTools, find the first polling request with EIO=4 and the later 101 upgrade, and record both.",
+          "deliverable": "Socket.IO server and client, with a screenshot of the polling and upgrade requests",
+          "checks": [["Open the client page and read the Network tab", "A request with EIO=4&transport=polling is followed by a WebSocket request with status 101", "DevTools screenshot"], ["Emit message with an ack callback", "The callback receives the server's response object", "Console log"], ["Connect a raw websocat client to ws://localhost:3000/socket.io/", "The connection fails or is closed because the Engine.IO query parameters are missing", "Terminal output"]],
+          "objectives": ["Build a Socket.IO server and client with events, rooms and acks", "Explain how Socket.IO differs from plain WebSocket", "Read the polling and upgrade sequence in DevTools"]
+        },
+        {
+          "topic": "Python WebSocket Server with the websockets Library",
+          "subtopics": ["Install with pip install websockets inside a virtual environment", "websockets.asyncio.server.serve and the handler coroutine", "async for message in websocket", "websocket.send and websocket.recv", "Handling ConnectionClosedOK and ConnectionClosedError", "Broadcasting with websockets.broadcast", "Defaults: ping_interval 20, ping_timeout 20 and max_size 1 MiB", "Running the client from the same library with websockets.asyncio.client.connect"],
+          "tools": ["Python", "websockets", "asyncio", "websocat"],
+          "lab_task": "Create a venv and run pip install websockets. Write server.py that echoes messages, tracks connected clients in a set and broadcasts any message to all others with websockets.broadcast. Add a client.py using connect() that sends 5 messages. Test with a 2 MiB message and note the close code produced by the default max_size.",
+          "deliverable": "server.py and client.py with a note of the default limits observed",
+          "checks": [["Run client.py with 5 messages against the server", "5 echoes are printed and the client exits with status 0", "Terminal output"], ["Send a 2 MiB message to the default server", "The connection closes with code 1009 message too big", "Client exception"], ["Connect 3 websocat clients and type in one", "The other 2 clients receive the message and the sender does not", "Terminal logs"]],
+          "objectives": ["Write an asyncio WebSocket server and client in Python", "Handle normal and abnormal disconnects", "Use the library defaults and limits deliberately"]
+        },
+        {
+          "topic": "Java WebSocket Server with Jakarta WebSocket",
+          "subtopics": ["The jakarta.websocket API and the earlier javax.websocket package name", "@ServerEndpoint(\"/chat\") and the endpoint lifecycle", "@OnOpen, @OnMessage, @OnClose and @OnError", "Session.getBasicRemote().sendText versus getAsyncRemote()", "Sharing sessions safely: ConcurrentHashMap and synchronized sends", "Embedded containers: Tomcat, Jetty and Tyrus", "Maven dependency and packaging as a WAR or an embedded jar", "Session.setMaxIdleTimeout and maximum message size"],
+          "tools": ["Java", "Maven", "Tomcat", "Jetty", "websocat"],
+          "lab_task": "Create a Maven project with an embedded Tomcat or Jetty and a @ServerEndpoint(\"/chat\") class that stores sessions in a ConcurrentHashMap.newKeySet() and broadcasts each text message with getAsyncRemote().sendText. Start it, connect 3 websocat clients, then close one and confirm the session set shrinks from 3 to 2 in the log.",
+          "deliverable": "Maven project with the chat endpoint and a run guide",
+          "checks": [["Connect 3 clients and send a message from one", "The other 2 receive it and the log shows 3 open sessions", "Server log"], ["Close one client", "@OnClose runs and the log shows 2 open sessions", "Server log"], ["Throw an exception inside @OnMessage on a test input", "@OnError logs the exception and the session closes with code 1011", "Server log"]],
+          "objectives": ["Write a Jakarta WebSocket endpoint with lifecycle methods", "Manage shared sessions safely in a multi-threaded container", "Run the endpoint in an embedded container"]
+        },
+        {
+          "topic": "Reverse Proxying WebSockets with NGINX",
+          "subtopics": ["Why a proxy is needed: TLS, routing and static files", "proxy_http_version 1.1 and the Upgrade and Connection headers", "map $http_upgrade $connection_upgrade { default upgrade; '' close; }", "location /ws/ with proxy_pass to an upstream", "proxy_read_timeout and proxy_send_timeout defaults of 60 seconds", "Symptoms of missing headers: handshake 400 or 200 instead of 101", "nginx -t and nginx -s reload", "Access log fields for upgraded connections: status 101 and bytes"],
+          "tools": ["NGINX", "Docker", "websocat", "curl"],
+          "lab_task": "Run NGINX in Docker in front of the ws echo server. First configure location /ws/ with only proxy_pass and confirm the handshake fails. Then add proxy_http_version 1.1, the Upgrade header and the map for Connection and confirm status 101. Leave a connection idle for 70 seconds without heartbeats and record the close code.",
+          "deliverable": "nginx.conf before and after, with test results for the failing and fixed handshakes",
+          "checks": [["Connect through NGINX with only proxy_pass", "The handshake fails with a non-101 response", "websocat error"], ["Add the Upgrade and Connection headers and reload", "The response status is 101 Switching Protocols", "curl -i output"], ["Leave an idle connection open for 70 seconds with the default proxy_read_timeout", "The connection closes with code 1006 at about 60 seconds", "Client log with timestamps"]],
+          "objectives": ["Configure NGINX to proxy WebSocket upgrades", "Recognize the symptoms of missing upgrade headers", "Set proxy timeouts to match heartbeat intervals"]
+        },
+        {
+          "topic": "Securing wss:// with TLS and Origin Checks",
+          "subtopics": ["wss:// is TLS first and then HTTP Upgrade", "Certificates for local development with mkcert", "Terminating TLS at NGINX and speaking ws:// to the backend", "Browsers block ws:// from https pages as mixed content", "The Origin header: sent by browsers, forged freely by non-browser clients", "Allow-list check of Origin in the upgrade handler and reject with 403", "Cross-Site WebSocket Hijacking in one paragraph", "Never put long-lived secrets in the URL query string"],
+          "tools": ["mkcert", "ws", "NGINX", "Node.js", "websocat"],
+          "lab_task": "Create a local certificate with mkcert, serve the page and a wss:// endpoint from Node.js https, and add a check that rejects any upgrade whose Origin is not https://localhost:8443 with HTTP 403. Test with the browser, with websocat -H 'Origin: https://evil.example' and with websocat without any Origin header, and record the result of each.",
+          "deliverable": "TLS server code, Origin allow-list and a result table for three clients",
+          "checks": [["Open the page from https://localhost:8443", "wss:// connects with status 101", "DevTools screenshot"], ["Connect with websocat and Origin: https://evil.example", "The server answers 403 Forbidden and no socket opens", "websocat output"], ["Load the page over http and connect to wss", "The browser reports a mixed-content or certificate error until the page is served over https", "Console message"]],
+          "objectives": ["Serve WebSocket over TLS", "Reject untrusted origins at the upgrade", "Explain why the Origin check does not replace authentication"]
+        },
+        {
+          "topic": "Testing Echo Servers with the Node Test Runner and Postman",
+          "subtopics": ["node:test and node:assert for async tests", "Starting the server on port 0 in a before hook", "Connecting a client and awaiting the open and message events with once()", "Testing close codes and error responses", "Timeouts so tests cannot hang", "Postman WebSocket requests with saved messages and test scripts", "Running tests in CI with npm test", "What unit tests cannot cover: proxies, scaling and real networks"],
+          "tools": ["Node.js", "ws", "Postman", "npm"],
+          "lab_task": "Write tests with node:test that start the server on an ephemeral port, send 'ping' and expect 'PONG', send a 2 KiB message to a maxPayload 1024 server and expect close code 1009, and verify that 50 clients connecting at once all receive a reply. Run node --test and save a Postman collection with one WebSocket request.",
+          "deliverable": "Test file with three passing tests, test output and an exported Postman collection",
+          "checks": [["Run node --test", "3 tests pass and 0 fail", "Terminal output"], ["Send an oversized message in the test", "The test observes close code 1009", "Test result"], ["Open 50 clients concurrently", "50 replies are received within the 2000 ms timeout", "Test result"]],
+          "objectives": ["Write automated tests for a WebSocket server", "Avoid hanging tests with timeouts and ephemeral ports", "Use Postman for exploratory checks"]
+        },
+        {
+          "topic": "Beginner Capstone: Real-Time Chat Application",
+          "subtopics": ["Requirements: rooms, usernames, history of the last 50 messages and typing notices", "Server in Node.js with ws, typed JSON envelopes and Zod validation", "Browser client with reconnection, backoff and an offline banner", "Heartbeats, close codes and graceful shutdown on SIGTERM", "Origin check, message size limits and NGINX in front with wss://", "Automated tests, README and a recorded demo with three users"],
+          "tools": ["Node.js", "ws", "NGINX", "Docker", "Postman", "node:test"],
+          "lab_task": "Build a chat app with rooms, usernames, the last 50 messages per room, heartbeats and reconnection. Put NGINX in front with TLS from mkcert, limit messages to 4 KiB, reject foreign origins, run docker compose up, and demonstrate three browsers chatting, one forced disconnect and recovery within 30 seconds.",
+          "deliverable": "Repository with docker-compose.yml, tests, README and a short demo recording",
+          "checks": [["Three users join one room and each sends a message", "All messages reach the other two users in order", "Demo recording"], ["Stop the server container for 10 seconds and start it again", "Clients reconnect without a page refresh and show the connected state", "Demo recording"], ["Run the test suite in CI", "All tests pass and include one case each for 1009 and 403", "CI log"]],
+          "objectives": ["Combine protocol, client, server and proxy skills in one application", "Show resilient behavior under disconnects", "Document and demonstrate a working real-time system"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built a basic WebSocket service and now need it to be authenticated, scalable and testable. Covers ticket and JWT authentication, per-message authorization, backpressure, compression, presence, delivery guarantees with resume, Socket.IO internals and the Redis adapter, Redis Pub/Sub and Streams fan-out, load balancers, NGINX and Envoy tuning, FastAPI and Spring STOMP servers, SSE comparison, Autobahn conformance, k6 load tests, metrics and logging, hardening, and a multi-node capstone.",
+      "prerequisites": ["Has built a WebSocket server and client with ws, websockets or Jakarta WebSocket", "Uses Docker and Docker Compose to run several services and Redis", "Reads JWTs and understands cookies, CORS and TLS termination"],
+      "outcomes": ["Authenticate and authorize WebSocket connections and messages without leaking tokens", "Scale a service across nodes with Redis and a correctly configured load balancer", "Prove protocol conformance, capacity and delivery behavior with Autobahn and k6", "Instrument and harden a service against hijacking and abuse"],
+      "days": [
+        {
+          "topic": "Authenticating the Upgrade: Cookies, Tickets and First-Message Tokens",
+          "subtopics": ["Why browser code cannot send an Authorization header on the handshake", "Session cookies sent automatically and the CSRF-like risk", "Token in the query string and why it leaks into logs", "Single-use ticket: POST /ws-ticket then ?ticket=... valid for 30 seconds", "Storing tickets in Redis with SET key value EX 30 NX and consuming with GETDEL", "First-message authentication with a deadline of 5 seconds", "Rejecting during the upgrade: write HTTP 401 and destroy the socket", "Authenticating non-browser clients with the Authorization header", "Subprotocol header trick and its caveats"],
+          "tools": ["ws", "Redis", "Node.js", "websocat", "curl"],
+          "lab_task": "Implement POST /ws-ticket that returns a random 32-byte ticket stored in Redis with SET ticket:<id> <userId> EX 30. In the ws upgrade handler, consume it with GETDEL, reject with 401 when it is missing, and attach userId to the socket. Test a valid ticket, a reused ticket and an expired ticket after 31 seconds.",
+          "deliverable": "Ticket endpoint, upgrade handler and a three-case test log",
+          "checks": [["Connect with a fresh ticket", "Status 101 and the server log shows the userId", "Server log"], ["Reuse the same ticket", "The upgrade is rejected with HTTP 401", "websocat output"], ["Wait 31 seconds and connect", "The upgrade is rejected with 401 and redis-cli TTL returned -2 for the key", "redis-cli output"]],
+          "objectives": ["Authenticate WebSocket connections without custom browser headers", "Implement short-lived single-use tickets", "Reject unauthenticated upgrades before a socket is created"]
+        },
+        {
+          "topic": "JWT Validation at Upgrade Time and Token Refresh on Open Sockets",
+          "subtopics": ["Verifying signature, exp, nbf, iss and aud with the jose library", "Algorithm allow-list and refusing alg none", "Reading the JWT from a cookie, a subprotocol or the first message", "Connections outlive tokens: the access token expires while the socket is open", "In-band refresh: client sends {type:'auth', token} before exp", "Closing with 4401 when the token expires and the client cannot refresh", "Clock skew tolerance of 30 seconds", "Logging subject and expiry, never the token"],
+          "tools": ["jose", "ws", "Node.js", "jwt.io", "websocat"],
+          "lab_task": "Use jose jwtVerify with issuer, audience and algorithms ['RS256'] on the first message. Issue tokens that expire in 60 seconds. Store exp on the socket, set a timer to close with code 4401 at expiry unless an {type:'auth'} message with a newer token arrives, and test with a refresh at 50 seconds and with no refresh.",
+          "deliverable": "Verification module, expiry timer logic and a log with and without refresh",
+          "checks": [["Send a token signed with HS256 to the RS256-only server", "Verification fails and the socket closes with 4401", "Server log"], ["Send a refreshed token at 50 seconds", "The socket stays open past 60 seconds and exp is updated", "Server log"], ["Send no refresh", "The socket closes with 4401 at about 60 seconds", "Client close event"]],
+          "objectives": ["Validate JWT claims on WebSocket connections", "Handle token expiry on long-lived sockets", "Use an application close code for auth failures"]
+        },
+        {
+          "topic": "Authorization per Message and Channel Permissions",
+          "subtopics": ["Authentication proves who, authorization decides what", "Checking permission on every subscribe and publish, not only at connect", "Role and scope claims mapped to channels such as room:<id>", "Deny by default for unknown message types", "Revalidating after permission changes: kick events", "Preventing ID guessing: the server derives the user from the socket", "Audit logging of denied actions", "Returning 4403 or an error message without leaking channel existence"],
+          "tools": ["ws", "Node.js", "Redis", "Postman"],
+          "lab_task": "Add a permissions map userId to allowed rooms. Reject join and say messages for rooms the user does not hold with {type:'error', code:'forbidden'}, derive the sender from the socket and ignore any 'from' field in the payload, and add an admin {type:'kick', userId} that closes the target with 4403. Test 3 users.",
+          "deliverable": "Authorization layer, a permissions test table and an audit log sample",
+          "checks": [["User A sends say to a room A does not hold", "An error with code forbidden is returned and nobody receives the text", "Client log"], ["User A sends a payload with from set to another user", "Receivers see the real sender id from the socket", "Receiver log"], ["Admin sends kick for user B", "B's socket closes with code 4403 and an audit line is written", "Close event and audit log"]],
+          "objectives": ["Enforce authorization on every message", "Ignore client-supplied identity fields", "Revoke access on a live connection"]
+        },
+        {
+          "topic": "Backpressure: bufferedAmount, Drain and Slow Consumers",
+          "subtopics": ["TCP buffers fill when a client reads slowly", "ws.bufferedAmount on server and browser sockets", "send callback and the cost of ignoring it", "Dropping, coalescing or disconnecting slow clients", "Latest-value-wins streams such as prices versus lossless streams such as chat", "Per-client queue limit, for example 1 MiB", "Closing a slow client with 1008 or 4408", "Node.js streams and createWebSocketStream with pipeline"],
+          "tools": ["ws", "Node.js", "websocat", "Prometheus"],
+          "lab_task": "Broadcast a 10 KB message every 10 ms to 100 clients where 1 client is stopped with kill -STOP. Log ws.bufferedAmount for the slow client and process.memoryUsage().rss before and after. Add a rule that closes any client whose bufferedAmount exceeds 1 MiB, then rerun and compare memory growth.",
+          "deliverable": "Before and after memory chart and the slow-consumer policy code",
+          "checks": [["Run the broadcast with no limit for 60 seconds", "RSS grows steadily and bufferedAmount for the stopped client keeps rising", "Memory log"], ["Enable the 1 MiB limit", "The stopped client is closed and RSS stays flat", "Memory log and close event"], ["Check the other 99 clients", "They continue to receive every message without a gap", "Client counters"]],
+          "objectives": ["Detect slow consumers using bufferedAmount", "Apply a drop or disconnect policy", "Prevent memory exhaustion from slow clients"]
+        },
+        {
+          "topic": "Message Size Limits, Fragmentation and permessage-deflate",
+          "subtopics": ["maxPayload in ws and max_size in websockets", "Limits at proxies: NGINX client_max_body_size does not apply to frames", "Fragmented messages and server-side reassembly limits", "permessage-deflate negotiated in Sec-WebSocket-Extensions", "ws perMessageDeflate is off by default on the server and why", "Compression ratio versus CPU and memory per connection", "context takeover options server_no_context_takeover and client_no_context_takeover", "CRIME-style risks of compressing secrets with attacker-controlled data"],
+          "tools": ["ws", "Node.js", "Wireshark", "autocannon"],
+          "lab_task": "Send a 100 KB repetitive JSON message to a ws server with and without perMessageDeflate enabled and measure bytes on the wire in Wireshark, CPU time with process.cpuUsage(), and RSS with 1000 idle connections. Report the compression ratio and the extra memory per connection, then pick a policy.",
+          "deliverable": "Measurement table and a recommendation for or against enabling compression",
+          "checks": [["Send the 100 KB JSON with compression on", "Wire size is far lower than 100 KB and the handshake shows permessage-deflate", "Wireshark capture"], ["Open 1000 idle connections with compression on and off", "RSS differs between the two runs and the difference per connection is recorded", "Memory measurements"], ["Send a message larger than maxPayload", "The connection closes with code 1009", "Client log"]],
+          "objectives": ["Configure message limits across server and proxy", "Measure compression cost and benefit", "Decide when permessage-deflate is appropriate"]
+        },
+        {
+          "topic": "Presence, Typing Indicators and Soft State with Timeouts",
+          "subtopics": ["Presence as soft state that expires", "Heartbeat-driven online status and the grace period for reconnects", "Redis keys with TTL: SET presence:<user> 1 EX 45 and refresh on ping", "Multiple tabs and devices per user: count connections, not users", "Typing events throttled to one every 3 seconds with automatic stop", "Publishing presence changes only on transitions", "Last seen timestamps and privacy settings", "Race between disconnect and reconnect"],
+          "tools": ["Redis", "ws", "Node.js", "redis-cli"],
+          "lab_task": "Maintain presence in Redis with SET presence:<userId> <connId> EX 45 refreshed on every pong, plus SADD for per-user connection ids. Broadcast online or offline only when the count moves between 0 and 1. Test with two tabs of one user, closing one tab, and a reload that reconnects within 5 seconds.",
+          "deliverable": "Presence module, test log and a state diagram of transitions",
+          "checks": [["Open two tabs as the same user", "One online event is broadcast and SCARD shows 2 connections", "Server log and redis-cli"], ["Close one tab", "No offline event is broadcast and SCARD shows 1", "Server log"], ["Close the last tab and wait 50 seconds", "An offline event is broadcast and the presence key no longer exists", "redis-cli output"]],
+          "objectives": ["Model presence as expiring soft state", "Handle multi-device users correctly", "Throttle high-frequency events such as typing"]
+        },
+        {
+          "topic": "Delivery Guarantees: Sequence Numbers, Acks and Resume",
+          "subtopics": ["At-most-once, at-least-once and effectively-once delivery", "Server-assigned sequence numbers per channel", "Client acks and a retransmit window", "Idempotency keys so retries do not duplicate", "Resume on reconnect with {type:'resume', lastSeq}", "Replay buffer length and what happens when it is exceeded", "Ordering within a channel versus across channels", "Gap detection and a full resync fallback"],
+          "tools": ["ws", "Node.js", "Redis", "node:test"],
+          "lab_task": "Add a monotonic seq to each message of a room and keep the last 200 messages in a buffer. On reconnect the client sends resume with its last seq and the server replays missing messages in order. Drop the connection for 3 seconds while 30 messages are sent and verify zero loss and zero duplicates, then test a gap larger than the buffer.",
+          "deliverable": "Resume implementation and a loss and duplicate report from an automated test",
+          "checks": [["Disconnect for 3 seconds while 30 messages are published", "After resume the client holds all 30 with consecutive seq values and no duplicates", "Test output"], ["Resume with a lastSeq older than the 200-message buffer", "The server replies resync_required and the client reloads state", "Client log"], ["Send the same message twice with one idempotency key", "Only one message is stored and broadcast", "Server log"]],
+          "objectives": ["Choose a delivery guarantee for a use case", "Implement resume with sequence numbers", "Handle gaps with a full resync"]
+        },
+        {
+          "topic": "Socket.IO Internals: Engine.IO, Transports and Connection State Recovery",
+          "subtopics": ["Engine.IO handshake and the session id (sid)", "Packet types over polling and websocket: open, ping, pong, message", "Upgrade from polling to websocket and the probe packets", "transports: ['websocket'] on the client to skip polling", "Why polling needs sticky sessions and websocket-only does not", "connectionStateRecovery with maxDisconnectionDuration", "socket.recovered after a reconnect", "Server options pingInterval, pingTimeout and maxHttpBufferSize", "Middleware with io.use and socket.handshake.auth"],
+          "tools": ["Socket.IO", "Node.js", "Browser DevTools", "Wireshark"],
+          "lab_task": "Run a Socket.IO 4 server with connectionStateRecovery { maxDisconnectionDuration: 120000 }. Use a client with transports ['polling','websocket'], log socket.recovered across a forced disconnect of 5 seconds, then switch to transports ['websocket'] and compare the requests in DevTools. Add io.use middleware that rejects a missing auth.token.",
+          "deliverable": "Server and client code with a log of recovery results and a request comparison",
+          "checks": [["Drop the connection for 5 seconds and reconnect", "socket.recovered is true and missed room events are delivered", "Client log"], ["Connect with transports ['websocket']", "Only one WebSocket request with status 101 appears and no polling requests", "DevTools Network"], ["Connect without auth.token", "connect_error fires with the middleware error message", "Client log"]],
+          "objectives": ["Explain the Engine.IO handshake and transports", "Use connection state recovery", "Add authentication middleware to Socket.IO"]
+        },
+        {
+          "topic": "Scaling Socket.IO with the Redis Adapter",
+          "subtopics": ["Why a second Node process breaks io.emit and rooms", "@socket.io/redis-adapter with node-redis and a pub and sub client pair", "How the adapter publishes packets on Redis channels", "Sharded adapter with Redis 7 sharded Pub/Sub", "@socket.io/redis-streams-adapter and recovery across nodes", "io.fetchSockets and io.serverSideEmit across nodes", "Sticky sessions required for polling transport", "Redis outage behavior: local delivery continues, cross-node delivery stops"],
+          "tools": ["Socket.IO", "Redis", "Docker", "NGINX", "redis-cli"],
+          "lab_task": "Run 3 Socket.IO instances on ports 3001-3003 behind NGINX with ip_hash and connect clients to different nodes. First show that a room broadcast only reaches clients on the same node, then add @socket.io/redis-adapter and confirm all clients receive it. Use redis-cli MONITOR to see the published packets, then stop Redis and observe.",
+          "deliverable": "Compose file for 3 nodes, adapter code and a before and after delivery table",
+          "checks": [["Broadcast to room a without the adapter with clients on 3 nodes", "Only clients on the sending node receive the message", "Client logs"], ["Enable the Redis adapter and repeat", "All clients on all 3 nodes receive the message", "Client logs"], ["Stop Redis and broadcast again", "Only clients on the sending node receive it and the adapter logs a connection error", "Server log"]],
+          "objectives": ["Explain why multi-node Socket.IO needs an adapter", "Deploy Socket.IO on several nodes with Redis", "Predict behavior when Redis fails"]
+        },
+        {
+          "topic": "Scaling Plain WebSocket Servers with Redis Pub/Sub and Streams",
+          "subtopics": ["One process holds its own sockets and nothing else", "Fan-out: publish to a channel, every node forwards to local subscribers", "PUBLISH, SUBSCRIBE and PSUBSCRIBE and the at-most-once guarantee", "redis-cli PUBSUB NUMSUB and PUBSUB CHANNELS", "Subscribing per room lazily and unsubscribing when the last local member leaves", "Sharded Pub/Sub with SPUBLISH and SSUBSCRIBE in cluster mode", "Redis Streams with XADD, XREAD and consumer groups for replay", "Message loss on a Redis restart and the effect on clients", "Alternatives: NATS, Kafka and PostgreSQL LISTEN/NOTIFY"],
+          "tools": ["Redis", "ioredis", "ws", "Node.js", "Docker"],
+          "lab_task": "Run 2 ws servers on ports 8081 and 8082. Each subscribes to Redis channel room:<id> when its first local client joins, and publishes every say message with PUBLISH. Verify delivery across nodes, check redis-cli PUBSUB NUMSUB room:red, then add an XADD stream copy with MAXLEN ~ 1000 so a reconnecting client can replay missed messages.",
+          "deliverable": "Two-node setup, pub/sub code and a replay-from-stream demonstration",
+          "checks": [["Client A on node 1 and client B on node 2 join room red and A sends a message", "B receives the message through Redis", "Client logs"], ["Run redis-cli PUBSUB NUMSUB room:red", "The reply shows 2 subscribers, one per node", "redis-cli output"], ["Disconnect B for 5 seconds, send 3 messages and reconnect with the last stream id", "B receives the 3 missed messages from the stream in order", "Client log"]],
+          "objectives": ["Fan out messages across nodes with Redis Pub/Sub", "Add replay with Redis Streams", "State the delivery limits of Pub/Sub"]
+        },
+        {
+          "topic": "Sticky Sessions and Load Balancer Configuration with HAProxy and AWS ALB",
+          "subtopics": ["Layer 4 versus layer 7 balancing for WebSocket", "Why sockets are sticky by nature and when stickiness is still needed (Socket.IO polling, in-memory state)", "HAProxy: timeout tunnel, timeout client and timeout server", "HAProxy balance leastconn for long-lived connections", "Cookie or source-hash stickiness: cookie SRV insert indirect", "AWS ALB: native WebSocket support, 60-second default idle timeout and target group stickiness", "NLB TCP listeners with no HTTP awareness and TLS at the target", "Health checks that do not open sockets", "Draining and deregistration delay for long connections"],
+          "tools": ["HAProxy", "AWS ALB", "Docker", "websocat", "NGINX"],
+          "lab_task": "Run HAProxy in Docker with 3 ws backends and balance leastconn, timeout tunnel 1h and an HTTP health check on /health. Open 30 connections, record how many land on each backend using the server's log, stop one backend and observe how many clients disconnect, and then reconnect and confirm they are spread over the 2 remaining nodes.",
+          "deliverable": "haproxy.cfg and a connection distribution table before and after the failure",
+          "checks": [["Open 30 clients through HAProxy with leastconn", "Each backend holds 10 connections", "Backend logs"], ["Stop backend 2", "The 10 clients on it see close code 1006 and the others stay connected", "Client logs"], ["Reconnect the 10 clients", "The 2 remaining backends hold 15 connections each", "Backend logs"]],
+          "objectives": ["Configure a load balancer for long-lived connections", "Decide whether stickiness is required", "Predict what clients experience when a backend fails"]
+        },
+        {
+          "topic": "NGINX and Envoy Tuning: Timeouts, Buffers and Connection Limits",
+          "subtopics": ["proxy_read_timeout and proxy_send_timeout for idle sockets", "proxy_buffering off for streams and proxy_buffer_size for the handshake", "worker_connections and worker_rlimit_nofile", "limit_conn and limit_req on the upgrade path", "keepalive to upstream with upstream keepalive", "Envoy upgrade_configs with upgrade_type WebSocket", "Envoy stream_idle_timeout and max_connection_duration", "Reading $upstream_status and $status 101 in access logs", "Rolling reload and old workers holding sockets: worker_shutdown_timeout"],
+          "tools": ["NGINX", "Envoy", "Docker", "websocat", "k6"],
+          "lab_task": "Set worker_connections 20000 and worker_rlimit_nofile 40000 in NGINX, add limit_conn per_ip 20 on /ws/, and proxy_read_timeout 120s. Open 25 connections from one IP and record the status of the 21st, then change the config, run nginx -s reload and show that the old worker keeps existing sockets alive until they close.",
+          "deliverable": "Tuned nginx.conf with test notes and an Envoy upgrade_configs snippet",
+          "checks": [["Open 21 connections from one IP with limit_conn 20", "The 21st handshake is rejected with status 503", "NGINX access log"], ["Idle for 130 seconds with no heartbeat", "The connection closes with 1006 after about 120 seconds", "Client log"], ["Run nginx -s reload while 5 sockets are open", "The 5 sockets stay open and ps shows an old worker process in the shutting down state", "ps output"]],
+          "objectives": ["Tune proxy timeouts and limits for WebSocket traffic", "Read access logs for upgraded connections", "Explain how reloads treat long-lived sockets"]
+        },
+        {
+          "topic": "Async Python Endpoints with FastAPI, Starlette and Uvicorn",
+          "subtopics": ["@app.websocket(\"/ws\") and await websocket.accept()", "receive_text, receive_json, receive_bytes and send_json", "WebSocketDisconnect and the code attribute", "Dependencies and path parameters on WebSocket routes", "Authentication with Depends and closing with websocket.close(code=1008)", "A ConnectionManager class with a set of sockets and asyncio locks", "Uvicorn flags --ws-max-size, --ws-ping-interval and --ws-ping-timeout", "Running several workers and the loss of shared in-memory state", "Backing the manager with Redis Pub/Sub using redis.asyncio"],
+          "tools": ["FastAPI", "Uvicorn", "Python", "Redis", "websocat"],
+          "lab_task": "Write a FastAPI app with /ws/{room}, a ConnectionManager, token check through a query ticket and a close(code=1008) on failure. Run uvicorn app:app --workers 2 and show a broadcast reaching only one worker's clients, then publish through redis.asyncio so both workers deliver. Run pytest with Starlette TestClient websocket_connect.",
+          "deliverable": "FastAPI app, ConnectionManager, Redis bridge and a passing pytest file",
+          "checks": [["Connect without a valid ticket", "The socket closes with code 1008", "pytest or websocat output"], ["Run with 2 workers and no Redis", "Messages reach only clients that landed on the same worker", "Client logs"], ["Enable the Redis bridge", "Clients on both workers receive the message", "Client logs"]],
+          "objectives": ["Build WebSocket routes in FastAPI", "Authenticate and close with proper codes", "Scale across Uvicorn workers with Redis"]
+        },
+        {
+          "topic": "Spring WebSocket and STOMP over WebSocket",
+          "subtopics": ["@EnableWebSocket with a WebSocketConfigurer and TextWebSocketHandler", "@EnableWebSocketMessageBroker and registry.addEndpoint(\"/ws\")", "enableSimpleBroker(\"/topic\") and setApplicationDestinationPrefixes(\"/app\")", "@MessageMapping, @SendTo and SimpMessagingTemplate", "STOMP frames: CONNECT, SUBSCRIBE, SEND, MESSAGE and heartbeats", "Handshake interceptors and ChannelInterceptor for authentication", "Principal and convertAndSendToUser", "Broker relay to RabbitMQ with enableStompBrokerRelay for several nodes", "SockJS fallback and when it is no longer needed", "Limits: setMessageSizeLimit and setSendBufferSizeLimit"],
+          "tools": ["Spring Boot", "STOMP", "RabbitMQ", "Maven", "stomp.js"],
+          "lab_task": "Build a Spring Boot app with a /ws STOMP endpoint, simple broker on /topic and a @MessageMapping(\"/chat\") handler that returns to /topic/messages. Connect with @stomp/stompjs, add a ChannelInterceptor that rejects CONNECT frames without a valid token, and switch to the RabbitMQ relay on port 61613 to run two instances.",
+          "deliverable": "Spring project, a browser STOMP client and a note on the relay setup",
+          "checks": [["Send to /app/chat from client A with client B subscribed to /topic/messages", "B receives a MESSAGE frame with the payload", "Browser console"], ["CONNECT without a token", "The server answers with an ERROR frame and closes the socket", "Client log"], ["Run 2 instances with the RabbitMQ relay and publish on one", "Subscribers on both instances receive the message", "Client logs"]],
+          "objectives": ["Build STOMP messaging over WebSocket in Spring", "Authenticate STOMP CONNECT frames", "Scale with an external broker relay"]
+        },
+        {
+          "topic": "Server-Sent Events Compared and Combined with WebSockets",
+          "subtopics": ["SSE format: data:, event:, id: and retry: fields", "Content-Type: text/event-stream and no buffering", "EventSource and automatic reconnection with Last-Event-ID", "One-way limits: client messages need separate HTTP requests", "HTTP/1.1 limit of 6 connections per origin and why HTTP/2 removes it", "Proxy and compression pitfalls: buffering and gzip", "Auth with cookies since EventSource cannot set headers; fetch-based SSE as an alternative", "Choosing: server push only favors SSE, bidirectional low latency favors WebSocket", "Hybrid design: SSE for notifications and POST for commands"],
+          "tools": ["Node.js", "curl", "Browser DevTools", "NGINX", "k6"],
+          "lab_task": "Implement the same ticker twice: an SSE endpoint using res.write('id: n\\ndata: ...\\n\\n') with Last-Event-ID resume, and a ws endpoint. Disconnect each for 5 seconds and compare how many messages are missed after reconnection, and then count open connections per origin that HTTP/1.1 allows by opening 8 EventSource tabs.",
+          "deliverable": "Two implementations and a decision table covering reconnect, direction, proxy and limits",
+          "checks": [["Disconnect the SSE client for 5 seconds with Last-Event-ID resume implemented", "No events are missed after reconnect", "Client log"], ["Disconnect the WebSocket client for 5 seconds with no resume logic", "Messages from the gap are missed", "Client log"], ["Open 8 EventSource connections to an HTTP/1.1 origin", "Only 6 become active and the others wait", "DevTools Network"]],
+          "objectives": ["Compare SSE and WebSocket by direction, reconnection and limits", "Implement resumable SSE", "Pick the transport and justify the choice"]
+        },
+        {
+          "topic": "Protocol Conformance Testing with the Autobahn Testsuite",
+          "subtopics": ["What Autobahn|Testsuite checks: framing, fragmentation, UTF-8, close handling, ping and pong", "fuzzingclient and fuzzingserver modes", "The crossbario/autobahn-testsuite Docker image and fuzzingclient.json", "Case ids such as 1.1.1, 2.1, 5.1, 6.1.1, 7.1.1 and 9.x performance cases", "Result values: OK, NON-STRICT, INFORMATIONAL, FAILED and UNIMPLEMENTED", "Reading reports/servers/index.html", "Excluding cases that do not apply, such as compression 12.x and 13.x when disabled", "Running conformance in CI against your server", "Fixing failures: UTF-8 validation and close code rules"],
+          "tools": ["Autobahn Testsuite", "Docker", "ws", "websockets", "Jakarta WebSocket"],
+          "lab_task": "Write fuzzingclient.json listing your echo server and cases ['1.*','2.*','5.*','6.*','7.*'] with exclude-cases for 12.* and 13.*. Run docker run --rm -v \"$PWD:/config\" crossbario/autobahn-testsuite wstest -m fuzzingclient -s /config/fuzzingclient.json, open the HTML report, and list the count of OK, NON-STRICT and FAILED results.",
+          "deliverable": "Conformance report, a count table and a fix list for every failed case",
+          "checks": [["Run the selected cases against the ws echo server", "The report lists all cases with behavior OK or NON-STRICT and 0 FAILED", "reports/servers/index.html"], ["Run the same cases against a hand-written server that skips UTF-8 validation", "Cases in group 6 fail", "Report page"], ["Run the suite in CI", "The job fails when any case is FAILED", "CI log"]],
+          "objectives": ["Run a protocol conformance suite against a server", "Interpret conformance results", "Fix a defect found by the suite"]
+        },
+        {
+          "topic": "Integration and Load Testing with k6 and Artillery",
+          "subtopics": ["k6 WebSocket API: ws.connect, socket.on('open'), socket.send and socket.setInterval", "k6 WebSocket metrics: ws_sessions, ws_connecting, ws_msgs_sent, ws_msgs_received and ws_session_duration", "Thresholds such as ws_connecting p(95)<500", "Ramping stages for connections: 0 to 2000 in 2 minutes", "Artillery with engine: ws and scenarios", "Measuring message latency with a timestamp in the payload", "Client-side limits: ports, file descriptors and the load generator CPU", "Distributed load generation", "Test data for tokens and rooms"],
+          "tools": ["k6", "Artillery", "Docker", "Prometheus", "Grafana"],
+          "lab_task": "Write a k6 script with stages ramping to 2000 virtual users, each connecting, joining a room, sending a timestamped message every 5 seconds and recording round-trip time in a Trend. Set thresholds ws_connecting p(95)<500 and a custom rtt p(95)<200. Run it and report the thresholds, the failure point and the server CPU.",
+          "deliverable": "k6 script, results with threshold status and a short capacity finding",
+          "checks": [["Run k6 at 500 users", "All thresholds pass and ws_sessions reaches 500", "k6 summary"], ["Raise to 2000 users", "Either thresholds pass or a named threshold fails, with the first failing stage recorded", "k6 summary"], ["Check the load generator CPU during the run", "CPU stays below 80 percent so the result reflects the server", "Monitoring screenshot"]],
+          "objectives": ["Write a WebSocket load test", "Set pass and fail thresholds", "Separate server limits from load generator limits"]
+        },
+        {
+          "topic": "Observing WebSocket Servers: Metrics, Structured Logs and Correlation Ids",
+          "subtopics": ["Gauges for active connections and counters for messages in and out", "Close codes as a labeled counter ws_close_total{code}", "Handshake duration histogram", "prom-client collectDefaultMetrics and a /metrics endpoint", "Structured JSON logs with connId, userId and requestId", "Cardinality: never use userId or connId as a label", "Event loop lag as the Node.js saturation signal", "Grafana panels for connections, message rate and close codes", "Assigning a connection id and returning it in a header or first message"],
+          "tools": ["Prometheus", "Grafana", "prom-client", "Node.js", "pino"],
+          "lab_task": "Add prom-client to the ws server with gauges ws_connections_active, counters ws_messages_total{direction} and ws_close_total{code}, a histogram ws_handshake_seconds and pino logs with connId. Scrape with Prometheus, drive 200 clients with k6, and build a Grafana dashboard with the query rate(ws_messages_total[1m]).",
+          "deliverable": "Instrumented server, prometheus.yml and a dashboard JSON export",
+          "checks": [["Connect 200 clients", "ws_connections_active equals 200 in the Prometheus UI", "Prometheus query result"], ["Close 20 clients normally and kill 5 with kill -9 on the client side", "ws_close_total shows 20 with code 1000 and 5 with code 1006", "Metrics output"], ["Search logs for one connId", "All log lines for that connection are returned from open to close", "Log search output"]],
+          "objectives": ["Instrument a WebSocket server with useful metrics", "Avoid high-cardinality labels", "Correlate logs by connection id"]
+        },
+        {
+          "topic": "WebSocket Hardening: Hijacking, Injection and Abuse Limits",
+          "subtopics": ["Cross-Site WebSocket Hijacking: cookies sent with the handshake and no same-origin policy", "Defenses: Origin allow-list, SameSite cookies, tickets and CSRF-style tokens", "Input validation and output encoding: stored XSS through chat messages", "Resource limits: maxPayload, max connections per IP, handshake timeout and idle timeout", "Per-connection rate limiting with a token bucket", "Header and subprotocol injection checks", "Safe logging of messages containing secrets", "OWASP WebSocket Security Cheat Sheet as a checklist", "Running a basic test with a custom client from a malicious page"],
+          "tools": ["OWASP ZAP", "Burp Suite", "ws", "Node.js", "Browser DevTools"],
+          "lab_task": "Host a page at http://evil.localhost:9000 that opens a WebSocket to your app on a cookie-authenticated session. Show that it succeeds without an Origin check, then add an allow-list and tickets and show that it fails. Add a token bucket of 20 messages per 10 seconds and a payload limit, and demonstrate a script exceeding them.",
+          "deliverable": "Exploit page, patched server and a before and after results table",
+          "checks": [["Open the evil page before the fix while logged in", "The socket connects and receives the user's private messages", "Browser console"], ["Open the evil page after the Origin allow-list", "The handshake returns 403 and no data is received", "DevTools"], ["Send 30 messages in 10 seconds from a script", "The server returns rate_limited after 20 and closes with 1008 on repeated abuse", "Client log"]],
+          "objectives": ["Demonstrate and fix cross-site WebSocket hijacking", "Apply resource and rate limits", "Validate and encode user content"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Node Collaborative Task Board",
+          "subtopics": ["Requirements: live cards, presence, comments and per-board permissions", "Three ws nodes behind HAProxy with Redis Pub/Sub and Streams for replay", "Ticket authentication, per-board authorization and token refresh", "Sequence numbers, resume and idempotent updates", "Metrics, dashboards and a k6 load test with thresholds", "Conformance run, hardening checklist and a runbook"],
+          "tools": ["Node.js", "ws", "Redis", "HAProxy", "k6", "Prometheus"],
+          "lab_task": "Build a task board where card moves are broadcast live to every viewer across 3 nodes. Include ticket auth, board permissions, seq-based resume, presence, Prometheus metrics, an Autobahn run and a k6 test of 1000 users. Kill one node during the test and show clients recovering with no lost or duplicated card events.",
+          "deliverable": "Repository with docker-compose.yml, tests, dashboard, k6 results, runbook and a short demo",
+          "checks": [["Move a card on a client connected to node 1", "Viewers on nodes 2 and 3 see the move within 200 ms", "Demo recording or k6 trace"], ["Kill one node during the load test", "Affected clients reconnect and resume with 0 lost and 0 duplicate events", "Test report"], ["Run the Autobahn selected cases and the k6 thresholds in CI", "0 FAILED conformance cases and all thresholds pass", "CI log"]],
+          "objectives": ["Deliver a multi-node real-time system with auth, scaling and observability", "Prove delivery behavior under node failure", "Hand over a runbook for operators"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior engineers and architects who run real-time systems at large scale. Covers Linux connection limits and capacity planning, sharding, gateway and bus architecture with NATS and Kafka, multi-region deployment, zero-downtime updates, reconnect storms, WebSocket over HTTP/2 and HTTP/3, WebTransport, binary protocols, edge rate limiting, threat modeling, authentication at scale, tracing and SLOs, fleet alerting, incident troubleshooting, CRDT collaboration, serverless sockets, chaos testing, performance engineering, and a million-connection capstone.",
+      "prerequisites": ["Has run a multi-node WebSocket service with Redis or a message bus in a test or production environment", "Comfortable with Linux networking tools, Kubernetes basics and Prometheus", "Can write load tests and read packet captures"],
+      "outcomes": ["Plan and prove capacity for hundreds of thousands of connections", "Design resilient deployments with draining, admission control and multi-region failover", "Choose among WebSocket, SSE, HTTP/2 and HTTP/3 sockets and WebTransport with evidence", "Operate the fleet with SLOs, alerts, incident diagnosis and chaos testing"],
+      "days": [
+        {
+          "topic": "Connection Capacity: File Descriptors, Kernel Limits and Memory per Connection",
+          "subtopics": ["One file descriptor per connection and the ulimit -n, LimitNOFILE and fs.nr_open ceilings", "Server ports are not consumed per client; load generators are limited by ephemeral ports", "net.ipv4.ip_local_port_range and one source IP to one destination tuple", "Accept queue: net.core.somaxconn, listen backlog and the Recv-Q column in ss -ltn", "TCP buffers: net.ipv4.tcp_rmem and tcp_wmem and their effect on memory per socket", "conntrack table size nf_conntrack_max on NAT hosts", "Measuring RSS per idle connection in Node.js, Python and Java", "Heap versus native memory and per-connection objects such as timers and closures", "Capacity formula: connections per GB at target headroom"],
+          "tools": ["Linux", "ss", "k6", "Node.js", "sysctl"],
+          "lab_task": "On a Linux VM raise LimitNOFILE to 1048576 and tune somaxconn. Open 50,000 idle connections to a ws server from several source IPs or a load generator, then record RSS with ps and the output of ss -s at 10k, 25k and 50k. Compute bytes per connection and extrapolate the number that fit in 8 GB with 30 percent headroom.",
+          "deliverable": "Capacity report with the sysctl settings used, a memory table and the extrapolation",
+          "checks": [["Run ss -s at 50,000 connections", "The estab count is about 50,000 on the server side", "ss output"], ["Start the server with the default ulimit -n 1024", "Accepting stops with EMFILE at about 1000 connections", "Server log"], ["Compute memory per connection from three data points", "A linear fit gives a stable figure in KB and an extrapolated capacity for 8 GB", "Spreadsheet"]],
+          "objectives": ["Identify the Linux limits that cap connection counts", "Measure memory per connection", "Produce a defensible capacity estimate"]
+        },
+        {
+          "topic": "Sharding and Consistent Hashing for Room Placement",
+          "subtopics": ["Why a room has to be reachable by every node or placed on one node", "Hash-mod-N and the 75 percent key movement when growing from 3 to 4 nodes", "Consistent hashing ring with virtual nodes", "Rendezvous (highest random weight) hashing", "Room-affine routing at a gateway to reduce fan-out", "Hot rooms and splitting them by user hash", "Rebalancing without dropping sockets: move room ownership, not connections", "Membership with a registry such as etcd, Consul or Redis", "Failure of an owner node and re-election"],
+          "tools": ["Node.js", "Redis", "etcd", "Python"],
+          "lab_task": "Write a consistent hash ring with 128 virtual nodes per server and a hash-mod-N function. Map 100,000 room ids to 3 nodes, add a 4th node, and count how many rooms change owner under each scheme. Also compute the standard deviation of rooms per node for 16, 64 and 256 virtual nodes.",
+          "deliverable": "Script, a table of moved rooms and balance by virtual node count",
+          "checks": [["Grow from 3 to 4 nodes with hash-mod-N", "About 75 percent of rooms change owner", "Script output"], ["Grow from 3 to 4 nodes with the ring", "About 25 percent of rooms change owner", "Script output"], ["Compare 16, 64 and 256 virtual nodes", "Standard deviation of rooms per node decreases as virtual nodes increase", "Balance table"]],
+          "objectives": ["Place rooms on nodes with consistent hashing", "Measure rebalancing cost", "Choose a placement scheme for a given workload"]
+        },
+        {
+          "topic": "Gateway and Fan-Out Architecture with NATS, Kafka and Redis Streams",
+          "subtopics": ["Stateless gateways that hold sockets and a backend that holds business logic", "Subject design: room.<id>.msg and wildcards such as room.*.msg in NATS", "Kafka partitions keyed by room id for per-room ordering", "JetStream and Redis Streams for replay compared with Core NATS and Redis Pub/Sub", "Lazy subscription: a gateway subscribes only to rooms with local members", "Backpressure from the bus to slow sockets", "Delivery semantics at each hop", "Cost of fan-out: messages per second equals publish rate times average members per room", "Choosing a bus: latency, ordering, replay and operating burden"],
+          "tools": ["NATS", "Kafka", "Redis", "Docker", "k6"],
+          "lab_task": "Run nats-server -js in Docker. Build a gateway that subscribes to room.<id> only when a local client joins, publishes client messages to the same subject and replays from a JetStream stream created with nats stream add. Send 10,000 messages across 100 rooms from 2 gateways and measure per-room ordering and p99 delivery latency.",
+          "deliverable": "Gateway code, JetStream configuration and a latency and ordering report",
+          "checks": [["Publish 10,000 messages across 100 rooms through 2 gateways", "Subscribers receive all 10,000 and each room's sequence numbers are in order", "Test output"], ["Run nats sub 'room.*' on a laptop while load runs", "The CLI shows messages from all rooms", "CLI output"], ["Disconnect a client, send 20 messages and resume from the stream", "The 20 messages are replayed in order", "Client log"]],
+          "objectives": ["Design a gateway and bus architecture for fan-out", "Compare buses by ordering, replay and latency", "Estimate fan-out cost from room sizes"]
+        },
+        {
+          "topic": "Multi-Region Deployment, Failover and Connection Draining",
+          "subtopics": ["Latency-based or geo DNS routing and health checks with a 60-second TTL", "Home region per user versus global rooms", "Cross-region bridges and their added latency and loss", "Active-active conflicts and active-passive failover", "Client behavior on region failure: reconnect with jitter to the DNS answer", "Connection draining: stop accepting, send a reconnect hint, close with 1012 in batches", "Bandwidth and egress cost between regions", "Data residency requirements for message content", "Game days that fail a whole region"],
+          "tools": ["Docker Compose", "Toxiproxy", "NATS", "Route 53", "k6"],
+          "lab_task": "Simulate two regions with two Compose stacks bridged through a NATS leaf node, adding 80 ms of latency with Toxiproxy. Connect clients to each region, measure cross-region delivery latency, then stop region A and verify clients reconnect to region B through a health-checked DNS stub within a 90-second target.",
+          "deliverable": "Two-region lab, latency measurements and a failover timeline",
+          "checks": [["Send a message from region A to a client in region B", "Delivery latency is at least 80 ms plus local processing time", "Latency log"], ["Stop region A", "Region A clients reconnect to region B within 90 seconds", "Client timeline"], ["Drain a region with batches of 5 percent per 10 seconds", "Connection count in the region falls to 0 in about 200 seconds with no 1006 closes", "Metrics graph"]],
+          "objectives": ["Design active-active and active-passive WebSocket deployments", "Drain a region without a reconnect storm", "Test failover with a game day"]
+        },
+        {
+          "topic": "Zero-Downtime Rolling Updates and Version Skew Between Clients and Servers",
+          "subtopics": ["Rolling update mechanics: new pods start, old pods drain", "Kubernetes terminationGracePeriodSeconds, preStop hooks and readiness probes failing first", "Sending {type:'reconnect', after} or a 1012 close with a random delay", "Limiting reconnects per second with maxSurge and maxUnavailable", "Old clients with new servers and the reverse: subprotocol versions chat.v1 and chat.v2", "Expand and contract changes for message schemas", "Feature flags and server-driven minimum client version", "Verifying with kubectl rollout status and metrics"],
+          "tools": ["Kubernetes", "kind", "Helm", "k6", "Prometheus"],
+          "lab_task": "In a kind cluster deploy 4 ws replicas with a readiness probe, preStop sleep 15 and terminationGracePeriodSeconds 600. Hold 2000 k6 clients, run kubectl rollout restart, and record dropped connections, reconnect peak per second and message loss. Then add a drain routine that closes 50 sockets per second with 1012 and compare the peak.",
+          "deliverable": "Deployment manifests and a before and after table of reconnect peaks",
+          "checks": [["Run a rollout without a drain routine", "Reconnect peak is high within a few seconds of each pod stopping and some messages are lost", "Metrics graph"], ["Run a rollout with the 50-per-second drain", "Reconnect peak stays at or below 50 per second per pod", "Metrics graph"], ["Connect a chat.v1 client to the v2 server", "The server negotiates chat.v1 and messages are processed", "Server log"]],
+          "objectives": ["Roll out WebSocket servers without dropping service", "Control reconnect rate during deploys", "Keep old and new clients compatible"]
+        },
+        {
+          "topic": "Reconnect Storms: Jitter, Admission Control and Load Shedding",
+          "subtopics": ["How a failure becomes a storm: all clients retry at the same moment", "Full jitter versus equal jitter and a decorrelated backoff", "Server-side admission control: a token bucket for new handshakes", "Returning 503 with Retry-After on the upgrade", "Load shedding by priority: protect authenticated paying users and keep health checks", "Handshake cost: TLS, token validation and state restore", "Cache or precompute resume state", "Circuit breakers in clients after repeated 4xx", "Measuring storms: reconnect attempts per second and handshake p99"],
+          "tools": ["k6", "Node.js", "Prometheus", "Toxiproxy"],
+          "lab_task": "Connect 5,000 clients, stop the server for 20 seconds and restart it, once with fixed 1 s retries and once with full jitter capped at 30 s. Add a handshake token bucket of 200 per second returning 503 with Retry-After. Plot reconnect attempts per second and handshake p99 for the three runs.",
+          "deliverable": "Three-run comparison with graphs and the admission control implementation",
+          "checks": [["Restart with fixed 1-second retries", "A large spike of attempts arrives in the first seconds and handshake p99 climbs", "Prometheus graph"], ["Restart with full jitter", "The attempt rate is spread over tens of seconds with a much lower peak", "Prometheus graph"], ["Enable the 200-per-second token bucket", "Extra handshakes get 503 with Retry-After and clients obey it", "Server log and client log"]],
+          "objectives": ["Explain how reconnect storms form", "Apply jitter and admission control", "Measure recovery behavior after an outage"]
+        },
+        {
+          "topic": "WebSocket over HTTP/2 and HTTP/3: RFC 8441 and RFC 9220",
+          "subtopics": ["Why HTTP/1.1 Upgrade does not exist in HTTP/2 or HTTP/3", "Extended CONNECT with the :protocol pseudo-header set to websocket", "SETTINGS_ENABLE_CONNECT_PROTOCOL advertised by the server", "A 200 response instead of 101 and no Sec-WebSocket-Accept", "Multiplexing: many sockets share one TCP connection and one head-of-line blocking domain", "RFC 9220 for HTTP/3 over QUIC", "Browser and proxy support varies; verify with the current compatibility tables", "Effects on connection limits, load balancing and idle timeouts", "Fallback to HTTP/1.1 when the server does not advertise support"],
+          "tools": ["Node.js", "Chrome DevTools", "Wireshark", "curl", "nghttp2"],
+          "lab_task": "Start a Node.js http2 secure server with settings { enableConnectProtocol: true } and log request headers for streams whose :method is CONNECT and :protocol is websocket. Open several WebSocket connections from one browser page and use the Protocol column in DevTools and a Wireshark capture with SSLKEYLOGFILE to count TCP connections used.",
+          "deliverable": "Server code, a capture and a note on HTTP/1.1 versus HTTP/2 connection counts",
+          "checks": [["Open 5 WebSocket connections from a page to the HTTP/2 server", "The server log shows 5 CONNECT streams with :protocol websocket", "Server log"], ["Inspect the TLS connections in Wireshark", "Fewer TCP connections than sockets are used because streams are multiplexed", "Capture summary"], ["Disable enableConnectProtocol and retry", "The browser falls back to HTTP/1.1 Upgrade and the handshake returns 101", "DevTools Protocol column"]],
+          "objectives": ["Explain WebSocket bootstrapping over HTTP/2 and HTTP/3", "Observe multiplexed sockets", "Plan fallbacks for clients and proxies"]
+        },
+        {
+          "topic": "WebTransport: Streams, Datagrams and Migration Decisions",
+          "subtopics": ["WebTransport over HTTP/3 and QUIC", "Browser API: new WebTransport(url) and await transport.ready", "Bidirectional and unidirectional streams: createBidirectionalStream and incomingUnidirectionalStreams", "Unreliable datagrams for state that goes stale", "No head-of-line blocking between streams, and connection migration over QUIC", "serverCertificateHashes for local testing with short-lived self-signed certificates", "Server options such as aioquic and webtransport-go", "UDP blocked on corporate networks and the WebSocket fallback", "Browser support must be checked at design time; plan a feature-detect branch", "Migration decision: when WebSocket is still the better answer"],
+          "tools": ["WebTransport", "Chrome DevTools", "aioquic", "tc netem", "Wireshark"],
+          "lab_task": "Run a WebTransport echo server on QUIC. From a browser send 1000 messages over one stream and 1000 datagrams, with tc qdisc add dev lo root netem loss 5%, and count received messages and p99 latency. Repeat the same exchange over a WebSocket and tabulate loss, ordering and latency for the three channels.",
+          "deliverable": "Test harness, results table and a recommendation for the lab scenario",
+          "checks": [["Send 1000 datagrams with 5 percent loss", "About 950 arrive and delivery is not guaranteed or ordered", "Receive counter"], ["Send 1000 messages over a reliable stream with the same loss", "All 1000 arrive in order with higher p99 latency", "Receive counter and latency"], ["Block UDP with a firewall rule and connect", "The WebTransport connection fails and the page falls back to WebSocket", "Console log"]],
+          "objectives": ["Use WebTransport streams and datagrams", "Compare it with WebSocket on loss and latency", "Decide when to migrate or keep WebSocket"]
+        },
+        {
+          "topic": "Binary Protocols: Protobuf, MessagePack and Schema Evolution",
+          "subtopics": ["Why binary: size, parse cost and typed contracts", "Protocol Buffers: .proto files, protobufjs or ts-proto code generation", "Field numbers are forever: use reserved for removed fields", "Adding optional fields and unknown field handling", "MessagePack with @msgpack/msgpack for schema-light data", "Framing a message type id and payload in one binary frame", "Debugging binary frames in DevTools and Wireshark", "Contract tests with golden files across client versions", "Compression interplay with permessage-deflate"],
+          "tools": ["Protocol Buffers", "MessagePack", "Node.js", "Wireshark", "buf"],
+          "lab_task": "Define a Position message in .proto with fields id, lat, lon and ts, generate code and send 10,000 updates as JSON, MessagePack and Protobuf. Record bytes per message and CPU time to encode and decode. Then add a speed field with a new number and prove that an old decoder still reads new messages.",
+          "deliverable": "Proto file, benchmark script and a size and CPU table",
+          "checks": [["Measure encoded size for one Position update", "Protobuf is smaller than MessagePack, which is smaller than JSON", "Benchmark output"], ["Send new messages with the speed field to the old decoder", "The old decoder reads id, lat, lon and ts and ignores the unknown field", "Test output"], ["Run buf breaking after renumbering a field", "The tool reports a breaking change", "buf output"]],
+          "objectives": ["Choose and implement a binary message format", "Evolve a schema without breaking clients", "Debug binary frames"]
+        },
+        {
+          "topic": "Rate Limiting, Quotas and Abuse Prevention at the Edge",
+          "subtopics": ["Limits by layer: handshakes per IP, connections per user, messages per connection and bytes per second", "NGINX limit_req and limit_conn on the upgrade location", "Token bucket in Redis with a Lua script or atomic INCR with EXPIRE", "Sliding window counters in sorted sets", "Quota enforcement across nodes versus per node approximation", "Responses: error message, delay, close with 1008 or 4429, and ban lists", "Slow handshake and slow read attacks: client_header_timeout and handshake deadlines", "Proxies and X-Forwarded-For trust: set_real_ip_from", "Observability of limit hits"],
+          "tools": ["NGINX", "Redis", "Lua", "k6", "Node.js"],
+          "lab_task": "Implement a Redis Lua token bucket giving each user 50 messages per 10 seconds across 3 nodes and add NGINX limit_req on /ws at 5 handshakes per second per IP. Drive 200 handshakes in 10 seconds from one IP and 100 messages in 10 seconds from one user on different nodes, then compare accepted and rejected counts.",
+          "deliverable": "Lua script, NGINX configuration and a table of accepted versus rejected requests",
+          "checks": [["Open 200 handshakes in 10 seconds from one IP", "Most are rejected with 503 beyond the 5 per second rate and burst", "NGINX access log"], ["Send 100 messages in 10 seconds as one user across 3 nodes", "About 50 are accepted and the rest receive rate_limited", "Client log"], ["Check the limit counter after the window passes", "The bucket refills and new messages are accepted", "redis-cli output"]],
+          "objectives": ["Layer rate limits across handshake, connection and message", "Enforce a quota across several nodes", "Handle forwarded client addresses correctly"]
+        },
+        {
+          "topic": "Security Review: Threat Modeling, Smuggling and Denial of Service",
+          "subtopics": ["STRIDE applied to a WebSocket system: handshake, frames, brokers and clients", "Proxy upgrade smuggling: a proxy that tunnels after a non-101 backend response", "Cross-Site WebSocket Hijacking regression tests", "Compression bombs: a small deflate payload that inflates past maxPayload", "Connection exhaustion, slow handshakes, ping floods and fragmented-message abuse", "Message injection, stored XSS and server-side request forgery from message content", "Dependency and supply-chain checks with npm audit and lockfiles", "Secrets in URLs, logs and crash dumps", "Security headers and Content-Security-Policy connect-src for ws and wss", "Review checklist and severity ratings"],
+          "tools": ["OWASP ZAP", "Burp Suite", "ws", "Node.js", "npm audit"],
+          "lab_task": "Threat-model your chat or board app with STRIDE and attack it in a lab: send a compressed message that inflates to 50 MB to a server with and without maxPayload, open 20,000 idle connections without handshakes, send ping floods and fragmented frames. Record each result, set limits that stop each attack and retest.",
+          "deliverable": "Threat model table, attack scripts, defects found and verified fixes",
+          "checks": [["Send a deflate bomb of 50 MB inflated size to maxPayload 1 MiB", "The server closes with code 1009 and memory stays flat", "Server log and RSS graph"], ["Open sockets that never finish the handshake", "Connections are dropped at the handshake deadline and the count returns to baseline", "Metrics graph"], ["Set connect-src in Content-Security-Policy to exclude the attacker host", "The browser blocks the WebSocket with a CSP violation report", "Console message"]],
+          "objectives": ["Threat-model a WebSocket system", "Run and fix denial of service tests", "Record findings with severity and verified fixes"]
+        },
+        {
+          "topic": "Authentication at Scale: Revocation, mTLS and Session Lifecycle",
+          "subtopics": ["Revoking access on live sockets: publish revoke:<userId> to every node", "Short token lifetime with in-band refresh versus central session checks", "Maximum connection age, for example 1 hour, closed with a reconnect hint", "Device and tab limits per user", "mTLS for service-to-service sockets: requestCert, rejectUnauthorized and socket.authorized", "Certificate rotation without dropping connections", "Binding a socket to a session id and a DPoP-style proof", "Step-up authentication for sensitive actions mid-connection", "Audit trails: who connected, from where and what they did"],
+          "tools": ["Node.js", "Redis", "OpenSSL", "ws", "jose"],
+          "lab_task": "Add a revoke channel to a 3-node deployment: when an admin calls POST /revoke/:userId, every node closes that user's sockets with 4401 within 1 second. Add a 1-hour maximum age closed with 1012 and a hint, shortened to 60 seconds in the lab. Configure an mTLS ws endpoint using requestCert and test one valid and one untrusted client certificate.",
+          "deliverable": "Revocation flow, session lifecycle code and mTLS test results",
+          "checks": [["POST /revoke for a user with sockets on 3 nodes", "All of the user's sockets close with 4401 within 1 second", "Server logs with timestamps"], ["Wait for the lab maximum age of 60 seconds", "The socket closes with 1012 and the client reconnects with a fresh token", "Client log"], ["Connect to the mTLS endpoint with an untrusted certificate", "The TLS handshake fails and no WebSocket is opened", "OpenSSL or client error"]],
+          "objectives": ["Revoke access on live connections", "Bound the lifetime of a socket", "Use mTLS between services"]
+        },
+        {
+          "topic": "Distributed Tracing and SLOs for Real-Time Systems",
+          "subtopics": ["Why one span per connection is a poor fit and what to trace instead", "Spans for the handshake, auth and join, with message spans linked to the producer", "Carrying W3C traceparent in the message envelope", "OpenTelemetry JavaScript SDK: tracer.startSpan and propagation.inject", "Sampling: keep errors and slow items, sample the rest", "SLIs: connect success rate, time to first message and publish-to-deliver latency percentiles", "SLO example: 99.9 percent of connections succeed within 1 second over 30 days", "Error budgets and burn-rate alerts", "Exporting to Jaeger or Tempo and linking traces to logs"],
+          "tools": ["OpenTelemetry", "Jaeger", "Prometheus", "Grafana", "Node.js"],
+          "lab_task": "Instrument the 3-node board with OpenTelemetry: a span for each handshake, a traceparent field on every publish, and a linked span on each delivering node. Export to Jaeger, then define SLIs for connect success and publish-to-deliver p99, write the SLO, and calculate how many minutes of error budget a 15-minute outage consumes.",
+          "deliverable": "Instrumented code, a Jaeger trace screenshot, the SLO document and burn-rate rules",
+          "checks": [["Publish a message on node 1 delivered to clients on nodes 2 and 3", "Jaeger shows one trace with a publish span and 2 linked delivery spans", "Jaeger screenshot"], ["Compute the budget for a 99.9 percent 30-day SLO", "The budget is 43.2 minutes and a 15-minute outage uses about 35 percent of it", "Calculation sheet"], ["Create a fast-burn rule for a 14.4 burn rate", "promtool check rules passes and the rule fires in a test", "promtool output"]],
+          "objectives": ["Trace messages across nodes without per-connection spans", "Define SLIs and SLOs for real-time delivery", "Alert on error budget burn"]
+        },
+        {
+          "topic": "Fleet Alerting: Prometheus Rules, Dashboards and Capacity Signals",
+          "subtopics": ["The golden signals for sockets: connections, message rate, errors, latency, saturation", "Close-code ratio alerts: share of 1006 and 1011 among all closes", "Connection drop alert: a fall of more than 20 percent in 5 minutes", "Event loop lag, GC pause, CPU and file descriptor saturation: process_open_fds against the limit", "Send queue bytes and slow client counts", "Alert severity, runbook links and avoiding noisy alerts with for: clauses", "promtool check rules and promtool test rules", "Capacity forecasting with predict_linear", "Dashboards by service level and by node"],
+          "tools": ["Prometheus", "Alertmanager", "Grafana", "promtool", "k6"],
+          "lab_task": "Write Prometheus alert rules for a sudden connection drop, 1006 close ratio above 5 percent, event loop lag p99 above 100 ms and open file descriptors above 80 percent of the limit. Write promtool unit tests with synthetic series that must fire or stay silent, and then trigger each alert with a real fault against the lab.",
+          "deliverable": "rules.yml, promtool test file and a table linking each fault to its alert",
+          "checks": [["Run promtool test rules on the unit test file", "All test cases pass, including the cases that must stay silent", "promtool output"], ["Kill 30 percent of the connected clients at once", "The connection drop alert goes to firing after its for: period", "Alertmanager screen"], ["Raise open files toward the limit", "The file descriptor alert fires before EMFILE errors begin", "Alertmanager screen"]],
+          "objectives": ["Write meaningful alerts for connection fleets", "Unit test alert rules", "Forecast capacity from time series"]
+        },
+        {
+          "topic": "Troubleshooting Production Incidents with ss, tcpdump and Wireshark",
+          "subtopics": ["A symptom map: close 1006 at exactly 60 seconds, handshake 400, 502 from the proxy, 403 on upgrade, mixed content, 1008 and 1009 closes", "ss -tin and ss -s for per-socket queues, retransmits and state counts", "ss -ltn Recv-Q and Send-Q on listeners for accept queue pressure", "netstat -s for listen queue overflows and retransmissions", "tcpdump -i any -w capture.pcap port 8080 and Wireshark display filters websocket and tcp.analysis.retransmission", "Decrypting wss with SSLKEYLOGFILE", "Proxy logs: upstream status, request time and upgrade headers", "Browser DevTools and the chrome://net-export log", "Writing a timeline and a blameless postmortem"],
+          "tools": ["ss", "tcpdump", "Wireshark", "NGINX", "Browser DevTools"],
+          "lab_task": "Trainer injects 5 faults into a lab stack: missing Upgrade header, 60-second proxy timeout, Origin allow-list mismatch, exhausted file descriptors and a backend returning 200 to the upgrade. For each, capture evidence with ss, tcpdump and logs, name the root cause, and write the fix. Compile the findings into a postmortem.",
+          "deliverable": "Five evidence-based diagnoses and one postmortem document",
+          "checks": [["Diagnose the 60-second disconnect", "Capture shows an idle gap of 60 seconds then a proxy-initiated FIN and the config shows proxy_read_timeout 60s", "Capture and config"], ["Diagnose the failing handshake", "The response is a plain 200 or 400 without Upgrade headers, pointing to missing proxy upgrade headers", "curl -i output"], ["Diagnose connection refusals under load", "ss -ltn shows Recv-Q at the backlog limit or the server log shows EMFILE", "ss output and log"]],
+          "objectives": ["Map symptoms to causes quickly", "Capture and read WebSocket traffic at the packet level", "Write a blameless postmortem"]
+        },
+        {
+          "topic": "Collaborative Editing Sync with CRDTs and Yjs",
+          "subtopics": ["Why last-write-wins loses edits in shared documents", "Operational Transform versus CRDTs in one paragraph each", "Yjs: Y.Doc, Y.Text, Y.Map and Y.Array", "Updates: Y.encodeStateAsUpdate, Y.applyUpdate and state vectors", "y-websocket provider and server and how rooms map to documents", "Awareness for cursors and presence", "Persistence with y-leveldb or a database and compaction", "Scaling a document server: one owner per document", "Offline edits and merge convergence", "Security: authorize who can write to a document"],
+          "tools": ["Yjs", "y-websocket", "Node.js", "Redis", "Browser DevTools"],
+          "lab_task": "Create two Yjs documents A and B with no network. Apply conflicting edits to each of Y.Text 'body' offline, exchange updates with encodeStateAsUpdate and applyUpdate in both orders, and confirm that both end identical. Then connect both to a y-websocket server, edit from two browsers and measure update size and latency.",
+          "deliverable": "Convergence test script and a two-browser demo with update-size measurements",
+          "checks": [["Apply concurrent edits to A and B and sync both ways", "A and B have the same string and no edit is lost", "Test output"], ["Apply the updates in a different order", "Final text is identical to the first order", "Test output"], ["Edit one character in a large document over y-websocket", "The update frame is a few dozen bytes, not the whole document", "DevTools frame size"]],
+          "objectives": ["Explain why CRDTs converge", "Sync documents with Yjs over WebSocket", "Scale and secure a document server"]
+        },
+        {
+          "topic": "Edge and Serverless WebSockets: API Gateway and Durable Objects",
+          "subtopics": ["Serverless sockets: the platform holds connections, your code handles events", "API Gateway WebSocket APIs: routes $connect, $disconnect and $default and route selection expression $request.body.action", "Posting to a connection with the @connections endpoint", "Storing connection ids in DynamoDB and handling a 410 GoneException", "Published limits: idle timeout, maximum connection duration and message and frame sizes; verify current values in the documentation", "Cloudflare Durable Objects: one object per room with the WebSocket Hibernation API", "Cost models: per message and per connection minute versus servers you run", "Authorizers on $connect", "When serverless is the wrong choice: very high fan-out, latency-sensitive games"],
+          "tools": ["AWS API Gateway", "AWS Lambda", "DynamoDB", "Cloudflare Workers", "wscat"],
+          "lab_task": "Deploy an API Gateway WebSocket API with $connect, $disconnect and a sendmessage route to Lambda. Store connection ids in DynamoDB, broadcast with PostToConnection and delete ids that return 410 Gone. Test with wscat and calculate the monthly cost of 10,000 users, 1 message per user per minute, 4 hours per day.",
+          "deliverable": "Infrastructure template, Lambda handlers and a cost estimate",
+          "checks": [["Connect three wscat clients and send {\"action\":\"sendmessage\"} from one", "The other two receive it and DynamoDB holds 3 connection ids", "wscat output and table scan"], ["Close a client and broadcast again", "$disconnect removes the id and no 410 errors appear", "CloudWatch logs"], ["Delete a connection id's client abruptly then broadcast", "PostToConnection returns 410 and the handler deletes the stale id", "Lambda log"]],
+          "objectives": ["Build a serverless WebSocket backend", "Handle stale connections", "Compare costs and limits with self-hosted servers"]
+        },
+        {
+          "topic": "Resilience Testing: Network Partitions, Proxy Resets and Chaos Experiments",
+          "subtopics": ["Failure injection with Toxiproxy: latency, bandwidth, slow_close, timeout and reset_peer", "Linux tc qdisc netem delay and loss", "Partitioning a Redis or NATS node from the gateways and observing delivery", "Killing pods and nodes during traffic", "Steady-state hypotheses with measurable metrics before every experiment", "Client behavior: reconnect time, duplicate and lost messages, UI state", "Blast radius limits and abort conditions", "Game days and runbook updates", "Automating chaos in a pre-production pipeline"],
+          "tools": ["Toxiproxy", "tc netem", "k6", "Kubernetes", "Prometheus"],
+          "lab_task": "Put Toxiproxy between gateways and Redis and between clients and gateways. Define a steady state of 99.9 percent delivery and reconnect within 30 seconds, then inject reset_peer, 2000 ms latency and a 60-second partition in turn with 1000 k6 clients. Record violations and fix the weakest finding.",
+          "deliverable": "Experiment plan, results table and one fix with a rerun",
+          "checks": [["Inject a 60-second partition between gateways and Redis", "Cross-node delivery stops, local delivery continues, and recovery occurs within 30 seconds of healing", "Metrics and client logs"], ["Inject reset_peer on the client side", "Clients reconnect with jitter and 0 duplicate messages are applied", "Client counters"], ["Rerun the weakest experiment after the fix", "The steady-state hypothesis holds", "Results table"]],
+          "objectives": ["Design chaos experiments with measurable hypotheses", "Inject network failures safely", "Fix and verify the weakest point"]
+        },
+        {
+          "topic": "Performance Engineering: Profiling, Serialization Cost and uWebSockets.js",
+          "subtopics": ["CPU profiling Node.js with --cpu-prof and flame graphs", "Serialize once per broadcast and send the same Buffer to every socket", "Avoiding per-message allocations and closures", "Batching small messages and the latency trade-off", "uWebSockets.js: uWS.App().ws with open, message, drain and close handlers", "Native topic pub/sub: ws.subscribe and app.publish", "getBufferedAmount and maxBackpressure options", "Comparing ws and uWebSockets.js on connections per GB and broadcast throughput", "Java and Python angles: Netty, Undertow and uvloop"],
+          "tools": ["Node.js", "uWebSockets.js", "ws", "k6", "clinic.js"],
+          "lab_task": "Benchmark a broadcast of 1 KB to 10,000 clients with ws, first calling JSON.stringify per socket and then once, and then with uWebSockets.js using app.publish. Profile with node --cpu-prof, report messages per second, CPU percent and p99 delivery latency for each variant, and identify the top function in the flame graph.",
+          "deliverable": "Benchmark scripts, flame graphs and a results table with conclusions",
+          "checks": [["Serialize once instead of per socket", "CPU time per broadcast falls and throughput rises", "Benchmark table"], ["Run the uWebSockets.js topic publish", "Throughput is higher than the ws variants at the same client count", "Benchmark table"], ["Open the cpuprofile in DevTools", "The top function is identified and matches the change made", "Flame graph screenshot"]],
+          "objectives": ["Profile a WebSocket server for CPU hotspots", "Optimize broadcast paths", "Compare libraries with fair benchmarks"]
+        },
+        {
+          "topic": "Advanced Capstone: Global Real-Time Platform for One Million Connections",
+          "subtopics": ["Architecture decision records: gateways, bus, state store, regions and transport choices", "Security: tickets, revocation, Origin policy, rate limits and a threat model", "Capacity plan, k6 load test to 100,000 connections and extrapolation to 1,000,000", "Observability: SLOs, traces, alert rules and runbooks", "Rolling update and chaos experiments with measured recovery", "Cost model and a presentation to technical leadership"],
+          "tools": ["Kubernetes", "NATS", "Redis", "k6", "Prometheus", "OpenTelemetry"],
+          "lab_task": "Design and build a platform for live auctions with gateways, a NATS or Kafka bus, Redis state, tickets, revocation and rate limits. Load test 100,000 connections, run a rolling update and a partition experiment, define SLOs and alerts, extrapolate to 1,000,000 connections and present cost, risks and decisions.",
+          "deliverable": "Repository, ADRs, load and chaos reports, SLO and alert files, cost model and a 15-minute presentation",
+          "checks": [["Run the k6 test at 100,000 connections", "Connect success is at least 99.9 percent and publish-to-deliver p99 meets the SLO", "k6 report"], ["Run a rolling update under load", "Reconnect peak stays within the admission limit and message loss is 0", "Metrics graphs"], ["Inject a bus partition for 60 seconds", "Alerts fire, local delivery continues and recovery meets the stated steady state", "Alert and chaos reports"]],
+          "objectives": ["Integrate scaling, security and observability into one platform", "Back capacity and reliability claims with measurements", "Present trade-offs and costs to technical leadership"]
+        }
+      ]
+    }
+  }
+}

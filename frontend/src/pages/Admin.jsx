@@ -208,6 +208,8 @@ export default function Admin() {
     autoRetry:    false,
   })
 
+  const [offlineOperations, setOfflineOperations] = useState({ travelAgentEmail: '' })
+
   // API Keys
   const [keys, setKeys] = useState({
     googleDriveFileId: '1s3U5NvShHPUuJ3JXvmG7xjcEziHwP8_j',
@@ -242,6 +244,7 @@ export default function Admin() {
       if (settings.teamsDirectCfg) setTeamsDirectCfg(prev => ({ ...prev, ...settings.teamsDirectCfg }))
       if (settings.notif) setNotif(prev => ({ ...prev, ...settings.notif }))
       if (settings.pipeline) setPipeline(prev => ({ ...prev, ...settings.pipeline }))
+      if (settings.offlineOperations) setOfflineOperations(prev => ({ ...prev, ...settings.offlineOperations }))
       if (settings.keys) setKeys(prev => ({ ...prev, ...settings.keys }))
     }
 
@@ -285,7 +288,7 @@ export default function Admin() {
 
   const save = async (section) => {
     setSaving(true)
-    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, keys }
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, offlineOperations, keys }
     try {
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
@@ -308,7 +311,7 @@ export default function Admin() {
 
   const testEmail = async () => {
     setSaving(true)
-    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, keys }
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, offlineOperations, keys }
     try {
       const saveRes = await fetch('/api/admin/settings', {
         method: 'POST',
@@ -331,7 +334,7 @@ export default function Admin() {
 
   const testWhatsApp = async () => {
     setSaving(true)
-    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, keys }
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, offlineOperations, keys }
     try {
       const saveRes = await fetch('/api/admin/settings', {
         method: 'POST',
@@ -354,7 +357,7 @@ export default function Admin() {
 
   const testTeams = async () => {
     setSaving(true)
-    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, keys }
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, offlineOperations, keys }
     try {
       const saveRes = await fetch('/api/admin/settings', {
         method: 'POST',
@@ -377,7 +380,7 @@ export default function Admin() {
 
   const connectTeamsDirect = async () => {
     setSaving(true)
-    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, keys }
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, offlineOperations, keys }
     try {
       const saveRes = await fetch('/api/admin/settings', {
         method: 'POST',
@@ -726,6 +729,18 @@ export default function Admin() {
           <button className="btn-secondary text-sm" onClick={testEmail}>
             <Mail className="w-4 h-4" /> Send Test Email
           </button>
+        </div>
+      </Section>
+
+      <Section icon={Mail} title="Offline Training Operations" subtitle="Travel bookings and expense ownership for offline batches">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field label="Travel agent email" hint="Used for Clahan-arranged tickets and accommodation. Leave empty until configured.">
+            <Input icon={Mail} type="email" value={offlineOperations.travelAgentEmail || ''} onChange={e => setOfflineOperations({ ...offlineOperations, travelAgentEmail: e.target.value })} placeholder="travel-agent@example.com" />
+          </Field>
+          <div className="self-end pb-1 text-sm text-slate-600">Trainer purchase orders require finance approval before they are sent.</div>
+        </div>
+        <div className="flex gap-3 pt-2">
+          <button className="btn-primary text-sm" onClick={() => save('Offline Training Operations')}><Save className="w-4 h-4" /> Save Config</button>
         </div>
       </Section>
 

@@ -180,6 +180,44 @@ async def collect_due(db, mode):
     })
 
 
+async def collect_pending_trainer_searches(db):
+    """Retry a single queued trainer search per cycle without user intervention."""
+    now = datetime.utcnow()
+    task = await db['lead_search_retries'].find_one_and_update(
+        {'mode': 'trainer', 'status': 'queued', 'next_attempt_at': {'$lte': now},
+         '$or': [{'lease_until': {'$exists': False}}, {'lease_until': {'$lte': now}}]},
+        {'$set': {'status': 'running', 'lease_until': now + timedelta(minutes=15), 'updated_at': now}, '$inc': {'attempt_count': 1}},
+        sort=[('next_attempt_at', 1)],
+        return_document=True,
+    )
+    if not task:
+        return
+    try:
+        result = await asyncio.wait_for(search_linkedin_leads(LinkedInLeadSearchRequest(
+            mode='trainer', domains=[task['domain']], location=task.get('location') or '',
+            search_provider='auto', save=True, max_results=60, max_queries=2,
+            queue_retry_on_blocked=False,
+        ), db), timeout=700)
+        blocked = any(str(row.get('status') or '').lower() in {'blocked', 'no_results'} for row in result.get('domain_outcomes') or [])
+        update = {'status': 'queued' if blocked else 'completed', 'last_result': {
+            'found': result.get('found', 0), 'saved': result.get('saved_count', 0),
+        }, 'updated_at': datetime.utcnow()}
+        if blocked:
+            outcome = (result.get('domain_outcomes') or [{}])[0]
+            update['next_attempt_at'] = _retry_after(outcome)
+        await db['lead_search_retries'].update_one({'_id': task['_id']}, {'$set': update, '$unset': {'lease_until': ''}})
+    except Exception as exc:
+        await db['lead_search_retries'].update_one({'_id': task['_id']}, {'$set': {
+            'status': 'queued', 'next_attempt_at': datetime.utcnow() + timedelta(minutes=15),
+            'last_reason': str(exc)[:800], 'updated_at': datetime.utcnow(),
+        }, '$unset': {'lease_until': ''}})
+
+
+def _retry_after(outcome):
+    from app.routes.linkedin_leads import _retry_after_from_outcome
+    return _retry_after_from_outcome(outcome or {})
+
+
 def _cooldown_state():
     """Schedule blocked collectors after the persisted account cooldown."""
     state = connection_status()
@@ -200,6 +238,8 @@ async def _run_mode(mode):
     while True:
         try:
             db = await get_db()
+            if mode == 'trainer':
+                await collect_pending_trainer_searches(db)
             if mode == 'client':
                 # Upgrade persisted hourly settings without enabling paused bots.
                 await db['lead_bots'].update_one(

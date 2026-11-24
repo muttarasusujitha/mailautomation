@@ -1,6 +1,7 @@
 """Consistent, paginated purchase orders and invoices from verified record fields."""
 from html import escape
 from io import BytesIO
+from pathlib import Path
 
 from shared.document_amounts import calculate_document, number, money
 
@@ -23,7 +24,10 @@ def text(value):
 
 
 def issuer(context, kind):
-    return context.get('company_name_full') or context.get('company_name') or ('BEULIX SOLUTIONS PRIVATE LIMITED' if kind == 'invoice' else 'CLAHAN TECHNOLOGIES')
+    # Clahan runs the workflow, but Beulix is the legal issuer for both
+    # commercial document types. A saved company profile can still override
+    # this only when an authorised staff member intentionally supplies one.
+    return context.get('company_name_full') or context.get('company_name') or 'BEULIX SOLUTIONS PRIVATE LIMITED'
 
 
 def tax_lines(c):
@@ -39,126 +43,156 @@ def tax_lines(c):
 
 def render_pdf(context, kind):
     from reportlab.lib import colors
-    from reportlab.lib.enums import TA_RIGHT
+    from reportlab.lib.enums import TA_CENTER, TA_RIGHT
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.styles import ParagraphStyle
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer, KeepTogether
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer, KeepTogether, Image
 
     c = prepare(context)
     invoice = kind == 'invoice'
-    title = 'INVOICE' if invoice else 'PURCHASE ORDER'
+    title = 'TAX INVOICE' if invoice else 'PURCHASE ORDER'
     identifier = c.get('invoice_number' if invoice else 'po_number') or ''
-    navy, teal, muted, border, pale = [colors.HexColor(v) for v in ('#122B40', '#087F8C', '#596B7B', '#DCE5EB', '#F2F6F8')]
-    body = ParagraphStyle('Body', fontName='Helvetica', fontSize=9, leading=13, textColor=navy, splitLongWords=True)
-    label = ParagraphStyle('Label', parent=body, fontName='Helvetica-Bold', fontSize=7, leading=10, textColor=muted, spaceAfter=4)
-    strong = ParagraphStyle('Strong', parent=body, fontName='Helvetica-Bold', fontSize=11, leading=15)
-    heading = ParagraphStyle('Heading', parent=body, fontName='Helvetica-Bold', fontSize=25, leading=29, alignment=TA_RIGHT)
+    black, muted, blue = [colors.HexColor(value) for value in ('#000000', '#333333', '#2449A4')]
+    body = ParagraphStyle('Body', fontName='Helvetica', fontSize=8.8, leading=12, textColor=black, splitLongWords=True)
+    compact = ParagraphStyle('Compact', parent=body, fontSize=8, leading=10.5)
+    label = ParagraphStyle('Label', parent=body, fontName='Helvetica-Bold', fontSize=8.5, leading=10, alignment=TA_CENTER)
+    band_label = ParagraphStyle('BandLabel', parent=label, textColor=colors.white)
+    strong = ParagraphStyle('Strong', parent=body, fontName='Helvetica-Bold', fontSize=9.5, leading=13)
+    strong_centered = ParagraphStyle('StrongCentered', parent=strong, alignment=TA_CENTER)
+    title_style = ParagraphStyle('Title', parent=body, fontName='Helvetica-Bold', fontSize=15, leading=18, alignment=TA_CENTER)
+    centered = ParagraphStyle('Centered', parent=body, alignment=TA_CENTER, leading=13)
     right = ParagraphStyle('Right', parent=body, alignment=TA_RIGHT)
-    small = ParagraphStyle('Small', parent=body, fontSize=8, leading=11, textColor=muted)
-    white = ParagraphStyle('White', parent=label, textColor=colors.white, spaceAfter=0)
-    width = A4[0] - 88
+    company_text = ParagraphStyle('Company', parent=body, fontName='Helvetica', fontSize=7.2, leading=9, alignment=TA_RIGHT, textColor=muted)
+    width = A4[0] - 84
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=44, rightMargin=44, topMargin=42, bottomMargin=48,
+    doc = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=42, rightMargin=42, topMargin=30, bottomMargin=42,
         title=f'{title.title()} {identifier}', author=issuer(c, kind))
 
     def p(value, style=body):
         return Paragraph(text(value) or '-', style)
 
-    def field(name, value):
-        return [p(name.upper(), label), p(value, body)]
-
-    def panel(rows, widths, background=None):
-        table = Table(rows, colWidths=widths, hAlign='LEFT')
-        commands = [('VALIGN', (0, 0), (-1, -1), 'TOP'), ('LEFTPADDING', (0, 0), (-1, -1), 12),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 12), ('TOPPADDING', (0, 0), (-1, -1), 11), ('BOTTOMPADDING', (0, 0), (-1, -1), 11)]
-        if background:
-            commands.append(('BACKGROUND', (0, 0), (-1, -1), background))
+    def panel(rows, widths, *, header_rows=0, row_heights=None):
+        table = Table(rows, colWidths=widths, rowHeights=row_heights, hAlign='LEFT')
+        commands = [('VALIGN', (0, 0), (-1, -1), 'TOP'), ('BOX', (0, 0), (-1, -1), 1, black),
+            ('INNERGRID', (0, 0), (-1, -1), .8, black), ('LEFTPADDING', (0, 0), (-1, -1), 5),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 5), ('TOPPADDING', (0, 0), (-1, -1), 5), ('BOTTOMPADDING', (0, 0), (-1, -1), 5)]
+        if header_rows:
+            commands += [('BACKGROUND', (0, 0), (-1, header_rows - 1), blue),
+                         ('VALIGN', (0, 0), (-1, header_rows - 1), 'MIDDLE')]
         table.setStyle(TableStyle(commands))
         return table
 
-    company = [p(issuer(c, kind), strong)]
+    logo_path = Path(__file__).resolve().parent / 'assets' / 'beulix_logo.png'
+    company = None
+    if logo_path.exists():
+        company = Image(str(logo_path), width=150, height=31)
+    else:
+        company = p(issuer(c, kind), strong)
+    issuer_details = []
     for value in (c.get('company_address'), c.get('company_email'), c.get('company_contact')):
         if value:
-            company.append(p(value, small))
-    for key, caption in (('company_gst', 'GSTIN'), ('company_pan', 'PAN')):
-        if c.get(key):
-            company.append(p(f'{caption}: {c[key]}', small))
-    header = panel([[company, [p(title, heading), p(identifier, right)]]], [width * .53, width * .47])
-    header.setStyle(TableStyle([('LINEABOVE', (0, 0), (-1, 0), 4, teal), ('LINEBELOW', (0, 0), (-1, -1), .7, border)]))
-    story = [header, Spacer(1, 16)]
-    meta = [('Issue date', c.get('invoice_date' if invoice else 'date'))]
-    if invoice:
-        meta += [('Due date', c.get('due_date')), ('PO reference', c.get('client_po_number'))]
-    else:
-        meta += [('Training dates', c.get('training_dates')), ('Delivery mode', c.get('mode'))]
-    story += [panel([[field(k, v) for k, v in meta]], [width / len(meta)] * len(meta), pale), Spacer(1, 18)]
+            issuer_details.append(str(value))
+    identifiers = ' | '.join(f'{caption}: {c[key]}' for key, caption in (('company_gst', 'GST No.'), ('company_pan', 'PAN')) if c.get(key))
+    if identifiers:
+        issuer_details.append(identifiers)
+    issuer_copy = '<b>' + text(issuer(c, kind)) + '</b>'
+    if issuer_details:
+        issuer_copy += '<br/>' + '<br/>'.join(text(value) for value in issuer_details)
+    story = [Table([[company, Paragraph(issuer_copy, company_text)]],
+                   colWidths=[width * .38, width * .62 - 8], hAlign='LEFT', style=TableStyle([
+                       ('VALIGN', (0, 0), (-1, -1), 'TOP'), ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                       ('RIGHTPADDING', (0, 0), (-1, -1), 0), ('TOPPADDING', (0, 0), (-1, -1), 0),
+                       ('BOTTOMPADDING', (0, 0), (-1, -1), 0)])), Spacer(1, 46), p(title, title_style), Spacer(1, 18)]
 
-    customer = [p('BILL TO' if invoice else 'CLIENT', label), p(c.get('client_name'), strong)]
+    other_name = c.get('client_name') if invoice else c.get('vendor_name')
+    other_details = []
+    for value in ((c.get('client_address') or c.get('client_billing_address')) if invoice else c.get('vendor_address'),
+                  c.get('client_email') if invoice else c.get('vendor_email'),
+                  c.get('vendor_contact') if not invoice else None):
+        if value:
+            other_details.append(p(value, compact))
+    gst = c.get('client_gstin') or c.get('client_gst') if invoice else c.get('vendor_gst')
+    pan = c.get('client_pan') if invoice else c.get('vendor_pan')
+    ids = ' | '.join(f'{caption}: {value}' for caption, value in (('GSTIN', gst), ('PAN', pan)) if value)
+    if ids:
+        other_details.append(p(ids, compact))
+    primary = [p(other_name, strong), *other_details]
+    primary_label = 'CUSTOMER' if invoice else 'VENDOR/TRAINER'
+    date_value = c.get('invoice_date' if invoice else 'date') or '-'
+    number_label = 'INVOICE NUMBER' if invoice else 'ORDER NUMBER'
+    top = panel([[p(primary_label, band_label), p('DATE', band_label), p(number_label, band_label)],
+                 [primary, p(date_value, centered), p(identifier, centered)]],
+                [width * .53, width * .21, width * .26], header_rows=1, row_heights=[26, 120])
+    story += [top, Spacer(1, 16)]
+
+    bill = [p(c.get('client_name'), strong)]
     for value in (c.get('client_address') or c.get('client_billing_address'), c.get('client_email')):
         if value:
-            customer.append(p(value))
-    for key, caption in (('client_gstin', 'GSTIN'), ('client_pan', 'PAN')):
-        value = c.get(key) or (c.get('client_gst') if key == 'client_gstin' else '')
-        if value:
-            customer.append(p(f'{caption}: {value}', small))
-    scope = [p('ENGAGEMENT' if invoice else 'VENDOR / TRAINER', label)]
-    if not invoice:
-        scope.append(p(c.get('vendor_name'), strong))
+            bill.append(p(value, compact))
+    client_ids = ' | '.join(f'{caption}: {value}' for caption, value in
+                            (('GST', c.get('client_gstin') or c.get('client_gst')), ('PAN', c.get('client_pan'))) if value)
+    if client_ids:
+        bill.append(p(client_ids, compact))
+    delivery = [p(f"Client: {c.get('client_name') or '-'}", body)]
     for caption, value in (('Training', c.get('training_domain')), ('Duration', c.get('duration')),
-                           ('Place of supply', c.get('place_of_supply'))):
+                           ('PO reference', c.get('client_po_number') if invoice else None), ('Mode', c.get('mode'))):
         if value:
-            scope.append(p(f'{caption}: {value}'))
-    story += [panel([[customer, scope]], [width * .54, width * .46]), Spacer(1, 14)]
+            delivery.append(p(f'{caption}: {value}', compact))
+    billing = panel([[p('BILL TO', band_label), p('DELIVER TO', band_label)], [bill, delivery]],
+                    [width * .53, width * .47], header_rows=1, row_heights=[24, 64])
+    story += [billing, Spacer(1, 14)]
 
-    widths = [26, width - 267, 53, 38, 72, 78]
-    rows = [[p(v, white) for v in ('#', 'DESCRIPTION', 'HSN / SAC', 'QTY', 'RATE / INR', 'AMOUNT / INR')]]
+    widths = [width * .53, width * .13, width * .16, width * .18]
+    rows = [[p('ITEM', band_label), Paragraph('RATE<br/>(INR)', band_label), p('Qty', band_label), p('AMOUNT (INR)', band_label)]]
     for index, item in enumerate(c['items'], 1):
-        rows.append([p(f'{index:02}', small), p(item['description']), p(item.get('hsn_sac'), small),
-            p(f"{item['quantity']:g}", right), p(f"{item['rate']:,.2f}", right), p(f"{item['amount']:,.2f}", right)])
-    table = Table(rows, colWidths=widths, repeatRows=1, hAlign='LEFT')
-    table.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), navy), ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, pale]), ('LINEBELOW', (0, 1), (-1, -1), .4, border),
-        ('LEFTPADDING', (0, 0), (-1, -1), 7), ('RIGHTPADDING', (0, 0), (-1, -1), 7),
-        ('TOPPADDING', (0, 0), (-1, -1), 10), ('BOTTOMPADDING', (0, 0), (-1, -1), 10)]))
-    story += [table, Spacer(1, 14)]
-    taxes = tax_lines(c)
-    summary = [('Subtotal', c['subtotal']), *taxes,
-               ('Invoice total' if invoice else 'Order total', c['grand_total'])]
-    if invoice and c['balance_due'] != c['grand_total']:
-        summary += [('Balance due', c['balance_due'])]
-    total_table = panel([[p(name), p(f'INR {amount:,.2f}', right)] for name, amount in summary], [130, 137], pale)
-    total_table.hAlign = 'RIGHT'
-    total_table.setStyle(TableStyle([('LINEABOVE', (0, 1 + len(taxes)), (-1, 1 + len(taxes)), 1, teal), ('TOPPADDING', (0, 0), (-1, -1), 7), ('BOTTOMPADDING', (0, 0), (-1, -1), 7)]))
+        quantity = f"{item['quantity']:g}"
+        if index == 1 and c.get('duration'):
+            quantity += f"\n{c['duration']}"
+        rows.append([p(item['description']), p(f"{item['rate']:,.2f}", centered),
+            p(quantity, centered), p(f"{item['amount']:,.2f}", centered)])
+    table = Table(rows, colWidths=widths, rowHeights=[36] + [None] * len(c['items']), repeatRows=1, hAlign='LEFT')
+    table.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), blue), ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('GRID', (0, 0), (-1, -1), .8, black), ('LEFTPADDING', (0, 0), (-1, -1), 5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 5), ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8)]))
+    total_table = Table([[p('Total', strong_centered), p(f"{c['grand_total']:,.2f}", centered)]],
+                        colWidths=[width * .82, width * .18], hAlign='LEFT')
+    total_table.setStyle(TableStyle([('GRID', (0, 0), (-1, -1), .8, black), ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 5), ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 6), ('BOTTOMPADDING', (0, 0), (-1, -1), 6)]))
+    story += [table, total_table, Spacer(1, 14)]
     cents = int(money(number(c['grand_total'], 'Total')) * 100)
     amount_words = _number_to_words(cents // 100) + ' Rupees'
     if cents % 100:
         amount_words += ' and ' + _number_to_words(cents % 100) + ' Paise'
     amount_words += ' Only'
-    story += [KeepTogether([total_table, Spacer(1, 12), p('AMOUNT IN WORDS', label), p(amount_words, small), Spacer(1, 20)])]
-    details = []
+    notes = [f'1. Amount in words: {amount_words}.']
+    for value in (c.get('terms_and_conditions') or c.get('payment_terms'), c.get('notes')):
+        if value:
+            notes.append(f'{len(notes) + 1}. {value}')
     if invoice and (c.get('bank_account_no') or c.get('bank_ifsc')):
-        details += [p('PAYMENT DETAILS', label)]
-        for key, caption in (('bank_account_no', 'Account number'), ('bank_ifsc', 'IFSC')):
-            if c.get(key):
-                details.append(p(f'{caption}: {c[key]}'))
-        details += [Spacer(1, 10)]
-    terms = c.get('terms_and_conditions') or c.get('payment_terms')
-    if terms:
-        details += [p('PAYMENT TERMS', label), p(terms), Spacer(1, 10)]
-    if c.get('notes'):
-        details += [p('NOTES', label), p(c['notes']), Spacer(1, 10)]
-    # Text and notes remain flowing paragraphs so long documents paginate.
-    story += details
-    story += [KeepTogether([Spacer(1, 24), p(c.get('signatory_name') or 'Authorized signatory', right)])]
+        bank = ' | '.join(f'{caption}: {c[key]}' for key, caption in (('bank_account_no', 'Account number'), ('bank_ifsc', 'IFSC')) if c.get(key))
+        notes.append(f'{len(notes) + 1}. Payment details - {bank}.')
+    note_body = [p('<br/>'.join(notes), body)]
+    notes_table = panel([[p('IMPORTANT NOTES', band_label)], note_body], [width], header_rows=1, row_heights=[24, 104])
+    signature_path = Path(__file__).resolve().parent / 'assets' / 'murali_signature.png'
+    signature = []
+    if signature_path.exists():
+        signature_table = Table([[Image(str(signature_path), width=104, height=31)]], colWidths=[108], hAlign='RIGHT')
+        signature_table.setStyle(TableStyle([('LEFTPADDING', (0, 0), (-1, -1), 0), ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+            ('TOPPADDING', (0, 0), (-1, -1), 0), ('BOTTOMPADDING', (0, 0), (-1, -1), 0)]))
+        signature = [Spacer(1, 7), signature_table]
+    story += [notes_table, Spacer(1, 30), p(f'For {issuer(c, kind)}', right), *signature,
+              Spacer(1, 7), p(c.get('signatory_name') or 'Authorized Signatory', right)]
 
     def footer(canvas, document):
         canvas.saveState()
-        canvas.setStrokeColor(border)
-        canvas.line(44, 36, A4[0] - 44, 36)
+        canvas.setStrokeColor(black)
+        canvas.line(42, 29, A4[0] - 42, 29)
         canvas.setFillColor(muted)
         canvas.setFont('Helvetica', 7)
-        canvas.drawString(44, 23, f'{title.title()} | {identifier}'[:90])
-        canvas.drawRightString(A4[0] - 44, 23, f'Page {document.page}')
+        canvas.drawString(42, 17, f'{title.title()} | {identifier}'[:90])
+        canvas.drawRightString(A4[0] - 42, 17, f'Page {document.page}')
         canvas.restoreState()
 
     doc.build(story, onFirstPage=footer, onLaterPages=footer)
@@ -168,7 +202,7 @@ def render_pdf(context, kind):
 def render_html(context, kind):
     c = prepare(context)
     invoice = kind == 'invoice'
-    title = 'Invoice' if invoice else 'Purchase Order'
+    title = 'Tax Invoice' if invoice else 'Purchase Order'
     identifier = c.get('invoice_number' if invoice else 'po_number')
     taxes = '<br>'.join(f'{text(caption)}: INR {amount:,.2f}' for caption, amount in tax_lines(c))
     bank = '<br>'.join(f'{label}: {text(c.get(key))}' for key, label in [('bank_account_no', 'Account number'), ('bank_ifsc', 'IFSC')] if c.get(key))

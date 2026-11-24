@@ -54,6 +54,7 @@ const InterviewSchedules = lazyWithRetry(() => import('./pages/InterviewSchedule
 const Invoices = lazyWithRetry(() => import('./pages/Invoices'))
 const PurchaseOrders = lazyWithRetry(() => import('./pages/PurchaseOrders'))
 const FinanceApprovals = lazyWithRetry(() => import('./pages/FinanceApprovals'))
+const TravelBookings = lazyWithRetry(() => import('./pages/TravelBookings'))
 const ResumeUpload = lazyWithRetry(() => import('./pages/ResumeUpload'))
 const GmailCallback = lazyWithRetry(() => import('./pages/GmailCallback'))
 const LinkedInCallback = lazyWithRetry(() => import('./pages/LinkedInCallback'))
@@ -185,6 +186,7 @@ export default function App() {
             <Route path="invoices" element={<Invoices />} />
             <Route path="purchase-orders" element={<PurchaseOrders />} />
             <Route path="finance-approvals" element={<FinanceApprovals />} />
+            <Route path="travel-bookings" element={<TravelBookings />} />
             <Route path="upload"       element={<Navigate to="/resume-upload" replace />} />
             <Route path="resume-upload" element={<ResumeUpload />} />
             <Route path="admin"        element={<PrivateRoute isLoggedIn={isLoggedIn} user={user} adminOnly><Admin /></PrivateRoute>} />

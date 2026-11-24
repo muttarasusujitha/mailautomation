@@ -1,0 +1,573 @@
+{
+  "domain": "OpenID Connect",
+  "name": "OpenID Connect",
+  "category": "Cybersecurity and Identity",
+  "icon": "shield",
+  "aliases": ["OIDC", "OAuth 2.0", "OAuth 2.1", "OAuth", "OAuth2", "OpenID Connect and OAuth 2.0", "OIDC Protocol", "FAPI 2.0"],
+  "certifications": [],
+  "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq", "Postman", "openid-client (npm)", "oidc-client-ts (npm)", "Authlib (Python)", "AppAuth for Android and iOS", "node-oidc-provider (panva)", "OpenID Foundation conformance suite", "Burp Suite or mitmproxy", "jwt.ms", "openssl"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For web, API and integration developers who have used a \"Sign in with\" button but have never read the specifications behind it. Covers OAuth 2.0 and OpenID Connect from the protocol side: the four OAuth roles, the authorization code flow with PKCE, state and nonce, ID token validation, UserInfo, scopes and standard claims, discovery and JWKS, client authentication, the client credentials, refresh token and device authorization grants, bearer tokens at an API, consent and the prompt parameter, introspection and revocation, standard error responses, and a capstone that adds OIDC login and API access to a small web app. Every lab runs against a local Keycloak realm used only as a test OpenID Provider, with curl, jq and a browser.",
+      "prerequisites": ["Builds and runs a small web application or HTTP API in a language such as JavaScript, Python, Java or C#", "Reads HTTP requests and responses: methods, status codes, headers, query strings, form bodies and redirects", "Has Docker, curl, jq and a modern browser with developer tools on a laptop with rights to run containers on port 8080"],
+      "outcomes": ["Explain the OAuth 2.0 roles, endpoints and grants and say which grant suits a web app, a service, a device or a script", "Run the authorization code flow with PKCE, state and nonce by hand and validate the resulting ID token claim by claim", "Use discovery, JWKS, UserInfo, introspection and revocation endpoints and read standard OAuth and OIDC error responses", "Add OpenID Connect login and bearer-token API calls to a web application using a certified client library"],
+      "days": [
+        {
+          "topic": "OAuth 2.0 and OpenID Connect Protocol Overview",
+          "subtopics": ["The delegated authorization problem OAuth 2.0 (RFC 6749) solves and the password anti-pattern it replaces", "Authentication compared with authorization, and why plain OAuth is not a login protocol", "OpenID Connect Core 1.0 as an identity layer on top of OAuth 2.0", "The specification family: Core, Discovery, Dynamic Registration, Session Management and the logout specifications", "IETF OAuth working group RFCs compared with OpenID Foundation specifications", "Access tokens, ID tokens and refresh tokens and who each one is for", "Front channel (browser redirects) compared with back channel (direct HTTPS calls)", "Where SAML 2.0 still appears and why new applications choose OIDC", "OAuth 2.1 and the Security BCP (RFC 9700) as the current baseline", "Reading an RFC: MUST, SHOULD and MAY under RFC 2119 and RFC 8174"],
+          "tools": ["RFC Editor (rfc-editor.org)", "openid.net/specs", "Browser developer tools", "curl"],
+          "lab_task": "Sign in to a public site that offers Sign in with Google, record the full redirect chain in the browser Network tab with Preserve log enabled, label each request as front channel or back channel, identify the client_id, redirect_uri, response_type, scope and state parameters, and map every hop to the section of RFC 6749 or OIDC Core 1.0 that defines it.",
+          "deliverable": "Annotated redirect-chain diagram with each hop mapped to a specification section",
+          "checks": [["Inspect the first redirect to the authorization endpoint", "The query string contains response_type=code and a scope value that includes openid", "Network tab HAR export"], ["Look for the token endpoint call in the browser log", "No token endpoint request appears because it is made server to server", "Annotated diagram"], ["Ask which token proves the user's identity to the client", "The answer is the ID token, with the access token reserved for APIs", "Written explanation"]],
+          "objectives": ["Explain what OAuth 2.0 delegates and what OIDC adds", "Name the main specifications in the OAuth and OIDC family", "Distinguish front-channel and back-channel messages"]
+        },
+        {
+          "topic": "OAuth Roles, Clients and Endpoints in RFC 6749",
+          "subtopics": ["Resource owner, client, authorization server and resource server", "OpenID Provider and Relying Party as the OIDC names for the same roles", "Confidential clients compared with public clients", "Client types by deployment: web app, single-page app, native app, service and device", "The authorization endpoint and the token endpoint", "Redirection endpoints registered by the client", "client_id, client secrets and the client registration record", "Grant types and response types as separate concepts"],
+          "tools": ["RFC 6749", "Draw.io or Excalidraw", "Browser developer tools"],
+          "lab_task": "For four scenarios (an online shop backend, a React single-page app, an iOS app and a nightly billing job), write down the resource owner, client, authorization server and resource server, classify each client as confidential or public with a reason, and list which of the authorization and token endpoints each client calls and from where.",
+          "deliverable": "Role and client-type matrix for the four scenarios",
+          "checks": [["Classify the React single-page app with no backend", "Classified as a public client because it cannot keep a secret", "Role matrix"], ["Classify the nightly billing job", "Classified as a confidential client with no resource owner involved", "Role matrix"], ["List the endpoints the iOS app calls", "Authorization endpoint through the system browser and token endpoint directly from the app", "Role matrix"]],
+          "objectives": ["Identify the four OAuth roles in a real system", "Classify clients as confidential or public", "Match endpoints to the parties that call them"]
+        },
+        {
+          "topic": "Lab OpenID Provider: Realm, Users and Test Clients",
+          "subtopics": ["Why a disposable local OpenID Provider is used for protocol labs", "Running Keycloak in development mode with docker run and start-dev", "Realms as separate issuers with their own keys and endpoints", "Creating test users with verified email addresses", "Registering a confidential client with client authentication on", "Registering a public client with PKCE required", "Valid redirect URIs and web origins on a client record", "Exporting the realm so that labs can be reset"],
+          "tools": ["Keycloak (lab OpenID Provider)", "Docker", "kcadm.sh", "curl", "jq"],
+          "lab_task": "Start Keycloak with docker run -p 8080:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak start-dev, create realm lab, users alice and bob, a confidential client web-app with redirect URI http://localhost:3000/callback and a public client spa with PKCE method S256 enforced, then fetch http://localhost:8080/realms/lab/.well-known/openid-configuration with curl.",
+          "deliverable": "Running lab provider with a realm export file and a client inventory table",
+          "checks": [["curl the lab realm discovery URL and pipe it to jq .issuer", "Prints \"http://localhost:8080/realms/lab\"", "Terminal output"], ["Open the web-app client Credentials tab", "A client secret is shown because client authentication is on", "Admin console screenshot"], ["Open the spa client Credentials tab", "No Credentials tab exists because spa is a public client", "Admin console screenshot"]],
+          "objectives": ["Run a local OpenID Provider for labs", "Register confidential and public clients", "Locate the issuer and discovery URL of a realm"]
+        },
+        {
+          "topic": "Authorization Code Flow Step by Step",
+          "subtopics": ["The authorization request: response_type, client_id, redirect_uri, scope and state", "User authentication and consent at the authorization server", "The authorization response with code and state in the query string", "The token request with grant_type=authorization_code", "The token response: access_token, token_type, expires_in, id_token and refresh_token", "Authorization code lifetime and single use", "Why the code is exchanged over the back channel", "Cache-Control: no-store on token responses"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq", "Browser developer tools"],
+          "lab_task": "Build an authorization URL for the web-app client by hand with response_type=code, scope=openid, state and redirect_uri=http://localhost:3000/callback, sign in as alice, copy the code from the address bar, redeem it with curl -u web-app:SECRET -d grant_type=authorization_code -d code=... -d redirect_uri=... to the token endpoint, then redeem the same code a second time.",
+          "deliverable": "Annotated request and response log for one complete authorization code flow",
+          "checks": [["Redeem a fresh code within its lifetime", "HTTP 200 with access_token, id_token, token_type Bearer and expires_in", "curl output"], ["Redeem the same code a second time", "HTTP 400 with error invalid_grant", "curl output"], ["Inspect the token response headers", "Cache-Control: no-store is present", "curl -i output"]],
+          "objectives": ["Run the authorization code flow by hand", "Explain why the code travels in the front channel and tokens in the back channel", "Recognise single-use code behaviour"]
+        },
+        {
+          "topic": "PKCE with S256 Code Challenges",
+          "subtopics": ["The authorization code interception attack PKCE (RFC 7636) prevents", "code_verifier: 43 to 128 characters from the unreserved set", "code_challenge = BASE64URL(SHA256(code_verifier))", "code_challenge_method S256 compared with plain", "Sending code_verifier with the token request", "Why PKCE is now required for confidential clients too", "code_challenge_methods_supported in provider metadata", "PKCE downgrade attempts and provider enforcement"],
+          "tools": ["Keycloak (lab OpenID Provider)", "openssl", "curl", "jq"],
+          "lab_task": "Generate a code_verifier with openssl rand -base64 48 | tr -d '=+/' | cut -c1-64, derive the S256 challenge with openssl dgst -sha256 -binary piped to base64url encoding, run the code flow for the public spa client with code_challenge and code_challenge_method=S256, redeem the code with the verifier, then repeat with a wrong verifier and with no challenge.",
+          "deliverable": "PKCE script that prints the verifier, the challenge and the token endpoint result for each case",
+          "checks": [["Redeem the code with the matching code_verifier", "HTTP 200 and a token response for client spa", "curl output"], ["Redeem the code with a different code_verifier", "HTTP 400 with error invalid_grant and a PKCE verification failure description", "curl output"], ["Send an authorization request for spa without code_challenge", "The provider returns error invalid_request saying the code challenge is missing", "Browser redirect URL"]],
+          "objectives": ["Generate PKCE verifiers and S256 challenges", "Explain the attack PKCE prevents", "Confirm that a provider enforces PKCE"]
+        },
+        {
+          "topic": "State, Nonce and Redirect URI Matching",
+          "subtopics": ["state as a CSRF defence bound to the user's browser session", "Storing state in a cookie or server session and comparing on return", "nonce as an ID token replay defence", "Where nonce appears: authorization request and ID token claim", "Exact string matching of redirect_uri", "Why wildcard and prefix matching led to real token theft", "The redirect_uri sent in the token request", "The iss authorization response parameter (RFC 9207) as a first look"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "Browser developer tools"],
+          "lab_task": "Run the code flow with a random state and nonce stored in a cookie, check both on return, then try three faults: change state in the callback URL, request redirect_uri=http://localhost:3000/callback/evil, and redeem a code with a redirect_uri different from the one in the authorization request. Record what the provider and the client each do.",
+          "deliverable": "Fault table showing which party detected each tampering attempt",
+          "checks": [["Return to the callback with a modified state value", "The client rejects the response before calling the token endpoint", "Client log"], ["Send an authorization request with an unregistered redirect_uri", "The provider shows an Invalid parameter: redirect_uri error page and does not redirect", "Browser screenshot"], ["Decode the ID token from a normal flow", "The nonce claim equals the nonce sent in the authorization request", "Decoded token"]],
+          "objectives": ["Use state and nonce correctly", "Explain why redirect URIs must match exactly", "Identify which party enforces each check"]
+        },
+        {
+          "topic": "ID Token Claims and Validation Rules",
+          "subtopics": ["ID token as a signed JWT for the client, not for APIs", "Required claims: iss, sub, aud, exp and iat", "auth_time, nonce, acr, amr and azp", "at_hash and binding the ID token to the access token", "OIDC Core section 3.1.3.7 validation steps in order", "Signature verification with the provider's JWKS", "sub as a stable, locally unique identifier of at most 255 ASCII characters", "Why email is not a safe user key"],
+          "tools": ["Keycloak (lab OpenID Provider)", "jq", "Python with PyJWT", "jwt.io"],
+          "lab_task": "Write a 40-line Python script that fetches the lab JWKS, verifies an ID token signature with PyJWT, then checks iss against the discovery issuer, aud equals web-app, exp is in the future, iat is recent and nonce matches the stored value. Run it against a valid token, a token for another client and a token with one payload byte changed.",
+          "deliverable": "ID token validator script with results for the three test tokens",
+          "checks": [["Validate a fresh ID token for web-app with the correct nonce", "All checks pass and the script prints the sub value", "Script output"], ["Validate an ID token issued to the spa client", "Validation fails on the aud check", "Script output"], ["Validate a token with one changed payload byte", "Signature verification fails before any claim is checked", "Script output"]],
+          "objectives": ["List the required ID token claims", "Apply the OIDC Core validation steps in order", "Choose sub plus iss as the user key"]
+        },
+        {
+          "topic": "The UserInfo Endpoint and Standard Claims",
+          "subtopics": ["The userinfo_endpoint and calling it with the access token", "Standard claims: name, given_name, family_name, email, email_verified, picture and locale", "The rule that UserInfo sub must equal ID token sub", "JSON compared with signed UserInfo responses", "Claims in the ID token compared with claims only in UserInfo", "Address and phone_number claims", "WWW-Authenticate errors from UserInfo", "Caching UserInfo results and their freshness"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq"],
+          "lab_task": "With an access token for alice, call GET /realms/lab/protocol/openid-connect/userinfo with Authorization: Bearer, compare each returned claim with the ID token, then remove the email scope from the request, run the flow again and call UserInfo once more. Finally call it with an expired token and capture the WWW-Authenticate header.",
+          "deliverable": "Claim comparison table for ID token and UserInfo across two scope sets",
+          "checks": [["Call UserInfo with a valid access token", "HTTP 200 with a sub equal to the ID token sub", "curl output"], ["Call UserInfo after a flow without the email scope", "The email and email_verified claims are absent", "curl output"], ["Call UserInfo with an expired access token", "HTTP 401 with WWW-Authenticate: Bearer error=\"invalid_token\"", "curl -i output"]],
+          "objectives": ["Call the UserInfo endpoint correctly", "Map standard claims to scopes", "Check sub consistency between ID token and UserInfo"]
+        },
+        {
+          "topic": "OIDC Scopes: openid, profile, email and offline_access",
+          "subtopics": ["openid as the scope that turns an OAuth request into an OIDC request", "profile, email, address and phone scopes and the claims they release", "offline_access and long-lived refresh tokens", "Space-delimited scope strings and case sensitivity", "The scope value in the token response when the grant is narrowed", "Default and optional client scopes in a provider", "Requesting the minimum scopes and data minimisation", "Custom API scopes such as orders:read alongside OIDC scopes"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq"],
+          "lab_task": "Run four flows for web-app with scope=openid, scope=openid profile, scope=openid profile email and scope=openid offline_access, record the scope value returned in each token response and the claims in each ID token, then send a flow without openid and note whether an ID token is issued.",
+          "deliverable": "Scope-to-claims matrix with the token response scope for each flow",
+          "checks": [["Request scope=openid profile email", "The ID token or UserInfo contains name and email", "Decoded token and UserInfo output"], ["Request scope=orders:read without openid", "The token response has no id_token", "curl output"], ["Request scope=openid offline_access", "The refresh token has typ Offline in the lab provider", "Decoded refresh token"]],
+          "objectives": ["Explain what the openid scope changes", "Request only the scopes a client needs", "Predict which claims each scope releases"]
+        },
+        {
+          "topic": "Discovery Documents and JWKS Retrieval",
+          "subtopics": ["OpenID Connect Discovery 1.0 and /.well-known/openid-configuration", "OAuth Authorization Server Metadata (RFC 8414) and /.well-known/oauth-authorization-server", "Required metadata: issuer, authorization_endpoint, jwks_uri and response_types_supported", "The rule that the issuer in metadata must equal the configured issuer exactly", "jwks_uri and the JWK Set format", "kid matching and refreshing the JWKS on an unknown kid", "Caching metadata and keys with HTTP cache headers", "Supported values: scopes_supported, claims_supported and grant_types_supported"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq", "openid-client"],
+          "lab_task": "Fetch the lab discovery document, list the authorization, token, userinfo, jwks, end_session and revocation endpoints with jq, download the JWKS and print the kid and alg of each key, then rotate the realm signing key in the admin console, issue a new ID token and show that its kid is found only after the JWKS is fetched again.",
+          "deliverable": "Metadata summary and a key-rotation log",
+          "checks": [["Run jq '.response_types_supported' on the discovery document", "The list includes \"code\"", "Terminal output"], ["Compare the ID token header kid with the cached JWKS after rotation", "The kid is not in the cached set and is present after a refetch", "Terminal output"], ["Configure a client with the issuer plus a trailing slash", "Discovery validation fails with an issuer mismatch", "Client error log"]],
+          "objectives": ["Read provider metadata", "Fetch and cache JWKS keys safely", "Handle a signing key rotation"]
+        },
+        {
+          "topic": "Client Authentication Methods at the Token Endpoint",
+          "subtopics": ["client_secret_basic with HTTP Basic and URL encoding of the credentials", "client_secret_post with credentials in the form body", "client_secret_jwt and private_key_jwt client assertions (RFC 7523)", "client_assertion_type urn:ietf:params:oauth:client-assertion-type:jwt-bearer", "tls_client_auth as a preview of mutual TLS", "none for public clients with PKCE", "token_endpoint_auth_methods_supported in metadata", "invalid_client and HTTP 401 responses"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "openssl", "Python with PyJWT"],
+          "lab_task": "Call the token endpoint for web-app with client_secret_basic and then client_secret_post, switch the client to Signed JWT, generate an RSA key with openssl genpkey, upload the public key, and build a private_key_jwt assertion with iss and sub set to web-app, aud set to the token endpoint, a jti and a 60-second exp. Finally send a wrong secret.",
+          "deliverable": "Token requests for three authentication methods with their responses",
+          "checks": [["Send a wrong client secret with client_secret_basic", "HTTP 401 with error invalid_client", "curl -i output"], ["Send a valid private_key_jwt assertion", "HTTP 200 with tokens and no shared secret transmitted", "curl output"], ["Replay the same assertion with the same jti", "The provider rejects it as a reused assertion", "curl output"]],
+          "objectives": ["Authenticate a client with secrets and signed assertions", "Explain why private_key_jwt is stronger than shared secrets", "Read invalid_client errors"]
+        },
+        {
+          "topic": "Client Credentials Grant for Machine-to-Machine Calls",
+          "subtopics": ["grant_type=client_credentials with no user involved", "Service accounts and their roles in a provider", "Requesting API scopes and an audience", "Why no refresh token or ID token is returned", "Caching the access token until shortly before expires_in", "Secrets compared with private_key_jwt for services", "Using client credentials only for the client's own resources", "unauthorized_client when the grant is not enabled"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq", "Postman"],
+          "lab_task": "Create a confidential client billing-job with service accounts enabled, request a token with curl -d grant_type=client_credentials -d scope=invoices:write, decode it and record sub, azp and scope, write a 20-line token cache that reuses the token until 30 seconds before expiry, then try the grant with web-app, which has service accounts disabled.",
+          "deliverable": "Service token script with a cache and a decoded token sample",
+          "checks": [["Request a client credentials token for billing-job", "HTTP 200 with access_token and no refresh_token or id_token", "curl output"], ["Request the grant for web-app with service accounts off", "HTTP 400 or 401 with error unauthorized_client", "curl output"], ["Call the cache function 100 times in one minute", "Only one token request reaches the provider", "Provider event log or script counter"]],
+          "objectives": ["Use the client credentials grant for service calls", "Cache service tokens correctly", "Explain when this grant is the wrong choice"]
+        },
+        {
+          "topic": "Refresh Token Grant and Token Lifetimes",
+          "subtopics": ["grant_type=refresh_token and the refresh_token parameter", "Why refresh tokens go only to the token endpoint", "Access token lifetime compared with refresh token lifetime", "Narrowing scope on refresh", "Offline tokens compared with session-bound refresh tokens", "SSO session idle and maximum lifetimes in the provider", "Rotation: a new refresh token in each response", "invalid_grant when a refresh token is expired or revoked"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq"],
+          "lab_task": "Set the lab access token lifespan to 2 minutes and SSO Session Idle to 5 minutes, run a code flow, refresh the access token after 3 minutes with grant_type=refresh_token, refresh again with scope=openid to narrow scope, then wait 6 minutes without activity and attempt a final refresh. Record exp values and responses.",
+          "deliverable": "Token lifetime timeline with every refresh request and response",
+          "checks": [["Refresh after the access token has expired but within the session", "HTTP 200 with a new access_token and a later exp", "curl output"], ["Refresh after the 5-minute idle timeout", "HTTP 400 with error invalid_grant and a session not active description", "curl output"], ["Refresh with a narrower scope", "The returned scope value lists only the narrower scope", "curl output"]],
+          "objectives": ["Refresh access tokens with the refresh token grant", "Relate token lifetimes to provider session settings", "Handle invalid_grant on refresh"]
+        },
+        {
+          "topic": "Device Authorization Grant for Input-Constrained Devices",
+          "subtopics": ["RFC 8628 for TVs, consoles, CLIs and IoT devices", "The device authorization endpoint request", "device_code, user_code, verification_uri and verification_uri_complete", "Polling with grant_type=urn:ietf:params:oauth:grant-type:device_code", "authorization_pending, slow_down, access_denied and expired_token", "The interval value and adding 5 seconds after slow_down", "Showing a QR code for verification_uri_complete", "Device code phishing and why the user must check the device"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq", "qrencode"],
+          "lab_task": "Enable OAuth 2.0 Device Authorization Grant on a public client tv-app, POST client_id to /realms/lab/protocol/openid-connect/auth/device, print the user_code and a QR code with qrencode, poll the token endpoint every interval seconds with a bash loop, approve on a phone, and also run one flow where you deny consent and one where you let it expire.",
+          "deliverable": "Polling script and response log for approved, denied and expired flows",
+          "checks": [["Poll before the user approves", "HTTP 400 with error authorization_pending", "Polling log"], ["Poll after the user approves", "HTTP 200 with access_token and id_token", "Polling log"], ["Poll after the user denies the request", "HTTP 400 with error access_denied and polling stops", "Polling log"]],
+          "objectives": ["Run the device authorization grant", "Handle each polling error correctly", "Explain the phishing risk of device codes"]
+        },
+        {
+          "topic": "Calling a Protected API with Bearer Tokens (RFC 6750)",
+          "subtopics": ["Authorization: Bearer as the only recommended way to send a token", "Why access_token in the query string is forbidden by OAuth 2.1", "Resource server checks: signature, iss, aud, exp and scope", "Opaque tokens compared with JWT access tokens", "WWW-Authenticate with error invalid_token and HTTP 401", "error insufficient_scope with HTTP 403 and a scope attribute", "The aud claim and why one token should not open every API", "Logging requests without logging tokens"],
+          "tools": ["Keycloak (lab OpenID Provider)", "Node.js with Express", "jose (npm)", "curl"],
+          "lab_task": "Write an Express API at http://localhost:4000 with GET /orders requiring scope orders:read, validate tokens with jose createRemoteJWKSet and jwtVerify against the lab issuer and audience orders-api, return RFC 6750 errors, and test it with no token, an expired token, a token without the scope and a valid token.",
+          "deliverable": "Protected API source with a request log for four token cases",
+          "checks": [["Call GET /orders without an Authorization header", "HTTP 401 with WWW-Authenticate: Bearer realm=\"orders\"", "curl -i output"], ["Call GET /orders with a token lacking orders:read", "HTTP 403 with error=\"insufficient_scope\" in WWW-Authenticate", "curl -i output"], ["Call GET /orders with a valid token", "HTTP 200 with the order list", "curl output"]],
+          "objectives": ["Send bearer tokens the recommended way", "Validate access tokens at a resource server", "Return standard bearer token errors"]
+        },
+        {
+          "topic": "Consent Screens and the prompt Parameter",
+          "subtopics": ["Why the authorization server, not the client, collects consent", "Remembered consent and when it is shown again", "prompt=none for silent checks and login_required", "prompt=login to force re-authentication", "prompt=consent and consent_required", "prompt=select_account for multi-account users", "max_age and the auth_time claim", "Revoking consent from the user's account page"],
+          "tools": ["Keycloak (lab OpenID Provider)", "Browser developer tools", "curl"],
+          "lab_task": "Turn on Consent required for web-app, run a flow with scope=openid profile email and approve it, run it again to see consent remembered, then run with prompt=consent, with prompt=login, and with prompt=none after signing out. Finally revoke the grant from the lab account console and run the flow with prompt=none.",
+          "deliverable": "Consent behaviour table for each prompt value",
+          "checks": [["Send prompt=none with no active provider session", "The callback receives error=login_required", "Callback URL"], ["Send prompt=none after the user revoked consent", "The callback receives error=consent_required or interaction_required", "Callback URL"], ["Send max_age=0 with an active session", "The user is asked to sign in again and auth_time changes", "Decoded ID token"]],
+          "objectives": ["Explain how consent is collected and remembered", "Use prompt and max_age to control user interaction", "Read login_required and consent_required errors"]
+        },
+        {
+          "topic": "Token Introspection and Revocation Endpoints",
+          "subtopics": ["RFC 7662 introspection for opaque or untrusted tokens", "The active field and the meaning of active=false", "Authenticating the resource server to the introspection endpoint", "RFC 7009 revocation with token and token_type_hint", "Revoking a refresh token and the effect on its access tokens", "Why revocation returns HTTP 200 even for unknown tokens", "Caching introspection results and the latency trade-off", "When local JWT validation cannot see a revocation"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq"],
+          "lab_task": "Introspect an access token for alice at /protocol/openid-connect/token/introspect with the orders-api client credentials, revoke the refresh token with POST /revoke and token_type_hint=refresh_token, introspect the access token and try the refresh again, then revoke a random string. Compare introspection with local JWT validation of the same token.",
+          "deliverable": "Introspection and revocation log with a note on local validation limits",
+          "checks": [["Introspect a valid access token", "Response contains \"active\": true with sub, scope and exp", "curl output"], ["Refresh using a revoked refresh token", "HTTP 400 with error invalid_grant", "curl output"], ["Revoke a random string as a token", "HTTP 200 with an empty body", "curl -i output"]],
+          "objectives": ["Introspect tokens from a resource server", "Revoke refresh and access tokens", "Explain when introspection is needed"]
+        },
+        {
+          "topic": "Authorization and Token Error Responses",
+          "subtopics": ["Authorization endpoint errors returned to the redirect URI: error, error_description and state", "Errors that must not redirect: invalid client_id or redirect_uri", "Token endpoint errors as JSON with HTTP 400 or 401", "invalid_request, invalid_client, invalid_grant and unauthorized_client", "unsupported_grant_type, unsupported_response_type and invalid_scope", "OIDC errors: login_required, consent_required and interaction_required", "Clock skew and exp or iat failures", "Reading provider event logs to match an error to its cause"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq", "Keycloak event log"],
+          "lab_task": "Turn on login and admin events in the lab realm, then produce eight errors on purpose: unknown client_id, unregistered redirect_uri, scope=unknown, grant_type=password on a client without it, an expired code, a wrong secret, a missing PKCE verifier and prompt=none without a session. Match each error code to its provider event and a fix.",
+          "deliverable": "Error catalogue with the request, error code, HTTP status, event entry and fix for each case",
+          "checks": [["Request grant_type=password on a client without direct access grants", "HTTP 400 with error unauthorized_client", "curl output"], ["Request scope=unknown at the authorization endpoint", "The callback receives error=invalid_scope with the original state", "Callback URL"], ["Send an unknown client_id to the authorization endpoint", "The provider shows an error page and does not redirect", "Browser screenshot"]],
+          "objectives": ["Read OAuth and OIDC error responses", "Tell redirect errors from non-redirect errors", "Use provider event logs to find root causes"]
+        },
+        {
+          "topic": "Adding OIDC Login to a Web App with openid-client",
+          "subtopics": ["Choosing a certified relying party library from openid.net", "openid-client discovery() and the Configuration object", "buildAuthorizationUrl with PKCE, state and nonce", "authorizationCodeGrant and the checks it performs", "Keeping tokens on the server in an encrypted session", "Session cookies with HttpOnly, Secure and SameSite=Lax", "Reading claims() from the ID token", "Refreshing tokens in the background"],
+          "tools": ["openid-client (npm)", "Node.js with Express", "express-session", "Keycloak (lab OpenID Provider)"],
+          "lab_task": "Build an Express app on port 3000 that uses openid-client discovery() against the lab issuer, starts login with buildAuthorizationUrl using S256 PKCE, state and nonce stored in the session, completes it with authorizationCodeGrant, shows the user's name from claims(), and calls the orders API from Day 15 with the access token on GET /orders.",
+          "deliverable": "Running web app with login, profile page and an API call",
+          "checks": [["Complete login as alice", "The profile page shows alice's name and sub", "Browser screenshot"], ["Inspect the browser cookies after login", "Only an HttpOnly session cookie exists and no token is visible to JavaScript", "Developer tools screenshot"], ["Tamper with the state cookie before the callback", "authorizationCodeGrant throws a state mismatch error", "Application log"]],
+          "objectives": ["Integrate a certified OIDC client library", "Keep tokens out of the browser", "Call an API from a logged-in session"]
+        },
+        {
+          "topic": "Capstone: OIDC Login and API Access for a Web App",
+          "subtopics": ["Requirements: login, profile, protected API call, refresh and sign-out", "Choosing grants and client types for each component", "Validation and error handling at the client and the API", "Demonstration and protocol walkthrough"],
+          "tools": ["openid-client (npm)", "jose (npm)", "Keycloak (lab OpenID Provider)", "curl", "Browser developer tools"],
+          "lab_task": "Deliver a web app and API pair: the confidential web-app client logs users in with code flow plus PKCE, the API validates aud, iss and scope, a billing job calls the API with client credentials, tokens refresh before expiry, and an error page handles login_required and access_denied. Demonstrate 6 scenarios including a tampered token and a revoked refresh token.",
+          "deliverable": "Source repository, sequence diagrams for each grant and a 6-scenario demonstration log",
+          "checks": [["Run the full login and API scenario", "The user sees their orders and the API log shows a validated token", "Demonstration recording"], ["Send the API a token signed by another realm", "The API returns HTTP 401 invalid_token", "API log"], ["Deny consent at the provider", "The app shows its access_denied page instead of a stack trace", "Browser screenshot"]],
+          "objectives": ["Combine user and machine grants in one system", "Validate tokens at both client and API", "Explain each protocol message in a demonstration"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers and identity engineers who can already run the authorization code flow with PKCE and validate an ID token, and now need to design and operate OAuth and OIDC across several client types and APIs. Covers OAuth 2.1 and the Security BCP (RFC 9700), the claims parameter, acr_values and max_age, pairwise subjects, dynamic client registration, authorization server metadata and resource indicators, the JWT access token profile, scope and audience design, RP-initiated, back-channel and front-channel logout, the backend-for-frontend pattern for single-page apps, native, mobile and CLI clients, refresh token rotation policy, step-up authentication, and how Microsoft Entra ID, Okta, Auth0, Google and Keycloak differ as OpenID Providers.",
+      "prerequisites": ["Has completed the beginner level or can run the authorization code flow with PKCE, state and nonce by hand and validate an ID token", "Has built at least one web application and one API that use OAuth 2.0 access tokens", "Can run Docker containers and Node.js or Python code locally, and has a free developer tenant for at least one of Microsoft Entra ID, Okta, Auth0 or Google Cloud"],
+      "outcomes": ["Configure clients and providers to meet OAuth 2.1 and the RFC 9700 Security BCP and justify every deviation", "Design scopes, audiences, claims requests and token formats for a set of APIs and client types", "Implement RP-initiated, back-channel and front-channel logout and a backend-for-frontend for a single-page app", "Integrate native, mobile and CLI clients correctly and compare how major OpenID Providers implement the same specifications"],
+      "days": [
+        {
+          "topic": "OAuth 2.1 Changes from OAuth 2.0",
+          "subtopics": ["OAuth 2.1 as an IETF draft that consolidates RFC 6749, RFC 6750 and later best practice", "Removal of the implicit grant and response_type=token", "Removal of the resource owner password credentials grant", "PKCE required for every client using the authorization code grant", "Exact redirect URI matching with a loopback port exception for native apps", "No bearer tokens in query strings", "Refresh tokens for public clients must be sender-constrained or single-use", "Migrating existing clients without breaking users"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "IETF Datatracker", "Spreadsheet"],
+          "lab_task": "Audit the lab realm and a list of 8 existing client records against OAuth 2.1: flag any client with implicit flow, direct access grants, wildcard redirect URIs or PKCE optional, change each setting in the provider, and rerun one flow per changed client to prove it still works or fails as intended.",
+          "deliverable": "OAuth 2.1 gap report with before-and-after settings for the 8 clients",
+          "checks": [["Request response_type=token after disabling implicit flow", "The callback receives error=unsupported_response_type", "Callback URL"], ["Request grant_type=password after disabling direct access grants", "HTTP 400 with error unauthorized_client", "curl output"], ["Count clients still failing an OAuth 2.1 check after remediation", "The count is 0 or each remaining client has a written exception", "Gap report"]],
+          "objectives": ["List the differences between OAuth 2.0 and OAuth 2.1", "Audit clients against OAuth 2.1", "Plan migrations away from removed grants"]
+        },
+        {
+          "topic": "Applying the OAuth Security BCP (RFC 9700)",
+          "subtopics": ["RFC 9700 published in January 2025 as Best Current Practice", "The attacker model: web, network and authorization server mix-up attackers", "Required countermeasures for code injection: PKCE or nonce", "Sender-constrained access tokens and refresh tokens", "Audience restriction and least-privilege scopes", "Referrer-Policy and keeping codes out of logs", "Avoiding open redirectors at clients and servers", "Mapping RFC 9700 sections to provider settings"],
+          "tools": ["RFC 9700", "Keycloak (lab OpenID Provider)", "Browser developer tools", "Spreadsheet"],
+          "lab_task": "Turn RFC 9700 section 2 into a 15-row checklist, assess the lab web-app, spa and orders-api against it, set Referrer-Policy: no-referrer on the callback page, show with the Network tab that the code no longer leaks in a Referer header to a third-party image, and record evidence for every row.",
+          "deliverable": "RFC 9700 checklist with evidence and remediation for each row",
+          "checks": [["Load a third-party image on the callback page before the fix", "The Referer header sent to the image host contains the code", "Network tab screenshot"], ["Load the same image after adding Referrer-Policy: no-referrer", "No Referer header is sent", "Network tab screenshot"], ["Score the three components on the checklist", "Each row is marked pass, fail or not applicable with evidence", "Completed checklist"]],
+          "objectives": ["Explain the RFC 9700 attacker model", "Apply BCP countermeasures to clients and APIs", "Produce evidence for each control"]
+        },
+        {
+          "topic": "Claims Requests, acr_values and max_age",
+          "subtopics": ["The claims request parameter for id_token and userinfo", "Essential claims and the values array", "acr_values for requesting authentication assurance", "Checking the acr claim returned in the ID token", "amr values such as pwd, otp, mfa and hwk (RFC 8176)", "max_age and the obligation to check auth_time", "claims_parameter_supported and claim_types in metadata", "Mapping acr levels to authentication flows in a provider"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq", "openid-client"],
+          "lab_task": "In the lab realm map ACR level gold to an OTP step and silver to password only, send an authorization request with acr_values=gold and max_age=300, and a second with claims={\"id_token\":{\"email\":{\"essential\":true}}} URL-encoded, then make the client reject any ID token whose acr is not gold or whose auth_time is older than 300 seconds.",
+          "deliverable": "Claims and assurance request examples with client-side acr and auth_time checks",
+          "checks": [["Request acr_values=gold for a user with OTP configured", "The ID token acr claim is gold", "Decoded ID token"], ["Feed the client an ID token with acr silver for a gold request", "The client rejects the login with an insufficient assurance error", "Client log"], ["Request the email claim as essential in the id_token member", "The email claim appears directly in the ID token", "Decoded ID token"]],
+          "objectives": ["Request specific claims with the claims parameter", "Request and verify authentication assurance", "Enforce max_age with auth_time"]
+        },
+        {
+          "topic": "Pairwise Subject Identifiers and Privacy",
+          "subtopics": ["public compared with pairwise subject types", "How pairwise sub values stop cross-client correlation", "sector_identifier_uri and grouping redirect hosts", "subject_types_supported in provider metadata", "Effects of pairwise sub on account migration", "Data minimisation in claims and scopes", "Directed identifiers in Entra ID and other providers", "Privacy notices, policy_uri and tos_uri on the client"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq", "Python"],
+          "lab_task": "Enable a pairwise subject identifier mapper on two lab clients shop-a and shop-b, sign in as alice to both, compare the sub values, then host a sector_identifier_uri JSON file listing both redirect URIs, point both clients at it and sign in again to show that sub becomes the same across the sector.",
+          "deliverable": "Comparison table of sub values with and without a shared sector identifier",
+          "checks": [["Sign in to shop-a and shop-b with pairwise sub and no shared sector", "The two sub values differ", "Decoded ID tokens"], ["Sign in twice to shop-a", "The sub value is identical both times", "Decoded ID tokens"], ["Sign in to both after configuring the shared sector_identifier_uri", "The two sub values are equal", "Decoded ID tokens"]],
+          "objectives": ["Explain public and pairwise subject identifiers", "Configure a sector identifier", "Assess privacy effects of identifier choice"]
+        },
+        {
+          "topic": "Dynamic Client Registration and Client Management",
+          "subtopics": ["OIDC Dynamic Client Registration 1.0 and RFC 7591", "The registration_endpoint and client metadata", "Initial access tokens for controlled open registration", "registration_access_token and registration_client_uri (RFC 7592)", "Reading, updating and deleting a registered client", "Software statements and signed metadata", "invalid_redirect_uri and invalid_client_metadata errors", "Registration policies that limit hosts, scopes and grant types"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq"],
+          "lab_task": "Create an initial access token in the lab realm, POST client metadata with client_name, redirect_uris, grant_types and token_endpoint_auth_method to /realms/lab/clients-registrations/openid-connect, save the registration_access_token, GET and PUT the client to add a redirect URI, then try registering http://evil.example/callback when a trusted-hosts policy is active.",
+          "deliverable": "Registration script with create, read, update and rejected requests",
+          "checks": [["POST valid metadata with an initial access token", "HTTP 201 with client_id, client_secret and registration_access_token", "curl output"], ["POST metadata with a host blocked by policy", "HTTP 400 or 403 rejecting the redirect URI or the trusted host", "curl output"], ["GET registration_client_uri with the registration_access_token", "HTTP 200 with the current client metadata", "curl output"]],
+          "objectives": ["Register clients dynamically", "Manage clients with registration access tokens", "Restrict registration with policies"]
+        },
+        {
+          "topic": "Authorization Server Metadata and Resource Indicators",
+          "subtopics": ["RFC 8414 metadata for non-OIDC authorization servers", "Path-based well-known URLs for multi-tenant issuers", "RFC 8707 resource parameter on authorization and token requests", "Audience-restricted tokens for one resource server", "OAuth 2.0 Protected Resource Metadata (RFC 9728)", "WWW-Authenticate resource_metadata hints from APIs", "invalid_target errors", "Discovering the right issuer from an API response"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq", "Node.js with Express"],
+          "lab_task": "Serve /.well-known/oauth-protected-resource from the orders-api with resource, authorization_servers and scopes_supported, return its URL in the WWW-Authenticate resource_metadata parameter on 401, write a client that discovers the issuer from that hint, and request a token with resource=http://localhost:4000 whose aud is limited to that API.",
+          "deliverable": "Protected resource metadata document and a discovery-driven client",
+          "checks": [["Call the API without a token", "HTTP 401 with WWW-Authenticate containing resource_metadata", "curl -i output"], ["Fetch /.well-known/oauth-protected-resource", "JSON lists the lab issuer in authorization_servers", "curl output"], ["Decode a token requested with the resource parameter", "aud contains only the orders API identifier", "Decoded token"]],
+          "objectives": ["Use RFC 8414 and RFC 9728 metadata", "Request audience-restricted tokens", "Build clients that discover their authorization server"]
+        },
+        {
+          "topic": "JWT Access Token Profile (RFC 9068) for APIs",
+          "subtopics": ["The at+jwt typ header and why it separates access tokens from ID tokens", "Required claims: iss, exp, aud, sub, client_id, iat and jti", "scope, groups, roles and entitlements claims", "Resource server validation steps in RFC 9068", "Opaque tokens compared with JWT access tokens and when each fits", "Privacy risk when access tokens are readable by clients", "Rejecting ID tokens presented as access tokens", "Token size and header limits at gateways"],
+          "tools": ["Keycloak (lab OpenID Provider)", "jose (npm)", "curl", "jq"],
+          "lab_task": "Configure the lab realm to issue access tokens with typ at+jwt for orders-api, add client_id and scope checks to the Day 15 API, then send it an ID token, an access token for another audience and a valid at+jwt token, and record which RFC 9068 rule rejects each bad token.",
+          "deliverable": "API validation code updated for RFC 9068 with a rejection log",
+          "checks": [["Send an ID token as a bearer token", "HTTP 401 because typ is not at+jwt", "API log"], ["Send an access token issued for another API", "HTTP 401 on the aud check", "API log"], ["Send a valid at+jwt token with orders:read", "HTTP 200 and the log shows client_id and scope", "API log"]],
+          "objectives": ["Apply the RFC 9068 validation rules", "Separate ID tokens from access tokens", "Choose between JWT and opaque access tokens"]
+        },
+        {
+          "topic": "Scope Design and Audience Restriction for APIs",
+          "subtopics": ["Coarse scopes compared with fine-grained permissions", "Naming conventions such as resource:action", "Scopes for user-delegated access compared with service access", "One audience per API and the cost of shared audiences", "Scopes compared with roles and claims for authorization decisions", "Downscoping tokens for less-trusted clients", "Consent text for each scope", "Versioning and retiring scopes"],
+          "tools": ["Keycloak (lab OpenID Provider)", "Spreadsheet", "jose (npm)", "curl"],
+          "lab_task": "Design scopes for an orders API and an invoices API used by a web app, a mobile app and a billing job, create the client scopes and audience mappers in the lab realm, give each client only its allowed scopes, and prove that the mobile app cannot obtain invoices:write and the billing job's token is rejected by the orders API.",
+          "deliverable": "Scope catalogue with client assignments and test results",
+          "checks": [["Request invoices:write from the mobile client", "The returned scope omits invoices:write", "Token response"], ["Call the orders API with the billing job token", "HTTP 401 because the token aud is the invoices API", "API log"], ["Review the consent screen for the web app", "Each requested scope shows its human-readable description", "Browser screenshot"]],
+          "objectives": ["Design scopes and audiences for several APIs", "Assign least-privilege scopes to clients", "Write clear consent descriptions"]
+        },
+        {
+          "topic": "RP-Initiated Logout and Post-Logout Redirects",
+          "subtopics": ["OpenID Connect RP-Initiated Logout 1.0 and end_session_endpoint", "id_token_hint, client_id and logout_hint", "post_logout_redirect_uri registration and exact matching", "The state parameter on logout", "Clearing the local session before or after the provider redirect", "Logout confirmation pages and when they appear", "Revoking refresh tokens at logout", "Common mistakes: clearing only the app cookie"],
+          "tools": ["Keycloak (lab OpenID Provider)", "openid-client", "Browser developer tools"],
+          "lab_task": "Add a /logout route to the beginner web app that destroys the local session, revokes the refresh token and redirects to end_session_endpoint with id_token_hint, post_logout_redirect_uri=http://localhost:3000/ and state. Test with a registered URI, an unregistered URI and no id_token_hint, then confirm a new login asks for credentials.",
+          "deliverable": "Logout implementation with test results for three request variants",
+          "checks": [["Log out with id_token_hint and a registered post_logout_redirect_uri", "The browser returns to the app home page with the same state", "Network tab HAR"], ["Log out with an unregistered post_logout_redirect_uri", "The provider shows an invalid redirect URI error and does not redirect", "Browser screenshot"], ["Start a new login right after logout", "The provider asks for username and password again", "Browser screenshot"]],
+          "objectives": ["Implement RP-initiated logout", "Register and validate post-logout redirect URIs", "End both the local and provider sessions"]
+        },
+        {
+          "topic": "Back-Channel Logout Tokens",
+          "subtopics": ["OpenID Connect Back-Channel Logout 1.0", "backchannel_logout_uri and backchannel_logout_session_required", "The logout token: iss, aud, iat, jti, events and sid or sub", "The event key http://schemas.openid.net/event/backchannel-logout", "Why a logout token must not contain a nonce claim", "Mapping sid to local sessions in a server-side store", "Responding with HTTP 200 or HTTP 400", "Back-channel logout across several applications"],
+          "tools": ["Keycloak (lab OpenID Provider)", "openid-client", "Redis", "jose (npm)"],
+          "lab_task": "Store sessions for two lab apps in Redis keyed by sid, implement POST /backchannel-logout that validates the logout_token signature, iss, aud, events and absence of nonce, and deletes the matching session. Sign out from app A and show app B's session disappears, then post a logout token that contains a nonce.",
+          "deliverable": "Back-channel logout endpoint with a test log across two apps",
+          "checks": [["Sign out from app A", "App B's session for the same sid is deleted within 2 seconds", "Redis key listing"], ["POST a logout token that includes a nonce claim", "The endpoint returns HTTP 400 and keeps the session", "Application log"], ["Decode a real logout token from the provider", "events contains the back-channel logout event key with an empty object", "Decoded token"]],
+          "objectives": ["Validate logout tokens", "Map provider sessions to application sessions", "Coordinate sign-out across applications"]
+        },
+        {
+          "topic": "Front-Channel Logout and Session Monitoring",
+          "subtopics": ["OpenID Connect Front-Channel Logout 1.0 and iframes", "frontchannel_logout_uri with iss and sid query parameters", "OpenID Connect Session Management 1.0 and check_session_iframe", "The session_state value", "Third-party cookie blocking and why front-channel methods break", "Choosing back-channel logout over front-channel where possible", "prompt=none polling as a session check and its costs", "Testing logout in Chrome, Firefox and Safari"],
+          "tools": ["Keycloak (lab OpenID Provider)", "Chrome", "Firefox", "Safari", "Browser developer tools"],
+          "lab_task": "Register a frontchannel_logout_uri on two apps hosted on different sites, sign in to both, log out from one, and record in each browser whether the logout iframe for the other app received its session cookie. Repeat with third-party cookies blocked and write a recommendation for back-channel or front-channel logout.",
+          "deliverable": "Browser compatibility matrix for front-channel logout with a recommendation",
+          "checks": [["Log out with third-party cookies allowed", "The other app's iframe request carries its session cookie and clears it", "Network tab screenshot"], ["Log out with third-party cookies blocked", "The iframe request arrives without the cookie and the other session stays active", "Network tab screenshot"], ["Inspect the iframe request URL", "It contains iss and sid query parameters", "Network tab screenshot"]],
+          "objectives": ["Implement front-channel logout", "Explain how browser privacy changes affect session protocols", "Choose a logout method for a given estate"]
+        },
+        {
+          "topic": "Backend for Frontend Pattern for Single-Page Apps",
+          "subtopics": ["Why tokens in browser JavaScript are exposed to XSS", "The BFF as a confidential client that holds tokens server-side", "Session cookies with the __Host- prefix, HttpOnly, Secure and SameSite", "CSRF protection with a custom header such as X-CSRF: 1", "Proxying API calls and attaching access tokens on the server", "Token handler variants of the BFF pattern", "Silent refresh in the BFF instead of the browser", "Deployment on the same site as the SPA"],
+          "tools": ["Node.js with Express", "openid-client", "React", "Vite", "Keycloak (lab OpenID Provider)"],
+          "lab_task": "Put a BFF in front of a React app: the BFF runs code flow with PKCE as a confidential client, stores tokens in a server session, sets a __Host-session cookie, exposes /bff/user and proxies /api/* to the orders API with the access token, and rejects proxy calls without the X-CSRF: 1 header. Show that window.localStorage holds no tokens.",
+          "deliverable": "BFF and SPA source with a token-exposure check",
+          "checks": [["Search localStorage, sessionStorage and document.cookie in the console", "No access, refresh or ID token is found", "Console screenshot"], ["Call /api/orders without the X-CSRF header", "The BFF returns HTTP 403", "curl -i output"], ["Call /api/orders from the SPA after login", "HTTP 200 and the API log shows a token attached by the BFF", "API log"]],
+          "objectives": ["Explain why BFF is preferred for SPAs", "Build a BFF with secure cookies and CSRF checks", "Keep tokens out of the browser"]
+        },
+        {
+          "topic": "Browser-Based Apps without a Backend",
+          "subtopics": ["When a SPA truly cannot have a backend", "Public client code flow with PKCE in the browser", "Storing tokens in memory compared with localStorage", "Web workers to isolate tokens from page scripts", "Refresh token rotation and short lifetimes for public clients", "Content Security Policy as a supporting control", "DPoP for browser clients", "Risk acceptance and documentation"],
+          "tools": ["oidc-client-ts (npm)", "React", "Vite", "Keycloak (lab OpenID Provider)", "Browser developer tools"],
+          "lab_task": "Build a React SPA with oidc-client-ts using the public spa client, code flow with PKCE, in-memory user storage and automatic silent renew, set a Content-Security-Policy with script-src 'self', then simulate XSS by running fetch calls from the console and record what an injected script can still do with the active session.",
+          "deliverable": "SPA source with an XSS impact write-up compared with the BFF from Day 12",
+          "checks": [["Reload the page with in-memory token storage", "The app must renew the session because tokens were not persisted", "Network tab screenshot"], ["Run injected script that reads localStorage", "No tokens are found in localStorage", "Console screenshot"], ["Inject an inline script with the CSP active", "The browser blocks it with a Content-Security-Policy violation", "Console screenshot"]],
+          "objectives": ["Implement a browser-only OIDC client safely", "Explain residual XSS risk", "Compare browser-only clients with BFF"]
+        },
+        {
+          "topic": "Native and Mobile Apps per RFC 8252",
+          "subtopics": ["RFC 8252 OAuth 2.0 for Native Apps", "External user agents: ASWebAuthenticationSession and Android Custom Tabs", "Why embedded webviews are not allowed for login", "Claimed HTTPS redirects with universal links and app links", "Private-use URI schemes in reverse domain name form", "AppAuth for iOS and Android", "Secure token storage in Keychain and Android Keystore", "App impersonation and why native apps are public clients"],
+          "tools": ["AppAuth-Android", "AppAuth-iOS", "Android Studio", "Xcode", "Keycloak (lab OpenID Provider)"],
+          "lab_task": "Register a public client mobile-app with redirect URI com.example.app:/oauth2redirect, build a minimal Android or iOS app with AppAuth that performs code flow with PKCE in Custom Tabs or ASWebAuthenticationSession, stores the refresh token in Keystore or Keychain, then try the same login in an embedded WebView and note the differences.",
+          "deliverable": "Mobile login demo with redirect configuration and a WebView comparison",
+          "checks": [["Log in through the external user agent", "The app receives the code at com.example.app:/oauth2redirect and gets tokens", "App log"], ["Inspect the token request from the app", "It carries code_verifier and no client secret", "Proxy capture"], ["Sign in to the provider once in the system browser, then log in from the app", "Single sign-on completes without a password prompt", "Screen recording"]],
+          "objectives": ["Apply RFC 8252 to mobile apps", "Choose redirect URI types for native apps", "Store tokens securely on devices"]
+        },
+        {
+          "topic": "Desktop and CLI Clients with Loopback Redirects",
+          "subtopics": ["Loopback redirects to http://127.0.0.1 with any port", "Why localhost names are discouraged in favour of the IP literal", "Starting a one-shot local HTTP listener", "Device authorization grant compared with loopback for CLIs", "Storing tokens in the OS credential store", "Refreshing tokens between CLI runs", "Headless servers and SSH sessions", "Logging out and revoking from a CLI"],
+          "tools": ["Python with Authlib", "keyring (Python)", "Keycloak (lab OpenID Provider)", "curl"],
+          "lab_task": "Write a Python CLI with Authlib that starts a listener on 127.0.0.1 with an ephemeral port, opens the system browser with code flow and PKCE, receives the code, stores the refresh token with the keyring library, reuses it on the next run, and falls back to the device grant when --headless is passed.",
+          "deliverable": "CLI tool with loopback and device grant modes and a usage log",
+          "checks": [["Run the CLI twice in a row", "The second run reuses the stored refresh token with no browser window", "CLI output"], ["Run the CLI with --headless", "It prints a user_code and verification URL instead of opening a browser", "CLI output"], ["Register only http://127.0.0.1/callback without a port", "Login still works on a random port because loopback ports are ignored", "Provider event log"]],
+          "objectives": ["Implement loopback redirects for desktop clients", "Choose between loopback and device grants", "Store CLI tokens securely"]
+        },
+        {
+          "topic": "Refresh Token Rotation Policies at the Authorization Server",
+          "subtopics": ["Rotation as issuing a new refresh token on every use", "Reuse detection and revoking the whole token family", "Grace periods for concurrent refreshes", "Absolute and idle lifetimes for refresh tokens", "Offline access consent and revocation", "Sender-constrained refresh tokens as an alternative to rotation", "Provider settings: Keycloak Revoke Refresh Token, Okta and Auth0 rotation options", "Monitoring refresh failures"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq", "Okta or Auth0 developer tenant"],
+          "lab_task": "Turn on Revoke Refresh Token with a reuse count of 0 in the lab realm, refresh once to get RT2 from RT1, then present RT1 again and show the provider refuses it and RT2 fails as well. Repeat the test with the rotation setting of an Okta or Auth0 developer tenant and compare grace period behaviour.",
+          "deliverable": "Rotation policy comparison across two providers with request logs",
+          "checks": [["Refresh with RT1 once", "A new refresh token RT2 different from RT1 is returned", "curl output"], ["Present RT1 again after rotation", "HTTP 400 with error invalid_grant", "curl output"], ["Present RT2 after RT1 reuse", "The provider rejects RT2 or the session is ended, depending on its reuse policy", "curl output and provider log"]],
+          "objectives": ["Configure refresh token rotation", "Explain reuse detection and grace periods", "Compare provider rotation features"]
+        },
+        {
+          "topic": "Step-Up Authentication with RFC 9470",
+          "subtopics": ["OAuth 2.0 Step Up Authentication Challenge Protocol (RFC 9470)", "The insufficient_user_authentication error", "acr_values and max_age in the WWW-Authenticate challenge", "Including acr and auth_time in access tokens", "The client reacting by starting a new authorization request", "Avoiding loops when the provider cannot meet the request", "Step-up for payments and admin operations", "Logging assurance levels for audits"],
+          "tools": ["Keycloak (lab OpenID Provider)", "Node.js with Express", "openid-client", "curl"],
+          "lab_task": "Add DELETE /orders/:id to the orders API that requires acr gold within 300 seconds, return HTTP 401 with WWW-Authenticate: Bearer error=\"insufficient_user_authentication\", acr_values=\"gold\", max_age=\"300\" when the token falls short, and make the web app read the challenge, start a new authorization request with those values and retry.",
+          "deliverable": "Step-up flow with API challenge code and client retry logic",
+          "checks": [["Call DELETE with a silver token", "HTTP 401 with error insufficient_user_authentication and acr_values gold", "curl -i output"], ["Let the web app handle the challenge", "The user completes OTP and the retry returns HTTP 204", "Application log"], ["Call DELETE with a gold token older than 300 seconds", "The API challenges again with max_age 300", "curl -i output"]],
+          "objectives": ["Implement RFC 9470 challenges at an API", "Handle step-up in a client", "Use assurance claims in access tokens"]
+        },
+        {
+          "topic": "Microsoft Entra ID as an OpenID Provider",
+          "subtopics": ["Tenant-specific, common, organizations and consumers endpoints", "v2.0 discovery at login.microsoftonline.com/{tenant}/v2.0/.well-known/openid-configuration", "Multi-tenant issuer validation with the tid claim", "oid compared with sub as the user identifier", "Scopes such as api://{app-id}/orders.read and the .default scope", "Access token version and requestedAccessTokenVersion", "Admin consent and enterprise application consent policies", "AADSTS error codes such as AADSTS50011, AADSTS65001 and AADSTS7000215"],
+          "tools": ["Microsoft Entra admin center", "Microsoft Graph", "MSAL", "openid-client", "jwt.ms"],
+          "lab_task": "Register a web app and an API in an Entra ID developer tenant, expose scope orders.read, point the openid-client app from the beginner capstone at the tenant v2.0 issuer, log in, decode the tokens in jwt.ms and record iss, aud, tid, oid and ver, then trigger AADSTS50011 with a wrong redirect URI and AADSTS65001 by revoking consent.",
+          "deliverable": "Entra ID integration notes with decoded tokens and two captured AADSTS errors",
+          "checks": [["Decode the API access token", "aud is the API application ID or URI and ver is 2.0", "jwt.ms screenshot"], ["Send a redirect URI not registered on the app", "The sign-in page shows AADSTS50011", "Browser screenshot"], ["Use the common endpoint with strict iss checking", "Validation fails until the client accepts the tenant-specific issuer", "Client log"]],
+          "objectives": ["Integrate an app with Entra ID using OIDC", "Validate multi-tenant Entra ID tokens", "Diagnose AADSTS errors"]
+        },
+        {
+          "topic": "Comparing Okta, Auth0, Google and Keycloak Providers",
+          "subtopics": ["Okta org authorization server compared with custom authorization servers", "Auth0 audience parameter and opaque compared with JWT access tokens", "Google accounts.google.com issuer, hd claim, access_type=offline and prompt=consent", "Keycloak realms, client scopes and protocol mappers", "Differences in logout, back-channel and front-channel support", "Refresh token, rotation and lifetime defaults", "Custom claims and extensibility: Okta inline hooks, Auth0 Actions, Keycloak mappers", "Standards conformance and OpenID certification listings"],
+          "tools": ["Okta developer tenant", "Auth0 tenant", "Google Cloud console", "Keycloak (lab OpenID Provider)", "openid-client"],
+          "lab_task": "Connect one openid-client test app to Okta, Auth0, Google and Keycloak in turn, changing only issuer, client_id and secret. For each provider record discovery support for end_session_endpoint, backchannel_logout_supported, PKCE, token formats and refresh behaviour, and note every code change the app needed.",
+          "deliverable": "Provider comparison matrix with discovery extracts and required code changes",
+          "checks": [["Request a token from Auth0 without the audience parameter", "The access token is not a JWT for your API", "Token response"], ["Check Google discovery for end_session_endpoint", "The field is absent", "Discovery extract"], ["Count app code changes needed across the four providers", "Changes are limited to configuration plus any provider-specific claims handling", "Comparison matrix"]],
+          "objectives": ["Compare major OpenID Providers on the same specifications", "Identify provider-specific behaviour", "Write portable relying party code"]
+        },
+        {
+          "topic": "Capstone: Multi-Client OIDC Platform with Logout",
+          "subtopics": ["Requirements for a web app, SPA with BFF, mobile app and CLI sharing two APIs", "Scope, audience and claims design across clients", "Logout and session design across all clients", "Security BCP review and demonstration"],
+          "tools": ["Keycloak (lab OpenID Provider)", "openid-client", "AppAuth-Android or AppAuth-iOS", "Redis", "jose (npm)"],
+          "lab_task": "Deliver a platform where a web app, a SPA behind a BFF, a mobile app and a CLI call orders and invoices APIs with audience-restricted RFC 9068 tokens, refresh tokens rotate, step-up protects deletes, and signing out of any web client ends all web sessions through back-channel logout. Present an RFC 9700 checklist with evidence.",
+          "deliverable": "Platform source, architecture diagram, RFC 9700 checklist and a demonstration log",
+          "checks": [["Sign out from the web app", "The BFF session for the same user is removed through back-channel logout", "Redis and application logs"], ["Call the invoices API with an orders token", "HTTP 401 on the aud check", "API log"], ["Review the RFC 9700 checklist", "Every row has evidence or a written exception", "Checklist"]],
+          "objectives": ["Design OIDC for several client types", "Implement coordinated logout", "Defend design choices against the Security BCP"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For identity architects, security engineers and authorization server developers who already run OIDC in production and need high-assurance profiles, protocol extensions and formal testing. Covers pushed authorization requests (PAR), JWT-secured authorization requests (JAR) and JARM, rich authorization requests (RAR), DPoP and mutual TLS sender-constrained tokens, the FAPI 2.0 Security Profile and message signing, OAuth 2.0 token exchange, CIBA, private_key_jwt key management, testing providers and relying parties with the OpenID Foundation conformance suite, protocol attacks such as mix-up, code injection, open redirectors, consent and device code phishing and SSRF through registration metadata, building an OpenID Provider, identity brokering, and OAuth authorization for MCP servers and AI agents.",
+      "prerequisites": ["Has completed the intermediate level or has designed scopes, audiences, logout and BFF or native client integrations for a production OIDC deployment", "Reads JOSE headers and claims fluently and can sign and verify JWTs with RSA, EC and EdDSA keys in at least one language", "Can run Docker Compose stacks with TLS certificates, a reverse proxy and an intercepting proxy such as Burp Suite or mitmproxy on a lab machine"],
+      "outcomes": ["Implement PAR, JAR, JARM, RAR, DPoP and mTLS and explain which threats each one addresses", "Configure an authorization server and client to the FAPI 2.0 Security Profile and pass the matching conformance tests", "Apply token exchange and CIBA to delegation, impersonation and decoupled authentication scenarios", "Reproduce and mitigate OAuth and OIDC protocol attacks and certify a provider or relying party with the OpenID conformance suite"],
+      "days": [
+        {
+          "topic": "Pushed Authorization Requests (RFC 9126)",
+          "subtopics": ["Why front-channel authorization parameters can be tampered with or leaked", "The pushed_authorization_request_endpoint and client authentication", "HTTP 201 response with request_uri and expires_in", "Using request_uri=urn:ietf:params:oauth:request_uri:... at the authorization endpoint", "require_pushed_authorization_requests in server and client metadata", "One-time use and short lifetime of request_uri values", "redirect_uri flexibility when the client is authenticated", "invalid_request_uri and expired request_uri errors"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq", "openid-client"],
+          "lab_task": "Require PAR on the lab web-app client, POST the full authorization parameters with client authentication to /realms/lab/protocol/openid-connect/ext/par/request, open the authorization endpoint with only client_id and request_uri, complete the flow, then reuse the request_uri, wait past expires_in, and send a classic front-channel request.",
+          "deliverable": "PAR request script with results for normal, reused, expired and non-PAR requests",
+          "checks": [["POST authorization parameters to the PAR endpoint", "HTTP 201 with a request_uri starting urn:ietf:params:oauth:request_uri: and expires_in", "curl -i output"], ["Send a front-channel request without request_uri to a PAR-required client", "The provider rejects it with invalid_request", "Callback URL or error page"], ["Reuse a request_uri that was already used", "The provider returns invalid_request_uri or an equivalent error", "Browser screenshot"]],
+          "objectives": ["Push authorization requests over the back channel", "Enforce PAR per client", "Explain the threats PAR removes"]
+        },
+        {
+          "topic": "JWT-Secured Authorization Requests and JARM",
+          "subtopics": ["RFC 9101 request objects passed by value with request or by reference with request_uri", "Request object typ oauth-authz-req+jwt and required iss and aud", "Signing and optional encryption of request objects", "Why parameters outside the request object are ignored", "request_object_signing_alg_values_supported and client registration", "JARM: response_mode=jwt, query.jwt, fragment.jwt and form_post.jwt", "Validating a signed authorization response", "Combining PAR with JAR"],
+          "tools": ["Keycloak (lab OpenID Provider)", "Python with PyJWT", "curl", "jq"],
+          "lab_task": "Sign a request object with PS256 containing response_type, client_id, redirect_uri, scope, state, nonce and PKCE values, send it in the request parameter and then inside a PAR call, request response_mode=query.jwt, and verify the JARM response JWT's iss, aud, exp and signature before reading code and state. Then alter one claim and resend.",
+          "deliverable": "Request object and JARM validation code with a tamper test",
+          "checks": [["Send a valid PS256 request object", "The flow completes and the callback receives a response parameter holding a JWT", "Callback URL"], ["Change scope in the request object without re-signing", "The provider rejects the request object as invalid", "Error page or callback"], ["Decode the JARM response", "It contains iss, aud, exp, code and state claims", "Decoded JWT"]],
+          "objectives": ["Build and sign request objects", "Validate JARM responses", "Combine JAR with PAR"]
+        },
+        {
+          "topic": "Rich Authorization Requests with authorization_details",
+          "subtopics": ["RFC 9396 and the limits of scope strings", "The authorization_details JSON array and the type field", "Common fields: locations, actions, datatypes, identifier and privileges", "authorization_details_types_supported in metadata", "Returning granted authorization_details in the token response", "Enforcing authorization_details at the resource server", "Consent screens built from structured requests", "invalid_authorization_details errors"],
+          "tools": ["node-oidc-provider (panva)", "Node.js", "curl", "jq"],
+          "lab_task": "Configure node-oidc-provider with an authorization_details type payment_initiation, send a PAR request containing {\"type\":\"payment_initiation\",\"instructedAmount\":{\"currency\":\"EUR\",\"amount\":\"120.00\"},\"creditorName\":\"Acme\"}, show it on the consent page, and make the payments API refuse a transfer of 150.00 EUR with that token.",
+          "deliverable": "RAR-enabled provider configuration and a payments API that enforces the granted details",
+          "checks": [["Send a request with an unknown authorization_details type", "The provider returns error invalid_authorization_details", "curl output"], ["Inspect the token response after consent", "It contains the granted authorization_details array", "curl output"], ["Pay 150.00 EUR with a token granted for 120.00 EUR", "The payments API returns HTTP 403", "API log"]],
+          "objectives": ["Model fine-grained authorization with RAR", "Show structured requests on consent screens", "Enforce authorization details at APIs"]
+        },
+        {
+          "topic": "DPoP Proofs, Nonces and Token Binding Flows",
+          "subtopics": ["RFC 9449 and why bearer tokens can be replayed", "The DPoP proof JWT: typ dpop+jwt, jwk header, jti, htm, htu and iat", "token_type DPoP and the cnf.jkt thumbprint", "The ath claim when calling a resource server", "Server nonces: use_dpop_nonce and the DPoP-Nonce header", "dpop_jkt for binding the authorization code", "DPoP-bound refresh tokens for public clients", "invalid_dpop_proof and WWW-Authenticate: DPoP errors"],
+          "tools": ["Keycloak (lab OpenID Provider)", "Python with PyJWT", "cryptography (Python)", "curl"],
+          "lab_task": "Write a Python client that creates an ES256 key, sends a DPoP proof with htm=POST and htu set to the token endpoint, retries with the DPoP-Nonce value when it receives use_dpop_nonce, and calls the orders API with Authorization: DPoP and a proof containing ath. Then replay the token as Bearer and replay an old proof.",
+          "deliverable": "DPoP client with request logs for normal, nonce, bearer replay and proof replay cases",
+          "checks": [["Request a token with a valid DPoP proof", "token_type is DPoP and the access token contains cnf.jkt", "Token response and decoded token"], ["Send the DPoP-bound token with Authorization: Bearer", "The API returns HTTP 401", "API log"], ["Reuse a proof jti within its validity window", "The server rejects it with invalid_dpop_proof", "Response body"]],
+          "objectives": ["Build DPoP proofs correctly", "Handle DPoP nonces", "Enforce DPoP binding at a resource server"]
+        },
+        {
+          "topic": "Mutual TLS Client Authentication and Bound Tokens (RFC 8705)",
+          "subtopics": ["tls_client_auth with PKI-issued certificates and subject DN matching", "self_signed_tls_client_auth with registered certificates", "Certificate-bound access tokens and the cnf x5t#S256 claim", "mtls_endpoint_aliases in metadata", "TLS termination at proxies and forwarding the client certificate", "Validating the thumbprint at the resource server", "tls_client_certificate_bound_access_tokens client metadata", "Operational costs: certificate issuance, rotation and revocation"],
+          "tools": ["Keycloak (lab OpenID Provider)", "openssl", "NGINX", "curl"],
+          "lab_task": "Create a lab CA and a client certificate with openssl, run Keycloak behind NGINX with ssl_verify_client optional_no_ca and the certificate forwarded in a header, set web-app to X509 certificate authentication with certificate-bound tokens, request a token with curl --cert and --key, then call an API that compares cnf x5t#S256 with the presented certificate.",
+          "deliverable": "mTLS lab with CA files, proxy configuration and bound-token tests",
+          "checks": [["Request a token with the client certificate", "The access token contains a cnf claim with x5t#S256", "Decoded token"], ["Call the API with the token and a different client certificate", "The API returns HTTP 401 because the thumbprint does not match", "API log"], ["Request a token without a client certificate", "The token endpoint returns invalid_client", "curl output"]],
+          "objectives": ["Authenticate clients with mutual TLS", "Issue and enforce certificate-bound tokens", "Run mTLS behind a reverse proxy"]
+        },
+        {
+          "topic": "FAPI 2.0 Security Profile Requirements",
+          "subtopics": ["FAPI 2.0 attacker model and security goals", "Confidential clients only, with private_key_jwt or mTLS authentication", "PAR and PKCE S256 required, response_type=code only", "Sender-constrained access tokens with DPoP or mTLS", "The iss authorization response parameter (RFC 9207)", "Authorization code lifetime of at most 60 seconds", "Allowed signing algorithms PS256, ES256 and EdDSA", "Provider support such as Keycloak client policies for FAPI 2.0"],
+          "tools": ["Keycloak (lab OpenID Provider)", "OpenID Foundation conformance suite", "openid-client", "openssl"],
+          "lab_task": "Create a client policy in the lab realm that applies the FAPI 2.0 security profile to clients with a fapi client scope, assign it to a new client, try to register settings that break the profile such as client_secret_basic and RS256, then complete a compliant flow with PAR, private_key_jwt, PKCE and DPoP and check the iss parameter in the response.",
+          "deliverable": "FAPI 2.0 requirement matrix with provider settings and a compliant flow log",
+          "checks": [["Set client_secret_basic on a FAPI-profiled client", "The provider refuses the change under the client policy", "Admin console or API error"], ["Inspect the authorization response of a compliant flow", "The callback URL contains an iss parameter equal to the issuer", "Callback URL"], ["Redeem a code after 90 seconds", "The token endpoint returns invalid_grant", "curl output"]],
+          "objectives": ["List FAPI 2.0 Security Profile requirements", "Configure a provider and client to the profile", "Verify compliance with protocol evidence"]
+        },
+        {
+          "topic": "FAPI 2.0 Message Signing and Non-Repudiation",
+          "subtopics": ["Why some regulated ecosystems need signed requests and responses", "Signed request objects with PAR", "Signed authorization responses with JARM", "Signed introspection responses (RFC 9701)", "HTTP message signatures (RFC 9421) for resource requests", "Storing signed messages as audit evidence", "Key management and key rotation for signing clients", "Cost and complexity compared with the security profile alone"],
+          "tools": ["node-oidc-provider (panva)", "Python with PyJWT", "http-message-signatures (Python)", "jq"],
+          "lab_task": "Configure node-oidc-provider to require signed request objects and JARM for one client, request a signed introspection response with Accept: application/token-introspection+jwt, sign an API request with RFC 9421 covering @method, @target-uri and content-digest, and store each signed message in an evidence folder with a verification script.",
+          "deliverable": "Evidence pack of signed messages with a verification script",
+          "checks": [["Introspect with Accept: application/token-introspection+jwt", "The response is a JWT containing a token_introspection claim", "curl output"], ["Alter the body of a signed API request", "Signature verification fails on content-digest", "Verifier output"], ["Run the verification script over the evidence folder", "Every stored message verifies against the published keys", "Script output"]],
+          "objectives": ["Sign authorization requests and responses", "Produce verifiable audit evidence", "Decide when message signing is required"]
+        },
+        {
+          "topic": "Token Exchange for Delegation and Impersonation (RFC 8693)",
+          "subtopics": ["grant_type=urn:ietf:params:oauth:grant-type:token-exchange", "subject_token, subject_token_type and requested_token_type", "actor_token and the act claim for delegation", "Impersonation compared with delegation", "audience and resource parameters for downstream services", "issued_token_type in the response", "Policy: which clients may exchange which tokens", "Chained exchanges and keeping the act history"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq", "Node.js"],
+          "lab_task": "Enable standard token exchange for a gateway client in the lab realm, exchange alice's orders-api token for an invoices-api token with subject_token_type urn:ietf:params:oauth:token-type:access_token and audience invoices-api, decode both tokens, then try the same exchange from a client that is not permitted and with an audience not allowed for the gateway.",
+          "deliverable": "Token exchange policy, request examples and decoded before-and-after tokens",
+          "checks": [["Exchange a valid subject token as the gateway", "HTTP 200 with issued_token_type urn:ietf:params:oauth:token-type:access_token", "curl output"], ["Exchange from a client without permission", "The provider rejects the request with an error such as unauthorized_client or access_denied", "curl output"], ["Compare sub and aud in both tokens", "sub stays alice while aud changes to invoices-api", "Decoded tokens"]],
+          "objectives": ["Use token exchange for downstream calls", "Distinguish delegation from impersonation", "Restrict exchanges with policy"]
+        },
+        {
+          "topic": "Client-Initiated Backchannel Authentication (CIBA)",
+          "subtopics": ["OpenID Connect CIBA Core 1.0 and decoupled flows", "backchannel_authentication_endpoint and login_hint, id_token_hint or login_hint_token", "binding_message shown on both devices", "auth_req_id, expires_in and interval", "Poll, ping and push token delivery modes", "grant_type=urn:openid:params:grant-type:ciba", "Errors: authorization_pending, slow_down, expired_token, access_denied and unknown_user_id", "Authentication device integration and FAPI-CIBA constraints"],
+          "tools": ["Keycloak (lab OpenID Provider)", "curl", "jq", "Node.js"],
+          "lab_task": "Enable CIBA poll mode on a call-centre client in the lab realm, build a small authentication device service that the provider calls, POST login_hint=alice and binding_message=PAY-4821 to /protocol/openid-connect/ext/ciba/auth, approve on the device stub, poll the token endpoint, then repeat with an unknown user and with a denied request.",
+          "deliverable": "CIBA flow with device stub code and logs for approved, unknown and denied requests",
+          "checks": [["Start a CIBA request for alice", "HTTP 200 with auth_req_id, expires_in and interval", "curl output"], ["Poll before approval", "HTTP 400 with error authorization_pending", "Polling log"], ["Start a request with an unknown login_hint", "The request fails with unknown_user_id or invalid_request", "curl output"]],
+          "objectives": ["Run CIBA in poll mode", "Explain ping and push modes", "Integrate an authentication device"]
+        },
+        {
+          "topic": "private_key_jwt and Client Assertion Key Rotation",
+          "subtopics": ["Client assertions under RFC 7523 and OIDC Core section 9", "Required claims: iss, sub, aud, jti and exp", "aud values: token endpoint compared with issuer", "Publishing client keys through jwks_uri or registering jwks", "kid selection and overlapping keys during rotation", "Replay detection with jti", "Keys in HSM or cloud KMS for signing assertions", "Monitoring assertion failures"],
+          "tools": ["Keycloak (lab OpenID Provider)", "Python with PyJWT", "AWS KMS or HashiCorp Vault Transit", "curl"],
+          "lab_task": "Host a client JWKS at a jwks_uri for web-app, sign assertions with key k1, add key k2 to the JWKS, switch signing to k2, remove k1 after one cache period, and confirm the provider accepts each step. Then sign with a key not in the JWKS and with exp 2 hours ahead, and log the provider's response.",
+          "deliverable": "Key rotation runbook with logs for each rotation step and two failure cases",
+          "checks": [["Sign with k2 after it is published", "The token endpoint accepts the assertion", "curl output"], ["Sign with a key absent from the JWKS", "HTTP 401 with error invalid_client", "curl output"], ["Send an assertion with exp 2 hours ahead", "The provider rejects it for an excessive lifetime or the attempt is logged as a policy failure", "Provider event log"]],
+          "objectives": ["Rotate client signing keys without downtime", "Configure assertion lifetime and replay checks", "Keep client keys in managed key stores"]
+        },
+        {
+          "topic": "OpenID Conformance Suite: Testing an OpenID Provider",
+          "subtopics": ["The OpenID Foundation conformance suite and certification.openid.net", "Running the suite locally with Docker Compose", "Test plans such as oidcc-basic-certification-test-plan and the config and dynamic plans", "Plan variants: client authentication type, response type and server metadata", "Configuration JSON for clients, users and the issuer", "Result values: PASSED, WARNING, REVIEW, SKIPPED, INTERRUPTED and FAILED", "Reading test logs to find the failing protocol rule", "OpenID certification submission and the published listing"],
+          "tools": ["OpenID Foundation conformance suite", "Docker Compose", "Keycloak (lab OpenID Provider)", "jq"],
+          "lab_task": "Run the conformance suite locally with Docker Compose, create the OIDC Core basic certification plan against the lab realm with client_secret_basic and static client registration, supply two clients in the configuration JSON, run all modules, then fix one failing or warning item in the provider configuration and rerun that module.",
+          "deliverable": "Conformance results export with a root-cause note for each non-passing module",
+          "checks": [["Run the full basic plan", "Every module shows a final result and the plan summary counts them", "Suite results page"], ["Open a failed or warning module log", "The log names the specification clause that was not met", "Log export"], ["Rerun a module after fixing its configuration", "The module result changes to PASSED", "Suite results page"]],
+          "objectives": ["Run conformance tests against a provider", "Interpret conformance logs", "Prepare evidence for OpenID certification"]
+        },
+        {
+          "topic": "OpenID Conformance Suite: Testing a Relying Party",
+          "subtopics": ["Relying party test plans where the suite acts as the OpenID Provider", "Registering the suite's issuer in your client", "Tests for invalid signatures, wrong iss, wrong aud, missing nonce and expired tokens", "Tests for unsigned or unknown kid tokens", "Variants for client authentication and request objects", "Automating suite runs with its REST API", "Running conformance tests in CI", "Using failures to harden client libraries"],
+          "tools": ["OpenID Foundation conformance suite", "openid-client", "Docker Compose", "GitHub Actions"],
+          "lab_task": "Point the beginner capstone web app at the conformance suite's relying party test plan, run every module, and for each module record whether the app correctly rejected the bad ID token. Then script one module through the suite API and add it to a CI workflow that fails the build on a FAILED result.",
+          "deliverable": "RP conformance report and a CI job that runs at least one module",
+          "checks": [["Run the module that sends an ID token with an invalid signature", "The app refuses the login and the module passes", "Suite log"], ["Run the module that sends a wrong nonce", "The app rejects the token and the suite records PASSED", "Suite log"], ["Break nonce checking in the app and run CI", "The CI job fails on the FAILED module result", "CI run log"]],
+          "objectives": ["Test a relying party against conformance plans", "Automate conformance runs", "Find and fix client validation gaps"]
+        },
+        {
+          "topic": "Mix-Up, Code Injection and CSRF Attacks",
+          "subtopics": ["Authorization server mix-up with multiple issuers", "The iss response parameter and per-issuer redirect URIs as mitigations", "Authorization code injection and how PKCE or nonce stops it", "CSRF on the redirect endpoint and state binding", "Login CSRF and session fixation at the client", "Missing state or nonce checks in client code", "Detecting attacks in provider and client logs", "Writing regression tests for each attack"],
+          "tools": ["Burp Suite or mitmproxy", "Keycloak (lab OpenID Provider)", "node-oidc-provider (panva)", "openid-client"],
+          "lab_task": "Configure a test client with two issuers, one honest Keycloak realm and one attacker node-oidc-provider, reproduce a mix-up attack against a client that ignores iss, then inject a stolen code into another browser session with Burp. Enable iss checking and PKCE and show that both attacks fail.",
+          "deliverable": "Attack reproduction report with before-and-after evidence and regression tests",
+          "checks": [["Run the mix-up attack against a client without iss checks", "The code for the honest issuer is sent to the attacker token endpoint", "Proxy capture"], ["Run the same attack with iss checking on", "The client rejects the response because iss does not match", "Client log"], ["Inject a stolen code with PKCE enforced", "The token endpoint returns invalid_grant", "Proxy capture"]],
+          "objectives": ["Reproduce mix-up and code injection attacks in a lab", "Apply the mitigations from RFC 9700 and RFC 9207", "Write regression tests for protocol attacks"]
+        },
+        {
+          "topic": "Redirect URI, Open Redirector and Token Leakage Attacks",
+          "subtopics": ["Loose redirect URI matching and path or subdomain tricks", "Open redirectors on the client used to forward codes", "Open redirect at the authorization server through error responses", "Leakage through Referer headers, browser history and logs", "Token leakage via response_type=token and fragments", "Clickjacking on authorization and consent pages", "Frame-ancestors and X-Frame-Options", "Scanning for redirect weaknesses safely in a lab"],
+          "tools": ["Burp Suite or mitmproxy", "Keycloak (lab OpenID Provider)", "Browser developer tools", "curl"],
+          "lab_task": "In a lab client with a wildcard redirect URI http://localhost:3000/* and an open redirect at /go?url=, chain both to deliver a code to an attacker host, then switch to exact matching, remove the open redirect, frame the consent page from another origin, and record which control stops each attempt.",
+          "deliverable": "Redirect attack report with the stopping control for each attempt",
+          "checks": [["Chain the wildcard redirect URI with the open redirect", "The code reaches the attacker host in the lab", "Attacker server log"], ["Repeat after switching to exact matching", "The provider refuses the redirect URI", "Error page screenshot"], ["Frame the consent page from another origin", "The browser refuses to render it because of frame-ancestors or X-Frame-Options", "Console screenshot"]],
+          "objectives": ["Exploit and fix redirect URI weaknesses", "Prevent code and token leakage", "Protect consent pages from framing"]
+        },
+        {
+          "topic": "Consent Phishing and Device Code Phishing",
+          "subtopics": ["Illicit consent grants through malicious multi-tenant apps", "Publisher verification and admin consent workflows", "Device code phishing with attacker-started device flows", "Signals: unusual client IDs, device code sign-ins and new consent grants", "Restricting user consent to verified publishers or low-risk scopes", "Blocking or limiting the device code flow by policy", "Revoking malicious grants and tokens at scale", "User education aimed at verification screens"],
+          "tools": ["Microsoft Entra admin center", "Microsoft Entra sign-in logs", "Keycloak (lab OpenID Provider)", "curl"],
+          "lab_task": "In a lab tenant, register a multi-tenant app requesting Mail.Read, sign in as a test user and grant consent, then start a device flow as the attacker and complete it as the victim. Find both events in the sign-in and audit logs, restrict user consent, block device code flow with a policy for the test user, and repeat both attacks.",
+          "deliverable": "Phishing simulation report with log evidence and the policies that blocked each attack",
+          "checks": [["Search audit logs for the consent grant", "An event named Consent to application shows the app and scopes", "Audit log export"], ["Repeat consent after restricting user consent", "The user sees that admin approval is required", "Browser screenshot"], ["Repeat the device flow after blocking it by policy", "Sign-in fails and the log shows the policy that blocked it", "Sign-in log entry"]],
+          "objectives": ["Recognise consent and device code phishing", "Configure tenant controls against them", "Investigate and revoke malicious grants"]
+        },
+        {
+          "topic": "SSRF and Abuse via Registration and request_uri",
+          "subtopics": ["Server-side fetches: jwks_uri, sector_identifier_uri, request_uri and logo_uri", "SSRF to cloud metadata endpoints such as 169.254.169.254", "Open dynamic registration as an attack surface", "Restricting fetch targets with allow-lists and egress rules", "Fetch timeouts and response size limits", "Malicious redirect_uris and client_name values in consent pages", "Rate limits on registration and PAR endpoints", "Logging and alerting on unusual fetch targets"],
+          "tools": ["node-oidc-provider (panva)", "Burp Suite or mitmproxy", "Docker", "curl"],
+          "lab_task": "Run node-oidc-provider with open dynamic registration in Docker next to a mock metadata service, register a client whose jwks_uri points at the mock metadata address and observe the server-side fetch, then add a host allow-list, a 2-second timeout and a 64 KB limit, and repeat with an internal address and a slow server.",
+          "deliverable": "SSRF findings with the hardened provider configuration",
+          "checks": [["Register a jwks_uri pointing at the internal metadata address before hardening", "The mock metadata service logs a request from the provider", "Mock service log"], ["Register the same client after hardening", "Registration fails with invalid_client_metadata", "curl output"], ["Point jwks_uri at a server that waits 10 seconds", "The fetch aborts after about 2 seconds", "Provider log timing"]],
+          "objectives": ["Identify server-side fetches in OAuth and OIDC", "Prevent SSRF through client metadata", "Harden dynamic registration"]
+        },
+        {
+          "topic": "Building an OpenID Provider with node-oidc-provider",
+          "subtopics": ["When to build a provider and when to buy or run Keycloak", "node-oidc-provider configuration: clients, findAccount, claims and features", "Interaction routes for login and consent", "Adapters for persistent storage", "Signing keys and the jwks configuration", "Enabling features: devInteractions off, introspection, revocation, PAR and DPoP", "Running behind a proxy with correct issuer and HTTPS", "Certification as a gate before production"],
+          "tools": ["node-oidc-provider (panva)", "Node.js", "Redis", "OpenID Foundation conformance suite"],
+          "lab_task": "Build a provider with node-oidc-provider: a Redis adapter, custom login and consent interactions, findAccount backed by a users table, ES256 signing keys, PAR, DPoP, introspection and revocation enabled, and devInteractions off. Run the conformance suite basic plan against it and fix modules until there are no FAILED results.",
+          "deliverable": "Provider source with storage adapter and a conformance results export",
+          "checks": [["Fetch the provider discovery document", "It advertises PAR, DPoP signing algorithms and the introspection endpoint", "curl output"], ["Restart the provider during a user session", "The session survives because state is stored in Redis", "Browser test"], ["Run the conformance basic plan", "No module ends with FAILED", "Suite results page"]],
+          "objectives": ["Configure an OpenID Provider in code", "Implement login and consent interactions", "Validate a custom provider with conformance tests"]
+        },
+        {
+          "topic": "Identity Brokering and Upstream Provider Chaining",
+          "subtopics": ["A provider acting as a relying party to upstream OpenID Providers", "Brokering social and enterprise providers behind one issuer", "Claim mapping and normalisation from upstream ID tokens", "Account linking by verified email and its takeover risk", "Passing acr and amr from upstream providers", "Upstream logout propagation", "kc_idp_hint and similar provider-selection hints", "OpenID Federation 1.0 trust chains as a scaling approach"],
+          "tools": ["Keycloak (lab OpenID Provider)", "Microsoft Entra ID developer tenant", "Google Cloud console", "openid-client"],
+          "lab_task": "Configure the lab realm as a broker for an Entra ID tenant and Google, map upstream claims to local attributes, select a provider with kc_idp_hint, test account linking when the same email exists in both upstreams with email_verified true and false, and check whether signing out locally ends the upstream session.",
+          "deliverable": "Broker configuration with an account-linking risk assessment",
+          "checks": [["Log in with kc_idp_hint set to the Google alias", "The login page is skipped and the user goes straight to Google", "Network tab screenshot"], ["Log in through an upstream that sends email_verified false for an existing email", "The broker does not link the accounts automatically", "Admin console user record"], ["Inspect the local ID token after a brokered login", "It contains the mapped claims and the local issuer", "Decoded token"]],
+          "objectives": ["Broker multiple upstream OpenID Providers", "Assess account-linking risk", "Propagate assurance and logout across a broker"]
+        },
+        {
+          "topic": "OAuth Authorization for MCP Servers and AI Agents",
+          "subtopics": ["Why agents and tool servers need delegated, scoped authorization", "The MCP authorization model built on OAuth 2.1", "Protected resource metadata (RFC 9728) for MCP servers", "Client registration options: pre-registration, dynamic registration and client metadata documents", "Resource indicators to stop token passthrough between servers", "Token exchange for agent-to-API calls with an act claim", "Consent, scope minimisation and short-lived tokens for agents", "Auditing which agent acted for which user"],
+          "tools": ["Keycloak (lab OpenID Provider)", "MCP Inspector", "Node.js", "curl", "jq"],
+          "lab_task": "Protect a small MCP server with the lab realm: serve /.well-known/oauth-protected-resource, return 401 with resource_metadata, let MCP Inspector run code flow with PKCE and the resource parameter, check aud on every call, and have the server use token exchange to call the orders API with an act claim naming the agent. Try a token issued for another resource.",
+          "deliverable": "Protected MCP server with metadata, token checks and a delegation audit log",
+          "checks": [["Connect MCP Inspector with no token", "It receives 401 and discovers the authorization server from resource_metadata", "Inspector log"], ["Call a tool with a token for another resource", "The MCP server returns HTTP 401 on the aud check", "Server log"], ["Inspect the downstream token after exchange", "It contains an act claim naming the MCP server client", "Decoded token"]],
+          "objectives": ["Apply OAuth 2.1 to MCP servers", "Prevent token passthrough with audience checks", "Record agent delegation with token exchange"]
+        },
+        {
+          "topic": "Capstone: FAPI 2.0 Grade Authorization Server and Client Audit",
+          "subtopics": ["Scope: a payments API, a confidential client and an authorization server", "FAPI 2.0, PAR, RAR, DPoP or mTLS and private_key_jwt implementation", "Attack testing and conformance runs", "Audit report and remediation plan"],
+          "tools": ["Keycloak (lab OpenID Provider)", "node-oidc-provider (panva)", "OpenID Foundation conformance suite", "Burp Suite or mitmproxy", "Python with PyJWT"],
+          "lab_task": "Deliver an authorization server and client for a payments API that meet the FAPI 2.0 Security Profile: PAR with RAR payment details, private_key_jwt, PKCE, DPoP-bound tokens, iss in responses and 60-second codes. Run the matching conformance plan, reproduce mix-up, code injection and token replay attacks, and submit an audit report.",
+          "deliverable": "Working system, conformance results, attack evidence and an audit report with remediation items",
+          "checks": [["Run the FAPI 2.0 conformance plan", "No module ends with FAILED and every WARNING has a written justification", "Suite results export"], ["Replay a captured DPoP-bound access token from another key", "The payments API returns HTTP 401", "API log"], ["Request a payment above the authorized RAR amount", "The payments API returns HTTP 403", "API log"]],
+          "objectives": ["Build a high-assurance OAuth deployment", "Validate it with conformance tests and attack testing", "Report findings to an audit standard"]
+        }
+      ]
+    }
+  }
+}
