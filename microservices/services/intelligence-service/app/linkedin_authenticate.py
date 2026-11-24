@@ -25,7 +25,10 @@ def verify_search(playwright, domain, mode):
     try:
         context.add_cookies(load_session(profile_path()))
         page = context.new_page()
-        page.goto(search_url(domain, mode), wait_until='domcontentloaded')
+        response = page.goto(search_url(domain, mode), wait_until='domcontentloaded')
+        if response is None or response.status >= 400:
+            status = response.status if response is not None else 'no response'
+            raise ValueError(f'LinkedIn search verification failed (HTTP {status}). Session is not ready.')
         page.wait_for_timeout(3000)
         if not search_ready(page, context, mode):
             block_session(profile_path())

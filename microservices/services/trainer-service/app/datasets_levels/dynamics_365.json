@@ -1,0 +1,573 @@
+{
+  "domain": "Microsoft Dynamics 365",
+  "name": "Microsoft Dynamics 365",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "building-2",
+  "aliases": ["Dynamics 365", "MS Dynamics 365", "Microsoft Dynamics", "D365", "Dynamics CRM", "Dynamics 365 CRM", "Dynamics 365 CE", "Dynamics 365 Customer Engagement", "Dynamics 365 Sales", "Dynamics 365 Customer Service", "Dynamics 365 Field Service", "Dynamics 365 Finance", "Dynamics 365 Finance and Operations", "D365 F&O", "D365 FO", "Dynamics 365 Supply Chain Management", "Dynamics 365 Business Central", "Business Central", "Dynamics AX", "Dynamics NAV"],
+  "certifications": ["Microsoft Certified: Dynamics 365 Customer Service Functional Consultant Associate (MB-230)", "Microsoft Certified: Dynamics 365 Sales AI Consultant Associate (AB-210)", "Microsoft Certified: Dynamics 365 Contact Center AI Engineer Associate (AB-250)", "Microsoft Certified: Dynamics 365 Finance Functional Consultant Associate (MB-310)", "Microsoft Certified: Dynamics 365 Supply Chain Management Functional Consultant Associate (MB-330)", "Microsoft Certified: Dynamics 365 Business Central Functional Consultant Associate (MB-800)", "Microsoft Certified: Agentic AI Business Solutions Architect Expert (AB-100)"],
+  "tools": ["Dynamics 365 Sales, Customer Service and Field Service trial environments", "Dynamics 365 Finance and Supply Chain Management sandbox with USMF demo data", "Business Central online sandbox with the CRONUS demo company", "Power Platform admin center", "Power Apps maker portal", "Microsoft Copilot Studio", "Power BI Desktop", "Azure DevOps"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For business users and new consultants who must work on both sides of Dynamics 365, because clients use the name for the customer engagement (CRM) apps and for the finance and operations (ERP) apps. Covers the suite and licensing, Dataverse and model-driven apps, Sales, Customer Service, Field Service and Customer Insights, then Finance, Supply Chain Management and Business Central at user level, with views, dashboards, Power BI and Copilot, following the scope of the retired MB-910 and MB-920 exams.",
+      "prerequisites": ["Knows everyday sales, service, purchasing and accounting processes", "Comfortable with web applications, Excel and Outlook", "Trial or training environments for the customer engagement apps and for Finance and Supply Chain Management with the USMF demo company"],
+      "outcomes": ["Explain the Dynamics 365 apps, their licences and where the CRM side ends and the ERP side begins", "Run leads to orders, cases, work orders and segments in the customer engagement apps", "Post journals, invoices, payments, purchase and sales orders and inventory movements in Finance and Supply Chain Management", "Report with views, dashboards and Power BI and check Copilot output before using it"],
+      "days": [
+        {
+          "topic": "The Dynamics 365 Suite and How It Is Licensed",
+          "subtopics": ["Customer engagement apps: Sales, Customer Service, Field Service, Contact Center and Customer Insights", "Finance and operations apps: Finance, Supply Chain Management, Commerce, Project Operations and Human Resources", "Business Central for small and mid-sized companies", "Dataverse as the data platform under the customer engagement apps", "Base licences, attach licences and Team Members", "Operations - Activity and device licences for warehouse and shop-floor staff", "The 20-licence first purchase across Finance, Supply Chain Management, Commerce and Project Operations", "Copilot Credits for agents and the AI at Work roadmap that replaced release plans in September 2026"],
+          "tools": ["Dynamics 365 Licensing Guide", "Microsoft 365 admin center", "Power Platform admin center", "AI at Work roadmap"],
+          "lab_task": "Map 14 job roles at a 300-person distributor to Dynamics 365 apps, choose a base, attach, Team Members or Operations - Activity licence for each role, and total the monthly cost from the current price list.",
+          "deliverable": "Role-to-app map and licence cost sheet",
+          "checks": [["Choose licences for a seller who also works service cases", "One base licence for Sales plus an attach licence for Customer Service", "Licence cost sheet"], ["Choose a licence for a warehouse worker who only picks and packs", "Operations - Activity licence with the reason recorded", "Role-to-app map"], ["Total the Finance and Supply Chain Management base licences", "At least 20 full licences in the first purchase", "Cost sheet total"]],
+          "objectives": ["Name each Dynamics 365 app and the process it supports", "Tell CRM scope from ERP scope", "Choose base, attach and light-user licences"]
+        },
+        {
+          "topic": "Dataverse and Model-Driven App Navigation",
+          "subtopics": ["Environments, the apps page and the app switcher", "Site map areas, groups and subareas", "Tables, rows and columns in Dataverse", "Forms with tabs, sections, the timeline and related tabs", "System views, personal views and modern advanced find", "Dataverse search from the top bar", "Personalisation settings: time zone, language and rows per page", "Activities and email tracking with the Dynamics 365 App for Outlook"],
+          "tools": ["Sales Hub app", "Power Apps (make.powerapps.com)", "Dynamics 365 App for Outlook"],
+          "lab_task": "In the Sales Hub app, create an account with two contacts, log a phone call and a task on the timeline, track one Outlook email against the account, find the records with Dataverse search and save a personal view of accounts in Manchester.",
+          "deliverable": "Account with timeline activities, a tracked email and a saved personal view",
+          "checks": [["Search for a contact's surname in the top bar", "Dataverse search returns the contact and its account", "Screenshot"], ["Track an email from Outlook against the account", "Email appears on the account timeline", "Timeline screenshot"], ["Change the time zone in personalisation settings", "Activity due times shift to the new time zone", "Before and after screenshots"]],
+          "objectives": ["Move around a model-driven app", "Find records with views and search", "Record activities and emails on the timeline"]
+        },
+        {
+          "topic": "Sales: Leads, Qualification and Opportunities",
+          "subtopics": ["Lead sources and the lead form", "Qualifying a lead into an account, contact and opportunity", "Disqualifying a lead with a status reason", "The Lead to Opportunity Sales Process business process flow", "Opportunity stages, estimated revenue, probability and close date", "Stakeholders, sales team members and competitors", "Pipeline view and the opportunity kanban board", "Duplicate detection when qualifying"],
+          "tools": ["Sales Hub app", "Business process flow", "Pipeline view"],
+          "lab_task": "Create 10 leads from a trade show list, qualify 6 into accounts, contacts and opportunities, disqualify 4 with status reasons, then move two opportunities to the Propose stage with stakeholders and a competitor recorded.",
+          "deliverable": "Six opportunities, four disqualified leads and a pipeline view screenshot",
+          "checks": [["Qualify a lead whose company already exists as an account", "Duplicate warning offers the existing account", "Screenshot"], ["Move an opportunity from Develop to Propose", "Stage advances only after the required steps are filled", "Business process flow screenshot"], ["Disqualify a lead as No Longer Interested", "Lead becomes inactive with that status reason", "Lead record"]],
+          "objectives": ["Qualify and disqualify leads", "Move opportunities through the sales process", "Read the pipeline"]
+        },
+        {
+          "topic": "Product Catalogue, Quotes, Orders and Invoices in Dynamics 365 Sales",
+          "subtopics": ["Unit groups, units and price lists", "Products, product families and bundles", "Adding catalogue and write-in products to an opportunity", "Creating, activating and revising quotes", "Manual discounts and quote totals", "Creating an order from a won quote", "Creating an invoice from an order", "Closing the opportunity as won and printing the quote with a Word template"],
+          "tools": ["Sales Hub app: Product Catalog settings", "Quote, order and invoice forms", "Word templates"],
+          "lab_task": "Build a price list with 5 products in two unit groups, add them to an opportunity, create a quote and revise it with a 10% discount, win it, create the order and the invoice, and print the quote with a Word template.",
+          "deliverable": "Price list, revised quote, order, invoice and the quote PDF",
+          "checks": [["Revise an active quote", "A new draft with revision ID 1 appears and the original closes as Revised", "Quote records"], ["Apply a 10% manual discount to the quote", "Detail amount and total amount recalculate", "Quote screenshot"], ["Create an order from the won quote", "Order lines match the quote lines and prices", "Order record"]],
+          "objectives": ["Set up a simple product catalogue", "Create and revise quotes", "Turn quotes into orders and invoices"]
+        },
+        {
+          "topic": "Customer Service: Cases and Queues in the Copilot Service Workspace",
+          "subtopics": ["Case origins: phone, email, web and chat", "The case form: customer, subject, priority and product", "Case status: active, on hold, resolved and cancelled", "Parent and child cases", "Merging duplicate cases", "Public and private queues, picking and releasing items", "Sessions, tabs and the customer summary in the Copilot Service workspace", "Resolving a case with resolution type and billable time"],
+          "tools": ["Copilot Service workspace", "Queues", "Case form"],
+          "lab_task": "Create 8 cases from phone and email, add 4 to a Tier 1 queue, pick and resolve 3 in the Copilot Service workspace, merge two duplicates and create a child case for a site visit.",
+          "deliverable": "Resolved, merged and child cases with queue item history",
+          "checks": [["Pick a case from the Tier 1 queue", "Queue item shows you in Worked By", "Queue screenshot"], ["Merge two duplicate cases", "One case is cancelled as Merged and its activities move to the other", "Case records"], ["Resolve a case", "Status Resolved with the resolution and billable time saved", "Case resolution activity"]],
+          "objectives": ["Work cases through their lifecycle", "Use queues", "Handle several cases at once in the Copilot Service workspace"]
+        },
+        {
+          "topic": "Knowledge Articles, Entitlements and SLA Timers",
+          "subtopics": ["Writing knowledge articles with keywords and a description", "Article statuses: draft, needs review, approved, published and expired", "Searching knowledge from a case and linking an article", "Entitlements: allocation type, total terms and remaining terms", "Entitlement channels such as phone, email and web", "SLA KPIs: first response by and resolve by", "SLA timer states: in progress, nearing noncompliance, noncompliant and succeeded", "Pausing SLA timers while a case is on hold"],
+          "tools": ["Copilot Service workspace", "Knowledge articles", "SLA timer control"],
+          "lab_task": "Write and publish three knowledge articles, link one to a case, then work a case for a customer whose entitlement allows 10 cases and decreases on case creation and who has a 4-hour first response SLA, putting the case on hold to pause the timer.",
+          "deliverable": "Published articles, entitlement terms and SLA timer screenshots",
+          "checks": [["Create a case for the entitled customer", "Remaining terms on the entitlement drop from 10 to 9", "Entitlement record"], ["Put the case on hold", "SLA timer shows Paused", "Timer screenshot"], ["Leave a case past its warning time", "Timer shows Nearing Noncompliance", "Timer screenshot"]],
+          "objectives": ["Author and publish knowledge articles", "Explain entitlements and SLAs", "Read SLA timers"]
+        },
+        {
+          "topic": "Field Service: Work Orders, Scheduling and the Mobile App",
+          "subtopics": ["Service accounts, billing accounts and customer assets", "Incident types with service tasks, products and services", "Work order system statuses from unscheduled to posted", "Resource requirements and bookable resources", "Booking a technician on the Schedule Board", "Booking statuses: scheduled, travelling, in progress and completed", "Completing tasks and recording parts in the Field Service mobile app", "Work order summaries and customer sign-off"],
+          "tools": ["Dynamics 365 Field Service", "Schedule Board", "Field Service mobile app"],
+          "lab_task": "Create a boiler repair work order from an incident type, book it on the Schedule Board for a technician with the Gas Safe skill, complete the service tasks and one used part in the Field Service mobile app, and close the work order as Completed.",
+          "deliverable": "Completed work order with its booking timeline and used part",
+          "checks": [["Drag the requirement to the technician on the Schedule Board", "Booking is created and the work order becomes Scheduled", "Schedule Board screenshot"], ["Set the booking to In Progress on the phone", "Work order system status changes to In Progress", "Mobile screenshot"], ["Mark the part as used", "Work order product line status is Used", "Work order product record"]],
+          "objectives": ["Create work orders from incident types", "Schedule technicians", "Complete work in the mobile app"]
+        },
+        {
+          "topic": "Customer Insights: Profiles, Segments and Real-Time Journeys",
+          "subtopics": ["Customer Insights - Data and Customer Insights - Journeys", "Data sources and unified customer profiles", "Segments from profile and behaviour data", "Real-time journeys started by a segment or a trigger", "Emails built in the email designer with Copilot help", "Consent, contact points and compliance profiles", "Journey and email analytics", "Outbound marketing, removed in May 2026"],
+          "tools": ["Customer Insights - Journeys", "Customer Insights - Data", "Email designer"],
+          "lab_task": "Build a segment of 20 test contacts who bought in the last 90 days, send them a two-email real-time journey with a 3-day wait, and compare delivered, opened and blocked counts in journey analytics.",
+          "deliverable": "Segment, live journey and analytics screenshots",
+          "checks": [["Include a contact with no email consent", "Analytics lists the contact as blocked", "Journey analytics"], ["Publish the journey", "Journey status is Live and the first email sends", "Journey screenshot"], ["Open a unified profile", "Data from two sources appears on one profile", "Profile screenshot"]],
+          "objectives": ["Explain the two Customer Insights apps", "Build a segment and a simple journey", "Respect consent rules"]
+        },
+        {
+          "topic": "Finance and Operations Navigation: Workspaces, Companies and Views",
+          "subtopics": ["Dashboard tiles, workspaces and the navigation pane", "Switching legal entities with the company picker", "Action pane, FactBoxes and grids", "Filtering with the filter pane and grid column filters", "Saved views and personalisation", "Attachments with document handling", "Opening data in Excel with the Excel add-in", "The Copilot sidecar for help and guidance"],
+          "tools": ["Dynamics 365 Finance and Supply Chain Management (USMF demo data)", "Microsoft Dynamics Office Add-in for Excel", "Copilot sidecar"],
+          "lab_task": "In company USMF, filter customers in one customer group such as 30, save the filter as a personal view, open the list in Excel, attach a PDF credit report to one customer and switch to DEMF to compare its customer list.",
+          "deliverable": "Saved view, Excel workbook and attached document",
+          "checks": [["Switch the company from USMF to DEMF", "Customer list shows DEMF customers", "Screenshot"], ["Open the filtered list in Excel", "Workbook lists only that group's customers and refreshes from the app", "Excel file"], ["Ask the Copilot sidecar how to create a customer", "Answer gives steps with links to Microsoft Learn", "Sidecar screenshot"]],
+          "objectives": ["Navigate finance and operations apps", "Filter, save views and use Excel", "Work across legal entities"]
+        },
+        {
+          "topic": "Finance: Chart of Accounts and General Journals",
+          "subtopics": ["Chart of accounts and main account types", "Financial dimensions on journal lines", "Segmented entry of ledger accounts", "General journals: journal names, lines and vouchers", "Validating and posting a journal", "Reversing entries for accruals", "Voucher transactions and the trial balance", "Ledger period status: open, on hold and permanently closed"],
+          "tools": ["General journals", "Trial balance", "Voucher transactions"],
+          "lab_task": "Post a three-line general journal in USMF that accrues 12,000 USD of rent with CostCenter and Department dimensions and a reversing date on the first day of next month, then check the vouchers and the trial balance.",
+          "deliverable": "Posted accrual and reversal vouchers and the trial balance",
+          "checks": [["Post a journal that does not balance", "Posting stops with an out-of-balance error", "Error message"], ["Open voucher transactions for the accrual", "An original voucher and a reversing voucher with opposite amounts", "Voucher transactions"], ["Run the trial balance for this month", "Rent expense shows 12,000 debit", "Trial balance"]],
+          "objectives": ["Read the chart of accounts and dimensions", "Post and reverse general journals", "Check postings in the trial balance"]
+        },
+        {
+          "topic": "Accounts Payable: Vendor Invoices and Payment Proposals",
+          "subtopics": ["Vendor groups, terms of payment and methods of payment", "Entering pending vendor invoices", "Invoice journals and invoice registers", "Matching invoices to purchase orders and product receipts", "Cash discounts and due dates", "Payment proposals in the vendor payment journal", "Settling payments against open invoices", "Duplicate invoice number checks"],
+          "tools": ["Vendor invoice entry workspace", "Vendor payment journal", "Vendor transactions"],
+          "lab_task": "Create a vendor with Net 30 terms and a 2% 10-day cash discount, post two invoices, run a payment proposal on day 8 that takes the discount, post the payment and check that both invoices are settled.",
+          "deliverable": "Posted invoices, payment journal and settled vendor transactions",
+          "checks": [["Run the payment proposal before the discount date", "Proposal lines include the 2% cash discount", "Payment journal lines"], ["Post the payment", "Vendor balance falls to zero", "Vendor transactions"], ["Post a third invoice with an invoice number already used", "Posting is rejected under the Reject duplicate setting", "Error message"]],
+          "objectives": ["Enter vendor invoices", "Run payment proposals", "Settle vendor payments"]
+        },
+        {
+          "topic": "Accounts Receivable: Customer Invoices, Payments and Collections",
+          "subtopics": ["Customer groups, credit limits and terms of payment", "Free text invoices for non-stock charges", "Customer payment journals", "Settling partial payments and overpayments", "Customer ageing snapshots", "The Collections page and customer pools", "Collection letters and interest notes", "Credit holds and the credit limit check"],
+          "tools": ["Free text invoices", "Customer payment journal", "Credit and collections"],
+          "lab_task": "Post three free text invoices for one customer, record a 1,500 USD partial payment and settle it against the oldest invoice, run an ageing snapshot and create a collection letter for the overdue balance.",
+          "deliverable": "Invoices, settled payment, ageing snapshot and collection letter",
+          "checks": [["Settle the payment against the oldest invoice", "Oldest invoice shows a remaining balance and the others stay open", "Customer transactions"], ["Run the ageing snapshot", "Balances fall into the expected ageing buckets", "Ageing report"], ["Post an invoice that exceeds the credit limit", "Credit limit warning appears before posting", "Message screenshot"]],
+          "objectives": ["Invoice customers", "Record and settle customer payments", "Follow up overdue balances"]
+        },
+        {
+          "topic": "Supply Chain Management: Products, Variants and Inventory Dimensions",
+          "subtopics": ["Shared products and released products", "Products and product masters", "Product dimensions: size, colour, style and configuration", "Generating product variants", "Storage dimensions: site, warehouse and location", "Tracking dimensions: batch and serial numbers", "Item groups, item model groups and units at user level", "On-hand inquiries by dimension"],
+          "tools": ["Product information management", "Released products", "On-hand list"],
+          "lab_task": "Create a jacket product master with 3 sizes and 2 colours, generate the six variants, release it to USMF, post an inventory adjustment of 10 units for two variants and check on-hand stock by site and warehouse.",
+          "deliverable": "Released product master, variants and an on-hand inquiry",
+          "checks": [["Generate variants for 3 sizes and 2 colours", "Six variants are listed", "Variant list"], ["Release the product to USMF", "Released product has an item number in USMF", "Released products list"], ["Show site and warehouse on the on-hand list", "Quantities split by warehouse and variant", "On-hand screenshot"]],
+          "objectives": ["Create and release products", "Explain inventory dimensions", "Check on-hand inventory"]
+        },
+        {
+          "topic": "Purchase Requisitions, Purchase Orders and Product Receipts",
+          "subtopics": ["Purchase requisitions and approval", "Releasing approved requisitions to purchase orders", "Purchase order header, lines and delivery dates", "Confirming a purchase order", "Product receipts and the receipt journal", "Partial receipts and the deliver remainder", "Invoicing against product receipts", "Purchase order statuses: open order, received and invoiced"],
+          "tools": ["Purchase requisitions", "All purchase orders", "Product receipt journal"],
+          "lab_task": "Raise a purchase requisition for 100 units, approve it, release it to a purchase order, confirm the order, post a product receipt for 60 units and invoice those 60 against the receipt.",
+          "deliverable": "Requisition, confirmed purchase order, product receipt and vendor invoice",
+          "checks": [["Release the approved requisition", "A purchase order with the requisition line is created", "Purchase order record"], ["Post a product receipt for 60 of 100", "Line stays Open order with 40 still to deliver", "Purchase order line"], ["Invoice the 60 received", "Invoice quantity and price match the receipt", "Invoice journal"]],
+          "objectives": ["Raise and approve requisitions", "Create, confirm and receive purchase orders", "Match invoices to receipts"]
+        },
+        {
+          "topic": "Sales Orders, Picking, Packing and Invoicing in Supply Chain Management",
+          "subtopics": ["Sales quotations and sales orders", "Order types: sales order, return order and journal", "Prices and discounts from trade agreements", "Reserving inventory", "Picking lists and picking registration", "Packing slips and partial deliveries", "Invoicing from the sales order", "Sales order statuses: open order, delivered and invoiced"],
+          "tools": ["All sales orders", "Picking list registration", "Packing slip"],
+          "lab_task": "Enter a sales order for three stocked items from a warehouse that does not use warehouse management processes, reserve stock, post the picking list and a packing slip for part of the order, invoice what shipped and trace the order and line statuses.",
+          "deliverable": "Sales order with picking list, packing slip and invoice documents",
+          "checks": [["Reserve stock for a line", "Line shows a reserved physical quantity", "Reservation page"], ["Post a packing slip for part of a line", "Line stays Open order with a remaining deliver quantity", "Packing slip journal"], ["Invoice the delivered quantity", "Customer invoice posts revenue and receivables", "Invoice voucher"]],
+          "objectives": ["Enter and fulfil sales orders", "Post picking, packing and invoices", "Track order status"]
+        },
+        {
+          "topic": "Warehouses, Transfer Orders and Inventory Counting",
+          "subtopics": ["Sites, warehouses and locations", "Inventory movement, adjustment and transfer journals", "Transfer orders: ship, in transit and receive", "Counting journals and cycle counting", "Inventory transactions and their issue and receipt statuses", "Warehouse management processes and the Warehouse Management mobile app", "Quarantine and blocked inventory", "Inventory value and on-hand reports"],
+          "tools": ["Inventory journals", "Transfer orders", "Warehouse Management mobile app"],
+          "lab_task": "Move 25 units between two warehouses with a transfer order, post a counting journal that finds 2 units missing, and review the issue and receipt statuses in inventory transactions.",
+          "deliverable": "Transfer order, posted counting journal and inventory transaction list",
+          "checks": [["Ship the transfer order", "Units leave the source warehouse and show in the transit warehouse", "Inventory transactions"], ["Receive the transfer order", "Units appear in the destination warehouse", "On-hand list"], ["Post the count with 2 fewer units", "On-hand drops by 2 and a loss posts to the ledger", "Counting journal voucher"]],
+          "objectives": ["Move and count inventory", "Use transfer orders", "Read inventory transactions"]
+        },
+        {
+          "topic": "Business Central for Small and Mid-Sized Companies",
+          "subtopics": ["When a client needs Business Central rather than Finance and Supply Chain Management", "Essentials, Premium and Team Members licences", "Role Centres and Tell Me search", "Customers, vendors, items and posting groups at user level", "Sales and purchase documents from quote to posted invoice", "Bank account reconciliation with Copilot", "Production and sandbox environments in the Business Central admin center", "Two major updates a year: version 29 is the 2026 release wave 2, live since October 2026"],
+          "tools": ["Business Central online with the CRONUS demo company", "Business Central admin center", "Copilot in Business Central"],
+          "lab_task": "In CRONUS, sell two ATHENS desks (item 1896-S) on a posted sales invoice, post a purchase invoice to restock them, reconcile a 12-line bank statement with Copilot and write five reasons a client would pick Business Central over Finance and Supply Chain Management.",
+          "deliverable": "Posted invoices, reconciled bank statement and a product fit note",
+          "checks": [["Post the sales invoice", "Posted sales invoice and a customer ledger entry exist", "Posted invoice"], ["Reconcile the bank statement with Copilot", "Copilot proposes matches for unmatched lines", "Reconciliation screenshot"], ["Type 'chart of accounts' in Tell Me", "The Chart of Accounts page opens", "Screenshot"]],
+          "objectives": ["Explain where Business Central fits", "Post sales and purchase documents", "Use Copilot in Business Central"]
+        },
+        {
+          "topic": "Reporting with Views, Dashboards and Power BI",
+          "subtopics": ["System and personal views as everyday reports", "Charts and dashboards in model-driven apps", "Export to Excel and Excel templates", "Embedding Power BI reports in model-driven dashboards", "Analytics in finance and operations workspaces", "Financial reports in Dynamics 365 Finance", "Power BI apps and templates for Dynamics 365", "Who sees what: record security and report access"],
+          "tools": ["Sales Hub dashboards", "Power BI Desktop", "Financial reporting in Dynamics 365 Finance"],
+          "lab_task": "Build a dashboard of open opportunities and active cases with two charts, embed a Power BI pipeline report beside it, and run the balance sheet and income statement in Financial reporting for USMF.",
+          "deliverable": "Dashboard, embedded Power BI report and financial report output",
+          "checks": [["Export the open opportunities view to Excel", "Workbook has the same rows and columns as the view", "Excel file"], ["Open the embedded Power BI report", "Report renders inside the app with the pipeline data", "Screenshot"], ["Run the balance sheet", "Total assets equal total liabilities plus equity", "Report output"]],
+          "objectives": ["Build views, charts and dashboards", "Embed Power BI reports", "Run standard financial reports"]
+        },
+        {
+          "topic": "Copilot in Dynamics 365 for Everyday Users",
+          "subtopics": ["Copilot in Dynamics 365 Sales: record summaries and email drafts", "The Sales agent in Microsoft 365 Copilot in Outlook and Teams", "Copilot in Customer Service: case summaries, draft replies and Ask a question", "Generative help and guidance in the finance and operations sidecar", "Chat and marketing text suggestions in Business Central", "Checking AI output before you send or post", "Thumbs up and thumbs down feedback", "What agents such as the Sales Qualification Agent and Case Management Agent do"],
+          "tools": ["Copilot in Dynamics 365 Sales", "Copilot in Customer Service", "Copilot sidecar in finance and operations apps"],
+          "lab_task": "Summarise an opportunity and draft a follow-up email with Copilot, answer a customer question with Ask a question in Customer Service, and ask the finance and operations sidecar how to reverse a vendor payment, then correct anything wrong before use.",
+          "deliverable": "Three Copilot outputs with your corrections and their sources",
+          "checks": [["Ask Copilot to summarise the opportunity", "Summary names the stakeholders, budget and next steps from the record", "Copilot pane screenshot"], ["Ask a question in Copilot in Customer Service", "Answer cites knowledge articles", "Copilot pane screenshot"], ["Compare the sidecar answer with the Microsoft Learn article", "Answer is confirmed or corrected with the article link", "Review note"]],
+          "objectives": ["Use Copilot in the CRM and ERP apps", "Check AI output before acting on it", "Explain what Dynamics 365 agents do"]
+        },
+        {
+          "topic": "Beginner Capstone: Lead to Cash and Procure to Pay for a Model Company",
+          "subtopics": ["Lead, opportunity and quote in Sales", "After-sales case and work order", "Sales order, packing slip and invoice in Supply Chain Management", "Purchase order, product receipt, vendor invoice and payment", "Dashboard and trial balance of the results", "Where CRM and ERP connect: dual-write and prospect to cash at a glance"],
+          "tools": ["Dynamics 365 Sales", "Dynamics 365 Field Service", "Dynamics 365 Finance and Supply Chain Management"],
+          "lab_task": "For a model pump distributor, take one customer from lead to won quote in Sales, log a case and a work order for a faulty pump, then in USMF invoice the sales order, buy replacement stock with a purchase order, receipt, invoice and payment, and present the results from a dashboard and the trial balance.",
+          "deliverable": "Walkthrough deck with document numbers from the CRM and ERP apps",
+          "checks": [["Trace the won quote", "Quote, opportunity and account are linked", "Record numbers"], ["Trace the sales invoice to the ledger", "Voucher posts revenue and customer receivables", "Voucher transactions"], ["Trace the purchase order to payment", "Receipt, invoice and payment are settled", "Vendor transactions"]],
+          "objectives": ["Run lead to cash across the apps", "Run procure to pay", "Explain how the CRM and ERP sides connect"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For functional consultants who can already use Dynamics 365 and now configure it on the customer engagement (CRM) side and on the finance and operations (ERP) side, since clients ask for both. Covers Dataverse tables, forms, views, business rules and security roles, Sales, Customer Service, unified routing, SLAs and Field Service configuration, Finance, Supply Chain Management and Business Central configuration, data migration, Power Automate inside Dynamics 365, Copilot and agent configuration and testing, mapped to the current MB-230, MB-310, MB-330, MB-800, AB-210 and AB-250 exams.",
+      "prerequisites": ["Can run sales, service, finance and supply chain transactions as a user", "Knows Dataverse, model-driven apps and finance and operations navigation", "Has administrator access to customer engagement and finance and operations sandboxes and a Business Central sandbox"],
+      "outcomes": ["Customise Dataverse tables, forms, views, business rules and security roles inside solutions", "Configure Sales, Customer Service routing and SLAs, and Field Service to client requirements", "Configure legal entities, ledgers, posting, inventory, warehouses and policies in Finance and Supply Chain Management, and posting groups in Business Central", "Migrate data, automate with Power Automate, configure Copilot and agents, and test the result"],
+      "days": [
+        {
+          "topic": "Dataverse Tables, Columns and Relationships in a Solution",
+          "subtopics": ["Solution publishers and the customisation prefix", "Standard, activity, virtual and elastic tables", "User or team ownership versus organisation ownership", "Column types including formula, rollup, file and autonumber columns", "Local and global choices", "One-to-many and many-to-many relationships", "Relationship behaviour: parental, referential and restrict delete", "Alternate keys and column-level auditing"],
+          "tools": ["Power Apps (make.powerapps.com)", "Table designer", "Power Platform admin center"],
+          "lab_task": "Inside a Contoso Service solution with publisher prefix ctr, model a Service Contract table with an account lookup, a global choice for tier, a formula column for days remaining, a rollup of open cases, an alternate key on contract number and auditing on the contract value column.",
+          "deliverable": "Table design sheet and the solution containing the new table",
+          "checks": [["Save two contracts with the same contract number", "Second save fails on the alternate key", "Error message"], ["Delete an account that has contracts under Restrict delete", "Deletion is blocked", "Error message"], ["Change the contract value", "Audit history shows the old and new value", "Audit history screenshot"]],
+          "objectives": ["Customise inside a solution", "Model tables, columns and relationships", "Use alternate keys and auditing"]
+        },
+        {
+          "topic": "Model-Driven Forms, Views and Business Rules",
+          "subtopics": ["Main, quick create, quick view and card forms", "Tabs, sections, subgrids and the timeline", "Form order and assigning forms to security roles", "Public, quick find, lookup and associated views", "Editable grids and charts on views", "Business rules: conditions, actions and table-wide versus form scope", "The modern app designer and the site map", "Command bar buttons with the command designer and Power Fx"],
+          "tools": ["Modern form designer", "Business rule designer", "App designer", "Command designer"],
+          "lab_task": "Build a Contract Management app with a three-tab main form, a quick create form, an account quick view, an editable grid of contracts that expire within 60 days, a business rule that requires a reason when tier is Cancelled, and a command that sets the tier to Gold.",
+          "deliverable": "Published model-driven app with form, view and rule notes",
+          "checks": [["Set tier to Cancelled with no reason and save", "Save is blocked with the business rule message", "Screenshot"], ["Edit an end date in the editable grid", "Change saves without opening the form", "Screenshot"], ["Select the Gold command on a contract", "Tier changes to Gold", "Record screenshot"]],
+          "objectives": ["Design forms and views", "Write business rules", "Assemble a model-driven app"]
+        },
+        {
+          "topic": "Security Roles, Business Units, Teams and Column Security",
+          "subtopics": ["Business units and record ownership across business units", "Privileges and access levels from user to organisation", "Copying and editing roles in the security role editor", "Owner teams, access teams and Microsoft Entra group teams", "Sharing and assigning records", "Manager and position hierarchy security", "Column security profiles for sensitive values", "Testing access with test users"],
+          "tools": ["Power Platform admin center", "Security role editor", "Column security profiles"],
+          "lab_task": "Create North and South business units, a Contract Manager role with business-unit read and user-level write, a Microsoft Entra group team for each region and a column security profile that hides contract value from service agents, then test with three users.",
+          "deliverable": "Security matrix and access test results",
+          "checks": [["Open a South contract as a North user", "Record is not visible", "Screenshot"], ["Open a contract as a service agent", "Contract value shows as asterisks", "Screenshot"], ["Add a user to the North Entra group", "User gets the team's role without a manual assignment", "User roles screenshot"]],
+          "objectives": ["Design a Dataverse security model", "Configure roles and teams", "Protect sensitive columns"]
+        },
+        {
+          "topic": "Sales Configuration: Sales Process, Forecasts and Lead Assignment",
+          "subtopics": ["Customising the Lead to Opportunity Sales Process flow", "Business process flow stages, required steps and branches", "Price lists, discount lists and product families in the catalogue", "Forecast configuration: hierarchy, columns and periods", "Sequences and the work list in the sales accelerator", "Segments and assignment rules for leads", "Sales settings in App Settings: lead qualification and duplicate detection", "Collaboration with Microsoft Teams from sales records", "Certification status: AB-210 replaced MB-280, which retired on 31 July 2026"],
+          "tools": ["Sales Hub: App Settings", "Sales accelerator", "Business process flow designer"],
+          "lab_task": "Add a branch to the sales process for deals above 50,000 USD, configure a quarterly forecast on the manager hierarchy for two teams, a two-step sequence for new leads and an assignment rule that sends leads from Germany to the DACH team.",
+          "deliverable": "Branching process flow, forecast, sequence and assignment rule with test leads",
+          "checks": [["Create a lead with country Germany", "Lead is assigned to a DACH seller", "Lead record"], ["Open an opportunity worth 60,000 USD", "Process flow shows the extra approval stage", "Process flow screenshot"], ["Activate the forecast", "Grid shows pipeline and won amounts per seller", "Forecast screenshot"]],
+          "objectives": ["Configure the sales process", "Configure forecasts", "Automate lead assignment and seller work"]
+        },
+        {
+          "topic": "Customer Service Configuration: Case Settings, Queues and Record Creation Rules",
+          "subtopics": ["Case settings in the Copilot Service admin center", "Case numbering, parent and child case settings and resolution rules", "Subjects, products and case types", "Public and private queues, members and queue mailboxes", "Automatic record creation and update rules for email to case", "Basic routing with routing rule sets", "Email templates and signatures for service replies", "Server-side synchronisation for support mailboxes", "Certification status: MB-230, with its skills outline updated in March 2026"],
+          "tools": ["Copilot Service admin center", "Automatic record creation and update rules", "Routing rule sets"],
+          "lab_task": "Configure a support queue with a mailbox, an automatic record creation rule that turns emails from known contacts into cases with priority taken from the subject line, and a routing rule set that sends billing cases to the Billing queue.",
+          "deliverable": "Queue, record creation rule, routing rule set and test emails",
+          "checks": [["Send an email from a known contact", "A case is created and linked to the contact", "Case record"], ["Send an email with URGENT in the subject", "Case priority is High", "Case priority field"], ["Save and route a billing case", "Case moves to the Billing queue", "Queue screenshot"]],
+          "objectives": ["Configure case settings", "Turn email into cases", "Route records with routing rule sets"]
+        },
+        {
+          "topic": "Unified Routing: Workstreams, Classification and Capacity",
+          "subtopics": ["Turning on unified routing and record routing for cases", "Record, messaging and voice workstreams", "Intake rules and classification rulesets", "Skills, rating models and skill-based routing", "Route-to-queue rules, fallback queues and overflow handling", "Assignment methods: highest capacity, advanced round robin and custom rulesets", "Capacity profiles, presence and operating hours", "Routing diagnostics", "Work distribution in the AB-250 Contact Center AI Engineer exam"],
+          "tools": ["Copilot Service admin center", "Unified routing", "Routing diagnostics"],
+          "lab_task": "Route cases through unified routing: classify product and language into skills, send French printer cases to a French Tier 2 queue with advanced round robin, cap representatives at 3 cases with a capacity profile, and trace 10 test cases in routing diagnostics.",
+          "deliverable": "Workstream configuration and routing diagnostics for 10 test cases",
+          "checks": [["Create a French printer case", "Case lands in the French Tier 2 queue", "Routing diagnostics"], ["Give one representative 3 open cases", "The fourth case goes to another representative", "Assignment record"], ["Create a case that matches no rule", "Case goes to the fallback queue", "Routing diagnostics entry"]],
+          "objectives": ["Configure workstreams and routing rules", "Use skills and capacity", "Diagnose routing decisions"]
+        },
+        {
+          "topic": "Entitlements, SLA KPIs and Service Schedules",
+          "subtopics": ["Entitlement templates, terms and allocation types", "Decreasing remaining terms on case creation or case resolution", "Entitlement channels and product restrictions", "SLA KPIs on the case table", "SLA items: applicable when, success, warning and failure conditions", "Warning and failure actions with Power Automate", "Customer service schedules and holiday schedules", "Pause and resume for on-hold status reasons"],
+          "tools": ["Copilot Service admin center: Service terms", "SLA designer", "Power Automate"],
+          "lab_task": "Create a Gold entitlement of 20 cases on phone and email, an SLA with a 2-hour first response KPI and an 8-hour resolve KPI on a weekday 08:00 to 18:00 schedule with UK bank holidays, a warning email after 90 minutes and a pause on Waiting for Customer.",
+          "deliverable": "Entitlement, SLA, schedules and timer test results",
+          "checks": [["Create a Gold case at 17:00 on a Friday", "Resolve-by time is 15:00 on the next working day", "Case screenshot"], ["Set the case to Waiting for Customer", "Both timers pause", "Timer screenshot"], ["Leave the first response for 90 minutes", "Warning email is sent by the flow", "Flow run history"]],
+          "objectives": ["Configure entitlements", "Build SLAs with KPIs and actions", "Apply schedules and pause rules"]
+        },
+        {
+          "topic": "Field Service Configuration: Incident Types, Resources and Scheduling",
+          "subtopics": ["Field Service settings for work orders and bookings", "Incident types with service tasks, products, services and skills", "Characteristics, rating models and resource roles", "Bookable resources, work hours and territories", "Booking statuses mapped to Field Service statuses", "Schedule Board tabs, filters and the schedule assistant", "Agreements for recurring maintenance", "Mobile offline profiles for technicians", "The Scheduling Operations Agent for dispatchers", "Certification status: MB-240 retired on 30 June 2026"],
+          "tools": ["Field Service settings", "Schedule Board", "Mobile offline profile"],
+          "lab_task": "Configure a Boiler Service incident type of 90 minutes with 4 service tasks and a Gas Safe skill, two technicians with work hours and territories, a quarterly maintenance agreement for one year, and an offline profile that limits technicians to 14 days of work orders.",
+          "deliverable": "Configured incident type, resources, agreement and offline profile",
+          "checks": [["Create a work order from the incident type", "Service tasks and the 90-minute duration fill in", "Work order record"], ["Run the schedule assistant", "Only technicians with the Gas Safe skill in the territory are offered", "Schedule assistant screenshot"], ["Activate the agreement", "Booking dates for four quarterly visits are generated", "Agreement booking dates"]],
+          "objectives": ["Configure incident types as work order templates", "Configure resources and scheduling", "Configure agreements and offline data"]
+        },
+        {
+          "topic": "Finance Configuration: Legal Entities, Ledgers, Dimensions and Number Sequences",
+          "subtopics": ["Legal entities, addresses and the company ID", "Operating units and organisation hierarchies", "Fiscal calendars and ledger calendars", "The ledger: chart of accounts, accounting and reporting currencies and exchange rate types", "Main accounts, main account types and main account categories", "Financial dimensions: custom lists and entity-backed dimensions", "Account structures and advanced rules", "Number sequences: scope, segments, continuous or not, and the generate wizard", "Certification status: MB-310 Finance Functional Consultant is current"],
+          "tools": ["Organization administration", "General ledger: Ledger setup", "Number sequences"],
+          "lab_task": "Create legal entity GBSI with GBP as accounting currency, a July-to-June fiscal calendar, a shared chart of accounts with 40 main accounts, CostCenter and Department dimensions, an account structure that allows only cost centres 100 to 199 on expense accounts, and generate its number sequences.",
+          "deliverable": "Configured legal entity, ledger and number sequence list",
+          "checks": [["Enter an expense account with cost centre 250", "Segmented entry rejects the combination", "Error message"], ["Open the GBSI fiscal year", "Twelve periods from July to June plus opening and closing periods", "Calendar screenshot"], ["Create a general journal in GBSI", "Journal batch number comes from the new number sequence", "Journal screenshot"]],
+          "objectives": ["Configure legal entities and ledgers", "Design dimensions and account structures", "Configure number sequences"]
+        },
+        {
+          "topic": "Posting Profiles, Payment Terms and Bank Accounts",
+          "subtopics": ["Customer posting profiles: summary and settle accounts", "Vendor posting profiles by table, group and all", "Default posting profiles in the receivables and payables parameters", "Terms of payment, payment schedules and cash discounts", "Methods of payment and Electronic reporting payment formats", "Bank accounts, bank groups and bank transaction types", "Advanced bank reconciliation and statement import formats", "Sales tax codes, sales tax groups and item sales tax groups"],
+          "tools": ["Accounts receivable setup", "Accounts payable setup", "Cash and bank management", "Electronic reporting workspace"],
+          "lab_task": "In GBSI, create customer and vendor posting profiles for trade and intercompany groups, Net 30 and 2% 10 Net 30 terms, a BACS vendor payment method with an Electronic reporting format, a GBP bank account and VAT codes at 20% and 0%.",
+          "deliverable": "Posting profile matrix and configured payment, bank and tax setup",
+          "checks": [["Post an invoice for an intercompany customer", "Receivable posts to the intercompany summary account", "Voucher transactions"], ["Post an invoice with 2% 10 Net 30 terms", "Due date is 30 days out and the discount date 10 days out", "Customer transactions"], ["Generate a BACS payment file", "File is produced by the Electronic reporting format", "Payment file"]],
+          "objectives": ["Configure posting profiles", "Configure payment terms and methods", "Configure bank and sales tax setup"]
+        },
+        {
+          "topic": "Workflows and Security Roles in Finance and Operations",
+          "subtopics": ["Workflow types for journals, purchase requisitions and vendor invoices", "The workflow editor: conditions, approval steps and escalation", "Assignment by user, role, managerial hierarchy and signing limits", "Delegation and work item queues", "Roles, duties and privileges in Security configuration", "Assigning roles to users and limiting them to legal entities", "Segregation of duties rules and conflict decisions", "Security diagnostics and the user security governance licence summary"],
+          "tools": ["Workflow editor", "Security configuration", "Segregation of duties rules", "User security governance"],
+          "lab_task": "Build a general journal approval workflow that sends journals above 10,000 GBP to the finance controller with a 24-hour escalation, create a GBSI journal clerk role from duties, and add a segregation of duties rule that stops one user both posting vendor invoices and approving payments.",
+          "deliverable": "Workflow, custom role and segregation of duties rule with test results",
+          "checks": [["Submit a 12,000 GBP journal", "Workflow assigns it to the finance controller", "Workflow history"], ["Assign both conflicting roles to one user", "Conflict appears in Segregation of duties conflicts for a decision", "Conflict list"], ["Run security diagnostics on the vendor invoice page as the clerk", "Diagnostics show which role grants or lacks access", "Diagnostics screenshot"]],
+          "objectives": ["Configure approval workflows", "Build roles from duties and privileges", "Enforce segregation of duties"]
+        },
+        {
+          "topic": "Item Model Groups, Costing Methods and Inventory Posting",
+          "subtopics": ["Item model group settings: stocked product, negative inventory and physical posting", "Inventory models: FIFO, LIFO, weighted average, standard cost and moving average", "Receiving and picking requirements and quarantine management", "Item groups and their ledger accounts", "Inventory posting setup for sales, purchase and inventory transactions", "Storage, tracking and product dimension groups", "Inventory closing and recalculation", "Standard cost versions and price activation", "Certification status: MB-330 is current and MB-335 retired on 30 June 2026"],
+          "tools": ["Item model groups", "Inventory posting", "Closing and adjustment", "Costing versions"],
+          "lab_task": "Create a FIFO item model group and a standard cost group, release one item into each, post receipts of 10 units at 10 GBP and 10 units at 12 GBP and an issue of 10 units, run inventory closing, and compare the cost of goods sold and variance postings.",
+          "deliverable": "Item model groups, closing results and a costing comparison sheet",
+          "checks": [["Run inventory closing for the FIFO item", "Issue is adjusted to the FIFO cost of 10 GBP per unit", "Closing settlement list"], ["Receive the standard cost item at 12 GBP against a 10 GBP standard", "Purchase price variance of 2 GBP per unit posts", "Voucher transactions"], ["Issue more than on hand with negative inventory switched off", "Posting is blocked", "Error message"]],
+          "objectives": ["Configure item model groups", "Explain costing methods", "Configure inventory posting"]
+        },
+        {
+          "topic": "Warehouses, Locations and Warehouse Management Processes",
+          "subtopics": ["Sites, warehouses, quarantine warehouses and transit warehouses", "Turning on warehouse management processes for a warehouse and its storage dimension group", "Location formats, location profiles, location types and zones", "Location directives for put-away and picking", "Work templates and wave templates", "Mobile device menu items in the Warehouse Management mobile app", "Reservation hierarchies and licence plates", "Cycle counting plans and thresholds"],
+          "tools": ["Warehouse management", "Warehouse Management mobile app", "Location directives"],
+          "lab_task": "Configure warehouse GB1 with 3 zones and 40 locations, location directives that put pallets into bulk and cartons into picking locations, a wave template for sales orders and a mobile menu item for purchase receiving, then receive and ship one order on the mobile app.",
+          "deliverable": "Configured warehouse and work records for one receipt and one shipment",
+          "checks": [["Receive a pallet on the mobile app", "Put-away work directs it to a bulk location", "Work record"], ["Release a sales order to the warehouse", "Wave creates pick work from the work template", "Wave and work records"], ["Complete the pick work on the mobile app", "Work status is Closed", "Work history"]],
+          "objectives": ["Configure warehouses and locations", "Configure location directives and work templates", "Run inbound and outbound work on the mobile app"]
+        },
+        {
+          "topic": "Procurement and Sales Policies: Categories, Trade Agreements and Charges",
+          "subtopics": ["Procurement category hierarchies and category access", "Purchasing policies and their policy rules", "Purchase order change management and re-approval", "Trade agreement journal names and price and discount journals", "Purchase agreements and sales agreements", "Charges codes and auto charges", "Order hold codes and credit limit checks on sales orders", "Delivery date control: sales lead time and available to promise"],
+          "tools": ["Procurement and sourcing", "Trade agreement journals", "Sales and marketing parameters"],
+          "lab_task": "Create a procurement category hierarchy with 3 categories, a purchasing policy that limits office supplies to two vendors, a purchase trade agreement with a 5% discount from 100 units, an auto charge of 15 GBP freight per sales order and a Balance + all credit limit check.",
+          "deliverable": "Policy configuration and test orders",
+          "checks": [["Request office supplies from a third vendor", "Policy blocks the vendor on the requisition", "Requisition screenshot"], ["Order 120 units on a purchase order", "Line shows the 5% trade agreement discount", "Purchase order line"], ["Confirm a sales order that exceeds the credit limit", "Order is blocked by the credit limit check", "Message or hold screenshot"]],
+          "objectives": ["Configure procurement policies", "Configure trade agreements and charges", "Configure sales order controls"]
+        },
+        {
+          "topic": "Business Central Configuration: Posting Groups, Dimensions and Configuration Packages",
+          "subtopics": ["New companies and the assisted setup guides", "General business and product posting groups and the general posting setup matrix", "Customer, vendor, inventory and bank account posting groups", "VAT business and product posting groups and VAT posting setup", "Global, shortcut and default dimensions", "Number series and allowed posting dates in General Ledger Setup", "Configuration packages and the configuration worksheet", "Approval workflows and permission sets", "Certification status: MB-800 Business Central Functional Consultant is current"],
+          "tools": ["Business Central online sandbox", "Configuration Packages", "Business Central admin center"],
+          "lab_task": "Create a new company in a sandbox, import the chart of accounts, posting groups and 200 customers with configuration packages, complete the general posting setup matrix, add Department and Project dimensions and an approval workflow for purchase invoices over 5,000.",
+          "deliverable": "Configured company, applied packages and a posting setup matrix",
+          "checks": [["Apply the customer configuration package", "200 customers are created with no package errors", "Configuration package page"], ["Post a sales invoice with a missing general posting setup combination", "Posting fails and names the missing combination", "Error message"], ["Send a 6,000 purchase invoice for approval", "Approval entry goes to the approver", "Approval entries"]],
+          "objectives": ["Configure posting groups", "Load configuration with packages", "Configure dimensions and approvals"]
+        },
+        {
+          "topic": "Data Migration with the Data Management Workspace and Dataverse Import",
+          "subtopics": ["Migration scope: configuration, master and open transaction data", "Data entities, data projects and data packages", "Import projects, staging validation and field mapping", "Entity sequencing, set-based processing and configuration templates", "Copy into legal entity for configuration data", "Dataverse import from Excel and CSV with alternate keys", "Dataflows with Power Query for repeatable loads", "The Configuration Migration tool for reference data between environments", "Reconciling record counts and balances after each mock load"],
+          "tools": ["Data management workspace", "Power Apps: Import data", "Dataflows", "Configuration Migration tool"],
+          "lab_task": "Load 500 customers, 300 vendors and open customer balances into GBSI with a data package, and 2,000 contacts into Dataverse with a dataflow that upserts on an alternate key, then reconcile counts and balances against the source files.",
+          "deliverable": "Data packages, dataflow and a reconciliation sheet",
+          "checks": [["Import a customer file with a missing customer group", "Rows fail with a validation error in the execution log", "Execution log"], ["Run the contact dataflow twice", "Second run updates rows without creating duplicates", "Record counts"], ["Compare opening balances with the source trial balance", "Totals match to the penny", "Reconciliation sheet"]],
+          "objectives": ["Plan migration by data type", "Load data with the Data management workspace", "Load Dataverse data repeatably"]
+        },
+        {
+          "topic": "Power Automate for Dynamics 365: Dataverse Triggers and ERP Business Events",
+          "subtopics": ["Cloud flows inside solutions with connection references", "The Dataverse trigger: when a row is added, modified or deleted, with filter rows", "Approvals for discounts and credit notes", "The business events catalogue in finance and operations apps", "The Fin & Ops Apps connector trigger: when a business event occurs", "Reading and writing data entities from a flow", "Run history, retries and error handling", "Licensing: flows in the context of Dynamics 365 licences"],
+          "tools": ["Power Automate", "Business events catalog", "Fin & Ops Apps (Dynamics 365) connector"],
+          "lab_task": "Build a flow that asks a sales manager to approve quote discounts above 15%, and a second flow that posts a Teams message when the vendor invoice posted business event fires in GBSI, both inside the Contoso Service solution.",
+          "deliverable": "Two solution-aware flows with run history",
+          "checks": [["Save a quote with a 20% discount", "Approval request reaches the manager", "Flow run history"], ["Post a vendor invoice in GBSI", "Teams message shows the invoice number", "Teams screenshot"], ["Import the solution into a test environment", "Flows use the test connection references", "Solution import log"]],
+          "objectives": ["Automate Dataverse events", "Act on finance and operations business events", "Keep flows inside solutions"]
+        },
+        {
+          "topic": "Copilot and Agent Configuration Across Dynamics 365",
+          "subtopics": ["Turning on Copilot per environment in the Power Platform admin center", "Moving data across regions for Copilot and who approves it", "Copilot settings in Sales and in the Copilot Service admin center", "Configuring the Sales Qualification Agent: target customer profile, research and outreach", "Case Management Agent rules for creating, updating and closing cases", "Copilot and generative help in finance and operations apps", "Business Central agents on the Copilot & agent capabilities page", "Copilot Credits: prepaid packs, pay-as-you-go and usage reports", "Testing agents on sample records with human review before go-live"],
+          "tools": ["Power Platform admin center: Copilot", "Copilot Service admin center", "Sales Hub: App Settings", "Business Central: Copilot & agent capabilities"],
+          "lab_task": "Turn on Copilot in the sandbox, configure the Sales Qualification Agent for web form leads with human review of emails, a Case Management Agent rule that creates cases from support emails, and the Business Central Payables Agent for one mailbox, then run each on 5 test records.",
+          "deliverable": "Agent configuration notes and test results for 15 records",
+          "checks": [["Submit a web lead that fits the target profile", "Agent researches the lead and drafts an outreach email for review", "Lead timeline"], ["Send a support email", "Case Management Agent creates a case with fields filled in", "Case record"], ["Email a vendor invoice PDF to the monitored mailbox", "Payables Agent drafts a purchase invoice for review", "Purchase invoice draft"]],
+          "objectives": ["Turn on and control Copilot features", "Configure Dynamics 365 agents", "Test agents before go-live"]
+        },
+        {
+          "topic": "Testing Dynamics 365 Configurations: Test Scripts, RSAT and UAT",
+          "subtopics": ["Test types: unit, function, process, integration, regression and user acceptance", "Writing test scripts from the business process catalogue", "Test plans, suites and cases in Azure Test Plans", "Recording finance and operations tasks with Task recorder", "Running RSAT test cases with Excel parameter files and validations", "Chaining RSAT tests and derived test cases", "Testing model-driven apps by role with test users and sample data", "Defect triage, retest and UAT sign-off"],
+          "tools": ["Azure Test Plans", "Task recorder", "Regression suite automation tool (RSAT)"],
+          "lab_task": "Write 12 test scripts for the quote-to-cash and procure-to-pay processes, record 3 finance and operations tasks and run them in RSAT with two data sets, run 4 role-based tests in the model-driven apps and log defects in Azure DevOps.",
+          "deliverable": "Test plan, RSAT results and a defect log",
+          "checks": [["Run an RSAT test with a wrong expected value", "Test fails on the validation step", "RSAT result file"], ["Run the derived test case with the second data set", "Test passes with the new values", "RSAT log"], ["Run a model-driven test as a service agent", "Contract value stays hidden", "Test evidence screenshot"]],
+          "objectives": ["Plan tests by type", "Automate finance and operations regression tests", "Run UAT with defect tracking"]
+        },
+        {
+          "topic": "Intermediate Capstone: Configured Service-to-Invoice Pilot Across CRM and ERP",
+          "subtopics": ["Dataverse customisation and security for the service team", "Unified routing, entitlements and SLAs for support cases", "Field Service incident types, resources and agreements", "GBSI legal entity, posting profiles, inventory and warehouse", "Migrated data, flows, agents and test evidence", "Invoicing completed work in the ERP without an integration, and what dual-write would change", "Mapping the pilot to the MB-230, MB-310, MB-330 and AB-250 skills outlines"],
+          "tools": ["Copilot Service admin center", "Dynamics 365 Field Service", "Dynamics 365 Finance and Supply Chain Management", "Azure Test Plans"],
+          "lab_task": "Configure a pilot for a boiler service company: route support cases by skill with SLAs, schedule technicians for work orders from incident types, invoice parts and labour from GBSI with correct postings, load 200 customers, automate one approval and run 15 UAT scripts.",
+          "deliverable": "Configured pilot, design workbook and UAT sign-off",
+          "checks": [["Raise a Gold case by email", "Case is routed by skill with SLA timers running", "Case screenshot"], ["Invoice a completed job's parts and labour in GBSI", "Revenue and stock postings follow the posting setup", "Voucher transactions"], ["Run the 15 UAT scripts", "Every script passes or has a logged defect", "Test plan report"]],
+          "objectives": ["Configure CRM and ERP processes end to end", "Prove the configuration with tests", "Present design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For solution architects, technical leads and programme managers who design Dynamics 365 for clients that mean the customer engagement (CRM) apps, the finance and operations (ERP) apps or both. Covers solution architecture and fit-gap, environments after the Lifecycle Services freeze, ALM, dual-write, virtual tables and integration, plug-in and X++ extension models at architect level, performance, security and compliance, migration from Dynamics AX, NAV and CRM on-premises, Copilot and agents at scale, governance, licensing cost and programme leadership, with AB-100 as the architect exam since MB-700 retired.",
+      "prerequisites": ["Has configured or built Dynamics 365 customer engagement or finance and operations apps on at least one project", "Knows Dataverse, solutions, data entities and security at consultant level", "Leads design, integration or delivery decisions"],
+      "outcomes": ["Design Dynamics 365 solutions across CRM, ERP and Business Central with environment and ALM strategies", "Choose integration, extension and data patterns that hold up under volume and service updates", "Plan secure, compliant migrations from Dynamics AX, NAV and CRM on-premises", "Govern Copilot, agents, licences and cost, and lead programmes through go-live"],
+      "days": [
+        {
+          "topic": "Solution Architecture: Matching Client Needs to CRM, ERP and Business Central",
+          "subtopics": ["What clients mean by Dynamics 365 and how to pin down the scope", "Customer engagement apps on Dataverse versus finance and operations apps", "Business Central or Finance and Supply Chain Management: size, complexity and countries", "Composable designs with Dataverse, Power Platform, Azure and AppSource ISV solutions", "Where data lives: Dataverse, the finance and operations database and unified environments", "Solution architecture documents and decision records", "Architecture reviews in the Success by Design framework", "The architect exam path: AB-100 after MB-700 retired on 30 June 2026"],
+          "tools": ["Dynamics 365 Implementation Guide", "Power Platform Well-Architected", "Visio or another diagramming tool"],
+          "lab_task": "For a 2,000-employee manufacturer in 6 countries that asks for 'Dynamics 365', write a scope clarification, choose between Business Central and Finance and Supply Chain Management, add the customer engagement apps it needs, and record 5 architecture decisions with options and trade-offs.",
+          "deliverable": "Solution architecture document with 5 decision records",
+          "checks": [["Present the app choice to a reviewer", "Choice is justified by size, countries and process complexity", "Review notes"], ["Review each decision record", "Each lists the options, the choice and its consequences", "Decision records"], ["Map each requirement group to an app or extension", "No requirement group is left unmapped", "Requirement map"]],
+          "objectives": ["Clarify what a client means by Dynamics 365", "Choose apps and platforms with reasons", "Record architecture decisions"]
+        },
+        {
+          "topic": "Requirements, Fit-Gap and the Solution Blueprint Review",
+          "subtopics": ["Process-led requirements from the business process catalogue", "Fit-gap classes: standard, configuration, extension, ISV solution or gap", "Estimating gaps and the cost of carrying each extension through updates", "Non-functional requirements: volumes, response times and availability", "Solution blueprint review topics in the Dynamics 365 Implementation Portal", "FastTrack eligibility and Success by Design reviews", "Traceability from requirement to design, build and test", "Pushing back on gaps that standard processes already cover"],
+          "tools": ["Dynamics 365 Implementation Portal", "Business process catalog", "Azure DevOps Boards"],
+          "lab_task": "Classify 40 order-to-cash and record-to-report requirements as standard, configuration, extension, ISV solution or gap, estimate the five largest gaps, and prepare the solution blueprint review findings in the Implementation Portal.",
+          "deliverable": "Fit-gap register, gap estimates and blueprint review findings",
+          "checks": [["Review a requirement marked as an extension", "Reviewer accepts it or reclassifies it with a reason", "Fit-gap register"], ["Trace one requirement end to end", "Links exist from the requirement to a design item and a test case", "Azure DevOps links"], ["Present the blueprint findings", "Each finding has a risk rating and an owner", "Findings list"]],
+          "objectives": ["Run fit-gap analysis", "Prepare a solution blueprint review", "Keep requirements traceable"]
+        },
+        {
+          "topic": "Environment Strategy in the Power Platform Admin Center and Lifecycle Services",
+          "subtopics": ["Production, sandbox, developer and trial environments for customer engagement apps", "Unified production, sandbox and developer environments for finance and operations apps", "The Lifecycle Services project creation freeze for new customers from 16 February 2026", "Moving LCS-managed environments to the Power Platform admin center", "ERP templates, regions and capacity in the Power Platform admin center", "Copy, backup, restore and refresh operations", "Environment groups, Managed Environments and environment routing", "Data residency and how many environments each project phase needs"],
+          "tools": ["Power Platform admin center", "Microsoft Dynamics Lifecycle Services", "Power Platform CLI (pac)"],
+          "lab_task": "Design the environment plan for a programme with customer engagement and finance and operations apps: list each environment by phase, type and region, decide which LCS environments move to the Power Platform admin center first, and script a sandbox refresh from production with pac.",
+          "deliverable": "Environment plan, migration order and refresh script",
+          "checks": [["Review the plan with a peer", "Every environment has an owner, type, region and retirement date", "Environment plan"], ["Run the refresh script against a test sandbox", "Copy completes and the post-copy steps run", "Script log"], ["Check capacity after adding a unified sandbox", "Finance and operations database capacity shows the new usage", "Capacity report"]],
+          "objectives": ["Plan environments for CRM and ERP", "Plan the move from Lifecycle Services", "Automate environment lifecycle tasks"]
+        },
+        {
+          "topic": "ALM for Customer Engagement: Managed Solutions, Git Integration and Pipelines",
+          "subtopics": ["Solution segmentation and layering", "Managed solution upgrade, update and stage for upgrade", "Environment variables and connection references", "Dataverse Git integration with Azure DevOps or GitHub", "Pipelines in Power Platform: host environment, stages, approvals and delegated deployments", "Power Platform Build Tools and GitHub Actions for Power Platform", "Solution checker as a quality gate", "Package Deployer for configuration data in releases"],
+          "tools": ["Pipelines in Power Platform", "Power Platform CLI (pac)", "Azure DevOps", "GitHub Actions for Power Platform"],
+          "lab_task": "Connect a development environment to a Git repository, build a pipeline with test and production stages, an approval before production and environment variables per stage, then deploy a solution upgrade that removes an obsolete column.",
+          "deliverable": "Git repository, pipeline run history and release notes",
+          "checks": [["Deploy the upgrade to test", "Obsolete column is removed from the managed layer", "Solution history"], ["Request a production deployment", "Deployment waits for approval", "Pipeline run screenshot"], ["Run solution checker on a solution with a deprecated API call", "Checker reports the issue and the gate fails", "Checker results"]],
+          "objectives": ["Design solution layering", "Automate deployments with pipelines", "Add quality gates"]
+        },
+        {
+          "topic": "ALM for Finance and Operations: Models, Builds and Service Updates",
+          "subtopics": ["Models, packages and extension models", "Version control and branching for X++ in Azure DevOps", "Build pipelines with the X++ compiler NuGet packages", "Deployable packages and deployment to unified environments", "The unified developer experience with Visual Studio", "Quarterly service updates: 10.0.49 in September 2026 and 10.0.50 in preview for December", "Feature management and features that become mandatory", "Regression testing each update with RSAT in Azure Pipelines"],
+          "tools": ["Azure DevOps", "Visual Studio with the finance and operations tools", "Feature management workspace", "Regression suite automation tool (RSAT)"],
+          "lab_task": "Build an Azure DevOps pipeline for two extension models, produce a deployable package, deploy it to a unified sandbox, then plan the 10.0.50 update with a feature review and an RSAT regression run of 20 test cases.",
+          "deliverable": "Build pipeline, deployable package and service update plan",
+          "checks": [["Commit code with a compile error", "Build fails and no package is produced", "Build log"], ["Deploy the package to the unified sandbox", "Deployment succeeds and the models show the new version", "Deployment history"], ["Run the RSAT suite on the preview update", "Pass and fail results are recorded per test case", "RSAT results"]],
+          "objectives": ["Design finance and operations ALM", "Automate builds and deployments", "Plan service updates"]
+        },
+        {
+          "topic": "Dual-Write and Virtual Tables Between Finance and Operations and Dataverse",
+          "subtopics": ["Dual-write behaviour: near real time, bidirectional and transactional", "The dual-write orchestration package, table maps and initial sync", "Legal entity to company and business unit mapping in Dataverse", "Prospect to cash and the unified product experience", "Dual-write async for high-volume tables", "Virtual tables for finance and operations data entities", "Choosing dual-write, virtual tables or an integration service", "Error logs, activity logs and pausing table maps"],
+          "tools": ["Data management workspace: Dual-write", "Power Apps maker portal", "Dataverse virtual tables"],
+          "lab_task": "Run dual-write maps for customers, vendors and released products between GBSI and Dataverse, show vendor invoice headers as a virtual table in a model-driven app, then compare the latency and failure behaviour of the two patterns.",
+          "deliverable": "Running table maps, a virtual table page and a design comparison",
+          "checks": [["Create a customer in Dataverse", "Customer appears in GBSI within seconds", "Both records"], ["Pause the customer map and change a customer", "Change is queued and applied on resume", "Map status and record"], ["Open the virtual table view in the app", "Rows are read live from finance and operations without copies in Dataverse", "View screenshot"]],
+          "objectives": ["Explain dual-write behaviour", "Use virtual tables", "Choose between data patterns"]
+        },
+        {
+          "topic": "Integration Architecture: Data Entities, OData, Dataverse Web API and Events",
+          "subtopics": ["Synchronous and asynchronous patterns and when each fits", "Data entities and the finance and operations OData endpoint", "The Data management package REST API and recurring integrations", "Business events and data events to Azure Service Bus and Event Grid", "Dataverse Web API, FetchXML and bulk messages such as CreateMultiple", "Dataverse webhooks and the Azure Service Bus integration", "Microsoft Entra app registrations and application users", "Middleware choices: Azure Logic Apps, Azure Functions and API Management"],
+          "tools": ["Postman", "Azure Service Bus", "Azure Logic Apps", "Microsoft Entra admin center"],
+          "lab_task": "Design and prove an order integration: a web shop posts orders to Dataverse with the Web API, a sales order is created in finance and operations through OData, and a posting business event returns the order status to the shop through Service Bus with retries and a dead-letter queue.",
+          "deliverable": "Integration design, Postman collection and message trace",
+          "checks": [["Call the SalesOrderHeadersV2 OData entity with a valid token", "Order is created and returned with its number", "HTTP response"], ["Send the same order twice", "Second call is rejected or ignored through the idempotency key", "Integration log"], ["Make the shop endpoint fail", "Message moves to the dead-letter queue after the retries", "Service Bus screenshot"]],
+          "objectives": ["Choose integration patterns", "Use data entities, OData and the Dataverse Web API", "Design for retries and failures"]
+        },
+        {
+          "topic": "Analytics Data Paths: Fabric Link, Synapse Link and the Export to Data Lake Shutdown",
+          "subtopics": ["Link to Microsoft Fabric for Dataverse and finance and operations tables", "Azure Synapse Link for Dataverse with your own storage", "Export to Data Lake, retired in 2024 and stopping on 30 November 2026", "Bring your own database (BYOD) and the case for moving off it", "Choosing tables, change tracking and refresh latency", "Power BI semantic models over Fabric data", "Business performance analytics in Dynamics 365 Finance", "Cost and capacity of each data path"],
+          "tools": ["Power Apps: Azure Synapse Link", "Microsoft Fabric", "Power BI"],
+          "lab_task": "Link a Dataverse environment with finance and operations tables to Microsoft Fabric, add 10 tables including GeneralJournalAccountEntry, build a Power BI report on the Fabric data, and write the plan to retire an Export to Data Lake feed before 30 November 2026.",
+          "deliverable": "Fabric link, Power BI report and retirement plan",
+          "checks": [["Add GeneralJournalAccountEntry to the link", "Table appears in the Fabric lakehouse", "Fabric screenshot"], ["Post a journal in finance and operations", "New rows appear in Fabric after the sync interval", "Query result"], ["Review the retirement plan", "Every downstream report has a new source and a cutover date", "Plan document"]],
+          "objectives": ["Choose analytics data paths", "Link Dynamics 365 data to Fabric", "Plan the move off retired exports"]
+        },
+        {
+          "topic": "Extending Dataverse with C# Plug-ins and Custom APIs",
+          "subtopics": ["Event pipeline stages: pre-validation, pre-operation and post-operation", "Synchronous and asynchronous plug-ins and the 2-minute execution limit", "Images, the execution context and depth checks", "Plug-in packages for dependent assemblies", "Custom APIs for reusable business operations", "Tracing, the plug-in trace log and the profiler", "Where client scripts, Power Fx and PCF controls fit instead", "Code review rules: short work, no static state and a clean solution checker run"],
+          "tools": ["Visual Studio", "Plug-in Registration tool", "Power Platform CLI (pac)", "Plug-in trace log"],
+          "lab_task": "Review a C# plug-in that recalculates contract value on update: register it at pre-operation with a filtering attribute and a pre-image, add a depth check and tracing, move a shared calculation into a custom API, and measure its timing in the trace log.",
+          "deliverable": "Reviewed plug-in design, registration steps and trace log",
+          "checks": [["Update a column that is not a filtering attribute", "Plug-in does not run", "Plug-in trace log"], ["Trigger an update loop", "Depth check stops the recursion", "Trace log entries"], ["Call the custom API from Postman", "API returns the calculated value", "HTTP response"]],
+          "objectives": ["Explain the Dataverse event pipeline", "Review plug-in designs", "Choose the right extension point"]
+        },
+        {
+          "topic": "X++ Extensions and Chain of Command for Architects",
+          "subtopics": ["Why overlayering is gone and what the extension model allows", "Table, form, enum and data entity extensions", "Chain of Command on classes, tables and forms", "Event handlers and delegates", "Batch jobs with the SysOperation framework", "AI plug-in classes that the Dynamics 365 ERP MCP server exposes", "Extensibility requests and ISV solutions", "Best practice checks, code reviews and the update cost of each extension"],
+          "tools": ["Visual Studio with the finance and operations tools", "Application Object Tree (AOT)", "Azure DevOps"],
+          "lab_task": "Review three proposed X++ changes, a new field on sales lines, a Chain of Command validation on vendor invoice posting and a nightly batch job, rewrite the one that copies standard code, and rate the update risk of each.",
+          "deliverable": "Extension review with a risk rating per change",
+          "checks": [["Compile a Chain of Command method that does not call next", "Compiler rejects the method", "Build output"], ["Compile the field extension", "Build succeeds with no best practice errors", "Best practice results"], ["Run the batch job in a sandbox", "Job finishes and logs results in batch job history", "Batch job history"]],
+          "objectives": ["Explain the X++ extension model", "Review extension designs", "Weigh extension risk at each update"]
+        },
+        {
+          "topic": "Performance and Data Volumes at Scale",
+          "subtopics": ["Dataverse service protection limits per user: 6,000 requests and 20 minutes of execution in 5 minutes, 52 concurrent requests", "Power Platform request allocations and add-ons", "Dataverse database, file and log capacity", "Priority-based throttling for finance and operations integrations", "Batch groups, batch priorities and parallel batch tasks", "Archiving with Dataverse long-term retention", "Telemetry in Azure Application Insights", "Load testing with Azure Load Testing and the Performance SDK"],
+          "tools": ["Power Platform admin center: Capacity", "Azure Application Insights", "Azure Load Testing", "Batch jobs"],
+          "lab_task": "Size a client with 40 million sales lines a year: load 1 million rows into Dataverse with CreateMultiple from 4 application users, tune the finance and operations batch groups for invoicing, set an archive policy for closed orders older than 3 years, and read the telemetry.",
+          "deliverable": "Volume model, load test results and archive policy",
+          "checks": [["Run the load with one application user at full speed", "429 errors return with Retry-After headers", "Client log"], ["Spread the load across 4 users with retry handling", "Load completes with no failed rows", "Load report"], ["Run invoicing with parallel batch tasks", "Run time drops against the single-task baseline", "Batch history"]],
+          "objectives": ["Model data volumes", "Design within platform limits", "Plan archiving and telemetry"]
+        },
+        {
+          "topic": "Security Architecture and Compliance for Dynamics 365",
+          "subtopics": ["Microsoft Entra ID, Conditional Access and environment security groups", "Dataverse security at scale: business units, teams and hierarchy", "Finance and operations roles, extensible data security and segregation of duties", "Auditing with Dataverse auditing, Microsoft Purview and database logging", "Customer-managed keys, Customer Lockbox and IP firewall", "Data policies, tenant isolation and connector controls", "Data residency, the EU Data Boundary and Copilot data movement", "Mapping controls to SOX, GDPR and ISO 27001 evidence"],
+          "tools": ["Microsoft Entra admin center", "Power Platform admin center: Security", "Microsoft Purview", "Security configuration"],
+          "lab_task": "Write the security design for a listed company: Conditional Access for Dynamics 365, a business unit and team model for 1,500 customer engagement users, finance and operations roles with segregation of duties for purchase to pay, audit settings and the evidence each SOX control needs.",
+          "deliverable": "Security design and control evidence matrix",
+          "checks": [["Sign in from an unmanaged device", "Conditional Access blocks or limits the session", "Sign-in log"], ["Assign conflicting purchasing and payment roles to one user", "A segregation of duties conflict is raised", "Conflict log"], ["Change a credit limit with auditing on", "Old and new values appear in the audit history", "Audit record"]],
+          "objectives": ["Design identity and access for Dynamics 365", "Design auditing and data protection", "Produce compliance evidence"]
+        },
+        {
+          "topic": "Migrating from Dynamics AX 2012 to Finance and Operations",
+          "subtopics": ["AX 2012 R3 has been out of extended support since 10 January 2023", "Upgrade or reimplement: the decision criteria", "Supported sources: AX 2012 R2 and R3 on the latest cumulative update", "Code upgrade from overlayering to extensions", "Data upgrade with the AX 2012 upgrade toolkit in development and sandbox environments", "Data migration instead of upgrade for history and open items", "Reports, integrations and ISV solutions that change in the cloud", "Mock upgrades, cutover timing and reconciliation"],
+          "tools": ["Data Migration Toolkit for Dynamics 365", "Visual Studio with the finance and operations tools", "Data management workspace"],
+          "lab_task": "Assess an AX 2012 R3 estate with 140 customised objects, 12 integrations and 6 ISV solutions, choose upgrade or reimplementation with reasons, plan two mock data upgrades into a sandbox and write the cutover runbook.",
+          "deliverable": "Assessment, decision paper and cutover runbook",
+          "checks": [["Classify the 140 objects", "Each is kept as an extension, replaced by standard or dropped", "Object list"], ["Run the first mock upgrade", "Row counts and the trial balance match AX 2012", "Reconciliation report"], ["Review the runbook", "Every step has an owner, a duration and a rollback point", "Runbook"]],
+          "objectives": ["Choose between upgrade and reimplementation", "Plan code and data upgrade", "Plan an AX cutover"]
+        },
+        {
+          "topic": "Migrating from Dynamics NAV to Business Central Online",
+          "subtopics": ["NAV support dates: NAV 2017 ends on 11 January 2027 and NAV 2018 on 11 January 2028", "Upgrade paths by NAV version through Business Central on-premises", "Converting C/AL customisations to AL extensions or dropping them", "The cloud migration tool and its self-hosted integration runtime", "SQL Server 2016 or later at compatibility level 130", "Company-by-company replication and the final cutover", "AppSource apps that replace NAV add-ons", "When to move to Finance and Supply Chain Management instead"],
+          "tools": ["Business Central admin center", "Cloud Migration Management", "AL Language extension for Visual Studio Code"],
+          "lab_task": "Plan the move of a NAV 2016 database with 3 companies and 60 modified objects to Business Central online: choose the upgrade path, list the AL extensions and AppSource apps, run cloud migration of one company into a sandbox and record the data checks.",
+          "deliverable": "Migration plan and cloud migration status report",
+          "checks": [["Run cloud migration for one company", "Replication completes and the company opens online", "Cloud Migration Management page"], ["Compare customer and G/L balances", "Balances match the NAV source", "Reconciliation sheet"], ["Review the customisation list", "Each object maps to AL, an AppSource app or retirement", "Customisation list"]],
+          "objectives": ["Choose a NAV upgrade path", "Run Business Central cloud migration", "Handle NAV customisations"]
+        },
+        {
+          "topic": "Moving Dynamics CRM On-Premises to Dynamics 365 Online",
+          "subtopics": ["Support dates: CRM 2016 ended on 13 January 2026 and v9 extended support runs to 9 January 2029", "Exchange Online retiring EWS from October 2026 and the effect on email sync", "Source versions for Microsoft's migration tooling: CRM 9.0 and Dynamics 365 9.0 or 9.1", "Migration tooling in Lifecycle Services with Microsoft's migration team", "SQL-based SSRS reports rebuilt in FetchXML or Power BI", "Plug-ins in sandbox isolation and removing direct database access", "Users, Microsoft Entra ID mapping and mailboxes", "Cleaning data and removing unused customisations before the move"],
+          "tools": ["Lifecycle Services migration tooling", "Power Platform admin center", "Solution checker"],
+          "lab_task": "Assess a CRM 2016 (8.2) organisation with 90 custom tables, 40 SSRS reports, 25 plug-ins and 1,200 users, plan its upgrade to 9.1 and migration to Dynamics 365 online, and list every component that must change before the move.",
+          "deliverable": "Readiness assessment and migration plan",
+          "checks": [["Run solution checker on the exported customisations", "Deprecated APIs and unsupported code are listed", "Checker report"], ["Review the 40 reports", "Each is rebuilt in FetchXML, moved to Power BI or retired", "Report list"], ["Run a trial migration to a sandbox", "Record counts match the source database", "Migration report"]],
+          "objectives": ["Assess on-premises readiness", "Plan the online migration", "Fix components that cannot move as they are"]
+        },
+        {
+          "topic": "Copilot and AI Agents at Scale: Copilot Studio, MCP Servers and Copilot Credits",
+          "subtopics": ["First-party agents across Sales, Customer Service, Field Service, Finance, Supply Chain Management and Business Central", "Extending agents in Copilot Studio with Dataverse knowledge and tools", "The Dynamics 365 ERP MCP server: find_actions, invoke_action and data tools", "The Dataverse MCP server and the Dynamics 365 CX MCP servers for Sales and Service", "Copilot Cowork plugins for Dynamics 365", "Human review points, agent permissions and least privilege", "Copilot Credit forecasts: prepaid packs of 25,000 credits and pay-as-you-go", "Measuring agent value: resolution rates, time saved and cost per task"],
+          "tools": ["Microsoft Copilot Studio", "Dynamics 365 ERP MCP server", "Dataverse MCP server", "Power Platform admin center: Copilot hub"],
+          "lab_task": "Design an agent portfolio for lead qualification, case intake and supplier follow-up, build one Copilot Studio agent that reads open purchase orders through the ERP MCP server, run it on 50 test records and forecast the monthly Copilot Credits.",
+          "deliverable": "Agent portfolio, working agent and credit forecast",
+          "checks": [["Ask the agent for a vendor's open purchase orders", "Agent lists them through the MCP server tools", "Agent test transcript"], ["Ask the agent to change a purchase order the user may not edit", "Request is refused under the user's security", "Agent transcript"], ["Compare the forecast with the 50 test runs", "Credits per run are within 20% of the estimate", "Usage report"]],
+          "objectives": ["Plan agents across the suite", "Connect agents to ERP and Dataverse through MCP", "Forecast and track agent cost"]
+        },
+        {
+          "topic": "Platform Governance: Centre of Excellence, Environment Groups and Agent Oversight",
+          "subtopics": ["A Dynamics 365 centre of excellence and design authority", "Environment groups and rules for sharing, AI features and ALM", "Managed Environments: weekly digests, sharing limits and solution checker enforcement", "Data policies for connectors in Dynamics 365 environments", "Agent inventory and identity with Microsoft Agent 365 and Microsoft Entra Agent ID", "Release governance for the CRM release waves and quarterly finance and operations updates", "Master data ownership and data quality rules", "Native admin center governance now that the CoE Starter Kit is no longer maintained"],
+          "tools": ["Power Platform admin center", "Microsoft Agent 365", "Microsoft Entra Agent ID"],
+          "lab_task": "Write the governance model for a client running Sales, Customer Service and Finance: environment groups with rules, data policies, an agent register with owners and permissions, a release calendar for waves and service updates, and a design authority charter.",
+          "deliverable": "Governance handbook and release calendar",
+          "checks": [["Create a new environment in the governed group", "Group rules apply automatically", "Environment settings"], ["Use a blocked connector in a flow", "Data policy stops the flow from saving", "Error screenshot"], ["Review the agent register", "Every agent has an owner, a data scope and a review date", "Agent register"]],
+          "objectives": ["Set up platform governance", "Govern agents and releases", "Run a design authority"]
+        },
+        {
+          "topic": "Licensing and Cost Optimisation for Dynamics 365",
+          "subtopics": ["Base and attach rules: the highest-priced app is the base", "Team Members and Operations - Activity use rights", "Purchase minimums: 20 for Finance and Supply Chain Management, 10 for the Premium plans", "Per-user licence validation and the user security governance licence summary", "Dataverse and finance and operations capacity add-ons", "Tenant-based Customer Insights licences and their capacity", "Copilot Credits: 1,000 included with each Finance Premium licence, packs and pay-as-you-go", "Total cost of ownership: licences, partners, Azure and support"],
+          "tools": ["Dynamics 365 Licensing Guide", "Microsoft 365 admin center", "Power Platform admin center: Licensing and Capacity", "User security governance"],
+          "lab_task": "Model the 3-year licence cost for 600 users across Sales, Customer Service, Finance and Supply Chain Management, cut it by remapping roles to Team Members, attach and Activity licences, add capacity and Copilot Credits for two agents, and check that security roles still match the licences.",
+          "deliverable": "Three-year cost model and licence remapping plan",
+          "checks": [["Remap 80 read-only finance users", "Team Members licences replace full licences without losing needed access", "Licence summary"], ["Run the user security governance licence summary", "No user's roles need a higher licence than assigned", "Licence usage summary"], ["Add capacity and credits to the model", "Year-one cost includes storage and agent consumption lines", "Cost model"]],
+          "objectives": ["Apply Dynamics 365 licensing rules", "Reduce licence cost safely", "Build a total cost of ownership model"]
+        },
+        {
+          "topic": "Programme Leadership: Success by Design, Cutover and Hypercare",
+          "subtopics": ["Success by Design phases: initiate, implement, prepare and operate", "Programme governance: steering committee, design authority and RAID log", "Workstreams for CRM, ERP, data, integration, testing and change", "Partner and Microsoft roles, including FastTrack reviews", "The go-live readiness review and the go or no-go decision", "Cutover plans, mock cutovers and rollback", "Hypercare, support handover and the first service update after go-live", "Adoption, training and benefits tracking"],
+          "tools": ["Dynamics 365 Implementation Portal", "Azure DevOps Boards", "Microsoft Planner"],
+          "lab_task": "Write the delivery plan for an 18-month programme that takes Sales and Customer Service live first and Finance and Supply Chain Management 6 months later: phases, workstreams, governance, a 72-hour cutover plan, go or no-go criteria and the hypercare model.",
+          "deliverable": "Programme plan, cutover plan and go/no-go checklist",
+          "checks": [["Run a mock cutover against the plan", "Each step finishes within its time box or is re-planned", "Mock cutover log"], ["Hold a go or no-go review", "Decision is recorded against the agreed criteria", "Go/no-go minutes"], ["Review the RAID log", "The top 10 risks have owners and mitigations", "RAID log"]],
+          "objectives": ["Lead a Dynamics 365 programme", "Plan cutover and go-live", "Run hypercare and adoption"]
+        },
+        {
+          "topic": "Advanced Capstone: Dynamics 365 Blueprint for a Multinational Client",
+          "subtopics": ["Scope, app choice and solution architecture", "Environment, ALM and release strategy", "Integration, dual-write and analytics design", "Security, compliance and migration from AX 2012 and CRM on-premises", "Agent portfolio, governance and licence cost", "Programme plan and an architecture defence in the style of AB-100"],
+          "tools": ["Dynamics 365 Implementation Portal", "Power Platform admin center", "Azure DevOps"],
+          "lab_task": "Produce and defend a blueprint for a 5,000-user manufacturer moving from AX 2012 and CRM 2016 to Dynamics 365: architecture, environments, ALM, integrations, security, migration, agents, governance, 3-year cost and a programme plan, reviewed by a panel.",
+          "deliverable": "Solution blueprint pack and review panel decision",
+          "checks": [["Present the blueprint to the panel", "Panel accepts it or lists conditions", "Panel decision"], ["Answer a panel challenge on one integration choice", "Trade-offs are explained with volumes and costs", "Q&A notes"], ["Check the cost model against the licence rules", "No user is under-licensed for their roles", "Cost model review"]],
+          "objectives": ["Design a full Dynamics 365 solution", "Defend architecture decisions", "Plan delivery and cost"]
+        }
+      ]
+    }
+  }
+}

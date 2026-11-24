@@ -1,4 +1,4 @@
-"""Five-minute Google Meet notices for scheduled interviews."""
+"""Ten-minute Google Meet reminders for scheduled interviews."""
 import hashlib
 import logging
 from datetime import datetime, timedelta, timezone
@@ -13,7 +13,8 @@ from app.database import get_db, run_async
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-MEET_START_NOTICE_RETRY_WINDOW_MINUTES = 30
+MEET_START_NOTICE_MINUTES_BEFORE = 10
+MEET_START_NOTICE_RETRY_WINDOW_MINUTES = 10
 MEET_START_NOTICE_MAX_RETRIES = 3
 
 
@@ -46,55 +47,32 @@ def _notice_idempotency_key(log: dict, recipient_email: str) -> str:
         ]
     )
     digest = hashlib.sha256(meeting_identity.encode("utf-8")).hexdigest()
-    return f"interview-5min:v1:{digest}"
+    return f"interview-10min:v2:{digest}"
 
 
 def _notice_recipients(log: dict) -> list[dict[str, str]]:
-    """Build distinct recipients without treating a client invite as a trainer invite."""
+    """Send one pre-meeting reminder to the trainer only."""
     mail_type = _clean(log.get("mail_type")).lower()
+    if mail_type != "mail4":
+        return []
     trainer_email = _clean(log.get("trainer_email"))
     if not trainer_email and mail_type != "client_interview_schedule":
         trainer_email = _clean(log.get("to_email") or log.get("recipient"))
 
-    candidates = [
-        {
-            "email": trainer_email,
-            "name": _clean(log.get("trainer_name")) or "Trainer",
-            "role": "trainer",
-        },
-        {
-            "email": _clean(log.get("client_email")),
-            "name": _clean(log.get("client_name")) or "Client",
-            "role": "client",
-        },
-        {
-            "email": _clean(
-                log.get("clahan_email")
-                or log.get("office_email")
-                or log.get("coordinator_email")
-                or settings.CLAHAN_NOTIFICATION_EMAIL
-            ),
-            "name": "Clahan Technologies",
-            "role": "clahan",
-        },
-    ]
-    recipients: list[dict[str, str]] = []
-    seen: set[str] = set()
-    for item in candidates:
-        normalized_email = item["email"].lower()
-        if not normalized_email or normalized_email in seen:
-            continue
-        seen.add(normalized_email)
-        item["email"] = normalized_email
-        recipients.append(item)
-    return recipients
+    if not trainer_email:
+        return []
+    return [{
+        "email": trainer_email.lower(),
+        "name": _clean(log.get("trainer_name")) or "Trainer",
+        "role": "trainer",
+    }]
 
 
 def _notice_body(*, name: str, technology: str, interview_link: str, interview_date: str) -> str:
     greeting = f"Dear {name}," if name else "Hello,"
     return (
         f"{greeting}\n\n"
-        f"Your {technology or 'training'} interview meeting starts in 5 minutes.\n\n"
+        f"Your {technology or 'training'} interview meeting starts in 10 minutes.\n\n"
         f"Meeting Time: {interview_date or 'As scheduled'}\n"
         f"Google Meet Link: {interview_link}\n\n"
         "ACTION REQUIRED: Please open the meeting link now and join a few minutes before the scheduled start time.\n"
@@ -108,7 +86,7 @@ def _notice_body(*, name: str, technology: str, interview_link: str, interview_d
 
 def _notice_window(now: datetime) -> tuple[datetime, datetime]:
     """Return the tolerated interview-time window for a notice due now."""
-    return now + timedelta(minutes=4), now + timedelta(minutes=6)
+    return now + timedelta(minutes=MEET_START_NOTICE_MINUTES_BEFORE - 1), now + timedelta(minutes=MEET_START_NOTICE_MINUTES_BEFORE + 1)
 
 
 def _due_notice_query(now: datetime) -> dict:
@@ -122,6 +100,8 @@ def _due_notice_query(now: datetime) -> dict:
     }
     return {
         "interview_scheduled": True,
+        "direction": "outbound",
+        "mail_type": "mail4",
         "meet_start_notice_sent": {"$ne": True},
         "$and": [
             has_link,
@@ -136,14 +116,14 @@ def _due_notice_query(now: datetime) -> dict:
             ]},
             {
                 "$or": [
-                    # The normal five-minute-before-meeting alarm.
+                    # The normal ten-minute-before-meeting reminder.
                     {"interview_at": {"$lte": window_end, "$gte": window_start}},
                     # SMTP/DNS failures are often transient. Retry only for a
                     # short period and cap attempts so a bad address cannot
                     # keep the scheduler busy indefinitely.
                     {
                         "interview_at": {
-                            "$gte": now - timedelta(minutes=MEET_START_NOTICE_RETRY_WINDOW_MINUTES),
+                            "$gte": now,
                             "$lt": window_start,
                         },
                         "$or": [
@@ -161,7 +141,7 @@ def _due_notice_query(now: datetime) -> dict:
 async def _send_start_notices(*, dry_run: bool = False):
     db = get_db()
     now = datetime.utcnow()
-    # Beat runs every minute. Select five-minute notices and bounded retries.
+    # Beat runs every minute. Select ten-minute notices and bounded retries.
     query = _due_notice_query(now)
 
     sent = failed = skipped = would_send = 0
@@ -227,7 +207,7 @@ async def _send_start_notices(*, dry_run: bool = False):
                             technology=technology,
                             interview_link=interview_link,
                             interview_date=interview_date,
-                        ).replace("starts in 5 minutes", "is scheduled for the time below"),
+                        ),
                         "mail_type": "meet_start_notice",
                         "requirement_id": requirement_id,
                         "trainer_id": _clean(log.get("trainer_id")),
@@ -238,13 +218,13 @@ async def _send_start_notices(*, dry_run: bool = False):
                         # failure dependency to this time-sensitive send.
                         "ai_generate": False,
                         "ai_context": {
-                            "workflow": "interview_5_minute_reminder",
+                            "workflow": "interview_10_minute_reminder",
                             "recipient_role": recipient["role"],
                             "recipient_name": recipient["name"],
                             "technology": technology,
                             "meeting_time": interview_date,
                             "meeting_link": interview_link,
-                            "required_message": "Meeting reminder: check the scheduled time below and join using the meeting link.",
+                            "required_message": "The meeting starts in 10 minutes. Check the scheduled time below and join using the meeting link.",
                         },
                     },
                     timeout=30,

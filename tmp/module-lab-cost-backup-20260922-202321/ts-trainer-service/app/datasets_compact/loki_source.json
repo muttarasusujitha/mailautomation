@@ -1,0 +1,372 @@
+{
+    "domain":  "Loki",
+    "name":  "Loki â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Grafana Loki",
+                    "Log Aggregation"
+                ],
+    "tools":  [
+                  "Grafana Loki",
+                  "Promtail/Alloy",
+                  "Grafana"
+              ],
+    "certifications":  [
+                           "Loki official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Fundamentals",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Terminology",
+                                       "Common protocols",
+                                       "Use cases",
+                                       "Threats or failure modes",
+                                       "Lab setup",
+                                       "Loki terminology and feature mapping for this topic",
+                                       "Loki configuration and implementation considerations",
+                                       "Loki best practices and common mistakes for this topic",
+                                       "log streams",
+                                       "labels",
+                                       "LogQL",
+                                       "Promtail/Alloy",
+                                       "ingestion",
+                                       "chunks",
+                                       "index",
+                                       "retention",
+                                       "queries",
+                                       "alerts",
+                                       "Grafana integration",
+                                       "multi-tenancy concepts"
+                                   ],
+                     "tools":  [
+                                   "Grafana Loki",
+                                   "Promtail/Alloy",
+                                   "Grafana"
+                               ],
+                     "lab_task":  "Set up a safe lab and demonstrate Loki fundamentals.",
+                     "technology":  "Loki",
+                     "technology_id":  "loki",
+                     "learning_objectives":  [
+                                                 "Explain the Fundamentals concepts in the context of Loki.",
+                                                 "Configure or implement the key Loki features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Fundamentals practically using Loki.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Protocols and Components",
+                     "subtopics":  [
+                                       "Core components",
+                                       "Packet/message flow",
+                                       "Ports and protocols",
+                                       "Addressing/identity concepts",
+                                       "State",
+                                       "Control plane/data plane",
+                                       "Common configurations",
+                                       "Loki terminology and feature mapping for this topic",
+                                       "Loki configuration and implementation considerations",
+                                       "Loki best practices and common mistakes for this topic",
+                                       "log streams",
+                                       "labels",
+                                       "LogQL",
+                                       "Promtail/Alloy",
+                                       "ingestion",
+                                       "chunks",
+                                       "index",
+                                       "retention",
+                                       "queries",
+                                       "alerts",
+                                       "Grafana integration",
+                                       "multi-tenancy concepts"
+                                   ],
+                     "tools":  [
+                                   "Grafana Loki",
+                                   "Promtail/Alloy",
+                                   "Grafana"
+                               ],
+                     "lab_task":  "Inspect and configure core Loki components.",
+                     "technology":  "Loki",
+                     "technology_id":  "loki",
+                     "learning_objectives":  [
+                                                 "Explain the Protocols and Components concepts in the context of Loki.",
+                                                 "Configure or implement the key Loki features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Protocols and Components practically using Loki.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Design and Architecture",
+                     "subtopics":  [
+                                       "Enterprise design patterns",
+                                       "Segmentation",
+                                       "Redundancy",
+                                       "Scalability",
+                                       "Trust boundaries",
+                                       "Failure domains",
+                                       "Cloud considerations",
+                                       "Loki terminology and feature mapping for this topic",
+                                       "Loki configuration and implementation considerations",
+                                       "Loki best practices and common mistakes for this topic",
+                                       "log streams",
+                                       "labels",
+                                       "LogQL",
+                                       "Promtail/Alloy",
+                                       "ingestion",
+                                       "chunks",
+                                       "index",
+                                       "retention",
+                                       "queries",
+                                       "alerts",
+                                       "Grafana integration",
+                                       "multi-tenancy concepts"
+                                   ],
+                     "tools":  [
+                                   "Grafana Loki",
+                                   "Promtail/Alloy",
+                                   "Grafana"
+                               ],
+                     "lab_task":  "Design an enterprise architecture for Loki.",
+                     "technology":  "Loki",
+                     "technology_id":  "loki",
+                     "learning_objectives":  [
+                                                 "Explain the Design and Architecture concepts in the context of Loki.",
+                                                 "Configure or implement the key Loki features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Design and Architecture practically using Loki.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Security Controls",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Encryption",
+                                       "Certificates/keys",
+                                       "Hardening",
+                                       "Least privilege",
+                                       "Logging and auditing",
+                                       "Loki terminology and feature mapping for this topic",
+                                       "Loki configuration and implementation considerations",
+                                       "Loki best practices and common mistakes for this topic",
+                                       "log streams",
+                                       "labels",
+                                       "LogQL",
+                                       "Promtail/Alloy",
+                                       "ingestion",
+                                       "chunks",
+                                       "index",
+                                       "retention",
+                                       "queries",
+                                       "alerts",
+                                       "Grafana integration",
+                                       "multi-tenancy concepts"
+                                   ],
+                     "tools":  [
+                                   "Grafana Loki",
+                                   "Promtail/Alloy",
+                                   "Grafana"
+                               ],
+                     "lab_task":  "Apply secure configuration and hardening.",
+                     "technology":  "Loki",
+                     "technology_id":  "loki",
+                     "learning_objectives":  [
+                                                 "Explain the Security Controls concepts in the context of Loki.",
+                                                 "Configure or implement the key Loki features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security Controls practically using Loki.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Monitoring and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Packet or request inspection",
+                                       "Common faults",
+                                       "Diagnostic commands",
+                                       "Alerting",
+                                       "Incident workflow",
+                                       "Loki terminology and feature mapping for this topic",
+                                       "Loki configuration and implementation considerations",
+                                       "Loki best practices and common mistakes for this topic",
+                                       "log streams",
+                                       "labels",
+                                       "LogQL",
+                                       "Promtail/Alloy",
+                                       "ingestion",
+                                       "chunks",
+                                       "index",
+                                       "retention",
+                                       "queries",
+                                       "alerts",
+                                       "Grafana integration",
+                                       "multi-tenancy concepts"
+                                   ],
+                     "tools":  [
+                                   "Grafana Loki",
+                                   "Promtail/Alloy",
+                                   "Grafana"
+                               ],
+                     "lab_task":  "Diagnose and resolve a simulated Loki issue.",
+                     "technology":  "Loki",
+                     "technology_id":  "loki",
+                     "learning_objectives":  [
+                                                 "Explain the Monitoring and Troubleshooting concepts in the context of Loki.",
+                                                 "Configure or implement the key Loki features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Monitoring and Troubleshooting practically using Loki.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Automation and Operations",
+                     "subtopics":  [
+                                       "Configuration automation",
+                                       "Policy management",
+                                       "Backups",
+                                       "Change control",
+                                       "Versioning",
+                                       "Testing",
+                                       "Operational runbooks",
+                                       "Loki terminology and feature mapping for this topic",
+                                       "Loki configuration and implementation considerations",
+                                       "Loki best practices and common mistakes for this topic",
+                                       "log streams",
+                                       "labels",
+                                       "LogQL",
+                                       "Promtail/Alloy",
+                                       "ingestion",
+                                       "chunks",
+                                       "index",
+                                       "retention",
+                                       "queries",
+                                       "alerts",
+                                       "Grafana integration",
+                                       "multi-tenancy concepts"
+                                   ],
+                     "tools":  [
+                                   "Grafana Loki",
+                                   "Promtail/Alloy",
+                                   "Grafana"
+                               ],
+                     "lab_task":  "Automate a repeatable Loki configuration task.",
+                     "technology":  "Loki",
+                     "technology_id":  "loki",
+                     "learning_objectives":  [
+                                                 "Explain the Automation and Operations concepts in the context of Loki.",
+                                                 "Configure or implement the key Loki features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation and Operations practically using Loki.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Advanced and Cloud Patterns",
+                     "subtopics":  [
+                                       "Cloud-native services",
+                                       "Hybrid connectivity",
+                                       "Zero-trust considerations",
+                                       "Performance",
+                                       "High availability",
+                                       "Disaster recovery",
+                                       "Cost considerations",
+                                       "Loki terminology and feature mapping for this topic",
+                                       "Loki configuration and implementation considerations",
+                                       "Loki best practices and common mistakes for this topic",
+                                       "log streams",
+                                       "labels",
+                                       "LogQL",
+                                       "Promtail/Alloy",
+                                       "ingestion",
+                                       "chunks",
+                                       "index",
+                                       "retention",
+                                       "queries",
+                                       "alerts",
+                                       "Grafana integration",
+                                       "multi-tenancy concepts"
+                                   ],
+                     "tools":  [
+                                   "Grafana Loki",
+                                   "Promtail/Alloy",
+                                   "Grafana"
+                               ],
+                     "lab_task":  "Design a cloud/hybrid implementation.",
+                     "technology":  "Loki",
+                     "technology_id":  "loki",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced and Cloud Patterns concepts in the context of Loki.",
+                                                 "Configure or implement the key Loki features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced and Cloud Patterns practically using Loki.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Capstone",
+                     "subtopics":  [
+                                       "Requirement analysis",
+                                       "Architecture",
+                                       "Security",
+                                       "Configuration",
+                                       "Testing",
+                                       "Monitoring",
+                                       "Troubleshooting",
+                                       "Documentation",
+                                       "Loki terminology and feature mapping for this topic",
+                                       "Loki configuration and implementation considerations",
+                                       "Loki best practices and common mistakes for this topic",
+                                       "log streams",
+                                       "labels",
+                                       "LogQL",
+                                       "Promtail/Alloy",
+                                       "ingestion",
+                                       "chunks",
+                                       "index",
+                                       "retention",
+                                       "queries",
+                                       "alerts",
+                                       "Grafana integration",
+                                       "multi-tenancy concepts"
+                                   ],
+                     "tools":  [
+                                   "Grafana Loki",
+                                   "Promtail/Alloy",
+                                   "Grafana"
+                               ],
+                     "lab_task":  "Build and document an end-to-end Loki solution.",
+                     "technology":  "Loki",
+                     "technology_id":  "loki",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone concepts in the context of Loki.",
+                                                 "Configure or implement the key Loki features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone practically using Loki.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "loki"
+}

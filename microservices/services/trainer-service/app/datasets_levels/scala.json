@@ -1,0 +1,573 @@
+{
+  "domain": "Scala",
+  "name": "Scala",
+  "category": "Programming Languages",
+  "icon": "code",
+  "aliases": ["Scala Programming", "Scala Language", "Scala JVM", "Advanced Scala", "Scala 3", "Scala 3 Programming", "Functional Programming in Scala", "Scala Developer"],
+  "certifications": [],
+  "tools": ["Coursier", "Scala CLI", "sbt", "Metals", "IntelliJ IDEA", "Visual Studio Code", "munit", "ScalaCheck", "scalafmt", "cats-effect", "fs2", "http4s", "Apache Pekko", "JDK Flight Recorder"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who know another language such as Java, Python, C# or JavaScript and are new to Scala 3. Covers installing the JDK, Coursier and Scala CLI, vals and types, expression-based control flow, methods and functions, strings, immutable collections and their transformations, classes, traits, case classes and enums, pattern matching, Option, Either and Try, for comprehensions, generics and variance, givens and extension methods, packages, file handling, munit testing, sbt builds and a command-line tool capstone.",
+      "prerequisites": ["Writes working programs in at least one other language such as Java, Python, C# or JavaScript", "Uses a terminal confidently: changing directories, running commands and setting environment variables", "Has a laptop with rights to install a JDK, Coursier and an editor such as Visual Studio Code with Metals or IntelliJ IDEA"],
+      "outcomes": ["Install the Scala 3 toolchain and build, run and test programs with Scala CLI and sbt", "Model data with case classes, enums and traits and process it with immutable collections and pattern matching", "Handle absence and failure with Option, Either and Try instead of null and exceptions", "Build, test and package a command-line tool that reads files and reports errors with correct exit codes"],
+      "days": [
+        {
+          "topic": "Installing Scala 3 with Coursier, Scala CLI and Metals",
+          "subtopics": ["Scala 3 on the JVM and how it relates to Java and Scala 2.13", "Choosing a JDK: a current LTS release such as 21 or newer", "Coursier: cs setup, cs install and cs java --jvm", "Scala CLI as the scala command: scala run, scala compile, scala repl", "Running a single file and a //> using scala directive", "The @main annotation and top-level definitions", "Editors: Visual Studio Code with Metals, IntelliJ IDEA with the Scala plugin", "Reading the output of scala --version and java -version"],
+          "tools": ["Coursier", "Scala CLI", "JDK", "Metals", "Visual Studio Code", "IntelliJ IDEA"],
+          "lab_task": "Run cs setup, then confirm scala --version and java -version. Create Hello.scala with an @main method that prints the first command-line argument, run it with scala run Hello.scala -- Ada, open scala repl, evaluate List(1, 2, 3).map(_ * 2), and open the folder in Metals to see the import build step finish.",
+          "deliverable": "Setup log with version output, Hello.scala and a screenshot of the REPL session",
+          "checks": [["Run scala --version after cs setup", "Output names a Scala 3 compiler version and the Scala CLI version", "Terminal screenshot"], ["Run scala run Hello.scala -- Ada", "Program prints Hello, Ada and exits with code 0", "Terminal output"], ["Evaluate List(1, 2, 3).map(_ * 2) in the REPL", "REPL prints val res0: List[Int] = List(2, 4, 6)", "REPL transcript"]],
+          "objectives": ["Install a JDK, Scala CLI and an editor with Coursier", "Compile and run a Scala 3 file with the scala command", "Use the REPL to test small expressions"]
+        },
+        {
+          "topic": "Vals, Vars and the Scala Type Hierarchy",
+          "subtopics": ["val for immutable bindings and var for mutable ones", "Type inference and when to write an explicit type", "Int, Long, Double, Boolean, Char and String literals", "Underscores in numeric literals and BigInt, BigDecimal", "Any, AnyVal, AnyRef and Matchable", "Nothing and Null at the bottom of the hierarchy", "Unit and the meaning of ()", "Lazy vals and what runs at first access"],
+          "tools": ["Scala CLI", "Scala REPL", "Metals", "scalafmt"],
+          "lab_task": "In Types.scala declare a val, a var and a lazy val whose initializer prints a message. Try reassigning the val, add Int.MaxValue + 1, compute BigDecimal(\"0.1\") + BigDecimal(\"0.2\") against 0.1 + 0.2, and print the type of five expressions with the REPL :type command. Record each result in a table.",
+          "deliverable": "Types.scala and a table of expressions with their inferred types and values",
+          "checks": [["Reassign a val after declaring it", "Compiler reports Reassignment to val", "Compiler output"], ["Evaluate Int.MaxValue + 1 and BigDecimal(\"0.1\") + BigDecimal(\"0.2\")", "Results are -2147483648 and 0.3", "REPL output"], ["Reference a lazy val twice", "Initializer message prints once, on first access only", "Program output"]],
+          "objectives": ["Choose val or var and justify it", "Explain the Scala type hierarchy from Any to Nothing", "Use lazy initialization correctly"]
+        },
+        {
+          "topic": "Control Flow as Expressions with Indentation Blocks",
+          "subtopics": ["if and else as expressions that return values", "Significant indentation compared with braces", "The end marker for long blocks", "match expressions as the main branching tool", "while loops and why they are rare in Scala", "for loops over ranges with to and until", "for loops with guards and several generators", "Block expressions and the value of the last line"],
+          "tools": ["Scala CLI", "Metals", "scalafmt", "Scala REPL"],
+          "lab_task": "Write FizzBuzz for 1 to 30 as a for loop with a match expression and no var. Then rewrite one nested if as a match with guards, add an end marker to a 15-line method, and run scalafmt through scala fmt with indent.main = 2 in .scalafmt.conf. Count how many lines use var; the target is zero.",
+          "deliverable": "FizzBuzz.scala written without var, plus a short note comparing indentation and brace style",
+          "checks": [["Run FizzBuzz for 1 to 30", "Output has 8 Fizz, 4 Buzz and 2 FizzBuzz lines", "Program output and line counts"], ["Search the source for var", "No occurrences are found", "grep output"], ["Write end fizz after a method named fizzBuzz", "Compiler reports a misaligned or misplaced end marker and writes no class files", "Compiler output"]],
+          "objectives": ["Use if and match as expressions", "Write loops and comprehensions without mutable state", "Format code consistently with scalafmt"]
+        },
+        {
+          "topic": "Methods, Functions and Parameter Features",
+          "subtopics": ["def methods with parameters and return types", "Default parameters and named arguments", "Varargs with * and passing a collection with *", "By-name parameters with => and delayed evaluation", "Function values and the A => B type", "Anonymous functions and placeholder syntax _", "Methods versus functions and eta-expansion", "Parameter untupling and local methods"],
+          "tools": ["Scala CLI", "Scala REPL", "Metals", "munit"],
+          "lab_task": "Write a retry(times: Int)(op: => Boolean) method that evaluates op by name up to times, with a default of 3. Call it with a counter that succeeds on the third try, pass it a named argument, add a varargs sum(xs: Int*) and call it as sum(list*). Print how many times op was evaluated.",
+          "deliverable": "Retry.scala with the by-name method, a varargs method and printed evaluation counts",
+          "checks": [["Call retry with an op that succeeds on the third attempt", "Counter prints 3 and the method returns true", "Program output"], ["Call sum(List(1, 2, 3)*)", "Returns 6", "REPL output"], ["Call retry(times = 0)(false)", "Returns false and op is evaluated 0 times", "Program output"]],
+          "objectives": ["Define methods with default, named and by-name parameters", "Pass functions as values", "Explain when an argument is evaluated"]
+        },
+        {
+          "topic": "Strings, Interpolators and Text Processing",
+          "subtopics": ["String as a Java String with extra methods", "s, f and raw interpolators", "Multiline strings with triple quotes and stripMargin", "Common methods: split, trim, replace, startsWith, mkString", "Regular expressions with .r and pattern matching on groups", "Char and code point handling for Unicode text", "StringBuilder and when to use it", "Parsing numbers with toIntOption and toDoubleOption"],
+          "tools": ["Scala CLI", "Scala REPL", "Metals", "munit"],
+          "lab_task": "Write a log-line parser for lines like 2026-03-01 ERROR db timeout=30. Use a regex with three groups and a match expression to extract level, component and value, use toIntOption for numbers, print a report with the f interpolator at two decimals, and run it on a 20-line sample containing 3 malformed lines.",
+          "deliverable": "LogParser.scala, the sample file and a report listing counts per level",
+          "checks": [["Run the parser on the 20-line sample", "17 lines are parsed and 3 are reported as malformed", "Program output"], ["Parse the text 12x with toIntOption", "Returns None and no exception is thrown", "REPL output"], ["Print f\"${2.0 / 3}%.2f\"", "Prints 0.67", "REPL output"]],
+          "objectives": ["Format and parse text with interpolators and regexes", "Convert strings to numbers without exceptions", "Process multiline text with standard methods"]
+        },
+        {
+          "topic": "Immutable Collections: List, Vector, Set and Map",
+          "subtopics": ["List as a linked list and its cons operator ::", "Vector for indexed access and updates", "Set and Map with immutable defaults", "Seq and Iterable as common supertypes", "Adding and removing with +, -, :+ and updated", "Tuples and pairs with ->", "Complexity of head, apply, append and prepend", "Mutable collections in scala.collection.mutable and when to avoid them"],
+          "tools": ["Scala CLI", "Scala REPL", "Metals", "JMH"],
+          "lab_task": "Build a List, Vector, Set and Map of 100000 Ints. Measure the time of lookup by index on List and Vector with System.nanoTime, add an element with :+ and updated and show that the originals do not change, and convert a List of pairs to a Map where duplicate keys keep the last value.",
+          "deliverable": "Collections.scala with a table comparing List and Vector indexed access times",
+          "checks": [["Run xs :+ 4 on val xs = List(1, 2, 3) and print xs", "xs is still List(1, 2, 3) and the new list is List(1, 2, 3, 4)", "REPL output"], ["Convert List(1 -> \"a\", 1 -> \"b\") to a Map", "Result is Map(1 -> b)", "REPL output"], ["Time xs(99999) on a List and a Vector of 100000 elements", "Vector is measurably faster than List", "Timing table"]],
+          "objectives": ["Choose between List, Vector, Set and Map", "Explain immutability and structural sharing", "Convert between collection types"]
+        },
+        {
+          "topic": "Collection Transformations with map, flatMap and fold",
+          "subtopics": ["map, filter and foreach", "flatMap and flatten", "collect with partial functions", "foldLeft, foldRight and reduce", "groupBy, groupMap and groupMapReduce", "partition, span, zip and zipWithIndex", "sortBy, sortWith and maxBy", "Views and iterators for deferred evaluation"],
+          "tools": ["Scala CLI", "Scala REPL", "Metals", "munit"],
+          "lab_task": "Load a CSV of 1000 sales rows with scala.io.Source and compute total revenue per region with groupMapReduce, the top 3 products with sortBy, the count of rows that fail toDoubleOption with partition, and a running total with scanLeft. Print each result and compare with a spreadsheet pivot.",
+          "deliverable": "SalesReport.scala and a comparison with the spreadsheet totals",
+          "checks": [["Run groupMapReduce on the sales data by region", "Region totals equal the spreadsheet pivot totals to two decimals", "Report and spreadsheet screenshot"], ["Call List(1, 2, 3).foldLeft(0)(_ + _) and reduce on an empty List", "Fold returns 6 and reduce on the empty list throws UnsupportedOperationException", "REPL output"], ["Apply collect with a partial function to a mixed List[Any]", "Only the Int elements are kept", "REPL output"]],
+          "objectives": ["Transform data with map, flatMap and filter", "Aggregate data with fold and groupMapReduce", "Pick the right operation for each data question"]
+        },
+        {
+          "topic": "Classes, Objects and Companions",
+          "subtopics": ["Classes with constructor parameters", "val and var parameters and private members", "Auxiliary constructors and creator applications", "object as a singleton", "Companion objects and apply methods", "Methods versus fields and the uniform access principle", "toString, equals and hashCode in plain classes", "The @main annotation and top-level definitions in packages"],
+          "tools": ["Scala CLI", "Metals", "IntelliJ IDEA", "munit"],
+          "lab_task": "Model a BankAccount class with a private balance, a companion object with an apply that rejects negative opening amounts by throwing IllegalArgumentException, and deposit and withdraw methods that return new accounts. Test that two accounts with equal balances are not == because the class does not define equals.",
+          "deliverable": "BankAccount.scala with a companion apply and tests for both successful and failed paths",
+          "checks": [["Call BankAccount(-5)", "IllegalArgumentException is thrown with the validation message", "Test output"], ["Compare BankAccount(10) == BankAccount(10)", "Result is false for a plain class", "REPL output"], ["Call new BankAccount(10) without the keyword", "Code compiles because creator applications allow omitting new", "Compiler output"]],
+          "objectives": ["Write classes with constructors and encapsulated state", "Use companions and apply for construction and validation", "Explain reference equality in plain classes"]
+        },
+        {
+          "topic": "Traits, Abstract Classes and Mixin Composition",
+          "subtopics": ["Traits with abstract and concrete members", "Abstract classes and when they are needed", "Extending several traits with with and commas", "Trait parameters in Scala 3", "Class linearization and the order of super calls", "Self-types and dependency declarations", "Sealed traits for closed hierarchies", "override, final and open classes"],
+          "tools": ["Scala CLI", "Metals", "IntelliJ IDEA", "munit"],
+          "lab_task": "Create traits Logger and Timestamped that both override a log method and call super, mix them into a Service class in both orders, and print the output of each order. Declare a class without the open modifier, extend it from another file, and read the warning.",
+          "deliverable": "Mixins.scala with the two printed linearization orders and a note on the warning",
+          "checks": [["Mix Logger with Timestamped and the reverse", "The two orders print the prefixes in opposite order", "Program output"], ["Extend a non-open class from a different file with -feature enabled", "Compiler reports a feature warning about inheriting from a class that is not open", "Compiler output"], ["Instantiate a trait with new Logger", "Compiler reports Logger is a trait; it cannot be instantiated", "Compiler output"]],
+          "objectives": ["Compose behavior with traits", "Predict linearization order", "Choose between traits and abstract classes"]
+        },
+        {
+          "topic": "Case Classes and Enums as Data Models",
+          "subtopics": ["case class features: apply, copy, equals, toString and unapply", "Immutable data and copy with changed fields", "Case objects and singleton values", "Scala 3 enum with simple cases", "Enum values, ordinal, valueOf and values", "Enums with parameters and methods (ADTs)", "Companion objects for smart constructors", "Default values and named fields in models"],
+          "tools": ["Scala CLI", "Metals", "munit", "scalafmt"],
+          "lab_task": "Model a Shape ADT with an enum having Circle(r), Rectangle(w, h) and Triangle(b, h), add an area method, build a List of shapes, print the total area, and use copy to make a rectangle with doubled width. Also define enum Color with values and call Color.valueOf(\"Purple\").",
+          "deliverable": "Shapes.scala with the enum, area method and tests for each case",
+          "checks": [["Compare Circle(1.0) == Circle(1.0)", "Result is true because case classes compare by value", "REPL output"], ["Call Color.valueOf(\"Purple\") when the enum has no such case", "IllegalArgumentException is thrown with no case with name Purple", "REPL output"], ["Call Rectangle(2, 3).copy(w = 4).area", "Returns 12.0", "Test output"]],
+          "objectives": ["Model data with case classes and enums", "Use copy and value equality", "Write total functions over an ADT"]
+        },
+        {
+          "topic": "Pattern Matching and Exhaustivity",
+          "subtopics": ["match with literals, variables and wildcards", "Constructor patterns on case classes", "Guards with if", "Alternatives with", "and binders with @", "Type test patterns and the Matchable trait", "Collection patterns such as head :: tail and Seq(a, b, *)", "Exhaustivity warnings on sealed types and enums", "Pattern matching in val definitions and lambdas"],
+          "tools": ["Scala CLI", "Metals", "munit", "scalac -Wunused"],
+          "lab_task": "Write an eval function over a sealed expression ADT with Num, Add, Mul and Neg, then comment out the Neg case and compile with -Werror to see the exhaustivity warning become an error. Add a guard to handle division by zero and a head :: tail pattern that sums a list.",
+          "deliverable": "Eval.scala, the compiler message captured with a missing case and the fixed version",
+          "checks": [["Compile with the Neg case missing and -Werror", "Compiler reports match may not be exhaustive and names Neg(_) as the missing input", "Compiler output"], ["Evaluate Add(Num(2), Mul(Num(3), Num(4)))", "Returns 14", "Program output"], ["Match an empty List with head :: tail only", "scala.MatchError is thrown at run time", "REPL output"]],
+          "objectives": ["Deconstruct data with patterns", "Use the compiler to find missing cases", "Write guards and binders correctly"]
+        },
+        {
+          "topic": "Option, Either and Try for Absence and Failure",
+          "subtopics": ["Why null is avoided and how Option models absence", "Some, None, map, flatMap, getOrElse and fold", "Option from nullable Java values with Option(x)", "Either with Left for errors and Right for success", "Converting between Option and Either", "Try, Success and Failure for exception-throwing code", "Choosing among Option, Either and Try", "Accumulating errors versus failing on the first"],
+          "tools": ["Scala CLI", "Metals", "munit", "Scala REPL"],
+          "lab_task": "Write parseAge(s: String): Either[String, Int] that rejects non-numbers and values outside 0 to 130. Parse a List of 8 strings, collect the successes and the errors separately with partitionMap, and wrap a Java call that returns null with Option. Print the error list.",
+          "deliverable": "Validation.scala with partitionMap results and tests for each error case",
+          "checks": [["Call parseAge(\"abc\") and parseAge(\"200\")", "Both return Left with different messages", "Test output"], ["Call Option(null: String).getOrElse(\"none\")", "Returns none", "REPL output"], ["Run partitionMap on 8 inputs where 5 are valid", "Result has 5 Right values and 3 Left values", "Program output"]],
+          "objectives": ["Model absent values with Option", "Model failure with Either and Try", "Separate valid and invalid inputs"]
+        },
+        {
+          "topic": "For Comprehensions and Desugaring",
+          "subtopics": ["for with yield over collections", "Several generators and guards", "Definitions inside for", "for over Option and Either", "How for desugars to map, flatMap and withFilter", "Mixing monads and the type mismatch errors", "for without yield and foreach", "Readability: when to prefer a for over chained calls"],
+          "tools": ["Scala CLI", "Metals", "munit", "Scala REPL"],
+          "lab_task": "Write a for comprehension that combines three Option values (user, address, postcode) and a second one over Either[String, Int] for two parsed numbers. Use scalac -Xprint:typer on the file, find the generated flatMap and map calls, and paste them into the notes.",
+          "deliverable": "ForExamples.scala and a note showing the printed desugared form",
+          "checks": [["Run the Option comprehension with one None input", "Result is None", "Program output"], ["Print the typer phase for the for comprehension", "Output shows nested flatMap and map calls", "Compiler output"], ["Mix an Option and a List in one for", "Compiler reports a type mismatch", "Compiler output"]],
+          "objectives": ["Write comprehensions over several types", "Explain the map and flatMap desugaring", "Diagnose mixed container errors"]
+        },
+        {
+          "topic": "Generics, Bounds and Variance",
+          "subtopics": ["Type parameters on classes and methods", "Upper bounds with <: and lower bounds with >:", "Covariance with +A and contravariance with -A", "Invariance and why Array and Set behave differently", "Variance checks and common compiler errors", "Wildcard types written with ?", "Generic methods and type inference", "Writing a small generic Stack[+A]"],
+          "tools": ["Scala CLI", "Metals", "Scala REPL", "munit"],
+          "lab_task": "Implement an immutable Stack[+A] with push, pop and peek. Make push take B >: A to keep the class covariant, then change +A to A to see inference differences, and write a Printer[-A]. Show that a Stack[Cat] can be used as a Stack[Animal].",
+          "deliverable": "Stack.scala with variance annotations and a note on each compiler error observed",
+          "checks": [["Declare a covariant class with a method taking A as a parameter", "Compiler reports covariant type A occurs in contravariant position", "Compiler output"], ["Assign a Stack[Cat] to a Stack[Animal]", "Assignment compiles", "Compiler output"], ["Push a Dog onto a Stack[Cat]", "Result is typed Stack[Animal] by the lower bound", "REPL output"]],
+          "objectives": ["Write generic classes and methods", "Apply bounds and variance correctly", "Read variance error messages"]
+        },
+        {
+          "topic": "Givens, Using Clauses and Extension Methods",
+          "subtopics": ["Extension methods with extension (x: A)", "Collective extensions for several methods", "given instances and using parameters", "Ordering and the standard library use of givens", "Resolving which given is chosen", "The error No given instance of type was found", "Importing givens with import x.given", "Anonymous givens and given aliases"],
+          "tools": ["Scala CLI", "Metals", "munit", "Scala REPL"],
+          "lab_task": "Define extension methods on String named isPalindrome and on Seq[Int] named mean. Create trait Show[A] with given instances for Int and String, a method describe[A](a: A)(using Show[A]), and call it with a Boolean to read the missing given error, then add the instance to fix it.",
+          "deliverable": "Extensions.scala with the Show type class and the captured compiler error",
+          "checks": [["Call describe(true) without a Show[Boolean] given", "Compiler reports No given instance of type Show[Boolean] was found", "Compiler output"], ["Call \"level\".isPalindrome and \"scala\".isPalindrome", "Results are true and false", "Test output"], ["Sort a List[Int] with the given Ordering.Int.reverse", "List is sorted in descending order", "REPL output"]],
+          "objectives": ["Add methods to existing types with extensions", "Write givens and using clauses", "Read and fix missing-given errors"]
+        },
+        {
+          "topic": "Packages, Imports, Exports and Visibility",
+          "subtopics": ["package clauses and the directory layout", "Import syntax: wildcard *, selectors and renaming with as", "Imports of givens and enum cases", "private, protected and qualified private[pkg]", "Package objects replaced by top-level definitions", "export clauses for delegation", "Opaque alias and type alias basics", "Naming conventions and scalafmt rules"],
+          "tools": ["Scala CLI", "sbt", "Metals", "scalafmt"],
+          "lab_task": "Create three files in a package com.acme.shop: model.scala with top-level case classes, repo.scala with a private[shop] class and an export of a delegate, and Main.scala. Import with a rename (java.util.List as JList), try to access the private member from another package, and read the error.",
+          "deliverable": "A three-file package layout and notes on each visibility error",
+          "checks": [["Access a private[shop] member from package com.acme.other", "Compiler reports the member is not accessible", "Compiler output"], ["Import java.util.List as JList and use both List types", "File compiles and both types resolve", "Compiler output"], ["Use an export to delegate two methods", "Delegating methods are callable on the outer class", "Test output"]],
+          "objectives": ["Organize code into packages", "Control visibility with private and qualified private", "Use imports and exports cleanly"]
+        },
+        {
+          "topic": "Reading and Writing Files with os-lib and java.nio",
+          "subtopics": ["scala.io.Source and closing resources with Using", "java.nio.file.Files and Path", "os-lib: os.read, os.write, os.list, os.walk", "Reading lines lazily versus all at once", "Writing and appending text and CSV", "Character encodings and UTF-8", "Temporary files and directories", "Handling missing files and permission errors"],
+          "tools": ["Scala CLI", "os-lib", "java.nio", "munit"],
+          "lab_task": "Add //> using dep com.lihaoyi::os-lib with a current version. Write a script that walks a directory with os.walk, counts lines per .scala file, writes a CSV report with os.write, and reads a missing file inside Try. Run it on a folder with 30 files and compare with wc -l.",
+          "deliverable": "FileReport.scala and a CSV that matches wc -l for each file",
+          "checks": [["Run the report on a 30-file folder", "CSV has 30 rows and line counts match wc -l", "CSV and shell output"], ["Read a file that does not exist with os.read", "NoSuchFileException is raised and the Try holds a Failure", "Program output"], ["Wrap Source.fromFile in scala.util.Using", "File handle is closed after reading", "Test output"]],
+          "objectives": ["Read and write files safely", "Close resources with Using", "Report I/O errors without crashing"]
+        },
+        {
+          "topic": "Unit Testing with munit",
+          "subtopics": ["munit.FunSuite and the test method", "assertEquals, assert and intercept", "Test names, tags and .only", "Fixtures with beforeEach and FunFixture", "Comparing collections and the diff output", "Parameterized tests with loops", "Running tests with scala test and sbt test", "Test organization and naming"],
+          "tools": ["munit", "Scala CLI", "sbt", "Metals", "scalafmt"],
+          "lab_task": "Write StackTests.scala for the Stack from the generics day with eight tests, including intercept[NoSuchElementException] for an empty pop. Run scala test . then deliberately break one assertion to read the diff, and use testOnly or --test-only to run a single test by name.",
+          "deliverable": "StackTests.scala with eight passing tests and a screenshot of one failing diff",
+          "checks": [["Run scala test . on the suite", "Output shows 8 tests passed and 0 failed", "Test report"], ["Break one assertEquals", "munit prints a diff of expected and obtained values", "Test output"], ["Call pop on an empty Stack inside intercept", "NoSuchElementException is caught and the test passes", "Test report"]],
+          "objectives": ["Write readable unit tests", "Use fixtures and intercept", "Run and filter tests from the command line"]
+        },
+        {
+          "topic": "Multi-Module Builds with sbt",
+          "subtopics": ["sbt new scala/scala3.g8 and the generated layout", "build.sbt settings: scalaVersion, name, libraryDependencies", "The %% operator and the cross-version suffix", "Projects, dependsOn and aggregate", "Commands: compile, test, run, console, reload", "Scala compiler options: -deprecation, -feature, -Wunused:all, -Werror", "Dependency tree and evicted", "Scala CLI project files compared with sbt"],
+          "tools": ["sbt", "Scala CLI", "Metals", "IntelliJ IDEA", "munit"],
+          "lab_task": "Create a three-project sbt build (core, cli, root) with sbt new scala/scala3.g8. Make cli depend on core, add munit to core, set scalacOptions to -deprecation, -feature and -Wunused:all, then run sbt test, sbt cli/run and sbt dependencyTree. Add an unused import and observe the warning.",
+          "deliverable": "A three-project build.sbt and the output of test and dependencyTree",
+          "checks": [["Run sbt test in the root project", "Tests of core run and report all passing", "sbt output"], ["Add an unused import with -Wunused:all", "Compiler reports Unused import", "Compiler output"], ["Run sbt dependencyTree", "Tree shows munit under core and not under cli", "Terminal output"]],
+          "objectives": ["Create and configure an sbt build", "Split code into modules", "Manage dependencies and compiler flags"]
+        },
+        {
+          "topic": "Beginner Capstone: Inventory Command-Line Tool",
+          "subtopics": ["Requirements and a small domain model with case classes and enums", "CSV loading with os-lib and Either-based validation", "Commands: list, add, remove and report", "Pattern matching on parsed command-line arguments", "Tests with munit for parsing and reports", "Packaging with scala-cli package"],
+          "tools": ["Scala CLI", "os-lib", "munit", "scalafmt", "Git"],
+          "lab_task": "Build a CLI that loads inventory.csv, supports list, add, remove and a low-stock report, rejects bad rows with line numbers, and exits with code 2 on invalid arguments. Add 12 munit tests, run scala test ., build with scala-cli package --assembly, and run the binary on a file with 3 bad rows.",
+          "deliverable": "Repository with source, tests, README and the packaged executable",
+          "checks": [["Run the tool on a CSV with 3 invalid rows", "Report lists 3 errors with line numbers and processes the valid rows", "Program output"], ["Run scala test .", "All 12 tests pass", "Test report"], ["Run the tool with an unknown command", "Usage message is printed and exit code is 2", "Shell output with echo $?"]],
+          "objectives": ["Combine collections, ADTs and error handling in one program", "Test and package a Scala application", "Present and justify design choices"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For Scala developers who can write idiomatic Scala 3 and now build services. Covers type classes and derivation, opaque, union and intersection types, context functions, migration from Scala 2.13, lazy evaluation, stack safety, typed errors, Future, Cats, Cats Effect, fs2, circe, http4s and Tapir, doobie and Flyway, ScalaCheck, direct-style concurrency with Ox, ZIO 2, running Spark from Scala 3, and a service capstone.",
+      "prerequisites": ["Completes the beginner level or has equivalent experience with Scala 3 collections, case classes, pattern matching and sbt", "Understands HTTP, JSON and relational databases at the level of writing a simple CRUD application", "Has Docker installed for running PostgreSQL and other test containers"],
+      "outcomes": ["Design type-safe domain models and type classes using givens, opaque types and derivation", "Write concurrent and streaming programs with Cats Effect, fs2, Ox or ZIO", "Build and test an HTTP and database service with http4s, Tapir, circe and doobie", "Migrate and build Scala code across Scala 2.13 and Scala 3 and use 2.13 libraries such as Spark safely"],
+      "days": [
+        {
+          "topic": "Type Classes and Derivation with the derives Clause",
+          "subtopics": ["Type class pattern: trait, instances and syntax", "Context bounds with : and summon", "Instance resolution order and implicit scope", "Companion-object instances and priority", "Ambiguous given instances and how to fix them", "derives for case classes and enums", "Deriving Eq, Ordering and a JSON codec", "Why type classes replace inheritance for ad hoc behavior"],
+          "tools": ["Scala CLI", "sbt", "munit", "Metals", "cats-core"],
+          "lab_task": "Define a Pretty[A] type class with instances for Int, String, List[A] and case classes. Write a context-bounded render[A: Pretty] method, make two overlapping givens to trigger Ambiguous given instances, resolve it, and add derives CanEqual on a case class to enable strict equality with -language:strictEquality.",
+          "deliverable": "Pretty.scala with the type class, tests and a note on the ambiguity fix",
+          "checks": [["Provide two unrelated given Pretty[Int] instances in the same scope", "Compiler reports Ambiguous given instances for Pretty[Int]", "Compiler output"], ["Compare a case class with a String under -language:strictEquality", "Compiler reports Values of types ... cannot be compared with == or !=", "Compiler output"], ["Render a List of case classes", "Output matches the expected pretty-printed text for all 4 elements", "Test output"]],
+          "objectives": ["Design a type class with givens", "Resolve ambiguity and scope issues", "Use derives for ready-made instances"]
+        },
+        {
+          "topic": "Opaque Types, Union Types and Intersection Types",
+          "subtopics": ["Opaque types and zero-cost wrappers", "Smart constructors and the visibility of the underlying type", "Extension methods on opaque types", "Union types with", "and narrowing by match", "Intersection types with & and mixins", "Union types versus sealed hierarchies and Either", "Literal types and singleton types", "Type aliases versus opaque aliases"],
+          "tools": ["Scala CLI", "munit", "Metals", "JMH"],
+          "lab_task": "Define opaque type UserId = Long and opaque type Email = String with validating constructors, write def lookup(id: UserId | Email), and compile code that passes a raw Long. Inspect the bytecode with javap -p -c to show that UserId has no wrapper object, and compare allocations with a case class wrapper.",
+          "deliverable": "Opaque.scala, the compile error and a javap listing for the opaque version",
+          "checks": [["Pass a raw Long to a method that takes UserId", "Compiler reports Found: Long Required: UserId", "Compiler output"], ["Inspect the bytecode of a method that uses UserId", "Signature uses long and no wrapper class is allocated", "javap output"], ["Call lookup with Email and with UserId", "Both calls compile and the match picks the correct branch", "Test output"]],
+          "objectives": ["Create zero-cost domain types", "Use union and intersection types", "Choose between opaque types and wrappers"]
+        },
+        {
+          "topic": "Context Functions, Contextual Parameters and Implicit Scope",
+          "subtopics": ["Context function types A ?=> B", "Builder DSLs without explicit parameters", "using clauses with several parameters and anonymous parameters", "Given imports versus wildcard imports", "Implicit scope: companions and package prefixes", "Conversion and the language.implicitConversions import", "Passing context through layers of a program", "Debugging resolution with -Xprint:typer and -explain"],
+          "tools": ["Scala CLI", "Metals", "munit", "sbt"],
+          "lab_task": "Build a small HTML builder DSL with a context function type such as Html ?=> Unit and tags that append to the given Html. Add a transaction[T](body: Tx ?=> T) method with a given Tx, compile with -explain, and show the resolved instance with -Xprint:typer for one call.",
+          "deliverable": "Dsl.scala that renders a 10-element page, and a note on the -Xprint:typer output",
+          "checks": [["Render the page built with the DSL", "Output HTML contains the 10 expected elements in order", "Program output"], ["Call a method that needs Tx outside the transaction block", "Compiler reports No given instance of type Tx was found", "Compiler output"], ["Compile one call with -Xprint:typer", "Output shows the Tx argument passed explicitly by the compiler", "Compiler output"]],
+          "objectives": ["Write context function types", "Control implicit scope with imports", "Debug given resolution with compiler flags"]
+        },
+        {
+          "topic": "Migrating from Scala 2.13 with -source and -rewrite",
+          "subtopics": ["Cross-building 2.13 and 3 with sbt crossScalaVersions", "Compiler flags: -source 3.4-migration and -rewrite", "The new syntax: implicit to given and using", "Procedure syntax, symbol literals and other removals", "Macro libraries and why they need a Scala 3 version", "Scala 2.13 libraries from Scala 3 with CrossVersion.for3Use2_13", "scalafix and scala3-migrate plugin", "A step-by-step migration plan for a large code base"],
+          "tools": ["sbt", "scalafix", "scalac", "Metals", "IntelliJ IDEA"],
+          "lab_task": "Take a 300-line Scala 2.13 sample with implicit classes and a procedure-syntax method. Set scalaVersion to a Scala 3 release, compile with -source 3.4-migration -rewrite, review the git diff, then drop the migration flag and run sbt test. Report how many files changed and which constructs needed manual fixes.",
+          "deliverable": "Migration report with the diff summary, remaining manual fixes and a test result",
+          "checks": [["Compile with -source 3.4-migration -rewrite", "Compiler rewrites implicit classes and procedure syntax and git diff lists the changed files", "git diff --stat"], ["Compile again without the migration flag", "Build succeeds with no migration warnings", "sbt output"], ["Run sbt test after migration", "Same test count and results as before migration", "Test report"]],
+          "objectives": ["Plan and execute a Scala 2.13 to Scala 3 migration", "Use compiler rewrites and scalafix", "Mix 2.13 libraries into a Scala 3 build"]
+        },
+        {
+          "topic": "Lazy Evaluation, LazyList and Iterators",
+          "subtopics": ["Strict versus lazy collections", "LazyList with #:: and memoization", "Infinite sequences: primes, Fibonacci", "Iterator and its one-shot nature", "views and when they save work", "Stack safety of lazy structures", "Reading a large file lazily with Using and getLines", "Pitfalls: holding the head of a LazyList"],
+          "tools": ["Scala CLI", "munit", "Metals", "JFR"],
+          "lab_task": "Write primes as a LazyList and take the first 1000. Generate a 5 million-line file, read it with Iterator and with readAllLines, run each with -Xmx256m, and record peak heap with jcmd GC.heap_info. Show that holding a reference to the head of a LazyList keeps all elements in memory.",
+          "deliverable": "Lazy.scala, the generated file script and a memory comparison table",
+          "checks": [["Take the first 1000 primes from the LazyList", "The last prime is 7919", "Program output"], ["Read the 5-million-line file with readAllLines under -Xmx256m", "OutOfMemoryError: Java heap space is raised", "Program output"], ["Read the same file with an Iterator under -Xmx256m", "Program finishes with the correct line count", "Program output"]],
+          "objectives": ["Process large data lazily", "Distinguish LazyList, Iterator and view", "Avoid memory leaks from retained references"]
+        },
+        {
+          "topic": "Recursion, Tail Calls and Stack Safety",
+          "subtopics": ["Recursion on lists and trees", "@tailrec and the compile-time check", "Accumulators and rewriting to tail form", "StackOverflowError and the stack size flag -Xss", "Mutual recursion and scala.util.control.TailCalls", "Trampolining with TailCalls.tailcall", "Fold versus recursion for the same problem", "Recursion over ADTs: expression trees and JSON values"],
+          "tools": ["Scala CLI", "munit", "Metals", "JFR"],
+          "lab_task": "Write sum(n) recursively and with @tailrec, call it with 1000000, and show the StackOverflowError for the non-tail version. Then implement isEven and isOdd as mutually recursive methods with TailCalls and call them with 1000000. Add @tailrec to a non-tail method and read the error.",
+          "deliverable": "Recursion.scala with all four versions and stack results",
+          "checks": [["Run non-tail sum(1000000) with default stack size", "java.lang.StackOverflowError is thrown", "Program output"], ["Add @tailrec to a method with a recursive call that is not in tail position", "Compiler reports Cannot rewrite recursive call: it is not in tail position", "Compiler output"], ["Call isEven(1000000) with TailCalls", "Returns true with no StackOverflowError", "Program output"]],
+          "objectives": ["Write stack-safe recursive code", "Use @tailrec and TailCalls", "Choose between recursion and folds"]
+        },
+        {
+          "topic": "Typed Errors, boundary and break, and Resource Safety",
+          "subtopics": ["Error taxonomies: domain errors versus defects", "Either with sealed error enums", "Mapping errors at module boundaries", "scala.util.boundary and boundary.break for early exit", "Using for AutoCloseable resources", "Try-with-finally and Using.Manager", "Accumulating validation errors with a custom type", "Logging errors once at the edge"],
+          "tools": ["Scala CLI", "munit", "Metals", "sbt"],
+          "lab_task": "Model errors as enum ConfigError with MissingKey, BadValue and Io. Write loadConfig returning Either[ConfigError, Config], use boundary and break for early exit in a search loop, and read two files under Using.Manager. Verify that both file handles close when the second open fails.",
+          "deliverable": "Errors.scala with the error enum, the boundary example and tests for each error",
+          "checks": [["Load a config with a missing key", "Result is Left(MissingKey(\"db.url\"))", "Test output"], ["Open a second file that does not exist inside Using.Manager", "First file is closed and the failure is returned", "Test output with close counter"], ["Call boundary.break inside a loop at the third element", "The loop stops and the method returns early with the expected value", "Test output"]],
+          "objectives": ["Design typed error models", "Use boundary for non-local return", "Release resources reliably"]
+        },
+        {
+          "topic": "Futures, Execution Contexts and Promises",
+          "subtopics": ["Future creation and the given ExecutionContext", "Choosing ExecutionContext.global, a fixed pool or a virtual-thread executor", "map, flatMap, recover and recoverWith", "Future.sequence, traverse and firstCompletedOf", "Promise and completing a future manually", "Await.result and why it blocks", "Timeouts and cancellation limits", "Error propagation and unhandled failures"],
+          "tools": ["Scala CLI", "munit", "Metals", "JFR"],
+          "lab_task": "Call three simulated services each sleeping 300 ms in sequence and in parallel using Future.traverse. Time both versions (about 900 ms and 300 ms), add recover for one failing service, apply Await.result with a 100 ms timeout, and read the TimeoutException text.",
+          "deliverable": "Futures.scala with a timing table and the failure handling output",
+          "checks": [["Run three 300 ms calls sequentially and then in parallel", "Elapsed time is near 900 ms and near 300 ms", "Timing output"], ["Await.result a 500 ms future with a 100 ms limit", "TimeoutException: Future timed out after [100 milliseconds]", "Program output"], ["Fail one of the three futures and use recover", "Result list has a default for that service and two real values", "Test output"]],
+          "objectives": ["Compose asynchronous code with Future", "Control thread pools", "Handle failures and timeouts"]
+        },
+        {
+          "topic": "Cats Core: Functor, Applicative, Monad and Monoid",
+          "subtopics": ["Typeclass hierarchy: Functor, Applicative, Monad", "Semigroup and Monoid with combine and the combineAll helper", "map2, mapN and tuple syntax", "Traverse and sequence for collections", "Validated for accumulating errors", "Reader, Writer and State at a glance", "Laws and checking with discipline", "When abstraction pays off and when it does not"],
+          "tools": ["cats-core", "sbt", "munit", "Metals", "discipline"],
+          "lab_task": "Add cats-core and implement a Monoid for a Stats(count, sum, max) case class. Combine 10000 stats using foldMap, validate a signup form with Validated and mapN that reports all errors, and use traverse on a List[String] to parse numbers into an Option[List[Int]].",
+          "deliverable": "Cats.scala with the monoid, a form validator and tests",
+          "checks": [["Combine 10000 stats with foldMap", "Result equals a hand-written loop", "Test output"], ["Submit a form with three invalid fields to the Validated version", "All three errors are returned in one Invalid value", "Test output"], ["Call List(\"1\", \"x\").traverse(_.toIntOption)", "Returns None", "REPL output"]],
+          "objectives": ["Use Functor, Applicative and Monad", "Combine data with Monoid", "Accumulate validation errors"]
+        },
+        {
+          "topic": "Cats Effect: IO, Resource and IOApp",
+          "subtopics": ["IO as a description of a computation", "IOApp.Simple and running the main program", "Sequencing with flatMap and for comprehensions", "Error handling: handleErrorWith, attempt, guarantee", "Resource.make and use for safe acquisition", "Time: IO.sleep and timeouts with timeout", "The unsafeRunSync escape hatch and why to avoid it", "Referential transparency and testing IO"],
+          "tools": ["cats-effect", "sbt", "munit-cats-effect", "Metals", "Scala CLI"],
+          "lab_task": "Write an IOApp that opens a file Resource, reads lines with IO.blocking, and fails on a bad line. Use guarantee to print a cleanup message, add timeout(1.second) to a slow IO, and test the program with munit-cats-effect. Show that building an IO without running it prints nothing.",
+          "deliverable": "IoApp.scala with resource handling and a munit-cats-effect test suite",
+          "checks": [["Build an IO that prints and never run it", "Nothing is printed", "Program output"], ["Fail on the third line of the file inside Resource.use", "Cleanup message prints and the error propagates", "Program output"], ["Run a 5-second IO with timeout(1.second)", "IO fails with TimeoutException after about 1 second", "Timing output"]],
+          "objectives": ["Write programs as IO values", "Manage resources safely", "Test effectful code"]
+        },
+        {
+          "topic": "Fibers, Ref, Deferred and Structured Concurrency in Cats Effect",
+          "subtopics": ["Fibers with start and join", "parTraverse and parMapN", "Racing with IO.race and racePair", "Ref for lock-free shared state", "Deferred for one-time signals", "Semaphore and Queue for coordination", "Cancellation, onCancel and uncancelable", "Supervisor and background resources"],
+          "tools": ["cats-effect", "munit-cats-effect", "sbt", "JFR", "Metals"],
+          "lab_task": "Start 100 fibers each incrementing a Ref[IO, Int] 1000 times and assert the final value is 100000. Race two IOs with IO.race, cancel the loser and show onCancel runs. Process 20 tasks with parTraverseN(4) and a Semaphore and log the maximum concurrency reached.",
+          "deliverable": "Concurrency.scala with Ref, race and bounded parallelism tests",
+          "checks": [["Run 100 fibers that update a Ref 1000 times each", "Final value is exactly 100000", "Test output"], ["Race two IOs of 100 ms and 1000 ms", "Fast IO wins and slow IO runs its onCancel handler", "Program output"], ["Run 20 tasks with parTraverseN(4)", "Maximum observed concurrency is 4", "Counter output"]],
+          "objectives": ["Run work concurrently with fibers", "Share state safely with Ref and Deferred", "Limit and cancel concurrency"]
+        },
+        {
+          "topic": "Streaming with fs2",
+          "subtopics": ["Stream, Pull and Chunk", "Creating streams: emits, range, eval and iterate", "Transformations: map, evalMap, parEvalMap and filter", "chunkN, groupWithin and batching", "Streaming files with fs2.io.file.Files", "Backpressure and metered", "Error handling and Stream.bracket", "Compiling a stream with compile.drain and compile.toList"],
+          "tools": ["fs2", "cats-effect", "sbt", "munit-cats-effect", "Metals"],
+          "lab_task": "Stream a 1 million-line CSV with Files[IO].readUtf8Lines, parse rows with evalMap, batch 500 rows with chunkN, write batch totals to an output file, and process 4 batches in parallel using parEvalMap. Check heap use stays under 256 MB and totals equal a one-pass reference.",
+          "deliverable": "Pipeline.scala with a benchmark of sequential versus parallel runs",
+          "checks": [["Run the stream on the 1 million-line file with -Xmx256m", "Run completes with the expected row total and no OutOfMemoryError", "Program output"], ["Compare parEvalMap(4) with evalMap", "Parallel run is faster and gives identical totals", "Timing table"], ["Fail the stream on a bad line", "Resources close and the error appears in the final result", "Test output"]],
+          "objectives": ["Build streaming pipelines with fs2", "Batch and parallelize work with backpressure", "Handle failures in streams"]
+        },
+        {
+          "topic": "JSON with circe and Codec Derivation",
+          "subtopics": ["Parsing with io.circe.parser.parse and decode", "Encoders and Decoders and the Codec type", "Deriving with derives Codec.AsObject", "Custom field names and configuration", "Enums and sealed hierarchies in JSON", "Decoding errors: DecodingFailure and error paths", "Optics and cursors for large documents", "Alternatives: jsoniter-scala and upickle"],
+          "tools": ["circe", "sbt", "munit", "Metals", "jq"],
+          "lab_task": "Define Order(id, customer, items: List[Item], status: Status) with derives Codec.AsObject and an enum Status whose codec uses Decoder.decodeString.emap. Round-trip 100 sample orders, decode a payload missing the customer field to see the DecodingFailure, add a custom decoder for ISO dates, and compare the output with jq.",
+          "deliverable": "Json.scala, the 100-order round-trip test and the failure messages",
+          "checks": [["Round-trip 100 sample orders", "Decoded values equal the originals in all 100 cases", "Test output"], ["Decode a payload with no customer field", "DecodingFailure reports Missing required field at .customer", "Test output"], ["Decode status: \"UNKNOWN\"", "DecodingFailure carries the custom message naming the bad value", "Test output"]],
+          "objectives": ["Encode and decode JSON with derived codecs", "Interpret decoding errors", "Customize field names and types"]
+        },
+        {
+          "topic": "HTTP Services with http4s and Tapir Endpoints",
+          "subtopics": ["Routes with HttpRoutes.of and the DSL", "Ember server setup with host and port", "Endpoint descriptions in Tapir", "Path, query and header inputs and typed outputs", "Server interpreters for http4s", "Generated OpenAPI and Swagger UI", "Error outputs and status codes", "Testing routes without a network"],
+          "tools": ["http4s", "Tapir", "cats-effect", "curl", "sbt", "munit-cats-effect"],
+          "lab_task": "Create GET /books/{id} and POST /books as Tapir endpoints, serve them with Ember on port 8080, and expose Swagger UI. Use curl for a valid id, id=abc and a missing book, and write tests that call the HttpApp directly. Record each status code.",
+          "deliverable": "Books service source, a curl log and route tests",
+          "checks": [["curl /books/abc", "Response status is 400 because the path input fails to decode", "curl -i output"], ["curl /books/999 for a missing book", "Response status is 404 with a JSON error body", "curl -i output"], ["Open /docs in a browser", "Swagger UI lists both endpoints with their schemas", "Screenshot"]],
+          "objectives": ["Describe endpoints as values with Tapir", "Serve and test HTTP routes", "Return correct statuses for errors"]
+        },
+        {
+          "topic": "Relational Database Access with doobie and Flyway",
+          "subtopics": ["Transactor and HikariTransactor", "sql interpolator and parameter binding", "query, update and ConnectionIO", "Mapping rows to case classes with Read and Write", "Transactions and error recovery", "Compile-time checks with the doobie munit Checker", "Migrations with Flyway and versioned SQL files", "Testing with Testcontainers PostgreSQL"],
+          "tools": ["doobie", "Flyway", "PostgreSQL", "Testcontainers", "cats-effect", "sbt"],
+          "lab_task": "Run PostgreSQL in Testcontainers, apply V1__create_books.sql with Flyway, and write insert, find and list functions in doobie using sql interpolators. Insert a duplicate primary key and catch the unique violation (SQLSTATE 23505), then run a transaction that rolls back after a failure and count the rows.",
+          "deliverable": "Repository code, migration files and tests that run on Testcontainers",
+          "checks": [["Insert the same book id twice", "SQL error with SQLSTATE 23505 is mapped to a duplicate error", "Test output"], ["Fail halfway through a two-insert transaction", "Table has 0 new rows after the rollback", "Query result"], ["Run flyway migrate on a fresh container", "Version 1 appears in flyway_schema_history", "SQL output"]],
+          "objectives": ["Query databases with doobie safely", "Control transactions", "Version a schema with migrations"]
+        },
+        {
+          "topic": "Property-Based Testing with ScalaCheck",
+          "subtopics": ["Properties: forAll and the shape of a good property", "Generators: Gen.choose, listOf, oneOf, frequency", "Arbitrary instances for case classes and enums", "Shrinking and reading counterexamples", "munit-scalacheck and ScalaCheckSuite", "Round-trip, idempotence and invariant properties", "Stateful testing outlines", "Reproducing failures with seeds"],
+          "tools": ["ScalaCheck", "munit-scalacheck", "sbt", "Metals", "Scala CLI"],
+          "lab_task": "Write five properties for the circe Order codec and a sort function: round-trip, idempotent sort, length preserved, ordered output and a monoid associativity law. Inject a bug that breaks sort for duplicates, run the suite, read the shrunk counterexample and reproduce it with the printed seed.",
+          "deliverable": "Property suite and a log of one shrunk counterexample with its seed",
+          "checks": [["Run the five properties against correct code", "All properties pass 100 generated cases each", "Test output"], ["Run with the injected duplicate bug", "A shrunk counterexample such as List(0, 0) is reported", "Test output"], ["Rerun using the printed seed", "The same counterexample appears again", "Test output"]],
+          "objectives": ["Express behavior as properties", "Write generators for domain types", "Reproduce and fix a failure from a counterexample"]
+        },
+        {
+          "topic": "Direct-Style Concurrency with Ox and Virtual Threads",
+          "subtopics": ["Direct style compared with monadic effects", "supervised scopes and fork", "par, race and timeout", "Channels and select", "Error propagation and structured concurrency", "Resource handling with useInScope", "Using JDK virtual threads and Loom", "Interop with Future and cats-effect"],
+          "tools": ["Ox", "JDK 21+", "Scala CLI", "munit", "JFR"],
+          "lab_task": "In a Scala CLI script with the Ox dependency, use supervised and fork to call three simulated services, race two with race, apply timeout(500.millis), and send results through a buffered Channel. Run with 1000 virtual threads and compare memory and time with a fixed pool of 8 platform threads.",
+          "deliverable": "OxDemo.scala with scope tests and a benchmark of virtual versus platform threads",
+          "checks": [["Run three forks inside supervised", "All results are collected and no thread outlives the scope", "Program output"], ["Fail one fork", "Siblings are interrupted and the scope exits with the exception", "Program output"], ["Race a 100 ms task against a 1000 ms task", "Fast result is returned and the slow task is interrupted", "Timing output"]],
+          "objectives": ["Write direct-style concurrent code", "Use structured concurrency scopes", "Compare virtual threads with pools"]
+        },
+        {
+          "topic": "ZIO 2: Effects, Layers and Typed Errors",
+          "subtopics": ["ZIO[R, E, A] and what each parameter means", "Building programs with ZIO.attempt, succeed and fail", "ZIOAppDefault", "Typed errors, defects and catchAll", "ZLayer for dependency injection", "Ref, Fiber and concurrency", "zio-test with assertTrue", "Choosing between ZIO and Cats Effect"],
+          "tools": ["ZIO", "zio-test", "sbt", "Metals", "Scala CLI"],
+          "lab_task": "Build a small user service with ZIO: a UserRepo trait, an in-memory ZLayer, and a service that fails with typed UserNotFound. Wire layers in a ZIOAppDefault, add zio-test tests with assertTrue for success and failure, and compare the same logic written with cats-effect in a short table.",
+          "deliverable": "ZIO user service with tests and a comparison table",
+          "checks": [["Run the service for an unknown user id", "Effect fails with UserNotFound and the error type is visible in the signature", "Test output"], ["Provide the in-memory layer in a zio-test spec", "Three tests pass without any database", "Test report"], ["Remove a required layer from the wiring", "Compiler reports the missing UserRepo requirement", "Compiler output"]],
+          "objectives": ["Write programs with ZIO", "Provide dependencies with layers", "Compare ZIO with Cats Effect"]
+        },
+        {
+          "topic": "Spark Datasets from Scala 3 with Scala 2.13 Artifacts",
+          "subtopics": ["Spark releases are built for Scala 2.13 and what that means for Scala 3", "Using CrossVersion.for3Use2_13 in sbt", "Excluding duplicate scala-library and compat artifacts", "Starting a local SparkSession with master local[*]", "Typed Datasets, Encoder derivation and scala3encoders", "Column expressions and the DataFrame API from Scala", "JVM flags needed for modern JDKs (add-opens)", "Keeping Spark jobs thin and domain logic in plain Scala"],
+          "tools": ["sbt", "Apache Spark", "scala3encoders", "Scala CLI", "munit"],
+          "lab_task": "In sbt add spark-sql with .cross(CrossVersion.for3Use2_13) and a Scala 3 encoder library, create a local SparkSession, read a 1000-row CSV into a case class Dataset, and compute a word count and a groupBy sum. Keep the parsing logic in a pure function with its own munit tests.",
+          "deliverable": "Build file, Dataset job and tests that pass without Spark for the pure logic",
+          "checks": [["Run the job in local[*] mode on the 1000-row CSV", "Output has the expected group count and totals equal a plain Scala calculation", "Job output"], ["Call .as[Person] without an encoder on Scala 3", "Compiler reports a missing Encoder given instance", "Compiler output"], ["Run munit on the pure parsing function", "Tests pass without starting a SparkSession", "Test report"]],
+          "objectives": ["Use Scala 2.13 Spark artifacts from Scala 3", "Define typed Datasets", "Separate domain logic from cluster code"]
+        },
+        {
+          "topic": "Intermediate Capstone: Order Service with http4s, circe and doobie",
+          "subtopics": ["Requirements, endpoints and database schema", "Domain model and typed errors", "Repository with doobie and Flyway migrations", "Endpoints with Tapir and a JSON codec", "Integration tests with Testcontainers and property tests", "Packaging as a JAR and a run report"],
+          "tools": ["http4s", "doobie", "circe", "cats-effect", "Testcontainers", "sbt"],
+          "lab_task": "Build an order service with POST /orders, GET /orders/{id} and GET /orders?status=. Persist to PostgreSQL via doobie, validate input with Validated, run Flyway at startup, write 15 tests including a ScalaCheck round-trip, and load test 1000 requests with curl or hey, recording p95 latency and error count.",
+          "deliverable": "Service repository, OpenAPI document and a test and load report",
+          "checks": [["Run sbt test with Testcontainers", "All 15 tests pass against a real PostgreSQL instance", "Test report"], ["POST an order with two invalid fields", "Response is 422 listing both errors", "curl -i output"], ["Send 1000 requests with hey", "Zero non-2xx responses and a recorded p95 latency", "Load test output"]],
+          "objectives": ["Combine effects, HTTP, JSON and SQL in a service", "Test a service against real infrastructure", "Report results and design choices"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For experienced Scala engineers who build libraries and production systems. Covers match types, inline and quoted macros, Mirror-based derivation, dependent and polymorphic function types, explicit nulls and capture checking, tagless final, JVM memory and GC profiling, JMH, Apache Pekko actors, streams and event sourcing, Scala.js, Scala Native and GraalVM, compiler internals and plugins, binary compatibility with MiMa, observability, dependency security, production troubleshooting and a hardened-service capstone.",
+      "prerequisites": ["Completes the intermediate level or has equivalent production experience with Scala 3, an effect library and sbt", "Reads JVM concepts such as heap, garbage collection and thread pools without help", "Can run Docker, a CI system and a profiler on a development machine"],
+      "outcomes": ["Use inline, match types, macros and Mirrors to remove boilerplate while keeping compile errors clear", "Profile, benchmark and troubleshoot Scala services on the JVM with JFR, JMH, async-profiler and heap dumps", "Build distributed, event-sourced systems with Apache Pekko and instrument them with OpenTelemetry", "Publish binary-compatible libraries and target JavaScript and native platforms from one code base"],
+      "days": [
+        {
+          "topic": "Match Types and Type-Level Computation",
+          "subtopics": ["Match type syntax: type X = A match { case ... }", "Recursive match types and reduction rules", "Stuck match types and the Cannot reduce errors", "scala.compiletime.ops for Int, Boolean and String types", "constValue and singleton types", "Dependent typing: Tuple.Map, Tuple.Head and Tuple.Concat", "Match types versus overloading and type classes", "Maximal inline limits and -Xmax-inlines"],
+          "tools": ["Scala CLI", "scalac", "munit", "Metals"],
+          "lab_task": "Define type Elem[X] = X match { case String => Char; case Array[t] => t; case Iterable[t] => t } and a method firstElem[X](x: X): Elem[X]. Add a length-indexed vector type with scala.compiletime.ops.int so that appending is checked at compile time, then trigger a stuck reduction and read the error.",
+          "deliverable": "MatchTypes.scala with a compile-time-checked vector and annotated compile errors",
+          "checks": [["Call firstElem(\"abc\") and firstElem(Array(1, 2))", "Types are Char and Int and values are 'a' and 1", "REPL output with :type"], ["Call a method of a match type with an argument that matches no case", "Compiler reports that the match type cannot be reduced", "Compiler output"], ["Append a Vec[3] to a Vec[2] and assign it to Vec[4]", "Compiler rejects the assignment because the length is 5", "Compiler output"]],
+          "objectives": ["Write and reduce match types", "Compute with types using compiletime.ops", "Explain when type-level code is worth its cost"]
+        },
+        {
+          "topic": "Inline Methods, Transparent Inline and Compile-Time Programming",
+          "subtopics": ["inline def and inlining at call sites", "inline if and inline match", "transparent inline and refined result types", "summonInline and inline givens", "erasedValue and constValue", "compiletime.error and compile-time failures", "Inline parameters and by-name evaluation", "Checking results with -Xprint:inlining"],
+          "tools": ["Scala CLI", "scalac", "munit", "JMH"],
+          "lab_task": "Write inline def power(x: Double, inline n: Int) that unrolls for constant n, an inline assertPositive(n: Int) that calls compiletime.error for a negative literal, and a transparent inline parse method returning Int or String types. Compare timings with JMH and show the inlined tree with -Xprint:inlining.",
+          "deliverable": "Inline.scala, JMH results and a note on inlined output",
+          "checks": [["Call assertPositive(-1)", "Compilation fails with the custom compiletime.error message", "Compiler output"], ["Print the tree with -Xprint:inlining for power(x, 3)", "Output shows x * x * x with no recursion", "Compiler output"], ["Run the JMH benchmark", "Inlined power is not slower than the loop version in average time", "JMH results"]],
+          "objectives": ["Use inline for compile-time specialization", "Fail compilation with clear messages", "Inspect inlined code"]
+        },
+        {
+          "topic": "Quoted Macros with scala.quoted",
+          "subtopics": ["Quotes, splices and Expr[T]", "Quotes context and Type.of", "Macro definition and use in separate compilation units", "Inspecting trees with Expr.show and asTerm", "Reporting errors with report.error and report.errorAndAbort", "Staging rules and the phase consistency principle", "Testing macros with compile-error checks", "Alternatives: inline-based derivation and code generation"],
+          "tools": ["Scala CLI", "sbt", "munit", "scalac"],
+          "lab_task": "Write a macro assertEquivalent[A](a: A, b: A) that prints the source of both expressions with Expr.show when they differ, and a macro fieldNames[T] that returns the field names of a case class as a List[String]. Put the macros in one file and the calls in another, and add a failing call with report.errorAndAbort.",
+          "deliverable": "Macros.scala, test sources and the macro error output",
+          "checks": [["Expand fieldNames[Person] on a case class with 3 fields", "Returns the list of 3 field names in order", "Test output"], ["Call a macro on a type that is not a case class", "Compiler reports the custom macro error at the call site", "Compiler output"], ["Define and use the macro in the same compilation unit", "Compiler reports a macro-definition error about using it in the same file", "Compiler output"]],
+          "objectives": ["Write a quoted macro", "Report errors from macros", "Organize macros across compilation units"]
+        },
+        {
+          "topic": "Type Class Derivation with Mirrors",
+          "subtopics": ["scala.deriving.Mirror.ProductOf and SumOf", "MirroredElemTypes and MirroredElemLabels", "Writing derived with inline and summonAll", "Deriving for products and sums", "Recursive types and given resolution loops", "Deriving Eq, Show and a JSON encoder", "Comparing with macros and shapeless style", "Testing derivation with ScalaCheck"],
+          "tools": ["Scala CLI", "munit", "ScalaCheck", "Metals"],
+          "lab_task": "Write a Show[A] type class with a derived method that uses Mirror.Of[A], summonAll for field instances and productElementNames for labels. Derive it for a case class, a nested case class and a sealed enum, add a ScalaCheck property that checks the output for 100 random values, and show an unsupported type error.",
+          "deliverable": "Derivation.scala with products and sums, and a property test",
+          "checks": [["Derive Show for a case class with a nested case class", "Output includes every field label and value in order", "Program output"], ["Derive Show for an enum with 3 cases", "Each case prints its own name and fields", "Test output"], ["Derive Show for a class with a field that has no Show", "Compiler reports No given instance of type Show for that field", "Compiler output"]],
+          "objectives": ["Write a derivation for products and sums", "Use Mirror metadata", "Test derived instances with properties"]
+        },
+        {
+          "topic": "Polymorphic and Dependent Function Types, Type Lambdas",
+          "subtopics": ["Polymorphic function types [A] => List[A] => Option[A]", "Dependent function types (e: Entry) => e.Key", "Path-dependent types and abstract type members", "Type lambdas with [X] =>> F[X]", "Higher-kinded types and kind-polymorphism limits", "Partial application of type constructors", "Existential-style wildcards and ?", "Applying these tools to a generic repository"],
+          "tools": ["Scala CLI", "munit", "Metals", "scalac"],
+          "lab_task": "Define a polymorphic function value headOption: [A] => List[A] => Option[A] and apply it to a List[Int] and a List[String]. Write a Functor-like trait over F[_] and instantiate it for Map[String, _] with a type lambda. Add a dependent function type that returns a path-dependent key type.",
+          "deliverable": "TypeLevel.scala with annotated examples and tests",
+          "checks": [["Apply headOption to List(1, 2) and List(\"a\")", "Results are Some(1) and Some(a) with Option[Int] and Option[String] types", "REPL output"], ["Write a Functor instance for Map[String, _] with a type lambda", "map transforms the values and keeps the keys", "Test output"], ["Pass an Entry from a different path to a dependent function", "Compiler reports a type mismatch between the path-dependent key types", "Compiler output"]],
+          "objectives": ["Use polymorphic function types", "Write type lambdas", "Apply path-dependent types"]
+        },
+        {
+          "topic": "Explicit Nulls and Capture Checking Concepts",
+          "subtopics": ["-Yexplicit-nulls and the type String", "Null", "Working with Java APIs under explicit nulls", ".nn and safe handling of nullable values", "Flow typing for nulls", "Capabilities and effect tracking: the idea", "Capture checking as an experimental feature", "The capability marker ^ and capture sets", "Where these features stand and how to try them"],
+          "tools": ["scalac", "Scala CLI", "Metals", "JDK"],
+          "lab_task": "Compile a small program with -Yexplicit-nulls, call java.lang.System.getProperty and java.util.Map.get, and fix each nullability error with Option or .nn. In a separate experimental module with -language:experimental.captureChecking, write a function that takes a file capability and show a rejected escape of the capability.",
+          "deliverable": "Explicit-null fixes and an experimental capture-checking example with notes",
+          "checks": [["Assign null to a String under -Yexplicit-nulls", "Compiler reports Found: Null Required: String", "Compiler output"], ["Wrap System.getProperty(\"missing.key\") with Option", "Result is None", "REPL output"], ["Return a capability-holding closure from its scope in the experimental module", "Compiler rejects the escaping capability", "Compiler output"]],
+          "objectives": ["Remove null from Scala code that uses Java APIs", "Describe what capture checking tracks", "Judge experimental features for production use"]
+        },
+        {
+          "topic": "Tagless Final and Algebra Design",
+          "subtopics": ["Algebras as traits over F[_]", "Programs written against algebras with a Monad bound", "Interpreters for IO, State and a test double", "Free monads compared with tagless final", "Layering: domain, service and infrastructure algebras", "Error types in algebras: MonadError and typed errors", "Performance and readability trade-offs", "Testing programs with pure interpreters"],
+          "tools": ["cats-core", "cats-effect", "munit", "sbt", "Metals"],
+          "lab_task": "Define trait Accounts[F[_]] and trait Clock[F[_]], write transfer[F[_]: Monad: Accounts] and interpret it with an IO version and a State-based in-memory test version. Test a transfer with insufficient funds in the State version and check balances, then add MonadError for typed failures.",
+          "deliverable": "Algebra definitions, two interpreters and tests with no I/O",
+          "checks": [["Run transfer in the State interpreter with insufficient funds", "Result is the typed error and balances are unchanged", "Test output"], ["Run the same program with the IO interpreter", "Same balances as the State run for the success case", "Program output"], ["Compile a program without a required Accounts[F] instance", "Compiler reports No given instance of type Accounts[IO]", "Compiler output"]],
+          "objectives": ["Write programs against algebras", "Swap interpreters for tests", "Weigh tagless final against alternatives"]
+        },
+        {
+          "topic": "JVM Memory, Garbage Collection and Allocation Profiling",
+          "subtopics": ["JVM memory areas: heap, metaspace and stacks", "G1 and ZGC behavior and flags", "GC logging with -Xlog:gc*", "Reading a JFR recording with jfr print and JDK Mission Control", "async-profiler: asprof -e alloc and -e cpu", "Boxing and closure allocation in Scala code", "Specialization, value classes and opaque types for fewer allocations", "Heap sizing for containers"],
+          "tools": ["JFR", "JDK Mission Control", "async-profiler", "VisualVM", "Scala CLI"],
+          "lab_task": "Run an allocation-heavy program (a List[Int] of 5 million boxed values folded repeatedly) with -Xlog:gc*:file=gc.log and -XX:StartFlightRecording=duration=60s,filename=app.jfr. Open the JFR file, find the top allocation site, rewrite it with an Array[Int] or while loop, and compare GC counts and pause totals.",
+          "deliverable": "Profiling report with GC logs, JFR findings and a before-and-after table",
+          "checks": [["Analyze gc.log before the change", "Report lists the number of young collections and total pause time", "Log analysis"], ["Open app.jfr and sort allocations by site", "Boxed Integer allocation from the fold is the top site", "JDK Mission Control screenshot"], ["Rerun after the rewrite", "GC count and allocated bytes fall measurably", "Before-and-after table"]],
+          "objectives": ["Read GC logs and JFR recordings", "Find allocation hot spots in Scala code", "Size the heap for a container"]
+        },
+        {
+          "topic": "Microbenchmarking with JMH and Collection Performance",
+          "subtopics": ["Why hand-written timing is wrong: warmup, dead-code elimination, JIT", "sbt-jmh setup and Jmh/run flags", "@State, @Benchmark, @Param and Blackhole", "Benchmark modes: throughput, average time", "-prof gc and allocation rates", "Comparing List, Vector, ArrayBuffer and Array", "Closures, boxing and inline effects", "Reporting results with confidence intervals"],
+          "tools": ["sbt-jmh", "JMH", "sbt", "JFR", "Scala CLI"],
+          "lab_task": "Add sbt-jmh and write benchmarks for summing 1,000,000 Ints in List, Vector, ArrayBuffer and Array, each with a @Param size. Run Jmh/run -i 5 -wi 5 -f 2 -prof gc, report ops per second, gc.alloc.rate.norm and the error range, and explain why a naive System.nanoTime loop gives a different ordering.",
+          "deliverable": "Benchmark source, JMH result table and an explanation",
+          "checks": [["Run Jmh/run with -prof gc", "Results show score, error and allocation per operation for all four collections", "JMH output"], ["Compare Array against List", "Array is faster and allocates less per operation", "Result table"], ["Run the same code under a nanoTime loop with no warmup", "Numbers differ from JMH and the notes explain why", "Comparison note"]],
+          "objectives": ["Write reliable JMH benchmarks", "Read allocation and error figures", "Choose collections based on measurements"]
+        },
+        {
+          "topic": "Distributed Actors with Apache Pekko Typed",
+          "subtopics": ["Why Pekko: the Apache fork of Akka 2.6 and the Akka license change", "Behaviors.setup, receive and receiveMessage", "Message protocols with sealed traits", "Ask pattern and timeouts", "Supervision and restart strategies", "Cluster basics: seed nodes and membership", "Cluster Sharding with EntityTypeKey", "Testing with ActorTestKit"],
+          "tools": ["Apache Pekko", "sbt", "ActorTestKit", "Scala CLI", "Metals"],
+          "lab_task": "Write a typed Counter actor with Increment, GetValue(replyTo) and Stop messages, test it with ActorTestKit, and use the ask pattern with a 3-second timeout. Add supervision so a thrown exception restarts the actor, then start two cluster nodes on ports 2551 and 2552 and send 100 increments through sharding.",
+          "deliverable": "Pekko project with tests and a log showing two-node cluster membership",
+          "checks": [["Send 100 Increment messages and then GetValue", "Reply is 100", "Test output"], ["Throw an exception in the actor with restart supervision", "Actor restarts, state resets to 0 and the log shows the supervision event", "Log output"], ["Start both cluster nodes", "Log shows both members Up", "Cluster log"]],
+          "objectives": ["Build typed actors and protocols", "Apply supervision", "Start a sharded cluster"]
+        },
+        {
+          "topic": "Pekko Streams and Backpressure",
+          "subtopics": ["Source, Flow, Sink and materialized values", "Running a RunnableGraph with Materializer", "throttle, buffer and OverflowStrategy", "mapAsync and mapAsyncUnordered", "Stream error handling and supervision decider", "GraphDSL fan-out and fan-in", "Pekko HTTP or file IO sources and sinks", "Comparing Pekko Streams with fs2 and Ox"],
+          "tools": ["Apache Pekko", "sbt", "munit", "Scala CLI", "JFR"],
+          "lab_task": "Build a stream that reads numbers, calls a simulated 50 ms async service with mapAsync(4), throttles to 100 elements per second, and writes to a sink. Add a slow downstream stage, record that the source rate follows the sink, then use OverflowStrategy.fail and read the BufferOverflowException.",
+          "deliverable": "Streams project with throughput numbers and a backpressure explanation",
+          "checks": [["Run 1000 elements through mapAsync(4) with a 50 ms call", "Total time is near 12.5 seconds, not 50 seconds", "Timing output"], ["Slow the sink and watch the source", "Source emission rate drops to match the sink", "Log output"], ["Use OverflowStrategy.fail with a small buffer", "BufferOverflowException is raised", "Stream failure output"]],
+          "objectives": ["Build streams with backpressure", "Control concurrency with mapAsync", "Handle stream failures"]
+        },
+        {
+          "topic": "Event Sourcing and CQRS with Pekko Persistence",
+          "subtopics": ["Events, commands and state in EventSourcedBehavior", "Effect.persist and event handlers", "Snapshots and retention criteria", "Journal plugins: in-memory for tests and a JDBC or R2DBC journal", "Projections and read models", "Event schema evolution and tagging", "Idempotence and duplicate commands", "Testing with EventSourcedBehaviorTestKit"],
+          "tools": ["Apache Pekko", "PostgreSQL", "sbt", "EventSourcedBehaviorTestKit", "Testcontainers"],
+          "lab_task": "Implement a ShoppingCart with AddItem, RemoveItem and Checkout commands persisted as events. Test with EventSourcedBehaviorTestKit, restart the actor and verify state recovery from the journal, add a snapshot every 20 events, and project events into a read table counting items per cart.",
+          "deliverable": "Persistent cart with tests and a projection that matches the event log",
+          "checks": [["Persist 5 events, stop the actor and restart it", "State after recovery equals the state before stopping", "Test output"], ["Send Checkout twice", "Second Checkout is rejected and only one CheckedOut event is stored", "Journal query"], ["Replay 50 events with a snapshot every 20", "Recovery reads the snapshot and only the remaining events", "Log output"]],
+          "objectives": ["Model state changes as events", "Recover state from a journal", "Build a projection"]
+        },
+        {
+          "topic": "Scala.js and Cross-Platform Builds",
+          "subtopics": ["Scala.js compilation: fastLinkJS and fullLinkJS", "sbt-crossproject and the shared, jvm, js layout", "Platform-specific sources and expect-style traits", "JS interop: js.Dynamic, @JSExportTopLevel, facades", "scalajs-dom and the browser", "Bundle size and linker settings", "Testing cross-platform code with munit on JVM and JS", "Choosing which logic belongs in shared code"],
+          "tools": ["sbt", "Scala.js", "sbt-crossproject", "Node.js", "munit"],
+          "lab_task": "Create a crossProject(JVMPlatform, JSPlatform) with a shared validation library, run sbt validationJVM/test validationJS/test, export a function with @JSExportTopLevel, call it from a small HTML page, and compare the size of fastLinkJS and fullLinkJS output.",
+          "deliverable": "Cross project with shared tests on both platforms and a size table",
+          "checks": [["Run tests on both platforms", "Same test count passes on JVM and JS", "sbt output"], ["Call the exported function from the page", "Browser console shows the expected validation result", "Screenshot"], ["Compare fastLinkJS and fullLinkJS bundles", "Optimized bundle is smaller and the sizes are recorded", "File size table"]],
+          "objectives": ["Share code between JVM and JavaScript", "Call Scala.js from a page", "Reduce bundle size"]
+        },
+        {
+          "topic": "Scala Native and GraalVM Native Images",
+          "subtopics": ["Scala Native: plugin, nativeLink and nativeConfig", "Interop with C using @extern and Zone", "Startup time and memory compared with the JVM", "GraalVM native-image and closed-world analysis", "Reflection and resource configuration", "Scala CLI packaging with --native and --native-image", "Libraries that work and that do not", "Choosing JVM, Native or GraalVM for a command-line tool"],
+          "tools": ["Scala Native", "GraalVM", "Scala CLI", "sbt", "hyperfine"],
+          "lab_task": "Package the same CLI three ways: scala-cli package --assembly, scala-cli package --native and scala-cli package --native-image. Measure startup with hyperfine --warmup 3 for each, record binary sizes and peak memory, and fix one reflection failure in the GraalVM build by adding configuration.",
+          "deliverable": "Benchmark table and notes on two native build issues",
+          "checks": [["Run hyperfine on the three builds", "Native builds start faster than the JVM jar and times are recorded", "hyperfine output"], ["Run the GraalVM build that uses reflection without configuration", "Run fails with a missing reflection error", "Program output"], ["Add the reflection configuration and rebuild", "Program runs and prints the expected output", "Program output"]],
+          "objectives": ["Build native executables from Scala", "Measure startup and memory", "Pick a runtime for a given use case"]
+        },
+        {
+          "topic": "Compiler Internals: TASTy, Phases and Plugins",
+          "subtopics": ["Compiler pipeline: parser, typer, pickler, erasure, backend", "-Xshow-phases and -Xprint:<phase>", "TASTy files and what they store", "Reading TASTy with scala.tasty.inspector", "Writing a StandardPlugin and adding a phase", "Loading a plugin with -Xplugin", "Inspecting bytecode with javap -p -c", "Compiler warnings: -Wconf for filtering and escalating"],
+          "tools": ["scalac", "javap", "Scala CLI", "sbt", "TASTy Inspector"],
+          "lab_task": "Compile a 20-line file with -Xshow-phases, print the tree after typer and erasure with -Xprint:typer and -Xprint:erasure, list the .tasty files and class files, and write a plugin phase that counts the number of def nodes in each compilation unit and prints the result.",
+          "deliverable": "Phase output, tree comparisons and a plugin that counts defs",
+          "checks": [["Run scalac with -Xshow-phases", "Phase list includes typer, pickler, erasure and genBCode", "Compiler output"], ["Compile with the plugin on a file with 6 methods", "Plugin prints 6 def nodes for that unit", "Compiler output"], ["Compare typer and erasure trees for a generic method", "Erased tree has no type parameters", "Printed trees"]],
+          "objectives": ["Follow a program through compiler phases", "Inspect TASTy and bytecode", "Write a compiler plugin"]
+        },
+        {
+          "topic": "Binary Compatibility, MiMa and Library Publishing",
+          "subtopics": ["Binary versus source versus TASTy compatibility", "MiMa: mimaPreviousArtifacts and mimaReportBinaryIssues", "Problem kinds: DirectMissingMethodProblem and ReversedMissingMethodProblem", "Filters with mimaBinaryIssueFilters", "Scala 3 and 2.13 interop with for3Use2_13", "Semantic versioning and versionScheme", "Publishing: sbt publishLocal and the Sonatype Central Portal", "Cross-building and release automation with sbt-ci-release"],
+          "tools": ["sbt", "MiMa", "sbt-ci-release", "Sonatype Central Portal", "GitHub Actions"],
+          "lab_task": "Publish version 1.0.0 of a small library with publishLocal, change a public method signature, add mimaPreviousArtifacts for 1.0.0, run mimaReportBinaryIssues and read the problem. Fix it by keeping the old method as deprecated, set versionScheme to early-semver, and add a CI workflow step that runs mimaReportBinaryIssues on pull requests.",
+          "deliverable": "Library with a MiMa configuration, a captured problem and the CI workflow file",
+          "checks": [["Change a method signature and run mimaReportBinaryIssues", "Report lists a missing method problem for the old signature", "sbt output"], ["Keep the old overload and rerun", "MiMa reports no binary issues", "sbt output"], ["Open a pull request that breaks compatibility", "CI job fails on the MiMa step", "Workflow run log"]],
+          "objectives": ["Keep a library binary compatible", "Publish artifacts", "Automate compatibility checks in CI"]
+        },
+        {
+          "topic": "Observability with OpenTelemetry, otel4s and Structured Logging",
+          "subtopics": ["Signals: logs, metrics and traces for a Scala service", "otel4s: Tracer, Meter and span creation", "OTLP exporters and OTEL_EXPORTER_OTLP_ENDPOINT", "Resource attributes with OTEL_SERVICE_NAME", "Structured JSON logs with log4cats and Logback", "Propagating trace context through cats-effect fibers", "Metrics: counters, histograms and cardinality limits", "Dashboards and service-level indicators"],
+          "tools": ["otel4s", "OpenTelemetry Collector", "Jaeger", "log4cats", "Logback", "cats-effect"],
+          "lab_task": "Instrument the order service with otel4s: a span around each HTTP handler and database call, a request counter and a latency histogram. Run an OTLP-capable backend such as Jaeger in Docker, set OTEL_SERVICE_NAME=orders, send 200 requests and find a trace showing the handler span with its database child span.",
+          "deliverable": "Instrumented service with a trace screenshot and a metrics list",
+          "checks": [["Send 200 requests and search the backend for service orders", "Traces appear with a handler span and a child database span", "Backend screenshot"], ["Query the request counter", "Counter equals 200", "Metrics output"], ["Inspect a log line for a request", "JSON log contains the trace_id that matches the trace in the backend", "Log line and trace id"]],
+          "objectives": ["Instrument services with traces and metrics", "Correlate logs and traces", "Choose useful metrics"]
+        },
+        {
+          "topic": "Dependency Security and Reproducible sbt Builds",
+          "subtopics": ["Reading sbt dependencyTree, evicted and whatDependsOn", "Vulnerability scanning with sbt-dependency-check", "Software bill of materials: makeBom with sbt-sbom", "Automated updates with Scala Steward", "GitHub dependency submission for sbt", "Fat JARs with sbt-assembly merge strategies", "Pinning versions and dependencyOverrides", "Supply-chain checks in CI"],
+          "tools": ["sbt", "sbt-dependency-check", "sbt-sbom", "Scala Steward", "GitHub Actions"],
+          "lab_task": "Run sbt dependencyTree and evicted on the order service, run dependencyCheck and record every finding with a CVE ID, create a CycloneDX bill of materials with makeBom, add a dependencyOverrides fix for one flagged transitive library, and rerun the scan to confirm that the finding no longer appears.",
+          "deliverable": "Scan report, bill of materials and a before-and-after finding list",
+          "checks": [["Run dependencyCheck before the fix", "Report lists the flagged library with a CVE ID", "Scan report"], ["Apply dependencyOverrides and run dependencyCheck again", "The finding no longer appears", "Scan report"], ["Run makeBom", "A CycloneDX file lists all direct and transitive dependencies", "BOM file"]],
+          "objectives": ["Audit dependencies for known vulnerabilities", "Produce an SBOM", "Automate dependency updates"]
+        },
+        {
+          "topic": "Production Troubleshooting of Scala Services",
+          "subtopics": ["Thread dumps with jcmd <pid> Thread.print", "Heap dumps and jcmd GC.class_histogram", "-XX:+HeapDumpOnOutOfMemoryError and analysis in Eclipse MAT", "Cats Effect fiber dumps with kill -USR1 and starvation warnings", "Blocking calls on compute pools and IO.blocking", "Deadlocks and thread-pool exhaustion in Future code", "Connection pool leaks in doobie and Hikari", "Incident write-ups and fixes"],
+          "tools": ["jcmd", "Eclipse MAT", "JFR", "async-profiler", "cats-effect"],
+          "lab_task": "Inject three faults into a cats-effect service: a blocking call on the compute pool, a leaked connection per request and a retained list that grows. For each, capture evidence with kill -USR1, jcmd Thread.print and a heap dump, then explain the root cause and fix, and rerun a 1000-request test to confirm.",
+          "deliverable": "Three incident write-ups with captured evidence and verified fixes",
+          "checks": [["Run the blocking-call fault", "The runtime prints a CPU starvation warning and a fiber dump shows blocked threads", "Log output"], ["Leak a connection per request and send 50 requests", "Pool reaches its maximum and requests time out", "Hikari log"], ["Take a heap dump of the retained-list fault", "MAT dominator tree shows the list as the largest retained object", "MAT screenshot"]],
+          "objectives": ["Capture fiber, thread and heap evidence", "Diagnose pool starvation and leaks", "Document and verify fixes"]
+        },
+        {
+          "topic": "Advanced Capstone: Event-Sourced Service Hardened for Production",
+          "subtopics": ["Architecture: Pekko persistence, http4s edge and a read model", "Type-safe domain with opaque types, enums and typed errors", "Property tests, MiMa checks and compile-time derivation", "Observability with otel4s, JFR profile and dashboards", "Dependency scan, native or JAR packaging and CI", "Design review of trade-offs and risks"],
+          "tools": ["Apache Pekko", "http4s", "otel4s", "JFR", "sbt", "GitHub Actions"],
+          "lab_task": "Deliver an event-sourced order service on Scala 3 with persisted commands and events, an HTTP edge, a projection, 20 tests including 3 ScalaCheck properties, a CI workflow running tests, MiMa and dependencyCheck, traces in an OTLP backend, and a 10-minute load test with p95 latency and allocation rate recorded.",
+          "deliverable": "Repository, CI run, load-test report and a design review document",
+          "checks": [["Run the CI workflow on a pull request", "Tests, MiMa and dependencyCheck all pass", "Workflow run log"], ["Restart the service during a running load test", "No events are lost and state recovers from the journal", "Event count comparison"], ["Present p95 latency and GC pause totals from the load test", "Numbers meet the targets written in the design review", "Report with charts"]],
+          "objectives": ["Build a production-grade Scala service", "Verify correctness, compatibility and security with automation", "Defend architecture and trade-offs"]
+        }
+      ]
+    }
+  }
+}

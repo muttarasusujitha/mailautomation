@@ -1,0 +1,573 @@
+{
+  "domain": "Oracle Fusion",
+  "name": "Oracle Fusion Cloud Applications",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "building",
+  "aliases": ["Oracle Fusion Cloud", "Oracle Fusion Applications", "Oracle Fusion ERP", "Oracle Fusion Financials", "Oracle Fusion HCM", "Oracle Fusion SCM", "Oracle Cloud ERP", "Oracle Cloud HCM", "Oracle ERP Cloud", "Oracle HCM Cloud", "Oracle Fusion Technical", "Oracle Fusion Functional", "Oracle Fusion Training", "Oracle HCM", "Oracle ERP", "Oracle SCM", "OTBI", "FBDI", "HCM Data Loader"],
+  "certifications": ["Oracle Cloud Applications Certified Implementation Professional exams (Financials, HCM and SCM tracks, renewed each year)", "Oracle AI Agent Studio for Fusion Applications learning paths"],
+  "tools": ["Oracle Fusion Cloud Applications", "Setup and Maintenance", "Security Console", "OTBI and BI Publisher", "FBDI and HCM Data Loader", "Oracle Integration", "Visual Builder Studio", "AI Agent Studio"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For functional consultants, key users, analysts and developers who are starting with Oracle Fusion Cloud Applications. Covers the ERP, HCM and SCM pillars and the quarterly update cycle, Redwood navigation, enterprise structures, Setup and Maintenance, roles and security, General Ledger, Payables and Receivables, procurement, HCM core and processes, absence, time and compensation, inventory and order management, approvals, OTBI and BI Publisher reporting, data import with FBDI and HCM Data Loader, REST APIs, update readiness and the embedded AI agents.",
+      "prerequisites": ["Understands basic business processes such as purchasing, invoicing or hiring", "Comfortable with spreadsheets and web applications", "No Oracle experience needed"],
+      "outcomes": ["Navigate Fusion and explain its pillars, enterprise structures and security model", "Run core finance, procurement, HCM and supply chain transactions", "Build OTBI analyses and BI Publisher reports and load data with FBDI and HCM Data Loader", "Prepare for quarterly updates and use the embedded AI agents"],
+      "days": [
+        {
+          "topic": "Oracle Fusion Overview: Pillars, Modules and the Quarterly Update Cycle",
+          "subtopics": ["Fusion Cloud Applications as SaaS on Oracle Cloud Infrastructure", "The ERP, HCM, SCM and CX pillars", "Modules within each pillar", "Quarterly updates such as 26A, 26B, 26C and 26D", "Redwood user experience", "Functional and technical roles in a Fusion project", "Environments: production and test pods", "Oracle documentation, release notes and Cloud Customer Connect", "Oracle certification tracks for Fusion", "Course project overview: a services company moving to Fusion"],
+          "tools": ["Oracle Fusion Cloud Applications", "Oracle Help Center", "Release readiness pages"],
+          "lab_task": "Tour a Fusion training environment, find one page from each pillar, open the release readiness content for the current update and map the modules the course company needs.",
+          "deliverable": "Module map for the course company",
+          "checks": [["Find", "One page from each pillar is located", "Screenshots"], ["Map", "Needed modules are listed with reasons", "Module map"], ["Explain", "The quarterly update cycle is explained correctly", "Notes"]],
+          "objectives": ["Describe Fusion pillars and modules", "Navigate release information", "Plan module scope"]
+        },
+        {
+          "topic": "Navigation Basics: Redwood Pages, Home, Worklist and Search",
+          "subtopics": ["Home page and navigator", "Redwood pages compared with classic pages", "Global search", "Worklist and notifications", "Favourites and recent items", "Personalising the home page", "Help and guided learning", "Accessibility settings", "Language, date and number preferences", "Signing out and session timeouts"],
+          "tools": ["Oracle Fusion Cloud Applications", "Worklist", "Global search"],
+          "lab_task": "Sign in to the training environment, find a supplier, an employee and an item with global search, act on a worklist notification and personalise the home page.",
+          "deliverable": "Navigation exercise record",
+          "checks": [["Search", "Supplier, employee and item are found", "Screenshots"], ["Act", "A worklist notification is approved", "Worklist history"], ["Personalise", "The home page shows chosen quick actions", "Screenshot"]],
+          "objectives": ["Navigate Fusion", "Use search and the worklist", "Personalise the workspace"]
+        },
+        {
+          "topic": "Enterprise Structures: Legal Entities, Business Units and Ledgers",
+          "subtopics": ["Enterprise and legal entities", "Business units and their functions", "Ledgers, charts of accounts and calendars", "Legal reporting units", "Reference data sets", "Divisions and departments", "Inventory organisations", "Designing structures for the course company"],
+          "tools": ["Setup and Maintenance", "Enterprise Structures Configurator"],
+          "lab_task": "Design legal entities, business units, a ledger and reference data sets for the course company with the Enterprise Structures Configurator and review them with a peer.",
+          "deliverable": "Enterprise structure design",
+          "checks": [["Design", "Legal entities, business units and ledger match the company", "Structure diagram"], ["Share", "Reference data sets are assigned correctly", "Configuration report"], ["Review", "A peer confirms the design against requirements", "Review notes"]],
+          "objectives": ["Explain enterprise structures", "Design structures", "Use reference data sets"]
+        },
+        {
+          "topic": "Setup and Maintenance: Offerings, Functional Areas and Task Lists",
+          "subtopics": ["Offerings and functional areas", "Opting in to features", "Task lists and setup tasks", "Implementation projects", "Scope values", "Setup data export and import", "Setup reports", "Order of setup tasks", "Rapid implementation spreadsheets", "Who owns each setup task"],
+          "tools": ["Setup and Maintenance", "Implementation projects", "Setup reports"],
+          "lab_task": "Enable the Financials and Procurement offerings, opt in to two features, create an implementation project and complete three setup tasks in order.",
+          "deliverable": "Implementation project with completed tasks",
+          "checks": [["Enable", "Offerings and features are enabled", "Offering page"], ["Plan", "The implementation project lists the tasks", "Project page"], ["Complete", "Three tasks are completed in order", "Task status"]],
+          "objectives": ["Use Setup and Maintenance", "Manage features", "Track setup work"]
+        },
+        {
+          "topic": "Users, Roles and Security: Job, Duty and Data Roles",
+          "subtopics": ["Role types: job, abstract, duty and data roles", "The Security Console", "Creating users and assigning roles", "Data security and data access sets", "Role provisioning rules", "Function security", "Reviewing user access", "Common security mistakes"],
+          "tools": ["Security Console", "User management", "Security reports"],
+          "lab_task": "Create users for a buyer, an accountant and a manager, give them roles through provisioning rules and check what each can see and do.",
+          "deliverable": "Users with roles and an access check",
+          "checks": [["Create", "Users have the intended roles", "Security Console"], ["Provision", "Rules assign roles automatically", "Role assignment history"], ["Verify", "Each user sees only allowed data", "Access test record"]],
+          "objectives": ["Explain Fusion security", "Assign roles", "Check user access"]
+        },
+        {
+          "topic": "Financials Core: General Ledger, Journals and Period Close",
+          "subtopics": ["Charts of accounts and segments", "Journal entry and approval", "Recurring and allocation journals", "Accounting periods", "Period close checklist", "Financial reporting", "Account inspection", "Reconciliation basics"],
+          "tools": ["General Ledger", "Financial Reporting Center", "Journals"],
+          "lab_task": "Enter and approve journals, run an allocation, close a period for the course ledger and produce a trial balance.",
+          "deliverable": "Closed period with trial balance",
+          "checks": [["Enter", "Journals post after approval", "Journal list"], ["Allocate", "The allocation posts as designed", "Allocation results"], ["Close", "The period closes and the trial balance balances", "Trial balance"]],
+          "objectives": ["Work in General Ledger", "Close a period", "Produce financial reports"]
+        },
+        {
+          "topic": "Payables and Receivables: Invoices, Payments and Receipts",
+          "subtopics": ["Supplier invoices and matching", "Invoice holds and approvals", "Payment process requests", "Customer transactions", "Receipts and application", "Credit memos", "Aging reports", "Subledger accounting"],
+          "tools": ["Payables", "Receivables", "Subledger accounting"],
+          "lab_task": "Match supplier invoices to purchase orders, release a hold, pay suppliers, create customer invoices and apply a receipt, then check the accounting.",
+          "deliverable": "Payables and receivables transactions with accounting",
+          "checks": [["Pay", "Matched invoices are paid", "Payment register"], ["Collect", "The receipt is applied to the invoice", "Customer account"], ["Account", "Subledger entries post to the ledger", "Accounting report"]],
+          "objectives": ["Process payables", "Process receivables", "Check subledger accounting"]
+        },
+        {
+          "topic": "Procurement: Requisitions, Purchase Orders and Suppliers",
+          "subtopics": ["Supplier registration and qualification", "Requisitions in self-service procurement", "Purchase orders and approvals", "Agreements and catalogues", "Receiving", "Procurement analytics", "Supplier portal", "Procure-to-pay flow"],
+          "tools": ["Procurement", "Self Service Procurement", "Supplier Portal"],
+          "lab_task": "Register a supplier, raise a requisition from a catalogue, approve and create the purchase order, receive the goods and follow the flow to the invoice.",
+          "deliverable": "Procure-to-pay transaction trail",
+          "checks": [["Register", "The supplier is approved for use", "Supplier record"], ["Order", "The requisition becomes an approved purchase order", "Purchase order"], ["Receive", "Receipt and invoice match the order", "Matching result"]],
+          "objectives": ["Run procurement", "Manage suppliers", "Follow procure-to-pay"]
+        },
+        {
+          "topic": "HCM Core: Workforce Structures, Persons and Assignments",
+          "subtopics": ["Locations, departments and jobs", "Grades and positions", "Persons, work relationships and assignments", "Employment models", "Managers and hierarchies", "Person and employment records", "Data security for HCM", "Self-service for employees and managers"],
+          "tools": ["Global Human Resources", "Workforce structures", "My Team"],
+          "lab_task": "Create jobs, grades, positions and departments for the course company, hire two employees with assignments and view them as their manager.",
+          "deliverable": "Workforce structures with hired employees",
+          "checks": [["Structure", "Jobs, grades, positions and departments exist", "Setup pages"], ["Hire", "Employees have correct assignments", "Employment records"], ["View", "The manager sees the team in My Team", "Screenshot"]],
+          "objectives": ["Set up workforce structures", "Manage employment records", "Use manager self-service"]
+        },
+        {
+          "topic": "HCM Processes: Hire, Transfer, Terminate and Approvals",
+          "subtopics": ["Hire and rehire", "Promotion and transfer", "Change assignment and change salary", "Termination", "Approval rules for HCM transactions", "Journeys for onboarding", "Mass changes", "Audit of HCM changes"],
+          "tools": ["Global Human Resources", "Journeys", "Approvals"],
+          "lab_task": "Run a hire with an onboarding journey, a promotion with approval, a transfer and a termination, and review the audit history.",
+          "deliverable": "HCM transaction trail",
+          "checks": [["Hire", "The new hire receives the onboarding journey", "Journey status"], ["Approve", "The promotion waits for and gets approval", "Approval history"], ["Audit", "All changes appear in the audit history", "Audit report"]],
+          "objectives": ["Run HCM processes", "Use journeys", "Review approvals and audit"]
+        },
+        {
+          "topic": "Absence, Time and Compensation Essentials",
+          "subtopics": ["Absence plans and types", "Accruals and balances", "Time entry and time cards", "Workforce compensation cycles", "Individual compensation", "Salary bases", "Eligibility profiles", "Manager views of compensation"],
+          "tools": ["Absence Management", "Time and Labor", "Compensation"],
+          "lab_task": "Set up an absence plan with accruals, record leave and time cards, and run an individual compensation change with a salary basis.",
+          "deliverable": "Absence, time and compensation records",
+          "checks": [["Accrue", "Leave balances accrue as configured", "Absence balance"], ["Record", "Time cards are submitted and approved", "Time card status"], ["Pay", "The compensation change updates salary", "Salary history"]],
+          "objectives": ["Manage absence", "Record time", "Change compensation"]
+        },
+        {
+          "topic": "Supply Chain Core: Items, Inventory and Order Management",
+          "subtopics": ["Items and item organisations", "Inventory organisations and subinventories", "Receipts, transfers and counts", "Order management flow", "Pricing basics", "Shipping and fulfilment", "Order orchestration", "Supply chain reports"],
+          "tools": ["Product Information Management", "Inventory Management", "Order Management"],
+          "lab_task": "Create items, receive stock into a subinventory, enter a sales order, ship it and check inventory balances.",
+          "deliverable": "Order-to-ship transaction trail",
+          "checks": [["Create", "Items exist in the inventory organisation", "Item records"], ["Ship", "The sales order is shipped", "Order status"], ["Balance", "Inventory balances reflect receipt and shipment", "On-hand report"]],
+          "objectives": ["Manage items and inventory", "Process sales orders", "Check inventory"]
+        },
+        {
+          "topic": "Approvals and Workflow: Approval Rules and Notifications",
+          "subtopics": ["Approval rules by transaction type", "Approval groups and hierarchies", "Notifications and actions", "Delegation and vacation rules", "Approval history", "Escalations", "Testing approval rules", "Common approval problems"],
+          "tools": ["Approval configuration", "Worklist", "Notifications"],
+          "lab_task": "Configure approval rules for requisitions by amount and for promotions by grade, test them with three cases and set a vacation rule.",
+          "deliverable": "Tested approval rules",
+          "checks": [["Route", "Each case reaches the right approver", "Approval history"], ["Delegate", "The vacation rule redirects approvals", "Worklist"], ["Test", "All three test cases pass", "Test sheet"]],
+          "objectives": ["Configure approvals", "Test approval routing", "Handle delegation"]
+        },
+        {
+          "topic": "Reporting with OTBI: Subject Areas, Analyses and Dashboards",
+          "subtopics": ["Transactional Business Intelligence", "Subject areas and folders", "Building analyses", "Filters, prompts and calculations", "Dashboards", "Sharing and security in OTBI", "Infolets on the home page", "Performance of analyses"],
+          "tools": ["OTBI", "Dashboards", "Infolets"],
+          "lab_task": "Build OTBI analyses for open purchase orders and headcount by department with prompts, put them on a dashboard and share it.",
+          "deliverable": "OTBI dashboard with two analyses",
+          "checks": [["Build", "Analyses return correct results", "Analysis output"], ["Filter", "Prompts filter both analyses", "Dashboard"], ["Share", "Users with the right roles open the dashboard", "Sharing test"]],
+          "objectives": ["Build OTBI analyses", "Create dashboards", "Share reports securely"]
+        },
+        {
+          "topic": "BI Publisher Reports and Scheduled Processes",
+          "subtopics": ["BI Publisher data models", "SQL data sets", "RTF and Excel templates", "Report parameters", "Scheduled processes", "Bursting basics", "Output formats and delivery", "Report security"],
+          "tools": ["BI Publisher", "Scheduled Processes", "Templates"],
+          "lab_task": "Build a BI Publisher report with a SQL data model and an RTF template for supplier payments, schedule it and deliver it by email.",
+          "deliverable": "Scheduled BI Publisher report",
+          "checks": [["Build", "The report shows correct payment data", "Report output"], ["Schedule", "The report runs on schedule", "Process history"], ["Deliver", "Output arrives by email", "Delivery record"]],
+          "objectives": ["Build BI Publisher reports", "Schedule processes", "Deliver reports"]
+        },
+        {
+          "topic": "Data Import: FBDI, HCM Data Loader and Spreadsheets",
+          "subtopics": ["File-based data import templates", "Loading interface tables and import jobs", "HCM Data Loader files", "HCM Spreadsheet Data Loader", "ADF Desktop Integration spreadsheets", "Error handling and reprocessing", "Validation reports", "Choosing an import method"],
+          "tools": ["FBDI", "HCM Data Loader", "ADF Desktop Integration"],
+          "lab_task": "Load suppliers with FBDI, workers with HCM Data Loader and journals with a spreadsheet, fix the errors and reload.",
+          "deliverable": "Loaded data with error fixes",
+          "checks": [["Load", "Records load through each method", "Import job results"], ["Fix", "Errors are corrected and reloaded", "Error reports before and after"], ["Choose", "The method choice is justified for each object", "Notes"]],
+          "objectives": ["Import data into Fusion", "Handle import errors", "Choose import methods"]
+        },
+        {
+          "topic": "Fusion REST APIs and Integration Patterns",
+          "subtopics": ["REST APIs for ERP, HCM and SCM", "Authentication for APIs", "Querying and updating records", "Bulk and asynchronous patterns", "Business events", "Oracle Integration as the integration platform", "Outbound files and extracts", "Choosing an integration pattern"],
+          "tools": ["Fusion REST APIs", "Postman", "Oracle Integration"],
+          "lab_task": "Read and update suppliers and workers with REST APIs, subscribe to a business event and sketch an integration design for a payroll provider.",
+          "deliverable": "API calls and an integration sketch",
+          "checks": [["Read", "API queries return expected records", "API responses"], ["Update", "An API update appears in the application", "Record history"], ["Design", "The integration pattern is chosen with reasons", "Design sketch"]],
+          "objectives": ["Use Fusion REST APIs", "Use business events", "Choose integration patterns"]
+        },
+        {
+          "topic": "Quarterly Updates: Release Readiness, Opt-In Features and Regression Testing",
+          "subtopics": ["The quarterly update schedule", "Release readiness and What's New", "Features on by default and opt-in features", "Update schedules for test and production pods", "Regression test planning", "Communicating changes to users", "Tracking known issues", "Post-update checks"],
+          "tools": ["Release readiness pages", "Feature opt-in", "Test plan template"],
+          "lab_task": "Review the next update's new features for the course modules, choose which to opt in to, write a regression test plan and run five test cases.",
+          "deliverable": "Update impact review and regression test results",
+          "checks": [["Review", "Relevant new features are listed with impact", "Impact review"], ["Decide", "Opt-in decisions are recorded", "Decision log"], ["Test", "Five regression tests run with results", "Test results"]],
+          "objectives": ["Prepare for quarterly updates", "Decide on new features", "Run regression tests"]
+        },
+        {
+          "topic": "AI in Fusion: Embedded AI, Role-Based Agents and AI Agent Studio",
+          "subtopics": ["Embedded AI features across the pillars", "Role-based AI agents for finance, HR and supply chain", "Generative AI in documents and messages", "AI Agent Studio for Fusion Applications", "Agent templates", "Human review of agent output", "Security and data access for agents", "Measuring value from AI features"],
+          "tools": ["Embedded AI features", "AI Agent Studio", "Role-based agents"],
+          "lab_task": "Use two embedded AI features, run a role-based agent on a sample task, open an agent template in AI Agent Studio and record the review steps users need.",
+          "deliverable": "AI feature trial with review notes",
+          "checks": [["Use", "Two embedded AI features are used on real records", "Screenshots"], ["Run", "The agent completes the sample task", "Agent output"], ["Review", "Human review steps are written", "Review notes"]],
+          "objectives": ["Use AI features in Fusion", "Explore AI Agent Studio", "Plan human review"]
+        },
+        {
+          "topic": "Beginner Capstone: Procure-to-Pay and Hire-to-Retire Walkthrough in Fusion",
+          "subtopics": ["Structures and security", "Procure-to-pay transactions", "Hire-to-retire transactions", "Reports and data loads"],
+          "tools": ["Oracle Fusion Cloud Applications", "OTBI", "FBDI and HCM Data Loader"],
+          "lab_task": "Run procure-to-pay and hire-to-retire end to end for the course company with correct structures and roles, load sample data, and report results in OTBI.",
+          "deliverable": "Process walkthrough with reports",
+          "checks": [["Run", "Both processes complete without errors", "Transaction trail"], ["Secure", "Each step is done by a user with the right role", "Access record"], ["Report", "OTBI reports show the results", "Dashboard"]],
+          "objectives": ["Combine beginner Fusion skills", "Run end-to-end processes", "Report results"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For implementation consultants and technical developers who configure and extend Oracle Fusion. Covers implementation methodology, financials configuration and subledger accounting, order-to-cash and procure-to-pay setup, HCM configuration, payroll and compensation, security in depth, data migration at scale, HCM Extracts, Oracle Integration for Fusion, business events, advanced BI Publisher reporting, Oracle Fusion Data Intelligence, Visual Builder Studio and Redwood extensions, Application Composer, page and transaction personalisation, test automation, AI Agent Studio, environment management and certification preparation.",
+      "prerequisites": ["Has used Fusion as a key user or on a project", "Understands Fusion enterprise structures and security", "Comfortable with SQL for reporting"],
+      "outcomes": ["Configure finance, procurement and HCM processes to requirements", "Migrate data and build integrations, extracts and reports", "Extend Fusion with Visual Builder Studio, Application Composer and AI Agent Studio", "Manage environments and tests for quarterly updates and prepare for implementation exams"],
+      "days": [
+        {
+          "topic": "Implementation Methodology: Oracle Modern Best Practice and Configuration Workbooks",
+          "subtopics": ["Implementation phases", "Oracle Modern Best Practice processes", "Fit-to-standard workshops", "Configuration workbooks", "Requirements traceability", "Design documents for gaps", "Sign-off and change control", "Common implementation risks"],
+          "tools": ["Configuration workbooks", "Requirements tracker", "Process maps"],
+          "lab_task": "Run a fit-to-standard workshop for procure-to-pay with the course company personas, fill the configuration workbook and log gaps with proposed solutions.",
+          "deliverable": "Workshop output, configuration workbook and gap log",
+          "checks": [["Workshop", "Requirements are mapped to standard processes", "Workshop notes"], ["Configure", "The workbook covers the agreed design", "Configuration workbook"], ["Gap", "Gaps have proposed solutions and owners", "Gap log"]],
+          "objectives": ["Run fit-to-standard workshops", "Document configuration", "Manage gaps"]
+        },
+        {
+          "topic": "Financials Configuration: Chart of Accounts, Calendars and Subledger Accounting",
+          "subtopics": ["Chart of accounts design", "Value sets and hierarchies", "Cross-validation rules", "Accounting calendars", "Subledger accounting methods and rules", "Intercompany setup", "Currency and conversion rates", "Testing accounting outcomes"],
+          "tools": ["General Ledger setup", "Subledger Accounting", "Intercompany"],
+          "lab_task": "Configure a chart of accounts with hierarchies and cross-validation rules, a custom subledger accounting rule and intercompany setup, and test the accounting.",
+          "deliverable": "Financials configuration with tests",
+          "checks": [["Validate", "Invalid account combinations are rejected", "Validation test"], ["Account", "The custom rule produces the expected entries", "Accounting report"], ["Balance", "Intercompany entries balance across entities", "Intercompany report"]],
+          "objectives": ["Configure core financials", "Design accounting rules", "Test accounting outcomes"]
+        },
+        {
+          "topic": "Order-to-Cash and Procure-to-Pay Process Configuration",
+          "subtopics": ["Customer and supplier setup options", "Payment terms and methods", "Purchasing document styles", "Matching and tolerances", "Receivables transaction types", "Revenue recognition basics", "Collections setup", "End-to-end testing"],
+          "tools": ["Procurement setup", "Payables setup", "Receivables setup"],
+          "lab_task": "Configure payment terms, matching tolerances, transaction types and collections for the course company and test both process flows end to end.",
+          "deliverable": "Configured process flows with test evidence",
+          "checks": [["Configure", "Setup matches the design", "Configuration report"], ["Hold", "Invoices outside tolerance are held", "Hold report"], ["Test", "Both flows pass end-to-end tests", "Test results"]],
+          "objectives": ["Configure procure-to-pay", "Configure order-to-cash", "Test process flows"]
+        },
+        {
+          "topic": "HCM Configuration: Grades, Jobs, Positions, Checklists and Journeys",
+          "subtopics": ["Workforce structure design", "Position management choices", "Lookups and flexfields", "Journeys and checklists", "Approvals for HCM", "Document records", "Person and employment rules", "Testing HCM configuration"],
+          "tools": ["HCM setup", "Journeys", "Flexfields"],
+          "lab_task": "Configure grades, jobs and positions with position management, add two descriptive flexfields, build an onboarding journey and test a hire.",
+          "deliverable": "HCM configuration with a tested hire",
+          "checks": [["Structure", "Positions and grades follow the design", "Setup report"], ["Extend", "Flexfields capture the extra data", "Employee record"], ["Onboard", "The journey runs for a new hire", "Journey status"]],
+          "objectives": ["Configure HCM structures", "Use flexfields", "Build journeys"]
+        },
+        {
+          "topic": "Payroll and Compensation Configuration",
+          "subtopics": ["Payroll definitions and periods", "Elements and element eligibility", "Fast formulas", "Costing of payroll", "Workforce compensation plans", "Budgets and allocation", "Payroll flows", "Payroll reconciliation"],
+          "tools": ["Global Payroll", "Fast Formula", "Workforce Compensation"],
+          "lab_task": "Create earnings and deduction elements with eligibility, write a fast formula for an allowance, run a payroll flow and reconcile the results.",
+          "deliverable": "Payroll configuration with a reconciled run",
+          "checks": [["Configure", "Elements and eligibility work for test employees", "Element entries"], ["Calculate", "The fast formula gives the expected allowance", "Payroll results"], ["Reconcile", "Payroll totals reconcile to costing", "Reconciliation report"]],
+          "objectives": ["Configure payroll", "Write fast formulas", "Reconcile payroll"]
+        },
+        {
+          "topic": "Fusion Security in Depth: Custom Roles, Data Security and the Security Console",
+          "subtopics": ["Copying and editing roles", "Custom duty roles", "Data security policies", "Area of responsibility and data roles", "HCM security profiles", "Segregation of duties basics", "Security reports and audits", "Testing security changes"],
+          "tools": ["Security Console", "Security profiles", "Security reports"],
+          "lab_task": "Build a custom accountant role without payment rights, restrict an HR specialist to one country with a security profile and prove both with tests.",
+          "deliverable": "Custom roles with security tests",
+          "checks": [["Restrict", "The accountant cannot release payments", "Access test"], ["Limit", "The HR specialist sees only one country", "Access test"], ["Report", "Security reports confirm the changes", "Security report"]],
+          "objectives": ["Build custom roles", "Configure data security", "Test security changes"]
+        },
+        {
+          "topic": "Data Migration with FBDI and HCM Data Loader at Scale",
+          "subtopics": ["Migration scope and objects", "Mapping legacy data", "Load order and dependencies", "Bulk loads and performance", "Validation and reconciliation", "Mock loads", "Error triage", "Cutover loads"],
+          "tools": ["FBDI", "HCM Data Loader", "Reconciliation reports"],
+          "lab_task": "Run a mock migration of suppliers, open invoices, customers and workers in dependency order, reconcile counts and values and triage errors.",
+          "deliverable": "Mock migration report",
+          "checks": [["Load", "All objects load in dependency order", "Load results"], ["Reconcile", "Counts and values match the source", "Reconciliation sheet"], ["Triage", "Errors are grouped with fixes", "Error log"]],
+          "objectives": ["Plan data migration", "Run mock loads", "Reconcile migrated data"]
+        },
+        {
+          "topic": "HCM Extracts and Outbound Interfaces",
+          "subtopics": ["HCM Extracts structure", "Data groups and records", "Delivery options", "Changes-only extracts", "Extract scheduling", "Using BI Publisher templates with extracts", "Securing extract data", "Monitoring extract runs"],
+          "tools": ["HCM Extracts", "BI Publisher", "Scheduled Processes"],
+          "lab_task": "Build a changes-only HCM Extract for a benefits provider with a BI Publisher template, schedule it and deliver it securely.",
+          "deliverable": "Scheduled changes-only extract",
+          "checks": [["Build", "The extract includes the required fields", "Extract output"], ["Change", "Only changed records appear in the second run", "Output comparison"], ["Deliver", "The file is delivered securely on schedule", "Delivery log"]],
+          "objectives": ["Build HCM Extracts", "Send changes only", "Deliver extracts securely"]
+        },
+        {
+          "topic": "Oracle Integration for Fusion: Adapters, Orchestrations and Error Handling",
+          "subtopics": ["The Oracle ERP Cloud and HCM adapters", "App-driven and scheduled orchestrations", "Mapping and lookups", "File handling and FBDI uploads", "Fault handlers", "Tracking and monitoring", "Securing connections", "Integration testing"],
+          "tools": ["Oracle Integration", "ERP Cloud adapter", "HCM adapter"],
+          "lab_task": "Build an integration that loads bank statement files into Fusion through FBDI and another that sends new workers to a badge system, with fault handling.",
+          "deliverable": "Two integrations with error handling",
+          "checks": [["Load", "Bank statements load through the integration", "Import results"], ["Send", "New workers reach the badge system", "Target records"], ["Recover", "Faults are caught and reported", "Tracking view"]],
+          "objectives": ["Build Fusion integrations", "Use Fusion adapters", "Handle integration errors"]
+        },
+        {
+          "topic": "Business Events, Callbacks and Event-Driven Integration",
+          "subtopics": ["Business events in Fusion", "Subscribing with Oracle Integration", "Callbacks after FBDI imports", "Event payloads", "Idempotent event handling", "Ordering and duplicates", "Monitoring events", "When to use events or polling"],
+          "tools": ["Business events", "Oracle Integration", "Callbacks"],
+          "lab_task": "Trigger an integration from a purchase order approval event, handle a duplicate event safely and use an FBDI callback to report import results.",
+          "deliverable": "Event-driven integration with tests",
+          "checks": [["Trigger", "The approval event starts the integration", "Tracking record"], ["Repeat", "A duplicate event causes no duplicate record", "Target data"], ["Report", "The callback reports import results", "Callback log"]],
+          "objectives": ["Use business events", "Handle events safely", "Use import callbacks"]
+        },
+        {
+          "topic": "Advanced Reporting: BI Publisher Data Models, Bursting and OTBI Security",
+          "subtopics": ["Complex data models with several data sets", "Bursting to many recipients", "Excel and eText templates", "Performance of SQL data models", "OTBI cross-subject area analyses", "Data security in reports", "Report catalog management", "Moving reports between environments"],
+          "tools": ["BI Publisher", "OTBI", "Report catalog"],
+          "lab_task": "Build a bursting report that sends each supplier its own remittance, tune a slow data model and move both reports to another environment.",
+          "deliverable": "Bursting report and tuned data model",
+          "checks": [["Burst", "Each supplier gets only its remittance", "Delivery log"], ["Tune", "The data model runs faster after tuning", "Run time comparison"], ["Move", "Reports work in the target environment", "Target run"]],
+          "objectives": ["Build complex reports", "Burst output safely", "Tune and move reports"]
+        },
+        {
+          "topic": "Oracle Fusion Data Intelligence: Prebuilt Analytics, KPIs and Data Augmentation",
+          "subtopics": ["What Fusion Data Intelligence provides", "Prebuilt data models and KPIs", "Data pipelines from Fusion", "Data augmentation with other sources", "Semantic model extensions", "Dashboards and workbooks", "Security in analytics", "When to use OTBI or Fusion Data Intelligence"],
+          "tools": ["Oracle Fusion Data Intelligence", "Oracle Analytics", "Data augmentation"],
+          "lab_task": "Build a finance dashboard from prebuilt KPIs, augment it with a budget file and compare when OTBI or Fusion Data Intelligence fits each reporting need.",
+          "deliverable": "Analytics dashboard and tool choice guide",
+          "checks": [["Build", "Prebuilt KPIs show on the dashboard", "Dashboard"], ["Augment", "Budget data joins the actuals", "Augmented view"], ["Choose", "Each reporting need has a tool with reasons", "Choice guide"]],
+          "objectives": ["Use Fusion Data Intelligence", "Augment analytics data", "Choose reporting tools"]
+        },
+        {
+          "topic": "Extending Fusion with Visual Builder Studio and Redwood Pages",
+          "subtopics": ["Visual Builder Studio for Fusion", "Extending Redwood pages", "Business rules in Redwood pages", "Adding fields and sections", "Calling REST APIs from extensions", "Source control and pipelines in Visual Builder Studio", "Publishing extensions", "Extension lifecycle with quarterly updates"],
+          "tools": ["Visual Builder Studio", "Redwood pages", "Fusion REST APIs"],
+          "lab_task": "Extend a Redwood page with a new section and business rule, call a REST API for extra data and publish the extension through the pipeline.",
+          "deliverable": "Published Redwood extension",
+          "checks": [["Extend", "The new section and rule work on the page", "Page test"], ["Call", "The extension shows data from the API", "Page screenshot"], ["Publish", "The extension deploys through the pipeline", "Pipeline run"]],
+          "objectives": ["Extend Redwood pages", "Use Visual Builder Studio", "Manage extension releases"]
+        },
+        {
+          "topic": "Application Composer: Custom Objects, Fields and Groovy Scripts",
+          "subtopics": ["Application Composer scope", "Custom objects and fields", "Object relationships", "Groovy scripts for validation and triggers", "Object workflows", "Custom subject areas for reports", "Sandboxes", "Testing and publishing changes"],
+          "tools": ["Application Composer", "Sandboxes", "Groovy"],
+          "lab_task": "Create a custom object for supplier risk reviews with fields and a Groovy validation, add a workflow and publish it from a sandbox.",
+          "deliverable": "Custom object with validation and workflow",
+          "checks": [["Create", "The custom object stores reviews", "Object records"], ["Validate", "Invalid reviews are rejected by the script", "Error message"], ["Publish", "Changes publish from the sandbox", "Sandbox history"]],
+          "objectives": ["Use Application Composer", "Write Groovy validations", "Publish from sandboxes"]
+        },
+        {
+          "topic": "Personalisation with Page Composer and HCM Experience Design Studio",
+          "subtopics": ["Personalisation compared with extension", "Page Composer for classic pages", "HCM Experience Design Studio rules", "Showing, hiding and requiring fields", "Rules by role, country or business unit", "Guided processes", "Testing personalisations", "Personalisation after updates"],
+          "tools": ["HCM Experience Design Studio", "Page Composer", "Sandboxes"],
+          "lab_task": "Create rules that require a field for one country and hide a section for one role in a hire process, and test them with two users.",
+          "deliverable": "Tested personalisation rules",
+          "checks": [["Require", "The field is required only for the chosen country", "Process test"], ["Hide", "The section is hidden for the chosen role", "Process test"], ["Verify", "Other users see the standard page", "Test record"]],
+          "objectives": ["Personalise Fusion pages", "Use HCM Experience Design Studio", "Test personalisations"]
+        },
+        {
+          "topic": "Test Automation for Fusion: Regression Suites, Test Data and Update Cycles",
+          "subtopics": ["Why updates need regression testing", "Choosing what to automate", "Test automation tools for Fusion", "Test data management", "Running suites in test pods", "Reporting results", "Linking tests to requirements", "Maintaining tests after updates"],
+          "tools": ["Test automation tool", "Test data sets", "Test management tool"],
+          "lab_task": "Automate five critical regression tests for procure-to-pay and hire, run them against a test pod and report results linked to requirements.",
+          "deliverable": "Automated regression suite with results",
+          "checks": [["Automate", "Five tests run without manual steps", "Test run log"], ["Report", "Results link to requirements", "Test report"], ["Maintain", "One test is updated for a changed page", "Test change record"]],
+          "objectives": ["Automate Fusion testing", "Manage test data", "Keep tests current"]
+        },
+        {
+          "topic": "AI Agent Studio: Building and Testing Agents for Fusion Workflows",
+          "subtopics": ["Agent Studio concepts: agents, tools and topics", "Starting from templates", "Tools that call Fusion APIs and business objects", "Agent teams and supervisors", "Testing and debugging agents", "Security and role-based access for agents", "Deploying agents to users", "Monitoring agent use"],
+          "tools": ["AI Agent Studio", "Fusion REST APIs", "Agent templates"],
+          "lab_task": "Build an agent from a template that answers supplier invoice status questions with Fusion tools, test it with ten questions and deploy it to a user group.",
+          "deliverable": "Deployed agent with test results",
+          "checks": [["Build", "The agent uses Fusion tools to answer", "Conversation log"], ["Test", "At least eight of ten answers are correct", "Test sheet"], ["Deploy", "Only the intended user group can use the agent", "Access test"]],
+          "objectives": ["Build Fusion agents", "Test agents", "Deploy agents securely"]
+        },
+        {
+          "topic": "Environment Management: Refreshes and Configuration Set Migration",
+          "subtopics": ["Production and test pods", "Environment refreshes", "Configuration Set Migration", "Setup data export and import", "Moving reports, extensions and integrations", "Refresh impacts on integrations", "Environment calendars", "Documenting environment changes"],
+          "tools": ["Configuration Set Migration", "Setup export and import", "Environment requests"],
+          "lab_task": "Plan a refresh of the test pod, move configuration with Configuration Set Migration and setup export, and run a checklist to restore integrations after the refresh.",
+          "deliverable": "Refresh plan and post-refresh checklist",
+          "checks": [["Plan", "The refresh plan lists impacts and owners", "Refresh plan"], ["Move", "Configuration moves to the target", "Migration result"], ["Restore", "Integrations work after the refresh", "Checklist results"]],
+          "objectives": ["Manage Fusion environments", "Move configuration", "Restore services after refreshes"]
+        },
+        {
+          "topic": "Oracle Fusion Certification Preparation: Implementation Professional Exams",
+          "subtopics": ["Oracle Cloud Applications certification tracks", "Exam versions tied to the release year", "Topics for Financials, HCM and SCM exams", "Oracle University learning paths", "Mapping course days to exam topics", "Practice questions", "Exam logistics", "Review plan for weak areas"],
+          "tools": ["Oracle University", "Practice questions", "Course notes"],
+          "lab_task": "Choose the exam for your track, take a timed practice set, map every miss to a course day and complete a review plan.",
+          "deliverable": "Practice results and review plan",
+          "checks": [["Choose", "The right exam for the track is selected", "Exam choice"], ["Practise", "A timed practice set is completed", "Score sheet"], ["Plan", "The review plan covers weak topics", "Review plan"]],
+          "objectives": ["Prepare for Fusion certification", "Find weak topics", "Plan focused review"]
+        },
+        {
+          "topic": "Intermediate Capstone: Configured Fusion Pilot with Integrations and Reports",
+          "subtopics": ["Configured processes and security", "Migrated data", "Integrations, extracts and events", "Extensions, reports and an agent"],
+          "tools": ["Oracle Fusion Cloud Applications", "Oracle Integration", "Visual Builder Studio", "AI Agent Studio"],
+          "lab_task": "Deliver a pilot for the course company with configured finance and HCM processes, custom security, migrated data, two integrations, an extract, a Redwood extension, reports and an agent, and present it to the steering group persona.",
+          "deliverable": "Pilot demo with evidence",
+          "checks": [["Configure", "Processes run as designed with the right roles", "Test results"], ["Integrate", "Integrations and extracts run without errors", "Tracking views"], ["Extend", "Extensions, reports and the agent work for users", "Demo recording"]],
+          "objectives": ["Combine intermediate Fusion skills", "Deliver a working pilot", "Present with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For solution architects, programme leads and senior consultants who run large Oracle Fusion programmes. Covers programme architecture, global implementations, security architecture with segregation of duties and risk management, data migration strategy, integration architecture at scale, performance and volume, OCI extensions, agentic applications, AI governance, enterprise analytics, update governance, programme testing, change management, audit and controls, moves from E-Business Suite or SAP, third-party integration, planning and manufacturing scope, support models and a centre of excellence.",
+      "prerequisites": ["Has delivered at least one Fusion implementation", "Understands Fusion configuration, security, integration and reporting", "Responsible for design, programme or architecture decisions"],
+      "outcomes": ["Design multi-country Fusion programmes with security, data and integration architectures", "Run migrations, testing, performance work and quarterly update governance at scale", "Build and govern agentic applications and analytics strategy", "Lead change, controls, support and a centre of excellence"],
+      "days": [
+        {
+          "topic": "Fusion Programme Architecture: Pillars, Integrations and Data Flows",
+          "subtopics": ["Solution architecture for a multi-pillar programme", "Data flows between ERP, HCM and SCM", "Systems that stay outside Fusion", "Integration landscape", "Reporting and analytics landscape", "Non-functional requirements", "Architecture decisions and records", "Design authority"],
+          "tools": ["Architecture diagram tool", "Decision records", "Requirements tracker"],
+          "lab_task": "Design the solution architecture for a multinational adopting ERP, HCM and SCM with its integration and reporting landscape, and defend it to a design authority.",
+          "deliverable": "Solution architecture and decision records",
+          "checks": [["Design", "Pillars, data flows and outside systems are shown", "Architecture diagram"], ["Decide", "Key decisions are recorded with options", "Decision records"], ["Defend", "The design authority accepts the design with actions", "Review record"]],
+          "objectives": ["Design Fusion programme architecture", "Map data flows", "Run a design authority"]
+        },
+        {
+          "topic": "Global Implementations: Localisations, Tax and Multi-Country Design",
+          "subtopics": ["Global design and local variations", "Localisations for finance and payroll", "Tax configuration and tax partners", "Statutory reporting", "Multi-currency and multi-ledger designs", "Shared service centres", "Country rollout waves", "Template-based rollouts"],
+          "tools": ["Localisation documents", "Tax configuration", "Rollout plan"],
+          "lab_task": "Design a global template with country variations for three countries, plan tax and statutory reporting and schedule the rollout waves.",
+          "deliverable": "Global template and rollout plan",
+          "checks": [["Template", "Global and local elements are separated", "Template document"], ["Comply", "Tax and statutory needs are covered per country", "Compliance matrix"], ["Plan", "Rollout waves have dates and dependencies", "Rollout plan"]],
+          "objectives": ["Design global implementations", "Handle localisation", "Plan country rollouts"]
+        },
+        {
+          "topic": "Fusion Security Architecture: Segregation of Duties and Risk Management",
+          "subtopics": ["Security design principles", "Role design at scale", "Segregation of duties rules", "Oracle Risk Management and Compliance", "Access certification", "Privileged and emergency access", "Security for integrations and agents", "Security testing and audit evidence"],
+          "tools": ["Security Console", "Risk Management and Compliance", "Access certification"],
+          "lab_task": "Design the role model for the programme, define segregation of duties rules, run an analysis that finds conflicts and remediate them before go-live.",
+          "deliverable": "Role model and conflict remediation report",
+          "checks": [["Design", "Roles cover all user groups with least privilege", "Role model"], ["Analyse", "Conflicts are found by the rules", "Analysis results"], ["Remediate", "Conflicts are removed or controlled", "Remediation report"]],
+          "objectives": ["Design Fusion security architecture", "Enforce segregation of duties", "Prepare audit evidence"]
+        },
+        {
+          "topic": "Data Migration Strategy for Large Programmes: Cutover, Reconciliation and Validation",
+          "subtopics": ["Migration strategy and scope", "Data quality and cleansing", "Migration tooling choices", "Mock migrations and timings", "Reconciliation design", "Cutover planning", "Rollback options", "Business sign-off"],
+          "tools": ["Migration tools", "Reconciliation reports", "Cutover plan"],
+          "lab_task": "Write the migration strategy for the programme, plan three mock loads with timings, design reconciliations and build an hour-by-hour cutover plan.",
+          "deliverable": "Migration strategy and cutover plan",
+          "checks": [["Strategy", "Scope, tools and quality rules are defined", "Strategy document"], ["Reconcile", "Reconciliations cover counts and values", "Reconciliation design"], ["Cutover", "The cutover plan fits the downtime window", "Cutover plan"]],
+          "objectives": ["Plan large migrations", "Design reconciliation", "Plan cutover"]
+        },
+        {
+          "topic": "Integration Architecture at Scale: Oracle Integration Patterns, Monitoring and Resilience",
+          "subtopics": ["Integration patterns and their trade-offs", "Volume and throughput planning", "Error handling and retries", "Monitoring and alerting", "Integration security", "Versioning integrations", "Integration testing at scale", "Support handover"],
+          "tools": ["Oracle Integration", "Monitoring dashboards", "Integration catalogue"],
+          "lab_task": "Design the integration architecture for thirty interfaces with patterns, volumes, error handling and monitoring, and run a volume test of the busiest interface.",
+          "deliverable": "Integration architecture and volume test",
+          "checks": [["Design", "Each interface has a pattern and owner", "Integration catalogue"], ["Test", "The busiest interface handles peak volume", "Volume test results"], ["Monitor", "Failures raise alerts to the support team", "Alert test"]],
+          "objectives": ["Design integration architecture", "Plan for volume", "Monitor integrations"]
+        },
+        {
+          "topic": "Performance and Volume: Bulk Loads, Scheduled Processes and API Limits",
+          "subtopics": ["Performance requirements", "Bulk load sizing", "Scheduled process tuning", "Report performance", "API limits and throttling", "Peak period planning", "Performance testing", "Working with Oracle Support on performance"],
+          "tools": ["Scheduled Processes", "Performance test tools", "Fusion REST APIs"],
+          "lab_task": "Measure peak month-end loads, tune a slow scheduled process and a heavy report, and test API throughput within limits.",
+          "deliverable": "Performance test report with tuning changes",
+          "checks": [["Measure", "Peak loads are measured", "Performance report"], ["Tune", "Process and report times improve", "Before-and-after times"], ["Limit", "API calls stay within limits at peak", "API test results"]],
+          "objectives": ["Plan performance", "Tune processes and reports", "Respect API limits"]
+        },
+        {
+          "topic": "Extending Fusion with OCI: Functions, API Gateway and Autonomous Database",
+          "subtopics": ["When to extend outside Fusion", "OCI Functions for logic", "API Gateway in front of extensions", "Autonomous Database for extension data", "Identity and security between Fusion and OCI", "Events and streaming", "Cost of extensions", "Supporting extensions through updates"],
+          "tools": ["OCI Functions", "OCI API Gateway", "Autonomous Database", "Fusion REST APIs"],
+          "lab_task": "Build an OCI extension that scores supplier risk with a function, stores results in Autonomous Database and returns them to a Redwood page through API Gateway.",
+          "deliverable": "Working OCI extension with security",
+          "checks": [["Build", "The function scores suppliers", "Function logs"], ["Secure", "Calls between Fusion and OCI are authenticated", "Security configuration"], ["Show", "Scores appear on the Redwood page", "Page screenshot"]],
+          "objectives": ["Extend Fusion on OCI", "Secure extensions", "Support extensions through updates"]
+        },
+        {
+          "topic": "Agentic Applications: Agentic Applications Builder and AI Studio Skill",
+          "subtopics": ["Agentic applications in Fusion", "Agentic Applications Builder for business users", "AI Studio Skill for pro-code developers", "Workflow orchestration with agents", "Contextual memory and content intelligence", "Measuring return on investment", "Testing agentic applications", "Releasing agentic applications"],
+          "tools": ["AI Agent Studio", "Agentic Applications Builder", "AI Studio Skill"],
+          "lab_task": "Build an agentic application for invoice exception handling with Agentic Applications Builder, extend one step with AI Studio Skill, test it and measure time saved.",
+          "deliverable": "Agentic application with test and value results",
+          "checks": [["Build", "The application handles invoice exceptions", "Run log"], ["Extend", "The pro-code step works inside the application", "Test result"], ["Measure", "Time saved per exception is measured", "Value report"]],
+          "objectives": ["Build agentic applications", "Combine no-code and pro-code", "Measure value"]
+        },
+        {
+          "topic": "AI Governance in Fusion: Agent Permissions, Monitoring and Responsible Use",
+          "subtopics": ["AI governance roles", "Permissions and data access for agents", "Human approval points", "Monitoring agent decisions", "Error and bias reviews", "Regulatory duties for AI", "Documentation and audit", "Retiring or changing agents"],
+          "tools": ["AI Agent Studio", "Security Console", "Monitoring reports"],
+          "lab_task": "Write an AI governance policy for Fusion agents, apply permissions and approval points to two agents and review a month of seeded agent decisions.",
+          "deliverable": "Governance policy and decision review",
+          "checks": [["Govern", "The policy defines roles, approvals and audit", "Policy document"], ["Apply", "Agents follow permissions and approvals", "Configuration and tests"], ["Review", "Seeded decision errors are found and acted on", "Review report"]],
+          "objectives": ["Govern AI in Fusion", "Control agent access", "Review agent decisions"]
+        },
+        {
+          "topic": "Enterprise Analytics Strategy with Fusion Data Intelligence",
+          "subtopics": ["Analytics needs across pillars", "OTBI, BI Publisher and Fusion Data Intelligence roles", "Data augmentation with non-Fusion data", "Semantic model governance", "KPI definitions and ownership", "Self-service analytics", "Performance and cost", "Analytics roadmap"],
+          "tools": ["Oracle Fusion Data Intelligence", "OTBI", "Oracle Analytics"],
+          "lab_task": "Write the analytics strategy for the programme with tool roles, KPI ownership and an augmentation plan, and build one cross-pillar KPI dashboard.",
+          "deliverable": "Analytics strategy and KPI dashboard",
+          "checks": [["Define", "KPIs have owners and definitions", "KPI register"], ["Assign", "Each reporting need has a tool", "Tool map"], ["Build", "The cross-pillar dashboard works", "Dashboard"]],
+          "objectives": ["Set analytics strategy", "Govern KPIs", "Build cross-pillar analytics"]
+        },
+        {
+          "topic": "Quarterly Update Governance at Scale",
+          "subtopics": ["Update calendars for large estates", "Impact analysis across pillars", "Feature adoption strategy", "Regression scope by risk", "Communication and training for updates", "Handling issues after updates", "Opt-in backlog management", "Measuring update success"],
+          "tools": ["Release readiness", "Test management tool", "Feature backlog"],
+          "lab_task": "Run the update governance process for the next quarterly update across three pillars with impact analysis, risk-based regression scope and a communication plan.",
+          "deliverable": "Update governance pack",
+          "checks": [["Analyse", "Impacts are assessed per pillar", "Impact matrix"], ["Scope", "Regression scope follows risk", "Test scope"], ["Communicate", "Users get the right change messages", "Communication plan"]],
+          "objectives": ["Govern quarterly updates", "Scope testing by risk", "Manage feature adoption"]
+        },
+        {
+          "topic": "Testing and Quality at Programme Scale: SIT, UAT and Parallel Runs",
+          "subtopics": ["Test strategy for a programme", "System integration testing", "User acceptance testing", "Payroll parallel runs", "Defect management", "Entry and exit criteria", "Test automation at scale", "Go-live readiness"],
+          "tools": ["Test management tool", "Defect tracker", "Parallel run reports"],
+          "lab_task": "Write the programme test strategy, run a seeded SIT cycle, manage defects to exit criteria and assess payroll parallel run results.",
+          "deliverable": "Test strategy and readiness assessment",
+          "checks": [["Plan", "The strategy covers SIT, UAT and parallel runs", "Test strategy"], ["Manage", "Defects are triaged to exit criteria", "Defect report"], ["Assess", "Parallel run differences are explained", "Parallel run analysis"]],
+          "objectives": ["Plan programme testing", "Manage defects", "Assess go-live readiness"]
+        },
+        {
+          "topic": "Change Management and Adoption for Fusion Programmes",
+          "subtopics": ["Stakeholder mapping", "Change impact analysis", "Training plans by role", "Super users and champions", "Communication plans", "Adoption metrics", "Resistance and support", "Benefits tracking"],
+          "tools": ["Change impact template", "Training plan", "Adoption dashboard"],
+          "lab_task": "Build a change impact analysis and training plan for three user groups, design the super user network and define adoption metrics for go-live.",
+          "deliverable": "Change and adoption plan",
+          "checks": [["Analyse", "Impacts are listed per user group", "Impact analysis"], ["Train", "Training fits each role", "Training plan"], ["Measure", "Adoption metrics have targets", "Adoption plan"]],
+          "objectives": ["Lead change for Fusion", "Plan training", "Measure adoption"]
+        },
+        {
+          "topic": "Audit, Compliance and Controls: SOX, Approvals and Audit Reports",
+          "subtopics": ["Financial controls in Fusion", "Configuration controls", "Approval controls", "Audit trails and audit reports", "Advanced controls in Risk Management and Compliance", "Evidence collection", "Working with auditors", "Remediating findings"],
+          "tools": ["Audit reports", "Risk Management and Compliance", "Approvals"],
+          "lab_task": "Map ten financial controls to Fusion features, collect evidence for an audit walkthrough and remediate two seeded findings.",
+          "deliverable": "Control map, evidence pack and remediation",
+          "checks": [["Map", "Each control maps to a feature or report", "Control map"], ["Evidence", "The evidence pack answers the auditor's requests", "Evidence pack"], ["Remediate", "Both findings are closed", "Remediation record"]],
+          "objectives": ["Map controls to Fusion", "Collect audit evidence", "Remediate findings"]
+        },
+        {
+          "topic": "Moving from E-Business Suite or SAP to Fusion",
+          "subtopics": ["Reasons and risks of moving", "Comparing E-Business Suite and Fusion", "Comparing SAP ECC and Fusion", "Data and history decisions", "Custom code and reports", "Interface replacement", "Coexistence periods", "Decommissioning old systems"],
+          "tools": ["Fit-gap workbook", "Migration tools", "Decommissioning plan"],
+          "lab_task": "Assess an E-Business Suite estate for a move to Fusion, decide on history, customisations and interfaces, and plan coexistence and decommissioning.",
+          "deliverable": "Move assessment and roadmap",
+          "checks": [["Assess", "Customisations and interfaces are classified", "Assessment"], ["Decide", "History and coexistence decisions are recorded", "Decision records"], ["Plan", "Decommissioning has dates and owners", "Roadmap"]],
+          "objectives": ["Plan moves to Fusion", "Handle customisations and history", "Plan coexistence"]
+        },
+        {
+          "topic": "Fusion and Third-Party Systems: Banks, Payroll Providers and CRM",
+          "subtopics": ["Bank connectivity and statements", "Payment files and acknowledgements", "Third-party payroll interfaces", "CRM and order systems", "Expense and travel tools", "Tax engines", "Partner security and contracts", "Testing with partners"],
+          "tools": ["Oracle Integration", "Payment formats", "Partner test plans"],
+          "lab_task": "Design and test interfaces with a bank, a payroll provider and a CRM, including acknowledgements and error handling, with a joint test plan.",
+          "deliverable": "Partner interface designs with test results",
+          "checks": [["Design", "Each partner interface has a format and owner", "Interface designs"], ["Test", "Joint tests pass with acknowledgements", "Test results"], ["Handle", "Rejected files are handled and reported", "Error test"]],
+          "objectives": ["Connect Fusion to partners", "Test with partners", "Handle partner errors"]
+        },
+        {
+          "topic": "Supply Chain Planning and Manufacturing in Programme Scope",
+          "subtopics": ["Supply planning", "Demand management", "Manufacturing and work orders", "Maintenance", "Product lifecycle management", "Logistics and transportation", "Scope decisions for a programme", "Integration with shop floor systems"],
+          "tools": ["Supply Chain Planning", "Manufacturing", "Maintenance"],
+          "lab_task": "Assess which planning and manufacturing modules the course company needs, run a planning scenario and a work order, and recommend scope and phasing.",
+          "deliverable": "Scope recommendation with trial results",
+          "checks": [["Assess", "Module needs are justified", "Assessment"], ["Trial", "The planning scenario and work order run", "Trial results"], ["Recommend", "Scope and phasing are agreed", "Recommendation"]],
+          "objectives": ["Scope supply chain modules", "Trial planning and manufacturing", "Phase delivery"]
+        },
+        {
+          "topic": "Managing Fusion as a Service: Support Model, Service Requests and Environment Governance",
+          "subtopics": ["Support model after go-live", "Working with Oracle Support and service requests", "Application management services", "Environment governance", "Incident and problem management for Fusion", "Service levels", "Knowledge management", "Continuous improvement"],
+          "tools": ["My Oracle Support", "Service management tool", "Environment calendar"],
+          "lab_task": "Design the post-go-live support model with service levels, raise a well-formed service request for a seeded issue and set environment governance rules.",
+          "deliverable": "Support model and environment rules",
+          "checks": [["Design", "Support tiers and service levels are defined", "Support model"], ["Raise", "The service request has all needed details", "Service request"], ["Govern", "Environment rules cover refreshes and access", "Governance rules"]],
+          "objectives": ["Run Fusion support", "Work with Oracle Support", "Govern environments"]
+        },
+        {
+          "topic": "Fusion Centre of Excellence: Governance, Roadmaps and Continuous Improvement",
+          "subtopics": ["Centre of excellence roles", "Demand intake and prioritisation", "Release and feature roadmaps", "Standards and design authority", "Skills and training", "Measuring value", "Vendor and partner management", "Continuous improvement cycles"],
+          "tools": ["Roadmap template", "Demand tracker", "Value dashboard"],
+          "lab_task": "Design a Fusion centre of excellence with roles, demand intake and a twelve-month roadmap, and report value against the business case.",
+          "deliverable": "Centre of excellence plan and value report",
+          "checks": [["Design", "Roles and governance are defined", "Plan document"], ["Prioritise", "Demand is ranked by value", "Demand list"], ["Report", "Value is measured against the business case", "Value report"]],
+          "objectives": ["Run a Fusion centre of excellence", "Prioritise demand", "Measure value"]
+        },
+        {
+          "topic": "Advanced Capstone: Fusion Programme Design for a Multinational",
+          "subtopics": ["Architecture and global template", "Security, data and integration designs", "AI, analytics and update governance", "Testing, change and support plans"],
+          "tools": ["Architecture documents", "Migration and cutover plans", "Governance packs"],
+          "lab_task": "Present the Fusion programme design for a multinational to a steering committee with the architecture, global template, security and data strategy, integrations, agentic applications, analytics, testing, change and support plans.",
+          "deliverable": "Programme design with evidence and a steering decision",
+          "checks": [["Design", "Architecture and template pass review", "Review record"], ["Plan", "Migration, testing and cutover plans are realistic", "Plan review"], ["Govern", "AI, update and support governance have owners", "Governance pack"]],
+          "objectives": ["Combine advanced Fusion skills", "Design a multinational programme", "Back decisions with evidence"]
+        }
+      ]
+    }
+  }
+}

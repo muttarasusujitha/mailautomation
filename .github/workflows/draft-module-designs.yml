@@ -1,0 +1,227 @@
+name: Draft module designs
+
+# Drafts the detailed module design (outcomes, timed topics, failure scenarios,
+# best practices, seeded lab failure, quiz, rubric, lab environment) with Gemini
+# and commits the validated drafts to a branch for review. Paid API calls.
+#
+# Drafting needs its own key in the DESIGN_GEMINI_API_KEY secret, so it never uses
+# the live application's Gemini quota; without it the run stops before any model
+# call. A daily quota error stops the run, and a re-run continues where it stopped.
+#
+# Designs are written to trainer-service/app/module_designs/<course>.json; course
+# files never change. Courses are split into groups drafted in parallel jobs.
+# Each job stops starting new work before its time limit and uploads what it
+# finished; a final job validates and commits everything. Re-running the same
+# branch continues with the modules that still have no design.
+#
+# - Manual run (Actions tab): pick the course set; results go to a new
+#   design-drafts/run-<id> branch with a pull request.
+# - Push to a design-drafts/** branch: the branch name picks the set:
+#   "...rest..." = every course except the 15 most-requested, "...all..." =
+#   every course, otherwise the 15 most-requested; "...sample..." = 2 per course.
+on:
+  workflow_dispatch:
+    inputs:
+      select:
+        description: "Course set"
+        type: choice
+        options: [top, rest, all]
+        default: rest
+      courses:
+        description: "Course files, comma-separated (overrides the course set)"
+        required: false
+        default: ""
+      per_course:
+        description: "Max modules per course (0 = all)"
+        required: false
+        default: "0"
+  push:
+    branches:
+      - "design-drafts/**"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: draft-module-designs-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  SELECT: ${{ github.event_name == 'workflow_dispatch' && inputs.select || (contains(github.ref_name, 'rest') && 'rest' || (contains(github.ref_name, 'all') && 'all' || 'top')) }}
+  COURSES: ${{ github.event_name == 'workflow_dispatch' && inputs.courses || '' }}
+  PER_COURSE: ${{ github.event_name == 'workflow_dispatch' && inputs.per_course || (contains(github.ref_name, 'sample') && '2' || '0') }}
+  TARGET_BRANCH: ${{ github.event_name == 'workflow_dispatch' && format('design-drafts/run-{0}', github.run_id) || github.ref_name }}
+  PYTHONPATH: ${{ github.workspace }}/microservices/services/trainer-service:${{ github.workspace }}/microservices
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      groups: ${{ steps.plan.outputs.groups }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Require the separate drafting key
+        env:
+          DESIGN_KEY: ${{ secrets.DESIGN_GEMINI_API_KEY }}
+          LIVE_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if [ -z "$DESIGN_KEY" ]; then
+            echo "::error::Add a DESIGN_GEMINI_API_KEY repository secret (a Gemini key separate from the live app's GEMINI_API_KEY) and re-run."
+            exit 1
+          fi
+          if [ "$DESIGN_KEY" = "$LIVE_KEY" ]; then
+            echo "::error::DESIGN_GEMINI_API_KEY is the live app's GEMINI_API_KEY. Create a key in a different Google Cloud project, because quota is shared per project."
+            exit 1
+          fi
+      - name: Group the courses that still need designs
+        id: plan
+        working-directory: microservices/services/trainer-service
+        run: |
+          args="--plan --groups 24 --select $SELECT"
+          if [ -n "$COURSES" ]; then args="$args --course $COURSES"; fi
+          groups=$(python -m app.draft_module_designs $args)
+          echo "groups=$groups" >> "$GITHUB_OUTPUT"
+          echo "Course groups: $groups"
+
+  draft:
+    needs: plan
+    if: needs.plan.outputs.groups != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        courses: ${{ fromJSON(needs.plan.outputs.groups) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        working-directory: microservices/services/trainer-service
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt python-dotenv
+      - name: Prepare draft output folder
+        run: mkdir -p "$RUNNER_TEMP/out"
+      - name: Draft designs
+        working-directory: microservices/services/trainer-service
+        env:
+          AI_PROVIDER: gemini
+          # A separate key keeps drafting from using the live application's quota.
+          GEMINI_API_KEY: ${{ secrets.DESIGN_GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.DESIGN_GEMINI_MODEL || 'gemini-2.5-flash' }}
+          # The live app's model (deploy.yml); quota is per model, so drafting never uses it.
+          LIVE_GEMINI_MODEL: gemini-2.5-flash
+        run: >
+          python -m app.draft_module_designs --run --course "${{ matrix.courses }}"
+          --per-course "$PER_COURSE" --concurrency 2 --max-minutes 300
+          --summary "$RUNNER_TEMP/out/summary-${{ strategy.job-index }}.json"
+      - name: Collect the design files
+        if: always()
+        working-directory: microservices/services/trainer-service
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          git ls-files --others --modified -- app/module_designs | while read -r file; do cp "$file" "$RUNNER_TEMP/out/"; done
+          ls -1 "$RUNNER_TEMP/out" | head -50
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: designs-${{ strategy.job-index }}
+          path: ${{ runner.temp }}/out/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  commit:
+    needs: [plan, draft]
+    if: always() && needs.plan.result == 'success' && needs.plan.outputs.groups != '[]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/artifacts
+          pattern: designs-*
+      - name: Put the design files in place
+        working-directory: microservices/services/trainer-service
+        run: |
+          mkdir -p app/module_designs "$RUNNER_TEMP/artifacts"
+          find "$RUNNER_TEMP/artifacts" -name '*.json' ! -name 'summary-*.json' -exec cp {} app/module_designs/ \;
+          python - <<'PY'
+          import glob, json, os
+          from pathlib import Path
+          totals = {"accepted": 0, "rejected": [], "modules": 0, "days_updated": 0, "skipped": 0, "errors": [], "models": set(), "stopped": 0}
+          for path in glob.glob(os.path.join(os.environ["RUNNER_TEMP"], "artifacts", "*", "summary-*.json")):
+              s = json.loads(Path(path).read_text(encoding="utf-8"))
+              totals["models"] |= {s.get("model")} - {None}
+              for key in ("accepted", "modules", "days_updated"):
+                  totals[key] += s.get(key) or 0
+              totals["skipped"] += s.get("placeholder_modules_skipped") or 0
+              totals["rejected"] += s.get("rejected") or []
+              totals["stopped"] += 1 if s.get("stopped_at_time_limit") else 0
+              if s.get("error"):
+                  totals["errors"].append(s["error"])
+          totals["models"] = sorted(totals["models"])
+          Path(os.environ["RUNNER_TEMP"], "summary.json").write_text(json.dumps(totals, indent=2), encoding="utf-8")
+          PY
+      - name: Check the designs and that course files are unchanged
+        working-directory: microservices/services/trainer-service
+        run: |
+          git diff --exit-code -- app/datasets_levels app/datasets_compact
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from app.apply_authored_outlines import design_problems
+          problems, count = [], 0
+          for path in sorted(Path("app/module_designs").glob("*.json")):
+              for key, design in json.loads(path.read_text(encoding="utf-8"))["designs"].items():
+                  count += 1
+                  problems += [f"{path.stem} / {key}: {p}" for p in design_problems(design, 420)]
+          print(json.dumps({"designs": count, "problems": problems[:20]}))
+          raise SystemExit(1 if problems else 0)
+          PY
+      - name: Commit drafts
+        run: |
+          if [ -z "$(git status --porcelain -- microservices/services/trainer-service/app/module_designs)" ]; then
+            echo "No new designs to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$TARGET_BRANCH"
+          git add microservices/services/trainer-service/app/module_designs
+          git commit -m "Draft module designs with Gemini (model draft, pending technical review)"
+          git push origin "HEAD:$TARGET_BRANCH"
+      - name: Open a pull request
+        if: github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git ls-remote --exit-code --heads origin "$TARGET_BRANCH" >/dev/null || exit 0
+          gh pr create --base main --head "$TARGET_BRANCH" \
+            --title "Draft module designs (model draft, pending review)" \
+            --body "Model-drafted module designs from run ${{ github.run_id }}. Every design passed the module rules; content is unreviewed and needs a technical review before client delivery."
+      - name: Summary
+        if: always()
+        run: |
+          [ -f "$RUNNER_TEMP/summary.json" ] || exit 0
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json, os
+          s = json.load(open(os.path.join(os.environ["RUNNER_TEMP"], "summary.json")))
+          print(f"### Module designs\n\n- Models: {', '.join(s['models'])}\n- Modules attempted: {s['modules']}"
+                f"\n- Accepted: {s['accepted']}\n- Rejected: {len(s['rejected'])}\n- Placeholder modules skipped: {s['skipped']}"
+                f"\n- Jobs that stopped at the time limit: {s['stopped']}")
+          for error in s["errors"]:
+              print(f"- **Stopped early:** {error}")
+          for item in s["rejected"][:30]:
+              print(f"- Rejected: {item['course']} / {item['topic']}: {'; '.join(item['issues'])}")
+          PY

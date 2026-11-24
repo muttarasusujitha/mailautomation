@@ -1,0 +1,573 @@
+{
+  "domain": "COBOL and Mainframe",
+  "name": "COBOL and IBM Mainframe Development",
+  "category": "Programming Languages",
+  "icon": "server",
+  "aliases": ["Mainframe", "Mainframe Training", "Mainframe Developer", "IBM Mainframe", "COBOL", "COBOL Programming", "COBOL Developer", "Mainframe COBOL", "z/OS", "JCL", "CICS", "DB2 for z/OS", "COBOL JCL DB2 CICS", "Mainframe Modernisation", "Mainframe Modernization"],
+  "certifications": ["IBM Z Xplore badges (Concepts, Fundamentals and Advanced)", "IBM Certified Application Developer - Enterprise COBOL", "IBM Certified Database Associate - Db2 for z/OS"],
+  "tools": ["IBM z/OS (IBM Z Xplore or Z Development and Test Environment)", "TSO/ISPF", "JCL", "Enterprise COBOL", "Db2 for z/OS", "CICS", "VS Code with Zowe Explorer and IBM Z Open Editor"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For graduates and developers new to the mainframe. Covers z/OS concepts, TSO/ISPF, data sets, JCL, utilities and SORT, COBOL program structure, data definitions, arithmetic, control flow, sequential files, tables, string handling, subprograms, compiling and linking, abends, report programs, VSAM, embedded Db2 SQL and CICS concepts.",
+      "prerequisites": ["Programming experience in any language", "Basic SQL", "No previous mainframe experience needed"],
+      "outcomes": ["Work with z/OS through TSO/ISPF and Zowe", "Write and run JCL with common utilities", "Write COBOL batch programs that process files, tables and Db2 data", "Diagnose common abends and fix them"],
+      "days": [
+        {
+          "topic": "Mainframe Overview and z/OS Environment Setup",
+          "subtopics": ["Where mainframes are used: banks, insurance, government and airlines", "IBM Z hardware and z/OS in simple terms", "Batch and online processing", "Address spaces and subsystems: JES, TSO, CICS and Db2", "EBCDIC compared with ASCII", "Getting a practice account on IBM Z Xplore", "Logging on with a 3270 emulator", "VS Code with Zowe Explorer and IBM Z Open Editor", "Zowe CLI profiles", "The course data sets and naming rules"],
+          "tools": ["IBM Z Xplore", "3270 emulator", "VS Code", "Zowe Explorer", "Zowe CLI"],
+          "lab_task": "Get a practice z/OS account, log on with a 3270 emulator and with Zowe Explorer, list your data sets with both, submit the sample job and view its output.",
+          "deliverable": "Connection notes, screenshots and job output",
+          "checks": [["List data sets in Zowe Explorer", "High-level qualifier data sets shown", "Screenshot"], ["Submit the sample job", "Return code 0", "Job output"], ["Explain batch and online work", "Difference stated with an example of each", "Written note"]],
+          "objectives": ["Describe the mainframe environment", "Connect to z/OS", "Run a first job"]
+        },
+        {
+          "topic": "TSO and ISPF Navigation and Editing",
+          "subtopics": ["TSO commands", "ISPF primary option menu", "Browsing and editing members", "ISPF editor line commands", "ISPF editor primary commands: FIND, CHANGE and SORT", "Profiles: CAPS, NUMBER and RECOVERY", "Data set list utility (option 3.4)", "SDSF for job output"],
+          "tools": ["TSO/ISPF", "SDSF"],
+          "lab_task": "Edit a COBOL member with line and primary commands, change text across a member, find data sets with option 3.4 and read job output and messages in SDSF.",
+          "deliverable": "Edited member and a command cheat sheet",
+          "checks": [["Copy, move and delete lines with line commands", "Member changed as intended", "Member listing"], ["Change a word throughout the member", "All occurrences changed", "ISPF message"], ["Find a job in SDSF", "Output and return code shown", "SDSF screenshot"]],
+          "objectives": ["Navigate ISPF", "Edit members", "Read job output"]
+        },
+        {
+          "topic": "Data Sets: Sequential, Partitioned and Their Attributes",
+          "subtopics": ["Data set naming", "Sequential data sets", "Partitioned data sets and PDSE", "Record formats: F, FB, V and VB", "Logical record length and block size", "Space allocation in tracks and cylinders", "Catalogs", "Allocating data sets with ISPF and Zowe"],
+          "tools": ["ISPF option 3.2", "Zowe CLI"],
+          "lab_task": "Allocate a sequential data set, a PDS and a PDSE with suitable attributes, copy members between them, fill a data set until it runs out of space and fix the allocation.",
+          "deliverable": "Data set attributes and notes",
+          "checks": [["Display data set attributes", "RECFM, LRECL and BLKSIZE as planned", "ISPF screen"], ["Run out of space", "Space abend explained and allocation fixed", "Job output and note"], ["Allocate with the Zowe CLI", "Data set created from the command line", "CLI output"]],
+          "objectives": ["Understand data sets", "Choose attributes", "Allocate and manage data sets"]
+        },
+        {
+          "topic": "Job Control Language: Jobs, Steps and DD Statements",
+          "subtopics": ["The JOB statement", "EXEC statements and programs", "DD statements", "DISP parameters", "SPACE, DCB and UNIT", "SYSOUT and SYSIN", "Condition codes and COND", "IF, THEN and ELSE in JCL"],
+          "tools": ["JCL", "SDSF"],
+          "lab_task": "Write a three-step job that creates a data set, copies data into it and prints it, then make step three run only when step two ends with return code 0.",
+          "deliverable": "JCL and job output",
+          "checks": [["Run the job", "All steps end with return code 0", "Job output"], ["Force step two to fail", "Step three skipped by the IF test", "Job output"], ["Re-run with DISP=NEW on an existing data set", "JCL error explained and fixed", "Job output and note"]],
+          "objectives": ["Write JCL", "Control step execution", "Read job output"]
+        },
+        {
+          "topic": "Utilities and DFSORT",
+          "subtopics": ["IEBGENER and IEBCOPY", "IDCAMS for deletes and listings", "IEFBR14", "DFSORT SORT and MERGE", "INCLUDE and OMIT", "OUTREC and INREC", "SUM to total fields", "Choosing a utility"],
+          "tools": ["DFSORT", "IEBGENER", "IEBCOPY", "IDCAMS"],
+          "lab_task": "Sort a customer file by region and balance, filter out closed accounts, reformat records, total balances by region with SUM and merge two sorted files.",
+          "deliverable": "JCL for each task and output data sets",
+          "checks": [["Sort and filter", "Only open accounts in the right order", "Output data set"], ["Total by region", "One record per region with correct totals", "Output data set"], ["Merge two files", "Combined file stays in order", "Output data set"]],
+          "objectives": ["Use common utilities", "Sort and filter with DFSORT", "Reformat records"]
+        },
+        {
+          "topic": "COBOL Program Structure and First Programs",
+          "subtopics": ["The four divisions", "Areas A and B and column rules", "Paragraphs and sections", "DISPLAY and ACCEPT", "STOP RUN and GOBACK", "Comments and naming", "Free format in modern COBOL", "Compile and run JCL procedures"],
+          "tools": ["Enterprise COBOL", "IBM Z Open Editor"],
+          "lab_task": "Write a program that reads a name from SYSIN, displays a greeting and today's date, compile and run it with a supplied procedure and fix two compile errors.",
+          "deliverable": "Program source, compile listing and output",
+          "checks": [["Compile the program", "Return code 0 or 4 with warnings explained", "Compile listing"], ["Run with SYSIN data", "Greeting and date shown", "Job output"], ["Fix the compile errors", "Errors removed with the reason noted", "Compile listing"]],
+          "objectives": ["Structure COBOL programs", "Compile and run", "Read compile listings"]
+        },
+        {
+          "topic": "Data Division: PICTURE Clauses and Data Items",
+          "subtopics": ["Level numbers and group items", "PICTURE clauses for numbers and text", "Signed numbers and implied decimals", "USAGE DISPLAY, COMP and COMP-3", "VALUE clauses", "REDEFINES", "Level 88 condition names", "How data is stored in memory"],
+          "tools": ["Enterprise COBOL", "Compile listing"],
+          "lab_task": "Define a customer record with group items, signed packed decimal balances, condition names for account status and a REDEFINES for a date, then display each field.",
+          "deliverable": "Program source and output",
+          "checks": [["Display a COMP-3 field", "Correct value shown", "Job output"], ["Use a level 88 condition", "Status tested by name", "Program source"], ["Read the storage map", "Field lengths match the definitions", "Compile listing"]],
+          "objectives": ["Define data", "Use numeric formats", "Use condition names"]
+        },
+        {
+          "topic": "Moving Data and Arithmetic in COBOL",
+          "subtopics": ["MOVE rules for text and numbers", "Truncation and padding", "ADD, SUBTRACT, MULTIPLY and DIVIDE", "COMPUTE", "ROUNDED and ON SIZE ERROR", "Intrinsic functions", "Decimal precision for money", "Common arithmetic mistakes"],
+          "tools": ["Enterprise COBOL"],
+          "lab_task": "Calculate interest and fees for accounts with COMPUTE and ROUNDED, catch overflow with ON SIZE ERROR and show what happens when a value is moved to a field that is too small.",
+          "deliverable": "Program source, output and notes",
+          "checks": [["Calculate interest", "Results match a spreadsheet to the cent", "Comparison"], ["Cause an overflow", "Size error caught and reported", "Job output"], ["Move into a short field", "Truncation shown and explained", "Job output and note"]],
+          "objectives": ["Move data correctly", "Do arithmetic safely", "Handle money precisely"]
+        },
+        {
+          "topic": "Control Flow: IF, EVALUATE and PERFORM",
+          "subtopics": ["IF and nested IF", "EVALUATE", "PERFORM paragraphs", "PERFORM UNTIL and VARYING", "Inline PERFORM", "Structured programming in COBOL", "Avoiding GO TO", "Program flow in listings"],
+          "tools": ["Enterprise COBOL"],
+          "lab_task": "Write a program that classifies transactions with EVALUATE, loops through a set of test values with PERFORM VARYING and is structured into clear paragraphs with no GO TO.",
+          "deliverable": "Program source and output",
+          "checks": [["Classify all test values", "Each class correct", "Job output"], ["Review the structure", "One task per paragraph and no GO TO", "Program source"], ["Trace the loop", "Loop ends at the right count", "Job output"]],
+          "objectives": ["Control program flow", "Use EVALUATE", "Write structured COBOL"]
+        },
+        {
+          "topic": "Sequential File Processing",
+          "subtopics": ["SELECT and ASSIGN", "FD entries", "OPEN, READ, WRITE and CLOSE", "AT END processing", "FILE STATUS codes", "Reading and writing in a loop", "Matching two files", "Linking file names to DD statements"],
+          "tools": ["Enterprise COBOL", "JCL"],
+          "lab_task": "Read a transaction file, write valid records to one file and invalid ones to another with a reason, check FILE STATUS on every operation and print record counts.",
+          "deliverable": "Program, JCL and output files",
+          "checks": [["Run the program", "Valid and invalid counts add up to the input count", "Job output"], ["Remove the input DD", "FILE STATUS 35 reported clearly", "Job output"], ["Review the error file", "Each record has a reason", "Output data set"]],
+          "objectives": ["Process sequential files", "Check file status", "Split records by rules"]
+        },
+        {
+          "topic": "Tables and Arrays with OCCURS",
+          "subtopics": ["OCCURS clauses", "Subscripts and indexes", "Loading tables from files", "SEARCH", "SEARCH ALL for sorted tables", "Two-dimensional tables", "OCCURS DEPENDING ON", "Table size limits"],
+          "tools": ["Enterprise COBOL"],
+          "lab_task": "Load a product price table from a file, look up prices for each order with SEARCH ALL, total sales by product and month in a two-dimensional table and print the summary.",
+          "deliverable": "Program source and summary output",
+          "checks": [["Look up a missing product", "Not-found case handled", "Job output"], ["Compare SEARCH and SEARCH ALL", "Both find the same prices", "Job output"], ["Total by product and month", "Totals match a DFSORT SUM result", "Comparison"]],
+          "objectives": ["Use tables", "Search tables", "Summarise in tables"]
+        },
+        {
+          "topic": "String Handling in COBOL",
+          "subtopics": ["STRING and UNSTRING", "INSPECT for counting and replacing", "Reference modification", "Trimming and padding", "Intrinsic string functions", "Handling delimited input", "Upper and lower case", "Building output lines"],
+          "tools": ["Enterprise COBOL"],
+          "lab_task": "Parse comma-separated customer records with UNSTRING, clean names with INSPECT and functions, build formatted address lines with STRING and validate email formats.",
+          "deliverable": "Program source and output",
+          "checks": [["Parse a record with empty fields", "Fields split correctly", "Job output"], ["Clean names", "Extra spaces removed and case fixed", "Job output"], ["Validate emails", "Invalid formats reported", "Job output"]],
+          "objectives": ["Parse text", "Clean data", "Build output strings"]
+        },
+        {
+          "topic": "Subprograms and the CALL Statement",
+          "subtopics": ["Why subprograms", "CALL and USING", "The LINKAGE SECTION", "BY REFERENCE and BY CONTENT", "Static and dynamic calls", "Return codes", "Copybooks", "Shared routines in a team"],
+          "tools": ["Enterprise COBOL", "Binder"],
+          "lab_task": "Move date validation into a subprogram called by two main programs, share the record layout through a copybook and compare static and dynamic calls.",
+          "deliverable": "Programs, copybook and output",
+          "checks": [["Call with an invalid date", "Return code set and handled", "Job output"], ["Change the copybook and recompile", "Both programs use the new layout", "Compile listings"], ["Compare static and dynamic calls", "Load module difference explained", "Binder output and note"]],
+          "objectives": ["Write subprograms", "Use copybooks", "Choose call types"]
+        },
+        {
+          "topic": "Compiling, Binding and Load Libraries",
+          "subtopics": ["The compile, bind and go process", "Compiler options", "Object decks and load modules", "Load libraries and STEPLIB", "Cataloged procedures", "Reading the compile listing", "Cross-reference and map listings", "Program objects in PDSE"],
+          "tools": ["Enterprise COBOL", "Binder", "JCL procedures"],
+          "lab_task": "Compile and bind a program with your own JCL rather than a procedure, change compiler options and read the cross-reference listing to find where a field is changed.",
+          "deliverable": "Compile and bind JCL and listings",
+          "checks": [["Run from your load library", "Program found through STEPLIB", "Job output"], ["Use the cross-reference listing", "Lines that change the field listed", "Compile listing"], ["Change an option such as SSRANGE", "Effect shown in a test", "Job output"]],
+          "objectives": ["Compile and bind", "Manage load libraries", "Use listings"]
+        },
+        {
+          "topic": "Abends and Debugging",
+          "subtopics": ["What an abend is", "S0C7 data exceptions", "S0C4 protection exceptions", "S322 and S806", "Reading system messages", "CEEDUMP and Language Environment messages", "DISPLAY-based debugging", "Preventing common abends"],
+          "tools": ["SDSF", "Language Environment", "IBM Debug for z/OS (if available)"],
+          "lab_task": "Run four programs that abend with S0C7, S0C4, S806 and S322, find each cause from the messages and dump, fix them and add checks that stop the S0C7 happening again.",
+          "deliverable": "Diagnosis notes and fixed programs",
+          "checks": [["Diagnose the S0C7", "Bad field and record identified", "Diagnosis notes"], ["Fix the S806", "Missing load module cause fixed", "Job output"], ["Add data checks", "Bad numeric data rejected instead of abending", "Job output"]],
+          "objectives": ["Recognise common abends", "Read dumps and messages", "Prevent abends"]
+        },
+        {
+          "topic": "Report Programs and Control Breaks",
+          "subtopics": ["Report layouts", "Headings and page breaks", "Detail and total lines", "Control breaks on one and two levels", "Formatting numbers with edited pictures", "Print files and carriage control", "Report totals that balance", "Testing reports"],
+          "tools": ["Enterprise COBOL", "JCL"],
+          "lab_task": "Write a sales report with page headings, two levels of control breaks for region and branch, edited amounts and grand totals that balance with the input.",
+          "deliverable": "Program and printed report",
+          "checks": [["Check the grand total", "Matches the input total", "Report and DFSORT total"], ["Check page breaks", "Headings on every page", "Report"], ["Check edited amounts", "Commas, decimals and signs correct", "Report"]],
+          "objectives": ["Write report programs", "Handle control breaks", "Format numbers"]
+        },
+        {
+          "topic": "VSAM Files in COBOL",
+          "subtopics": ["VSAM data set types: KSDS, ESDS and RRDS", "Defining a KSDS with IDCAMS", "Loading with REPRO", "ORGANIZATION INDEXED in COBOL", "Random, sequential and dynamic access", "START and READ NEXT", "Updating and deleting records", "VSAM status codes"],
+          "tools": ["IDCAMS", "Enterprise COBOL"],
+          "lab_task": "Define and load a customer KSDS, write a program that reads by key, browses from a starting key and updates and deletes records, handling duplicate and not-found status codes.",
+          "deliverable": "IDCAMS JCL, program and output",
+          "checks": [["Read a missing key", "Status 23 handled", "Job output"], ["Browse from a key", "Records returned in key order", "Job output"], ["Write a duplicate key", "Status 22 handled", "Job output"]],
+          "objectives": ["Define VSAM files", "Access VSAM from COBOL", "Handle VSAM status codes"]
+        },
+        {
+          "topic": "Embedded SQL with Db2 for z/OS",
+          "subtopics": ["Db2 on z/OS concepts", "EXEC SQL in COBOL", "Host data items and indicators", "SQLCA and SQLCODE", "Single-row SELECT", "INSERT, UPDATE and DELETE", "Precompile and bind in outline", "Testing SQL in SPUFI or Zowe"],
+          "tools": ["Db2 for z/OS", "SPUFI", "Enterprise COBOL"],
+          "lab_task": "Write a program that reads account updates from a file and applies them to a Db2 table, handling not-found and null values, and check the results with SPUFI.",
+          "deliverable": "Program, JCL and SPUFI output",
+          "checks": [["Update a missing account", "SQLCODE +100 handled", "Job output"], ["Read a null column", "Indicator checked and handled", "Job output"], ["Query the table", "Updates applied correctly", "SPUFI output"]],
+          "objectives": ["Use SQL in COBOL", "Check SQLCODEs", "Handle nulls"]
+        },
+        {
+          "topic": "CICS Online Transaction Concepts",
+          "subtopics": ["Online transactions compared with batch", "CICS regions, transactions and programs", "Terminals and 3270 screens", "Pseudo-conversational design", "The COMMAREA and channels", "EXEC CICS commands in outline", "Running a transaction", "Where CICS fits with Db2 and VSAM"],
+          "tools": ["CICS", "3270 emulator"],
+          "lab_task": "Run and trace a sample inquiry transaction, map each screen to the program and file calls behind it and explain how pseudo-conversational design frees resources between screens.",
+          "deliverable": "Transaction flow diagram and explanation",
+          "checks": [["Run the sample transaction", "Customer data shown on the screen", "Screenshot"], ["Draw the flow", "Screens, programs and files linked", "Flow diagram"], ["Explain pseudo-conversational design", "Resource use between screens explained", "Written explanation"]],
+          "objectives": ["Understand CICS", "Follow a transaction", "Explain online design"]
+        },
+        {
+          "topic": "Beginner Capstone: Batch Billing System",
+          "subtopics": ["Design", "Programs and JCL", "Testing", "Demo"],
+          "tools": ["Enterprise COBOL", "JCL", "DFSORT", "VSAM", "Db2 for z/OS"],
+          "lab_task": "Build a nightly billing batch: sort transactions, validate them against a VSAM customer file, calculate charges, update Db2 balances, print a balanced report and chain the steps in one job with restart notes.",
+          "deliverable": "Programs, JCL, test data, report and demo recording",
+          "checks": [["Run the full job", "All steps succeed and report totals balance", "Job output"], ["Include bad transactions", "Rejected with reasons and the job continues", "Error file"], ["Restart from a failed step", "Job completes from the restart point", "Job output"]],
+          "objectives": ["Combine the beginner topics in one batch system", "Build balanced, restartable jobs", "Present working code"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For mainframe developers with some COBOL experience. Covers advanced JCL with procedures and GDGs, DFSORT and ICETOOL, VSAM with IDCAMS, Db2 cursors and binds, Db2 performance, CICS programming with BMS, CICS with Db2 and VSAM, IMS concepts, batch scheduling, COBOL performance, Enterprise COBOL 6, unit testing, debugging tools, dumps, REXX, change management, MQ, data conversion and RACF.",
+      "prerequisites": ["Writes COBOL batch programs with files and tables", "Writes JCL for multi-step jobs", "Knows basic SQL"],
+      "outcomes": ["Build batch and CICS applications with Db2, VSAM and MQ", "Tune COBOL programs and SQL", "Test, debug and read dumps confidently", "Work within change management, scheduling and security controls"],
+      "days": [
+        {
+          "topic": "JCL Procedures, Symbolic Parameters and GDGs",
+          "subtopics": ["Cataloged and in-stream procedures", "Symbolic parameters and overrides", "INCLUDE groups and JCLLIB", "Generation data groups", "Relative generation numbers", "Restarting jobs with RESTART", "Checkpoints", "JCL standards in a team"],
+          "tools": ["JCL", "IDCAMS", "SDSF"],
+          "lab_task": "Turn the billing job into a procedure with symbolic parameters, write daily outputs to a GDG keeping seven generations and restart the job from a failed step without reprocessing earlier steps.",
+          "deliverable": "Procedures, GDG definition and restart output",
+          "checks": [["Run the job eight times", "Only seven generations kept", "Data set list"], ["Override a symbolic parameter", "Override used in the run", "Job output"], ["Restart from step three", "Earlier steps not re-run", "Job output"]],
+          "objectives": ["Write procedures", "Use GDGs", "Restart jobs"]
+        },
+        {
+          "topic": "Advanced DFSORT and ICETOOL",
+          "subtopics": ["JOINKEYS for file matching", "IFTHEN for conditional reformatting", "OUTFIL for several outputs", "ICETOOL operators: COUNT, OCCUR and SPLICE", "Date conversion in sort", "Reports with DFSORT", "Replacing COBOL with sort steps", "Sort performance"],
+          "tools": ["DFSORT", "ICETOOL"],
+          "lab_task": "Match customers and orders with JOINKEYS, write three output files with OUTFIL, count duplicates with ICETOOL and replace a small COBOL program with a sort step.",
+          "deliverable": "Sort control statements and outputs",
+          "checks": [["Match the files", "Matched and unmatched records separated", "Output data sets"], ["Count duplicates", "Duplicate keys listed with counts", "ICETOOL output"], ["Compare with the COBOL program", "Same output with less CPU time", "Job statistics"]],
+          "objectives": ["Match files in sort", "Use ICETOOL", "Replace code with sort steps"]
+        },
+        {
+          "topic": "VSAM in Depth with IDCAMS",
+          "subtopics": ["KSDS internals: control intervals and splits", "Free space", "Alternate indexes and paths", "LISTCAT", "Backup and restore with REPRO and EXPORT", "Reorganising VSAM files", "Sharing options", "VSAM performance basics for developers"],
+          "tools": ["IDCAMS", "LISTCAT"],
+          "lab_task": "Add an alternate index on customer email, access it from COBOL, check splits with LISTCAT after heavy inserts and reorganise the file to remove them.",
+          "deliverable": "IDCAMS JCL, program and LISTCAT output",
+          "checks": [["Read by alternate key", "Correct customer returned", "Job output"], ["Check splits after inserts", "CI and CA splits counted", "LISTCAT output"], ["Reorganise", "Splits gone after reload", "LISTCAT output"]],
+          "objectives": ["Use alternate indexes", "Monitor VSAM health", "Reorganise VSAM files"]
+        },
+        {
+          "topic": "Db2 for z/OS Programming: Cursors, Binds and Packages",
+          "subtopics": ["Declaring and using cursors", "FETCH loops", "Updatable cursors", "Multi-row FETCH", "COMMIT frequency in batch", "Precompile, compile, bind and packages", "Plans, collections and versions", "Handling deadlocks and timeouts"],
+          "tools": ["Db2 for z/OS", "DCLGEN", "BIND"],
+          "lab_task": "Write a batch program that processes 100,000 rows with a cursor and multi-row fetch, commits every 1,000 rows, restarts after a failure and is bound as a package.",
+          "deliverable": "Program, DCLGEN, bind JCL and output",
+          "checks": [["Kill the job half-way and restart", "Processing resumes without duplicates", "Job output"], ["Compare single and multi-row fetch", "CPU time lower with multi-row fetch", "Job statistics"], ["Bind the package", "Package listed in the collection", "Db2 catalog query"]],
+          "objectives": ["Use cursors", "Commit and restart safely", "Bind packages"]
+        },
+        {
+          "topic": "Db2 SQL Performance for Developers",
+          "subtopics": ["Access paths", "EXPLAIN and the PLAN_TABLE", "Indexes and matching columns", "Stage 1 and stage 2 predicates", "Joins and sorts", "RUNSTATS and its effect", "Static and dynamic SQL", "Tools: Data Studio and IBM Db2 Administration Tool"],
+          "tools": ["Db2 for z/OS", "EXPLAIN", "PLAN_TABLE"],
+          "lab_task": "EXPLAIN five slow queries from the billing system, rewrite stage 2 predicates, ask for a missing index and show the new access paths and CPU times.",
+          "deliverable": "EXPLAIN output before and after and change notes",
+          "checks": [["Rewrite a stage 2 predicate", "Predicate becomes indexable", "EXPLAIN output"], ["Add the index", "Access type changes to index", "PLAN_TABLE output"], ["Compare CPU", "CPU time lower after the changes", "Accounting report"]],
+          "objectives": ["Read access paths", "Write efficient SQL", "Work with DBAs on indexes"]
+        },
+        {
+          "topic": "CICS Programming with BMS Maps",
+          "subtopics": ["BMS maps and mapsets", "SEND MAP and RECEIVE MAP", "Pseudo-conversational programs", "RETURN TRANSID with a COMMAREA", "Handling attention keys", "Error handling with RESP codes", "Translating and compiling CICS programs", "Defining resources with CEDA"],
+          "tools": ["CICS", "BMS", "CEDA", "CECI"],
+          "lab_task": "Build a customer inquiry and update transaction with a BMS map, pseudo-conversational logic, PF key handling and RESP checking, and define it with CEDA.",
+          "deliverable": "Map, program, resource definitions and screenshots",
+          "checks": [["Run the inquiry", "Customer shown on the map", "Screenshot"], ["Press PF3", "Transaction ends cleanly", "Screenshot"], ["Enter an invalid key", "Message shown with no abend", "Screenshot"]],
+          "objectives": ["Build CICS screens", "Write pseudo-conversational programs", "Handle errors"]
+        },
+        {
+          "topic": "CICS with Db2, VSAM and Temporary Storage",
+          "subtopics": ["File control commands", "Db2 calls from CICS", "Syncpoints and units of work", "Temporary storage and transient data", "Browsing with STARTBR and READNEXT", "Paging through results on screens", "Locking and record contention", "Testing online programs"],
+          "tools": ["CICS", "Db2 for z/OS", "VSAM"],
+          "lab_task": "Add a paged customer list to the transaction using VSAM browse and temporary storage, an update that changes VSAM and Db2 in one unit of work and a rollback test.",
+          "deliverable": "Programs and test results",
+          "checks": [["Page forward and back", "Correct pages shown", "Screenshots"], ["Fail the Db2 update", "VSAM change rolled back too", "Data check"], ["Update the same record from two terminals", "Contention handled", "Screenshots"]],
+          "objectives": ["Access data from CICS", "Manage units of work", "Page through results"]
+        },
+        {
+          "topic": "IMS Database and Transaction Manager Concepts",
+          "subtopics": ["Hierarchical databases", "Segments, parents and children", "DL/I calls", "PCBs and PSBs", "IMS batch programs", "IMS transactions and message queues", "When you will meet IMS", "Reading existing IMS programs"],
+          "tools": ["IMS", "Enterprise COBOL"],
+          "lab_task": "Read an existing IMS batch program, draw its database hierarchy, trace its DL/I calls and change it to report one extra field.",
+          "deliverable": "Hierarchy diagram, call trace and changed program",
+          "checks": [["Draw the hierarchy", "Segments and relationships correct", "Diagram"], ["Trace the calls", "Each GU, GN and GNP explained", "Call trace"], ["Run the changed program", "Extra field reported", "Job output"]],
+          "objectives": ["Understand IMS", "Read DL/I programs", "Make small IMS changes"]
+        },
+        {
+          "topic": "Batch Scheduling with Control-M and CA 7",
+          "subtopics": ["Why schedulers", "Jobs, dependencies and calendars", "Conditions and resources", "Restarting and rerunning", "Batch windows", "Alerts on failures", "Working with operations teams", "Documenting job flows"],
+          "tools": ["Control-M or CA 7", "JCL"],
+          "lab_task": "Define the billing jobs in a scheduler with dependencies and a calendar, simulate a failure, restart the flow and document it for operations.",
+          "deliverable": "Job flow definition, restart log and operations document",
+          "checks": [["Run the flow", "Jobs run in dependency order", "Scheduler log"], ["Fail a job", "Dependent jobs held and an alert raised", "Scheduler log"], ["Review the operations document", "Restart steps clear", "Operations document"]],
+          "objectives": ["Schedule batch flows", "Handle failures", "Hand over to operations"]
+        },
+        {
+          "topic": "COBOL Performance and Compiler Options",
+          "subtopics": ["Measuring CPU and elapsed time", "OPTIMIZE and ARCH options", "Numeric formats and their cost", "Table searches and loops", "I/O buffering", "Efficient file and SQL access", "Avoiding unnecessary MOVEs and conversions", "Profiling with IBM Application Performance Analyzer"],
+          "tools": ["Enterprise COBOL", "Application Performance Analyzer", "SMF job statistics"],
+          "lab_task": "Profile the billing program, change numeric formats, compiler options, search method and buffering, and report CPU saved for each change.",
+          "deliverable": "Profile reports and a savings table",
+          "checks": [["Profile before changes", "Hot spots identified", "Profiler report"], ["Change compiler options", "CPU change measured", "Job statistics"], ["Report total savings", "Percentage CPU saved", "Savings table"]],
+          "objectives": ["Measure program cost", "Tune COBOL", "Choose compiler options"]
+        },
+        {
+          "topic": "Enterprise COBOL 6 Features",
+          "subtopics": ["What changed in Enterprise COBOL 6", "JSON GENERATE and JSON PARSE", "XML GENERATE and XML PARSE", "UTF-8 support", "New intrinsic functions", "64-bit addressing in brief", "Migrating from older compilers", "Testing after recompiling"],
+          "tools": ["Enterprise COBOL 6"],
+          "lab_task": "Produce JSON for customer records with JSON GENERATE, parse incoming JSON orders with JSON PARSE and recompile an old program, fixing behaviour differences found in testing.",
+          "deliverable": "Programs, JSON samples and migration notes",
+          "checks": [["Generate JSON", "Valid JSON with expected names", "JSON output"], ["Parse an invalid order", "Error handled", "Job output"], ["Compare old and new outputs", "Differences found and fixed", "Comparison"]],
+          "objectives": ["Use modern COBOL features", "Work with JSON", "Migrate compilers"]
+        },
+        {
+          "topic": "Unit Testing COBOL Programs",
+          "subtopics": ["Why unit tests on the mainframe", "Test cases for batch programs", "IBM Test Accelerator for Z or zUnit", "Stubbing files, Db2 and calls", "Regression test suites", "Test data management", "Running tests in pipelines", "Coverage"],
+          "tools": ["IBM Test Accelerator for Z or zUnit", "Zowe CLI"],
+          "lab_task": "Write unit tests for the charge calculation and date validation, stub the Db2 and file calls, run them from the Zowe CLI and report code coverage.",
+          "deliverable": "Tests, results and coverage report",
+          "checks": [["Run the tests", "All pass", "Test report"], ["Break the calculation", "A test fails", "Test report"], ["Review coverage", "Above the agreed percentage", "Coverage report"]],
+          "objectives": ["Unit test COBOL", "Stub dependencies", "Run tests from the command line"]
+        },
+        {
+          "topic": "Interactive Debugging Tools",
+          "subtopics": ["IBM Debug for z/OS", "Xpediter and Abend-AID", "Setting breakpoints", "Watching data items", "Stepping through batch programs", "Debugging CICS transactions", "Debugging from VS Code", "When to use debuggers or dumps"],
+          "tools": ["IBM Debug for z/OS", "Xpediter", "VS Code"],
+          "lab_task": "Find two logic bugs in a batch program and one in a CICS transaction by stepping through code, watching fields and changing values during the run.",
+          "deliverable": "Debug notes and fixed programs",
+          "checks": [["Find the batch bug", "Wrong condition identified at a breakpoint", "Debug notes"], ["Watch a field change", "Statement changing it found", "Debug screenshot"], ["Debug the CICS bug", "Cause found in the transaction", "Debug notes"]],
+          "objectives": ["Use debuggers", "Debug batch and online code", "Choose debugging methods"]
+        },
+        {
+          "topic": "Reading Dumps and System Messages",
+          "subtopics": ["Language Environment dumps in depth", "Program status word", "Offsets and the compile listing", "Working-storage in the dump", "CICS transaction dumps", "Db2 error messages", "Abend-AID reports", "Writing up the cause"],
+          "tools": ["CEEDUMP", "IPCS", "Compile listings"],
+          "lab_task": "Find the failing statement in three dumps by matching offsets to the listing, read working-storage values at the time of failure and write a cause report for each.",
+          "deliverable": "Three dump analyses",
+          "checks": [["Match the offset", "Failing statement found in the listing", "Dump analysis"], ["Read working-storage", "Value causing the error found", "Dump analysis"], ["Write the cause report", "Cause and fix stated", "Report"]],
+          "objectives": ["Read dumps", "Find failing statements", "Report causes"]
+        },
+        {
+          "topic": "REXX Scripting for Developers",
+          "subtopics": ["REXX syntax", "Parsing input", "Calling TSO commands", "Reading and writing data sets", "ISPF edit macros", "Automating repetitive tasks", "REXX with Zowe", "Error handling"],
+          "tools": ["REXX", "TSO/ISPF"],
+          "lab_task": "Write an edit macro that adds a standard change log to members, a REXX tool that lists jobs with non-zero return codes and a script that allocates a developer's work data sets.",
+          "deliverable": "REXX execs and sample runs",
+          "checks": [["Run the edit macro", "Change log added to the member", "Member listing"], ["List failing jobs", "Jobs and return codes shown", "Exec output"], ["Run the allocation script twice", "Existing data sets handled without error", "Exec output"]],
+          "objectives": ["Write REXX", "Automate ISPF tasks", "Script developer work"]
+        },
+        {
+          "topic": "Source Control and Change Management: Endevor, ChangeMan and Git",
+          "subtopics": ["Change management on the mainframe", "Endevor stages and elements", "ChangeMan packages", "Promotion and approvals", "Git for mainframe code", "Branching for COBOL teams", "Audit requirements", "Moving from library tools to Git"],
+          "tools": ["Endevor or ChangeMan ZMF", "Git", "Zowe Explorer"],
+          "lab_task": "Take a change through Endevor or ChangeMan from development to test with approvals, then put the same code in Git, make a branch change and open a pull request.",
+          "deliverable": "Package or element history and Git pull request",
+          "checks": [["Promote the change", "Element at the test stage with approval", "Change history"], ["Open the pull request", "COBOL diff reviewed", "Pull request"], ["Explain the audit trail", "Who changed what and when shown", "Written note"]],
+          "objectives": ["Use change management tools", "Use Git for COBOL", "Meet audit needs"]
+        },
+        {
+          "topic": "IBM MQ on z/OS for Application Developers",
+          "subtopics": ["Message queuing concepts", "Queue managers and queues", "MQPUT and MQGET from COBOL", "Triggering", "Syncpoint with MQ", "Dead-letter queues", "MQ from CICS", "Integration with distributed systems"],
+          "tools": ["IBM MQ for z/OS", "Enterprise COBOL"],
+          "lab_task": "Send order messages from a batch program to a queue, process them with a triggered CICS program, handle a poison message with a backout queue and confirm delivery to a distributed client.",
+          "deliverable": "Programs, queue definitions and test results",
+          "checks": [["Put and get messages", "All messages processed once", "Queue depth and logs"], ["Send a poison message", "Moved to the backout queue", "Queue browse"], ["Read from a distributed client", "Message received on Linux", "Client output"]],
+          "objectives": ["Use MQ from COBOL", "Process messages reliably", "Integrate with other platforms"]
+        },
+        {
+          "topic": "Data Conversion: EBCDIC, Packed Decimal and File Transfers",
+          "subtopics": ["EBCDIC code pages", "Packed and zoned decimal", "Binary fields and byte order", "Converting files for distributed systems", "File transfers with FTP, SFTP and Connect:Direct", "Code page problems", "Copybook-driven conversion", "Testing converted data"],
+          "tools": ["Zowe CLI", "DFSORT", "Python"],
+          "lab_task": "Convert a file with packed decimal fields to CSV using DFSORT and a Python copybook parser, transfer it securely, and fix a code page error that corrupts special characters.",
+          "deliverable": "Conversion steps, CSV output and fix notes",
+          "checks": [["Convert packed fields", "Values match the mainframe display", "Comparison"], ["Fix the code page error", "Special characters correct", "Output file"], ["Transfer securely", "File sent over SFTP or Connect:Direct", "Transfer log"]],
+          "objectives": ["Convert mainframe data", "Transfer files securely", "Fix code page problems"]
+        },
+        {
+          "topic": "RACF Security for Developers",
+          "subtopics": ["RACF users and groups", "Data set profiles", "Generic profiles", "Access levels", "Surrogate users for batch", "CICS and Db2 security", "Requesting access properly", "Security errors and how to read them"],
+          "tools": ["RACF", "TSO"],
+          "lab_task": "Read the RACF profiles protecting your data sets, test access with another user, request access to a production data set through the right process and diagnose an ICH408I message.",
+          "deliverable": "Profile listings, test results and diagnosis",
+          "checks": [["List profiles", "Profiles protecting your data sets shown", "LISTDSD output"], ["Access as another user", "Denied with ICH408I", "Job output"], ["Diagnose the message", "Profile and missing access identified", "Diagnosis notes"]],
+          "objectives": ["Understand RACF", "Diagnose security errors", "Request access correctly"]
+        },
+        {
+          "topic": "Intermediate Capstone: Online and Batch Banking Application",
+          "subtopics": ["Design", "Online and batch build", "Integration", "Test and release"],
+          "tools": ["Enterprise COBOL", "CICS", "Db2 for z/OS", "VSAM", "IBM MQ", "Control-M or CA 7"],
+          "lab_task": "Build a banking application with a CICS account inquiry and transfer transaction on Db2, a nightly batch with GDGs and restarts scheduled in a scheduler, MQ notifications to a distributed system, unit tests and a release through change management.",
+          "deliverable": "Programs, JCL, schedule, tests, change record and demo recording",
+          "checks": [["Transfer money online", "Both accounts updated in one unit of work", "Demo recording"], ["Fail and restart the batch", "Completes without duplicates", "Job output"], ["Release through change management", "Change approved and promoted", "Change history"]],
+          "objectives": ["Combine the intermediate topics in one application", "Build online and batch processing", "Release through controls"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior mainframe developers, architects and modernisation leads. Covers modernisation strategy, APIs with z/OS Connect, mainframe DevOps, Zowe, analysing legacy code, refactoring COBOL, moving workloads to cloud, data replication, CICS and Db2 tuning, Parallel Sysplex, WLM, MIPS cost, security and encryption, AI code assistants, batch optimisation, SMF analysis, test automation, knowledge transfer and leading modernisation programmes.",
+      "prerequisites": ["Builds CICS, Db2 and batch COBOL applications", "Works with change management and scheduling", "Reads dumps and tunes SQL"],
+      "outcomes": ["Plan and lead mainframe modernisation with clear business cases", "Expose and integrate mainframe systems through APIs, DevOps and data replication", "Tune performance and cost across CICS, Db2 and batch", "Protect knowledge, security and reliability during change"],
+      "days": [
+        {
+          "topic": "Mainframe Modernisation Strategy",
+          "subtopics": ["Why organisations modernise", "Options: retain, rehost, replatform, refactor, replace and retire", "Assessing applications", "Business cases and costs", "Risk of big-bang rewrites", "Incremental modernisation", "Hybrid architectures", "Roadmaps and governance"],
+          "tools": ["Application portfolio template", "Architecture diagrams"],
+          "lab_task": "Assess five applications of a case bank, choose a modernisation option for each with a business case and build a three-year incremental roadmap.",
+          "deliverable": "Assessment, business cases and roadmap",
+          "checks": [["Choose options", "Option justified for each application", "Assessment"], ["Build the business case", "Cost, benefit and risk stated", "Business cases"], ["Review the roadmap", "Incremental steps with measurable outcomes", "Roadmap"]],
+          "objectives": ["Assess applications", "Choose modernisation options", "Plan incremental change"]
+        },
+        {
+          "topic": "Exposing Mainframe Services with z/OS Connect APIs",
+          "subtopics": ["API strategy for the mainframe", "z/OS Connect", "OpenAPI from CICS and IMS programs", "Data mapping between JSON and copybooks", "Calling out from COBOL to REST APIs", "API security with OAuth and certificates", "API management gateways", "Performance of mainframe APIs"],
+          "tools": ["z/OS Connect", "OpenAPI", "API Connect or another gateway"],
+          "lab_task": "Expose the account inquiry transaction as a REST API with OpenAPI, map JSON to the COMMAREA, secure it with OAuth through a gateway and call an external REST service from COBOL.",
+          "deliverable": "OpenAPI spec, mappings, gateway configuration and test results",
+          "checks": [["Call the API", "Account data returned as JSON", "API response"], ["Call without a token", "Rejected at the gateway", "API response"], ["Call out from COBOL", "External data used in the transaction", "Job or transaction output"]],
+          "objectives": ["Expose mainframe APIs", "Map data", "Secure APIs"]
+        },
+        {
+          "topic": "DevOps Pipelines for Mainframe Applications",
+          "subtopics": ["Mainframe DevOps toolchain", "Git as the source of truth", "Dependency-based builds with IBM DBB", "Pipelines with Jenkins, GitLab CI or GitHub Actions", "Automated unit and integration tests", "Deployment with UrbanCode Deploy or Wazi Deploy", "Development and test environments with Wazi", "Measuring delivery speed"],
+          "tools": ["Git", "IBM Dependency Based Build", "Jenkins or GitLab CI", "Wazi Deploy"],
+          "lab_task": "Build a pipeline that builds only changed COBOL programs and their dependants with DBB, runs unit tests, deploys to a test LPAR and records lead time.",
+          "deliverable": "Pipeline configuration, build reports and deployment log",
+          "checks": [["Change a copybook", "Only dependent programs rebuilt", "DBB build report"], ["Fail a unit test", "Deployment blocked", "Pipeline log"], ["Measure lead time", "Commit to test deployment time recorded", "Pipeline metrics"]],
+          "objectives": ["Build mainframe pipelines", "Automate builds and tests", "Measure delivery"]
+        },
+        {
+          "topic": "Zowe and Modern Developer Tooling",
+          "subtopics": ["Zowe architecture", "Zowe CLI and scripting", "Zowe Explorer in VS Code", "Zowe API Mediation Layer", "IBM Z Open Editor language support", "Developer onboarding with modern tools", "Integrating Zowe in pipelines", "Security of Zowe connections"],
+          "tools": ["Zowe CLI", "Zowe Explorer", "Zowe API Mediation Layer"],
+          "lab_task": "Script a developer's daily tasks with the Zowe CLI, set up a new developer in VS Code in under an hour and call a mainframe service through the API Mediation Layer.",
+          "deliverable": "Scripts, onboarding guide and test results",
+          "checks": [["Run the daily task script", "Data sets, jobs and outputs handled from the CLI", "Script output"], ["Onboard a new developer", "Working in under an hour", "Onboarding log"], ["Call through the API Mediation Layer", "Service reached with single sign-on", "API response"]],
+          "objectives": ["Use Zowe", "Modernise developer tools", "Integrate Zowe in pipelines"]
+        },
+        {
+          "topic": "Understanding Legacy Code with Analysis Tools",
+          "subtopics": ["Why legacy code is hard", "Application Discovery and Delivery Intelligence", "Call graphs and data flows", "Finding dead code", "Business rule extraction", "Impact analysis", "Documentation from analysis", "Using analysis in estimates"],
+          "tools": ["IBM ADDI", "Static analysis tools"],
+          "lab_task": "Analyse a 200-program application, produce call graphs and data flow for the billing calculation, find dead code and run an impact analysis for a field length change.",
+          "deliverable": "Analysis reports, dead code list and impact analysis",
+          "checks": [["Produce the call graph", "Programs and calls for billing shown", "Call graph"], ["Run impact analysis", "All programs and data sets affected listed", "Impact report"], ["List dead code", "Unused programs and paragraphs listed", "Dead code report"]],
+          "objectives": ["Analyse legacy applications", "Find impact of changes", "Document business rules"]
+        },
+        {
+          "topic": "Refactoring COBOL Safely",
+          "subtopics": ["Characterisation tests", "Small refactoring steps", "Removing GO TO and dead code", "Extracting subprograms", "Modularising copybooks", "Naming and readability", "Measuring complexity", "Refactoring with code review"],
+          "tools": ["Enterprise COBOL", "Unit test tools", "Static analysis"],
+          "lab_task": "Write characterisation tests for a tangled program, refactor it in small steps by removing GO TO and extracting subprograms, and show tests pass and complexity drops.",
+          "deliverable": "Tests, refactored code and complexity comparison",
+          "checks": [["Run characterisation tests after each step", "All pass", "Test reports"], ["Compare complexity", "Cyclomatic complexity reduced", "Analysis report"], ["Review the code", "Reviewer approves readability", "Review notes"]],
+          "objectives": ["Refactor legacy code", "Protect behaviour with tests", "Improve readability"]
+        },
+        {
+          "topic": "Moving Mainframe Workloads to Cloud Platforms",
+          "subtopics": ["Rehosting with emulation: Micro Focus and others", "AWS Mainframe Modernization", "Azure mainframe migration options", "Automated COBOL to Java conversion", "Data migration from VSAM and Db2", "Batch and online on the target", "Testing equivalence", "Cost and risk comparison"],
+          "tools": ["AWS Mainframe Modernization", "Micro Focus Enterprise Server", "Rocket or Blu Age tools"],
+          "lab_task": "Rehost a small batch and CICS application on a cloud emulation platform, convert one program to Java with an automated tool, compare outputs and estimate running costs.",
+          "deliverable": "Rehosted application, converted program, equivalence results and cost estimate",
+          "checks": [["Run the batch on the target", "Output matches the mainframe", "Comparison"], ["Run the converted program", "Same results as COBOL", "Test results"], ["Estimate costs", "Mainframe and cloud costs compared", "Cost estimate"]],
+          "objectives": ["Rehost workloads", "Evaluate code conversion", "Compare cost and risk"]
+        },
+        {
+          "topic": "Replicating Mainframe Data to Cloud and Analytics",
+          "subtopics": ["Why replicate mainframe data", "Change data capture from Db2 and VSAM", "IBM Data Replication and Precisely Connect", "Streaming to Kafka", "Data format conversion", "Latency and consistency", "Using replicated data in analytics", "Governance of copied data"],
+          "tools": ["IBM Data Replication", "Apache Kafka", "Cloud data warehouse"],
+          "lab_task": "Replicate Db2 account changes to Kafka with change data capture, convert formats, load them into a cloud warehouse and measure latency from commit to warehouse.",
+          "deliverable": "Replication configuration, Kafka topics and latency report",
+          "checks": [["Update an account", "Change in the warehouse", "Query result"], ["Measure latency", "Commit to warehouse time recorded", "Latency report"], ["Convert packed fields", "Values correct in the warehouse", "Comparison"]],
+          "objectives": ["Replicate mainframe data", "Stream changes", "Feed analytics"]
+        },
+        {
+          "topic": "CICS Performance and Tuning",
+          "subtopics": ["CICS monitoring data", "Transaction response time breakdown", "Threadsafe programs", "Open TCBs", "Storage use", "File and Db2 contention", "CICS statistics", "Workload balancing with CICSPlex"],
+          "tools": ["CICS Performance Analyzer", "CICS statistics", "OMEGAMON"],
+          "lab_task": "Analyse response times for the top transactions, make a program threadsafe, fix a contention problem and show improved response time under load.",
+          "deliverable": "Analysis, changes and before and after times",
+          "checks": [["Break down response time", "Time split into components", "Performance report"], ["Make the program threadsafe", "Runs on an open TCB", "CICS statistics"], ["Compare response times", "Lower after the changes", "Performance report"]],
+          "objectives": ["Analyse CICS performance", "Write threadsafe programs", "Reduce contention"]
+        },
+        {
+          "topic": "Db2 for z/OS Tuning for Applications",
+          "subtopics": ["Accounting and statistics traces", "Locking and lock escalation", "Commit strategy", "Buffer pools in outline", "Access path stability with plan management", "REBIND strategies", "Partitioned tables", "Working with DBAs on performance"],
+          "tools": ["Db2 for z/OS", "OMEGAMON for Db2", "EXPLAIN"],
+          "lab_task": "Diagnose a batch job causing lock escalation and timeouts for online users, change the commit strategy and access paths and show the impact on both workloads.",
+          "deliverable": "Trace analysis, changes and results",
+          "checks": [["Find the lock escalation", "Table and program identified", "Trace report"], ["Change commit frequency", "Online timeouts stop", "Monitoring output"], ["REBIND with plan management", "Previous access path kept as a fallback", "Bind output"]],
+          "objectives": ["Tune Db2 applications", "Fix locking problems", "Keep access paths stable"]
+        },
+        {
+          "topic": "Parallel Sysplex and Data Sharing",
+          "subtopics": ["Sysplex concepts", "Coupling facility", "Db2 data sharing", "CICS and MQ in a sysplex", "Workload distribution", "Availability during maintenance", "Application design for sysplex", "Common sysplex problems"],
+          "tools": ["Parallel Sysplex", "Db2 data sharing", "CICSPlex SM"],
+          "lab_task": "Design an application change so it works across two LPARs with Db2 data sharing, test a rolling restart of one LPAR and explain the design rules that keep work moving.",
+          "deliverable": "Design notes, test results and design rules",
+          "checks": [["Restart one LPAR", "Transactions continue on the other", "Monitoring output"], ["Review affinities", "No transaction affinity to one region", "Design review"], ["Write the design rules", "Rules clear with examples", "Design rules"]],
+          "objectives": ["Understand sysplex", "Design for data sharing", "Keep applications available"]
+        },
+        {
+          "topic": "Workload Manager and Mainframe Capacity",
+          "subtopics": ["WLM service classes and goals", "Importance and velocity", "Batch and online priorities", "Capacity measured in MSUs and MIPS", "Rolling four-hour average", "Soft capping", "Capacity planning", "Talking to capacity teams"],
+          "tools": ["WLM", "RMF", "SMF reports"],
+          "lab_task": "Read WLM service class performance for online and batch, find a batch job driving the four-hour peak and propose changes that lower the peak.",
+          "deliverable": "Performance analysis and peak reduction proposal",
+          "checks": [["Read WLM reports", "Goals met or missed per class", "RMF report"], ["Find the peak driver", "Job and its MSU use identified", "SMF analysis"], ["Propose changes", "Expected peak reduction calculated", "Proposal"]],
+          "objectives": ["Understand WLM", "Read capacity data", "Reduce peak use"]
+        },
+        {
+          "topic": "Mainframe Software Cost and MIPS Reduction",
+          "subtopics": ["How mainframe software is priced", "Tailored Fit Pricing", "zIIP offload", "Finding top CPU consumers", "Batch rescheduling", "Code and SQL optimisation savings", "Measuring savings", "Business cases for cost reduction"],
+          "tools": ["SMF reports", "Application Performance Analyzer", "zIIP-eligible workloads"],
+          "lab_task": "Find the top ten CPU consumers, estimate savings from tuning, zIIP offload and rescheduling, implement two changes and report measured savings.",
+          "deliverable": "Consumer list, savings plan and results",
+          "checks": [["List top consumers", "Ten jobs and transactions ranked", "SMF report"], ["Implement two changes", "CPU savings measured", "Before and after reports"], ["Report money saved", "Savings estimated under the pricing model", "Savings report"]],
+          "objectives": ["Understand mainframe cost", "Find savings", "Measure results"]
+        },
+        {
+          "topic": "Mainframe Security and Pervasive Encryption",
+          "subtopics": ["Threats to mainframe systems", "RACF administration concepts for architects", "Multi-factor authentication on z/OS", "Pervasive encryption of data sets", "Encrypting Db2 and coupling facility data", "TLS with AT-TLS", "Security audits and compliance", "Security in modernised architectures"],
+          "tools": ["RACF", "z/OS data set encryption", "AT-TLS"],
+          "lab_task": "Encrypt a sensitive data set, protect API traffic with AT-TLS, review RACF access to production data for excessive permissions and write audit findings.",
+          "deliverable": "Encryption setup, TLS configuration and audit findings",
+          "checks": [["Read the encrypted data set without key access", "Access refused", "Job output"], ["Capture API traffic", "Encrypted on the wire", "Trace output"], ["Review access", "Excessive permissions listed with fixes", "Audit findings"]],
+          "objectives": ["Secure the mainframe", "Encrypt data", "Audit access"]
+        },
+        {
+          "topic": "AI Code Assistants for COBOL: watsonx Code Assistant for Z",
+          "subtopics": ["What AI assistants do for mainframe teams", "Explaining COBOL with AI", "COBOL to Java transformation", "Generating tests", "Checking AI output", "Security and code ownership", "Measuring productivity", "Limits and risks"],
+          "tools": ["IBM watsonx Code Assistant for Z", "Enterprise COBOL", "Java"],
+          "lab_task": "Use an AI assistant to explain a complex program, transform one service to Java, generate tests and check every output against the original behaviour.",
+          "deliverable": "Explanations, Java code, tests and review notes",
+          "checks": [["Check the explanation", "Errors found and corrected", "Review notes"], ["Test the Java service", "Same results as COBOL for all test cases", "Test report"], ["Measure time", "Time compared with doing it by hand", "Measurement"]],
+          "objectives": ["Use AI with COBOL", "Check AI output", "Measure benefit"]
+        },
+        {
+          "topic": "Batch Window Optimisation",
+          "subtopics": ["Batch window problems", "Critical path analysis", "Parallelising job streams", "Removing redundant steps", "Sort and I/O optimisation", "Checkpoint and restart design", "Moving to continuous processing", "Measuring the window"],
+          "tools": ["Control-M or CA 7", "SMF", "DFSORT"],
+          "lab_task": "Map the critical path of a nightly batch that overruns, parallelise independent streams, remove two redundant steps and show the new end time.",
+          "deliverable": "Critical path, changes and new timings",
+          "checks": [["Find the critical path", "Longest chain of jobs identified", "Critical path diagram"], ["Parallelise streams", "Independent jobs run together", "Scheduler log"], ["Compare end times", "Batch finishes inside the window", "Timing report"]],
+          "objectives": ["Analyse batch windows", "Shorten the critical path", "Design restartable batch"]
+        },
+        {
+          "topic": "Analysing SMF Records and System Data",
+          "subtopics": ["SMF record types", "Job and step records", "CICS and Db2 SMF data", "Extracting SMF data", "Analysing SMF with Python or Splunk", "Building dashboards", "Using SMF in incidents", "Retention and volume"],
+          "tools": ["SMF", "Python", "Splunk or IBM Z Operational Log and Data Analytics"],
+          "lab_task": "Extract a week of SMF job records, analyse them with Python for CPU, elapsed time and failures by application and build a dashboard used in a morning review.",
+          "deliverable": "Extraction job, analysis notebook and dashboard",
+          "checks": [["Extract records", "Job records for the week loaded", "Notebook output"], ["Report failures", "Failing jobs by application listed", "Dashboard"], ["Use in an incident", "Timeline built from SMF data", "Incident notes"]],
+          "objectives": ["Read SMF data", "Analyse system data", "Build operational dashboards"]
+        },
+        {
+          "topic": "Test Automation and Service Virtualisation",
+          "subtopics": ["Test levels on the mainframe", "Integration test automation", "Virtualising CICS and Db2 dependencies", "Test data privacy and masking", "Test environments with Wazi", "Regression suites for modernisation", "Performance testing", "Testing in pipelines"],
+          "tools": ["IBM Test Accelerator for Z", "Wazi", "Galasa"],
+          "lab_task": "Build an automated integration suite with Galasa for the banking transactions, virtualise an external dependency, mask test data and run it in the pipeline.",
+          "deliverable": "Test suite, virtual service and pipeline results",
+          "checks": [["Run the suite in the pipeline", "All tests pass", "Pipeline log"], ["Run without the real dependency", "Virtual service used", "Test log"], ["Check test data", "No real customer data", "Data check"]],
+          "objectives": ["Automate integration tests", "Virtualise dependencies", "Protect test data"]
+        },
+        {
+          "topic": "Knowledge Transfer and Mainframe Skills Planning",
+          "subtopics": ["Retirement risk in mainframe teams", "Finding critical knowledge", "Pairing and shadowing", "Documenting business rules", "Training new developers", "Communities of practice", "Measuring knowledge coverage", "Hiring and partner strategies"],
+          "tools": ["Skills matrix template", "Documentation templates"],
+          "lab_task": "Build a skills and knowledge matrix for a team of ten, identify the three biggest single points of knowledge, plan transfer for each and design a graduate training path.",
+          "deliverable": "Skills matrix, transfer plans and training path",
+          "checks": [["Find single points of knowledge", "Three critical areas named with owners", "Skills matrix"], ["Review transfer plans", "Pairing, documentation and dates included", "Transfer plans"], ["Review the training path", "Path leads to independent work in six months", "Training path"]],
+          "objectives": ["Protect knowledge", "Plan skills", "Train new developers"]
+        },
+        {
+          "topic": "Advanced Capstone: Modernising a Core Banking Application",
+          "subtopics": ["Assessment and roadmap", "APIs, DevOps and data", "Performance and cost", "Leadership presentation"],
+          "tools": ["z/OS Connect", "IBM DBB", "Kafka", "Galasa", "watsonx Code Assistant for Z"],
+          "lab_task": "For a case core banking system, assess and choose a modernisation path, expose key services as APIs, set up a DevOps pipeline with automated tests, replicate data to the cloud, cut CPU cost and present a funded roadmap to a leadership panel.",
+          "deliverable": "Assessment, APIs, pipeline, replication, savings report and roadmap presentation",
+          "checks": [["Call the new APIs", "Services work through the gateway", "Demo recording"], ["Run the pipeline", "Change built, tested and deployed automatically", "Pipeline log"], ["Present the roadmap", "Costs, risks and benefits defended", "Panel feedback"]],
+          "objectives": ["Combine the advanced topics in one programme", "Modernise without big-bang risk", "Lead the business case"]
+        }
+      ]
+    }
+  }
+}

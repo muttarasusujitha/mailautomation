@@ -73,6 +73,14 @@ async def deliver_approved_package(db, package):
     if not claimed.modified_count:
         return {"success": False, "retry_pending": True, "message": "Approved delivery is in progress"}
     try:
+        from shared.lab_cost_inputs import quote_expiry
+        mail = package.get("email_payload") or {}
+        if any("lab cost" in item.get("filename", "").lower() for item in mail.get("attachments", [])):
+            try:
+                quote_expiry(package.get("lab_quote_valid_until"))
+            except ValueError:
+                from app.routes.shortlists import refresh_handoff_lab_attachment
+                package = await refresh_handoff_lab_attachment(db, package)
         result = await _deliver_client_handoff(package, db)
         await db["client_handoff_packages"].update_one(
             {"_id": package["_id"], "package_id": package["package_id"]},

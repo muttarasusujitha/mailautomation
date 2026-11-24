@@ -1,0 +1,573 @@
+{
+  "domain": "Swift",
+  "name": "Swift",
+  "category": "Programming Languages",
+  "icon": "code",
+  "aliases": ["Swift Programming", "Apple Swift", "Swift Language", "Swift Lang", "Swift Developer", "Server-Side Swift", "Swift 6", "Advanced Swift"],
+  "certifications": ["App Development with Swift Certified User (Apple and Certiport)", "App Development with Swift Associate (Apple and Certiport)"],
+  "tools": ["Swift toolchain", "Swiftly", "Swift Package Manager", "Swift Testing", "swift-syntax", "SwiftNIO", "Hummingbird", "LLDB", "Instruments", "Visual Studio Code", "SourceKit-LSP", "swift-format", "DocC", "Docker"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who already program in another language such as Python, Java, C#, JavaScript or C++ and are new to Swift as a language, not to iOS app building. Covers installing the Swift toolchain with Swiftly, SwiftPM and the REPL, values and core types, strings and Unicode, control flow, functions, optionals, collections, enums and pattern matching, structs versus classes, properties, protocols and extensions, generic functions, error handling, ARC, modules and access control, closures and lazy sequences, Codable, Swift Testing, command-line tools, and a log-analyser capstone.",
+      "prerequisites": ["Writes working programs in at least one other language such as Python, Java, C#, JavaScript or C++", "Uses a terminal confidently: running commands, setting environment variables and reading exit codes", "Has a macOS, Linux or Windows machine with permission to install the Swift toolchain and an editor such as Visual Studio Code or Xcode"],
+      "outcomes": ["Install and manage Swift toolchains and build, run, test and document packages with SwiftPM", "Model data with structs, enums, classes, protocols and generics and explain value versus reference semantics", "Handle absence and failure safely with optionals, throws, Result and the type system instead of sentinel values", "Build and test a command-line tool that parses arguments, reads files, decodes JSON and exits with correct status codes"],
+      "days": [
+        {
+          "topic": "Toolchain Installation with Swiftly, swiftc and SwiftPM",
+          "subtopics": ["Swift on macOS, Linux and Windows and what ships in a swift.org toolchain", "Installing and switching toolchains with Swiftly", "swift --version and the language mode versus compiler version", "Compiling a single file with swiftc and running it as a script", "swift package init --type executable and the generated layout", "swift build, swift run and the .build directory", "Debug versus release builds with -c release", "VS Code with the Swift extension, SourceKit-LSP and Xcode"],
+          "tools": ["Swiftly", "swiftc", "SwiftPM", "VS Code", "SourceKit-LSP", "LLDB"],
+          "lab_task": "Install the latest stable toolchain with swiftly install latest, confirm it with swift --version, compile hello.swift with swiftc -O and run it, create a package with swift package init --type executable --name Hello, then run swift build and swift build -c release and compare the two binary sizes with ls -l.",
+          "deliverable": "Environment report with swift --version output, the generated Package.swift and a debug versus release size table",
+          "checks": [["Run swift --version", "Prints a Swift 6.x version line and the target triple of the host platform", "Terminal screenshot"], ["Run swift package init --type executable --name Hello then swift run", "Prints Hello, world! and the package contains Sources/main.swift or Sources/Hello", "Terminal output and directory listing"], ["Change main.swift to assign a String to an Int and run swift build", "The build fails with a cannot convert value of type error and exit status is non-zero", "Compiler output and echo $?"]],
+          "objectives": ["Install and switch Swift toolchains", "Create, build and run a SwiftPM package", "Explain debug and release builds"]
+        },
+        {
+          "topic": "Constants, Values and Core Types",
+          "subtopics": ["let versus var and why let is the default", "Type inference and explicit annotations", "Int, Int64, UInt8 and Double and the absence of implicit conversion", "Overflow traps and the &+, addingReportingOverflow operators", "Bool, tuples and tuple decomposition", "Type aliases and numeric literals with underscores", "Any, AnyObject and why they are rare", "Printing with print, dump and string interpolation"],
+          "tools": ["Swift REPL", "SwiftPM", "VS Code"],
+          "lab_task": "Write a converter that stores a Celsius reading in a let constant, converts it to Fahrenheit as a Double, adds 1 to a UInt8 holding 255 using &+ and addingReportingOverflow, prints MemoryLayout<T>.size for Int, Int8, Double and Bool, and shows what happens when you try a plain + on the UInt8.",
+          "deliverable": "Converter source code with a table of MemoryLayout sizes and the overflow results",
+          "checks": [["Reassign a value declared with let", "Compiler error: cannot assign to value, a let constant", "Compiler output"], ["Run 255 as UInt8 with &+ 1", "Result is 0 with no trap", "Program output"], ["Run let x: UInt8 = 255; let y = x + 1 with a runtime value", "Process traps with an arithmetic overflow fatal error", "Crash log"]],
+          "objectives": ["Choose between let and var deliberately", "Use Swift numeric types without implicit conversion", "Explain overflow trapping and wrapping operators"]
+        },
+        {
+          "topic": "Strings, Characters and Unicode",
+          "subtopics": ["String as a collection of Character grapheme clusters", "count versus unicodeScalars.count versus utf8.count", "String.Index and why integer subscripts do not exist", "Substring and the cost of converting back with String()", "Multiline and raw string literals", "Interpolation, custom string interpolation and description versus debugDescription", "Common methods: split, hasPrefix, contains, replacing, trimmingCharacters", "Comparing and normalising strings, localizedStandardCompare"],
+          "tools": ["Swift REPL", "Foundation", "SwiftPM"],
+          "lab_task": "Create a string containing the flag emoji for India, a decomposed e-acute and a family emoji, print count, unicodeScalars.count and utf8.count for each, extract the first word with split and Substring, rebuild it with String(), and write a function that reverses words without breaking grapheme clusters.",
+          "deliverable": "Unicode report listing the three counts per string and the word-reversal function with tests",
+          "checks": [["Print the count of a string with a decomposed é (e plus U+0301)", "count is 1 while unicodeScalars.count is 2", "Program output"], ["Try let c = s[3] on a String", "Compiler error: String cannot be indexed with an Int", "Compiler output"], ["Reverse the words in \"swift is fun\"", "Returns \"fun is swift\" and the grapheme test string stays intact", "Test output"]],
+          "objectives": ["Explain Character versus Unicode scalar versus byte", "Navigate strings with String.Index and Substring", "Write Unicode-safe text utilities"]
+        },
+        {
+          "topic": "Operators, Control Flow and Ranges",
+          "subtopics": ["if, guard and early exit", "switch with no implicit fallthrough and exhaustiveness", "Ranges: closed, half-open and one-sided", "for-in with stride, enumerated and zip", "while and repeat-while", "Labelled statements, break and continue", "if and switch as expressions", "Ternary, nil-coalescing and range operators, custom operator precedence"],
+          "tools": ["Swift REPL", "SwiftPM", "VS Code"],
+          "lab_task": "Implement FizzBuzz with a switch on a tuple, a guard-based input validator that rejects negative numbers with an early return, a stride loop that prints every 5th number from 100 down to 0, and a function that uses if as an expression to return a grade label from a score.",
+          "deliverable": "Control-flow exercise file with FizzBuzz, validator and grade function",
+          "checks": [["Write a switch over an Int without a default case", "Compiler error: switch must be exhaustive", "Compiler output"], ["Run FizzBuzz for 1...15", "Output has Fizz at 3, Buzz at 5 and FizzBuzz at 15", "Program output"], ["Call the validator with -4", "Returns the error path via guard and no further code runs", "Unit test output"]],
+          "objectives": ["Write exhaustive switches and guard-based flows", "Use ranges and stride correctly", "Choose control-flow forms that keep code flat"]
+        },
+        {
+          "topic": "Functions, Argument Labels and Default Values",
+          "subtopics": ["External and internal parameter names", "Omitting labels with underscore", "Default arguments and overload resolution", "Variadic parameters", "inout parameters and exclusive access", "Returning tuples and implicit returns", "Nested functions and functions as values", "Function types, @discardableResult and API Design Guidelines naming"],
+          "tools": ["SwiftPM", "VS Code", "swift-format"],
+          "lab_task": "Build a small statistics module with mean(of:), median(of:) and a function with a default argument percentile(_:p: = 50) that uses a variadic overload, an inout normalise(_:) function, and a call-site test that triggers the overlapping access error by passing the same array twice as inout.",
+          "deliverable": "Statistics module and a note listing each API Design Guidelines naming decision",
+          "checks": [["Call a function with a missing argument label", "Compiler error: missing argument label", "Compiler output"], ["Pass the same variable to two inout parameters", "Compiler error: overlapping accesses and exclusive access is required", "Compiler output"], ["Call percentile with no p argument", "Returns the median using the default value", "Test output"]],
+          "objectives": ["Design functions with clear call sites", "Use default, variadic and inout parameters correctly", "Apply the Swift API Design Guidelines to naming"]
+        },
+        {
+          "topic": "Optionals and Safe Unwrapping",
+          "subtopics": ["What Optional<T> is: an enum with none and some", "if let, guard let and shorthand if let x", "Optional chaining", "Nil-coalescing and map/flatMap on Optional", "Force unwrap and implicitly unwrapped optionals: when each is acceptable", "try? and optional return from failable initialisers", "Optional pattern matching in switch", "Comparing optionals and Optional as a Codable field"],
+          "tools": ["Swift REPL", "SwiftPM", "VS Code"],
+          "lab_task": "Write a user-profile parser that takes a [String: String] dictionary and returns an optional struct, using guard let for required keys, optional chaining for an address.city value and ?? for a default display name, then show the crash from force-unwrapping a missing key and replace it with safe code.",
+          "deliverable": "Parser source with tests covering present, missing and malformed keys",
+          "checks": [["Force-unwrap a nil value", "Fatal error: Unexpectedly found nil while unwrapping an Optional value", "Crash log"], ["Pass a dictionary with no address", "The city result is nil and nothing crashes", "Test output"], ["Pass a dictionary with name missing", "Display name falls back to the default \"Guest\"", "Test output"]],
+          "objectives": ["Model absence with Optional rather than sentinel values", "Unwrap with the right construct for each situation", "Avoid force unwraps in production code"]
+        },
+        {
+          "topic": "Collections: Array, Dictionary and Set",
+          "subtopics": ["Array literals, append, insert and removal complexity", "Slices (ArraySlice) and index validity", "Dictionary lookup returning an Optional and default subscripts", "Iterating dictionaries and ordering guarantees", "Set operations: union, intersection, subtracting", "Hashable and Equatable conformance", "Value semantics and copy-on-write in collections", "sorted, sort(by:), contains and firstIndex(where:)"],
+          "tools": ["Swift REPL", "SwiftPM", "VS Code"],
+          "lab_task": "Write a word-frequency counter that reads a text, splits it into words, counts with Dictionary(grouping:by:) and a default-value subscript, prints the ten most frequent words with sorted(by:), uses a Set to find words in one text but not another, and demonstrates an index-out-of-range crash on an empty array.",
+          "deliverable": "Word-frequency tool with sample text and a note on collection complexity",
+          "checks": [["Read array[5] on a three-element array", "Fatal error: Index out of range", "Crash log"], ["Count words in \"a b a c a b\"", "a is 3, b is 2, c is 1 and a is first in the sorted output", "Program output"], ["Mutate a copy of an array and print the original", "Original array is unchanged", "Program output"]],
+          "objectives": ["Choose the right collection for a task", "Use dictionaries and sets idiomatically", "Explain value semantics of collections"]
+        },
+        {
+          "topic": "Enums, Associated Values and Pattern Matching",
+          "subtopics": ["Simple enums, raw values and CaseIterable", "Associated values and payload extraction", "switch with let bindings and where clauses", "Indirect enums and recursive data", "if case and guard case", "Enum methods, computed properties and static members", "Modelling state machines with enums", "@unknown default and frozen versus non-frozen enums"],
+          "tools": ["SwiftPM", "VS Code", "Swift REPL"],
+          "lab_task": "Model an arithmetic expression tree as an indirect enum with cases number, add, multiply and negate, write evaluate(_:) and description(_:) using switch with let bindings, add a where clause for multiplying by zero, then add a new case and let the compiler list every switch that needs updating.",
+          "deliverable": "Expression evaluator with tests and a note on exhaustiveness errors",
+          "checks": [["Evaluate multiply(add(2,3), number(4))", "Returns 20", "Test output"], ["Add a case divide without updating switch statements", "Compiler errors: switch must be exhaustive at every unhandled switch", "Compiler output"], ["Print description of negate(number(3))", "Prints -(3)", "Program output"]],
+          "objectives": ["Model domain states with enums and associated values", "Write exhaustive pattern matches", "Use indirect enums for recursive structures"]
+        },
+        {
+          "topic": "Structs, Classes and Value Semantics",
+          "subtopics": ["Memberwise initialisers", "Value types versus reference types in memory", "Mutating methods and let instances", "Identity: === versus ==", "Inheritance, override, final and when to avoid classes", "Copy-on-write for custom types", "Choosing struct, class or actor", "Equatable and Hashable synthesis"],
+          "tools": ["SwiftPM", "LLDB", "VS Code"],
+          "lab_task": "Define a Point struct and a PointRef class, copy each into a second constant, mutate through the copy and print both originals, add === checks, make a let struct instance fail to mutate, then add a final class hierarchy and show a subclass override calling super.",
+          "deliverable": "Comparison write-up with the output of both mutation experiments",
+          "checks": [["Mutate a struct copy then print the original", "Original value is unchanged", "Program output"], ["Mutate a class copy then print the original", "Original value is changed because both names reference one object", "Program output"], ["Call a mutating method on a let struct", "Compiler error: cannot use mutating member on immutable value", "Compiler output"]],
+          "objectives": ["Explain value versus reference semantics", "Pick struct, class or actor with reasons", "Use identity and equality correctly"]
+        },
+        {
+          "topic": "Properties, Observers and Initialisation",
+          "subtopics": ["Stored and computed properties", "lazy properties and when they initialise", "willSet and didSet", "Property wrappers as a reader (usage only)", "Designated, convenience and failable initialisers", "Two-phase initialisation for classes", "static and class members", "deinit and required initialisers"],
+          "tools": ["SwiftPM", "LLDB", "VS Code"],
+          "lab_task": "Create a Temperature struct with a stored celsius value and computed fahrenheit, a Thermostat class with didSet that logs changes, a lazy expensive property that prints when first read, a failable init(rawValue:) that rejects values below absolute zero, and a deinit that prints when the object is released.",
+          "deliverable": "Source file and console transcript showing the order of initialisation and observer calls",
+          "checks": [["Create Temperature(celsius: -300) through the failable initialiser", "Returns nil", "Test output"], ["Read the lazy property twice", "The initialiser message prints once", "Console transcript"], ["Set thermostat.target = 21", "didSet prints old value and new value", "Console transcript"]],
+          "objectives": ["Use computed, lazy and observed properties", "Write safe initialisers including failable ones", "Explain two-phase initialisation"]
+        },
+        {
+          "topic": "Protocols and Extensions",
+          "subtopics": ["Protocol requirements: properties and methods", "Conformance and extension conformance", "Protocol extensions with default implementations", "Protocol composition with &", "Protocols as types: some versus any at first contact", "Codable, Equatable, Comparable and Identifiable", "Retroactive conformance and the @retroactive attribute", "Extending Foundation and standard library types"],
+          "tools": ["SwiftPM", "VS Code", "SourceKit-LSP"],
+          "lab_task": "Define a Shape protocol with area and perimeter, conform Circle, Rect and Triangle, add a protocol extension supplying describe(), write a function taking some Shape and another taking [any Shape], extend Array where Element: Shape with totalArea, and sort shapes by area through Comparable.",
+          "deliverable": "Shapes package with unit tests and a summary of some versus any",
+          "checks": [["Omit the perimeter requirement in a conforming struct", "Compiler error: type does not conform to protocol Shape", "Compiler output"], ["Call totalArea on [Circle(r:1), Rect(w:2,h:3)] as [any Shape]", "Returns approximately 9.14159", "Test output"], ["Sort an array of shapes by area", "The smallest area is first", "Test output"]],
+          "objectives": ["Define and conform to protocols", "Use extensions and default implementations", "Differentiate some Shape from any Shape"]
+        },
+        {
+          "topic": "Generic Functions and Types",
+          "subtopics": ["Why generics: one implementation for many types", "Type parameters and constraints with where clauses", "Generic structs such as Stack<Element>", "Extensions constrained to a conformance", "Equatable, Hashable and Comparable constraints", "Associated types met through Sequence and Collection", "Generic subscripts and static dispatch", "Reading standard-library signatures"],
+          "tools": ["SwiftPM", "VS Code", "SourceKit-LSP"],
+          "lab_task": "Implement Stack<Element> and Queue<Element> with push, pop, peek and count, add an extension on Stack where Element: Equatable with contains(_:), write generic func largest<T: Comparable>(_ items: [T]) -> T?, and demonstrate the compile error when T is not Comparable.",
+          "deliverable": "Generic data-structure module with tests for Int, String and a custom Comparable type",
+          "checks": [["Call largest on [3, 9, 4]", "Returns 9", "Test output"], ["Call largest with an array of a type that is not Comparable", "Compiler error: global function requires that the type conform to Comparable", "Compiler output"], ["Pop from an empty Stack<Int>", "Returns nil instead of crashing", "Test output"]],
+          "objectives": ["Write generic functions and types", "Constrain generics with protocols and where clauses", "Read generic signatures in the standard library"]
+        },
+        {
+          "topic": "Error Handling with throws, try and Result",
+          "subtopics": ["Error protocol and enum errors", "throws, try, try? and try!", "do-catch with pattern matching", "defer and cleanup order", "rethrows", "Result<Success, Failure> and get()", "Throwing initialisers", "Choosing between Optional, throws and Result"],
+          "tools": ["SwiftPM", "VS Code", "LLDB"],
+          "lab_task": "Write a config loader that throws ConfigError.fileNotFound, .invalidFormat(line:) and .missingKey(String), catch each case separately in a do-catch, wrap the loader in a function returning Result, use defer to close a file handle and print the order in which defers run, then show try! crashing on a bad path.",
+          "deliverable": "Config loader with error enum, tests per case and a defer-order transcript",
+          "checks": [["Load a path that does not exist", "Throws ConfigError.fileNotFound and the catch branch prints the path", "Test output"], ["Load a file with a bad line 3", "Throws .invalidFormat(line: 3)", "Test output"], ["Call try! on a throwing call that fails", "Fatal error with the thrown error in the message", "Crash log"]],
+          "objectives": ["Define and throw domain errors", "Catch errors precisely and clean up with defer", "Choose between Optional, throws and Result"]
+        },
+        {
+          "topic": "Memory Management and ARC",
+          "subtopics": ["Reference counting and when objects are released", "strong, weak and unowned references", "Retain cycles between objects", "Capture lists in closures", "Value types and the absence of ARC traffic", "Debugging leaks with deinit and the Memory Graph", "Leaks tool and Instruments Allocations", "isKnownUniquelyReferenced and copy-on-write"],
+          "tools": ["LLDB", "Instruments", "Valgrind", "SwiftPM"],
+          "lab_task": "Create Parent and Child classes that reference each other strongly, add deinit prints to show neither is released, fix the cycle with weak var parent, then write a closure stored on an object that captures self, show the leak, fix it with [weak self] and verify with a deinit print and, on macOS, the leaks command-line tool.",
+          "deliverable": "Leak demo, fixed version and a short note on strong, weak and unowned",
+          "checks": [["Create the parent-child cycle and let both go out of scope", "No deinit message is printed for either object", "Console transcript"], ["Apply weak var parent and repeat", "Both deinit messages print", "Console transcript"], ["Access an unowned reference after its target is released", "Runtime crash reporting an attempt to read an unowned reference", "Crash log"]],
+          "objectives": ["Explain ARC and where cycles form", "Choose strong, weak or unowned correctly", "Detect leaks with deinit and tooling"]
+        },
+        {
+          "topic": "Modules and Access Control",
+          "subtopics": ["Module boundaries: target, library and executable", "open, public, package, internal, fileprivate and private", "The package access level", "@testable import", "Namespacing with enums and extensions", "Import visibility and name collisions", "Splitting a file into a library target and a thin executable", "Documentation comments with /// and DocC markup"],
+          "tools": ["SwiftPM", "DocC", "VS Code"],
+          "lab_task": "Split a package into a library target WordTools and an executable target wt, give types the narrowest access that works, mark one API public and one package, write a test target using @testable import, add /// documentation comments and run swift build to confirm that an internal symbol cannot be used from the executable.",
+          "deliverable": "Two-target package with an access-level table and a failed-build transcript",
+          "checks": [["Use an internal function from the executable target", "Compiler error: cannot find or is inaccessible due to internal protection level", "Compiler output"], ["Run swift test with @testable import of the library", "Tests access internal members and pass", "Test output"], ["Run swift package describe", "Lists both targets with their types", "Command output"]],
+          "objectives": ["Structure code into modules", "Apply the narrowest sufficient access level", "Document public APIs with DocC comments"]
+        },
+        {
+          "topic": "Closures, Higher-Order Functions and Lazy Sequences",
+          "subtopics": ["Closure expression syntax and trailing closures", "Capturing values and escaping versus non-escaping", "map, compactMap, flatMap, filter and reduce", "sorted(by:) and keyPath shorthand", "Function composition", "lazy sequences and when laziness helps", "first(where:), allSatisfy, contains(where:)", "Common pitfalls: retain cycles and over-long chains"],
+          "tools": ["SwiftPM", "VS Code", "Swift REPL"],
+          "lab_task": "Given an array of 1,000 order structs, use filter, map, reduce and sorted(by:) to compute total revenue per customer, rewrite one chain with .lazy and prove it evaluates fewer elements by incrementing a counter in the closure, and write a function that returns an escaping closure which captures a counter.",
+          "deliverable": "Order analysis code with a counter showing eager versus lazy evaluation",
+          "checks": [["Run a lazy filter then first on 1,000 items where the first match is element 3", "The predicate runs about 3 times instead of 1,000", "Counter output"], ["Compute total revenue with reduce(0, +)", "Result equals the loop-based total", "Test output"], ["Call a stored escaping closure that captured var count", "count increases on every call", "Program output"]],
+          "objectives": ["Write and read closures confidently", "Transform data with higher-order functions", "Apply laziness where it reduces work"]
+        },
+        {
+          "topic": "Codable and JSON with Foundation",
+          "subtopics": ["Codable, Encodable and Decodable", "JSONEncoder and JSONDecoder basics", "CodingKeys and snake_case key strategy", "Custom init(from:) and encode(to:)", "Date, URL and Data decoding strategies", "Optional and missing keys, DecodingError cases", "Nested containers and polymorphic payloads via enums", "Pretty printing and stable key ordering with outputFormatting", "Property list and other formats through PropertyListEncoder", "Versioning payloads and tolerating unknown keys"],
+          "tools": ["Foundation", "SwiftPM", "jq", "VS Code"],
+          "lab_task": "Decode a 50-record JSON file of GitHub-style events into Codable structs with a snake_case key strategy and ISO 8601 dates, write a custom decoder for a field that may be a string or an int, catch DecodingError.keyNotFound and typeMismatch separately, and re-encode with .prettyPrinted and .sortedKeys.",
+          "deliverable": "Decoder package, sample data and an error-handling test per DecodingError case",
+          "checks": [["Decode a record missing a required key", "DecodingError.keyNotFound is thrown with the key name in the coding path", "Test output"], ["Decode a field that is the string \"42\" and the int 42", "Both give the integer 42", "Test output"], ["Encode with .sortedKeys twice", "Both outputs are byte-identical", "Diff output"]],
+          "objectives": ["Decode and encode JSON with Codable", "Customise coding keys and strategies", "Diagnose DecodingError precisely"]
+        },
+        {
+          "topic": "Unit Testing with Swift Testing",
+          "subtopics": ["@Test functions and #expect", "#require for preconditions", "@Suite and test organisation", "Parameterised tests with arguments:", "Testing thrown errors with #expect(throws:)", "Running with swift test and --filter", "Test names, display names and tags", "XCTest coexistence in the same package"],
+          "tools": ["Swift Testing", "SwiftPM", "VS Code", "XCTest"],
+          "lab_task": "Add a Tests target to the text-tools package, write twelve @Test functions covering success, empty input and failure, convert three duplicated tests into one parameterised @Test with arguments:, use #require to unwrap an optional, assert a thrown error with #expect(throws:), and run swift test --filter for one suite.",
+          "deliverable": "Test target with a test summary and a coverage file produced by swift test --enable-code-coverage",
+          "checks": [["Run swift test", "Output ends with a Test run with 14 tests passed summary and exit code 0", "Test output"], ["Break an expectation with #expect(2 + 2 == 5)", "Failure shows the expression with the evaluated operands", "Test output"], ["Run swift test --filter on one suite name", "Only that suite's tests execute", "Test output"]],
+          "objectives": ["Write tests with Swift Testing", "Use parameterised tests to remove duplication", "Run and filter tests from the command line"]
+        },
+        {
+          "topic": "Command-Line Tools with ArgumentParser and File I/O",
+          "subtopics": ["swift-argument-parser: ParsableCommand, @Argument, @Option, @Flag", "Subcommands and help text generation", "Reading files with FileManager and String(contentsOfFile:)", "Streaming lines from stdin and files", "Environment and CommandLine.arguments", "Writing to stderr and exit codes with ExitCode", "Paths with URL and FilePath", "Distributing a release binary"],
+          "tools": ["swift-argument-parser", "SwiftPM", "Foundation", "VS Code"],
+          "lab_task": "Create a command-line tool called logsum with swift-argument-parser that takes a file path, an --level option and a --json flag, reads the file line by line, counts lines by log level, prints a table or JSON, writes errors to stderr and exits with code 2 when the file is missing.",
+          "deliverable": "logsum package with --help output and a transcript of three runs",
+          "checks": [["Run logsum --help", "Prints usage, the --level option and the --json flag", "Terminal output"], ["Run logsum missing.log; echo $?", "Error is on stderr and the exit code is 2", "Terminal output"], ["Run logsum app.log --json | jq .ERROR", "Prints the integer ERROR count that matches grep -c ERROR app.log", "Terminal output"]],
+          "objectives": ["Build a command-line tool with ArgumentParser", "Process files and streams in Swift", "Return correct exit codes and stderr output"]
+        },
+        {
+          "topic": "Beginner Capstone: Log Analyser CLI",
+          "subtopics": ["Requirements, command design and data model with enums and structs", "Parser with optionals, errors and Codable output", "Test plan using Swift Testing with parameterised cases", "Packaging as library plus executable with documented public API"],
+          "tools": ["SwiftPM", "swift-argument-parser", "Swift Testing", "DocC", "swift-format"],
+          "lab_task": "Build a log analyser CLI that parses a 100,000-line sample access log into a LogEntry struct, reports status counts, top 10 paths and p95 latency, supports --since and --format json, handles malformed lines without crashing, has at least 20 Swift Testing tests, and builds in release mode with swift build -c release.",
+          "deliverable": "Capstone repository, README, test report and a 10-minute demo",
+          "checks": [["Run the tool on the 100,000-line sample", "Output counts add up to 100,000 minus the malformed-line count reported", "Terminal output"], ["Run swift test --enable-code-coverage", "All 20 or more tests pass", "Test output"], ["Feed a file with 50 corrupted lines", "Tool reports 50 skipped lines and exits with code 0", "Terminal output"]],
+          "objectives": ["Combine language fundamentals into one working tool", "Test and document a Swift package", "Present design decisions and trade-offs"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who write everyday Swift and want to use the modern language properly. Covers async/await and structured concurrency, actors and global actors, Sendable and Swift 6 data-race safety, AsyncSequence, protocol-oriented design with some and any, generics with associated types and parameter packs, property wrappers and result builders, typed throws, collection performance, SwiftPM manifests, plugins and resources, Swift Testing in depth, Foundation formatting, Regex, key paths, using macros, logging, async networking, Linux and Docker builds, and a concurrent indexing library capstone.",
+      "prerequisites": ["Completed the beginner Swift level or can write structs, enums, protocols, generics, closures and throwing functions without help", "Can create, build and test a SwiftPM package from the command line", "Has Swift 6.x installed on macOS, Linux or Windows and Docker available for the Linux day"],
+      "outcomes": ["Write data-race-free concurrent code with async/await, task groups, actors and Sendable under the Swift 6 language mode", "Design protocol-based APIs with generics, opaque and existential types and typed errors", "Structure multi-target SwiftPM packages with plugins, resources and a thorough Swift Testing suite", "Build and ship a Swift library that runs on macOS and Linux with logging, networking and cross-compiled output"],
+      "days": [
+        {
+          "topic": "async/await, Task and Task Groups",
+          "subtopics": ["Suspension points and what await really means", "async functions, async let and parallel child tasks", "Task, Task.detached and unstructured versus structured tasks", "withTaskGroup and withThrowingTaskGroup", "Cooperative cancellation: Task.isCancelled and checkCancellation", "Task-local values", "Task priorities and Task.sleep(for:)", "Bridging callbacks with withCheckedThrowingContinuation"],
+          "tools": ["SwiftPM", "Swift Testing", "Instruments", "LLDB"],
+          "lab_task": "Write fetchAll(urls:) using withThrowingTaskGroup that downloads 20 URLs from a local test server with at most 4 in flight, cancels remaining work when one fails, returns results in input order, and logs the elapsed time compared with a sequential loop for the same URLs.",
+          "deliverable": "Concurrent fetch module, timings table and tests for cancellation and failure",
+          "checks": [["Run 20 downloads that each take 200 ms with a limit of 4", "Total time is about 1 second compared with about 4 seconds sequentially", "Timing output"], ["Make the 5th request throw", "The group throws that error and remaining tasks observe cancellation", "Test output"], ["Cancel the parent task after 100 ms", "The function throws CancellationError and no further requests start", "Test output"]],
+          "objectives": ["Write async code with structured concurrency", "Limit and cancel concurrent work correctly", "Bridge callback APIs with continuations"]
+        },
+        {
+          "topic": "Actors, Isolation and Global Actors",
+          "subtopics": ["Actor isolation and the serialised executor", "await when crossing isolation boundaries", "Actor reentrancy and the check-after-await bug", "nonisolated members and nonisolated(unsafe)", "@MainActor and custom global actors", "Isolated parameters and the isolation keyword", "Actor initialisers and deinit", "Choosing actor, class with Mutex or struct"],
+          "tools": ["SwiftPM", "Swift Testing", "Instruments", "LLDB"],
+          "lab_task": "Implement an ImageCache actor with get(url:) that deduplicates in-flight downloads, first write it with a reentrancy bug that downloads twice, reproduce it with 50 concurrent callers, fix it by storing in-flight Tasks, and add a @MainActor view-model that reads from the cache.",
+          "deliverable": "Cache actor, a failing test that reproduces reentrancy and the fixed version",
+          "checks": [["Call get(url:) 50 times concurrently for one URL with the buggy version", "The download counter is greater than 1", "Test output"], ["Repeat with the fixed version", "The download counter is exactly 1", "Test output"], ["Read an actor property from outside without await", "Compiler error: actor-isolated property can not be referenced from a non-isolated context", "Compiler output"]],
+          "objectives": ["Isolate mutable state with actors", "Recognise and fix actor reentrancy", "Use @MainActor and global actors deliberately"]
+        },
+        {
+          "topic": "Sendable, Data Race Safety and Swift 6 Language Mode",
+          "subtopics": ["What Sendable means for value types, classes and closures", "Checked conformance: final classes and immutable stored properties", "@Sendable closures and capture rules", "Region-based isolation and the sending keyword", "@unchecked Sendable and its audit cost", "Global and static mutable state diagnostics", "swiftLanguageModes: [.v6] and strict-concurrency=complete", "Reading data-race diagnostics"],
+          "tools": ["SwiftPM", "Thread Sanitizer", "Swift Testing", "LLDB"],
+          "lab_task": "Take a provided package with a class holding a mutable dictionary shared across tasks, build it in Swift 5 mode with -strict-concurrency=complete to list warnings, run it under swift test --sanitize=thread to see a race report, switch the package to the Swift 6 language mode, and fix every error with an actor, a Mutex or a Sendable struct.",
+          "deliverable": "Before and after diagnostics list and the fixed package with Thread Sanitizer clean output",
+          "checks": [["Build the starter package in Swift 6 mode", "Errors mention non-Sendable types or not concurrency-safe shared mutable state", "Compiler output"], ["Run swift test --sanitize=thread on the starter", "ThreadSanitizer reports a data race", "Sanitizer output"], ["Run the fixed package under Thread Sanitizer", "No data race warnings and all tests pass", "Sanitizer output"]],
+          "objectives": ["Explain Sendable and data-race safety", "Resolve Swift 6 concurrency diagnostics", "Verify fixes with Thread Sanitizer"]
+        },
+        {
+          "topic": "AsyncSequence, AsyncStream and Continuations",
+          "subtopics": ["for await and AsyncSequence protocol", "AsyncStream and AsyncThrowingStream makers", "Buffering policies: unbounded, bufferingNewest and bufferingOldest", "onTermination and cancellation", "Converting delegates and notifications to streams", "map, filter and prefix on async sequences", "Merging streams and swift-async-algorithms", "Back-pressure and consumer speed"],
+          "tools": ["swift-async-algorithms", "SwiftPM", "Swift Testing"],
+          "lab_task": "Wrap a file-system event callback API in an AsyncStream with bufferingNewest(10), consume it with for await in two tasks, use swift-async-algorithms debounce on a burst of 100 events, and verify that cancelling the consumer triggers onTermination and stops the producer.",
+          "deliverable": "Stream adapter with tests for buffering, debounce and termination",
+          "checks": [["Emit 100 events in 50 ms with bufferingNewest(10) and a slow consumer", "At most 10 buffered events are consumed and the newest one is last", "Test output"], ["Cancel the consuming task", "onTermination runs once with .cancelled", "Test output"], ["Debounce 100 events by 100 ms", "Consumer receives a single event after the burst ends", "Test output"]],
+          "objectives": ["Consume and produce AsyncSequence values", "Adapt callback sources to AsyncStream", "Control buffering and termination"]
+        },
+        {
+          "topic": "Protocol-Oriented Design, Existentials and some/any",
+          "subtopics": ["Protocols with associated types and Self requirements", "Opaque types: some in parameter and return positions", "Existential types: any and its costs", "Primary associated types such as any Collection<Int>", "Type erasure and when it is still needed", "Protocol witness tables and dynamic dispatch", "Default implementations versus requirement dispatch surprise", "Designing a protocol versus a concrete type"],
+          "tools": ["SwiftPM", "swiftc", "Swift Testing"],
+          "lab_task": "Design a Storage protocol with an associated Key type and two conformances, use some Storage in a generic service and any Storage in a plugin registry, demonstrate the dispatch surprise where a method defined only in an extension ignores the conforming type's version, and measure call overhead of some versus any with a loop of 10 million calls.",
+          "deliverable": "Design note with the dispatch-surprise demo and a benchmark table",
+          "checks": [["Call an extension-only method through a protocol-typed value", "The default implementation runs, not the conforming type's method", "Program output"], ["Store two Storage conformances in [any Storage]", "Compiles and both can be called through the existential", "Test output"], ["Benchmark 10 million calls with some and any", "The some version is equal or faster and the numbers are recorded", "Benchmark table"]],
+          "objectives": ["Design protocols with associated types", "Choose some versus any with reasoning", "Explain static versus dynamic dispatch in protocols"]
+        },
+        {
+          "topic": "Generics with Associated Types, Constraints and Parameter Packs",
+          "subtopics": ["Generic where clauses and same-type constraints", "Conditional conformance", "Generic type aliasing and extensions with constraints", "Variadic generics: each and repeat", "Parameter packs for tuple-like utilities", "Protocol inheritance and refined associated types", "Specialisation and inlining with @inlinable", "Generic API compile-error design"],
+          "tools": ["SwiftPM", "swiftc", "SourceKit-LSP"],
+          "lab_task": "Write a zip3-style function using parameter packs that zips any number of sequences with each and repeat, add conditional conformance so Pair<A, B> is Equatable when both are, create a generic Repository<Model: Identifiable> with a where clause on ID, and show the compile error when constraints are not met.",
+          "deliverable": "Generic utility library with tests and a list of constraint diagnostics",
+          "checks": [["Zip three arrays of lengths 3, 4 and 5", "Returns three tuples and stops at the shortest", "Test output"], ["Compare Pair<Int, String> values with ==", "Compiles and compares correctly through conditional conformance", "Test output"], ["Instantiate Repository with a non-Identifiable model", "Compiler error: type does not conform to protocol Identifiable", "Compiler output"]],
+          "objectives": ["Write constrained generic APIs", "Use conditional conformance and parameter packs", "Understand how constraints produce diagnostics"]
+        },
+        {
+          "topic": "Property Wrappers and Result Builders",
+          "subtopics": ["@propertyWrapper, wrappedValue and projectedValue", "Wrappers with parameters and composition", "Limitations: access control and actor isolation of wrappers", "@resultBuilder and buildBlock", "buildOptional, buildEither and buildArray", "Declarative DSL design", "Compiler type-checking cost of builders", "When not to build a DSL"],
+          "tools": ["SwiftPM", "swiftc", "Swift Testing"],
+          "lab_task": "Write a @Clamped(range:) property wrapper and a @UserDefault wrapper, then build a small HTML DSL with a @resultBuilder supporting if, if-else and for-in, render a page with a nested list of 10 items, and time compilation with -Xfrontend -warn-long-expression-type-checking=100 on a larger example.",
+          "deliverable": "Wrapper library, HTML DSL and a rendered output sample with a compile-time note",
+          "checks": [["Set a @Clamped(0...100) value to 150", "Value reads back as 100", "Test output"], ["Render a DSL page with an if and a for-in of 10 items", "Output contains exactly 10 li elements", "Rendered HTML"], ["Use projectedValue with the $ prefix", "Returns the wrapper's projected data such as the clamp count", "Test output"]],
+          "objectives": ["Create property wrappers", "Create result builders for DSLs", "Evaluate the cost and benefit of DSLs"]
+        },
+        {
+          "topic": "Typed Throws and Error Design",
+          "subtopics": ["throws(MyError) syntax and inference", "Never as the error type for non-throwing generic code", "Error propagation through generics with rethrows replacement", "Mapping errors across module boundaries", "Error enums versus structs with context", "LocalizedError and CustomNSError", "Result and typed throws interoperability", "Error policy: when to throw, return nil or trap"],
+          "tools": ["SwiftPM", "Swift Testing", "swiftc"],
+          "lab_task": "Refactor a parser module so internal functions use throws(ParseError) and the public API throws(AppError), implement a mapping at the module boundary, write a generic retry helper that preserves the failure type, and prove with a test that a do-catch over a typed throw needs no cast.",
+          "deliverable": "Refactored module with a boundary-mapping function and tests that assert the exact error type",
+          "checks": [["Catch error in do-catch around a throws(ParseError) function", "error is statically ParseError with no cast", "Compiler acceptance and test output"], ["Throw an AppError from a throws(ParseError) function", "Compiler error: thrown expression type does not match the declared error type", "Compiler output"], ["Call the retry helper three times against a failing function", "Last ParseError is rethrown with its original payload", "Test output"]],
+          "objectives": ["Use typed throws where it adds value", "Design layered error models", "Map errors at module boundaries"]
+        },
+        {
+          "topic": "Collections Performance, Copy-on-Write and Algorithms",
+          "subtopics": ["Array growth, reserveCapacity and amortised cost", "ContiguousArray and ArraySlice trade-offs", "Implementing copy-on-write with isKnownUniquelyReferenced", "Swift Collections: Deque, OrderedSet, OrderedDictionary and Heap", "Swift Algorithms: chunked, windows, combinations", "Dictionary hashing quality and Hasher", "Sequence versus Collection versus BidirectionalCollection", "Avoiding accidental O(n²) with Substring and removeFirst"],
+          "tools": ["swift-collections", "swift-algorithms", "SwiftPM", "Instruments"],
+          "lab_task": "Benchmark Array.removeFirst against Deque.popFirst for 200,000 elements, replace a linear Array.contains with a Set and an OrderedSet, implement a copy-on-write wrapper type around a class buffer, and record results with the swift-collections-benchmark package or a manual ContinuousClock harness.",
+          "deliverable": "Benchmark table with a one-page recommendation per data structure",
+          "checks": [["Remove 200,000 items from the front of an Array and a Deque", "Deque is at least 100 times faster", "Benchmark table"], ["Mutate a copy of the copy-on-write wrapper", "Buffer is copied exactly once and the original is unchanged", "Test output"], ["Replace contains on an array with a Set lookup on 100,000 items", "Lookup time drops from linear to near constant, result recorded", "Benchmark table"]],
+          "objectives": ["Choose collections by complexity", "Implement copy-on-write correctly", "Use Swift Collections and Algorithms packages"]
+        },
+        {
+          "topic": "SwiftPM Manifests, Targets and Dependencies",
+          "subtopics": ["swift-tools-version and manifest API evolution", "Products: library, executable and plugin", "Target types and dependencies between them", "Version requirements: from, exact, upToNextMinor, branch, revision", "Package.resolved and reproducible resolution", "swift package resolve, update and show-dependencies", "Local path dependencies and package traits", "swiftSettings and upcoming features"],
+          "tools": ["SwiftPM", "Git", "VS Code"],
+          "lab_task": "Create a workspace of three packages where App depends on Core by local path and on swift-argument-parser by from: 1.3.0, run swift package show-dependencies --format json, pin an exact version, commit Package.resolved, then update with swift package update and compare the resolved diff.",
+          "deliverable": "Three-package workspace and a dependency graph with a note on pinning strategy",
+          "checks": [["Run swift package show-dependencies", "Tree lists Core and swift-argument-parser with versions", "Command output"], ["Delete .build and run swift build with a committed Package.resolved", "Resolved versions match the file exactly", "Command output and git diff"], ["Set a dependency to a version that does not exist", "Resolution fails with an error naming the unsatisfiable requirement", "Command output"]],
+          "objectives": ["Write correct Package.swift manifests", "Control dependency versions", "Inspect dependency graphs"]
+        },
+        {
+          "topic": "Package Plugins, Resources and Binary Targets",
+          "subtopics": ["Build tool plugins versus command plugins", "Plugin sandboxing and --allow-writing-to-package-directory", "Bundling resources with .process and .copy and Bundle.module", "Binary targets and checksums with swift package compute-checksum", "XCFramework and artifact bundle basics", "Embedding a code generator as a build tool plugin", "swift-format and DocC plugins", "Debugging plugin failures"],
+          "tools": ["SwiftPM", "DocC", "swift-format"],
+          "lab_task": "Add a JSON resource file to a library with .process, load it through Bundle.module in a test, write a command plugin that runs swift-format over Sources with a --verbose flag, run it with swift package plugin --allow-writing-to-package-directory format, and generate DocC with swift package generate-documentation.",
+          "deliverable": "Package with resource loading test, working command plugin and generated documentation archive",
+          "checks": [["Read a bundled JSON through Bundle.module in a test", "Test passes on macOS and Linux", "Test output"], ["Run the command plugin without the write permission flag", "Plugin is denied permission to write to the package directory", "Command output"], ["Run generate-documentation", "A .doccarchive is produced and contains the public API", "File listing"]],
+          "objectives": ["Bundle resources in a package", "Write and run SwiftPM plugins", "Generate documentation from packages"]
+        },
+        {
+          "topic": "Swift Testing in Depth: Traits, Parameterised Tests and Confirmations",
+          "subtopics": ["Traits: .tags, .enabled(if:), .disabled, .timeLimit, .bug", "Parameterised tests with zipped arguments", "confirmation for events and expected counts", "withKnownIssue", "Parallel execution and the .serialized trait", "Test scoping traits and shared fixtures", "Exit tests and attachments in recent toolchains", "Migrating XCTest cases incrementally"],
+          "tools": ["Swift Testing", "SwiftPM", "XCTest", "VS Code"],
+          "lab_task": "Convert an XCTest suite of 15 cases to Swift Testing, tag integration tests with a custom Tag, mark one flaky test with withKnownIssue, use confirmation(expectedCount: 3) on an event emitter, run swift test --filter and --skip by tag name, and add a .timeLimit trait that fails a slow test.",
+          "deliverable": "Migrated suite with a migration log and a tag-based run matrix",
+          "checks": [["Run the converted suite", "All 15 tests are discovered and results match the XCTest baseline", "Test output"], ["Emit only 2 events when expecting 3", "Confirmation fails reporting expected count 3 but got 2", "Test output"], ["Add a known issue that no longer fails", "Run reports the known issue did not occur", "Test output"]],
+          "objectives": ["Use traits and tags to organise suites", "Test asynchronous events with confirmation", "Migrate XCTest to Swift Testing safely"]
+        },
+        {
+          "topic": "Foundation, Dates, Formatting and Locale",
+          "subtopics": ["swift-foundation and Foundation on Linux", "Date, Calendar, TimeZone and DateComponents", "FormatStyle for dates, numbers, measurements and lists", "Duration and ContinuousClock", "ParseStrategy and parsing user input", "Locale and the pitfalls of hard-coded formats", "UUID, Data, URL and URLComponents", "Time handling mistakes: DST, leap years, week-based years", "Sorting and comparing localised strings", "Testing with fixed clocks and injected calendars"],
+          "tools": ["Foundation", "SwiftPM", "Swift Testing"],
+          "lab_task": "Write a scheduling helper that adds one month to January 31 using Calendar, computes the number of days between two dates across a DST change in America/New_York, formats the same Date for en_US, de_DE and ja_JP with FormatStyle, and parses \"1.234,56\" with a de_DE number ParseStrategy.",
+          "deliverable": "Date utility module with a table of locale outputs and tests for DST and month-end cases",
+          "checks": [["Add 1 month to 31 January 2025 in the Gregorian calendar", "Result is 28 February 2025", "Test output"], ["Compute hours between two midnights spanning the March DST change in America/New_York", "Result is 23 hours, not 24", "Test output"], ["Parse 1.234,56 with the de_DE locale", "Returns 1234.56", "Test output"]],
+          "objectives": ["Handle dates and time zones correctly", "Format and parse values per locale", "Avoid common time-handling bugs"]
+        },
+        {
+          "topic": "Regex, RegexBuilder and String Processing",
+          "subtopics": ["Regex literals and the /…/ syntax", "Capture groups and typed output tuples", "RegexBuilder DSL: OneOrMore, Capture, ChoiceOf", "Transforming captures into typed values", "firstMatch, wholeMatch, matches and replacing", "Performance and backtracking dangers", "Unicode-aware options and word boundaries", "When to use a parser instead"],
+          "tools": ["SwiftPM", "RegexBuilder", "Swift Testing"],
+          "lab_task": "Parse nginx-style log lines using a regex literal with named captures and then rewrite the same pattern with RegexBuilder returning typed Date, Int and String values, process 100,000 lines and compare timings, and demonstrate a catastrophic backtracking input against a poorly written pattern.",
+          "deliverable": "Two implementations of the parser, tests and a timing comparison",
+          "checks": [["Match a valid log line with the literal and the builder", "Both return identical typed tuples", "Test output"], ["Match a malformed line", "Returns nil for both implementations", "Test output"], ["Run the pathological input against the nested-quantifier pattern", "Match time is orders of magnitude slower than against the fixed pattern", "Timing output"]],
+          "objectives": ["Write regular expressions with captures", "Use RegexBuilder for readable patterns", "Recognise and avoid catastrophic backtracking"]
+        },
+        {
+          "topic": "Key Paths, Dynamic Member Lookup and Reflection",
+          "subtopics": ["KeyPath, WritableKeyPath and ReferenceWritableKeyPath", "Key paths as functions", "@dynamicMemberLookup with key paths", "@dynamicCallable", "Mirror and its limits", "Appending key paths and composition", "Sendable key paths and isolation", "Using key paths in generic sort and group-by helpers"],
+          "tools": ["SwiftPM", "Swift Testing", "swiftc"],
+          "lab_task": "Build a generic sorted(by:) overload that accepts key paths and a direction, a groupedBy(_:) helper, a Mirror-based debug dumper, and a @dynamicMemberLookup wrapper that exposes the wrapped model's properties while recording each read in an access log.",
+          "deliverable": "Key-path utility library with a Mirror dump and an access-log test",
+          "checks": [["Sort users by \\.lastName ascending", "Order matches the manual sort closure", "Test output"], ["Read two wrapper members through dynamic lookup", "Access log has two entries with the key path names", "Test output"], ["Dump a struct with Mirror", "Output lists each stored property label and value", "Console output"]],
+          "objectives": ["Use key paths for generic accessors", "Apply dynamic member lookup safely", "Use Mirror within its limits"]
+        },
+        {
+          "topic": "Swift Macros: Using and Reading Expansions",
+          "subtopics": ["Freestanding versus attached macros", "Roles: expression, declaration, member, peer, accessor, extension and body", "Using macros from packages such as swift-testing and Observation", "Expanding a macro in Xcode and with swiftc -dump-macro-expansions", "Macro trust prompts and -skipMacroValidation in CI", "Compile-time cost of swift-syntax", "Debugging a macro's generated code", "Choosing macro versus generic versus code generation"],
+          "tools": ["swiftc", "SwiftPM", "Xcode", "swift-syntax"],
+          "lab_task": "Add a package that exports a freestanding #stringify-style macro and an attached @AddInit macro, build with swift build -Xswiftc -dump-macro-expansions, read the generated source, reproduce the CI error for an untrusted macro and resolve it with -Xswiftc -skipMacroValidation in the CI job, then compare build times with and without the macro.",
+          "deliverable": "Macro-using package with annotated expansion output and a CI note on trust",
+          "checks": [["Build with -dump-macro-expansions", "Console shows the expanded source for each macro use", "Build output"], ["Build in CI without trusting the macro", "Build fails with a macro validation or untrusted macro error", "CI log"], ["Misuse the attached macro on an unsupported declaration", "Macro emits its own diagnostic with its message and location", "Compiler output"]],
+          "objectives": ["Explain how macros expand", "Use and debug existing macros", "Decide when a macro is the right tool"]
+        },
+        {
+          "topic": "Logging, Metrics and Diagnostics with swift-log and OSLog",
+          "subtopics": ["swift-log Logger, log levels and metadata", "LogHandler and bootstrapping once at startup", "Structured logging and correlation IDs via task-locals", "OSLog and unified logging on Apple platforms", "swift-metrics counters, timers and recorders", "Signposts and measuring with ContinuousClock", "Redacting sensitive values", "Crash reports and symbolication on Linux"],
+          "tools": ["swift-log", "swift-metrics", "OSLog", "SwiftPM"],
+          "lab_task": "Add swift-log to an async service, write a LogHandler that emits JSON lines with timestamp, level and request-id metadata taken from a task-local, instrument a function with a swift-metrics Counter and Timer using an in-memory backend, and test that sensitive fields are redacted.",
+          "deliverable": "Logging module with JSON output sample and tests for metadata propagation and redaction",
+          "checks": [["Log inside two concurrent requests", "Each line carries its own request-id and none cross over", "JSON log output"], ["Log a value tagged as secret", "Output shows a redaction marker, not the value", "Test output"], ["Call the instrumented function 5 times", "The counter reads 5 and the timer recorded 5 samples", "Test output"]],
+          "objectives": ["Add structured logging to Swift code", "Propagate context with task-locals", "Emit metrics through swift-metrics"]
+        },
+        {
+          "topic": "Networking with URLSession and Async HTTP",
+          "subtopics": ["URLSession async data(for:) and download and upload tasks", "URLRequest, timeouts and cache policy", "Status code handling and error mapping", "Retry with exponential backoff and jitter", "AsyncHTTPClient on Linux and macOS", "Streaming bodies and large downloads", "Certificate and TLS configuration basics", "Testing with a stub transport protocol"],
+          "tools": ["URLSession", "AsyncHTTPClient", "SwiftPM", "curl"],
+          "lab_task": "Write an APIClient protocol with a URLSession-backed and a stub implementation, add retry with exponential backoff and jitter for 429 and 503 responses, honour a Retry-After header, stream a 100 MB download to disk with memory under 50 MB, and test against a local server that fails the first two requests.",
+          "deliverable": "Client library, local test server and tests for retry and error mapping",
+          "checks": [["Server returns 503 twice then 200", "Client succeeds on the third attempt and made exactly 3 requests", "Test output"], ["Server returns 404", "Client throws a notFound error with no retry", "Test output"], ["Download the 100 MB file", "Peak resident memory stays under 50 MB", "Measurement output"]],
+          "objectives": ["Build a testable HTTP client", "Implement retry with backoff", "Stream large responses without exhausting memory"]
+        },
+        {
+          "topic": "Swift on Linux, Windows and Docker",
+          "subtopics": ["Official swift Docker images and slim runtime images", "Foundation differences: FoundationNetworking and swift-corelibs", "Static Linux SDK and swift sdk install", "Cross-compiling with --swift-sdk", "Conditional compilation with #if os and canImport", "Windows toolchain notes", "Building in CI with a macOS and Linux matrix", "Debugging on Linux with LLDB and core dumps"],
+          "tools": ["Docker", "SwiftPM", "Swift SDK", "LLDB", "GitHub Actions"],
+          "lab_task": "Write a multi-stage Dockerfile that builds a release binary in a swift image and copies it into a slim runtime image, build a fully static executable with swift build -c release --swift-sdk x86_64-swift-linux-musl, run it in a scratch container, and add a CI matrix that runs swift test on macOS and Linux.",
+          "deliverable": "Dockerfile, static binary run transcript and CI workflow",
+          "checks": [["Run ldd on the dynamically linked build and the static build", "The static build reports not a dynamic executable", "Command output"], ["Compare the final runtime image size with the build image", "Runtime image is at least 5 times smaller", "docker images output"], ["Run swift test in CI on Linux and macOS", "Both jobs pass or platform differences are documented in #if blocks", "CI run log"]],
+          "objectives": ["Build and test Swift on Linux", "Produce container images and static binaries", "Write portable cross-platform Swift"]
+        },
+        {
+          "topic": "Intermediate Capstone: Concurrent Download and Indexing Library",
+          "subtopics": ["Public API design with async sequences, actors and typed errors", "Package layout with library, CLI, tests and DocC", "Concurrency verification with Thread Sanitizer and Swift 6 mode", "Release artefacts: Linux static binary and CI matrix"],
+          "tools": ["SwiftPM", "Swift Testing", "Thread Sanitizer", "Docker", "DocC", "swift-log"],
+          "lab_task": "Build a library and CLI that crawls a local site, downloads up to 8 pages concurrently, extracts links with Regex, writes a search index through an actor, streams progress with AsyncStream, logs with swift-log, builds in Swift 6 mode with no warnings, passes 30 Swift Testing tests under Thread Sanitizer and ships a static Linux binary.",
+          "deliverable": "Capstone repository with CI, DocC archive, test report and a 10-minute architecture walkthrough",
+          "checks": [["Crawl the 200-page local site", "Index contains all 200 pages and concurrency never exceeds 8", "CLI output and log"], ["Run swift test --sanitize=thread", "All 30 or more tests pass with no race reports", "Test output"], ["Build with the Swift 6 language mode", "Zero warnings and zero errors", "Build log"]],
+          "objectives": ["Combine concurrency, packaging and testing in one library", "Verify data-race freedom with tooling", "Ship cross-platform Swift artefacts"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For experienced Swift engineers who build libraries, services and tooling. Covers ownership with noncopyable types, Span and InlineArray, writing macros with swift-syntax, executors and isolation inheritance, Mutex and Atomic, migrating code to Swift 6, generics internals and performance profiling, C, C++, Objective-C and Java interop, server-side Swift with Hummingbird, SwiftNIO, PostgresNIO, OpenAPI and gRPC, observability, Embedded Swift and WebAssembly, library evolution, one SwiftUI data-flow day, supply-chain release engineering, and a multi-package capstone.",
+      "prerequisites": ["Completed the intermediate Swift level or writes actors, task groups, generics and SwiftPM packages routinely", "Can read compiler diagnostics and profile with Instruments, perf or valgrind", "Has Swift 6.x on macOS or Linux, Docker and a PostgreSQL instance available for the server days"],
+      "outcomes": ["Use ownership, noncopyable types, Span, Mutex and Atomic to write predictable low-level Swift", "Write macros, plan Swift 6 migrations and evolve public library APIs without breaking clients", "Integrate Swift with C, C++, Objective-C and Java and run it on servers, Embedded targets and WebAssembly", "Build, observe and ship a production Swift service with SwiftNIO, Hummingbird, OpenAPI and PostgreSQL"],
+      "days": [
+        {
+          "topic": "Ownership: Noncopyable Types, borrowing and consuming",
+          "subtopics": ["~Copyable structs and enums and why they exist", "consuming and borrowing parameter modifiers", "consume operator and use-after-consume diagnostics", "deinit on noncopyable structs for resource cleanup", "Noncopyable generics and ~Copyable constraints", "Optional of noncopyable and pattern matching with switch", "inout and mutating access versus borrowing", "Real use: file descriptors, locks and tokens"],
+          "tools": ["SwiftPM", "swiftc", "Swift Testing", "LLDB"],
+          "lab_task": "Model a FileDescriptor as a ~Copyable struct that closes in deinit, write consuming close() and borrowing read(into:) methods, show the compiler error from using the descriptor after consume, store it in an Optional, and write a generic function constrained with ~Copyable that takes ownership and returns it.",
+          "deliverable": "Resource wrapper package with a catalogue of the ownership diagnostics encountered",
+          "checks": [["Use the descriptor after calling a consuming method", "Compiler error: noncopyable value used after consume", "Compiler output"], ["Create and drop a descriptor in a test", "deinit runs once and the OS descriptor count returns to its start value", "Test output and lsof count"], ["Copy a ~Copyable value into a second constant", "Compiler error: noncopyable value cannot be copied implicitly", "Compiler output"]],
+          "objectives": ["Write noncopyable types with deterministic cleanup", "Use consuming and borrowing correctly", "Read ownership diagnostics"]
+        },
+        {
+          "topic": "Span, InlineArray and Safe Low-Level Memory",
+          "subtopics": ["UnsafePointer family and why to avoid it", "Span and RawSpan as safe views", "MutableSpan and lifetime dependencies", "InlineArray fixed-size storage on the stack", "withUnsafeBufferPointer scopes and escape bugs", "MemoryLayout size, stride and alignment", "Bounds checks and -Ounchecked trade-offs", "Migrating unsafe parsing code to Span"],
+          "tools": ["SwiftPM", "swiftc", "Address Sanitizer", "Instruments"],
+          "lab_task": "Write a binary packet parser first with UnsafeRawBufferPointer and loadUnaligned, then with RawSpan, run both under the Address Sanitizer with a truncated packet, compare crash behaviour, use InlineArray<4, UInt8> for a header, and benchmark parsing 1 million packets under -O.",
+          "deliverable": "Two parsers, sanitizer outputs for a truncated packet and a benchmark table",
+          "checks": [["Feed a truncated packet to the unsafe parser under Address Sanitizer", "Sanitizer reports a heap-buffer-overflow or reads out-of-bounds memory", "Sanitizer output"], ["Feed the same packet to the Span parser", "Traps with an index out of range or returns a typed error and no memory is corrupted", "Test output"], ["Benchmark 1 million packets with each parser", "Span version is within 10 percent of the unsafe version", "Benchmark table"]],
+          "objectives": ["Use Span instead of raw pointers", "Reason about layout and lifetimes", "Measure the cost of safety"]
+        },
+        {
+          "topic": "Writing Macros with swift-syntax",
+          "subtopics": ["Macro package layout: macro declaration, implementation and compiler plugin target", "SwiftSyntax tree, tokens and trivia", "SwiftSyntaxBuilder and string-interpolated nodes", "Implementing ExpressionMacro", "Implementing MemberMacro and ExtensionMacro", "Diagnostics with fix-its", "Testing with assertMacroExpansion", "Build-time cost and prebuilt swift-syntax", "Namespaced names and hygiene with makeUniqueName", "Publishing a macro package and versioning swift-syntax dependency"],
+          "tools": ["swift-syntax", "SwiftPM", "Swift Testing", "swiftc"],
+          "lab_task": "Create a macro package that provides @AutoCodingKeys, a member macro generating snake_case CodingKeys for a struct, emits a diagnostic with a fix-it when applied to a class, is tested with assertMacroExpansion for three cases, and is used by a client target whose expansion you print with -dump-macro-expansions.",
+          "deliverable": "Macro package with tests, diagnostics and a client demonstration",
+          "checks": [["Apply @AutoCodingKeys to a struct with userName", "Expansion contains case userName = \"user_name\"", "assertMacroExpansion test output"], ["Apply the macro to a class", "Diagnostic appears with the message and a fix-it", "Compiler output"], ["Run swift test on the macro target", "All three expansion tests pass", "Test output"]],
+          "objectives": ["Implement attached macros", "Test macro expansions and diagnostics", "Reason about macro build cost"]
+        },
+        {
+          "topic": "Concurrency Internals: Executors, Task Executors and Isolation Inheritance",
+          "subtopics": ["SerialExecutor, TaskExecutor and the global concurrent executor", "Custom actor executors with unownedExecutor", "Task executor preference and withTaskExecutorPreference", "nonisolated(nonsending) and caller-isolated async functions", "@concurrent for work that should leave the actor", "Default actor isolation setting for a module", "Thread pool sizing and blocking the cooperative pool", "Debugging priority inversion and starvation"],
+          "tools": ["SwiftPM", "Instruments", "LLDB", "Swift Testing"],
+          "lab_task": "Create an actor with a custom SerialExecutor that runs on a dedicated DispatchQueue, run a deliberately blocking Thread.sleep job on the cooperative pool to starve other tasks, observe it in Instruments or with a task-count log, move it to a custom executor, and compare behaviour of a nonisolated async function with and without nonisolated(nonsending).",
+          "deliverable": "Executor demos with a starvation experiment and a decision table for executor choice",
+          "checks": [["Run 20 tasks that each block for 1 second on the cooperative pool", "Completion time grows with the number of cores and other tasks are delayed", "Timing log"], ["Run the same work on the custom executor", "Other tasks continue to run and the elapsed time for them is under 100 ms", "Timing log"], ["Print Thread.isMainThread from an actor on a custom executor", "Prints false and the queue label matches the executor's queue", "Console output"]],
+          "objectives": ["Explain executors and isolation inheritance", "Avoid starving the cooperative pool", "Place work on the right executor"]
+        },
+        {
+          "topic": "Synchronization: Mutex, Atomic and Lock-Free Structures",
+          "subtopics": ["Synchronization module overview: Mutex and Atomic", "Mutex withLock and non-Sendable state", "Atomic types and memory ordering", "Compare-and-exchange loops", "Spinlock, os_unfair_lock and pthread mutex comparisons", "Lock contention and false sharing", "Choosing actor, Mutex or Atomic", "Testing concurrent code with stress runs and TSan"],
+          "tools": ["Synchronization", "Thread Sanitizer", "SwiftPM", "Instruments"],
+          "lab_task": "Implement a counter three ways: an actor, a class guarded by Mutex and an Atomic<Int>, increment each from 8 tasks times 1 million iterations, verify the final count is 8,000,000, benchmark all three, then write a bounded lock-free flag with compare-and-exchange and validate under Thread Sanitizer.",
+          "deliverable": "Benchmark and correctness table with a recommendation of when to use each primitive",
+          "checks": [["Increment from 8 tasks times 1 million iterations", "All three implementations print 8000000", "Program output"], ["Remove the lock and run under Thread Sanitizer", "ThreadSanitizer reports a data race", "Sanitizer output"], ["Benchmark the three versions", "Atomic is fastest and actor slowest, with numbers recorded", "Benchmark table"]],
+          "objectives": ["Use Mutex and Atomic correctly", "Choose between actors and locks", "Stress-test concurrent code"]
+        },
+        {
+          "topic": "Migrating a Codebase to Swift 6 Language Mode",
+          "subtopics": ["Inventory with -strict-concurrency=targeted then complete", "Upcoming features: InferSendableFromCaptures, GlobalActorIsolatedTypesUsability", "Module-by-module migration order", "Global variables and singletons", "Callbacks, delegates and @preconcurrency imports", "@unchecked Sendable audit policy", "Team workflow: warnings as errors in CI", "Measuring progress with diagnostic counts"],
+          "tools": ["SwiftPM", "swiftc", "GitHub Actions", "Thread Sanitizer"],
+          "lab_task": "Take a provided 15-module package that builds in Swift 5 mode, record the warning count at -strict-concurrency=complete, migrate the two leaf modules to .v6 first, resolve singletons with actors or global-actor isolation, use @preconcurrency import for one legacy dependency, and add a CI step failing when the count rises.",
+          "deliverable": "Migration plan, before and after warning counts and the CI gate",
+          "checks": [["Build at -strict-concurrency=complete before and after", "Warning count falls to zero in the migrated modules", "Build logs"], ["Add one new non-Sendable capture in a migrated module", "CI gate fails the build", "CI log"], ["Grep the repository for @unchecked Sendable", "Each remaining use has a comment naming its invariant", "Audit list"]],
+          "objectives": ["Plan an incremental Swift 6 migration", "Resolve common diagnostics in legacy patterns", "Enforce the result in CI"]
+        },
+        {
+          "topic": "Generics Internals: Specialisation, Existential Boxes and Metadata",
+          "subtopics": ["Generic specialisation and cross-module optimisation", "@inlinable, @usableFromInline and @_specialize", "Witness tables and type metadata at runtime", "Existential container layout and inline buffer", "Unspecialised generic cost in libraries", "-cross-module-optimization and -enable-library-evolution effects", "Reading SIL with -emit-sil", "Verifying specialisation in the assembly"],
+          "tools": ["swiftc", "SwiftPM", "Instruments", "Compiler Explorer"],
+          "lab_task": "Write a generic sum<T: Numeric> function in a library, call it from a client in another module, inspect -emit-sil -O to see whether it is specialised, add @inlinable, compare timing for 100 million additions before and after, and show an any Protocol call in assembly versus a some Protocol call.",
+          "deliverable": "Optimisation report with SIL excerpts and timing before and after",
+          "checks": [["Compile the client with -emit-sil -O without @inlinable", "SIL shows a call to the unspecialised generic function with metadata arguments", "SIL excerpt"], ["Add @inlinable and recompile", "SIL shows a specialised function for Int or the code is inlined", "SIL excerpt"], ["Time 100 million additions in both versions", "Inlinable version is faster, with numbers recorded", "Benchmark table"]],
+          "objectives": ["Explain how generics compile", "Use @inlinable responsibly", "Verify optimisations in SIL and assembly"]
+        },
+        {
+          "topic": "Performance Profiling: SIL, ARC Traffic and Benchmarks",
+          "subtopics": ["Time Profiler, Allocations and perf on Linux", "ARC retain and release traffic and how to spot it", "Avoiding allocations with value types and noncopyable types", "Exclusivity checking cost and -enforce-exclusivity", "package-benchmark and ordo-one benchmarks", "Compiler flags: -O, -Osize, -Ounchecked, whole-module", "Flame graphs from perf and speedscope", "Regression gates for performance in CI"],
+          "tools": ["Instruments", "perf", "package-benchmark", "swiftc", "SwiftPM"],
+          "lab_task": "Profile a JSON tokenizer processing a 200 MB file with perf record and Time Profiler, find the hottest function, remove avoidable retain and release pairs and allocations, record allocation counts with package-benchmark before and after, and set a CI threshold failing at a 10 percent regression.",
+          "deliverable": "Profiling report with flame graphs, benchmark results and a CI regression gate",
+          "checks": [["Run the benchmark before optimisation", "Baseline throughput and allocation count are recorded", "Benchmark output"], ["Run after optimisation", "Throughput improves by at least 30 percent and allocations fall", "Benchmark comparison"], ["Raise the CI threshold test by introducing a 20 percent slowdown", "The gate fails the pipeline", "CI log"]],
+          "objectives": ["Profile Swift code methodically", "Reduce ARC and allocation overhead", "Add performance regression gates"]
+        },
+        {
+          "topic": "C and C++ Interoperability",
+          "subtopics": ["Importing C through module maps and system library targets", "Pointers, structs and callbacks from C to Swift", "@_cdecl and exposing Swift to C", "C++ interop: -cxx-interoperability-mode and swiftSettings .interoperabilityMode(.Cxx)", "Using std::string, std::vector and std::optional from Swift", "Swift types exposed to C++ through the generated header", "Ownership and lifetime annotations across the boundary", "Common errors: unsupported templates, move-only types"],
+          "tools": ["SwiftPM", "clang", "swiftc", "Valgrind"],
+          "lab_task": "Wrap a small C library for CRC32 in a system library target with a module map, call it from Swift with a safe wrapper using withUnsafeBytes, then import a C++ class using std::vector with interoperabilityMode(.Cxx), and expose a Swift function back to C++ through the generated header.",
+          "deliverable": "Package with C and C++ targets, a safe Swift wrapper and a header round trip",
+          "checks": [["Compute CRC32 of the string 123456789", "Result is 0xCBF43926", "Test output"], ["Pass a truncated buffer to the wrapper", "Wrapper rejects the input with a thrown error and Valgrind reports no invalid reads", "Test output and Valgrind output"], ["Build the C++ target without the interoperability mode", "Compiler error: unable to import the C++ declaration", "Compiler output"]],
+          "objectives": ["Wrap C libraries safely", "Use C++ types from Swift", "Expose Swift APIs to C and C++"]
+        },
+        {
+          "topic": "Objective-C and Swift-Java Interop",
+          "subtopics": ["@objc, @objcMembers and NSObject subclasses", "Bridging headers and mixed targets", "Foundation bridging: NSString, NSArray and toll-free types", "Nullability, generics and NS_SWIFT_NAME", "Swift and Java overview: swift-java project", "JNI and the Foreign Function and Memory API from Swift", "JExtract and wrapping Java libraries", "Choosing a boundary: C ABI versus language-specific bridges"],
+          "tools": ["swift-java", "SwiftPM", "JDK", "Xcode"],
+          "lab_task": "On macOS, create a mixed Objective-C and Swift target, annotate a header with nullability and NS_SWIFT_NAME and observe how it imports, then in the swift-java sample use jextract to generate Java bindings for a Swift struct, call it from a Java main class and record the results.",
+          "deliverable": "Interop notes with before and after imported signatures and a running Java sample",
+          "checks": [["Import an Objective-C method without nullability annotations", "Swift sees an implicitly unwrapped optional", "Compiler hover or interface output"], ["Add _Nonnull and NS_SWIFT_NAME", "Swift sees a non-optional type and the renamed API", "Generated interface"], ["Run the Java sample calling Swift", "Java prints the value returned by the Swift function", "Program output"]],
+          "objectives": ["Mix Objective-C and Swift in one module", "Describe the swift-java approach", "Select an appropriate interop boundary"]
+        },
+        {
+          "topic": "Server-Side Swift HTTP Services with Hummingbird",
+          "subtopics": ["Hummingbird application, router and responders", "Request contexts and typed parameters", "Middleware: logging, CORS, error handling", "Codable request and response bodies", "ServiceLifecycle and graceful shutdown", "Configuration from environment and command line", "Testing with HummingbirdTesting", "Comparing Hummingbird and Vapor"],
+          "tools": ["Hummingbird", "SwiftNIO", "swift-service-lifecycle", "curl", "SwiftPM"],
+          "lab_task": "Build a todo API with Hummingbird exposing GET and POST on /todos and GET, PUT and DELETE on /todos/:id, JSON bodies via Codable, an error middleware that maps domain errors to RFC 7807 problem responses, graceful shutdown on SIGTERM, and tests with HummingbirdTesting that cover each route.",
+          "deliverable": "Todo API repository with route tests and a curl transcript",
+          "checks": [["POST /todos with a valid JSON body", "Returns 201 and the created todo with an id", "curl output"], ["GET /todos/unknown", "Returns 404 with an application/problem+json body", "curl output"], ["Send SIGTERM during an in-flight request", "The request completes and the process exits with code 0", "Server log"]],
+          "objectives": ["Build REST services with Hummingbird", "Map errors to consistent HTTP responses", "Test routes and handle graceful shutdown"]
+        },
+        {
+          "topic": "SwiftNIO, Channels and Back-Pressure",
+          "subtopics": ["EventLoop, EventLoopGroup and futures versus async", "Channel, ChannelPipeline and ChannelHandler", "ByteBuffer and zero-copy reads", "NIOAsyncChannel and structured async IO", "Back-pressure and write promises", "Writing a framed TCP protocol", "TLS with NIOSSL", "Testing with EmbeddedChannel"],
+          "tools": ["SwiftNIO", "NIOAsyncChannel", "SwiftPM", "netcat"],
+          "lab_task": "Implement a line-oriented TCP echo and chat server with SwiftNIO using NIOAsyncChannel, add a length-prefixed frame decoder, enforce a maximum frame size of 1 MiB, test the decoder with EmbeddedChannel, and load it with 1,000 concurrent connections while watching memory.",
+          "deliverable": "TCP server with frame decoder tests and a load test report",
+          "checks": [["Send a frame header declaring 2 MiB", "Connection is closed with an error and the server stays up", "Server log"], ["Test the decoder with a frame split across two reads", "Decoder emits one complete message", "Test output"], ["Open 1,000 concurrent connections", "All are accepted and resident memory stays within the recorded budget", "Load test report"]],
+          "objectives": ["Build network servers on SwiftNIO", "Implement protocol framing safely", "Apply back-pressure"]
+        },
+        {
+          "topic": "Database Access with PostgresNIO and Migrations",
+          "subtopics": ["PostgresNIO client and connection pooling", "Parameterised queries with PostgresQuery interpolation", "Row decoding to Swift types", "Transactions and isolation levels", "Migrations with versioned SQL files", "Prepared statements and pool sizing", "Mapping Postgres errors such as unique_violation 23505", "Integration tests with a containerised database"],
+          "tools": ["PostgresNIO", "PostgreSQL", "Docker", "SwiftPM", "Swift Testing"],
+          "lab_task": "Add PostgreSQL storage to the todo API using PostgresClient with a pool of 10, parameterised inserts through PostgresQuery interpolation, a transactional move operation, a migration table tracking applied versions, and tests against a Docker container that verify a duplicate insert maps to a 409 response.",
+          "deliverable": "Persistence layer with migrations and integration tests",
+          "checks": [["Insert two todos with the same unique title", "Second insert raises SQLSTATE 23505 and the API returns 409", "Test output"], ["Fail a transaction midway", "No partial rows remain after rollback", "SQL query result"], ["Run migrations twice", "Second run applies zero migrations", "Migration log"]],
+          "objectives": ["Use PostgresNIO safely and efficiently", "Run transactional and versioned changes", "Test with real databases in containers"]
+        },
+        {
+          "topic": "OpenAPI and gRPC in Swift",
+          "subtopics": ["Swift OpenAPI Generator plugin and openapi.yaml", "Generated server stubs and client", "Transports: URLSession, AsyncHTTPClient and Hummingbird", "Middleware for authentication and logging", "gRPC Swift with generated services", "Protobuf with swift-protobuf", "Streaming RPCs and deadlines", "Contract testing and versioning"],
+          "tools": ["swift-openapi-generator", "grpc-swift", "swift-protobuf", "SwiftPM", "buf"],
+          "lab_task": "Write an openapi.yaml for the todo API, generate server stubs and a client with the Swift OpenAPI Generator plugin, implement the generated protocol with the Postgres store, then define a server-streaming gRPC method in a .proto file, generate Swift code, and write a client that cancels after 5 messages.",
+          "deliverable": "OpenAPI and gRPC definitions with generated code, implementations and tests",
+          "checks": [["Remove a required field from the spec and rebuild", "Generated protocol changes and the build fails where the handler is incomplete", "Build output"], ["Call the generated client against the server", "Typed response decodes with status 200", "Test output"], ["Cancel the gRPC stream after 5 messages", "Server observes cancellation and stops sending", "Server log"]],
+          "objectives": ["Generate Swift servers and clients from OpenAPI", "Implement gRPC services and streaming", "Keep contracts and code in sync"]
+        },
+        {
+          "topic": "Observability and Service Lifecycle for Swift Services",
+          "subtopics": ["swift-service-lifecycle and ordered startup and shutdown", "swift-log, swift-metrics and swift-distributed-tracing", "OpenTelemetry export from Swift services", "Prometheus metrics endpoint", "Health and readiness endpoints", "Trace context propagation across HTTP calls", "Alert thresholds from service-level objectives", "Load shedding and timeouts"],
+          "tools": ["swift-service-lifecycle", "swift-distributed-tracing", "OpenTelemetry", "Prometheus", "Grafana"],
+          "lab_task": "Instrument the todo service with request counters and latency histograms, expose /metrics for Prometheus, add distributed tracing spans around the database call, propagate traceparent to a second service, export to a local OpenTelemetry Collector and build a Grafana panel for p95 latency and error rate.",
+          "deliverable": "Instrumented service, collector configuration and Grafana dashboard JSON",
+          "checks": [["Send 100 requests then GET /metrics", "Request counter shows 100 for the route", "Metrics output"], ["Call through two services", "Both spans share one trace id in the collector output", "Collector log"], ["Stop the service with SIGTERM", "Lifecycle shuts down in reverse start order with readiness failing first", "Server log"]],
+          "objectives": ["Instrument Swift services with metrics, logs and traces", "Propagate trace context", "Manage startup and shutdown order"]
+        },
+        {
+          "topic": "Embedded Swift and WebAssembly",
+          "subtopics": ["Embedded Swift subset: no existentials, limited runtime", "-enable-experimental-feature Embedded and size flags", "Targeting microcontrollers with swift-embedded-examples", "Linking, startup code and memory layout", "WebAssembly with the Swift SDK for WebAssembly", "wasm32-unknown-wasip1 builds and wasmtime runs", "JavaScriptKit and browser interop", "Binary size and what to strip"],
+          "tools": ["swiftc", "SwiftPM", "wasmtime", "Swift SDK", "wasm-opt"],
+          "lab_task": "Install a WebAssembly Swift SDK with swift sdk install, build a package that computes primes with swift build --swift-sdk and run the resulting .wasm file with wasmtime, then compile the same function with the Embedded Swift feature enabled and compare binary sizes before and after wasm-opt -Oz.",
+          "deliverable": "WASI build with a size comparison table and notes on unsupported language features",
+          "checks": [["Run the .wasm with wasmtime", "Prints the first 10 primes 2 3 5 7 11 13 17 19 23 29", "Terminal output"], ["Use an existential type in the Embedded build", "Compiler diagnostic that the feature is unavailable in Embedded Swift", "Compiler output"], ["Compare sizes with and without Embedded and wasm-opt", "Embedded binary is smaller by a recorded factor", "Size table"]],
+          "objectives": ["Build Swift for WebAssembly", "Explain the Embedded Swift subset", "Optimise binary size"]
+        },
+        {
+          "topic": "API Design, Library Evolution and Binary Stability",
+          "subtopics": ["API Design Guidelines applied to a public library", "-enable-library-evolution and resilient types", "@frozen, @inlinable and ABI trade-offs", "@available, deprecation and renamed attributes", "Semantic versioning for Swift packages", "swift package diagnose-api-breaking-changes", "DocC articles, tutorials and catalog structure", "Deprecation policy and migration guides"],
+          "tools": ["SwiftPM", "DocC", "swift-api-digester", "swiftc"],
+          "lab_task": "Release version 1.0 of a small library, then in 1.1 add an enum case, change a parameter label and add a method, run swift package diagnose-api-breaking-changes 1.0.0, classify each finding, fix the breaking ones with @available(*, deprecated, renamed:) shims, and write a DocC migration article.",
+          "deliverable": "Library with an API change report, compatibility shims and a DocC migration guide",
+          "checks": [["Run diagnose-api-breaking-changes against the 1.0.0 tag", "Report lists the changed label and the new public enum case as breaking", "Command output"], ["Add a renamed deprecation shim and rerun", "The label change no longer reports as breaking", "Command output"], ["Switch over the public enum in client code without @unknown default", "Compiler warns about future cases on a non-frozen enum when library evolution is enabled", "Compiler output"]],
+          "objectives": ["Design stable public APIs", "Detect and fix breaking changes", "Document migrations with DocC"]
+        },
+        {
+          "topic": "SwiftUI for Swift Engineers: Observation, Data Flow and Concurrency",
+          "subtopics": ["Declarative view tree as value types", "@Observable macro and fine-grained tracking", "@State, @Binding, @Environment and ownership", "MainActor isolation in views and view models", "task(id:) and structured concurrency in views", "Sendable pitfalls with closures in views", "Previews, snapshot logic tests without UI", "Sharing a Swift package between app and server"],
+          "tools": ["Xcode", "SwiftUI", "Observation", "Swift Testing", "SwiftPM"],
+          "lab_task": "Build a SwiftUI screen backed by an @Observable @MainActor view model from a shared Swift package, load data with .task(id:) and cancel when the id changes, show an error state for a thrown typed error, and test the view model with Swift Testing using a stub client that records calls.",
+          "deliverable": "Shared package, SwiftUI screen and view-model tests",
+          "checks": [["Change the task id twice quickly", "The first request is cancelled and only the last result is shown", "Test output and console log"], ["Stub client throws a typed error", "View model state becomes .failed with the error message", "Test output"], ["Mutate the view model from a background task without MainActor", "Swift 6 mode reports an isolation error", "Compiler output"]],
+          "objectives": ["Apply Observation and MainActor isolation", "Test view models without UI frameworks", "Share Swift code across app and server"]
+        },
+        {
+          "topic": "Supply Chain, Reproducible Builds and Release Engineering for Swift",
+          "subtopics": ["Pinning with Package.resolved and fingerprint trust", "Package registries and SE-0292 basics", "Binary target checksums and verification", "Reviewing dependencies and licences", "Reproducible builds with fixed toolchain and flags", "SBOM generation for Swift packages", "Release automation: tagging, changelog, artefacts", "Code signing and notarisation overview for macOS binaries"],
+          "tools": ["SwiftPM", "GitHub Actions", "Syft", "cosign", "Git"],
+          "lab_task": "Create a release workflow that checks out a tag, builds with a pinned toolchain image, verifies Package.resolved is unchanged, builds the static Linux binary twice and compares SHA-256 hashes, generates an SBOM with Syft, signs the artefact with cosign and publishes a GitHub release.",
+          "deliverable": "Release workflow, SBOM, signature and a reproducibility report",
+          "checks": [["Build the artefact twice and run sha256sum", "Both hashes are identical or the differing sources are documented", "Hash output"], ["Modify a dependency pin without updating Package.resolved", "CI verification step fails", "CI log"], ["Run cosign verify on the artefact", "Verification succeeds against the expected identity", "Command output"]],
+          "objectives": ["Secure and pin Swift dependencies", "Automate reproducible releases", "Publish signed artefacts with an SBOM"]
+        },
+        {
+          "topic": "Advanced Capstone: Swift 6 Service with Shared Library, Macro and Interop",
+          "subtopics": ["Architecture decision record and package graph across library, macro, server and CLI", "Concurrency design verified in Swift 6 mode with Thread Sanitizer", "Interop boundary to a C library plus a documented unsafe audit", "Observability, performance gate and signed static release"],
+          "tools": ["SwiftPM", "Hummingbird", "swift-syntax", "PostgresNIO", "Swift Testing", "Docker", "Thread Sanitizer"],
+          "lab_task": "Build a multi-package system: a core library with a custom macro, a Hummingbird and PostgresNIO service built from an OpenAPI spec, a CLI client, a C checksum wrapper behind a safe Span-based API, structured logs, metrics and traces, 60 Swift Testing tests, a benchmark gate and a signed static Linux container image.",
+          "deliverable": "Capstone repository, architecture record, CI evidence and a 20-minute defence",
+          "checks": [["Run the CI pipeline on a clean checkout", "Build in Swift 6 mode, 60 or more tests, Thread Sanitizer and benchmark gate all pass", "CI run log"], ["Send 5,000 requests at 100 concurrent connections", "Error rate is below 0.1 percent and p95 latency meets the recorded target", "Load test report"], ["Verify the container image signature and SBOM", "Signature validates and the SBOM lists every dependency from Package.resolved", "Command output"]],
+          "objectives": ["Integrate macros, concurrency, interop and server skills in one system", "Prove correctness, performance and supply-chain integrity", "Defend architectural decisions to senior engineers"]
+        }
+      ]
+    }
+  }
+}

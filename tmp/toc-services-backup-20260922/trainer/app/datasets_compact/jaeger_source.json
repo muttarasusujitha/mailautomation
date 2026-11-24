@@ -1,0 +1,372 @@
+{
+    "domain":  "Jaeger",
+    "name":  "Jaeger â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Jaeger Tracing",
+                    "Distributed Tracing"
+                ],
+    "tools":  [
+                  "Jaeger",
+                  "OpenTelemetry",
+                  "Docker"
+              ],
+    "certifications":  [
+                           "Jaeger official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Fundamentals",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Terminology",
+                                       "Common protocols",
+                                       "Use cases",
+                                       "Threats or failure modes",
+                                       "Lab setup",
+                                       "Jaeger terminology and feature mapping for this topic",
+                                       "Jaeger configuration and implementation considerations",
+                                       "Jaeger best practices and common mistakes for this topic",
+                                       "distributed tracing",
+                                       "spans",
+                                       "traces",
+                                       "trace context",
+                                       "propagation",
+                                       "sampling",
+                                       "collector",
+                                       "query service",
+                                       "storage",
+                                       "service dependencies",
+                                       "latency analysis",
+                                       "OpenTelemetry integration"
+                                   ],
+                     "tools":  [
+                                   "Jaeger",
+                                   "OpenTelemetry",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Set up a safe lab and demonstrate Jaeger fundamentals.",
+                     "technology":  "Jaeger",
+                     "technology_id":  "jaeger",
+                     "learning_objectives":  [
+                                                 "Explain the Fundamentals concepts in the context of Jaeger.",
+                                                 "Configure or implement the key Jaeger features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Fundamentals practically using Jaeger.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Protocols and Components",
+                     "subtopics":  [
+                                       "Core components",
+                                       "Packet/message flow",
+                                       "Ports and protocols",
+                                       "Addressing/identity concepts",
+                                       "State",
+                                       "Control plane/data plane",
+                                       "Common configurations",
+                                       "Jaeger terminology and feature mapping for this topic",
+                                       "Jaeger configuration and implementation considerations",
+                                       "Jaeger best practices and common mistakes for this topic",
+                                       "distributed tracing",
+                                       "spans",
+                                       "traces",
+                                       "trace context",
+                                       "propagation",
+                                       "sampling",
+                                       "collector",
+                                       "query service",
+                                       "storage",
+                                       "service dependencies",
+                                       "latency analysis",
+                                       "OpenTelemetry integration"
+                                   ],
+                     "tools":  [
+                                   "Jaeger",
+                                   "OpenTelemetry",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Inspect and configure core Jaeger components.",
+                     "technology":  "Jaeger",
+                     "technology_id":  "jaeger",
+                     "learning_objectives":  [
+                                                 "Explain the Protocols and Components concepts in the context of Jaeger.",
+                                                 "Configure or implement the key Jaeger features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Protocols and Components practically using Jaeger.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Design and Architecture",
+                     "subtopics":  [
+                                       "Enterprise design patterns",
+                                       "Segmentation",
+                                       "Redundancy",
+                                       "Scalability",
+                                       "Trust boundaries",
+                                       "Failure domains",
+                                       "Cloud considerations",
+                                       "Jaeger terminology and feature mapping for this topic",
+                                       "Jaeger configuration and implementation considerations",
+                                       "Jaeger best practices and common mistakes for this topic",
+                                       "distributed tracing",
+                                       "spans",
+                                       "traces",
+                                       "trace context",
+                                       "propagation",
+                                       "sampling",
+                                       "collector",
+                                       "query service",
+                                       "storage",
+                                       "service dependencies",
+                                       "latency analysis",
+                                       "OpenTelemetry integration"
+                                   ],
+                     "tools":  [
+                                   "Jaeger",
+                                   "OpenTelemetry",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Design an enterprise architecture for Jaeger.",
+                     "technology":  "Jaeger",
+                     "technology_id":  "jaeger",
+                     "learning_objectives":  [
+                                                 "Explain the Design and Architecture concepts in the context of Jaeger.",
+                                                 "Configure or implement the key Jaeger features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Design and Architecture practically using Jaeger.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Security Controls",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Encryption",
+                                       "Certificates/keys",
+                                       "Hardening",
+                                       "Least privilege",
+                                       "Logging and auditing",
+                                       "Jaeger terminology and feature mapping for this topic",
+                                       "Jaeger configuration and implementation considerations",
+                                       "Jaeger best practices and common mistakes for this topic",
+                                       "distributed tracing",
+                                       "spans",
+                                       "traces",
+                                       "trace context",
+                                       "propagation",
+                                       "sampling",
+                                       "collector",
+                                       "query service",
+                                       "storage",
+                                       "service dependencies",
+                                       "latency analysis",
+                                       "OpenTelemetry integration"
+                                   ],
+                     "tools":  [
+                                   "Jaeger",
+                                   "OpenTelemetry",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Apply secure configuration and hardening.",
+                     "technology":  "Jaeger",
+                     "technology_id":  "jaeger",
+                     "learning_objectives":  [
+                                                 "Explain the Security Controls concepts in the context of Jaeger.",
+                                                 "Configure or implement the key Jaeger features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security Controls practically using Jaeger.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Monitoring and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Packet or request inspection",
+                                       "Common faults",
+                                       "Diagnostic commands",
+                                       "Alerting",
+                                       "Incident workflow",
+                                       "Jaeger terminology and feature mapping for this topic",
+                                       "Jaeger configuration and implementation considerations",
+                                       "Jaeger best practices and common mistakes for this topic",
+                                       "distributed tracing",
+                                       "spans",
+                                       "traces",
+                                       "trace context",
+                                       "propagation",
+                                       "sampling",
+                                       "collector",
+                                       "query service",
+                                       "storage",
+                                       "service dependencies",
+                                       "latency analysis",
+                                       "OpenTelemetry integration"
+                                   ],
+                     "tools":  [
+                                   "Jaeger",
+                                   "OpenTelemetry",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Diagnose and resolve a simulated Jaeger issue.",
+                     "technology":  "Jaeger",
+                     "technology_id":  "jaeger",
+                     "learning_objectives":  [
+                                                 "Explain the Monitoring and Troubleshooting concepts in the context of Jaeger.",
+                                                 "Configure or implement the key Jaeger features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Monitoring and Troubleshooting practically using Jaeger.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Automation and Operations",
+                     "subtopics":  [
+                                       "Configuration automation",
+                                       "Policy management",
+                                       "Backups",
+                                       "Change control",
+                                       "Versioning",
+                                       "Testing",
+                                       "Operational runbooks",
+                                       "Jaeger terminology and feature mapping for this topic",
+                                       "Jaeger configuration and implementation considerations",
+                                       "Jaeger best practices and common mistakes for this topic",
+                                       "distributed tracing",
+                                       "spans",
+                                       "traces",
+                                       "trace context",
+                                       "propagation",
+                                       "sampling",
+                                       "collector",
+                                       "query service",
+                                       "storage",
+                                       "service dependencies",
+                                       "latency analysis",
+                                       "OpenTelemetry integration"
+                                   ],
+                     "tools":  [
+                                   "Jaeger",
+                                   "OpenTelemetry",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Automate a repeatable Jaeger configuration task.",
+                     "technology":  "Jaeger",
+                     "technology_id":  "jaeger",
+                     "learning_objectives":  [
+                                                 "Explain the Automation and Operations concepts in the context of Jaeger.",
+                                                 "Configure or implement the key Jaeger features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation and Operations practically using Jaeger.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Advanced and Cloud Patterns",
+                     "subtopics":  [
+                                       "Cloud-native services",
+                                       "Hybrid connectivity",
+                                       "Zero-trust considerations",
+                                       "Performance",
+                                       "High availability",
+                                       "Disaster recovery",
+                                       "Cost considerations",
+                                       "Jaeger terminology and feature mapping for this topic",
+                                       "Jaeger configuration and implementation considerations",
+                                       "Jaeger best practices and common mistakes for this topic",
+                                       "distributed tracing",
+                                       "spans",
+                                       "traces",
+                                       "trace context",
+                                       "propagation",
+                                       "sampling",
+                                       "collector",
+                                       "query service",
+                                       "storage",
+                                       "service dependencies",
+                                       "latency analysis",
+                                       "OpenTelemetry integration"
+                                   ],
+                     "tools":  [
+                                   "Jaeger",
+                                   "OpenTelemetry",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Design a cloud/hybrid implementation.",
+                     "technology":  "Jaeger",
+                     "technology_id":  "jaeger",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced and Cloud Patterns concepts in the context of Jaeger.",
+                                                 "Configure or implement the key Jaeger features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced and Cloud Patterns practically using Jaeger.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Capstone",
+                     "subtopics":  [
+                                       "Requirement analysis",
+                                       "Architecture",
+                                       "Security",
+                                       "Configuration",
+                                       "Testing",
+                                       "Monitoring",
+                                       "Troubleshooting",
+                                       "Documentation",
+                                       "Jaeger terminology and feature mapping for this topic",
+                                       "Jaeger configuration and implementation considerations",
+                                       "Jaeger best practices and common mistakes for this topic",
+                                       "distributed tracing",
+                                       "spans",
+                                       "traces",
+                                       "trace context",
+                                       "propagation",
+                                       "sampling",
+                                       "collector",
+                                       "query service",
+                                       "storage",
+                                       "service dependencies",
+                                       "latency analysis",
+                                       "OpenTelemetry integration"
+                                   ],
+                     "tools":  [
+                                   "Jaeger",
+                                   "OpenTelemetry",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Build and document an end-to-end Jaeger solution.",
+                     "technology":  "Jaeger",
+                     "technology_id":  "jaeger",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone concepts in the context of Jaeger.",
+                                                 "Configure or implement the key Jaeger features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone practically using Jaeger.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "jaeger"
+}

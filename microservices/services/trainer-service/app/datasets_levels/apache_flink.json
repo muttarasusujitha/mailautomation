@@ -1,0 +1,573 @@
+{
+  "domain": "Apache Flink",
+  "name": "Apache Flink",
+  "category": "Data Engineering and Analytics",
+  "icon": "workflow",
+  "aliases": ["Flink", "Stream Processing with Flink", "Flink SQL", "Apache Flink Training", "Flink Developer", "Flink DataStream API", "Flink on Kubernetes", "Real-Time Stream Processing with Flink"],
+  "certifications": [],
+  "tools": ["Apache Flink 2.x", "Flink SQL Client", "DataStream API", "Table API", "Flink Kafka connector", "RocksDB", "Flink Kubernetes Operator", "Flink Web UI", "Helm", "kubectl", "Docker", "Prometheus", "Maven", "Java 17"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers and data engineers who know Java or SQL and are new to stream processing. Covers a local Flink 2.x cluster, the DataStream API, keyed state, event time and watermarks, windows, late data, checkpoints and savepoints, reading and writing Kafka with the Flink connectors, Flink SQL and the Table API, job submission with the CLI and REST API, testing and metrics, and a clickstream analytics capstone.",
+      "prerequisites": ["Writes working Java programs with Maven or Gradle, or has strong SQL skills and basic Java", "Uses a terminal and Docker confidently", "Has Java 17, Docker and an IDE installed on a laptop with at least 8 GB of memory"],
+      "outcomes": ["Run, configure and monitor a Flink 2.x cluster and submit jobs from the CLI and REST API", "Build DataStream jobs with keyed state, event-time windows, watermarks and late data handling", "Write Flink SQL queries with time attributes, window table-valued functions and Kafka and file connectors", "Make jobs fault tolerant with checkpoints and savepoints and test them with unit and integration tests"],
+      "days": [
+        {
+          "topic": "Stream Processing Concepts and Apache Flink Overview",
+          "subtopics": ["Bounded and unbounded streams", "Batch versus stream processing as one model", "Stateful stream processing and why state matters", "Typical Flink workloads: event-driven applications, data pipelines and streaming analytics", "The API layers: SQL, Table API, DataStream API and ProcessFunction", "Runtime components: Dispatcher, JobManager, ResourceManager and TaskManagers", "Task slots and how a job is spread over them", "Session mode compared with application mode", "What Flink 2.x removed: the DataSet API, the Scala API and legacy configuration", "Where Flink fits next to Kafka Streams and Spark Structured Streaming"],
+          "tools": ["Flink distribution", "Flink Web UI", "flink CLI", "curl", "Java 17"],
+          "lab_task": "Download a Flink 2.x binary release, run ./bin/start-cluster.sh, open http://localhost:8081, submit examples/streaming/WordCount.jar with ./bin/flink run, then read the result in log/flink-*-taskexecutor-*.out. Draw the cluster with its JobManager, TaskManager and slots and label each part from the Web UI.",
+          "deliverable": "Annotated architecture sketch plus the WordCount job output and Web UI screenshot",
+          "checks": [["Run curl http://localhost:8081/overview after start-cluster.sh", "JSON reports taskmanagers: 1 and slots-total: 1", "curl output"], ["Run ./bin/flink list -a after submitting WordCount", "The job is listed with state FINISHED", "CLI output"], ["Open the TaskManager .out file", "Lines of the form (word,count) appear", "Log excerpt"]],
+          "objectives": ["Describe bounded and unbounded data and stateful processing", "Name the Flink runtime components and what each does", "Start a local cluster and submit a bundled example job"]
+        },
+        {
+          "topic": "Local Cluster Setup: Flink Distribution, config.yaml and the Web UI",
+          "subtopics": ["Directory layout of the distribution: bin, conf, lib, plugins, opt, examples and log", "Java 17 as the runtime and checking it with java -version", "config.yaml as the single standard-YAML configuration file in Flink 2.x", "Flat keys and nested keys in config.yaml, and why flink-conf.yaml is no longer read", "taskmanager.numberOfTaskSlots and parallelism.default", "jobmanager.memory.process.size and taskmanager.memory.process.size", "rest.port and rest.bind-address for the Web UI", "Starting and stopping with start-cluster.sh, stop-cluster.sh and taskmanager.sh start", "Overriding options with -D flags on the command line", "Running the same cluster from the official Docker image with docker compose"],
+          "tools": ["config.yaml", "start-cluster.sh", "Docker", "docker compose", "Flink Web UI"],
+          "lab_task": "Edit conf/config.yaml to set taskmanager.numberOfTaskSlots: 4 and parallelism.default: 2, restart the cluster, add a second TaskManager with ./bin/taskmanager.sh start, and read the totals from http://localhost:8081/overview. Then reproduce the cluster with docker compose using the flink image and a FLINK_PROPERTIES environment variable.",
+          "deliverable": "Edited config.yaml, a docker-compose.yml and a table of slot totals before and after the second TaskManager",
+          "checks": [["Set numberOfTaskSlots to 4 and call /overview with one TaskManager", "slots-total is 4", "curl output"], ["Start a second TaskManager with taskmanager.sh start", "taskmanagers is 2 and slots-total is 8", "Web UI Task Managers page"], ["Place a flink-conf.yaml with a changed slot count next to config.yaml in Flink 2.x", "The value is ignored and config.yaml is used", "Overview output"]],
+          "objectives": ["Configure a Flink cluster through config.yaml", "Scale a local cluster by adding a TaskManager", "Run the same cluster in Docker"]
+        },
+        {
+          "topic": "Your First DataStream Job: Sources, Transformations and Sinks",
+          "subtopics": ["Maven project with flink-streaming-java, flink-clients and the maven-shade-plugin", "provided scope for Flink core dependencies and why", "StreamExecutionEnvironment.getExecutionEnvironment()", "fromSource with DataGeneratorSource and WatermarkStrategy.noWatermarks()", "socketTextStream and nc -lk 9999 for quick experiments", "map, filter and flatMap with lambdas and the Types hint", "print() sink and the subtask-number prefix in the output", "env.execute() and what happens when no operators are defined", "Lazy execution: job graph is built first and run later", "Running from the IDE with createLocalEnvironmentWithWebUI"],
+          "tools": ["Maven", "Java 17", "IntelliJ IDEA", "netcat", "Flink Web UI"],
+          "lab_task": "Create a Maven project, write a job that reads lines with socketTextStream(localhost, 9999), splits them with flatMap, lower-cases words, and prints (word,1) tuples. Run nc -lk 9999, type three lines, build with mvn package and submit the jar with ./bin/flink run -c com.example.WordJob target/wordjob.jar.",
+          "deliverable": "Maven project with the job class and the printed output of three test lines",
+          "checks": [["Remove every operator and call env.execute()", "IllegalStateException: No operators defined in streaming topology. Cannot execute.", "Stack trace"], ["Type 'Flink flink' into the nc session", "Output shows two tuples (flink,1) with a subtask prefix such as 2>", "TaskManager .out file"], ["Open the job in the Web UI", "The graph shows Source, Flat Map and Sink operators with the configured parallelism", "Web UI screenshot"]],
+          "objectives": ["Build and package a DataStream job with Maven", "Apply map, filter and flatMap to a stream", "Submit a job jar to a running cluster"]
+        },
+        {
+          "topic": "Types, Serialization and POJOs in Flink",
+          "subtopics": ["TypeInformation and the type extraction system", "Tuples, Row and basic types", "POJO rules: public class, public no-argument constructor, getters and setters or public fields", "Java records and how Flink treats them", "Why Flink falls back to Kryo for generic types and what it costs", "Disabling the fallback with pipeline.generic-types: false", "Type erasure and returns(Types.TUPLE(...)) or TypeHint", "Custom TypeSerializer and when it is justified", "Serialization and state schema evolution rules for POJO and Avro types", "Serialization of closures: NotSerializableException and how to fix it"],
+          "tools": ["Java 17", "Maven", "IntelliJ IDEA", "Flink Web UI"],
+          "lab_task": "Model a ClickEvent(userId, url, ts) as a POJO and as a class without a default constructor. Log whether TypeInformation.of(ClickEvent.class) is a PojoTypeInfo or GenericTypeInfo, set pipeline.generic-types to false, and capture the error. Then fix the class and add a lambda map that needs returns(...) to avoid InvalidTypesException.",
+          "deliverable": "Event class, a before/after log of the type info and the captured exception messages",
+          "checks": [["Call TypeInformation.of() on a class missing a public no-argument constructor", "It prints GenericTypeInfo and a log line that the class is not a valid POJO", "Console output"], ["Run with pipeline.generic-types: false and the generic class", "UnsupportedOperationException: Generic types have been disabled in the ExecutionConfig", "Stack trace"], ["Use a generic lambda without returns()", "InvalidTypesException: The generic type parameters of 'Tuple2' are missing", "Stack trace"]],
+          "objectives": ["Choose between POJO, Tuple, Row and Kryo types", "Write a valid Flink POJO", "Fix type extraction and serialization errors"]
+        },
+        {
+          "topic": "Keyed Streams, keyBy and Rolling Aggregations",
+          "subtopics": ["keyBy with a KeySelector and why a lambda needs a type", "How keys map to key groups and then to parallel subtasks", "maxParallelism and its default of 128 for small jobs", "sum, min, max, minBy and maxBy on keyed streams", "reduce and the rule that it keeps one value per key", "What can and cannot be a key: arrays and enums without hashCode", "Null keys and the error they raise", "Hot keys and data skew first look", "Rebalance, shuffle, rescale, broadcast and global partitioning", "Checking where records land by printing the subtask index"],
+          "tools": ["Java 17", "Maven", "Flink Web UI", "IntelliJ IDEA"],
+          "lab_task": "Generate 10000 ClickEvents for 5 users with DataGeneratorSource, keyBy userId and compute a rolling count with reduce. Print results at parallelism 4, verify that every record of one user always shows the same subtask prefix, then change one user to receive 90 percent of events and note the busy time per subtask in the Web UI.",
+          "deliverable": "Job source and a table mapping each userId to its subtask with the observed skew",
+          "checks": [["Print the keyed stream at parallelism 4 for five users", "Each userId always appears under one subtask prefix", "Console output"], ["Use an array as the key in keyBy", "The job fails because the key type is not hashable by value", "Stack trace"], ["Make one user 90 percent of traffic", "One subtask shows much higher busyTimeMsPerSecond than the other three", "Web UI subtask metrics"]],
+          "objectives": ["Partition a stream by key correctly", "Apply rolling aggregations and reduce", "Recognise hot keys by watching subtask metrics"]
+        },
+        {
+          "topic": "Stateless and Stateful Transformations with ProcessFunction Basics",
+          "subtopics": ["RichFunction lifecycle: open, close and getRuntimeContext", "MapFunction, FlatMapFunction and FilterFunction as classes", "ProcessFunction and its Collector and Context", "KeyedProcessFunction and the current key", "Emitting to several outputs with OutputTag side outputs", "Union and connect for combining streams", "CoMapFunction and CoFlatMapFunction", "Iterations are gone: why loops are modelled with Kafka or state instead", "Logging from operators with SLF4J and avoiding noisy logs", "Operator naming with name() and uid() for readable graphs"],
+          "tools": ["Java 17", "Maven", "SLF4J", "Flink Web UI"],
+          "lab_task": "Write a ProcessFunction that routes ClickEvents with an empty url to an OutputTag called invalid and sends the rest on. Add uid('parse') and name('Parse clicks'), get the side output with getSideOutput, print both streams and run with 1000 events where exactly 40 have an empty url.",
+          "deliverable": "ProcessFunction source with printed counts for the main and side outputs",
+          "checks": [["Send 1000 events of which 40 have an empty url", "Main output has 960 records and the invalid side output has 40", "Console counts"], ["Open the job graph after calling name('Parse clicks')", "The vertex is labelled Parse clicks", "Web UI screenshot"], ["Call open() in a RichMapFunction that logs the subtask index at parallelism 3", "Three log lines appear with indexes 0, 1 and 2", "TaskManager log"]],
+          "objectives": ["Use rich and process functions", "Split a stream with side outputs", "Name and identify operators"]
+        },
+        {
+          "topic": "Parallelism, Task Slots and Operator Chaining",
+          "subtopics": ["Operator parallelism versus job parallelism", "Setting parallelism by config, environment, operator and CLI -p", "Task slots as the unit of resource per TaskManager", "Slot sharing groups and the default sharing behaviour", "Operator chaining into tasks and what breaks a chain", "disableChaining, startNewChain and slotSharingGroup", "Redistributing exchanges: forward, hash and rebalance", "Parallelism needed versus slots available and the resulting wait", "NoResourceAvailableException and how to read it", "Rule of thumb for parallelism from throughput targets"],
+          "tools": ["flink CLI", "Flink Web UI", "Java 17", "Maven"],
+          "lab_task": "Submit the word-count job from Day 3 with ./bin/flink run -p 6 against a cluster with 4 slots in total and capture the failure or wait. Then add a second TaskManager, resubmit, and use disableChaining() on the map to observe the graph change from one chained task to two.",
+          "deliverable": "Screenshots of the graph before and after disabling chaining, and the error text",
+          "checks": [["Submit with -p 6 on a cluster that has 4 slots", "The job stays in SCHEDULED and later fails with NoResourceAvailableException", "Web UI and exception log"], ["Add a TaskManager with 4 more slots and resubmit", "The job reaches RUNNING with 6 subtasks", "Web UI job page"], ["Call disableChaining() on the map operator", "The graph shows an extra vertex and a new edge labelled FORWARD or REBALANCE", "Web UI graph"]],
+          "objectives": ["Explain slots, parallelism and chaining", "Set parallelism at each level", "Diagnose slot shortages"]
+        },
+        {
+          "topic": "Event Time, Processing Time and Watermarks",
+          "subtopics": ["Processing time, ingestion time and event time compared", "Why event time gives repeatable results", "WatermarkStrategy.forMonotonousTimestamps", "WatermarkStrategy.forBoundedOutOfOrderness(Duration)", "withTimestampAssigner and extracting the timestamp", "How a watermark is defined: no more events with a timestamp at or below it", "Watermarks on parallel inputs: the minimum of the input watermarks", "Idle sources and withIdleness(Duration)", "Periodic watermark interval pipeline.auto-watermark-interval (default 200 ms)", "Watching currentOutputWatermark in the Web UI"],
+          "tools": ["Java 17", "Maven", "Flink Web UI", "DataGeneratorSource"],
+          "lab_task": "Generate ClickEvents whose timestamps arrive up to 4 seconds out of order, assign WatermarkStrategy.forBoundedOutOfOrderness(Duration.ofSeconds(5)) with a timestamp assigner, and use a ProcessFunction to log ctx.timestamp() and ctx.timerService().currentWatermark() for every record. Then run two partitions where one is silent and add withIdleness(Duration.ofSeconds(10)).",
+          "deliverable": "Job with a log table comparing event timestamps and watermarks, including the idle partition case",
+          "checks": [["Log the watermark while the maximum seen timestamp is T", "The watermark is T minus 5 seconds minus 1 ms", "Log output"], ["Leave one of two source partitions silent without withIdleness", "The watermark stays at its initial value and does not advance", "Web UI watermark metric"], ["Add withIdleness(Duration.ofSeconds(10))", "The watermark advances again after about 10 seconds", "Web UI watermark metric"]],
+          "objectives": ["Choose between event and processing time", "Define a watermark strategy for out-of-order data", "Diagnose a stalled watermark"]
+        },
+        {
+          "topic": "Windows: Tumbling, Sliding, Session and Global",
+          "subtopics": ["Window assigners overview and the keyed versus non-keyed variants", "TumblingEventTimeWindows.of(Duration)", "SlidingEventTimeWindows and the overlap factor", "EventTimeSessionWindows and the gap", "GlobalWindows and a custom trigger", "Window offsets for time zones such as a daily window starting at 00:00 in a UTC+1 region", "reduce and aggregate with an AggregateFunction", "ProcessWindowFunction and its extra context cost", "Combining incremental aggregation with ProcessWindowFunction", "When windows fire: the watermark passes window end minus 1 ms"],
+          "tools": ["Java 17", "Maven", "Flink Web UI", "DataGeneratorSource"],
+          "lab_task": "Count ClickEvents per url in 1-minute tumbling event-time windows, then in 1-minute windows sliding every 15 seconds, then in session windows with a 30-second gap. Use an AggregateFunction paired with a ProcessWindowFunction to print window start and end, and run a fixed input of 120 events spread over 3 minutes.",
+          "deliverable": "Three window jobs with the printed counts for the same 120 events",
+          "checks": [["Run 1-minute tumbling windows on 120 events spread over 3 minutes", "Each event is counted in exactly one window and the counts sum to 120", "Console output"], ["Run 1-minute windows sliding every 15 seconds", "Each event is counted in 4 windows and the counts sum to 480", "Console output"], ["Send a 45-second pause in the events for one user with a 30-second session gap", "That user gets two sessions", "Console output"]],
+          "objectives": ["Select the right window assigner", "Aggregate incrementally", "Predict when a window fires"]
+        },
+        {
+          "topic": "Late Data, Allowed Lateness and Side Outputs",
+          "subtopics": ["What makes an event late: its window already fired", "Default behaviour: late events are dropped", "allowedLateness(Duration) and re-fired windows", "Updated results and the cost of keeping window state longer", "sideOutputLateData(OutputTag) and routing late events", "The numLateRecordsDropped metric", "Choosing the out-of-orderness bound from measured delay", "Late data in Flink SQL and the table.exec.emit options", "Reprocessing late data downstream with idempotent upserts", "Testing lateness with a controlled input"],
+          "tools": ["Java 17", "Maven", "Flink Web UI", "DataGeneratorSource"],
+          "lab_task": "Using 1-minute tumbling windows and 5 seconds of out-of-orderness, emit an event 20 seconds behind the watermark. First let it drop and read numLateRecordsDropped in the Web UI, then add allowedLateness(Duration.ofSeconds(30)) and finally sideOutputLateData to a printed late stream. Record each outcome.",
+          "deliverable": "Three-run comparison table with the window outputs and the late-record metric",
+          "checks": [["Send an event 20 seconds behind the watermark with no lateness settings", "The event is dropped and numLateRecordsDropped is 1", "Web UI metric"], ["Repeat with allowedLateness of 30 seconds", "The window fires a second time with an updated count", "Console output"], ["Repeat with sideOutputLateData and an event 90 seconds late", "The event arrives on the late side output", "Console output"]],
+          "objectives": ["Handle late events on purpose", "Route late data to a side output", "Measure dropped records"]
+        },
+        {
+          "topic": "Keyed State and State TTL Introduction",
+          "subtopics": ["Keyed state versus operator state", "ValueState, ListState, MapState, ReducingState and AggregatingState", "StateDescriptor and getRuntimeContext().getState()", "State scoped to the current key and the key context", "Why state must be created in open(), not in the constructor", "StateTtlConfig.newBuilder(Duration)", "UpdateType OnCreateAndWrite and OnReadAndWrite", "StateVisibility and cleanup strategies", "Heap versus RocksDB state size and the first sizing rule", "Clearing state with clear() when a key is finished"],
+          "tools": ["Java 17", "Maven", "Flink Web UI", "DataGeneratorSource"],
+          "lab_task": "Write a KeyedProcessFunction that keeps a ValueState<Long> click count per user and emits an alert when the count reaches 5. Add StateTtlConfig with Duration.ofMinutes(10) and OnCreateAndWrite, then clear the state on alert. Test with 12 events for user A and 3 events for user B.",
+          "deliverable": "Stateful function source and the alert output for the test input",
+          "checks": [["Send 12 clicks for user A and 3 for user B", "With state cleared on alert, user A raises 2 alerts (after events 5 and 10) and user B raises none", "Console output"], ["Create ValueState in the constructor instead of open()", "The job fails because the runtime context is not available", "Stack trace"], ["Enable TTL and wait past the TTL for user B", "User B restarts counting from 1", "Console output"]],
+          "objectives": ["Declare and use keyed state", "Expire state with TTL", "Avoid unbounded state growth"]
+        },
+        {
+          "topic": "Checkpoints, Restart Strategies and Fault Tolerance Fundamentals",
+          "subtopics": ["Distributed snapshots and checkpoint barriers in plain terms", "env.enableCheckpointing(interval) and execution.checkpointing.interval", "Exactly-once and at-least-once checkpointing modes", "execution.checkpointing.timeout, min-pause and max-concurrent-checkpoints", "state.checkpoints.dir and the file layout chk-N, shared and _metadata", "Retained checkpoints and externalized-checkpoint-retention", "Restart strategies: fixed-delay, exponential-delay, failure-rate and none", "Failover strategies and region restarts", "What exactly-once means: state, not side effects", "Reading the Checkpoints tab in the Web UI"],
+          "tools": ["flink CLI", "config.yaml", "Flink Web UI", "Java 17"],
+          "lab_task": "Configure execution.checkpointing.interval: 10s, state.checkpoints.dir: file:///tmp/flink-checkpoints and restart-strategy.type: fixed-delay with 3 attempts and a 5 s delay. Run the stateful job, kill the TaskManager process with kill -9, restart one, and watch recovery in the Web UI.",
+          "deliverable": "Configuration file, recovery timeline and a listing of the chk-N directories",
+          "checks": [["Run for 60 seconds with a 10 second interval", "The Checkpoints tab shows about 6 completed checkpoints and ls shows chk-N directories", "Web UI and ls output"], ["Kill the TaskManager with kill -9 and start another", "The job goes RESTARTING then RUNNING and numRestarts is 1", "Web UI exception history"], ["Set restart-strategy.type: none and repeat the kill", "The job ends in FAILED", "Web UI job state"]],
+          "objectives": ["Enable and configure checkpoints", "Pick a restart strategy", "Verify recovery from a failure"]
+        },
+        {
+          "topic": "Savepoints: Stopping, Restarting and Changing Parallelism",
+          "subtopics": ["Savepoint versus checkpoint: owner, format and purpose", "flink savepoint <jobId> <dir> and the REST POST /jobs/:jobid/savepoints", "flink stop --savepointPath for a clean stop", "Restoring with flink run -s <path> and the claim mode", "NO_CLAIM, CLAIM and the older LEGACY behaviour", "Changing parallelism on restore up to maxParallelism", "Setting uid() on every stateful operator", "Allow non-restored state: --allowNonRestoredState", "Canonical and native savepoint formats", "Garbage-collecting old savepoints"],
+          "tools": ["flink CLI", "Flink Web UI", "curl", "Java 17"],
+          "lab_task": "Run the stateful job with uid() on every operator, take a savepoint with ./bin/flink stop --savepointPath file:///tmp/sp <jobId>, restart it with ./bin/flink run -s <path> -claimMode NO_CLAIM -p 4, and confirm the counts continue. Then remove an uid, resubmit, and capture the restore error.",
+          "deliverable": "Savepoint directory listing, restore command and counts before and after",
+          "checks": [["Stop the job with a savepoint and read the CLI output", "A path under file:///tmp/sp is printed and a _metadata file exists", "CLI output"], ["Restore at parallelism 4 from a parallelism 2 savepoint", "The job runs and per-user counts continue from the saved values", "Console output"], ["Rename an operator uid and restore without --allowNonRestoredState", "Fails with Cannot map checkpoint/savepoint state for operator", "Exception log"]],
+          "objectives": ["Take and restore savepoints", "Rescale a stateful job", "Explain why uid() matters"]
+        },
+        {
+          "topic": "Reading and Writing Kafka with KafkaSource and KafkaSink",
+          "subtopics": ["The flink-connector-kafka artifact is versioned separately from Flink", "KafkaSource builder: setBootstrapServers, setTopics and setGroupId", "OffsetsInitializer: earliest, latest, committedOffsets and timestamp", "setValueOnlyDeserializer with SimpleStringSchema", "Bounded versus unbounded reading", "Partition discovery with partition.discovery.interval.ms", "KafkaSink and KafkaRecordSerializationSchema", "DeliveryGuarantee NONE, AT_LEAST_ONCE and EXACTLY_ONCE", "Offsets are committed to Kafka on checkpoint completion", "Kafka-side tools used only to inspect results: kafka-console-consumer.sh"],
+          "tools": ["flink-connector-kafka", "Docker", "kafka-console-consumer.sh", "Maven", "Flink Web UI"],
+          "lab_task": "Start a single-node Kafka container, create topics clicks and click-counts with 3 partitions, and write a job using KafkaSource with committed offsets falling back to earliest and KafkaSink with AT_LEAST_ONCE. Produce 100 lines, enable checkpointing at 10 s, and read the output topic with kafka-console-consumer.sh.",
+          "deliverable": "Kafka source and sink job and the consumer output for 100 input lines",
+          "checks": [["Produce 100 lines to clicks and consume click-counts", "100 output records are read", "Consumer output"], ["Describe the consumer group after a completed checkpoint", "The group shows committed offsets that match the last checkpoint", "kafka-consumer-groups.sh output"], ["Start the job without the Kafka connector jar on the classpath", "Fails with ClassNotFoundException for KafkaSource", "Stack trace"]],
+          "objectives": ["Read and write Kafka topics from Flink", "Pick starting offsets", "Explain how offsets relate to checkpoints"]
+        },
+        {
+          "topic": "Table API and Flink SQL Fundamentals",
+          "subtopics": ["TableEnvironment and EnvironmentSettings.inStreamingMode()", "Tables, views and catalogs at first sight", "CREATE TABLE with the datagen connector", "SELECT, WHERE and projections on a stream", "GROUP BY aggregations and the changelog they produce", "Dynamic tables and continuous queries", "The +I, -U, +U and -D row kinds", "print connector for quick output", "Converting between DataStream and Table with StreamTableEnvironment", "EXPLAIN to read a plan"],
+          "tools": ["Flink SQL Client", "Java 17", "Maven", "Flink Web UI"],
+          "lab_task": "In ./bin/sql-client.sh create a datagen table orders(order_id, user_id, amount) with 'rows-per-second' = '10', run SET 'sql-client.execution.result-mode' = 'tableau', and compute SELECT user_id, COUNT(*) FROM orders GROUP BY user_id. Then run EXPLAIN on it and write the same query in the Table API.",
+          "deliverable": "SQL script, Table API class and the EXPLAIN output with the changelog explanation",
+          "checks": [["Run the GROUP BY query in tableau mode", "Output shows +I rows first and then -U/+U pairs for the same user_id", "SQL client output"], ["Run EXPLAIN on the aggregation", "The plan contains GroupAggregate", "EXPLAIN output"], ["Run the same query through TableEnvironment.executeSql", "The result rows match the SQL client result", "Console output"]],
+          "objectives": ["Write continuous queries in SQL", "Explain dynamic tables and changelogs", "Use the Table API from Java"]
+        },
+        {
+          "topic": "Flink SQL Event Time, Watermarks and Window Table-Valued Functions",
+          "subtopics": ["Declaring WATERMARK FOR ts AS ts - INTERVAL '5' SECOND", "TIMESTAMP(3) and TIMESTAMP_LTZ(3) as time attributes", "Processing time with a computed column AS PROCTIME()", "TUMBLE table-valued function", "HOP table-valued function", "CUMULATE for running totals within a day", "SESSION table-valued function", "window_start, window_end and window_time columns", "Window aggregation, window Top-N and window join", "Error: Window aggregate can only be defined over a time attribute column"],
+          "tools": ["Flink SQL Client", "Flink Web UI", "datagen connector"],
+          "lab_task": "Create an orders table with order_ts TIMESTAMP(3) and WATERMARK FOR order_ts AS order_ts - INTERVAL '5' SECOND. Compute revenue per minute with TUMBLE and per day with CUMULATE every hour. Then query the window TVF over a plain TIMESTAMP column without a watermark and record the planner error.",
+          "deliverable": "SQL script with tumbling, hopping and cumulative window queries and their sample output",
+          "checks": [["Run SUM(amount) over TUMBLE(TABLE orders, DESCRIPTOR(order_ts), INTERVAL '1' MINUTE)", "One row per window_start and window_end pair", "SQL client output"], ["Run the same query on a table without a WATERMARK clause", "Window aggregate can only be defined over a time attribute column", "Error message"], ["Run CUMULATE with a 1 hour step in a 1 day window", "The sum for each window_end grows within the same window_start", "SQL client output"]],
+          "objectives": ["Define time attributes in DDL", "Use TUMBLE, HOP, CUMULATE and SESSION", "Read and fix time attribute errors"]
+        },
+        {
+          "topic": "SQL Client, Catalogs, Connectors and Formats",
+          "subtopics": ["SQL client modes: interactive and -f script.sql", "SET and RESET for session options and the init file -i", "Catalogs, databases and the GenericInMemoryCatalog default", "CREATE CATALOG and USE CATALOG", "Adding connector jars to lib/ or with ADD JAR", "The filesystem connector with csv, json and parquet formats", "The kafka connector with the json format in SQL", "Temporary tables versus catalog tables", "INSERT INTO and STATEMENT SET for several sinks", "Error: Could not find any factory for identifier 'kafka'"],
+          "tools": ["Flink SQL Client", "flink-sql-connector-kafka", "Docker", "Flink Web UI"],
+          "lab_task": "Write a script that creates a Kafka table clicks using 'connector' = 'kafka', 'topic' = 'clicks', 'properties.bootstrap.servers' = 'localhost:9092', 'scan.startup.mode' = 'earliest-offset' and 'format' = 'json', then an INSERT INTO a filesystem sink with parquet. Run it with ./bin/sql-client.sh -f clicks.sql first without the connector jar and then with it.",
+          "deliverable": "SQL script, the factory error and the parquet files written",
+          "checks": [["Run the script without the Kafka SQL connector jar in lib", "Could not find any factory for identifier 'kafka'", "Error message"], ["Run again with the jar present and 100 JSON messages in the topic", "The job is RUNNING and parquet files appear in the target folder", "Web UI and ls output"], ["Run SHOW TABLES after a TEMPORARY table is created and the session restarts", "The temporary table is gone", "SQL client output"]],
+          "objectives": ["Create tables on Kafka and files with DDL", "Run SQL scripts non-interactively", "Fix missing connector errors"]
+        },
+        {
+          "topic": "Submitting and Monitoring Jobs with the CLI and the REST API",
+          "subtopics": ["flink run with -c, -d, -p and program arguments", "flink list, flink cancel and flink stop", "Application mode with flink run-application", "The REST API: /jobs/overview, /jobs/:jobid and /jobs/:jobid/exceptions", "/jobs/:jobid/checkpoints and /jobs/:jobid/vertices/:vertexid/metrics", "Uploading a jar with /jars/upload and running it with /jars/:jarid/run", "Job states: CREATED, RUNNING, RESTARTING, FAILED, FINISHED and CANCELED", "The exception history in the Web UI", "The History Server and jobmanager.archive.fs.dir", "Reading JobManager and TaskManager logs"],
+          "tools": ["flink CLI", "curl", "jq", "Flink Web UI"],
+          "lab_task": "Submit a job in detached mode with ./bin/flink run -d, then use only curl and jq against http://localhost:8081 to list jobs, read the latest checkpoint id from /jobs/<id>/checkpoints, fetch /jobs/<id>/exceptions after you throw an exception on purpose, and cancel the job with flink cancel.",
+          "deliverable": "Shell script of REST calls with captured JSON for each call",
+          "checks": [["Call /jobs/overview with jq '.jobs[0].state'", "Prints RUNNING", "Terminal output"], ["Call /jobs/<id>/checkpoints with jq '.latest.completed.id'", "Prints a checkpoint id of 1 or more", "Terminal output"], ["Throw a RuntimeException in a map and call /jobs/<id>/exceptions", "root-exception contains the exception message", "JSON output"]],
+          "objectives": ["Operate jobs from the CLI", "Use the REST API for automation", "Read exception history"]
+        },
+        {
+          "topic": "Unit Testing Flink Jobs and Reading Job Metrics",
+          "subtopics": ["Designing functions that can be tested without a cluster", "ProcessFunctionTestHarnesses and operator test harnesses", "MiniClusterExtension and the flink-test-utils dependency", "A collecting sink for integration tests", "Controlling event time in tests", "Testing SQL with TableEnvironment and executeSql().collect()", "Built-in metrics: numRecordsInPerSecond, numRecordsOutPerSecond", "busyTimeMsPerSecond, idleTimeMsPerSecond and backPressuredTimeMsPerSecond", "Custom counters, gauges and meters in a RichFunction", "Reporting to a metric reporter, first look at Prometheus on port 9249"],
+          "tools": ["JUnit 5", "flink-test-utils", "Maven", "Flink Web UI", "Prometheus"],
+          "lab_task": "Write a JUnit 5 test using MiniClusterExtension that runs the click validation job on a fixed list of 10 events and asserts the output. Add a unit test with ProcessFunctionTestHarnesses for the side-output logic. Add a Counter named invalidClicks registered in open() and read it in the Web UI metrics tab.",
+          "deliverable": "Test class with passing results and a screenshot of the custom metric",
+          "checks": [["Run mvn test with the MiniCluster test and 10 input events", "Tests run: 2, Failures: 0, Errors: 0", "Maven output"], ["Feed an event with an empty url into the harness", "The side output contains exactly that event", "Test assertion"], ["Process 40 invalid events with the Counter registered", "invalidClicks equals 40", "Web UI metric"]],
+          "objectives": ["Write unit and integration tests for Flink", "Read the core runtime metrics", "Add custom metrics"]
+        },
+        {
+          "topic": "Beginner Capstone: Real-Time Clickstream Analytics Pipeline",
+          "subtopics": ["Requirements: Kafka in, validated events, per-minute aggregates, Kafka and file out", "Job design with event time, watermarks and late data handling", "State and checkpoint configuration with uid on each operator", "A SQL version of the same aggregation for comparison", "Test plan with fixed input and expected counts", "Operations notes: run, savepoint, restore and monitor"],
+          "tools": ["Flink", "Kafka", "Flink SQL Client", "Docker", "Maven", "Flink Web UI"],
+          "lab_task": "Build a pipeline reading clicks from Kafka, dropping invalid records to a side output topic, counting clicks per url per 1-minute event-time window with 5 s out-of-orderness, and writing results to Kafka. Checkpoint every 10 s, take a savepoint, restart at a different parallelism, and prove counts match an equivalent Flink SQL query.",
+          "deliverable": "Repository with job, SQL version, test results, runbook and a short demo recording or screenshots",
+          "checks": [["Replay a fixed file of 10000 events twice, once with a restart in the middle", "Both runs produce identical window counts", "Diff of output files"], ["Compare the DataStream counts with the SQL query over the same input", "Counts for every window match", "Comparison table"], ["Stop with a savepoint and restore at a new parallelism", "The job continues without lost or duplicated window results", "Web UI and output topic"]],
+          "objectives": ["Integrate Kafka, windows, state and checkpoints in one job", "Verify results against a second implementation", "Operate the job through a savepoint cycle"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who have built basic Flink jobs and now run stateful pipelines in production. Covers ProcessFunction timers, state types and schema evolution, RocksDB tuning, checkpoint tuning, upgrades with savepoints, joins in DataStream and SQL, broadcast state, async I/O, changelogs and Top-N, UDFs, CEP, Kafka offsets and exactly-once sinks, file and lakehouse sinks, performance diagnosis, the Flink Kubernetes Operator, and a fraud detection capstone.",
+      "prerequisites": ["Has built and run a DataStream or Flink SQL job with event time and checkpoints", "Understands Kafka topics, partitions and consumer groups at user level", "Can use kubectl and write basic Kubernetes manifests"],
+      "outcomes": ["Build correct stateful logic with timers, state TTL and schema-safe state", "Tune state backends, checkpoints and SQL aggregations from measured metrics", "Run exactly-once Kafka pipelines and use CDC and lakehouse connectors", "Deploy and upgrade jobs on Kubernetes with the Flink Kubernetes Operator"],
+      "days": [
+        {
+          "topic": "ProcessFunction Timers and Custom Stateful Logic",
+          "subtopics": ["KeyedProcessFunction with state and timers together", "registerEventTimeTimer and registerProcessingTimeTimer", "onTimer and the OnTimerContext timeDomain", "Timers are deduplicated per key and timestamp", "Deleting timers with deleteEventTimeTimer", "Timer state size and checkpointing of timers", "Inactivity detection pattern", "Session timeout and per-key buffering pattern", "Event time timers fire only when the watermark passes them", "Testing timers with KeyedOneInputStreamOperatorTestHarness"],
+          "tools": ["Java 17", "Maven", "Flink test harness", "Flink Web UI"],
+          "lab_task": "Build a KeyedProcessFunction that tracks the last event time per device and registers an event-time timer 60 seconds later. If no new event arrives, onTimer emits an offline alert; a new event deletes the old timer. Test with a harness: send events at t=0 and t=30, advance the watermark to 95 s, then to 95 s again.",
+          "deliverable": "Function, harness tests and a timeline of timers registered, deleted and fired",
+          "checks": [["Send events at t=0 s and t=30 s, then advance the watermark to 85 s", "No alert, because the timer moved to 90 s", "Harness assertion"], ["Advance the watermark to 95 s", "Exactly one offline alert is emitted for the device", "Harness output"], ["Register the same timer timestamp twice for one key", "onTimer is called once", "Counter in test"]],
+          "objectives": ["Use timers for time-based logic", "Avoid duplicate and stale timers", "Test time-dependent operators"]
+        },
+        {
+          "topic": "State Types, Serializers and State Schema Evolution",
+          "subtopics": ["ValueState, ListState and MapState cost models on RocksDB", "MapState versus ValueState holding a Map", "AggregatingState with an AggregateFunction", "Operator state: ListState and UnionListState with CheckpointedFunction", "What schema evolution means: compatibility check on restore", "POJO evolution: adding and removing fields", "Avro state evolution with generated classes", "StateMigrationException and incompatible serializers", "TypeSerializerSnapshot in outline", "Strategy for changing state types: new state name plus migration job"],
+          "tools": ["Java 17", "Maven", "flink CLI", "State Processor API"],
+          "lab_task": "Run a job with a POJO UserStats(count) in ValueState and take a savepoint. Add a new field lastSeen to the class, restore from the savepoint and verify old keys load with lastSeen null. Then change count from long to String, restore again, and capture the exception.",
+          "deliverable": "Two class versions, restore results and the captured migration error",
+          "checks": [["Add a field to a POJO and restore from the old savepoint", "The job runs and old keys have the new field set to null", "Console output"], ["Change a field type from long to String and restore", "Fails with StateMigrationException or an incompatible serializer error", "Exception log"], ["Replace the POJO with a class that falls back to Kryo and restore", "Restore fails because the serializer is not compatible", "Exception log"]],
+          "objectives": ["Choose state types by access pattern", "Evolve state classes safely", "Plan a migration when evolution is not possible"]
+        },
+        {
+          "topic": "RocksDB State Backend and Managed Memory Tuning",
+          "subtopics": ["HashMapStateBackend versus EmbeddedRocksDBStateBackend", "state.backend.type: hashmap or rocksdb in config.yaml", "Incremental checkpoints with state.backend.incremental: true", "Managed memory: taskmanager.memory.managed.fraction and state.backend.rocksdb.memory.managed", "Write buffers, block cache and the high-priority pool", "state.backend.rocksdb.localdir on a fast disk", "Predefined options such as FLASH_SSD_OPTIMIZED", "RocksDB native metrics and the cost of enabling them", "Container memory limits and OOMKilled with exit code 137", "Compaction and its effect on latency"],
+          "tools": ["RocksDB", "config.yaml", "Flink Web UI", "Prometheus", "iostat"],
+          "lab_task": "Run a keyed job with 5 million distinct keys on HashMapStateBackend with a 1 GB heap, record the failure or GC time, then switch to state.backend.type: rocksdb with incremental checkpoints, enable state.backend.rocksdb.metrics.block-cache-usage, and compare checkpoint size, checkpoint duration and throughput.",
+          "deliverable": "Comparison table of heap versus RocksDB with metric screenshots and the final configuration",
+          "checks": [["Run 5 million keys on heap state with 1 GB of heap", "OutOfMemoryError: Java heap space or heavy GC pauses", "TaskManager log"], ["Switch to RocksDB with incremental checkpoints", "The job runs and the second checkpoint is smaller than the first full one", "Web UI checkpoint details"], ["Enable the block-cache-usage metric", "The metric appears in the Web UI and stays below the managed memory budget", "Metrics view"]],
+          "objectives": ["Choose a state backend", "Tune RocksDB memory", "Compare full and incremental checkpoints"]
+        },
+        {
+          "topic": "Checkpoint Tuning: Alignment, Unaligned Checkpoints and Timeouts",
+          "subtopics": ["Aligned checkpoints and barrier alignment time", "Checkpoint end-to-end duration, sync and async phases", "Unaligned checkpoints with execution.checkpointing.unaligned.enabled", "aligned-checkpoint-timeout to switch to unaligned under backpressure", "Buffer debloating first look: taskmanager.network.memory.buffer-debloat.enabled", "min-pause and interval for a busy job", "tolerable-failed-checkpoints", "Checkpoint expired before completing and what to check", "Snapshot compression execution.checkpointing.snapshot-compression", "Checkpoint storage cost on S3 and the number of retained checkpoints"],
+          "tools": ["Flink Web UI", "config.yaml", "Prometheus", "curl"],
+          "lab_task": "Run a job with a deliberately slow sink so that backpressure reaches the source. With aligned checkpoints at 30 s interval and 20 s timeout record how many fail, then set execution.checkpointing.unaligned.enabled: true and aligned-checkpoint-timeout: 10s, and compare duration, alignment time and checkpoint size.",
+          "deliverable": "Before and after table of checkpoint metrics with the config changes",
+          "checks": [["Run the slow sink with aligned checkpoints and a 20 s timeout", "Checkpoints show Failed with 'Checkpoint expired before completing'", "Web UI checkpoint history"], ["Enable unaligned checkpoints", "Checkpoints complete within the timeout", "Web UI checkpoint history"], ["Compare checkpoint sizes", "The unaligned checkpoints are larger because in-flight data is stored", "Web UI checkpoint details"]],
+          "objectives": ["Diagnose slow and failing checkpoints", "Use unaligned checkpoints correctly", "Set checkpoint parameters from measured data"]
+        },
+        {
+          "topic": "Savepoint Compatibility, Operator UIDs and Job Upgrades",
+          "subtopics": ["Stateful upgrade procedure: stop with savepoint, deploy, restore", "Which code changes are state compatible", "Adding, removing and reordering operators and the role of uid", "Operator ID hashing and the default generated IDs", "Changing keys and key types and why that breaks state", "Changing window size and trigger on restored state", "Changing max parallelism: allowed only with a new savepoint path", "Savepoint claim modes in 2.x: execution.state-recovery.claim-mode", "Rolling back to the previous version with the previous savepoint", "Upgrade checklist and automated compatibility test"],
+          "tools": ["flink CLI", "Maven", "Flink Web UI", "curl"],
+          "lab_task": "Take a savepoint of the v1 job, deploy a v2 that adds a filter before the keyBy, restore it, and verify counts. Then remove uid from a stateful operator in v3 and try again. Finally restore v1 from the same savepoint using -claimMode NO_CLAIM and show that the savepoint is still intact.",
+          "deliverable": "Upgrade runbook with the three outcomes and the commands used",
+          "checks": [["Restore v2 with a new stateless filter operator", "The job restores and per-key counts continue", "Web UI and output"], ["Restore v3 with a missing uid on a stateful operator", "Fails with Cannot map checkpoint/savepoint state for operator", "Exception log"], ["Restore v1 with -claimMode NO_CLAIM and list the savepoint directory", "The original savepoint files are unchanged", "ls -l output"]],
+          "objectives": ["Plan state-compatible upgrades", "Roll back with savepoints", "Write an upgrade runbook"]
+        },
+        {
+          "topic": "DataStream Joins: Window Joins, Interval Joins and Connected Streams",
+          "subtopics": ["Window join with join().where().equalTo().window()", "Interval join with between(lowerBound, upperBound)", "Interval join state cleanup using the watermark", "Inner semantics of both joins and outer join patterns with CoGroup", "Connected streams with KeyedCoProcessFunction for custom joins", "Buffering the left side while waiting for the right side", "Event time requirements for joins", "Join output when one side is late", "State growth in custom joins and TTL", "Choosing between the three approaches"],
+          "tools": ["Java 17", "Maven", "Flink Web UI", "Flink test harness"],
+          "lab_task": "Join an orders stream with a payments stream by orderId. Implement an interval join with between(-1 min, +5 min), then the same logic as a KeyedCoProcessFunction with state and a cleanup timer. Feed 100 orders and 90 payments, 5 of which arrive 7 minutes after their order, and compare the matches.",
+          "deliverable": "Both join implementations and a table of matched, unmatched and late pairs",
+          "checks": [["Run the interval join on 100 orders and 90 payments, 5 of them 7 minutes late", "85 pairs are produced", "Console count"], ["Run the KeyedCoProcessFunction with a 10 minute buffer", "90 pairs are produced", "Console count"], ["Watch state size after the watermark passes the interval", "State for matched keys is cleared and checkpoint size stops growing", "Web UI checkpoint size"]],
+          "objectives": ["Join streams in event time", "Write a custom stateful join", "Control join state size"]
+        },
+        {
+          "topic": "Broadcast State and Dynamic Rules",
+          "subtopics": ["Rule streams and event streams", "MapStateDescriptor and broadcast()", "BroadcastProcessFunction versus KeyedBroadcastProcessFunction", "processElement read-only context and processBroadcastElement write context", "Ordering is not guaranteed between broadcast and main streams", "Applying a rule to events that arrived before the rule", "Broadcast state is held on heap and checkpointed per subtask", "Rules from a compacted Kafka topic", "Idempotent rule updates and versioning", "Testing with a harness for broadcast operators"],
+          "tools": ["Java 17", "Maven", "Flink test harness", "KafkaSource"],
+          "lab_task": "Create a rules stream of (ruleId, threshold) and a transactions stream keyed by account. Use KeyedBroadcastProcessFunction to flag transactions above the current threshold, update the threshold at runtime from a Kafka topic, and test that a new rule applies to later events but not to those already emitted.",
+          "deliverable": "Broadcast job, rule topic sample and the flagged output before and after a rule update",
+          "checks": [["Send threshold 100 and an event of 150", "Event is flagged", "Console output"], ["Publish a new rule with threshold 200 and send another event of 150", "Event is not flagged", "Console output"], ["Restore from a savepoint after a rule update", "The latest threshold is still applied", "Console output"]],
+          "objectives": ["Use broadcast state for dynamic configuration", "Apply rule updates safely", "Test broadcast operators"]
+        },
+        {
+          "topic": "Asynchronous I/O and Enrichment Patterns",
+          "subtopics": ["Why blocking calls in map kill throughput", "AsyncDataStream.unorderedWait and orderedWait", "AsyncFunction.asyncInvoke and ResultFuture", "Timeout and the timeout() override", "Capacity as the maximum in-flight requests", "Retry strategies with AsyncRetryStrategies", "Caching lookups in a Caffeine cache", "Lookup joins in SQL with a cache as an alternative", "Enrichment from a stream with broadcast or a keyed join", "Back pressure caused by a slow external service"],
+          "tools": ["Java 17", "Maven", "HTTP client", "Flink Web UI"],
+          "lab_task": "Enrich 10000 click events with a country by calling a local HTTP stub that sleeps 100 ms. First use a blocking MapFunction at parallelism 2, then AsyncDataStream.unorderedWait with capacity 100 and a 2000 ms timeout, and record throughput. Make 5 percent of calls time out and handle them in timeout().",
+          "deliverable": "Both jobs, a throughput comparison and the timeout handling",
+          "checks": [["Run the blocking map at parallelism 2 with a 100 ms call", "Throughput is near 20 records per second", "Web UI numRecordsOutPerSecond"], ["Run unorderedWait with capacity 100", "Throughput rises to near 2000 records per second or the stub limit", "Web UI numRecordsOutPerSecond"], ["Make 5 percent of calls exceed 2000 ms", "timeout() runs for those records and the job does not fail", "Counter and output"]],
+          "objectives": ["Use async I/O for external lookups", "Size capacity and timeouts", "Handle failures in enrichment"]
+        },
+        {
+          "topic": "Flink SQL Joins: Regular, Interval, Temporal and Lookup",
+          "subtopics": ["Regular joins and unbounded state", "Interval joins with BETWEEN on time attributes", "Temporal table joins with FOR SYSTEM_TIME AS OF", "Versioned tables with a primary key and a watermark", "Lookup joins with a processing time attribute and the JDBC connector", "lookup.cache options on the JDBC connector", "Window joins on window_start and window_end", "Outer joins and the changelog they emit", "Join hints such as LOOKUP and the state TTL hint", "Choosing a join by data shape and correctness"],
+          "tools": ["Flink SQL Client", "JDBC connector", "PostgreSQL", "Docker"],
+          "lab_task": "Join orders with a currency_rates versioned table using FOR SYSTEM_TIME AS OF o.order_ts and with a PostgreSQL customers table using a lookup join on proc_time. Apply a regular join and read the state size, then replace it with an interval join of 10 minutes.",
+          "deliverable": "SQL script with three joins, the plans and a state size comparison",
+          "checks": [["Run the temporal join with rates that change at 10:00 and 10:05 for an order at 10:03", "The order uses the 10:00 rate", "SQL client output"], ["Update the customer row in PostgreSQL and send a new order", "The lookup join returns the new value", "SQL client output"], ["Run the regular join for 5 minutes and then the interval join", "State size grows with the regular join and stays bounded with the interval join", "Web UI checkpoint size"]],
+          "objectives": ["Choose a SQL join type", "Bound state in joins", "Enrich streams from a database"]
+        },
+        {
+          "topic": "Flink SQL Changelogs, Top-N and Deduplication",
+          "subtopics": ["Insert-only versus updating streams", "Changelog modes: append, retract and upsert", "EXPLAIN CHANGELOG_MODE and PLAN_ADVICE", "Top-N with ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...)", "Window Top-N", "Deduplication keeping the first or last row per key", "Sinks that need upsert semantics and a PRIMARY KEY NOT ENFORCED", "Error: Table sink doesn't support consuming update changes", "Retraction and the downstream cost", "Using the changelog normalize node and its state"],
+          "tools": ["Flink SQL Client", "upsert-kafka connector", "Docker"],
+          "lab_task": "Compute the top 3 products by revenue per category with ROW_NUMBER(), then deduplicate events by event_id keeping the first row. Write the Top-N result to a plain kafka sink and capture the error, then to upsert-kafka with a PRIMARY KEY NOT ENFORCED, and read the topic with kafka-console-consumer.sh.",
+          "deliverable": "SQL script, EXPLAIN CHANGELOG_MODE output and the sink behaviours",
+          "checks": [["Insert a Top-N result into a table using the plain kafka connector", "TableException: doesn't support consuming update changes", "Error message"], ["Insert the same result into upsert-kafka with a primary key", "Job runs and the topic shows keyed updates with tombstones for deletions", "Consumer output"], ["Send 5 events with the same event_id and keep the first", "Exactly one row is emitted", "SQL client output"]],
+          "objectives": ["Read changelog modes", "Write Top-N and deduplication queries", "Choose a suitable sink"]
+        },
+        {
+          "topic": "Flink SQL Aggregations, Mini-Batch and State TTL Tuning",
+          "subtopics": ["GROUP BY state and why it is unbounded", "table.exec.state.ttl and idle state retention", "Mini-batch: table.exec.mini-batch.enabled, allow-latency and size", "Local-global aggregation with table.optimizer.agg-phase-strategy", "Distinct aggregation and table.optimizer.distinct-agg.split.enabled", "Handling data skew in SQL aggregation", "FILTER clauses and conditional aggregates", "GROUPING SETS, ROLLUP and CUBE", "Result freshness versus throughput trade-off", "Reading the plan for LocalGroupAggregate and GlobalGroupAggregate"],
+          "tools": ["Flink SQL Client", "Flink Web UI", "datagen connector"],
+          "lab_task": "Run SELECT user_id, COUNT(DISTINCT url) FROM clicks GROUP BY user_id with a skewed datagen at 50000 rows per second. Record throughput and state size, then set mini-batch enabled with allow-latency 2 s and size 5000, TWO_PHASE aggregation and distinct split, and set table.exec.state.ttl to 1 h.",
+          "deliverable": "Settings file and a before and after table of throughput, state size and latency",
+          "checks": [["Run EXPLAIN with mini-batch and TWO_PHASE enabled", "The plan has LocalGroupAggregate and GlobalGroupAggregate", "EXPLAIN output"], ["Compare numRecordsInPerSecond before and after mini-batch", "Throughput is higher after enabling it", "Web UI metric"], ["Set table.exec.state.ttl to 1 min and revisit a key after 2 min", "The count restarts for that key", "SQL client output"]],
+          "objectives": ["Tune SQL aggregations", "Control state growth with TTL", "Trade latency for throughput"]
+        },
+        {
+          "topic": "User-Defined Functions in the Table API and SQL",
+          "subtopics": ["ScalarFunction with an eval method", "TableFunction and LATERAL TABLE", "AggregateFunction with accumulator, accumulate and getValue", "Retraction support with a retract method", "Type inference with @DataTypeHint and @FunctionHint", "Registering with CREATE FUNCTION ... AS 'class' USING JAR", "Temporary system functions versus catalog functions", "Determinism and isDeterministic", "Python UDFs through PyFlink as an option", "Unit testing a UDF"],
+          "tools": ["Java 17", "Maven", "Flink SQL Client", "JUnit 5"],
+          "lab_task": "Write a ScalarFunction MASK_EMAIL, a TableFunction SPLIT_TAGS and an AggregateFunction P95. Package the jar, load it with CREATE FUNCTION mask_email AS 'com.example.MaskEmail' USING JAR 'file:///tmp/udfs.jar', and run queries using each one on a datagen table. Add a JUnit test for the scalar function.",
+          "deliverable": "UDF project, SQL script and test results",
+          "checks": [["Run SELECT MASK_EMAIL('jane.doe@example.com')", "Returns j***@example.com or the masking format you defined", "SQL client output"], ["Call SPLIT_TAGS('a,b,c') in LATERAL TABLE", "Three rows are returned", "SQL client output"], ["Remove the @DataTypeHint on a method returning Row", "Planner error about type inference", "Error message"]],
+          "objectives": ["Write scalar, table and aggregate functions", "Register UDFs from jars", "Test UDFs"]
+        },
+        {
+          "topic": "Complex Event Processing with MATCH_RECOGNIZE and FlinkCEP",
+          "subtopics": ["Pattern recognition use cases: fraud, outage and behaviour sequences", "MATCH_RECOGNIZE clauses: PARTITION BY, ORDER BY, MEASURES, PATTERN and DEFINE", "Quantifiers, greedy and reluctant matching", "AFTER MATCH SKIP options", "Time constraints WITHIN INTERVAL", "FlinkCEP Pattern API with begin, next, followedBy and within", "Contiguity: strict, relaxed and non-deterministic relaxed", "Timed-out partial matches and side outputs", "State and event-time ordering requirements", "Choosing SQL or the CEP library"],
+          "tools": ["Flink SQL Client", "FlinkCEP", "Java 17"],
+          "lab_task": "Detect three failed logins followed by a success within 2 minutes per user using MATCH_RECOGNIZE with event time. Then write the same pattern with FlinkCEP, emit timed-out partial matches to a side output, and test with a fixed sequence in which one user matches and another times out.",
+          "deliverable": "SQL and CEP implementations with their outputs for the test sequence",
+          "checks": [["Feed FAIL FAIL FAIL SUCCESS within 90 seconds for user A", "One match is emitted for user A", "Console output"], ["Feed FAIL FAIL FAIL then no SUCCESS for user B for 3 minutes", "The partial match for user B appears on the timeout side output", "Console output"], ["Feed the same events out of order within the watermark bound", "The match is still produced", "Console output"]],
+          "objectives": ["Express sequences with MATCH_RECOGNIZE", "Use FlinkCEP with timeouts", "Pick between SQL and CEP"]
+        },
+        {
+          "topic": "Kafka Source Offsets, Partition Discovery and Watermark Alignment",
+          "subtopics": ["Offset initializers: committedOffsets, timestamp, earliest and latest", "Which offset wins: checkpointed state over the initializer on restore", "Split enumerator and reader in the KafkaSource design", "partition.discovery.interval.ms and adding partitions at runtime", "Per-partition watermarks and idle partitions", "Watermark alignment with withWatermarkAlignment(group, maxDrift, updateInterval)", "Source metrics: pendingRecords and currentEmitEventTimeLag", "Consumer properties passed with setProperty, for example max.poll.records", "Bounded reads with setBounded for backfill", "Replay from timestamp for reprocessing"],
+          "tools": ["flink-connector-kafka", "kafka-topics.sh", "Flink Web UI", "Docker"],
+          "lab_task": "Create a topic with 2 partitions, run a job with partition discovery every 10 s, then increase it to 4 partitions with kafka-topics.sh --alter and verify new splits appear. Add withWatermarkAlignment('g', Duration.ofSeconds(20), Duration.ofSeconds(1)) and replay from a timestamp with OffsetsInitializer.timestamp.",
+          "deliverable": "Job source, topic commands and observations of split assignment and alignment",
+          "checks": [["Alter the topic from 2 to 4 partitions with discovery set to 10 s", "The new partitions are consumed within about 10 seconds", "Source metric and consumer group describe"], ["Restore from a checkpoint with an initializer set to earliest", "Reading continues from the checkpointed offsets, not from earliest", "Output offsets"], ["Make one partition 10 minutes ahead and enable alignment with maxDrift 20 s", "The fast partition is paused and drift stays within about 20 s", "Watermark metrics"]],
+          "objectives": ["Control where the Kafka source starts reading", "Handle partition growth", "Use watermark alignment"]
+        },
+        {
+          "topic": "Exactly-Once Kafka Sink, Transactions and read_committed",
+          "subtopics": ["Two-phase commit with Flink checkpoints and Kafka transactions", "DeliveryGuarantee.EXACTLY_ONCE and setTransactionalIdPrefix", "Unique transactional id prefix per job", "transaction.timeout.ms versus checkpoint interval and recovery time", "The broker limit transaction.max.timeout.ms (15 minutes by default)", "Consumers with isolation.level=read_committed", "Latency: data is visible only after the checkpoint commits", "Failure case: transaction timeout and data loss on long restarts", "Lingering transactions and last stable offset", "At-least-once with idempotent downstream keys as a cheaper option"],
+          "tools": ["flink-connector-kafka", "Docker", "kafka-console-consumer.sh", "Flink Web UI"],
+          "lab_task": "Configure KafkaSink with EXACTLY_ONCE, a transactional id prefix and transaction.timeout.ms of 10 minutes at a 30 s checkpoint interval. Read the output with isolation.level=read_committed and read_uncommitted, kill a TaskManager mid-run, and count duplicates after recovery. Then set the timeout above the broker maximum.",
+          "deliverable": "Job config, results for both isolation levels and the failure report",
+          "checks": [["Consume with read_committed during a checkpoint interval", "Records appear only after the checkpoint completes", "Consumer output timing"], ["Kill the TaskManager and compare counts after recovery with read_committed", "No duplicates in the output topic", "Count of unique ids"], ["Set transaction.timeout.ms above the broker transaction.max.timeout.ms", "Producer fails with InvalidTransactionTimeout", "Exception log"]],
+          "objectives": ["Configure transactional Kafka output", "Size transaction timeouts", "Read exactly-once output correctly"]
+        },
+        {
+          "topic": "Kafka Formats in Flink SQL: Avro Registry, Debezium and upsert-kafka",
+          "subtopics": ["json, csv, raw and avro formats", "avro-confluent format and the schema registry url option", "Metadata columns: topic, partition, offset and timestamp", "Key and value formats with key.fields and key.format", "debezium-json and canal-json changelog formats", "Reading a CDC topic into an updating table", "upsert-kafka semantics: tombstones and primary key", "Startup modes: scan.startup.mode and timestamp-millis", "Per-partition watermarks in a CREATE TABLE", "Handling bad records with json.ignore-parse-errors and its risks"],
+          "tools": ["Flink SQL Client", "Schema Registry", "Debezium", "Docker"],
+          "lab_task": "Create a table over a debezium-json topic of customer changes and a table over an avro-confluent topic, expose partition and offset as metadata columns, and aggregate the CDC stream with COUNT(*) per country. Insert updates and a delete in the source database and verify that the count changes.",
+          "deliverable": "SQL DDL for each format and a log of source changes against aggregate results",
+          "checks": [["Insert 3 customers in a country and then delete 1 in the source database", "COUNT(*) per country moves from 3 to 2", "SQL client output"], ["Select the partition and offset metadata columns", "Values match kafka-console-consumer output with --property print.offset=true", "Output comparison"], ["Set json.ignore-parse-errors to false and send a malformed message", "The job fails with a JsonParseException", "Exception log"]],
+          "objectives": ["Read and write Kafka in common formats", "Process CDC changelogs", "Use metadata columns"]
+        },
+        {
+          "topic": "Files, Object Storage and Lakehouse Table Connectors",
+          "subtopics": ["FileSource and FileSink in DataStream, bulk and row formats", "Rolling policies and OnCheckpointRollingPolicy for bulk formats", "Part file states: in-progress, pending and finished", "Filesystem plugins and plugins/s3-fs-hadoop", "S3 options: s3.endpoint, s3.path.style.access and credentials from IAM roles", "Partition commit policies in the SQL filesystem sink", "Apache Paimon and Apache Iceberg as sink options", "Compaction of small files", "Checkpoints and file visibility: files are finished at checkpoints", "Parquet and ORC format options"],
+          "tools": ["MinIO", "Flink SQL Client", "Docker", "Apache Paimon", "Apache Iceberg"],
+          "lab_task": "Start MinIO with docker, enable the S3 plugin, and write a SQL job from Kafka to a partitioned Parquet table in s3://flink-lab/clicks/ using sink.rolling-policy.file-size and a checkpoint interval of 30 s. Then write the same stream to a Paimon or Iceberg table and list the files created by each.",
+          "deliverable": "SQL jobs, configuration for S3 and a file listing comparison",
+          "checks": [["Run the Parquet sink and list the bucket before the first checkpoint", "Files are in-progress or pending, not finished", "aws s3 ls or mc ls output"], ["List the bucket after a checkpoint completes", "Finished part files exist under dt=... partitions", "Listing output"], ["Run the lakehouse sink with the same input", "The table can be queried and snapshots increase with each checkpoint", "Query result"]],
+          "objectives": ["Write streams to files and object storage", "Set up the S3 filesystem plugin", "Explain small file problems"]
+        },
+        {
+          "topic": "Backpressure, Data Skew and Performance Diagnosis",
+          "subtopics": ["Reading busy, idle and backpressured time in the Web UI", "Finding the bottleneck: the first operator that is busy but not backpressured", "Thread dumps and flame graphs with rest.flamegraph.enabled", "Data skew and the two-phase aggregation fix with a salted key", "Slow sinks and batching", "Serialization cost and object reuse with pipeline.object-reuse", "GC pauses and heap sizing", "Network buffers: taskmanager.network.memory.fraction", "Network buffer debloating", "Load testing with datagen and reading throughput per subtask"],
+          "tools": ["Flink Web UI", "Flame graphs", "jcmd", "Prometheus"],
+          "lab_task": "Run the click aggregation with a hot key and a sink that sleeps 5 ms per record. Use the Web UI to find which operator shows backpressure, enable flame graphs, identify the slow function, fix it with batching, then fix the hot key with a two-phase salted aggregation and compare throughput.",
+          "deliverable": "Diagnosis notes with screenshots and a table of throughput after each fix",
+          "checks": [["View the job graph while the sink sleeps", "The operators upstream of the sink show high backPressuredTimeMsPerSecond and the sink shows high busyTimeMsPerSecond", "Web UI"], ["Open the flame graph for the sink task", "The sleep call or client call is the widest frame", "Flame graph screenshot"], ["Apply a salted two-phase aggregation to the hot key", "Busy time is evenly spread across subtasks", "Web UI subtask view"]],
+          "objectives": ["Locate bottlenecks from metrics", "Fix skew and slow sinks", "Use flame graphs"]
+        },
+        {
+          "topic": "Flink Kubernetes Operator: Installing and Deploying FlinkDeployment",
+          "subtopics": ["Operator architecture: CRDs FlinkDeployment and FlinkSessionJob", "Installing cert-manager and the operator with Helm", "helm repo add and helm install flink-kubernetes-operator", "Service account, RBAC and the flink service account", "FlinkDeployment spec: image, flinkVersion, flinkConfiguration, jobManager, taskManager and job", "job.jarURI with local:///opt/flink/usrlib/job.jar", "Building a job image from the official Flink image", "Application mode versus session cluster with FlinkSessionJob", "Reading status: kubectl get flinkdeployment and status.jobStatus.state", "Port-forwarding to the Web UI and the pod template for env vars and volumes"],
+          "tools": ["Kubernetes", "Helm", "kubectl", "kind", "Docker"],
+          "lab_task": "On a kind cluster install cert-manager and the Flink Kubernetes Operator with Helm, build an image that adds your job jar to /opt/flink/usrlib/, and apply a FlinkDeployment in application mode with parallelism 2 and upgradeMode stateless. Port-forward to the REST service and verify the job is RUNNING.",
+          "deliverable": "Helm commands, Dockerfile, FlinkDeployment YAML and status output",
+          "checks": [["Run kubectl get flinkdeployment after applying the manifest", "LIFECYCLE STATE is STABLE and JOB STATUS is RUNNING", "kubectl output"], ["Run kubectl get pods", "One JobManager pod and two or more TaskManager pods are Running", "kubectl output"], ["Apply a spec with a wrong jarURI", "The deployment reports an error in status.error and the lifecycle state is not STABLE", "kubectl describe output"]],
+          "objectives": ["Install the Flink Kubernetes Operator", "Deploy a job as a FlinkDeployment", "Read deployment status"]
+        },
+        {
+          "topic": "Intermediate Capstone: Stateful Fraud Detection from Kafka to Kafka",
+          "subtopics": ["Requirements: transactions in, rules and alerts out, exactly-once output", "Design with keyed state, timers, broadcast rules and an enrichment lookup", "Checkpoint and RocksDB configuration with measured sizes", "Kafka exactly-once sink configuration and read_committed verification", "Deployment as a FlinkDeployment with a savepoint upgrade", "Test and failure-injection plan"],
+          "tools": ["Flink", "Kafka", "Flink Kubernetes Operator", "RocksDB", "Helm", "Flink Web UI"],
+          "lab_task": "Build a job that reads transactions from Kafka, flags more than 3 transactions in 1 minute per card with timers and state, applies a broadcast threshold rule, enriches with an async lookup, and writes alerts to Kafka with EXACTLY_ONCE. Deploy it as a FlinkDeployment, kill a TaskManager pod, and upgrade the job through a savepoint.",
+          "deliverable": "Repository with job, manifests, test report, failure-injection evidence and a runbook",
+          "checks": [["Replay 100000 transactions containing 50 known fraud bursts", "Exactly 50 alerts appear with read_committed", "Count of alerts"], ["Delete a TaskManager pod during the run", "The job recovers from a checkpoint and the alert count is still 50 with no duplicates", "kubectl and consumer output"], ["Change the rule threshold in the job and upgrade with upgradeMode: savepoint", "State is preserved and the new version resumes without alert loss", "FlinkDeployment status and output"]],
+          "objectives": ["Combine state, timers, broadcast rules and Kafka transactions", "Deploy and upgrade on Kubernetes", "Prove correctness under failure"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior data and platform engineers who own Flink platforms and critical streaming jobs. Covers runtime and network internals, checkpoint internals, disaggregated state, the State Processor API, custom sources, sinks and table connectors, planner internals and compiled plans, process table functions and model calls in SQL, batch execution, elastic scaling, the operator autoscaler, upgrades and rollbacks, high availability and disaster recovery, security, observability, troubleshooting, multi-tenancy, migration to Flink 2.x and a production platform capstone.",
+      "prerequisites": ["Runs stateful Flink jobs with checkpoints, savepoints and Kafka in production", "Reads Flink logs, metrics and exception histories to find root causes", "Operates Kubernetes workloads with Helm and understands object storage"],
+      "outcomes": ["Explain and tune the runtime, network stack and checkpoint mechanics from metrics", "Build custom connectors and edit state with the State Processor API", "Operate elastic, secure and highly available Flink on Kubernetes with autoscaling and rollbacks", "Lead migrations, troubleshooting and platform design with measured service level objectives"],
+      "days": [
+        {
+          "topic": "Flink Runtime Internals: JobManager, Scheduler and Task Execution",
+          "subtopics": ["From program to StreamGraph, JobGraph and ExecutionGraph", "JobMaster, Dispatcher and ResourceManager responsibilities", "Slot pool, slot requests and slot allocation", "Scheduler types: default, adaptive and adaptive batch", "Pipelined regions and failover scope", "Task lifecycle states and the mailbox threading model", "Operator chains inside a task and the single task thread", "Heartbeats and heartbeat.timeout (default 50 s)", "Pekko-based RPC between components", "Reading the exception history and the scheduler log lines"],
+          "tools": ["Flink Web UI", "jcmd", "jstack", "REST API"],
+          "lab_task": "Run a 3-vertex job at parallelism 4, call GET /jobs/<id>/plan and /jobs/<id>/vertices from curl, and map each JSON vertex to the StreamGraph operator names. Kill one TaskManager with kill -9, record the time from the kill until the JobManager logs the heartbeat timeout and the job reaches RESTARTING, then compare it with heartbeat.timeout.",
+          "deliverable": "Annotated graph mapping and a failure timeline with timestamps from JobManager logs",
+          "checks": [["Call GET /jobs/<id>/plan on a 3-vertex job", "JSON lists nodes with parallelism 4 and their inputs", "curl output"], ["Kill a TaskManager with kill -9 and read the JobManager log", "A heartbeat or connection loss message appears and failover starts within about the configured timeout", "Log excerpt with timestamps"], ["Run with a failover region setup of two disconnected pipelines", "Only the region with the failed task restarts", "Web UI exception history"]],
+          "objectives": ["Trace a job from code to execution", "Explain scheduling and failover regions", "Measure failure detection time"]
+        },
+        {
+          "topic": "Network Stack, Credit-Based Flow Control and Buffer Debloating",
+          "subtopics": ["Network buffers, memory segments and the 32 KB default size", "Credit-based flow control between subtasks", "Exclusive and floating buffers per channel", "taskmanager.network.memory.fraction, min and max", "Buffer debloating: taskmanager.network.memory.buffer-debloat.enabled and target", "Output flushing: execution.buffer-timeout and the latency/throughput trade-off", "Local versus remote channels and chaining", "Metrics: inPoolUsage, outPoolUsage, inputQueueLength and outputQueueLength", "Insufficient number of network buffers error", "Hybrid shuffle and blocking shuffle in batch (preview)"],
+          "tools": ["Flink Web UI", "Prometheus", "config.yaml", "datagen connector"],
+          "lab_task": "Run a shuffle-heavy job with parallelism 64 across 4 TaskManagers and provoke the Insufficient number of network buffers error by lowering taskmanager.network.memory.max. Fix it with a larger fraction, then compare p99 latency and checkpoint duration with buffer debloating off and on at 5 ms and 100 ms execution.buffer-timeout.",
+          "deliverable": "Tuning report with the error, the final settings and a latency table for each combination",
+          "checks": [["Set taskmanager.network.memory.max too low for parallelism 64", "Job fails with Insufficient number of network buffers", "TaskManager log"], ["Raise the network memory and rerun", "The job starts and inPoolUsage is below 1 on healthy channels", "Web UI metrics"], ["Switch execution.buffer-timeout from 100 ms to 5 ms", "Median end-to-end latency drops and CPU use rises", "Latency histogram and CPU metric"]],
+          "objectives": ["Explain Flink flow control", "Tune buffers and timeouts", "Diagnose buffer errors"]
+        },
+        {
+          "topic": "Checkpoint Internals: Barriers, Coordinator and Failure Analysis",
+          "subtopics": ["CheckpointCoordinator and the trigger, ack and complete phases", "Barrier injection at sources and propagation", "Barrier alignment and the operator snapshot sequence", "Sync and async phases of a snapshot", "Checkpoint file layout: _metadata, shared, taskowned and exclusive directories", "Checkpoint subsumption and execution.checkpointing.num-retained", "Failed checkpoint reasons from the REST API", "Finished tasks and checkpoints after bounded sources end", "Changelog state backend: state.backend.changelog.enabled", "File merging for small checkpoint files: execution.checkpointing.file-merging.enabled"],
+          "tools": ["Flink Web UI", "REST API", "jq", "S3 or MinIO"],
+          "lab_task": "Run a job with checkpoints every 20 s on MinIO and inspect s3://flink-lab/chk/<jobid>/. List the chk-N, shared and taskowned folders, read GET /jobs/<id>/checkpoints/details/<n>, and compute per-operator state size. Trigger failures by blocking MinIO for 60 s and record the decline reason and tolerable-failed-checkpoints behaviour.",
+          "deliverable": "Checkpoint anatomy diagram, the bucket listing and a failure analysis note",
+          "checks": [["List the checkpoint directory after 5 completed checkpoints with num-retained 1", "One chk-N directory remains with shared files from earlier incremental checkpoints", "Bucket listing"], ["Block MinIO for 60 s with a 30 s checkpoint timeout", "Checkpoints fail with an expired or IO failure reason in the details endpoint", "REST API JSON"], ["Set tolerable-failed-checkpoints to 0 and repeat", "The job fails over instead of continuing", "Web UI job state"]],
+          "objectives": ["Explain how checkpoints are produced", "Read checkpoint storage layout", "Analyse failed checkpoints"]
+        },
+        {
+          "topic": "Disaggregated State with ForSt and the Async State API",
+          "subtopics": ["Why local state limits scaling and recovery time", "Disaggregated state in Flink 2.x and the ForSt backend", "state.backend.type: forst and primary storage on remote file systems", "Local cache and the effect on latency", "Asynchronous state access and StateFuture in the new API", "Keyed streams with enableAsyncState and the v2 state types", "Ordering guarantees for asynchronous state callbacks", "Faster rescaling and checkpoints because files are already remote", "Experimental status and feature limits to check in the release notes", "Benchmarking against RocksDB with the same workload"],
+          "tools": ["ForSt", "RocksDB", "Flink Web UI", "MinIO"],
+          "lab_task": "Run a state-heavy aggregation with 20 million keys on RocksDB and record checkpoint duration, restore time after killing a TaskManager and rescale time from 4 to 8 subtasks. Repeat with the ForSt backend and the async state API with the primary directory on MinIO, and compare the three numbers.",
+          "deliverable": "Benchmark report with the config used, the results and a recommendation on when to use ForSt",
+          "checks": [["Restore after kill -9 on the RocksDB baseline", "Restore time is recorded in seconds from the Web UI", "Web UI restore timing"], ["Repeat with ForSt on remote storage", "Restore and rescale times are reported side by side with RocksDB", "Comparison table"], ["Compare p99 record latency", "The numbers for both backends are in the report with the cache size noted", "Latency graph"]],
+          "objectives": ["Explain disaggregated state", "Run a fair state backend benchmark", "State the limits of an experimental feature"]
+        },
+        {
+          "topic": "State Processor API: Reading, Repairing and Bootstrapping State",
+          "subtopics": ["The flink-state-processor-api dependency", "SavepointReader.read(env, path, stateBackend)", "Reading keyed state with KeyedStateReaderFunction and OperatorIdentifier.forUid", "Reading operator, list and broadcast state", "SavepointWriter.fromExistingSavepoint and removeOperator", "Bootstrapping state with StateBootstrapTransformation", "Writing a new savepoint with a changed max parallelism", "Migrating state types with a one-off job", "Fixing corrupt keys in production state", "Validating a modified savepoint before use"],
+          "tools": ["State Processor API", "Java 17", "Maven", "flink CLI"],
+          "lab_task": "Take a savepoint of the click counting job, read its ValueState with SavepointReader and print the top 10 users by count. Then use SavepointWriter to change the count of one user, write a new savepoint, restore the job from it, and confirm that the user's next alert reflects the change.",
+          "deliverable": "State reader and writer programs, the printed top 10 and the restore proof",
+          "checks": [["Read the keyed state of uid 'count' from the savepoint", "The top 10 users and counts match the job output before the stop", "Program output"], ["Modify one user's count to 4 and write a new savepoint", "The new savepoint directory contains a _metadata file", "ls output"], ["Restore from the new savepoint and send 1 more event for that user at threshold 5", "An alert fires for that user", "Console output"]],
+          "objectives": ["Inspect and edit savepoint state", "Bootstrap state for a new job", "Validate state changes"]
+        },
+        {
+          "topic": "Custom Sources and Sinks: FLIP-27 Sources and Sink V2",
+          "subtopics": ["Why legacy SourceFunction and SinkFunction were replaced", "Source API: Source, SplitEnumerator, SourceReader and SourceSplit", "Enumerator state checkpoints and split assignment", "Using SourceReaderBase and SplitFetcherManager to avoid writing threading code", "Watermark generation inside a source", "Sink V2: Sink, SinkWriter and Committer", "Two-phase commit with SupportsCommitter and committables", "Idempotent writes, batching and flush on checkpoint", "Retry and backoff for external systems", "Testing connectors with the connector testing framework"],
+          "tools": ["Java 17", "Maven", "Flink test harness", "JUnit 5"],
+          "lab_task": "Implement a bounded FLIP-27 source that reads numbered files from a directory, one split per file, with enumerator state, and a Sink V2 that writes batches of 100 records to an HTTP endpoint with retries. Kill the job mid-run, restore, and check that no file is read twice.",
+          "deliverable": "Source and sink classes, a test and the restore evidence",
+          "checks": [["Read 10 files with 100 lines each at parallelism 3", "1000 records in total and each split is assigned once", "Counter output"], ["Kill the job after 4 splits are done and restore", "Done splits are not read again and the total stays 1000", "Output count"], ["Make the HTTP endpoint fail 3 times then succeed", "The writer retries and no records are lost", "Endpoint request log"]],
+          "objectives": ["Build a source with the split model", "Build a sink with commit semantics", "Test a connector"]
+        },
+        {
+          "topic": "Custom Table Connectors and Formats with DynamicTableFactory",
+          "subtopics": ["DynamicTableSourceFactory and DynamicTableSinkFactory", "factoryIdentifier and the META-INF/services registration", "ConfigOption, required and optional options and validation", "ScanTableSource, LookupTableSource and runtime providers", "Ability interfaces: projection and filter pushdown, watermark push down", "Changelog mode declaration with getChangelogMode", "Metadata columns with SupportsReadingMetadata", "Format factories: DeserializationFormatFactory", "Packaging with the shade plugin and relocation", "Debugging with the planner and EXPLAIN"],
+          "tools": ["Java 17", "Maven", "Flink SQL Client", "JUnit 5"],
+          "lab_task": "Write a table connector with identifier 'rest-poll' that polls a JSON HTTP endpoint every N seconds as a ScanTableSource with projection pushdown, register it in META-INF/services, put the jar in lib, and run CREATE TABLE ... WITH ('connector' = 'rest-poll', 'url' = '...'). Verify with EXPLAIN that projection is pushed.",
+          "deliverable": "Connector project, DDL and EXPLAIN output showing projection pushdown",
+          "checks": [["Create a table with the connector id before registering the service file", "Could not find any factory for identifier 'rest-poll'", "Error message"], ["Create a table with an unknown option", "ValidationException: Unsupported options found for 'rest-poll'", "Error message"], ["Run EXPLAIN SELECT id FROM t", "The table source scan shows project=[id]", "EXPLAIN output"]],
+          "objectives": ["Create and register a table connector", "Support pushdown abilities", "Validate options"]
+        },
+        {
+          "topic": "Flink SQL Planner Internals: Optimizer, Plans and Compiled Plans",
+          "subtopics": ["Parsing, validation and conversion to Calcite relational trees", "Logical and physical optimization phases", "Reading EXPLAIN ESTIMATED_COST, CHANGELOG_MODE and JSON_EXECUTION_PLAN", "Stream exec nodes and how they map to transformations", "COMPILE PLAN and EXECUTE PLAN for restart-safe SQL upgrades", "Why SQL changes can make state incompatible", "Operator uid assignment in SQL and table.exec.uid.generation", "table.exec.uid.format and table.exec.uid.generation settings", "Plan advice with EXPLAIN PLAN_ADVICE", "Regression testing of plans with golden files"],
+          "tools": ["Flink SQL Client", "EXPLAIN", "Java 17"],
+          "lab_task": "Take a three-way join query, save its plan with COMPILE PLAN 'file:///tmp/plan.json' FOR INSERT INTO sink SELECT ..., start the job with EXECUTE PLAN, stop it with a savepoint, upgrade the Flink minor version and restore from the saved plan. Then change the query, restore from the old savepoint and capture the incompatibility.",
+          "deliverable": "Plan JSON, the commands used and the outcome for the unchanged and changed queries",
+          "checks": [["Run COMPILE PLAN on an INSERT INTO statement", "A JSON plan file is created containing the exec nodes", "File listing"], ["Restore the job using EXECUTE PLAN from the same plan and savepoint", "State is restored and counts continue", "SQL client and output"], ["Add a join to the query and restore from the old savepoint", "The restore fails or the topology differs because operator state cannot be mapped", "Exception log"]],
+          "objectives": ["Read and compare Flink SQL plans", "Upgrade SQL jobs with compiled plans", "Explain SQL state compatibility"]
+        },
+        {
+          "topic": "Process Table Functions, Models and AI Functions in Flink SQL",
+          "subtopics": ["Process Table Functions: stateful functions that take a table argument", "Row semantics and set semantics with PARTITION BY", "State and timers in a process table function", "CREATE MODEL and model providers in recent 2.x releases", "ML_PREDICT for inference over a stream", "Async model calls, retries and timeouts", "Rate limits, cost and caching for model calls", "Vector search and embeddings in streaming pipelines, with release-note checks", "Failure handling for model errors and bad responses", "Governance: logging prompts and outputs"],
+          "tools": ["Flink SQL Client", "Java 17", "HTTP model endpoint"],
+          "lab_task": "Write a stateful process table function with set semantics that keeps the last 5 events per user and emits a summary when the 5th arrives. Then, if your release supports CREATE MODEL, register a stubbed HTTP model and call ML_PREDICT on 1000 messages with a concurrency limit and a 5 s timeout.",
+          "deliverable": "Function source, model DDL and results for 1000 rows with timeouts counted",
+          "checks": [["Send 12 events for one user to the summary function", "Two summaries are emitted, at events 5 and 10", "SQL client output"], ["Run ML_PREDICT on 1000 messages against a stub that fails 2 percent of calls", "About 20 rows carry the configured error handling result", "Result count"], ["Run EXPLAIN on the model query", "The plan shows the model call node", "EXPLAIN output"]],
+          "objectives": ["Write stateful table functions", "Call models from SQL", "Control cost and failure in model calls"]
+        },
+        {
+          "topic": "Unified Batch and Streaming: Execution Modes and the Adaptive Batch Scheduler",
+          "subtopics": ["execution.runtime-mode: STREAMING, BATCH and AUTOMATIC", "Differences in semantics: no watermarks and no checkpoints in batch", "Blocking, hybrid and pipelined shuffle", "Adaptive batch scheduler and automatic parallelism", "execution.batch.adaptive.auto-parallelism options", "Speculative execution for slow tasks", "Sort-based shuffle and spilling", "Backfilling a streaming job's result with the same SQL in batch mode", "Bounded Kafka reads for reprocessing", "Choosing batch or streaming for reprocessing"],
+          "tools": ["Flink SQL Client", "flink CLI", "Flink Web UI"],
+          "lab_task": "Write one SQL query that aggregates order revenue per day. Run it in STREAMING mode on a bounded file source and in BATCH mode with SET 'execution.runtime-mode' = 'BATCH'. Compare run time, result rows and the changelog, then enable the adaptive batch scheduler and check the parallelism picked on a 50 GB input.",
+          "deliverable": "Comparison of both modes with a table of runtime, output shape and scheduler decisions",
+          "checks": [["Run the aggregation in STREAMING mode", "The output contains intermediate updates for each day", "SQL client output"], ["Run the aggregation in BATCH mode", "Exactly one final row per day is produced", "SQL client output"], ["Run on a large input with the adaptive batch scheduler", "Parallelism per vertex is chosen automatically and shown in the Web UI", "Web UI vertex page"]],
+          "objectives": ["Choose an execution mode", "Backfill with batch execution", "Use adaptive scheduling"]
+        },
+        {
+          "topic": "Elastic Scaling: Adaptive Scheduler, Reactive Mode and Rescaling",
+          "subtopics": ["Why rescaling needs a restart and the cost of it", "The adaptive scheduler: jobmanager.scheduler: adaptive", "Reactive mode and scheduler-mode: reactive", "Key groups and maxParallelism: the upper bound of scale-out", "Choosing maxParallelism early", "Adaptive scheduler options: min-parallelism-increase and resource-wait-timeout", "Scaling decisions and stabilization", "Rescaling with a savepoint versus in-place rescale", "State redistribution on rescale", "In-place rescale and its limits on Kubernetes"],
+          "tools": ["Flink Web UI", "config.yaml", "Kubernetes", "flink CLI"],
+          "lab_task": "Run a job with jobmanager.scheduler: adaptive and maxParallelism 128. Start with 2 TaskManagers, add 2 more and watch the parallelism rise, then remove them and watch it drop. Record the downtime of each rescale from the Web UI timeline and verify that the per-key counts were preserved.",
+          "deliverable": "Scaling log with timestamps, downtime per rescale and a state-consistency check",
+          "checks": [["Add two TaskManagers to a running adaptive-scheduler job", "The job restarts at a higher parallelism that fits the slots", "Web UI timeline"], ["Set parallelism above maxParallelism on restore", "The restore is rejected", "Exception log"], ["Compare per-key counts before and after two rescales", "Counts are identical to those of a run without rescaling", "Output diff"]],
+          "objectives": ["Scale a job elastically", "Choose maxParallelism", "Measure rescale downtime"]
+        },
+        {
+          "topic": "Operator Autoscaler: Metrics, Targets and Tuning",
+          "subtopics": ["How the autoscaler computes the needed parallelism from busy time", "job.autoscaler.enabled and job.autoscaler.scaling.enabled", "job.autoscaler.target.utilization and the boundary", "Metrics window job.autoscaler.metrics.window and stabilization.interval", "scale-up.max-factor, scale-down.max-factor and vertex max parallelism", "Excluding vertices and handling sources with limited partitions", "Backlog-based scale up with the pending-records metric", "Tuning to avoid flapping and restarts", "Dry-run with scaling.enabled false and the event log", "Cost effect of autoscaling and quotas"],
+          "tools": ["Flink Kubernetes Operator", "Prometheus", "kubectl", "Flink Web UI"],
+          "lab_task": "Enable the autoscaler on a FlinkDeployment with job.autoscaler.enabled: true, target utilization 0.7 and stabilization interval of 2 minutes. First run it with scaling.enabled: false and read the recommended parallelism in events. Then raise the input rate 4 times, let it scale, and record the resulting parallelism per vertex.",
+          "deliverable": "Autoscaler configuration, kubectl event output and a before and after parallelism table",
+          "checks": [["Run in dry-run mode with a 4 times traffic increase", "Events recommend higher parallelism without a restart", "kubectl get events"], ["Enable scaling and repeat", "The job is rescaled and per-vertex parallelism increases", "kubectl and Web UI"], ["Drop the traffic to the original rate", "The job scales down after the stabilization interval", "Web UI and events"]],
+          "objectives": ["Configure the autoscaler", "Interpret its recommendations", "Avoid scaling oscillation"]
+        },
+        {
+          "topic": "Operator Upgrade Modes, Snapshot Management and Rollbacks",
+          "subtopics": ["upgradeMode: stateless, last-state and savepoint", "How a spec change triggers an upgrade", "Savepoint upgrade flow: suspend, snapshot, redeploy", "FlinkStateSnapshot resources for savepoints and checkpoints", "Periodic savepoints with kubernetes.operator.periodic.savepoint.interval", "Manual savepoints with savepointTriggerNonce", "Savepoint history cleanup with kubernetes.operator.savepoint.history.max.count", "Rollback: kubernetes.operator.deployment.rollback.enabled and the readiness timeout", "spec.job.state suspended and running", "Blue/green rollouts in newer operator versions"],
+          "tools": ["Flink Kubernetes Operator", "kubectl", "Helm", "MinIO"],
+          "lab_task": "Set upgradeMode: savepoint and a periodic savepoint interval of 5 minutes on a FlinkDeployment. Change the image tag to trigger an upgrade, then deploy a version that crashes at startup with kubernetes.operator.deployment.rollback.enabled: true and a short readiness timeout. Record the state transitions with kubectl get flinkdeployment -w.",
+          "deliverable": "Manifests, the transition log for both upgrades and the snapshot objects",
+          "checks": [["Change the image tag with upgradeMode: savepoint", "A savepoint is taken, the job is redeployed and it resumes from that savepoint", "kubectl status and Web UI"], ["Deploy a version that crashes at startup with rollback enabled", "The deployment goes back to the last stable spec after the timeout", "kubectl get flinkdeployment -w"], ["List snapshots after 20 minutes with history.max.count set to 3", "Only the 3 most recent savepoints are kept", "Listing"]],
+          "objectives": ["Choose an upgrade mode", "Manage savepoints with the operator", "Configure automatic rollback"]
+        },
+        {
+          "topic": "High Availability, Failover and Disaster Recovery on Kubernetes",
+          "subtopics": ["JobManager failure and what HA stores", "high-availability.type: kubernetes and high-availability.storageDir", "ConfigMaps and leader election for HA", "Running two JobManager replicas", "HA data cleanup and cluster-id", "Recovery time objective for a TaskManager loss, JobManager loss and node loss", "Pod disruption budgets and topology spread constraints", "Checkpoints and savepoints replicated across regions", "Restoring a job in another region from a copied checkpoint", "Disaster recovery drill and runbook"],
+          "tools": ["Kubernetes", "kubectl", "Flink Kubernetes Operator", "MinIO"],
+          "lab_task": "Enable Kubernetes HA with high-availability.storageDir on object storage and 2 JobManager replicas. Run a stateful job, delete the leader JobManager pod, and record the time until it is RUNNING again and the number of lost records. Then copy the latest checkpoint to a second bucket and restore the job from it in a second namespace.",
+          "deliverable": "HA configuration, failover timings and a DR drill report",
+          "checks": [["Delete the leader JobManager pod", "The standby becomes leader and the job keeps the same job id and RUNNING state", "kubectl and Web UI"], ["Compare output counts before and after the failover", "No gaps and no duplicate results in the sink", "Count comparison"], ["Restore from a copied checkpoint in another namespace", "The job starts from the copied checkpoint id and its counts continue", "Web UI and logs"]],
+          "objectives": ["Configure Flink HA on Kubernetes", "Measure failover", "Run a disaster recovery drill"]
+        },
+        {
+          "topic": "Securing Flink Clusters: TLS, Kerberos, Secrets and Kafka Authentication",
+          "subtopics": ["Threat model: REST endpoint, internal RPC and data transfer", "security.ssl.rest.enabled and security.ssl.internal.enabled", "Keystores, truststores and certificate rotation", "Authentication for the REST API through a proxy or mutual TLS", "Kerberos for Hadoop and Kafka: security.kerberos.login.keytab", "Kafka SASL and TLS settings passed to the connectors", "Secrets from Kubernetes secrets and environment variables, not from config.yaml", "Least-privilege service account and RBAC for the operator", "Network policies for JobManager and TaskManager traffic", "Audit and rotation checklist"],
+          "tools": ["OpenSSL", "keytool", "Kubernetes", "kubectl"],
+          "lab_task": "Create a CA and keystores with keytool, set security.ssl.rest.enabled: true and security.ssl.internal.enabled: true on a FlinkDeployment, mount the keystore from a Kubernetes secret, and confirm that plain HTTP calls fail. Configure the KafkaSource to use SASL_SSL with credentials from a secret, and add a NetworkPolicy limiting access to the REST port.",
+          "deliverable": "TLS configuration, secret manifests, a connection test log and the network policy",
+          "checks": [["Call the REST port with curl over http", "The connection fails or the response is an SSL error", "curl output"], ["Call it over https with the client certificate", "Returns the overview JSON", "curl output"], ["Search config.yaml and the container environment for the password string", "The password does not appear in plain text in the config", "grep output"]],
+          "objectives": ["Encrypt Flink traffic", "Handle secrets safely", "Authenticate Kafka connections"]
+        },
+        {
+          "topic": "Flink Observability: Metrics Reporters, Logging and Alerting",
+          "subtopics": ["Metric scopes and the metrics.scope.* formats", "Prometheus reporter: metrics.reporter.prom.factory.class and port 9249", "The operator PodMonitor and Grafana dashboards", "Key service level indicators: lag, watermark delay, checkpoint success rate and restarts", "currentEmitEventTimeLag and pendingRecords for sources", "Alert rules for checkpoint failures and rising lag", "Log4j 2 configuration and log shipping with a JSON layout", "Tracing and event time lag through the pipeline", "Latency markers and why they are off by default", "Using the History Server for finished jobs"],
+          "tools": ["Prometheus", "Grafana", "Log4j 2", "Flink Web UI", "Helm"],
+          "lab_task": "Enable the Prometheus reporter, scrape it with a PodMonitor or scrape config, and build a Grafana dashboard with panels for numRestarts, lastCheckpointDuration, numberOfFailedCheckpoints, pendingRecords and currentOutputWatermark age. Write two Prometheus alert rules and trigger each by stopping Kafka input and failing checkpoints.",
+          "deliverable": "Dashboard JSON, alert rules and screenshots of both alerts firing",
+          "checks": [["Query curl on a TaskManager port 9249", "Prometheus-format metrics including flink_taskmanager_job_task_operator_ lines", "curl output"], ["Stop the input producer for 5 minutes", "The watermark age alert fires", "Alertmanager screenshot"], ["Make checkpoints fail by blocking storage", "The failed-checkpoint alert fires within its for: window", "Alertmanager screenshot"]],
+          "objectives": ["Export and visualise Flink metrics", "Define useful alerts", "Ship structured logs"]
+        },
+        {
+          "topic": "Troubleshooting Production Flink Jobs",
+          "subtopics": ["A fixed triage order: job state, exceptions, checkpoints, lag, resources", "Reading root cause in the exception history", "OOMKilled exit code 137 versus java.lang.OutOfMemoryError", "Memory model: heap, managed, network, metaspace and overhead", "Checkpoint expired and slow checkpoint causes", "Stuck watermark and idle source causes", "Deserialization and NotSerializableException failures", "Restart loops and the restart strategy", "Class loading problems and dependency conflicts: child-first and classloader.resolve-order", "Collecting evidence: thread dump, heap dump and logs"],
+          "tools": ["Flink Web UI", "jcmd", "kubectl", "Prometheus"],
+          "lab_task": "Work through five injected faults: a stateful function that throws on a poison record, a container memory limit below the Flink process size, a missing uid after a code change, a silent Kafka partition, and a sink that blocks. For each, write the symptom, the first three commands you ran, the root cause and the fix.",
+          "deliverable": "Triage runbook with five completed incident write-ups",
+          "checks": [["Inject a poison record and read the exception history", "The root exception names the function and the failing record key", "Web UI exception history"], ["Set the pod memory limit below taskmanager.memory.process.size", "Pod is OOMKilled with exit code 137 and the status shows it", "kubectl describe pod"], ["Leave one Kafka partition silent without withIdleness", "currentOutputWatermark stops advancing while records still flow", "Web UI watermark metric"]],
+          "objectives": ["Diagnose common Flink production failures", "Read the memory model in a failure", "Write incident runbooks"]
+        },
+        {
+          "topic": "Multi-Tenant Flink Platforms and Cost Management",
+          "subtopics": ["Tenancy models: cluster per job, shared session cluster and namespace per team", "Resource quotas, limit ranges and priority classes", "Standard job image, base config and pod templates", "Self-service with a GitOps repository and the operator", "Right-sizing from busy time and memory use", "Spot or preemptible nodes for TaskManagers and recovery behaviour", "Checkpoint storage cost and retention policy", "Chargeback by job: cost per million records", "Guardrails: default restart strategy, mandatory uid checks, state TTL policy", "Upgrade policy for Flink versions across many jobs"],
+          "tools": ["Kubernetes", "Argo CD", "Helm", "Prometheus", "kubectl"],
+          "lab_task": "Create a namespace with a ResourceQuota, a GitOps folder of FlinkDeployment manifests and a Helm chart that injects the base config. Add a CI check that fails a manifest with no checkpoint directory or no state TTL. Compute cost per million records for three jobs from CPU and memory requests and numRecordsOut.",
+          "deliverable": "Platform repository with chart, CI check and a cost table for three jobs",
+          "checks": [["Apply a FlinkDeployment that requests more CPU than the namespace quota allows", "The pods are rejected with a quota exceeded error", "kubectl events"], ["Run the CI check on a manifest without state.checkpoints.dir", "The check fails with a message naming the missing key", "CI log"], ["Compute cost per million records for three jobs", "A table lists the cost for each with the formula noted", "Spreadsheet or report"]],
+          "objectives": ["Design a multi-tenant Flink service", "Add guardrails to deployments", "Report cost per job"]
+        },
+        {
+          "topic": "Migrating to Flink 2.x and Between Streaming Engines",
+          "subtopics": ["Flink 2.0 breaking changes: removal of DataSet API, Scala API and old config files", "Java version support and moving to Java 17", "Migrating flink-conf.yaml to config.yaml with the migration helper", "Deprecated and removed APIs: SourceFunction, SinkFunction and TableSource", "Connector compatibility: connector versions per Flink minor version", "State compatibility across Flink versions and the savepoint upgrade path", "Dual-running old and new versions and comparing output", "Migrating from Kafka Streams or Spark Structured Streaming", "Semantics to compare: time, state, exactly-once and late data", "Cutover plan with rollback"],
+          "tools": ["flink CLI", "Maven", "Flink Kubernetes Operator", "Docker"],
+          "lab_task": "Take a job written for a Flink 1.x release, move its configuration to config.yaml, replace any SourceFunction with a FLIP-27 source, fix the compile errors against the 2.x APIs, restore the old savepoint on the new version, and run old and new side by side on the same Kafka input. Diff the outputs for 100000 records.",
+          "deliverable": "Migration log, the code changes and a diff report of old versus new outputs",
+          "checks": [["Compile the job against Flink 2.x without changes", "Compilation errors name the removed APIs, such as SourceFunction", "Maven output"], ["Restore the old savepoint on the 2.x cluster", "The job restores or fails with a clear compatibility message that is recorded", "Exception log or Web UI"], ["Compare old and new outputs for 100000 records", "The outputs are identical or each difference is explained", "Diff report"]],
+          "objectives": ["Plan a Flink 2.x upgrade", "Replace removed APIs", "Verify equivalence of old and new jobs"]
+        },
+        {
+          "topic": "Advanced Capstone: Production Flink Platform on Kubernetes",
+          "subtopics": ["Requirements: SLOs for lag, checkpoint success rate and recovery time", "Architecture: Kafka, Flink jobs, state storage, operator and observability", "Job design: SQL and DataStream parts, state sizing and exactly-once", "Platform: HA, autoscaler, security and upgrade process", "Failure drills: TaskManager loss, JobManager loss, storage outage and bad deployment", "Operations pack: dashboards, alerts, runbooks and cost report"],
+          "tools": ["Flink", "Kafka", "Flink Kubernetes Operator", "Prometheus", "Helm", "Argo CD"],
+          "lab_task": "Deliver a platform that runs two jobs, a DataStream fraud job and a SQL revenue aggregation, with HA, autoscaler, TLS, a Prometheus dashboard and a GitOps pipeline. Run the failure drills, take a savepoint upgrade, and publish measured recovery times, checkpoint success rate and cost per million records against your SLOs.",
+          "deliverable": "Repository, architecture document, drill report, dashboards, runbooks and a final SLO table",
+          "checks": [["Delete the leader JobManager pod and a TaskManager pod during load", "Both jobs resume and the output has no gaps or duplicates", "Pod events and output counts"], ["Upgrade a job with upgradeMode: savepoint under load", "The new version resumes from the savepoint with no data loss", "FlinkDeployment status"], ["Compare measured values with the SLOs", "Checkpoint success rate, lag and recovery time are listed with pass or fail for each", "SLO table"]],
+          "objectives": ["Design and operate a complete Flink platform", "Prove reliability with failure drills", "Report against service level objectives"]
+        }
+      ]
+    }
+  }
+}

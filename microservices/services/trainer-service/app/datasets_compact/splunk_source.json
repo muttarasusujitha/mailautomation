@@ -1,6 +1,6 @@
 {
   "domain": "Splunk",
-  "name": "Splunk â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "name": "Splunk – Comprehensive Fundamentals to Advanced Curriculum",
   "aliases": [
     "Splunk Enterprise",
     "Splunk Observability/SIEM"
@@ -27,9 +27,6 @@
         "Use cases",
         "Threats or failure modes",
         "Lab setup",
-        "Splunk terminology and feature mapping for this topic",
-        "Splunk configuration and implementation considerations",
-        "Splunk best practices and common mistakes for this topic",
         "indexes",
         "sourcetypes",
         "forwarders",
@@ -113,22 +110,7 @@
         "Addressing/identity concepts",
         "State",
         "Control plane/data plane",
-        "Common configurations",
-        "Splunk terminology and feature mapping for this topic",
-        "Splunk configuration and implementation considerations",
-        "Splunk best practices and common mistakes for this topic",
-        "indexes",
-        "sourcetypes",
-        "forwarders",
-        "indexers",
-        "search heads",
-        "SPL",
-        "fields",
-        "lookups",
-        "dashboards",
-        "alerts",
-        "data models",
-        "accelerations"
+        "Common configurations"
       ],
       "tools": [
         "Splunk Enterprise",
@@ -200,22 +182,7 @@
         "Scalability",
         "Trust boundaries",
         "Failure domains",
-        "Cloud considerations",
-        "Splunk terminology and feature mapping for this topic",
-        "Splunk configuration and implementation considerations",
-        "Splunk best practices and common mistakes for this topic",
-        "indexes",
-        "sourcetypes",
-        "forwarders",
-        "indexers",
-        "search heads",
-        "SPL",
-        "fields",
-        "lookups",
-        "dashboards",
-        "alerts",
-        "data models",
-        "accelerations"
+        "Cloud considerations"
       ],
       "tools": [
         "Splunk Enterprise",
@@ -287,22 +254,7 @@
         "Certificates/keys",
         "Hardening",
         "Least privilege",
-        "Logging and auditing",
-        "Splunk terminology and feature mapping for this topic",
-        "Splunk configuration and implementation considerations",
-        "Splunk best practices and common mistakes for this topic",
-        "indexes",
-        "sourcetypes",
-        "forwarders",
-        "indexers",
-        "search heads",
-        "SPL",
-        "fields",
-        "lookups",
-        "dashboards",
-        "alerts",
-        "data models",
-        "accelerations"
+        "Logging and auditing"
       ],
       "tools": [
         "Splunk Enterprise",
@@ -374,22 +326,7 @@
         "Common faults",
         "Diagnostic commands",
         "Alerting",
-        "Incident workflow",
-        "Splunk terminology and feature mapping for this topic",
-        "Splunk configuration and implementation considerations",
-        "Splunk best practices and common mistakes for this topic",
-        "indexes",
-        "sourcetypes",
-        "forwarders",
-        "indexers",
-        "search heads",
-        "SPL",
-        "fields",
-        "lookups",
-        "dashboards",
-        "alerts",
-        "data models",
-        "accelerations"
+        "Incident workflow"
       ],
       "tools": [
         "Splunk Enterprise",
@@ -462,22 +399,7 @@
         "Change control",
         "Versioning",
         "Testing",
-        "Operational runbooks",
-        "Splunk terminology and feature mapping for this topic",
-        "Splunk configuration and implementation considerations",
-        "Splunk best practices and common mistakes for this topic",
-        "indexes",
-        "sourcetypes",
-        "forwarders",
-        "indexers",
-        "search heads",
-        "SPL",
-        "fields",
-        "lookups",
-        "dashboards",
-        "alerts",
-        "data models",
-        "accelerations"
+        "Operational runbooks"
       ],
       "tools": [
         "Splunk Enterprise",
@@ -549,22 +471,7 @@
         "Performance",
         "High availability",
         "Disaster recovery",
-        "Cost considerations",
-        "Splunk terminology and feature mapping for this topic",
-        "Splunk configuration and implementation considerations",
-        "Splunk best practices and common mistakes for this topic",
-        "indexes",
-        "sourcetypes",
-        "forwarders",
-        "indexers",
-        "search heads",
-        "SPL",
-        "fields",
-        "lookups",
-        "dashboards",
-        "alerts",
-        "data models",
-        "accelerations"
+        "Cost considerations"
       ],
       "tools": [
         "Splunk Enterprise",
@@ -638,22 +545,7 @@
         "Testing",
         "Monitoring",
         "Troubleshooting",
-        "Documentation",
-        "Splunk terminology and feature mapping for this topic",
-        "Splunk configuration and implementation considerations",
-        "Splunk best practices and common mistakes for this topic",
-        "indexes",
-        "sourcetypes",
-        "forwarders",
-        "indexers",
-        "search heads",
-        "SPL",
-        "fields",
-        "lookups",
-        "dashboards",
-        "alerts",
-        "data models",
-        "accelerations"
+        "Documentation"
       ],
       "tools": [
         "Splunk Enterprise",
@@ -722,5 +614,6 @@
   "review_warnings": [
     "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
   ],
-  "review_status": "unreviewed"
+  "review_status": "unreviewed",
+  "content_cleanup_version": "course-outline-v1"
 }

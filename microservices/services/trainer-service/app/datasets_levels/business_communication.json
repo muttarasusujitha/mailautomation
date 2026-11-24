@@ -1,0 +1,573 @@
+{
+  "domain": "Business Communication",
+  "name": "Business Communication",
+  "category": "Professional and Soft Skills",
+  "icon": "message-square",
+  "aliases": ["Business Communication Skills", "Effective Business Communication", "Business Writing", "Business Writing Skills", "Email Writing", "Email Writing Skills", "Email Etiquette", "Presentation Skills", "Public Speaking", "Business English", "Corporate Communication", "Professional Communication", "Written Communication"],
+  "certifications": ["No formal certification; assessed by a writing portfolio and recorded presentations", "Optional: Cambridge English B2 Business Vantage or C1 Business Higher", "Optional: Toastmasters Pathways"],
+  "tools": ["Microsoft Outlook or Gmail", "Microsoft Word or Google Docs", "PowerPoint or Google Slides", "Microsoft Teams or Zoom", "Microsoft Editor or Grammarly", "Video recording"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For graduates, new joiners and staff who write and speak at work in English every day. Covers plain business English, emails, chat messages, short reports, meeting notes, calls with colleagues and clients, short presentations and slides, customer replies, instructions and handovers, communicating across cultures and editing your own writing, practised with real workplace tasks and feedback.",
+      "prerequisites": ["Reads and writes everyday English", "Uses email and a chat tool such as Teams or Slack", "Willing to share writing samples and be recorded for feedback"],
+      "outcomes": ["Write clear emails, chat messages, updates and short reports", "Run calls and meetings with clear notes and actions", "Give a short, well-structured presentation with simple slides", "Reply to customers and colleagues across cultures in a professional tone"],
+      "days": [
+        {
+          "topic": "Business Communication Overview and Writing Baseline",
+          "subtopics": ["What business communication covers: writing, speaking and listening", "Audience, purpose and channel for every message", "The cost of unclear messages at work", "Formal, neutral and informal registers", "Choosing between email, chat, call and meeting", "How the course works: real tasks, feedback and rewrites", "Writing baseline: one email and one short update", "Speaking baseline: a two-minute recorded introduction", "Reading feedback and choosing what to fix first", "Personal goals and a writing log"],
+          "tools": ["Writing samples", "Video recording", "Feedback rubric", "Writing log template"],
+          "lab_task": "Write a real work email and a short status update, record a two-minute introduction to your role, score both against the course rubric with a partner and set three goals.",
+          "deliverable": "Baseline email, update, recording and three goals",
+          "checks": [["Score the baseline", "Each piece has rubric scores for clarity, tone and structure", "Scored rubric"], ["Choose a channel", "Correct channel chosen for five sample situations with a reason", "Worksheet"], ["Set goals", "Three specific goals linked to rubric scores", "Goals sheet"]],
+          "objectives": ["Explain audience, purpose and channel", "Measure your starting point", "Set communication goals"]
+        },
+        {
+          "topic": "Plain English for Business: Short Sentences and Everyday Words",
+          "subtopics": ["Why plain English is faster to read", "One idea per sentence", "Short words in place of long ones", "Active voice and clear subjects", "Cutting filler and repeated words", "Jargon, acronyms and when to explain them", "Numbers, dates and units written clearly", "Rewriting a dense paragraph"],
+          "tools": ["Microsoft Word or Google Docs", "Microsoft Editor or Grammarly", "Readability checker"],
+          "lab_task": "Rewrite three dense paragraphs from real policies or emails into plain English, cut each by at least a third without losing meaning and compare readability scores before and after.",
+          "deliverable": "Three rewritten paragraphs with before-and-after scores",
+          "checks": [["Cut length", "Each rewrite is at least a third shorter", "Word counts"], ["Keep meaning", "A partner finds no lost facts in the rewrites", "Partner review"], ["Improve readability", "Readability score improves for every paragraph", "Readability report"]],
+          "objectives": ["Write in plain English", "Remove filler and jargon", "Keep meaning while cutting length"]
+        },
+        {
+          "topic": "Writing Clear Business Emails: Subject Lines, Structure and Calls to Action",
+          "subtopics": ["Subject lines that say what the email is about", "Putting the main point or request first", "Paragraphs, bullets and white space", "Clear requests with owners and dates", "To, Cc and Bcc used correctly", "Attachments and links that readers can open", "Closings and signatures", "Checking before sending"],
+          "tools": ["Microsoft Outlook or Gmail", "Email templates", "Checklist"],
+          "lab_task": "Rewrite four real emails so the request is in the first two lines, add specific subject lines and deadlines, fix recipients and attachments, and test them on a partner who must state the request after ten seconds of reading.",
+          "deliverable": "Four rewritten emails with a sending checklist",
+          "checks": [["State the request", "A partner names the request after ten seconds of reading", "Partner notes"], ["Write subject lines", "Every subject line names the topic and any action", "Email set"], ["Set owners and dates", "Every request names who acts and by when", "Email set"]],
+          "objectives": ["Structure business emails", "Write clear requests", "Use recipients and attachments correctly"]
+        },
+        {
+          "topic": "Email Tone, Etiquette and Replying to Difficult Messages",
+          "subtopics": ["How tone is read when there is no voice", "Polite, direct and warm phrasing", "Words that sound rude or passive-aggressive", "Replying to complaints and criticism calmly", "Saying no and pushing back politely", "Reply all, forwarding and confidentiality", "When to stop emailing and call", "Waiting before sending an emotional reply"],
+          "tools": ["Microsoft Outlook or Gmail", "Tone examples", "Role play scripts"],
+          "lab_task": "Reply to three difficult emails (an angry client, a blaming colleague and an unrealistic deadline), have a partner rate the tone of each reply and revise any reply rated defensive or vague.",
+          "deliverable": "Three replies with tone ratings and revisions",
+          "checks": [["Keep tone calm", "Every reply is rated calm and professional by a partner", "Tone rating sheet"], ["Say no clearly", "The deadline reply declines and offers an alternative", "Reply text"], ["Protect information", "No reply forwards or exposes confidential content", "Review checklist"]],
+          "objectives": ["Control tone in writing", "Reply to difficult messages", "Follow email etiquette"]
+        },
+        {
+          "topic": "Chat and Instant Messaging at Work: Teams and Slack Etiquette",
+          "subtopics": ["When chat suits better than email", "Writing complete messages instead of just \"hi\"", "Threads, mentions and channels", "Status, availability and response expectations", "Emojis, reactions and tone in chat", "Sharing files and decisions so they can be found", "Moving a chat to a call or meeting", "Chat messages that need a written record"],
+          "tools": ["Microsoft Teams", "Slack", "Chat etiquette guide"],
+          "lab_task": "Turn a messy team chat about a production issue into a clean thread with one complete opening message, a clear owner, a summary of the decision and a link to the record, and agree response-time norms for the team.",
+          "deliverable": "Rewritten thread, decision summary and team chat norms",
+          "checks": [["Write a complete message", "The opening message has context, request and urgency", "Chat screenshot"], ["Record the decision", "The decision is summarised and linked from the thread", "Thread summary"], ["Agree norms", "Team norms state response times and channel use", "Norms document"]],
+          "objectives": ["Write useful chat messages", "Use threads and mentions well", "Record decisions made in chat"]
+        },
+        {
+          "topic": "Grammar and Punctuation That Readers Notice",
+          "subtopics": ["Subject and verb agreement", "Tenses for past, present and planned work", "Articles: a, an and the", "Commas, full stops and run-on sentences", "Apostrophes and common confusions such as its and it's", "Capital letters, titles and product names", "Common errors in Indian and international English", "Using editor tools without trusting them blindly"],
+          "tools": ["Microsoft Editor or Grammarly", "Grammar exercises", "Writing log"],
+          "lab_task": "Find and fix the errors in ten workplace sentences and one full email, record your three most frequent errors in the writing log and correct them in your own baseline email.",
+          "deliverable": "Corrected exercises, email and an updated writing log",
+          "checks": [["Fix errors", "At least nine of ten sentences corrected", "Exercise sheet"], ["Track errors", "Three personal error patterns recorded with examples", "Writing log"], ["Apply corrections", "Baseline email rewritten without those errors", "Revised email"]],
+          "objectives": ["Fix common grammar errors", "Punctuate business writing correctly", "Track your own error patterns"]
+        },
+        {
+          "topic": "Writing Short Reports and Status Updates",
+          "subtopics": ["What readers want from a status update", "Status in one line: on track, at risk or late", "Progress, next steps, risks and help needed", "RAG status used honestly", "Weekly updates that take two minutes to read", "Short incident and trip reports", "Tables and bullets for scanning", "Keeping a consistent format each week"],
+          "tools": ["Microsoft Word or Google Docs", "Status update template", "Microsoft Teams or Slack"],
+          "lab_task": "Write a weekly status update for a real or sample project in one page, with a one-line status, progress, next steps, risks and help needed, then rewrite a two-page report into the same format.",
+          "deliverable": "Two status updates in a reusable template",
+          "checks": [["Lead with status", "The first line states status and the reason", "Update text"], ["Ask for help", "Help needed names a person and a date", "Update text"], ["Keep it short", "Each update fits on one page", "Document"]],
+          "objectives": ["Write useful status updates", "Report risks honestly", "Use a consistent format"]
+        },
+        {
+          "topic": "Meeting Communication: Agendas, Minutes and Action Items",
+          "subtopics": ["Deciding whether a meeting is needed", "Invitations with purpose, agenda and pre-reading", "Opening a meeting with the goal", "Speaking up briefly in meetings", "Taking notes that capture decisions", "Action items with owners and dates", "Sending minutes within a day", "Following up on actions"],
+          "tools": ["Microsoft Outlook or Google Calendar", "Microsoft Teams or Zoom", "Minutes template"],
+          "lab_task": "Plan a thirty-minute team meeting with an invitation and agenda, run it in class with role cards, take minutes and send them with action items within the session.",
+          "deliverable": "Invitation, agenda, minutes and action list",
+          "checks": [["Write the invitation", "Purpose, agenda and expected outcome are stated", "Invitation text"], ["Capture decisions", "Every decision in the meeting appears in the minutes", "Minutes"], ["Assign actions", "Every action has one owner and a due date", "Action list"]],
+          "objectives": ["Prepare meetings in writing", "Record decisions and actions", "Follow up after meetings"]
+        },
+        {
+          "topic": "Speaking Clearly on Calls: Phone, Teams and Zoom",
+          "subtopics": ["Preparing for a call in two minutes", "Opening with who you are and why you called", "Pace, pauses and pronunciation for clarity", "Microphone, camera and background", "Checking understanding on the call", "Handling poor connections and accents", "Summarising and agreeing next steps", "Following up a call in writing"],
+          "tools": ["Microsoft Teams or Zoom", "Headset", "Call checklist", "Recording"],
+          "lab_task": "Make three recorded practice calls (a request to a colleague, a status call with a client and a call to clarify a requirement), review each recording against the checklist and send a follow-up email after each.",
+          "deliverable": "Three call recordings, checklists and follow-up emails",
+          "checks": [["Open clearly", "Each call states purpose in the first thirty seconds", "Recording review"], ["Agree next steps", "Each call ends with a summary of agreed actions", "Recording review"], ["Follow up", "Each follow-up email matches what was agreed", "Email set"]],
+          "objectives": ["Speak clearly on calls", "Check understanding", "Confirm agreements in writing"]
+        },
+        {
+          "topic": "Listening and Paraphrasing in Business Conversations",
+          "subtopics": ["Listening for facts, feelings and requests", "Not interrupting and allowing silence", "Paraphrasing to confirm understanding", "Open and closed questions", "Taking notes while listening", "Listening across accents", "Spotting what is not said", "Confirming requirements back to the speaker"],
+          "tools": ["Role play scripts", "Note template", "Recording"],
+          "lab_task": "In pairs, listen to a colleague describe a work problem for five minutes, paraphrase it back, ask three clarifying questions and write a five-line summary the speaker agrees is accurate.",
+          "deliverable": "Paraphrase recording and an agreed summary",
+          "checks": [["Paraphrase accurately", "The speaker confirms the paraphrase without corrections", "Recording"], ["Ask questions", "At least two open clarifying questions are asked", "Recording"], ["Summarise", "The written summary is approved by the speaker", "Signed summary"]],
+          "objectives": ["Listen actively in business conversations", "Paraphrase and clarify", "Summarise what was heard"]
+        },
+        {
+          "topic": "Presenting a Short Update to Your Team",
+          "subtopics": ["Choosing one main message", "A simple structure: point, reason, example, point", "Opening and closing lines", "Speaking from notes, not reading slides", "Eye contact, voice and posture", "Keeping to time", "Taking one or two questions", "Practising with a recording"],
+          "tools": ["PowerPoint or Google Slides", "Timer", "Video recording", "Feedback rubric"],
+          "lab_task": "Prepare and deliver a three-minute update on your work with one main message, record it, watch it back with a partner and deliver an improved version.",
+          "deliverable": "Two recordings with feedback notes",
+          "checks": [["State one message", "The audience can repeat the main message", "Audience notes"], ["Keep time", "The talk finishes within three minutes and fifteen seconds", "Timer log"], ["Improve", "The second recording scores higher on the rubric", "Rubric scores"]],
+          "objectives": ["Structure a short presentation", "Deliver with confidence", "Improve through practice"]
+        },
+        {
+          "topic": "Designing Simple Slides",
+          "subtopics": ["One message per slide", "Headlines that state the point", "Fewer words and larger text", "Charts that show one comparison", "Consistent layout and colours", "Images that support, not decorate", "Accessible contrast and fonts", "Turning a text-heavy deck into clear slides"],
+          "tools": ["PowerPoint or Google Slides", "Company template", "Accessibility checker"],
+          "lab_task": "Redesign a ten-slide text-heavy deck so each slide has a headline that states the point, no more than thirty words and one visual, and run the accessibility checker on the result.",
+          "deliverable": "Redesigned deck with before-and-after comparison",
+          "checks": [["Write headlines", "Every slide headline states a point, not a topic", "Slide deck"], ["Reduce text", "No slide has more than thirty words", "Word count per slide"], ["Pass accessibility", "The accessibility checker reports no errors", "Checker report"]],
+          "objectives": ["Design clear slides", "Use headlines that make a point", "Make slides accessible"]
+        },
+        {
+          "topic": "Client Calls: Opening, Clarifying and Closing",
+          "subtopics": ["Preparing questions and the outcome you want", "Introductions and setting the agenda", "Building rapport without wasting time", "Clarifying requirements and assumptions", "Handling a question you cannot answer", "Avoiding promises you cannot keep", "Closing with agreed actions", "Writing the call summary for the client"],
+          "tools": ["Microsoft Teams or Zoom", "Call plan template", "CRM or notes tool"],
+          "lab_task": "Run a role-played client call to clarify a new requirement, use a call plan, avoid committing to unconfirmed dates and send the client a summary that the role-play client confirms.",
+          "deliverable": "Call plan, recording and client summary",
+          "checks": [["Prepare", "The call plan lists the goal and at least five questions", "Call plan"], ["Avoid over-promising", "No date or scope is committed without confirmation", "Recording review"], ["Confirm in writing", "The client confirms the summary is accurate", "Client reply"]],
+          "objectives": ["Run client calls with a plan", "Clarify requirements", "Confirm outcomes in writing"]
+        },
+        {
+          "topic": "Writing for Customers: Responses, Apologies and Complaints",
+          "subtopics": ["What customers need in a reply", "Acknowledging the problem first", "Apologising without blaming others", "Explaining what happens next and when", "Avoiding internal jargon", "Templates that still sound personal", "Escalation messages", "Closing the loop after a fix"],
+          "tools": ["Email client", "Helpdesk tool such as Zendesk or ServiceNow", "Reply templates"],
+          "lab_task": "Write replies to five customer complaints of different severity, including one escalation and one follow-up after a fix, and score them against a customer-reply rubric with a partner.",
+          "deliverable": "Five customer replies with rubric scores",
+          "checks": [["Acknowledge", "Each reply names the customer's problem in the first lines", "Reply set"], ["Commit to next steps", "Each reply states what happens next and when", "Reply set"], ["Sound personal", "No reply reads as an unedited template in partner scoring", "Rubric scores"]],
+          "objectives": ["Reply to customers clearly", "Apologise and explain next steps", "Close the loop"]
+        },
+        {
+          "topic": "Asking Questions and Requesting Information Politely",
+          "subtopics": ["Polite request forms in English", "Direct requests that are still courteous", "Asking for clarification without sounding confused", "Requests to senior people and other teams", "Following up when there is no reply", "Reminders that do not irritate", "Thanking people specifically", "Phrases to avoid in requests"],
+          "tools": ["Email client", "Microsoft Teams or Slack", "Phrase bank"],
+          "lab_task": "Write a set of requests for information to a peer, a senior manager and another team, plus a first and second follow-up, and compare responses to polite and blunt versions in a class exercise.",
+          "deliverable": "Request set with follow-ups and a personal phrase bank",
+          "checks": [["Be polite and direct", "Every request states what is needed and why", "Request set"], ["Follow up well", "Follow-ups restate the request and add a date", "Follow-up emails"], ["Thank specifically", "Thank-you notes name what the person did", "Messages"]],
+          "objectives": ["Make polite, direct requests", "Follow up without irritating", "Thank people specifically"]
+        },
+        {
+          "topic": "Business Vocabulary and Common Phrases for Global Teams",
+          "subtopics": ["Everyday phrases for meetings and emails", "Words for agreeing, disagreeing and suggesting", "Phrases for deadlines, delays and priorities", "False friends and local expressions to avoid", "Idioms that confuse international colleagues", "British and American spelling choices", "Numbers, currency and time zones in writing", "Building a personal phrase bank"],
+          "tools": ["Phrase bank template", "Learner's dictionary", "Microsoft Editor or Grammarly"],
+          "lab_task": "Replace local expressions and idioms in five sample messages with phrases that international colleagues understand, then use ten new phrases in a short meeting role play.",
+          "deliverable": "Revised messages and a personal phrase bank of at least thirty phrases",
+          "checks": [["Remove idioms", "No confusing idioms remain in the revised messages", "Revised messages"], ["Use new phrases", "At least ten new phrases are used correctly in the role play", "Observer notes"], ["Write dates and times", "Dates, currencies and times are unambiguous for other regions", "Message set"]],
+          "objectives": ["Use clear business vocabulary", "Avoid confusing expressions", "Write for international readers"]
+        },
+        {
+          "topic": "Communicating Across Cultures and Time Zones",
+          "subtopics": ["Direct and indirect communication styles", "High-context and low-context cultures", "Hierarchy and how people disagree", "Silence, interruption and turn taking", "Scheduling and writing across time zones", "Asynchronous updates for distributed teams", "Avoiding stereotypes", "Checking understanding with remote colleagues"],
+          "tools": ["World clock tool", "Microsoft Teams or Slack", "Case studies"],
+          "lab_task": "Analyse a failed exchange between teams in India, Germany and the US, rewrite the key messages to suit each audience and write an asynchronous handover that works across time zones.",
+          "deliverable": "Case analysis, rewritten messages and a handover note",
+          "checks": [["Explain the failure", "The analysis names the style differences that caused it", "Case analysis"], ["Adapt messages", "Each rewritten message suits its audience in peer review", "Peer review"], ["Hand over asynchronously", "The handover can be acted on without a call", "Partner test"]],
+          "objectives": ["Adapt communication across cultures", "Work across time zones", "Avoid stereotypes"]
+        },
+        {
+          "topic": "Giving Clear Instructions and Handovers",
+          "subtopics": ["Instructions in numbered steps", "Starting with the goal of the task", "Including what good looks like", "Screenshots and examples", "Handovers before leave or shift changes", "Checklists for repeated tasks", "Testing instructions on someone new", "Keeping instructions up to date"],
+          "tools": ["Microsoft Word or Confluence", "Screenshot tool", "Checklist template"],
+          "lab_task": "Write step-by-step instructions for a routine task in your job and a handover note for one week of leave, then have a partner follow the instructions without asking questions.",
+          "deliverable": "Tested instructions and a handover note",
+          "checks": [["Follow without help", "A partner completes the task using only the instructions", "Partner result"], ["Define done", "The instructions state what a correct result looks like", "Instruction document"], ["Hand over", "The handover lists open items, contacts and deadlines", "Handover note"]],
+          "objectives": ["Write clear instructions", "Prepare useful handovers", "Test documents on real readers"]
+        },
+        {
+          "topic": "Proofreading and Editing Your Own Writing",
+          "subtopics": ["Editing in passes: structure, sentences, words", "Reading aloud to find problems", "Checking names, numbers and dates", "Consistency in terms and formatting", "Cutting the first paragraph", "Using editor tools with judgement", "Proofreading on screen and on paper", "A personal pre-send checklist"],
+          "tools": ["Microsoft Word or Google Docs", "Microsoft Editor or Grammarly", "Checklist template"],
+          "lab_task": "Edit a one-page document in three passes, record each change and its reason, then build a personal pre-send checklist from your writing log and use it on two new emails.",
+          "deliverable": "Edited document, change log and a personal checklist",
+          "checks": [["Edit in passes", "The change log shows separate structure, sentence and word passes", "Change log"], ["Check facts", "All names, numbers and dates are verified", "Fact-check notes"], ["Use the checklist", "Both new emails pass the personal checklist", "Checklist and emails"]],
+          "objectives": ["Edit your own writing", "Verify facts before sending", "Use a personal checklist"]
+        },
+        {
+          "topic": "Beginner Capstone: Business Communication Portfolio",
+          "subtopics": ["Choosing real workplace tasks", "Emails, chat and an update", "Meeting minutes", "A three-minute presentation", "Customer or client reply", "Reflection against baseline goals"],
+          "tools": ["Email client", "PowerPoint or Google Slides", "Video recording", "Feedback rubric"],
+          "lab_task": "Build a portfolio from your own work: two emails, a chat thread, a status update, meeting minutes, a customer reply and a recorded three-minute presentation, then compare the rubric scores with your baseline.",
+          "deliverable": "Communication portfolio with baseline comparison",
+          "checks": [["Complete the portfolio", "Every required piece is present and from real or realistic work", "Portfolio"], ["Improve on baseline", "Rubric scores improve on the baseline for each skill", "Score comparison"], ["Present", "The presentation keeps to time with a clear main message", "Recording and rubric"]],
+          "objectives": ["Apply beginner skills to real work", "Show measurable improvement", "Communicate professionally in writing and speech"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For professionals, team leads and client-facing staff who write for decision makers and present to groups. Covers structuring messages with the pyramid principle, executive summaries, proposals and business cases, persuasive presentations, data storytelling, handling questions, decision meetings, writing for senior stakeholders, negotiation language, bad news and escalations, client status reporting, process documents, explaining technical topics and writing feedback.",
+      "prerequisites": ["Writes emails and updates confidently", "Has presented to a team or client at least a few times", "Works with stakeholders in other teams or at clients"],
+      "outcomes": ["Structure documents and talks so decision makers act on them", "Write proposals, business cases and executive summaries", "Present data and recommendations persuasively and handle tough questions", "Communicate bad news, escalations and change requests professionally"],
+      "days": [
+        {
+          "topic": "Structuring Messages with the Pyramid Principle",
+          "subtopics": ["Answer first, then supporting points", "Grouping ideas into three or four reasons", "Situation, complication, question and answer", "Horizontal and vertical logic checks", "Headings that carry the argument", "Applying the structure to emails and slides", "Common structure mistakes", "Restructuring a chronological report"],
+          "tools": ["Microsoft Word or Google Docs", "Pyramid template", "Sticky notes or Miro"],
+          "lab_task": "Restructure a chronological five-page report into a pyramid with the answer first and three grouped reasons, then turn it into a one-page email and a five-slide outline.",
+          "deliverable": "Pyramid outline, one-page email and slide outline",
+          "checks": [["Lead with the answer", "The first sentence states the recommendation", "Email text"], ["Group reasons", "Supporting points are grouped and do not overlap", "Pyramid outline"], ["Reuse the structure", "The slide outline follows the same pyramid", "Slide outline"]],
+          "objectives": ["Structure messages answer first", "Group supporting arguments", "Apply one structure across formats"]
+        },
+        {
+          "topic": "Writing Executive Summaries",
+          "subtopics": ["What executives read first", "The decision or ask in one sentence", "Context in two lines", "Options, recommendation and impact", "Numbers that matter and those that do not", "Risks and what is needed to proceed", "Keeping to half a page", "Testing the summary on a busy reader"],
+          "tools": ["Microsoft Word or Google Docs", "Executive summary template", "Timer"],
+          "lab_task": "Write a half-page executive summary for a long business document, test it on a partner playing a busy executive who has sixty seconds, and revise until they can state the ask and the recommendation.",
+          "deliverable": "Tested executive summary",
+          "checks": [["State the ask", "The executive states the decision requested after sixty seconds", "Partner notes"], ["Keep it short", "The summary fits within half a page", "Document"], ["Show impact", "The summary includes cost, benefit and timing", "Summary text"]],
+          "objectives": ["Write executive summaries", "Put decisions and impact first", "Test writing on busy readers"]
+        },
+        {
+          "topic": "Business Proposals and Recommendations",
+          "subtopics": ["When a proposal is needed", "Problem, proposed solution and benefits", "Scope, timeline and cost", "Options considered and why one is recommended", "Assumptions and dependencies", "Writing for evaluators and approvers", "Formatting for skimming", "Reviewing proposals before submission"],
+          "tools": ["Microsoft Word or Google Docs", "Proposal template", "Review checklist"],
+          "lab_task": "Write a three-page proposal for a process improvement in your area, with options, a recommendation, cost and timeline, and have a review panel score it against a proposal rubric.",
+          "deliverable": "Proposal with panel scores and revisions",
+          "checks": [["Compare options", "At least two options are compared with reasons", "Proposal"], ["Show cost and time", "Cost and timeline are specific and justified", "Proposal"], ["Pass review", "Panel scores meet the rubric threshold after revision", "Panel score sheet"]],
+          "objectives": ["Write business proposals", "Recommend among options", "Present cost, scope and timing"]
+        },
+        {
+          "topic": "Writing Business Cases for Approval",
+          "subtopics": ["The parts of a business case", "Quantifying benefits honestly", "Costs, savings and payback period", "Non-financial benefits and risks", "Sensitivity and what-if scenarios", "Aligning with company priorities", "Anticipating finance and leadership questions", "The one-page version for approvers"],
+          "tools": ["Excel or Google Sheets", "Business case template", "Microsoft Word or Google Docs"],
+          "lab_task": "Build a business case for a tool or process investment with costs, benefits, payback and two what-if scenarios, write the one-page version and answer five questions from a role-played finance partner.",
+          "deliverable": "Business case with a one-page summary and Q&A notes",
+          "checks": [["Quantify", "Costs, benefits and payback are calculated with stated assumptions", "Spreadsheet"], ["Test scenarios", "Two what-if scenarios show how results change", "Scenario table"], ["Answer finance", "All five finance questions are answered from the case", "Q&A notes"]],
+          "objectives": ["Build a business case", "Quantify benefits and costs", "Prepare for approval questions"]
+        },
+        {
+          "topic": "Persuasive Presentations: Structure and Evidence",
+          "subtopics": ["Knowing what the audience must believe and do", "Problem, solution and proof structures", "Evidence: data, examples and references", "Emotional and logical appeal in balance", "Openings that earn attention", "Calls to action", "Rehearsing transitions", "Ten-minute persuasive talk structure"],
+          "tools": ["PowerPoint or Google Slides", "Video recording", "Feedback rubric"],
+          "lab_task": "Prepare and deliver a ten-minute persuasive presentation recommending a change at work, with evidence for each claim and a clear call to action, and collect audience votes before and after.",
+          "deliverable": "Persuasive deck, recording and audience vote results",
+          "checks": [["Support claims", "Every main claim has evidence on the slide or in speech", "Deck review"], ["End with an ask", "The talk ends with a specific call to action", "Recording"], ["Persuade", "Audience support increases between the before and after votes", "Vote results"]],
+          "objectives": ["Build persuasive presentations", "Support claims with evidence", "Close with a clear call to action"]
+        },
+        {
+          "topic": "Data Storytelling: Charts That Make the Point",
+          "subtopics": ["Starting from the question and the insight", "Choosing the right chart for the comparison", "Removing chart clutter", "Titles that state the insight", "Highlighting what matters with colour", "Context: targets, benchmarks and trends", "Explaining uncertainty simply", "Building a three-chart story"],
+          "tools": ["Excel or Google Sheets", "PowerPoint or Google Slides", "Power BI or Tableau (optional)"],
+          "lab_task": "Turn a data table into a three-chart story with insight titles and highlighted points, present it in five minutes and check that the audience can state the insight from each chart.",
+          "deliverable": "Three-chart story and presentation recording",
+          "checks": [["Choose charts", "Each chart type suits its comparison", "Chart review"], ["Title insights", "Every chart title states the insight in words", "Slides"], ["Land the insight", "The audience states each insight correctly", "Audience notes"]],
+          "objectives": ["Choose the right charts", "Write insight titles", "Tell a story with data"]
+        },
+        {
+          "topic": "Handling Questions and Objections After a Presentation",
+          "subtopics": ["Preparing likely questions in advance", "Listening to the whole question", "Pausing, repeating and answering briefly", "Saying \"I don't know\" and following up", "Handling hostile or off-topic questions", "Objections about cost, risk and timing", "Bridging back to the main message", "Closing the question session"],
+          "tools": ["Question bank template", "Role play cards", "Video recording"],
+          "lab_task": "Present a recommendation for five minutes and take ten minutes of prepared hard questions from the class, then review the recording for answer length, accuracy and bridges back to the message.",
+          "deliverable": "Question bank and reviewed Q&A recording",
+          "checks": [["Prepare", "The question bank covers at least ten likely questions with answers", "Question bank"], ["Answer briefly", "Most answers take under a minute", "Recording review"], ["Stay calm", "Hostile questions are answered without defensiveness", "Observer notes"]],
+          "objectives": ["Prepare for questions", "Answer briefly and honestly", "Handle objections calmly"]
+        },
+        {
+          "topic": "Decision Meetings: Pre-Reads, Options and Decision Records",
+          "subtopics": ["Meetings that exist to make a decision", "Pre-reads that people actually read", "Framing options and criteria before the meeting", "Keeping discussion on the decision", "Capturing dissent and conditions", "Writing the decision record", "Communicating the decision to people who were absent", "Revisiting decisions when facts change"],
+          "tools": ["Microsoft Word or Confluence", "Microsoft Teams or Zoom", "Decision record template"],
+          "lab_task": "Prepare a two-page pre-read with options and criteria, run a twenty-minute decision meeting with role cards, and publish a decision record and an announcement to the wider team.",
+          "deliverable": "Pre-read, decision record and announcement",
+          "checks": [["Frame options", "The pre-read lists options with agreed criteria", "Pre-read"], ["Record the decision", "The record states the decision, reasons and dissent", "Decision record"], ["Inform others", "Absent people can act on the announcement alone", "Announcement and partner test"]],
+          "objectives": ["Run meetings that decide", "Write decision records", "Communicate decisions widely"]
+        },
+        {
+          "topic": "Writing for Senior Stakeholders: Brevity and Decisions",
+          "subtopics": ["What senior stakeholders need from you", "Bottom line up front", "One-page and three-line formats", "Escalating without blaming", "Asking for decisions with clear options", "Updating on risks before they surprise", "Tone with senior people: confident, not casual", "Following up on senior requests quickly"],
+          "tools": ["Email client", "One-page template", "Microsoft Teams or Slack"],
+          "lab_task": "Write a three-line update, a one-page decision request and a risk warning to a senior stakeholder for the same situation, and have a role-played senior reviewer rate each for clarity and confidence.",
+          "deliverable": "Three senior-facing messages with reviewer ratings",
+          "checks": [["Bottom line first", "Each message states the point in the first line", "Messages"], ["Offer options", "The decision request gives options with a recommendation", "Decision request"], ["Warn early", "The risk warning states impact, likelihood and the proposed action", "Risk message"]],
+          "objectives": ["Write briefly for senior readers", "Ask for decisions clearly", "Raise risks early"]
+        },
+        {
+          "topic": "Negotiation Language in Email and Meetings",
+          "subtopics": ["Preparing your position and walk-away point", "Opening statements and anchoring", "Phrases for proposing and conditional offers", "Asking questions to find interests", "Saying no while keeping the relationship", "Summarising agreements during the talk", "Confirming terms in writing", "Negotiating over email: risks and tactics"],
+          "tools": ["Negotiation planner", "Role play briefs", "Email client"],
+          "lab_task": "Negotiate a scope and deadline change with a role-played client, using conditional offers and summaries, then send a confirmation email that both sides agree reflects the deal.",
+          "deliverable": "Negotiation plan, recording and confirmation email",
+          "checks": [["Plan", "The plan states goals, walk-away point and the other side's interests", "Planner"], ["Use conditional offers", "At least two offers use \"if you, then we\" structure", "Recording"], ["Confirm in writing", "Both sides agree the email reflects the deal", "Confirmation reply"]],
+          "objectives": ["Use negotiation language", "Find interests through questions", "Confirm agreements in writing"]
+        },
+        {
+          "topic": "Delivering Bad News and Escalations in Writing",
+          "subtopics": ["When bad news must be written and when spoken first", "Stating the news clearly and early", "Explaining cause without excuses", "Impact on the reader", "What you are doing and what you need", "Escalation paths and when to use them", "Escalation messages that stay factual", "Following up after the bad news"],
+          "tools": ["Email client", "Escalation template", "Role play briefs"],
+          "lab_task": "Write a delay notice to a client, an internal escalation to your manager's manager and a follow-up update for the same incident, and have a partner check that each is factual and states actions.",
+          "deliverable": "Delay notice, escalation and follow-up",
+          "checks": [["State the news early", "The bad news is in the first two sentences", "Messages"], ["Stay factual", "No message blames individuals or speculates", "Partner review"], ["Show actions", "Each message states actions and the next update time", "Messages"]],
+          "objectives": ["Deliver bad news in writing", "Escalate professionally", "Keep stakeholders updated"]
+        },
+        {
+          "topic": "Client Communication: Status Reports, Steering Updates and Change Requests",
+          "subtopics": ["What clients expect in regular reporting", "Weekly status reports for clients", "Steering committee updates and decks", "Writing change requests with impact", "Raising scope creep early", "Client-ready language versus internal language", "Keeping a communication log", "Handling client feedback on reports"],
+          "tools": ["Client report template", "PowerPoint or Google Slides", "Change request template"],
+          "lab_task": "Produce a weekly client status report, a five-slide steering update and a change request for a scope addition on a sample engagement, and present the steering update to a role-played client.",
+          "deliverable": "Status report, steering deck and change request",
+          "checks": [["Report clearly", "The status report shows status, progress, risks and asks", "Report"], ["Quantify change", "The change request states cost, time and risk impact", "Change request"], ["Steer", "The client approves or rejects the change in the session", "Session notes"]],
+          "objectives": ["Report to clients", "Write change requests", "Run steering updates"]
+        },
+        {
+          "topic": "Communicating in Virtual and Hybrid Teams",
+          "subtopics": ["Writing first for asynchronous teams", "Video meeting habits that include remote people", "Hybrid meetings with people in a room", "Cameras, chat and hand raising", "Written updates in place of status meetings", "Building trust without corridors", "Overcommunication and noise", "Team communication charters"],
+          "tools": ["Microsoft Teams or Zoom", "Slack or Teams channels", "Communication charter template"],
+          "lab_task": "Replace one recurring status meeting with a written asynchronous update for a week in a simulation, run one hybrid meeting with remote participants and write a team communication charter.",
+          "deliverable": "Asynchronous update set, hybrid meeting notes and a charter",
+          "checks": [["Replace a meeting", "Team members get the same information without the meeting", "Survey result"], ["Include remote people", "Remote participants speak as often as people in the room", "Observer tally"], ["Write a charter", "The charter sets channels, response times and meeting rules", "Charter"]],
+          "objectives": ["Communicate well in hybrid teams", "Use asynchronous updates", "Agree team communication norms"]
+        },
+        {
+          "topic": "Writing Policies, Procedures and Process Documents",
+          "subtopics": ["Policies, procedures and work instructions", "Purpose, scope and responsibilities sections", "Writing rules readers can follow", "Process steps and decision points", "Flowcharts and swimlanes", "Version control and approvals", "Writing for audits", "Reviewing documents with the people who use them"],
+          "tools": ["Microsoft Word or Confluence", "Visio, draw.io or Lucidchart", "Document template"],
+          "lab_task": "Rewrite a confusing process document as a procedure with clear responsibilities, numbered steps and a swimlane diagram, and test it with two people who perform the process.",
+          "deliverable": "Procedure with diagram and user test notes",
+          "checks": [["Assign responsibilities", "Every step has an owner role", "Procedure"], ["Diagram the process", "The swimlane matches the written steps", "Diagram and procedure"], ["Test with users", "Both users complete the process without questions", "Test notes"]],
+          "objectives": ["Write procedures people can follow", "Diagram processes", "Prepare documents for audit"]
+        },
+        {
+          "topic": "Communicating Technical Topics to Non-Technical Audiences",
+          "subtopics": ["Finding what the audience cares about", "Explaining with analogies and examples", "Removing jargon and acronyms", "Showing impact in business terms", "Diagrams instead of detail", "Levels of detail for different readers", "Checking understanding without condescending", "Turning a technical document into a briefing"],
+          "tools": ["PowerPoint or Google Slides", "Diagram tool", "Microsoft Word or Google Docs"],
+          "lab_task": "Explain a technical change such as a system migration to a role-played business audience in five minutes, then write a one-page briefing and check that the audience can explain the impact back.",
+          "deliverable": "Briefing note and presentation recording",
+          "checks": [["Remove jargon", "The briefing has no unexplained technical terms", "Briefing review"], ["Show business impact", "Impact is stated in cost, time, risk or customer terms", "Briefing"], ["Check understanding", "The audience explains the impact correctly", "Audience notes"]],
+          "objectives": ["Explain technical topics simply", "Translate into business impact", "Write briefings for non-technical readers"]
+        },
+        {
+          "topic": "Feedback in Writing: Reviews, Comments and Appraisal Notes",
+          "subtopics": ["Written feedback that helps rather than hurts", "Specific behaviour and its impact", "Comments on documents and code reviews", "Balancing praise and improvement", "Appraisal and performance review wording", "Bias in written feedback", "Responding to written feedback you receive", "Keeping a record for reviews"],
+          "tools": ["Microsoft Word comments", "Review template", "Bias checklist"],
+          "lab_task": "Write review comments on a colleague's document, draft appraisal notes for a sample employee using behaviour and impact, and check both against a bias checklist.",
+          "deliverable": "Document comments and appraisal notes with a bias check",
+          "checks": [["Be specific", "Every comment names behaviour and impact", "Comment set"], ["Check bias", "No appraisal sentence fails the bias checklist", "Checklist"], ["Balance", "Appraisal notes include strengths and development areas with examples", "Appraisal notes"]],
+          "objectives": ["Give useful written feedback", "Write fair appraisal notes", "Avoid bias in feedback"]
+        },
+        {
+          "topic": "Webinars and Online Presentations",
+          "subtopics": ["Planning an online session", "Slides and visuals for small screens", "Voice and energy on camera", "Polls, chat and questions to involve people", "Producer and presenter roles", "Handling technical problems live", "Recording and sharing afterwards", "Measuring attendance and feedback"],
+          "tools": ["Microsoft Teams or Zoom webinar", "Polling tool", "Video recording"],
+          "lab_task": "Plan and deliver a fifteen-minute webinar to the class with a producer, one poll and a live question session, then review the recording and the attendee feedback.",
+          "deliverable": "Webinar plan, recording and feedback summary",
+          "checks": [["Involve the audience", "At least one poll and three audience questions are handled", "Recording"], ["Recover from problems", "A planned technical interruption is handled smoothly", "Observer notes"], ["Measure", "Feedback scores and attendance are summarised with actions", "Feedback summary"]],
+          "objectives": ["Plan online presentations", "Involve remote audiences", "Handle live technical problems"]
+        },
+        {
+          "topic": "AI Writing Tools: Drafting, Checking and Disclosing",
+          "subtopics": ["Where AI writing assistants help and where they mislead", "Prompting for drafts in your own voice", "Checking facts, names and numbers in AI drafts", "Confidential information and company policy", "Editing AI text so it sounds human and specific", "Disclosure rules for AI-assisted writing", "Using AI for summaries and translations", "Building a personal AI writing checklist"],
+          "tools": ["Microsoft Copilot or ChatGPT", "Company AI policy", "Fact-check checklist"],
+          "lab_task": "Use an AI assistant to draft a client update and a meeting summary, check every fact against the source, edit both into your own voice and record what was changed and why.",
+          "deliverable": "AI-assisted drafts, edited versions and a change record",
+          "checks": [["Verify facts", "Every fact in the final text matches the source", "Fact-check record"], ["Protect data", "No confidential data is entered into unapproved tools", "Policy checklist"], ["Edit to your voice", "Reviewers cannot spot generic AI phrasing in the final versions", "Peer review"]],
+          "objectives": ["Use AI writing tools safely", "Check AI drafts", "Keep writing specific and accurate"]
+        },
+        {
+          "topic": "Networking Conversations and Professional Profiles",
+          "subtopics": ["Introducing yourself in thirty seconds", "Starting and ending conversations at events", "Following up after meeting someone", "LinkedIn profile headline and summary", "Writing connection and introduction requests", "Asking for advice or referrals", "Keeping in touch without spamming", "Internal networking across departments"],
+          "tools": ["LinkedIn", "Email client", "Introduction templates"],
+          "lab_task": "Write a thirty-second introduction, rewrite your profile headline and summary, practise three networking conversations in class and send two follow-up messages that receive replies in the role play.",
+          "deliverable": "Introduction, revised profile and follow-up messages",
+          "checks": [["Introduce yourself", "The introduction states role, value and a hook in thirty seconds", "Recording"], ["Improve the profile", "The headline and summary state what you do and for whom", "Profile text"], ["Follow up", "Follow-up messages are specific to the conversation", "Messages"]],
+          "objectives": ["Network professionally", "Write strong profiles", "Follow up after conversations"]
+        },
+        {
+          "topic": "Intermediate Capstone: Proposal, Presentation and Q&A for a Business Decision",
+          "subtopics": ["Selecting a real decision", "Executive summary and proposal", "Persuasive presentation", "Prepared question bank", "Decision record and follow-up", "Peer and trainer review"],
+          "tools": ["Microsoft Word or Google Docs", "PowerPoint or Google Slides", "Video recording", "Feedback rubric"],
+          "lab_task": "Take a real business decision from your work, write an executive summary and a proposal, present it for ten minutes to a role-played decision panel, handle their questions and publish the decision record and follow-up.",
+          "deliverable": "Proposal pack, presentation recording and decision record",
+          "checks": [["Write the pack", "Executive summary and proposal meet the rubric threshold", "Rubric scores"], ["Persuade the panel", "The panel reaches a decision in the session", "Panel notes"], ["Handle questions", "Answers are brief, accurate and calm", "Recording review"]],
+          "objectives": ["Combine intermediate skills", "Win a decision with writing and speaking", "Communicate the outcome"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For managers, senior leaders and communication leads who speak for a function or the organisation. Covers board papers and decision memos, strategic narratives, organisational change communication, crisis statements, media and spokesperson skills, announcements, internal communications, keynote speaking, complex negotiations, communicating risk, regulator and auditor communication, difficult all-hands messages, communication strategy and measurement, coaching others, style guides, inclusive global communication and ethical persuasion.",
+      "prerequisites": ["Leads a team, function or major client relationship", "Writes for and presents to senior leaders regularly", "Has completed intermediate business communication or has equivalent experience"],
+      "outcomes": ["Write board-level papers and strategy narratives that drive decisions", "Plan and run communication for change, crises and difficult announcements", "Represent the organisation to media, regulators, investors and large audiences", "Build communication strategies, style guides and capability in others"],
+      "days": [
+        {
+          "topic": "Executive Communication: Board Papers and Decision Memos",
+          "subtopics": ["What a board or executive committee needs from a paper", "Paper structure: purpose, recommendation, rationale, risks", "Decision memos in two pages", "Appendices for detail and evidence", "Pre-wiring key members before the meeting", "Presenting a paper in five minutes", "Minutes and resolutions", "Common reasons papers are sent back"],
+          "tools": ["Board paper template", "Microsoft Word or Google Docs", "PowerPoint or Google Slides"],
+          "lab_task": "Write a board paper and a two-page decision memo for a significant investment, pre-wire two role-played board members, and present the paper in five minutes to a mock board that votes.",
+          "deliverable": "Board paper, decision memo and mock board outcome",
+          "checks": [["Recommend clearly", "The recommendation and decision required are on page one", "Board paper"], ["Address risks", "Key risks have mitigations and owners", "Risk section"], ["Win the vote", "The mock board approves or gives specific conditions", "Board minutes"]],
+          "objectives": ["Write board-level papers", "Pre-wire decision makers", "Present papers concisely"]
+        },
+        {
+          "topic": "Strategic Narrative: Communicating Strategy and Direction",
+          "subtopics": ["Why strategies fail to land", "The strategic narrative: where we are, where we are going, why, how", "Turning strategy documents into a story", "Messages for different levels of the organisation", "Cascading through managers", "Repetition and consistency over time", "Symbols, examples and proof points", "Checking that people can explain the strategy"],
+          "tools": ["Narrative canvas", "PowerPoint or Google Slides", "Pulse survey tool"],
+          "lab_task": "Turn a ten-page strategy document into a one-page narrative and a five-minute talk, write a manager cascade kit and test whether a sample audience can explain the strategy in their own words.",
+          "deliverable": "Strategic narrative, talk and cascade kit",
+          "checks": [["Write the narrative", "The narrative covers where, why and how in one page", "Narrative"], ["Equip managers", "The cascade kit includes key messages, questions and answers", "Cascade kit"], ["Test understanding", "Most of the sample audience explains the strategy correctly", "Survey results"]],
+          "objectives": ["Build a strategic narrative", "Cascade strategy through managers", "Test whether strategy lands"]
+        },
+        {
+          "topic": "Change Communication Plans for Organisations",
+          "subtopics": ["Stakeholder impact analysis for a change", "Sequencing who hears what and when", "Key messages, FAQs and manager briefings", "Channels for different groups", "Feedback loops during the change", "Handling resistance and rumours", "Measuring adoption and understanding", "Adjusting the plan as the change progresses"],
+          "tools": ["Change communication plan template", "Stakeholder map", "Survey tool"],
+          "lab_task": "Build a communication plan for a system or process change affecting three departments, with a stakeholder impact map, sequenced messages, FAQs, a manager briefing and measures, and present it to a role-played change board.",
+          "deliverable": "Change communication plan with supporting materials",
+          "checks": [["Map impact", "Every stakeholder group has an impact rating and needs", "Stakeholder map"], ["Sequence messages", "Leaders and managers hear before staff and customers", "Communication timeline"], ["Measure", "The plan defines understanding and adoption measures with targets", "Measures section"]],
+          "objectives": ["Plan change communication", "Sequence messages by stakeholder", "Measure and adjust communication"]
+        },
+        {
+          "topic": "Crisis Communication: Statements, Holding Lines and Updates",
+          "subtopics": ["Types of crises and their communication needs", "The first hour: holding statements", "Facts, empathy and action in every message", "Approval chains under time pressure", "Internal, customer, partner and public audiences", "Update rhythm during a crisis", "Social media monitoring and response", "Post-crisis review of communication"],
+          "tools": ["Crisis communication playbook", "Statement templates", "Social media monitoring tool"],
+          "lab_task": "Run a timed crisis simulation for a data breach, issue a holding statement within twenty minutes, then customer, staff and public updates as new facts arrive, and review the communication afterwards.",
+          "deliverable": "Crisis statements, update log and review",
+          "checks": [["Respond fast", "The holding statement is approved within twenty minutes", "Simulation log"], ["Stay accurate", "No statement contains facts later shown to be wrong", "Fact log"], ["Show empathy and action", "Each update states impact, care and next steps", "Statements"]],
+          "objectives": ["Write crisis statements", "Communicate under time pressure", "Review crisis communication"]
+        },
+        {
+          "topic": "Media and Spokesperson Skills",
+          "subtopics": ["How journalists work and what they need", "Key messages and proof points", "Bridging from difficult questions", "Interview formats: live, recorded, print and podcast", "Body language and voice on camera", "Off the record and other risky ideas", "Preparing for hostile interviews", "Working with the communications team"],
+          "tools": ["Media briefing template", "Video recording", "Mock interview scripts"],
+          "lab_task": "Prepare key messages for an announcement and take part in a recorded mock television interview and a hostile print interview, then review how often you delivered your key messages.",
+          "deliverable": "Media briefing pack and interview recordings with review",
+          "checks": [["Prepare messages", "Three key messages with proof points are written", "Briefing pack"], ["Deliver messages", "Each key message is delivered at least once per interview", "Recording review"], ["Bridge", "Difficult questions are bridged back to messages without evasion", "Recording review"]],
+          "objectives": ["Prepare for media interviews", "Deliver key messages", "Handle hostile questions"]
+        },
+        {
+          "topic": "Writing Announcements and Press Releases",
+          "subtopics": ["Internal and external announcements", "Press release structure and the inverted pyramid", "Headlines and the first paragraph", "Quotes that sound like people", "Approvals, embargoes and timing", "Announcements for customers and partners", "Writing for search and social media", "Coordinating channels on the day"],
+          "tools": ["Press release template", "Microsoft Word or Google Docs", "Social media scheduler"],
+          "lab_task": "Write a press release, a customer email and a staff announcement for the same product launch, coordinate their timing in a launch-day schedule and have a role-played journalist critique the release.",
+          "deliverable": "Announcement set and launch-day schedule",
+          "checks": [["Lead with news", "The first paragraph answers who, what, when and why", "Press release"], ["Coordinate timing", "Staff hear before the public release goes out", "Schedule"], ["Pass critique", "The journalist would use the release with minor edits", "Critique notes"]],
+          "objectives": ["Write announcements for different audiences", "Structure press releases", "Coordinate launch communication"]
+        },
+        {
+          "topic": "Internal Communications: Town Halls, Newsletters and Intranet",
+          "subtopics": ["The role of internal communications", "Town hall planning and running", "Leader messages and video updates", "Newsletters people read", "Intranet and channel strategy", "Two-way communication and listening", "Frontline and non-desk employees", "Measuring reach and engagement"],
+          "tools": ["Intranet or SharePoint", "Email newsletter tool", "Microsoft Teams Live Events or Zoom"],
+          "lab_task": "Plan and run a mock thirty-minute town hall with a leader message, live questions and a follow-up newsletter, and design a measure of reach for staff without desks.",
+          "deliverable": "Town hall plan, newsletter and reach measures",
+          "checks": [["Run the town hall", "The agenda includes leader message, questions and actions", "Run sheet"], ["Reach everyone", "The plan reaches staff without email access", "Channel plan"], ["Measure", "Reach and engagement measures are defined with a baseline", "Measures"]],
+          "objectives": ["Plan internal communications", "Run town halls", "Reach all employees"]
+        },
+        {
+          "topic": "Keynote and Conference Speaking",
+          "subtopics": ["Choosing a talk that fits the event", "Structure for twenty to forty minutes", "Opening stories and memorable endings", "Stage presence, movement and voice", "Slides for large rooms", "Rehearsal and timing", "Handling nerves and the unexpected", "Pitching to speak at conferences"],
+          "tools": ["PowerPoint or Keynote", "Video recording", "Clicker and timer"],
+          "lab_task": "Write and rehearse a twenty-minute conference talk, deliver it on a stage or large room setup with recording, get structured feedback and write a conference speaking proposal for the same talk.",
+          "deliverable": "Talk recording, feedback and speaking proposal",
+          "checks": [["Structure the talk", "The talk has a clear opening, three ideas and a close", "Talk outline"], ["Keep time", "The talk ends within one minute of the planned time", "Timer log"], ["Pitch", "The proposal includes title, abstract and audience takeaways", "Proposal"]],
+          "objectives": ["Deliver keynote-level talks", "Rehearse and time talks", "Pitch to speak at events"]
+        },
+        {
+          "topic": "Communication in Complex Negotiations",
+          "subtopics": ["Multi-party and multi-issue negotiations", "Preparing interests, options and alternatives", "Building a negotiation team and roles", "Trading across issues", "Communication across cultures in negotiations", "Deadlock and how to break it", "Writing heads of terms", "Protecting relationships after hard negotiations"],
+          "tools": ["Negotiation planner", "Role play briefs", "Heads of terms template"],
+          "lab_task": "Negotiate a three-party contract renewal with multiple issues in teams, trade across issues to reach agreement and write the heads of terms that all parties sign off.",
+          "deliverable": "Negotiation plan, outcome and signed heads of terms",
+          "checks": [["Prepare", "The plan lists each party's interests and alternatives", "Planner"], ["Trade across issues", "The agreement includes at least two cross-issue trades", "Outcome summary"], ["Document", "All parties approve the heads of terms", "Heads of terms"]],
+          "objectives": ["Lead complex negotiations", "Trade across issues", "Document agreements"]
+        },
+        {
+          "topic": "Communicating Risk and Uncertainty",
+          "subtopics": ["Why people misread probabilities", "Natural frequencies over percentages", "Ranges, confidence and scenarios", "Risk matrices and their limits", "Communicating unknowns honestly", "Avoiding false precision and false comfort", "Risk messages for boards, staff and customers", "Updating when the risk changes"],
+          "tools": ["Risk register", "Excel or Google Sheets", "PowerPoint or Google Slides"],
+          "lab_task": "Rewrite a risk report for a board and for staff using ranges, scenarios and plain frequencies, and test whether readers correctly interpret the likelihood and impact.",
+          "deliverable": "Two risk communications with reader test results",
+          "checks": [["Use plain numbers", "Probabilities are expressed as frequencies or ranges", "Risk communications"], ["Show scenarios", "Best, likely and worst cases are described", "Scenario section"], ["Test interpretation", "Most readers interpret likelihood and impact correctly", "Test results"]],
+          "objectives": ["Communicate risk clearly", "Express uncertainty honestly", "Tailor risk messages to audiences"]
+        },
+        {
+          "topic": "Communicating with Regulators and Auditors",
+          "subtopics": ["Regulator expectations and tone", "Accuracy, completeness and timeliness", "Written responses to information requests", "Meetings with regulators and auditors", "Disclosure of incidents and breaches", "Legal review and privileged communication", "Commitments and tracking them", "Building a long-term relationship of trust"],
+          "tools": ["Response template", "Commitments tracker", "Document management system"],
+          "lab_task": "Respond in writing to a role-played regulator's information request about an incident, prepare for and run a meeting with them, and log every commitment made with owners and dates.",
+          "deliverable": "Written response, meeting notes and commitments log",
+          "checks": [["Answer completely", "Every question in the request is answered or explained", "Response"], ["Stay accurate", "All statements are supported by documents", "Evidence index"], ["Track commitments", "Every commitment has an owner and a date", "Commitments log"]],
+          "objectives": ["Write to regulators accurately", "Run regulator meetings", "Track commitments"]
+        },
+        {
+          "topic": "Leading Difficult All-Hands Conversations: Layoffs, Reorganisations and Cost Cuts",
+          "subtopics": ["Legal and HR constraints on what can be said", "Sequencing: affected people first", "The leader's message: decision, reasons, support", "Answering hard questions honestly", "Managers' conversations after the announcement", "Supporting people who stay", "Written follow-up and FAQs", "What not to say"],
+          "tools": ["Announcement script template", "FAQ template", "Manager briefing pack"],
+          "lab_task": "Plan and deliver a role-played announcement of a reorganisation, including the sequence of conversations, the leader's script, a manager briefing and FAQs, then answer hard questions from the class.",
+          "deliverable": "Announcement plan, script, briefing pack and FAQs",
+          "checks": [["Sequence correctly", "Affected people are told before the wider announcement", "Communication timeline"], ["Be honest", "Answers do not promise what cannot be guaranteed", "Recording review"], ["Support managers", "The briefing pack covers questions managers will face", "Briefing pack"]],
+          "objectives": ["Lead difficult announcements", "Sequence sensitive communication", "Support managers and staff"]
+        },
+        {
+          "topic": "Building a Communication Strategy for a Function",
+          "subtopics": ["Communication goals linked to business goals", "Audiences and what they need", "Channel mix and rhythm", "Key messages and proof points", "Roles, approvals and governance", "Calendar of recurring communication", "Budget and tools", "Reviewing the strategy each quarter"],
+          "tools": ["Strategy template", "Channel audit sheet", "Communication calendar"],
+          "lab_task": "Audit the current channels of a function, write a one-year communication strategy with goals, audiences, channel mix, calendar and measures, and present it to a role-played leadership team.",
+          "deliverable": "Channel audit and communication strategy",
+          "checks": [["Link to goals", "Every communication goal supports a stated business goal", "Strategy"], ["Plan the rhythm", "The calendar covers recurring and planned communication for a year", "Calendar"], ["Govern", "Roles and approval steps are defined", "Governance section"]],
+          "objectives": ["Build a communication strategy", "Plan channels and rhythm", "Govern communication"]
+        },
+        {
+          "topic": "Measuring Communication: Surveys, Analytics and Feedback Loops",
+          "subtopics": ["What to measure: reach, understanding, belief, action", "Email and intranet analytics", "Pulse surveys and focus groups", "Measuring understanding, not just opens", "Linking communication to behaviour change", "Dashboards for communication leaders", "Acting on feedback", "Reporting value to leadership"],
+          "tools": ["Survey tool", "Email and intranet analytics", "Excel or Power BI"],
+          "lab_task": "Design a measurement framework for a change campaign with reach, understanding and action measures, analyse sample survey and analytics data, and present three improvements to leadership.",
+          "deliverable": "Measurement framework, analysis and improvement plan",
+          "checks": [["Define measures", "Measures cover reach, understanding and action", "Framework"], ["Analyse data", "The analysis identifies at least two gaps from the data", "Analysis"], ["Act", "Each improvement is linked to a measured gap", "Improvement plan"]],
+          "objectives": ["Measure communication", "Analyse communication data", "Improve based on evidence"]
+        },
+        {
+          "topic": "Coaching Others to Write and Present Better",
+          "subtopics": ["Diagnosing writing and speaking problems", "Feedback that people can act on", "Editing someone else's work without rewriting it", "Rehearsal coaching for presentations", "Building team templates and examples", "Peer review habits in a team", "Measuring improvement over time", "Creating a team writing standard"],
+          "tools": ["Feedback rubric", "Microsoft Word comments", "Video recording"],
+          "lab_task": "Coach a colleague on a document and a presentation over two rounds, using questions and specific feedback, and measure the improvement with the rubric.",
+          "deliverable": "Coaching notes and before-and-after rubric scores",
+          "checks": [["Diagnose", "The top two problems are identified with examples", "Coaching notes"], ["Coach, not rewrite", "The colleague makes the changes themselves", "Version history"], ["Show improvement", "Rubric scores improve after two rounds", "Score comparison"]],
+          "objectives": ["Coach others' communication", "Give actionable feedback", "Build team standards"]
+        },
+        {
+          "topic": "Brand Voice and Style Guides",
+          "subtopics": ["What a brand voice is", "Voice attributes and examples", "Tone changes by situation", "Grammar, spelling and terminology rules", "Product names, capitals and numbers", "Inclusive and accessible language rules", "Templates and examples in the guide", "Rolling out and maintaining the guide"],
+          "tools": ["Style guide template", "Microsoft Word or Confluence", "Terminology list"],
+          "lab_task": "Write a style guide for a team with voice attributes, tone examples, terminology and formatting rules, then rewrite three existing pieces to follow it and collect feedback from writers.",
+          "deliverable": "Style guide and three rewritten examples",
+          "checks": [["Define voice", "Each voice attribute has do and don't examples", "Style guide"], ["Apply the guide", "The three rewrites follow every rule in the guide", "Review checklist"], ["Get adoption", "Writers rate the guide as usable", "Feedback summary"]],
+          "objectives": ["Define brand voice", "Write style guides", "Apply guides to real content"]
+        },
+        {
+          "topic": "Inclusive Language, Translation and Localisation",
+          "subtopics": ["Inclusive language and why it matters", "Gender-neutral and person-first wording", "Accessibility: plain language, alt text and captions", "Writing for translation", "Localisation of examples, dates and formats", "Working with translators and reviewers", "Machine translation and its limits", "Testing communication with diverse readers"],
+          "tools": ["Inclusive language checklist", "Translation tool", "Accessibility checker"],
+          "lab_task": "Revise a global announcement for inclusive language and translation readiness, translate it with a machine translation tool, have a native speaker review it and fix the problems found.",
+          "deliverable": "Revised announcement, translation and review notes",
+          "checks": [["Use inclusive language", "The revision passes the inclusive language checklist", "Checklist"], ["Prepare for translation", "Idioms and ambiguous phrases are removed", "Revision"], ["Review translation", "A native speaker confirms the translated meaning", "Review notes"]],
+          "objectives": ["Write inclusively", "Prepare text for translation", "Localise communication"]
+        },
+        {
+          "topic": "Ethical Persuasion and Building Trust",
+          "subtopics": ["Persuasion compared with manipulation", "Honesty about uncertainty and limits", "Avoiding spin and selective evidence", "Consistency between words and actions", "Repairing trust after a mistake", "Transparency in commercial communication", "Ethics in AI-generated communication", "Personal principles for communicating"],
+          "tools": ["Case studies", "Ethics checklist", "Reflection journal"],
+          "lab_task": "Analyse two real communication cases where trust was lost, rewrite the key messages ethically, and write your own communication principles with examples of applying them.",
+          "deliverable": "Case analyses, rewrites and personal principles",
+          "checks": [["Analyse cases", "Each analysis names the trust-breaking behaviour", "Case analysis"], ["Rewrite ethically", "Rewrites are honest about uncertainty and limits", "Rewrites"], ["Set principles", "Principles include examples from your own work", "Principles document"]],
+          "objectives": ["Persuade ethically", "Repair trust", "Set personal communication principles"]
+        },
+        {
+          "topic": "Leading Communication Through Mergers and Acquisitions",
+          "subtopics": ["Communication phases: rumour, announcement, integration", "Legal limits before completion", "Day one messages for both organisations", "Culture differences and identity", "Customer and partner reassurance", "Manager toolkits for integration", "Listening to staff concerns", "Tracking integration sentiment"],
+          "tools": ["Integration communication plan", "Stakeholder map", "Pulse survey tool"],
+          "lab_task": "Plan communication for a role-played acquisition from announcement to the first ninety days, including day one messages for both workforces, customer letters and a manager toolkit.",
+          "deliverable": "Ninety-day integration communication plan with materials",
+          "checks": [["Plan phases", "The plan covers announcement, day one and ninety days", "Plan"], ["Address both workforces", "Day one messages speak to each organisation's concerns", "Messages"], ["Listen", "The plan includes surveys or listening sessions with actions", "Listening plan"]],
+          "objectives": ["Communicate through mergers", "Address different workforces", "Track integration sentiment"]
+        },
+        {
+          "topic": "Advanced Capstone: Communication Plan for a Major Organisational Change",
+          "subtopics": ["Situation and stakeholder analysis", "Strategic narrative", "Sequenced communication plan", "Crisis and difficult-question preparation", "Measurement framework", "Board or executive presentation"],
+          "tools": ["Communication plan template", "PowerPoint or Google Slides", "Survey tool", "Video recording"],
+          "lab_task": "Lead the communication for a major change in a realistic case: write the narrative, the sequenced plan with key materials, a difficult question pack and measures, and present the plan to a mock executive committee.",
+          "deliverable": "Complete communication plan, materials and executive presentation",
+          "checks": [["Build the plan", "The plan covers all stakeholders with sequence and channels", "Plan"], ["Prepare for difficulty", "The question pack covers the hardest likely questions", "Question pack"], ["Win approval", "The mock executive committee approves the plan", "Committee notes"]],
+          "objectives": ["Combine advanced communication skills", "Lead communication for major change", "Present to executives"]
+        }
+      ]
+    }
+  }
+}

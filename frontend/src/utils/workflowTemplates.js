@@ -10,12 +10,23 @@ const compose = (trainer, subject, sections) => ({ subject, body: [greeting(trai
 const rows = entries => entries.filter(([, value]) => text(value)).map(([label, value]) => `- ${label}: ${value}`).join('\n')
 export function proposal(req = {}) {
   const page = req.pipeline_target || req.pipeline_page
+  // Page assignment is authoritative: Shortlist is proposal, Shortlist1 is confirmed.
   if (page === 'shortlist' || page === 'shortlist1') return page === 'shortlist'
   return /proposal/i.test(req.batch_flow || req.batch_type || req.requirement_type || '')
 }
 export function trainingDays(req = {}) {
   return number(req.duration_days || req.commercial_working_days)
     || number(text(req.duration_text || req.duration).match(/\b(\d+(?:\.\d+)?)\s*(?:(?:training|working|business)\s+)?days?\b/i)?.[1])
+}
+export function clientCommercial(req = {}) {
+  const total = number(req.budget_total || req.client_commercial_total || req.training_commercial_amount || req.commercial_amount)
+  const daily = number(req.client_budget_per_day || req.budget_per_day)
+  if (daily && daily < 10000) {
+    return `INR ${Math.round(total || daily).toLocaleString('en-IN')} total-course commercial`
+  }
+  if (daily) return `INR ${Math.round(daily).toLocaleString('en-IN')} per day/session`
+  if (total) return `INR ${Math.round(total).toLocaleString('en-IN')} total-course commercial`
+  return text(req.budget_range)
 }
 export function trainerOffer(req = {}, trainer = {}) {
   const days = trainingDays(req)

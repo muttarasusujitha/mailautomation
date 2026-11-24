@@ -1,0 +1,573 @@
+{
+  "domain": "React Native",
+  "name": "React Native",
+  "category": "Mobile Development",
+  "icon": "tablet-smartphone",
+  "aliases": ["React Native Developer", "React Native with Expo", "Expo", "Advanced React Native", "React Native Mobile Apps", "Cross-Platform Apps with React Native"],
+  "certifications": [],
+  "tools": ["Expo CLI", "EAS CLI", "React Native Community CLI", "React Native DevTools", "Expo Router", "Expo Services (Build, Submit, Update, Workflows)", "Android Studio", "Xcode", "Maestro", "Sentry"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For web and React developers and new mobile developers who have not shipped a React Native app before. Covers Expo SDK 58 and the React Native Community CLI on React Native 0.88, core components, Flexbox styling, TypeScript, FlatList, Expo Router navigation, state and hooks, forms, React Native DevTools, fetching data, AsyncStorage and expo-sqlite, images and fonts, camera, location and notifications through Expo modules, development builds, Expo Build (formerly EAS Build) and publishing to Google Play and the App Store.",
+      "prerequisites": ["Writes modern JavaScript with modules, arrow functions, promises and async/await", "Has built a small React web app with components, props and state", "Has a computer with Node.js 22 or later and Android Studio, plus a Mac with Xcode or an Expo account for iOS builds"],
+      "outcomes": ["Create, run and debug React Native apps with Expo and the Community CLI on Android and iOS", "Build typed screens with core components, Flexbox, FlatList, forms and Expo Router navigation", "Store data with AsyncStorage and expo-sqlite and use the camera, location and notifications", "Produce signed builds with Expo Build and release them to Google Play internal testing and TestFlight"],
+      "days": [
+        {
+          "topic": "Expo and React Native Community CLI Setup",
+          "subtopics": ["How React Native renders real native views on Android and iOS", "Expo as the framework the React Native documentation recommends for new apps", "Creating an Expo SDK 58 app with create-expo-app and the default@sdk-58 template", "Project anatomy: src/app, app.json, package.json and the assets folder", "Metro, Fast Refresh and the Expo CLI keys a, i, j, r and m", "Android emulators from Android Studio Device Manager", "The iOS Simulator on a Mac, and Expo Simulators (beta) from Windows or Linux", "Expo Go limits: the App Store build stops at SDK 54, so iPhones need a development build for SDK 58", "A framework-free app with npx @react-native-community/cli@latest init, CocoaPods and Gradle", "Toolchain versions: React Native 0.88, Node.js 22 or later, JDK 17, current Android Studio and Xcode"],
+          "tools": ["create-expo-app", "Expo CLI (npx expo start)", "React Native Community CLI", "Android Studio Device Manager", "Xcode iOS Simulator", "Expo Go"],
+          "lab_task": "Create an Expo SDK 58 app called FieldNotes and a Community CLI app called BareNotes, run both on an Android emulator and the iOS Simulator, add a counter button to each home screen and time five Fast Refresh reloads per app after editing the title text.",
+          "deliverable": "Two running starter apps with screenshots on both platforms and a table of Fast Refresh timings",
+          "checks": [["Run npx expo start in FieldNotes and press a with an emulator open", "FieldNotes opens on the Android emulator with the default tab layout", "Emulator screenshot"], ["Scan the FieldNotes QR code with Expo Go installed from the App Store", "Expo Go reports that the project is incompatible with this version of Expo Go", "iPhone screenshot of the error"], ["Tap the counter three times, then edit and save the title text", "Title changes within 2 seconds and the counter still shows 3", "Screen recording with timings"]],
+          "objectives": ["Explain what React Native renders and where Expo fits", "Create and run Expo and Community CLI apps on both platforms", "Choose between Expo Go, a simulator and a development build"]
+        },
+        {
+          "topic": "Core Components and Touch Handling",
+          "subtopics": ["View, Text and Image as host components backed by native views", "Why every string must sit inside a Text component", "Pressable with pressed styles, hitSlop and android_ripple", "ScrollView for short content and why it renders every child", "TextInput, Switch and ActivityIndicator", "Modal and Alert.alert for confirmations", "Safe areas with react-native-safe-area-context instead of the deprecated SafeAreaView", "expo-status-bar and edge-to-edge layout on Android 15 and later"],
+          "tools": ["React Native core components", "react-native-safe-area-context", "expo-status-bar", "Android Studio Device Manager"],
+          "lab_task": "Build a contact card screen with a photo, name, three Pressable actions (Call, Message, Delete), a notes TextInput and a favourite Switch, add a Modal that confirms deletion and check the layout on an iPhone with a Dynamic Island and an Android 15 emulator.",
+          "deliverable": "Contact card screen with screenshots of the normal, pressed and confirmation states",
+          "checks": [["Render a plain string directly inside a View", "App shows the error that text strings must be rendered within a Text component", "Error screenshot"], ["Press and hold the Call button", "Button background darkens while pressed and returns on release", "Screen recording"], ["Open the screen on the Android 15 emulator and the iPhone simulator", "Header sits below the status bar and camera cut-out on both devices", "Two screenshots"]],
+          "objectives": ["Choose the right core component for each element", "Handle touches with Pressable and confirm destructive actions", "Respect safe areas on current devices"]
+        },
+        {
+          "topic": "Styling with StyleSheet and Flexbox",
+          "subtopics": ["StyleSheet.create, style arrays and conditional styles", "React Native Flexbox defaults: column direction, flexShrink 0 and no CSS cascade", "justifyContent, alignItems, flexWrap and flex: 1", "Spacing with gap, rowGap and columnGap", "Density-independent pixels, percentages and useWindowDimensions", "Absolute positioning, zIndex and boxShadow for badges and cards", "Platform.select and .ios.tsx and .android.tsx files", "Dark mode with useColorScheme and a theme object"],
+          "tools": ["StyleSheet API", "useWindowDimensions", "useColorScheme", "Element Inspector in the Dev Menu"],
+          "lab_task": "Style a dashboard of 12 tiles that shows 2 columns below 600 dp and 3 columns from 600 dp, add an unread badge to the Messages tile with absolute positioning, give the cards a boxShadow and switch colours with the device theme.",
+          "deliverable": "Responsive dashboard with phone, tablet and dark-mode screenshots",
+          "checks": [["Open the dashboard on a 10-inch tablet emulator", "Grid shows 3 columns of tiles", "Tablet screenshot"], ["Switch the emulator to dark mode with the app open", "Background and text colours change without a restart", "Before and after screenshots"], ["Select a tile with the Element Inspector", "Inspector shows the tile's flex, margin and padding values", "Inspector screenshot"]],
+          "objectives": ["Lay out screens with Flexbox", "Adapt layouts to screen width and platform", "Apply light and dark themes"]
+        },
+        {
+          "topic": "TypeScript for React Native Screens and Components",
+          "subtopics": ["tsconfig.json extending expo/tsconfig.base with strict mode on", "Typing component props, children and optional props", "Typing styles with ViewStyle, TextStyle and ImageStyle", "Typing events such as GestureResponderEvent and TextInput change events", "Typing useState, useRef and useReducer actions", "The Strict TypeScript API, default since React Native 0.87: import from the react-native root only", "Module declarations for image and SVG imports", "Checking with npx tsc --noEmit and ESLint using eslint-config-expo"],
+          "tools": ["TypeScript compiler (tsc)", "Visual Studio Code", "eslint-config-expo", "Expo CLI"],
+          "lab_task": "Convert four JavaScript screens of a sample recipe app to TypeScript with strict mode, type every prop, style and reducer action, replace one deep import from react-native/Libraries with a root import and finish with zero tsc and ESLint errors.",
+          "deliverable": "Typed recipe app with clean tsc and ESLint output",
+          "checks": [["Pass a number to a prop typed as string", "tsc reports error TS2322 on that line", "Compiler output"], ["Keep the deep import from react-native/Libraries and run the type check", "Type check fails because deep imports are not part of the public API", "Compiler output"], ["Run npx tsc --noEmit after the fixes", "Command exits with code 0", "Terminal log"]],
+          "objectives": ["Type props, styles, state and events", "Work within the Strict TypeScript API", "Keep a project free of type errors"]
+        },
+        {
+          "topic": "Lists with FlatList and SectionList",
+          "subtopics": ["Why mapping 500 items inside a ScrollView is slow", "data, renderItem and keyExtractor", "ItemSeparatorComponent, ListHeaderComponent and ListEmptyComponent", "Pull to refresh with refreshing and onRefresh", "Loading more rows with onEndReached and onEndReachedThreshold", "SectionList with sticky section headers", "getItemLayout for fixed-height rows", "initialNumToRender, windowSize and maxToRenderPerBatch"],
+          "tools": ["FlatList", "SectionList", "Perf Monitor in the Dev Menu", "React Native DevTools Profiler"],
+          "lab_task": "Render 500 contacts from a local JSON file in a SectionList grouped by first letter with sticky headers, pull to refresh and a search box, then build a FlatList version that loads 50 rows per page and compare both with a ScrollView version.",
+          "deliverable": "Contacts list screens with a timing comparison of ScrollView, FlatList and SectionList",
+          "checks": [["Scroll the 500-contact list quickly with Perf Monitor on", "JS frame rate stays above 50 fps", "Perf Monitor screenshot"], ["Search for a name that does not exist", "ListEmptyComponent shows 'No contacts found'", "Screenshot"], ["Scroll to the end of the paged FlatList", "onEndReached loads the next 50 rows once per page", "Console log of page requests"]],
+          "objectives": ["Render long lists with FlatList and SectionList", "Add refresh, paging and empty states", "Tune list rendering settings"]
+        },
+        {
+          "topic": "Navigation with Expo Router",
+          "subtopics": ["File-based routes in src/app and _layout.tsx files", "Stack screens, headers and back behaviour", "Native system tabs with expo-router/native-tabs", "Link, router.push, router.replace and router.back", "Dynamic routes such as recipe/[id].tsx with useLocalSearchParams", "Modal screens with presentation: 'modal'", "+not-found.tsx and typed routes", "React Navigation for Community CLI apps, and why Expo Router apps import only from expo-router since SDK 56"],
+          "tools": ["Expo Router", "expo-router/native-tabs", "React Navigation", "Expo CLI"],
+          "lab_task": "Build a recipe app with three native tabs (Browse, Saved, Profile), a stack in Browse that opens recipe/[id], a modal for adding a recipe and a not-found screen, then pass the recipe id and read it with useLocalSearchParams.",
+          "deliverable": "Route map diagram and the working recipe app navigation",
+          "checks": [["Tap a recipe in Browse", "recipe/[id] opens with the tapped recipe's title in the header", "Screenshot"], ["Call router.push('/missing')", "The +not-found screen appears with a link back home", "Screenshot"], ["Press the Android back button on the add-recipe modal", "Modal closes and the Browse stack is unchanged", "Screen recording"]],
+          "objectives": ["Structure screens with file-based routes", "Combine tabs, stacks and modals", "Pass and read route parameters"]
+        },
+        {
+          "topic": "State and Hooks in a Mobile App",
+          "subtopics": ["useState for screen state and lifting state into a layout", "useEffect clean-up for AppState and Keyboard listeners", "useReducer for a shopping list", "Context for the theme and the signed-in user", "useRef for focusing a TextInput and holding timer IDs", "useFocusEffect to refresh a screen when it regains focus", "Custom hooks such as useDebouncedValue", "Turning on React Compiler in app.json and when manual useMemo is still needed"],
+          "tools": ["React hooks", "AppState API", "Expo Router useFocusEffect", "React Native DevTools Components panel"],
+          "lab_task": "Add a shopping list to the recipe app with useReducer and Context, show the item count as a tab badge, pause a 60-second cooking timer when the app goes to the background using AppState and refresh the Saved tab with useFocusEffect.",
+          "deliverable": "Shopping list and timer features with a diagram of where each piece of state lives",
+          "checks": [["Add three ingredients to the list from two different screens", "Tab badge shows 3", "Screenshot"], ["Send the app to the background for 20 seconds while the timer runs", "Timer shows the same remaining time on return", "Screen recording"], ["Save a recipe from Browse, then open the Saved tab", "Saved tab lists the new recipe without a manual refresh", "Screenshot"]],
+          "objectives": ["Place state at the right level", "Clean up listeners and timers", "Share state across screens with Context and reducers"]
+        },
+        {
+          "topic": "Forms, Keyboard Handling and Validation",
+          "subtopics": ["TextInput props: keyboardType, autoComplete, textContentType and secureTextEntry", "returnKeyType, onSubmitEditing and moving focus between fields", "KeyboardAvoidingView and keyboardShouldPersistTaps", "React Hook Form with Controller", "Zod schemas and inline error messages", "Date and time input with @react-native-community/datetimepicker", "Disabling submit and showing progress while saving", "Accessible labels and error text for every field"],
+          "tools": ["React Hook Form", "Zod", "@react-native-community/datetimepicker", "KeyboardAvoidingView"],
+          "lab_task": "Build a six-field cookery class booking form (name, email, phone, date, guests, notes) with Zod rules, email and phone keyboards, Next keys that move focus, a date picker and a submit button that stays disabled until the form is valid.",
+          "deliverable": "Booking form with a validation rules table and screenshots of each error state",
+          "checks": [["Enter 'abc' in the email field and submit", "'Enter a valid email' appears under the email field", "Screenshot"], ["Focus the notes field on the smallest iPhone simulator", "Keyboard covers neither the notes field nor the submit button", "Screenshot"], ["Enter 0 in the guests field", "Submit stays disabled and the field shows 'At least 1 guest'", "Screenshot"]],
+          "objectives": ["Configure TextInput for each kind of data", "Validate forms with React Hook Form and Zod", "Keep fields visible above the keyboard"]
+        },
+        {
+          "topic": "Debugging with React Native DevTools",
+          "subtopics": ["Opening DevTools with j in Expo CLI or from the Dev Menu", "Console, LogBox warnings and the red error screen", "Breakpoints and stepping in the Sources panel", "The React Components panel and highlighting re-renders", "The Network panel for fetch requests, added in React Native 0.83", "Heap snapshots in the Memory panel", "Native logs with adb logcat and the Xcode console", "The DevTools desktop app and the Command Palette"],
+          "tools": ["React Native DevTools", "Expo CLI", "adb logcat", "Xcode console"],
+          "lab_task": "Find and fix three seeded bugs in a supplied shop app (a crash when the basket is empty, a list that re-renders on every keystroke and a request sent to the wrong URL) using breakpoints, the Components panel and the Network panel.",
+          "deliverable": "Bug report for three defects with cause, fix and DevTools evidence",
+          "checks": [["Set a breakpoint in the basket total function and open an empty basket", "Execution pauses with items undefined", "Sources panel screenshot"], ["Turn on re-render highlighting and type in the search box after the fix", "Only the search field and the result list flash", "Screen recordings before and after"], ["Refresh the product list with the Network panel open", "Request goes to /api/v2/products and returns status 200", "Network panel screenshot"]],
+          "objectives": ["Debug JavaScript with breakpoints", "Find unnecessary re-renders", "Inspect network requests and native logs"]
+        },
+        {
+          "topic": "Fetching Data and Handling Slow Networks",
+          "subtopics": ["fetch with async/await and JSON parsing", "Loading, error, empty and success states", "Cancelling requests with AbortController when a screen closes", "Timeouts and retry buttons for slow mobile connections", "HTTPS rules: App Transport Security on iOS and cleartext limits on Android", "API base URLs per environment with EXPO_PUBLIC_ variables", "Reaching a local API from the Android emulator through 10.0.2.2", "Checking response shapes with Zod"],
+          "tools": ["fetch API", "AbortController", "Zod", "React Native DevTools Network panel"],
+          "lab_task": "Connect the recipe app to a REST API: load 20 recipes per page, show skeleton rows while loading, show a Retry button after a 10-second timeout, cancel the request when the user leaves the screen and validate every item with a Zod schema.",
+          "deliverable": "API client module with screenshots of the loading, error, empty and success states",
+          "checks": [["Turn off the emulator network and open the recipe list", "Error state with a Retry button appears within 10 seconds", "Screenshot"], ["Leave the list screen while a request is in progress", "Network panel shows the request as cancelled", "Network panel screenshot"], ["Return a recipe without a title from the mock API", "Zod rejects the item and the app logs a validation error instead of crashing", "Console log"]],
+          "objectives": ["Fetch and display remote data", "Handle slow and failed requests", "Validate API responses"]
+        },
+        {
+          "topic": "Saving Settings with AsyncStorage",
+          "subtopics": ["Key-value storage and why AsyncStorage stores only strings", "Saving objects with JSON.stringify and JSON.parse", "AsyncStorage v3 storage instances created with createAsyncStorage", "Batch reads and writes with getMany and setMany", "The default export that keeps reading v2 data during migration", "Restoring settings while the splash screen is still showing", "What never belongs in AsyncStorage: tokens, passwords and health data", "expo-sqlite/kv-store and react-native-mmkv as alternatives"],
+          "tools": ["@react-native-async-storage/async-storage", "expo-sqlite/kv-store", "expo-splash-screen", "React Native DevTools Console"],
+          "lab_task": "Persist the theme, measurement units and an onboarding-complete flag in a 'settings' storage instance, restore them before hiding the splash screen and add a Reset button that clears only that instance.",
+          "deliverable": "Settings persistence module with a list of storage keys and their formats",
+          "checks": [["Choose the dark theme, force-quit and reopen the app", "App opens in the dark theme without a light flash", "Screen recording"], ["Finish onboarding and restart the app", "Onboarding screens are skipped", "Screenshot"], ["Press Reset on the settings screen", "Only keys in the settings instance are removed", "Console log of stored keys before and after"]],
+          "objectives": ["Persist simple settings", "Restore saved state at start-up", "Decide what data belongs in key-value storage"]
+        },
+        {
+          "topic": "Local Databases with expo-sqlite",
+          "subtopics": ["When SQLite is a better fit than key-value storage", "Opening a database with openDatabaseAsync", "SQLiteProvider and useSQLiteContext", "Creating tables with execAsync and migrating with PRAGMA user_version", "Parameterised queries with runAsync to prevent SQL injection", "Reading rows with getAllAsync and getFirstAsync", "Grouping writes with withTransactionAsync", "Opening the database file in DB Browser for SQLite"],
+          "tools": ["expo-sqlite", "SQLiteProvider", "DB Browser for SQLite", "Expo CLI"],
+          "lab_task": "Store recipes and ingredients in two related SQLite tables, write a version 2 migration that adds a rating column, insert 100 sample recipes in one transaction and build a search screen that uses a parameterised LIKE query.",
+          "deliverable": "Database module with schema, migration code and query timings",
+          "checks": [["Search for the text ' OR 1=1 --", "Search returns no rows and no error", "Screenshot and query log"], ["Open an install that still has the version 1 schema", "PRAGMA user_version reads 2 and existing recipes keep their data", "Console log"], ["Insert 100 recipes inside withTransactionAsync", "All rows are written in under 1 second on the emulator", "Timing log"]],
+          "objectives": ["Model local data in SQLite tables", "Run safe queries and schema migrations", "Group writes in transactions"]
+        },
+        {
+          "topic": "Images, Fonts and App Icons",
+          "subtopics": ["Local images with require and @2x and @3x variants", "Remote images with expo-image: contentFit, placeholder and cachePolicy", "Choosing WebP or AVIF and keeping image files small", "SVG icons with react-native-svg", "Custom fonts embedded with the expo-font config plugin", "App icon, Android adaptive icon and splash screen settings in app.json", "Icon sets from @expo/vector-icons", "Checking asset sizes with npx expo export"],
+          "tools": ["expo-image", "expo-font", "react-native-svg", "@expo/vector-icons", "expo-splash-screen"],
+          "lab_task": "Switch the recipe photos to expo-image with blurhash placeholders and disk caching, convert 12 PNG assets to WebP, embed a heading font with the expo-font config plugin and set the app icon, adaptive icon and splash screen.",
+          "deliverable": "Asset report with export sizes before and after and screenshots of the icon and splash screen",
+          "checks": [["Scroll the recipe list with the network throttled", "Blurhash placeholders show until each photo arrives", "Screen recording"], ["Run npx expo export before and after the WebP conversion", "Asset size drops by at least 40%", "Export size log"], ["Install the app on Android and open the launcher", "Adaptive icon shows the foreground on the chosen background colour", "Launcher screenshot"]],
+          "objectives": ["Load local and remote images efficiently", "Add fonts and icons", "Configure app icons and splash screens"]
+        },
+        {
+          "topic": "Camera, Photos and QR Codes",
+          "subtopics": ["Camera permission with useCameraPermissions and usage text set in app.json", "CameraView with facing, flash and zoom", "Taking photos with takePictureAsync", "Scanning QR codes and barcodes with barcodeScannerSettings", "Picking from the photo library with expo-image-picker", "Saving files with the expo-file-system File and Paths API", "Saving to the photo library with expo-media-library", "Handling denied permissions and opening system settings"],
+          "tools": ["expo-camera", "expo-image-picker", "expo-file-system", "expo-media-library"],
+          "lab_task": "Add a scan screen that reads a recipe QR code and a photo step that takes or picks up to 3 photos, saves them into the app's document directory and shows thumbnails; test the flow with camera permission granted, denied and revoked.",
+          "deliverable": "Camera and scanner feature with a permission test table",
+          "checks": [["Deny camera permission and open the scan screen", "Screen explains why the camera is needed and offers Open Settings", "Screenshot"], ["Scan a QR code that contains recipe id 42", "Recipe 42 opens within one second", "Screen recording"], ["Take a photo, restart the app and open the recipe", "Thumbnail loads from the document directory", "Screenshot and file path log"]],
+          "objectives": ["Request and handle camera permissions", "Capture photos and scan codes", "Store media files on the device"]
+        },
+        {
+          "topic": "Location Tracking and Maps",
+          "subtopics": ["Foreground permission with requestForegroundPermissionsAsync", "Precise and approximate location on Android 12 and later and on iOS", "getCurrentPositionAsync and accuracy settings", "Tracking movement with watchPositionAsync and removing the subscription", "Reverse geocoding a street address", "Showing the user and markers with react-native-maps", "Simulating routes in the Android emulator and the iOS Simulator", "Battery cost, and why background location needs a development build and extra store review"],
+          "tools": ["expo-location", "react-native-maps", "Android emulator extended controls", "iOS Simulator Features > Location menu"],
+          "lab_task": "Build a walk recorder that requests foreground location, records a point every 20 metres, shows the route as markers on a map, displays the street address of the start point and stops tracking when the screen loses focus.",
+          "deliverable": "Walk recorder screen with a recorded route screenshot and permission notes",
+          "checks": [["Grant only approximate location on Android", "App shows a notice that the route may be inaccurate", "Screenshot"], ["Play a GPX route in the emulator's extended controls", "Markers appear along the simulated route", "Map screenshot"], ["Leave the walk recorder screen", "Location updates stop in the log", "Console log"]],
+          "objectives": ["Request location permissions correctly", "Read and track the device location", "Show locations on a map"]
+        },
+        {
+          "topic": "Local Notifications and Reminders",
+          "subtopics": ["Requesting permission, including POST_NOTIFICATIONS on Android 13 and later", "Android notification channels with setNotificationChannelAsync", "Time-interval, daily and date triggers", "Showing notifications while the app is open with setNotificationHandler", "Responding to taps with addNotificationResponseReceivedListener", "Opening a screen from notification data with Expo Router", "Listing and cancelling scheduled notifications", "Why remote push needs a development build instead of Expo Go"],
+          "tools": ["expo-notifications", "Expo Router", "Android notification settings", "iOS Simulator"],
+          "lab_task": "Add a daily 08:30 meal-planning reminder and a one-off reminder 10 minutes before a planned meal, create a Reminders channel on Android, open the planned recipe when the notification is tapped and let the user cancel any reminder.",
+          "deliverable": "Reminder feature with a list of scheduled notification IDs and tap-handling evidence",
+          "checks": [["Schedule a reminder 60 seconds ahead and lock the device", "Notification appears on the lock screen after about 60 seconds", "Device screenshot"], ["Tap the notification while the app is closed", "App opens on the planned recipe", "Screen recording"], ["Cancel the daily reminder", "getAllScheduledNotificationsAsync no longer returns it", "Console log"]],
+          "objectives": ["Schedule and cancel local notifications", "Configure channels and permissions", "Send users from a notification to the right screen"]
+        },
+        {
+          "topic": "Development Builds and App Configuration",
+          "subtopics": ["What a development build is and when Expo Go is not enough", "Installing expo-dev-client", "Local builds with npx expo run:android and npx expo run:ios", "Cloud development builds with eas build --profile development", "App identity in app.json: name, slug, scheme, ios.bundleIdentifier and android.package", "Config plugins for permissions and native settings", "Checking the project with npx expo-doctor and npx expo install --check", "Native folders: generated by prebuild in Expo apps, committed in Community CLI apps"],
+          "tools": ["expo-dev-client", "EAS CLI", "Expo CLI", "expo-doctor"],
+          "lab_task": "Turn the recipe app into a development build: install expo-dev-client, set the bundle identifier and Android package, build for an Android phone and the iOS Simulator, install both and connect them to the local Metro server.",
+          "deliverable": "Development builds for both platforms with the app.json changes and the expo-doctor report",
+          "checks": [["Run npx expo-doctor", "All checks pass with no duplicate or mismatched native packages", "Terminal log"], ["Open the development build on an Android phone", "Launcher lists the local Metro server and loads the app", "Phone screenshot"], ["Edit a JavaScript file with the build running", "Change appears without rebuilding the app", "Screen recording"]],
+          "objectives": ["Create development builds locally and in the cloud", "Configure app identity and native settings", "Keep packages aligned with the Expo SDK"]
+        },
+        {
+          "topic": "Signed Builds with Expo Build",
+          "subtopics": ["Expo Services names: Expo Build was EAS Build, while the eas command and eas.json keep their names", "eas.json build profiles: development, preview and production", "Android APKs for testers and AAB files for Google Play", "Android upload keys managed with eas credentials", "iOS distribution certificates, provisioning profiles and the Apple Developer Program", "Registering test iPhones with eas device:create for ad hoc builds", "version, buildNumber and versionCode with remote app versions and autoIncrement", "Reading build logs and fixing common build failures"],
+          "tools": ["Expo Build (eas build)", "EAS CLI", "eas.json", "Expo dashboard (expo.dev)"],
+          "lab_task": "Configure preview and production profiles, build an Android APK and share it with two testers through an internal distribution link, build an ad hoc iOS app for one registered iPhone and produce a production AAB whose versionCode increases automatically.",
+          "deliverable": "eas.json, three build links and a version table for every build",
+          "checks": [["Run eas build -p android --profile preview", "Build finishes and its expo.dev page shows an install QR code", "Build page screenshot"], ["Run the production profile twice", "versionCode goes from 1 to 2 without editing app.json", "Build details from both runs"], ["Install the ad hoc build on an iPhone that is not registered", "Installation fails because the device is not in the provisioning profile", "iPhone screenshot"]],
+          "objectives": ["Configure build profiles", "Manage signing credentials", "Version and share test builds"]
+        },
+        {
+          "topic": "Publishing to Google Play and the App Store",
+          "subtopics": ["Creating the app in Play Console and uploading the first AAB by hand", "Internal, closed and production tracks, and the 12 testers for 14 days rule for new personal accounts", "Target API level 36 (Android 16), required for new apps and updates since 31 August 2026", "The Data safety form and a privacy policy URL", "App Store Connect app records and TestFlight internal and external testing", "The iOS 26 SDK requirement for uploads since 28 April 2026", "App Privacy details, privacy manifests and in-app account deletion", "Uploading with eas submit and answering review feedback"],
+          "tools": ["Google Play Console", "App Store Connect", "TestFlight", "Expo Submit (eas submit)"],
+          "lab_task": "Upload the production AAB to the Play Console internal testing track, send the iOS build to TestFlight with eas submit, complete the Data safety form and App Privacy details for the recipe app and invite five testers on each platform.",
+          "deliverable": "Store readiness checklist with the internal test link, TestFlight build number and completed privacy forms",
+          "checks": [["Upload an AAB that targets API level 35", "Play Console blocks the release with a target API level error", "Play Console screenshot"], ["Run eas submit -p ios --latest", "Build appears in TestFlight after Apple finishes processing", "TestFlight screenshot"], ["Open the internal testing link on a tester's Android phone", "Tester installs the app from Google Play", "Phone screenshot"]],
+          "objectives": ["Prepare store records and testing tracks", "Complete privacy declarations accurately", "Submit builds to Google Play and TestFlight"]
+        },
+        {
+          "topic": "Beginner Capstone: Neighbourhood Issue Reporter",
+          "subtopics": ["Planning screens, routes and a typed data model for issue reports", "Report form with validation, two photos and the GPS position", "Scanning QR asset tags on street furniture", "Saving drafts in expo-sqlite and settings in AsyncStorage", "Loading open issues from a REST API and scheduling follow-up reminders", "Development build, Expo Build and store test releases"],
+          "tools": ["Expo Router", "expo-sqlite", "expo-camera", "expo-location", "expo-notifications", "EAS CLI"],
+          "lab_task": "Build and release an issue reporter: list 30 open issues from an API, scan a QR tag on a lamp post, fill a 5-field report with 2 photos and the GPS position, save drafts offline in SQLite, schedule a follow-up reminder and release to Play internal testing and TestFlight.",
+          "deliverable": "Issue reporter repository, store test links and a 5-minute demo video",
+          "checks": [["Write a report in airplane mode and close the app", "Draft is still in the drafts list after reopening", "Screen recording"], ["Scan the QR tag of lamp post LP-017", "Report form opens with asset LP-017 filled in", "Screenshot"], ["Install from the TestFlight and Play internal links", "Both installs open and list the 30 open issues", "Phone screenshots"]],
+          "objectives": ["Combine navigation, forms, storage and device features in one app", "Test the app on Android and iOS", "Release the app to testers on both stores"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who already build and release basic React Native apps and now need native integration, data, quality and release skills. Covers the New Architecture (default since 0.76 and the only option since 0.82), config plugins and Expo native modules, Zustand or Redux Toolkit with TanStack Query, offline sync, Reanimated 4 and gestures, media, Hermes V1 and FlashList performance work, deep links, authentication, push notifications, accessibility, internationalisation, Jest, React Native Testing Library, Maestro and Detox, and pipelines with Expo Workflows, Build, Submit and Update.",
+      "prerequisites": ["Has built and released at least one React Native app with Expo Router or React Navigation", "Writes TypeScript with typed props, hooks and API responses", "Can read Swift and Kotlin and run builds from Xcode and Android Studio"],
+      "outcomes": ["Explain the New Architecture and extend apps with config plugins and Expo native modules in Swift and Kotlin", "Manage client, server and offline data with Zustand or Redux Toolkit, TanStack Query and SQLite", "Build smooth, accessible and localised interfaces with Reanimated, Gesture Handler and FlashList", "Test and release apps automatically with Jest, Maestro, Expo Workflows and Expo Update"],
+      "days": [
+        {
+          "topic": "The New Architecture: Fabric, TurboModules and JSI",
+          "subtopics": ["JSI: direct calls between JavaScript and C++ that replaced the asynchronous bridge", "Fabric: the C++ renderer, the shadow tree and synchronous layout", "TurboModules: lazy loading and Codegen-typed specs", "Bridgeless mode as the standard runtime", "Timeline: default in 0.76 (October 2024), legacy code frozen in 0.80, legacy mode impossible from 0.82, code removal continuing since 0.84", "Interop layers that still run many libraries written for the old APIs", "Concurrent React features now usable on mobile: Suspense, transitions and synchronous useLayoutEffect", "Checking library support with React Native Directory and expo-doctor"],
+          "tools": ["React Native Directory (reactnative.directory)", "expo-doctor", "Codegen", "React Native DevTools"],
+          "lab_task": "Audit a 25-dependency app for New Architecture readiness, classify each library as native New Architecture, interop layer or unsupported, replace two unsupported libraries and position a tooltip with useLayoutEffect so it never jumps.",
+          "deliverable": "Dependency readiness matrix with replacement decisions and tooltip recordings before and after",
+          "checks": [["Set newArchEnabled=false in gradle.properties of a 0.88 Community CLI app and rebuild", "Flag is ignored and global.RN$Bridgeless logs true", "Build log and console output"], ["Run npx expo-doctor on the audited app", "No package is reported as unsupported on the New Architecture", "Terminal log"], ["Position the tooltip in useLayoutEffect instead of useEffect", "Tooltip appears in its final place with no one-frame jump", "Slow-motion screen recording"]],
+          "objectives": ["Explain how JSI, Fabric and TurboModules replace the bridge", "Assess libraries for New Architecture support", "Use concurrent React features in a mobile app"]
+        },
+        {
+          "topic": "Config Plugins and Continuous Native Generation",
+          "subtopics": ["Continuous Native Generation: android and ios folders as build output", "npx expo prebuild --clean and when to commit native folders", "Dynamic configuration in app.config.ts for development, preview and production variants", "Writing config plugins with withInfoPlist and withAndroidManifest", "expo-build-properties for minSdkVersion, iOS deployment target and Gradle settings", "Environment variables per environment with eas env and EXPO_PUBLIC_ prefixes", "Adding a third-party native SDK through its config plugin", "Testing plugins by comparing prebuild output in Git"],
+          "tools": ["Expo CLI (npx expo prebuild)", "@expo/config-plugins", "expo-build-properties", "EAS CLI (eas env)"],
+          "lab_task": "Make one codebase produce development, preview and production apps with different bundle IDs, names and icons from app.config.ts, then write a config plugin that adds LSApplicationQueriesSchemes on iOS and a queries element on Android and confirm both in the prebuild output.",
+          "deliverable": "app.config.ts, the config plugin source and the prebuild diff for each variant",
+          "checks": [["Run APP_VARIANT=preview npx expo prebuild --clean", "Generated projects use the ID com.example.recipes.preview", "Prebuild diff"], ["Install the development and production builds on one phone", "Both apps sit side by side with different names and icons", "Phone screenshot"], ["Remove the plugin and run prebuild again", "The queries entries disappear from AndroidManifest.xml and Info.plist", "Diff output"]],
+          "objectives": ["Generate native projects from configuration", "Write and test config plugins", "Build several app variants from one codebase"]
+        },
+        {
+          "topic": "Native Modules with the Expo Modules API",
+          "subtopics": ["Scaffolding a local module with npx create-expo-module@latest --local", "The module definition: Name, Function, AsyncFunction, Constants and Events", "Swift implementation for iOS", "Kotlin implementation for Android", "A typed JavaScript wrapper with requireNativeModule", "Native views with View, Prop and event callbacks", "Inline modules from SDK 56, configured with watchedDirectories", "The Expo Modules 2.0 macro API, in beta with SDK 58"],
+          "tools": ["create-expo-module", "Expo Modules API", "Xcode", "Android Studio"],
+          "lab_task": "Write a local Expo module that returns the device thermal state as nominal, fair, serious or critical (ProcessInfo.thermalState on iOS, PowerManager thermal status on Android), emits an event when it changes and shows a warning banner when the state is serious or critical.",
+          "deliverable": "Thermal-state module with Swift, Kotlin and TypeScript sources and a demo recording",
+          "checks": [["Call getThermalState() on the iOS Simulator", "Function returns 'nominal'", "Console log"], ["Run adb shell cmd thermalservice override-status 3 on the Android emulator", "onThermalStateChange fires with 'serious' and the banner appears", "Screen recording and log"], ["Call getThermalState with an extra argument from TypeScript", "TypeScript flags the call before the app runs", "Compiler output"]],
+          "objectives": ["Create Expo modules in Swift and Kotlin", "Expose functions, constants and events to JavaScript", "Choose between local, inline and published modules"]
+        },
+        {
+          "topic": "App-Wide State with Zustand or Redux Toolkit",
+          "subtopics": ["Separating client state, server state and persisted state", "Zustand stores, selectors and useShallow", "Persisting a Zustand store with the persist middleware and react-native-mmkv", "Redux Toolkit configureStore and createSlice", "Typed useAppSelector and useAppDispatch hooks", "Listener middleware for side effects such as analytics events", "Inspecting state with Redux DevTools and the React Components panel", "Unit testing stores without rendering screens"],
+          "tools": ["Zustand", "Redux Toolkit", "react-native-mmkv", "Redux DevTools"],
+          "lab_task": "Implement the same shopping basket twice, once with Zustand and the persist middleware on MMKV and once with Redux Toolkit slices, then compare re-render counts in the Profiler and lines of code for adding, removing and clearing items.",
+          "deliverable": "Two basket implementations with a table comparing re-renders, code size and test coverage",
+          "checks": [["Change a basket quantity while the React Profiler records", "Only the basket badge and the changed row re-render", "Profiler screenshot"], ["Kill and relaunch the app with 4 items in the Zustand basket", "Basket restores 4 items from MMKV", "Screenshot"], ["Dispatch clearBasket in a unit test", "Store state has an empty items array", "Jest output"]],
+          "objectives": ["Separate client state from server state", "Build stores with Zustand and Redux Toolkit", "Persist and test global state"]
+        },
+        {
+          "topic": "Server Data with TanStack Query on Mobile Networks",
+          "subtopics": ["QueryClientProvider, query keys, staleTime and gcTime", "onlineManager linked to expo-network or NetInfo", "focusManager linked to AppState so data refreshes when the app returns", "Refetching when an Expo Router screen regains focus", "useMutation with optimistic updates and rollback", "useInfiniteQuery with FlatList paging", "Persisting the query cache with an AsyncStorage persister", "Inspecting queries with the TanStack Query dev tools plugin"],
+          "tools": ["TanStack Query", "@tanstack/query-async-storage-persister", "expo-network", "React Native DevTools"],
+          "lab_task": "Replace hand-written fetch code in the recipe app with TanStack Query: an infinite recipe list, an optimistic save mutation that rolls back on a 500 error, a refetch when the app returns to the foreground and a persisted cache for cold starts without network.",
+          "deliverable": "Query layer with a query key catalogue and evidence for each scenario",
+          "checks": [["Return HTTP 500 from the save endpoint", "Saved icon fills at once, then reverts and an error toast appears", "Screen recording"], ["Cold start the app in airplane mode", "Recipe list shows data cached in the last session", "Screenshot"], ["Send the app to the background for 2 minutes and return", "One refetch of the stale recipe query runs", "Network panel screenshot"]],
+          "objectives": ["Cache and refresh server data", "Write optimistic mutations with rollback", "Adapt queries to connectivity and app state"]
+        },
+        {
+          "topic": "Offline Data and Background Sync",
+          "subtopics": ["Local-first design: the device database feeds the UI", "Drizzle ORM schema and migrations on expo-sqlite", "Live queries that update screens when rows change", "An outbox table for pending changes", "Detecting connectivity with expo-network", "Conflict rules: last write wins, server version numbers and field merges", "Deferred sync with expo-background-task on WorkManager and BGTaskScheduler", "Sync engines compared: PowerSync, WatermelonDB and Legend-State"],
+          "tools": ["expo-sqlite", "Drizzle ORM", "expo-background-task", "expo-network"],
+          "lab_task": "Make a site inspection app work offline: write inspections to SQLite through Drizzle, queue changes in an outbox, push them when the connection returns or in a background task and resolve a conflict where one inspection was edited on two devices.",
+          "deliverable": "Sync design note with conflict rules and a test log for offline, reconnect and conflict cases",
+          "checks": [["Create 5 inspections in airplane mode, then reconnect", "Outbox drains to 0 and the server shows 5 new records", "Server log and app screenshot"], ["Edit one inspection on two devices, saving the second edit last", "Server keeps the later edit and the other device shows it after sync", "Screenshots from both devices"], ["Run the background task with triggerTaskWorkerForTestingAsync", "Task runs and logs the number of rows it synced", "Console log"]],
+          "objectives": ["Design local-first data flows", "Queue and sync offline changes", "Resolve sync conflicts with clear rules"]
+        },
+        {
+          "topic": "Animations with Reanimated 4",
+          "subtopics": ["Shared values and useAnimatedStyle", "withTiming, withSpring and withSequence", "CSS-style animations and transitions in Reanimated 4", "Layout animations with entering, exiting and LinearTransition", "Worklets on the UI thread and the react-native-worklets package", "The shared animation backend added in React Native 0.85", "Respecting Reduce Motion with useReducedMotion", "Checking frame rates on 60 Hz and 120 Hz screens"],
+          "tools": ["react-native-reanimated", "react-native-worklets", "Perf Monitor", "React Native DevTools Performance panel"],
+          "lab_task": "Animate the recipe app: a heart button that springs when tapped, a header that collapses with scroll position, list rows that fade in and slide out on delete, and a reduced-motion mode that swaps movement for opacity changes.",
+          "deliverable": "Animated screens with recordings at normal and reduced motion and a frame-rate report",
+          "checks": [["Scroll while a 2-second JavaScript loop blocks the JS thread", "Header keeps collapsing smoothly because it runs on the UI thread", "Screen recording with Perf Monitor"], ["Turn on Reduce Motion in the device settings", "Rows fade instead of sliding", "Screen recording"], ["Delete a row from the list", "Remaining rows move up with a layout transition", "Slow-motion recording"]],
+          "objectives": ["Animate on the UI thread with Reanimated", "Use layout and CSS-style animations", "Respect motion accessibility settings"]
+        },
+        {
+          "topic": "Gestures with React Native Gesture Handler",
+          "subtopics": ["GestureHandlerRootView and why it wraps the app", "The Gesture Handler 3 hook API compared with the Gesture builder API of version 2", "Pan gestures with bounds and decay", "Pinch and double-tap to zoom an image", "Composing gestures with simultaneous, exclusive and race rules", "Swipe-to-delete list rows", "Driving Reanimated shared values from gestures", "Conflicts with ScrollView and the system back gesture"],
+          "tools": ["react-native-gesture-handler", "react-native-reanimated", "Android emulator", "iOS Simulator"],
+          "lab_task": "Build a photo viewer with pinch-to-zoom from 1x to 4x, double-tap zoom, panning limited to the image edges and swipe-to-delete rows in the photo list that do not interfere with vertical scrolling.",
+          "deliverable": "Photo viewer and swipeable list with a gesture interaction table",
+          "checks": [["Pinch out beyond 4x", "Zoom stops at 4x and springs back slightly", "Screen recording"], ["Start a vertical scroll on top of a row", "List scrolls and the row's delete action stays closed", "Screen recording"], ["Double-tap a zoomed image", "Image returns to 1x and centres", "Screen recording"]],
+          "objectives": ["Handle gestures on the UI thread", "Compose several gestures safely", "Avoid conflicts with scrolling and system gestures"]
+        },
+        {
+          "topic": "Video and Audio with expo-video and expo-audio",
+          "subtopics": ["expo-video with useVideoPlayer and VideoView", "Picture in picture, full screen and background playback", "Streaming HLS video and showing buffering state", "expo-audio with useAudioPlayer for sounds and spoken content", "Recording with useAudioRecorder and microphone permission", "Audio modes: mixing with other apps and playing in silent mode on iOS", "Migrating from expo-av, removed in SDK 55", "Now-playing notifications with showNowPlayingNotification"],
+          "tools": ["expo-video", "expo-audio", "expo-file-system", "iOS Simulator"],
+          "lab_task": "Add a cooking video player that streams an HLS recipe video with picture in picture, and a voice-note recorder that saves clips of up to 60 seconds per recipe, plays them back and works when the iPhone is in silent mode.",
+          "deliverable": "Media feature with a playback and recording test sheet",
+          "checks": [["Start the video and swipe to the home screen", "Video continues in a picture-in-picture window", "Device screenshot"], ["Record for 70 seconds", "Recording stops at 60 seconds and saves one file", "File list log"], ["Play a voice note with the iPhone in silent mode", "Audio plays because playsInSilentMode is set", "Screen recording with sound"]],
+          "objectives": ["Play streamed video and audio", "Record and store audio clips", "Configure audio modes and picture in picture"]
+        },
+        {
+          "topic": "Performance Tuning with Hermes V1, FlashList and Profiling",
+          "subtopics": ["Hermes V1, the default engine since React Native 0.84, and precompiled bytecode", "JavaScript-thread and UI-thread frame drops in Perf Monitor", "Recording traces in the React Native DevTools Performance panel", "React Profiler flame graphs and the reasons components re-render", "React Compiler for automatic memoisation", "FlashList v2: no size estimates, view recycling and masonry layouts", "FlashList's change of maintainers after Shopify's September 2026 move to native", "Image decoding cost and memory with expo-image"],
+          "tools": ["React Native DevTools Performance panel", "@shopify/flash-list", "Perf Monitor", "Flashlight"],
+          "lab_task": "Profile a 1,000-row product feed on a mid-range Android phone, record a baseline, then switch to FlashList v2, turn on React Compiler and fix the two slowest components; report frame rate, JS thread time and memory before and after.",
+          "deliverable": "Performance report with baseline and optimised traces and the list of changes",
+          "checks": [["Record a 10-second scroll in the Performance panel before and after", "Long tasks over 50 ms fall by at least half", "Two trace screenshots"], ["Replace FlatList with FlashList and delete estimatedItemSize", "List renders correctly with no size warnings", "Screenshot and console log"], ["Run Flashlight on the same scroll test", "Score is higher than the baseline run", "Flashlight report"]],
+          "objectives": ["Measure performance before changing code", "Apply Hermes V1, React Compiler and FlashList", "Remove the main causes of dropped frames"]
+        },
+        {
+          "topic": "Deep Linking with Universal Links and App Links",
+          "subtopics": ["Custom URL schemes set with scheme in app.json", "How Expo Router turns incoming URLs into routes", "iOS universal links with associatedDomains and apple-app-site-association", "Android App Links with intentFilters, autoVerify and assetlinks.json", "Cold-start and warm-start links with expo-linking", "Rewriting old URL formats with +native-intent", "Testing with npx uri-scheme and adb shell am start", "Deferred deep links for users who install from a link"],
+          "tools": ["expo-linking", "Expo Router", "adb", "uri-scheme"],
+          "lab_task": "Make https://recipes.example.com/recipe/42 open recipe 42 on both platforms: host apple-app-site-association and assetlinks.json, configure associatedDomains and intentFilters, and support the old /r?id=42 format through +native-intent.",
+          "deliverable": "Link configuration files, a URL-to-route table and results for 6 link cases",
+          "checks": [["Run adb shell am start -a android.intent.action.VIEW -d https://recipes.example.com/recipe/42", "App opens on recipe 42 without a chooser dialog", "Screen recording"], ["Open the old link /r?id=42 from the Notes app on iOS", "+native-intent rewrites it and recipe 42 opens", "Screen recording"], ["Run adb shell pm get-app-links com.example.recipes", "recipes.example.com shows as verified", "Terminal output"]],
+          "objectives": ["Configure schemes, universal links and App Links", "Map URLs to routes", "Test cold-start and warm-start link handling"]
+        },
+        {
+          "topic": "Authentication Flows and Secure Token Storage",
+          "subtopics": ["OAuth 2.0 authorisation code flow with PKCE using expo-auth-session", "Opening the sign-in page with expo-web-browser", "Sign in with Apple and Google Sign-In", "Passkeys on iOS and Android", "Storing tokens in expo-secure-store, backed by the Keychain and Android Keystore", "Refreshing tokens on 401 responses with a single shared refresh call", "Protected routes with Stack.Protected in Expo Router", "Biometric unlock with expo-local-authentication and clean sign-out"],
+          "tools": ["expo-auth-session", "expo-secure-store", "expo-apple-authentication", "expo-local-authentication"],
+          "lab_task": "Add sign-in to the recipe app with an OAuth provider using PKCE and Sign in with Apple, keep the refresh token in SecureStore, refresh once when several requests fail with 401, guard the Saved tab with Stack.Protected and add Face ID or fingerprint unlock.",
+          "deliverable": "Auth module with a sequence diagram of sign-in, refresh and sign-out",
+          "checks": [["Expire the access token and fire three requests at once", "One refresh call is sent and all three requests then succeed", "Network panel screenshot"], ["List the AsyncStorage keys after sign-in", "No token appears in AsyncStorage", "Console log of keys"], ["Sign out and press the Android back button", "App stays on the sign-in screen and the Saved tab cannot be reached", "Screen recording"]],
+          "objectives": ["Implement OAuth with PKCE and platform sign-in", "Store and refresh tokens safely", "Protect routes and support biometric unlock"]
+        },
+        {
+          "topic": "Push Notifications with the Expo Push Service",
+          "subtopics": ["Getting an Expo push token with getExpoPushTokenAsync and the project ID", "Uploading the FCM V1 service account key and the APNs key with eas credentials", "Sending messages and reading receipts with expo-server-sdk", "Handling notifications when the app is in the foreground, background or not running", "Notification categories with action buttons", "Routing to a screen from notification data with Expo Router", "Images in iOS notifications through a Notification Service Extension", "Sending straight to FCM and APNs with native device tokens"],
+          "tools": ["expo-notifications", "expo-server-sdk (Node.js)", "Firebase console", "Apple Developer portal"],
+          "lab_task": "Send a price-drop push to test devices from a Node.js script through the Expo push service, include a recipe id that opens the recipe on tap, add Save and Dismiss buttons and record delivery receipts for 10 messages.",
+          "deliverable": "Push sending script, credential checklist and a receipt log for 10 messages",
+          "checks": [["Send a push with data {recipeId: 42} while the app is not running", "Tapping it opens recipe 42", "Screen recording"], ["Send a push to the token of an uninstalled app", "Receipt returns DeviceNotRegistered and the script deletes the token", "Receipt log"], ["Send a push while the app is open", "Banner shows over the open app because the handler allows alerts", "Screenshot"]],
+          "objectives": ["Configure push credentials for both platforms", "Send and track push notifications", "Handle taps in every app state"]
+        },
+        {
+          "topic": "Accessibility in React Native: VoiceOver, TalkBack and Font Scaling",
+          "subtopics": ["accessibilityLabel, role and the aria-* props", "accessibilityState and accessibilityValue for toggles and sliders", "Grouping elements and controlling focus order", "Announcing changes with AccessibilityInfo.announceForAccessibility", "Font scaling with allowFontScaling and maxFontSizeMultiplier", "Touch targets of at least 44 by 44 points and 48 by 48 dp", "Colour contrast to WCAG 2.2 AA and the European Accessibility Act, in force since June 2025", "Testing with Xcode Accessibility Inspector and Android Accessibility Scanner"],
+          "tools": ["VoiceOver", "TalkBack", "Xcode Accessibility Inspector", "Accessibility Scanner"],
+          "lab_task": "Audit five main screens of the recipe app with VoiceOver and TalkBack, label every unlabelled control, group recipe cards into single focus stops, support 200% text size without clipping and announce 'Added to basket' after adding an item.",
+          "deliverable": "Accessibility audit with 20 findings, fixes and retest results",
+          "checks": [["Swipe to a recipe card with TalkBack on", "TalkBack reads title, cooking time and rating as one item", "TalkBack recording with audio"], ["Set the largest accessibility text size on iOS", "All text stays readable and no button is clipped", "Screenshots of five screens"], ["Run Accessibility Scanner on the home screen", "No touch target or contrast suggestions remain", "Scanner report"]],
+          "objectives": ["Label and structure screens for screen readers", "Support large text and adequate touch targets", "Test with platform accessibility tools"]
+        },
+        {
+          "topic": "Internationalisation with expo-localization and i18next",
+          "subtopics": ["Reading device locales and calendars with expo-localization", "i18next and react-i18next with namespaces", "Plurals and interpolation in translation files", "Dates, numbers and currencies with Intl in Hermes", "Right-to-left layout with I18nManager and start and end styles", "Per-app language settings with supportedLocales", "Translating permission prompts and the app name", "Pseudo-localisation and testing text expansion"],
+          "tools": ["expo-localization", "i18next", "react-i18next", "Intl API"],
+          "lab_task": "Translate the recipe app into English, German and Arabic: move 120 strings into namespaces, add plural rules for servings, format prices in EUR and SAR, mirror the layout for Arabic and translate the camera permission prompt.",
+          "deliverable": "Translation files for 3 languages and screenshots of every screen in each language",
+          "checks": [["Switch the device language to Arabic", "Layout mirrors and the back arrow points right", "Screenshot"], ["Show 1 and 4 servings in German", "Text reads '1 Portion' and '4 Portionen'", "Screenshot"], ["Open the camera on an iPhone set to German", "Permission prompt text appears in German", "Screenshot"]],
+          "objectives": ["Externalise and translate app strings", "Format values for each locale", "Support right-to-left languages"]
+        },
+        {
+          "topic": "Component Tests with Jest and React Native Testing Library",
+          "subtopics": ["The jest-expo preset, and @react-native/jest-preset as a separate package since 0.85", "React Native Testing Library v14 with async render for React 19", "Queries by role, label and text through screen", "userEvent.setup() with awaited press and type calls", "Mocking native modules such as expo-location and expo-secure-store", "Testing Expo Router screens with renderRouter", "Mocking the network with Mock Service Worker", "Coverage thresholds and watch mode"],
+          "tools": ["Jest", "React Native Testing Library", "jest-expo", "Mock Service Worker"],
+          "lab_task": "Write 15 tests for the booking form, basket and recipe details screens covering validation errors, a successful submit against a mocked API, basket totals and a route test that opens recipe/[id], and enforce 80% line coverage in jest.config.js.",
+          "deliverable": "Test suite with a coverage report at or above 80%",
+          "checks": [["Run the test that submits an invalid email", "Test finds 'Enter a valid email' by its text", "Jest output"], ["Delete two tests and run the suite", "Jest fails because line coverage is under 80%", "Terminal log"], ["Render the app with renderRouter at /recipe/42", "Test finds the heading of recipe 42", "Jest output"]],
+          "objectives": ["Test components the way users use them", "Mock native modules and network calls", "Enforce coverage in every test run"]
+        },
+        {
+          "topic": "End-to-End Testing with Maestro and Detox",
+          "subtopics": ["Maestro flows in YAML: launchApp, tapOn, inputText and assertVisible", "Stable selectors with testID and accessibility labels", "Recording flows with Maestro Studio", "Running Maestro in Expo Workflows or Maestro Cloud", "Detox grey-box synchronisation, build configurations and the Jest runner", "Cutting flakiness with clearState, seeded test data and explicit waits"],
+          "tools": ["Maestro", "Maestro Studio", "Detox", "Android emulator"],
+          "lab_task": "Automate sign-in, add-to-basket and checkout as three Maestro flows that run on Android and iOS, then write the checkout journey in Detox as well and compare run time and pass rate over 20 runs.",
+          "deliverable": "Maestro flows, one Detox test and a 20-run comparison table",
+          "checks": [["Run maestro test flows/checkout.yaml on Android and iOS", "Flow passes on both platforms", "Maestro output"], ["Run each suite 20 times", "Pass rate and average duration are recorded for Maestro and Detox", "Comparison table"], ["Remove a testID used by the checkout flow", "Flow fails at the tapOn step with an element-not-found message", "Maestro output"]],
+          "objectives": ["Write end-to-end flows for key journeys", "Run them on both platforms in CI", "Measure and reduce flakiness"]
+        },
+        {
+          "topic": "Build and Submit Pipelines with Expo Workflows",
+          "subtopics": ["Expo Services names: Expo Build, Submit, Update and Workflows were the EAS services", "Workflow files in .eas/workflows with on, jobs and needs", "Job types: build, submit, update, maestro and fingerprint", "Running lint, tsc and Jest in GitHub Actions before Expo jobs", "Environment variables and secrets per environment with eas env", "Automatic version numbers from remote app versions", "Submitting to TestFlight and the Play internal track after each main build", "Status checks and notifications on pull requests"],
+          "tools": ["Expo Workflows", "EAS CLI", "GitHub Actions", "Expo Submit (eas submit)"],
+          "lab_task": "Create a pipeline where every pull request runs lint, tsc and Jest in GitHub Actions plus a Maestro flow on an Android build, and every merge to main builds both platforms and submits them to TestFlight and the Play internal track.",
+          "deliverable": ".eas/workflows files, the GitHub Actions file and links to two successful runs",
+          "checks": [["Open a pull request with a failing Jest test", "Pipeline stops before any Expo build starts", "Pull request checks screenshot"], ["Merge a passing change to main", "New builds appear in TestFlight and Play internal testing", "Workflow run page"], ["Print a secret environment variable in a build step", "Value is masked in the build log", "Build log excerpt"]],
+          "objectives": ["Automate builds and store submissions", "Gate builds on passing tests", "Manage environment secrets"]
+        },
+        {
+          "topic": "Over-the-Air Fixes with Expo Update",
+          "subtopics": ["What an update can change: JavaScript and assets, not native code", "Channels, branches and how a build finds its updates", "runtimeVersion with the fingerprint policy", "Publishing with eas update --branch and a message", "Checking and applying updates with useUpdates and Updates.reloadAsync", "Percentage rollouts with --rollout-percentage and eas update:edit", "Rolling back with eas update:rollback or eas update:revert-update-rollout", "Hermes bytecode diffing for smaller downloads since SDK 55"],
+          "tools": ["Expo Update (eas update)", "expo-updates", "Expo dashboard (expo.dev)", "@expo/fingerprint"],
+          "lab_task": "Ship a copy and styling fix to the production channel as an update for 10% of users, raise it to 100% after checking crash-free sessions, then publish a faulty update and roll back to the previous one within 15 minutes.",
+          "deliverable": "Update runbook with commands, timings and the rollout and rollback history",
+          "checks": [["Add a native module and compare fingerprints", "Fingerprint changes, so the change needs a new build instead of an update", "Fingerprint diff"], ["Publish with --rollout-percentage=10", "Dashboard shows the update rolling out to 10%", "Dashboard screenshot"], ["Roll back after the faulty update", "Test devices run the previous update after their next check", "Update ID log from devices"]],
+          "objectives": ["Publish updates to compatible builds", "Control rollouts and rollbacks", "Know when a store build is required"]
+        },
+        {
+          "topic": "Intermediate Capstone: Community Events App with Offline Tickets",
+          "subtopics": ["Data plan: SQLite tickets, TanStack Query feeds and a Zustand session store", "Sign-in with PKCE, tokens in SecureStore and protected routes", "Event links, push reminders and an animated FlashList event feed", "Accessibility checks and English and Arabic translations", "Jest tests, Maestro flows and an Expo Workflows pipeline", "An over-the-air fix released with a staged rollout"],
+          "tools": ["Expo Router", "TanStack Query", "expo-sqlite", "react-native-reanimated", "Maestro", "Expo Workflows"],
+          "lab_task": "Deliver an events app with sign-in, a FlashList feed of 200 events, links to /event/[id], push reminders 1 hour before start, tickets stored for offline display, English and Arabic, 20 Jest tests, 3 Maestro flows and a pipeline that ships one fix as an update.",
+          "deliverable": "Events app repository, pipeline run links, test reports and a 10-minute demo",
+          "checks": [["Open a ticket in airplane mode", "Ticket QR code and details display from local storage", "Screenshot"], ["Tap https://events.example.com/event/7 when the app is not running", "App launches on event 7", "Screen recording"], ["Merge a text fix to main", "Pipeline publishes an update instead of a build and devices show the fix", "Workflow log and screenshot"]],
+          "objectives": ["Combine data, native features and interface work in one app", "Prove quality with automated tests", "Release builds and updates through a pipeline"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior React Native engineers, tech leads and architects who own large or business-critical apps. Covers architecture and monorepos for large codebases, brownfield integration, Turbo Native Modules and Fabric components in Swift and Kotlin, migration to the New Architecture, start-up and memory work in the bridgeless runtime, over-the-air update risk, OWASP MASVS hardening, store compliance and privacy, Sentry observability, incident troubleshooting, TV, desktop and web targets, cross-platform design systems, AI features, upgrade governance and leading React Native teams.",
+      "prerequisites": ["Has shipped and maintained a production React Native app through several React Native or Expo SDK upgrades", "Reads and changes Swift and Kotlin code, including build files and crash stacks", "Has run CI/CD, automated tests and store releases for a mobile team"],
+      "outcomes": ["Design architecture, monorepos and module boundaries for large React Native codebases", "Write Turbo Native Modules and Fabric components and move legacy apps to the New Architecture", "Meet measurable targets for start-up, memory, security, privacy and over-the-air release risk", "Run observability, multi-platform delivery, upgrade governance and team practices for React Native"],
+      "days": [
+        {
+          "topic": "Architecture for Large React Native Apps",
+          "subtopics": ["Feature modules with public entry points and private internals", "UI, domain and data layers inside each feature", "Import rules enforced with eslint-plugin-boundaries", "Route ownership with Expo Router groups per feature", "Shared services: API client, analytics, feature flags and logging", "A state ownership map for server, client, persisted and form state", "Architecture decision records and fitness functions in CI", "Measuring each feature's share of the bundle with Expo Atlas"],
+          "tools": ["eslint-plugin-boundaries", "dependency-cruiser", "Expo Atlas", "Expo Router"],
+          "lab_task": "Split a 60-screen retail app into 8 feature modules with public index files, add ESLint boundary rules that fail CI on cross-feature imports, write 3 architecture decision records and measure each feature's share of the JavaScript bundle with Expo Atlas.",
+          "deliverable": "Module map, ESLint configuration, 3 decision records and a bundle-share table per feature",
+          "checks": [["Import a private file of the checkout feature from the catalogue feature", "CI fails with a boundaries lint error", "CI log"], ["Open Expo Atlas on the production export", "Bundle share is listed for each feature and the 3 largest dependencies are named", "Atlas screenshot"], ["Run dependency-cruiser across the features", "Report shows no circular dependencies between features", "Dependency graph"]],
+          "objectives": ["Structure large apps into features and layers", "Enforce module boundaries automatically", "Record and measure architecture decisions"]
+        },
+        {
+          "topic": "Monorepos for React Native with pnpm Workspaces and Turborepo",
+          "subtopics": ["Expo's monorepo support and automatic Metro configuration", "pnpm workspaces, hoisting and node-linker settings for React Native", "One version of react and react-native across every app", "Internal packages for UI, domain logic and API clients", "Turborepo task caching for lint, type checks and tests", "Affected-only CI runs and separate Expo Workflows per app", "Versioning internal packages with Changesets", "Aligning native packages in each app with npx expo install --check"],
+          "tools": ["pnpm", "Turborepo", "Changesets", "Expo CLI"],
+          "lab_task": "Combine a customer app, a staff app and shared UI and API packages into one pnpm and Turborepo monorepo, enforce a single react-native version, cache lint, type-check and test tasks and run CI only for apps affected by a change.",
+          "deliverable": "Monorepo with turbo.json, workspace settings and CI timings for cold, cached and affected-only runs",
+          "checks": [["Add a second react-native version to the staff app", "CI fails on the duplicate version check", "CI log"], ["Run turbo run test twice without changes", "Second run finishes from cache in under 10 seconds", "Terminal log"], ["Change a file used only by the staff app", "CI builds and tests only the staff app and its packages", "CI run summary"]],
+          "objectives": ["Organise several apps and shared packages in one repository", "Keep native dependencies consistent across apps", "Speed up CI with caching and affected-only runs"]
+        },
+        {
+          "topic": "Brownfield Integration into Existing iOS and Android Apps",
+          "subtopics": ["Isolated approach: React Native packaged as an XCFramework or AAR with expo-brownfield", "Integrated approach: React Native added to existing Xcode and Gradle projects", "React Native Brownfield v3 from Callstack and its Expo config plugin", "Hosting screens on iOS with RCTReactNativeFactory and the UIScene life cycle", "Hosting screens in an Android Activity or Fragment", "Initial props and events between native code and JavaScript", "Navigation hand-off, back stack and deep links across native and React Native screens", "Over-the-air updates and release ownership in a brownfield app"],
+          "tools": ["expo-brownfield", "@callstack/react-native-brownfield", "Xcode", "Android Studio"],
+          "lab_task": "Embed a React Native loyalty screen into an existing SwiftUI and Jetpack Compose banking app as an isolated XCFramework and AAR, pass the signed-in customer ID as an initial prop, send a points-redeemed event back to native code and measure the size added to each app.",
+          "deliverable": "Brownfield integration guide with build scripts, size impact and the event contract",
+          "checks": [["Open the loyalty screen from the native menu on iOS", "React Native screen renders with the customer ID from native code", "Screenshot"], ["Redeem 500 points in the React Native screen", "Native code receives the event and updates the native balance", "Screen recording and log"], ["Compare release app sizes before and after integration", "Added size is recorded for each platform", "Size report"]],
+          "objectives": ["Choose between isolated and integrated brownfield approaches", "Embed React Native screens in native apps", "Define contracts between native and React Native code"]
+        },
+        {
+          "topic": "Turbo Native Modules in Swift and Kotlin",
+          "subtopics": ["A typed TypeScript spec with TurboModuleRegistry.getEnforcing", "codegenConfig in package.json and running Codegen by hand", "Kotlin implementation of the generated spec", "An Objective-C++ entry point with the logic written in Swift", "Synchronous versus asynchronous methods and choosing threads", "Emitting events declared in the spec", "Shared C++ Turbo Modules for both platforms", "Alternatives: the Expo Modules 2.0 macro API (beta) and Nitro Modules"],
+          "tools": ["Codegen", "create-react-native-library", "Xcode", "Android Studio"],
+          "lab_task": "Write a Turbo Native Module with a synchronous getFreeDiskBytes() and an asynchronous hashFile(path) that computes SHA-256 of a 200 MB file on a background thread in Swift and Kotlin, emits progress events and is benchmarked against a JavaScript implementation.",
+          "deliverable": "Module package with spec, Swift and Kotlin sources and benchmark results",
+          "checks": [["Hash a 200 MB file while scrolling a list", "List keeps scrolling and the hash matches shasum -a 256", "Screen recording and terminal log"], ["Change a method signature in the spec without updating native code", "Build fails on the Codegen-generated interface", "Build log"], ["Time native and JavaScript hashing of the same file", "Native module is at least 10 times faster", "Benchmark table"]],
+          "objectives": ["Define typed native contracts with Codegen", "Implement modules in Swift and Kotlin", "Choose the right threads and module technology"]
+        },
+        {
+          "topic": "Fabric Native Components and Native Views",
+          "subtopics": ["When a native view is worth it over a JavaScript component", "Component specs with codegenNativeComponent and typed props", "Swift views behind an Objective-C++ component view and Kotlin view managers", "Direct and bubbling events from native views", "Commands for imperative calls such as clear or play", "How Fabric measures and lays out native views", "Expo Modules native views as a simpler route", "Wrapping SwiftUI and Jetpack Compose with Expo UI"],
+          "tools": ["Codegen", "Xcode", "Android Studio", "Expo UI (@expo/ui)"],
+          "lab_task": "Build a native signature pad as a Fabric component with strokeColor and strokeWidth props, an onSigned event that returns a PNG path and a clear() command, then rebuild it as an Expo Modules view and compare code size and behaviour.",
+          "deliverable": "Two signature pad implementations with a comparison of effort, code size and behaviour",
+          "checks": [["Change strokeColor from JavaScript", "New strokes use the new colour on both platforms", "Screenshots"], ["Call the clear() command", "Canvas empties without remounting the view", "Screen recording"], ["Sign and lift the finger", "onSigned fires once with a PNG path that opens", "Console log and image preview"]],
+          "objectives": ["Build Fabric components with typed props, events and commands", "Compare Fabric components with Expo Modules views", "Wrap platform UI toolkits for React Native"]
+        },
+        {
+          "topic": "Migrating Legacy Apps to the New Architecture",
+          "subtopics": ["Inventory: React Native version, legacy native modules and patched packages", "Upgrade hops through 0.76, 0.81 and 0.82 with the Upgrade Helper", "Replacing unmaintained libraries and retiring patch-package patches", "Converting NativeModules calls to Turbo Native Modules", "Converting requireNativeComponent views to Fabric components", "What the interop layers cover and where they fall short", "Behaviour changes: synchronous layout, batching and event timing", "Phased release with feature flags and crash-rate gates"],
+          "tools": ["React Native Upgrade Helper", "patch-package", "React Native Directory", "Sentry"],
+          "lab_task": "Move a React Native 0.72 app with 6 custom native modules and 2 native views from the legacy architecture to 0.88: plan the upgrade hops, convert 2 modules and 1 view to Turbo and Fabric, keep the rest on the interop layer with tests and set a crash-rate gate for each release.",
+          "deliverable": "Migration plan with a risk log per hop, converted code and release gates",
+          "checks": [["Run the app on 0.82 with the remaining legacy modules", "All 4 interop-layer modules pass their integration tests", "Test report"], ["Search the codebase for NativeModules after conversion", "Only modules listed for the interop layer remain", "Search output"], ["Release the 0.88 build to 10% of users", "Crash-free sessions stay at or above the 99.5% gate before widening", "Sentry release health screenshot"]],
+          "objectives": ["Plan multi-step React Native upgrades", "Convert legacy modules and views", "Release migrations with measurable gates"]
+        },
+        {
+          "topic": "Start-up Time Engineering",
+          "subtopics": ["Measuring cold start and time to interactive with performance.mark and the Web Performance APIs", "Hermes V1 bytecode and the cost of a large bundle", "Finding heavy imports with Expo Atlas", "Lazy loading rarely used screens and deferring work until after first render", "Native start-up work in Application.onCreate and the app delegate", "Splash screen timing with expo-splash-screen preventAutoHideAsync", "Android start-up traces with Perfetto and Macrobenchmark", "iOS launch analysis with the Instruments App Launch template"],
+          "tools": ["Perfetto", "Xcode Instruments", "Expo Atlas", "React Native DevTools Performance panel"],
+          "lab_task": "Cut cold start of a retail app on a mid-range Android phone by at least 30% from a measured baseline: add marks for native start, bundle load and first meaningful screen, remove two heavy libraries, defer 3 SDK initialisations and lazy-load 4 rarely used screens.",
+          "deliverable": "Start-up report with traces, a change list and p50 and p90 times before and after",
+          "checks": [["Run 20 cold starts before and after with adb shell am start -W", "p50 TotalTime falls by at least 30%", "Timing table"], ["Export the production bundle after removing the libraries", "Bundle size drops by the size of the removed libraries", "Expo Atlas screenshots"], ["Record an App Launch trace in Instruments", "No SDK initialisation blocks the main thread for more than 100 ms", "Instruments screenshot"]],
+          "objectives": ["Measure start-up on both platforms", "Remove start-up work from the critical path", "Set and track start-up budgets"]
+        },
+        {
+          "topic": "Memory, Threads and the Bridgeless Runtime",
+          "subtopics": ["Threads in a bridgeless app: JavaScript, UI and native module threads", "JSI call cost and when synchronous native calls block rendering", "Hermes heap snapshots in the DevTools Memory panel", "Common leaks: listeners, timers, closures and growing navigation stacks", "Image memory: decoded size, caching and recyclingKey in expo-image", "Native memory with Android Studio Memory Profiler and Instruments Allocations", "Low-memory warnings and process death on Android", "Memory budgets checked in CI"],
+          "tools": ["React Native DevTools Memory panel", "Android Studio Memory Profiler", "Xcode Instruments", "LeakCanary"],
+          "lab_task": "Find and fix three memory problems in a photo-feed app (a listener left after unmount, full-size images decoded for 120 px thumbnails and a navigation stack that grows on every tab change) and keep memory under 300 MB after 10 minutes of scrolling.",
+          "deliverable": "Memory investigation report with heap snapshots, fixes and a 10-minute soak test graph",
+          "checks": [["Compare heap snapshots after opening and closing a screen 20 times", "Retained listener count returns to its starting value", "Heap snapshot comparison"], ["Run a 10-minute scroll soak test", "Memory stays under 300 MB with no steady climb", "Profiler graph"], ["Background the app and run adb shell am kill com.example.feed", "Reopening restores the current screen and its saved state", "Screen recording"]],
+          "objectives": ["Explain threading and JSI costs in the bridgeless runtime", "Find JavaScript and native memory leaks", "Keep memory inside a budget"]
+        },
+        {
+          "topic": "Over-the-Air Update Strategy and Risk",
+          "subtopics": ["Store rules: Apple App Review Guideline 2.5.2, the Apple Developer Program License Agreement and Google Play's Device and Network Abuse policy", "Deciding what may ship over the air and what needs store review", "Fingerprint runtime versions and native drift between builds", "Staged rollouts of 1%, 10%, 50% and 100% with crash and error gates", "Emergency rollback, kill switches and remote configuration", "Critical updates, forced restarts and when users see changes", "Hosting options: Expo Update, self-hosted expo-updates servers and CodePush successors after App Center closed on 31 March 2025", "Code signing for updates"],
+          "tools": ["Expo Update (eas update)", "expo-updates", "Sentry release health", "@expo/fingerprint"],
+          "lab_task": "Write the over-the-air policy for a banking app: classify 12 sample changes as update-allowed or store-only, define 1%, 10%, 50% and 100% stages with crash and error gates, turn on update code signing and rehearse a rollback that finishes in under 10 minutes.",
+          "deliverable": "Over-the-air policy, change classification table, code signing configuration and rollback drill log",
+          "checks": [["Classify a change that adds a new payment method", "Policy sends it through store review because it adds functionality", "Classification table"], ["Publish an update signed with the wrong key", "Devices reject the update and keep the current version", "Device log"], ["Run the rollback drill", "Every test device runs the previous update within 10 minutes", "Drill timeline"]],
+          "objectives": ["Set rules for what may ship over the air", "Run staged rollouts with gates", "Prepare and rehearse rollbacks"]
+        },
+        {
+          "topic": "Security Hardening Against OWASP MASVS",
+          "subtopics": ["OWASP MASVS 2.1 controls, MASWE weaknesses and MASTG 2.0 tests", "Threat modelling a React Native app: JavaScript bundle, native code and APIs", "Why no secret belongs in the JavaScript bundle, even as Hermes bytecode", "TLS and certificate pinning with react-native-ssl-public-key-pinning", "App integrity with @expo/app-integrity: App Attest and Play Integrity", "Root and jailbreak detection as defence in depth", "Screenshot blocking, clipboard hygiene and secure storage for sensitive screens", "Static and dynamic testing of your own builds with MobSF and Frida"],
+          "tools": ["OWASP MASTG", "MobSF", "@expo/app-integrity", "Frida"],
+          "lab_task": "Assess a payments app against MASVS-STORAGE, MASVS-NETWORK and MASVS-RESILIENCE: scan the APK and IPA with MobSF, search the bundle for leaked keys, add public key pinning and App Attest and Play Integrity checks on the payment API, then retest.",
+          "deliverable": "Security assessment with findings mapped to MASVS controls, fixes and retest evidence",
+          "checks": [["Unzip the release APK and search the bundle for 'sk_live'", "No secret key appears after the fix", "Search output"], ["Route traffic through mitmproxy with a user-installed certificate", "Pinned API calls fail and the app shows a connection error", "Proxy log and screenshot"], ["Call the payment API from a script without an integrity token", "Server rejects the call with 401", "API log"]],
+          "objectives": ["Assess apps against OWASP MASVS", "Protect secrets, traffic and API access", "Add resilience controls in proportion to risk"]
+        },
+        {
+          "topic": "Store Compliance and Privacy Rules",
+          "subtopics": ["Apple privacy manifests, required reason APIs and ITMS-91053 rejections", "App Privacy labels and Google Play Data safety answers that match every SDK you ship", "Account deletion, data export and consent flows", "Age assurance under Texas SB 2420 with Apple's Declared Age Range API and Google Play Age Signals", "Android developer verification, enforced in four countries from 30 September 2026", "SDK deadlines: iOS 26 SDK since April 2026, iOS 27 SDK from April 2027 and Play target API 36", "App Tracking Transparency and third-party SDK audits", "Preparing for review: demo accounts, review notes and appeals"],
+          "tools": ["App Store Connect", "Google Play Console", "Xcode privacy report", "expo-age-range"],
+          "lab_task": "Run a compliance audit for a health-tracking app: generate the Xcode privacy report, reconcile it with App Privacy labels and the Play Data safety form for 9 SDKs, add in-app account deletion, read age-range signals for Texas users and fix a test ITMS-91053 rejection.",
+          "deliverable": "Compliance pack with privacy report, SDK data inventory and the resolved rejection",
+          "checks": [["Generate the privacy report from an Xcode archive", "Report lists every required reason API with an approved reason code", "Privacy report PDF"], ["Request account deletion inside the app", "Account and data are deleted and the app confirms it", "Screen recording and server log"], ["Upload a test build that lacks the UserDefaults reason", "App Store Connect sends an ITMS-91053 notice", "Rejection email"]],
+          "objectives": ["Keep privacy declarations accurate", "Meet age assurance, deletion and verification rules", "Plan for store SDK deadlines"]
+        },
+        {
+          "topic": "Production Observability with Sentry",
+          "subtopics": ["@sentry/react-native with the Expo config plugin and getSentryExpoConfig in metro.config.js", "Source maps and debug IDs for Hermes bundles from Expo Build and Expo Update", "Release health: crash-free sessions and users per release and per update", "Tracing app start, screen loads and HTTP requests", "Mobile Session Replay with text and image masking", "Breadcrumbs, tags and user context without personal data", "Alert rules and routing to the owning feature team", "Linking Sentry issues to Expo Update IDs and channels"],
+          "tools": ["Sentry (@sentry/react-native)", "Sentry CLI", "Sentry Session Replay", "Expo Update"],
+          "lab_task": "Instrument the retail app with Sentry: readable stack traces for a store build and for an over-the-air update, tracing for app start and 5 key screens, Session Replay with all inputs masked and alerts that notify the owning team when crash-free sessions fall below 99.5%.",
+          "deliverable": "Sentry configuration, dashboard screenshots and an alert routing table",
+          "checks": [["Throw a test error from inside an over-the-air update", "Sentry shows the error with original file names and line numbers", "Sentry issue screenshot"], ["Watch the replay of a checkout session", "Card number and email fields are masked", "Replay screenshot"], ["Push crash-free sessions below 99.5% on a test release", "Alert reaches the checkout team's channel", "Alert notification screenshot"]],
+          "objectives": ["Capture symbolicated errors from builds and updates", "Trace performance and replay sessions without exposing data", "Route alerts to the teams that own the code"]
+        },
+        {
+          "topic": "Troubleshooting React Native Production Incidents",
+          "subtopics": ["Reading native crash reports: iOS .ips files, Android tombstones and ANR traces", "Symbolicating Hermes and native stack traces", "Telling JavaScript exceptions, native crashes and hangs apart", "Android vitals bad behaviour thresholds: 1.09% user-perceived crash rate and 0.47% ANR rate", "Crash and hang reports in Xcode Organizer", "Reproducing device-specific bugs on device farms and Expo Simulators", "Bisecting a regression across builds and updates", "Incident timelines and blameless post-incident reviews"],
+          "tools": ["Sentry", "Play Console Android vitals", "Xcode Organizer", "Expo Simulators"],
+          "lab_task": "Work a simulated incident in which a release pushes the user-perceived ANR rate above 0.47% and a native crash appears on one Samsung model only: find both causes from vitals, Sentry and tombstones, ship a fix and write the post-incident review.",
+          "deliverable": "Incident timeline, root cause analysis and a post-incident review with 5 follow-up actions",
+          "checks": [["Open the ANR trace from Play Console", "Main thread is blocked in a synchronous native call made at start-up", "ANR trace excerpt"], ["Symbolicate the native crash with the uploaded debug symbols", "Stack shows the failing Kotlin function and line", "Symbolicated stack"], ["Release the fix to 20% of users", "ANR rate for the fixed version drops below 0.47%", "Vitals chart"]],
+          "objectives": ["Diagnose crashes, ANRs and hangs", "Bisect regressions across builds and updates", "Run incident reviews that lead to fixes"]
+        },
+        {
+          "topic": "TV Apps for Apple TV, Android TV and Fire TV",
+          "subtopics": ["The react-native-tvos fork and phone and TV builds from one codebase", "EXPO_TV=1 prebuild with the @react-native-tvos/config-tv plugin", "The focus engine: TVFocusGuideView, hasTVPreferredFocus and nextFocus props", "Remote control events with useTVEventHandler", "Ten-foot design: type sizes, safe zones and focus states", "Video playback on TV with expo-video", "Fire TV on Vega OS with React Native for Vega, which moved to React Native 0.83 in Vega 2.0", "Store rules for tvOS and Android TV, including target API 34 for TV apps"],
+          "tools": ["react-native-tvos", "@react-native-tvos/config-tv", "Apple TV simulator", "Android TV emulator"],
+          "lab_task": "Build a TV version of a video catalogue app from the phone codebase: a focusable grid of 40 titles, a details screen, remote play and pause, a focus guide that returns focus to the last item in the side menu, and builds for Apple TV and Android TV.",
+          "deliverable": "TV builds for two platforms with a focus map and remote-control test results",
+          "checks": [["Press left from the grid", "Focus enters the side menu on the last selected item", "Simulator recording"], ["Press play/pause on the remote in the Apple TV simulator", "Video pauses and resumes through useTVEventHandler", "Screen recording"], ["Build the same code as a phone app", "Phone app works with touch and shows no TV-only components", "Phone screenshot"]],
+          "objectives": ["Build TV apps from a shared codebase", "Design for remote-control focus", "Prepare TV builds for each store"]
+        },
+        {
+          "topic": "Desktop and Web Targets: Windows, macOS and react-native-web",
+          "subtopics": ["React Native for Windows and React Native macOS from Microsoft", "React Native for Windows running only on the New Architecture", "Web output with react-native-web through Expo Router", "Single, static and server output modes for web exports", "Expo Router API routes and Expo Hosting", "Platform files (.web.tsx, .windows.tsx) and Platform.OS checks", "Keyboard, mouse, hover and resizable windows", "Choosing one universal app or a separate web app"],
+          "tools": ["React Native for Windows", "React Native macOS", "react-native-web", "Expo Hosting"],
+          "lab_task": "Extend the recipe catalogue to the web with Expo Router static output and to Windows with React Native for Windows: add hover states and keyboard shortcuts, a resizable two-pane layout and a search API route, then deploy the web build to Expo Hosting.",
+          "deliverable": "Web deployment URL, Windows build and a feature parity table across 4 platforms",
+          "checks": [["Run npx expo export --platform web with static output", "Each recipe route exists as a static HTML file", "Export directory listing"], ["Resize the Windows app from 1,400 to 700 pixels wide", "Layout switches from two panes to one", "Screenshots"], ["Press Ctrl+F in the Windows and web apps", "Search field receives focus", "Screen recording"]],
+          "objectives": ["Ship React Native code to desktop and web", "Adapt input and layout to large screens", "Decide where shared code stops paying off"]
+        },
+        {
+          "topic": "Cross-Platform Design Systems with Tokens and Native Components",
+          "subtopics": ["Design tokens for colour, type, spacing and motion exported to TypeScript", "Light, dark and high-contrast themes", "Styling engines compared: StyleSheet, Unistyles 3, NativeWind and Tamagui", "Native look where it matters: Liquid Glass on iOS 26 and Material 3 on Android through Expo UI", "Accessible components by default: roles, labels, focus and font scaling", "Adaptive layouts for tablets, foldables and the iPhone Duo inner display", "Storybook for React Native and visual regression tests", "Versioning the design system package, and planning for Shopify's Restyle being archived at the end of 2026"],
+          "tools": ["Storybook for React Native", "Style Dictionary", "Unistyles", "Expo UI (@expo/ui)"],
+          "lab_task": "Build a design system package with tokens exported from Figma through Style Dictionary, 12 components including button, input, card and sheet with light, dark and high-contrast themes, Storybook stories for every state and visual regression tests on each pull request.",
+          "deliverable": "Design system package, Storybook build and visual regression report",
+          "checks": [["Change the primary colour token", "All 12 components update in Storybook with no component code changes", "Storybook screenshots"], ["Render the button at the largest font scale", "Label wraps without clipping and the target stays at least 48 dp", "Screenshot"], ["Change a component's padding in a pull request", "Visual regression check flags the changed stories", "CI report"]],
+          "objectives": ["Build token-driven, themeable components", "Balance shared and platform-native interface parts", "Test and release a design system"]
+        },
+        {
+          "topic": "On-Device and Cloud AI in React Native Apps",
+          "subtopics": ["Calling hosted models through your own backend so no API key ships in the app", "Streaming responses with expo/fetch and Expo Router API routes", "Apple Foundation Models on device with @react-native-ai/apple", "Running open models with React Native ExecuTorch", "Gemini Nano on Android through the ML Kit GenAI APIs", "Choosing on-device or cloud by privacy, latency, cost and device support", "Guardrails: prompt injection, output checks and user reporting", "Measuring quality, latency and cost per feature"],
+          "tools": ["@react-native-ai/apple", "React Native ExecuTorch", "Vercel AI SDK", "expo/fetch"],
+          "lab_task": "Add a 'summarise this recipe' feature that uses Apple Foundation Models on supported iPhones and a hosted model through an Expo Router API route elsewhere, streams tokens into the UI, refuses unsafe prompts and logs latency and cost for 50 test prompts.",
+          "deliverable": "AI feature with a model routing table, guardrail tests and a latency and cost report",
+          "checks": [["Run the feature on an iPhone with Apple Intelligence turned off", "App falls back to the hosted model and shows a notice", "Screen recording"], ["Search the release bundle for the model provider's API key", "Key is absent and exists only on the server", "Search output"], ["Send a prompt that tries to override the system instructions", "Guardrail blocks it and logs the attempt", "Server log"]],
+          "objectives": ["Choose between on-device and hosted models", "Ship AI features without exposing keys", "Test AI features for safety, latency and cost"]
+        },
+        {
+          "topic": "Upgrade Governance and Dependency Risk",
+          "subtopics": ["React Native's rhythm of a minor release every two months", "Expo SDK releases and how long Expo Services support older SDKs", "0.83, 0.86 and 0.88 as releases with no user-facing breaking changes", "Upgrade budgets, owners and a quarterly upgrade calendar", "Scoring dependencies on maintenance, New Architecture support and maintainer count", "Case study: Shopify's September 2026 move to native and new homes for FlashList and React Native Skia", "Governance under the React Foundation since February 2026 and the RFC process", "Patch, fork or replace: rules for abandoned libraries"],
+          "tools": ["React Native Upgrade Helper", "React Native Directory", "Renovate", "npm audit"],
+          "lab_task": "Create an upgrade and dependency plan for a 90-dependency app: score every dependency, pick replacements for 5 high-risk ones, schedule the next 4 React Native and 2 Expo SDK upgrades with owners and complete one upgrade from 0.86 to 0.88 through Renovate pull requests.",
+          "deliverable": "Dependency risk register, upgrade calendar and the merged 0.88 upgrade pull request",
+          "checks": [["Score a library with no release in 18 months and no New Architecture support", "Register marks it high risk with a replacement owner and date", "Risk register entry"], ["Run the upgrade from 0.86 to 0.88", "App builds on both platforms and the full test suite passes", "CI run"], ["Open Renovate's dependency dashboard", "Expo SDK packages are grouped into one update", "Dashboard screenshot"]],
+          "objectives": ["Plan upgrades as routine work", "Measure and reduce dependency risk", "Explain how React Native is governed"]
+        },
+        {
+          "topic": "Leading React Native Teams",
+          "subtopics": ["Team shapes: a platform team, feature teams and native specialists", "Hiring and growing engineers from web, iOS and Android backgrounds", "Review standards and ownership with CODEOWNERS", "Engineering metrics: crash-free sessions, start-up time, build time and lead time", "Release trains, on-call rotas and incident ownership", "Coding agents in the workflow: Expo Skills, review rules and limits", "Making the case for React Native, native or Kotlin Multiplatform with evidence", "Roadmaps that reserve time for upgrades, performance and accessibility"],
+          "tools": ["CODEOWNERS", "Expo Skills", "Sentry", "DORA metrics dashboard"],
+          "lab_task": "Write a one-year operating plan for a 12-person React Native group covering team structure, an ownership map for 10 features, a two-week release train, an on-call rota, review rules for agent-written code and a scorecard of 6 metrics with current values and targets.",
+          "deliverable": "Team operating plan with ownership map, release calendar and metrics scorecard",
+          "checks": [["Open a pull request that touches the payments feature", "CODEOWNERS requests review from the payments team", "Pull request screenshot"], ["Review the scorecard with the group", "Each of the 6 metrics has a current value, a target and an owner", "Scorecard document"], ["Dry-run one release train", "Branch cut, build, test and store submission fit inside two weeks", "Release calendar"]],
+          "objectives": ["Organise React Native teams and code ownership", "Run releases and on-call against clear metrics", "Argue technology choices with evidence"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Field Service Platform",
+          "subtopics": ["Architecture review: monorepo, feature modules and a brownfield entry point", "A Turbo Native Module for the rugged device's built-in scanner", "Start-up, memory and security budgets with evidence", "Over-the-air policy, staged rollout and a rollback drill", "Sentry observability, alert routing and an incident simulation", "Compliance pack, a web dispatcher console and the team operating plan"],
+          "tools": ["Turborepo", "Expo Workflows", "Expo Update", "Sentry", "MobSF", "React Native DevTools"],
+          "lab_task": "Deliver a field service platform: a technician app and a web dispatcher console in one monorepo, a native scanner module, p50 cold start under 2 seconds on a mid-range Android phone, MASVS storage and network controls, signed updates with a 1-10-50-100% rollout and an incident drill.",
+          "deliverable": "Platform repository, architecture and security documents, dashboards and a 15-minute review presentation",
+          "checks": [["Run the start-up benchmark on the reference Android phone", "p50 cold start is under 2 seconds", "Benchmark report"], ["Run the staged rollout and the rollback drill", "Update reaches 100% only after each gate passes and the rollback finishes within 10 minutes", "Expo dashboard and drill log"], ["Present the architecture and risk review to a panel", "Panel signs off with no open high-severity findings", "Review minutes"]],
+          "objectives": ["Design and defend a large React Native platform", "Prove performance, security and release safety with evidence", "Lead the delivery plan for a team"]
+        }
+      ]
+    }
+  }
+}

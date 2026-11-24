@@ -1,0 +1,26 @@
+[
+  {
+    "case": "simple_acknowledgement",
+    "body": "You're welcome, Mira. We're glad to have your confirmation. Please let us know if you need any further details. Looking forward to our conversation.",
+    "words": 24,
+    "needs_human_review": false
+  },
+  {
+    "case": "one_question",
+    "body": "The session will be conducted online via Google Meet. No office visit is required.",
+    "words": 14,
+    "needs_human_review": false
+  },
+  {
+    "case": "several_questions",
+    "body": "The session is confirmed for 12-14 October 2026 from 10:00 AM to 1:00 PM IST in an online mode. Each attendee will need their own laptop. We are currently awaiting confirmation on the trainer's availability. Please let us know if you have any further questions.",
+    "words": 45,
+    "needs_human_review": false
+  },
+  {
+    "case": "missing_azure_syllabus",
+    "body": "We will check the availability of the Azure syllabus and confirm its status shortly.",
+    "words": 14,
+    "needs_human_review": true
+  }
+]

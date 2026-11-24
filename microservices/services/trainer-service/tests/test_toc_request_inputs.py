@@ -25,7 +25,7 @@ def test_day_enrichment_omits_unsupported_sampling_parameter():
     assert create.call_args.kwargs['model'] == 'gpt-5.5'
 
 
-@pytest.mark.parametrize('hours,expected', [(None, 3), (3, 3), (5, 5), (8, 8)])
+@pytest.mark.parametrize('hours,expected', [(None, 7), (3, 3), (5, 5), (8, 8)])
 def test_handoff_preserves_training_hours_and_individual_topics(monkeypatch, hours, expected):
     generate = AsyncMock(return_value={'toc_data': {'days': []}})
     monkeypatch.setattr(toc, 'generate_toc', generate)
@@ -47,6 +47,7 @@ def test_quality_checks_combined_technology_phrase_individually():
     }
     toc._apply_requirement_quality(document, toc.TocRequest(
         domain='DevOps including AWS and Azure',
+        duration_days=5,
         custom_topics='DevOps including AWS and Azure',
         hours_per_day=3,
     ))
@@ -58,17 +59,21 @@ def test_quality_checks_combined_technology_phrase_individually():
     ('20 Training Days', None, 20),
     ('15 days', None, 15),
     ('10 working days', None, 10),
-    ('60 hours', None, 3),
+    ('60 hours', None, None),
     ('20 Training Days', 12, 12),
 ])
 def test_mail1_toc_reads_saved_duration_text(monkeypatch, duration_text, numeric, expected):
     generate = AsyncMock(return_value={'toc_data': {'days': []}})
     monkeypatch.setattr(toc, 'generate_toc', generate)
     db = {'automation_settings': SimpleNamespace(find_one=AsyncMock(return_value={}))}
-    asyncio.run(shortlists._build_toc({
+    result = asyncio.run(shortlists._build_toc({
         'technology_needed': 'Advanced DevOps with AWS & Azure',
         'duration_text': duration_text, 'duration_days': numeric,
     }, {}, db))
+    if expected is None:
+        assert result is None
+        generate.assert_not_awaited()
+        return
     assert generate.call_args.args[0].duration_days == expected
 
 
@@ -89,9 +94,50 @@ def test_twenty_day_devops_agenda_passes_delivery_quality():
     assert not toc_delivery_error(document)
 
 
+def test_partial_topics_prepare_toc_without_headcount_or_cloud(monkeypatch):
+    generate = AsyncMock(return_value={'toc_data': {'days': []}})
+    monkeypatch.setattr(toc, 'generate_toc', generate)
+    db = {'automation_settings': SimpleNamespace(find_one=AsyncMock(return_value={}))}
+    asyncio.run(shortlists._build_toc({
+        'technology_needed': 'DevOps',
+        'duration_days': 7,
+        'mode': 'Offline',
+        'lab_hours_per_day': 3,
+        'topics': 'Docker, Kubernetes, and CI/CD',
+    }, {}, db))
+    request = generate.call_args.args[0]
+    assert request.duration_days == 7
+    assert request.mode == 'Offline'
+    assert request.hours_per_day == 7
+    assert request.participant_count is None
+    assert request.cloud_provider == ''
+    assert request.custom_topics.split('; ') == ['DevOps', 'Docker', 'Kubernetes', 'CI/CD']
+
+
 def test_mail1_toc_inherits_advanced_audience(monkeypatch):
     generate = AsyncMock(return_value={'toc_data': {'days': []}})
     monkeypatch.setattr(toc, 'generate_toc', generate)
     db = {'automation_settings': SimpleNamespace(find_one=AsyncMock(return_value={}))}
-    asyncio.run(shortlists._build_toc({'technology_needed': 'DevOps', 'audience_level': 'advanced'}, {}, db))
+    asyncio.run(shortlists._build_toc({'technology_needed': 'DevOps', 'duration_days': 5, 'audience_level': 'advanced'}, {}, db))
     assert generate.call_args.args[0].level == 'advanced'
+
+
+def test_handoff_toc_uses_all_explicit_topics_and_client_business_context(monkeypatch):
+    generate = AsyncMock(return_value={'toc_data': {'days': []}})
+    monkeypatch.setattr(toc, 'generate_toc', generate)
+    db = {'automation_settings': SimpleNamespace(find_one=AsyncMock(return_value={}))}
+    asyncio.run(shortlists._build_toc({
+        'technology_needed': 'DevOps',
+        'required_skills': ['DevOps', 'AWS'],
+        'requested_topics': ['CI/CD', 'Terraform'],
+        'duration_days': 8,
+        'client_company': 'Northstar Health',
+        'client_industry': 'Healthcare',
+        'client_business_context': 'Modernize secure cloud deployment for clinical analytics.',
+        'client_requirement_text': 'The team needs DevOps and AWS training for its clinical analytics platform.',
+    }, {}, db))
+    request = generate.call_args.args[0]
+    assert {'DevOps', 'AWS', 'CI/CD', 'Terraform'} <= set(request.custom_topics.split('; '))
+    assert 'Northstar Health' in request.client_notes
+    assert 'Healthcare' in request.client_notes
+    assert 'clinical analytics platform' in request.client_notes

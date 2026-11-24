@@ -1,0 +1,573 @@
+{
+  "domain": "CISSP Preparation",
+  "name": "CISSP Certification Preparation",
+  "category": "Cybersecurity and Identity",
+  "icon": "shield",
+  "aliases": ["CISSP", "ISC2 CISSP", "Certified Information Systems Security Professional", "CISSP Training", "CISSP Bootcamp", "CISSP Exam Prep", "ISC2 Security Professional"],
+  "certifications": ["ISC2 Certified Information Systems Security Professional (CISSP)", "Associate of ISC2 for those without the experience requirement", "A path toward CCSP, CISM and CISSP concentrations"],
+  "tools": ["The ISC2 CISSP exam outline", "A CISSP study guide", "Flashcards", "A practice question bank", "A study planner", "Mind-mapping tools"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For security practitioners starting CISSP study. Covers the exam and the eight domains, the manager mindset, security and risk management including governance, law, ethics and risk, business continuity planning, asset security and data protection, secure design principles and security models, cryptography and public key infrastructure, physical security, secure network design and protocols, identity and access management concepts and models, security assessment concepts and security operations concepts, with exam-style practice throughout. Built to the current ISC2 CISSP exam outline.",
+      "prerequisites": ["Has a few years of security or IT experience", "Understands basic security concepts across several areas", "Plans to pursue the CISSP or Associate of ISC2"],
+      "outcomes": ["Explain the eight domains and the exam format", "Apply the risk and governance concepts the exam rewards", "Describe secure design, cryptography, network and identity fundamentals at CISSP depth", "Answer exam-style questions with the manager mindset"],
+      "days": [
+        {
+          "topic": "CISSP Overview: The Eight Domains and the Exam",
+          "subtopics": ["What the CISSP is and who it is for", "The ISC2 experience requirement and Associate of ISC2", "The eight domains and their weights", "The computerised adaptive test format", "Questions from 100 to 150 in three hours", "The 700 out of 1000 passing standard", "The ISC2 code of ethics", "Endorsement and continuing education", "Study time and resources", "Course project overview: a personal exam readiness plan"],
+          "tools": ["ISC2 CISSP exam outline", "Study guide", "Study planner"],
+          "lab_task": "Build a personal study plan that maps the eight domains to weeks, sets a target exam date and schedules practice questions.",
+          "deliverable": "Personal CISSP study plan",
+          "checks": [["Map", "Each domain has study time by weight", "Plan"], ["Schedule", "A realistic exam date is set", "Plan"], ["Commit", "Practice questions are scheduled", "Plan"]],
+          "objectives": ["Describe the CISSP exam", "Explain the eight domains", "Plan your study"]
+        },
+        {
+          "topic": "Thinking Like a Manager for the Exam",
+          "subtopics": ["Why the exam rewards the manager view", "Risk-based decision making", "People, process and technology order", "Choosing the best answer, not the only correct one", "Prevention before detection and correction", "The value of human life first", "Avoiding technician traps", "Reading the question stem", "Eliminating distractors", "Practising the mindset"],
+          "tools": ["Practice question bank", "Study guide", "Study notes"],
+          "lab_task": "Answer ten exam-style questions, then re-answer any you missed using the manager mindset and record why the best answer wins.",
+          "deliverable": "Mindset practice record",
+          "checks": [["Answer", "Ten questions are answered", "Answers"], ["Reframe", "Missed questions are reframed with the mindset", "Notes"], ["Explain", "Why the best answer wins is explained", "Notes"]],
+          "objectives": ["Adopt the manager mindset", "Choose the best answer", "Avoid technician traps"]
+        },
+        {
+          "topic": "Security and Risk Management: Concepts and Governance",
+          "subtopics": ["The CIA triad and beyond", "Security governance principles", "Alignment with business goals", "Policies, standards, procedures and guidelines", "Roles and responsibilities", "Due care and due diligence", "Security control frameworks", "Governance committees", "Metrics and reporting to leadership", "Governance on the exam"],
+          "tools": ["Governance frameworks", "Study guide", "Study notes"],
+          "lab_task": "Draft a short governance structure for a company with policies, roles and a control framework, and explain due care and due diligence with examples.",
+          "deliverable": "Governance structure draft",
+          "checks": [["Define", "Policies and roles are defined", "Draft"], ["Frame", "A control framework is chosen", "Draft"], ["Explain", "Due care and due diligence are explained", "Notes"]],
+          "objectives": ["Explain security governance", "Define policy hierarchy", "Apply due care and due diligence"]
+        },
+        {
+          "topic": "Security and Risk Management: Law, Regulation and Ethics",
+          "subtopics": ["Types of law", "Intellectual property", "Privacy laws and principles", "Cross-border data issues", "Regulatory and contractual requirements", "Computer crime", "The ISC2 code of ethics", "Ethical decision making", "Due diligence for compliance", "Law and ethics on the exam"],
+          "tools": ["Legal and regulatory summaries", "ISC2 code of ethics", "Study notes"],
+          "lab_task": "Map a scenario company's legal, privacy and contractual duties and resolve an ethical dilemma against the ISC2 code of ethics.",
+          "deliverable": "Legal, privacy and ethics map",
+          "checks": [["Map", "Legal and privacy duties are mapped", "Map"], ["Resolve", "The ethical dilemma is resolved correctly", "Notes"], ["Explain", "Cross-border issues are explained", "Notes"]],
+          "objectives": ["Explain law and regulation", "Apply privacy principles", "Use the ISC2 code of ethics"]
+        },
+        {
+          "topic": "Security and Risk Management: Assessing and Treating Risk",
+          "subtopics": ["Risk concepts and terms", "Assets, threats, vulnerabilities and risk", "Risk assessment approaches", "Quantitative risk: single and annual loss expectancy", "Qualitative risk", "Risk treatment options", "Residual risk and risk acceptance", "Control selection", "Continuous risk management", "Risk on the exam"],
+          "tools": ["Risk calculation examples", "Risk register", "Study notes"],
+          "lab_task": "Calculate single and annual loss expectancy for a scenario, choose risk treatments and record residual risk in a register.",
+          "deliverable": "Risk assessment with treatments",
+          "checks": [["Calculate", "Loss expectancy values are correct", "Calculations"], ["Treat", "Treatments fit each risk", "Register"], ["Accept", "Residual risk and acceptance are recorded", "Register"]],
+          "objectives": ["Apply risk concepts", "Calculate loss expectancy", "Choose risk treatments"]
+        },
+        {
+          "topic": "Security and Risk Management: Business Continuity Planning",
+          "subtopics": ["Business continuity and disaster recovery", "Business impact analysis", "Recovery objectives", "Maximum tolerable downtime", "Continuity strategies", "Roles in continuity", "Testing continuity plans", "Supply chain and third-party risk", "Personnel security", "Continuity on the exam"],
+          "tools": ["Business impact analysis template", "Study guide", "Study notes"],
+          "lab_task": "Run a business impact analysis for a scenario service, set recovery objectives and outline a continuity strategy.",
+          "deliverable": "Business impact analysis and strategy",
+          "checks": [["Analyse", "Critical functions and impact are identified", "Business impact analysis"], ["Set", "Recovery objectives are set", "Objectives"], ["Strategise", "A continuity strategy is outlined", "Strategy"]],
+          "objectives": ["Explain business continuity", "Run a business impact analysis", "Set recovery objectives"]
+        },
+        {
+          "topic": "Asset Security: Classification and Ownership",
+          "subtopics": ["Information and asset classification", "Classification levels", "Data and asset ownership roles", "Data custodians and users", "Asset inventory", "Handling requirements by classification", "Labelling and marking", "Asset retention", "Roles on the exam", "Asset security on the exam"],
+          "tools": ["Classification scheme", "Asset inventory", "Study notes"],
+          "lab_task": "Build a classification scheme for a scenario company, assign ownership roles and define handling rules by classification level.",
+          "deliverable": "Classification and handling scheme",
+          "checks": [["Classify", "A classification scheme is defined", "Scheme"], ["Assign", "Owner, custodian and user roles are assigned", "Roles"], ["Handle", "Handling rules match classification", "Rules"]],
+          "objectives": ["Classify assets", "Assign data roles", "Define handling requirements"]
+        },
+        {
+          "topic": "Asset Security: Data Handling and Privacy",
+          "subtopics": ["Data states and protection", "Data at rest, in transit and in use", "Data loss prevention", "Data retention and destruction", "Media sanitisation", "Privacy by design", "Data roles under privacy law", "Scoping and tailoring controls", "Data protection methods", "Data protection on the exam"],
+          "tools": ["Data protection examples", "Sanitisation standards", "Study notes"],
+          "lab_task": "Choose protection for each data state in a scenario, define retention and destruction rules and a sanitisation method for retired media.",
+          "deliverable": "Data protection plan",
+          "checks": [["Protect", "Protection matches each data state", "Plan"], ["Retain", "Retention and destruction rules are set", "Plan"], ["Sanitise", "A sanitisation method is chosen", "Plan"]],
+          "objectives": ["Protect data in each state", "Set retention and destruction", "Sanitise media"]
+        },
+        {
+          "topic": "Security Architecture and Engineering: Secure Design Principles",
+          "subtopics": ["Secure design principles", "Defence in depth", "Least privilege and separation of duties", "Fail securely and secure defaults", "Keep it simple", "Trust but verify and zero trust", "Privacy by design", "Threat modelling in design", "Secure design trade-offs", "Design principles on the exam"],
+          "tools": ["Secure design principles", "Threat modelling templates", "Study notes"],
+          "lab_task": "Apply secure design principles to a scenario system and run a simple threat model that shows where each principle helps.",
+          "deliverable": "Secure design with a threat model",
+          "checks": [["Apply", "Principles are applied to the design", "Design notes"], ["Model", "A threat model identifies risks", "Threat model"], ["Explain", "Trade-offs are explained", "Notes"]],
+          "objectives": ["Apply secure design principles", "Threat-model a design", "Weigh design trade-offs"]
+        },
+        {
+          "topic": "Security Architecture and Engineering: Security Models and Evaluation",
+          "subtopics": ["Security models", "Bell-LaPadula and confidentiality", "Biba and integrity", "Clark-Wilson and well-formed transactions", "Access control models in architecture", "Trusted computing base and reference monitor", "Evaluation criteria and Common Criteria", "Certification and accreditation", "System vulnerabilities in architectures", "Models on the exam"],
+          "tools": ["Security model summaries", "Common Criteria overview", "Study notes"],
+          "lab_task": "Match scenario requirements to the right security model and explain what Bell-LaPadula and Biba each enforce.",
+          "deliverable": "Security model mapping",
+          "checks": [["Match", "Requirements map to the right model", "Mapping"], ["Explain", "Bell-LaPadula and Biba are explained", "Notes"], ["Relate", "The reference monitor is explained", "Notes"]],
+          "objectives": ["Explain security models", "Match models to needs", "Describe evaluation criteria"]
+        },
+        {
+          "topic": "Cryptography Essentials for the Exam",
+          "subtopics": ["Cryptography goals", "Symmetric and asymmetric encryption", "Common algorithms and key lengths", "Hashing and message integrity", "Digital signatures", "Key exchange", "Cryptographic attacks", "Cryptography lifecycle", "Where cryptography fits in design", "Cryptography on the exam"],
+          "tools": ["Cryptography summaries", "Study guide", "Study notes"],
+          "lab_task": "Choose cryptographic methods for confidentiality, integrity and authenticity in a scenario and explain why each fits.",
+          "deliverable": "Cryptography selection with reasons",
+          "checks": [["Select", "Methods fit each goal", "Selection"], ["Explain", "Symmetric and asymmetric uses are explained", "Notes"], ["Attack", "One cryptographic attack is explained", "Notes"]],
+          "objectives": ["Explain cryptography", "Select cryptographic methods", "Describe cryptographic attacks"]
+        },
+        {
+          "topic": "Public Key Infrastructure and Key Management",
+          "subtopics": ["Public key infrastructure components", "Certificate authorities and trust", "Certificates and their lifecycle", "Registration and issuance", "Revocation", "Key management lifecycle", "Key escrow and recovery", "Trust models", "Common public key infrastructure problems", "Public key infrastructure on the exam"],
+          "tools": ["Public key infrastructure summaries", "Study guide", "Study notes"],
+          "lab_task": "Describe a public key infrastructure for a scenario company including trust model, issuance and revocation, and a key management lifecycle.",
+          "deliverable": "Public key infrastructure design description",
+          "checks": [["Describe", "Components and trust are described", "Description"], ["Lifecycle", "The certificate and key lifecycle are covered", "Description"], ["Revoke", "Revocation is explained", "Notes"]],
+          "objectives": ["Explain public key infrastructure", "Manage keys", "Describe trust models"]
+        },
+        {
+          "topic": "Physical Security Controls",
+          "subtopics": ["Physical security goals", "Site and facility design", "Perimeter controls", "Access control for facilities", "Environmental controls", "Power and fire protection", "Equipment security", "Secure areas and data centres", "Physical and logical together", "Physical security on the exam"],
+          "tools": ["Physical security checklist", "Study guide", "Study notes"],
+          "lab_task": "Design physical security for a scenario data centre with perimeter, access and environmental controls and justify each layer.",
+          "deliverable": "Physical security design",
+          "checks": [["Layer", "Layered physical controls are chosen", "Design"], ["Protect", "Environmental and power controls are included", "Design"], ["Justify", "Each control is justified", "Notes"]],
+          "objectives": ["Design physical security", "Protect facilities", "Justify physical controls"]
+        },
+        {
+          "topic": "Communication and Network Security: Secure Network Design",
+          "subtopics": ["The OSI and TCP/IP models", "Secure network architecture", "Segmentation and zones", "Defence in depth in networks", "Network access control", "Secure network topologies", "Converged and software-defined networks", "Cloud network considerations", "Network design trade-offs", "Network design on the exam"],
+          "tools": ["Network model summaries", "Diagram tools", "Study notes"],
+          "lab_task": "Design a segmented secure network for a scenario company mapped to the OSI model, and explain the control at each layer.",
+          "deliverable": "Secure network design",
+          "checks": [["Model", "Controls map to the OSI layers", "Mapping"], ["Segment", "The network is segmented into zones", "Diagram"], ["Explain", "Design trade-offs are explained", "Notes"]],
+          "objectives": ["Explain network models", "Design secure networks", "Map controls to layers"]
+        },
+        {
+          "topic": "Communication and Network Security: Secure Protocols and Components",
+          "subtopics": ["Secure and insecure protocols", "Transport security", "Secure remote access and VPNs", "Wireless security", "Network devices and their security", "Firewalls and their types", "Intrusion detection and prevention", "Voice, multimedia and remote collaboration security", "Protocol selection", "Protocols and components on the exam"],
+          "tools": ["Protocol summaries", "Study guide", "Study notes"],
+          "lab_task": "Choose secure protocols and network components for a scenario and explain how firewalls and intrusion prevention fit the design.",
+          "deliverable": "Protocol and component selection",
+          "checks": [["Select", "Secure protocols replace insecure ones", "Selection"], ["Place", "Firewalls and intrusion prevention are placed well", "Design"], ["Explain", "Wireless security choices are explained", "Notes"]],
+          "objectives": ["Choose secure protocols", "Secure network components", "Place network defences"]
+        },
+        {
+          "topic": "Identity and Access Management: Key Concepts",
+          "subtopics": ["Identification, authentication, authorisation and accountability", "Identity lifecycle", "Authentication factors", "Multi-factor authentication", "Single sign-on and federation", "Credential management", "Session management", "Identity as a service", "Common identity weaknesses", "Identity concepts on the exam"],
+          "tools": ["Identity summaries", "Study guide", "Study notes"],
+          "lab_task": "Map the identity lifecycle for a scenario and choose authentication methods for users of different risk levels.",
+          "deliverable": "Identity lifecycle and authentication plan",
+          "checks": [["Map", "The identity lifecycle is mapped", "Map"], ["Choose", "Authentication fits the risk", "Plan"], ["Explain", "Federation and single sign-on are explained", "Notes"]],
+          "objectives": ["Explain identity concepts", "Map the identity lifecycle", "Choose authentication"]
+        },
+        {
+          "topic": "Identity and Access Management: Access Control Models",
+          "subtopics": ["Access control models", "Discretionary access control", "Mandatory access control", "Role-based access control", "Attribute-based access control", "Rule-based access control", "Least privilege and need to know", "Access control in the cloud", "Access review", "Access control models on the exam"],
+          "tools": ["Access control summaries", "Study guide", "Study notes"],
+          "lab_task": "Match access control models to scenario needs and design role-based access with least privilege for one system.",
+          "deliverable": "Access control design",
+          "checks": [["Match", "Models match the scenario needs", "Mapping"], ["Design", "Role-based access uses least privilege", "Design"], ["Review", "An access review approach is described", "Notes"]],
+          "objectives": ["Explain access control models", "Choose a model", "Apply least privilege"]
+        },
+        {
+          "topic": "Security Assessment and Testing: Approaches",
+          "subtopics": ["Assessment and testing goals", "Vulnerability assessment", "Penetration testing", "Security audits", "Log reviews", "Code review and testing in brief", "Test coverage", "Collecting security process data", "Reporting results", "Assessment on the exam"],
+          "tools": ["Assessment summaries", "Study guide", "Study notes"],
+          "lab_task": "Plan an assessment programme for a scenario with the right mix of vulnerability assessment, penetration testing and audits, and explain each choice.",
+          "deliverable": "Assessment programme plan",
+          "checks": [["Plan", "The mix of tests fits the scenario", "Plan"], ["Explain", "Each test type's purpose is explained", "Notes"], ["Report", "A reporting approach is described", "Notes"]],
+          "objectives": ["Explain assessment and testing", "Choose test types", "Plan an assessment programme"]
+        },
+        {
+          "topic": "Security Operations: Core Concepts",
+          "subtopics": ["Security operations goals", "Logging and monitoring", "Incident response lifecycle", "Change and configuration management", "Patch and vulnerability management", "Backup and recovery", "Least privilege in operations", "Separation of duties and job rotation", "Media and resource protection", "Operations on the exam"],
+          "tools": ["Operations summaries", "Study guide", "Study notes"],
+          "lab_task": "Outline core security operations for a scenario including monitoring, incident response and change management, and explain separation of duties.",
+          "deliverable": "Security operations outline",
+          "checks": [["Outline", "Core operations areas are covered", "Outline"], ["Respond", "The incident response lifecycle is described", "Notes"], ["Separate", "Separation of duties is explained", "Notes"]],
+          "objectives": ["Explain security operations", "Describe incident response", "Apply operational controls"]
+        },
+        {
+          "topic": "Beginner Capstone: Eight-Domain Readiness Review",
+          "subtopics": ["Domain-by-domain review", "Weak area identification", "Practice question review", "Updated study plan"],
+          "tools": ["Practice question bank", "Study guide", "Study planner"],
+          "lab_task": "Take a mixed practice set across the eight domains, score it by domain, identify weak areas and update the study plan.",
+          "deliverable": "Readiness review and updated plan",
+          "checks": [["Practise", "A mixed practice set is scored by domain", "Scores"], ["Identify", "Weak domains are identified", "Analysis"], ["Update", "The study plan is updated", "Plan"]],
+          "objectives": ["Combine beginner knowledge", "Review all eight domains", "Target weak areas"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For CISSP candidates deepening each domain. Covers security governance programmes, threat modelling and supply chain risk, personnel and awareness, asset handling and data lifecycle, secure systems and vulnerabilities across platforms, cloud and virtualisation security, cryptographic systems and attacks, network attacks and defences, wireless and remote access, identity management systems and federation, authorisation mechanisms, assessment and testing programmes, operations and incident management, software development security, and domain-by-domain exam practice with the manager mindset.",
+      "prerequisites": ["Has CISSP beginner knowledge or equivalent across the domains", "Works in security and understands controls", "Is preparing for the CISSP exam"],
+      "outcomes": ["Apply each domain at CISSP depth to scenarios", "Analyse threats, cryptography, networks and identity at the exam level", "Explain software development and operations security", "Answer harder domain questions and track readiness"],
+      "days": [
+        {
+          "topic": "Security Governance and Programme Management",
+          "subtopics": ["Building a security programme", "Governance frameworks in depth", "Strategic alignment", "Security roles and the reporting line", "Policy frameworks", "Metrics and maturity", "Security budgeting", "Third-party governance", "Programme reporting", "Governance scenarios on the exam"],
+          "tools": ["Governance frameworks", "Maturity model", "Study notes"],
+          "lab_task": "Design a security programme for a scenario company with governance, metrics and a reporting line, and justify the choices to leadership.",
+          "deliverable": "Security programme design",
+          "checks": [["Design", "Governance and roles are defined", "Design"], ["Measure", "Metrics and maturity are defined", "Metrics"], ["Justify", "Choices are justified for leadership", "Notes"]],
+          "objectives": ["Design security programmes", "Align with the business", "Report on the programme"]
+        },
+        {
+          "topic": "Threat Modelling and Supply Chain Risk Management",
+          "subtopics": ["Threat modelling methods", "STRIDE and attack trees", "Threat intelligence in risk", "Supply chain risk management", "Third-party assessment", "Hardware and software provenance", "Minimum security requirements for vendors", "Service level and security agreements", "Acquisition security", "Supply chain on the exam"],
+          "tools": ["Threat modelling templates", "Vendor assessment", "Study notes"],
+          "lab_task": "Run a STRIDE threat model for a scenario system and assess a key supplier against minimum security requirements.",
+          "deliverable": "Threat model and supplier assessment",
+          "checks": [["Model", "STRIDE identifies threats", "Threat model"], ["Assess", "The supplier is assessed for risk", "Assessment"], ["Require", "Minimum requirements are defined", "Requirements"]],
+          "objectives": ["Threat-model systems", "Assess supply chain risk", "Set vendor requirements"]
+        },
+        {
+          "topic": "Personnel Security and Security Awareness",
+          "subtopics": ["Personnel security lifecycle", "Screening and hiring", "Employment agreements", "Onboarding and offboarding security", "Separation of duties and rotation", "Privileged user agreements", "Security awareness, training and education", "Measuring awareness", "Social engineering defence", "Personnel security on the exam"],
+          "tools": ["Personnel policy templates", "Awareness materials", "Study notes"],
+          "lab_task": "Design personnel security controls for a scenario across the employment lifecycle and outline an awareness programme with measures.",
+          "deliverable": "Personnel security and awareness plan",
+          "checks": [["Control", "Lifecycle controls are defined", "Plan"], ["Aware", "An awareness programme is outlined", "Plan"], ["Measure", "Awareness measures are defined", "Measures"]],
+          "objectives": ["Apply personnel security", "Build awareness programmes", "Measure awareness"]
+        },
+        {
+          "topic": "Asset Handling and the Data Lifecycle",
+          "subtopics": ["The data lifecycle", "Data roles in depth", "Handling by classification", "Data loss prevention programmes", "Digital rights management", "Data residency and sovereignty", "Retention and legal hold", "Secure destruction at scale", "Asset management programmes", "Asset handling on the exam"],
+          "tools": ["Data lifecycle model", "Study guide", "Study notes"],
+          "lab_task": "Map the full data lifecycle for a scenario and define handling, retention and destruction controls for each stage.",
+          "deliverable": "Data lifecycle control map",
+          "checks": [["Map", "Each lifecycle stage has controls", "Map"], ["Retain", "Retention and legal hold are defined", "Controls"], ["Destroy", "Secure destruction is defined", "Controls"]],
+          "objectives": ["Manage the data lifecycle", "Control data handling", "Plan secure destruction"]
+        },
+        {
+          "topic": "Secure Systems and Vulnerabilities Across Platforms",
+          "subtopics": ["Vulnerabilities in system architectures", "Client and server systems", "Database security", "Industrial control and embedded systems", "Internet of things security", "Mobile systems", "High-performance and distributed systems", "Mitigating platform vulnerabilities", "Secure configuration", "Platform vulnerabilities on the exam"],
+          "tools": ["Platform security summaries", "Study guide", "Study notes"],
+          "lab_task": "Identify vulnerabilities across several platform types in a scenario and recommend mitigations for the highest risks.",
+          "deliverable": "Platform vulnerability analysis",
+          "checks": [["Identify", "Vulnerabilities are identified per platform", "Analysis"], ["Prioritise", "The highest risks are prioritised", "Ranking"], ["Mitigate", "Mitigations are recommended", "Recommendations"]],
+          "objectives": ["Analyse platform vulnerabilities", "Prioritise platform risk", "Recommend mitigations"]
+        },
+        {
+          "topic": "Cloud and Virtualisation Security",
+          "subtopics": ["Cloud service and deployment models", "Shared responsibility", "Virtualisation security", "Container and serverless security", "Cloud data protection", "Cloud identity and access", "Cloud threats", "Cloud security controls", "Cloud governance", "Cloud security on the exam"],
+          "tools": ["Cloud security summaries", "Study guide", "Study notes"],
+          "lab_task": "Design cloud security controls for a scenario workload across the shared responsibility split and explain the virtualisation risks.",
+          "deliverable": "Cloud security control design",
+          "checks": [["Split", "Shared responsibility is applied", "Design"], ["Protect", "Controls protect data and identity", "Design"], ["Explain", "Virtualisation risks are explained", "Notes"]],
+          "objectives": ["Apply cloud security", "Use shared responsibility", "Secure virtualisation"]
+        },
+        {
+          "topic": "Cryptographic Systems and Attacks in Depth",
+          "subtopics": ["Cryptographic system design", "Symmetric modes", "Asymmetric systems in depth", "Hybrid cryptography", "Hashing and message authentication codes", "Digital signatures and non-repudiation", "Cryptanalysis and attacks", "Key management in depth", "Emerging cryptography", "Cryptography scenarios on the exam"],
+          "tools": ["Cryptography references", "Study guide", "Study notes"],
+          "lab_task": "Design the cryptography for a scenario application end to end and analyse it for two realistic cryptographic attacks.",
+          "deliverable": "Cryptographic design with attack analysis",
+          "checks": [["Design", "The cryptography fits the goals", "Design"], ["Analyse", "Two attacks are analysed", "Analysis"], ["Manage", "Key management is covered", "Design"]],
+          "objectives": ["Design cryptographic systems", "Analyse cryptographic attacks", "Manage keys in depth"]
+        },
+        {
+          "topic": "Network Attacks and Defences in Depth",
+          "subtopics": ["Common network attacks", "Denial of service and distributed denial of service", "On-path and spoofing attacks", "DNS attacks", "Routing attacks", "Network segmentation as defence", "Detection and prevention", "Secure network operations", "Network resilience", "Network attacks on the exam"],
+          "tools": ["Network attack summaries", "Lab or diagrams", "Study notes"],
+          "lab_task": "Analyse a scenario network for likely attacks and design layered defences that reduce the risk of each.",
+          "deliverable": "Network attack and defence analysis",
+          "checks": [["Analyse", "Likely attacks are identified", "Analysis"], ["Defend", "Layered defences address each", "Design"], ["Explain", "Detection and prevention are explained", "Notes"]],
+          "objectives": ["Analyse network attacks", "Design network defences", "Explain detection and prevention"]
+        },
+        {
+          "topic": "Wireless, Mobile and Remote Access Security",
+          "subtopics": ["Wireless security standards", "Enterprise wireless authentication", "Wireless attacks and defences", "Mobile device security", "Mobile device management", "Remote access methods", "Secure remote work", "Bring your own device", "Converged communications security", "Wireless and remote on the exam"],
+          "tools": ["Wireless and mobile summaries", "Study guide", "Study notes"],
+          "lab_task": "Design secure wireless and remote access for a scenario workforce including mobile management and remote work controls.",
+          "deliverable": "Wireless and remote access design",
+          "checks": [["Secure", "Wireless uses strong authentication", "Design"], ["Manage", "Mobile management controls are defined", "Design"], ["Enable", "Secure remote work is designed", "Design"]],
+          "objectives": ["Secure wireless and mobile", "Enable secure remote access", "Manage devices"]
+        },
+        {
+          "topic": "Identity Management Systems and Federation",
+          "subtopics": ["Identity management system components", "Directory services", "Provisioning and deprovisioning", "Single sign-on technologies", "Federation with SAML and OpenID Connect", "Identity as a service", "Just-in-time provisioning", "Credential and session management at scale", "Identity threats", "Identity systems on the exam"],
+          "tools": ["Identity system summaries", "Study guide", "Study notes"],
+          "lab_task": "Design an identity management system for a scenario with provisioning, single sign-on and federation, and explain the trust relationships.",
+          "deliverable": "Identity management design",
+          "checks": [["Design", "Provisioning and single sign-on are defined", "Design"], ["Federate", "Federation and trust are explained", "Notes"], ["Protect", "Identity threats are addressed", "Design"]],
+          "objectives": ["Design identity systems", "Explain federation", "Protect identities"]
+        },
+        {
+          "topic": "Authorisation Mechanisms and Accountability",
+          "subtopics": ["Authorisation concepts", "Access control mechanisms", "Policy enforcement", "Attribute and risk-based authorisation", "Privilege management", "Accountability and auditing", "Monitoring access", "Access certification", "Common authorisation failures", "Authorisation on the exam"],
+          "tools": ["Authorisation summaries", "Study guide", "Study notes"],
+          "lab_task": "Design authorisation and accountability for a scenario system with attribute-based rules and an access certification process.",
+          "deliverable": "Authorisation and accountability design",
+          "checks": [["Authorise", "Rules enforce least privilege", "Design"], ["Account", "Auditing and monitoring are defined", "Design"], ["Certify", "Access certification is described", "Notes"]],
+          "objectives": ["Design authorisation", "Ensure accountability", "Certify access"]
+        },
+        {
+          "topic": "Security Assessment and Testing Programmes",
+          "subtopics": ["Building an assessment programme", "Internal and external testing", "Penetration testing management", "Vulnerability management", "Security control testing", "Software testing for security", "Collecting and analysing process data", "Management review of testing", "Remediation tracking", "Testing programmes on the exam"],
+          "tools": ["Assessment programme templates", "Study guide", "Study notes"],
+          "lab_task": "Design an assessment and testing programme for a scenario with cadence, control testing and management review, and plan remediation tracking.",
+          "deliverable": "Assessment and testing programme",
+          "checks": [["Plan", "The programme covers the needed tests", "Plan"], ["Review", "Management review is defined", "Plan"], ["Track", "Remediation tracking is defined", "Plan"]],
+          "objectives": ["Build assessment programmes", "Test security controls", "Track remediation"]
+        },
+        {
+          "topic": "Security Operations and Incident Management in Depth",
+          "subtopics": ["Operations centre functions", "Detection and monitoring", "Incident management lifecycle", "Digital forensics", "Evidence handling", "Problem management", "Recovery strategies", "Operational resilience", "Lessons learned", "Operations scenarios on the exam"],
+          "tools": ["Operations summaries", "Study guide", "Study notes"],
+          "lab_task": "Take a scenario incident through the full incident management lifecycle with evidence handling and recovery, and capture lessons learned.",
+          "deliverable": "Incident management record",
+          "checks": [["Detect", "Detection and analysis are described", "Record"], ["Handle", "Evidence handling is correct", "Record"], ["Recover", "Recovery and lessons are captured", "Record"]],
+          "objectives": ["Run security operations", "Manage incidents", "Handle evidence"]
+        },
+        {
+          "topic": "Software Development Security",
+          "subtopics": ["The software development lifecycle", "Security in each phase", "Secure coding practices", "Common software vulnerabilities", "Application security testing", "Software environment security", "Maturity models for secure development", "Supply chain for software", "Securing development tooling", "Software security on the exam"],
+          "tools": ["Secure development summaries", "Study guide", "Study notes"],
+          "lab_task": "Map security activities to each phase of the software development lifecycle for a scenario and identify the top software risks and controls.",
+          "deliverable": "Secure development lifecycle map",
+          "checks": [["Map", "Security activities map to each phase", "Map"], ["Identify", "Top software risks are identified", "Analysis"], ["Control", "Controls address the risks", "Recommendations"]],
+          "objectives": ["Secure software development", "Map security to the lifecycle", "Control software risk"]
+        },
+        {
+          "topic": "Assessing Software Security and Acquired Software",
+          "subtopics": ["Assessing custom software", "Assessing acquired and open-source software", "Software composition analysis", "Application security testing types", "Risk of third-party code", "Secure coding standards", "Code review", "Software assurance", "Measuring software security", "Software assessment on the exam"],
+          "tools": ["Software assessment summaries", "Study guide", "Study notes"],
+          "lab_task": "Assess a scenario application that mixes custom and third-party code and recommend controls for the highest software risks.",
+          "deliverable": "Software security assessment",
+          "checks": [["Assess", "Custom and third-party code are assessed", "Assessment"], ["Analyse", "Composition risks are identified", "Analysis"], ["Recommend", "Controls address the risks", "Recommendations"]],
+          "objectives": ["Assess software security", "Evaluate third-party code", "Recommend software controls"]
+        },
+        {
+          "topic": "Domain Deep Dive Practice: Risk, Asset and Architecture",
+          "subtopics": ["Risk management questions", "Asset security questions", "Architecture and engineering questions", "Common distractors in these domains", "Applying the manager mindset", "Timed practice", "Reviewing misses", "Domain weak-area tracking", "Cross-domain links", "Readiness check"],
+          "tools": ["Practice question bank", "Study guide", "Tracker"],
+          "lab_task": "Take a timed practice set on the risk, asset and architecture domains, review every miss and track weak subtopics.",
+          "deliverable": "Domain practice results",
+          "checks": [["Practise", "A timed set is completed", "Scores"], ["Review", "Misses are reviewed with reasons", "Review notes"], ["Track", "Weak subtopics are tracked", "Tracker"]],
+          "objectives": ["Practise key domains", "Review misses", "Track weak areas"]
+        },
+        {
+          "topic": "Domain Deep Dive Practice: Network, Identity and Assessment",
+          "subtopics": ["Network security questions", "Identity and access questions", "Assessment and testing questions", "Common distractors in these domains", "Applying the manager mindset", "Timed practice", "Reviewing misses", "Domain weak-area tracking", "Cross-domain links", "Readiness check"],
+          "tools": ["Practice question bank", "Study guide", "Tracker"],
+          "lab_task": "Take a timed practice set on the network, identity and assessment domains, review every miss and update the weak-area tracker.",
+          "deliverable": "Domain practice results",
+          "checks": [["Practise", "A timed set is completed", "Scores"], ["Review", "Misses are reviewed with reasons", "Review notes"], ["Track", "Weak subtopics are updated", "Tracker"]],
+          "objectives": ["Practise more domains", "Review misses", "Track weak areas"]
+        },
+        {
+          "topic": "Domain Deep Dive Practice: Operations and Software Security",
+          "subtopics": ["Operations questions", "Software development security questions", "Common distractors in these domains", "Applying the manager mindset", "Scenario questions", "Timed practice", "Reviewing misses", "Weak-area tracking", "Cross-domain links", "Readiness check"],
+          "tools": ["Practice question bank", "Study guide", "Tracker"],
+          "lab_task": "Take a timed practice set on the operations and software security domains, review misses and update the weak-area tracker.",
+          "deliverable": "Domain practice results",
+          "checks": [["Practise", "A timed set is completed", "Scores"], ["Review", "Misses are reviewed with reasons", "Review notes"], ["Track", "Weak subtopics are updated", "Tracker"]],
+          "objectives": ["Practise the last domains", "Review misses", "Track weak areas"]
+        },
+        {
+          "topic": "Connecting the Domains: Cross-Domain Scenarios",
+          "subtopics": ["Why the exam links domains", "Scenario questions that span domains", "Risk as the connecting thread", "Tracing a decision across domains", "Spotting the domain being tested", "Applying the manager mindset across domains", "Practising cross-domain questions", "Building mental maps", "Reviewing cross-domain misses", "Readiness check"],
+          "tools": ["Scenario question bank", "Mind maps", "Study notes"],
+          "lab_task": "Work through cross-domain scenario questions, identify which domains each touches and explain the best answer across domains.",
+          "deliverable": "Cross-domain practice record",
+          "checks": [["Link", "Each scenario's domains are identified", "Analysis"], ["Answer", "The best answer is chosen across domains", "Answers"], ["Explain", "The reasoning crosses domains", "Notes"]],
+          "objectives": ["Connect the domains", "Answer cross-domain questions", "Apply the mindset broadly"]
+        },
+        {
+          "topic": "Intermediate Capstone: Full-Length Practice Exam and Review",
+          "subtopics": ["Full-length timed practice", "Scoring by domain", "Weak-area analysis", "Updated study plan"],
+          "tools": ["Full-length practice exam", "Study guide", "Study planner"],
+          "lab_task": "Take a full-length timed practice exam, score it by domain, analyse weak areas and update the study plan toward the real exam.",
+          "deliverable": "Full practice exam result and plan",
+          "checks": [["Practise", "A full-length exam is completed in time", "Score"], ["Analyse", "Weak domains are analysed", "Analysis"], ["Plan", "The study plan is updated", "Plan"]],
+          "objectives": ["Combine intermediate knowledge", "Sit a full practice exam", "Target remaining gaps"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For candidates in the final stretch and for those applying CISSP knowledge as managers. Covers advanced governance and risk leadership, enterprise security architecture, zero trust and secure design at scale, advanced cryptography and public key infrastructure, network and cloud security architecture, identity architecture, security assessment leadership, security operations leadership, secure software leadership, privacy and emerging technology, exam strategy and adaptive testing, high-difficulty practice by domain, cross-domain mastery, a final readiness review and endorsement and the path beyond CISSP.",
+      "prerequisites": ["Has studied all eight domains at intermediate depth", "Scores near passing on practice exams", "Is close to sitting the CISSP exam"],
+      "outcomes": ["Apply CISSP knowledge as a security leader across the domains", "Handle the hardest scenario questions with the manager mindset", "Master exam strategy for the adaptive test", "Confirm readiness and plan endorsement and next steps"],
+      "days": [
+        {
+          "topic": "Advanced Governance and Risk Leadership",
+          "subtopics": ["Governance at the enterprise level", "Risk appetite and tolerance", "Enterprise risk management integration", "Security strategy and roadmaps", "Board and executive engagement", "Security investment decisions", "Third-party and concentration risk", "Governance of emerging technology", "Measuring programme value", "Governance leadership on the exam"],
+          "tools": ["Enterprise risk frameworks", "Study guide", "Study notes"],
+          "lab_task": "For a scenario, set risk appetite, align a security strategy and present an investment decision with risk justification to a board persona.",
+          "deliverable": "Risk leadership scenario record",
+          "checks": [["Set", "Risk appetite and tolerance are set", "Record"], ["Align", "Strategy aligns with risk and business", "Strategy"], ["Present", "An investment decision is justified", "Notes"]],
+          "objectives": ["Lead governance and risk", "Set risk appetite", "Justify security investment"]
+        },
+        {
+          "topic": "Designing Enterprise Security Architecture",
+          "subtopics": ["Enterprise architecture frameworks", "Security architecture integration", "Reference architectures", "Control frameworks at scale", "Secure design across the enterprise", "Architecture governance", "Legacy and transformation", "Architecture decision records", "Architecture risk", "Architecture leadership on the exam"],
+          "tools": ["Architecture frameworks", "Study guide", "Study notes"],
+          "lab_task": "Design an enterprise security architecture for a scenario organisation and defend its control choices against business and risk needs.",
+          "deliverable": "Enterprise security architecture",
+          "checks": [["Design", "The architecture integrates security", "Design"], ["Choose", "Controls are chosen for risk", "Control map"], ["Defend", "The design is defended", "Notes"]],
+          "objectives": ["Design enterprise architecture", "Integrate security", "Defend architecture choices"]
+        },
+        {
+          "topic": "Zero Trust and Secure Design at Scale",
+          "subtopics": ["Zero trust at the enterprise level", "Secure design principles at scale", "Microsegmentation strategy", "Identity-centric security", "Policy enforcement across the estate", "Phased zero trust adoption", "Measuring zero trust maturity", "Secure design trade-offs at scale", "Zero trust governance", "Zero trust on the exam"],
+          "tools": ["Zero trust references", "Study guide", "Study notes"],
+          "lab_task": "Build a phased zero trust strategy for a scenario enterprise and show how secure design principles apply at scale.",
+          "deliverable": "Zero trust strategy",
+          "checks": [["Plan", "A phased strategy is defined", "Strategy"], ["Apply", "Design principles apply at scale", "Notes"], ["Measure", "A maturity measure is defined", "Measure"]],
+          "objectives": ["Apply zero trust at scale", "Use secure design principles", "Measure maturity"]
+        },
+        {
+          "topic": "Advanced Cryptography and Public Key Infrastructure",
+          "subtopics": ["Cryptographic architecture at scale", "Enterprise key management", "Public key infrastructure at scale", "Hardware security modules", "Cryptographic agility", "Post-quantum readiness", "Cryptographic governance and policy", "Cryptographic failures and lessons", "Compliance for cryptography", "Advanced cryptography on the exam"],
+          "tools": ["Cryptography references", "Study guide", "Study notes"],
+          "lab_task": "Design enterprise cryptography and key management for a scenario, including public key infrastructure and a post-quantum readiness plan.",
+          "deliverable": "Enterprise cryptography design",
+          "checks": [["Design", "Key management and public key infrastructure are defined", "Design"], ["Plan", "Post-quantum readiness is planned", "Plan"], ["Govern", "Cryptographic policy is defined", "Policy"]],
+          "objectives": ["Design enterprise cryptography", "Manage keys at scale", "Plan for post-quantum"]
+        },
+        {
+          "topic": "Network and Cloud Security Architecture",
+          "subtopics": ["Network architecture at scale", "Secure access service edge", "Cloud and hybrid architecture", "Segmentation and zero trust networking", "Encrypted traffic and inspection", "Cloud security posture", "Network and cloud detection", "Resilience in network and cloud", "Control selection at scale", "Network and cloud architecture on the exam"],
+          "tools": ["Architecture references", "Study guide", "Study notes"],
+          "lab_task": "Design network and cloud security architecture for a scenario hybrid estate and justify segmentation and access choices.",
+          "deliverable": "Network and cloud security architecture",
+          "checks": [["Design", "The architecture covers network and cloud", "Design"], ["Segment", "Segmentation and access are justified", "Notes"], ["Protect", "Detection and resilience are included", "Design"]],
+          "objectives": ["Design network and cloud architecture", "Segment at scale", "Justify access choices"]
+        },
+        {
+          "topic": "Identity Architecture and Governance",
+          "subtopics": ["Identity as the control plane", "Enterprise identity architecture", "Federation and single sign-on at scale", "Privileged access programmes", "Identity governance and administration", "Machine and workload identity", "Identity threat detection and response", "Identity resilience", "Identity architecture decisions", "Identity architecture on the exam"],
+          "tools": ["Identity references", "Study guide", "Study notes"],
+          "lab_task": "Design enterprise identity architecture for a scenario with federation, privileged access and governance, and review it for weaknesses.",
+          "deliverable": "Identity architecture design",
+          "checks": [["Design", "Federation and governance are defined", "Design"], ["Protect", "Privileged access is controlled", "Design"], ["Review", "Weaknesses are identified", "Review notes"]],
+          "objectives": ["Design identity architecture", "Govern identity", "Reduce identity risk"]
+        },
+        {
+          "topic": "Security Assessment and Testing Leadership",
+          "subtopics": ["Leading an assessment programme", "Risk-based testing strategy", "Managing penetration tests and red teams", "Control assurance", "Independent assessment", "Audit coordination", "Reporting results to leadership", "Remediation governance", "Continuous assurance", "Assessment leadership on the exam"],
+          "tools": ["Assessment programme templates", "Study guide", "Study notes"],
+          "lab_task": "Design an assessment strategy for a scenario enterprise, coordinate independent testing and plan leadership reporting and remediation governance.",
+          "deliverable": "Assessment leadership plan",
+          "checks": [["Strategise", "A risk-based strategy is defined", "Plan"], ["Coordinate", "Independent testing is coordinated", "Plan"], ["Report", "Leadership reporting is defined", "Plan"]],
+          "objectives": ["Lead security assessment", "Coordinate independent testing", "Report to leadership"]
+        },
+        {
+          "topic": "Security Operations Leadership",
+          "subtopics": ["Leading security operations", "Operations strategy and models", "Incident command", "Crisis and continuity leadership", "Forensic readiness", "Operations metrics", "Threat intelligence integration", "Resilience leadership", "Continuous improvement", "Operations leadership on the exam"],
+          "tools": ["Operations references", "Study guide", "Study notes"],
+          "lab_task": "Design security operations leadership for a scenario including incident command, metrics and continuity, and present it to leadership.",
+          "deliverable": "Operations leadership plan",
+          "checks": [["Lead", "Operations strategy and command are defined", "Plan"], ["Measure", "Operations metrics are defined", "Metrics"], ["Continue", "Continuity leadership is covered", "Plan"]],
+          "objectives": ["Lead security operations", "Command incidents", "Measure operations"]
+        },
+        {
+          "topic": "Secure Software Development Leadership",
+          "subtopics": ["Leading secure development", "Secure development lifecycle at scale", "Application security programmes", "Developer enablement and culture", "Supply chain for software", "Software risk governance", "Metrics for software security", "Emerging software risks", "Securing development platforms", "Software leadership on the exam"],
+          "tools": ["Secure development references", "Study guide", "Study notes"],
+          "lab_task": "Design a secure software development programme for a scenario organisation with governance, enablement and metrics.",
+          "deliverable": "Secure development leadership plan",
+          "checks": [["Design", "The programme covers lifecycle and culture", "Plan"], ["Govern", "Software risk governance is defined", "Plan"], ["Measure", "Software security metrics are defined", "Metrics"]],
+          "objectives": ["Lead secure development", "Build developer culture", "Govern software risk"]
+        },
+        {
+          "topic": "Privacy, Emerging Technology and the Future",
+          "subtopics": ["Privacy as a leadership concern", "Privacy frameworks and laws", "Privacy by design at scale", "Artificial intelligence security and governance", "Internet of things and operational technology", "Quantum and cryptography futures", "Emerging threats", "Horizon scanning", "Preparing the organisation", "Emerging topics on the exam"],
+          "tools": ["Privacy and emerging technology references", "Study guide", "Study notes"],
+          "lab_task": "Assess privacy and two emerging technologies for a scenario organisation and recommend governance and controls for each.",
+          "deliverable": "Privacy and emerging technology assessment",
+          "checks": [["Assess", "Privacy duties and emerging risks are assessed", "Assessment"], ["Govern", "Governance for AI or similar is recommended", "Recommendations"], ["Prepare", "Preparation steps are planned", "Plan"]],
+          "objectives": ["Lead on privacy", "Govern emerging technology", "Prepare for the future"]
+        },
+        {
+          "topic": "Exam Strategy and the Adaptive Test",
+          "subtopics": ["How the adaptive test works", "Why questions get harder or easier", "Pacing for 100 to 150 questions", "Managing time in three hours", "Reading stems and qualifiers", "Eliminating distractors under pressure", "When to commit to an answer", "Managing stress and fatigue", "The day before and the day of", "Building exam confidence"],
+          "tools": ["Adaptive test guidance", "Practice bank", "Study notes"],
+          "lab_task": "Take a timed adaptive-style practice set, practise pacing and distractor elimination and record a personal exam-day strategy.",
+          "deliverable": "Exam strategy and practice record",
+          "checks": [["Pace", "Pacing fits the adaptive format", "Practice record"], ["Eliminate", "Distractor elimination is practised", "Notes"], ["Strategise", "A personal exam-day strategy is written", "Strategy"]],
+          "objectives": ["Understand the adaptive test", "Pace the exam", "Build an exam strategy"]
+        },
+        {
+          "topic": "High-Difficulty Practice: Security and Risk, Asset and Architecture",
+          "subtopics": ["Hard governance and risk questions", "Hard asset security questions", "Hard architecture questions", "Spotting subtle qualifiers", "Manager mindset on hard questions", "Timed practice", "Deep review of misses", "Weak-area closing", "Cross-links to other domains", "Readiness check"],
+          "tools": ["Advanced practice bank", "Study guide", "Tracker"],
+          "lab_task": "Take a high-difficulty practice set on these three domains, review every miss deeply and close one weak subtopic.",
+          "deliverable": "High-difficulty practice results",
+          "checks": [["Practise", "A hard set is completed in time", "Scores"], ["Review", "Misses are reviewed deeply", "Review notes"], ["Close", "A weak subtopic is closed", "Evidence"]],
+          "objectives": ["Handle hard questions", "Review misses deeply", "Close weak areas"]
+        },
+        {
+          "topic": "High-Difficulty Practice: Networking, Identity and Testing",
+          "subtopics": ["Hard network security questions", "Hard identity questions", "Hard assessment questions", "Spotting subtle qualifiers", "Manager mindset on hard questions", "Timed practice", "Deep review of misses", "Weak-area closing", "Cross-links to other domains", "Readiness check"],
+          "tools": ["Advanced practice bank", "Study guide", "Tracker"],
+          "lab_task": "Take a high-difficulty practice set on these three domains, review every miss deeply and close one weak subtopic.",
+          "deliverable": "High-difficulty practice results",
+          "checks": [["Practise", "A hard set is completed in time", "Scores"], ["Review", "Misses are reviewed deeply", "Review notes"], ["Close", "A weak subtopic is closed", "Evidence"]],
+          "objectives": ["Handle hard questions", "Review misses deeply", "Close weak areas"]
+        },
+        {
+          "topic": "High-Difficulty Practice: Operations and Development Security",
+          "subtopics": ["Hard operations questions", "Hard software security questions", "Scenario-heavy questions", "Spotting subtle qualifiers", "Manager mindset on hard questions", "Timed practice", "Deep review of misses", "Weak-area closing", "Cross-links to other domains", "Readiness check"],
+          "tools": ["Advanced practice bank", "Study guide", "Tracker"],
+          "lab_task": "Take a high-difficulty practice set on these two domains, review every miss deeply and close one weak subtopic.",
+          "deliverable": "High-difficulty practice results",
+          "checks": [["Practise", "A hard set is completed in time", "Scores"], ["Review", "Misses are reviewed deeply", "Review notes"], ["Close", "A weak subtopic is closed", "Evidence"]],
+          "objectives": ["Handle hard questions", "Review misses deeply", "Close weak areas"]
+        },
+        {
+          "topic": "Cross-Domain Mastery and Scenario Judgement",
+          "subtopics": ["The hardest questions span domains", "Judgement under ambiguity", "Prioritising across competing concerns", "Risk as the deciding factor", "Life safety and legal priorities", "Tracing consequences across domains", "Practising long scenarios", "Explaining the best answer", "Building judgement", "Readiness check"],
+          "tools": ["Scenario bank", "Study guide", "Study notes"],
+          "lab_task": "Work through long cross-domain scenarios, justify the best answer for each and explain the judgement used.",
+          "deliverable": "Cross-domain judgement record",
+          "checks": [["Judge", "The best answer is chosen under ambiguity", "Answers"], ["Prioritise", "Life safety and risk guide priorities", "Notes"], ["Explain", "The judgement is explained", "Notes"]],
+          "objectives": ["Master cross-domain questions", "Judge under ambiguity", "Prioritise correctly"]
+        },
+        {
+          "topic": "Second Full-Length Practice Exam and Analysis",
+          "subtopics": ["A second full-length timed exam", "Scoring by domain", "Comparing with the first exam", "Analysing remaining gaps", "Deciding on readiness", "Final targeted study", "Confidence and pacing check", "Stress management", "Logistics confirmation", "Go or wait decision"],
+          "tools": ["Full-length practice exam", "Tracker", "Study planner"],
+          "lab_task": "Take a second full-length timed exam, compare domain scores with the first, analyse remaining gaps and make a go-or-wait decision.",
+          "deliverable": "Second exam result and decision",
+          "checks": [["Practise", "The exam is completed in time", "Score"], ["Compare", "Progress since the first exam is shown", "Comparison"], ["Decide", "A go-or-wait decision is made", "Decision"]],
+          "objectives": ["Sit a second practice exam", "Measure progress", "Decide on readiness"]
+        },
+        {
+          "topic": "Final Readiness Review and Weak-Area Closure",
+          "subtopics": ["Final weak-area list", "Targeted review", "Flashcard and recall practice", "Mnemonics for hard topics", "Last cross-domain practice", "Confidence building", "A light final week", "Rest before the exam", "Logistics checklist", "Final go decision"],
+          "tools": ["Flashcards", "Weak-area tracker", "Study notes"],
+          "lab_task": "Close your top weak areas with targeted review and recall practice, and complete a final readiness checklist.",
+          "deliverable": "Final readiness checklist",
+          "checks": [["Close", "Top weak areas are closed", "Tracker"], ["Recall", "Recall practice is done", "Record"], ["Ready", "The readiness checklist is complete", "Checklist"]],
+          "objectives": ["Close final weak areas", "Practise recall", "Confirm readiness"]
+        },
+        {
+          "topic": "Endorsement, Continuing Education and Beyond CISSP",
+          "subtopics": ["Passing the exam", "The endorsement process", "The experience requirement", "Associate of ISC2 route", "Continuing professional education", "Maintaining the certification", "CISSP concentrations", "Related certifications such as CCSP and CISM", "Career paths after CISSP", "A personal development plan"],
+          "tools": ["ISC2 endorsement guidance", "Certification roadmaps", "Study notes"],
+          "lab_task": "Plan your endorsement, continuing education and next certification after CISSP and write a personal development plan.",
+          "deliverable": "Post-exam and development plan",
+          "checks": [["Endorse", "The endorsement process is understood", "Plan"], ["Maintain", "Continuing education is planned", "Plan"], ["Grow", "A next step after CISSP is chosen", "Plan"]],
+          "objectives": ["Plan endorsement", "Maintain the certification", "Plan beyond CISSP"]
+        },
+        {
+          "topic": "Applying Frameworks: NIST, ISO and COBIT for Leaders",
+          "subtopics": ["Why frameworks matter to leaders", "The NIST Cybersecurity Framework", "NIST risk management and control catalogues", "The ISO 27000 family", "COBIT for governance", "Mapping controls across frameworks", "Choosing frameworks for an organisation", "Using frameworks in the exam mindset", "Avoiding framework overload", "Frameworks on the exam"],
+          "tools": ["Framework summaries", "Control mappings", "Study notes"],
+          "lab_task": "Map a scenario organisation's needs to the right frameworks, cross-map a set of controls and explain how a leader would use them together.",
+          "deliverable": "Framework mapping and selection",
+          "checks": [["Select", "Frameworks fit the organisation", "Selection"], ["Map", "Controls cross-map across frameworks", "Mapping"], ["Explain", "How a leader uses them is explained", "Notes"]],
+          "objectives": ["Apply security frameworks", "Cross-map controls", "Choose frameworks for an organisation"]
+        },
+        {
+          "topic": "Advanced Capstone: Exam Readiness and a Security Leadership Scenario",
+          "subtopics": ["Final readiness confirmation", "A leadership scenario across domains", "Decision justification", "Endorsement and next steps"],
+          "tools": ["Full practice results", "Scenario bank", "Study planner"],
+          "lab_task": "Confirm exam readiness from your practice results, then work a security leadership scenario that spans several domains and justify every decision with the manager mindset.",
+          "deliverable": "Readiness confirmation and leadership scenario",
+          "checks": [["Confirm", "Practice results show readiness", "Evidence"], ["Decide", "Scenario decisions are justified across domains", "Notes"], ["Plan", "Endorsement and next steps are planned", "Plan"]],
+          "objectives": ["Combine advanced knowledge", "Confirm exam readiness", "Decide as a security leader"]
+        }
+      ]
+    }
+  }
+}

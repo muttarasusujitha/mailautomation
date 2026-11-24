@@ -8,6 +8,8 @@ import re
 from difflib import SequenceMatcher
 from email.utils import parseaddr
 
+from app.agents.natural_voice import is_professional_requirement_thanks
+
 
 # Every family has ten options. Captured fields are copied verbatim, never
 # inferred from another customer's email or from a writing example.
@@ -213,6 +215,11 @@ def wording_choices(body, recent_replies=(), seed=""):
         # Never rewrite a quotation, factual clause, or text inside a URL.
         bounded = rf"(^|(?<=[.!?])\s+)({pattern})(?=\s|$)"
         for match in re.finditer(bounded, body, flags=re.MULTILINE):
+            # The ten professional requirement notes already vary by version.
+            # Do not fold their "Thank you for sharing the {technology} ..."
+            # opening back into "Thanks for sharing".
+            if family == "details_received" and is_professional_requirement_thanks(match.group(2)):
+                continue
             options = [variant.format(**match.groupdict()) for variant in variants]
             yield family, match, _rank_options(options, recent_replies, f"{seed}:{family}")
 
@@ -262,8 +269,25 @@ def repeats_recent(body, recent_replies):
     return any(SequenceMatcher(None, draft, prose(previous)).ratio() >= 0.92 for previous in recent_replies)
 
 
-async def recent_sent_replies(db, recipient, limit=10):
-    """Read only successfully sent messages to this exact recipient."""
+def _topic_terms(topic):
+    """Meaningful words used to keep one recipient's requirements separate."""
+    ignored = {
+        "re", "fw", "fwd", "training", "requirement", "trainer", "client",
+        "request", "update", "details", "course", "batch", "email", "your",
+    }
+    return [
+        part for part in re.findall(r"[a-z0-9+#.]{2,}", _norm(topic))
+        if part not in ignored and not part.isdigit()
+    ]
+
+
+async def recent_sent_replies(db, recipient, limit=10, topic=""):
+    """Read sent replies to one recipient, prioritising this requirement's topic.
+
+    A contact may ask about several technologies.  The current topic's replies
+    come first so wording and facts from another requirement do not steer the
+    next answer.  Other replies still remain as a small anti-repetition pool.
+    """
     address = (parseaddr(str(recipient or ""))[1] or str(recipient or "")).strip().lower()
     if not address:
         return []
@@ -272,9 +296,18 @@ async def recent_sent_replies(db, recipient, limit=10):
         cursor = db["email_logs"].find(
             {"direction": "outbound", "status": "sent",
              "$or": [{"to_email": exact_address}, {"recipient": exact_address}]},
-            {"_id": 0, "body": 1},
-        ).sort("sent_at", -1).limit(limit)
-        return [str(item["body"])[:6000] async for item in cursor if item.get("body")]
+            {"_id": 0, "body": 1, "subject": 1, "requirement_id": 1},
+        ).sort("sent_at", -1).limit(max(limit * 3, 20) if _topic_terms(topic) else limit)
+        records = [item async for item in cursor if item.get("body")]
+        terms = _topic_terms(topic)
+        if terms:
+            matching = []
+            other = []
+            for item in records:
+                haystack = _norm(f"{item.get('subject', '')} {item.get('body', '')}")
+                (matching if any(term in haystack for term in terms) else other).append(item)
+            records = matching + other
+        return [str(item["body"])[:6000] for item in records[:limit]]
     except (KeyError, AttributeError, TypeError):
         # Lightweight test stores may not provide the email-log collection.
         return []

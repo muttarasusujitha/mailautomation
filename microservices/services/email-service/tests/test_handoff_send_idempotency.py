@@ -63,6 +63,18 @@ def test_sent_handoff_never_sends_again(monkeypatch):
     assert deliveries == []
 
 
+def test_duplicate_insert_while_first_send_is_pending(monkeypatch):
+    db, payload, deliveries = setup_sender(monkeypatch, {})
+    db.email_logs.find_one.side_effect = [None, {'email_id': 'EML-1', 'status': 'sending'}]
+    db.email_logs.insert_one = AsyncMock(side_effect=send.DuplicateKeyError('duplicate send'))
+
+    result = asyncio.run(send.send_single_email(payload, db))
+
+    assert result['already_in_progress'] is True
+    assert result['success'] is False
+    assert deliveries == []
+
+
 def _wording_sender(monkeypatch, mode):
     from app.agents import reply_wording
     from app.routes import inbox_actions

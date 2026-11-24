@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
-import api from '../utils/api'
+import api, { clearDatabase } from '../utils/api'
 import { normalizeGmailStatus, saveGmailOAuthPkce } from '../utils/gmailOAuth'
 
 const SETTINGS_STORAGE_KEY = 'admin_settings'
@@ -84,13 +84,32 @@ const INBOX_PROVIDERS = new Set(['gmail_api', 'imap', 'smtp_only'])
 
 const normalizeClientInboxCfg = (cfg = {}) => ({
   ...cfg,
-  autoSendEnabled: true,
+  autoSendEnabled: cfg.autoSendEnabled ?? true,
   inboxProvider: INBOX_PROVIDERS.has(cfg.inboxProvider) ? cfg.inboxProvider : 'smtp_only',
 })
+
+const withoutKeys = (value = {}, keys = []) => {
+  const safeValue = { ...value }
+  keys.forEach(key => delete safeValue[key])
+  return safeValue
+}
+
+const cacheAdminSettings = settings => {
+  const safeSettings = {
+    ...settings,
+    emailCfg: withoutKeys(settings.emailCfg, ['smtpPass', 'imapPass']),
+    twilioCfg: withoutKeys(settings.twilioCfg, ['authToken', 'aisensyApiKey', 'metaAccessToken']),
+    teamsDirectCfg: withoutKeys(settings.teamsDirectCfg, ['clientSecret']),
+    keys: withoutKeys(settings.keys, ['mongoUri', 'openaiKey']),
+  }
+  localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(safeSettings))
+}
 
 export default function Admin() {
   const [showPass, setShowPass]   = useState(false)
   const [saving,   setSaving]     = useState(false)
+  const [confirmClear, setConfirmClear] = useState(false)
+  const [clearing, setClearing] = useState(false)
   const location = useLocation()
 
   // Profile
@@ -189,6 +208,8 @@ export default function Admin() {
     autoRetry:    false,
   })
 
+  const [offlineOperations, setOfflineOperations] = useState({ travelAgentEmail: '' })
+
   // API Keys
   const [keys, setKeys] = useState({
     googleDriveFileId: '1s3U5NvShHPUuJ3JXvmG7xjcEziHwP8_j',
@@ -223,6 +244,7 @@ export default function Admin() {
       if (settings.teamsDirectCfg) setTeamsDirectCfg(prev => ({ ...prev, ...settings.teamsDirectCfg }))
       if (settings.notif) setNotif(prev => ({ ...prev, ...settings.notif }))
       if (settings.pipeline) setPipeline(prev => ({ ...prev, ...settings.pipeline }))
+      if (settings.offlineOperations) setOfflineOperations(prev => ({ ...prev, ...settings.offlineOperations }))
       if (settings.keys) setKeys(prev => ({ ...prev, ...settings.keys }))
     }
 
@@ -234,12 +256,19 @@ export default function Admin() {
         const settings = data.settings || data
         if (Object.keys(settings).length) {
           applySettings(settings)
-          localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings))
+          cacheAdminSettings(settings)
+        } else {
+          const cached = localStorage.getItem(SETTINGS_STORAGE_KEY)
+          if (cached) cacheAdminSettings(JSON.parse(cached))
         }
       } catch {
         try {
           const cached = localStorage.getItem(SETTINGS_STORAGE_KEY)
-          if (cached) applySettings(JSON.parse(cached))
+          if (cached) {
+            const settings = JSON.parse(cached)
+            cacheAdminSettings(settings)
+            applySettings(settings)
+          }
         } catch {
           localStorage.removeItem(SETTINGS_STORAGE_KEY)
         }
@@ -259,7 +288,7 @@ export default function Admin() {
 
   const save = async (section) => {
     setSaving(true)
-    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, keys }
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, offlineOperations, keys }
     try {
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
@@ -267,29 +296,29 @@ export default function Admin() {
         body: JSON.stringify(payload),
       })
       if (res.ok) {
-        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
+        cacheAdminSettings(payload)
         toast.success(`${section} settings saved!`)
       } else {
-        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
-        toast.success(`${section} settings saved locally!`)
+        cacheAdminSettings(payload)
+        toast.error(`${section} settings were not saved to the server. Non-secret settings are available only in this browser.`)
       }
     } catch {
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
-      toast.success(`${section} settings saved locally!`)
+      cacheAdminSettings(payload)
+      toast.error(`${section} settings were not saved to the server. Non-secret settings are available only in this browser.`)
     }
     finally { setSaving(false) }
   }
 
   const testEmail = async () => {
     setSaving(true)
-    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, keys }
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, offlineOperations, keys }
     try {
       const saveRes = await fetch('/api/admin/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
+      cacheAdminSettings(payload)
       if (!saveRes.ok) throw new Error('Could not save email settings')
 
       const testRes = await fetch('/api/admin/email/test', { method: 'POST' })
@@ -305,14 +334,14 @@ export default function Admin() {
 
   const testWhatsApp = async () => {
     setSaving(true)
-    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, keys }
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, offlineOperations, keys }
     try {
       const saveRes = await fetch('/api/admin/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
+      cacheAdminSettings(payload)
       if (!saveRes.ok) throw new Error('Could not save WhatsApp settings')
 
       const testRes = await fetch('/api/admin/whatsapp/test', { method: 'POST' })
@@ -328,14 +357,14 @@ export default function Admin() {
 
   const testTeams = async () => {
     setSaving(true)
-    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, keys }
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, offlineOperations, keys }
     try {
       const saveRes = await fetch('/api/admin/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
+      cacheAdminSettings(payload)
       if (!saveRes.ok) throw new Error('Could not save Teams settings')
 
       const testRes = await fetch('/api/admin/teams/test', { method: 'POST' })
@@ -351,14 +380,14 @@ export default function Admin() {
 
   const connectTeamsDirect = async () => {
     setSaving(true)
-    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, keys }
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, offlineOperations, keys }
     try {
       const saveRes = await fetch('/api/admin/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
+      cacheAdminSettings(payload)
       if (!saveRes.ok) throw new Error('Could not save Teams direct settings')
 
       const oauthRes = await fetch('/api/teams-direct/oauth-url')
@@ -461,9 +490,16 @@ export default function Admin() {
     }
   }
 
-  const clearDatabase = () => {
-    if (globalThis.confirm('Are you sure? This will clear all trainer data.')) {
-      toast.error('Database clear cancelled (demo mode)')
+  const clearDatabaseNow = async () => {
+    setClearing(true)
+    try {
+      await clearDatabase()
+      toast.success('Database cleared')
+      setConfirmClear(false)
+    } catch (e) {
+      toast.error(e.message || 'Could not clear the database')
+    } finally {
+      setClearing(false)
     }
   }
 
@@ -471,7 +507,13 @@ export default function Admin() {
     setLoadingReminders(true)
     try {
       const res = await fetch('/api/interview-reminders?limit=25')
-      if (!res.ok) throw new Error('Could not load reminders')
+      if (!res.ok) {
+        const detail = await res.json().catch(() => null)
+        const message = typeof detail?.detail === 'string'
+          ? detail.detail
+          : `Could not load reminders (${res.status})`
+        throw new Error(message)
+      }
       const data = await res.json()
       setReminders(data.reminders || [])
     } catch (e) {
@@ -690,6 +732,18 @@ export default function Admin() {
         </div>
       </Section>
 
+      <Section icon={Mail} title="Offline Training Operations" subtitle="Travel bookings and expense ownership for offline batches">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field label="Travel agent email" hint="Used for Clahan-arranged tickets and accommodation. Leave empty until configured.">
+            <Input icon={Mail} type="email" value={offlineOperations.travelAgentEmail || ''} onChange={e => setOfflineOperations({ ...offlineOperations, travelAgentEmail: e.target.value })} placeholder="travel-agent@example.com" />
+          </Field>
+          <div className="self-end pb-1 text-sm text-slate-600">Trainer purchase orders require finance approval before they are sent.</div>
+        </div>
+        <div className="flex gap-3 pt-2">
+          <button className="btn-primary text-sm" onClick={() => save('Offline Training Operations')}><Save className="w-4 h-4" /> Save Config</button>
+        </div>
+      </Section>
+
       {/* ── PIPELINE DEFAULTS ── */}
       <Section icon={Mail} title="Client Inbox Automation" subtitle="Gmail OAuth or IMAP polling, AI client email reading, and Clahan Technologies reply controls">
         <Field label="Inbox Mode" hint="SMTP Only sends generated pending replies; Gmail API or IMAP is required to read new inbox mail">
@@ -763,7 +817,7 @@ export default function Admin() {
         </div>
 
         <div className="bg-slate-50 rounded-xl p-4">
-          <Toggle checked={true} onChange={() => setClientInboxCfg({...clientInboxCfg, autoSendEnabled: true})}
+          <Toggle checked={Boolean(clientInboxCfg.autoSendEnabled)} onChange={enabled => setClientInboxCfg({...clientInboxCfg, autoSendEnabled: enabled})}
             label="Enable Client Auto-send" desc="Send Clahan Technologies replies automatically when confidence and domain rules pass" />
         </div>
 
@@ -1069,15 +1123,30 @@ export default function Admin() {
       {/* ── DANGER ZONE ── */}
       <Section icon={Trash2} title="Danger Zone" subtitle="Irreversible actions — proceed with caution">
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-4 border border-red-100 rounded-xl bg-red-50">
-            <div>
-              <p className="text-sm font-semibold text-red-700">Clear Trainer Database</p>
-              <p className="text-xs text-red-400 mt-0.5">Permanently delete all trainer records</p>
+          <div className="p-4 border border-red-100 rounded-xl bg-red-50">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-red-700">Clear database</p>
+                <p className="text-xs text-red-400 mt-0.5">Permanently delete trainers, requirements, shortlists, and email logs</p>
+              </div>
+              {!confirmClear ? (
+                <button type="button" onClick={() => setConfirmClear(true)}
+                  className="px-4 py-2 text-sm font-semibold text-red-600 border border-red-200 rounded-xl hover:bg-red-100 transition flex items-center gap-2">
+                  <Trash2 className="w-4 h-4" /> Clear
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <button type="button" onClick={clearDatabaseNow} disabled={clearing}
+                    className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 transition disabled:opacity-60">
+                    {clearing ? 'Clearing…' : 'Yes, clear all'}
+                  </button>
+                  <button type="button" onClick={() => setConfirmClear(false)} disabled={clearing}
+                    className="px-4 py-2 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl bg-white hover:bg-slate-50 transition">
+                    Cancel
+                  </button>
+                </div>
+              )}
             </div>
-            <button onClick={clearDatabase}
-              className="px-4 py-2 text-sm font-semibold text-red-600 border border-red-200 rounded-xl hover:bg-red-100 transition flex items-center gap-2">
-              <Trash2 className="w-4 h-4" /> Clear
-            </button>
           </div>
           <div className="flex items-center justify-between p-4 border border-amber-100 rounded-xl bg-amber-50">
             <div>

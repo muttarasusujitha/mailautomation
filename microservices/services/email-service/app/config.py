@@ -53,12 +53,14 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
     GOOGLE_REDIRECT_URI: str = ""
+    GOOGLE_REDIRECT_URI_LOCAL: str = ""
     GOOGLE_CALENDAR_ID: str = "primary"
     GOOGLE_CALENDAR_TIMEZONE: str = "Asia/Kolkata"
     GMAIL_PUBSUB_TOPIC: str = ""
     FRONTEND_URL: str = "https://localhost:5173"
     CORE_API_URL: str = "http://core-api:8001"
     TRAINER_SERVICE_URL: str = "http://trainer-service:8004"
+    NOTIFICATION_SERVICE_URL: str = "http://notification-service:8003"
     INTERNAL_SERVICE_TOKEN: str = ""
 
     @field_validator("FROM_EMAIL", mode="before")
@@ -97,6 +99,8 @@ class Settings(BaseSettings):
     ANTHROPIC_MODEL: str = "z-ai/glm-5.2[im]"
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-5.5"
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-3.5-flash-lite"
     AI_PROVIDER: str = "openai"
     OLLAMA_URL: str = "http://localhost:11434/api/generate"
     OLLAMA_MODEL: str = "qwen3:8b"

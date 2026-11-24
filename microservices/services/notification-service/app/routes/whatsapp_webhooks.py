@@ -137,6 +137,44 @@ async def meta_webhook_receive(request: Request, db: AsyncIOMotorDatabase = Depe
         for entry in body.get("entry", []):
             for change in entry.get("changes", []):
                 value = change.get("value", {})
+                # Group creation is asynchronous; Meta returns the invite link
+                # in a group_lifecycle_update webhook rather than in the
+                # create request response.
+                if change.get("field") == "group_lifecycle_update":
+                    for group in value.get("groups", []):
+                        group_id = str(group.get("group_id") or "")
+                        request_id = str(group.get("request_id") or "")
+                        subject = str(group.get("subject") or "")
+                        query = {"whatsapp_group_requested": True}
+                        correlate = []
+                        if group_id:
+                            correlate.append({"whatsapp_group_id": group_id})
+                        if request_id:
+                            correlate.append({"whatsapp_group_request_id": request_id})
+                        if subject:
+                            correlate.append({"whatsapp_group_subject": subject})
+                        if correlate:
+                            query["$or"] = correlate
+                            task = await db["offline_coordination_tasks"].find_one(query, {"_id": 0})
+                            if task:
+                                invite_link = str(group.get("invite_link") or "")
+                                created = group.get("type") == "group_create" and bool(invite_link)
+                                update = {
+                                    "whatsapp_group_id": group_id or task.get("whatsapp_group_id", ""),
+                                    "whatsapp_group_status": "invite_link_ready" if created else "staff_action_required",
+                                    "whatsapp_group_webhook_at": datetime.utcnow(),
+                                    "updated_at": datetime.utcnow(),
+                                }
+                                if invite_link:
+                                    update["whatsapp_group_invite_link"] = invite_link
+                                if group.get("errors"):
+                                    update["whatsapp_group_error"] = str(group["errors"])[:500]
+                                await db["offline_coordination_tasks"].update_one({"_id": task.get("task_id")}, {"$set": update})
+                                if invite_link:
+                                    await db["requirements"].update_one(
+                                        {"requirement_id": task.get("requirement_id")},
+                                        {"$set": {"offline_logistics.whatsapp_group_invite_link": invite_link, "offline_logistics.whatsapp_group_status": "invite_link_ready", "updated_at": datetime.utcnow()}},
+                                    )
                 # Inbound messages
                 for msg in value.get("messages", []):
                     await _log_inbound(db, {
