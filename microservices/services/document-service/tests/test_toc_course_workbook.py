@@ -248,3 +248,55 @@ def test_checks_without_an_expected_result_add_no_rubric_or_questions():
     assert "Knowledge Check Questions" not in text  # no generic questions without the module's own
     labs = wb["Labs & Deliverables"]
     assert labs.cell(_header_row(labs, "Lab No.") + 1, 7).value == "The report names the oversized file"
+
+
+FULL_DESIGN = {
+    **DESIGN,
+    "seeded_faults": [
+        {"symptom": "The published port does not respond.", "cause": "Binds to 127.0.0.1", "fix": "Bind to 0.0.0.0"},
+        {"symptom": "The container keeps restarting.", "cause": "Volume owned by root", "fix": "chown before USER"},
+    ],
+    "quiz": [{"question": question, "answer": f"Answer {index}", "outcome": 1 + index % 3}
+             for index, question in enumerate(DESIGN["quiz"])],
+}
+
+
+def test_fuller_designs_show_every_fault_symptom_and_the_outcome_each_question_tests():
+    day = {**SAMPLE["days"][1], "outline": {**SAMPLE["days"][1]["outline"], "design": FULL_DESIGN}}
+    wb = _workbook({**SAMPLE, "days": [SAMPLE["days"][0], day]})
+
+    labs = wb["Labs & Deliverables"]
+    tasks = labs.cell(_header_row(labs, "Lab No.") + 2, 5).value
+    assert "Troubleshoot seeded fault 1: The published port does not respond." in tasks
+    assert "Troubleshoot seeded fault 2: The container keeps restarting." in tasks
+    assert "chown" not in tasks and "127.0.0.1" not in tasks  # causes and fixes stay with the trainer
+
+    outcomes = wb["Module Outcomes"]
+    header = _header_row(outcomes, "Module No.")
+    assert outcomes.cell(header, 4).value == "Outcome No."
+    assert [row[3] for row in _rows(outcomes, header, 4) if row[0] == 2] == ["2.1", "2.2", "2.3"]
+
+    text = _all_text(wb["Assessment"])
+    assert "Tests Outcome" in text and "2.1" in text and "2.2" in text
+    assert not any(str(value).startswith("Answer ") for value in text)  # answers are not in the client workbook
+
+
+def test_tables_have_filters_a_mode_dropdown_and_check_cells():
+    wb = _workbook(SAMPLE)
+    outline = wb["Course Outline"]
+    header = _header_row(outline, "Module No.")
+    assert [outline.cell(header, c).value for c in (8, 9)] == ["Topic Minutes", "Check"]
+    assert outline.cell(header + 1, 8).value == f"=SUMIF('Topic Breakdown'!$A:$A,A{header + 1},'Topic Breakdown'!$D:$D)"
+    assert outline.cell(header + 1, 9).value == f'=IF(H{header + 1}=D{header + 1}*60,"OK","Check minutes")'
+    assert outline.auto_filter.ref == f"A{header}:I{header + len(SAMPLE['days'])}"
+
+    topics = wb["Topic Breakdown"]
+    assert topics.auto_filter.ref.startswith(f"A{_header_row(topics, 'Module No.')}:G")
+    modes = topics.data_validations.dataValidation
+    assert len(modes) == 1 and modes[0].formula1 == '"demo,lab,discussion"' and str(modes[0].sqref).startswith("E")
+
+    for name in ("Module Outcomes", "Labs & Deliverables", "Day-wise Schedule", "Lab Environment"):
+        assert wb[name].auto_filter.ref, name
+    assessment = wb["Assessment"]
+    total = next(r for r in range(1, 30) if assessment.cell(r, 1).value == "Total")
+    assert assessment.cell(total, 3).value == f'=IF(B{total}=100,"OK","Weights must total 100")'
