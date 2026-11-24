@@ -8,6 +8,8 @@ import re
 from difflib import SequenceMatcher
 from email.utils import parseaddr
 
+from app.agents.natural_voice import is_professional_requirement_thanks
+
 
 # Every family has ten options. Captured fields are copied verbatim, never
 # inferred from another customer's email or from a writing example.
@@ -213,6 +215,11 @@ def wording_choices(body, recent_replies=(), seed=""):
         # Never rewrite a quotation, factual clause, or text inside a URL.
         bounded = rf"(^|(?<=[.!?])\s+)({pattern})(?=\s|$)"
         for match in re.finditer(bounded, body, flags=re.MULTILINE):
+            # The ten professional requirement notes already vary by version.
+            # Do not fold their "Thank you for sharing the {technology} ..."
+            # opening back into "Thanks for sharing".
+            if family == "details_received" and is_professional_requirement_thanks(match.group(2)):
+                continue
             options = [variant.format(**match.groupdict()) for variant in variants]
             yield family, match, _rank_options(options, recent_replies, f"{seed}:{family}")
 
@@ -242,11 +249,18 @@ def repeats_recent(body, recent_replies):
         lines = str(text or "").splitlines()
         kept = []
         for line in lines:
-            if re.fullmatch(r"(?:best |kind |warm )?regards,?|thanks,|sincerely,?", line.strip(), re.I):
+            if re.fullmatch(
+                r"(?:thanks(?: and|&) )?(?:(?:best|kind|warm) )?regards,?|thanks,?|thank you,?|sincerely,?",
+                line.strip(),
+                re.I,
+            ):
                 break
             if re.fullmatch(r"(?:hi|dear|hello)(?: [^.!?]{1,70})?[,!]", line.strip(), re.I):
                 continue
-            if _norm(line) not in {"clahan technologies", "recruitment team"}:
+            if _norm(line) not in {
+                "clahan technologies", "recruitment team", "murali mohan m", "murali mohan",
+                "annapurna u.", "annapurna u", "annapurna.", "annapurna",
+            }:
                 kept.append(line)
         return _norm(" ".join(kept))
     draft = prose(body)

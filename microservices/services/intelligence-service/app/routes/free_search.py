@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
+from app.clients.search_accuracy import is_current_year_result, matches_requested_skill
 from app.config import get_settings
 from shared.database.service import get_db
 
@@ -62,34 +63,6 @@ def _normalize_tavily_profiles(results: Any) -> List[Dict[str, Any]]:
             seen.add(profile["source_url"])
             profiles.append(profile)
     return profiles
-
-
-def _matches_requested_domain(profile: Dict[str, Any], search_text: str) -> bool:
-    """Keep broad web search results anchored to the requested technology."""
-    wanted = re.sub(r"[^a-z0-9+#. ]+", " ", (search_text or "").lower()).strip()
-    if not wanted:
-        return True
-    haystack = " ".join([
-        str(profile.get("title") or ""),
-        str(profile.get("snippet") or ""),
-        str(profile.get("slug") or ""),
-        str(profile.get("source_url") or ""),
-    ]).lower()
-    tokens = [token for token in wanted.split() if len(token) > 1 and token not in {"trainer", "instructor", "training"}]
-    if not tokens:
-        return True
-    return any(token in haystack for token in tokens)
-
-
-def _is_current_year_result(profile: Dict[str, Any]) -> bool:
-    """Reject results that explicitly advertise an older year in the title/snippet."""
-    current_year = datetime.utcnow().year
-    haystack = " ".join([
-        str(profile.get("title") or ""),
-        str(profile.get("snippet") or ""),
-    ])
-    years = [int(year) for year in re.findall(r"\b20\d{2}\b", haystack)]
-    return not years or max(years) >= current_year
 
 
 async def _tavily_trainer_search(search_text: str, location: str, max_results: int, query_suffix: str = "") -> List[Dict[str, Any]]:
@@ -180,8 +153,8 @@ async def free_search_trainers(
             if (
                 dedupe_key
                 and dedupe_key not in seen_slugs
-                and _matches_requested_domain(p, match_text)
-                and _is_current_year_result(p)
+                and matches_requested_skill(p, match_text)
+                and is_current_year_result(p)
             ):
                 seen_slugs.add(dedupe_key)
                 all_profiles.append(p)

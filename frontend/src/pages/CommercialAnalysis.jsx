@@ -2,7 +2,7 @@
 import { AlertTriangle, ArrowDownUp, BadgeIndianRupee, CheckCircle2, Search, TrendingUp, Users, X } from 'lucide-react'
 import { getCommercialAnalysis, getCommercialAnalyses } from '../utils/api'
 
-const money = value => `â‚¹${Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+const money = value => `INR ${Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
 const pct = value => `${Number(value || 0).toFixed(1)}%`
 const clean = value => String(value || '').trim()
 const div = (a, b) => Number(b || 0) ? Number(a || 0) / Number(b || 1) : 0

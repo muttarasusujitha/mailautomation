@@ -1,6 +1,7 @@
 """TOC extended routes — knowledge base CRUD, PDF generation, email, auto-generate."""
 import logging
 import uuid
+from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
@@ -22,6 +23,23 @@ logger = logging.getLogger(__name__)
 
 DOC_SVC = settings.DOCUMENT_SERVICE_URL.rstrip("/")
 EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
+
+
+def _toc_ready_for_internal_quote(toc: Dict[str, Any]) -> Dict[str, Any]:
+    """Price a reviewed-but-not-blocking template. Client mail stays held."""
+    quality = dict((toc or {}).get("quality") or {})
+    evaluation = quality.get("content_evaluation") or {}
+    blocking = list(evaluation.get("blocking_issues") or [])
+    try:
+        score = float(evaluation.get("score")) if evaluation.get("score") is not None else None
+    except (TypeError, ValueError):
+        score = None
+    status = str(quality.get("status") or "")
+    if status != "requires_review" or blocking or (score is not None and score < 85):
+        return toc
+    quoted = deepcopy(toc)
+    quoted["quality"] = {**quality, "status": "approved", "internal_quote_from_review": True}
+    return quoted
 
 
 class TocKnowledgeItem(BaseModel):
@@ -1044,6 +1062,7 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
                 raise HTTPException(422, str(fallback_exc)) from fallback_exc
             except Exception as fallback_exc:
                 raise HTTPException(502, "Template lab planning failed.") from fallback_exc
+    quote_toc = _toc_ready_for_internal_quote(costing_toc)
     quote_id = f"LCQ-{uuid.uuid4().hex[:12].upper()}"
     checked_at = payload.rate_checked_at or issued_at.isoformat()
     valid_until = issued_at + timedelta(days=payload.quote_validity_days)
@@ -1060,7 +1079,7 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
             response = await client.post(
                 f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost",
                 json={
-                    "toc": costing_toc,
+                    "toc": quote_toc,
                     "assumptions": {
                         "cloud_provider": provider,
                         "cloud_region": payload.cloud_region,

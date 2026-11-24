@@ -182,11 +182,13 @@ async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase =
         return {"success": True, "already_sent": True, "po_id": po_id, "sent_to": doc.get("sent_to")}
 
     subject = payload.subject or f"Purchase Order {doc.get('po_number', po_id)} - Clahan Technologies"
+    client_name = str(doc.get("client_name") or "").strip()
+    greeting = f"Hello {client_name}," if client_name and client_name.lower() not in {"client", "team"} else "Hello,"
     body = payload.body or (
-        f"Dear {doc.get('client_name', 'Client')},\n\n"
-        f"Please find attached Purchase Order {doc.get('po_number', po_id)} for your reference.\n\n"
-        f"Kindly acknowledge receipt and let us know if you need any clarifications.\n\n"
-        f"Regards,\nClahan Technologies"
+        f"{greeting}\n\n"
+        f"Please find the purchase order {doc.get('po_number', po_id)} attached.\n\n"
+        "Please confirm once you have received it.\n\n"
+        "Thanks and Regards,\nMurali Mohan M\nClahan Technologies"
     )
 
     # generate purchase-order PDF and attach to email
@@ -271,6 +273,18 @@ async def generate_invoice_from_po(po_id: str, payload: InvoiceGenerateRequest, 
     po = await db["purchase_orders"].find_one({"po_id": po_id}, {"_id": 0})
     if not po:
         raise HTTPException(404, "Purchase order not found")
+
+    existing = await db["invoices"].find_one(
+        {"po_id": po_id, "status": {"$nin": ["cancelled", "void"]}},
+        {"_id": 0},
+    )
+    if existing:
+        return {
+            "success": True,
+            "already_generated": True,
+            "invoice_id": existing.get("invoice_id"),
+            "invoice": existing,
+        }
 
     inv_id = f"INV-{uuid.uuid4().hex[:10].upper()}"
     now = datetime.utcnow()

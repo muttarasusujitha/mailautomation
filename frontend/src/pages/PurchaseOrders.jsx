@@ -184,7 +184,7 @@ export default function PurchaseOrders() {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-700 ring-1 ring-blue-100"><FileText className="h-3.5 w-3.5" /> Purchase Orders</div>
             <h1 className="mt-2 page-title">Generate Purchase Order</h1>
-            <p className="mt-1 text-sm text-slate-500">Choose a client requirement, confirm the assigned trainer and prepare the PO PDF.</p>
+            <p className="mt-1 text-sm text-slate-500">Choose a client requirement, confirm the assigned trainer and prepare the PO PDF. Purchase-order mail is sent as Murali Mohan M, and only when a PO is the request. It is not sent with a ToC or lab-cost reply.</p>
           </div>
           <button onClick={() => load(true)} className="btn-secondary text-sm" disabled={refreshing}><RefreshCw className={clsx('h-4 w-4', refreshing && 'animate-spin')} /> Refresh</button>
         </div>

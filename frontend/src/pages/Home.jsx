@@ -35,10 +35,10 @@ const T = {
   textSecondary: '#5A6478',
   textMuted: '#9CA3B4',
   // Brand
-  brand: '#1A56DB',
-  brandDark: '#1042B8',
-  brandLight: '#EEF3FD',
-  brandMid: '#3B74F5',
+  brand: '#2563eb',
+  brandDark: '#1d4ed8',
+  brandLight: '#eff6ff',
+  brandMid: '#3b82f6',
   // Accents
   sky: '#0EA5E9',
   skyLight: '#E0F2FE',
@@ -65,11 +65,12 @@ const T = {
 
 // ─── Inline CSS ───────────────────────────────────────────────
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
-  body { font-family: 'DM Sans', sans-serif; background: ${T.bg}; color: ${T.textPrimary}; overflow-x: hidden; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: ${T.bg}; color: ${T.textPrimary}; overflow-x: hidden; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
 
   ::selection { background: ${T.brandLight}; color: ${T.brand}; }
 
@@ -168,18 +169,18 @@ const CSS = `
   .btn-primary {
     display: inline-flex; align-items: center; gap: 7px;
     background: ${T.brand}; color: #fff; border: none; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600;
+    font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600;
     padding: 10px 20px; border-radius: 8px;
-    box-shadow: 0 1px 2px rgba(26,86,219,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
+    box-shadow: 0 1px 2px rgba(37,99,235,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
     transition: all 0.18s;
   }
-  .btn-primary:hover { background: ${T.brandDark}; box-shadow: 0 4px 16px rgba(26,86,219,0.28); transform: translateY(-1px); }
+  .btn-primary:hover { background: ${T.brandDark}; box-shadow: 0 4px 16px rgba(37,99,235,0.28); transform: translateY(-1px); }
   .btn-primary:active { transform: translateY(0); }
 
   .btn-secondary {
     display: inline-flex; align-items: center; gap: 7px;
     background: ${T.surface}; color: ${T.textPrimary}; border: 1.5px solid ${T.border};
-    cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600;
+    cursor: pointer; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600;
     padding: 10px 20px; border-radius: 8px;
     transition: all 0.18s;
   }
@@ -223,7 +224,7 @@ const CSS = `
     grid-template-rows: minmax(0, 1fr) auto;
     overflow: hidden;
     background:
-      radial-gradient(circle at 76% 32%, rgba(26,86,219,0.10), transparent 32%),
+      radial-gradient(circle at 76% 32%, rgba(37,99,235,0.10), transparent 32%),
       ${T.bg};
   }
   .hero-main {
@@ -362,7 +363,7 @@ const CSS = `
     position: relative;
     min-width: 0;
     display: flex;
-    --workflow-soft: rgba(26,86,219,0.10);
+    --workflow-soft: rgba(37,99,235,0.10);
     --workflow-duration: 11.9s;
   }
   .workflow-step::after {
@@ -581,7 +582,7 @@ const CSS = `
     position: absolute;
     inset: 0;
     width: 42%;
-    background: linear-gradient(90deg, transparent, rgba(26,86,219,0.12), transparent);
+    background: linear-gradient(90deg, transparent, rgba(37,99,235,0.12), transparent);
     animation: aiScanLine 3.4s ease-in-out infinite;
     pointer-events: none;
   }
@@ -630,7 +631,7 @@ const CSS = `
   }
 
   /* Mono font */
-  .mono { font-family:'Geist Mono',monospace; }
+  .mono { font-family:'JetBrains Mono',monospace; }
 
   /* Section label */
   .section-label {
@@ -679,7 +680,7 @@ const CSS = `
   }
   .integration-cycle-svg ellipse {
     fill: none;
-    stroke: rgba(26,86,219,0.26);
+    stroke: rgba(37,99,235,0.26);
     stroke-width: 2.5;
     stroke-linecap: round;
   }
@@ -735,7 +736,7 @@ const CSS = `
     border-radius: 32px;
     transform: translate(-50%, -50%) translateZ(90px);
     background: ${T.brand};
-    box-shadow: 0 28px 70px rgba(26,86,219,0.34), inset 0 1px 0 rgba(255,255,255,0.22);
+    box-shadow: 0 28px 70px rgba(37,99,235,0.34), inset 0 1px 0 rgba(255,255,255,0.22);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -746,7 +747,7 @@ const CSS = `
     top: 50%;
     width: var(--len);
     height: 2px;
-    background: linear-gradient(90deg, rgba(26,86,219,0.38), rgba(26,86,219,0));
+    background: linear-gradient(90deg, rgba(37,99,235,0.38), rgba(37,99,235,0));
     transform-origin: left center;
     transform: rotate(var(--angle)) translateZ(20px);
     border-radius: 999px;
@@ -795,7 +796,7 @@ const CSS = `
     stroke-linejoin: round;
     stroke-dasharray: 10 11;
     vector-effect: non-scaling-stroke;
-    filter: drop-shadow(0 0 5px rgba(26,86,219,0.26));
+    filter: drop-shadow(0 0 5px rgba(37,99,235,0.26));
     animation: chainDash 5s linear infinite;
   }
   .tools-zigzag-node {
@@ -1090,7 +1091,7 @@ function PipelineSection() {
       </div>
 
       <button onClick={() => { setActive(0); setRunning(true) }}
-        style={{ marginTop: 10, background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: T.textMuted, display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'DM Sans, sans-serif', transition: 'color 0.15s' }}
+        style={{ marginTop: 10, background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: T.textMuted, display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'Inter, sans-serif', transition: 'color 0.15s' }}
         onMouseEnter={e => e.currentTarget.style.color = T.brand}
         onMouseLeave={e => e.currentTarget.style.color = T.textMuted}>
         <RefreshCw size={11} /> Replay
@@ -1473,10 +1474,8 @@ function HeroImagePanel() {
         backdropFilter: 'blur(12px)',
         boxShadow: '0 12px 34px rgba(37,99,235,0.16)',
       }}>
-        <span className="live-ping">
-          <span style={{ width: 7, height: 7, borderRadius: '50%', background: T.green, position: 'relative', zIndex: 1, display: 'block' }} />
-        </span>
-        <span style={{ fontSize: 12, fontWeight: 800 }}>Live hiring ops</span>
+        <span style={{ width: 7, height: 7, borderRadius: '50%', background: T.brand, display: 'block' }} />
+        <span style={{ fontSize: 12, fontWeight: 800 }}>Sample workspace</span>
       </div>
     </div>
   )
@@ -1497,7 +1496,7 @@ function ClientInboxPreview() {
           <span style={{ fontSize: 13.5, fontWeight: 700, color: T.textPrimary }}>Client Inbox</span>
           <Badge color={T.orange} bg={T.orangeLight}>3 new</Badge>
         </div>
-        <button style={{ fontSize: 11, color: T.brand, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>View all →</button>
+        <button style={{ fontSize: 11, color: T.brand, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>View all →</button>
       </div>
       {CLIENT_EMAILS.map((e, i) => {
         const borderBottom = i < CLIENT_EMAILS.length - 1 ? `1px solid ${T.borderLight}` : 'none'
@@ -1688,13 +1687,6 @@ export default function Home() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* Live indicator */}
-          <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: T.greenLight, borderRadius: 100, border: `1px solid ${T.green}20` }}>
-            <div className="live-ping">
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: T.green, display: 'block', position: 'relative', zIndex: 1 }} />
-            </div>
-            <span style={{ fontSize: 11, fontWeight: 600, color: T.green }}>System Live</span>
-          </div>
           <button onClick={() => navigate('/dashboard')} className="btn-primary" style={{ padding: '7px 16px', fontSize: 13 }}>
             Dashboard <ArrowRight size={13} />
           </button>
@@ -2254,13 +2246,13 @@ export default function Home() {
             </p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
               <button onClick={() => navigate('/dashboard')}
-                style={{ background: '#fff', color: T.brand, padding: '11px 24px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 14.5, fontWeight: 700, fontFamily: 'DM Sans,sans-serif', boxShadow: '0 4px 16px rgba(0,0,0,0.14)', transition: 'all 0.18s' }}
+                style={{ background: '#fff', color: T.brand, padding: '11px 24px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 14.5, fontWeight: 700, fontFamily: 'Inter,sans-serif', boxShadow: '0 4px 16px rgba(0,0,0,0.14)', transition: 'all 0.18s' }}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)' }}
                 onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.14)' }}>
                 Open Dashboard →
               </button>
               <button onClick={() => navigate('/shortlist1')}
-                style={{ background: 'rgba(255,255,255,0.12)', color: '#fff', padding: '11px 22px', borderRadius: 8, border: '1.5px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: 14.5, fontWeight: 600, fontFamily: 'DM Sans,sans-serif', transition: 'all 0.18s' }}
+                style={{ background: 'rgba(255,255,255,0.12)', color: '#fff', padding: '11px 22px', borderRadius: 8, border: '1.5px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: 14.5, fontWeight: 600, fontFamily: 'Inter,sans-serif', transition: 'all 0.18s' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}>
                 View Pipeline

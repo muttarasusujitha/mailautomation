@@ -1020,6 +1020,19 @@ async def set_generation_mode(payload: Dict[str, Any], db: AsyncIOMotorDatabase 
     return {"generation_mode": mode}
 
 
+@router.get("/analysis/commercial")
+async def list_commercial_analyses(
+    limit: int = Query(50, ge=1, le=100),
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Commercial comparison for the requirements the recruiter is working."""
+    items = []
+    cursor = db.requirements.find({}).sort("updated_at", -1).limit(limit)
+    async for doc in cursor:
+        items.append(await _requirement_analysis(db, doc))
+    return {"items": items, "total": len(items)}
+
+
 @router.get("/{req_id}")
 async def get_requirement(
     req_id: str,
@@ -1090,7 +1103,12 @@ async def _requirement_analysis(db: AsyncIOMotorDatabase, requirement: Dict[str,
             best_summary = qtr
 
     selected = best_summary.get("recommended_option", {})
-    explanation = "Requirement is pending confirmation. Complete the missing fields before commercial selection."
+    if not trainers:
+        explanation = "No shortlisted trainer is on this requirement yet, so a commercial recommendation is not available."
+    elif not confirmed:
+        explanation = "Requirement is pending confirmation. Complete the missing fields before commercial selection."
+    else:
+        explanation = "Complete the missing commercial inputs before selecting a trainer rate."
     if selected:
         trainer_name = best_summary.get("trainer_name", "the recommended trainer")
         explanation = (
@@ -1128,6 +1146,17 @@ async def _requirement_analysis(db: AsyncIOMotorDatabase, requirement: Dict[str,
         },
         "explanation": explanation,
     }
+
+
+@router.get("/{req_id}/commercial-analysis")
+async def get_commercial_analysis(
+    req_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    doc = await db.requirements.find_one(_requirement_query(req_id))
+    if not doc:
+        raise HTTPException(404, "Requirement not found")
+    return await _requirement_analysis(db, doc)
 
 
 @router.patch("/{req_id}")
