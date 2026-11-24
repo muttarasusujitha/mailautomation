@@ -1,0 +1,4 @@
+pydantic[email]>=2.0
+pydantic-settings>=2.0
+motor>=3.3
+aioredis>=2.0

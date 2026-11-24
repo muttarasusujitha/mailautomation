@@ -1,0 +1,603 @@
+{
+  "domain": "Terraform",
+  "name": "Terraform",
+  "category": "DevOps and CI/CD",
+  "icon": "layers",
+  "aliases": ["HashiCorp Terraform", "OpenTofu", "Terraform IaC", "Infrastructure as Code with Terraform"],
+  "certifications": [
+    "HashiCorp Certified: Terraform Associate (003)",
+    "HashiCorp Certified: Terraform Authoring and Operations Professional"
+  ],
+  "tools": ["Terraform", "OpenTofu", "AWS", "Azure", "Git"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "No infrastructure-as-code experience assumed. Participants learn the Terraform workflow, language, state, variables, modules and team practices by building cloud networks and servers.",
+      "prerequisites": [
+        "Basic command line and Git",
+        "Basic cloud knowledge: what a virtual network and a virtual machine are",
+        "A cloud sandbox account (AWS or Azure) with a budget alert"
+      ],
+      "outcomes": [
+        "Explain infrastructure as code and the Terraform workflow",
+        "Write Terraform configurations with providers, resources, variables and outputs",
+        "Manage state safely, including remote state and locking",
+        "Build reusable modules and run Terraform from a pipeline"
+      ],
+      "days": [
+        {
+          "topic": "Infrastructure as Code Concepts and Terraform Setup",
+          "subtopics": ["Manual infrastructure and its problems", "Declarative versus imperative tools", "Terraform and OpenTofu", "Installing Terraform", "Providers and the registry", "The workflow: init, plan, apply, destroy", "Reading a plan", "Configuring cloud credentials safely", "Editor support and formatting", "Cost control while learning"],
+          "tools": ["Terraform", "AWS CLI or Azure CLI", "VS Code"],
+          "lab_task": "Install Terraform, configure cloud credentials without hard-coding them, create a storage bucket or storage account with Terraform, then destroy it.",
+          "deliverable": "Configuration file, plan output, apply output and destroy output",
+          "checks": [["Run terraform plan", "Shows one resource to add", "Plan output"], ["Search the configuration for access keys", "None found; credentials come from the environment or CLI profile", "grep output"], ["Run terraform destroy", "Resource is removed and the account is clean", "Destroy output and console check"]],
+          "objectives": ["Explain why infrastructure as code helps teams", "Run the Terraform workflow", "Configure credentials safely"]
+        },
+        {
+          "topic": "HCL Language: Resources, Data Sources and Outputs",
+          "subtopics": ["HCL blocks and arguments", "Resource blocks and addresses", "Resource dependencies", "Data sources", "Output values", "String interpolation", "Comments and formatting", "terraform validate and fmt"],
+          "tools": ["Terraform"],
+          "lab_task": "Create a virtual network with two subnets and a security group, look up the latest Linux image with a data source, and output the subnet IDs.",
+          "deliverable": "Configuration files and outputs",
+          "checks": [["Run terraform output", "Shows both subnet IDs", "Command output"], ["Run terraform validate on a broken reference", "Validation reports the error", "Command output"], ["Explain the dependency order", "Participant explains why subnets wait for the network", "Explanation with terraform graph"]],
+          "objectives": ["Write resources, data sources and outputs", "Understand implicit dependencies", "Validate and format code"]
+        },
+        {
+          "topic": "Input Settings: Variables, Types and Validation",
+          "subtopics": ["Input variables", "Types: string, number, bool, list, map, object", "Default values", "tfvars files", "Environment-based values", "Passing values on the command line", "Precedence of value sources", "Validation rules", "Sensitive values", "Local values"],
+          "tools": ["Terraform"],
+          "lab_task": "Make the network configuration configurable through typed inputs with validation, and deploy dev and test copies from two tfvars files.",
+          "deliverable": "Input definitions, two tfvars files and both plans",
+          "checks": [["Pass an invalid CIDR value", "Validation rule rejects it with a clear message", "Plan output"], ["Plan with the test tfvars", "Uses the test values only", "Plan output"], ["Mark the database password sensitive and plan", "Value is hidden in the output", "Plan output"]],
+          "objectives": ["Parameterise configurations with typed inputs", "Validate inputs", "Handle sensitive values"]
+        },
+        {
+          "topic": "Terraform State Explained",
+          "subtopics": ["What state is for", "Reading the state file", "terraform state list and show", "Drift between state and real infrastructure", "terraform refresh and plan", "Moving and removing resources from state", "Why state must not be edited by hand", "State and secrets"],
+          "tools": ["Terraform"],
+          "lab_task": "Change a deployed resource manually in the cloud console, detect the drift with plan, and rename a resource in code without destroying it using a moved block.",
+          "deliverable": "Drift plan, moved block and plan showing no replacement",
+          "checks": [["Run plan after the manual change", "Plan shows the drift and how it will be corrected", "Plan output"], ["Rename the resource with a moved block", "Plan shows a move, not destroy and create", "Plan output"], ["Search the state file for a password", "Participant shows it is stored and explains the risk", "State excerpt and explanation"]],
+          "objectives": ["Explain how Terraform uses state", "Detect and correct drift", "Refactor without recreating resources"]
+        },
+        {
+          "topic": "Remote State, Locking and Backends",
+          "subtopics": ["Why local state breaks teams", "Remote backends: S3, Azure Storage, Terraform Cloud", "State locking", "Backend configuration", "Migrating local state to remote", "Encrypting state", "Access control for state", "Reading another configuration's outputs"],
+          "tools": ["Terraform", "S3 or Azure Storage"],
+          "lab_task": "Move the network state to a remote backend with locking and encryption, then read its outputs from a second configuration that creates a server.",
+          "deliverable": "Backend configuration, migration output and the second configuration",
+          "checks": [["Run apply from two terminals at once", "Second run waits or fails on the lock", "Terminal output"], ["Plan the server configuration", "Reads the subnet ID from the network state", "Plan output"], ["Check the state storage", "Encryption is enabled", "Console or CLI output"]],
+          "objectives": ["Store state remotely with locking", "Share outputs between configurations", "Protect state files"]
+        },
+        {
+          "topic": "Provisioning Compute and Networking",
+          "subtopics": ["Virtual machines with Terraform", "Security groups and firewall rules", "Key pairs and access", "User data and cloud-init", "Public IPs and DNS records", "Load balancers", "Tags and naming", "Destroying safely"],
+          "tools": ["Terraform", "cloud-init"],
+          "lab_task": "Deploy two web servers with cloud-init behind a load balancer in the network from Day 2, with tags and a DNS record, all from Terraform.",
+          "deliverable": "Configuration, apply output and a working load balancer URL",
+          "checks": [["Open the load balancer URL several times", "Responses come from both servers", "Responses"], ["Change the instance size and plan", "Plan shows an in-place update or replacement and the participant explains which", "Plan output"], ["Destroy and reapply", "Environment is rebuilt identically", "Apply output"]],
+          "objectives": ["Provision servers, networks and load balancers", "Bootstrap servers with cloud-init", "Rebuild environments from code"]
+        },
+        {
+          "topic": "Expressions, Loops and Conditionals",
+          "subtopics": ["count", "for_each with maps and sets", "for expressions", "Conditional expressions", "Dynamic blocks", "Splat expressions", "Built-in functions", "Choosing count or for_each"],
+          "tools": ["Terraform"],
+          "lab_task": "Create subnets and firewall rules from a map input with for_each and dynamic blocks, and add an optional bastion host controlled by a boolean input.",
+          "deliverable": "Configuration and plans with the bastion on and off",
+          "checks": [["Add one entry to the subnet map", "Plan adds one subnet and changes nothing else", "Plan output"], ["Set enable_bastion to false", "Plan shows no bastion resources", "Plan output"], ["Remove the middle item from a count-based list", "Participant shows the unwanted recreations and explains why for_each avoids them", "Plan output and explanation"]],
+          "objectives": ["Create repeated resources with count and for_each", "Use dynamic blocks and conditionals", "Avoid index-shift problems"]
+        },
+        {
+          "topic": "Writing Reusable Modules",
+          "subtopics": ["What a module is", "Module structure: main, inputs, outputs", "Calling local modules", "Passing values in and out", "Module versioning", "Using registry modules", "Documenting modules", "When not to create a module"],
+          "tools": ["Terraform", "terraform-docs"],
+          "lab_task": "Turn the network and web server code into two modules, call them from dev and test root configurations, and generate module documentation.",
+          "deliverable": "Module folders, root configurations and generated README files",
+          "checks": [["Plan dev and test", "Both use the same modules with different inputs", "Plan outputs"], ["Change a module input default", "Only configurations that rely on the default change", "Plan output"], ["Open the generated README", "Lists inputs and outputs", "README file"]],
+          "objectives": ["Package infrastructure as modules", "Reuse modules across environments", "Document module interfaces"]
+        },
+        {
+          "topic": "Managing Multiple Environments",
+          "subtopics": ["Folder-per-environment layout", "Workspaces and their limits", "Shared modules with environment inputs", "Promoting changes from dev to prod", "Separate state per environment", "Environment-specific credentials", "Avoiding copy-paste drift", "Terragrunt overview"],
+          "tools": ["Terraform", "Terragrunt"],
+          "lab_task": "Lay out dev, test and prod environments with separate state and credentials, promote a change through them, and compare this with a workspace-based approach.",
+          "deliverable": "Repository layout, promotion record and a comparison note",
+          "checks": [["Apply a change in dev only", "Test and prod plans show no changes", "Plan outputs"], ["Use dev credentials against prod", "Access is denied", "Error output"], ["Read the comparison note", "Explains why workspaces were or were not chosen", "Note"]],
+          "objectives": ["Structure Terraform for several environments", "Promote changes safely", "Choose between folders and workspaces"]
+        },
+        {
+          "topic": "Importing Existing Infrastructure",
+          "subtopics": ["Why import", "import blocks", "Generating configuration for imported resources", "terraform import command", "Reconciling differences after import", "Importing many resources", "Tools such as Terraformer", "Planning an adoption project"],
+          "tools": ["Terraform"],
+          "lab_task": "Import a manually created network, security group and virtual machine into Terraform with import blocks, generate configuration, and reach a plan with no changes.",
+          "deliverable": "Import blocks, cleaned configuration and a no-change plan",
+          "checks": [["Run plan after import and clean-up", "No changes", "Plan output"], ["Delete a resource from the configuration and plan", "Plan proposes destroying it, and the participant explains how to remove it from state instead", "Plan output and explanation"], ["List state", "All three resources are tracked", "terraform state list output"]],
+          "objectives": ["Bring existing infrastructure under Terraform", "Generate and tidy imported configuration", "Avoid accidental deletion after import"]
+        },
+        {
+          "topic": "Provisioning Managed Databases and Storage",
+          "subtopics": ["Managed database resources", "Subnet groups and private access", "Passwords from a secret manager", "Backups and retention settings", "Storage buckets and lifecycle rules", "Preventing accidental deletion with lifecycle", "Encryption settings", "Outputs for application configuration"],
+          "tools": ["Terraform", "RDS or Azure SQL"],
+          "lab_task": "Provision a private managed database with its password generated and stored in the cloud secret manager, a storage bucket with lifecycle rules, and prevent_destroy on both.",
+          "deliverable": "Configuration, apply output and connection test from the web server",
+          "checks": [["Connect to the database from the web server", "Connection succeeds", "Command output"], ["Run terraform destroy", "Blocked by prevent_destroy", "Error output"], ["Search the configuration for the password", "Not present", "grep output"]],
+          "objectives": ["Provision databases and storage safely", "Manage secrets without putting them in code", "Protect important resources from deletion"]
+        },
+        {
+          "topic": "Terraform with Containers and Kubernetes",
+          "subtopics": ["Container registries with Terraform", "Managed Kubernetes clusters", "Kubernetes and Helm providers", "Separating cluster and workload configurations", "Passing cluster credentials safely", "Deploying a Helm release", "Ordering problems between providers", "When to use GitOps instead"],
+          "tools": ["Terraform", "Kubernetes provider", "Helm provider"],
+          "lab_task": "Provision a managed Kubernetes cluster and a container registry with one configuration, then deploy an ingress controller with the Helm provider from a second configuration.",
+          "deliverable": "Two configurations, cluster details and the running ingress controller",
+          "checks": [["Run kubectl get nodes with the generated credentials", "Cluster nodes are Ready", "Command output"], ["List Helm releases", "Ingress controller release is deployed", "helm list output"], ["Explain why the configurations are separate", "Participant explains provider ordering problems", "Explanation"]],
+          "objectives": ["Provision Kubernetes with Terraform", "Deploy workloads with the Helm provider", "Separate infrastructure and workload layers"]
+        },
+        {
+          "topic": "Code Quality: Linting, Formatting and Security Scans",
+          "subtopics": ["terraform fmt and validate", "TFLint rules", "Security scanning with Checkov or Trivy", "Fixing common misconfigurations", "Pre-commit hooks", "Suppressing findings with reasons", "Naming conventions", "Code review checklist"],
+          "tools": ["TFLint", "Checkov", "pre-commit"],
+          "lab_task": "Add fmt, validate, TFLint and Checkov as pre-commit hooks, fix all high-severity findings, and document any suppressed finding with a reason.",
+          "deliverable": "pre-commit configuration, before and after scan reports and the suppression list",
+          "checks": [["Commit a public storage bucket", "Commit is blocked by Checkov", "Hook output"], ["Rerun the scan after fixes", "No high-severity findings remain", "Scan report"], ["Read a suppression", "Includes the reason and an owner", "Code comment"]],
+          "objectives": ["Automate Terraform code quality", "Find and fix misconfigurations", "Handle exceptions responsibly"]
+        },
+        {
+          "topic": "Running Terraform in CI/CD Pipelines",
+          "subtopics": ["Why not run Terraform from laptops", "Plan on pull request, apply on merge", "Posting plans to pull requests", "OIDC authentication from CI", "Manual approval for production", "Saved plan files", "Pipeline concurrency and locking", "Rolling back with Git"],
+          "tools": ["GitHub Actions", "Terraform"],
+          "lab_task": "Build a pipeline that posts the plan to every pull request, applies the saved plan after merge, authenticates with OIDC, and requires approval for production.",
+          "deliverable": "Workflow files and a pull request showing the plan comment and apply run",
+          "checks": [["Open a pull request", "Plan is posted as a comment", "Pull request screenshot"], ["Merge to main", "The saved plan is applied, not a new one", "Pipeline log"], ["Check repository secrets", "No long-lived cloud keys are stored", "Secrets list"]],
+          "objectives": ["Run Terraform through pipelines", "Review plans in pull requests", "Authenticate pipelines with OIDC"]
+        },
+        {
+          "topic": "Terraform Cloud and HCP Terraform",
+          "subtopics": ["Workspaces in HCP Terraform", "VCS-driven runs", "Variable sets", "Remote execution", "Run triggers between workspaces", "Private module registry", "Team access", "Cost estimation"],
+          "tools": ["HCP Terraform"],
+          "lab_task": "Move the dev environment to an HCP Terraform workspace with VCS-driven runs, a variable set for credentials, and a run trigger from the network workspace to the server workspace.",
+          "deliverable": "Workspace configuration and run history",
+          "checks": [["Push a change to the network code", "Network run completes and triggers the server workspace", "Run history"], ["Check workspace variables", "Credentials come from a variable set marked sensitive", "Settings screenshot"], ["Publish a module to the private registry", "Root configuration uses it by version", "Configuration and registry page"]],
+          "objectives": ["Use HCP Terraform for team runs", "Chain workspaces with run triggers", "Share modules privately"]
+        },
+        {
+          "topic": "Testing Terraform Code",
+          "subtopics": ["Why test infrastructure code", "terraform test framework", "Plan-only tests", "Apply tests in a sandbox", "Mocking providers", "Checks and preconditions", "Postconditions", "Testing modules in CI"],
+          "tools": ["terraform test", "GitHub Actions"],
+          "lab_task": "Write terraform test files for the network module covering subnet counts, CIDR validation and tags, add a postcondition on the load balancer, and run the tests in CI.",
+          "deliverable": "Test files, postcondition and a passing CI run",
+          "checks": [["Run terraform test", "All tests pass", "Test output"], ["Break the subnet count logic", "A test fails", "Test output"], ["Make the load balancer unhealthy in a test", "Postcondition fails with its message", "Test output"]],
+          "objectives": ["Test modules with terraform test", "Use preconditions and postconditions", "Run infrastructure tests in CI"]
+        },
+        {
+          "topic": "Multi-Cloud Terraform: AWS and Azure Side by Side",
+          "subtopics": ["Using several providers in one repository", "Provider aliases", "Equivalent resources on AWS and Azure", "Abstracting with modules", "Where abstraction breaks", "Separate state per cloud", "Naming and tagging across clouds", "Cost differences"],
+          "tools": ["Terraform", "AWS provider", "AzureRM provider"],
+          "lab_task": "Deploy the same web tier on AWS and Azure from one repository with cloud-specific modules behind a common interface, and compare the resources created.",
+          "deliverable": "Repository, apply outputs for both clouds and a resource mapping table",
+          "checks": [["Open both web tiers", "Both respond", "Responses"], ["Read the mapping table", "Each AWS resource has its Azure equivalent", "Table"], ["Change the common module input", "Both clouds plan the matching change", "Plan outputs"]],
+          "objectives": ["Use several providers and aliases", "Design common module interfaces", "Recognise limits of multi-cloud abstraction"]
+        },
+        {
+          "topic": "Troubleshooting Terraform Runs",
+          "subtopics": ["Reading error messages", "TF_LOG debug output", "Provider and API errors", "Dependency cycles", "State lock left behind", "Resources changed outside Terraform", "Timeouts and retries", "Recovering from a failed apply"],
+          "tools": ["Terraform"],
+          "lab_task": "Fix six broken Terraform scenarios prepared by the trainer (cycle, stale lock, drift, permission error, timeout, partial apply) and record cause, evidence and fix.",
+          "deliverable": "Troubleshooting log for all six scenarios",
+          "checks": [["Fix all six within the time limit", "Each configuration plans or applies cleanly", "Command outputs"], ["Read the stale lock entry", "Lock owner was checked before forcing unlock", "Log entry"], ["Recover the partial apply", "State matches real infrastructure afterwards", "Plan with no changes"]],
+          "objectives": ["Diagnose Terraform errors", "Recover from failed applies safely", "Use debug logging"]
+        },
+        {
+          "topic": "Team Practices and Repository Structure",
+          "subtopics": ["Mono-repo versus many repositories", "Ownership of modules and environments", "Versioning and release of modules", "Pull request reviews for infrastructure", "Change windows and approvals", "Documentation", "Onboarding new engineers", "Measuring change failure rate"],
+          "tools": ["Git", "Terraform"],
+          "lab_task": "Restructure the course repository for a team of five with module versioning, CODEOWNERS, a pull request template and a change process, and run one change through it.",
+          "deliverable": "Repository structure, CODEOWNERS, templates and one reviewed change",
+          "checks": [["Open a pull request touching prod", "Required reviewers are requested automatically", "Pull request screenshot"], ["Release a module version", "Tag and changelog are created", "Tag and changelog"], ["Read the change process", "Covers review, approval and rollback", "Document"]],
+          "objectives": ["Organise Terraform for teams", "Review infrastructure changes well", "Version modules"]
+        },
+        {
+          "topic": "Beginner Capstone: Complete Environment with Terraform",
+          "subtopics": ["Requirement walkthrough", "Network, compute and database modules", "Remote state and environments", "Security scans and tests", "Pipeline with plan and apply", "Demo and rebuild"],
+          "tools": ["Terraform", "GitHub Actions", "Checkov"],
+          "lab_task": "Build dev and prod environments for a web application with modules, remote state, scans, tests and a plan-and-apply pipeline, then destroy and rebuild dev during the demo.",
+          "deliverable": "Repository, pipeline runs, environment URLs and a 10-minute demo",
+          "checks": [["Destroy and rebuild dev from the pipeline", "Environment returns with no manual steps", "Pipeline log and URL"], ["Open a pull request with a security problem", "Pipeline blocks it", "Pull request checks"], ["Run plan on prod after the demo", "No changes", "Plan output"]],
+          "objectives": ["Deliver a complete environment with Terraform", "Combine modules, state, testing and pipelines", "Rebuild infrastructure reliably"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For people who already write Terraform. Covers module design at scale, state architecture, policy as code, advanced testing, refactoring, platform automation and running Terraform for many teams.",
+      "prerequisites": [
+        "Writes Terraform modules and uses remote state",
+        "Has run Terraform from a pipeline",
+        "Working knowledge of AWS or Azure networking and identity"
+      ],
+      "outcomes": [
+        "Design module libraries and state boundaries for large estates",
+        "Enforce policy and security with policy as code",
+        "Refactor, test and upgrade Terraform safely",
+        "Run self-service infrastructure for many teams"
+      ],
+      "days": [
+        {
+          "topic": "Module Design Principles for Large Estates",
+          "subtopics": ["Module layers: primitives, composites, products", "Input and output design", "Opinionated defaults", "Avoiding god modules", "Module composition over inheritance", "Versioning policy", "Breaking change management", "Module documentation standards"],
+          "tools": ["Terraform", "terraform-docs"],
+          "lab_task": "Redesign a provided 1,500-line monolithic configuration into layered modules with clear interfaces and semantic versions, without changing the deployed infrastructure.",
+          "deliverable": "Module library, migration moved blocks and a no-change plan",
+          "checks": [["Plan after the redesign", "No changes to real infrastructure", "Plan output"], ["Review a module interface", "Inputs are typed, validated and documented", "Module README"], ["Read the versioning policy", "Defines what counts as a breaking change", "Policy document"]],
+          "objectives": ["Design layered module libraries", "Refactor without changing infrastructure", "Version modules with clear rules"]
+        },
+        {
+          "topic": "State Architecture and Blast Radius",
+          "subtopics": ["How large state slows teams", "Splitting state by lifecycle and ownership", "Dependencies between states", "Data sources versus remote state outputs", "Moving resources between states", "removed blocks", "State per region and account", "Measuring plan time"],
+          "tools": ["Terraform"],
+          "lab_task": "Split a single large state into network, platform and application states, move resources between them without recreation, and measure the plan time improvement.",
+          "deliverable": "New state layout, move procedure and before and after plan timings",
+          "checks": [["Plan each new state", "No changes after the moves", "Plan outputs"], ["Compare plan times", "Faster plans, with figures", "Timing table"], ["Break the network state on purpose", "Application state is unaffected", "Plan output"]],
+          "objectives": ["Design state boundaries", "Move resources between states safely", "Reduce blast radius and plan time"]
+        },
+        {
+          "topic": "Policy as Code with OPA and Sentinel",
+          "subtopics": ["Why policy as code", "Open Policy Agent and Conftest on plan JSON", "Sentinel in HCP Terraform", "Writing rules for tags, regions and sizes", "Advisory and mandatory policies", "Testing policies", "Policy exceptions", "Reporting violations"],
+          "tools": ["OPA", "Conftest", "Sentinel"],
+          "lab_task": "Write policies that require tags, restrict regions and limit instance sizes, test them, and enforce them on pull request plans with advisory and mandatory levels.",
+          "deliverable": "Policy files with tests and a pull request blocked by a mandatory rule",
+          "checks": [["Plan a resource without required tags", "Mandatory policy blocks it", "Pipeline output"], ["Plan a large instance", "Advisory policy warns but allows", "Pipeline output"], ["Run policy unit tests", "All pass", "Test output"]],
+          "objectives": ["Enforce rules on Terraform plans", "Test policies", "Use advisory and mandatory levels"]
+        },
+        {
+          "topic": "Advanced Testing: Native Tests, Terratest and Mocks",
+          "subtopics": ["Test pyramid for infrastructure", "terraform test with mocks", "Terratest in Go", "Ephemeral test environments", "Testing networking reachability", "Cleaning up after tests", "Test cost control", "Running tests in parallel"],
+          "tools": ["terraform test", "Terratest", "Go"],
+          "lab_task": "Add mocked unit tests and a Terratest integration test that deploys the web module, checks the URL and destroys it, running both in CI with a cost cap.",
+          "deliverable": "Test code and CI runs with timing and cost estimate",
+          "checks": [["Run mocked tests", "Pass in under a minute without cloud access", "Test output"], ["Run the Terratest test", "Deploys, verifies the URL and destroys", "Test log"], ["Kill the test midway", "Clean-up job removes leftover resources", "Clean-up log"]],
+          "objectives": ["Test modules at several levels", "Write integration tests with Terratest", "Control test cost and clean-up"]
+        },
+        {
+          "topic": "Refactoring and Upgrading Terraform Code",
+          "subtopics": ["moved, removed and import blocks together", "Upgrading Terraform versions", "Upgrading provider major versions", "Reading provider upgrade guides", "Lock files", "Deprecation warnings", "Refactoring count to for_each", "Planning large refactors"],
+          "tools": ["Terraform"],
+          "lab_task": "Upgrade a configuration across a provider major version and convert count-based resources to for_each, reaching a plan with no changes to infrastructure.",
+          "deliverable": "Upgrade notes, refactored code and a no-change plan",
+          "checks": [["Plan after the upgrade and refactor", "No infrastructure changes", "Plan output"], ["Check the lock file", "Records the new provider version and hashes", "Lock file diff"], ["Read the upgrade notes", "Lists each breaking change and its fix", "Notes"]],
+          "objectives": ["Upgrade Terraform and providers safely", "Refactor resources without recreation", "Manage provider versions"]
+        },
+        {
+          "topic": "Secrets, Identity and Least Privilege for Terraform",
+          "subtopics": ["Identity for pipelines: OIDC roles and federated credentials", "Least-privilege permissions for applies", "Separate plan and apply identities", "Reading secrets with Vault provider", "Keeping secrets out of state with ephemeral values", "Encrypting state", "Auditing who changed infrastructure", "Break-glass access"],
+          "tools": ["Terraform", "Vault", "OIDC"],
+          "lab_task": "Give the pipeline a read-only identity for plans and a scoped identity for applies, read database credentials from Vault, and keep them out of state with ephemeral values.",
+          "deliverable": "Identity configuration, updated Terraform and an audit trail of one change",
+          "checks": [["Run apply with the plan identity", "Denied", "Error output"], ["Search state for the database password", "Not present", "State search output"], ["Find who applied the last change", "Audit log shows the identity and commit", "Log entry"]],
+          "objectives": ["Run Terraform with least privilege", "Use Vault and ephemeral values for secrets", "Audit infrastructure changes"]
+        },
+        {
+          "topic": "Landing Zones with Terraform",
+          "subtopics": ["Account or subscription vending", "Baseline network and logging", "Guardrails applied at creation", "AWS Control Tower Account Factory for Terraform", "Azure Landing Zones Terraform modules", "Customisations per business unit", "Updating existing accounts", "Drift in baselines"],
+          "tools": ["Terraform", "AFT or Azure Landing Zones modules"],
+          "lab_task": "Vend two new accounts or subscriptions with baseline networking, logging and guardrails from Terraform, then roll a baseline change to both.",
+          "deliverable": "Vending configuration, two vended environments and the baseline update record",
+          "checks": [["Vend a new environment", "Baseline network, logging and guardrails are present", "Resource list"], ["Roll a baseline change", "Both environments are updated through the pipeline", "Pipeline log"], ["Change a baseline resource manually", "Drift is detected on the next run", "Plan output"]],
+          "objectives": ["Automate landing zones with Terraform", "Apply baselines consistently", "Update many environments safely"]
+        },
+        {
+          "topic": "Kubernetes Platforms with Terraform",
+          "subtopics": ["EKS, AKS and GKE modules", "Node pools and autoscaling", "Cluster add-ons", "Workload identity setup", "Bootstrapping GitOps with Terraform", "Separating cluster and app lifecycles", "Upgrading clusters with Terraform", "Destroy order problems"],
+          "tools": ["Terraform", "Argo CD", "Helm provider"],
+          "lab_task": "Provision a managed Kubernetes cluster with node pools, workload identity and add-ons, bootstrap Argo CD with Terraform, and hand application delivery to GitOps.",
+          "deliverable": "Cluster configuration, bootstrap code and an app deployed by Argo CD",
+          "checks": [["Deploy an app by committing to the GitOps repository", "Argo CD deploys it without Terraform", "Argo CD screenshot"], ["Upgrade the cluster version with Terraform", "Upgrade completes without downtime for the app", "Load test log"], ["Destroy the environment", "Destroy completes in the right order", "Destroy output"]],
+          "objectives": ["Provision Kubernetes platforms with Terraform", "Bootstrap GitOps", "Manage cluster upgrades"]
+        },
+        {
+          "topic": "Self-Service Infrastructure with Module Catalogues",
+          "subtopics": ["Product modules for common needs", "Private registries", "Golden-path templates", "No-code modules in HCP Terraform", "Request workflows", "Guardrails in modules", "Cost estimation before apply", "Measuring adoption"],
+          "tools": ["HCP Terraform", "Backstage", "Infracost"],
+          "lab_task": "Publish three product modules (web app, database, queue) to a private registry with cost estimates and guardrails, and let a team request a database through a template.",
+          "deliverable": "Published modules, request template and a fulfilled request with its cost estimate",
+          "checks": [["Request a database through the template", "Database is created with guardrails applied", "Run output"], ["Request an oversized database", "Rejected by module validation", "Error message"], ["Open the pull request", "Infracost comment shows the monthly cost", "Pull request screenshot"]],
+          "objectives": ["Offer infrastructure as self-service products", "Build guardrails into modules", "Show costs before applying"]
+        },
+        {
+          "topic": "Cost Management with Infracost and Tagging",
+          "subtopics": ["Cost estimates in pull requests", "Cost policies", "Tagging for cost allocation", "Finding idle resources", "Scheduling non-production shutdowns", "Right-sizing through module defaults", "Budgets as code", "Reporting savings"],
+          "tools": ["Infracost", "Terraform"],
+          "lab_task": "Add Infracost to pull requests with a policy that blocks changes adding more than 500 USD a month without approval, enforce cost tags, and schedule dev shutdowns.",
+          "deliverable": "Cost policy, tagging enforcement and a savings report",
+          "checks": [["Open a pull request adding a large database", "Cost policy requires approval", "Pull request checks"], ["Create a resource without the cost tag", "Blocked", "Pipeline output"], ["Read the savings report", "Shows dev shutdown savings with figures", "Report"]],
+          "objectives": ["Show and control cost in pull requests", "Enforce cost allocation tags", "Reduce non-production costs"]
+        },
+        {
+          "topic": "Drift Detection and Continuous Reconciliation",
+          "subtopics": ["Sources of drift", "Scheduled drift detection", "Health assessments in HCP Terraform", "Alerting on drift", "Deciding to revert or adopt changes", "Preventing console changes", "Emergency change process", "Reporting drift trends"],
+          "tools": ["Terraform", "GitHub Actions", "HCP Terraform"],
+          "lab_task": "Schedule nightly drift detection for all environments with alerts, handle two drift cases (one reverted, one adopted into code), and restrict console write access.",
+          "deliverable": "Drift workflow, two resolved drift records and the access change",
+          "checks": [["Change a resource in the console", "Nightly run detects drift and alerts", "Alert"], ["Adopt a valid emergency change into code", "Next plan shows no changes", "Plan output"], ["Try a console change with a normal user", "Denied", "Error message"]],
+          "objectives": ["Detect drift automatically", "Resolve drift correctly", "Prevent unmanaged changes"]
+        },
+        {
+          "topic": "Terraform for Networking at Scale",
+          "subtopics": ["IP address planning as code", "Hub-and-spoke networks", "Transit gateways and peering", "Firewall rules from data files", "DNS zones and records at scale", "Private endpoints", "Network module testing", "Change risk in shared networks"],
+          "tools": ["Terraform"],
+          "lab_task": "Build a hub-and-spoke network for four spokes with address allocation from a data file, central firewall rules and private DNS, then add a fifth spoke by changing one file.",
+          "deliverable": "Network configuration, data files and the fifth-spoke change",
+          "checks": [["Add the fifth spoke", "Plan creates only that spoke and its routes", "Plan output"], ["Test spoke-to-spoke traffic", "Allowed only where firewall rules permit", "Test results"], ["Check for overlapping address ranges", "None, enforced by validation", "Validation output"]],
+          "objectives": ["Manage large networks as code", "Drive configuration from data files", "Reduce risk in shared network changes"]
+        },
+        {
+          "topic": "Writing a Custom Terraform Provider",
+          "subtopics": ["When a custom provider is justified", "Terraform Plugin Framework", "Schemas and resource CRUD", "Plan modifiers", "Import support", "Acceptance tests", "Publishing a provider", "Maintaining a provider"],
+          "tools": ["Go", "Terraform Plugin Framework"],
+          "lab_task": "Write a small provider in Go for an internal REST API that manages teams, with create, read, update, delete and import, and acceptance tests against a local test server.",
+          "deliverable": "Provider code, acceptance tests and an example configuration",
+          "checks": [["Run the acceptance tests", "All pass", "Test output"], ["Change a team name in Terraform", "Plan shows an in-place update", "Plan output"], ["Import an existing team", "Imported and plan shows no changes", "Plan output"]],
+          "objectives": ["Decide when to write a provider", "Implement a provider with the Plugin Framework", "Test providers"]
+        },
+        {
+          "topic": "Stacks, Orchestration and Dependencies Between Configurations",
+          "subtopics": ["Problems with many dependent root modules", "Terragrunt dependency graphs", "HCP Terraform Stacks", "Run ordering", "Passing outputs between layers", "Partial failures", "Parallel runs", "Choosing an orchestration approach"],
+          "tools": ["Terragrunt", "HCP Terraform"],
+          "lab_task": "Orchestrate network, cluster and application layers across three environments with Terragrunt dependencies, run them in order, and recover from a failure in the middle layer.",
+          "deliverable": "Orchestration configuration and run logs including the recovery",
+          "checks": [["Run all layers for dev", "Layers apply in dependency order", "Run log"], ["Fail the cluster layer", "Application layer does not run", "Run log"], ["Rerun after fixing", "Completes from the failed layer", "Run log"]],
+          "objectives": ["Orchestrate dependent configurations", "Handle partial failures", "Choose an orchestration tool"]
+        },
+        {
+          "topic": "Compliance and Audit Evidence from Terraform",
+          "subtopics": ["Mapping controls to code", "Plan and apply logs as evidence", "Policy results as evidence", "Change approval records", "Inventory from state", "Reporting encryption and network rules", "Answering auditor questions", "Retention of evidence"],
+          "tools": ["Terraform", "OPA", "GitHub"],
+          "lab_task": "Map 10 controls to Terraform evidence, generate an inventory and compliance report from state and policy results, and answer five mock auditor questions.",
+          "deliverable": "Control mapping, generated report and answers with evidence",
+          "checks": [["Answer which databases are unencrypted", "Report lists none or names them", "Report section"], ["Show approval for a prod change", "Pull request approval and apply log", "Evidence links"], ["Regenerate the report", "Produced automatically from current state", "Pipeline log"]],
+          "objectives": ["Produce audit evidence from Terraform", "Report compliance from state", "Answer auditors with evidence"]
+        },
+        {
+          "topic": "Disaster Recovery for Infrastructure Code and State",
+          "subtopics": ["Backing up state", "State versioning", "Recovering a deleted or corrupted state", "Rebuilding an environment in another region", "Region parameters in modules", "Testing rebuild time", "Protecting the backend itself", "DR runbooks"],
+          "tools": ["Terraform", "S3 or Azure Storage"],
+          "lab_task": "Corrupt a state file and recover it from versioning, then rebuild the full dev environment in another region from code and measure the time.",
+          "deliverable": "Recovery runbook, restored state evidence and the timed regional rebuild",
+          "checks": [["Restore the previous state version", "Plan shows no changes", "Plan output"], ["Rebuild in the second region", "Environment works there", "URL check"], ["Compare rebuild time with the target", "Within target or the gap is explained", "Timeline"]],
+          "objectives": ["Protect and recover Terraform state", "Rebuild environments in another region", "Measure recovery time"]
+        },
+        {
+          "topic": "Migrating from Other IaC Tools to Terraform",
+          "subtopics": ["Migrating from CloudFormation", "Migrating from ARM and Bicep", "Coexistence during migration", "Importing resources at scale", "Mapping resource types", "Testing parity", "Cut-over plans", "Decommissioning the old tool"],
+          "tools": ["Terraform", "CloudFormation or Bicep"],
+          "lab_task": "Migrate a provided CloudFormation or Bicep stack to Terraform by importing its resources, proving parity, and retiring the old stack without touching the resources.",
+          "deliverable": "Migration plan, Terraform code, parity evidence and retirement record",
+          "checks": [["Plan after import", "No changes", "Plan output"], ["Retire the old stack with resources retained", "Resources still exist and work", "Resource list and app check"], ["Read the cut-over plan", "Includes rollback steps", "Plan document"]],
+          "objectives": ["Migrate from other IaC tools", "Prove parity before cut-over", "Retire old stacks safely"]
+        },
+        {
+          "topic": "OpenTofu and the Terraform Ecosystem",
+          "subtopics": ["OpenTofu history and licence differences", "Compatibility with Terraform", "State encryption in OpenTofu", "Provider and module registries", "Choosing between Terraform and OpenTofu", "Migration between them", "Pulumi and CDKTF compared", "Tool selection criteria"],
+          "tools": ["OpenTofu", "Terraform", "Pulumi"],
+          "lab_task": "Run the course configuration with OpenTofu, enable its state encryption, and write a tool selection recommendation for a provided company scenario.",
+          "deliverable": "OpenTofu run logs, encrypted state evidence and a recommendation",
+          "checks": [["Run tofu plan on the existing configuration", "No changes", "Plan output"], ["Inspect the encrypted state", "Not readable as plain JSON", "State file excerpt"], ["Read the recommendation", "Uses stated criteria including licence and support", "Recommendation"]],
+          "objectives": ["Compare Terraform and OpenTofu", "Use OpenTofu state encryption", "Choose IaC tools with clear criteria"]
+        },
+        {
+          "topic": "Operating Terraform for Many Teams",
+          "subtopics": ["Platform team responsibilities", "Shared pipelines and templates", "Run queues and concurrency", "Support model for module users", "Change failure metrics", "Training and documentation", "Deprecating old modules", "Roadmap for the IaC platform"],
+          "tools": ["HCP Terraform", "GitHub Actions"],
+          "lab_task": "Design the operating model for Terraform across 15 teams with shared pipelines, support processes and metrics, and run a deprecation of an old module version.",
+          "deliverable": "Operating model document, metrics dashboard and deprecation record",
+          "checks": [["Read the operating model", "Covers ownership, support, pipelines and metrics", "Document"], ["Run the deprecation", "Users are warned and migrated before removal", "Deprecation record"], ["Open the metrics dashboard", "Shows change failure rate and run times", "Dashboard"]],
+          "objectives": ["Run Terraform as a shared platform", "Measure IaC delivery", "Deprecate modules responsibly"]
+        },
+        {
+          "topic": "Intermediate Capstone: Self-Service Infrastructure Platform",
+          "subtopics": ["Requirements and design", "Layered modules and state layout", "Policy, cost and security gates", "Testing and drift detection", "Self-service requests", "Demo and design defence"],
+          "tools": ["Terraform", "OPA", "Infracost", "Terratest", "GitHub Actions"],
+          "lab_task": "Build a self-service infrastructure platform with layered modules, split state, policy and cost gates, tests, drift detection and a request template, then present it.",
+          "deliverable": "Repository, pipeline runs, request demo and a 15-minute presentation",
+          "checks": [["Fulfil a team request end to end", "Infrastructure is created with all gates passing", "Pipeline log"], ["Submit a request breaking a policy", "Blocked with a clear message", "Pipeline output"], ["Cause drift", "Detected and reported the same night", "Alert"]],
+          "objectives": ["Design and build a self-service IaC platform", "Combine policy, cost, testing and drift controls", "Explain design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers who run infrastructure as code across large organisations. Covers enterprise IaC architecture, governance, provider engineering, large migrations, resilience, FinOps and platform strategy.",
+      "prerequisites": [
+        "Has designed module libraries and pipelines for several teams",
+        "Comfortable with policy as code, state architecture and cloud identity",
+        "Terraform Associate level knowledge or equivalent experience"
+      ],
+      "outcomes": [
+        "Design an enterprise infrastructure-as-code architecture and operating model",
+        "Govern thousands of resources with policy, evidence and controlled change",
+        "Lead large migrations and refactors with measured risk",
+        "Set IaC platform strategy with cost, security and reliability evidence"
+      ],
+      "days": [
+        {
+          "topic": "Enterprise IaC Architecture",
+          "subtopics": ["Layers: organisation, platform, product", "Repository strategy at scale", "State strategy for thousands of resources", "Identity model for pipelines", "Module supply chain", "Change control tiers", "Reference architecture", "Architecture decision records"],
+          "tools": ["Terraform", "Decision records"],
+          "lab_task": "Design the IaC architecture for a company with 60 teams, 200 accounts or subscriptions and two clouds, and write decision records for repository, state and identity strategy.",
+          "deliverable": "Architecture document and three decision records",
+          "checks": [["Read the state strategy", "Explains boundaries, ownership and blast radius", "Document"], ["Read a decision record", "Options, criteria and the reason for the choice", "Decision record"], ["Q&A on identity strategy", "Participant explains how least privilege is kept at scale", "Trainer notes"]],
+          "objectives": ["Design IaC architecture for large organisations", "Make and record key decisions", "Plan identity and state at scale"]
+        },
+        {
+          "topic": "Governance Frameworks and Change Risk Tiers",
+          "subtopics": ["Classifying changes by risk", "Automatic approval for low-risk changes", "Peer and expert review for high-risk changes", "Change freezes", "Policy coverage measurement", "Exception processes", "Governance metrics", "Balancing speed and control"],
+          "tools": ["OPA", "GitHub", "HCP Terraform"],
+          "lab_task": "Implement risk-tiered approvals: plans are classified automatically by the resources they change, low-risk changes auto-merge after checks, high-risk changes need two approvals.",
+          "deliverable": "Classification policy, pipeline configuration and examples of each tier",
+          "checks": [["Submit a tag-only change", "Classified low risk and merged after checks", "Pull request history"], ["Submit a change deleting a database", "Classified high risk and needs two approvals", "Pull request checks"], ["Read the governance metrics", "Shows lead time and policy coverage", "Dashboard"]],
+          "objectives": ["Govern change by risk", "Automate low-risk approvals safely", "Measure governance"]
+        },
+        {
+          "topic": "Policy Engineering at Organisation Scale",
+          "subtopics": ["Policy libraries and versioning", "Policy testing and coverage", "Rolling out new policies in audit mode", "Exceptions with expiry", "Policy performance on large plans", "Shared policies across Terraform and Kubernetes", "Policy ownership", "Reporting policy outcomes"],
+          "tools": ["OPA", "Conftest", "Sentinel"],
+          "lab_task": "Build a versioned policy library with tests, roll a new policy out in audit mode across all pipelines, review the impact report, then switch it to enforce.",
+          "deliverable": "Policy library, rollout record and impact report",
+          "checks": [["Run policy tests", "All pass with coverage reported", "Test output"], ["Read the audit-mode impact report", "Lists affected teams and resources", "Report"], ["Switch to enforce", "Only already-fixed configurations pass", "Pipeline results"]],
+          "objectives": ["Engineer policy libraries", "Roll out policies safely", "Report policy impact"]
+        },
+        {
+          "topic": "Module Supply Chain Security",
+          "subtopics": ["Risks in third-party modules and providers", "Pinning and verifying provider hashes", "Private mirrors for providers and modules", "Signing internal modules", "Reviewing module updates", "Dependency update automation", "Responding to a compromised module", "Measuring dependency freshness"],
+          "tools": ["Terraform provider mirror", "Renovate", "cosign"],
+          "lab_task": "Set up a private provider and module mirror, pin and verify hashes, automate update pull requests, and run a tabletop for a compromised public module.",
+          "deliverable": "Mirror configuration, update automation and tabletop notes",
+          "checks": [["Run init with the internet blocked", "Providers and modules come from the mirror", "Init output"], ["Change a provider hash", "Init fails verification", "Error output"], ["Read the tabletop notes", "Detection, containment and rollback steps are defined", "Notes"]],
+          "objectives": ["Secure the module and provider supply chain", "Mirror dependencies privately", "Prepare for dependency compromise"]
+        },
+        {
+          "topic": "Large-Scale Refactoring Programmes",
+          "subtopics": ["Planning refactors across many states", "Automating code changes", "moved and removed blocks at scale", "Staged rollouts of refactors", "Measuring risk with plan analysis", "Communicating with teams", "Rollback plans", "Tracking progress"],
+          "tools": ["Terraform", "Python scripts"],
+          "lab_task": "Automate a refactor that renames a module across 30 provided root configurations, verify every plan shows no infrastructure change, and roll it out in stages.",
+          "deliverable": "Automation script, plan analysis report and staged rollout record",
+          "checks": [["Run the plan analysis", "All 30 plans show only moves", "Report"], ["Stage one rollout", "First stage merges and applies cleanly", "Pipeline logs"], ["Read the rollback plan", "Explains how to reverse a stage", "Plan document"]],
+          "objectives": ["Plan and automate large refactors", "Verify safety with plan analysis", "Roll out changes in stages"]
+        },
+        {
+          "topic": "Plan Analysis and Change Intelligence",
+          "subtopics": ["Plan JSON structure", "Detecting destroys and replacements", "Risk scoring changes", "Summarising plans for reviewers", "Detecting security-relevant changes", "Blocking dangerous changes", "Historical change analytics", "Integrating with chat and tickets"],
+          "tools": ["Terraform", "Python", "jq"],
+          "lab_task": "Write a plan analyser that scores risk, summarises changes in plain language for reviewers, blocks unapproved destroys of stateful resources, and posts summaries to pull requests.",
+          "deliverable": "Analyser code, tests and sample pull request summaries",
+          "checks": [["Analyse a plan replacing a database", "Flagged high risk and blocked without approval", "Analyser output"], ["Read a summary for a 40-change plan", "Clear grouped summary a reviewer can check quickly", "Pull request comment"], ["Run the analyser tests", "All pass", "Test output"]],
+          "objectives": ["Analyse Terraform plans programmatically", "Help reviewers understand changes", "Block dangerous changes automatically"]
+        },
+        {
+          "topic": "Resilience and Multi-Region Infrastructure as Code",
+          "subtopics": ["Region-agnostic modules", "Active-passive and active-active patterns in code", "Data replication resources", "DNS failover as code", "Failover exercises driven by code", "Capacity in standby regions", "Dependencies on global services", "Recovery runbooks backed by code"],
+          "tools": ["Terraform"],
+          "lab_task": "Make a workload region-agnostic, deploy it to two regions with replication and DNS failover from code, and run a failover exercise driven by a code change.",
+          "deliverable": "Modules, two-region deployment and the failover exercise record",
+          "checks": [["Trigger failover with a code change", "Traffic moves to the second region", "DNS and app checks"], ["Measure recovery time", "Within the stated target", "Timeline"], ["Review the modules", "No region values are hard-coded", "Code review notes"]],
+          "objectives": ["Design region-agnostic infrastructure", "Automate failover with code", "Test recovery regularly"]
+        },
+        {
+          "topic": "FinOps Through Infrastructure as Code",
+          "subtopics": ["Cost as a design input", "Cost guardrails in modules", "Commitment-aware defaults", "Scheduling and scaling policies as code", "Unit cost tagging", "Cost anomaly response", "Showback from tags", "Savings tracking"],
+          "tools": ["Infracost", "Terraform", "Cost reports"],
+          "lab_task": "Reduce the monthly cost of a provided estate by at least 25% through module default changes, scheduling and right-sizing, rolled out by pull requests with cost evidence.",
+          "deliverable": "Cost reduction plan, pull requests with cost diffs and a savings report",
+          "checks": [["Compare monthly cost estimates", "At least 25% lower or the gap is explained", "Infracost reports"], ["Check service health after changes", "No service level breaches", "Monitoring evidence"], ["Read the showback report", "Cost per team reconciles with the total", "Report"]],
+          "objectives": ["Drive cost savings through code", "Build cost guardrails into modules", "Report savings with evidence"]
+        },
+        {
+          "topic": "Provider Engineering and Internal APIs",
+          "subtopics": ["Wrapping internal platforms as providers", "Provider design for idempotency", "Handling eventual consistency", "Versioning provider schemas", "State upgraders", "Provider release pipelines", "Supporting provider users", "Deprecating resources"],
+          "tools": ["Go", "Terraform Plugin Framework"],
+          "lab_task": "Extend the internal provider with a resource that handles eventual consistency, add a schema version with a state upgrader, and publish a release through a pipeline.",
+          "deliverable": "Provider changes, tests and a published release",
+          "checks": [["Run acceptance tests with simulated delays", "Resource waits correctly and tests pass", "Test output"], ["Upgrade state from schema v1 to v2", "Existing resources plan with no changes", "Plan output"], ["Install the published release", "Configurations use it by version", "Init output"]],
+          "objectives": ["Build production-quality providers", "Handle eventual consistency", "Version and upgrade provider schemas"]
+        },
+        {
+          "topic": "Infrastructure as Code for Security Teams",
+          "subtopics": ["Security baselines as modules", "Detective controls as code", "Security logging pipelines", "Identity governance as code", "Key management as code", "Automated remediation", "Security review of infrastructure changes", "Security metrics from code"],
+          "tools": ["Terraform", "OPA", "cloud security services"],
+          "lab_task": "Package a security baseline (logging, threat detection, key management, guardrails) as modules, deploy it to all environments, and add automated remediation for two findings.",
+          "deliverable": "Security modules, deployment record and remediation evidence",
+          "checks": [["Check a new environment", "Security baseline is applied automatically", "Resource list"], ["Create a non-compliant resource", "Remediation fixes it", "Remediation log"], ["Read the security metrics", "Coverage of the baseline across environments", "Dashboard"]],
+          "objectives": ["Deliver security controls as code", "Automate remediation", "Measure security coverage"]
+        },
+        {
+          "topic": "Migration Factory: Moving Estates into Terraform",
+          "subtopics": ["Discovery of unmanaged resources", "Prioritising what to import", "Bulk import tooling", "Generating clean configuration", "Ownership assignment", "Verification at scale", "Tracking migration progress", "Handling resources that cannot be managed"],
+          "tools": ["Terraform", "import blocks", "scripts"],
+          "lab_task": "Discover unmanaged resources in a provided account, import 50 of them with generated and cleaned configuration, assign owners, and report progress.",
+          "deliverable": "Discovery report, imported configuration, ownership list and progress dashboard",
+          "checks": [["Plan the imported configurations", "No changes", "Plan outputs"], ["Read the discovery report", "Lists resources by type and owner candidate", "Report"], ["Open the progress dashboard", "Shows managed versus unmanaged counts", "Dashboard"]],
+          "objectives": ["Run large import programmes", "Generate maintainable configuration", "Track migration progress"]
+        },
+        {
+          "topic": "Terraform Performance at Scale",
+          "subtopics": ["Why plans get slow", "Provider API rate limits", "Parallelism settings", "Refresh strategies", "Splitting configurations", "Caching providers and modules", "Pipeline runner sizing", "Measuring and setting targets"],
+          "tools": ["Terraform", "CI runners"],
+          "lab_task": "Bring a 25-minute plan for a large configuration under 5 minutes using splitting, parallelism tuning, caching and refresh changes, measuring each step.",
+          "deliverable": "Performance report with each change and its measured effect",
+          "checks": [["Run the final plan", "Under 5 minutes", "Timing evidence"], ["Explain a rate-limit failure", "Identified from debug logs and fixed", "Log excerpt and fix"], ["Read the report", "Each change has a measured effect", "Report"]],
+          "objectives": ["Diagnose slow Terraform runs", "Tune runs for large estates", "Set performance targets"]
+        },
+        {
+          "topic": "Platform Engineering: Infrastructure APIs and Developer Portals",
+          "subtopics": ["Infrastructure as a product", "Developer portal integration", "Crossplane compared with Terraform", "Exposing modules through APIs", "Request lifecycle and status", "Golden paths", "Developer experience metrics", "Platform roadmap"],
+          "tools": ["Backstage", "HCP Terraform API", "Crossplane"],
+          "lab_task": "Expose a database product module through a Backstage template that calls the HCP Terraform API, shows request status, and records cost and owner.",
+          "deliverable": "Template, integration code and a fulfilled request with status history",
+          "checks": [["Submit a request in Backstage", "Run starts and status updates in the portal", "Portal screenshots"], ["Check the created resources", "Tagged with owner and cost centre", "Resource tags"], ["Read the developer experience metrics", "Time to fulfil requests is measured", "Dashboard"]],
+          "objectives": ["Expose infrastructure through developer portals", "Compare Crossplane and Terraform approaches", "Measure developer experience"]
+        },
+        {
+          "topic": "Infrastructure Testing Strategy for Large Estates",
+          "subtopics": ["Test portfolio across modules and environments", "Contract tests between layers", "Synthetic checks after apply", "Chaos tests for infrastructure", "Test environments on demand", "Test data and cost", "Flaky test management", "Test metrics"],
+          "tools": ["terraform test", "Terratest", "synthetic checks"],
+          "lab_task": "Design a test strategy for the module library, implement contract tests between network and application layers and post-apply synthetic checks, and report test metrics.",
+          "deliverable": "Test strategy, contract tests, synthetic checks and metrics report",
+          "checks": [["Break the network module's output contract", "Contract test fails before release", "Test output"], ["Apply a change that breaks the app", "Synthetic check fails and alerts", "Alert"], ["Read the metrics report", "Shows pass rate and duration by test type", "Report"]],
+          "objectives": ["Design testing for large IaC estates", "Test contracts between layers", "Verify infrastructure after apply"]
+        },
+        {
+          "topic": "Incident Management for Infrastructure Changes",
+          "subtopics": ["Infrastructure-caused incidents", "Fast rollback through code", "Emergency changes outside pipelines", "Reconciling after emergencies", "Post-incident reviews for IaC", "Preventive controls", "Change failure rate", "On-call for the IaC platform"],
+          "tools": ["Terraform", "Git"],
+          "lab_task": "Handle a simulated outage caused by a bad infrastructure change: roll back through code, reconcile an emergency console fix, and run a post-incident review with preventive controls.",
+          "deliverable": "Incident timeline, rollback record, reconciliation and review",
+          "checks": [["Roll back the bad change", "Service restored through the pipeline", "Timeline"], ["Reconcile the emergency fix", "Code and real infrastructure match afterwards", "Plan output"], ["Read the review", "Root cause and preventive controls with owners", "Review"]],
+          "objectives": ["Recover from infrastructure-caused incidents", "Reconcile emergency changes", "Prevent repeat incidents"]
+        },
+        {
+          "topic": "Multi-Cloud and Hybrid Strategy with Terraform",
+          "subtopics": ["Reasons for multi-cloud", "Common interfaces and their limits", "Hybrid infrastructure with on-premises providers", "Network connectivity between clouds", "Identity federation across clouds", "Cost comparison", "Operational burden", "Exit strategies"],
+          "tools": ["Terraform", "VMware or on-premises providers"],
+          "lab_task": "Evaluate a multi-cloud request for a provided company, prototype cross-cloud connectivity and identity federation in code, and recommend for or against with evidence.",
+          "deliverable": "Prototype code, evaluation and recommendation",
+          "checks": [["Connect workloads across clouds", "Private connectivity works", "Test output"], ["Federate identity", "Workloads authenticate across clouds without stored keys", "Test output"], ["Read the recommendation", "Uses cost, risk and operational evidence", "Recommendation"]],
+          "objectives": ["Evaluate multi-cloud requests", "Prototype cross-cloud infrastructure", "Recommend with evidence"]
+        },
+        {
+          "topic": "IaC Metrics, Reporting and Continuous Improvement",
+          "subtopics": ["DORA metrics for infrastructure", "Coverage of managed resources", "Policy pass rates", "Drift rates", "Module adoption", "Cost per environment", "Dashboards for leaders", "Improvement backlogs"],
+          "tools": ["Grafana", "GitHub", "HCP Terraform API"],
+          "lab_task": "Build a dashboard of IaC metrics for leadership from pipeline, state and policy data, and turn the three worst metrics into an improvement backlog with targets.",
+          "deliverable": "Dashboard, data pipeline and improvement backlog",
+          "checks": [["Open the dashboard", "Shows deployment frequency, change failure rate, drift and coverage", "Dashboard"], ["Read the backlog", "Each item has a target metric and owner", "Backlog"], ["Recompute a metric by hand for one week", "Matches the dashboard", "Calculation"]],
+          "objectives": ["Measure IaC delivery and quality", "Report to leaders", "Drive improvement with metrics"]
+        },
+        {
+          "topic": "Infrastructure as Code for AI Platforms",
+          "subtopics": ["GPU capacity as code", "Managed AI services with Terraform", "Model serving infrastructure", "Data platform resources", "Private networking for AI services", "Cost controls for GPUs", "Quota management", "Security of model endpoints"],
+          "tools": ["Terraform", "cloud AI services"],
+          "lab_task": "Provision an AI platform environment with GPU node pools, a managed model endpoint behind private networking, data storage and GPU cost guardrails, all from modules.",
+          "deliverable": "Modules, deployed environment and cost guardrail evidence",
+          "checks": [["Call the model endpoint from inside the network", "Responds", "Test output"], ["Call it from the internet", "Blocked", "Test output"], ["Request GPUs above the quota guardrail", "Rejected by module validation", "Error message"]],
+          "objectives": ["Provision AI infrastructure as code", "Secure model endpoints", "Control GPU cost"]
+        },
+        {
+          "topic": "IaC Strategy, Operating Model and Leadership",
+          "subtopics": ["Maturity assessment", "Operating model options", "Funding the platform", "Skills and training plans", "Vendor and tool strategy", "Risk management", "Communicating with leadership", "Three-year roadmap"],
+          "tools": ["Roadmap templates"],
+          "lab_task": "Assess a provided organisation's IaC maturity, propose an operating model and three-year roadmap, and present it to a mock leadership panel.",
+          "deliverable": "Maturity assessment, operating model, roadmap and presentation",
+          "checks": [["Read the maturity assessment", "Each area has evidence and a level", "Assessment"], ["Review the roadmap", "Items have outcomes, owners and metrics", "Roadmap"], ["Panel Q&A", "Participant answers budget and risk questions with evidence", "Trainer notes"]],
+          "objectives": ["Assess IaC maturity", "Design an operating model", "Lead IaC strategy"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Infrastructure as Code Platform",
+          "subtopics": ["Business and governance requirements", "Architecture and state strategy", "Policy, security and supply chain", "Self-service and developer portal", "Resilience, cost and metrics", "Architecture defence"],
+          "tools": ["Terraform", "OPA", "Infracost", "Backstage", "Terratest", "HCP Terraform"],
+          "lab_task": "Design and prototype an enterprise IaC platform for a regulated client covering architecture, governance, supply chain, self-service, resilience, cost and metrics, then defend it to a review board.",
+          "deliverable": "Architecture document, working prototype, governance and resilience test evidence, cost model and a 20-minute review presentation",
+          "checks": [["Run a high-risk change through the platform", "Classified, reviewed and applied with full evidence", "Pipeline and evidence"], ["Run a failover exercise", "Recovery meets the stated target", "Timeline"], ["Review the cost model", "Platform and estate costs are broken down", "Cost model"]],
+          "objectives": ["Design an enterprise IaC platform end to end", "Prove governance, resilience and cost with evidence", "Defend the design to a review board"]
+        }
+      ]
+    }
+  }
+}

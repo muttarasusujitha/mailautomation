@@ -8,15 +8,22 @@ from apscheduler.triggers.interval import IntervalTrigger
 from datetime import datetime, timedelta
 from utils.time_utils import utc_now
 import logging
+import os
 import httpx
 from database import get_db
 from agents.email_agent import send_email_async, compose_retry_email
-from agents.client_slot_agent import send_pending_client_slot_replies
+from agents.client_slot_agent import (
+    TRAINER_COMMERCIAL_REPLY_MAIL_TYPES,
+    is_trainer_commercial_reply_mail_type,
+    send_pending_client_slot_replies,
+    send_trainer_commercials_to_client,
+)
 from agents.whatsapp_agent import (
     send_shortlist_whatsapp,
     send_vendor_reply_notification,
 )
 from agents.client_intelligence_agent import (
+    auto_send_pending_client_replies_smtp,
     get_gmail_auth_status,
     poll_imap_client_inbox,
     renew_gmail_watch,
@@ -25,6 +32,19 @@ from agents.excel_store_agent import sync_business_excel
 
 scheduler = AsyncIOScheduler()
 logger = logging.getLogger(__name__)
+
+
+def _local_api_url(path: str) -> str:
+    """Build a localhost URL for internal self-calls.
+
+    Reads APP_HOST / APP_PORT from the environment (set by the process
+    supervisor or Docker entrypoint) so the scheduler works correctly
+    even when the app is bound to a non-default port.  Falls back to
+    127.0.0.1:8000 to preserve current behaviour for bare local runs.
+    """
+    host = os.getenv("APP_HOST", "127.0.0.1").strip()
+    port = os.getenv("APP_PORT", "8000").strip()
+    return f"http://{host}:{port}{path}"
 
 # ─── Runtime config (updated via API without restart) ─────────────────────────
 _config = {
@@ -274,14 +294,30 @@ async def check_and_update_replies():
             m = _re.search(r'<([^>]+)>', reply["from_email"])
             from_email_clean = m.group(1) if m else reply["from_email"].strip()
 
+            # Use a case-insensitive exact match instead of $regex so MongoDB
+            # can use a collation index on to_email rather than doing a full
+            # collection scan on every reply.
+            #
+            # RECOMMENDED INDEX (run once in MongoDB shell or a migration):
+            #   db.email_logs.createIndex(
+            #       { to_email: 1, status: 1 },
+            #       { collation: { locale: "en", strength: 2 }, background: true }
+            #   )
+            #   db.conversations.createIndex(
+            #       { to_email: 1, direction: 1 },
+            #       { collation: { locale: "en", strength: 2 }, background: true }
+            #   )
+            _ci_collation = {"locale": "en", "strength": 2}
             log = await db["email_logs"].find_one(
-                {"to_email": {"$regex": from_email_clean, "$options": "i"}, "status": "sent"},
-                sort=[("created_at", -1)]
+                {"to_email": from_email_clean, "status": "sent"},
+                sort=[("created_at", -1)],
+                collation=_ci_collation,
             )
             if not log:
                 log = await db["conversations"].find_one(
-                    {"to_email": {"$regex": from_email_clean, "$options": "i"}, "direction": "sent"},
-                    sort=[("sent_at", -1)]
+                    {"to_email": from_email_clean, "direction": "sent"},
+                    sort=[("sent_at", -1)],
+                    collation=_ci_collation,
                 )
             if log:
                 req_id     = log.get("requirement_id")
@@ -319,7 +355,73 @@ async def check_and_update_replies():
                         sentiment=reply.get("sentiment", ""),
                     )
                 if log.get("mail_type") == "client_slot_options":
+                    from routes.api import _handle_client_slot_confirmation_reply
+
+                    duplicate_query = {
+                        "to_email": from_email_clean,
+                        "requirement_id": req_id,
+                        "direction": "received",
+                        "$or": [
+                            {"message_id_header": reply.get("message_id_header")} if reply.get("message_id_header") else {"subject": reply["subject"], "body": reply["body"]},
+                            {"subject": reply["subject"], "body": reply["body"]},
+                        ],
+                    }
+                    already_stored = await db["conversations"].find_one(duplicate_query)
+                    if not already_stored:
+                        await db["conversations"].insert_one({
+                            "trainer_id": log.get("trainer_id"),
+                            "trainer_name": log.get("trainer_name"),
+                            "to_email": from_email_clean,
+                            "requirement_id": req_id,
+                            "subject": reply["subject"],
+                            "body": reply["body"],
+                            "direction": "received",
+                            "mail_type": "client_slot_confirmation",
+                            "status": "received",
+                            "sent_at": replied_at,
+                            "message_id_header": reply.get("message_id_header") or "",
+                            "in_reply_to": reply.get("in_reply_to") or "",
+                            "references": reply.get("references") or "",
+                        })
+                    confirmation_result = await _handle_client_slot_confirmation_reply(
+                        db,
+                        None,
+                        log=log,
+                        reply={
+                            "msg_id": reply.get("msg_id"),
+                            "message_id_header": reply.get("message_id_header") or "",
+                            "from_email": from_email_clean,
+                            "from_raw": from_email_clean,
+                            "subject": reply["subject"],
+                            "body": reply["body"],
+                        },
+                        from_email=from_email_clean,
+                        replied_at=replied_at,
+                    )
+                    if confirmation_result:
+                        logger.info("Client slot confirmation processed: %s", confirmation_result)
                     continue
+                if is_trainer_commercial_reply_mail_type(log.get("mail_type")):
+                    commercial_result = await send_trainer_commercials_to_client(
+                        db,
+                        {
+                            "trainer_id": log.get("trainer_id") or "",
+                            "trainer_name": log.get("trainer_name") or "the trainer",
+                            "trainer_email": log.get("to_email") or "",
+                            "requirement_id": req_id or "",
+                            "trainer_reply": reply.get("body") or "",
+                            "source_email_id": log.get("email_id") or "",
+                            "source_message_id": reply.get("message_id_header") or reply.get("msg_id") or "",
+                        },
+                        source="reply_scheduler",
+                    )
+                    await db["email_logs"].update_one(
+                        {"email_id": log.get("email_id")},
+                        {"$set": {
+                            "trainer_commercials_to_client_result": commercial_result,
+                            "trainer_commercials_to_client_checked_at": utc_now(),
+                        }},
+                    )
                 status_map = {"mark_interested": "interested", "mark_declined": "declined", "requires_review": "pending_review"}
                 await db["trainers"].update_one(
                     {"trainer_id": log.get("trainer_id")},
@@ -342,6 +444,13 @@ async def check_and_update_replies():
         msg_ids = [r.get("msg_id") for r in replies if r.get("msg_id")]
         if msg_ids:
             mark_emails_seen(msg_ids)
+        pending_commercials = await send_pending_trainer_commercial_replies(db)
+        if pending_commercials.get("sent") or pending_commercials.get("failed"):
+            logger.info(
+                "Trainer commercial auto-send: %s sent, %s failed",
+                pending_commercials.get("sent"),
+                pending_commercials.get("failed"),
+            )
         pending_slots = await send_pending_client_slot_replies(
             db,
             source="reply_scheduler_pending_scan",
@@ -354,6 +463,59 @@ async def check_and_update_replies():
             )
     except Exception:
         logger.exception("Reply check error")
+
+
+async def send_pending_trainer_commercial_replies(db, *, limit: int = 25) -> dict:
+    logs = await db["email_logs"].find(
+        {
+            "mail_type": {"$in": sorted(TRAINER_COMMERCIAL_REPLY_MAIL_TYPES)},
+            "status": "sent",
+            "reply_received": True,
+            "reply_text": {"$nin": [None, ""]},
+            "$or": [
+                {"trainer_commercials_to_client_result": {"$exists": False}},
+                {
+                    "trainer_commercials_to_client_result.success": {"$ne": True},
+                    "trainer_commercials_to_client_result.skipped": {"$ne": True},
+                },
+                {"trainer_commercials_to_client_result.reason": "Not a trainer details reply"},
+            ],
+        },
+        {"_id": 0},
+    ).sort("replied_at", -1).limit(limit).to_list(limit)
+
+    sent = 0
+    failed = 0
+    skipped = 0
+    for log in logs:
+        result = await send_trainer_commercials_to_client(
+            db,
+            {
+                "trainer_id": log.get("trainer_id") or "",
+                "trainer_name": log.get("trainer_name") or "the trainer",
+                "trainer_email": log.get("to_email") or "",
+                "requirement_id": log.get("requirement_id") or "",
+                "trainer_reply": log.get("reply_text") or "",
+                "source_email_id": log.get("email_id") or "",
+                "source_message_id": log.get("reply_message_id") or "",
+            },
+            source="reply_scheduler_pending_commercial_scan",
+        )
+        await db["email_logs"].update_one(
+            {"email_id": log.get("email_id")},
+            {"$set": {
+                "trainer_commercials_to_client_result": result,
+                "trainer_commercials_to_client_checked_at": utc_now(),
+            }},
+        )
+        if result.get("skipped") or result.get("already_sent"):
+            skipped += 1
+        elif result.get("success"):
+            sent += 1
+        else:
+            failed += 1
+
+    return {"checked": len(logs), "sent": sent, "failed": failed, "skipped": skipped}
 
 
 async def renew_gmail_watch_job():
@@ -369,6 +531,19 @@ async def poll_client_inbox_fallback_job():
     await load_config_from_db()
     db = get_db()
     try:
+        settings_doc = await db["admin_settings"].find_one(
+            {"settings_id": "default"},
+            {"_id": 0, "clientInboxCfg.inboxProvider": 1},
+        ) or {}
+        inbox_provider = str(((settings_doc.get("clientInboxCfg") or {}).get("inboxProvider")) or "smtp_only").strip().lower()
+        if inbox_provider in {"smtp_only", "smtp"}:
+            # SMTP-only test mode intentionally skips inbox polling.
+            auto_sent_existing = await auto_send_pending_client_replies_smtp(db)
+            if auto_sent_existing:
+                logger.info("SMTP-only client inbox sent %s pending replies", len(auto_sent_existing))
+            return
+
+        # Gmail API only: do not use IMAP fallback for client inbox polling.
         status = await get_gmail_auth_status(db)
         watch_expiration = status.get("watch_expiration")
         watch_active = False
@@ -378,25 +553,35 @@ async def poll_client_inbox_fallback_job():
             except Exception:
                 watch_active = False
         if status.get("valid") and watch_active:
+            # Gmail watch is active — webhook should deliver new mails.
+            # But STILL run pending-reply sweep to catch any emails that were
+            # stored as "pending_approval" but never auto-sent (e.g. low confidence
+            # emails that got reclassified, or ones that missed the first send attempt).
+            pending = await auto_send_pending_client_replies_smtp(db)
+            if pending:
+                logger.info("Gmail watch active — swept %s pending client replies", len(pending))
             return
         if status.get("valid"):
             try:
-                async with httpx.AsyncClient(timeout=180) as client:
-                    response = await client.post("http://127.0.0.1:8001/api/gmail/sync-now?limit=25")
-                    response.raise_for_status()
-                    result = response.json()
+                from routes.api import _sync_recent_client_inbox
+
+                result = await _sync_recent_client_inbox(db, None, 25)
                 if result.get("processed_count") or result.get("auto_sent_existing_count"):
                     logger.info(
-                        "Gmail API fallback sync processed=%s auto_sent_existing=%s",
+                        "Gmail API sync processed=%s auto_sent_existing=%s",
                         result.get("processed_count"),
                         result.get("auto_sent_existing_count"),
                     )
                 return
             except Exception:
-                logger.exception("Gmail API fallback sync failed; continuing with Hostinger IMAP poll")
+                logger.exception("Gmail API sync failed; continuing with IMAP poll")
         result = await poll_imap_client_inbox(db)
         if result.get("processed"):
             logger.info("IMAP fallback processed %s client emails", result.get("processed"))
+        if result.get("auto_sent_existing"):
+            logger.info("IMAP fallback auto-sent %s pending client replies", result.get("auto_sent_existing"))
+        elif result.get("skipped"):
+            logger.warning("IMAP fallback skipped: %s", result.get("skipped"))
     except Exception:
         logger.exception("IMAP client inbox fallback failed")
 
@@ -423,7 +608,7 @@ async def discover_linkedin_client_leads_job():
     try:
         async with httpx.AsyncClient(timeout=240) as client:
             response = await client.post(
-                "http://127.0.0.1:8001/api/client-leads/search-public",
+                _local_api_url("/api/client-leads/search-public"),
                 json={
                     "auto_discover": True,
                     "max_results": 8,
@@ -443,6 +628,7 @@ async def discover_linkedin_client_leads_job():
 
 
 def start_scheduler():
+    first_run = datetime.now() + timedelta(seconds=30)
     scheduler.add_job(
         retry_unreplied_trainers,
         trigger=_interval_trigger_from_config(_config["retry_interval_unit"], _config["retry_interval_value"]),
@@ -462,19 +648,19 @@ def start_scheduler():
         poll_client_inbox_fallback_job,
         trigger=IntervalTrigger(minutes=int(_config["gmail_fallback_interval"])),
         id="client_inbox_imap_fallback_job", name="Client Inbox IMAP Fallback", replace_existing=True,
-        next_run_time=utc_now(),
+        next_run_time=first_run,
     )
     scheduler.add_job(
         sync_business_excel_job,
         trigger=IntervalTrigger(minutes=int(_config["excel_sync_interval"])),
         id="business_excel_sync_job", name="Business Excel Register Sync", replace_existing=True,
-        next_run_time=utc_now(),
+        next_run_time=first_run,
     )
     scheduler.add_job(
         discover_linkedin_client_leads_job,
         trigger=IntervalTrigger(minutes=int(_config["linkedin_client_lead_interval"])),
         id="linkedin_client_lead_discovery_job", name="LinkedIn Client Lead Discovery", replace_existing=True,
-        next_run_time=utc_now(),
+        next_run_time=first_run,
     )
     scheduler.start()
     logger.info(

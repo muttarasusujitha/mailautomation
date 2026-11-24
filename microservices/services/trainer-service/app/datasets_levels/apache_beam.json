@@ -1,0 +1,573 @@
+{
+  "domain": "Apache Beam",
+  "name": "Apache Beam",
+  "category": "Data Engineering and Analytics",
+  "icon": "workflow",
+  "aliases": ["Beam", "Unified Batch and Stream Processing", "Apache Beam Pipelines", "Beam Python SDK", "Beam Java SDK", "Beam Streaming Pipelines", "Beam on Dataflow", "Beam Developer"],
+  "certifications": ["Google Cloud Professional Data Engineer"],
+  "tools": ["Apache Beam Python SDK", "Apache Beam Java SDK", "DirectRunner", "Prism", "Google Cloud Dataflow", "Apache Flink runner", "Pub/Sub", "BigQuery", "Apache Kafka", "Maven", "Docker", "gcloud CLI", "pytest", "JUnit"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers and data engineers who know Python or Java and SQL and are new to Apache Beam. Covers the Beam model (pipelines, PCollections, PTransforms), ParDo and DoFn, grouping and combining, side inputs and tagged outputs, schemas and type hints, event time, windows, triggers and late data, unit testing, the Java SDK basics, running on the DirectRunner, Prism and Dataflow, and a batch log-analytics capstone.",
+      "prerequisites": ["Writes working Python 3 functions and classes, or Java 17 classes, and uses a terminal and a virtual environment or Maven", "Reads and writes SQL aggregations with GROUP BY and joins", "Has a laptop that can run Python 3 with pip and, for the Dataflow days, a Google Cloud project with billing enabled and the gcloud CLI installed"],
+      "outcomes": ["Explain the Beam model and build batch pipelines in the Python SDK using core transforms, windowing and side inputs", "Write and run unit tests for pipelines with TestPipeline, assert_that and TestStream", "Run the same pipeline on the DirectRunner, Prism and Dataflow by changing pipeline options only", "Deliver a tested batch pipeline that parses logs, aggregates results and writes files"],
+      "days": [
+        {
+          "topic": "Beam Programming Model and Local Environment",
+          "subtopics": ["Why Beam: one programming model for batch and streaming", "Pipeline, PCollection and PTransform vocabulary", "Bounded and unbounded PCollections", "SDKs: Python, Java and Go, and multi-language transforms", "Runners: DirectRunner, Prism, Dataflow, Flink and Spark", "Creating a venv and running pip install apache-beam", "Reading apache_beam.__version__ and supported Python versions", "Running the wordcount example module"],
+          "tools": ["Python 3", "pip", "venv", "Apache Beam Python SDK", "Visual Studio Code"],
+          "lab_task": "Create a venv, run pip install apache-beam and print apache_beam.__version__. Write a 3-line input.txt containing 'to be or not to be', then run python -m apache_beam.examples.wordcount --input input.txt --output out/counts. Compare the output lines with sort input.txt tokens piped to uniq -c and note how many output files appear.",
+          "deliverable": "Environment report with the Beam version, the wordcount command and a comparison of its output with uniq -c",
+          "checks": [["python -c \"import apache_beam as b; print(b.__version__)\"", "Prints a 2.x version string with no ImportError", "Terminal output"], ["Run wordcount on a file containing 'to be or not to be'", "Output files contain the lines to: 2 and be: 2", "Contents of the out/counts files"], ["Run pip list inside the venv", "apache-beam is listed exactly once", "pip list output"]],
+          "objectives": ["Install the Beam Python SDK in an isolated environment", "Name the parts of the Beam model and the runners that execute it", "Run a bundled example pipeline locally and read its output"]
+        },
+        {
+          "topic": "Pipelines, PCollections and PTransforms in Python",
+          "subtopics": ["Creating a Pipeline with the with-block", "Create and the pipe operator", "Naming transforms with the >> label syntax", "PCollections are immutable and unordered", "Branching one PCollection into two transforms", "Deferred execution: nothing runs until the pipeline runs", "Reading the pipeline graph with to_runner_api", "Common errors with duplicate transform labels"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "DirectRunner", "Visual Studio Code"],
+          "lab_task": "Build a pipeline with beam.Create(['alpha','beta','gamma']) feeding two branches: Map(str.upper) and Map(len). Print both with beam.Map(print) using unique labels. Then reuse one label twice on purpose and read the error. Print a statement before and after the with block to show when elements are processed.",
+          "deliverable": "Script with two branches, the printed output and a note on the duplicate-label error",
+          "checks": [["Run the two-branch pipeline over alpha, beta, gamma", "Branch one prints ALPHA, BETA, GAMMA and branch two prints 5, 4, 5", "Script output"], ["Apply two transforms with the same label", "RuntimeError says a transform with that label already exists in the pipeline", "Traceback text"], ["Add a print before and after the with block", "Element output appears only when the with block exits", "Ordered console log"]],
+          "objectives": ["Construct a pipeline from Create and transforms", "Use labels to keep transform names unique", "Explain deferred execution and PCollection immutability"]
+        },
+        {
+          "topic": "Element-wise Transforms: Map, FlatMap and Filter",
+          "subtopics": ["beam.Map with a lambda or a named function", "Passing extra arguments to Map", "beam.FlatMap and returning lists or generators", "beam.Filter with predicates", "Map versus FlatMap: one-to-one against one-to-many", "Chaining transforms in one pipe expression", "Built-in helpers such as beam.Keys, beam.Values and beam.ToString", "Choosing between a lambda and a DoFn"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "DirectRunner", "pytest"],
+          "lab_task": "Read lines from a sample.txt of 20 sentences with ReadFromText, split each into words with FlatMap, drop words shorter than 4 characters with Filter, lower-case them with Map and pass a stop-word set as an extra Map argument. Write the result to out/words with num_shards=1 and count the lines.",
+          "deliverable": "Pipeline script plus word counts before and after each step",
+          "checks": [["Input line 'Beam Is Big and Fast' through the split and filter steps", "Output is beam and fast", "Printed PCollection"], ["Pass a stop-word set containing beam as an extra argument", "beam no longer appears in the output", "Output file"], ["Replace FlatMap with Map on the split step", "Elements become lists instead of words", "Printed output"]],
+          "objectives": ["Apply Map, FlatMap and Filter correctly", "Pass side arguments to a transform function", "Predict how many output elements each transform produces"]
+        },
+        {
+          "topic": "ParDo and the DoFn Lifecycle in Python",
+          "subtopics": ["Writing a DoFn subclass with process", "Yielding zero, one or many outputs", "setup and teardown for expensive resources", "start_bundle and finish_bundle", "Metrics.counter and Metrics.distribution", "Querying metrics from the PipelineResult", "Why returning a str from process is discouraged", "Idempotent and side-effect-free DoFns"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "DirectRunner", "Visual Studio Code"],
+          "lab_task": "Write a DoFn that counts empty lines with Metrics.counter('lab','empty_lines') and logs the order of setup, start_bundle, process, finish_bundle and teardown calls. Run it over ['a','','b',''] and query the counter through result.metrics().query(MetricsFilter().with_name('empty_lines')). Then return a plain string from process and observe the result.",
+          "deliverable": "DoFn source, lifecycle log and the queried counter value",
+          "checks": [["Run the DoFn over ['a','','b','']", "Counter empty_lines equals 2", "Metrics query output"], ["Read the lifecycle log", "setup appears before start_bundle, which appears before process, and finish_bundle comes last before teardown", "Log lines"], ["Return a str instead of a list from process", "Beam raises a TypeError saying returning a str from a ParDo or FlatMap is discouraged", "Error message"]],
+          "objectives": ["Implement a DoFn with outputs and a lifecycle", "Record custom metrics and read them after a run", "Place expensive initialisation in setup instead of process"]
+        },
+        {
+          "topic": "Reading and Writing Text Files with ReadFromText and WriteToText",
+          "subtopics": ["ReadFromText with file patterns and globs", "skip_header_lines for CSV headers", "Compressed input detected by extension, such as .gz", "WriteToText file_path_prefix and file_name_suffix", "num_shards and shard_name_template", "header and footer options", "Parsing CSV rows with the csv module inside a DoFn", "Bounded reads and why output order is not preserved"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "gzip", "csv module"],
+          "lab_task": "Generate orders.csv with a header and 100 data rows plus a gzip copy orders.csv.gz. Read both with ReadFromText(skip_header_lines=1), parse each row into a dict, drop rows with a negative amount and write cleaned.csv using WriteToText(num_shards=1, shard_name_template='', header='id,amount'). Count rows in and out.",
+          "deliverable": "Pipeline script and row-count comparison for plain and gzip input",
+          "checks": [["Read orders.csv of 101 lines with skip_header_lines=1", "The PCollection has 100 elements", "Count output"], ["Read orders.csv.gz instead", "The same 100 elements appear with no extra option", "Count output"], ["Write with num_shards=1 and shard_name_template=''", "A single file named exactly cleaned.csv is created", "Directory listing"]],
+          "objectives": ["Read and write text data with the Beam text connectors", "Control output sharding and file names", "Parse delimited lines and filter bad rows"]
+        },
+        {
+          "topic": "Key-Value Pairs and GroupByKey",
+          "subtopics": ["Building (key, value) tuples with Map", "beam.WithKeys and beam.Keys, beam.Values, beam.KvSwap", "GroupByKey output shape: (key, iterable)", "Order inside grouped values is not guaranteed", "Why GroupByKey causes a shuffle", "beam.GroupBy with a key function", "Memory cost of materialising a large grouped iterable", "Grouping on unbounded data needs windows or triggers"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "DirectRunner", "pytest"],
+          "lab_task": "Load orders as (customer_id, amount) pairs from a 50-row list. Apply GroupByKey, then Map to produce (customer_id, sorted amounts). Repeat with beam.GroupBy(lambda o: o['customer']) over dicts and with WithKeys. Print the key count and the amount list for the busiest customer.",
+          "deliverable": "Script with three grouping variants and the printed group sizes",
+          "checks": [["Group [('a',1),('b',2),('a',3)] with GroupByKey", "Output contains ('a', [1, 3]) and ('b', [2]) once values are sorted", "Printed output"], ["Apply beam.Keys to the same PCollection", "Output contains a, b, a", "Printed output"], ["Apply beam.KvSwap to the same PCollection", "Output contains (1,'a'), (2,'b'), (3,'a')", "Printed output"]],
+          "objectives": ["Create and manipulate key-value PCollections", "Use GroupByKey and GroupBy and explain the shuffle", "Predict the shape of grouped output"]
+        },
+        {
+          "topic": "Combining Data with CombinePerKey and Built-in Combiners",
+          "subtopics": ["beam.CombinePerKey(sum) and CombineGlobally", "Associative and commutative combine functions", "Why combine beats GroupByKey plus sum", "Count.PerElement, Count.Globally and Count.PerKey", "Mean.PerKey, Top.Of and Top.PerKey", "ToList and ToDict and their memory cost", "CombineGlobally on empty input and without_defaults", "Combiner lifting before the shuffle"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "DirectRunner", "pytest"],
+          "lab_task": "From a sales list of 30 (region, amount) tuples compute total per region with CombinePerKey(sum), mean per region with Mean.PerKey, the three largest sales with Top.Of(3) and a count per region with Count.PerKey. Run CombineGlobally(sum) on an empty Create and again with .without_defaults() and record each output.",
+          "deliverable": "Script with four aggregates and a note on empty-input behaviour",
+          "checks": [["Mean.PerKey over [('a',1),('a',3)]", "Output is ('a', 2.0)", "Printed output"], ["Count.PerElement over ['x','y','x']", "Output has ('x', 2) and ('y', 1)", "Printed output"], ["CombineGlobally(sum) over an empty PCollection, then with without_defaults()", "First emits 0 and the second emits nothing", "Printed output"]],
+          "objectives": ["Aggregate with built-in combiners", "Explain why combining is cheaper than grouping", "Handle empty input in a global combine"]
+        },
+        {
+          "topic": "Merging and Splitting: Flatten, Partition and CoGroupByKey",
+          "subtopics": ["Flatten for PCollections of the same type", "Partition with a partition function and N outputs", "CoGroupByKey on a dict of PCollections", "Inner and left joins built on CoGroupByKey", "Key skew effects on joins", "Joining with a small table as a side input instead", "Windowing requirements for joining two unbounded inputs", "Testing the join output"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "DirectRunner", "pytest"],
+          "lab_task": "Create emails as (user, email) and phones as (user, phone) for 6 users, where two users lack a phone. Join them with CoGroupByKey into one record per user, flatten two regional PCollections of 3 and 2 orders into one of 5 and Partition customers by age into 3 buckets. Print each bucket count.",
+          "deliverable": "Script with the join, the flatten and the partition counts",
+          "checks": [["Flatten a PCollection of 3 elements with one of 2", "Result has 5 elements", "Count output"], ["CoGroupByKey for a user without a phone", "The phones list for that user is empty", "Printed record"], ["Partition ages into 3 buckets using age // 30 capped at 2", "Bucket counts add up to the input count", "Printed counts"]],
+          "objectives": ["Merge and split PCollections", "Join two keyed datasets with CoGroupByKey", "Decide when a side input replaces a join"]
+        },
+        {
+          "topic": "Side Inputs and Tagged Outputs",
+          "subtopics": ["AsSingleton, AsList, AsDict and AsIter", "Passing side inputs to Map and ParDo", "Side input size limits and caching on workers", "with_outputs and beam.pvalue.TaggedOutput", "A main output plus a dead-letter tag", "Side inputs on windowed data", "Singleton errors when more than one element arrives", "Choosing side input, join or lookup in setup"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "DirectRunner", "pytest"],
+          "lab_task": "Read 10 orders with currency codes and a rates dict from a second PCollection. Use AsDict to convert each amount to USD. Route orders with an unknown currency to a tagged output named invalid using with_outputs('invalid', main='valid'). Print the valid and invalid counts and one converted amount.",
+          "deliverable": "Pipeline script with valid and invalid output counts",
+          "checks": [["Run 10 orders where 2 use an unknown currency", "valid has 8 elements and invalid has 2", "Count output"], ["Order of 100 EUR with a rate of 1.1", "Converted amount equals 110.0", "Printed value"], ["Pass a 2-element PCollection to AsSingleton", "A ValueError reports more than one element accessed as a singleton view", "Error message"]],
+          "objectives": ["Pass lookup data to transforms as side inputs", "Emit several outputs from one ParDo", "Separate bad records from good ones"]
+        },
+        {
+          "topic": "Schemas, Rows and Type Hints",
+          "subtopics": ["beam.Row and named fields", "NamedTuple and dataclass schemas", "RowCoder registration for a NamedTuple", "beam.GroupBy with aggregate_field", "with_input_types and with_output_types", "Pipeline type checking at construction time", "Disabling checks with --no_pipeline_type_check", "How schemas enable SQL and cross-language use"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "typing module", "pytest"],
+          "lab_task": "Define a NamedTuple Purchase(user:str, country:str, amount:float) and register it with RowCoder. Build 12 purchases, aggregate with beam.GroupBy('country').aggregate_field('amount', sum, 'total'), and then apply Map(lambda x: x+1).with_input_types(int) to strings to trigger the type check. Record both outcomes.",
+          "deliverable": "Script with a schema aggregation and a recorded type-check failure",
+          "checks": [["Aggregate 12 purchases by country", "One Row per country with a total field equal to the sum of its amounts", "Printed rows"], ["Feed strings into a step declared with_input_types(int)", "A TypeCheckError is raised while the pipeline is built", "Traceback"], ["Access purchase.amount on a schema element", "The attribute returns the float without index access", "Printed value"]],
+          "objectives": ["Model records with schemas and Rows", "Aggregate schema data by field", "Use type hints to catch errors before execution"]
+        },
+        {
+          "topic": "Event Time, Timestamps and the Global Window",
+          "subtopics": ["Event time versus processing time", "Default timestamps for bounded sources", "beam.window.TimestampedValue", "TimestampParam and WindowParam in a DoFn", "GlobalWindow and the default windowing strategy", "Parsing timestamps from log lines", "Timestamp skew and clock issues", "Why timestamps matter for later windowing"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "DirectRunner", "datetime module"],
+          "lab_task": "Create 8 events with Unix timestamps between 1700000000 and 1700000300. Attach them with TimestampedValue, then use a DoFn with beam.DoFn.TimestampParam and WindowParam to print each element, its timestamp and its window. Repeat for the unstamped Create output and compare.",
+          "deliverable": "Script printing element, timestamp and window for stamped and unstamped data",
+          "checks": [["Stamp an event with 1700000000 and read TimestampParam", "The printed timestamp equals 1700000000", "Printed output"], ["Read WindowParam without any WindowInto", "The window is GlobalWindow", "Printed output"], ["Read the timestamp of an unstamped Create element", "It equals window.MIN_TIMESTAMP", "Printed output"]],
+          "objectives": ["Distinguish event time from processing time", "Assign and read element timestamps", "Explain the default global window"]
+        },
+        {
+          "topic": "Fixed, Sliding and Session Windows",
+          "subtopics": ["WindowInto and FixedWindows(size)", "SlidingWindows(size, period) and overlap", "Sessions(gap_size) and merging windows", "Window boundaries: start inclusive, end exclusive", "Aggregating per window with CombinePerKey", "Elements belonging to several sliding windows", "Choosing window sizes for dashboards and alerts", "Printing window bounds with WindowParam"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "DirectRunner", "pytest"],
+          "lab_task": "Stamp events at 5, 30, 65 and 130 seconds. Count them with FixedWindows(60), then SlidingWindows(size=60, period=30), then stamp events at 0, 10, 20 and 100 and apply Sessions(gap_size=30). Print each window's start, end and count using WindowParam.",
+          "deliverable": "Script and a table of windows and counts for the three window types",
+          "checks": [["Fixed 60-second windows over timestamps 5, 30, 65, 130", "Counts are 2 for [0,60), 1 for [60,120) and 1 for [120,180)", "Printed windows"], ["Sliding size 60 period 30 for the element at 65", "It appears in [30,90) and [60,120)", "Printed windows"], ["Sessions with gap 30 over 0, 10, 20, 100", "Two sessions: [0,50) with 3 and [100,130) with 1", "Printed windows"]],
+          "objectives": ["Apply fixed, sliding and session windows", "Compute per-window aggregates", "Predict which windows an element lands in"]
+        },
+        {
+          "topic": "Watermarks, Triggers and Late Data",
+          "subtopics": ["Watermark as the runner's estimate of event-time progress", "Default trigger: AfterWatermark", "Early firings with AfterProcessingTime", "Late firings with AfterCount and allowed_lateness", "AccumulationMode.DISCARDING and ACCUMULATING", "Pane info: EARLY, ON_TIME and LATE", "Dropped data when lateness expires", "Simulating the watermark with TestStream"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "TestStream", "pytest"],
+          "lab_task": "Use TestStream with a 60-second FixedWindow: add value 10 at timestamp 5, advance the watermark to 70, then add a late value 7 at timestamp 20. Run twice with trigger AfterWatermark(late=AfterCount(1)) and ACCUMULATING mode, first with allowed_lateness=0 and then 300, and print each pane's timing and sum.",
+          "deliverable": "Test script and a table of panes for both lateness settings",
+          "checks": [["Run with allowed_lateness=0", "Only the ON_TIME pane with sum 10 is produced and the late 7 is dropped", "Printed panes"], ["Run with allowed_lateness=300 and ACCUMULATING", "A LATE pane with sum 17 follows the ON_TIME pane of 10", "Printed panes"], ["Switch the second run to DISCARDING", "The LATE pane sum becomes 7", "Printed panes"]],
+          "objectives": ["Explain watermarks and triggers", "Configure allowed lateness and accumulation modes", "Predict which panes a TestStream scenario produces"]
+        },
+        {
+          "topic": "Unit Testing Pipelines with TestPipeline and assert_that",
+          "subtopics": ["TestPipeline as a context manager", "assert_that with equal_to, is_empty and matches_all", "equal_to ignores element order", "Testing DoFns directly and through Create", "pytest layout and fixtures for pipelines", "BeamAssertException messages", "Keeping tests deterministic and fast", "Running the suite in CI"],
+          "tools": ["pytest", "TestPipeline", "assert_that", "equal_to", "Python 3"],
+          "lab_task": "Create tests/test_words.py with three pytest tests for the Filter and Map pipeline from day 3. Use TestPipeline with assert_that(output, equal_to([...])), one test for an empty input with is_empty() and one test for a DoFn that raises on bad input. Run pytest -q, then break the DoFn on purpose and capture the failure.",
+          "deliverable": "Test module and pytest output before and after the deliberate failure",
+          "checks": [["Run pytest -q on the suite", "Output ends with 3 passed", "pytest output"], ["Provide the expected list in reversed order", "The test still passes because equal_to ignores order", "pytest output"], ["Change the DoFn to uppercase the output", "BeamAssertException: Failed assert lists missing and unexpected elements", "pytest failure text"]],
+          "objectives": ["Write deterministic unit tests for transforms", "Read assertion failures from Beam tests", "Organise pipeline tests for CI"]
+        },
+        {
+          "topic": "Java SDK: Maven Project and Word Count",
+          "subtopics": ["Java 17 and Maven prerequisites", "Generating the examples archetype with mvn archetype:generate", "Project layout and the Beam BOM", "Running WordCount with exec:java and the direct-runner profile", "PipelineOptionsFactory and withValidation", "TextIO.read and TextIO.write", "Reading the sharded output files", "Python SDK versus Java SDK differences"],
+          "tools": ["Java 17", "Maven", "Apache Beam Java SDK", "DirectRunner", "IntelliJ IDEA"],
+          "lab_task": "Check mvn -v reports Java 17. Generate the examples project from the beam-sdks-java-maven-archetypes-examples archetype, then run mvn compile exec:java -Dexec.mainClass=org.apache.beam.examples.WordCount -Dexec.args=\"--inputFile=pom.xml --output=counts\" -Pdirect-runner. List the counts files and total the lines.",
+          "deliverable": "Maven project, run command and a list of output shards with line total",
+          "checks": [["Run mvn -v", "Output shows Java version 17 and Maven 3.x", "Terminal output"], ["Run WordCount on pom.xml with the direct-runner profile", "Files named counts-0000N-of-0000M are written and the build ends with BUILD SUCCESS", "Terminal output and ls"], ["Run it again without --output", "PipelineOptions validation fails because a required output option is missing", "Error message"]],
+          "objectives": ["Create and run a Beam Java project with Maven", "Read the structure of the WordCount example", "Compare the Java and Python SDKs for the same pipeline"]
+        },
+        {
+          "topic": "Java Core Transforms, DoFn and Coders",
+          "subtopics": ["MapElements.into(TypeDescriptors...).via", "FlatMapElements and Filter.by", "ParDo.of with @ProcessElement and @Element", "OutputReceiver and MultiOutputReceiver", "KV, Count.perElement and Sum.integersPerKey", "Coders: StringUtf8Coder, KvCoder and SerializableCoder", "setCoder and the missing-coder error", "Waiting with pipeline.run().waitUntilFinish()"],
+          "tools": ["Java 17", "Maven", "Apache Beam Java SDK", "JUnit 4"],
+          "lab_task": "Write a Java pipeline that reads lines from input.txt, splits them with FlatMapElements, filters words shorter than 4 characters, counts them with Count.perElement and formats the KV with MapElements into 'word: n'. Print the final state from waitUntilFinish and then remove a TypeDescriptor to see the coder error.",
+          "deliverable": "Java source, run output and a note on the coder error",
+          "checks": [["Run the pipeline over 'beam beam fast'", "Output contains beam: 2 and fast: 1", "Output files"], ["Call pipeline.run().waitUntilFinish()", "The returned state is DONE", "Printed state"], ["Remove the output TypeDescriptor from MapElements", "An IllegalStateException says it is unable to return a default Coder", "Stack trace"]],
+          "objectives": ["Write element-wise and ParDo transforms in Java", "Choose and set coders", "Run a Java pipeline to completion and check its state"]
+        },
+        {
+          "topic": "Running on DirectRunner and Prism with Pipeline Options",
+          "subtopics": ["--runner=DirectRunner and its running modes", "--direct_running_mode with in_memory, multi_threading and multi_processing", "--direct_num_workers", "--runner=PrismRunner for the portable local runner", "Same output, different runners", "Unknown runner errors", "Local limits: memory and scale", "When to move to a managed runner"],
+          "tools": ["Python 3", "DirectRunner", "Prism", "Apache Beam Python SDK"],
+          "lab_task": "Run the day 7 sales pipeline over 200000 generated rows with --runner=DirectRunner in each --direct_running_mode (in_memory, multi_threading, multi_processing with --direct_num_workers=4) and with --runner=PrismRunner. Time each run with the time command and diff the sorted outputs.",
+          "deliverable": "Timing table for four runs and a diff showing identical output",
+          "checks": [["Run all four configurations", "Sorted output files are identical (diff prints nothing)", "diff output"], ["Run with --runner=Bogus", "An error says the pipeline runner is unexpected and lists valid values", "Error message"], ["Compare wall-clock times", "Each run has a recorded time, and multi_processing differs from in_memory", "time output table"]],
+          "objectives": ["Select and configure local runners", "Show that a pipeline is portable across runners", "State the limits of local execution"]
+        },
+        {
+          "topic": "Pipeline Options, Dependencies and Debugging",
+          "subtopics": ["Custom PipelineOptions with _add_argparse_args", "Reading options with view_as", "Unparsed arguments and the discard warning", "--save_main_session and NameError on workers", "--requirements_file, --setup_file and --extra_package", "logging in DoFns and log levels", "Debugging with Map(print) and small Create inputs", "cloudpickle versus dill pickling"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "pip", "logging module"],
+          "lab_task": "Add a MyOptions class with --input (required) and --min_len (default 4) to your word pipeline. Run it with --help and see the custom flags listed. Pass --bogus=1 and read the warning. Add a requirements.txt containing one package and run with --requirements_file, then log the options with logging.info.",
+          "deliverable": "Options class, the --help output and the warning text",
+          "checks": [["Run python pipeline.py --help", "--input and --min_len appear with their help text", "Help output"], ["Run with --bogus=1", "Beam logs a warning that it is discarding unparseable args containing --bogus=1", "Log line"], ["Run without --min_len", "The default value 4 is used and shown in the log", "Log line"]],
+          "objectives": ["Define custom pipeline options", "Package dependencies for remote workers", "Diagnose common option and pickling problems"]
+        },
+        {
+          "topic": "Batch Pipeline on Dataflow: First Managed Job",
+          "subtopics": ["Enabling the dataflow.googleapis.com and compute APIs", "gcloud auth application-default login", "Cloud Storage buckets for temp and output", "--runner=DataflowRunner with --project, --region and --temp_location", "Worker service account and roles/dataflow.worker", "Job graph and job states in the console", "gcloud dataflow jobs list and describe", "Cleaning up buckets to avoid cost"],
+          "tools": ["gcloud CLI", "Cloud Storage", "Dataflow", "Apache Beam Python SDK", "Cloud Console"],
+          "lab_task": "Enable the Dataflow API, create a bucket and run python -m apache_beam.examples.wordcount --region us-central1 --input gs://dataflow-samples/shakespeare/kinglear.txt --output gs://BUCKET/results/out --runner DataflowRunner --project PROJECT --temp_location gs://BUCKET/tmp/. Watch it with gcloud dataflow jobs list --region us-central1, then list the outputs.",
+          "deliverable": "Job ID, final state and a listing of the output objects",
+          "checks": [["Run gcloud dataflow jobs list --region us-central1 after the run", "The job shows JOB_STATE_DONE (Succeeded)", "gcloud output"], ["List gs://BUCKET/results/", "Sharded output objects named out-0000N-of-0000M exist", "gcloud storage ls output"], ["Submit without --temp_location", "Submission fails before a job is created with an error about a missing temp or staging location", "Error message"]],
+          "objectives": ["Submit a Beam batch job to Dataflow", "Read the job graph and state", "Clean up cloud resources after a lab"]
+        },
+        {
+          "topic": "Beginner Capstone: Batch Log Analytics Pipeline",
+          "subtopics": ["Parse access-log lines with a regular expression into a schema", "Filter server errors and count per status code", "Top 5 requested URLs with Top.Of", "Tests with TestPipeline and a sample log", "Run on DirectRunner and on Dataflow", "Written summary with the results table"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "pytest", "DirectRunner", "Dataflow", "gcloud CLI"],
+          "lab_task": "Generate access.log with 10000 lines of which exactly 1000 return 5xx. Build a pipeline that parses each line, routes unparseable lines to a tagged output, counts requests per status code, finds the top 5 URLs with Top.Of and writes CSV with num_shards=1. Add 4 pytest tests and run on DirectRunner and Dataflow.",
+          "deliverable": "Repository with pipeline, tests, CSV results and a one-page run report for both runners",
+          "checks": [["Run the pipeline on the 10000-line log", "The CSV shows 1000 requests with 5xx statuses and all status counts add up to 10000 minus unparseable lines", "results.csv"], ["Run pytest -q", "All 4 tests pass", "pytest output"], ["Run on DirectRunner and Dataflow", "Both produce identical sorted CSVs", "diff output"]],
+          "objectives": ["Assemble a tested batch pipeline end to end", "Handle bad input with a tagged output", "Show identical results on two runners"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who can build and test basic Beam pipelines and now need production-grade batch and streaming work. Covers composite transforms, state and timers, custom combiners, streaming triggers, Pub/Sub, BigQuery, file formats, dead-letter handling, TestStream, enrichment, Java annotations and Beam SQL, Dataflow streaming and Flex Templates, the Flink runner, cross-language Kafka I/O, Beam YAML, observability and a streaming capstone.",
+      "prerequisites": ["Has completed the beginner material or builds batch Beam pipelines with ParDo, GroupByKey, side inputs and windowing in Python or Java", "Has a Google Cloud project with Pub/Sub, BigQuery, Cloud Storage and Dataflow enabled and the gcloud and bq CLIs configured", "Uses Docker and a Git repository, and can read JSON and Avro schemas"],
+      "outcomes": ["Build stateful, timer-driven and streaming pipelines with correct windows, triggers and late-data handling", "Read and write Pub/Sub, BigQuery, files and Kafka reliably, with dead-letter outputs for bad records", "Package and deploy pipelines as Dataflow Flex Templates and run the same code on the Flink runner", "Test, monitor and cost-control streaming pipelines using TestStream, custom metrics and Cloud Monitoring"],
+      "days": [
+        {
+          "topic": "Composite Transforms, Reusable Libraries and Pipeline Structure",
+          "subtopics": ["PTransform subclasses with expand", "beam.ptransform_fn for functional composites", "Hierarchical step names such as ParseLogs/Split", "Package layout: transforms, options, main and tests", "main(argv) and pipeline_args handling", "Avoiding global state and unpicklable closures", "Typed composite transforms", "wait_until_finish and result states"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "pytest", "Git"],
+          "lab_task": "Refactor the beginner log pipeline into a package with a ParseLogs PTransform class, a CountByStatus composite built with ptransform_fn, a main(argv) entry point that splits known options from pipeline args and a tests folder. Run it and print the transform names from pipeline.to_runner_api().",
+          "deliverable": "Package with composite transforms, entry point and tests",
+          "checks": [["Print transform names from to_runner_api", "Names appear hierarchically, such as ParseLogs/Split", "Printed names"], ["Run the refactored pipeline on the sample log", "Output equals the previous monolithic script's output", "diff output"], ["Call result.wait_until_finish()", "The returned state is DONE", "Printed state"]],
+          "objectives": ["Package a pipeline into reusable composite transforms", "Structure code so it is testable and picklable", "Verify refactoring with identical output"]
+        },
+        {
+          "topic": "Stateful DoFns with BagState, CombiningState and ReadModifyWrite",
+          "subtopics": ["Keyed input requirement for state", "BagStateSpec and bag.add and read", "CombiningValueStateSpec with a CombineFn", "ReadModifyWriteStateSpec for a last value", "State scope per key and window", "Deduplicating events by id with state", "State size and cost on a runner", "Testing stateful DoFns"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "TestPipeline", "pytest"],
+          "lab_task": "Write a stateful DoFn on (user, event) pairs that keeps a CombiningValueStateSpec running count and a ReadModifyWriteStateSpec last event id, emitting (user, count) and dropping duplicate event ids stored in a BagState. Test on 9 events including 2 duplicates across two FixedWindows(60).",
+          "deliverable": "Stateful DoFn source and tests covering duplicates and window scoping",
+          "checks": [["Feed 9 events containing 2 duplicate ids for one user in one window", "Counts emitted end at 7 for that user", "Test output"], ["Send the same user in a second window", "The count restarts at 1 because state is scoped per key and window", "Test output"], ["Feed two different users alternately", "Each user's count increments independently", "Test output"]],
+          "objectives": ["Use per-key state in a DoFn", "Deduplicate with state", "Explain state scoping by key and window"]
+        },
+        {
+          "topic": "Event-Time and Processing-Time Timers",
+          "subtopics": ["TimerSpec with TimeDomain.WATERMARK and REAL_TIME", "timer.set and timer.clear", "The on_timer callback", "Buffering in BagState and flushing on a timer", "beam.GroupIntoBatches as the built-in alternative", "Timer ordering relative to elements", "Timers and window expiry", "Testing timers with TestStream"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "TestStream", "pytest"],
+          "lab_task": "Implement a batching DoFn that buffers records in BagState and sets an event-time timer 30 seconds after the first record, flushing on the timer or when 3 records accumulate. Test with TestStream by adding 4 records and advancing the watermark. Compare with beam.GroupIntoBatches(3) over 10 elements.",
+          "deliverable": "Timer-based batcher with TestStream tests and a comparison with GroupIntoBatches",
+          "checks": [["Add 10 elements for one key to GroupIntoBatches(3)", "Batches have sizes 3, 3, 3 and 1", "Printed batch sizes"], ["Add 2 records and do not advance the watermark", "Nothing is emitted from the custom batcher yet", "TestStream output"], ["Advance the watermark past first record plus 30 seconds", "The timer flushes the 2 buffered records as one batch", "TestStream output"]],
+          "objectives": ["Schedule and handle timers", "Batch records using state and timers", "Test timer behaviour deterministically"]
+        },
+        {
+          "topic": "Custom CombineFn, Accumulators and Hot-Key Fanout",
+          "subtopics": ["The four CombineFn methods", "Accumulator design for mean and percentiles", "merge_accumulators associativity", "CombineGlobally and CombinePerKey with custom fns", "with_hot_key_fanout on CombinePerKey", "Combine in Java with Combine.perKey and withHotKeyFanout", "Property-style tests for merge order", "Accumulator size and coder choice"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "pytest", "hypothesis"],
+          "lab_task": "Write a CombineFn computing mean and max in one pass using a (sum, count, max) accumulator. Test it on integers 1 to 100, expecting mean 50.5 and max 100. Split the input into 7 random accumulators and merge them in shuffled order with a pytest loop, then apply CombinePerKey(...).with_hot_key_fanout(10) to a skewed dataset.",
+          "deliverable": "CombineFn, tests across random merge orders and a fanout comparison",
+          "checks": [["Combine integers 1 to 100", "Result is mean 50.5 and max 100", "Test output"], ["Merge 7 accumulators in 50 random orders", "All 50 results are identical", "pytest output"], ["Apply with_hot_key_fanout(10) to a skewed key", "Totals equal the non-fanout totals exactly", "Diff of outputs"]],
+          "objectives": ["Write a correct custom CombineFn", "Verify merge associativity by test", "Reduce hot-key cost with fanout"]
+        },
+        {
+          "topic": "Streaming Window Strategies: Triggers, Panes and Accumulation",
+          "subtopics": ["Composite triggers AfterAny, AfterAll and Repeatedly", "AfterWatermark with early and late firings", "ACCUMULATING versus DISCARDING downstream effects", "PaneInfo index and is_last", "TimestampCombiner choices for output timestamps", "The unbounded global-window GroupByKey error", "Downstream de-duplication of early panes", "Choosing triggers for dashboards and for billing"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "TestStream", "pytest"],
+          "lab_task": "With TestStream and FixedWindows(60) emit user clicks at 10, 20 and 40 seconds with a processing-time advance of 30 between them. Apply AfterWatermark(early=AfterProcessingTime(30)) in ACCUMULATING mode, print each pane's index, timing and sum, and rerun in DISCARDING mode. Add a late element and record both outputs.",
+          "deliverable": "Pane tables for accumulating and discarding runs with notes on downstream implications",
+          "checks": [["Run in ACCUMULATING mode", "Pane sums grow cumulatively and the last pane equals the total of all clicks", "Printed panes"], ["Run in DISCARDING mode", "Pane sums are disjoint and add up to the same total", "Printed panes"], ["Read pane info on the final firing", "Timing is ON_TIME and is_last is true when lateness is 0", "Printed pane info"]],
+          "objectives": ["Design composite triggers", "Read pane information", "Choose an accumulation mode for a consumer"]
+        },
+        {
+          "topic": "Pub/Sub Pipelines: Subscriptions, Attributes and Timestamps",
+          "subtopics": ["gcloud pubsub topics create and subscriptions create with --ack-deadline", "ReadFromPubSub with topic or subscription", "with_attributes and PubsubMessage.attributes", "timestamp_attribute for event-time timestamps", "id_label deduplication on Dataflow", "WriteToPubSub and message size limits", "Ack behaviour at bundle commit", "The --streaming flag and the Pub/Sub emulator"],
+          "tools": ["Pub/Sub", "gcloud CLI", "Apache Beam Python SDK", "Dataflow", "Pub/Sub emulator"],
+          "lab_task": "Create topic clicks and subscription clicks-sub, publish 20 JSON messages with gcloud pubsub topics publish using --attribute=ts=<RFC3339>. Run a --streaming pipeline with ReadFromPubSub(subscription=..., with_attributes=True, timestamp_attribute='ts') that writes per-minute counts to a log, and check the backlog with gcloud monitoring or the console.",
+          "deliverable": "Streaming pipeline, publish script and a note on the observed timestamps and backlog",
+          "checks": [["Publish 20 messages and run the pipeline", "Per-minute counts add up to 20", "Pipeline log"], ["Check the subscription after processing", "Unacked message count returns to 0", "Console or gcloud output"], ["Run ReadFromPubSub without --streaming", "An error says Pub/Sub reads are only available in streaming pipelines", "Error message"]],
+          "objectives": ["Create topics and subscriptions and consume them from Beam", "Use message attributes as event timestamps", "Explain acknowledgement and deduplication behaviour"]
+        },
+        {
+          "topic": "BigQuery I/O: Read Methods, Write Methods and Schemas",
+          "subtopics": ["ReadFromBigQuery with table or query and use_standard_sql", "gcs_location for temporary export files", "method=DIRECT_READ with the Storage Read API", "WriteToBigQuery dispositions: CREATE_IF_NEEDED and WRITE_APPEND", "Write methods: FILE_LOADS, STREAMING_INSERTS and STORAGE_WRITE_API", "triggering_frequency and with_auto_sharding", "Time partitioning with additional_bq_parameters", "Verifying rows with the bq CLI"],
+          "tools": ["BigQuery", "bq CLI", "Apache Beam Python SDK", "Cloud Storage", "Dataflow"],
+          "lab_task": "Write 10000 generated events to a day-partitioned BigQuery table events using WriteToBigQuery(method='STORAGE_WRITE_API') with an explicit schema, verify with bq query --use_legacy_sql=false 'SELECT COUNT(*) FROM ...', then read back with ReadFromBigQuery(method=DIRECT_READ) and compare counts. Send one row with a wrong field type and inspect the failure.",
+          "deliverable": "Pipelines for write and read, bq verification output and a note on the failed row",
+          "checks": [["Count rows after the write", "bq returns 10000", "bq output"], ["Read the table back with DIRECT_READ", "The PCollection count is 10000", "Pipeline counter"], ["Write a row whose amount is a string for a FLOAT column", "The row appears in the failed-rows output with an error and the table count is unchanged", "Failed-rows output"]],
+          "objectives": ["Choose BigQuery read and write methods", "Write partitioned tables with explicit schemas", "Capture failed rows from a BigQuery write"]
+        },
+        {
+          "topic": "File Formats: FileIO, Avro, Parquet and Compression",
+          "subtopics": ["fileio.MatchFiles and ReadMatches", "ReadFromAvro and WriteToAvro with a schema", "ReadFromParquet and WriteToParquet with a pyarrow schema", "Compression types: gzip, snappy and zstd", "fileio.WriteToFiles with dynamic destinations", "MatchContinuously for files arriving over time", "Schema evolution and nullable fields", "Small-files problems and num_shards"],
+          "tools": ["Cloud Storage", "Apache Beam Python SDK", "pyarrow", "fastavro", "DirectRunner"],
+          "lab_task": "Read a 50000-row CSV, write it as Avro, Parquet (snappy) and gzipped CSV, then compare sizes with ls -l. Use fileio.WriteToFiles with a destination function to write one file per country. Read the Parquet output back with ReadFromParquet and compare the row count with the source.",
+          "deliverable": "Pipeline, size comparison table and per-country file listing",
+          "checks": [["Read the Parquet output back", "Row count is 50000", "Pipeline counter"], ["Compare file sizes", "Parquet and gzipped CSV are both smaller than the plain CSV", "ls -l output"], ["List the per-country output", "One file exists for each distinct country in the data", "Directory listing"]],
+          "objectives": ["Read and write Avro and Parquet", "Create dynamic output files", "Compare formats by size and schema support"]
+        },
+        {
+          "topic": "Error Handling, Dead-Letter Queues and Poison Data",
+          "subtopics": ["with_exception_handling on Map and ParDo", "The exc_class and threshold arguments", "Tagged outputs for bad records", "Dead-letter payload: original bytes, error text and stack trace", "failed_rows_with_errors from WriteToBigQuery", "Dataflow retry behaviour: batch bundles retried 4 times, streaming indefinitely", "Replaying dead-letter data", "Alerting on dead-letter volume"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "Cloud Storage", "BigQuery", "pytest"],
+          "lab_task": "Build a JSON-parsing step using beam.Map(parse).with_exception_handling(exc_class=ValueError, threshold=0.2). Feed 100 records where 5 are malformed and write bad ones with the error text to a dead-letter file. Raise the bad count to 30 and observe the threshold failure. Write a replay pipeline that reprocesses the fixed dead-letter file.",
+          "deliverable": "Pipeline with dead-letter output, a threshold test and a replay pipeline",
+          "checks": [["Run with 5 malformed of 100", "95 good records and 5 dead-letter records with error text", "Output counts"], ["Run with 30 malformed of 100 and threshold 0.2", "The pipeline fails because the error rate exceeds the threshold", "Error message"], ["Run the replay pipeline on corrected records", "5 records are processed and added to the good output", "Output counts"]],
+          "objectives": ["Route failing records to a dead-letter output", "Set error thresholds", "Replay corrected dead-letter data"]
+        },
+        {
+          "topic": "Testing Streaming Pipelines with TestStream and Windows",
+          "subtopics": ["TestStream add_elements, advance_watermark_to and advance_processing_time", "advance_watermark_to_infinity", "equal_to_per_window and reify_windows", "Testing late data and dropped data", "Testing triggers deterministically", "Java PAssert inWindow and inOnTimePane", "Avoiding flaky sleeps", "Running a 20-times stability check"],
+          "tools": ["pytest", "TestStream", "assert_that", "Apache Beam Python SDK", "JUnit 4"],
+          "lab_task": "Test the clicks pipeline with TestStream: elements at 5 and 20, a watermark advance to 61, then a late element at 30 with allowed_lateness=0 and again with 120. Assert per-window results with equal_to_per_window. Run pytest 20 times with a shell loop and record failures.",
+          "deliverable": "Streaming test module and a 20-run stability report",
+          "checks": [["Late element with allowed_lateness=0", "The window [0,60) output stays at 2 and the late element is absent", "Test output"], ["Late element with allowed_lateness=120", "A late pane includes the third element", "Test output"], ["Run pytest 20 times in a loop", "0 failures in 20 runs", "Loop summary"]],
+          "objectives": ["Test windows, triggers and lateness deterministically", "Assert per-window outputs", "Prove tests are stable"]
+        },
+        {
+          "topic": "Enrichment Patterns: Side Input Refresh and Stream-to-Table Joins",
+          "subtopics": ["PeriodicImpulse for slowly changing side inputs", "Repeated global-window triggers for refreshed side inputs", "Per-element lookups with a client created in setup", "Caching lookups with an LRU cache", "The Enrichment transform and handlers", "Stream-to-stream joins with CoGroupByKey in windows", "Staleness trade-offs", "Counting external calls with Metrics"],
+          "tools": ["Python 3", "Apache Beam Python SDK", "BigQuery", "Bigtable", "TestStream"],
+          "lab_task": "Enrich 1000 events from 10 distinct product ids with a lookup DoFn that creates its client in setup and caches results with functools.lru_cache, counting calls with a Metrics.counter. Then implement a PeriodicImpulse side input that reloads a dictionary every 60 seconds and verify a changed row appears after one refresh.",
+          "deliverable": "Two enrichment variants, call-count metrics and a refresh demonstration",
+          "checks": [["Run 1000 events over 10 product ids with the cache", "The lookup counter is 10", "Metrics output"], ["Run the same input without the cache", "The lookup counter is 1000", "Metrics output"], ["Change a source row and wait one 60-second interval", "Events after the refresh carry the new value", "Output sample"]],
+          "objectives": ["Enrich streaming data with lookups", "Refresh side inputs on a schedule", "Reduce external calls with caching"]
+        },
+        {
+          "topic": "Java DoFn Annotations, PipelineOptions and PAssert",
+          "subtopics": ["@ProcessElement parameters: @Element, @Timestamp, BoundedWindow and PaneInfo", "@Setup, @StartBundle, @FinishBundle and @Teardown", "Custom PipelineOptions interfaces with @Description and @Default", "PipelineOptionsFactory.register and --help=", "TestPipeline as a JUnit rule", "PAssert.that and containsInAnyOrder", "Serializable DoFns and anonymous class pitfalls", "Running mvn test"],
+          "tools": ["Java 17", "Maven", "JUnit 4", "Apache Beam Java SDK", "IntelliJ IDEA"],
+          "lab_task": "Write a Java DoFn that emits each word with its window and timestamp using @Element, @Timestamp and BoundedWindow. Define a MyOptions interface with @Description and @Default.Integer, register it and run --help=MyOptions. Add a JUnit test with a TestPipeline rule and PAssert.that(output).containsInAnyOrder(...) and run mvn test.",
+          "deliverable": "Java DoFn, options interface, test class and the mvn test summary",
+          "checks": [["Run the app with --help=MyOptions", "The @Description text is printed for each option", "Console output"], ["Run mvn test", "Surefire reports Tests run: N, Failures: 0, Errors: 0", "Maven output"], ["Change an expected value in PAssert", "The test fails with an AssertionError naming the unexpected value", "Surefire report"]],
+          "objectives": ["Use DoFn annotations and parameters in Java", "Define and register custom options", "Test Java pipelines with PAssert"]
+        },
+        {
+          "topic": "Java Schemas, Beam SQL and SqlTransform",
+          "subtopics": ["@DefaultSchema with JavaFieldSchema and JavaBeanSchema", "Select.fieldNames and Group.byFieldNames", "aggregateField with Sum.ofLongs", "SqlTransform.query over PCOLLECTION", "Windowed SQL with TUMBLE and INTERVAL", "Joining PCollections by name in SqlTransform.query", "Python SqlTransform through a cross-language expansion service", "Limits of Beam SQL against full SQL engines"],
+          "tools": ["Java 17", "Maven", "Apache Beam Java SDK", "Python 3", "DirectRunner"],
+          "lab_task": "Define a Purchase POJO with @DefaultSchema(JavaFieldSchema.class). Compute total per country with Group.byFieldNames('country').aggregateField('amount', Sum.ofLongs(), 'total') and with SqlTransform.query('SELECT country, SUM(amount) AS total FROM PCOLLECTION GROUP BY country'). Add a TUMBLE(ts, INTERVAL '1' MINUTE) query and compare results.",
+          "deliverable": "Java project with the Group, SQL and windowed SQL versions and result comparison",
+          "checks": [["Run the Group and SQL variants on 12 purchases", "Both produce identical per-country totals", "Printed rows"], ["Run the TUMBLE query over events across 3 minutes", "One row per country and minute window", "Printed rows"], ["Query a column that does not exist", "SqlTransform fails at construction time with a column-not-found error", "Stack trace"]],
+          "objectives": ["Use schema-based transforms in Java", "Run SQL inside a Beam pipeline", "Know where Beam SQL ends and warehouse SQL begins"]
+        },
+        {
+          "topic": "Dataflow Streaming Jobs: Streaming Engine, Autoscaling and Monitoring",
+          "subtopics": ["--streaming and --enable_streaming_engine", "--num_workers, --max_num_workers and --autoscaling_algorithm=THROUGHPUT_BASED", "Worker machine types with --worker_machine_type", "System lag and data watermark age metrics", "Job metrics and autoscaling views in the console", "Alert policies in Cloud Monitoring", "Backlog and throughput under load", "Estimating cost per hour of a streaming job"],
+          "tools": ["Dataflow", "Pub/Sub", "Cloud Monitoring", "gcloud CLI", "Apache Beam Python SDK"],
+          "lab_task": "Deploy the Pub/Sub clicks pipeline to Dataflow with --streaming --enable_streaming_engine --num_workers=2 --max_num_workers=8. Publish 500000 messages with a script, watch the worker count and system lag in Job metrics, and create an alert policy on dataflow.googleapis.com/job/system_lag above 120 seconds.",
+          "deliverable": "Deployment command, scaling timeline screenshots and an alert policy export",
+          "checks": [["Run gcloud dataflow jobs describe JOB --region REGION --format='value(currentState)'", "Prints JOB_STATE_RUNNING", "gcloud output"], ["Publish 500000 messages", "Worker count rises above the initial 2", "Console Autoscaling chart"], ["Wait for the backlog to clear", "System lag falls below 10 seconds", "Job metrics chart"]],
+          "objectives": ["Run and tune a Dataflow streaming job", "Read lag and watermark metrics", "Create an alert on system lag"]
+        },
+        {
+          "topic": "Dataflow Flex Templates and Deployment Automation",
+          "subtopics": ["Classic versus Flex Templates", "Dockerfile from the Dataflow Python template launcher base image", "FLEX_TEMPLATE_PYTHON_PY_FILE and requirements variables", "gcloud dataflow flex-template build with a metadata file", "gcloud dataflow flex-template run with --parameters", "Artifact Registry and image versioning", "CI with Cloud Build or GitHub Actions", "Terraform for template jobs"],
+          "tools": ["gcloud CLI", "Docker", "Artifact Registry", "Cloud Build", "Dataflow", "Terraform"],
+          "lab_task": "Package the clicks pipeline as a Flex Template: write a Dockerfile and metadata.json declaring input_subscription and output_table, run gcloud dataflow flex-template build gs://BUCKET/templates/clicks.json --image-gcr-path=REGION-docker.pkg.dev/PROJECT/REPO/clicks:v1 --sdk-language=PYTHON, then launch it with gcloud dataflow flex-template run and --parameters.",
+          "deliverable": "Template spec file, Dockerfile, metadata and run command with the job ID",
+          "checks": [["Run gcloud dataflow flex-template build", "The spec file clicks.json exists in the bucket and the image is in Artifact Registry", "gcloud storage ls and image list"], ["Launch the template with --parameters", "A job appears in JOB_STATE_RUNNING", "Job list"], ["Launch with a missing required parameter", "Validation rejects the launch and names the missing parameter", "Error message"]],
+          "objectives": ["Package a pipeline as a Flex Template", "Launch and parameterise template jobs", "Automate the build in CI"]
+        },
+        {
+          "topic": "Running Beam on the Flink Runner: Job Server, Environments and Options",
+          "subtopics": ["--runner=FlinkRunner with --flink_master", "flink_master values [local] and [auto]", "--environment_type: LOOPBACK, DOCKER, PROCESS and EXTERNAL", "--environment_config for the SDK container", "Java --flinkMaster and the bundled jar", "--parallelism and --max_parallelism", "Reading a Beam job in the Flink web UI", "Scope: Beam on Flink only, not Flink DataStream or SQL"],
+          "tools": ["Apache Flink runner", "Docker", "Apache Beam Python SDK", "Apache Beam Java SDK", "Flink web UI"],
+          "lab_task": "Start a local Flink session cluster with Docker (one JobManager and one TaskManager). Submit the beginner word-count pipeline using --runner=FlinkRunner --flink_master=localhost:8081 --environment_type=LOOPBACK --parallelism=2. Open the web UI on port 8081 and compare the output with the DirectRunner run.",
+          "deliverable": "Cluster commands, submission command and a comparison of Flink and DirectRunner output",
+          "checks": [["Run the pipeline with --parallelism=2", "The Flink UI shows the job FINISHED with 2 subtasks per operator", "Web UI screenshot"], ["Diff the sorted output with the DirectRunner output", "No differences", "diff output"], ["Point --flink_master to a closed port", "Submission fails with a connection error to the JobManager", "Error message"]],
+          "objectives": ["Submit Beam pipelines to a Flink cluster", "Choose an SDK harness environment type", "Keep Beam concerns separate from Flink-native APIs"]
+        },
+        {
+          "topic": "Cross-Language Transforms and Kafka I/O",
+          "subtopics": ["Expansion services and the Java requirement", "ReadFromKafka with consumer_config and topics", "WriteToKafka with producer_config", "Keys and values as bytes and decoding", "max_num_records for bounded tests", "commit_offset_in_finalize and consumer groups", "Timestamp policies: processing time, create time and log append time", "Local Kafka in Docker"],
+          "tools": ["Apache Kafka", "Docker", "Apache Beam Python SDK", "Java Runtime", "kafka-consumer-groups.sh"],
+          "lab_task": "Run a single-node Kafka broker in Docker, create topic orders with 3 partitions and produce 1000 messages. Read them with ReadFromKafka(consumer_config={'bootstrap.servers':'localhost:9092','group.id':'beam-lab'}, topics=['orders'], max_num_records=1000, commit_offset_in_finalize=True), decode values and write per-key counts. Inspect group lag with kafka-consumer-groups.sh --describe.",
+          "deliverable": "Pipeline, broker commands and the consumer lag output",
+          "checks": [["Read with max_num_records=1000", "The pipeline finishes with 1000 decoded records", "Pipeline counter"], ["Run kafka-consumer-groups.sh --describe --group beam-lab", "Lag is 0 across all 3 partitions", "Command output"], ["Run with no Java runtime on the path", "The expansion service fails to start with a Java not found error", "Error message"]],
+          "objectives": ["Use cross-language transforms from Python", "Read and write Kafka with correct configuration", "Check offsets and lag"]
+        },
+        {
+          "topic": "Beam YAML and Beam DataFrames",
+          "subtopics": ["Beam YAML pipeline structure with chain and transforms", "ReadFromText, MapToFields, Filter, Combine and WriteToText", "Python expressions in MapToFields with language: python", "Running with python -m apache_beam.yaml.main --pipeline_spec_file", "Running YAML on Dataflow", "DataFrames API: to_dataframe and to_pcollection", "Order-sensitive pandas operations that are unsupported", "When to choose YAML, DataFrames or code"],
+          "tools": ["Apache Beam Python SDK", "Beam YAML", "pandas", "Dataflow", "DirectRunner"],
+          "lab_task": "Write pipeline.yaml that reads orders.csv, filters amount over 100, maps to country and amount fields and writes totals. Run it with python -m apache_beam.yaml.main --pipeline_spec_file=pipeline.yaml. Reproduce it with the DataFrame API using read_csv, groupby('country').amount.sum() and to_csv, and compare outputs.",
+          "deliverable": "YAML file, DataFrame script and a diff of results",
+          "checks": [["Run the YAML pipeline on 1000 rows", "Output has one row per country with totals", "Output file"], ["Run the DataFrame version", "Totals equal the YAML version's totals", "diff output"], ["Apply an order-sensitive method such as iloc positional selection", "Beam raises a NotImplementedError for the operation", "Error message"]],
+          "objectives": ["Write declarative pipelines in Beam YAML", "Use the DataFrame API on PCollections", "Choose between YAML, DataFrames and code"]
+        },
+        {
+          "topic": "Metrics, Logging, Cost and Pipeline Observability",
+          "subtopics": ["Counter, Distribution and Gauge metrics", "Custom counters in the Dataflow console", "Cloud Logging filters for dataflow_step and job_id", "--default_sdk_harness_log_level", "Labels with --labels for cost attribution", "vCPU, memory and Streaming Engine billing components", "FlexRS with --flexrs_goal=COST_OPTIMIZED for batch", "Billing export queries"],
+          "tools": ["Cloud Logging", "Cloud Monitoring", "Dataflow", "BigQuery", "gcloud CLI"],
+          "lab_task": "Add a Distribution metric for record size and counters for parsed and rejected records to the clicks pipeline, run it with --labels=team=lab, then query logs with gcloud logging read 'resource.type=\"dataflow_step\" AND resource.labels.job_id=\"JOB\"' --limit=20. Compare cost components of the job in the console.",
+          "deliverable": "Metrics code, a log query and a cost breakdown note",
+          "checks": [["Open Job metrics > Custom counters", "parsed and rejected counters show values that sum to the input count", "Console screenshot"], ["Run the gcloud logging read command", "Returns 20 log entries from the job's steps", "Command output"], ["Filter billing export by label team=lab", "Cost rows are grouped to this job's resources", "BigQuery result"]],
+          "objectives": ["Instrument pipelines with custom metrics", "Find logs for a specific job", "Attribute and review job cost"]
+        },
+        {
+          "topic": "Intermediate Capstone: Streaming Clickstream Pipeline to BigQuery",
+          "subtopics": ["Pub/Sub ingest with event timestamps", "JSON validation and dead-letter output", "30-minute session windows with early firings", "Partitioned BigQuery sink", "TestStream tests and a Flex Template build", "Alert policy and a runbook"],
+          "tools": ["Pub/Sub", "Dataflow", "BigQuery", "Apache Beam Python SDK", "TestStream", "Cloud Monitoring"],
+          "lab_task": "Build the full streaming pipeline: Pub/Sub clicks in, parse and validate JSON, route bad records to a dead-letter table, compute sessions with Sessions(1800) and early firing every 60 seconds, write to a day-partitioned BigQuery table, package as a Flex Template and deploy with --enable_streaming_engine. Publish 100000 events with 1% bad.",
+          "deliverable": "Repository with pipeline, tests, template, alert policy and a short runbook",
+          "checks": [["Publish 100000 events with 1% malformed", "Dead-letter table holds 1000 rows and the main table has sessions covering the other 99000 events", "bq query output"], ["Run pytest", "TestStream tests for sessions and lateness all pass", "pytest output"], ["Check the system lag chart under load", "Lag stays below 60 seconds", "Monitoring chart"]],
+          "objectives": ["Deliver a streaming pipeline with testing and monitoring", "Handle bad data with a dead-letter table", "Deploy and operate a Flex Template job"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior data engineers who run Beam in production on Dataflow and Flink. Covers the portability framework, splittable DoFns, watermark and late-data strategy, exactly-once and idempotent sinks, large-state patterns, fusion and skew tuning, coders and memory, Dataflow troubleshooting, updates, security, Flink runner operations and tuning, custom containers, RunInference, custom connectors, benchmarking with Nexmark, platform governance, upgrades and a multi-runner capstone.",
+      "prerequisites": ["Has operated at least one streaming Beam pipeline with state, timers and windows, and uses Dataflow or Flink for real workloads", "Reads Java and Python stack traces and Cloud Logging output and uses Docker, gcloud and IAM confidently", "Understands Pub/Sub or Kafka delivery guarantees and at-least-once versus exactly-once semantics"],
+      "outcomes": ["Diagnose and fix performance, skew, memory and stuck-job problems on Dataflow and Flink using metrics and logs", "Build correct connectors, splittable DoFns and idempotent sinks that tolerate retries", "Operate production jobs safely: updates, drains, security hardening, container builds and version upgrades", "Design a governed multi-team Beam platform that runs the same pipelines on Prism, Dataflow and Flink"],
+      "days": [
+        {
+          "topic": "Portability Framework: Runner API, Fn API and SDK Harness",
+          "subtopics": ["Pipeline proto from beam_runner_api.proto", "Job API: prepare, stage artifacts and run", "SDK harness containers and the boot process", "Fn API gRPC services: control, data, state and logging", "ProcessBundleDescriptor and bundle processing", "Environments and artifact staging", "Fusion into executable stages", "Reading a pipeline with to_runner_api"],
+          "tools": ["Apache Beam Python SDK", "Prism", "Docker", "protoc", "grpcurl"],
+          "lab_task": "Dump pipeline.to_runner_api() for a 5-step pipeline and count transforms, coders, windowing strategies and environments. Run it with --runner=PrismRunner and read Prism's log to find the bundles processed. Then run the SDK harness in Docker with --environment_type=DOCKER and note the extra gRPC endpoints that appear in the logs.",
+          "deliverable": "Annotated proto dump and an architecture diagram of the Job API and Fn API calls",
+          "checks": [["Print the transform count from to_runner_api", "Component counts match the five steps plus composite parents", "Script output"], ["Run with --runner=PrismRunner", "The log shows bundles processed by the SDK worker and the same results as DirectRunner", "Prism log"], ["Switch to --environment_type=DOCKER", "An SDK harness container starts and connects to the runner's gRPC endpoints", "docker ps and log"]],
+          "objectives": ["Describe the portable execution protocol end to end", "Inspect a pipeline's runner API form", "Locate where SDK and runner responsibilities split"]
+        },
+        {
+          "topic": "Splittable DoFns, Restriction Trackers and Custom Sources",
+          "subtopics": ["Why SDFs replace BoundedSource and UnboundedSource", "RestrictionProvider: initial_restriction, create_tracker, split and restriction_size", "OffsetRange and OffsetRestrictionTracker", "tracker.try_claim for each position", "Java @GetInitialRestriction, @NewTracker and @SplitRestriction", "ProcessContinuation and resume delay for unbounded reads", "Watermark estimators in SDFs", "Dynamic splitting and work rebalancing"],
+          "tools": ["Apache Beam Python SDK", "Apache Beam Java SDK", "DirectRunner", "pytest"],
+          "lab_task": "Write an SDF in Python that reads a 2 million-line file as line offsets: initial restriction OffsetRange(0, N), split into chunks of 100000, and tracker.try_claim(i) for each line. Count elements and distinct offsets in the output, and record how many restrictions were created with a Metrics counter.",
+          "deliverable": "SDF source with a test that asserts completeness and no duplicates",
+          "checks": [["Run the SDF over 2000000 lines", "Output count is 2000000 with 2000000 distinct offsets", "Pipeline counters"], ["Read the restrictions counter with chunks of 100000", "At least 20 restrictions are created", "Metrics output"], ["Skip try_claim and process positions anyway", "Duplicate or lost records appear when the runner splits", "Test failure"]],
+          "objectives": ["Write splittable DoFns with correct claiming", "Split work for parallel reads", "Test completeness and duplicates"]
+        },
+        {
+          "topic": "Watermarks, Idle Sources and Late-Data Strategy",
+          "subtopics": ["Watermark as the minimum of input watermarks", "Idle partitions stalling the watermark", "Pub/Sub watermark estimation from backlog", "Kafka timestamp policies and per-partition watermarks", "Watermark age versus system lag on Dataflow", "Side outputs for late records and reprocessing", "Allowed lateness cost in retained state", "Measuring lateness with a Distribution metric"],
+          "tools": ["Dataflow", "Pub/Sub", "Apache Kafka", "TestStream", "Cloud Monitoring"],
+          "lab_task": "In a TestStream, simulate two sources where one goes idle and show the downstream window not closing. Then add a Distribution metric of event-time lateness (processing time minus timestamp) to the Pub/Sub clicks pipeline, publish events delayed by 0 to 300 seconds, and choose allowed_lateness from the observed 99th percentile.",
+          "deliverable": "Idle-source demonstration, lateness distribution and a recommended allowed-lateness value",
+          "checks": [["Run the TestStream with one idle source", "The downstream window output is withheld until the idle source advances", "Test output"], ["Read the lateness Distribution", "Min, max and mean values are reported, with max near 300 seconds", "Metrics output"], ["Set allowed_lateness to the p99 value", "Fewer than 1% of records are dropped as too late", "Dropped-record counter"]],
+          "objectives": ["Explain why watermarks stall and how to react", "Measure lateness from real traffic", "Choose allowed lateness from data"]
+        },
+        {
+          "topic": "Exactly-Once Semantics, Deduplication and Idempotent Sinks",
+          "subtopics": ["Effects of bundle retries on external side effects", "Runner guarantees for state versus external writes", "beam.Deduplicate and DeduplicatePerKey", "Pub/Sub id_label deduplication", "BigQuery Storage Write API exactly-once versus at-least-once mode", "Idempotent writes with MERGE and natural keys", "Reshuffle before a side-effecting step", "Verifying with duplicate counts"],
+          "tools": ["Dataflow", "BigQuery", "Cloud Storage", "Apache Beam Python SDK", "bq CLI"],
+          "lab_task": "Create a batch pipeline of 1000 ids whose DoFn writes to an external sink table and raises an error once after writing for ids divisible by 100, tracking the failure with a marker object in Cloud Storage. Run it on Dataflow with a naive INSERT sink, then with a MERGE on the id. Count duplicate ids in each.",
+          "deliverable": "Naive and idempotent sinks, duplicate counts and a design note on guarantees",
+          "checks": [["Count rows in the naive sink after retries", "More than 1000 rows exist because retried bundles wrote again", "bq query output"], ["Count rows in the MERGE sink", "Exactly 1000 rows with 0 duplicate ids", "bq query output"], ["Apply beam.Deduplicate over a 10-minute window with repeated ids", "Each id appears once in the output", "Printed output"]],
+          "objectives": ["Explain what exactly-once does and does not cover", "Make sinks idempotent", "Measure duplicates after failures"]
+        },
+        {
+          "topic": "Sessionization and Large-State Patterns with Timers",
+          "subtopics": ["Custom sessionization with BagState and timers", "Comparing results with Sessions windows", "State garbage collection with clear on timers", "Event-time ordering buffers and OrderedListState in Java", "Per-key state size limits and their symptoms", "Timer storms and coalescing timers", "Late events after state cleanup", "Backfilling with batch runs"],
+          "tools": ["Apache Beam Python SDK", "Apache Beam Java SDK", "TestStream", "Dataflow", "pytest"],
+          "lab_task": "Implement sessionization by hand with a stateful DoFn that holds events in BagState and an event-time timer at last_event + 30 minutes, emitting a session and clearing state when the timer fires. Verify equal sessions to Sessions(1800) for 5000 generated events, then monitor state size on Dataflow for a run with 1 million keys.",
+          "deliverable": "Hand-written session DoFn, equivalence test and a state-growth chart",
+          "checks": [["Compare custom sessions with Sessions(1800) on 5000 events", "Session boundaries and counts are identical", "Test output"], ["Fire the cleanup timer", "State for the key is empty afterwards and a later event starts a new session", "Test output"], ["Run with 1 million keys on Dataflow", "State size stabilises instead of growing without bound", "Console chart"]],
+          "objectives": ["Implement custom sessionization", "Clear state to bound its growth", "Validate against built-in windowing"]
+        },
+        {
+          "topic": "Fusion, Reshuffle and Bundle-Level Performance",
+          "subtopics": ["Producer-consumer fusion and fused stages", "Reading stages in the Dataflow execution details tab", "Breaking fusion with beam.Reshuffle", "High fan-out FlatMap after a small Create", "Bundle size and per-bundle overhead", "beam.BatchElements for vectorised work", "setup versus process initialisation cost", "Measuring speedup and CPU utilisation"],
+          "tools": ["Dataflow", "Apache Beam Python SDK", "Cloud Monitoring", "Python profiler"],
+          "lab_task": "Build a pipeline that Creates 10 ids and FlatMaps each into 2 million records processed by a slow Map. Run on Dataflow with --max_num_workers=10 and note the single busy stage. Insert beam.Reshuffle() after FlatMap, rerun and compare wall time and CPU utilisation. Add BatchElements for a vectorised transform and time it.",
+          "deliverable": "Before and after timing table and annotated execution-details screenshots",
+          "checks": [["Run without Reshuffle", "Execution details show one fused stage with most work on few workers", "Console screenshot"], ["Run with Reshuffle", "Wall time drops and worker CPU utilisation rises across workers", "Timing table"], ["Use BatchElements with a vectorised function", "The function is called per batch and total time falls further", "Counter and timing output"]],
+          "objectives": ["Explain fusion and when to break it", "Use Reshuffle and batching to improve throughput", "Measure optimisations with evidence"]
+        },
+        {
+          "topic": "Data Skew, Hot Keys and Shuffle Cost",
+          "subtopics": ["Detecting skew from per-key counts and stage straggler views", "Dataflow hot key log message and hot key logging", "Combiner lifting and with_hot_key_fanout", "Key salting with two-stage aggregation", "Choosing a better key", "Dataflow Shuffle and Streaming Engine effects", "Window size and key cardinality interplay", "Skew-aware testing with Zipf data"],
+          "tools": ["Dataflow", "Apache Beam Python SDK", "Cloud Logging", "NumPy"],
+          "lab_task": "Generate 50 million events with a Zipf key distribution where the top key holds 40 percent. Aggregate by key with GroupByKey and watch the straggler. Rework it with CombinePerKey, then with key salting into 16 buckets and a second aggregation, and compare stage durations. Search logs for the hot key warning.",
+          "deliverable": "Skew report with three variants and stage durations",
+          "checks": [["Run the GroupByKey variant", "One worker shows a long-running straggler step", "Execution details"], ["Run salted two-stage aggregation", "Stage time falls and totals are identical to the original", "Timing and diff output"], ["Search logs for the hot key message", "A log entry names the hot key and the step", "Cloud Logging result"]],
+          "objectives": ["Detect and quantify key skew", "Apply combine, fanout and salting", "Prove optimisations keep results equal"]
+        },
+        {
+          "topic": "Coders, Serialization and Memory Management",
+          "subtopics": ["Coder registry and registering custom coders", "RowCoder, Avro and Protobuf payload sizes", "Deterministic coders for grouping keys", "Java NonDeterministicException and verifyDeterministic", "FastPrimitivesCoder pickle fallback and its cost", "Worker OOM causes: large groups, caches and side inputs", "number_of_worker_harness_threads and SDK cache sizing", "Streaming large iterables instead of list()"],
+          "tools": ["Apache Beam Python SDK", "Apache Beam Java SDK", "Dataflow", "memory_profiler"],
+          "lab_task": "Measure the encoded size of 100000 records encoded as pickled dicts, RowCoder and Avro and record the percentage saved. In a pipeline, call list() on a large GroupByKey iterable for a 5 million-value key and watch memory climb, then rewrite it to stream with itertools. In Java, use a non-deterministic key coder and capture the exception.",
+          "deliverable": "Size comparison table, memory observations and the Java exception text",
+          "checks": [["Encode 100000 records with each coder", "RowCoder and Avro are smaller than pickle and sizes are listed with the percentage saved", "Size table"], ["Replace list() with streaming iteration on the large key", "Peak worker memory is lower than before", "Memory chart"], ["Group by a key whose coder is not deterministic in Java", "A NonDeterministicException is thrown during pipeline construction", "Stack trace"]],
+          "objectives": ["Choose coders for size and determinism", "Reduce worker memory pressure", "Interpret serialization failures"]
+        },
+        {
+          "topic": "Troubleshooting Stuck, Slow and Failing Dataflow Jobs",
+          "subtopics": ["Reading job logs and Error Reporting", "Worker startup failures: quota, zone resources, subnet and Private Google Access", "Stuck-operation log messages and stack samples", "Stragglers and the Dataflow insights view", "Profiling with enable_google_cloud_profiler", "Out-of-memory and GC thrashing signals", "Permission errors for the worker service account", "Writing a triage runbook"],
+          "tools": ["Dataflow", "Cloud Logging", "Error Reporting", "Cloud Profiler", "gcloud CLI"],
+          "lab_task": "Create three broken jobs: a DoFn that sleeps 20 minutes on one element, a job with a subnet lacking Private Google Access and --no_use_public_ips, and a worker service account missing roles/dataflow.worker. For each, find the log line that proves the cause, state the fix, and record time to diagnosis.",
+          "deliverable": "Triage runbook with three incidents, evidence log lines and fixes",
+          "checks": [["Run the sleeping DoFn", "Logs show an operation ongoing in the step for at least 05m00s without outputting or completing", "Log entry"], ["Run with the subnet missing Private Google Access", "Workers never register and the job reports a worker startup failure", "Job log"], ["Run with the service account missing the worker role", "Logs show a permission-denied error naming the missing permission", "Log entry"]],
+          "objectives": ["Triage failing Dataflow jobs systematically", "Match log signals to causes", "Write a runbook from real incidents"]
+        },
+        {
+          "topic": "Updating, Draining and Replacing Streaming Jobs",
+          "subtopics": ["In-place update with --update and the same --job_name", "--transform_name_mapping for renamed steps", "Compatibility checks and the incompatible-update error", "Drain versus cancel and job states", "Snapshots with gcloud dataflow snapshots create", "Replacement jobs and Pub/Sub subscription handoff", "Rollback strategy", "Coordinating updates with downstream consumers"],
+          "tools": ["Dataflow", "gcloud CLI", "Pub/Sub", "Apache Beam Python SDK"],
+          "lab_task": "Run a streaming job, then relaunch with --update and a renamed step using --transform_name_mapping. Next change the pipeline so the update is incompatible and read the error. Drain a job with gcloud dataflow jobs drain JOB --region REGION and confirm it ends in JOB_STATE_DRAINED. Create a snapshot before each change.",
+          "deliverable": "Update playbook with commands, expected states and the observed compatibility error",
+          "checks": [["Relaunch with --update and a name mapping", "The old job shows JOB_STATE_UPDATED and the new job runs", "gcloud jobs list"], ["Relaunch after an incompatible change", "The service rejects the update with a compatibility error", "Error message"], ["Drain the job", "State passes through JOB_STATE_DRAINING to JOB_STATE_DRAINED with in-flight windows flushed", "gcloud describe output"]],
+          "objectives": ["Update streaming jobs without data loss", "Choose between drain, cancel and replacement", "Plan rollbacks with snapshots"]
+        },
+        {
+          "topic": "Dataflow Security: Service Accounts, CMEK and Private Networking",
+          "subtopics": ["Controller service account with --service_account_email", "roles/dataflow.worker, roles/dataflow.admin and iam.serviceAccountUser", "--no_use_public_ips with --subnetwork and Private Google Access", "--dataflow_kms_key and customer-managed encryption keys", "VPC Service Controls perimeters and Dataflow", "Reading secrets from Secret Manager in setup", "Audit logs for job launches", "Least-privilege review checklist"],
+          "tools": ["Dataflow", "IAM", "Cloud KMS", "VPC", "Secret Manager", "gcloud CLI"],
+          "lab_task": "Harden a streaming job: create a dedicated service account with only roles/dataflow.worker plus access to its topic and table, launch with --service_account_email, --no_use_public_ips, --subnetwork and --dataflow_kms_key. Read an API key from Secret Manager in DoFn.setup. Verify worker VMs have no external IPs and audit the launch in Cloud Audit Logs.",
+          "deliverable": "Hardened launch command, IAM binding list and verification evidence",
+          "checks": [["List worker VMs with gcloud compute instances list", "No instance shows an external IP", "gcloud output"], ["Launch with an account lacking the worker role", "The job fails with a permission error naming the missing permission", "Job log"], ["Search Cloud Audit Logs", "The job creation entry shows the launching principal and the service account used", "Audit log entry"]],
+          "objectives": ["Run Dataflow jobs with least privilege", "Apply private networking and CMEK", "Keep secrets out of code and logs"]
+        },
+        {
+          "topic": "Flink Runner Operations: Checkpointing, Restarts and State",
+          "subtopics": ["--checkpointingInterval and checkpointing mode", "externalizedCheckpointsEnabled and retention on cancellation", "Restart strategies as seen from a Beam job", "Idempotent sinks with at-least-once replays", "Beam state and timers surviving a restart", "Observing checkpoints in the web UI", "Beam-level compatibility when restoring after code changes", "Boundary: Flink cluster internals belong to the Apache Flink course"],
+          "tools": ["Apache Flink runner", "Apache Beam Java SDK", "Docker", "Flink web UI"],
+          "lab_task": "Run a streaming Java pipeline on the Flink runner with --checkpointingInterval=30000 --externalizedCheckpointsEnabled=true. Let 3 checkpoints complete in the web UI, kill the TaskManager container, let it restart and confirm the job recovers. Count output records in an idempotent sink and compare against the input count.",
+          "deliverable": "Run configuration, checkpoint evidence and a recovery result",
+          "checks": [["Open the web UI Checkpoints tab", "At least 3 completed checkpoints are listed", "Web UI screenshot"], ["Kill the TaskManager container and restart it", "The job returns to RUNNING after recovering from the last checkpoint", "Web UI and log"], ["Count distinct ids in the idempotent sink", "Distinct ids equal the number sent, with no loss", "Query output"]],
+          "objectives": ["Configure Beam on Flink for fault tolerance", "Verify recovery with idempotent sinks", "Separate Beam concerns from Flink internals"]
+        },
+        {
+          "topic": "Flink Runner Tuning: Parallelism, Bundles and Portable Execution",
+          "subtopics": ["--parallelism versus --maxParallelism", "--maxBundleSize and --maxBundleTimeMills", "Bundle size versus latency", "SDK worker parallelism and --sdk_worker_parallelism", "PROCESS and EXTERNAL environments for pooled workers", "Data exchange between the Flink task and the SDK harness", "Python versus Java throughput on Flink", "Benchmark method: warm-up, steady state and repeats"],
+          "tools": ["Apache Flink runner", "Apache Beam Python SDK", "Apache Beam Java SDK", "Docker"],
+          "lab_task": "Benchmark one word-count-style pipeline on a local Flink cluster at --parallelism 1, 2 and 4 and with maxBundleSize 100, 1000 and 10000. Use 20 million generated records, discard the first run as warm-up and take the median of 3 runs. Chart records per second and discuss the latency effect of large bundles.",
+          "deliverable": "Benchmark table, charts and tuning recommendations",
+          "checks": [["Run at parallelism 1, 2 and 4", "Throughput numbers for each run are recorded and the trend is shown", "Benchmark table"], ["Run with three bundle sizes", "Throughput differs across the settings and the best value is named", "Benchmark table"], ["Repeat each run 3 times", "A median is reported and the spread is under 10 percent or explained", "Run log"]],
+          "objectives": ["Tune a Beam job on Flink with evidence", "Explain how bundles affect throughput and latency", "Benchmark rigorously"]
+        },
+        {
+          "topic": "Custom Containers, Dependencies and Reproducible Builds",
+          "subtopics": ["Dockerfile from the Apache Beam SDK base image", "--sdk_container_image and --sdk_location=container", "Pinned dependencies with lock files", "--prebuild_sdk_container_engine=cloud_build", "Shaded jars with maven-shade-plugin and ServicesResourceTransformer", "Matching SDK version across launcher and workers", "Image scanning and digests", "Worker start-up time comparison"],
+          "tools": ["Docker", "Artifact Registry", "Cloud Build", "Dataflow", "Apache Beam Python SDK", "Maven"],
+          "lab_task": "Build a custom SDK container that pre-installs a heavy dependency such as pandas and pyarrow from a pinned lock file, push it to Artifact Registry and run a Dataflow job with --sdk_container_image and --sdk_location=container. Compare worker start-up time and pip activity with the --requirements_file approach.",
+          "deliverable": "Dockerfile, image digest, launch command and start-up comparison",
+          "checks": [["Run with --sdk_container_image", "Worker logs show the custom image and its digest", "Dataflow worker log"], ["Compare with --requirements_file", "Container run starts workers faster and shows no runtime pip install", "Timing table"], ["Pin versions in the lock file and rebuild twice", "Both builds resolve identical package versions", "pip freeze diff"]],
+          "objectives": ["Build and run custom SDK containers", "Make dependency resolution reproducible", "Reduce worker start-up time"]
+        },
+        {
+          "topic": "Machine Learning Inference Pipelines with RunInference",
+          "subtopics": ["RunInference and ModelHandler classes", "Scikit-learn, PyTorch and Hugging Face handlers", "Batching with min_batch_size and max_batch_size", "KeyedModelHandler and pre and post processing", "Model refresh with model_metadata_pcoll", "GPU workers through resource hints and service options", "Sharing large models across processes", "Latency and throughput metrics"],
+          "tools": ["Apache Beam Python SDK", "Dataflow", "PyTorch", "Hugging Face", "scikit-learn"],
+          "lab_task": "Train a small scikit-learn classifier, save it to Cloud Storage and score 100000 records with RunInference(SklearnModelHandlerNumpy(model_uri=...)). Add max_batch_size=64 and compare throughput with batch size 1. Add a post-processing step that attaches model version and report inference latency from the metrics.",
+          "deliverable": "Inference pipeline, batching comparison and metrics report",
+          "checks": [["Score 100000 records", "100000 predictions are produced with one prediction per input", "Output count"], ["Compare max_batch_size=64 with 1", "Throughput is higher with batching and both numbers are reported", "Benchmark table"], ["Inspect the model-load metric", "The model loads once per process rather than once per element", "Metrics output"]],
+          "objectives": ["Run model inference inside Beam", "Tune batching for throughput", "Manage model versions and resources"]
+        },
+        {
+          "topic": "Building Custom I/O Connectors and Multi-Language Wrappers",
+          "subtopics": ["Read as a PTransform with an SDF", "Write as a DoFn with start and finish bundle batching", "GroupIntoBatches and Reshuffle for write batching", "Retry and backoff for sink calls", "Connector integration tests with a containerised service", "ExternalTransformRegistrar and ExternalTransformBuilder in Java", "Calling a Java transform from Python through ExternalTransform", "Documenting connector semantics"],
+          "tools": ["Apache Beam Java SDK", "Apache Beam Python SDK", "Docker", "Maven", "JUnit 4"],
+          "lab_task": "Implement a Java write connector for a REST endpoint that batches up to 100 records per call in a DoFn with @StartBundle and @FinishBundle, retries 3 times with backoff and counts failures. Test against a containerised mock server and expose it with an ExternalTransformRegistrar and call it from a Python pipeline.",
+          "deliverable": "Connector source, integration tests and a Python wrapper",
+          "checks": [["Write 1000 records through the connector", "The mock server receives 1000 records in 10 calls of 100", "Mock server log"], ["Make the first call fail with HTTP 500", "The connector retries and finally succeeds without data loss", "Server and pipeline log"], ["Invoke the transform from Python", "Python output matches the Java run", "Output diff"]],
+          "objectives": ["Build a reliable write connector", "Expose Java transforms to Python", "Test connectors against real services"]
+        },
+        {
+          "topic": "Benchmarking and Load Testing with Nexmark and Synthetic Sources",
+          "subtopics": ["Nexmark queries and the Java benchmark module", "Running Nexmark with Gradle and the smoke suite", "Synthetic sources for load tests", "Python load tests under apache_beam/testing/load_tests", "Collecting throughput and runtime metrics", "Comparing runners with the same query", "Result stability and noise", "Reporting results for decisions"],
+          "tools": ["Apache Beam Java SDK", "Gradle", "Nexmark", "Dataflow", "Apache Flink runner"],
+          "lab_task": "Clone the Beam repository and run the Nexmark smoke suite on the DirectRunner with Gradle (:sdks:java:testing:nexmark:run). Record events per second and runtime for queries 0 to 3. Repeat on the Flink runner or Dataflow with the same arguments and write a comparison with three runs per cell.",
+          "deliverable": "Nexmark result table for two runners with notes on variance",
+          "checks": [["Run the smoke suite on the DirectRunner", "A summary table lists each query with runtime and events per second", "Gradle output"], ["Repeat three times per query", "Median and spread are reported for each query", "Result sheet"], ["Run the same queries on a second runner", "A side-by-side table shows the throughput ratio per query", "Comparison table"]],
+          "objectives": ["Run standard Beam benchmarks", "Compare runners fairly", "Report benchmark variance honestly"]
+        },
+        {
+          "topic": "Platform Architecture: Multi-Team Pipelines, CI/CD and Governance",
+          "subtopics": ["Monorepo versus per-pipeline repositories", "Shared transform library with semantic versioning", "Flex Template release pipeline", "CI stages: unit tests, Prism integration run, template build", "Terraform for jobs, topics and service accounts", "Data freshness SLOs and error budgets", "Labels, quotas and cost budgets per team", "Runbooks and incident reviews"],
+          "tools": ["Terraform", "GitHub Actions", "Dataflow", "Artifact Registry", "Cloud Monitoring", "Prism"],
+          "lab_task": "Design and implement a CI workflow for a shared Beam library and two pipelines: run pytest, run an integration pipeline on Prism, build a Flex Template with a version tag, and deploy to a staging project with Terraform. Define a data freshness SLO of 120 seconds p95 using data_watermark_age and alert on it.",
+          "deliverable": "CI workflow file, Terraform module, SLO definition and a governance one-pager",
+          "checks": [["Open a pull request that breaks a unit test", "CI fails before any template is built", "CI run"], ["Merge a passing change", "A tagged template image is built and the staging job is updated", "CI log and job list"], ["Query data_watermark_age during a test run", "The p95 is reported against the 120 second target", "Monitoring chart"]],
+          "objectives": ["Design a governed Beam platform", "Automate testing and deployment", "Define freshness SLOs"]
+        },
+        {
+          "topic": "Upgrading Beam Versions, Compatibility and Contributing",
+          "subtopics": ["Release cadence and CHANGES.md review", "Deprecations and Python and Java version support", "Testing an upgrade on Prism and Dataflow", "Update compatibility across SDK versions", "Building the Python SDK from source with pip install -e", "Running a focused test with pytest", "Gradle build and code style tasks in the repository", "Filing issues and opening a pull request"],
+          "tools": ["Git", "Gradle", "pytest", "Apache Beam Python SDK", "Prism", "Dataflow"],
+          "lab_task": "Create a branch of your pipelines on the previous minor Beam release, read CHANGES.md for the next release, upgrade, run unit tests and a Prism integration run, and test update compatibility on Dataflow. Clone apache/beam, run pip install -e sdks/python, and run one focused ptransform test with pytest.",
+          "deliverable": "Upgrade checklist with test results and a note on one reproduced upstream test",
+          "checks": [["Upgrade and run the unit suite", "All tests pass, or each failure is traced to a CHANGES.md entry", "pytest output"], ["Relaunch the job with --update after the upgrade", "Dataflow accepts or rejects the update, and the result is documented", "gcloud output"], ["Run pytest on a ptransform test in the cloned repository", "The selected tests pass from the source build", "pytest output"]],
+          "objectives": ["Plan and test a Beam upgrade", "Build the SDK from source", "Run tests in the upstream repository"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Runner Fraud Signal Platform",
+          "subtopics": ["Ingest from Pub/Sub or Kafka with deduplication", "Per-account velocity features with state and timers", "RunInference scoring with batching", "Idempotent sink to BigQuery and a dead-letter path", "Same pipeline tested on Prism, run on Dataflow and Flink", "SLO dashboard, alert and runbook"],
+          "tools": ["Dataflow", "Apache Flink runner", "Prism", "Pub/Sub", "BigQuery", "RunInference"],
+          "lab_task": "Build a fraud-signal pipeline: deduplicate transactions, compute per-account counts over 5 and 60 minutes with state and timers, score with RunInference, write idempotently to BigQuery and send bad records to a dead-letter table. Replay 5 million events on Prism for tests, Dataflow for production and Flink for disaster recovery, and compare outputs.",
+          "deliverable": "Repository, benchmark and recovery report, SLO dashboard and runbook",
+          "checks": [["Replay 5 million events with 0.1% duplicates", "BigQuery contains exactly one row per unique transaction id", "bq query output"], ["Run the same input on Dataflow and Flink", "Sorted outputs match for all non-model fields", "diff output"], ["Kill a worker during the Dataflow run", "The job recovers and data freshness p95 stays under 120 seconds", "Monitoring chart"]],
+          "objectives": ["Deliver a production-grade multi-runner pipeline", "Prove correctness with replay and comparison", "Document operations for on-call teams"]
+        }
+      ]
+    }
+  }
+}

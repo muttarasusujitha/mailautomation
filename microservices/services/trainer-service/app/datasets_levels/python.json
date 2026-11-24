@@ -1,0 +1,604 @@
+{
+  "domain": "Python",
+  "name": "Python",
+  "category": "Programming Languages",
+  "icon": "code",
+  "aliases": ["Python Mastery", "Core Python", "Python Programming", "Python 3", "Advanced Python", "Python Developer"],
+  "certifications": [
+    "PCEP - Certified Entry-Level Python Programmer",
+    "PCAP - Certified Associate Python Programmer",
+    "PCPP1 - Certified Professional Python Programmer Level 1"
+  ],
+  "tools": ["Python 3.12", "VS Code", "pip", "pytest", "Git"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "No programming experience assumed. Participants learn Python syntax, data structures, functions, files and testing, and finish with a working command-line tool.",
+      "prerequisites": [
+        "Comfortable using a computer, a web browser and a text editor",
+        "No prior programming experience required",
+        "Laptop with permission to install Python 3.12 and VS Code"
+      ],
+      "outcomes": [
+        "Write and run Python scripts using variables, conditions, loops and functions",
+        "Store and process data with lists, dictionaries, sets, files, CSV and JSON",
+        "Handle errors, debug failing code and write first unit tests with pytest",
+        "Build a small command-line application from a written requirement"
+      ],
+      "days": [
+        {
+          "topic": "Python Setup, Variables and Basic Syntax",
+          "subtopics": ["Installing Python 3.12 and VS Code", "Running code in the REPL and from a .py file", "print() and input()", "Variables and naming rules", "Assignment and reassignment", "Indentation and code blocks", "Single-line and multi-line comments", "Keywords and identifiers", "Arithmetic operators", "Reading a traceback for a syntax error"],
+          "tools": ["Python 3.12", "VS Code", "Terminal"],
+          "lab_task": "Write greet.py that asks for a name and birth year, then prints a greeting and the person's age in the current year.",
+          "deliverable": "greet.py with comments explaining each line, plus a screenshot of two runs with different inputs",
+          "checks": [["Run greet.py with name Asha and birth year 2000", "Prints a greeting containing Asha and the correct age for the current year", "Terminal output screenshot"], ["Remove the indentation on one line and run the script", "Participant identifies the IndentationError line from the traceback", "Annotated traceback"], ["Explain three variable names from the script", "Each name follows Python naming rules and describes its value", "Short written explanation"]],
+          "objectives": ["Install Python and run a script from the terminal and from VS Code", "Use variables, input(), print() and arithmetic in a short program", "Read a traceback to find a syntax or indentation error"]
+        },
+        {
+          "topic": "Numbers, Strings and Type Conversion",
+          "subtopics": ["int, float and bool types", "Integer and float division, modulo and power", "Rounding and float precision", "String literals and escape characters", "Indexing and slicing strings", "Common string methods: upper, lower, strip, replace", "Converting with int(), float(), str()", "f-strings for formatted output"],
+          "tools": ["Python 3.12", "VS Code"],
+          "lab_task": "Build a unit converter that reads a value and unit (km, mi, kg, lb) and prints the converted value rounded to two decimals.",
+          "deliverable": "converter.py that handles all four units and prints results with f-strings",
+          "checks": [["Convert 10 km", "Prints 6.21 mi", "Terminal output"], ["Convert 2.5 kg", "Prints 5.51 lb", "Terminal output"], ["Enter the text ten instead of a number", "Participant explains the ValueError raised by float()", "Written explanation of the error"]],
+          "objectives": ["Choose the right numeric type and convert between types safely", "Slice and transform strings with built-in methods", "Format output with f-strings"]
+        },
+        {
+          "topic": "Conditions and Boolean Logic",
+          "subtopics": ["Comparison operators", "Logical operators and, or, not", "if, elif and else", "Nested conditions", "Truthy and falsy values", "Chained comparisons", "Conditional expressions", "Testing edge cases of a condition"],
+          "tools": ["Python 3.12", "VS Code"],
+          "lab_task": "Write a grade calculator that takes a mark from 0 to 100 and prints the grade band, rejecting values outside the range.",
+          "deliverable": "grades.py with a table of tested inputs and outputs in a comment block",
+          "checks": [["Enter marks 90, 75, 40 and 39", "Prints the expected band for each mark, with 40 as the lowest pass", "Table of inputs and printed bands"], ["Enter -5 and 101", "Both are rejected with an out-of-range message", "Terminal output"], ["Enter exactly 70 and 69", "Boundary marks fall in the correct bands", "Boundary test notes"]],
+          "objectives": ["Write if/elif/else logic for a business rule", "Combine conditions with logical operators", "Test boundary values of a condition"]
+        },
+        {
+          "topic": "Loops: for, while, break and continue",
+          "subtopics": ["for loops over ranges and strings", "range() with start, stop and step", "while loops and loop conditions", "break and continue", "Loop counters and accumulators", "Nested loops", "Avoiding infinite loops", "for-else and while-else"],
+          "tools": ["Python 3.12", "VS Code"],
+          "lab_task": "Write a number-guessing game: the program picks 1-50, the player has 7 guesses, and the program reports higher, lower or correct.",
+          "deliverable": "guess.py with a play-again option and a count of attempts used",
+          "checks": [["Guess the number on the third try", "Reports correct and shows 3 attempts", "Gameplay transcript"], ["Use all 7 guesses without success", "Game ends and reveals the number", "Gameplay transcript"], ["Enter a guess of 0 or 51", "Guess is rejected and does not use an attempt", "Terminal output"]],
+          "objectives": ["Choose between for and while loops for a task", "Control loops with break and continue", "Track state across loop iterations"]
+        },
+        {
+          "topic": "Lists and Tuples",
+          "subtopics": ["Creating and indexing lists", "Adding and removing items: append, insert, remove, pop", "Slicing lists", "Sorting with sort() and sorted()", "Looping with enumerate()", "Copying lists and the aliasing trap", "Tuples and immutability", "Unpacking tuples"],
+          "tools": ["Python 3.12", "VS Code"],
+          "lab_task": "Build a to-do list manager that can add, remove, list in order and mark tasks done, keeping tasks in a list of tuples.",
+          "deliverable": "todo.py with a menu loop and a short note explaining why tasks are tuples",
+          "checks": [["Add three tasks and list them", "Tasks print with numbers 1 to 3 in the order added", "Terminal output"], ["Remove task number 5 when only 3 exist", "Program shows an error and keeps the list unchanged", "Terminal output"], ["Copy the list with b = a, change b, print a", "Participant explains why a also changed and fixes it with a.copy()", "Code snippet and explanation"]],
+          "objectives": ["Store and modify ordered data with lists", "Use tuples for fixed records and unpack them", "Avoid accidental aliasing when copying lists"]
+        },
+        {
+          "topic": "Dictionaries and Sets",
+          "subtopics": ["Creating dictionaries and accessing keys", "get() and default values", "Adding, updating and deleting keys", "Looping over keys, values and items", "Nested dictionaries", "Counting with dictionaries", "Sets and removing duplicates", "Set union, intersection and difference"],
+          "tools": ["Python 3.12", "VS Code"],
+          "lab_task": "Write a word-frequency counter that reads a paragraph, counts each word ignoring case and punctuation, and prints the top five words.",
+          "deliverable": "wordcount.py and the output for the provided sample paragraph",
+          "checks": [["Run on the sample paragraph", "Top five words and counts match the trainer's expected list", "Terminal output"], ["Use input text with Python, python and PYTHON", "All three are counted as one word", "Terminal output"], ["Print words used in both of two paragraphs", "Uses set intersection and prints only shared words", "Code snippet and output"]],
+          "objectives": ["Model key-value data with dictionaries", "Count and group items", "Use sets for membership and comparison"]
+        },
+        {
+          "topic": "Functions: Parameters, Return Values and Scope",
+          "subtopics": ["Defining and calling functions", "Positional and keyword arguments", "Default parameter values", "Return values and returning None", "Local and global scope", "Docstrings", "Splitting a program into functions", "The mutable default argument trap"],
+          "tools": ["Python 3.12", "VS Code"],
+          "lab_task": "Refactor the grade calculator into functions: validate_mark(), grade_for(), and main(), each with a docstring.",
+          "deliverable": "grades_v2.py with three documented functions and identical behaviour to the Day 3 version",
+          "checks": [["Call grade_for(85) in the REPL", "Returns the grade band string without printing", "REPL output"], ["Call validate_mark('abc')", "Returns False or raises a clear ValueError as documented", "REPL output"], ["Define a function with a list default argument and call it twice", "Participant explains why the list keeps growing and fixes it with None", "Code snippet and explanation"]],
+          "objectives": ["Write reusable functions with clear parameters and return values", "Explain local and global scope", "Document functions with docstrings"]
+        },
+        {
+          "topic": "String Processing and Formatting",
+          "subtopics": ["split() and join()", "find(), count() and in", "startswith() and endswith()", "Padding and alignment in f-strings", "Number formatting: thousands separators and decimals", "Multi-line strings", "Cleaning messy text input", "Validating simple formats such as phone numbers"],
+          "tools": ["Python 3.12", "VS Code"],
+          "lab_task": "Write a receipt printer that takes item names, quantities and prices and prints an aligned receipt with a total and 18% GST line.",
+          "deliverable": "receipt.py and a sample receipt for five items",
+          "checks": [["Print a receipt for the five sample items", "Columns align and the total matches the trainer's expected value", "Printed receipt"], ["Use an item name longer than the column width", "Name is truncated or wrapped without breaking alignment", "Printed receipt"], ["Enter a price of 1234567.5", "Prints as 1,234,567.50", "Terminal output"]],
+          "objectives": ["Split, join and search strings", "Produce aligned, formatted text output", "Clean and validate text input"]
+        },
+        {
+          "topic": "Reading and Writing Files",
+          "subtopics": ["Opening files with open() and modes", "Reading whole files and reading line by line", "Writing and appending", "The with statement for files", "File paths and pathlib.Path", "Text encodings and UTF-8", "Checking whether a file exists", "Processing a log file line by line"],
+          "tools": ["Python 3.12", "VS Code", "pathlib"],
+          "lab_task": "Extend the to-do manager so tasks are saved to tasks.txt on exit and loaded on start.",
+          "deliverable": "todo_v2.py and the tasks.txt it produces after a sample session",
+          "checks": [["Add two tasks, exit, start again", "Both tasks are loaded from tasks.txt", "Terminal output and tasks.txt contents"], ["Start with tasks.txt missing", "Program starts with an empty list and no crash", "Terminal output"], ["Add a task containing the word café", "Saved and reloaded with the accent intact using UTF-8", "tasks.txt contents"]],
+          "objectives": ["Read and write text files safely with with open()", "Build file paths with pathlib", "Persist program data between runs"]
+        },
+        {
+          "topic": "Errors and Exception Handling",
+          "subtopics": ["Common exceptions: ValueError, KeyError, IndexError, FileNotFoundError", "try and except", "Catching specific exceptions", "else and finally", "Raising exceptions with raise", "Custom error messages", "Why bare except is harmful", "Validating user input in a loop"],
+          "tools": ["Python 3.12", "VS Code"],
+          "lab_task": "Make the unit converter robust: re-prompt on invalid numbers or units, and exit cleanly on Ctrl+C.",
+          "deliverable": "converter_v2.py with each handled exception listed in a comment",
+          "checks": [["Enter abc as the value", "Shows a clear message and asks again", "Terminal output"], ["Enter the unit yards", "Rejected with the list of supported units", "Terminal output"], ["Press Ctrl+C at the prompt", "Program prints a goodbye message instead of a traceback", "Terminal output"]],
+          "objectives": ["Catch and handle specific exceptions", "Raise exceptions with helpful messages", "Keep a program running after bad input"]
+        },
+        {
+          "topic": "Modules, Packages and the Standard Library",
+          "subtopics": ["import, from ... import and aliases", "Writing your own module", "if __name__ == '__main__'", "Packages and __init__.py", "math and statistics", "random", "os and sys", "Finding documentation with help() and docs.python.org"],
+          "tools": ["Python 3.12", "VS Code"],
+          "lab_task": "Split the grade calculator into a package grading/ with a rules.py module, and write a stats script that imports it and prints the mean and median of a class's marks.",
+          "deliverable": "grading package plus class_stats.py and its output for the sample marks",
+          "checks": [["Run class_stats.py on the 20 sample marks", "Mean and median match the trainer's expected values", "Terminal output"], ["Import grading.rules in the REPL", "Import works and main() does not run on import", "REPL output"], ["Run python -c 'import grading' from another folder", "Participant explains the ModuleNotFoundError and the role of the working directory", "Written explanation"]],
+          "objectives": ["Organise code into modules and packages", "Use the standard library instead of writing code from scratch", "Explain how Python finds modules"]
+        },
+        {
+          "topic": "Virtual Environments and pip",
+          "subtopics": ["Why projects need isolated environments", "Creating a venv", "Activating and deactivating on Windows and Linux", "Installing packages with pip", "requirements.txt and pip freeze", "Version pinning", "Upgrading and uninstalling packages", "Recreating an environment from requirements.txt"],
+          "tools": ["Python 3.12", "venv", "pip"],
+          "lab_task": "Create a venv, install requests and rich, write a script that prints a coloured table of three public holidays, and save requirements.txt.",
+          "deliverable": "Project folder with script, requirements.txt and a note on how to recreate the environment",
+          "checks": [["Delete the venv and recreate it from requirements.txt", "Script runs again without manual installs", "Terminal transcript"], ["Run the script outside the venv", "Participant explains the ModuleNotFoundError", "Written explanation"], ["Open requirements.txt", "Contains pinned versions for requests and rich", "requirements.txt contents"]],
+          "objectives": ["Create and use virtual environments", "Install and pin dependencies with pip", "Reproduce a project environment on another machine"]
+        },
+        {
+          "topic": "Working with Dates and Times",
+          "subtopics": ["datetime, date and timedelta", "Getting the current date and time", "Formatting with strftime", "Parsing with strptime", "Date arithmetic", "Comparing dates", "Time zones with zoneinfo", "Common date bugs"],
+          "tools": ["Python 3.12", "datetime", "zoneinfo"],
+          "lab_task": "Write a due-date calculator: given an invoice date and payment terms in days, print the due date, days remaining, and whether it is overdue.",
+          "deliverable": "duedate.py and outputs for three sample invoices",
+          "checks": [["Invoice date 2026-01-25 with 30-day terms", "Due date prints as 2026-02-24", "Terminal output"], ["Invoice date in the past beyond its terms", "Reports overdue with the number of days late", "Terminal output"], ["Enter 25/13/2026", "Rejected as an invalid date with a format hint", "Terminal output"]],
+          "objectives": ["Create, format and parse dates", "Calculate differences between dates", "Handle invalid date input"]
+        },
+        {
+          "topic": "List Comprehensions and Built-in Functions",
+          "subtopics": ["List comprehensions", "Conditions inside comprehensions", "Dictionary and set comprehensions", "len, sum, min, max", "any() and all()", "zip()", "sorted() with key", "map() and filter() compared with comprehensions"],
+          "tools": ["Python 3.12", "VS Code"],
+          "lab_task": "Given a list of employee records, use comprehensions and built-ins to produce: names earning above 50,000, average salary by department, and the top three earners.",
+          "deliverable": "employees.py with each answer produced in one or two lines and printed",
+          "checks": [["Run on the 15 sample records", "All three answers match the trainer's expected results", "Terminal output"], ["Rewrite one comprehension as a for loop", "Both versions give the same result", "Code comparison"], ["Sort employees by department then salary descending", "Uses sorted() with a tuple key and prints in the expected order", "Terminal output"]],
+          "objectives": ["Write clear list, dictionary and set comprehensions", "Use built-in functions to summarise data", "Sort records with custom keys"]
+        },
+        {
+          "topic": "Introduction to Classes and Objects",
+          "subtopics": ["Why classes: grouping data and behaviour", "Defining a class", "__init__ and instance attributes", "self", "Instance methods", "Class attributes", "__str__ for readable printing", "Creating several objects from one class", "Encapsulation by convention", "When a dictionary is enough instead of a class"],
+          "tools": ["Python 3.12", "VS Code"],
+          "lab_task": "Write a BankAccount class with deposit, withdraw and statement methods that refuses withdrawals larger than the balance.",
+          "deliverable": "bank.py with the class and a demo script creating two accounts",
+          "checks": [["Start at 100, deposit 20, withdraw 30", "Balance is 90", "Demo output"], ["Withdraw 200 from a balance of 90", "Withdrawal is refused and the balance stays 90", "Demo output"], ["print(account)", "Shows owner and balance through __str__", "Demo output"]],
+          "objectives": ["Define classes with attributes and methods", "Create and use several objects", "Protect object state with validation in methods"]
+        },
+        {
+          "topic": "Working with CSV and JSON Data",
+          "subtopics": ["Reading CSV with csv.reader and csv.DictReader", "Writing CSV with DictWriter", "Converting CSV fields to numbers", "JSON structure: objects and arrays", "json.load and json.dump", "Pretty-printing JSON", "Converting between CSV and JSON", "Handling missing or bad rows"],
+          "tools": ["Python 3.12", "csv", "json"],
+          "lab_task": "Read sales.csv, skip rows with missing amounts, write a summary of total sales per region to summary.json, and log skipped rows.",
+          "deliverable": "sales_report.py, summary.json and the list of skipped rows",
+          "checks": [["Run on the 50-row sample file", "Regional totals in summary.json match the trainer's expected values", "summary.json contents"], ["Sample file contains 3 rows with blank amounts", "Exactly those 3 rows are reported as skipped", "Skipped-row log"], ["Open summary.json in a browser or VS Code", "Valid, indented JSON", "Screenshot"]],
+          "objectives": ["Read and write CSV and JSON files", "Clean and convert data while loading", "Report rows that could not be processed"]
+        },
+        {
+          "topic": "Debugging Python Code",
+          "subtopics": ["Reading tracebacks from the bottom up", "Print debugging and its limits", "The VS Code debugger: breakpoints and stepping", "Inspecting variables while paused", "breakpoint() and pdb", "Reproducing a bug with a small input", "Logic errors versus runtime errors", "Writing down a bug report"],
+          "tools": ["Python 3.12", "VS Code debugger", "pdb"],
+          "lab_task": "Debug a provided payroll script containing three planted bugs (an off-by-one, a wrong type conversion and a wrong condition) using breakpoints, and document each fix.",
+          "deliverable": "Fixed payroll.py and a bug log with cause, evidence and fix for each bug",
+          "checks": [["Run the fixed script on the sample payroll", "Totals match the trainer's expected payroll report", "Terminal output"], ["Show the debugger paused inside the loop with variables visible", "Screenshot shows the breakpoint and local variables", "Screenshot"], ["Read the bug log", "Each of the three bugs has a cause and the line changed", "Bug log"]],
+          "objectives": ["Use breakpoints and stepping to find bugs", "Distinguish logic errors from runtime errors", "Describe a bug and its fix clearly"]
+        },
+        {
+          "topic": "Writing First Unit Tests with pytest",
+          "subtopics": ["Why automated tests", "Installing pytest", "Writing test functions and assert", "Running tests and reading results", "Testing normal, boundary and error cases", "pytest.raises for exceptions", "Parametrised tests", "Test file and naming conventions"],
+          "tools": ["Python 3.12", "pytest"],
+          "lab_task": "Write tests for grade_for() and validate_mark() covering normal marks, every boundary and invalid input, using parametrize.",
+          "deliverable": "test_grading.py with at least 12 test cases, all passing",
+          "checks": [["Run pytest", "All tests pass", "pytest output"], ["Change the pass mark in the code from 40 to 41", "At least one boundary test fails", "pytest failure output"], ["Call validate_mark with 'abc' in a test", "Test uses pytest.raises or asserts False as documented", "Test code"]],
+          "objectives": ["Write and run unit tests with pytest", "Choose test cases including boundaries and errors", "Use tests to catch a regression"]
+        },
+        {
+          "topic": "Command-Line Scripts with argparse",
+          "subtopics": ["sys.argv basics", "argparse: positional and optional arguments", "Argument types and defaults", "Subcommands", "Help text and --help", "Exit codes", "Reading from files given as arguments", "Making a script runnable from anywhere"],
+          "tools": ["Python 3.12", "argparse"],
+          "lab_task": "Turn the sales report into a command-line tool: sales_report.py INPUT --region NAME --format json|csv.",
+          "deliverable": "CLI version of sales_report.py with help text and two example commands in a README",
+          "checks": [["Run with --help", "Shows usage, arguments and descriptions", "Terminal output"], ["Run with --format xml", "argparse rejects it and lists the allowed choices", "Terminal output"], ["Run with a missing input file", "Prints a clear error and exits with a non-zero code", "Terminal output and echo of exit code"]],
+          "objectives": ["Build command-line interfaces with argparse", "Validate arguments and return proper exit codes", "Document how to run a tool"]
+        },
+        {
+          "topic": "Beginner Capstone: Expense Tracker CLI",
+          "subtopics": ["Reading a written requirement", "Designing data storage in JSON", "Commands: add, list, summary by category, delete", "Input validation and error handling", "Unit tests for the core functions", "README and demo"],
+          "tools": ["Python 3.12", "argparse", "json", "pytest", "Git"],
+          "lab_task": "Build an expense tracker CLI that stores expenses in JSON, supports add, list, delete and a monthly summary by category, with tests for the core functions.",
+          "deliverable": "Git repository with the CLI, tests, sample data and a README, presented in a 10-minute demo",
+          "checks": [["Add five expenses across three categories and run the monthly summary", "Category totals match a hand-calculated table", "Demo output"], ["Add an expense with amount -50 or a missing category", "Rejected with a clear message and nothing is saved", "Demo output and expenses.json"], ["Run pytest on the submitted repository", "All tests pass and cover add, delete and summary", "pytest output"]],
+          "objectives": ["Plan and build a complete small program from a requirement", "Combine files, functions, validation and tests", "Present and explain the solution"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For participants who already write Python scripts. Covers idiomatic Python, object-oriented design, testing, data, APIs, packaging and concurrency, ending with a tested REST service.",
+      "prerequisites": [
+        "Writes Python scripts with functions, loops, lists and dictionaries without help",
+        "Has used pip, virtual environments and basic file handling",
+        "Laptop with Python 3.12, Git and permission to install packages"
+      ],
+      "outcomes": [
+        "Write idiomatic, typed, tested Python using classes, generators, decorators and context managers",
+        "Work with REST APIs, pandas and SQL databases from Python",
+        "Build, test and package a FastAPI service",
+        "Use concurrency and asyncio where they help, and explain when they do not"
+      ],
+      "days": [
+        {
+          "topic": "Pythonic Code and PEP 8 Style",
+          "subtopics": ["The Zen of Python", "PEP 8 naming and layout", "Truthiness instead of explicit comparisons", "enumerate() and zip() instead of index loops", "Unpacking and the walrus operator", "EAFP versus LBYL", "Reading code in code review", "Refactoring a script into idiomatic Python"],
+          "tools": ["Python 3.12", "VS Code", "Ruff"],
+          "lab_task": "Refactor a provided 150-line beginner-style script into idiomatic Python without changing its output, and record each change in a review table.",
+          "deliverable": "Refactored script, a diff, and a review table of at least 10 changes with the reason for each",
+          "checks": [["Run the original and refactored scripts on the sample input", "Outputs are identical", "diff of the two outputs"], ["Run ruff check on the refactored script", "No PEP 8 or style violations reported", "Ruff output"], ["Pick three changes from the table", "Participant explains why each is more Pythonic", "Review discussion notes"]],
+          "objectives": ["Recognise and apply Pythonic idioms", "Follow PEP 8 and use a linter", "Refactor safely by comparing outputs"]
+        },
+        {
+          "topic": "Object-Oriented Design: Inheritance and Composition",
+          "subtopics": ["Classes and responsibilities", "Inheritance and super()", "Method overriding", "Abstract base classes with abc", "Composition over inheritance", "Properties for computed attributes", "Class methods and static methods", "Designing a small domain model"],
+          "tools": ["Python 3.12", "abc"],
+          "lab_task": "Model a payment system with an abstract PaymentMethod and three concrete classes (Card, UPI, Wallet), and an Order that is composed with a payment method.",
+          "deliverable": "payments package with a class diagram and a demo that pays three orders by different methods",
+          "checks": [["Instantiate PaymentMethod directly", "TypeError because the class is abstract", "REPL output"], ["Pay an order of 500 with a wallet holding 300", "Payment fails with a clear InsufficientFunds error", "Demo output"], ["Add a new NetBanking class", "Works with Order without changing Order's code", "Code diff"]],
+          "objectives": ["Design classes with clear responsibilities", "Use inheritance and abstract base classes correctly", "Prefer composition where it fits better"]
+        },
+        {
+          "topic": "Dunder Methods and Data Classes",
+          "subtopics": ["__repr__ and __str__", "__eq__ and __hash__", "Ordering with __lt__ and functools.total_ordering", "__len__, __getitem__ and __contains__", "@dataclass and its options", "frozen and slots dataclasses", "field() defaults and default_factory", "When to use NamedTuple"],
+          "tools": ["Python 3.12", "dataclasses"],
+          "lab_task": "Build a Money value type as a frozen dataclass supporting addition, comparison and currency checks, and a Cart class that behaves like a collection.",
+          "deliverable": "money.py and cart.py with doctest examples",
+          "checks": [["Money(10, 'INR') + Money(5, 'INR')", "Returns Money(15, 'INR')", "Doctest output"], ["Money(10, 'INR') + Money(5, 'USD')", "Raises a currency mismatch error", "Doctest output"], ["len(cart) and item in cart", "Return the item count and membership correctly", "Doctest output"]],
+          "objectives": ["Make classes behave like built-in types with dunder methods", "Use dataclasses for value objects", "Choose between dataclass, NamedTuple and a plain class"]
+        },
+        {
+          "topic": "Iterators and Generators",
+          "subtopics": ["The iterator protocol: __iter__ and __next__", "Generator functions and yield", "Generator expressions", "Lazy evaluation and memory", "yield from", "Infinite generators", "Building data pipelines from generators", "Measuring memory with tracemalloc"],
+          "tools": ["Python 3.12", "tracemalloc"],
+          "lab_task": "Process a 1 GB generated log file with a generator pipeline (read, parse, filter errors, count by service) without loading it into memory.",
+          "deliverable": "log_pipeline.py and a memory comparison against a list-based version",
+          "checks": [["Run the pipeline on the large log", "Peak memory stays under 50 MB", "tracemalloc report"], ["Run the list-based version on the same file", "Peak memory is much higher, and both give the same counts", "Comparison table"], ["Call next() on an exhausted generator", "Participant explains StopIteration", "REPL output and explanation"]],
+          "objectives": ["Write generators and generator pipelines", "Explain lazy evaluation and its memory benefit", "Implement the iterator protocol"]
+        },
+        {
+          "topic": "Decorators and Closures",
+          "subtopics": ["Functions as first-class objects", "Closures and nonlocal", "Writing a decorator", "functools.wraps", "Decorators with arguments", "Stacking decorators", "functools.lru_cache", "Common uses: timing, retry, logging, access checks"],
+          "tools": ["Python 3.12", "functools"],
+          "lab_task": "Write @timed, @retry(times, delay) and @require_role(role) decorators and apply them to functions in a small service module.",
+          "deliverable": "decorators.py with tests for each decorator",
+          "checks": [["Decorate a function that fails twice then succeeds with @retry(times=3)", "Function succeeds on the third attempt", "Test output"], ["Check the decorated function's __name__", "Original name is kept through functools.wraps", "Test output"], ["Call a @require_role('admin') function as a viewer", "Raises PermissionError", "Test output"]],
+          "objectives": ["Explain closures", "Write decorators with and without arguments", "Preserve function metadata"]
+        },
+        {
+          "topic": "Context Managers",
+          "subtopics": ["How with works", "__enter__ and __exit__", "Handling exceptions in __exit__", "contextlib.contextmanager", "contextlib.suppress and ExitStack", "Temporary files and directories", "Database transactions as context managers", "Timing blocks of code"],
+          "tools": ["Python 3.12", "contextlib", "tempfile"],
+          "lab_task": "Write a transaction() context manager for sqlite3 that commits on success and rolls back on any exception, and a timer() context manager.",
+          "deliverable": "context_tools.py with tests for commit, rollback and timing",
+          "checks": [["Insert two rows inside transaction() with no error", "Both rows are committed", "Test output"], ["Raise an error after the first insert", "Neither row is saved", "Test output"], ["Wrap a 0.2 s sleep in timer()", "Reports roughly 0.2 seconds", "Test output"]],
+          "objectives": ["Write class-based and generator-based context managers", "Guarantee cleanup on errors", "Use contextlib helpers"]
+        },
+        {
+          "topic": "Type Hints and mypy",
+          "subtopics": ["Annotating functions and variables", "Built-in generics: list[int], dict[str, float]", "Optional and union with |", "TypedDict and Protocol", "Generics with TypeVar", "Running mypy", "Gradual typing in an existing codebase", "Common mypy errors and fixes"],
+          "tools": ["Python 3.12", "mypy"],
+          "lab_task": "Add complete type hints to the payments package from Day 2 and make mypy --strict pass.",
+          "deliverable": "Typed payments package and the clean mypy --strict output",
+          "checks": [["Run mypy --strict on the package", "No errors reported", "mypy output"], ["Pass a string as an order amount in a test file", "mypy reports an incompatible type", "mypy output"], ["Define a Protocol for anything with pay()", "A class without inheritance satisfies it", "Code and mypy output"]],
+          "objectives": ["Annotate code with modern type hints", "Use mypy to find bugs before running code", "Apply Protocols and generics"]
+        },
+        {
+          "topic": "Advanced Collections and itertools",
+          "subtopics": ["collections.Counter", "defaultdict", "deque for queues", "OrderedDict and ChainMap", "itertools.groupby", "itertools.chain, islice and product", "functools.reduce and partial", "heapq for top-N problems"],
+          "tools": ["Python 3.12", "collections", "itertools", "heapq"],
+          "lab_task": "Analyse an e-commerce orders file: top 10 products with heapq, orders grouped by day with groupby, and a rolling last-100-orders window with deque.",
+          "deliverable": "orders_analysis.py with each result printed and a note on the data structure chosen for each",
+          "checks": [["Run on the sample orders", "Top 10 products match the trainer's expected list", "Terminal output"], ["Use groupby on unsorted data", "Participant explains the wrong grouping and fixes it by sorting first", "Code and explanation"], ["Append 150 orders to the rolling window", "Window holds exactly the last 100", "Test output"]],
+          "objectives": ["Choose the right collection type for a problem", "Use itertools and heapq for efficient processing", "Explain the trade-offs of each structure"]
+        },
+        {
+          "topic": "Regular Expressions",
+          "subtopics": ["re.search, re.match and re.fullmatch", "Character classes and quantifiers", "Groups and named groups", "findall and finditer", "re.sub with functions", "Flags: IGNORECASE, MULTILINE, VERBOSE", "Greedy versus lazy matching", "When not to use a regex"],
+          "tools": ["Python 3.12", "re"],
+          "lab_task": "Write an access-log parser that extracts IP, timestamp, method, path and status with one named-group regex, and reports the 5 most frequent 404 paths.",
+          "deliverable": "log_parser.py with the regex written in VERBOSE mode and unit tests",
+          "checks": [["Parse the 1,000-line sample log", "Every valid line is parsed and the 404 report matches the expected list", "Test output"], ["Feed a malformed line", "Line is counted as unparsed instead of crashing", "Test output"], ["Replace .* with .*? in a test pattern", "Participant explains the greedy and lazy difference with the result", "Code and explanation"]],
+          "objectives": ["Write readable regular expressions with named groups", "Extract and transform text with re", "Recognise when a regex is the wrong tool"]
+        },
+        {
+          "topic": "Logging and Configuration",
+          "subtopics": ["Why logging instead of print", "Loggers, handlers and formatters", "Log levels", "Logging to files with rotation", "logger.exception for errors", "Configuration with environment variables", "Settings files: TOML with tomllib", "Keeping secrets out of code and logs"],
+          "tools": ["Python 3.12", "logging", "tomllib"],
+          "lab_task": "Add logging and configuration to the log parser: level and output file come from a TOML file, the API token from an environment variable, and errors log a traceback.",
+          "deliverable": "Updated parser with config.toml, a rotating log file and a README section on configuration",
+          "checks": [["Set level to DEBUG in config.toml", "Debug messages appear in the log file", "Log file excerpt"], ["Run with the token environment variable unset", "Program exits with a clear configuration error", "Terminal output"], ["Search the log file for the token value", "Token never appears in the logs", "grep output"]],
+          "objectives": ["Configure logging for development and production", "Load configuration from files and environment variables", "Keep secrets out of code and logs"]
+        },
+        {
+          "topic": "Testing with pytest Fixtures and Mocks",
+          "subtopics": ["Arrange, act, assert", "Fixtures and fixture scope", "conftest.py", "tmp_path and monkeypatch", "unittest.mock: Mock, patch and side_effect", "Testing code that calls external services", "Coverage with pytest-cov", "Keeping tests fast and independent"],
+          "tools": ["pytest", "pytest-cov", "unittest.mock"],
+          "lab_task": "Write tests for a weather client that calls an HTTP API, mocking the network so tests run offline, and reach 90% coverage of the module.",
+          "deliverable": "Test suite with fixtures in conftest.py and the coverage report",
+          "checks": [["Run pytest --cov with the network disabled", "All tests pass and coverage is at least 90%", "Coverage report"], ["Mock the API to return HTTP 500", "Client raises its documented error", "Test output"], ["Run the tests in random order", "Tests still pass, showing they are independent", "pytest output"]],
+          "objectives": ["Structure tests with fixtures", "Isolate external dependencies with mocks", "Measure and interpret coverage"]
+        },
+        {
+          "topic": "Working with REST APIs using requests",
+          "subtopics": ["HTTP methods and status codes", "requests.get and requests.post", "Query parameters, headers and JSON bodies", "Authentication with tokens", "Timeouts and retries", "Pagination", "Handling rate limits", "Validating responses with pydantic"],
+          "tools": ["requests", "pydantic", "httpx"],
+          "lab_task": "Build a client for a public REST API that fetches all pages of results, validates each item with a pydantic model, retries on 5xx with backoff, and saves the results to JSON.",
+          "deliverable": "api_client.py, the saved JSON and tests using mocked responses",
+          "checks": [["Fetch a resource with three pages", "All items from the three pages are saved", "Saved JSON and item count"], ["Mock two 503 responses then a 200", "Client retries and succeeds", "Test output"], ["Mock an item with a missing required field", "Item is rejected with a validation error logged", "Test output and log line"]],
+          "objectives": ["Call REST APIs with requests", "Handle pagination, errors, timeouts and retries", "Validate external data before using it"]
+        },
+        {
+          "topic": "Data Analysis with pandas",
+          "subtopics": ["Series and DataFrame", "Reading CSV and Excel", "Selecting with loc and iloc", "Filtering and sorting", "Handling missing values", "groupby and aggregation", "Merging DataFrames", "Exporting results"],
+          "tools": ["pandas", "Jupyter", "openpyxl"],
+          "lab_task": "Clean and analyse a sales dataset: fix types, fill or drop missing values with a stated rule, merge with a products table, and produce monthly revenue by category in Excel.",
+          "deliverable": "Notebook and the Excel report, with a cleaning log of rows changed or dropped",
+          "checks": [["Run the notebook top to bottom on the sample data", "Monthly revenue by category matches the trainer's expected table", "Excel report"], ["Count rows before and after cleaning", "Dropped rows match the cleaning log", "Notebook cell output"], ["Merge with a product ID missing from the products table", "Participant shows how the join type changes the result", "Notebook cell output and explanation"]],
+          "objectives": ["Load, clean and transform data with pandas", "Aggregate and merge tables", "Document data cleaning decisions"]
+        },
+        {
+          "topic": "Databases with sqlite3 and SQLAlchemy",
+          "subtopics": ["Relational tables and keys", "sqlite3 connections and cursors", "Parameterised queries and SQL injection", "SQLAlchemy Core and ORM", "Defining models and relationships", "Sessions and transactions", "Querying with filters and joins", "Schema migrations with Alembic"],
+          "tools": ["sqlite3", "SQLAlchemy 2.0", "Alembic"],
+          "lab_task": "Model customers, products and orders in SQLAlchemy, load the sample data, write five reporting queries, and add a column with an Alembic migration.",
+          "deliverable": "models.py, the migration script and the five query results",
+          "checks": [["Run the five reporting queries", "Results match the trainer's expected values", "Query output"], ["Pass the name x' OR '1'='1 to the search function", "Parameterised query returns no rows", "Test output"], ["Run alembic upgrade then downgrade", "Column is added and then removed cleanly", "Alembic output"]],
+          "objectives": ["Use SQL safely from Python", "Model data with the SQLAlchemy ORM", "Evolve a schema with migrations"]
+        },
+        {
+          "topic": "Building a REST API with FastAPI",
+          "subtopics": ["Path operations and routing", "Path and query parameters", "Request and response models with pydantic", "Status codes and HTTPException", "Dependency injection with Depends", "Connecting to the database", "Automatic OpenAPI docs", "Testing with TestClient"],
+          "tools": ["FastAPI", "uvicorn", "pydantic", "pytest"],
+          "lab_task": "Build a FastAPI service for the Day 14 orders database with endpoints to list, create, update and delete orders, input validation and tests.",
+          "deliverable": "FastAPI project with tests and the generated /docs page screenshot",
+          "checks": [["POST an order with quantity 0", "Returns 422 with the validation message", "TestClient output"], ["GET an order ID that does not exist", "Returns 404", "TestClient output"], ["Run the test suite", "All CRUD tests pass", "pytest output"]],
+          "objectives": ["Build a REST API with FastAPI", "Validate input and return correct status codes", "Test an API with TestClient"]
+        },
+        {
+          "topic": "Packaging a Python Project",
+          "subtopics": ["Project layout: src layout", "pyproject.toml", "Build backends: setuptools and hatchling", "Entry points for command-line tools", "Versioning", "Building wheels and sdists", "Installing in editable mode", "Publishing to TestPyPI"],
+          "tools": ["pip", "build", "twine", "TestPyPI"],
+          "lab_task": "Package the log parser as an installable project with a command-line entry point, build a wheel, and install it in a fresh virtual environment.",
+          "deliverable": "Packaged project with pyproject.toml, the built wheel and an install transcript",
+          "checks": [["pip install the wheel in a new venv", "Installs without errors", "Terminal transcript"], ["Run the entry-point command after install", "Tool runs from any directory", "Terminal output"], ["Open the wheel contents", "Contains only package code, not tests or data files", "Wheel file listing"]],
+          "objectives": ["Structure and configure a Python package", "Build and install wheels", "Expose command-line entry points"]
+        },
+        {
+          "topic": "Concurrency with Threads and Processes",
+          "subtopics": ["CPU-bound versus I/O-bound work", "The GIL and what it limits", "threading and thread safety", "Locks and race conditions", "concurrent.futures ThreadPoolExecutor", "ProcessPoolExecutor", "Measuring speed-up", "Choosing the right model"],
+          "tools": ["concurrent.futures", "threading", "multiprocessing"],
+          "lab_task": "Speed up two jobs: downloading 50 URLs (I/O-bound) with threads and resizing 200 images (CPU-bound) with processes, and measure each against the sequential version.",
+          "deliverable": "Two scripts and a timing table comparing sequential, threaded and process versions",
+          "checks": [["Time the URL download with 10 threads", "Clearly faster than the sequential run", "Timing table"], ["Run the image job with threads instead of processes", "Participant shows little or no speed-up and explains the GIL", "Timing table and explanation"], ["Run the provided counter without a lock", "Participant reproduces the race and fixes it with a Lock", "Code and output"]],
+          "objectives": ["Distinguish CPU-bound and I/O-bound work", "Use thread and process pools", "Find and fix a race condition"]
+        },
+        {
+          "topic": "Async Programming with asyncio",
+          "subtopics": ["Event loop and coroutines", "async and await", "asyncio.gather and create_task", "Timeouts with asyncio.timeout", "Async HTTP with httpx", "Semaphores to limit concurrency", "Mixing sync and async code", "Common async mistakes: blocking calls"],
+          "tools": ["asyncio", "httpx"],
+          "lab_task": "Rewrite the URL downloader with asyncio and httpx, limiting to 10 concurrent requests and applying a 5-second timeout per request.",
+          "deliverable": "async_downloader.py and a timing comparison with the threaded version",
+          "checks": [["Download the 50 URLs", "Completes with at most 10 requests in flight at once", "Log showing concurrency"], ["Include a URL that never responds", "That request times out after 5 seconds and others complete", "Log output"], ["Add time.sleep(1) inside a coroutine", "Participant shows the slowdown and replaces it with asyncio.sleep", "Timing comparison"]],
+          "objectives": ["Write coroutines and run them concurrently", "Limit concurrency and apply timeouts", "Avoid blocking the event loop"]
+        },
+        {
+          "topic": "Code Quality Tooling: Ruff, Black and pre-commit",
+          "subtopics": ["Linting with Ruff", "Formatting with Black or ruff format", "Import sorting", "pre-commit hooks", "Running checks in CI", "Static security scanning with Bandit", "Configuring rules in pyproject.toml", "Fixing a backlog of warnings gradually"],
+          "tools": ["Ruff", "Black", "pre-commit", "Bandit", "GitHub Actions"],
+          "lab_task": "Add Ruff, formatting, mypy and Bandit to the FastAPI project as pre-commit hooks and as a GitHub Actions workflow that runs tests.",
+          "deliverable": ".pre-commit-config.yaml, the workflow file and a passing CI run",
+          "checks": [["Commit a file with an unused import", "pre-commit blocks the commit and reports it", "Terminal output"], ["Push to the repository", "CI runs lint, type checks and tests and passes", "CI run screenshot"], ["Add subprocess call with shell=True", "Bandit reports a security warning", "Bandit output"]],
+          "objectives": ["Automate linting, formatting and type checks", "Run quality checks locally and in CI", "Use a static security scanner"]
+        },
+        {
+          "topic": "Intermediate Capstone: Inventory REST Service",
+          "subtopics": ["Requirements and API design", "Database models and migrations", "FastAPI endpoints with validation", "Background import of a CSV catalogue", "Tests and coverage", "CI pipeline and code quality checks"],
+          "tools": ["FastAPI", "SQLAlchemy", "pandas", "pytest", "GitHub Actions"],
+          "lab_task": "Build an inventory service with products, stock movements and a low-stock report, a CSV import command, tests with at least 85% coverage and a CI pipeline.",
+          "deliverable": "Repository with the service, tests, CI configuration and a 15-minute demo with API walkthrough",
+          "checks": [["Import the 500-row sample catalogue", "All valid rows are stored and invalid rows are reported", "Import log and database count"], ["Record a stock movement that would make stock negative", "API returns 409 and stock is unchanged", "API response"], ["Run the CI pipeline", "Lint, type checks and tests pass with coverage of at least 85%", "CI run and coverage report"]],
+          "objectives": ["Design and build a tested REST service end to end", "Combine databases, validation, data import and CI", "Explain design decisions in a technical demo"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For working Python developers. Covers Python internals, performance, advanced concurrency, architecture, security, delivery and production operations, ending with a production-grade service.",
+      "prerequisites": [
+        "At least one year writing production Python, including classes, tests and packaging",
+        "Has built or maintained a web API or data pipeline in Python",
+        "Comfortable with Git, the command line and Docker basics"
+      ],
+      "outcomes": [
+        "Explain Python internals and use them to diagnose memory and performance problems",
+        "Design maintainable, secure, observable Python services",
+        "Profile and optimise CPU, memory and I/O bottlenecks with measured results",
+        "Deliver and operate a containerised async service with CI/CD"
+      ],
+      "days": [
+        {
+          "topic": "Python Data Model and Object Internals",
+          "subtopics": ["Everything is an object: id, type and value", "Attribute lookup order and __dict__", "__slots__ and memory", "__getattr__ versus __getattribute__", "Bound methods and descriptors in method lookup", "Mutability, identity and interning", "Inspecting objects with dis and inspect", "Bytecode basics"],
+          "tools": ["Python 3.12", "dis", "inspect", "sys"],
+          "lab_task": "Investigate five provided puzzles (shared mutable defaults, interned strings, class versus instance attributes, slots, method binding) and explain each using dis, id() and __dict__.",
+          "deliverable": "Investigation notebook with evidence and an explanation for each puzzle",
+          "checks": [["Compare memory of 1 million objects with and without __slots__", "Slots version uses measurably less memory", "tracemalloc numbers"], ["Explain why a class attribute list is shared between instances", "Explanation uses __dict__ lookup order with evidence", "Notebook cell"], ["Disassemble a list comprehension", "Participant explains the main bytecode steps", "dis output with notes"]],
+          "objectives": ["Explain attribute lookup and object identity", "Use dis and inspect to investigate behaviour", "Reduce memory with __slots__ where it matters"]
+        },
+        {
+          "topic": "Metaclasses and Descriptors",
+          "subtopics": ["The descriptor protocol: __get__, __set__, __set_name__", "Data versus non-data descriptors", "How property works", "__init_subclass__ as a simpler alternative", "type as a metaclass", "Writing a metaclass", "Class decorators", "When metaprogramming is not worth it"],
+          "tools": ["Python 3.12"],
+          "lab_task": "Build a small validation framework: descriptors for typed and range-checked fields, and __init_subclass__ to register every model class automatically.",
+          "deliverable": "validation framework module with tests and a short note on why a metaclass was or was not needed",
+          "checks": [["Assign -5 to a field declared with minimum 0", "Raises ValueError naming the field", "Test output"], ["Define a new model subclass", "It appears in the registry without manual registration", "Test output"], ["Read the design note", "Justifies the choice between metaclass and __init_subclass__", "Design note"]],
+          "objectives": ["Write descriptors for reusable attribute logic", "Use __init_subclass__ and metaclasses appropriately", "Judge when metaprogramming adds too much complexity"]
+        },
+        {
+          "topic": "Memory Management and Garbage Collection",
+          "subtopics": ["Reference counting", "The cyclic garbage collector and generations", "Weak references", "Memory leaks in long-running processes", "tracemalloc snapshots and comparison", "objgraph for reference chains", "Large data structures and memory views", "Tuning gc thresholds"],
+          "tools": ["tracemalloc", "gc", "weakref", "objgraph"],
+          "lab_task": "Find and fix a memory leak in a provided long-running worker that caches results and keeps callbacks, using tracemalloc snapshots and objgraph.",
+          "deliverable": "Leak investigation report with before and after memory graphs and the fix",
+          "checks": [["Run the worker for 10,000 iterations before the fix", "Memory grows steadily, shown by snapshots", "tracemalloc comparison"], ["Run after the fix", "Memory stays flat within 5%", "Memory graph"], ["Show the reference chain that held the leaked objects", "objgraph output identifies the cache or callback", "objgraph image"]],
+          "objectives": ["Explain reference counting and cyclic garbage collection", "Find leaks with tracemalloc and objgraph", "Fix leaks with weak references and bounded caches"]
+        },
+        {
+          "topic": "Profiling and Performance Optimization",
+          "subtopics": ["Measure before optimising", "timeit for micro-benchmarks", "cProfile and pstats", "Line profiling", "py-spy for running processes", "Algorithmic complexity and data structure choice", "Caching results", "Avoiding premature optimisation"],
+          "tools": ["cProfile", "snakeviz", "line_profiler", "py-spy"],
+          "lab_task": "Profile a slow report generator, find the three biggest hotspots, fix them, and show the measured speed-up for each fix.",
+          "deliverable": "Profiling report with flame graph, hotspot list, fixes and a before-and-after timing table",
+          "checks": [["Run the report before and after the fixes", "Output is identical and run time is at least 5x faster", "Timing table and output diff"], ["Show the cProfile results", "Top hotspots are identified with cumulative time", "pstats output"], ["Attach py-spy to the running process", "Live flame graph captured", "py-spy output"]],
+          "objectives": ["Profile CPU time with cProfile, line profiling and py-spy", "Fix hotspots with better algorithms and data structures", "Prove improvements with measurements"]
+        },
+        {
+          "topic": "High-Performance Python: NumPy Vectorisation and Cython",
+          "subtopics": ["Why Python loops are slow", "NumPy arrays and broadcasting", "Vectorising loops", "Memory layout and copies", "Numba JIT compilation", "Cython basics", "Choosing between NumPy, Numba and Cython", "Verifying numerical results"],
+          "tools": ["NumPy", "Numba", "Cython"],
+          "lab_task": "Implement a distance-matrix calculation four ways (pure Python, NumPy, Numba, Cython) for 5,000 points and compare speed and results.",
+          "deliverable": "Benchmark notebook with timings, a correctness check and a recommendation",
+          "checks": [["Compare the four results", "All match the pure Python result within 1e-9", "Correctness check output"], ["Compare timings", "Vectorised and compiled versions are faster than pure Python by a measured factor", "Timing table"], ["Explain one case where vectorisation used too much memory", "Explanation includes array sizes", "Notebook note"]],
+          "objectives": ["Vectorise numeric code with NumPy", "Compile hot loops with Numba or Cython", "Choose an approach by measuring speed and memory"]
+        },
+        {
+          "topic": "Advanced asyncio: Tasks, Cancellation and Backpressure",
+          "subtopics": ["Task groups with asyncio.TaskGroup", "Cancellation and cleanup", "Exception groups and except*", "Queues and producer-consumer pipelines", "Backpressure with bounded queues", "Running blocking code with to_thread", "Graceful shutdown on signals", "Debugging with asyncio debug mode"],
+          "tools": ["asyncio", "httpx", "aiofiles"],
+          "lab_task": "Build an async crawler pipeline with bounded queues between fetch, parse and store stages, graceful shutdown on Ctrl+C and no lost items.",
+          "deliverable": "async_pipeline.py with tests for cancellation and shutdown",
+          "checks": [["Run with a slow store stage", "Fetchers pause when the queue is full instead of using unbounded memory", "Queue size log"], ["Press Ctrl+C during a run", "In-flight items are finished or saved and the program exits cleanly", "Log output"], ["Make one fetch task raise", "Error is reported through an exception group and other tasks are cancelled cleanly", "Test output"]],
+          "objectives": ["Structure concurrent work with TaskGroup", "Handle cancellation and shutdown correctly", "Apply backpressure with bounded queues"]
+        },
+        {
+          "topic": "Multiprocessing and the GIL",
+          "subtopics": ["How the GIL works", "Free-threaded Python 3.13 and what it changes", "multiprocessing start methods", "Shared memory with multiprocessing.shared_memory", "Pickling costs", "Process pools with chunking", "Avoiding deadlocks", "Choosing processes, threads or async"],
+          "tools": ["multiprocessing", "concurrent.futures"],
+          "lab_task": "Parallelise a CPU-heavy image-analysis job across processes, compare chunk sizes, and use shared memory to avoid copying a large array.",
+          "deliverable": "Parallel job with a benchmark of chunk sizes and a memory comparison with and without shared memory",
+          "checks": [["Run with 1, 2, 4 and 8 processes", "Speed-up table shows where gains stop", "Benchmark table"], ["Compare memory with and without shared memory", "Shared memory version avoids the copy", "Memory measurements"], ["Run with spawn and fork start methods", "Participant explains differences in start-up time and safety", "Notes with measurements"]],
+          "objectives": ["Explain the GIL and its effect on threads", "Use process pools and shared memory efficiently", "Pick a concurrency model from measurements"]
+        },
+        {
+          "topic": "Design Patterns in Python",
+          "subtopics": ["Strategy with first-class functions", "Factory and registry", "Adapter", "Observer and events", "Command", "Repository", "Pythonic alternatives to classic patterns", "Pattern overuse"],
+          "tools": ["Python 3.12"],
+          "lab_task": "Refactor a notification module full of if/elif chains into Strategy, Registry and Adapter patterns so that adding a channel needs no changes to existing code.",
+          "deliverable": "Refactored module, tests and a short design note",
+          "checks": [["Add a new Slack channel", "Works by adding one class and registering it, with no edits to existing classes", "Code diff"], ["Run the original test suite", "All existing tests still pass", "pytest output"], ["Explain one pattern that was rejected", "Note explains why a simpler Python solution was used", "Design note"]],
+          "objectives": ["Apply common patterns in idiomatic Python", "Make code open to extension", "Avoid unnecessary patterns"]
+        },
+        {
+          "topic": "Clean Architecture and Dependency Injection",
+          "subtopics": ["Layers: domain, application, infrastructure", "Dependency inversion", "Ports and adapters", "Dependency injection without a framework", "Keeping frameworks at the edges", "Unit tests with fakes", "Module boundaries and import rules", "Enforcing boundaries with import-linter"],
+          "tools": ["FastAPI", "import-linter", "pytest"],
+          "lab_task": "Restructure an order service so the domain layer has no imports from FastAPI or SQLAlchemy, with repositories behind interfaces and in-memory fakes for tests.",
+          "deliverable": "Restructured service, import-linter contract and fast unit tests using fakes",
+          "checks": [["Run import-linter", "Domain layer imports no framework modules", "import-linter output"], ["Run domain unit tests", "Run without a database in under 2 seconds", "pytest timing output"], ["Swap the SQL repository for the in-memory fake", "Application works without changing domain code", "Test output"]],
+          "objectives": ["Separate domain logic from frameworks", "Use dependency inversion and injection", "Enforce architecture rules automatically"]
+        },
+        {
+          "topic": "Advanced Testing: Property-Based Testing and Coverage",
+          "subtopics": ["Test strategy: unit, integration and end-to-end", "Property-based testing with Hypothesis", "Stateful testing", "Mutation testing with mutmut", "Branch coverage", "Testing against real services with Testcontainers", "Flaky test diagnosis", "Contract tests for APIs"],
+          "tools": ["pytest", "Hypothesis", "mutmut", "Testcontainers"],
+          "lab_task": "Add Hypothesis properties to the Money type and the inventory rules, run mutation testing, and add integration tests against a real PostgreSQL container.",
+          "deliverable": "Extended test suite, mutation testing report and integration tests",
+          "checks": [["Run Hypothesis tests", "At least one property finds a real edge case that is then fixed", "Hypothesis failure example and fix"], ["Run mutmut", "Surviving mutants are listed and at least half are killed by new tests", "mutmut report"], ["Run integration tests", "Tests start a PostgreSQL container and pass", "pytest output"]],
+          "objectives": ["Design a layered test strategy", "Find edge cases with property-based tests", "Measure test strength with mutation testing"]
+        },
+        {
+          "topic": "Secure Python Coding",
+          "subtopics": ["OWASP Top 10 for Python services", "Injection: SQL, command and template", "Unsafe deserialisation: pickle and yaml.load", "Secrets management", "Dependency vulnerabilities with pip-audit", "Input validation and output encoding", "Authentication with JWT and password hashing", "Static analysis with Bandit and Semgrep"],
+          "tools": ["Bandit", "pip-audit", "Semgrep", "passlib"],
+          "lab_task": "Audit a deliberately vulnerable Flask app, exploit three issues in a safe lab, fix them, and add scanners to CI so they cannot return.",
+          "deliverable": "Security audit report with each finding, proof, fix and the CI scanner configuration",
+          "checks": [["Send the provided SQL injection payload after the fix", "Request is rejected and no data is exposed", "HTTP response"], ["Run pip-audit", "No known vulnerable dependencies remain or each is documented", "pip-audit output"], ["Load a malicious pickle file in the fixed app", "App refuses unsafe deserialisation", "Test output"]],
+          "objectives": ["Identify and fix common Python security flaws", "Manage secrets and dependencies safely", "Automate security checks"]
+        },
+        {
+          "topic": "API Performance and Caching",
+          "subtopics": ["Measuring latency percentiles", "Load testing with Locust", "N+1 queries and query optimisation", "Connection pooling", "Caching with Redis", "Cache invalidation strategies", "HTTP caching headers", "Rate limiting"],
+          "tools": ["Locust", "Redis", "SQLAlchemy", "FastAPI"],
+          "lab_task": "Load test the inventory service, find the slowest endpoint, fix an N+1 query, add Redis caching with invalidation, and rerun the load test.",
+          "deliverable": "Before and after load test reports with p50, p95 and p99 latency",
+          "checks": [["Run the load test after the fixes", "p95 latency improves by a measured amount at the same request rate", "Locust reports"], ["Update a product after it is cached", "Next read returns the new value", "Test output"], ["Show the SQL log for the list endpoint", "One query instead of one query per item", "SQL log excerpt"]],
+          "objectives": ["Measure API performance under load", "Fix database access patterns", "Add caching with correct invalidation"]
+        },
+        {
+          "topic": "Distributed Task Queues with Celery",
+          "subtopics": ["Why background jobs", "Celery with Redis as broker", "Tasks, retries and acknowledgements", "Idempotent tasks", "Scheduling with Celery beat", "Task routing and queues", "Monitoring with Flower", "Failure handling and dead-letter patterns"],
+          "tools": ["Celery", "Redis", "Flower"],
+          "lab_task": "Move CSV imports and nightly reports of the inventory service into Celery tasks with retries, idempotency keys and a schedule.",
+          "deliverable": "Celery configuration, tasks, tests and a Flower screenshot during a run",
+          "checks": [["Submit the same import twice with one idempotency key", "Data is imported once", "Database count"], ["Make a task fail twice then succeed", "Task retries with backoff and completes", "Worker log"], ["Kill a worker during a task", "Task is redelivered and completes on another worker", "Worker logs"]],
+          "objectives": ["Run background work reliably with Celery", "Design idempotent, retryable tasks", "Monitor and schedule tasks"]
+        },
+        {
+          "topic": "Containerising Python Services with Docker",
+          "subtopics": ["Writing a Dockerfile for Python", "Multi-stage builds", "Slim images and dependency caching", "Running as a non-root user", "Configuration through environment variables", "Health checks", "docker compose for local stacks", "Scanning images for vulnerabilities"],
+          "tools": ["Docker", "docker compose", "Trivy"],
+          "lab_task": "Containerise the inventory service, worker, PostgreSQL and Redis with docker compose, using a multi-stage image under 200 MB that runs as non-root.",
+          "deliverable": "Dockerfile, compose file, image size report and Trivy scan results",
+          "checks": [["Run docker compose up", "All services start and the API health check passes", "Compose logs"], ["Inspect the image", "Image is under 200 MB and runs as a non-root user", "docker inspect output"], ["Run Trivy on the image", "No critical vulnerabilities, or each is documented", "Trivy report"]],
+          "objectives": ["Build small, secure Python images", "Run a multi-service stack with compose", "Scan images for vulnerabilities"]
+        },
+        {
+          "topic": "CI/CD for Python Projects",
+          "subtopics": ["Pipeline stages: lint, test, build, deploy", "GitHub Actions workflows and matrices", "Caching dependencies", "Building and pushing images", "Environment secrets", "Deploying to a staging environment", "Smoke tests after deploy", "Rollback"],
+          "tools": ["GitHub Actions", "Docker", "pytest"],
+          "lab_task": "Create a pipeline that tests on Python 3.11 and 3.12, builds and pushes the image on main, deploys to staging, runs smoke tests and rolls back on failure.",
+          "deliverable": "Workflow files, a green pipeline run and a documented rollback test",
+          "checks": [["Push a commit that breaks a test", "Pipeline stops before build and deploy", "CI run"], ["Merge a passing change to main", "Image is built, pushed and deployed to staging", "CI run and deployed version"], ["Make the smoke test fail after deploy", "Pipeline rolls back to the previous version", "CI log"]],
+          "objectives": ["Automate testing, building and deployment", "Protect production with smoke tests and rollback", "Manage secrets in pipelines"]
+        },
+        {
+          "topic": "Observability: Structured Logging, Metrics and Tracing",
+          "subtopics": ["Structured logs with structlog", "Correlation IDs across requests", "Metrics with Prometheus client", "RED and USE methods", "Distributed tracing with OpenTelemetry", "Dashboards in Grafana", "Alerting on symptoms", "Logging sensitive data safely"],
+          "tools": ["structlog", "prometheus_client", "OpenTelemetry", "Grafana"],
+          "lab_task": "Instrument the inventory service with JSON logs, request metrics and OpenTelemetry traces across the API and Celery worker, and build a Grafana dashboard.",
+          "deliverable": "Instrumented service, dashboard JSON and a trace screenshot spanning API and worker",
+          "checks": [["Make one API call that queues a task", "One trace shows spans for the API and the worker", "Trace screenshot"], ["Generate errors for 2 minutes", "Error rate panel and the alert rule both react", "Dashboard and alert screenshots"], ["Search logs for a request ID", "All log lines for that request are found", "Log query result"]],
+          "objectives": ["Produce structured, correlated logs", "Expose metrics and traces", "Build dashboards and symptom-based alerts"]
+        },
+        {
+          "topic": "Production Troubleshooting",
+          "subtopics": ["Incident response steps", "Reading logs, metrics and traces together", "Diagnosing high CPU with py-spy", "Diagnosing memory growth in production", "Deadlocks and hung processes", "Database connection exhaustion", "Writing a post-incident review", "Preventing repeat incidents"],
+          "tools": ["py-spy", "Grafana", "OpenTelemetry", "PostgreSQL"],
+          "lab_task": "Diagnose three injected production incidents (CPU spike, connection pool exhaustion, hung worker) under time limits, restore service and write a post-incident review for one.",
+          "deliverable": "Incident timeline, root causes and fixes for all three, plus one post-incident review",
+          "checks": [["CPU spike incident", "Hot function identified with py-spy and service restored", "py-spy dump and timeline"], ["Connection exhaustion incident", "Root cause shown from metrics and fixed", "Metrics screenshot and fix"], ["Read the post-incident review", "Contains impact, timeline, root cause and preventive actions", "Review document"]],
+          "objectives": ["Investigate incidents using logs, metrics and traces", "Diagnose CPU, memory, connection and hang problems", "Write blameless post-incident reviews"]
+        },
+        {
+          "topic": "Extending Python with C and Rust",
+          "subtopics": ["When to leave Python", "ctypes and cffi", "The C API overview", "Rust extensions with PyO3 and maturin", "Releasing the GIL in extensions", "Building wheels for several platforms", "Testing native extensions", "Maintenance cost of native code"],
+          "tools": ["PyO3", "maturin", "cffi"],
+          "lab_task": "Rewrite the profiled hotspot from Day 4 as a Rust extension with PyO3, build a wheel with maturin, and compare speed and results with the Python version.",
+          "deliverable": "Rust extension crate, built wheel, tests and a benchmark comparison",
+          "checks": [["Run the shared test suite on both implementations", "Both pass the same tests", "pytest output"], ["Benchmark both", "Speed-up is measured and reported", "Benchmark table"], ["Install the wheel in a clean venv", "Imports and runs without a Rust toolchain installed", "Install transcript"]],
+          "objectives": ["Decide when native extensions are justified", "Build a Rust extension with PyO3", "Package and test native code"]
+        },
+        {
+          "topic": "Large Codebase Maintenance and Refactoring",
+          "subtopics": ["Measuring complexity and hotspots", "Characterisation tests before refactoring", "Strangler fig migration", "Splitting a large module safely", "Deprecation warnings and versioning", "Upgrading Python versions", "Typing a legacy codebase gradually", "Code review practices for large changes"],
+          "tools": ["radon", "mypy", "pytest", "Git"],
+          "lab_task": "Split a provided 3,000-line module into a package in small reviewed steps, protected by characterisation tests, without changing behaviour.",
+          "deliverable": "Series of small commits, the characterisation tests and a refactoring plan",
+          "checks": [["Run characterisation tests after every commit", "All pass at every step", "CI history"], ["Compare complexity before and after", "radon shows reduced complexity for the hotspot functions", "radon report"], ["Call an old import path", "Works with a DeprecationWarning", "Test output"]],
+          "objectives": ["Refactor large code safely in small steps", "Protect behaviour with characterisation tests", "Plan migrations and deprecations"]
+        },
+        {
+          "topic": "Advanced Capstone: Production-Grade Async Service",
+          "subtopics": ["Architecture and design review", "Async API with background workers", "Performance budget and load testing", "Security review", "Observability and alerts", "CI/CD with staged deployment"],
+          "tools": ["FastAPI", "asyncio", "Celery", "PostgreSQL", "Redis", "Docker", "GitHub Actions", "OpenTelemetry"],
+          "lab_task": "Design and deliver an async order-processing service with background workers, caching, observability, security checks and a CI/CD pipeline, then defend it in an architecture review.",
+          "deliverable": "Repository, architecture document, load test results, security scan results and a 20-minute review presentation",
+          "checks": [["Run the load test at the agreed request rate", "p95 latency stays within the stated budget", "Load test report"], ["Kill a worker and the cache during the load test", "Service degrades as designed and recovers without data loss", "Logs and metrics"], ["Run the security scanners in CI", "No unresolved critical findings", "CI scan results"]],
+          "objectives": ["Design and deliver a production-grade Python service", "Prove performance, reliability and security with evidence", "Defend architecture decisions in a technical review"]
+        }
+      ]
+    }
+  }
+}

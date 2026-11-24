@@ -1,0 +1,573 @@
+{
+  "domain": "React",
+  "name": "React",
+  "category": "Web and Full Stack Development",
+  "icon": "atom",
+  "aliases": ["React.js", "ReactJS", "React JS", "React Developer", "React Frontend", "React with TypeScript", "Modern React", "Advanced React"],
+  "certifications": ["Meta Front-End Developer Professional Certificate", "No official React certification; assessed by capstone project", "OpenJS JSNSD for Node.js work alongside React"],
+  "tools": ["React 19", "Vite", "TypeScript", "VS Code", "React Testing Library", "Chrome DevTools"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers with basic HTML, CSS and JavaScript. Covers modern JavaScript for React, components and JSX, props and state, events, lists, forms, effects, fetching data, routing, styling, context and testing, ending with a complete single-page application.",
+      "prerequisites": ["Writes basic HTML and CSS", "Knows JavaScript variables, functions, arrays and objects", "Can use a terminal and npm"],
+      "outcomes": ["Build React components with props, state and hooks", "Fetch, display and update data from APIs", "Add routing, forms and styling to single-page apps", "Test components and deploy a React application"],
+      "days": [
+        {
+          "topic": "React Setup and Modern JavaScript Refresher",
+          "subtopics": ["What React is and why teams use it", "Single-page applications in brief", "Installing Node.js and creating a project with Vite", "Project structure and the dev server", "let, const and arrow functions", "Template literals", "Destructuring and spread", "Array methods: map, filter, reduce", "ES modules: import and export", "Promises and async/await refresher"],
+          "tools": ["Node.js 22 LTS", "Vite", "VS Code"],
+          "lab_task": "Create a React project with Vite, run it, and complete ten JavaScript exercises with destructuring, spread, array methods and async/await that the course will use.",
+          "deliverable": "Running project and exercise solutions",
+          "checks": [["Run npm run dev", "App opens in the browser with hot reload", "Screenshot"], ["Run the exercise tests", "All ten pass", "Test output"], ["Explain map versus forEach", "Correct difference", "Written answer"]],
+          "objectives": ["Set up a React project", "Use modern JavaScript", "Explain what React does"]
+        },
+        {
+          "topic": "Components and JSX",
+          "subtopics": ["Function components", "JSX syntax rules", "Expressions in JSX", "Fragments", "Component composition", "Splitting a page into components", "File and naming conventions", "React Developer Tools"],
+          "tools": ["React 19", "React Developer Tools"],
+          "lab_task": "Break a provided product page design into components, build them with JSX and inspect the component tree with React Developer Tools.",
+          "deliverable": "Component tree diagram and working page",
+          "checks": [["Inspect the tree", "Components match the diagram", "DevTools screenshot"], ["Reuse the ProductCard component", "Rendered for three products", "Screenshot"], ["Return two elements without a wrapper div", "Fragment used", "Code review"]],
+          "objectives": ["Build components with JSX", "Compose components", "Use React Developer Tools"]
+        },
+        {
+          "topic": "Props and Component Communication",
+          "subtopics": ["Passing props", "Default values", "children", "Passing functions as props", "Lifting state up in brief", "Prop drilling problems", "Typing props with TypeScript", "Keeping components pure"],
+          "tools": ["React 19", "TypeScript"],
+          "lab_task": "Build a product list where each card receives product props and an onAdd callback, typed with TypeScript, and a layout component that renders children.",
+          "deliverable": "Typed components and working list",
+          "checks": [["Pass a missing prop", "TypeScript error shown", "Compiler output"], ["Click Add to cart", "Parent receives the product through the callback", "Console output"], ["Render a layout with children", "Content appears inside the layout", "Screenshot"]],
+          "objectives": ["Pass data with props", "Communicate through callbacks", "Type props"]
+        },
+        {
+          "topic": "State with useState",
+          "subtopics": ["What state is", "useState", "Updating state correctly", "Functional updates", "State with objects and arrays", "Immutability", "When a component re-renders", "Keeping state minimal"],
+          "tools": ["React 19", "React Developer Tools"],
+          "lab_task": "Build a shopping cart with add, remove and quantity change, keep items in state immutably and show the total, then fix a provided bug caused by mutating state.",
+          "deliverable": "Cart component and bug fix note",
+          "checks": [["Change quantities", "Total updates correctly", "Screenshot"], ["Fix the mutation bug", "UI updates after the fix", "Code diff"], ["Click add three times quickly", "Count increases by three with functional updates", "Screenshot"]],
+          "objectives": ["Manage state", "Update state immutably", "Understand re-rendering"]
+        },
+        {
+          "topic": "Events and Conditional Rendering",
+          "subtopics": ["Handling clicks and input", "Event objects", "Preventing default behaviour", "Conditional rendering with && and ternaries", "Early returns", "Showing loading and empty states", "Toggling UI", "Accessibility for interactive elements"],
+          "tools": ["React 19"],
+          "lab_task": "Add a show-details toggle, an empty-cart message, a loading spinner and keyboard-accessible buttons to the shop.",
+          "deliverable": "Updated components",
+          "checks": [["Empty the cart", "Empty message shown", "Screenshot"], ["Toggle details with the keyboard", "Works with Enter and Space", "Screen recording"], ["Review conditionals", "No rendering of 0 or false by mistake", "Code review"]],
+          "objectives": ["Handle events", "Render conditionally", "Keep interactions accessible"]
+        },
+        {
+          "topic": "Lists and Keys",
+          "subtopics": ["Rendering lists with map", "Keys and why they matter", "Choosing stable keys", "Filtering and sorting lists", "Nested lists", "Performance of large lists in brief", "Bugs from index keys", "Extracting list item components"],
+          "tools": ["React 19"],
+          "lab_task": "Render a product list with search, category filter and sort, use stable keys and show a bug caused by index keys when reordering.",
+          "deliverable": "List component and key bug demonstration",
+          "checks": [["Filter and sort", "Correct products in the right order", "Screenshot"], ["Reorder with index keys", "Input values move to the wrong rows, demonstrated", "Screen recording"], ["Switch to stable keys", "Bug gone", "Screen recording"]],
+          "objectives": ["Render lists", "Use keys correctly", "Filter and sort data"]
+        },
+        {
+          "topic": "Forms and Controlled Inputs",
+          "subtopics": ["Controlled inputs", "Text, select, checkbox and radio inputs", "Form submission", "Validation", "Showing errors", "Uncontrolled inputs with refs", "React Hook Form in brief", "Accessible labels and errors"],
+          "tools": ["React 19", "React Hook Form"],
+          "lab_task": "Build a checkout form with controlled inputs, validation for email, phone and address, clear error messages and accessible labels, then rebuild it with React Hook Form.",
+          "deliverable": "Two form versions",
+          "checks": [["Submit with an invalid email", "Error shown next to the field", "Screenshot"], ["Use a screen reader", "Labels and errors announced", "Notes"], ["Compare versions", "Less code and fewer re-renders with React Hook Form", "Comparison"]],
+          "objectives": ["Build forms", "Validate input", "Make forms accessible"]
+        },
+        {
+          "topic": "Side Effects with useEffect",
+          "subtopics": ["What side effects are", "useEffect basics", "Dependency arrays", "Clean-up functions", "Timers and subscriptions", "Effects that should not be effects", "Strict mode double runs", "Common effect bugs"],
+          "tools": ["React 19"],
+          "lab_task": "Add a countdown offer timer with clean-up, save the cart to localStorage and remove two unnecessary effects from a provided component.",
+          "deliverable": "Updated components and refactor note",
+          "checks": [["Leave the page with the timer running", "Timer cleared with no console warnings", "Console output"], ["Reload the page", "Cart restored from localStorage", "Screenshot"], ["Remove unnecessary effects", "Same behaviour with less code", "Code diff"]],
+          "objectives": ["Use effects correctly", "Clean up effects", "Avoid unnecessary effects"]
+        },
+        {
+          "topic": "Fetching Data from APIs",
+          "subtopics": ["fetch in React", "Loading, error and success states", "Async functions in effects", "Aborting requests", "Race conditions", "Displaying API data", "Environment variables for API URLs", "A first look at TanStack Query"],
+          "tools": ["React 19", "Fetch API", "TanStack Query"],
+          "lab_task": "Load products from a REST API with loading and error states, abort requests when the search changes, then replace the code with TanStack Query and compare.",
+          "deliverable": "Data-fetching components and comparison",
+          "checks": [["Block the API", "Error message shown", "Screenshot"], ["Type a search quickly", "Only the latest result is shown", "Screen recording"], ["Compare with TanStack Query", "Caching and less code noted", "Comparison"]],
+          "objectives": ["Fetch data in React", "Handle loading and errors", "Avoid race conditions"]
+        },
+        {
+          "topic": "Routing with React Router",
+          "subtopics": ["Client-side routing", "Routes and links", "Route parameters", "Nested routes and layouts", "Navigation in code", "Not found pages", "Protected routes", "Loaders in brief"],
+          "tools": ["React Router", "React 19"],
+          "lab_task": "Add routes for home, product list, product detail, cart and a 404 page, with a shared layout and a protected account page.",
+          "deliverable": "Routed application",
+          "checks": [["Open a product URL directly", "Detail page loads the right product", "Screenshot"], ["Open an unknown URL", "404 page shown", "Screenshot"], ["Open the account page logged out", "Redirected to login", "Screen recording"]],
+          "objectives": ["Add routing", "Use route parameters", "Protect routes"]
+        },
+        {
+          "topic": "Styling React Applications",
+          "subtopics": ["CSS files and CSS modules", "Tailwind CSS", "Component libraries: MUI and shadcn/ui", "Responsive layouts", "Themes and dark mode", "Styling states: hover, focus, disabled", "Avoiding style conflicts", "Choosing a styling approach"],
+          "tools": ["Tailwind CSS", "CSS Modules", "shadcn/ui"],
+          "lab_task": "Style the shop with Tailwind, make it responsive for phone and desktop, add dark mode and restyle one component with CSS Modules for comparison.",
+          "deliverable": "Styled app and comparison notes",
+          "checks": [["View on a phone width", "Layout adapts with no horizontal scroll", "Screenshot"], ["Toggle dark mode", "Colours change across the app", "Screenshot"], ["Check focus styles", "Visible focus on all buttons", "Screenshot"]],
+          "objectives": ["Style React apps", "Build responsive layouts", "Choose a styling approach"]
+        },
+        {
+          "topic": "Sharing State with Context",
+          "subtopics": ["Prop drilling", "createContext and useContext", "Context providers", "Context for theme and user", "Updating context", "Context performance", "Splitting contexts", "When not to use context"],
+          "tools": ["React 19"],
+          "lab_task": "Move the cart and the logged-in user into context providers, remove prop drilling and show a re-render problem fixed by splitting context.",
+          "deliverable": "Context providers and refactored components",
+          "checks": [["Add to cart from a deep component", "Cart badge updates without passing props", "Screenshot"], ["Profile re-renders", "Fewer re-renders after splitting context", "Profiler screenshot"], ["Review code", "No props passed only to forward them", "Code review"]],
+          "objectives": ["Share state with context", "Avoid prop drilling", "Keep context efficient"]
+        },
+        {
+          "topic": "useReducer for Complex State",
+          "subtopics": ["When to use useReducer", "Actions and reducers", "Combining with context", "Typing actions with TypeScript", "Testing reducers", "Undo and redo", "Derived state", "Reducer anti-patterns"],
+          "tools": ["React 19", "TypeScript", "Vitest"],
+          "lab_task": "Rewrite the cart with useReducer and typed actions, add undo for the last change and unit-test the reducer.",
+          "deliverable": "Reducer, tests and updated cart",
+          "checks": [["Run the reducer tests", "All actions tested and passing", "Test output"], ["Undo a removal", "Item returns to the cart", "Screenshot"], ["Dispatch an unknown action type", "TypeScript error", "Compiler output"]],
+          "objectives": ["Manage complex state with reducers", "Type actions", "Test reducers"]
+        },
+        {
+          "topic": "Refs and Working with the DOM",
+          "subtopics": ["useRef for values", "Refs to DOM elements", "Focusing inputs", "Measuring elements", "Integrating non-React libraries", "forwardRef and ref as a prop", "Scroll position", "When refs are the wrong tool"],
+          "tools": ["React 19"],
+          "lab_task": "Focus the search box on load, scroll to the first form error on submit and wrap a third-party chart library in a component with a ref.",
+          "deliverable": "Updated components",
+          "checks": [["Load the page", "Search box focused", "Screenshot"], ["Submit an invalid form", "Page scrolls to the first error", "Screen recording"], ["Render the chart", "Chart updates when props change", "Screenshot"]],
+          "objectives": ["Use refs", "Work with the DOM", "Integrate other libraries"]
+        },
+        {
+          "topic": "Custom Hooks",
+          "subtopics": ["Why custom hooks", "Rules of hooks", "Extracting logic into hooks", "useLocalStorage and useDebounce", "Hooks that fetch data", "Testing custom hooks", "Sharing hooks across projects", "Hook naming"],
+          "tools": ["React 19", "Vitest", "React Testing Library"],
+          "lab_task": "Extract useDebounce, useLocalStorage and useProducts hooks from the shop, use them in two components and test them.",
+          "deliverable": "Custom hooks and tests",
+          "checks": [["Type in the search box", "API called once after typing stops", "Network tab screenshot"], ["Run the hook tests", "All pass", "Test output"], ["Break the rules of hooks", "ESLint reports it", "Lint output"]],
+          "objectives": ["Write custom hooks", "Reuse logic", "Test hooks"]
+        },
+        {
+          "topic": "Testing React Components",
+          "subtopics": ["Testing pyramid for front ends", "Vitest set-up", "React Testing Library queries", "User events", "Testing async UI", "Mocking API calls with MSW", "Snapshot tests and their limits", "Coverage"],
+          "tools": ["Vitest", "React Testing Library", "MSW"],
+          "lab_task": "Write tests for the product list, cart and checkout form using user events and MSW for the API, and reach 80 percent coverage.",
+          "deliverable": "Test suite and coverage report",
+          "checks": [["Run the tests", "All pass", "Test output"], ["Make the API return an error", "Error test passes", "Test output"], ["Open coverage", "At least 80 percent", "Coverage report"]],
+          "objectives": ["Test React components", "Mock APIs", "Measure coverage"]
+        },
+        {
+          "topic": "Measuring and Improving Performance",
+          "subtopics": ["How React renders", "React Profiler", "memo, useMemo and useCallback", "Code splitting with lazy and Suspense", "Image optimisation", "Bundle size", "Lighthouse scores", "Avoiding premature optimisation"],
+          "tools": ["React Profiler", "Lighthouse", "Vite"],
+          "lab_task": "Profile the shop, fix a slow list with memo, lazy-load the checkout route and improve the Lighthouse performance score.",
+          "deliverable": "Profiles before and after and Lighthouse reports",
+          "checks": [["Profile the list", "Re-renders reduced after memo", "Profiler screenshot"], ["Check the bundle", "Checkout code in a separate chunk", "Build output"], ["Run Lighthouse", "Performance score improves", "Lighthouse reports"]],
+          "objectives": ["Measure React performance", "Fix slow renders", "Split code"]
+        },
+        {
+          "topic": "Accessibility in React",
+          "subtopics": ["Semantic HTML in JSX", "ARIA when needed", "Keyboard navigation", "Focus management in modals", "Accessible forms", "Colour contrast", "Testing with axe", "Screen reader checks"],
+          "tools": ["axe DevTools", "NVDA or VoiceOver", "eslint-plugin-jsx-a11y"],
+          "lab_task": "Audit the shop with axe and a screen reader, fix the issues, build an accessible modal with focus trapping and add accessibility lint rules.",
+          "deliverable": "Audit results, fixes and modal component",
+          "checks": [["Run axe after fixes", "No serious issues", "axe report"], ["Open the modal with the keyboard", "Focus moves into it and returns on close", "Screen recording"], ["Run the lint rules", "No accessibility lint errors", "Lint output"]],
+          "objectives": ["Build accessible React apps", "Manage focus", "Test accessibility"]
+        },
+        {
+          "topic": "Building and Deploying React Apps",
+          "subtopics": ["Production builds", "Environment variables per environment", "Static hosting: Netlify, Vercel, S3", "Routing on static hosts", "Caching and cache busting", "Error tracking", "Deploying from Git", "Preview deployments"],
+          "tools": ["Vite", "Netlify or Vercel", "Sentry"],
+          "lab_task": "Build the shop for production, deploy it from Git with preview deployments for branches, fix deep-link routing on the host and add error tracking.",
+          "deliverable": "Live URL, preview URL and error report",
+          "checks": [["Open a deep link on the live site", "Page loads without 404", "Screenshot"], ["Push a branch", "Preview deployment created", "Deployment log"], ["Throw a test error", "Error appears in Sentry", "Sentry screenshot"]],
+          "objectives": ["Build for production", "Deploy React apps", "Track errors"]
+        },
+        {
+          "topic": "Beginner Capstone: Single-Page Shop Application",
+          "subtopics": ["Requirements and component design", "State, context and reducers", "Data fetching and routing", "Forms and validation", "Tests and accessibility", "Deployment and demo"],
+          "tools": ["React 19", "TypeScript", "React Router", "TanStack Query", "Vitest", "Netlify or Vercel"],
+          "lab_task": "Build and deploy a typed shop with product search, filters, routing, a cart in context, a validated checkout form, API data with loading and error states, tests and accessibility checks, then demo it.",
+          "deliverable": "Repository, live URL, test report and a 10-minute demo",
+          "checks": [["Run the tests", "All pass with at least 75 percent coverage", "Test output"], ["Run axe on the main pages", "No serious issues", "axe report"], ["Complete a purchase on the live site", "Order flow works end to end", "Demo"]],
+          "objectives": ["Combine the beginner topics in one app", "Prove quality with tests", "Demo a deployed React app"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For React developers who build apps with hooks. Covers TypeScript patterns, state management with TanStack Query and Zustand or Redux Toolkit, advanced forms, Next.js with the App Router and Server Components, authentication, performance, design systems, testing at every level, internationalisation and CI/CD.",
+      "prerequisites": ["Builds React apps with hooks, routing and data fetching", "Uses TypeScript at a basic level", "Has written component tests"],
+      "outcomes": ["Structure medium and large React codebases", "Manage server and client state cleanly", "Build full applications with Next.js, Server Components and server actions", "Test, optimise and ship React apps through CI/CD"],
+      "days": [
+        {
+          "topic": "Project Structure and TypeScript Patterns for React",
+          "subtopics": ["Feature-based folder structure", "Typing components, hooks and context", "Generic components", "Discriminated unions for props", "Shared types with the API", "Path aliases", "ESLint and Prettier", "Code review checklist"],
+          "tools": ["React 19", "TypeScript", "ESLint", "Prettier"],
+          "lab_task": "Restructure a provided messy app into feature folders, type every component and hook strictly, add a generic table component and set up lint and format rules.",
+          "deliverable": "Restructured repository with lint passing",
+          "checks": [["Compile with strict mode", "Zero errors", "Compiler output"], ["Use the generic table with two data types", "Columns typed for each", "Compiler output"], ["Run lint", "No errors", "Lint output"]],
+          "objectives": ["Structure React projects", "Type React code well", "Enforce code standards"]
+        },
+        {
+          "topic": "Server State with TanStack Query",
+          "subtopics": ["Server state versus client state", "Queries and query keys", "Caching and stale time", "Mutations", "Invalidation and refetching", "Optimistic updates", "Pagination and infinite queries", "Devtools"],
+          "tools": ["TanStack Query", "React 19"],
+          "lab_task": "Move all API calls to TanStack Query with typed query keys, add optimistic updates with rollback for the cart, infinite scroll for products and invalidation after checkout.",
+          "deliverable": "Updated app and devtools screenshots",
+          "checks": [["Fail the cart update on the server", "UI rolls back", "Screen recording"], ["Scroll the product list", "Next pages load automatically", "Screen recording"], ["Open devtools", "Cache entries and states visible", "Screenshot"]],
+          "objectives": ["Manage server state", "Use mutations and optimistic updates", "Cache data well"]
+        },
+        {
+          "topic": "Client State with Zustand and Redux Toolkit",
+          "subtopics": ["When you need a store", "Zustand stores", "Redux Toolkit slices", "Selectors", "Middleware and persistence", "Async logic with thunks", "Devtools", "Choosing a library"],
+          "tools": ["Zustand", "Redux Toolkit", "Redux DevTools"],
+          "lab_task": "Implement UI and cart state once with Zustand and once with Redux Toolkit, persist it, use selectors to avoid re-renders and compare the two.",
+          "deliverable": "Two implementations and comparison",
+          "checks": [["Reload the page", "Persisted state restored", "Screenshot"], ["Profile with selectors", "Unrelated components do not re-render", "Profiler screenshot"], ["Compare libraries", "Code size and trade-offs recorded", "Comparison"]],
+          "objectives": ["Manage client state", "Use selectors", "Choose a state library"]
+        },
+        {
+          "topic": "Advanced Forms and Validation",
+          "subtopics": ["React Hook Form in depth", "Zod schemas", "Dynamic field arrays", "Multi-step forms", "Server-side validation errors", "File uploads", "Accessible error handling", "Form performance"],
+          "tools": ["React Hook Form", "Zod"],
+          "lab_task": "Build a multi-step onboarding form with field arrays, Zod validation shared with the API, file upload and server error mapping.",
+          "deliverable": "Form component and schema",
+          "checks": [["Submit an invalid step", "Step blocked with field errors", "Screenshot"], ["Return a server error for one field", "Error shown on that field", "Screenshot"], ["Add five dynamic rows", "Each validated", "Screenshot"]],
+          "objectives": ["Build complex forms", "Share validation schemas", "Handle server errors"]
+        },
+        {
+          "topic": "Next.js App Router Essentials",
+          "subtopics": ["Why a framework", "File-based routing", "Layouts and templates", "Loading and error files", "Dynamic routes", "Metadata and SEO", "Static and dynamic rendering", "Deploying Next.js"],
+          "tools": ["Next.js", "Vercel"],
+          "lab_task": "Port the shop to Next.js with the App Router, layouts, loading and error states, dynamic product routes and page metadata, and deploy it.",
+          "deliverable": "Next.js app and live URL",
+          "checks": [["Open a product page", "Rendered with its own title and description", "Page source"], ["Make data fetching fail", "error.tsx shown", "Screenshot"], ["Build the app", "Static and dynamic routes listed", "Build output"]],
+          "objectives": ["Build apps with Next.js", "Use layouts and special files", "Improve SEO"]
+        },
+        {
+          "topic": "React Server Components and Server Actions",
+          "subtopics": ["Server and client components", "use client and the boundary", "Fetching data on the server", "Streaming with Suspense", "Server actions for mutations", "Revalidation", "Security of server actions", "Choosing where code runs"],
+          "tools": ["Next.js", "React 19"],
+          "lab_task": "Render the product list as a server component, stream slow reviews with Suspense, add to cart with a server action and revalidate the cart page.",
+          "deliverable": "Updated Next.js app",
+          "checks": [["Check the client bundle", "Product list code not shipped to the browser", "Build analysis"], ["Load a page with slow reviews", "Page shows first, reviews stream in", "Screen recording"], ["Call the server action with invalid input", "Rejected on the server", "Server log"]],
+          "objectives": ["Use Server Components", "Write server actions", "Stream UI"]
+        },
+        {
+          "topic": "Authentication and Authorisation in React Apps",
+          "subtopics": ["Session versus token auth", "Auth.js with Next.js", "OAuth providers", "Protecting pages and server actions", "Role-based UI", "Storing tokens safely", "Refresh tokens", "Common auth mistakes"],
+          "tools": ["Auth.js", "Next.js"],
+          "lab_task": "Add sign-in with email and Google, protect account pages and server actions, show admin features only to admins and test that the server enforces the rules.",
+          "deliverable": "Auth set-up and tests",
+          "checks": [["Call an admin server action as a normal user", "Rejected on the server", "Test output"], ["Open account pages signed out", "Redirected to sign-in", "Screen recording"], ["Inspect storage", "No tokens in localStorage", "DevTools screenshot"]],
+          "objectives": ["Add authentication", "Protect pages and actions", "Enforce roles on the server"]
+        },
+        {
+          "topic": "Component Design Patterns",
+          "subtopics": ["Composition over configuration", "Compound components", "Render props and hooks", "Controlled and uncontrolled components", "Headless components", "Polymorphic components", "Slots", "API design for components"],
+          "tools": ["React 19", "TypeScript"],
+          "lab_task": "Build a compound Tabs component, a headless Combobox with a hook, and a polymorphic Button, and document their APIs.",
+          "deliverable": "Components and API notes",
+          "checks": [["Use Tabs with custom layout", "Works without changing the component", "Code sample"], ["Use the Combobox with the keyboard", "Arrow keys and Enter work", "Screen recording"], ["Render Button as a link", "Correct element and types", "Compiler output"]],
+          "objectives": ["Apply component patterns", "Build headless components", "Design component APIs"]
+        },
+        {
+          "topic": "Design Systems and Storybook",
+          "subtopics": ["What a design system is", "Design tokens", "Building a component library", "Storybook stories", "Documenting props", "Visual testing with Chromatic", "Publishing a library", "Versioning"],
+          "tools": ["Storybook", "Tailwind CSS", "Chromatic"],
+          "lab_task": "Build a small design system with tokens, five components and Storybook stories, add visual tests and publish it as a package used by the shop.",
+          "deliverable": "Component library, Storybook and package",
+          "checks": [["Open Storybook", "Every component has stories and docs", "Screenshot"], ["Change a token", "Visual tests show the change", "Chromatic diff"], ["Install the package in the shop", "Components render correctly", "Screenshot"]],
+          "objectives": ["Build design systems", "Document components", "Publish libraries"]
+        },
+        {
+          "topic": "Performance Optimisation in Depth",
+          "subtopics": ["Rendering behaviour in React 19", "React Compiler", "Virtualised lists", "Transitions and useDeferredValue", "Web Vitals", "Images and fonts in Next.js", "Bundle analysis", "Performance budgets"],
+          "tools": ["React Profiler", "TanStack Virtual", "Lighthouse", "Next.js bundle analyzer"],
+          "lab_task": "Render a 10,000-row list with virtualisation, keep search responsive with transitions, fix Core Web Vitals on the home page and set a performance budget in CI.",
+          "deliverable": "Profiles, Web Vitals and budget configuration",
+          "checks": [["Scroll the 10,000-row list", "Smooth scrolling", "Profiler screenshot"], ["Measure Largest Contentful Paint", "Under 2.5 seconds", "Lighthouse report"], ["Exceed the budget", "CI fails", "CI log"]],
+          "objectives": ["Optimise React performance", "Improve Web Vitals", "Enforce performance budgets"]
+        },
+        {
+          "topic": "GraphQL and Typed API Clients in React",
+          "subtopics": ["REST versus GraphQL for front ends", "Apollo Client or urql", "Queries, mutations and fragments", "Generated types with GraphQL Code Generator", "Typed REST clients from OpenAPI", "Caching normalised data", "Error and loading handling", "Choosing an API client"],
+          "tools": ["Apollo Client", "GraphQL Code Generator", "openapi-typescript"],
+          "lab_task": "Connect the shop to a GraphQL API with Apollo and generated types, generate a typed REST client from an OpenAPI spec for orders, and show compile errors when the API changes.",
+          "deliverable": "Typed clients and change test",
+          "checks": [["Rename a GraphQL field", "Generated types cause compile errors where it is used", "Compiler output"], ["Update a product", "Normalised cache updates every view of it", "Screen recording"], ["Generate the REST client", "Typed functions for each endpoint", "Generated code"]],
+          "objectives": ["Use GraphQL in React", "Generate typed API clients", "Keep front end and API in step"]
+        },
+        {
+          "topic": "Error Handling and Resilience in the UI",
+          "subtopics": ["Error boundaries", "Error states for data", "Retrying failed requests", "Offline handling", "Logging errors to a service", "User-friendly messages", "Fallback UI", "Testing error paths"],
+          "tools": ["React 19", "Sentry", "TanStack Query"],
+          "lab_task": "Add error boundaries per route, retries with back-off, an offline banner and Sentry logging, and test each error path.",
+          "deliverable": "Updated app and tests",
+          "checks": [["Throw in a component", "Boundary shows fallback and the rest of the page works", "Screenshot"], ["Go offline", "Banner shown and requests resume when back online", "Screen recording"], ["Check Sentry", "Error with component stack recorded", "Sentry screenshot"]],
+          "objectives": ["Handle UI errors", "Build resilient apps", "Log errors"]
+        },
+        {
+          "topic": "Integration and End-to-End Testing",
+          "subtopics": ["Testing strategy for React apps", "Integration tests with Testing Library", "MSW for API mocking", "Playwright end-to-end tests", "Testing authentication flows", "Visual regression", "Running tests in CI", "Flaky test prevention"],
+          "tools": ["Vitest", "React Testing Library", "MSW", "Playwright"],
+          "lab_task": "Add integration tests for checkout with MSW and Playwright tests for sign-in and purchase, and run them in CI.",
+          "deliverable": "Test suites and CI run",
+          "checks": [["Run integration tests", "Pass with mocked APIs", "Test output"], ["Run Playwright tests", "Purchase flow passes in a headless browser", "Playwright report"], ["Run CI", "Tests block a breaking pull request", "CI log"]],
+          "objectives": ["Test React apps at every level", "Write end-to-end tests", "Run tests in CI"]
+        },
+        {
+          "topic": "Internationalisation and Localisation",
+          "subtopics": ["i18n concepts", "react-i18next or next-intl", "Translation files", "Plurals and interpolation", "Dates, numbers and currencies", "Right-to-left layouts", "Language switching and routing", "Testing translations"],
+          "tools": ["next-intl or react-i18next", "Intl API"],
+          "lab_task": "Translate the shop into English, Hindi and Arabic with plurals, formatted prices and dates, and a right-to-left layout for Arabic.",
+          "deliverable": "Localised app",
+          "checks": [["Switch to Hindi", "All text translated and prices in INR format", "Screenshot"], ["Switch to Arabic", "Layout flips to right-to-left", "Screenshot"], ["Show plurals", "\"1 item\" and \"5 items\" correct in each language", "Screenshot"]],
+          "objectives": ["Localise React apps", "Format dates and numbers", "Support right-to-left"]
+        },
+        {
+          "topic": "Animations and Interaction Design",
+          "subtopics": ["CSS transitions", "Framer Motion", "Page transitions", "Layout animations", "Gestures", "Reduced motion preferences", "Performance of animations", "When to animate"],
+          "tools": ["Framer Motion", "CSS"],
+          "lab_task": "Add list animations, a page transition and a drag-to-reorder list with Framer Motion, and respect reduced motion settings.",
+          "deliverable": "Animated components",
+          "checks": [["Turn on reduced motion", "Animations reduced or removed", "Screen recording"], ["Reorder by dragging", "Order saved", "Screen recording"], ["Profile animations", "No dropped frames on the test device", "Performance trace"]],
+          "objectives": ["Animate React UIs", "Respect user preferences", "Keep animations fast"]
+        },
+        {
+          "topic": "Real-Time Features",
+          "subtopics": ["WebSockets in React", "Server-sent events", "Optimistic real-time updates", "Presence indicators", "Reconnection handling", "Real-time with TanStack Query", "Managed services: Pusher, Ably, Supabase", "Testing real-time features"],
+          "tools": ["Socket.IO", "Supabase Realtime", "React 19"],
+          "lab_task": "Add live stock updates and a support chat with presence to the shop, handle reconnection and keep the cache in sync.",
+          "deliverable": "Real-time features and test notes",
+          "checks": [["Change stock on the server", "UI updates within a second", "Screen recording"], ["Disconnect the network", "App reconnects and catches up", "Screen recording"], ["Show presence", "Online users listed", "Screenshot"]],
+          "objectives": ["Build real-time features", "Handle reconnection", "Sync real-time data with the cache"]
+        },
+        {
+          "topic": "Progressive Web Apps and Offline Support",
+          "subtopics": ["What makes a PWA", "Web app manifest", "Service workers", "Caching strategies", "Offline pages", "Background sync", "Install prompts", "Testing PWAs"],
+          "tools": ["Vite PWA plugin or next-pwa", "Workbox", "Lighthouse"],
+          "lab_task": "Make the shop installable with offline access to viewed products and background sync for cart changes made offline.",
+          "deliverable": "PWA configuration and Lighthouse report",
+          "checks": [["Go offline after browsing", "Viewed products still load", "Screen recording"], ["Change the cart offline", "Synced when back online", "Network log"], ["Run Lighthouse PWA checks", "Installable", "Lighthouse report"]],
+          "objectives": ["Build PWAs", "Cache for offline use", "Sync offline changes"]
+        },
+        {
+          "topic": "CI/CD for React and Next.js",
+          "subtopics": ["Pipeline stages: lint, type-check, test, build", "Caching dependencies", "Preview deployments", "Environment variables and secrets", "Feature flags", "Rollbacks", "Monitoring releases", "Release notes"],
+          "tools": ["GitHub Actions", "Vercel or Netlify", "LaunchDarkly or a feature flag library"],
+          "lab_task": "Build a pipeline with lint, type-check, tests and build, deploy previews per pull request, release behind a feature flag and roll back a bad release.",
+          "deliverable": "Workflow files and release record",
+          "checks": [["Open a pull request", "All checks run and a preview URL is posted", "Pull request"], ["Turn the flag on for 10 percent", "Only that share sees the feature", "Flag dashboard"], ["Roll back", "Previous version live within minutes", "Deployment log"]],
+          "objectives": ["Automate React delivery", "Use previews and flags", "Roll back safely"]
+        },
+        {
+          "topic": "Security for Front-End Applications",
+          "subtopics": ["XSS in React and dangerouslySetInnerHTML", "Content Security Policy", "Safe handling of tokens", "CSRF with server actions and APIs", "Dependency vulnerabilities", "Third-party scripts", "Secrets in front-end code", "Security headers"],
+          "tools": ["npm audit", "Snyk", "Next.js middleware"],
+          "lab_task": "Find and fix four planted front-end vulnerabilities, add a Content Security Policy and security headers and scan dependencies.",
+          "deliverable": "Fixes, headers and scan report",
+          "checks": [["Inject a script through a product review", "Rendered as text", "Screenshot"], ["Check headers", "CSP and security headers present", "Response headers"], ["Scan dependencies", "No high vulnerabilities", "Scan report"]],
+          "objectives": ["Secure front-end apps", "Apply CSP", "Audit dependencies"]
+        },
+        {
+          "topic": "Intermediate Capstone: Production Next.js Commerce App",
+          "subtopics": ["Requirements and architecture", "Server Components, server actions and auth", "State, forms and design system", "Performance, accessibility and localisation", "Testing and CI/CD", "Demo and design defence"],
+          "tools": ["Next.js", "React 19", "TypeScript", "TanStack Query", "Auth.js", "Storybook", "Playwright", "GitHub Actions"],
+          "lab_task": "Deliver a commerce app in Next.js with server components, server actions, authentication, a design system, localisation, strong Web Vitals, full tests and CI/CD with previews, then present it.",
+          "deliverable": "Repository, live URL, test reports, Lighthouse report and a 15-minute demo",
+          "checks": [["Run Lighthouse", "Performance and accessibility at least 90", "Lighthouse report"], ["Run the pipeline", "All checks pass and a preview is deployed", "CI log"], ["Call a protected server action without rights", "Rejected", "Test output"]],
+          "objectives": ["Combine the intermediate topics in one app", "Prove quality and performance", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior front-end engineers and architects. Covers React internals and concurrent rendering, advanced Server Components and caching, large-scale architecture and micro-frontends, monorepos, design systems at scale, advanced performance, state architecture, testing strategy, observability, security, accessibility programmes, React Native in brief and front-end leadership.",
+      "prerequisites": ["Ships production React or Next.js applications", "Knows Server Components, testing and CI/CD", "Leads code reviews or technical decisions"],
+      "outcomes": ["Explain React internals and design for concurrent rendering", "Architect large front ends with monorepos, micro-frontends and design systems", "Engineer performance, security and observability at scale", "Lead front-end strategy and teams"],
+      "days": [
+        {
+          "topic": "React Internals: Fibre, Reconciliation and Concurrent Rendering",
+          "subtopics": ["The fibre architecture", "Reconciliation and diffing", "Render and commit phases", "Scheduling and lanes", "Concurrent features: transitions and Suspense", "Hydration", "The React Compiler in depth", "Reading React source"],
+          "tools": ["React source", "React DevTools Profiler"],
+          "lab_task": "Build a tiny React-like renderer to understand reconciliation, then use profiling to explain how transitions keep a heavy page responsive.",
+          "deliverable": "Mini renderer and profiling explanation",
+          "checks": [["Render and update a list with the mini renderer", "Only changed nodes updated", "Console output"], ["Profile a transition", "Urgent updates shown before the transition finishes", "Profiler screenshot"], ["Explain hydration", "Correct explanation with an example", "Written answer"]],
+          "objectives": ["Explain React internals", "Use concurrent features well", "Read profiling data deeply"]
+        },
+        {
+          "topic": "Advanced Server Components, Caching and Data Architecture",
+          "subtopics": ["Caching layers in Next.js", "Request memoisation", "Data cache and revalidation tags", "Partial prerendering", "Streaming patterns", "Data access layer design", "Avoiding waterfalls", "Choosing between server and client data fetching"],
+          "tools": ["Next.js", "React 19"],
+          "lab_task": "Design a data access layer for a content-heavy site, use tag-based revalidation, remove three request waterfalls and enable partial prerendering.",
+          "deliverable": "Data layer, measurements and design notes",
+          "checks": [["Update content in the CMS", "Only tagged pages revalidate", "Server logs"], ["Measure page load", "Waterfalls removed and time reduced", "Network trace"], ["Check partial prerendering", "Static shell served instantly with dynamic parts streamed", "Screen recording"]],
+          "objectives": ["Design server data architecture", "Control caching", "Remove waterfalls"]
+        },
+        {
+          "topic": "Front-End Architecture for Large Applications",
+          "subtopics": ["Modular architecture", "Feature boundaries", "Dependency rules", "Shared kernels", "Architecture decision records", "Handling cross-cutting concerns", "Scaling teams and codebases", "Architecture reviews"],
+          "tools": ["dependency-cruiser", "Nx", "TypeScript"],
+          "lab_task": "Restructure a large provided codebase into feature modules with enforced dependency rules, write decision records and present the architecture in a review.",
+          "deliverable": "Restructured code, dependency rules and decision records",
+          "checks": [["Import across a forbidden boundary", "Build fails", "Tool output"], ["Review decision records", "Options and trade-offs recorded", "Decision records"], ["Present the architecture", "Questions answered with evidence", "Review notes"]],
+          "objectives": ["Architect large front ends", "Enforce boundaries", "Record decisions"]
+        },
+        {
+          "topic": "Monorepos for Front-End Teams",
+          "subtopics": ["Monorepo tools: Turborepo, Nx, pnpm workspaces", "Shared packages", "Task caching", "Affected-only builds", "Versioning internal packages", "Code ownership", "Monorepo CI", "Migrating to a monorepo"],
+          "tools": ["Turborepo or Nx", "pnpm", "GitHub Actions"],
+          "lab_task": "Combine two apps and a design system into a monorepo with shared packages, remote caching, affected-only CI and code owners.",
+          "deliverable": "Monorepo and CI timings",
+          "checks": [["Change only one app", "Only that app builds and tests", "CI log"], ["Rerun CI", "Tasks restored from cache", "CI log"], ["Change the design system", "Both apps rebuild and test", "CI log"]],
+          "objectives": ["Run front-end monorepos", "Speed up builds", "Share code safely"]
+        },
+        {
+          "topic": "Micro-Frontends",
+          "subtopics": ["When micro-frontends make sense", "Module Federation", "Composition at build, server and runtime", "Shared dependencies", "Routing across micro-frontends", "Communication between apps", "Independent deployment", "Costs and pitfalls"],
+          "tools": ["Module Federation", "Vite or webpack", "Next.js"],
+          "lab_task": "Split the shop into a shell and two micro-frontends with Module Federation, share React once, deploy one independently and measure the cost in bundle size.",
+          "deliverable": "Micro-frontend set-up, deployment record and bundle analysis",
+          "checks": [["Deploy one micro-frontend", "Shell picks up the change without redeploying", "Deployment log"], ["Check React instances", "Only one React loaded", "Runtime check"], ["Compare bundle size", "Overhead measured", "Bundle report"]],
+          "objectives": ["Build micro-frontends", "Deploy independently", "Judge when they are worth it"]
+        },
+        {
+          "topic": "Design Systems at Scale",
+          "subtopics": ["Design system governance", "Tokens across platforms", "Theming for many brands", "Accessibility built in", "Versioning and breaking changes", "Adoption metrics", "Codemods for upgrades", "Contribution models"],
+          "tools": ["Storybook", "Style Dictionary", "Changesets", "jscodeshift"],
+          "lab_task": "Add multi-brand theming with tokens, release a breaking change with a codemod that upgrades consumers, and measure adoption across apps.",
+          "deliverable": "Theming system, codemod and adoption report",
+          "checks": [["Switch brand", "All components follow the new tokens", "Screenshot"], ["Run the codemod on a consumer app", "App compiles on the new version", "Diff and build output"], ["Report adoption", "Usage of library components versus custom ones measured", "Report"]],
+          "objectives": ["Scale design systems", "Theme for many brands", "Upgrade consumers with codemods"]
+        },
+        {
+          "topic": "Advanced Performance Engineering",
+          "subtopics": ["Field versus lab data", "Real user monitoring", "Interaction to Next Paint", "Long tasks and main-thread work", "Web workers", "Edge rendering", "Third-party script cost", "Performance culture"],
+          "tools": ["web-vitals", "Chrome DevTools Performance", "Web Workers", "RUM tool"],
+          "lab_task": "Collect real user Web Vitals, find the worst Interaction to Next Paint cause, move heavy work to a web worker and cut third-party script cost.",
+          "deliverable": "RUM dashboard, fixes and before and after data",
+          "checks": [["Collect field data", "INP and LCP shown by page", "RUM dashboard"], ["Move work to a worker", "Long tasks removed from the main thread", "Performance trace"], ["Compare INP", "Improved for the fixed interaction", "RUM data"]],
+          "objectives": ["Engineer front-end performance", "Use field data", "Reduce main-thread work"]
+        },
+        {
+          "topic": "State Architecture and Data Synchronisation",
+          "subtopics": ["Choosing state boundaries", "Server state, URL state and client state", "State machines with XState", "Local-first and sync engines", "Conflict resolution", "Caching across tabs", "Offline-first design", "Measuring state complexity"],
+          "tools": ["XState", "TanStack Query", "Replicache or similar"],
+          "lab_task": "Model checkout as a state machine, keep filters in the URL, sync the cart across tabs and resolve an offline conflict.",
+          "deliverable": "State machine, sync implementation and tests",
+          "checks": [["Send an invalid event to the machine", "Ignored as designed", "Test output"], ["Change the cart in one tab", "Other tab updates", "Screen recording"], ["Edit offline in two tabs", "Conflict resolved by the rule", "Test output"]],
+          "objectives": ["Design state architecture", "Use state machines", "Sync state across contexts"]
+        },
+        {
+          "topic": "Testing Strategy at Scale",
+          "subtopics": ["Testing trophy versus pyramid", "Contract tests with the backend", "Component tests in the browser", "Visual regression at scale", "Test data and fixtures", "Flaky test management", "Test sharding", "Measuring test value"],
+          "tools": ["Vitest browser mode", "Playwright", "Chromatic", "Pact"],
+          "lab_task": "Design a testing strategy for a large app, add a contract test with the API, shard Playwright across workers and quarantine flaky tests automatically.",
+          "deliverable": "Strategy, contract test and CI results",
+          "checks": [["Change the API response", "Contract test fails before release", "CI log"], ["Shard end-to-end tests", "Total time reduced", "CI timings"], ["Quarantine a flaky test", "Moved out of the blocking suite with a ticket", "CI log"]],
+          "objectives": ["Plan testing at scale", "Use contract tests", "Keep suites fast and reliable"]
+        },
+        {
+          "topic": "Observability for Front Ends",
+          "subtopics": ["Front-end logging", "Error tracking with source maps", "Distributed tracing from the browser", "Session replay and privacy", "Business event tracking", "Alerting on front-end errors", "Dashboards", "Linking front-end and back-end traces"],
+          "tools": ["Sentry", "OpenTelemetry for the web", "Grafana"],
+          "lab_task": "Add OpenTelemetry tracing from the browser to the API, error tracking with source maps, privacy-safe session replay and alerts on error spikes.",
+          "deliverable": "Observability set-up and dashboards",
+          "checks": [["Click checkout", "One trace from browser to database", "Trace screenshot"], ["Throw an error in production", "Original source line shown", "Sentry screenshot"], ["Check session replay", "Personal data masked", "Replay screenshot"]],
+          "objectives": ["Observe front ends", "Trace across the stack", "Protect privacy"]
+        },
+        {
+          "topic": "Advanced Front-End Security",
+          "subtopics": ["Supply chain attacks on npm", "Subresource integrity", "Trusted Types", "Strict Content Security Policy with nonces", "Clickjacking", "OAuth and BFF patterns", "Security reviews for front ends", "Incident response for front ends"],
+          "tools": ["Socket or Snyk", "Next.js middleware", "CSP evaluator"],
+          "lab_task": "Add a strict nonce-based CSP and Trusted Types, move tokens to a backend-for-frontend, block a malicious package with supply chain scanning and run a security review.",
+          "deliverable": "Security configuration, BFF and review report",
+          "checks": [["Inject an inline script", "Blocked by CSP", "Browser console"], ["Install the malicious test package", "Blocked by the scanner", "CI log"], ["Inspect browser storage", "No access tokens available to scripts", "DevTools screenshot"]],
+          "objectives": ["Secure front ends deeply", "Use strict CSP and Trusted Types", "Defend the supply chain"]
+        },
+        {
+          "topic": "Accessibility Programmes for Product Teams",
+          "subtopics": ["WCAG 2.2 in depth", "Accessibility in design reviews", "Automated, manual and assistive technology testing", "Accessible component libraries", "Legal requirements", "Accessibility metrics", "Training teams", "Working with disabled users"],
+          "tools": ["axe", "Screen readers", "Accessibility conformance report template"],
+          "lab_task": "Run a full accessibility audit with automated, manual and screen reader testing, fix the top issues in the design system and produce a conformance report.",
+          "deliverable": "Audit, fixes and conformance report",
+          "checks": [["Complete the audit", "Issues mapped to WCAG criteria", "Audit report"], ["Fix design system issues", "Fixed across all apps using it", "Before and after audit"], ["Produce the conformance report", "Status for each criterion", "Report"]],
+          "objectives": ["Run accessibility programmes", "Fix issues at the source", "Report conformance"]
+        },
+        {
+          "topic": "Data-Heavy Interfaces: Tables, Dashboards and Large Forms",
+          "subtopics": ["Headless tables with TanStack Table", "Sorting, filtering and pagination on the server", "Virtualised grids", "Charts at scale", "Large forms with many fields", "Saving drafts", "Keyboard-first data entry", "Performance budgets for dashboards"],
+          "tools": ["TanStack Table", "TanStack Virtual", "Recharts or ECharts", "React Hook Form"],
+          "lab_task": "Build an admin dashboard with a 100,000-row server-paginated table, virtualised rows, live charts and a 150-field form with draft saving and keyboard navigation.",
+          "deliverable": "Dashboard, table and form with performance results",
+          "checks": [["Sort and filter the table", "Server returns the right page quickly", "Network trace"], ["Type in the 150-field form", "No input lag", "Performance trace"], ["Reload with a draft", "Draft restored", "Screen recording"]],
+          "objectives": ["Build data-heavy interfaces", "Keep large tables and forms fast", "Design for keyboard users"]
+        },
+        {
+          "topic": "React Native and Cross-Platform Strategy",
+          "subtopics": ["React Native architecture", "Expo", "Sharing code between web and native", "Navigation", "Native modules", "Performance on mobile", "Release process for app stores", "Choosing web, native or both"],
+          "tools": ["React Native", "Expo", "Expo Router"],
+          "lab_task": "Build a React Native version of the product list and cart with Expo, share types and API code with the web app and compare effort with a mobile web approach.",
+          "deliverable": "Expo app, shared packages and comparison",
+          "checks": [["Run on a device", "Product list and cart work", "Screen recording"], ["Share code", "Types and API client used by both apps", "Repository"], ["Compare approaches", "Effort and user experience compared", "Comparison"]],
+          "objectives": ["Use React Native", "Share code across platforms", "Choose a platform strategy"]
+        },
+        {
+          "topic": "Server-Side Rendering at the Edge and Hosting Strategy",
+          "subtopics": ["Rendering strategies compared", "Edge runtimes", "Self-hosting Next.js", "Containers for front ends", "CDN caching strategy", "Costs of hosting choices", "Multi-region delivery", "Vendor lock-in"],
+          "tools": ["Next.js", "Docker", "CloudFront or Cloudflare", "Vercel"],
+          "lab_task": "Deploy the app on a managed platform and self-hosted in Docker behind a CDN, compare latency from three regions and monthly cost, and recommend one.",
+          "deliverable": "Two deployments, measurements and recommendation",
+          "checks": [["Measure latency from three regions", "Recorded for both", "Measurements"], ["Check CDN caching", "Static assets served from the edge", "Response headers"], ["Review the recommendation", "Supported by latency and cost", "Recommendation"]],
+          "objectives": ["Choose hosting strategies", "Self-host Next.js", "Use CDNs well"]
+        },
+        {
+          "topic": "Migrations: Class Components, Legacy State and Framework Upgrades",
+          "subtopics": ["Assessing legacy React code", "Class components to hooks", "Legacy Redux to modern patterns", "React and Next.js major upgrades", "Pages Router to App Router", "Codemods", "Incremental migration", "Measuring migration progress"],
+          "tools": ["jscodeshift", "React codemods", "Next.js codemods"],
+          "lab_task": "Migrate a legacy app with class components and old Redux, upgrade React and move two pages from Pages Router to App Router incrementally, with tests protecting behaviour.",
+          "deliverable": "Migration plan, migrated code and test results",
+          "checks": [["Run tests after each step", "Behaviour unchanged", "Test output"], ["Run codemods", "Bulk changes applied and reviewed", "Diff"], ["Report progress", "Remaining legacy code measured", "Progress report"]],
+          "objectives": ["Migrate legacy React", "Upgrade frameworks safely", "Use codemods"]
+        },
+        {
+          "topic": "AI Features in React Applications",
+          "subtopics": ["AI SDKs for React", "Streaming responses to the UI", "Generative UI", "Chat interfaces", "Handling errors and costs", "Safety and moderation in the UI", "Evaluating AI features", "Accessibility of AI interfaces"],
+          "tools": ["Vercel AI SDK", "Next.js", "LLM API"],
+          "lab_task": "Build a product assistant in the shop that streams answers, renders product cards from tool calls, handles errors and rate limits, and is evaluated on 20 questions.",
+          "deliverable": "AI feature and evaluation results",
+          "checks": [["Ask a question", "Answer streams in", "Screen recording"], ["Ask for products", "Assistant shows product cards from a tool call", "Screenshot"], ["Run the 20 questions", "Accuracy recorded", "Evaluation sheet"]],
+          "objectives": ["Build AI features in React", "Stream AI output", "Evaluate AI features"]
+        },
+        {
+          "topic": "Front-End Leadership and Technical Strategy",
+          "subtopics": ["Front-end strategy", "Choosing frameworks and tools", "Platform teams for front ends", "Developer experience metrics", "Hiring and growing front-end engineers", "Standards and guilds", "Roadmaps", "Presenting to leadership"],
+          "tools": ["Roadmap template", "Skills matrix template"],
+          "lab_task": "Write a front-end technical strategy for an organisation with eight product teams, including tooling, platform support, standards and a 12-month roadmap, and present it.",
+          "deliverable": "Strategy document and presentation",
+          "checks": [["Review the strategy", "Linked to product goals", "Strategy"], ["Review the roadmap", "Milestones with measures", "Roadmap"], ["Answer leadership questions", "Strategy defended with evidence", "Presentation"]],
+          "objectives": ["Lead front-end strategy", "Plan platforms and standards", "Communicate to leadership"]
+        },
+        {
+          "topic": "Troubleshooting Production Front-End Issues",
+          "subtopics": ["White screen failures", "Hydration mismatches", "Memory leaks in single-page apps", "Slow interactions in production", "Caching bugs", "Third-party outages", "Root cause analysis", "Runbooks"],
+          "tools": ["Chrome DevTools", "Sentry", "RUM tool"],
+          "lab_task": "Resolve four injected production issues (a hydration mismatch, a memory leak, a stale cache and a third-party script outage), find root causes and write runbooks.",
+          "deliverable": "Incident records, fixes and runbooks",
+          "checks": [["Fix the hydration mismatch", "No hydration warnings", "Console output"], ["Fix the memory leak", "Heap stable over 30 minutes", "Memory profile"], ["Write a runbook for third-party outages", "Another engineer can follow it", "Runbook"]],
+          "objectives": ["Troubleshoot production front ends", "Find root causes", "Write runbooks"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Front-End Platform",
+          "subtopics": ["Architecture and monorepo", "Design system and micro-frontends", "Server Components and data architecture", "Performance, security and accessibility programmes", "Observability and testing strategy", "Leadership presentation and defence"],
+          "tools": ["Next.js", "Turborepo or Nx", "Storybook", "Module Federation", "OpenTelemetry", "Playwright"],
+          "lab_task": "Deliver a front-end platform with a monorepo, multi-brand design system, two independently deployed apps, server data architecture, strict security, observability and a testing strategy, then present it to leadership.",
+          "deliverable": "Platform repository, dashboards, test reports and a 20-minute presentation",
+          "checks": [["Deploy one app alone", "Other apps unaffected", "Deployment log"], ["Check field Web Vitals", "Meet the agreed targets", "RUM dashboard"], ["Answer leadership questions", "Architecture defended with data", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one platform", "Prove performance, security and scale", "Lead front-end architecture"]
+        }
+      ]
+    }
+  }
+}

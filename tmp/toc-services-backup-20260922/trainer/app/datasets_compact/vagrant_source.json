@@ -1,0 +1,419 @@
+{
+    "domain":  "Vagrant",
+    "name":  "Vagrant â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "HashiCorp Vagrant",
+                    "Dev Environment Automation"
+                ],
+    "tools":  [
+                  "Vagrant",
+                  "VirtualBox",
+                  "VMware",
+                  "Shell"
+              ],
+    "certifications":  [
+                           "Vagrant official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Introduction and Setup",
+                     "subtopics":  [
+                                       "Core purpose",
+                                       "Architecture",
+                                       "Installation/setup",
+                                       "Configuration files",
+                                       "CLI/UI",
+                                       "Typical workflows",
+                                       "Terminology",
+                                       "Vagrant terminology and feature mapping for this topic",
+                                       "Vagrant configuration and implementation considerations",
+                                       "Vagrant best practices and common mistakes for this topic",
+                                       "Vagrantfile",
+                                       "boxes",
+                                       "providers",
+                                       "provisioners",
+                                       "synced folders",
+                                       "networking",
+                                       "multi-machine",
+                                       "SSH",
+                                       "snapshots",
+                                       "plugins",
+                                       "VirtualBox",
+                                       "VMware"
+                                   ],
+                     "tools":  [
+                                   "Vagrant",
+                                   "VirtualBox",
+                                   "VMware"
+                               ],
+                     "lab_task":  "Set up Vagrant and run a basic workflow.",
+                     "technology":  "Vagrant",
+                     "technology_id":  "vagrant",
+                     "learning_objectives":  [
+                                                 "Explain the Introduction and Setup concepts in the context of Vagrant.",
+                                                 "Configure or implement the key Vagrant features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Introduction and Setup practically using Vagrant.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Configuration",
+                     "subtopics":  [
+                                       "Configuration syntax",
+                                       "Resources/components",
+                                       "Variables",
+                                       "Parameters",
+                                       "Secrets",
+                                       "Environment-specific configuration",
+                                       "Validation",
+                                       "Vagrant terminology and feature mapping for this topic",
+                                       "Vagrant configuration and implementation considerations",
+                                       "Vagrant best practices and common mistakes for this topic",
+                                       "Vagrantfile",
+                                       "boxes",
+                                       "providers",
+                                       "provisioners",
+                                       "synced folders",
+                                       "networking",
+                                       "multi-machine",
+                                       "SSH",
+                                       "snapshots",
+                                       "plugins",
+                                       "VirtualBox",
+                                       "VMware"
+                                   ],
+                     "tools":  [
+                                   "Vagrant",
+                                   "VirtualBox",
+                                   "VMware"
+                               ],
+                     "lab_task":  "Create reusable Vagrant configuration for development.",
+                     "technology":  "Vagrant",
+                     "technology_id":  "vagrant",
+                     "learning_objectives":  [
+                                                 "Explain the Core Configuration concepts in the context of Vagrant.",
+                                                 "Configure or implement the key Vagrant features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Configuration practically using Vagrant.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Automation Workflow",
+                     "subtopics":  [
+                                       "Triggers",
+                                       "Stages/steps",
+                                       "Dependencies",
+                                       "Artifacts",
+                                       "Caching",
+                                       "Retries",
+                                       "Failure handling",
+                                       "Notifications",
+                                       "Vagrant terminology and feature mapping for this topic",
+                                       "Vagrant configuration and implementation considerations",
+                                       "Vagrant best practices and common mistakes for this topic",
+                                       "Vagrantfile",
+                                       "boxes",
+                                       "providers",
+                                       "provisioners",
+                                       "synced folders",
+                                       "networking",
+                                       "multi-machine",
+                                       "SSH",
+                                       "snapshots",
+                                       "plugins",
+                                       "VirtualBox",
+                                       "VMware"
+                                   ],
+                     "tools":  [
+                                   "Vagrant",
+                                   "VirtualBox",
+                                   "VMware"
+                               ],
+                     "lab_task":  "Build an automated workflow using Vagrant.",
+                     "technology":  "Vagrant",
+                     "technology_id":  "vagrant",
+                     "learning_objectives":  [
+                                                 "Explain the Automation Workflow concepts in the context of Vagrant.",
+                                                 "Configure or implement the key Vagrant features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation Workflow practically using Vagrant.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "Git integration",
+                                       "Container integration",
+                                       "Cloud integration",
+                                       "API/webhook integration",
+                                       "Credential management",
+                                       "Third-party plugins",
+                                       "Vagrant terminology and feature mapping for this topic",
+                                       "Vagrant configuration and implementation considerations",
+                                       "Vagrant best practices and common mistakes for this topic",
+                                       "Vagrantfile",
+                                       "boxes",
+                                       "providers",
+                                       "provisioners",
+                                       "synced folders",
+                                       "networking",
+                                       "multi-machine",
+                                       "SSH",
+                                       "snapshots",
+                                       "plugins",
+                                       "VirtualBox",
+                                       "VMware"
+                                   ],
+                     "tools":  [
+                                   "Vagrant",
+                                   "VirtualBox",
+                                   "VMware",
+                                   "Shell"
+                               ],
+                     "lab_task":  "Integrate Vagrant with source control and external services.",
+                     "technology":  "Vagrant",
+                     "technology_id":  "vagrant",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of Vagrant.",
+                                                 "Configure or implement the key Vagrant features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using Vagrant.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Security",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Secrets",
+                                       "Least privilege",
+                                       "Supply-chain concerns",
+                                       "Audit logs",
+                                       "Policy controls",
+                                       "Vagrant terminology and feature mapping for this topic",
+                                       "Vagrant configuration and implementation considerations",
+                                       "Vagrant best practices and common mistakes for this topic",
+                                       "Vagrantfile",
+                                       "boxes",
+                                       "providers",
+                                       "provisioners",
+                                       "synced folders",
+                                       "networking",
+                                       "multi-machine",
+                                       "SSH",
+                                       "snapshots",
+                                       "plugins",
+                                       "VirtualBox",
+                                       "VMware"
+                                   ],
+                     "tools":  [
+                                   "Vagrant",
+                                   "VirtualBox",
+                                   "VMware"
+                               ],
+                     "lab_task":  "Harden a Vagrant setup.",
+                     "technology":  "Vagrant",
+                     "technology_id":  "vagrant",
+                     "learning_objectives":  [
+                                                 "Explain the Security concepts in the context of Vagrant.",
+                                                 "Configure or implement the key Vagrant features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security practically using Vagrant.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Scaling and Reliability",
+                     "subtopics":  [
+                                       "Agents/runners/nodes",
+                                       "Parallel execution",
+                                       "High availability",
+                                       "State management",
+                                       "Backups",
+                                       "Failure recovery",
+                                       "Capacity planning",
+                                       "Vagrant terminology and feature mapping for this topic",
+                                       "Vagrant configuration and implementation considerations",
+                                       "Vagrant best practices and common mistakes for this topic",
+                                       "Vagrantfile",
+                                       "boxes",
+                                       "providers",
+                                       "provisioners",
+                                       "synced folders",
+                                       "networking",
+                                       "multi-machine",
+                                       "SSH",
+                                       "snapshots",
+                                       "plugins",
+                                       "VirtualBox",
+                                       "VMware"
+                                   ],
+                     "tools":  [
+                                   "Vagrant",
+                                   "VirtualBox",
+                                   "VMware"
+                               ],
+                     "lab_task":  "Design a scalable and resilient Vagrant setup.",
+                     "technology":  "Vagrant",
+                     "technology_id":  "vagrant",
+                     "learning_objectives":  [
+                                                 "Explain the Scaling and Reliability concepts in the context of Vagrant.",
+                                                 "Configure or implement the key Vagrant features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Scaling and Reliability practically using Vagrant.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Observability and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Debugging",
+                                       "Failure diagnosis",
+                                       "Performance bottlenecks",
+                                       "Alerting",
+                                       "Operational runbooks",
+                                       "Vagrant terminology and feature mapping for this topic",
+                                       "Vagrant configuration and implementation considerations",
+                                       "Vagrant best practices and common mistakes for this topic",
+                                       "Vagrantfile",
+                                       "boxes",
+                                       "providers",
+                                       "provisioners",
+                                       "synced folders",
+                                       "networking",
+                                       "multi-machine",
+                                       "SSH",
+                                       "snapshots",
+                                       "plugins",
+                                       "VirtualBox",
+                                       "VMware"
+                                   ],
+                     "tools":  [
+                                   "Vagrant",
+                                   "VirtualBox",
+                                   "VMware"
+                               ],
+                     "lab_task":  "Troubleshoot an intentionally failing Vagrant workflow.",
+                     "technology":  "Vagrant",
+                     "technology_id":  "vagrant",
+                     "learning_objectives":  [
+                                                 "Explain the Observability and Troubleshooting concepts in the context of Vagrant.",
+                                                 "Configure or implement the key Vagrant features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Observability and Troubleshooting practically using Vagrant.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Advanced Patterns",
+                     "subtopics":  [
+                                       "Reusable modules/templates",
+                                       "Multi-environment strategy",
+                                       "Promotion strategy",
+                                       "Policy as code concepts",
+                                       "GitOps/IaC patterns",
+                                       "Best practices",
+                                       "Vagrant terminology and feature mapping for this topic",
+                                       "Vagrant configuration and implementation considerations",
+                                       "Vagrant best practices and common mistakes for this topic",
+                                       "Vagrantfile",
+                                       "boxes",
+                                       "providers",
+                                       "provisioners",
+                                       "synced folders",
+                                       "networking",
+                                       "multi-machine",
+                                       "SSH",
+                                       "snapshots",
+                                       "plugins",
+                                       "VirtualBox",
+                                       "VMware"
+                                   ],
+                     "tools":  [
+                                   "Vagrant",
+                                   "VirtualBox",
+                                   "VMware",
+                                   "Shell"
+                               ],
+                     "lab_task":  "Create reusable production-grade patterns.",
+                     "technology":  "Vagrant",
+                     "technology_id":  "vagrant",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Patterns concepts in the context of Vagrant.",
+                                                 "Configure or implement the key Vagrant features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Patterns practically using Vagrant.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "CI/CD or Deployment Project",
+                     "subtopics":  [
+                                       "Source control",
+                                       "Build",
+                                       "Test",
+                                       "Artifact",
+                                       "Deploy",
+                                       "Rollback",
+                                       "Approval gates",
+                                       "Documentation",
+                                       "Vagrant terminology and feature mapping for this topic",
+                                       "Vagrant configuration and implementation considerations",
+                                       "Vagrant best practices and common mistakes for this topic",
+                                       "Vagrantfile",
+                                       "boxes",
+                                       "providers",
+                                       "provisioners",
+                                       "synced folders",
+                                       "networking",
+                                       "multi-machine",
+                                       "SSH",
+                                       "snapshots",
+                                       "plugins",
+                                       "VirtualBox",
+                                       "VMware"
+                                   ],
+                     "tools":  [
+                                   "Vagrant",
+                                   "VirtualBox",
+                                   "VMware",
+                                   "Shell"
+                               ],
+                     "lab_task":  "Implement a complete delivery workflow with Vagrant.",
+                     "technology":  "Vagrant",
+                     "technology_id":  "vagrant",
+                     "learning_objectives":  [
+                                                 "Explain the CI/CD or Deployment Project concepts in the context of Vagrant.",
+                                                 "Configure or implement the key Vagrant features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply CI/CD or Deployment Project practically using Vagrant.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "vagrant"
+}

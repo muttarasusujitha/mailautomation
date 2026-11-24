@@ -1,0 +1,573 @@
+{
+  "domain": "LoadRunner",
+  "name": "LoadRunner Performance Testing",
+  "category": "Testing and QA",
+  "icon": "activity",
+  "aliases": ["OpenText LoadRunner", "LoadRunner Professional", "LoadRunner Enterprise", "LoadRunner Cloud", "Micro Focus LoadRunner", "HP LoadRunner", "OpenText Professional Performance Engineering", "OpenText Enterprise Performance Engineering", "OpenText Core Performance Engineering", "VuGen", "Performance Center", "Enterprise Performance Testing"],
+  "certifications": ["OpenText performance engineering certifications (optional)", "ISTQB Performance Testing (CT-PT)", "Assessed by scripts, scenarios and an analysis report"],
+  "tools": ["LoadRunner Professional (OpenText Professional Performance Engineering)", "VuGen", "Controller", "Load generators", "Analysis", "LoadRunner Enterprise", "APM tool such as Dynatrace or AppDynamics"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For performance testers starting with LoadRunner, sold today under the OpenText Performance Engineering names. Covers performance testing concepts, the LoadRunner components, installation, protocols, recording Web HTTP/HTML scripts in VuGen, script structure, replay and run-time settings, transactions, think time, parameterisation, correlation, checkpoints, rendezvous points, C functions in scripts, debugging, Controller scenarios, load generators, monitors, Analysis, SLAs and a first load test report.",
+      "prerequisites": ["Understands how web applications work", "Has done functional testing", "Basic programming knowledge helps for the C scripting days"],
+      "outcomes": ["Record, correlate and parameterise reliable Web HTTP/HTML scripts in VuGen", "Design and run manual and goal-oriented scenarios in the Controller with load generators", "Analyse results in Analysis with SLAs and server monitors", "Write a clear performance test report from a LoadRunner run"],
+      "days": [
+        {
+          "topic": "LoadRunner Overview, Components and Installation Setup",
+          "subtopics": ["Performance testing goals and test types", "The LoadRunner family: Professional, Enterprise and Cloud", "Current OpenText product names", "VuGen, Controller, load generators and Analysis", "Protocols and why they matter", "Licences and virtual user types", "System requirements and installation", "Sample applications for practice", "Starting VuGen and the Controller", "Course project overview"],
+          "tools": ["LoadRunner Professional", "VuGen", "Controller", "Analysis"],
+          "lab_task": "Install LoadRunner Professional with the sample application, open each component, record a short script in VuGen and replay it once.",
+          "deliverable": "Working installation and a first replayed script",
+          "checks": [["Install", "All four components open", "Screenshots"], ["Record", "A short script is recorded", "VuGen script"], ["Replay", "The script replays without errors", "Replay log"]],
+          "objectives": ["Explain LoadRunner components", "Install the tools", "Record and replay a first script"]
+        },
+        {
+          "topic": "Choosing Protocols for an Application",
+          "subtopics": ["What a protocol is in LoadRunner", "Web HTTP/HTML", "TruClient for browser-level scripts", "Web Services and REST", "DevWeb for JavaScript scripting", "Citrix, SAP GUI and other enterprise protocols", "Protocol Advisor", "Choosing a protocol with evidence"],
+          "tools": ["VuGen Protocol Advisor", "Browser developer tools", "Sample application"],
+          "lab_task": "Analyse two sample applications with Protocol Advisor and browser tools, choose a protocol for each and write the reasons.",
+          "deliverable": "Protocol choices with reasons",
+          "checks": [["Analyse", "Protocol Advisor results are recorded", "Screenshots"], ["Choose", "Each application has a chosen protocol", "Decision note"], ["Justify", "Reasons cite the application's traffic", "Decision note"]],
+          "objectives": ["Understand protocols", "Use Protocol Advisor", "Choose protocols with evidence"]
+        },
+        {
+          "topic": "Recording Web HTTP/HTML Scripts in VuGen",
+          "subtopics": ["Recording options and modes", "HTML-based and URL-based recording", "Recording a business journey", "Filtering unwanted traffic", "Regenerating scripts with new options", "Script views and steps", "Comments and naming", "Cleaning up recorded scripts"],
+          "tools": ["VuGen", "Sample application", "Browser"],
+          "lab_task": "Record login, search and checkout as one journey with HTML-based mode, filter third-party requests, add comments and clean up the script.",
+          "deliverable": "Clean recorded journey script",
+          "checks": [["Record", "The journey is fully captured", "VuGen script"], ["Filter", "Third-party requests are removed", "Script review"], ["Document", "Steps are commented by business action", "Script"]],
+          "objectives": ["Record web scripts", "Choose recording options", "Clean recorded scripts"]
+        },
+        {
+          "topic": "Script Structure: vuser_init, Action and vuser_end",
+          "subtopics": ["The three default sections", "Multiple actions", "Action blocks and iterations", "What belongs in init and end", "Login once, act many times", "Extra files and headers", "Script folders and files", "Reusing actions across scripts"],
+          "tools": ["VuGen", "Sample application"],
+          "lab_task": "Restructure the script so login is in vuser_init, business steps are in separate actions and logout is in vuser_end, and run five iterations.",
+          "deliverable": "Restructured script",
+          "checks": [["Structure", "Login, actions and logout are in the right sections", "Script"], ["Iterate", "Five iterations run without re-login", "Replay log"], ["Reuse", "Actions are named by business step", "Script"]],
+          "objectives": ["Structure scripts", "Use multiple actions", "Control iterations"]
+        },
+        {
+          "topic": "Replay and Run-Time Settings",
+          "subtopics": ["Run logic and iterations", "Pacing", "Think time settings", "Logging levels", "Browser emulation and caching", "Network speed simulation", "Download filters", "Settings for debugging compared with load"],
+          "tools": ["VuGen run-time settings", "Sample application"],
+          "lab_task": "Configure run-time settings for debugging with extended logs and for load with minimal logs, pacing and cache emulation, and compare replay times.",
+          "deliverable": "Two run-time profiles with comparison",
+          "checks": [["Configure", "Debug and load settings are saved separately", "Settings screenshots"], ["Pace", "Pacing controls iteration rate", "Replay log"], ["Compare", "Replay times are compared", "Notes"]],
+          "objectives": ["Configure run-time settings", "Use pacing and think time", "Separate debug and load settings"]
+        },
+        {
+          "topic": "Transactions and Think Time",
+          "subtopics": ["lr_start_transaction and lr_end_transaction", "Naming transactions for reports", "Nested transactions", "Transaction status", "Think time with lr_think_time", "Think time and transaction timing", "Business transactions compared with technical steps", "Checking transaction results"],
+          "tools": ["VuGen", "Sample application"],
+          "lab_task": "Add a transaction for each business step with consistent names, add think time outside transactions and confirm transaction times in the replay summary.",
+          "deliverable": "Script with transactions and think time",
+          "checks": [["Measure", "Each business step is a transaction", "Script"], ["Separate", "Think time is outside transactions", "Script review"], ["Confirm", "Transaction times appear in the replay summary", "Replay summary"]],
+          "objectives": ["Define transactions", "Add think time", "Measure business steps"]
+        },
+        {
+          "topic": "Parameterisation and Test Data",
+          "subtopics": ["Why parameterise", "Parameter types: file, unique, random and date", "Select next row and update value on options", "Data for many virtual users", "Unique data across load generators", "Data files and formats", "Simulating parameters", "Data for login and search"],
+          "tools": ["VuGen parameters", "Data files"],
+          "lab_task": "Parameterise usernames, passwords and search terms from a file with unique allocation per virtual user, and simulate the values for twenty users.",
+          "deliverable": "Parameterised script and data file",
+          "checks": [["Parameterise", "Hard-coded values are replaced by parameters", "Script"], ["Allocate", "Each virtual user gets unique login data", "Simulation output"], ["Prepare", "The data file has enough rows for the planned load", "Data file"]],
+          "objectives": ["Parameterise scripts", "Choose allocation rules", "Prepare test data"]
+        },
+        {
+          "topic": "Correlation: Automatic and Manual",
+          "subtopics": ["Why scripts fail without correlation", "Finding dynamic values", "Automatic correlation and rules", "web_reg_save_param_ex", "Boundaries, ordinals and search filters", "Correlating session IDs and tokens", "Checking correlation results", "Maintaining correlation rules"],
+          "tools": ["VuGen correlation studio", "Replay log", "Sample application"],
+          "lab_task": "Find the dynamic values in the checkout script, correlate the session token and order ID with web_reg_save_param_ex and replay for ten virtual users.",
+          "deliverable": "Correlated script",
+          "checks": [["Find", "Dynamic values are listed", "Notes"], ["Correlate", "Values are captured and reused", "Script"], ["Replay", "Ten virtual users complete checkout", "Replay log"]],
+          "objectives": ["Correlate dynamic values", "Use correlation functions", "Maintain correlation rules"]
+        },
+        {
+          "topic": "Checkpoints: Verifying Responses",
+          "subtopics": ["Why load scripts need checks", "web_reg_find for text checks", "Image and content checks", "Fail and continue behaviour", "Checks for error pages", "Checks that cost little under load", "Reporting failed checks", "Choosing what to verify"],
+          "tools": ["VuGen", "Sample application"],
+          "lab_task": "Add text checks for each business step and for error pages, force one check to fail and confirm the transaction fails in the replay log.",
+          "deliverable": "Script with checkpoints",
+          "checks": [["Verify", "Each step has a text check", "Script"], ["Catch errors", "Error pages fail the step", "Replay log"], ["Report", "The failed check is visible in results", "Replay summary"]],
+          "objectives": ["Add checkpoints", "Detect error pages", "Report failed checks"]
+        },
+        {
+          "topic": "Rendezvous Points and Concurrency",
+          "subtopics": ["What rendezvous points do", "Adding lr_rendezvous", "Rendezvous policies in the Controller", "Testing peak concurrency", "When rendezvous points mislead", "Combining with ramp-up", "Reporting concurrency results", "Alternatives for concurrency tests"],
+          "tools": ["VuGen", "Controller rendezvous settings"],
+          "lab_task": "Add a rendezvous point before checkout, configure a policy that releases fifty users together and compare checkout times with a normal run.",
+          "deliverable": "Rendezvous script and comparison",
+          "checks": [["Add", "The rendezvous point is placed before checkout", "Script"], ["Configure", "The policy releases users together", "Controller settings"], ["Compare", "Concurrent checkout times are compared", "Results"]],
+          "objectives": ["Use rendezvous points", "Test peak concurrency", "Interpret concurrency results"]
+        },
+        {
+          "topic": "C Functions and Logic in Scripts",
+          "subtopics": ["C basics for LoadRunner scripts", "Variables and strings", "lr_eval_string and lr_save_string", "Conditions and loops in scripts", "Random choices", "Error handling with return codes", "Writing helper functions", "Keeping scripts readable"],
+          "tools": ["VuGen", "C in VuGen"],
+          "lab_task": "Add logic that picks a random product from search results, retries a failed step once and writes custom messages to the log.",
+          "deliverable": "Script with custom logic",
+          "checks": [["Choose", "A random product is chosen from results", "Replay log"], ["Retry", "A failed step retries once", "Replay log"], ["Log", "Custom messages appear in the log", "Replay log"]],
+          "objectives": ["Write C logic in scripts", "Use LoadRunner functions", "Handle errors"]
+        },
+        {
+          "topic": "Debugging Scripts in VuGen",
+          "subtopics": ["Replay logs and extended logs", "Snapshots and the replay viewer", "Breakpoints and step-by-step replay", "Common errors and their causes", "Comparing recording and replay", "Runtime data view", "Fixing correlation and parameter problems", "A debugging checklist"],
+          "tools": ["VuGen debugger", "Replay viewer", "Logs"],
+          "lab_task": "Diagnose four failing scripts (a missed correlation, an exhausted parameter, a failed check and a wrong header), fix them and write a debugging checklist.",
+          "deliverable": "Fixed scripts and checklist",
+          "checks": [["Diagnose", "Each failure has a recorded cause", "Diagnosis notes"], ["Fix", "All four scripts replay", "Replay logs"], ["Share", "The checklist covers the steps used", "Checklist"]],
+          "objectives": ["Debug VuGen scripts", "Use logs and snapshots", "Share debugging practice"]
+        },
+        {
+          "topic": "Controller: Manual Scenarios",
+          "subtopics": ["Creating a manual scenario", "Adding scripts and virtual user groups", "Schedules: ramp-up, duration and ramp-down", "Scenario and group schedules", "Run-time settings in the Controller", "Starting and watching a run", "Stopping runs safely", "Saving results"],
+          "tools": ["Controller", "Load generators", "Scripts from VuGen"],
+          "lab_task": "Build a manual scenario with two scripts in groups, a ramp-up, steady state and ramp-down schedule, run it and save the results.",
+          "deliverable": "Manual scenario and results",
+          "checks": [["Build", "Groups and schedules match the plan", "Scenario file"], ["Run", "The scenario completes", "Results folder"], ["Watch", "Live graphs are monitored during the run", "Screenshots"]],
+          "objectives": ["Build manual scenarios", "Schedule load", "Run tests from the Controller"]
+        },
+        {
+          "topic": "Controller: Goal-Oriented Scenarios",
+          "subtopics": ["Goal types: virtual users, hits, transactions and pages", "How the Controller reaches goals", "Limits and warnings", "When goal-oriented scenarios help", "Comparing with manual scenarios", "Reading goal results", "Common pitfalls", "Choosing a scenario type"],
+          "tools": ["Controller", "Load generators"],
+          "lab_task": "Run a goal-oriented scenario targeting transactions per second, compare how load was applied with the manual scenario and record when each type is better.",
+          "deliverable": "Goal-oriented results and comparison",
+          "checks": [["Set a goal", "The scenario targets a transaction rate", "Scenario file"], ["Reach the goal", "Results show whether the goal was met", "Results"], ["Compare", "The two scenario types are compared", "Notes"]],
+          "objectives": ["Use goal-oriented scenarios", "Compare scenario types", "Choose scenarios for objectives"]
+        },
+        {
+          "topic": "Load Generators and Scenario Distribution",
+          "subtopics": ["Load generator machines", "Adding and checking generators", "Distributing groups across generators", "Generator resource limits", "Cloud load generators", "Firewalls and connectivity", "Monitoring generators during runs", "Common generator problems"],
+          "tools": ["Controller", "Load generators", "Monitoring tools"],
+          "lab_task": "Add two load generators, distribute groups between them, monitor their CPU and memory during a run and show they were not the bottleneck.",
+          "deliverable": "Distributed scenario with generator evidence",
+          "checks": [["Connect", "Both generators are ready in the Controller", "Screenshot"], ["Distribute", "Groups run on both generators", "Scenario file"], ["Prove", "Generator resources stayed within limits", "Monitoring data"]],
+          "objectives": ["Use load generators", "Distribute load", "Check generator health"]
+        },
+        {
+          "topic": "Monitors in the Controller",
+          "subtopics": ["Online monitors", "Windows and Linux resource monitors", "Web server and application server monitors", "Database monitors", "Network delay monitoring", "Integrating APM tools", "Choosing what to monitor", "Overhead of monitoring"],
+          "tools": ["Controller monitors", "APM tool", "Server metrics"],
+          "lab_task": "Add server, database and network monitors to the scenario, run it and line up resource use with transaction response times in the Controller.",
+          "deliverable": "Monitored run with aligned graphs",
+          "checks": [["Monitor", "Server and database metrics are captured", "Controller graphs"], ["Align", "Metrics are viewed with response times", "Screenshots"], ["Interpret", "The relationship between load and resources is described", "Notes"]],
+          "objectives": ["Monitor systems in the Controller", "Align metrics with results", "Choose monitors"]
+        },
+        {
+          "topic": "Analysis: Graphs, Summary and Reports",
+          "subtopics": ["Opening results in Analysis", "The summary report", "Transaction response time graphs", "Running virtual users and hits per second", "Throughput and errors", "Filters and granularity", "Merging and overlaying graphs", "Exporting reports"],
+          "tools": ["Analysis", "Results from the Controller"],
+          "lab_task": "Open a run in Analysis, filter to steady state, overlay response time with running virtual users and export an HTML report with the key graphs.",
+          "deliverable": "Analysis session and exported report",
+          "checks": [["Filter", "Results exclude ramp-up and ramp-down", "Analysis settings"], ["Overlay", "Response time is overlaid with virtual users", "Graph"], ["Export", "The HTML report contains the key graphs", "Report"]],
+          "objectives": ["Use Analysis", "Filter results", "Export reports"]
+        },
+        {
+          "topic": "SLAs and Pass or Fail Criteria",
+          "subtopics": ["Service level agreements in Analysis", "Transaction response time SLAs", "Percentile and average SLAs", "Error SLAs", "SLA status over time", "Agreeing SLAs with stakeholders", "SLA results in reports", "Using SLAs across runs"],
+          "tools": ["Analysis SLA settings", "Requirements"],
+          "lab_task": "Define SLAs for three business transactions from the requirements, apply them in Analysis and report which transactions met their SLAs.",
+          "deliverable": "SLA definitions and results",
+          "checks": [["Define", "Each SLA has a metric and threshold", "SLA settings"], ["Apply", "SLA status is calculated", "Analysis"], ["Report", "The report states SLA results", "Report"]],
+          "objectives": ["Define SLAs", "Apply them in Analysis", "Report pass or fail"]
+        },
+        {
+          "topic": "Writing the Performance Test Report",
+          "subtopics": ["What readers need", "Executive summary", "Objectives and SLA results", "Graphs that make the point", "Bottlenecks found", "Recommendations", "Risks and limits", "Go or no-go advice"],
+          "tools": ["Analysis", "Report template"],
+          "lab_task": "Write a performance test report from a LoadRunner run with a summary, SLA results, two bottlenecks, recommendations and go or no-go advice.",
+          "deliverable": "Performance test report",
+          "checks": [["Summarise", "The summary states the outcome plainly", "Report"], ["Show SLAs", "SLA results are presented per transaction", "Report"], ["Advise", "Advice follows from results", "Report"]],
+          "objectives": ["Report LoadRunner results", "Present SLA outcomes", "Give clear advice"]
+        },
+        {
+          "topic": "Beginner Capstone: LoadRunner Test of a Web Application",
+          "subtopics": ["Requirements and workload", "Recorded and correlated scripts", "Parameterised data", "Controller scenario with monitors", "Analysis with SLAs", "Report"],
+          "tools": ["VuGen", "Controller", "Load generators", "Analysis"],
+          "lab_task": "Plan and run a LoadRunner test of a web application with correlated, parameterised scripts, a monitored scenario on two load generators, SLA analysis and a final report.",
+          "deliverable": "Scripts, scenario, results and report",
+          "checks": [["Script", "Scripts replay for many users", "Replay logs"], ["Run", "The scenario completes with monitors", "Results"], ["Report", "The report states SLA results and advice", "Report"]],
+          "objectives": ["Combine beginner LoadRunner skills", "Run a planned load test", "Report results"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For LoadRunner users who script and run tests and now handle complex applications and team workflows. Covers TruClient browser scripts, Web Services and REST, DevWeb with JavaScript, advanced correlation, data management, file handling, modular scripts, script maintenance across releases, advanced Controller features, network virtualisation, APM integration, advanced Analysis, LoadRunner Enterprise projects and test runs, the cloud edition, Jenkins and CI, version control for scripts, running JMeter and Gatling scripts in LoadRunner, endurance and stress tests and reporting to stakeholders.",
+      "prerequisites": ["Scripts Web HTTP/HTML tests with correlation and parameters", "Runs Controller scenarios and reads Analysis", "Has written at least one performance report"],
+      "outcomes": ["Script complex applications with TruClient, REST and DevWeb", "Run advanced scenarios with network virtualisation and APM monitoring", "Work in LoadRunner Enterprise and the cloud edition with CI and version control", "Analyse and report endurance, stress and comparison results"],
+      "days": [
+        {
+          "topic": "TruClient Scripts for Browser-Level Testing",
+          "subtopics": ["When protocol scripts are not enough", "TruClient Chromium and Firefox", "Recording and editing TruClient steps", "Object identification", "Transactions and think time in TruClient", "Parameters in TruClient", "Resource cost of browser virtual users", "Mixing TruClient and protocol scripts"],
+          "tools": ["VuGen TruClient", "Sample single-page application"],
+          "lab_task": "Record a TruClient script for a single-page application journey, make object identification stable, add transactions and run five browser users alongside protocol users.",
+          "deliverable": "TruClient script and mixed run",
+          "checks": [["Record", "The TruClient journey replays", "Replay log"], ["Stabilise", "Objects are found reliably", "Replay log"], ["Mix", "Browser and protocol users run together", "Results"]],
+          "objectives": ["Write TruClient scripts", "Stabilise object identification", "Mix virtual user types"]
+        },
+        {
+          "topic": "Web Services and REST API Scripts",
+          "subtopics": ["REST calls with web_custom_request", "JSON bodies and headers", "Extracting values from JSON", "SOAP calls", "Authentication tokens", "API workloads", "Checking API responses", "Scripting APIs without recording"],
+          "tools": ["VuGen Web Services protocol", "Postman for reference", "Course API"],
+          "lab_task": "Write an API script without recording for create, read and search calls with JSON bodies, token authentication and JSON extraction, and run it at three loads.",
+          "deliverable": "API script and results",
+          "checks": [["Script", "Calls use correct bodies and headers", "Script"], ["Extract", "Values from JSON are reused", "Replay log"], ["Run", "Results are recorded at three loads", "Results"]],
+          "objectives": ["Script APIs in LoadRunner", "Handle JSON and tokens", "Load test APIs"]
+        },
+        {
+          "topic": "DevWeb Scripts with JavaScript",
+          "subtopics": ["What DevWeb is", "Writing scripts in JavaScript", "Requests, extractors and checks", "Parameters and data files", "Transactions", "Running DevWeb scripts in the Controller", "DevWeb compared with Web HTTP/HTML", "Version control friendliness"],
+          "tools": ["DevWeb", "VS Code", "Controller"],
+          "lab_task": "Write the shop journey as a DevWeb script in JavaScript with extractors, checks and data files, run it in the Controller and compare maintenance with the C script.",
+          "deliverable": "DevWeb script and comparison",
+          "checks": [["Write", "The DevWeb script runs the journey", "Run log"], ["Run", "The script runs in a Controller scenario", "Results"], ["Compare", "Maintenance effort is compared", "Comparison"]],
+          "objectives": ["Write DevWeb scripts", "Use JavaScript for load scripts", "Compare script types"]
+        },
+        {
+          "topic": "Advanced Correlation and Dynamic Content",
+          "subtopics": ["Correlation rules for applications", "Ordinal and array parameters", "Correlating values in JSON and headers", "Dynamic content in single-page applications", "Correlation across redirects", "Regular expression and XPath extraction", "Sharing correlation rules", "Testing correlation under load"],
+          "tools": ["VuGen correlation rules", "Replay log"],
+          "lab_task": "Build correlation rules for an application with arrays of dynamic values and redirects, share them with the team and prove the script works for fifty users.",
+          "deliverable": "Correlation rules and validated script",
+          "checks": [["Correlate", "Arrays and redirects are handled", "Script"], ["Share", "Rules are exported for the team", "Rules file"], ["Prove", "Fifty users run without correlation errors", "Results"]],
+          "objectives": ["Handle advanced correlation", "Build shared rules", "Validate under load"]
+        },
+        {
+          "topic": "Data Management for Large Tests",
+          "subtopics": ["Data volume for long and large tests", "Unique data across generators", "Data exhaustion and its symptoms", "Generating data", "Virtual Table Server for shared data", "Data reset between runs", "Data and caching effects", "Privacy in test data"],
+          "tools": ["VuGen parameters", "Virtual Table Server", "Data generation scripts"],
+          "lab_task": "Prepare data for a two-hour test on two generators, share consumable data through the Virtual Table Server and show that no data is reused.",
+          "deliverable": "Data plan and Virtual Table Server setup",
+          "checks": [["Size", "Data covers the full test", "Data plan"], ["Share", "Consumable data is served centrally", "Server log"], ["Prove", "No data row is used twice", "Usage report"]],
+          "objectives": ["Manage data at scale", "Use shared data services", "Avoid data reuse"]
+        },
+        {
+          "topic": "File Handling, Uploads and Downloads",
+          "subtopics": ["File uploads in scripts", "Downloading files and measuring time", "Reading and writing files in C", "Generating files for uploads", "Checking downloaded content", "File size effects on results", "Cleaning up files", "Protocol choices for file tests"],
+          "tools": ["VuGen", "Sample application with uploads"],
+          "lab_task": "Script document uploads of three sizes and an invoice download, measure their times under load and check the downloaded content.",
+          "deliverable": "File transfer script and results",
+          "checks": [["Upload", "Uploads of three sizes run", "Replay log"], ["Download", "Downloads are measured and checked", "Results"], ["Compare", "Size effects on time are reported", "Notes"]],
+          "objectives": ["Test file transfers", "Measure transfer times", "Check downloaded content"]
+        },
+        {
+          "topic": "Modular Scripts and Shared Functions",
+          "subtopics": ["Splitting scripts into actions and files", "Shared function libraries", "Extra files and header files", "Reusing logic across scripts", "Naming standards", "Version differences between scripts", "Documentation for shared code", "Testing shared functions"],
+          "tools": ["VuGen", "Shared C libraries", "Version control"],
+          "lab_task": "Move login, search and error handling into a shared function library used by three scripts, and change one function in one place.",
+          "deliverable": "Shared library and three scripts",
+          "checks": [["Share", "Three scripts include the library", "Scripts"], ["Change once", "One change updates all scripts", "Commit diff"], ["Document", "Each shared function is documented", "Library file"]],
+          "objectives": ["Build modular scripts", "Share functions", "Reduce maintenance"]
+        },
+        {
+          "topic": "Maintaining Scripts Across Application Releases",
+          "subtopics": ["Why scripts break between releases", "Detecting changes early", "Re-recording compared with editing", "Comparing recordings", "Regression runs for scripts", "Script health checks before load tests", "Working with developers on changes", "Maintenance effort tracking"],
+          "tools": ["VuGen", "Version control", "Release notes"],
+          "lab_task": "Update three scripts after an application release, compare old and new recordings, fix the differences and add a pre-test health check run.",
+          "deliverable": "Updated scripts and health check",
+          "checks": [["Compare", "Differences between releases are listed", "Comparison notes"], ["Update", "All three scripts replay on the new release", "Replay logs"], ["Check health", "The health check runs before the load test", "Run log"]],
+          "objectives": ["Maintain scripts across releases", "Detect changes early", "Track maintenance effort"]
+        },
+        {
+          "topic": "Advanced Controller Features",
+          "subtopics": ["IP spoofing", "Service level agreements in scenarios", "Scheduling by group", "Load balancing virtual users", "Run-time setting overrides", "Auto collate and results paths", "Scenario templates", "Command-line runs"],
+          "tools": ["Controller", "Load generators"],
+          "lab_task": "Build a scenario with group schedules, IP spoofing for a load balancer test, SLAs and a template, and run it from the command line.",
+          "deliverable": "Advanced scenario and command-line run",
+          "checks": [["Schedule", "Groups follow their own schedules", "Scenario file"], ["Spoof", "Requests come from several IP addresses", "Server logs"], ["Automate", "The scenario runs from the command line", "Run log"]],
+          "objectives": ["Use advanced Controller features", "Automate scenario runs", "Reuse scenario templates"]
+        },
+        {
+          "topic": "Network Virtualisation and Remote Users",
+          "subtopics": ["Why network conditions matter", "Network virtualisation in LoadRunner", "Latency, bandwidth and packet loss profiles", "Simulating mobile and remote offices", "Comparing results by location", "Effects on transaction times", "Reporting network effects", "Limits of simulation"],
+          "tools": ["LoadRunner network virtualisation", "Controller", "Analysis"],
+          "lab_task": "Run the same scenario with office, 4G and poor network profiles and report how each profile changes transaction times for key steps.",
+          "deliverable": "Network profile results",
+          "checks": [["Configure", "Three network profiles are applied", "Scenario settings"], ["Measure", "Transaction times are recorded per profile", "Results"], ["Report", "Network effects are explained", "Report"]],
+          "objectives": ["Simulate network conditions", "Compare user locations", "Report network effects"]
+        },
+        {
+          "topic": "APM Integration: Dynatrace, AppDynamics and Others",
+          "subtopics": ["Why APM data matters in load tests", "Tagging LoadRunner requests for APM", "Viewing load test transactions in APM", "Finding slow code and queries", "Combining Controller graphs with APM", "Sharing findings with developers", "Licences and access", "Retesting after fixes"],
+          "tools": ["APM tool", "Controller", "Analysis"],
+          "lab_task": "Tag load test requests for an APM tool, find the slowest service and query for a slow transaction and retest after a fix.",
+          "deliverable": "APM-linked analysis and retest",
+          "checks": [["Tag", "Load test requests appear in APM", "APM screenshot"], ["Find", "The slow service and query are found", "Analysis"], ["Retest", "The retest shows the improvement", "Comparison"]],
+          "objectives": ["Use APM with LoadRunner", "Find slow code", "Confirm fixes"]
+        },
+        {
+          "topic": "Advanced Analysis: Correlating, Comparing and Cross-Run Results",
+          "subtopics": ["Correlating graphs", "Auto-correlation in Analysis", "Cross-result comparisons", "Templates for repeatable analysis", "Raw data export", "Percentiles and distribution graphs", "Error analysis", "Building analysis templates for the team"],
+          "tools": ["Analysis", "Results from several runs"],
+          "lab_task": "Compare three runs with cross-result graphs, use auto-correlation to find metrics linked to slow transactions and save an analysis template.",
+          "deliverable": "Cross-run analysis and template",
+          "checks": [["Compare", "Three runs are compared on key graphs", "Analysis"], ["Correlate", "Linked metrics are identified", "Analysis"], ["Template", "The template is saved and reusable", "Template file"]],
+          "objectives": ["Compare runs", "Correlate metrics", "Build analysis templates"]
+        },
+        {
+          "topic": "LoadRunner Enterprise: Projects, Tests and Timeslots",
+          "subtopics": ["What LoadRunner Enterprise adds", "Projects and users", "Uploading scripts", "Designing tests", "Timeslots and host allocation", "Running tests from the web interface", "Results and trends", "Sharing assets across teams"],
+          "tools": ["LoadRunner Enterprise", "Scripts from VuGen"],
+          "lab_task": "Upload scripts to a LoadRunner Enterprise project, design a test, book a timeslot, run it and review results and trends.",
+          "deliverable": "Enterprise test run with results",
+          "checks": [["Upload", "Scripts are stored in the project", "Project screenshot"], ["Book", "A timeslot is reserved with hosts", "Timeslot screenshot"], ["Run", "The test runs and results are available", "Results page"]],
+          "objectives": ["Use LoadRunner Enterprise", "Manage shared assets", "Run tests through timeslots"]
+        },
+        {
+          "topic": "The Cloud Edition: Testing from the Cloud",
+          "subtopics": ["What the cloud edition offers", "Cloud load generators by region", "Uploading scripts and running tests", "On-premises generators with the cloud", "Reaching private applications", "Dashboards and reports", "Costs and virtual user hours", "Choosing cloud or on-premises"],
+          "tools": ["OpenText Core Performance Engineering (LoadRunner Cloud)", "Scripts"],
+          "lab_task": "Run a test from cloud generators in two regions, reach a private application through an on-premises generator and compare effort and cost with the Controller.",
+          "deliverable": "Cloud test results and comparison",
+          "checks": [["Run", "The test runs from two regions", "Cloud dashboard"], ["Reach", "The private application is tested", "Results"], ["Compare", "Cost and effort are compared", "Comparison"]],
+          "objectives": ["Use the cloud edition", "Test from several regions", "Choose deployment options"]
+        },
+        {
+          "topic": "Jenkins and CI Integration",
+          "subtopics": ["Why run LoadRunner tests in pipelines", "The Jenkins plugin", "Running Controller or Enterprise tests from Jenkins", "Pass and fail thresholds in pipelines", "Publishing results", "Scheduling regular runs", "Handling noisy results", "Feedback to development teams"],
+          "tools": ["Jenkins", "LoadRunner Jenkins plugin", "LoadRunner Enterprise"],
+          "lab_task": "Trigger a LoadRunner Enterprise test from Jenkins after a build, apply SLA thresholds to pass or fail the build and publish the results.",
+          "deliverable": "Jenkins pipeline with a performance stage",
+          "checks": [["Trigger", "The test starts from Jenkins", "Build log"], ["Gate", "SLA failures fail the build", "Build result"], ["Publish", "Results are linked from the build", "Build page"]],
+          "objectives": ["Run LoadRunner tests in CI", "Gate builds on SLAs", "Publish results"]
+        },
+        {
+          "topic": "Version Control and Script Reviews",
+          "subtopics": ["Storing scripts in Git", "What to commit and what to ignore", "Reviewing script changes", "DevWeb and text-friendly scripts", "Branching for releases", "Linking scripts to tests in Enterprise", "Change history for audits", "Team conventions"],
+          "tools": ["Git", "VuGen", "LoadRunner Enterprise"],
+          "lab_task": "Put scripts in Git with an ignore file, review a script change in a pull request and record team conventions for script changes.",
+          "deliverable": "Repository, reviewed change and conventions",
+          "checks": [["Commit", "Scripts are stored without generated files", "Repository tree"], ["Review", "A change is reviewed in a pull request", "Pull request"], ["Agree", "Conventions are written", "Conventions document"]],
+          "objectives": ["Version LoadRunner scripts", "Review changes", "Agree team conventions"]
+        },
+        {
+          "topic": "Running Open-Source Scripts in LoadRunner",
+          "subtopics": ["Support for JMeter, Gatling and other scripts", "Why mix tools", "Running a JMeter script in a Controller scenario", "Combining with VuGen scripts", "Analysing mixed results", "Limits of mixed runs", "Migration paths between tools", "Choosing tools for teams"],
+          "tools": ["Controller", "Apache JMeter script", "Gatling script"],
+          "lab_task": "Run a JMeter script and a VuGen script together in one scenario, analyse the combined results and note the limits of mixed runs.",
+          "deliverable": "Mixed-tool scenario and analysis",
+          "checks": [["Run", "Both scripts run in one scenario", "Results"], ["Analyse", "Combined results are analysed", "Analysis"], ["Note limits", "Limits of mixed runs are recorded", "Notes"]],
+          "objectives": ["Combine open-source and LoadRunner scripts", "Analyse mixed runs", "Choose tools sensibly"]
+        },
+        {
+          "topic": "Endurance and Stress Tests with LoadRunner",
+          "subtopics": ["Planning long and heavy tests", "Endurance test schedules", "Stress test schedules", "Monitoring trends over hours", "Results size and Analysis performance", "Finding leaks and breaking points", "Recovery after overload", "Reporting both test types"],
+          "tools": ["Controller", "Analysis", "Monitors"],
+          "lab_task": "Run a four-hour endurance test and a stepped stress test, find any degradation trend and the breaking point, and report recovery behaviour.",
+          "deliverable": "Endurance and stress results",
+          "checks": [["Endure", "The endurance test completes with trends recorded", "Results"], ["Stress", "The breaking point is identified", "Results"], ["Recover", "Recovery after overload is measured", "Findings"]],
+          "objectives": ["Run endurance tests", "Run stress tests", "Report degradation and limits"]
+        },
+        {
+          "topic": "Reporting to Stakeholders and Release Decisions",
+          "subtopics": ["Audiences and messages", "Executive summaries", "SLA tables", "Trend and comparison graphs", "Bottlenecks and recommendations", "Risk statements", "Go or no-go advice", "Presenting results"],
+          "tools": ["Analysis", "Report template", "Presentation template"],
+          "lab_task": "Prepare a release report from several LoadRunner runs with SLA tables, trends, bottlenecks and a recommendation, and present it to role-played stakeholders.",
+          "deliverable": "Release performance report and presentation notes",
+          "checks": [["Summarise", "The summary states results against SLAs", "Report"], ["Recommend", "The recommendation is justified", "Report"], ["Present", "Stakeholders agree actions", "Presentation notes"]],
+          "objectives": ["Report to stakeholders", "Advise on releases", "Present results clearly"]
+        },
+        {
+          "topic": "Intermediate Capstone: Performance Campaign for a Complex Application",
+          "subtopics": ["Protocol choices", "TruClient, API and DevWeb scripts", "Data and correlation at scale", "Enterprise or cloud runs", "APM-linked analysis", "Report and recommendation"],
+          "tools": ["VuGen", "DevWeb", "LoadRunner Enterprise or cloud edition", "APM tool", "Analysis"],
+          "lab_task": "Run a performance campaign for a complex application with mixed protocols, shared data, network profiles, Enterprise or cloud runs, APM-linked analysis and a release recommendation.",
+          "deliverable": "Campaign artefacts, results and recommendation",
+          "checks": [["Script", "Mixed protocol scripts run reliably", "Replay logs"], ["Run", "Load, stress and endurance tests complete", "Results"], ["Recommend", "The recommendation follows from evidence", "Report"]],
+          "objectives": ["Combine intermediate LoadRunner skills", "Run a full campaign", "Advise on release readiness"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior performance engineers and leads who run LoadRunner in large organisations. Covers enterprise performance programmes, protocol strategy, SAP, Citrix and mainframe testing, very large distributed tests, LoadRunner Enterprise administration, licensing and virtual user planning, governance of test assets, service virtualisation, continuous performance testing, cloud and hybrid generators, advanced analysis and modelling, capacity planning, production-like environments, tool strategy and migration, security of test assets, team enablement and troubleshooting.",
+      "prerequisites": ["Has run full performance campaigns with LoadRunner", "Understands enterprise architectures and monitoring", "Works with development, operations and vendors"],
+      "outcomes": ["Lead enterprise performance programmes on LoadRunner", "Test SAP, Citrix, mainframe and other enterprise systems", "Administer LoadRunner Enterprise, licences and generator fleets", "Set tool strategy, governance and capacity plans with evidence"],
+      "days": [
+        {
+          "topic": "Enterprise Performance Programmes with LoadRunner",
+          "subtopics": ["Performance across a portfolio of applications", "Risk-based selection of applications", "Release calendars and test windows", "Shared environments and contention", "Roles and responsibilities", "Measuring the programme", "Reporting to leadership", "Continuous improvement"],
+          "tools": ["Programme plan template", "LoadRunner Enterprise", "Dashboard tool"],
+          "lab_task": "Plan a performance programme for ten applications with risk-based selection, a release calendar, environment allocation and measures, and present it to leadership.",
+          "deliverable": "Programme plan and presentation notes",
+          "checks": [["Select", "Applications are prioritised by risk", "Programme plan"], ["Schedule", "Test windows fit the release calendar", "Calendar"], ["Present", "Leaders approve or set conditions", "Presentation notes"]],
+          "objectives": ["Run performance programmes", "Prioritise by risk", "Coordinate shared environments"]
+        },
+        {
+          "topic": "Protocol Strategy for Enterprise Applications",
+          "subtopics": ["Protocol choice by technology", "Browser-level compared with protocol-level load", "Multi-protocol scripts", "Licence costs by protocol", "Script maintenance by protocol", "Hybrid approaches", "Documenting protocol decisions", "Reviewing choices over time"],
+          "tools": ["Protocol Advisor", "Licence information", "Decision template"],
+          "lab_task": "Write a protocol strategy for five enterprise applications, covering web, API, SAP GUI, Citrix and a mainframe terminal, with costs and maintenance effort.",
+          "deliverable": "Protocol strategy with costs",
+          "checks": [["Choose", "Each application has a protocol with reasons", "Strategy"], ["Cost", "Licence and maintenance costs are estimated", "Cost table"], ["Document", "Decisions are recorded for review", "Decision log"]],
+          "objectives": ["Set protocol strategy", "Weigh cost and maintenance", "Document decisions"]
+        },
+        {
+          "topic": "SAP Performance Testing: SAP GUI and SAP Web",
+          "subtopics": ["SAP landscapes and transactions", "SAP GUI protocol scripting", "SAP Web and Fiori traffic", "Correlation in SAP scripts", "SAP monitoring with transaction codes and Solution Manager", "Batch jobs alongside online users", "Data management in SAP tests", "Working with SAP Basis teams"],
+          "tools": ["VuGen SAP GUI protocol", "SAP test system", "SAP monitoring"],
+          "lab_task": "Script an order-to-cash flow in SAP GUI, correlate dynamic values, run it with background jobs and review SAP response times with the Basis team.",
+          "deliverable": "SAP scripts and results with Basis review",
+          "checks": [["Script", "The SAP flow replays for many users", "Replay log"], ["Combine", "Background jobs run during the test", "Results"], ["Review", "The Basis team reviews server-side metrics", "Review notes"]],
+          "objectives": ["Test SAP performance", "Script SAP GUI", "Work with Basis teams"]
+        },
+        {
+          "topic": "Citrix and Remote Desktop Applications",
+          "subtopics": ["Why Citrix testing is different", "Citrix ICA protocol scripting", "Synchronisation on images and text", "Window and session handling", "Agents for Citrix servers", "Capacity per Citrix server", "Common Citrix script problems", "Alternatives such as TruClient for web front ends"],
+          "tools": ["VuGen Citrix protocol", "Citrix test environment"],
+          "lab_task": "Script a Citrix-hosted application with text and image synchronisation, run it to find users per server and report the capacity limit.",
+          "deliverable": "Citrix scripts and capacity result",
+          "checks": [["Synchronise", "Scripts wait on text or images reliably", "Replay log"], ["Measure", "Users per server are measured", "Results"], ["Report", "The capacity limit is stated", "Report"]],
+          "objectives": ["Test Citrix applications", "Synchronise scripts", "Measure server capacity"]
+        },
+        {
+          "topic": "Mainframe and Terminal Applications",
+          "subtopics": ["Mainframe transactions in modern journeys", "RTE and terminal emulation protocols", "Screen synchronisation", "Batch windows and online load", "Monitoring with mainframe teams", "Data in mainframe tests", "Licence and access constraints", "Reporting for mainframe owners"],
+          "tools": ["VuGen terminal emulation protocol", "Mainframe test region", "Mainframe monitoring"],
+          "lab_task": "Script a terminal transaction with screen synchronisation, run it alongside a batch job and review CPU and response data with the mainframe team.",
+          "deliverable": "Terminal scripts, results and review",
+          "checks": [["Script", "The terminal transaction replays", "Replay log"], ["Combine", "Online load runs with the batch job", "Results"], ["Review", "The mainframe team reviews the metrics", "Review notes"]],
+          "objectives": ["Test mainframe workloads", "Script terminal sessions", "Work with mainframe teams"]
+        },
+        {
+          "topic": "Very Large Distributed Tests",
+          "subtopics": ["Planning tests with tens of thousands of users", "Generator fleets on premises and in the cloud", "Generator sizing per protocol", "Controller and results limits", "Network and firewall planning", "Staged ramp-ups", "Coordinating with operations and vendors", "Safety and abort criteria"],
+          "tools": ["Controller or LoadRunner Enterprise", "Generator fleet", "Monitoring tools"],
+          "lab_task": "Plan a test at ten times normal load with a generator fleet, staged ramp-up and abort criteria, and run a scaled rehearsal that proves the plan.",
+          "deliverable": "Large test plan and rehearsal results",
+          "checks": [["Size", "Generator counts follow per-protocol sizing", "Test plan"], ["Rehearse", "The rehearsal reaches its target", "Results"], ["Abort safely", "Abort criteria are tested", "Rehearsal log"]],
+          "objectives": ["Plan very large tests", "Size generator fleets", "Run safely"]
+        },
+        {
+          "topic": "LoadRunner Enterprise Administration",
+          "subtopics": ["Installation and architecture", "Users, roles and projects", "Hosts, pools and timeslots", "Upgrades and patches", "Backups and recovery", "Monitoring the platform", "Integrations with ALM and CI", "Audit and usage reporting"],
+          "tools": ["LoadRunner Enterprise administration", "Hosts", "Usage reports"],
+          "lab_task": "Configure projects, roles, host pools and timeslot rules for three teams, plan an upgrade and produce a usage report.",
+          "deliverable": "Administration configuration, upgrade plan and usage report",
+          "checks": [["Configure", "Teams have projects, roles and pools", "Admin screenshots"], ["Plan", "The upgrade plan covers backup and rollback", "Upgrade plan"], ["Report", "Usage by team is reported", "Usage report"]],
+          "objectives": ["Administer LoadRunner Enterprise", "Manage hosts and timeslots", "Plan upgrades"]
+        },
+        {
+          "topic": "Licensing, Virtual User Planning and Costs",
+          "subtopics": ["Licence models", "Virtual users by protocol", "Virtual user hours for peaks", "Cloud consumption", "Forecasting licence needs", "Sharing licences across teams", "Cost compared with open-source tools", "Negotiating with vendors"],
+          "tools": ["Licence reports", "Forecast spreadsheet", "Usage data"],
+          "lab_task": "Forecast a year of virtual user needs by protocol from the programme plan, compare licence options and present a cost recommendation.",
+          "deliverable": "Licence forecast and recommendation",
+          "checks": [["Forecast", "Needs are forecast by protocol and month", "Forecast"], ["Compare", "Licence options are compared", "Comparison"], ["Recommend", "The recommendation is justified", "Recommendation"]],
+          "objectives": ["Plan licences", "Forecast virtual users", "Control tool costs"]
+        },
+        {
+          "topic": "Governance of Performance Test Assets",
+          "subtopics": ["Standards for scripts, scenarios and reports", "Naming and folder conventions", "Reviews before load tests", "Asset ownership", "Retiring old scripts", "Audit trails", "Exceptions", "Reporting compliance"],
+          "tools": ["LoadRunner Enterprise", "Version control", "Standards template"],
+          "lab_task": "Write standards for performance assets, review ten existing scripts against them, retire obsolete ones and report compliance by team.",
+          "deliverable": "Standards, review results and compliance report",
+          "checks": [["Set standards", "Standards cover scripts, scenarios and reports", "Standards document"], ["Review", "Ten scripts are reviewed and fixed", "Review records"], ["Report", "Compliance is reported by team", "Report"]],
+          "objectives": ["Govern test assets", "Review scripts", "Retire obsolete assets"]
+        },
+        {
+          "topic": "Service Virtualisation for Performance Tests",
+          "subtopics": ["Why virtualise dependencies", "Virtual services for unavailable systems", "Recording and modelling responses", "Performance profiles for virtual services", "Testing with partial systems", "Accuracy of virtual services", "Managing virtual service versions", "Reporting with virtualised dependencies"],
+          "tools": ["Service virtualisation tool", "LoadRunner", "Sample dependencies"],
+          "lab_task": "Replace an unavailable payment system with a virtual service that has a realistic response profile, run the test and state how virtualisation affects confidence.",
+          "deliverable": "Virtual service, results and confidence statement",
+          "checks": [["Virtualise", "The virtual service handles the payment calls", "Results"], ["Profile", "Response times follow the agreed profile", "Virtual service settings"], ["State confidence", "The report explains the effect on confidence", "Report"]],
+          "objectives": ["Use service virtualisation", "Model dependency performance", "State confidence limits"]
+        },
+        {
+          "topic": "Continuous Performance Testing with LoadRunner",
+          "subtopics": ["Performance checks in delivery pipelines", "Small checks per build", "Larger scheduled tests", "Baselines and trend comparison", "Automatic SLA gates", "Feedback to teams", "Environment stability for pipelines", "Measuring the programme"],
+          "tools": ["Jenkins", "LoadRunner Enterprise", "Trend reports"],
+          "lab_task": "Set up per-build checks and nightly tests through CI and LoadRunner Enterprise with baseline comparison and SLA gates, and report trends after a week.",
+          "deliverable": "Continuous testing setup and trend report",
+          "checks": [["Check builds", "Each build runs a short check", "Pipeline runs"], ["Compare", "Nightly results are compared with baselines", "Trend report"], ["Gate", "SLA breaches fail the pipeline", "Pipeline run"]],
+          "objectives": ["Test performance continuously", "Compare with baselines", "Gate on SLAs"]
+        },
+        {
+          "topic": "Hybrid Generators: On-Premises, Cloud and Containers",
+          "subtopics": ["Generator options", "Cloud generators for scale", "On-premises generators for private systems", "Docker-based generators", "Network placement", "Security reviews", "Cost per test", "Choosing a mix"],
+          "tools": ["Cloud generators", "On-premises generators", "Docker load generators"],
+          "lab_task": "Run one test from cloud, on-premises and containerised generators together, compare results by location and recommend a generator mix.",
+          "deliverable": "Hybrid run and recommendation",
+          "checks": [["Run", "All three generator types take part", "Results"], ["Compare", "Results by location are compared", "Comparison"], ["Recommend", "The mix is justified by cost and access", "Recommendation"]],
+          "objectives": ["Use hybrid generators", "Compare locations", "Choose a generator mix"]
+        },
+        {
+          "topic": "Advanced Analysis, Modelling and Prediction",
+          "subtopics": ["Statistical comparison of runs", "Distributions and percentiles", "Regression from load to response time", "Simple capacity models", "Predicting behaviour beyond tested load", "Limits of prediction", "Presenting uncertainty", "Analysis automation"],
+          "tools": ["Analysis raw data export", "Spreadsheet or Python", "Charting tool"],
+          "lab_task": "Export raw data from several runs, model response time against load, predict the load at which SLAs break and state the uncertainty.",
+          "deliverable": "Model, prediction and uncertainty statement",
+          "checks": [["Model", "The model fits measured data", "Model"], ["Predict", "The SLA breaking point is predicted", "Prediction"], ["Qualify", "Uncertainty and limits are stated", "Statement"]],
+          "objectives": ["Model performance results", "Predict limits", "Present uncertainty"]
+        },
+        {
+          "topic": "Capacity Planning from LoadRunner Results",
+          "subtopics": ["Inputs for capacity planning", "Throughput per server", "Headroom policies", "Growth forecasts", "Planning hardware and cloud capacity", "Reviewing plans with operations and finance", "Tracking actual use", "Updating plans"],
+          "tools": ["Capacity model", "LoadRunner results", "Production metrics"],
+          "lab_task": "Build a capacity plan for an application from LoadRunner results and production metrics with headroom and growth, and review it with role-played operations and finance.",
+          "deliverable": "Capacity plan and review notes",
+          "checks": [["Plan", "The plan uses test and production data", "Capacity plan"], ["Review", "Operations and finance agree the plan", "Review notes"], ["Track", "Tracking of actual use is set up", "Tracking sheet"]],
+          "objectives": ["Plan capacity", "Use test evidence", "Track plans"]
+        },
+        {
+          "topic": "Production-Like Environments for Enterprise Tests",
+          "subtopics": ["Environment differences and their effects", "Scaling down and extrapolating", "Data volumes", "Third-party and interface stubs", "Environment booking and contention", "Environment readiness checks", "Stating limits in reports", "Investing in better environments"],
+          "tools": ["Environment comparison sheet", "Readiness checklist", "Monitoring tools"],
+          "lab_task": "Compare the performance environment with production, run a readiness check before a test and write the limits statement for the report.",
+          "deliverable": "Comparison, readiness check and limits statement",
+          "checks": [["Compare", "Differences are listed with effects", "Comparison sheet"], ["Check readiness", "The readiness check runs before the test", "Checklist"], ["State limits", "The report states what results predict", "Limits statement"]],
+          "objectives": ["Assess test environments", "Check readiness", "State limits"]
+        },
+        {
+          "topic": "Tool Strategy and Migration Between LoadRunner and Open Source",
+          "subtopics": ["Strengths of LoadRunner and open-source tools", "Protocol needs that require commercial tools", "Total cost of ownership", "Mixed-tool strategies", "Migration from LoadRunner to JMeter or k6", "Migration from open source to LoadRunner", "Running both during transition", "Measuring migration results"],
+          "tools": ["LoadRunner", "Apache JMeter or k6", "Cost model"],
+          "lab_task": "Compare LoadRunner with two open-source tools for a portfolio, choose a mixed strategy, migrate one web script and compare results and effort.",
+          "deliverable": "Tool strategy, migrated script and comparison",
+          "checks": [["Compare", "Tools are compared on protocols and cost", "Comparison"], ["Migrate", "The migrated script reproduces the workload", "Results"], ["Decide", "The strategy explains which tool covers what", "Strategy"]],
+          "objectives": ["Set tool strategy", "Migrate scripts", "Compare total cost"]
+        },
+        {
+          "topic": "Security of Performance Test Assets and Environments",
+          "subtopics": ["Credentials in scripts and parameters", "Secure storage of data files", "Access to generators and controllers", "Network exposure of generators", "Masked data in tests", "Audit of test activity", "Vendor and cloud security reviews", "A security checklist"],
+          "tools": ["Secret storage", "Access reviews", "Audit logs"],
+          "lab_task": "Scan scripts and data files for credentials and personal data, move secrets to secure storage, review generator access and write a security checklist.",
+          "deliverable": "Scan results, fixes and checklist",
+          "checks": [["Scan", "Credentials and personal data are found", "Scan report"], ["Fix", "Secrets are removed from scripts", "Rescan output"], ["Control access", "Generator access follows least privilege", "Access review"]],
+          "objectives": ["Secure test assets", "Protect data", "Control access"]
+        },
+        {
+          "topic": "Building a LoadRunner Centre of Excellence",
+          "subtopics": ["Services the centre offers", "Standards and templates", "Training paths", "Engagement with project teams", "Shared tools and licences", "Measuring value", "Funding", "Avoiding bottlenecks"],
+          "tools": ["Centre of excellence plan", "Training plan", "Dashboard tool"],
+          "lab_task": "Design a performance centre of excellence with services, templates, a training path and measures, and present it to leadership.",
+          "deliverable": "Centre of excellence plan and presentation",
+          "checks": [["Define services", "Services and engagement are described", "Plan"], ["Train", "The training path covers levels", "Training plan"], ["Measure", "Value measures have targets", "Plan"]],
+          "objectives": ["Build a performance centre of excellence", "Standardise practice", "Grow skills"]
+        },
+        {
+          "topic": "Troubleshooting Enterprise Performance Tests",
+          "subtopics": ["Script failures under load only", "Generator and Controller problems", "Network and firewall issues", "Monitor and APM data gaps", "Results that do not make sense", "Systematic elimination"],
+          "tools": ["Controller logs", "Generator logs", "Analysis"],
+          "lab_task": "Diagnose four problem runs (correlation failing under load, a saturated generator, a firewall drop and missing monitor data), fix them and write a troubleshooting guide.",
+          "deliverable": "Diagnoses, fixes and troubleshooting guide",
+          "checks": [["Diagnose", "Each problem has a confirmed cause", "Diagnosis notes"], ["Fix", "Reruns are clean", "Results"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot enterprise tests", "Eliminate causes systematically", "Share practice"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Performance Programme on LoadRunner",
+          "subtopics": ["Portfolio and risk", "Protocol and tool strategy", "Enterprise and generator design", "Continuous testing and gates", "Capacity and licence plans", "Leadership presentation"],
+          "tools": ["LoadRunner Enterprise", "VuGen", "Generator fleet", "Capacity model"],
+          "lab_task": "Design an enterprise performance programme on LoadRunner for a portfolio of applications with protocol and tool strategy, platform design, continuous testing, capacity and licence plans, run a key test and present it to leadership.",
+          "deliverable": "Programme plan, test results and presentation",
+          "checks": [["Plan", "The programme covers portfolio, tools and platform", "Programme plan"], ["Prove", "A key test runs with SLA results", "Results"], ["Win support", "Leadership approves the programme", "Presentation notes"]],
+          "objectives": ["Combine advanced LoadRunner skills", "Lead enterprise performance", "Present a programme"]
+        }
+      ]
+    }
+  }
+}

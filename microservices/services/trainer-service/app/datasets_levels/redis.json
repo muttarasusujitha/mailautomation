@@ -1,0 +1,573 @@
+{
+  "domain": "Redis",
+  "name": "Redis for Developers and Operators",
+  "category": "Databases",
+  "icon": "database-zap",
+  "aliases": ["Redis Caching", "Redis Cache", "Redis Database", "Redis Developer", "Redis Administration", "Redis Training", "Redis Stack", "Redis Enterprise", "Redis Cluster", "Redis Open Source", "Valkey", "Azure Cache for Redis", "Azure Managed Redis", "Amazon ElastiCache for Redis"],
+  "certifications": ["Redis Certified Developer (where offered)", "Redis University course certificates"],
+  "tools": ["Redis", "redis-cli", "Redis Insight", "Redis Sentinel", "Redis Cluster", "Valkey", "Docker", "Client libraries for Python, Node.js and Java"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers and DBAs starting with Redis. Covers installing Redis and Redis Insight, strings and expiry, lists and queues, hashes, sets and sorted sets, key design, caching patterns, transactions and WATCH, Lua scripts and functions, pub/sub, streams, RDB and AOF persistence, memory and eviction, ACLs and TLS, clients for Python, Node.js and Java, rate limiting and counters, sessions and leaderboards, monitoring and running Redis in Docker or as a managed service.",
+      "prerequisites": ["Writes code in Python, Node.js or Java", "Knows basic database concepts", "Comfortable with a terminal"],
+      "outcomes": ["Use Redis data types to solve common application problems", "Apply caching, rate limiting, queue and leaderboard patterns", "Configure persistence, memory limits and security", "Monitor Redis and run it locally or as a managed service"],
+      "days": [
+        {
+          "topic": "Redis Overview, Installation and Tooling Setup",
+          "subtopics": ["What Redis is: an in-memory data structure server", "Common uses: caching, sessions, queues and real-time features", "Redis, Valkey and managed services", "Installing Redis with Docker or a package manager", "redis-cli basics", "Redis Insight for browsing data", "Databases, keys and the keyspace", "Single-threaded command execution", "Latency numbers that make Redis fast", "The course project: a caching and leaderboard service"],
+          "tools": ["Redis", "Docker", "redis-cli", "Redis Insight"],
+          "lab_task": "Run Redis in Docker, connect with redis-cli and Redis Insight, set and read keys, measure command latency and sketch how the course project will use Redis.",
+          "deliverable": "Running Redis and project sketch",
+          "checks": [["Connect with redis-cli", "PING returns PONG", "Terminal output"], ["Browse in Redis Insight", "Keys visible in Redis Insight", "Screenshot"], ["Measure latency", "Command latency measured with redis-cli", "latency output"]],
+          "objectives": ["Explain what Redis is for", "Install and connect to Redis", "Use Redis tools"]
+        },
+        {
+          "topic": "Strings, Keys and Expiry",
+          "subtopics": ["SET, GET and their options", "Numbers with INCR and DECR", "Appending and ranges", "Expiry with EXPIRE and TTL", "SET with NX and XX", "MGET and MSET", "Key scanning with SCAN", "Deleting keys safely with UNLINK"],
+          "tools": ["redis-cli", "Redis Insight"],
+          "lab_task": "Store page view counters and short-lived tokens, set expiry correctly, use SET NX for one-time actions and scan keys safely instead of using KEYS.",
+          "deliverable": "Command script with notes",
+          "checks": [["Expire a token", "Token disappears after its TTL", "Terminal output"], ["Use SET NX", "Second attempt does not overwrite", "Terminal output"], ["Scan keys", "SCAN returns keys without blocking the server", "Terminal output"]],
+          "objectives": ["Use string commands", "Manage expiry", "Work with keys safely"]
+        },
+        {
+          "topic": "Lists and Queues",
+          "subtopics": ["LPUSH, RPUSH, LPOP and RPOP", "Ranges with LRANGE", "Trimming lists with LTRIM", "Blocking pops with BLPOP", "Simple job queues", "Reliable queues with LMOVE", "Capped activity feeds", "When lists are the wrong choice"],
+          "tools": ["redis-cli", "A client library"],
+          "lab_task": "Build a simple job queue with blocking pops, a reliable variant that moves jobs to a processing list, and a capped recent activity feed.",
+          "deliverable": "Queue and feed examples",
+          "checks": [["Process jobs", "Worker receives jobs as they are pushed", "Worker log"], ["Recover a job", "Job left in processing is recovered after a crash", "Terminal output"], ["Cap the feed", "Feed never exceeds 100 items", "Terminal output"]],
+          "objectives": ["Use lists for queues and feeds", "Build reliable queues", "Know the limits of lists"]
+        },
+        {
+          "topic": "Hashes for Objects",
+          "subtopics": ["HSET, HGET and HGETALL", "Updating single fields", "Counters inside hashes with HINCRBY", "Field expiry", "Hashes compared with JSON strings", "Memory benefits of small hashes", "Modelling users and products", "Avoiding very large hashes"],
+          "tools": ["redis-cli", "Redis Insight"],
+          "lab_task": "Model user profiles and product details as hashes, update single fields, keep per-field counters and compare memory use with storing JSON strings.",
+          "deliverable": "Hash models with memory comparison",
+          "checks": [["Update a field", "Single field changed without rewriting the object", "Terminal output"], ["Count in a hash", "Per-product view counts increment correctly", "Terminal output"], ["Compare memory", "Memory use compared for hashes and strings", "MEMORY USAGE output"]],
+          "objectives": ["Model objects with hashes", "Update fields efficiently", "Compare storage options"]
+        },
+        {
+          "topic": "Sets and Sorted Sets",
+          "subtopics": ["Sets for unique members", "Set operations: union, intersection and difference", "Sorted sets with scores", "Ranges by rank and score", "Leaderboards with ZINCRBY", "Time-based sorted sets", "Removing old entries", "Choosing between sets and sorted sets"],
+          "tools": ["redis-cli", "A client library"],
+          "lab_task": "Track unique visitors with sets, find common interests with intersections, build a game leaderboard with sorted sets and a recent-items index scored by time.",
+          "deliverable": "Set and sorted set examples",
+          "checks": [["Rank players", "Leaderboard returns the top ten in order", "Terminal output"], ["Intersect sets", "Common interests found between two users", "Terminal output"], ["Trim by time", "Items older than a day removed by score", "Terminal output"]],
+          "objectives": ["Use sets and sorted sets", "Build leaderboards", "Query by score and rank"]
+        },
+        {
+          "topic": "Key Design and Naming Conventions",
+          "subtopics": ["Key naming with prefixes and separators", "Including IDs and versions in keys", "Key size and value size", "Grouping related data", "Avoiding hot keys", "Big keys and their risks", "Expiry policies per key type", "Documenting the keyspace"],
+          "tools": ["redis-cli", "Redis Insight"],
+          "lab_task": "Design the keyspace for the course project with naming rules, versions, expiry per key type and size limits, and find big keys in a sample dataset.",
+          "deliverable": "Keyspace design document",
+          "checks": [["Write naming rules", "Every key type follows the naming rules", "Keyspace document"], ["Find big keys", "Big keys found with redis-cli --bigkeys", "Terminal output"], ["Set expiry rules", "Each key type has an expiry policy", "Keyspace document"]],
+          "objectives": ["Design Redis keys", "Avoid big and hot keys", "Document the keyspace"]
+        },
+        {
+          "topic": "Caching Patterns with Redis",
+          "subtopics": ["Cache-aside", "Read-through and write-through", "Write-behind", "Choosing TTLs", "Invalidation on updates", "Caching database query results", "Caching HTTP responses", "Measuring hit rate"],
+          "tools": ["Redis", "PostgreSQL or MySQL", "A client library"],
+          "lab_task": "Add cache-aside caching in front of a slow database query, invalidate on updates, choose TTLs and measure latency and hit rate under load.",
+          "deliverable": "Cached service with measurements",
+          "checks": [["Measure latency", "Cached reads much faster than database reads", "Load test results"], ["Invalidate", "Updates visible after invalidation", "Test output"], ["Track hit rate", "Hit rate reported from INFO stats", "INFO output"]],
+          "objectives": ["Apply caching patterns", "Invalidate correctly", "Measure cache benefit"]
+        },
+        {
+          "topic": "Transactions with MULTI and Optimistic Locking with WATCH",
+          "subtopics": ["MULTI and EXEC", "What Redis transactions guarantee", "DISCARD", "Optimistic locking with WATCH", "Retrying on conflicts", "Pipelines compared with transactions", "Atomic commands as alternatives", "Common mistakes"],
+          "tools": ["redis-cli", "A client library"],
+          "lab_task": "Transfer points between two users atomically, protect a stock count with WATCH and retries under concurrent updates, and compare with an atomic command approach.",
+          "deliverable": "Transaction examples with tests",
+          "checks": [["Transfer atomically", "Balances always add up after transfers", "Test output"], ["Use WATCH", "Concurrent updates never oversell stock", "Test output"], ["Compare approaches", "Atomic command and WATCH versions compared", "Notes"]],
+          "objectives": ["Use Redis transactions", "Apply optimistic locking", "Choose atomic alternatives"]
+        },
+        {
+          "topic": "Lua Scripts and Functions",
+          "subtopics": ["Why server-side scripts", "EVAL and EVALSHA", "Keys and arguments in scripts", "Atomicity of scripts", "Redis Functions with FUNCTION LOAD", "Script performance and blocking", "Debugging scripts", "When not to use scripts"],
+          "tools": ["redis-cli", "Lua", "A client library"],
+          "lab_task": "Write a Lua script that reserves stock only if enough is available, convert it to a Redis Function library and measure the effect of a slow script.",
+          "deliverable": "Script and function library",
+          "checks": [["Reserve atomically", "Reservation never goes below zero under load", "Test output"], ["Load a function", "Function library loaded and callable", "Terminal output"], ["Show blocking", "Slow script blocks other clients as expected", "Latency output"]],
+          "objectives": ["Write Lua scripts", "Use Redis Functions", "Avoid blocking the server"]
+        },
+        {
+          "topic": "Redis Pub/Sub Messaging",
+          "subtopics": ["PUBLISH and SUBSCRIBE", "Pattern subscriptions", "Sharded pub/sub", "Delivery guarantees and their limits", "Pub/sub for cache invalidation", "Pub/sub for real-time notifications", "Pub/sub compared with streams", "Monitoring subscribers"],
+          "tools": ["redis-cli", "A client library"],
+          "lab_task": "Broadcast cache invalidation messages to three app instances with pub/sub, show what happens to messages when a subscriber is offline and compare with streams.",
+          "deliverable": "Pub/sub example with notes",
+          "checks": [["Broadcast invalidations", "All instances clear the cache entry", "Logs"], ["Miss a message", "Offline subscriber misses the message", "Log output"], ["Compare", "Pub/sub and streams trade-offs recorded", "Notes"]],
+          "objectives": ["Use pub/sub", "Understand delivery limits", "Choose pub/sub or streams"]
+        },
+        {
+          "topic": "Redis Streams",
+          "subtopics": ["Stream entries and IDs", "XADD and XRANGE", "Consumer groups", "Acknowledging with XACK", "Pending entries and XCLAIM", "Trimming streams", "Streams for event logs", "Streams compared with Kafka"],
+          "tools": ["redis-cli", "A client library"],
+          "lab_task": "Build an order events stream with a consumer group of two workers, acknowledge processed entries, reclaim entries from a crashed worker and trim the stream.",
+          "deliverable": "Stream-based event processing",
+          "checks": [["Share work", "Two workers split the entries", "Worker logs"], ["Reclaim entries", "Crashed worker's entries claimed and processed", "Terminal output"], ["Trim the stream", "Stream kept to the configured length", "XLEN output"]],
+          "objectives": ["Use Redis Streams", "Process events with consumer groups", "Recover from failures"]
+        },
+        {
+          "topic": "Persistence: RDB and AOF",
+          "subtopics": ["Why persistence matters for an in-memory store", "RDB snapshots", "AOF and fsync policies", "Combining RDB and AOF", "AOF rewrite", "Restart and recovery", "Backups from snapshots", "Choosing settings for your use case"],
+          "tools": ["Redis configuration", "redis-cli"],
+          "lab_task": "Configure RDB and AOF, write data, kill Redis without warning and compare what each setting recovers, then back up and restore from a snapshot.",
+          "deliverable": "Persistence settings with recovery results",
+          "checks": [["Kill and restart", "Data recovered according to the fsync policy", "Terminal output"], ["Restore a backup", "Snapshot restored on a new instance", "Terminal output"], ["Choose settings", "Settings chosen and justified for two use cases", "Notes"]],
+          "objectives": ["Configure Redis persistence", "Recover from crashes", "Back up Redis"]
+        },
+        {
+          "topic": "Memory Usage and Eviction Policies",
+          "subtopics": ["How Redis uses memory", "maxmemory", "Eviction policies: LRU, LFU, volatile and allkeys", "Memory usage per key", "Encodings for small data types", "Fragmentation", "Memory reports", "Sizing memory for a workload"],
+          "tools": ["redis-cli", "INFO memory", "MEMORY DOCTOR"],
+          "lab_task": "Set a memory limit, fill Redis past it under different eviction policies, observe which keys go, read memory reports and size memory for the course project.",
+          "deliverable": "Eviction experiment and sizing note",
+          "checks": [["Compare policies", "Evicted keys match each policy", "Terminal output"], ["Read reports", "Memory usage and fragmentation explained", "INFO memory output"], ["Size memory", "Memory estimate for the project with headroom", "Sizing note"]],
+          "objectives": ["Understand Redis memory", "Choose eviction policies", "Size Redis memory"]
+        },
+        {
+          "topic": "Security: ACLs, Passwords and TLS",
+          "subtopics": ["Why Redis must not be exposed openly", "Protected mode and binding addresses", "Passwords and ACL users", "Command and key permissions", "TLS for connections", "Renaming or blocking dangerous commands", "Auditing with ACL LOG", "Security in managed services"],
+          "tools": ["Redis ACLs", "TLS certificates", "redis-cli"],
+          "lab_task": "Lock down Redis with ACL users per application, limit commands and key patterns, enable TLS and show rejected commands in the ACL log.",
+          "deliverable": "Security configuration",
+          "checks": [["Limit a user", "App user cannot run FLUSHALL or read other prefixes", "Terminal output"], ["Enable TLS", "Clients connect only over TLS", "Connection output"], ["Read the ACL log", "Denied attempts recorded", "ACL LOG output"]],
+          "objectives": ["Secure Redis access", "Use ACLs", "Encrypt connections"]
+        },
+        {
+          "topic": "Using Redis from Python, Node.js and Java",
+          "subtopics": ["redis-py for Python", "node-redis or ioredis for Node.js", "Jedis or Lettuce for Java", "Connection pools", "Pipelining from clients", "Serialisation of values", "Error handling and retries", "Testing with a Redis container"],
+          "tools": ["redis-py", "node-redis or ioredis", "Lettuce or Jedis", "Testcontainers"],
+          "lab_task": "Build the same caching module in two languages with connection pools, pipelining, timeouts and retries, and test both against a Redis container.",
+          "deliverable": "Client modules with tests",
+          "checks": [["Pipeline commands", "Pipelined writes faster than single commands", "Timing comparison"], ["Handle a restart", "Clients reconnect after Redis restarts", "Log output"], ["Test with a container", "Tests pass against a Redis container", "Test output"]],
+          "objectives": ["Use Redis from applications", "Manage connections", "Test Redis code"]
+        },
+        {
+          "topic": "Rate Limiting and Counters",
+          "subtopics": ["Fixed window counters", "Sliding window logs with sorted sets", "Token buckets with scripts", "Per-user and per-IP limits", "Distributed counters", "Approximate counting", "Returning limit headers from apps", "Testing limits under load"],
+          "tools": ["Redis", "Lua", "Load testing tool"],
+          "lab_task": "Build fixed window and sliding window rate limiters for an API, compare accuracy and cost, and test them under concurrent load.",
+          "deliverable": "Rate limiter implementations",
+          "checks": [["Enforce a limit", "Requests beyond the limit rejected", "Test output"], ["Compare accuracy", "Sliding window avoids the boundary burst", "Test results"], ["Test under load", "Limits hold with concurrent clients", "Load test results"]],
+          "objectives": ["Build rate limiters with Redis", "Compare algorithms", "Test under load"]
+        },
+        {
+          "topic": "Sessions and Leaderboards",
+          "subtopics": ["Storing web sessions in Redis", "Session expiry and renewal", "Logging out everywhere", "Real-time leaderboards", "Rank and neighbour queries", "Time-boxed leaderboards", "Combining hashes and sorted sets", "Scaling session stores"],
+          "tools": ["Redis", "A web framework", "A client library"],
+          "lab_task": "Store sessions for a web app in Redis with sliding expiry and logout everywhere, and build daily and all-time leaderboards with rank and neighbour queries.",
+          "deliverable": "Session store and leaderboards",
+          "checks": [["Log out everywhere", "All sessions for a user removed", "Test output"], ["Query neighbours", "Players above and below a user returned", "Terminal output"], ["Reset daily boards", "Daily leaderboard resets while all-time stays", "Terminal output"]],
+          "objectives": ["Store sessions in Redis", "Build real-time leaderboards", "Combine data types"]
+        },
+        {
+          "topic": "Monitoring with INFO, SLOWLOG and Redis Insight",
+          "subtopics": ["INFO sections", "SLOWLOG", "LATENCY commands", "MONITOR and its risks", "Client lists", "Keyspace statistics", "Redis Insight analysis tools", "What to alert on"],
+          "tools": ["redis-cli", "Redis Insight", "INFO and SLOWLOG"],
+          "lab_task": "Generate load with a slow command, find it in SLOWLOG and latency reports, analyse memory in Redis Insight and write a list of alerts for production.",
+          "deliverable": "Monitoring checklist and findings",
+          "checks": [["Find slow commands", "Slow command identified in SLOWLOG", "SLOWLOG output"], ["Analyse memory", "Largest key patterns found in Redis Insight", "Screenshot"], ["Plan alerts", "Alerts listed with thresholds", "Alert list"]],
+          "objectives": ["Monitor Redis", "Find slow commands", "Plan alerts"]
+        },
+        {
+          "topic": "Running Redis in Docker and Managed Services",
+          "subtopics": ["Redis in Docker and Docker Compose", "Configuration files and volumes", "Managed services: ElastiCache, Azure Managed Redis and Redis Cloud", "Valkey-based managed offerings", "Connecting securely to managed Redis", "Scaling options in managed services", "Costs", "Choosing self-managed or managed"],
+          "tools": ["Docker Compose", "Amazon ElastiCache or Azure Managed Redis", "Redis Cloud"],
+          "lab_task": "Run Redis with persistence in Docker Compose for development, connect the app to a managed Redis service with TLS and compare cost and features.",
+          "deliverable": "Local and managed setups with a comparison",
+          "checks": [["Run locally", "Redis keeps data across container restarts", "Terminal output"], ["Connect to managed Redis", "App connects to the managed service over TLS", "Log output"], ["Compare", "Features and monthly cost compared", "Comparison table"]],
+          "objectives": ["Run Redis locally", "Use managed Redis services", "Choose a hosting option"]
+        },
+        {
+          "topic": "Beginner Capstone: Caching and Leaderboard Service",
+          "subtopics": ["Design", "Build", "Test", "Operate"],
+          "tools": ["Redis", "A client library", "Docker", "Redis Insight"],
+          "lab_task": "Build a service that caches product data, rate-limits API calls, stores sessions, processes events from a stream and serves live leaderboards, with persistence, security and monitoring, then demo it.",
+          "deliverable": "Repository, running service and demo recording",
+          "checks": [["Demo the service", "Caching, limits, sessions, events and leaderboards work", "Demo recording"], ["Run the tests", "Tests pass against a Redis container", "Test report"], ["Show operations", "Persistence, ACLs and monitoring configured", "Configuration and screenshots"]],
+          "objectives": ["Combine the beginner topics in one service", "Build with Redis data types", "Operate Redis safely"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers and operators running Redis in production. Covers replication, Sentinel, Redis Cluster and hash slots, client-side caching, stampedes and hot keys, streams with consumer groups, distributed locks, job queues on Redis, the query engine, JSON, vector search, time series and probabilistic structures, pipelining and big keys, production persistence and backups, Redis on Kubernetes, managed Redis, Valkey and licensing choices, hardening and observability.",
+      "prerequisites": ["Has used Redis data types in an application", "Comfortable with caching patterns and Redis persistence", "Knows Linux and Docker basics"],
+      "outcomes": ["Run highly available and clustered Redis", "Build reliable queues, locks, search and vector features on Redis", "Tune performance and memory", "Operate Redis securely on Kubernetes or managed services"],
+      "days": [
+        {
+          "topic": "Replication and Read Replicas",
+          "subtopics": ["Primary and replica roles", "Asynchronous replication", "Replication backlog and partial resync", "Read replicas for scaling reads", "Replica lag", "WAIT for stronger writes", "Replicas and persistence", "Failure cases"],
+          "tools": ["Redis", "redis-cli", "Docker Compose"],
+          "lab_task": "Set up a primary with two replicas, read from replicas, measure replica lag under load, use WAIT for an important write and show data loss risk on failover.",
+          "deliverable": "Replication setup with notes",
+          "checks": [["Read from replicas", "Reads served by replicas", "Log output"], ["Measure lag", "Replica lag measured under heavy writes", "INFO replication output"], ["Use WAIT", "Write acknowledged by a replica before success", "Terminal output"]],
+          "objectives": ["Configure replication", "Scale reads", "Understand replication limits"]
+        },
+        {
+          "topic": "High Availability with Redis Sentinel",
+          "subtopics": ["What Sentinel does", "Quorum and failover", "Sentinel-aware clients", "Failover timing", "Split brain risks", "Configuration for production", "Testing failover", "Sentinel compared with Cluster"],
+          "tools": ["Redis Sentinel", "Docker Compose", "A client library"],
+          "lab_task": "Deploy three Sentinels with a primary and two replicas, kill the primary under load, measure failover time and confirm clients reconnect automatically.",
+          "deliverable": "Sentinel setup and failover report",
+          "checks": [["Fail the primary", "Replica promoted automatically", "Sentinel log"], ["Measure failover", "Failover time recorded", "Timing log"], ["Reconnect clients", "Clients reconnect to the new primary", "Client log"]],
+          "objectives": ["Run Redis with Sentinel", "Test failover", "Use Sentinel-aware clients"]
+        },
+        {
+          "topic": "Redis Cluster: Sharding and Hash Slots",
+          "subtopics": ["Hash slots and sharding", "Creating a cluster", "Cluster-aware clients", "Hash tags for multi-key operations", "Resharding", "Replicas in a cluster", "Failure handling in a cluster", "Cluster limits"],
+          "tools": ["Redis Cluster", "redis-cli --cluster", "A client library"],
+          "lab_task": "Create a six-node cluster, spread keys across slots, use hash tags for multi-key operations, reshard under load and fail a primary.",
+          "deliverable": "Cluster setup and test notes",
+          "checks": [["Use hash tags", "Multi-key operation works across tagged keys", "Terminal output"], ["Reshard", "Slots moved with no client errors", "Client log"], ["Fail a primary", "Replica takes over its slots", "Cluster info output"]],
+          "objectives": ["Run Redis Cluster", "Use hash tags", "Reshard and handle failures"]
+        },
+        {
+          "topic": "Client-Side Caching and Tracking",
+          "subtopics": ["Why client-side caching", "RESP3 and client tracking", "Default and broadcast modes", "Invalidation messages", "Local cache sizes", "Consistency trade-offs", "Client library support", "Measuring benefit"],
+          "tools": ["Redis client tracking", "A RESP3 client library"],
+          "lab_task": "Enable client-side caching for hot configuration keys, show invalidation when values change and measure the latency and load saved.",
+          "deliverable": "Client-side caching setup with measurements",
+          "checks": [["Invalidate", "Client cache updated when the value changes", "Log output"], ["Cut load", "Redis commands per second reduced", "INFO stats comparison"], ["Measure latency", "Local reads faster than Redis reads", "Timing results"]],
+          "objectives": ["Use client-side caching", "Handle invalidation", "Measure the benefit"]
+        },
+        {
+          "topic": "Advanced Caching: Stampedes, Hot Keys and Invalidation",
+          "subtopics": ["Cache stampedes", "Locking and early refresh", "Probabilistic early expiration", "Hot keys and replication of hot data", "Negative caching", "Invalidation with tags", "Multi-level caching", "Cache consistency problems"],
+          "tools": ["Redis", "Load testing tool", "A client library"],
+          "lab_task": "Reproduce a stampede and a hot key under load, fix the stampede with early refresh and locks, spread the hot key and add tag-based invalidation.",
+          "deliverable": "Caching improvements with load results",
+          "checks": [["Fix a stampede", "One rebuild per expiry under load", "Log output"], ["Spread a hot key", "Load spread across copies", "Monitoring output"], ["Invalidate by tag", "All entries for a product cleared together", "Test output"]],
+          "objectives": ["Prevent cache stampedes", "Handle hot keys", "Invalidate precisely"]
+        },
+        {
+          "topic": "Streams in Depth: Consumer Groups and Exactly-Once Patterns",
+          "subtopics": ["Consumer group internals", "Pending entries lists", "Automatic claiming with XAUTOCLAIM", "Dead letter handling", "Idempotent processing", "Ordering guarantees", "Scaling consumers", "Monitoring streams"],
+          "tools": ["Redis Streams", "A client library"],
+          "lab_task": "Build an event processor with consumer groups, automatic claiming of stuck entries, dead letter handling after retries and idempotent processing, and monitor lag.",
+          "deliverable": "Stream processor with monitoring",
+          "checks": [["Claim stuck entries", "Entries from a dead consumer reclaimed", "Log output"], ["Dead-letter failures", "Entries moved aside after three failures", "Terminal output"], ["Process once", "Duplicate deliveries have no extra effect", "Test output"]],
+          "objectives": ["Process streams reliably", "Handle stuck and failing entries", "Monitor stream lag"]
+        },
+        {
+          "topic": "Distributed Locks and Their Pitfalls",
+          "subtopics": ["Why distributed locks are hard", "SET NX with expiry", "Releasing locks safely with scripts", "Lock renewal", "Redlock and its debate", "Fencing tokens", "When to avoid locks", "Testing locks"],
+          "tools": ["Redis", "Lua", "A client library"],
+          "lab_task": "Build a lock with safe release and renewal, show a failure where a paused process loses its lock, protect writes with fencing tokens and discuss Redlock.",
+          "deliverable": "Lock implementation with failure demo",
+          "checks": [["Release safely", "Only the owner can release the lock", "Test output"], ["Show the pitfall", "Paused process writes after losing its lock", "Test output"], ["Use fencing", "Fencing tokens block the stale write", "Test output"]],
+          "objectives": ["Build distributed locks carefully", "Understand lock pitfalls", "Use fencing tokens"]
+        },
+        {
+          "topic": "Redis as a Job Queue: BullMQ, Sidekiq and Celery",
+          "subtopics": ["Job queue libraries built on Redis", "Jobs, retries and backoff", "Delayed and scheduled jobs", "Rate-limited queues", "Job priorities", "Monitoring queues", "Redis settings for queues", "Queue failure cases"],
+          "tools": ["BullMQ, Sidekiq or Celery", "Redis", "Queue dashboards"],
+          "lab_task": "Run a background job system on Redis with BullMQ, Sidekiq or Celery, add retries, delayed jobs and priorities, and tune Redis eviction and persistence for queues.",
+          "deliverable": "Job queue setup with tuning notes",
+          "checks": [["Retry a job", "Failed job retries with backoff", "Dashboard screenshot"], ["Delay a job", "Delayed job runs at the scheduled time", "Job log"], ["Tune Redis", "No job data evicted under memory pressure", "Configuration and test notes"]],
+          "objectives": ["Run job queues on Redis", "Configure retries and delays", "Tune Redis for queues"]
+        },
+        {
+          "topic": "Search and Query with the Redis Query Engine",
+          "subtopics": ["Indexes with FT.CREATE", "Text, tag and numeric fields", "Queries and filters", "Sorting and paging", "Aggregations", "Autocomplete", "Indexing hashes and JSON", "When to use a dedicated search engine"],
+          "tools": ["Redis Query Engine", "Redis Insight", "A client library"],
+          "lab_task": "Index products stored as hashes, run text search with tag and price filters, add autocomplete and aggregations by category and compare with a database query.",
+          "deliverable": "Product search on Redis",
+          "checks": [["Search with filters", "Results match text, tag and price filters", "Query output"], ["Autocomplete", "Suggestions returned as the user types", "Query output"], ["Aggregate", "Counts per category returned", "Query output"]],
+          "objectives": ["Build search on Redis", "Index hashes and JSON", "Know when to use a search engine"]
+        },
+        {
+          "topic": "JSON Documents in Redis",
+          "subtopics": ["JSON data type", "JSONPath queries", "Updating nested fields", "Arrays in JSON documents", "Indexing JSON for search", "JSON compared with hashes", "Memory considerations", "Client support"],
+          "tools": ["Redis JSON", "Redis Query Engine", "A client library"],
+          "lab_task": "Store orders as JSON documents, update nested fields and arrays with JSONPath, index them for search and compare memory and speed with hashes.",
+          "deliverable": "JSON order store with comparison",
+          "checks": [["Update nested data", "Nested field updated without rewriting the document", "Terminal output"], ["Query JSON", "Indexed search finds orders by customer and status", "Query output"], ["Compare", "Memory and speed compared with hashes", "Comparison table"]],
+          "objectives": ["Store documents in Redis", "Query and update JSON", "Choose JSON or hashes"]
+        },
+        {
+          "topic": "Vector Search in Redis",
+          "subtopics": ["Embeddings and vector similarity", "Vector fields and index types", "KNN and range queries", "Hybrid queries with filters", "Semantic caching for AI apps", "Storing embeddings efficiently", "Performance and recall", "Vector search compared with dedicated databases"],
+          "tools": ["Redis Query Engine vectors or vector sets", "Embedding model", "A client library"],
+          "lab_task": "Store product embeddings, run KNN search with category filters, add a semantic cache for an AI assistant and measure recall and latency.",
+          "deliverable": "Vector search feature with measurements",
+          "checks": [["Search semantically", "Similar products found without shared keywords", "Query output"], ["Filter results", "Hybrid query respects the category filter", "Query output"], ["Cache semantically", "Similar questions served from the semantic cache", "Log output"]],
+          "objectives": ["Use Redis for vector search", "Combine vectors and filters", "Build semantic caches"]
+        },
+        {
+          "topic": "Time Series and Probabilistic Data Structures",
+          "subtopics": ["Time series data in Redis", "Retention and downsampling", "HyperLogLog for unique counts", "Bloom and cuckoo filters", "Count-min sketch", "Top-K", "Accuracy and memory trade-offs", "Use cases in analytics"],
+          "tools": ["Redis time series", "Redis probabilistic structures", "redis-cli"],
+          "lab_task": "Store sensor readings with retention and downsampling, count unique visitors with HyperLogLog, block repeat signups with a Bloom filter and track top products with Top-K.",
+          "deliverable": "Analytics examples with accuracy notes",
+          "checks": [["Downsample", "Hourly averages computed from raw readings", "Query output"], ["Count uniques", "HyperLogLog estimate within the stated error", "Comparison output"], ["Use a Bloom filter", "Repeat emails detected with no false negatives", "Test output"]],
+          "objectives": ["Store time series", "Use probabilistic structures", "Trade accuracy for memory"]
+        },
+        {
+          "topic": "Performance Tuning: Pipelining, Latency and Big Keys",
+          "subtopics": ["Network round trips and pipelining", "Command complexity", "Big keys and slow deletes", "Latency monitoring", "Persistence effects on latency", "Transparent huge pages and system settings", "Client connection tuning", "Benchmarking with redis-benchmark and memtier"],
+          "tools": ["redis-benchmark", "memtier_benchmark", "LATENCY DOCTOR"],
+          "lab_task": "Benchmark a workload, add pipelining, find and split big keys, fix system settings that cause latency spikes and record before and after results.",
+          "deliverable": "Performance tuning report",
+          "checks": [["Add pipelining", "Throughput higher with pipelining", "Benchmark results"], ["Split big keys", "Latency spikes from big keys gone", "Latency output"], ["Fix system settings", "Latency doctor reports no issues", "LATENCY DOCTOR output"]],
+          "objectives": ["Tune Redis performance", "Find and fix big keys", "Benchmark workloads"]
+        },
+        {
+          "topic": "Persistence and Backup Strategy in Production",
+          "subtopics": ["Choosing persistence per workload", "Backup schedules and retention", "Off-site backups", "Restore testing", "Replication with persistence", "Disk and fsync considerations", "Point-in-time recovery limits", "Runbooks for data loss"],
+          "tools": ["Redis persistence", "Backup scripts", "Object storage"],
+          "lab_task": "Design persistence and backups for cache, session and queue workloads, automate snapshot backups to object storage and run a timed restore drill.",
+          "deliverable": "Backup strategy and restore drill report",
+          "checks": [["Automate backups", "Snapshots copied to object storage on schedule", "Backup log"], ["Restore", "Restore completes within the target time", "Drill report"], ["Match workloads", "Each workload has fitting persistence settings", "Strategy document"]],
+          "objectives": ["Plan Redis backups", "Test restores", "Match persistence to workloads"]
+        },
+        {
+          "topic": "Redis on Kubernetes",
+          "subtopics": ["Running stateful Redis on Kubernetes", "StatefulSets and persistent volumes", "Operators for Redis and Valkey", "Sentinel and Cluster on Kubernetes", "Resource limits and memory", "Network policies and TLS", "Upgrades and failover in Kubernetes", "When to use a managed service instead"],
+          "tools": ["Kubernetes", "Helm", "Redis or Valkey operator"],
+          "lab_task": "Deploy a highly available Redis on Kubernetes with an operator, persistent volumes, TLS and network policies, fail a pod and upgrade the version.",
+          "deliverable": "Kubernetes Redis deployment",
+          "checks": [["Fail a pod", "Failover completes and clients reconnect", "Pod events and client log"], ["Upgrade", "Version upgraded with no data loss", "Upgrade log"], ["Restrict access", "Only the app namespace can connect", "Connection test"]],
+          "objectives": ["Run Redis on Kubernetes", "Use operators", "Upgrade and fail over safely"]
+        },
+        {
+          "topic": "Managed Redis: ElastiCache, Azure Managed Redis and Redis Cloud",
+          "subtopics": ["Managed offerings compared", "Cluster modes in managed services", "Scaling and resharding in managed services", "Backups and restores", "Multi-AZ failover", "Security and private networking", "Monitoring in the cloud", "Cost management"],
+          "tools": ["Amazon ElastiCache", "Azure Managed Redis", "Redis Cloud"],
+          "lab_task": "Deploy a cluster-mode managed Redis, connect through private networking with TLS, scale it, trigger a failover, restore a backup and estimate monthly cost.",
+          "deliverable": "Managed Redis deployment and cost estimate",
+          "checks": [["Fail over", "Multi-AZ failover completes with clients reconnecting", "Event log"], ["Scale", "Cluster scaled with no client errors", "Client log"], ["Estimate cost", "Monthly cost estimated for the workload", "Cost estimate"]],
+          "objectives": ["Use managed Redis services", "Scale and fail over in the cloud", "Control managed costs"]
+        },
+        {
+          "topic": "Valkey and Redis Licensing Choices",
+          "subtopics": ["History of Redis licensing changes", "The Valkey fork and its governance", "Compatibility between Redis and Valkey", "Feature differences", "Managed services by engine", "Licence considerations for companies", "Migrating between engines", "Making a choice"],
+          "tools": ["Redis", "Valkey", "Compatibility test suite"],
+          "lab_task": "Run the course project against Redis and Valkey, list compatibility differences, review licence terms with a checklist and recommend an engine for a company.",
+          "deliverable": "Engine comparison and recommendation",
+          "checks": [["Run on both engines", "Project works on both or differences listed", "Test output"], ["Review licences", "Licence obligations summarised for the company", "Checklist"], ["Recommend", "Recommendation covers features, licence and support", "Recommendation document"]],
+          "objectives": ["Compare Redis and Valkey", "Understand licensing", "Choose an engine"]
+        },
+        {
+          "topic": "Security Hardening in Production",
+          "subtopics": ["Threats to Redis deployments", "Network isolation", "ACL design for many applications", "TLS everywhere", "Protecting persistence files and backups", "Disabling dangerous commands", "Patching and upgrades", "Security audits"],
+          "tools": ["Redis ACLs", "TLS", "Network policies or security groups"],
+          "lab_task": "Audit a production-like Redis setup against a hardening checklist, fix network, ACL, TLS and file permission issues and document the remaining risks.",
+          "deliverable": "Hardening report",
+          "checks": [["Isolate the network", "Redis reachable only from app hosts", "Connection tests"], ["Review ACLs", "Each app limited to its own keys and commands", "ACL list"], ["Protect files", "Persistence files readable only by Redis", "File permission output"]],
+          "objectives": ["Harden Redis", "Design ACLs for many apps", "Audit Redis security"]
+        },
+        {
+          "topic": "Observability: Metrics, Alerts and Dashboards",
+          "subtopics": ["Key Redis metrics", "Exporters for Prometheus", "Dashboards in Grafana", "Alerting on memory, latency and replication", "Tracing Redis calls from applications", "Slow log collection", "Capacity trends", "Runbooks linked to alerts"],
+          "tools": ["Prometheus", "redis_exporter", "Grafana", "OpenTelemetry"],
+          "lab_task": "Export Redis metrics to Prometheus, build a Grafana dashboard, add alerts for memory, latency and replication lag, and link each alert to a runbook.",
+          "deliverable": "Monitoring stack with runbooks",
+          "checks": [["Build a dashboard", "Memory, latency, hit rate and replication shown", "Dashboard screenshot"], ["Fire an alert", "Memory alert fires near the limit", "Alert notification"], ["Link runbooks", "Every alert links to a runbook", "Alert rules"]],
+          "objectives": ["Monitor Redis in production", "Alert on the right signals", "Use runbooks"]
+        },
+        {
+          "topic": "Intermediate Capstone: Real-Time Order Tracking Backend",
+          "subtopics": ["Design", "Build", "Operate", "Present"],
+          "tools": ["Redis Cluster or Sentinel", "Redis Streams", "Redis Query Engine", "Prometheus", "Kubernetes or a managed service"],
+          "lab_task": "Build a real-time order tracking back end with highly available Redis, streams for events, search for orders, client-side caching, locks, monitoring and backups, then present it.",
+          "deliverable": "Repository, running system and presentation",
+          "checks": [["Demo tracking", "Order events flow to live views and search", "Demo recording"], ["Survive a failure", "Service keeps working through a Redis failover", "Failover report"], ["Defend choices", "Data structure and topology choices explained", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one system", "Run Redis in production style", "Explain design choices"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior engineers, DBAs and platform teams running Redis at scale. Covers Redis internals, large clusters and resharding, multi-region and active-active replication, capacity and memory engineering, latency and tail latency, disaster recovery, data modelling for very high throughput, Redis as a primary database, real-time analytics, Redis for AI applications, security and compliance, fleet automation, migrations between versions, Valkey and managed services, modules and functions, cost, chaos testing, observability at scale, Redis in microservices and incident troubleshooting.",
+      "prerequisites": ["Several years running Redis in production", "Strong Linux, networking and distributed systems knowledge", "Has operated Redis Cluster or Sentinel"],
+      "outcomes": ["Explain and tune Redis internals", "Design large, multi-region and highly available Redis estates", "Engineer memory, latency, cost and reliability", "Lead migrations and incident response for Redis"],
+      "days": [
+        {
+          "topic": "Redis Internals: Event Loop, Data Encodings and Memory Allocator",
+          "subtopics": ["The event loop and I/O threads", "Command processing", "Internal encodings: listpack, intset, skiplist and hashtable", "Encoding conversion thresholds", "jemalloc and fragmentation", "Active defragmentation", "Lazy freeing", "Reading the Redis source"],
+          "tools": ["Redis source code", "OBJECT ENCODING", "MEMORY STATS"],
+          "lab_task": "Show encodings changing as data grows, tune thresholds for a workload, measure fragmentation and active defragmentation, and explain I/O threading from the source.",
+          "deliverable": "Internals notebook with tuning results",
+          "checks": [["Watch encodings", "Encoding changes recorded at the thresholds", "Terminal output"], ["Tune thresholds", "Memory reduced for the workload after tuning", "MEMORY USAGE comparison"], ["Defragment", "Fragmentation ratio reduced by active defrag", "INFO memory output"]],
+          "objectives": ["Explain Redis internals", "Tune encodings", "Manage fragmentation"]
+        },
+        {
+          "topic": "Cluster Architecture at Scale: Resharding and Multi-Shard Operations",
+          "subtopics": ["Large cluster design", "Slot distribution and balancing", "Online resharding at scale", "Multi-shard queries and their costs", "Cross-slot operations with hash tags", "Cluster bus and gossip", "Client behaviour during topology changes", "Limits of very large clusters"],
+          "tools": ["Redis Cluster", "redis-cli --cluster", "Cluster-aware clients"],
+          "lab_task": "Design a 30-shard cluster for a growing workload, reshard online under load, measure client impact during topology changes and redesign keys that cause cross-slot errors.",
+          "deliverable": "Cluster design and resharding report",
+          "checks": [["Reshard online", "Resharding completes with error rates within target", "Client metrics"], ["Fix cross-slot errors", "Redesigned keys remove cross-slot errors", "Test output"], ["Balance slots", "Load spread evenly across shards", "Shard metrics"]],
+          "objectives": ["Design large Redis clusters", "Reshard safely", "Handle multi-shard operations"]
+        },
+        {
+          "topic": "Multi-Region and Active-Active Replication",
+          "subtopics": ["Why multi-region Redis", "Active-passive across regions", "Active-active with conflict-free replicated data types", "Conflict resolution semantics", "Latency and consistency trade-offs", "Failover between regions", "Data residency", "Cost of multi-region"],
+          "tools": ["Redis Enterprise or Redis Cloud active-active", "Cross-region replication in managed services"],
+          "lab_task": "Design a two-region session and counter store, compare active-passive and active-active, show how concurrent increments and writes resolve and test regional failover.",
+          "deliverable": "Multi-region design and test results",
+          "checks": [["Resolve conflicts", "Concurrent writes resolve as documented", "Test output"], ["Fail a region", "Traffic moves to the other region within target", "Failover report"], ["Estimate cost", "Multi-region cost estimated", "Cost model"]],
+          "objectives": ["Design multi-region Redis", "Understand active-active semantics", "Test regional failover"]
+        },
+        {
+          "topic": "Capacity Planning and Memory Engineering",
+          "subtopics": ["Forecasting key counts and value sizes", "Memory overhead per key and type", "Headroom for replication and forks", "Copy-on-write during snapshots", "Compression in clients", "Choosing data structures for memory", "Shard sizing", "Capacity reviews"],
+          "tools": ["MEMORY USAGE", "Capacity spreadsheets", "Benchmark tools"],
+          "lab_task": "Build a capacity model for a two-year forecast, measure per-key overhead and fork memory, cut memory with data structure and compression choices and size the shards.",
+          "deliverable": "Capacity model and memory savings report",
+          "checks": [["Model capacity", "Memory and shards forecast for two years", "Capacity model"], ["Measure fork memory", "Copy-on-write overhead measured during a snapshot", "Measurements"], ["Cut memory", "Memory reduced with no feature loss", "Before and after report"]],
+          "objectives": ["Plan Redis capacity", "Engineer memory use", "Size shards"]
+        },
+        {
+          "topic": "Latency Engineering and Tail Latency",
+          "subtopics": ["Latency sources: network, commands, persistence and system", "Tail latency and why it matters", "Blocking commands and scripts", "Forks and latency spikes", "Kernel and network tuning", "Client-side timeouts and retries", "Hedged requests", "Latency budgets"],
+          "tools": ["LATENCY HISTORY", "memtier_benchmark", "Linux perf tools"],
+          "lab_task": "Measure p99 and p999 latency for a workload, remove spikes from forks, scripts and system settings, tune client timeouts and meet a latency budget.",
+          "deliverable": "Latency engineering report",
+          "checks": [["Measure tails", "p99 and p999 latency recorded", "Benchmark results"], ["Remove spikes", "Spikes from forks reduced", "Latency history comparison"], ["Meet the budget", "p99 within the agreed budget", "Benchmark results"]],
+          "objectives": ["Engineer low latency", "Reduce tail latency", "Set latency budgets"]
+        },
+        {
+          "topic": "Disaster Recovery and Failover Testing",
+          "subtopics": ["Failure scenarios for Redis estates", "Recovery objectives per workload", "Backups and replicas as recovery tools", "Region loss", "Corruption and operator error", "Failover drills", "Runbooks", "Lessons from drills"],
+          "tools": ["Backups", "Replication", "Chaos tools"],
+          "lab_task": "Define recovery objectives for cache, session and queue workloads, run drills for primary loss, region loss and accidental FLUSHALL, and update runbooks.",
+          "deliverable": "DR plan and drill reports",
+          "checks": [["Recover from FLUSHALL", "Data restored within the objective", "Drill report"], ["Lose a region", "Workloads recovered as planned", "Drill report"], ["Update runbooks", "Runbooks changed from drill lessons", "Runbook diff"]],
+          "objectives": ["Plan Redis disaster recovery", "Run failover drills", "Improve runbooks"]
+        },
+        {
+          "topic": "Designing Data Models for Very High Throughput",
+          "subtopics": ["Access patterns first", "Choosing structures for hot paths", "Avoiding hot keys by design", "Batching and pipelining in design", "Sharding-friendly key design", "Counters at scale", "Fan-out and fan-in patterns", "Load testing designs"],
+          "tools": ["Redis Cluster", "memtier_benchmark", "Load testing tools"],
+          "lab_task": "Design data models for a social feed and a flash sale handling a million operations per second, avoid hot keys, load test the designs and refine them.",
+          "deliverable": "Data model designs with load results",
+          "checks": [["Avoid hot keys", "Load spread evenly across shards", "Shard metrics"], ["Hit the target", "Design sustains the target throughput in tests", "Load test results"], ["Refine", "Weak points found and fixed", "Design notes"]],
+          "objectives": ["Model data for high throughput", "Design sharding-friendly keys", "Validate designs under load"]
+        },
+        {
+          "topic": "Redis as a Primary Database: Trade-offs and Durability",
+          "subtopics": ["When Redis can be the system of record", "Durability settings and their costs", "Replication guarantees", "Modelling relationships", "Secondary indexes", "Backups and auditing", "Compliance considerations", "When to choose another database"],
+          "tools": ["Redis persistence", "WAIT and WAITAOF", "Redis Query Engine"],
+          "lab_task": "Assess a product that wants Redis as its main database, test durability with WAITAOF and replication, model indexes and write a recommendation.",
+          "deliverable": "Assessment and recommendation",
+          "checks": [["Test durability", "Acknowledged writes survive a crash under the chosen settings", "Test output"], ["Model indexes", "Secondary access paths designed", "Design notes"], ["Recommend", "Recommendation covers durability, cost and risk", "Recommendation document"]],
+          "objectives": ["Judge Redis as a primary store", "Configure durability", "Recommend data stores"]
+        },
+        {
+          "topic": "Real-Time Analytics with Streams and Sorted Sets",
+          "subtopics": ["Real-time counters and windows", "Streams for event ingestion", "Sorted sets for rankings over time", "Probabilistic structures for large counts", "Time series for metrics", "Combining Redis with batch analytics", "Accuracy and retention", "Serving dashboards"],
+          "tools": ["Redis Streams", "Redis time series", "Sorted sets", "Dashboards"],
+          "lab_task": "Build a real-time analytics pipeline for a live event with streams, windowed counters, trending rankings and unique counts, feeding a live dashboard.",
+          "deliverable": "Real-time analytics pipeline",
+          "checks": [["Show trends", "Trending items update every second", "Dashboard recording"], ["Count uniques", "Unique viewers estimated within error bounds", "Comparison output"], ["Keep up", "Pipeline keeps up with the event rate", "Lag metrics"]],
+          "objectives": ["Build real-time analytics on Redis", "Combine structures", "Serve live dashboards"]
+        },
+        {
+          "topic": "Redis for AI Applications: Semantic Caching and Agent Memory",
+          "subtopics": ["Redis in AI application stacks", "Vector search for retrieval", "Semantic caching of LLM responses", "Conversation and agent memory", "Rate limiting AI calls", "Feature stores for models", "Evaluating cache hit quality", "Cost savings from caching"],
+          "tools": ["Redis vector search", "LangChain or LlamaIndex Redis integrations", "Embedding model"],
+          "lab_task": "Add retrieval, a semantic cache and agent memory on Redis to an AI assistant, measure cache hit quality and calculate the cost saved.",
+          "deliverable": "AI features on Redis with evaluation",
+          "checks": [["Retrieve context", "Relevant documents retrieved for questions", "Query output"], ["Cache safely", "Cached answers returned only for truly similar questions", "Evaluation results"], ["Calculate savings", "LLM cost saved by caching calculated", "Cost report"]],
+          "objectives": ["Use Redis in AI applications", "Build semantic caches", "Store agent memory"]
+        },
+        {
+          "topic": "Security Architecture and Compliance",
+          "subtopics": ["Security architecture for Redis estates", "Identity and access across many apps", "Encryption in transit and at rest", "Key management", "Audit logging", "Data classification in caches", "Compliance requirements", "Security reviews"],
+          "tools": ["Redis ACLs", "TLS", "Cloud key management", "Audit tooling"],
+          "lab_task": "Design security for a regulated Redis estate with per-app identities, encryption, key management, audit logs and data classification rules, and run a review.",
+          "deliverable": "Security architecture and review report",
+          "checks": [["Classify data", "Sensitive data types mapped to allowed stores", "Classification table"], ["Audit access", "Access events recorded and searchable", "Audit log"], ["Pass the review", "Review findings closed or accepted", "Review report"]],
+          "objectives": ["Architect Redis security", "Meet compliance needs", "Run security reviews"]
+        },
+        {
+          "topic": "Operating Redis Fleets with Automation",
+          "subtopics": ["Fleet inventories", "Configuration as code", "Automated provisioning", "Rolling upgrades", "Automated failover tests", "Self-service for teams", "Standard dashboards and alerts", "Fleet health reports"],
+          "tools": ["Terraform or Ansible", "Kubernetes operators", "Fleet dashboards"],
+          "lab_task": "Manage a fleet of Redis instances as code, provision a new instance for a team through self-service, roll an upgrade across the fleet and report fleet health.",
+          "deliverable": "Fleet automation and health report",
+          "checks": [["Provision self-service", "Team gets a configured instance from a request", "Pipeline log"], ["Roll an upgrade", "Fleet upgraded with no incidents", "Upgrade report"], ["Report health", "Health report covers every instance", "Report"]],
+          "objectives": ["Automate Redis operations", "Offer self-service", "Report fleet health"]
+        },
+        {
+          "topic": "Migrating Between Redis Versions, Valkey and Managed Services",
+          "subtopics": ["Reasons to migrate", "Version upgrade paths", "Migrating to Valkey", "Moving to or from managed services", "Live migration with replication", "Dual writes and cutover", "Testing compatibility", "Rollback plans"],
+          "tools": ["Replication", "RIOT or migration tools", "Compatibility tests"],
+          "lab_task": "Migrate a live workload from self-managed Redis to a managed Valkey or Redis service with replication-based migration, test compatibility, cut over and keep a rollback path.",
+          "deliverable": "Migration plan and cutover record",
+          "checks": [["Test compatibility", "Application tests pass on the target", "Test output"], ["Cut over", "Cutover completes within the agreed downtime", "Cutover log"], ["Keep rollback", "Rollback path tested before cutover", "Test record"]],
+          "objectives": ["Plan Redis migrations", "Migrate live workloads", "Roll back safely"]
+        },
+        {
+          "topic": "Extending Redis with Modules and Functions",
+          "subtopics": ["When to extend Redis", "Redis Functions for server-side logic", "Libraries and versioning of functions", "The modules API", "Writing a simple module in C or Rust", "Testing extensions", "Operational risks of modules", "Managed service support for extensions"],
+          "tools": ["Redis Functions", "Redis modules API", "Rust redis-module crate"],
+          "lab_task": "Move business logic into a versioned Redis Function library, write a small module that adds a custom command, test both and assess the operational risk.",
+          "deliverable": "Function library and sample module",
+          "checks": [["Version functions", "Function library upgraded without downtime", "Terminal output"], ["Load a module", "Custom command works after loading the module", "Terminal output"], ["Assess risk", "Operational risks and support limits documented", "Notes"]],
+          "objectives": ["Extend Redis safely", "Use Redis Functions", "Understand modules"]
+        },
+        {
+          "topic": "Cost Optimisation for Redis Estates",
+          "subtopics": ["Where Redis costs come from", "Right-sizing instances and shards", "Memory efficiency as cost control", "Managed service pricing models", "Reserved capacity", "Removing unused data and instances", "Cost per team and per feature", "Reporting cost"],
+          "tools": ["Cloud cost tools", "Memory analysis tools", "Spreadsheets"],
+          "lab_task": "Analyse a month of Redis costs, find oversized and idle instances, cut memory use, apply reserved pricing and report cost per team.",
+          "deliverable": "Cost report and savings plan",
+          "checks": [["Find waste", "Idle and oversized instances identified", "Cost analysis"], ["Cut cost", "Monthly cost reduced with no SLO breach", "Before and after report"], ["Report per team", "Cost per team calculated", "Cost report"]],
+          "objectives": ["Understand Redis costs", "Reduce cost safely", "Report cost clearly"]
+        },
+        {
+          "topic": "Chaos Testing Redis Deployments",
+          "subtopics": ["Failure modes to test", "Network partitions", "Node and process failures", "Slow disks and memory pressure", "Client behaviour during failures", "Chaos tools", "Running experiments safely", "Learning from experiments"],
+          "tools": ["Chaos Mesh or Toxiproxy", "Redis Sentinel or Cluster", "Load testing tools"],
+          "lab_task": "Run chaos experiments on a Redis cluster with partitions, node kills and memory pressure while traffic runs, record client behaviour and fix weaknesses.",
+          "deliverable": "Chaos experiment report",
+          "checks": [["Partition the network", "Client behaviour during the partition recorded", "Experiment log"], ["Kill nodes", "Cluster recovers within the target", "Experiment log"], ["Fix weaknesses", "Two weaknesses fixed and retested", "Fix notes"]],
+          "objectives": ["Chaos test Redis", "Observe client behaviour", "Strengthen deployments"]
+        },
+        {
+          "topic": "Observability at Scale for Redis Fleets",
+          "subtopics": ["Fleet-wide metrics", "Per-tenant and per-app usage", "Command statistics", "Hot key and big key detection at scale", "Alert design for fleets", "Capacity trend reports", "Correlating Redis with application traces", "Telemetry cost"],
+          "tools": ["Prometheus", "Grafana", "OpenTelemetry", "Redis exporters"],
+          "lab_task": "Build fleet dashboards with per-app usage and command stats, detect hot and big keys across instances, correlate Redis latency with app traces and tune alerts.",
+          "deliverable": "Fleet observability setup",
+          "checks": [["Detect hot keys", "Hot keys found across the fleet", "Report"], ["Correlate traces", "Slow app requests linked to Redis latency", "Trace screenshot"], ["Tune alerts", "Alert noise reduced while catching real issues", "Alert history"]],
+          "objectives": ["Observe Redis fleets", "Find problems across instances", "Correlate with applications"]
+        },
+        {
+          "topic": "Redis in Microservices Architectures",
+          "subtopics": ["Redis roles in service estates", "Shared Redis compared with Redis per service", "Caching across services", "Events and streams between services", "Distributed locks and coordination", "Rate limiting at the gateway", "Failure isolation", "Governance of shared Redis"],
+          "tools": ["Redis", "Service mesh or gateway", "Microservices sample"],
+          "lab_task": "Review a microservices estate's use of Redis, split a shared instance by service, move cross-service events to streams and isolate failures.",
+          "deliverable": "Redis architecture review and changes",
+          "checks": [["Split shared Redis", "Services no longer share keys", "Configuration review"], ["Use streams", "Cross-service events flow through streams", "Log output"], ["Isolate failures", "One service's Redis issue no longer affects others", "Test output"]],
+          "objectives": ["Use Redis well in microservices", "Isolate services", "Govern shared Redis"]
+        },
+        {
+          "topic": "Troubleshooting Production Redis Incidents",
+          "subtopics": ["Incident triage for Redis", "Memory exhaustion and evictions", "Latency spikes and blocking commands", "Replication breaks and failover loops", "Connection storms", "Data loss after restarts", "Collecting evidence safely", "Post-incident reviews"],
+          "tools": ["redis-cli", "INFO and SLOWLOG", "Monitoring dashboards", "Logs"],
+          "lab_task": "Work through four incidents: memory exhaustion, a blocking command, a failover loop and a connection storm, restore service and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by evidence", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
+          "objectives": ["Troubleshoot Redis in production", "Find root causes", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Global Low-Latency Data Layer",
+          "subtopics": ["Architecture", "Build", "Operations", "Defence"],
+          "tools": ["Redis Cluster", "Active-active or cross-region replication", "Prometheus", "Chaos tools", "Terraform"],
+          "lab_task": "Design and build a global low-latency data layer for sessions, caching, rate limits and real-time features with multi-region replication, capacity and cost models, DR drills and fleet automation, then defend it to a review panel.",
+          "deliverable": "Architecture, models, drill reports and defence",
+          "checks": [["Meet latency targets", "p99 latency within target in each region", "Benchmark results"], ["Pass DR drills", "Region loss handled within objectives", "Drill reports"], ["Defend the design", "Review panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one platform", "Architect global Redis estates", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}

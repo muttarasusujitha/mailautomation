@@ -1,0 +1,573 @@
+{
+  "domain": "OpenTelemetry",
+  "name": "OpenTelemetry",
+  "category": "Observability and SRE",
+  "icon": "activity",
+  "aliases": ["OTel", "OpenTelemetry Framework", "Open Telemetry", "OTel Collector", "OpenTelemetry Collector", "OpenTelemetry Instrumentation", "OTLP", "OpenTelemetry Certified Associate"],
+  "certifications": ["OpenTelemetry Certified Associate (OTCA) - Linux Foundation / CNCF"],
+  "tools": ["OpenTelemetry SDKs", "OpenTelemetry Java agent", "opentelemetry-instrument (Python)", "@opentelemetry/auto-instrumentations-node", "OpenTelemetry .NET Automatic Instrumentation", "OpenTelemetry Collector (otelcol-contrib)", "OpenTelemetry Collector Builder (ocb)", "OpenTelemetry Operator", "OBI (OpenTelemetry eBPF Instrumentation)", "telemetrygen", "OpenTelemetry Weaver", "OpAMP", "Jaeger", "Prometheus"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, DevOps engineers and SREs who are new to OpenTelemetry and need to get useful telemetry out of real services. Covers the split between the OpenTelemetry API, SDK and Collector, the traces, metrics and logs signals, W3C Trace Context and baggage, zero-code instrumentation for Python, Java, Node.js and .NET, manual spans and metric instruments, log bridging, resources and semantic conventions, OTLP over gRPC and HTTP, a first Collector pipeline, exporting to Jaeger and Prometheus, head sampling, diagnosing missing telemetry, and a capstone that instruments a three-service application end to end.",
+      "prerequisites": ["Builds and runs a small web service in at least one of Python, Java, JavaScript/TypeScript or C#", "Uses Docker and Docker Compose to start containers, read logs and expose ports", "Understands HTTP requests, status codes and headers, and has a laptop with 8 GB of free RAM for the OpenTelemetry Demo"],
+      "outcomes": ["Explain how the OpenTelemetry API, SDK, OTLP and the Collector fit together and which part owns which responsibility", "Add zero-code and manual instrumentation to Python, Java, Node.js and .NET services and confirm that spans, metrics and logs reach a backend", "Configure SDKs with OTEL_* environment variables, resources, propagators and head samplers so traces stay connected across services", "Run a basic Collector pipeline that receives OTLP and exports traces to Jaeger and metrics to Prometheus, and diagnose common data-loss causes"],
+      "days": [
+        {
+          "topic": "OpenTelemetry Orientation: Signals, API, SDK and Collector",
+          "subtopics": ["What OpenTelemetry is: a CNCF project for vendor-neutral telemetry, not a backend", "Signals: traces, metrics, logs, and the newer profiles signal", "The API package: what libraries depend on and why it is a no-op without an SDK", "The SDK: providers, processors, samplers, exporters and resources", "OTLP as the native wire protocol between SDKs, Collectors and backends", "The Collector: receivers, processors, exporters, connectors and extensions", "Instrumentation libraries, zero-code agents and manual instrumentation", "Specification, semantic conventions and signal stability levels (development, beta, stable)", "Language SDK maturity matrix on opentelemetry.io/status", "Where vendors fit: OTLP-native backends versus exporters"],
+          "tools": ["opentelemetry.io documentation", "OpenTelemetry Collector", "OTLP", "Docker"],
+          "lab_task": "Draw the data path for one request from an instrumented app through the SDK, OTLP and a Collector to a backend. Start otel/opentelemetry-collector-contrib in Docker with ports 4317 and 4318 published and the default config, then run docker logs on it and confirm the line 'Everything is ready. Begin running and processing data.' Record the stability of traces, metrics, logs and profiles for two languages from the status page.",
+          "deliverable": "One-page architecture diagram plus a signal-stability table for two languages",
+          "checks": [["Start the contrib Collector container and read its logs", "Log contains 'Everything is ready. Begin running and processing data.'", "docker logs output"], ["Remove the SDK and call the tracing API only", "Spans are non-recording no-ops and nothing is exported", "Code snippet and empty backend"], ["Look up the profiles signal on the specification status page", "Profiles is listed as not yet stable, unlike traces and metrics", "Status table"]],
+          "objectives": ["Describe the role of the API, SDK, OTLP and Collector", "Name the four OpenTelemetry signals and their maturity", "Explain why libraries depend only on the API"]
+        },
+        {
+          "topic": "Running the OpenTelemetry Demo Astronomy Shop",
+          "subtopics": ["The OpenTelemetry Demo: a polyglot microservice shop maintained by the project", "Services in Go, Java, .NET, Python, Node.js, Rust, PHP, Ruby, C++ and more", "docker compose up and the frontend-proxy on port 8080", "Bundled Jaeger, Prometheus, Grafana and OpenSearch", "Load generator built on Locust", "flagd feature flags for injecting failures", "Following one checkout request through every service", "Reading the demo's Collector configuration"],
+          "tools": ["OpenTelemetry Demo", "Docker Compose", "Jaeger UI", "Grafana", "Locust", "flagd"],
+          "lab_task": "Clone github.com/open-telemetry/opentelemetry-demo and run docker compose up --force-recreate --remove-orphans --detach. Open http://localhost:8080, place an order, then find the checkout trace in Jaeger at /jaeger/ui. Count the services and spans in the trace. Turn on the paymentFailure flag in the flagd UI at /feature and find the failing span with error=true.",
+          "deliverable": "Annotated screenshot of a checkout trace with its service count, span count and the failing payment span",
+          "checks": [["Open http://localhost:8080 after compose finishes", "Astronomy Shop storefront loads and products are listed", "Browser screenshot"], ["Search Jaeger for service checkout and open the latest trace", "Trace spans at least five services including frontend, checkout and payment", "Jaeger trace view"], ["Enable the paymentFailure flag and place another order", "The payment span shows status Error and the trace is marked with an error icon", "Jaeger error span"]],
+          "objectives": ["Start and navigate the OpenTelemetry Demo", "Follow a request across services in a trace view", "Inject a controlled failure with feature flags"]
+        },
+        {
+          "topic": "Reading Traces: Spans, Span Kinds, Status and Events",
+          "subtopics": ["Trace, span, trace ID (16 bytes) and span ID (8 bytes)", "Parent and child spans and the root span", "Span kinds: INTERNAL, SERVER, CLIENT, PRODUCER and CONSUMER", "Span status: Unset, Ok and Error, and who should set Ok", "Attributes and attribute value types", "Span events and record_exception", "Span links for batch and fan-in work", "Reading waterfalls: critical path, gaps and concurrency"],
+          "tools": ["Jaeger UI", "OpenTelemetry Demo", "Python SDK", "ConsoleSpanExporter"],
+          "lab_task": "Write a Python script with opentelemetry-sdk and ConsoleSpanExporter that creates a SERVER span with two INTERNAL children, raises and records a ValueError in one child with span.record_exception and sets StatusCode.ERROR, and adds an event 'cache.miss'. Run it, then read the JSON output and identify trace_id, parent_id, kind and status for all three spans.",
+          "deliverable": "Console span dump with an annotated parent-child table",
+          "checks": [["Compare trace_id across the three printed spans", "All three spans share the same 32-hex-character trace_id", "Console output"], ["Inspect the child where the exception was recorded", "Span has an 'exception' event with exception.type ValueError and status ERROR", "Event JSON"], ["Inspect the root span's parent_id", "parent_id is null for the root span", "Console output"]],
+          "objectives": ["Identify span kinds and choose the right one", "Set status and record exceptions correctly", "Read parent-child relationships from raw span data"]
+        },
+        {
+          "topic": "W3C Trace Context and Baggage Propagation",
+          "subtopics": ["The traceparent header: version-traceid-parentid-flags", "The sampled flag 01 and what downstream services do with it", "tracestate for vendor-specific data", "The W3C baggage header and its size limits", "Inject and extract with TextMapPropagator", "OTEL_PROPAGATORS: tracecontext, baggage, b3, b3multi, jaeger", "Why baggage is not copied onto spans automatically", "Security: never put secrets or PII in baggage"],
+          "tools": ["curl", "Python SDK", "Flask", "requests", "W3C Trace Context"],
+          "lab_task": "Run two Flask services instrumented with opentelemetry-instrument where service A calls service B with requests. Print incoming headers in B. Then call A with curl -H 'traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01' and confirm B's spans carry that trace ID. Set baggage user.tier=gold in A and read it in B with baggage.get_baggage.",
+          "deliverable": "Header capture from service B and a trace showing the injected trace ID across both services",
+          "checks": [["Print the traceparent header received by service B", "Header matches the pattern 00-<32 hex>-<16 hex>-01", "Service B log line"], ["Call A with the fixed traceparent from curl", "Both services' spans use trace ID 4bf92f3577b34da6a3ce929d0e0e4736", "Jaeger trace search by ID"], ["Read baggage in service B", "baggage.get_baggage('user.tier') returns 'gold'", "Service B log line"]],
+          "objectives": ["Decode a traceparent header field by field", "Configure propagators with OTEL_PROPAGATORS", "Pass and read baggage safely"]
+        },
+        {
+          "topic": "Zero-Code Instrumentation for Python with opentelemetry-instrument",
+          "subtopics": ["opentelemetry-distro and opentelemetry-exporter-otlp packages", "opentelemetry-bootstrap -a install and how it picks instrumentations", "Running opentelemetry-instrument python app.py", "Supported libraries: Flask, Django, FastAPI, requests, psycopg, redis", "OTEL_PYTHON_DISABLED_INSTRUMENTATIONS", "OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED for log correlation", "Excluding health-check URLs with OTEL_PYTHON_EXCLUDED_URLS", "Gunicorn and uWSGI pre-fork caveats"],
+          "tools": ["opentelemetry-distro", "opentelemetry-bootstrap", "opentelemetry-instrument", "Flask", "Jaeger"],
+          "lab_task": "Create a Flask app that queries SQLite and calls an external URL with requests. pip install opentelemetry-distro opentelemetry-exporter-otlp, run opentelemetry-bootstrap -a install, then start it with OTEL_SERVICE_NAME=shop-py opentelemetry-instrument --traces_exporter otlp --metrics_exporter otlp flask run. Send 20 requests and confirm SERVER, CLIENT and database spans in Jaeger. Exclude /healthz and confirm no spans appear for it.",
+          "deliverable": "Trace screenshot plus the list of instrumentations bootstrap installed",
+          "checks": [["Run opentelemetry-bootstrap -a requirements", "Output lists opentelemetry-instrumentation-flask and opentelemetry-instrumentation-requests", "Terminal output"], ["Send a request to the instrumented route", "Jaeger shows a SERVER span for the route with a child CLIENT span for the outbound HTTP call", "Jaeger trace"], ["Set OTEL_PYTHON_EXCLUDED_URLS=healthz and call /healthz 10 times", "Zero spans recorded for /healthz", "Jaeger search result"]],
+          "objectives": ["Install and run Python zero-code instrumentation", "Select or disable specific instrumentations", "Exclude noisy endpoints"]
+        },
+        {
+          "topic": "Java Agent Zero-Code Instrumentation",
+          "subtopics": ["Downloading opentelemetry-javaagent.jar from the instrumentation releases", "-javaagent flag and JAVA_TOOL_OPTIONS", "Bytecode instrumentation of Spring MVC, JDBC, Kafka clients and HTTP clients", "otel.* system properties versus OTEL_* environment variables", "Suppressing instrumentations with otel.instrumentation.<name>.enabled", "@WithSpan and @SpanAttribute annotations", "OTEL_JAVAAGENT_DEBUG and startup logs", "Spring Boot starter as an alternative to the agent"],
+          "tools": ["OpenTelemetry Java agent", "Spring Boot", "Maven", "JDK", "Jaeger"],
+          "lab_task": "Start a Spring Boot REST service with java -javaagent:opentelemetry-javaagent.jar -Dotel.service.name=orders-java -jar app.jar. Call an endpoint that runs a JDBC query on H2 and check Jaeger for the SERVER and database spans. Add @WithSpan to one service method and confirm a new INTERNAL span. Disable JDBC tracing with -Dotel.instrumentation.jdbc.enabled=false and confirm the database span disappears.",
+          "deliverable": "Agent startup log, before-and-after traces, and the flags used",
+          "checks": [["Start the app with the agent attached", "Startup log contains 'opentelemetry-javaagent - version:'", "Application log"], ["Call the endpoint after adding @WithSpan", "Trace has an INTERNAL span named after the annotated method", "Jaeger trace"], ["Restart with otel.instrumentation.jdbc.enabled=false", "No database span with db.system attribute appears in new traces", "Jaeger trace"]],
+          "objectives": ["Attach and configure the Java agent", "Add custom spans with annotations", "Turn individual instrumentations on and off"]
+        },
+        {
+          "topic": "Node.js Auto-Instrumentation with the register Hook",
+          "subtopics": ["@opentelemetry/api, @opentelemetry/sdk-node and @opentelemetry/auto-instrumentations-node", "node --require @opentelemetry/auto-instrumentations-node/register", "NODE_OPTIONS for containers", "OTEL_NODE_ENABLED_INSTRUMENTATIONS and OTEL_NODE_DISABLED_INSTRUMENTATIONS", "Why instrumentation must load before the instrumented modules", "CommonJS versus ESM and the --import loader hook", "Express, http, pg and ioredis instrumentations", "fs instrumentation noise and turning it off"],
+          "tools": ["Node.js", "npm", "@opentelemetry/auto-instrumentations-node", "Express", "Jaeger"],
+          "lab_task": "npm install @opentelemetry/api @opentelemetry/auto-instrumentations-node in an Express app that calls PostgreSQL. Run it with OTEL_SERVICE_NAME=cart-node OTEL_TRACES_EXPORTER=otlp node --require @opentelemetry/auto-instrumentations-node/register app.js. Send 10 requests and count spans per trace. Then set OTEL_NODE_DISABLED_INSTRUMENTATIONS=fs and compare the span count.",
+          "deliverable": "Span-count comparison with and without fs instrumentation and a sample trace",
+          "checks": [["Send a request to the Express route", "Trace contains an http SERVER span, Express middleware spans and a pg query span", "Jaeger trace"], ["Load the register hook after requiring express instead of before", "Express route spans are missing from the trace", "Jaeger trace comparison"], ["Set OTEL_NODE_DISABLED_INSTRUMENTATIONS=fs", "Spans per trace drop and no fs.* spans remain", "Span count table"]],
+          "objectives": ["Run Node.js zero-code instrumentation", "Explain load-order requirements", "Reduce noise by selecting instrumentations"]
+        },
+        {
+          "topic": ".NET Automatic Instrumentation and ActivitySource",
+          "subtopics": ["System.Diagnostics.Activity and ActivitySource as the .NET tracing API", "OpenTelemetry .NET SDK packages and AddOpenTelemetry in ASP.NET Core", "WithTracing, WithMetrics and the OTLP exporter", "OpenTelemetry .NET Automatic Instrumentation and otel-dotnet-auto-install.sh", "CORECLR_ENABLE_PROFILING and the instrument.sh script", "Meter and Instrument as the .NET metrics API", "ILogger integration with the OpenTelemetry logging provider", "Registering custom ActivitySource names"],
+          "tools": [".NET SDK", "ASP.NET Core", "OpenTelemetry.Extensions.Hosting", "OpenTelemetry .NET Automatic Instrumentation", "Jaeger"],
+          "lab_task": "Create an ASP.NET Core minimal API, add OpenTelemetry.Extensions.Hosting and OpenTelemetry.Exporter.OpenTelemetryProtocol, and call AddOpenTelemetry().WithTracing(t => t.AddAspNetCoreInstrumentation().AddSource(\"Shop.Billing\").AddOtlpExporter()). Start a custom Activity from ActivitySource \"Shop.Billing\". Confirm both spans in Jaeger, then remove AddSource and show the custom span is gone.",
+          "deliverable": "Program.cs listing and traces with and without AddSource",
+          "checks": [["Call the API endpoint", "Jaeger shows the ASP.NET Core SERVER span with a child span from Shop.Billing", "Jaeger trace"], ["Remove AddSource(\"Shop.Billing\") and rebuild", "StartActivity returns null and the custom span no longer appears", "Debugger value and Jaeger trace"], ["Log with ILogger inside the request", "Exported log record carries the same TraceId as the request span", "Backend log view"]],
+          "objectives": ["Use ActivitySource as the .NET tracing API", "Configure the .NET SDK in ASP.NET Core", "Explain when to use the .NET automatic instrumentation"]
+        },
+        {
+          "topic": "SDK Environment Variables and Exporter Configuration",
+          "subtopics": ["OTEL_SERVICE_NAME and OTEL_RESOURCE_ATTRIBUTES", "OTEL_EXPORTER_OTLP_ENDPOINT and per-signal endpoints", "OTEL_EXPORTER_OTLP_PROTOCOL: grpc, http/protobuf, http/json", "OTEL_EXPORTER_OTLP_HEADERS for API keys", "OTEL_TRACES_EXPORTER, OTEL_METRICS_EXPORTER, OTEL_LOGS_EXPORTER with otlp, console and none", "OTEL_SDK_DISABLED for emergency switch-off", "OTEL_METRIC_EXPORT_INTERVAL and OTEL_BSP_SCHEDULE_DELAY", "OTEL_LOG_LEVEL and SDK self-diagnostics", "Precedence of code, system properties and environment", "Keeping secrets out of images with Kubernetes Secrets"],
+          "tools": ["OpenTelemetry SDKs", "Docker Compose", "env", "Jaeger"],
+          "lab_task": "Take the Python service from day 5 and drive all configuration from a .env file in Docker Compose. Set OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf with OTEL_EXPORTER_OTLP_ENDPOINT=http://collector:4318, OTEL_METRIC_EXPORT_INTERVAL=10000 and OTEL_RESOURCE_ATTRIBUTES=deployment.environment.name=lab. Then set OTEL_TRACES_EXPORTER=console and finally OTEL_SDK_DISABLED=true, recording what is exported each time.",
+          "deliverable": "Configuration matrix showing each variable set and the observed export result",
+          "checks": [["Use http/protobuf with endpoint http://collector:4318", "SDK posts to /v1/traces and spans appear in the backend", "Collector debug log"], ["Set OTEL_TRACES_EXPORTER=console", "Spans print to stdout and none reach the Collector", "Container log"], ["Set OTEL_SDK_DISABLED=true", "No telemetry is printed or exported while the app keeps serving requests", "Container log and backend"]],
+          "objectives": ["Configure exporters entirely through environment variables", "Choose between gRPC and HTTP OTLP", "Disable telemetry safely without code changes"]
+        },
+        {
+          "topic": "Manual Spans with the Tracing API",
+          "subtopics": ["Getting a Tracer with an instrumentation scope name and version", "start_as_current_span versus start_span", "Current context and nesting", "Adding attributes at span start for sampler decisions", "Ending spans in finally blocks", "Wrapping a third-party call that has no instrumentation", "Naming spans with low cardinality", "Combining manual spans with zero-code instrumentation"],
+          "tools": ["Python SDK", "Java API", "opentelemetry-instrument", "Jaeger"],
+          "lab_task": "In the Flask service, get a tracer with trace.get_tracer('shop.pricing', '1.0.0') and wrap a pricing function in start_as_current_span('price.calculate') with attributes pricing.items and pricing.currency. Keep zero-code instrumentation running. Confirm the manual span nests under the Flask SERVER span. Then name a span with the raw order ID and count distinct span names after 50 requests.",
+          "deliverable": "Trace with manual and automatic spans, plus a span-name cardinality comparison",
+          "checks": [["Inspect the manual span in Jaeger", "price.calculate is a child of the Flask SERVER span with instrumentation scope shop.pricing", "Jaeger span detail"], ["Count distinct span names after 50 requests with ID-based names", "50 distinct span names are produced", "Jaeger operation dropdown"], ["Revert to a fixed span name and repeat", "Only one operation name, price.calculate, is listed", "Jaeger operation dropdown"]],
+          "objectives": ["Create and nest manual spans", "Name spans with low cardinality", "Mix manual and automatic instrumentation"]
+        },
+        {
+          "topic": "Metric Instruments: Counters, UpDownCounters, Histograms and Gauges",
+          "subtopics": ["MeterProvider, Meter and instrumentation scope", "Counter for monotonic totals", "UpDownCounter for values that rise and fall", "Histogram for latency and size distributions", "Synchronous Gauge and observable gauges with callbacks", "ObservableCounter and ObservableUpDownCounter", "Units in UCUM such as s, By and {request}", "Attribute sets and why each combination is a time series"],
+          "tools": ["Python SDK", "PeriodicExportingMetricReader", "ConsoleMetricExporter", "Prometheus"],
+          "lab_task": "Add a Meter 'shop.orders' to the Flask service. Create a Counter orders.placed with unit {order}, an UpDownCounter cart.active, a Histogram order.value with unit USD and an ObservableGauge for queue depth. Export with PeriodicExportingMetricReader every 5 seconds to ConsoleMetricExporter, place 30 orders across two payment.method values and record the data points.",
+          "deliverable": "Metric export dump with one data point per instrument and attribute set",
+          "checks": [["Place 30 orders and read orders.placed", "Sum across both payment.method attribute sets equals 30", "Console metric output"], ["Read order.value histogram point", "Point has count 30, a sum and bucket_counts matching the default explicit boundaries", "Console metric output"], ["Remove an item from a cart", "cart.active decreases by 1 without being rejected", "Console metric output"]],
+          "objectives": ["Pick the correct instrument for a measurement", "Use UCUM units and bounded attributes", "Read exported metric data points"]
+        },
+        {
+          "topic": "Bridging Application Logs into OpenTelemetry",
+          "subtopics": ["The Logs Bridge API and why there is no end-user logging API", "LoggerProvider, LogRecordProcessor and LogRecordExporter", "Log appenders: Python LoggingHandler, Log4j and Logback appenders, ILogger", "Severity number and severity text", "Automatic trace_id and span_id on log records", "Body versus attributes and structured logging", "Events as log records with an event name", "Choosing between SDK log export and file collection"],
+          "tools": ["Python logging", "Log4j 2 appender", "Java agent", "Collector debug exporter"],
+          "lab_task": "Enable OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true and OTEL_LOGS_EXPORTER=otlp in the Flask service and log logger.warning('stock low', extra={'sku': 'A12'}) inside a request. Send logs to a Collector with the debug exporter at verbosity detailed. Confirm trace and span IDs match the request span, then log outside any request and compare.",
+          "deliverable": "Collector debug output of two log records with and without trace context",
+          "checks": [["Log inside a request handler", "Log record shows a non-zero TraceID equal to the request span's trace ID", "Collector debug output"], ["Log during application startup", "Log record has an empty TraceID", "Collector debug output"], ["Check severity on the warning", "SeverityText is WARN and SeverityNumber is 13", "Collector debug output"]],
+          "objectives": ["Bridge existing logging frameworks into OpenTelemetry", "Correlate logs with traces", "Map severities correctly"]
+        },
+        {
+          "topic": "Resource Attributes and service.name",
+          "subtopics": ["Resource as the identity of the telemetry producer", "service.name, service.version, service.namespace and service.instance.id", "deployment.environment.name", "What happens when service.name is missing: unknown_service", "SDK resource detectors: process, host, os, container", "OTEL_RESOURCE_ATTRIBUTES parsing and percent-encoding", "Merging resources from code, environment and detectors", "Resource versus span attributes"],
+          "tools": ["OpenTelemetry SDKs", "Jaeger", "Collector debug exporter"],
+          "lab_task": "Start the Node.js service without OTEL_SERVICE_NAME and find its traces in Jaeger. Then set OTEL_SERVICE_NAME=cart-node and OTEL_RESOURCE_ATTRIBUTES=service.version=1.4.2,service.namespace=shop,deployment.environment.name=staging. Use the Collector debug exporter at detailed verbosity to list every resource attribute, including those added by host and process detectors.",
+          "deliverable": "Resource attribute listing before and after configuration",
+          "checks": [["Run without OTEL_SERVICE_NAME", "Service appears in Jaeger as unknown_service:node", "Jaeger service list"], ["Set OTEL_SERVICE_NAME=cart-node", "Service appears in Jaeger as cart-node", "Jaeger service list"], ["Read the debug exporter resource block", "Resource attributes include service.version 1.4.2 and deployment.environment.name staging", "Collector debug output"]],
+          "objectives": ["Set service identity correctly", "Use resource detectors and environment attributes", "Tell resource attributes from span attributes"]
+        },
+        {
+          "topic": "Semantic Conventions for HTTP and Database Spans",
+          "subtopics": ["Why semantic conventions matter for dashboards and vendor features", "Stable HTTP attributes: http.request.method, http.response.status_code, url.path, http.route", "Server and client span naming: '{method} {route}'", "server.address, server.port and network.protocol.version", "Database attributes: db.system.name, db.namespace, db.operation.name, db.query.text", "Old versus new attribute names and OTEL_SEMCONV_STABILITY_OPT_IN", "http.server.request.duration in seconds", "Error status rules: 5xx on server spans, 4xx and 5xx on client spans"],
+          "tools": ["OpenTelemetry semantic conventions", "Java agent", "Python instrumentation", "Jaeger"],
+          "lab_task": "Compare an HTTP SERVER span from the Java agent and from Python instrumentation. List the attribute names on each, then set OTEL_SEMCONV_STABILITY_OPT_IN=http on the Python service and repeat. Return a 404 and a 500 from a route and record which responses mark the server span as Error. Check that span names use the route template, not the raw URL.",
+          "deliverable": "Attribute comparison table with old and stable names and the 404/500 status results",
+          "checks": [["Return HTTP 500 from a route", "SERVER span status is Error with http.response.status_code 500", "Jaeger span detail"], ["Return HTTP 404 from a route", "SERVER span status stays Unset", "Jaeger span detail"], ["Call /items/42 on a templated route", "Span name is 'GET /items/{id}' and http.route is /items/{id}", "Jaeger span detail"]],
+          "objectives": ["Recognise stable HTTP and database attributes", "Apply status rules for HTTP spans", "Handle semantic convention migrations"]
+        },
+        {
+          "topic": "OTLP over gRPC and HTTP: Ports, Paths and Encodings",
+          "subtopics": ["OTLP/gRPC on port 4317", "OTLP/HTTP on port 4318 with /v1/traces, /v1/metrics and /v1/logs", "Protobuf and JSON encodings", "Partial success responses and rejected counts", "Retryable codes: UNAVAILABLE, RESOURCE_EXHAUSTED and HTTP 429, 502, 503, 504", "gzip compression", "TLS versus insecure connections", "Sending a span by hand with curl"],
+          "tools": ["curl", "Collector", "telemetrygen", "grpcurl"],
+          "lab_task": "Run the Collector with the otlp receiver and debug exporter. POST a hand-written JSON span to http://localhost:4318/v1/traces with curl -H 'Content-Type: application/json' and confirm it in the debug output. Then send 100 spans over gRPC with telemetrygen traces --otlp-insecure --traces 100. Finally POST to /v1/trace (wrong path) and record the HTTP status.",
+          "deliverable": "curl and telemetrygen commands with the Collector output and status codes",
+          "checks": [["POST a valid JSON span to /v1/traces", "HTTP 200 with body {\"partialSuccess\":{}} and the span printed by the debug exporter", "curl output and Collector log"], ["Run telemetrygen traces --otlp-insecure --traces 100", "Collector reports 100 traces received", "Collector debug output"], ["POST to /v1/trace", "HTTP 404 is returned and nothing is exported", "curl output"]],
+          "objectives": ["Use the correct OTLP ports and paths", "Send OTLP data by hand for testing", "Explain retryable and non-retryable responses"]
+        },
+        {
+          "topic": "First Collector Pipeline: otlp Receiver, batch Processor, debug Exporter",
+          "subtopics": ["Collector distributions: core, contrib and k8s", "The config.yaml sections: receivers, processors, exporters, extensions, service", "Pipelines per signal under service.pipelines", "Named components such as otlp/2", "Binding endpoints: 0.0.0.0:4317 versus localhost default", "otelcol validate --config", "debug exporter verbosity basic, normal and detailed", "Defining a component without adding it to a pipeline"],
+          "tools": ["otelcol-contrib", "Docker", "telemetrygen", "YAML"],
+          "lab_task": "Write config.yaml with an otlp receiver on 0.0.0.0:4317 and 0.0.0.0:4318, a batch processor and a debug exporter, and wire traces, metrics and logs pipelines. Run otelcol-contrib validate --config config.yaml, then start it and send data with telemetrygen. Add an exporter that is not referenced in any pipeline and a pipeline that references an undefined processor, and record each result.",
+          "deliverable": "Validated config.yaml with startup logs for one working and two broken variants",
+          "checks": [["Run validate on the correct config", "Command exits 0 with no errors", "Terminal output"], ["Reference processor 'batchx' that is not defined", "Startup fails with an error that the pipeline references processor 'batchx' which is not configured", "Collector error output"], ["Define an exporter not used by any pipeline", "Collector starts and the unused exporter is ignored", "Collector log"]],
+          "objectives": ["Write a minimal Collector configuration", "Validate configuration before deploying", "Explain how pipelines bind components"]
+        },
+        {
+          "topic": "Sending Traces to Jaeger and Metrics to Prometheus via OTLP",
+          "subtopics": ["Jaeger accepting OTLP natively on 4317 and 4318", "Jaeger v2 built on the Collector framework", "Collector otlp exporter to Jaeger", "Prometheus native OTLP receiver at /api/v1/otlp/v1/metrics", "Collector prometheus exporter for pull-based scraping", "prometheusremotewrite exporter", "Metric name translation: dots to underscores and unit suffixes", "Resource attributes as target_info and promoted labels"],
+          "tools": ["Jaeger", "Prometheus", "Collector", "Docker Compose", "PromQL"],
+          "lab_task": "Run Jaeger, Prometheus and the Collector in Docker Compose. Export traces with an otlp exporter to jaeger:4317 (tls insecure). Export metrics two ways: a prometheus exporter on 0.0.0.0:8889 scraped by Prometheus, and otlphttp to Prometheus started with --web.enable-otlp-receiver. Query the order.value histogram in Prometheus and note its translated name.",
+          "deliverable": "Compose file, Collector config and PromQL results for both metric paths",
+          "checks": [["Open Jaeger UI after sending traffic", "Service shop-py is listed with recent traces", "Jaeger screenshot"], ["Query order_value_USD_bucket or the translated name in Prometheus", "Series exist with le labels and payment_method label", "Prometheus query result"], ["curl http://collector:8889/metrics", "Exposition output contains a target_info series", "curl output"]],
+          "objectives": ["Export traces to Jaeger over OTLP", "Get OpenTelemetry metrics into Prometheus by push and pull", "Explain metric name translation"]
+        },
+        {
+          "topic": "Head Sampling with ParentBased and TraceIdRatio Samplers",
+          "subtopics": ["Why sample: cost, overhead and volume", "AlwaysOn, AlwaysOff and TraceIdRatioBased", "ParentBased and why it keeps traces whole", "OTEL_TRACES_SAMPLER and OTEL_TRACES_SAMPLER_ARG", "Sampled flag in traceparent and downstream behaviour", "Recording but not sampled spans", "Effect of head sampling on span-derived metrics", "When head sampling misses errors"],
+          "tools": ["OpenTelemetry SDKs", "Jaeger", "Locust", "curl"],
+          "lab_task": "Run the two Flask services with OTEL_TRACES_SAMPLER=parentbased_traceidratio and OTEL_TRACES_SAMPLER_ARG=0.1 on service A only. Send 1,000 requests with a load tool and count traces in Jaeger. Then send requests with a traceparent ending in -00 and -01 directly to service B, and record which are kept. Note how many error traces were lost at 10%.",
+          "deliverable": "Sampling report with trace counts, kept ratios and lost errors",
+          "checks": [["Send 1,000 requests at ratio 0.1", "Roughly 100 traces are stored, within about 70 to 130", "Jaeger trace count"], ["Call B with a traceparent flag 00", "B creates no exported span for that request", "Jaeger search"], ["Call B with a traceparent flag 01", "B exports its span even though its own ratio sampler would usually drop it", "Jaeger trace"]],
+          "objectives": ["Configure head samplers with environment variables", "Explain parent-based sampling", "Describe what head sampling cannot do"]
+        },
+        {
+          "topic": "Diagnosing Missing Spans, Broken Context and Exporter Errors",
+          "subtopics": ["Checklist: SDK installed, exporter configured, endpoint reachable, service.name set", "Using console exporters to separate app from pipeline issues", "Connection refused versus DNS errors in SDK logs", "Broken traces from lost context in threads, async tasks and queues", "Mismatched propagators between services", "Clock skew and negative span durations", "Collector debug exporter and zpages for inspection", "Dropped spans when the batch queue is full"],
+          "tools": ["Collector debug exporter", "zpages", "SDK debug logging", "Jaeger", "curl"],
+          "lab_task": "Fix four seeded faults in a prepared Compose lab: service A exports to localhost:4317 inside a container, service B uses b3 while A uses tracecontext, service C starts a thread without passing context, and the Collector pipeline omits the logs pipeline. For each fault, record the symptom, the log line or evidence that shows the cause, and the fix.",
+          "deliverable": "Fault log with symptom, evidence and fix for all four faults",
+          "checks": [["Inspect service A logs with the wrong endpoint", "SDK logs a connection refused or export failure to localhost:4317", "Container log"], ["Align OTEL_PROPAGATORS on A and B", "A and B spans join a single trace instead of two", "Jaeger trace"], ["Propagate context into C's worker thread", "Worker span becomes a child of the request span instead of a new root", "Jaeger trace"]],
+          "objectives": ["Separate application problems from pipeline problems", "Find and fix broken context propagation", "Use Collector and SDK diagnostics"]
+        },
+        {
+          "topic": "Beginner Capstone: Instrumenting a Three-Service Application with OpenTelemetry",
+          "subtopics": ["Python, Java and Node.js services with one Collector", "Zero-code plus targeted manual spans and metrics", "Logs bridged with trace correlation", "Consistent resources and semantic conventions", "Jaeger and Prometheus as backends", "Head sampling and a runbook for missing telemetry"],
+          "tools": ["Python SDK", "Java agent", "Node.js SDK", "Collector", "Jaeger", "Prometheus"],
+          "lab_task": "Instrument a three-service order flow (Node.js gateway, Python pricing, Java inventory) and route all signals through one Collector to Jaeger and Prometheus. Add one manual span and one custom metric per service, set service.name and deployment.environment.name, bridge logs, and apply parentbased_traceidratio 0.5. Show one connected trace and a PromQL panel of the custom metrics.",
+          "deliverable": "Repository with Compose file, Collector config, instrumentation code and a runbook",
+          "checks": [["Send one order through the gateway", "A single trace covers all three services with no orphan root spans", "Jaeger trace"], ["Query the three custom metrics in Prometheus", "Each metric returns series labelled with its service", "Prometheus query result"], ["Filter logs by the trace ID from the order", "Log records from all three services carry that trace ID", "Collector or backend log view"]],
+          "objectives": ["Combine zero-code and manual instrumentation across languages", "Deliver traces, metrics and logs through one Collector", "Document a repeatable instrumentation setup"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already instrument services with OpenTelemetry SDKs and now run the telemetry pipeline for a team or platform. Covers Collector components in depth, OTTL transformations, filtering and redaction, agent and gateway topologies, host, Kubernetes, Prometheus and file log collection, connectors such as spanmetrics and servicegraph, tail sampling and its load-balanced scale-out, resource detection, the OpenTelemetry Operator and its OpenTelemetryCollector and Instrumentation resources, k8sattributes enrichment, metrics SDK views and temporality, exemplars, context through messaging systems, Collector reliability and self-monitoring, and a capstone that builds a Kubernetes telemetry pipeline with the Operator.",
+      "prerequisites": ["Has completed the beginner level or can instrument a service with zero-code and manual OpenTelemetry and export OTLP to a Collector", "Uses kubectl and Helm to deploy workloads, read logs and inspect resources on a Kubernetes cluster such as kind or minikube", "Reads YAML confidently and can write PromQL queries with rate and sum by"],
+      "outcomes": ["Design Collector pipelines that transform, filter, redact, enrich and route telemetry with OTTL and contrib processors", "Deploy agent and gateway Collectors on Kubernetes with the OpenTelemetry Operator and inject zero-code instrumentation with Instrumentation resources", "Apply tail sampling at scale with the loadbalancing exporter and derive RED metrics and service graphs with connectors", "Run Collectors reliably with memory limits, persistent queues and internal telemetry alerts so data loss is detected and bounded"],
+      "days": [
+        {
+          "topic": "Collector Components: Receivers, Processors, Exporters, Extensions and Connectors",
+          "subtopics": ["Component types and their place in a pipeline", "Push receivers (otlp, zipkin, jaeger) versus pull receivers (prometheus, hostmetrics)", "Processor ordering and why memory_limiter comes first", "Exporters with sending_queue and retry_on_failure", "Extensions: health_check, pprof, zpages, file_storage, auth", "Connectors as exporter-plus-receiver between pipelines", "Component stability levels per signal in contrib", "otelcol-contrib components command"],
+          "tools": ["otelcol-contrib", "health_check extension", "zpages", "pprof"],
+          "lab_task": "Run otelcol-contrib components and record the stability of filelog, tail_sampling and spanmetrics for each signal. Build a config with memory_limiter, batch, health_check, zpages and pprof extensions, start it and curl http://localhost:13133/ for health. Open http://localhost:55679/debug/pipelinez and list the pipelines and component order shown.",
+          "deliverable": "Component inventory table with stability levels and a zpages pipeline screenshot",
+          "checks": [["curl http://localhost:13133/", "Returns HTTP 200 with status 'Server available'", "curl output"], ["Open /debug/pipelinez in zpages", "Each pipeline lists receivers, processors in configured order and exporters", "Browser screenshot"], ["Run otelcol-contrib components and grep tail_sampling", "tail_sampling is listed as a processor with traces stability shown", "Terminal output"]],
+          "objectives": ["Classify Collector component types", "Order processors correctly", "Enable diagnostic extensions"]
+        },
+        {
+          "topic": "Transforming Telemetry with OTTL and the transform Processor",
+          "subtopics": ["OpenTelemetry Transformation Language contexts: resource, scope, span, spanevent, metric, datapoint, log", "Statements: set, delete_key, keep_keys, replace_pattern, truncate_all", "Conditions with where clauses", "Converters such as Concat, SHA256, ParseJSON and IsMatch", "error_mode: ignore, silent and propagate", "Renaming attributes during semantic convention migrations", "Parsing JSON log bodies into attributes", "Testing OTTL with the debug exporter"],
+          "tools": ["transform processor", "OTTL", "Collector debug exporter", "telemetrygen"],
+          "lab_task": "Add a transform processor that (1) renames http.method to http.request.method on spans with set then delete_key, (2) hashes user.email with SHA256 into user.hash and deletes the original, and (3) parses JSON log bodies with ParseJSON into attributes. Send test data with telemetrygen and curl and confirm each change in the debug exporter output.",
+          "deliverable": "transform processor config with before-and-after debug output for all three statements",
+          "checks": [["Send a span with http.method=GET", "Output has http.request.method=GET and no http.method attribute", "Collector debug output"], ["Send a span with user.email", "Output has a 64-hex-character user.hash and no user.email", "Collector debug output"], ["Send a log with an invalid JSON body and error_mode ignore", "Log passes through unchanged and the Collector logs a warning rather than dropping the batch", "Collector log"]],
+          "objectives": ["Write OTTL statements for spans, metrics and logs", "Choose a safe error_mode", "Use OTTL for attribute migrations"]
+        },
+        {
+          "topic": "Filtering, Redacting and Enriching Attributes in the Collector",
+          "subtopics": ["filter processor with OTTL conditions", "Dropping health-check spans and debug logs", "attributes processor actions: insert, update, upsert, delete, hash", "resource processor for resource-level attributes", "redaction processor allow lists and blocked values", "Masking card numbers and tokens with regex", "Ordering filter before batch to cut cost", "Measuring drop counts with internal metrics"],
+          "tools": ["filter processor", "attributes processor", "redaction processor", "resource processor", "telemetrygen"],
+          "lab_task": "Configure a filter processor dropping spans where attributes[\"url.path\"] == \"/healthz\" and logs with severity_number < SEVERITY_NUMBER_INFO. Add a redaction processor that masks values matching a 16-digit card regex, and a resource processor that upserts team=payments. Send 1,000 mixed spans and logs and record how many reach the exporter.",
+          "deliverable": "Pipeline config plus a counts table of received, filtered and exported items",
+          "checks": [["Send 200 /healthz spans among 1,000 spans", "Exactly 800 spans are exported", "otelcol_exporter_sent_spans metric"], ["Send a span with attribute card=4111111111111111", "Exported value is masked with asterisks", "Collector debug output"], ["Inspect exported resource attributes", "team=payments is present on every resource", "Collector debug output"]],
+          "objectives": ["Drop unwanted telemetry early", "Redact sensitive values in the pipeline", "Enrich resources consistently"]
+        },
+        {
+          "topic": "Collector Deployment Patterns: Agent, Gateway and Sidecar",
+          "subtopics": ["Agent per node as a DaemonSet", "Gateway as a horizontally scaled Deployment", "Sidecar per pod and when it is worth the cost", "Agent-to-gateway OTLP hops", "Where to put batching, enrichment and sampling", "Failure domains and back-pressure"],
+          "tools": ["Helm", "opentelemetry-collector Helm chart", "kind", "kubectl"],
+          "lab_task": "Use the open-telemetry/opentelemetry-collector Helm chart to install an agent with mode=daemonset and a gateway with mode=deployment and replicaCount=2 on a kind cluster. Point the agent's otlp exporter at the gateway Service, send traffic with telemetrygen from a pod, then delete one gateway pod and measure whether exports fail during the restart.",
+          "deliverable": "Helm values for both releases, a topology diagram and a pod-failure test result",
+          "checks": [["kubectl get pods -l app.kubernetes.io/name=opentelemetry-collector", "One agent pod per node plus two gateway pods are Running", "kubectl output"], ["Delete one gateway pod during load", "Agent export errors stay at zero or retry successfully within the retry window", "otelcol_exporter_send_failed_spans metric"], ["Trace a span from telemetrygen", "Span passes through agent and gateway and reaches the backend", "Backend trace view"]],
+          "objectives": ["Choose between agent, gateway and sidecar", "Deploy layered Collectors with Helm", "Test failure behaviour"]
+        },
+        {
+          "topic": "Collecting Host and Container Metrics with hostmetrics and kubeletstats",
+          "subtopics": ["hostmetrics scrapers: cpu, memory, disk, filesystem, network, load, processes", "root_path and mounting the host filesystem in containers", "kubeletstats receiver and auth_type serviceAccount", "Pod, container and node metrics from the kubelet", "k8s_cluster receiver for cluster-level state", "Scrape intervals and cost", "Enabling optional metrics per scraper", "system.* and k8s.* metric naming"],
+          "tools": ["hostmetrics receiver", "kubeletstats receiver", "k8s_cluster receiver", "Prometheus", "Helm"],
+          "lab_task": "In the DaemonSet agent enable hostmetrics (cpu, memory, filesystem) with root_path /hostfs and kubeletstats with auth_type serviceAccount and endpoint https://${env:K8S_NODE_NAME}:10250. Grant the RBAC for nodes/stats. Export to Prometheus and chart node CPU utilisation and per-pod memory. Remove the RBAC rule and record the error.",
+          "deliverable": "Agent config, RBAC manifest and two PromQL charts",
+          "checks": [["Query system_cpu_time_seconds_total in Prometheus", "Series exist for every node with state labels", "Prometheus query"], ["Query k8s_pod_memory_usage_bytes", "One series per running pod is returned", "Prometheus query"], ["Remove nodes/stats permission", "Agent log shows a 403 Forbidden from the kubelet", "Collector log"]],
+          "objectives": ["Collect host metrics from containers", "Collect kubelet pod and container metrics", "Configure RBAC for metric receivers"]
+        },
+        {
+          "topic": "Scraping Prometheus Targets with the Collector prometheus Receiver",
+          "subtopics": ["prometheus receiver using standard scrape_configs", "kubernetes_sd_configs inside the Collector", "Escaping $ as $$ in Collector config", "Up and scrape metadata metrics", "Target Allocator for sharding scrapes across Collectors", "ServiceMonitor and PodMonitor discovery through the Target Allocator", "Translating Prometheus types into OTLP", "Counter resets and start time handling"],
+          "tools": ["prometheus receiver", "Target Allocator", "node_exporter", "Prometheus", "kubectl"],
+          "lab_task": "Configure the Collector prometheus receiver with a scrape_config for node_exporter on :9100 and a relabel rule using $$1. Forward metrics via OTLP to Prometheus and confirm node_cpu_seconds_total. Then write the rule with a single $1 and record the startup error. Finally scale to two Collectors and show duplicate series without the Target Allocator.",
+          "deliverable": "Receiver config, error capture and a duplicate-series demonstration",
+          "checks": [["Query node_cpu_seconds_total after forwarding", "Series appear with the expected job and instance labels", "Prometheus query"], ["Use $1 instead of $$1 in relabel config", "Collector expands $1 as an environment variable and the relabel produces empty values or fails", "Collector log"], ["Run two Collector replicas with the same scrape_config", "count by (instance) of the series returns 2 per target", "Prometheus query"]],
+          "objectives": ["Scrape Prometheus endpoints with the Collector", "Handle config escaping", "Explain why the Target Allocator is needed at scale"]
+        },
+        {
+          "topic": "Log Collection with the filelog Receiver and Operators",
+          "subtopics": ["filelog include, exclude and start_at", "Container log formats and the container parser operator", "regex_parser, json_parser and severity_parser operators", "Multiline logs with multiline line_start_pattern", "Checkpointing offsets with the file_storage extension", "Kubernetes metadata from log file paths", "Log rotation handling", "Trace correlation from parsed trace_id fields"],
+          "tools": ["filelog receiver", "file_storage extension", "Helm logsCollection preset", "Loki"],
+          "lab_task": "On the DaemonSet agent, configure filelog to read /var/log/pods/*/*/*.log with the container operator, a json_parser for app logs, a severity_parser on level and a multiline rule for Java stack traces. Store offsets with file_storage. Restart the agent mid-stream and check for duplicates or gaps across 1,000 numbered log lines.",
+          "deliverable": "filelog config and a restart test showing line counts before and after",
+          "checks": [["Emit a 30-line Java stack trace", "It arrives as one log record, not 30", "Backend log view"], ["Restart the agent with file_storage enabled during 1,000 numbered lines", "All 1,000 lines arrive exactly once", "Line-number count query"], ["Log level=error in JSON", "SeverityText ERROR and SeverityNumber 17 are set", "Collector debug output"]],
+          "objectives": ["Collect container logs from nodes", "Parse and enrich logs with operators", "Avoid loss and duplication across restarts"]
+        },
+        {
+          "topic": "Connectors: spanmetrics, servicegraph, count and routing",
+          "subtopics": ["spanmetrics connector: calls and duration metrics from spans", "Dimensions and histogram buckets for spanmetrics", "servicegraph connector for client-server edges", "count connector for counting spans, logs and data points", "routing connector with OTTL conditions", "forward connector to join pipelines", "Connecting a traces pipeline to a metrics pipeline", "Generating metrics before sampling"],
+          "tools": ["spanmetrics connector", "servicegraph connector", "routing connector", "Prometheus", "Grafana"],
+          "lab_task": "Add a spanmetrics connector as an exporter in the traces pipeline and a receiver in a metrics pipeline, with dimensions http.request.method and http.response.status_code. Add servicegraph the same way. Drive the Astronomy Shop load generator for 10 minutes, then query the request rate and error ratio per service in Prometheus and plot the service graph edges.",
+          "deliverable": "Connector config, RED queries per service and a service-graph screenshot",
+          "checks": [["Query rate of the spanmetrics calls counter by service_name", "Each instrumented service returns a non-zero rate", "Prometheus query"], ["Query traces_service_graph_request_total", "Edges exist with client and server labels such as frontend to checkout", "Prometheus query"], ["Remove the connector from the metrics pipeline only", "Collector fails validation because the connector is not used as both exporter and receiver", "Collector error"]],
+          "objectives": ["Derive RED metrics from spans", "Build service graphs from traces", "Wire connectors between pipelines"]
+        },
+        {
+          "topic": "Tail Sampling with the tail_sampling Processor",
+          "subtopics": ["Why tail sampling needs whole traces in one Collector", "decision_wait, num_traces and expected_new_traces_per_sec", "Policies: status_code, latency, probabilistic, string_attribute, rate_limiting", "and, composite and drop policies", "Policy evaluation order and decision caching", "Memory cost per in-flight trace", "Late spans after the decision", "Internal metrics for sampling decisions"],
+          "tools": ["tail_sampling processor", "Collector", "Jaeger", "Locust"],
+          "lab_task": "Configure tail_sampling with decision_wait 10s and policies: keep all status_code ERROR, keep latency over 500 ms, and probabilistic 5% for the rest. Run Astronomy Shop load with the paymentFailure flag at 10% for 15 minutes. Count stored traces, error traces and slow traces in Jaeger and compare with a run without tail sampling.",
+          "deliverable": "Policy config and a comparison table of total, error and slow traces kept",
+          "checks": [["Count error traces with and without tail sampling", "Error trace counts match within 2%", "Jaeger search counts"], ["Count total traces stored", "Total stored traces drop by at least 80%", "Jaeger search counts"], ["Set decision_wait to 1s for slow requests", "Partial traces appear because late spans miss the decision", "Jaeger trace with missing children"]],
+          "objectives": ["Write tail sampling policies", "Size decision_wait and memory", "Measure what tail sampling keeps"]
+        },
+        {
+          "topic": "Scaling Tail Sampling with the loadbalancing Exporter",
+          "subtopics": ["Two-tier design: load-balancing tier and sampling tier", "loadbalancing exporter routing_key traceID", "Resolvers: static, dns and k8s", "Headless Services for DNS resolution", "Ring changes during scale events", "routing_key service for spanmetrics", "Sending queues on the load-balancing tier", "Verifying all spans of a trace land on one Collector"],
+          "tools": ["loadbalancing exporter", "tail_sampling processor", "Kubernetes headless Service", "kubectl"],
+          "lab_task": "Deploy a load-balancing Collector tier with the loadbalancing exporter (routing_key: traceID, k8s resolver) in front of three sampling Collectors. Add a resource processor on each sampling Collector that sets collector.id. Send 10,000 traces and confirm every trace has one collector.id. Scale the sampling tier to five and record broken traces during rebalancing.",
+          "deliverable": "Two-tier config, consistency check results and a scale-event report",
+          "checks": [["Group 10,000 traces by distinct collector.id", "Every trace has exactly one collector.id", "Backend query result"], ["Change routing_key to service", "Spans of one service land on one Collector regardless of trace", "Backend query result"], ["Scale sampling Collectors from 3 to 5 during load", "A small number of split traces appear only during the rebalance window", "Backend query result"]],
+          "objectives": ["Route spans by trace ID", "Configure resolvers for Kubernetes", "Explain consistency during scaling"]
+        },
+        {
+          "topic": "Resource Detection for Cloud, Container and Host Metadata",
+          "subtopics": ["resourcedetection processor detectors: env, system, docker, ec2, ecs, eks, gcp, azure, aks", "override and timeout settings", "Detector order and conflicts", "SDK-side detectors versus Collector-side detection", "cloud.provider, cloud.region, host.id and k8s.cluster.name", "IMDS access and IMDSv2 hop limits", "Choosing attributes to keep", "Cost of high-cardinality host attributes on metrics"],
+          "tools": ["resourcedetection processor", "AWS EC2", "Docker", "Collector debug exporter"],
+          "lab_task": "Run the Collector on a cloud VM or a container with the resourcedetection processor using detectors [env, ec2, system] and override false. Send spans with telemetrygen and list the added resource attributes in the debug output. Then set OTEL_RESOURCE_ATTRIBUTES=cloud.region=test-1 and compare with override true and false. Block IMDS and time the detector timeout.",
+          "deliverable": "Detected attribute table and override behaviour notes",
+          "checks": [["Run with detectors [env, ec2, system]", "Resource gains cloud.provider aws, cloud.region and host.id", "Collector debug output"], ["Set cloud.region in OTEL_RESOURCE_ATTRIBUTES with override false", "Incoming cloud.region value is kept", "Collector debug output"], ["Block access to 169.254.169.254", "Collector logs an ec2 detector failure after the configured timeout", "Collector log"]],
+          "objectives": ["Add cloud and host metadata automatically", "Control precedence with override", "Handle detector failures"]
+        },
+        {
+          "topic": "OpenTelemetry Operator: OpenTelemetryCollector Resources",
+          "subtopics": ["Installing the Operator with Helm or manifests and the cert-manager dependency", "OpenTelemetryCollector custom resource with apiVersion opentelemetry.io/v1beta1", "Modes: deployment, daemonset, statefulset and sidecar", "spec.config as structured YAML", "Generated Services and ports", "Upgrades handled by the Operator", "Sidecar injection with sidecar.opentelemetry.io/inject", "Status and events on the custom resource"],
+          "tools": ["OpenTelemetry Operator", "cert-manager", "Helm", "kubectl", "kind"],
+          "lab_task": "Install cert-manager and the OpenTelemetry Operator on kind. Create an OpenTelemetryCollector named gateway in mode deployment with an otlp receiver and debug exporter, and another in mode sidecar. Annotate a pod with sidecar.opentelemetry.io/inject: \"true\" and confirm the sidecar container. Edit the gateway config and record how the Operator rolls the pods.",
+          "deliverable": "Custom resource manifests, kubectl output and rollout observations",
+          "checks": [["kubectl get otelcol", "gateway and sidecar resources are listed with their mode", "kubectl output"], ["Create the annotated pod", "Pod spec contains an otc-container sidecar", "kubectl get pod -o yaml"], ["Install the Operator without cert-manager", "Webhook setup fails and the Operator pod does not become ready", "kubectl events"]],
+          "objectives": ["Install and use the OpenTelemetry Operator", "Choose Collector modes in a custom resource", "Inject Collector sidecars"]
+        },
+        {
+          "topic": "Operator Instrumentation Resources and Injection Annotations",
+          "subtopics": ["Instrumentation custom resource: exporter, propagators, sampler, resource", "Language sections: java, nodejs, python, dotnet, go", "Annotations instrumentation.opentelemetry.io/inject-java and siblings", "Namespace-level versus pod-level annotations", "Init containers that copy agents into a shared volume", "Go injection with eBPF and its privileges", "Selecting containers in multi-container pods", "Pods must restart to pick up injection"],
+          "tools": ["OpenTelemetry Operator", "Instrumentation CRD", "kubectl", "Java agent", "Python"],
+          "lab_task": "Create an Instrumentation resource with exporter endpoint http://gateway-collector:4318, propagators tracecontext and baggage, and sampler parentbased_traceidratio 0.25. Deploy an uninstrumented Java and Python app, add instrumentation.opentelemetry.io/inject-java: \"true\" and inject-python: \"true\" annotations, restart them and confirm traces arrive without image changes.",
+          "deliverable": "Instrumentation manifest, annotated deployments and trace screenshots",
+          "checks": [["Describe a restarted Java pod", "Pod has an opentelemetry-auto-instrumentation init container and JAVA_TOOL_OPTIONS containing -javaagent", "kubectl describe pod"], ["Annotate a running pod without restart", "No traces appear until the pod is recreated", "Backend trace search"], ["Check sampling on injected apps", "Stored traces are about 25% of requests", "Backend trace counts"]],
+          "objectives": ["Inject zero-code instrumentation through the Operator", "Configure exporters and samplers centrally", "Debug failed injection"]
+        },
+        {
+          "topic": "k8sattributes Processor and Kubernetes Metadata",
+          "subtopics": ["Pod association by connection IP, k8s.pod.ip and k8s.pod.uid", "Extracting k8s.namespace.name, k8s.deployment.name and k8s.node.name", "Labels and annotations as attributes", "RBAC for pods, namespaces and replicasets", "filter.node_from_env_var on DaemonSet agents", "Gateway association when the source IP is lost", "Placing k8sattributes before batch", "Helm kubernetesAttributes preset"],
+          "tools": ["k8sattributes processor", "Helm", "kubectl", "Collector debug exporter"],
+          "lab_task": "Add k8sattributes to the agent with filter.node_from_env_var K8S_NODE_NAME, extracting namespace, deployment, node and label app.kubernetes.io/version. Send spans from two deployments and confirm attributes. Then move the processor to the gateway only and record what happens to association, and fix it by setting k8s.pod.ip in the agent.",
+          "deliverable": "Processor config with association results for agent and gateway placement",
+          "checks": [["Inspect spans from a pod via the agent", "Resource has k8s.namespace.name and k8s.deployment.name matching the pod", "Collector debug output"], ["Run k8sattributes only on the gateway", "Association fails because the source IP is the agent's, so attributes are missing", "Collector debug output"], ["Remove the replicasets RBAC rule", "k8s.deployment.name is no longer populated", "Collector debug output"]],
+          "objectives": ["Enrich telemetry with Kubernetes metadata", "Configure pod association correctly", "Set the RBAC the processor needs"]
+        },
+        {
+          "topic": "Metrics SDK Views, Temporality and Exponential Histograms",
+          "subtopics": ["Views: rename, drop and select attributes", "Custom explicit bucket boundaries", "Base-2 exponential histograms and max_size", "Cumulative versus delta temporality", "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE", "Cardinality limits in the SDK", "Dropping instruments with a Drop aggregation", "Backend support for delta and exponential data"],
+          "tools": ["Python SDK", "Java SDK", "Prometheus", "Collector debug exporter"],
+          "lab_task": "In the Java or Python SDK, add a View that keeps only http.request.method and http.route on http.server.request.duration, another that sets buckets [0.05, 0.1, 0.25, 0.5, 1, 2.5], and a third that switches a histogram to exponential. Export with delta temporality to the debug exporter and compare series counts before and after the attribute View.",
+          "deliverable": "View configuration, series-count comparison and sample data points",
+          "checks": [["Apply the attribute-selecting View", "Number of exported series for the histogram falls from many to one per method and route", "Collector debug output"], ["Set temporality preference to delta", "Data points report AggregationTemporality Delta", "Collector debug output"], ["Enable the exponential View", "Data point type is ExponentialHistogram with a scale value", "Collector debug output"]],
+          "objectives": ["Shape metric streams with Views", "Choose temporality for a backend", "Use exponential histograms"]
+        },
+        {
+          "topic": "Exemplars and Trace-to-Metric Correlation",
+          "subtopics": ["What an exemplar is: a sampled measurement with trace and span IDs", "Exemplar filters: trace_based, always_on, always_off", "OTEL_METRICS_EXEMPLAR_FILTER", "Exemplars on histograms from spanmetrics", "Prometheus exemplar storage and OpenMetrics", "Jumping from a latency spike to a trace in Grafana", "Exemplars and sampled traces", "Overhead and limits"],
+          "tools": ["OpenTelemetry SDKs", "Prometheus", "Grafana", "Tempo or Jaeger"],
+          "lab_task": "Enable exemplars with OTEL_METRICS_EXEMPLAR_FILTER=trace_based and export http.server.request.duration to Prometheus with exemplar storage enabled. Build a Grafana histogram panel with exemplars shown, click an exemplar on a latency spike and open the trace. Then switch to always_off and confirm exemplars stop.",
+          "deliverable": "Grafana panel with exemplars and the trace opened from one",
+          "checks": [["Query the histogram in Grafana with Exemplars on", "Exemplar dots appear with a trace_id label", "Grafana screenshot"], ["Click an exemplar", "The linked trace opens and contains a span of matching duration", "Trace view"], ["Set filter to always_off", "No new exemplars are recorded", "Grafana screenshot"]],
+          "objectives": ["Explain exemplars", "Configure exemplar filters", "Navigate from metrics to traces"]
+        },
+        {
+          "topic": "Propagating Context Through Kafka and Async Messaging",
+          "subtopics": ["Messaging semantic conventions: messaging.system, messaging.destination.name, messaging.operation.type", "PRODUCER and CONSUMER span kinds", "Injecting context into Kafka record headers", "Process spans linked to or parented by the producer", "Span links for batch consumers", "Java agent Kafka instrumentation", "Manual inject and extract with a custom carrier", "Long-running consumers and trace size"],
+          "tools": ["Apache Kafka", "Java agent", "Python SDK", "kcat", "Jaeger"],
+          "lab_task": "Run a Java producer with the agent and a Python consumer with manual extraction. Inject context into Kafka headers, then in Python call propagate.extract on the record headers and start a CONSUMER span. Use kcat -C -f '%h\\n' to show the traceparent header. Finally, process a batch of 50 records with one span using links and count the links.",
+          "deliverable": "Producer and consumer code, header dump and traces for single and batch processing",
+          "checks": [["Print headers with kcat", "Each record has a traceparent header", "kcat output"], ["View a single-record trace", "Producer PRODUCER span and consumer CONSUMER span share the trace ID", "Jaeger trace"], ["Process 50 records in one batch span", "The batch span has 50 span links", "Jaeger span detail"]],
+          "objectives": ["Propagate context through message headers", "Model messaging with links and span kinds", "Apply messaging semantic conventions"]
+        },
+        {
+          "topic": "Collector Reliability: memory_limiter, Sending Queues and Persistent Storage",
+          "subtopics": ["memory_limiter limit_mib, spike_limit_mib and check_interval", "Refusing data and pushing back to clients", "GOMEMLIMIT and container memory limits", "sending_queue queue_size, num_consumers and storage", "retry_on_failure initial_interval, max_interval and max_elapsed_time", "file_storage extension for a persistent queue", "Batching inside exporters versus the batch processor", "Expected loss during crashes"],
+          "tools": ["memory_limiter processor", "file_storage extension", "telemetrygen", "Docker"],
+          "lab_task": "Run a Collector with a 512 MiB container limit, memory_limiter limit_mib 400, and an otlp exporter to a backend with a file_storage-backed sending_queue. Stop the backend, send 50,000 spans, restart the Collector container, then start the backend. Compare spans received by the backend with spans sent, and repeat without storage.",
+          "deliverable": "Reliability test results with and without persistent storage",
+          "checks": [["Send load past the memory limit", "Clients receive retryable refusals and otelcol_processor_refused_spans increases", "Collector metrics"], ["Restart the Collector with persistent queue during outage", "All 50,000 spans arrive once the backend returns", "Backend span count"], ["Repeat with an in-memory queue", "Spans queued at restart are lost", "Backend span count"]],
+          "objectives": ["Protect Collectors from out-of-memory kills", "Configure retries and persistent queues", "Quantify data loss scenarios"]
+        },
+        {
+          "topic": "Collector Internal Telemetry and Health Monitoring",
+          "subtopics": ["service.telemetry settings for logs, metrics and traces", "Metrics endpoint on port 8888 and telemetry levels", "Key metrics: receiver accepted and refused, exporter sent and send_failed, queue size and capacity", "Alerting on queue saturation and failed sends", "Exporting internal telemetry over OTLP", "Collector log levels and sampling", "Health check extension in liveness and readiness probes", "Dashboards for Collector fleets"],
+          "tools": ["Collector internal telemetry", "Prometheus", "Grafana", "health_check extension"],
+          "lab_task": "Scrape the Collector's internal metrics on :8888 with Prometheus. Build Grafana panels for accepted spans per second, failed sends and queue utilisation (queue_size / queue_capacity). Write an alert for failed sends above 0 for 5 minutes. Point the exporter at a dead endpoint and record the time until the alert fires and the log messages produced.",
+          "deliverable": "Grafana dashboard JSON, alert rule and an outage timeline",
+          "checks": [["curl http://localhost:8888/metrics", "Output contains otelcol_receiver_accepted_spans and otelcol_exporter_queue_size", "curl output"], ["Point the exporter at a dead endpoint", "otelcol_exporter_send_failed_spans rises and the alert fires after 5 minutes", "Alertmanager notification"], ["Fill the queue to capacity", "Collector logs 'sending queue is full' and drops new data", "Collector log"]],
+          "objectives": ["Monitor the Collector itself", "Alert on data loss risks", "Wire health checks into Kubernetes probes"]
+        },
+        {
+          "topic": "Intermediate Capstone: Kubernetes Telemetry Pipeline with the OpenTelemetry Operator",
+          "subtopics": ["Operator-managed agent DaemonSet and gateway Deployment", "Instrumentation resources for two languages", "k8sattributes, resourcedetection and redaction", "Tail sampling behind a loadbalancing tier", "spanmetrics and servicegraph before sampling", "Self-monitoring dashboard and alerts"],
+          "tools": ["OpenTelemetry Operator", "Helm", "kubectl", "Prometheus", "Grafana", "Jaeger"],
+          "lab_task": "On kind, deploy the Astronomy Shop without its bundled Collector and replace it with Operator-managed agent and gateway Collectors. Inject Java and Python instrumentation, add k8sattributes and redaction, generate spanmetrics before tail sampling (errors, >500 ms, 5% rest), and ship to Jaeger and Prometheus. Show RED dashboards, a kept error trace and Collector health alerts.",
+          "deliverable": "Git repository with Operator manifests, Collector configs, dashboards and a design note",
+          "checks": [["Query spanmetrics request rate per service", "Rates match load generator totals within 5% despite sampling", "Prometheus query"], ["Trigger paymentFailure and search error traces", "Every error trace is stored with k8s.deployment.name set", "Jaeger search"], ["Kill a gateway pod during load", "No sustained send failures and the health alert clears within 5 minutes", "Grafana and Alertmanager"]],
+          "objectives": ["Deliver a production-style pipeline on Kubernetes", "Combine sampling and derived metrics correctly", "Monitor and defend the pipeline"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform engineers, observability leads and instrumentation authors who own OpenTelemetry across many teams. Covers custom Collector distributions with OCB, writing Collector components and SDK extensions, authoring instrumentation libraries and Java agent extensions, eBPF zero-code instrumentation with OBI, the profiles signal, OpenTelemetry for GenAI and AI agents, custom semantic conventions with Weaver, declarative SDK configuration, OpAMP fleet management, Collector hardening, performance and overhead testing, multi-backend routing, migrations from older tracing stacks, cost and cardinality controls, organisational governance, large-scale pipeline diagnosis, and an enterprise platform capstone.",
+      "prerequisites": ["Has completed the intermediate level or runs OpenTelemetry Collectors on Kubernetes with tail sampling and the Operator", "Writes Go well enough to build a module and read Go interfaces, and can read Java or Python library code", "Has access to a Kubernetes cluster with at least 8 vCPU and 16 GB of RAM, and to an LLM API key or a local model server for the GenAI labs"],
+      "outcomes": ["Build, extend and secure custom Collector distributions and manage Collector fleets remotely with OpAMP", "Author instrumentation, SDK extensions and custom semantic conventions that follow OpenTelemetry specification rules", "Instrument GenAI and agent workloads, eBPF-observed services and profiling data using current, clearly labelled development-stage conventions", "Run an organisation-wide OpenTelemetry programme with performance budgets, cost and cardinality controls, migration plans and governance"],
+      "days": [
+        {
+          "topic": "Building Custom Collector Distributions with OCB",
+          "subtopics": ["Why build your own distribution: size, attack surface, custom components", "OpenTelemetry Collector Builder (ocb) and its builder-config.yaml", "dist section: name, description, output_path", "receivers, processors, exporters, extensions and connectors lists with gomod entries", "Matching component versions to the Collector core version", "Adding a local component with replaces", "Building a minimal container image", "Generating an SBOM and scanning the image"],
+          "tools": ["ocb", "Go toolchain", "Docker", "Syft", "Grype"],
+          "lab_task": "Write builder-config.yaml for a distribution named otelcol-acme with only otlp receiver, batch, memory_limiter, k8sattributes, tail_sampling, otlp and otlphttp exporters and health_check. Run ocb --config builder-config.yaml, build a distroless image, then compare image size and the components list against otelcol-contrib. Scan both images with Grype and record vulnerability counts.",
+          "deliverable": "builder-config.yaml, image size and CVE comparison table",
+          "checks": [["Run ./otelcol-acme components", "Only the listed components appear", "Terminal output"], ["Compare image sizes", "otelcol-acme image is smaller than otelcol-contrib", "docker images output"], ["Use a contrib gomod version that does not match core", "ocb fails with a Go module version conflict", "Build output"]],
+          "objectives": ["Build a custom Collector distribution", "Keep component versions aligned", "Reduce image size and attack surface"]
+        },
+        {
+          "topic": "Writing a Custom Collector Processor in Go",
+          "subtopics": ["Component factory: NewFactory, CreateDefaultConfig, type name", "Config struct, Validate method and mapstructure tags", "processorhelper for traces processors", "pdata: ptrace.Traces, ResourceSpans, ScopeSpans and Span", "Mutating versus read-only processors and MutatesData", "Unit tests with consumertest.TracesSink", "metadata.yaml and mdatagen", "Including the processor in an OCB build"],
+          "tools": ["Go", "ocb", "mdatagen", "go test", "pdata"],
+          "lab_task": "Write a processor named tenantprocessor that reads the X-Tenant request header via client metadata or a span attribute and sets resource attribute tenant.id, defaulting to 'unknown'. Add Validate that rejects an empty default. Test with consumertest.TracesSink, add it to the OCB build with a replaces line, run it and confirm the attribute in the debug exporter.",
+          "deliverable": "Processor source, tests with go test -v output and an OCB build",
+          "checks": [["Run go test ./...", "All tests pass including the default-tenant case", "go test output"], ["Start the Collector with default_tenant set to empty", "Startup fails with the Validate error message", "Collector log"], ["Send spans without tenant data", "Resource attribute tenant.id=unknown is set", "Collector debug output"]],
+          "objectives": ["Implement a Collector processor with pdata", "Validate component configuration", "Test and package a custom component"]
+        },
+        {
+          "topic": "Extending SDKs: Custom Samplers, Span Processors and Exporters",
+          "subtopics": ["Sampler interface: ShouldSample and description", "SamplingResult: DROP, RECORD_ONLY, RECORD_AND_SAMPLE", "Span processors: OnStart and OnEnd", "Adding baggage values to spans in OnStart", "Exporter interface and shutdown semantics", "ForceFlush and graceful shutdown", "Thread safety and non-blocking requirements", "Registering extensions with the Java agent SPI"],
+          "tools": ["Java SDK", "Python SDK", "JUnit", "pytest"],
+          "lab_task": "Implement a sampler that always samples spans with attribute http.route=/checkout and delegates others to TraceIdRatioBased(0.05). Implement a span processor that copies baggage key tenant.id to a span attribute in OnStart. Run 2,000 requests and measure the sampled share per route. Add a sleep in OnEnd and measure request latency impact.",
+          "deliverable": "Sampler and processor code, sampling ratios per route and a latency comparison",
+          "checks": [["Send 1,000 /checkout and 1,000 /browse requests", "All /checkout traces kept and about 50 /browse traces kept", "Backend trace counts"], ["Set baggage tenant.id=acme on the request", "Every span carries attribute tenant.id=acme", "Span attributes"], ["Add a 20 ms sleep in OnEnd", "p95 request latency rises by about 20 ms per span", "Latency histogram"]],
+          "objectives": ["Write custom samplers", "Write span processors that are safe in hot paths", "Explain exporter and shutdown contracts"]
+        },
+        {
+          "topic": "Instrumentation Library Authoring and Java Agent Extensions",
+          "subtopics": ["Depending only on the API in libraries", "Instrumenter API in Java instrumentation", "Instrumentation scope name, version and schema URL", "Following semantic conventions and suppressing nested client spans", "Java agent extensions with ByteBuddy TypeInstrumentation", "Packaging extensions with otel.javaagent.extensions", "Testing with the agent test runner", "Publishing to the OpenTelemetry registry"],
+          "tools": ["Java", "Gradle", "OpenTelemetry Java instrumentation", "ByteBuddy", "Python"],
+          "lab_task": "Write a Java agent extension that adds a span around com.acme.PaymentClient.charge with ByteBuddy advice, setting payment.provider and recording exceptions. Package it as a jar and load it with -Dotel.javaagent.extensions=acme-ext.jar. Confirm the span appears under the HTTP SERVER span, and that the library itself has no SDK dependency in its dependency tree.",
+          "deliverable": "Extension jar, test output and trace showing the new span",
+          "checks": [["Start the app with the extension", "Agent log lists the extension and the new span appears in traces", "Agent log and trace"], ["Throw from charge()", "Span has status Error and an exception event", "Span detail"], ["Run gradle dependencies on the library", "Only opentelemetry-api appears, not opentelemetry-sdk", "Gradle output"]],
+          "objectives": ["Author instrumentation that depends only on the API", "Extend the Java agent", "Test and publish instrumentation"]
+        },
+        {
+          "topic": "eBPF Zero-Code Instrumentation with OBI",
+          "subtopics": ["OpenTelemetry eBPF Instrumentation (OBI) and its origin as Grafana Beyla", "Kernel requirements, BTF and capabilities", "Protocol-level HTTP, gRPC and SQL spans without code changes", "Context propagation limits and where OBI injects traceparent", "Selecting processes by port or executable name", "Running as a DaemonSet with privileged or fine-grained capabilities", "Combining OBI with SDK instrumentation without duplicates", "RED metrics from eBPF observation"],
+          "tools": ["OBI", "Linux kernel with BTF", "Kubernetes DaemonSet", "Collector", "Jaeger"],
+          "lab_task": "Run OBI against an uninstrumented Go or Rust HTTP service, selecting it by open port, and export OTLP to the Collector. Send 500 requests and compare spans and http.server.request.duration with an SDK-instrumented copy. Then run OBI on an SDK-instrumented service and record whether duplicate SERVER spans appear and how you prevent them.",
+          "deliverable": "OBI deployment manifest, comparison table and a duplicate-span finding",
+          "checks": [["Send 500 requests to the uninstrumented service", "500 SERVER spans arrive with http.route or url.path populated", "Backend span count"], ["Run OBI without the required capabilities", "OBI fails to load eBPF programs and logs a permission error", "Container log"], ["Compare metric counts with the SDK copy", "Request counts match within 1%", "Prometheus query"]],
+          "objectives": ["Deploy eBPF-based zero-code instrumentation", "Know the limits of eBPF context propagation", "Avoid double instrumentation"]
+        },
+        {
+          "topic": "Profiles Signal and Continuous Profiling with the eBPF Profiler",
+          "subtopics": ["The profiles signal: data model, stacks, samples and locations", "Development status of OTLP profiles and what may change", "The OpenTelemetry eBPF profiler and whole-system profiling", "Native, JVM, Python and Node.js unwinding", "Linking profiles to traces with span IDs", "Collector support for profiles pipelines", "Backends that accept OTLP profiles", "Overhead and sampling frequency"],
+          "tools": ["OpenTelemetry eBPF profiler", "Collector", "Pyroscope or another OTLP profiles backend", "Kubernetes DaemonSet"],
+          "lab_task": "Deploy the OpenTelemetry eBPF profiler as a DaemonSet sending OTLP profiles to a Collector build that has a profiles pipeline enabled, then on to a backend that accepts OTLP profiles. Run a CPU-heavy endpoint for 5 minutes and open a flame graph. Record node CPU overhead with the profiler on and off, and note the feature gates needed.",
+          "deliverable": "Deployment manifests, flame graph screenshot and an overhead measurement",
+          "checks": [["Open a flame graph for the CPU-heavy service", "The hot function appears as the widest frame", "Flame graph screenshot"], ["Measure node CPU with and without the profiler", "Overhead stays under 1% of node CPU", "Node CPU metric"], ["Start a Collector without the profiles feature gate", "Config with a profiles pipeline is rejected at startup", "Collector log"]],
+          "objectives": ["Describe the profiles signal and its status", "Deploy continuous profiling with OpenTelemetry", "Measure profiler overhead"]
+        },
+        {
+          "topic": "OpenTelemetry for GenAI: Semantic Conventions for LLM Calls",
+          "subtopics": ["GenAI semantic conventions and their development status", "Span name '{gen_ai.operation.name} {gen_ai.request.model}'", "gen_ai.provider.name, gen_ai.request.model and gen_ai.response.model", "gen_ai.usage.input_tokens and gen_ai.usage.output_tokens", "Metrics gen_ai.client.token.usage and gen_ai.client.operation.duration", "Opt-in capture of prompts and completions", "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT and privacy", "opentelemetry-instrumentation-openai-v2 and other contrib packages"],
+          "tools": ["opentelemetry-instrumentation-openai-v2", "OpenAI-compatible API or Ollama", "Python SDK", "Collector", "Jaeger"],
+          "lab_task": "Instrument a Python chat script that calls an OpenAI-compatible endpoint with opentelemetry-instrumentation-openai-v2. Make 20 calls and check span names, model and token attributes, and the gen_ai.client.token.usage histogram. Run with and without OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true and confirm where prompt text appears, then strip it in the Collector.",
+          "deliverable": "Traces and metrics for 20 calls plus a content-capture privacy note",
+          "checks": [["Inspect one chat span", "Span name starts with 'chat' and has gen_ai.usage.input_tokens and gen_ai.usage.output_tokens", "Span detail"], ["Run without content capture enabled", "No prompt or completion text is exported", "Collector debug output"], ["Sum gen_ai.client.token.usage over 20 calls", "Total matches the sum of token attributes on the spans", "Metric query and span export"]],
+          "objectives": ["Apply GenAI semantic conventions", "Measure token usage and latency", "Control capture of sensitive prompt content"]
+        },
+        {
+          "topic": "Tracing AI Agents, Tool Calls and Token Usage",
+          "subtopics": ["Agent spans: create_agent, invoke_agent and execute_tool operations", "gen_ai.agent.name, gen_ai.tool.name and gen_ai.tool.call.id", "Nesting LLM calls and tool calls under an agent span", "Retrieval spans for vector store queries", "Framework instrumentation for LangChain, LlamaIndex and others", "Cost attribution per tenant and per agent", "Evaluation results as events or attributes", "Sampling strategies for long, expensive agent traces"],
+          "tools": ["Python SDK", "OpenAI-compatible API", "Collector", "Jaeger", "Grafana"],
+          "lab_task": "Build a small agent loop that plans with an LLM, calls two tools (a weather function and a SQL lookup) and answers. Wrap it in an invoke_agent span with gen_ai.agent.name, give each tool call an execute_tool span with gen_ai.tool.name, and let the LLM instrumentation add chat spans. Run 30 tasks and chart tokens per task and tool error rate.",
+          "deliverable": "Agent trace screenshots and a dashboard with tokens per task and tool errors",
+          "checks": [["Open one agent trace", "invoke_agent is the parent of chat and execute_tool spans", "Trace view"], ["Force the SQL tool to fail", "execute_tool span has status Error and the agent span records the retry", "Trace view"], ["Chart tokens per task over 30 tasks", "One value per task with the max and median visible", "Grafana panel"]],
+          "objectives": ["Model agent workflows with spans", "Attribute cost and errors to tools and agents", "Sample long agent traces sensibly"]
+        },
+        {
+          "topic": "Custom Semantic Conventions with Weaver",
+          "subtopics": ["Why organisations need their own conventions on top of the official ones", "Weaver registry YAML: groups, attributes, requirement levels and stability", "weaver registry check for validation", "weaver registry generate for code constants and docs", "Extending the official registry as a dependency", "Live checking telemetry against a registry", "Telemetry schema URLs and versioned renames", "Reviewing conventions as pull requests"],
+          "tools": ["OpenTelemetry Weaver", "YAML", "Jinja templates", "CI pipeline"],
+          "lab_task": "Create a registry with an acme.payment group defining acme.payment.provider (enum) and acme.payment.amount_minor (int, required). Run weaver registry check, then introduce a duplicate attribute and record the error. Generate Python constants with weaver registry generate and use them in instrumentation. Add the check as a CI step that fails on errors.",
+          "deliverable": "Registry repository, generated constants and a CI run log",
+          "checks": [["Run weaver registry check on the valid registry", "Command exits 0 with no violations", "Terminal output"], ["Define acme.payment.provider twice", "Check fails and names the duplicate attribute", "Terminal output"], ["Open the CI run with an invalid registry", "Pipeline step fails and blocks the merge", "CI log"]],
+          "objectives": ["Define organisation conventions in a registry", "Validate and generate code from conventions", "Gate conventions in CI"]
+        },
+        {
+          "topic": "Declarative SDK Configuration Files",
+          "subtopics": ["File-based configuration schema in the opentelemetry-configuration project", "Selecting the file with the SDK's config file environment variable", "tracer_provider, meter_provider, logger_provider sections", "Samplers, processors and exporters in YAML", "Environment variable substitution in the file", "Per-instrumentation settings", "Language support status and differences", "Interaction with OTEL_* environment variables"],
+          "tools": ["Java agent", "OpenTelemetry configuration schema", "YAML", "Collector"],
+          "lab_task": "Write a declarative configuration file for the Java agent defining resource attributes, a parentbased_traceidratio 0.2 sampler, a batch span processor with OTLP HTTP exporter using ${OTEL_EXPORTER_OTLP_ENDPOINT}, and a periodic metric reader. Start the agent with it, verify sampling, then add an invalid key and record the startup failure.",
+          "deliverable": "Configuration file, startup logs and sampling verification",
+          "checks": [["Start the agent with the file", "Agent starts and traces arrive with the configured resource attributes", "Agent log and trace"], ["Send 1,000 requests", "About 200 traces are stored", "Backend trace count"], ["Add an unknown sampler type", "Agent reports a configuration parse error at startup", "Agent log"]],
+          "objectives": ["Configure SDKs with a single file", "Use substitution for secrets and endpoints", "Know current language support"]
+        },
+        {
+          "topic": "Managing Collector Fleets with OpAMP",
+          "subtopics": ["Open Agent Management Protocol: status, health, remote config and packages", "opamp extension for status reporting", "OpAMP Supervisor for remote configuration and restarts", "Agent description and capabilities", "Remote config rollout and rollback", "Effective config reporting", "Securing OpAMP with TLS and authentication", "Operator OpAMP bridge for Kubernetes"],
+          "tools": ["OpAMP", "OpAMP Supervisor", "opamp-go example server", "Collector", "Kubernetes"],
+          "lab_task": "Run the opamp-go example server, then start two Collectors under the OpAMP Supervisor. Confirm both report health and effective config. Push a new config adding a filter processor to one agent, verify the change, then push a broken config and confirm the Supervisor reports the failure and keeps or restores the last good config.",
+          "deliverable": "Server screenshots, pushed configs and the rollback evidence",
+          "checks": [["Open the OpAMP server UI", "Both Collectors are listed as connected with health true", "Server UI screenshot"], ["Push a config with a filter processor", "Effective config reported by the agent contains the filter processor", "Server UI"], ["Push an invalid config", "Agent reports remote config status FAILED and keeps processing data", "Server UI and Collector metrics"]],
+          "objectives": ["Explain OpAMP capabilities", "Manage Collector configuration remotely", "Roll out and roll back fleet changes"]
+        },
+        {
+          "topic": "Collector Security Hardening: TLS, Authentication and Least Privilege",
+          "subtopics": ["TLS and mTLS on otlp receivers and exporters", "Authenticators: bearertokenauth, oidc and basicauth extensions", "Binding to localhost by default and exposing only needed ports", "Running as non-root with a read-only root filesystem", "Network policies around Collectors", "Secrets via env and file references, not inline config"],
+          "tools": ["Collector", "cert-manager", "oidc extension", "Kubernetes NetworkPolicy", "openssl"],
+          "lab_task": "Enable TLS with client certificates on the gateway otlp receiver using cert-manager certificates and add an oidc authenticator. Send data with a valid client cert and token, with no cert, and with an expired token, and record each response. Run the Collector as non-root with a read-only filesystem and apply a NetworkPolicy that only allows agents to reach 4317.",
+          "deliverable": "Hardened config, test matrix of responses and NetworkPolicy manifest",
+          "checks": [["Send without a client certificate", "TLS handshake fails and no data is accepted", "Client error output"], ["Send with an expired token", "Request is rejected with Unauthenticated (gRPC) or 401 (HTTP)", "Client error output"], ["Connect to 4317 from a pod outside the allowed namespace", "Connection times out due to the NetworkPolicy", "kubectl exec curl output"]],
+          "objectives": ["Encrypt and authenticate telemetry transport", "Run Collectors with least privilege", "Keep secrets out of config"]
+        },
+        {
+          "topic": "Telemetry Pipeline Performance Tuning and Load Testing",
+          "subtopics": ["Load generation with telemetrygen at fixed rates", "Finding the throughput limit of one Collector", "batch send_batch_size, send_batch_max_size and timeout", "Exporter num_consumers and queue sizing", "CPU and memory profiling with the pprof extension", "Compression choices: gzip, zstd, snappy", "Horizontal scaling and HPA on CPU or queue metrics", "Capacity sizing worksheets"],
+          "tools": ["telemetrygen", "pprof extension", "go tool pprof", "Prometheus", "Grafana"],
+          "lab_task": "Load a single Collector with telemetrygen traces --rate at 5k, 20k and 50k spans per second for 5 minutes each. Record CPU, memory, accepted versus sent spans and queue use. Tune batch sizes, num_consumers and compression, repeat, and capture a CPU profile with go tool pprof from the pprof extension at the highest rate.",
+          "deliverable": "Throughput table before and after tuning plus a pprof top-10 listing",
+          "checks": [["Run at the highest rate before tuning", "Queue reaches capacity and send failures begin", "Collector metrics"], ["Repeat after tuning", "Sustained throughput rises with zero dropped spans at the previous failure rate", "Collector metrics"], ["Capture a 30 s CPU profile", "pprof top output lists the most expensive functions", "pprof output"]],
+          "objectives": ["Load test a Collector", "Tune batching, queues and compression", "Profile Collector CPU use"]
+        },
+        {
+          "topic": "SDK and Agent Overhead Measurement",
+          "subtopics": ["Defining an overhead budget: latency, CPU, memory and startup time", "Java agent startup cost and class loading", "BatchSpanProcessor queue and export settings", "OTEL_BSP_MAX_QUEUE_SIZE and dropped spans", "Cost of attributes, events and span count per request", "Metric cardinality and SDK memory", "Benchmarking with a fixed load and warm-up", "Reporting overhead to service owners"],
+          "tools": ["Java agent", "k6", "async-profiler", "Prometheus", "Python SDK"],
+          "lab_task": "Benchmark a Spring Boot service with k6 at 500 requests per second in three modes: no agent, agent at 10% sampling, agent at 100%. Record p50, p99 latency, CPU, heap and startup time. Then set OTEL_BSP_MAX_QUEUE_SIZE=64 under a slow exporter and record dropped-span messages. Write an overhead budget the platform team can enforce.",
+          "deliverable": "Benchmark report, dropped-span evidence and an overhead budget",
+          "checks": [["Compare p99 latency with and without the agent", "Difference is measured and reported in milliseconds", "k6 summary"], ["Compare startup time", "Agent startup increase is measured in seconds", "Application log timestamps"], ["Shrink the span queue under a slow exporter", "SDK reports dropped spans and the backend count falls short of requests", "SDK log and backend count"]],
+          "objectives": ["Measure instrumentation overhead", "Tune SDK batching to avoid drops", "Set an overhead budget"]
+        },
+        {
+          "topic": "Multi-Backend Routing and Vendor-Neutral Export",
+          "subtopics": ["Fan-out to several exporters in one pipeline", "routing connector by tenant or environment", "Separate pipelines per backend with different sampling", "Vendor exporters versus OTLP to vendor endpoints", "Header-based auth for vendor OTLP endpoints", "Dual shipping during a vendor migration", "Isolating a slow backend so it does not block others", "Comparing data parity across backends"],
+          "tools": ["routing connector", "otlphttp exporter", "Jaeger", "Prometheus", "Vendor OTLP endpoint"],
+          "lab_task": "Route telemetry with the routing connector so tenant.id=acme goes to a vendor OTLP endpoint and everything goes to Jaeger and Prometheus. Give each exporter its own sending_queue. Make the vendor endpoint slow with a proxy delay and confirm Jaeger ingestion is unaffected. Compare trace counts per tenant across backends.",
+          "deliverable": "Routing config, slow-backend test and parity table",
+          "checks": [["Send acme and globex traffic", "Vendor backend receives only acme data while Jaeger receives both", "Backend counts"], ["Add a 5 s proxy delay to the vendor endpoint", "Jaeger ingestion rate stays steady", "Collector metrics per exporter"], ["Compare acme trace counts across backends", "Counts match within 1%", "Parity table"]],
+          "objectives": ["Route telemetry to multiple backends", "Isolate exporters from each other", "Plan dual shipping for migrations"]
+        },
+        {
+          "topic": "Migrating from OpenTracing, OpenCensus and Vendor Agents to OpenTelemetry",
+          "subtopics": ["OpenTracing and OpenCensus shims", "Receiving Jaeger, Zipkin and vendor formats in the Collector", "Mixed propagation formats during migration", "Replacing vendor agents service by service", "Keeping dashboards and alerts working across attribute changes", "Mapping old span names and tags to semantic conventions", "Rollback plans", "Measuring migration progress"],
+          "tools": ["Collector jaeger and zipkin receivers", "OpenTracing shim", "transform processor", "Jaeger"],
+          "lab_task": "Run a legacy service sending Zipkin spans with B3 headers next to an OpenTelemetry service using tracecontext. Add a zipkin receiver to the Collector, set OTEL_PROPAGATORS=tracecontext,b3multi on the new service and confirm one connected trace. Use the transform processor to map legacy tag names to semantic conventions and track migrated services on a dashboard.",
+          "deliverable": "Migration plan, Collector config and a connected mixed-format trace",
+          "checks": [["Call the legacy service from the new one", "Both services appear in one trace", "Jaeger trace"], ["Remove b3multi from OTEL_PROPAGATORS", "Trace splits into two separate traces", "Jaeger search"], ["Inspect a mapped legacy span", "Legacy http.status tag is now http.response.status_code", "Collector debug output"]],
+          "objectives": ["Run old and new tracing side by side", "Bridge propagation formats", "Plan a staged migration"]
+        },
+        {
+          "topic": "Cost and Cardinality Governance for OpenTelemetry Data",
+          "subtopics": ["Where telemetry cost comes from: spans, series, log bytes", "Measuring volume per service with the count connector", "Cardinality limits in SDKs and backends", "Dropping or aggregating high-cardinality attributes in the Collector", "Sampling budgets per service", "Log severity and retention tiers", "Showback reports per team", "Guardrails in CI for new attributes"],
+          "tools": ["count connector", "transform processor", "filter processor", "Prometheus", "Grafana"],
+          "lab_task": "Use the count connector to emit spans and log records per service.name and a Prometheus query to count series per metric name. Find the top three cost drivers, then remove a user.id attribute from metrics with the transform processor and drop DEBUG logs with filter. Measure volume and series counts before and after and build a per-team showback panel.",
+          "deliverable": "Cost report with before-and-after volumes and a showback dashboard",
+          "checks": [["Query count of series for the noisiest metric", "Series count is listed before the change", "Prometheus query"], ["Remove user.id from that metric", "Series count drops to the number of remaining label combinations", "Prometheus query"], ["Drop DEBUG logs", "Log records per minute fall by the measured DEBUG share", "count connector metric"]],
+          "objectives": ["Measure telemetry volume by owner", "Cut cardinality and volume in the pipeline", "Report cost back to teams"]
+        },
+        {
+          "topic": "Instrumentation Standards and OpenTelemetry Governance in an Organisation",
+          "subtopics": ["How the OpenTelemetry project is governed: Governance Committee, Technical Committee and SIGs", "Specification change process and stability guarantees", "Internal standards: required resource attributes and naming", "Approved SDK, agent and Collector versions", "Upgrade cadence and change review", "Contributing fixes upstream", "Ownership of instrumentation versus platform", "Scorecards for instrumentation quality"],
+          "tools": ["OpenTelemetry community repositories", "Weaver", "CI pipeline", "Grafana"],
+          "lab_task": "Write an internal OpenTelemetry standard: required resource attributes, approved versions, sampling defaults and naming rules. Build a Collector-side check with the transform processor that tags telemetry missing service.version or deployment.environment.name, then chart a scorecard of compliant services. Find one relevant open issue in an OpenTelemetry SIG repository and summarise its status.",
+          "deliverable": "Standards document, compliance scorecard and an upstream issue summary",
+          "checks": [["Send telemetry from a service without service.version", "Telemetry is tagged non-compliant and the service appears on the scorecard", "Grafana panel"], ["Count compliant services", "Scorecard shows compliant and non-compliant counts", "Grafana panel"], ["Link the upstream issue", "Summary names the SIG, the issue number and its current state", "Issue summary"]],
+          "objectives": ["Explain how OpenTelemetry is governed", "Define and enforce internal instrumentation standards", "Engage with the upstream community"]
+        },
+        {
+          "topic": "Troubleshooting Collector Pipelines at Scale",
+          "subtopics": ["Symptom-first triage: missing data, partial traces, delays, duplicates", "Comparing receiver accepted with exporter sent counts", "Debug exporter sampling and zpages traces", "Back-pressure and refused data", "Clock skew, out-of-order data and backend rejections", "Partial success messages from backends"],
+          "tools": ["Collector internal telemetry", "zpages", "debug exporter", "pprof extension", "Grafana"],
+          "lab_task": "In a prepared environment, solve five faults: an exporter rejected by the backend with partial success, a memory_limiter refusing data, a k8sattributes RBAC gap, a loadbalancing ring that splits traces, and skewed node clocks. For each, record the first metric or log that pointed to the cause, the fix and the time to resolution.",
+          "deliverable": "Incident log for five faults with evidence, fixes and a reusable runbook",
+          "checks": [["Compare accepted and sent spans during the backend fault", "Sent is lower and the exporter logs partial success with rejected counts", "Collector metrics and log"], ["Inspect refused data during the memory fault", "otelcol_processor_refused_spans increases while memory sits near the limit", "Collector metrics"], ["Check spans from the skewed node", "Child spans start before their parents", "Trace view"]],
+          "objectives": ["Triage pipeline problems from symptoms", "Use internal telemetry to locate faults", "Write runbooks for recurring faults"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise OpenTelemetry Platform with GenAI Observability",
+          "subtopics": ["Custom OCB distribution with an in-house processor", "OpAMP-managed agent and gateway fleets", "Hardened, multi-backend pipelines", "GenAI and agent instrumentation with content controls", "Weaver-governed conventions and CI checks", "Overhead, cost and compliance reporting"],
+          "tools": ["ocb", "OpAMP Supervisor", "OpenTelemetry Operator", "Weaver", "Grafana", "Prometheus"],
+          "lab_task": "Design and run a platform for several teams: build a custom distribution with your tenant processor, manage it with OpAMP, deploy via the Operator with mTLS, tail sampling and routing to two backends. Onboard one GenAI agent service with token metrics and content capture off. Enforce Weaver conventions in CI and present overhead, cost and compliance numbers.",
+          "deliverable": "Platform repository, architecture document, dashboards and a 15-minute review presentation",
+          "checks": [["Push a config change through OpAMP", "All gateway Collectors report the new effective config", "OpAMP server view"], ["Run the GenAI service for 100 tasks", "Token usage per tenant is charted and no prompt text is stored", "Grafana panel and backend search"], ["Merge a convention change that breaks the registry", "CI blocks the merge", "CI log"]],
+          "objectives": ["Integrate advanced OpenTelemetry components into one platform", "Run OpenTelemetry for many teams safely", "Justify design choices with measured data"]
+        }
+      ]
+    }
+  }
+}

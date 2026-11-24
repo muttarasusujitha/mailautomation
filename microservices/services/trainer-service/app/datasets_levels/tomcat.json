@@ -1,0 +1,573 @@
+{
+  "domain": "Tomcat",
+  "name": "Tomcat",
+  "category": "Backend, APIs and Web Servers",
+  "icon": "server",
+  "aliases": ["Apache Tomcat", "Java Servlet Container", "Tomcat Administration", "Apache Tomcat Administration", "Tomcat 10.1", "Tomcat 11", "Tomcat Server", "Jakarta Servlet Container"],
+  "certifications": [],
+  "tools": ["Apache Tomcat 10.1", "Apache Tomcat 11", "OpenJDK 21", "Manager application", "keytool", "OpenSSL", "JConsole", "Eclipse MAT", "JDK Flight Recorder", "Prometheus JMX Exporter", "Apache httpd", "Jakarta EE migration tool", "Maven", "Docker"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For system administrators, Java developers and DevOps engineers who are new to Apache Tomcat. Covers installing Tomcat 10.1 and 11 on Linux and Windows, CATALINA_HOME and CATALINA_BASE, server.xml, connectors, WAR deployment and context descriptors, the Manager application, users and roles, JULI and access logging, JVM options with setenv.sh, sessions, error pages, Maven-driven deployment and a capstone that stands up a complete instance for a Jakarta EE sample application.",
+      "prerequisites": ["Comfortable in a Linux shell or PowerShell: editing files, setting environment variables, reading logs with tail and grep", "Basic Java knowledge: can explain what a JAR, a WAR and a JDK are and can run java -version", "A Linux VM, WSL2 or Windows machine with administrator or sudo rights, outbound internet access and a JDK 17 or 21 available to install"],
+      "outcomes": ["Install, start, stop and run Tomcat 10.1 and 11 as a managed service with separate CATALINA_HOME and CATALINA_BASE directories", "Read and edit server.xml, context descriptors and web.xml to configure connectors, hosts and applications", "Deploy, undeploy and redeploy Jakarta EE WAR files by hand, with the Manager application and from Maven", "Configure users, roles, logging, JVM memory options and error pages, and diagnose the most common startup failures from the logs"],
+      "days": [
+        {
+          "topic": "Installing Tomcat 10.1 and 11 on Linux and Windows",
+          "subtopics": ["Tomcat release lines: 9 (javax), 10.1 (Jakarta EE 10, Servlet 6.0) and 11 (Jakarta EE 11, Servlet 6.1)", "Minimum Java: Java 11 for 10.1 and Java 17 for 11", "Choosing a JDK vendor and setting JAVA_HOME", "Downloading the tar.gz or zip from tomcat.apache.org and verifying the SHA-512 checksum and PGP signature", "Extracting to /opt/tomcat and creating a dedicated tomcat user", "Windows zip install versus the service installer", "Package installs (apt, dnf) versus the upstream archive and what each places on disk", "Running bin/version.sh and reading the JVM and OS lines"],
+          "tools": ["Tomcat 10.1", "Tomcat 11", "OpenJDK 17/21", "sha512sum", "gpg", "curl"],
+          "lab_task": "Download apache-tomcat-10.1.x.tar.gz, verify it with sha512sum -c against the .sha512 file, extract it to /opt/tomcat10 and run bin/version.sh. Repeat with Tomcat 11 on JDK 21 into /opt/tomcat11. Then try starting Tomcat 11 with a JDK 11 JAVA_HOME and record the error. Report both Server version lines.",
+          "deliverable": "Install log with checksum result, both version.sh outputs and the JDK 11 failure message",
+          "checks": [["Run sha512sum -c apache-tomcat-10.1.x.tar.gz.sha512", "Prints apache-tomcat-10.1.x.tar.gz: OK", "Terminal output"], ["Run /opt/tomcat11/bin/version.sh with JAVA_HOME on JDK 21", "Server version shows Apache Tomcat/11.0.x and JVM Version shows 21", "version.sh output"], ["Start Tomcat 11 with JAVA_HOME pointing at JDK 11", "Startup fails with UnsupportedClassVersionError (class file version 61.0 required)", "Console error text"]],
+          "objectives": ["Choose the right Tomcat line for a Java and Jakarta EE level", "Install and verify a Tomcat archive", "Match JDK versions to Tomcat versions"]
+        },
+        {
+          "topic": "CATALINA_HOME, CATALINA_BASE and the Directory Layout",
+          "subtopics": ["bin, conf, lib, logs, temp, webapps and work directories", "CATALINA_HOME as the shared binaries", "CATALINA_BASE as the per-instance configuration", "Creating an instance directory with conf, logs, temp, webapps and work", "Files copied into conf: server.xml, web.xml, context.xml, logging.properties, catalina.properties, tomcat-users.xml", "Running two instances from one installation on different ports", "The Catalina/localhost directory for context descriptors", "Where compiled JSPs go: work/Catalina/localhost"],
+          "tools": ["Tomcat 10.1", "catalina.sh", "tree", "ss", "curl"],
+          "lab_task": "Create /srv/tc/a and /srv/tc/b as CATALINA_BASE instances sharing one CATALINA_HOME. Copy conf from the install, change the HTTP connector to 8081 and 8082 and the shutdown ports to 8006 and 8007, start both with catalina.sh start, then confirm with ss -ltnp and curl -I that both respond.",
+          "deliverable": "Two working instance directories and a table of ports, PIDs and log paths",
+          "checks": [["Run ss -ltnp | grep java after starting both instances", "Listeners on 8081 and 8082 owned by two different PIDs", "ss output"], ["curl -sI http://localhost:8082/ | head -1", "HTTP/1.1 200 for the instance with the default ROOT, or 404 if webapps is empty", "curl output"], ["Run catalina.sh version with CATALINA_BASE=/srv/tc/a", "Output lists CATALINA_BASE: /srv/tc/a and the shared CATALINA_HOME", "Terminal output"]],
+          "objectives": ["Explain the difference between CATALINA_HOME and CATALINA_BASE", "Build a separate instance directory", "Run several instances from one installation"]
+        },
+        {
+          "topic": "Starting, Stopping and Reading Startup Logs",
+          "subtopics": ["catalina.sh run versus start versus stop", "startup.sh and shutdown.sh wrappers", "The shutdown command on port 8005 and the SHUTDOWN string", "CATALINA_PID and the pid file", "catalina.out and the logs directory", "Reading VersionLoggerListener output at startup", "Spotting Server startup in [n] milliseconds", "catalina.sh configtest for validating server.xml", "Forcing a stop with stop 10 -force"],
+          "tools": ["catalina.sh", "tail", "grep", "jps", "Tomcat 10.1"],
+          "lab_task": "Start Tomcat in the foreground with catalina.sh run and note the lines printed by VersionLoggerListener. Stop it, then use CATALINA_PID=/tmp/tc.pid catalina.sh start, tail -f logs/catalina.out until Server startup in appears, and stop with catalina.sh stop 10. Break server.xml with an unclosed tag and run catalina.sh configtest.",
+          "deliverable": "Annotated startup log and the configtest error for the broken server.xml",
+          "checks": [["Run catalina.sh start and tail logs/catalina.out", "Line 'Server startup in [N] milliseconds' appears with N under 10000 on a small VM", "catalina.out excerpt"], ["Run catalina.sh stop 10 and then jps", "No Bootstrap process remains and /tmp/tc.pid is removed", "jps output and file listing"], ["Run catalina.sh configtest with an unclosed Connector tag", "SAXParseException is logged and the exit code is non-zero", "Command output and echo $?"]],
+          "objectives": ["Start, stop and test Tomcat from the command line", "Use the pid file correctly", "Read the key lines of a startup log"]
+        },
+        {
+          "topic": "Running Tomcat as a systemd Service and a Windows Service",
+          "subtopics": ["Why a service manager instead of nohup", "A systemd unit with User=tomcat, Environment and ExecStart", "Type=forking with a pid file versus Type=exec with catalina.sh run", "Restart=on-failure and TimeoutStopSec", "Binding ports below 1024 with AmbientCapabilities=CAP_NET_BIND_SERVICE", "journalctl -u tomcat for console output", "Windows service.bat install and the Tomcat10w monitor", "Startup type, service account and log on rights"],
+          "tools": ["systemd", "systemctl", "journalctl", "service.bat", "Tomcat 10.1"],
+          "lab_task": "Write /etc/systemd/system/tomcat.service for the /srv/tc/a instance running as user tomcat with Type=exec and ExecStart=/opt/tomcat10/bin/catalina.sh run, enable it and start it. Kill the java process with kill -9 and confirm systemd restarts it within 10 seconds. Reboot the VM and confirm the service returns.",
+          "deliverable": "The unit file, systemctl status output and the journalctl lines for a crash and recovery",
+          "checks": [["systemctl is-enabled tomcat after enabling", "Prints enabled", "Terminal output"], ["kill -9 the Tomcat PID with Restart=on-failure set", "A new PID appears in systemctl status within 10 seconds", "Before and after status output"], ["ps -o user= -p $(pgrep -f Bootstrap)", "Prints tomcat, not root", "ps output"]],
+          "objectives": ["Write a correct systemd unit for Tomcat", "Run Tomcat as a non-root user", "Prove automatic restart after a crash"]
+        },
+        {
+          "topic": "server.xml Elements: Server, Service, Engine, Host and Context",
+          "subtopics": ["The containment hierarchy and what each element represents", "Server and the shutdown port and command", "Service grouping connectors with one Engine", "Engine defaultHost and jvmRoute", "Host name, appBase, unpackWARs and autoDeploy", "Context as a web application", "Nested Listener, Valve, Realm and Resources elements", "GlobalNamingResources and UserDatabase", "Variable substitution with ${catalina.base} and system properties"],
+          "tools": ["server.xml", "xmllint", "Tomcat 10.1", "curl"],
+          "lab_task": "Draw the element tree of the default server.xml, then add a second Host named app.local with appBase=webapps-app and place a one-page index.jsp in webapps-app/ROOT. Validate with xmllint --noout, restart, and request it with curl --resolve app.local:8080:127.0.0.1 http://app.local:8080/.",
+          "deliverable": "Annotated server.xml tree diagram and the working second Host",
+          "checks": [["curl --resolve app.local:8080:127.0.0.1 http://app.local:8080/", "Returns the page from webapps-app/ROOT with HTTP 200", "curl output"], ["curl -H 'Host: unknown.test' http://localhost:8080/", "Served by the defaultHost localhost, proving the Engine defaultHost setting", "curl output"], ["Run xmllint --noout conf/server.xml", "No output and exit code 0 for a well-formed file", "Terminal output"]],
+          "objectives": ["Describe the Server, Service, Engine, Host and Context hierarchy", "Add a virtual Host", "Edit server.xml safely and validate it"]
+        },
+        {
+          "topic": "Connectors and Ports: HTTP/1.1, Shutdown and AJP",
+          "subtopics": ["The Connector element and the protocol attribute", "HTTP/1.1 on port 8080 with Http11NioProtocol", "connectionTimeout, maxThreads and acceptCount defaults", "redirectPort and the TLS connector link", "The shutdown port 8005 and why to restrict it", "AJP on port 8009, address and the secret attribute", "Ghostcat CVE-2020-1938 and why AJP is disabled by default", "Binding to a specific address with the address attribute", "Checking listeners with ss and netstat"],
+          "tools": ["server.xml", "ss", "curl", "nmap", "Tomcat 10.1"],
+          "lab_task": "Change the HTTP connector to port 9090 with address=127.0.0.1 and connectionTimeout=5000, restart, and check that curl to 127.0.0.1:9090 works while a request to the VM's external IP is refused. Then set the Server shutdown port to -1 and confirm catalina.sh stop still stops via the PID with a warning.",
+          "deliverable": "Connector change record with ss output and a note on what binding to loopback blocks",
+          "checks": [["ss -ltn | grep 9090", "Listening on 127.0.0.1:9090 only, not 0.0.0.0", "ss output"], ["curl http://<external-ip>:9090/", "Connection refused", "curl error text"], ["grep -n 'protocol=\"AJP' conf/server.xml in a default install", "AJP connector is commented out", "grep output"]],
+          "objectives": ["Configure the HTTP connector and bind addresses", "Explain the shutdown and AJP ports", "Verify listeners from the operating system"]
+        },
+        {
+          "topic": "Deploying WAR Files and Exploded Directories",
+          "subtopics": ["The webapps directory and appBase", "Dropping a WAR into webapps and what unpackWARs does", "Exploded directory deployment", "Context path derived from the file name", "Hot deployment with autoDeploy and the host's deployIgnore", "Undeploying: removing the WAR and the exploded directory", "Reading the HostConfig log lines Deploying web application archive and Deployment of web application archive has finished", "Why a failed deploy leaves a directory behind", "Building a test WAR with jar -cvf"],
+          "tools": ["Tomcat 10.1", "jar", "curl", "tail", "Maven"],
+          "lab_task": "Build a Jakarta Servlet 6.0 WAR named hello.war (a servlet at /hi returning a text line), copy it to webapps while Tomcat is running, and wait for the log line that says Deployment of web application archive finished. Request /hello/hi, then delete the WAR and confirm that the hello directory is removed and the URL returns 404.",
+          "deliverable": "Deployment log excerpt and a before and after listing of webapps",
+          "checks": [["cp hello.war webapps/ while Tomcat is running", "catalina.out shows 'Deployment of web application archive [.../hello.war] has finished in [N] ms'", "Log excerpt"], ["curl -s http://localhost:8080/hello/hi", "Returns the servlet's text line with HTTP 200", "curl output"], ["rm webapps/hello.war and wait 10 seconds", "webapps/hello directory is deleted and /hello/hi returns HTTP 404", "ls output and curl -I output"]],
+          "objectives": ["Deploy and undeploy a WAR by file copy", "Explain how unpackWARs and autoDeploy behave", "Interpret HostConfig deployment log lines"]
+        },
+        {
+          "topic": "Context Descriptors, Context Paths and the ROOT Application",
+          "subtopics": ["Context descriptors in conf/Catalina/localhost/name.xml", "META-INF/context.xml inside the WAR", "docBase pointing outside webapps", "Setting path through the descriptor file name", "Deploying as ROOT with ROOT.war or ROOT.xml", "Version suffixes with ## in file names", "reloadable=\"true\" for development only", "Context parameters and Environment entries", "Precedence between server.xml, descriptor and the WAR's own context.xml"],
+          "tools": ["context.xml", "Tomcat 10.1", "curl", "ls"],
+          "lab_task": "Place an exploded app in /srv/apps/shop, create conf/Catalina/localhost/shop.xml with docBase=/srv/apps/shop and an Environment entry named bannerText, and verify it serves at /shop. Then create ROOT.xml pointing at the same directory and confirm the app answers at /. Report which URL no longer works.",
+          "deliverable": "Two descriptor files and curl results for each context path",
+          "checks": [["curl -I http://localhost:8080/shop/", "HTTP 200 served from /srv/apps/shop outside webapps", "curl output"], ["Add ROOT.xml with docBase=/srv/apps/shop and request /", "HTTP 200 returns the app's index page at the root path", "curl output"], ["Rename the descriptor to shop#v2.xml", "Context path becomes /shop/v2 and the old /shop returns 404", "curl and catalina.out lines"]],
+          "objectives": ["Write a context descriptor with docBase", "Deploy an application as ROOT", "Describe how context paths and versions are derived from file names"]
+        },
+        {
+          "topic": "Servlets, JSP and web.xml with the Jakarta Namespace",
+          "subtopics": ["What a servlet container does for a request", "The jakarta.servlet package versus javax.servlet", "web.xml 6.0 schema header and version attribute", "servlet and servlet-mapping elements", "Annotations @WebServlet and @WebFilter", "metadata-complete and annotation scanning cost", "JSP compilation by Jasper and the work directory", "welcome-file-list and session-config", "Servlet 6.0 in Tomcat 10.1 and 6.1 in Tomcat 11"],
+          "tools": ["Maven", "Tomcat 10.1", "jakarta.servlet-api", "curl"],
+          "lab_task": "Create a Maven WAR project with jakarta.servlet:jakarta.servlet-api:6.0.0 in provided scope, add an @WebServlet(\"/ping\") class and a hello.jsp that prints new java.util.Date(). Package it, deploy to Tomcat 10.1, then change one import to javax.servlet.http.HttpServlet and note the failure at build or startup.",
+          "deliverable": "Working WAR, pom.xml and the error produced by the javax import",
+          "checks": [["curl http://localhost:8080/app/ping", "Returns the servlet's response with HTTP 200", "curl output"], ["Open /app/hello.jsp and then look in work/Catalina/localhost/app", "A generated hello_jsp.java and hello_jsp.class exist", "Directory listing"], ["Compile a servlet that extends javax.servlet.http.HttpServlet against the Jakarta API", "Compilation fails with 'package javax.servlet.http does not exist' or the app logs ClassNotFoundException at deploy", "Maven or catalina.out output"]],
+          "objectives": ["Write and deploy a servlet and a JSP", "Read a Servlet 6.0 web.xml", "Recognise the javax and jakarta package split"]
+        },
+        {
+          "topic": "The Manager and Host Manager Applications",
+          "subtopics": ["What the Manager GUI, text interface, JMX proxy and status pages do", "Roles manager-gui, manager-script, manager-jmx and manager-status", "Adding a user to conf/tomcat-users.xml", "Why the Manager is limited to localhost by RemoteCIDRValve in META-INF/context.xml", "403 Access Denied and how to widen access safely", "Deploying a WAR from the Manager GUI", "Reload, undeploy, expire sessions and Find leaks", "Host Manager and virtual host creation", "Server Status page and its figures"],
+          "tools": ["Manager app", "tomcat-users.xml", "curl", "Tomcat 10.1"],
+          "lab_task": "Add a user mgr with roles manager-gui and manager-script to tomcat-users.xml using a placeholder password you generate, then open /manager/html from the VM. Upload hello.war through the GUI, expire sessions, and finally call /manager/text/list with curl -u. From another machine, record the 403 you get and which file controls it.",
+          "deliverable": "Screenshots of the Manager GUI and the text list output, plus the 403 explanation",
+          "checks": [["curl -u mgr:<password> http://localhost:8080/manager/text/list", "First line 'OK - Listed applications for virtual host [localhost]' followed by one line per context", "curl output"], ["Request /manager/html from a remote IP with the default RemoteCIDRValve", "HTTP 403 Access Denied", "Browser or curl output"], ["Request /manager/html with a user lacking manager-gui", "HTTP 403 for an authenticated user without the role", "curl output"]],
+          "objectives": ["Enable the Manager for a single admin user", "Deploy and manage applications from the GUI and text interface", "Explain why Manager access is restricted by default"]
+        },
+        {
+          "topic": "Users, Roles and BASIC Authentication with UserDatabaseRealm",
+          "subtopics": ["Authentication versus authorisation", "Realm element and UserDatabaseRealm backed by tomcat-users.xml", "GlobalNamingResources UserDatabase resource", "security-constraint, web-resource-collection and auth-constraint in web.xml", "login-config with BASIC", "security-role and role-name", "401 with WWW-Authenticate: Basic and 403 for a wrong role", "transport-guarantee CONFIDENTIAL and why BASIC needs TLS", "Programmatic checks with request.isUserInRole", "Listing a user's roles with a small whoami servlet"],
+          "tools": ["tomcat-users.xml", "web.xml", "curl", "Tomcat 10.1"],
+          "lab_task": "Protect /admin/* in hello.war with a security-constraint requiring role report-admin and BASIC login-config. Add users alice (report-admin) and bob (no role) to tomcat-users.xml. With curl, request /hello/admin/ with no credentials, as bob and as alice, and capture each status code.",
+          "deliverable": "web.xml constraint block and a table of three requests with status codes",
+          "checks": [["curl -i http://localhost:8080/hello/admin/ with no credentials", "HTTP 401 and a WWW-Authenticate: Basic realm header", "curl output"], ["curl -u bob:<pw> http://localhost:8080/hello/admin/", "HTTP 403 Forbidden because bob lacks the role", "curl output"], ["curl -u alice:<pw> http://localhost:8080/hello/admin/", "HTTP 200 with the protected content", "curl output"]],
+          "objectives": ["Declare a security constraint in web.xml", "Configure users and roles in a UserDatabaseRealm", "Distinguish 401 from 403"]
+        },
+        {
+          "topic": "Logging with JULI and logging.properties",
+          "subtopics": ["java.util.logging replaced by JULI", "Handlers: catalina, localhost, manager, host-manager and console", "conf/logging.properties and the 1catalina.org.apache.juli.AsyncFileHandler lines", "Levels from SEVERE to FINEST", "Per-package levels such as org.apache.catalina.core.ContainerBase.[Catalina].[localhost].level", "catalina.out, catalina.yyyy-MM-dd.log and localhost.yyyy-MM-dd.log", "Rotation, maxDays and prefix", "Application logging through JULI or a library in WEB-INF/lib", "Turning on debug for one class without flooding the log"],
+          "tools": ["logging.properties", "JULI", "tail", "grep", "Tomcat 10.1"],
+          "lab_task": "In logging.properties set org.apache.catalina.startup.HostConfig.level = FINE and the catalina handler level to FINE, restart, and count the extra lines for a deploy. Set .handlers to include only the file handlers and confirm the console no longer shows output. Set maxDays=7 on the localhost handler and revert the FINE settings.",
+          "deliverable": "Edited logging.properties and a line-count comparison before and after FINE",
+          "checks": [["Deploy hello.war with HostConfig at FINE", "catalina.*.log contains more lines than at INFO, including 'Deploying deployment descriptor' or 'Checking context' details", "wc -l and grep output"], ["Remove ConsoleHandler from .handlers and restart with catalina.sh run", "No log lines are printed to the console after startup begins", "Terminal screenshot"], ["ls logs/", "Files named catalina.YYYY-MM-DD.log and localhost.YYYY-MM-DD.log exist", "Directory listing"]],
+          "objectives": ["Locate and read Tomcat's log files", "Change log levels per class and handler", "Configure log rotation"]
+        },
+        {
+          "topic": "Access Logs with AccessLogValve",
+          "subtopics": ["Valve elements in a Host or Engine", "AccessLogValve directory, prefix, suffix and pattern", "The common and combined patterns", "Pattern codes %h %l %u %t %r %s %b %D %T", "Recording response time in milliseconds with %D", "%{X-Forwarded-For}i and request headers", "Rotation with fileDateFormat and rotatable", "Buffered writes and the buffered attribute", "Parsing the log with awk to count status codes"],
+          "tools": ["AccessLogValve", "awk", "sort", "curl", "Tomcat 10.1"],
+          "lab_task": "Set the AccessLogValve pattern to '%h %t \"%r\" %s %b %D' with prefix=site_access. Generate 100 requests with a shell loop including 10 requests for a missing URL, then use awk '{print $(NF-2)}' to count status codes and find the slowest request using the %D column.",
+          "deliverable": "Valve configuration and a status-code frequency table from the log",
+          "checks": [["for i in $(seq 100); do curl -s -o /dev/null localhost:8080/hello/hi; done", "100 new lines appear in logs/site_access.<date>.txt", "wc -l output"], ["Request /hello/missing 10 times and count status 404 in the log", "Exactly 10 lines with status 404", "awk and sort output"], ["Check the last field of a line", "Contains an integer processing time in milliseconds from %D", "Log line excerpt"]],
+          "objectives": ["Configure access logging with a custom pattern", "Interpret the fields of an access log line", "Summarise traffic with shell tools"]
+        },
+        {
+          "topic": "JVM Options, setenv.sh and Heap Sizing",
+          "subtopics": ["JAVA_OPTS versus CATALINA_OPTS", "Creating bin/setenv.sh or setenv.bat so upgrades keep settings", "-Xms, -Xmx and -XX:MaxRAMPercentage", "-XX:MaxMetaspaceSize and thread stack size -Xss", "-XX:+HeapDumpOnOutOfMemoryError and -XX:HeapDumpPath", "GC logging with -Xlog:gc*:file=logs/gc.log:time,uptime", "-Dfile.encoding=UTF-8 and -Duser.timezone", "Reading the options back with jcmd and ps", "Sizing heap for a container versus a VM"],
+          "tools": ["setenv.sh", "jcmd", "jps", "ps", "Tomcat 10.1"],
+          "lab_task": "Create bin/setenv.sh that sets CATALINA_OPTS to -Xms512m -Xmx512m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/tmp and GC logging to logs/gc.log. Restart, confirm with jcmd <pid> VM.flags, then deploy a servlet that allocates a list until failure and verify that an .hprof file is created.",
+          "deliverable": "setenv.sh, VM.flags output and the heap dump file name and size",
+          "checks": [["jcmd <pid> VM.flags", "Output includes -XX:MaxHeapSize=536870912 and HeapDumpOnOutOfMemoryError", "jcmd output"], ["ls logs/gc.log", "File exists and contains lines starting with the [uptime] timestamp format", "head logs/gc.log"], ["Hit the memory-eating servlet", "catalina.out shows java.lang.OutOfMemoryError: Java heap space and /var/tmp/java_pid<pid>.hprof is written", "Log excerpt and ls -l"]],
+          "objectives": ["Set JVM options in setenv.sh", "Choose heap and metaspace limits", "Capture GC logs and heap dumps"]
+        },
+        {
+          "topic": "HTTP Sessions and Cookies Fundamentals",
+          "subtopics": ["HttpSession lifecycle and the JSESSIONID cookie", "session-timeout in web.xml (minutes) and Manager maxInactiveInterval", "Cookie attributes: Path, HttpOnly, Secure and SameSite", "cookie-config in web.xml", "Rfc6265CookieProcessor and sameSiteCookies", "Session persistence across restart with the default StandardManager", "SESSIONS.ser in work/Catalina/localhost/<app>", "Session ID length and SecureRandom startup delay", "Viewing and expiring sessions in the Manager", "Session tracking modes: COOKIE, URL and SSL"],
+          "tools": ["Manager app", "curl", "browser DevTools", "web.xml", "Tomcat 10.1"],
+          "lab_task": "Add a servlet that stores a counter in the HttpSession. Using curl -c jar -b jar, call it 3 times and confirm the counter increments. Set session-timeout to 1 in web.xml and cookie-config http-only true, wait 70 seconds, call again and confirm the counter resets. Inspect the Set-Cookie header.",
+          "deliverable": "Counter servlet, curl transcript and the Set-Cookie header analysis",
+          "checks": [["Three calls with a shared cookie jar", "Counter returns 1, 2, 3", "curl transcript"], ["Wait 70 seconds with session-timeout=1 and call again", "Counter returns 1 and a new JSESSIONID is issued", "curl transcript"], ["curl -i the first response", "Set-Cookie: JSESSIONID=...; Path=/hello; HttpOnly", "Response headers"]],
+          "objectives": ["Explain how Tomcat tracks sessions", "Set timeout and cookie attributes", "Observe sessions in the Manager"]
+        },
+        {
+          "topic": "Static Content, the Default Servlet, Welcome Files and MIME Types",
+          "subtopics": ["The DefaultServlet mapped to / in conf/web.xml", "listings init parameter and why it is false", "Welcome files and index.jsp", "mime-mapping entries and unknown types", "Content-Type and charset defaults", "Conditional GET with ETag and Last-Modified", "Serving external directories with the Resources element and PreResources/PostResources", "Allowing symlinks with allowLinking", "readonly and the PUT method"],
+          "tools": ["conf/web.xml", "curl", "Tomcat 10.1", "ls"],
+          "lab_task": "Mount /srv/static as an extra resources directory for hello using a PostResources element in the context descriptor. Add logo.png and an unknown extension file x.abc, then check the Content-Type of each with curl -I, the ETag and a 304 response with If-None-Match, and the result of enabling listings on a directory.",
+          "deliverable": "Context descriptor, curl header captures and a note on directory listings",
+          "checks": [["curl -I http://localhost:8080/hello/logo.png", "Content-Type: image/png with an ETag and Last-Modified header", "curl output"], ["curl -I -H 'If-None-Match: <etag>' the same URL", "HTTP 304 Not Modified", "curl output"], ["curl http://localhost:8080/hello/dir/ with listings=false", "HTTP 404 and no file list", "curl output"]],
+          "objectives": ["Serve static files from inside and outside a WAR", "Add MIME types", "Use conditional requests"]
+        },
+        {
+          "topic": "Error Pages and HTTP Status Codes",
+          "subtopics": ["error-page elements by error-code and exception-type", "The default Tomcat error report with version banner", "ErrorReportValve showReport and showServerInfo", "Custom 404 and 500 pages in a WAR", "Server-wide error pages in conf/web.xml", "Forwarding to an error servlet and request attributes jakarta.servlet.error.status_code", "Status codes seen in Tomcat: 400, 404, 405, 408, 500, 503", "Reading stack traces in localhost.log", "Why exposing stack traces is a risk"],
+          "tools": ["web.xml", "ErrorReportValve", "curl", "Tomcat 10.1"],
+          "lab_task": "Add error-page entries to hello's web.xml for 404 and for java.lang.RuntimeException, with static pages that show the status. Add an ErrorReportValve with showReport=\"false\" showServerInfo=\"false\" to the Host so unhandled errors reveal no stack trace or version. Trigger a 404, a servlet RuntimeException and a 405 and record each body.",
+          "deliverable": "web.xml error-page block, valve configuration and three response bodies",
+          "checks": [["curl -s http://localhost:8080/hello/nothing", "Body is the custom 404 page text", "curl output"], ["Request the servlet that throws RuntimeException", "HTTP 500 with the custom 500 page and the stack trace only in localhost.log", "curl output and log excerpt"], ["curl -i -X DELETE on a servlet that implements only doGet", "HTTP 405 Method Not Allowed with no Apache Tomcat version banner in the body", "curl output"]],
+          "objectives": ["Configure custom error pages", "Hide server information in errors", "Map failures to HTTP status codes"]
+        },
+        {
+          "topic": "Maven and Command-line Deployment Workflow",
+          "subtopics": ["Building a WAR with maven-war-plugin and packaging=war", "finalName and the resulting context path", "Deploying through /manager/text/deploy?path=/x&update=true", "Using curl -T or --upload-file to PUT a WAR", "undeploy, reload, start, stop and list text commands", "The Tomcat Maven plugin and why many teams script the text interface instead", "Shell script that builds, deploys and smoke-tests", "Rolling back to the previous WAR", "Keeping artefacts versioned with Maven coordinates"],
+          "tools": ["Maven", "curl", "Manager text interface", "bash", "Tomcat 10.1"],
+          "lab_task": "Write deploy.sh that runs mvn -q package, uploads target/hello.war with curl -u deploy:<pw> -T target/hello.war 'http://localhost:8080/manager/text/deploy?path=/hello&update=true', then curls /hello/ping up to 10 times until it returns 200. Run it twice with a code change between runs and show that the second deploy updates in place.",
+          "deliverable": "deploy.sh and a transcript of two successful deployments with the smoke test result",
+          "checks": [["Run deploy.sh the first time", "Manager returns 'OK - Deployed application at context path [/hello]'", "Script output"], ["Change the servlet response text and run deploy.sh again", "Manager returns OK and /hello/ping now returns the new text", "curl output before and after"], ["Run the script with a wrong password", "HTTP 401 and the script exits non-zero without deploying", "Script output and exit code"]],
+          "objectives": ["Package a WAR with Maven", "Deploy through the Manager text interface", "Automate deploy with a smoke test"]
+        },
+        {
+          "topic": "Diagnosing Common Startup Failures",
+          "subtopics": ["java.net.BindException: Address already in use and finding the owner with ss -ltnp", "Permission denied on ports below 1024", "SEVERE: One or more listeners failed to start", "Context [/app] startup failed due to previous errors", "ClassNotFoundException for a missing listener or servlet class", "Wrong JAVA_HOME and UnsupportedClassVersionError", "Unreadable files and the tomcat user's permissions", "Malformed XML in server.xml or web.xml", "Reading the first SEVERE line rather than the last"],
+          "tools": ["ss", "lsof", "catalina.out", "grep", "Tomcat 10.1"],
+          "lab_task": "Cause five failures on purpose in a lab instance: start a second Tomcat on the same port, bind port 80 as the tomcat user, delete a class referenced by a listener, chmod 000 a config file, and use a JDK older than required. For each, record the log line, the cause and the fix, and confirm the instance starts after each fix.",
+          "deliverable": "Troubleshooting runbook with five symptom, log line, cause and fix rows",
+          "checks": [["Start a second instance on port 8080", "Log shows java.net.BindException: Address already in use and ss -ltnp names the first PID", "Log excerpt and ss output"], ["Run the instance as tomcat with the connector on port 80 and no capability", "Log shows Permission denied on the bind", "Log excerpt"], ["Remove a class referenced by a ServletContextListener and deploy", "Log shows 'Error listenerStart' and 'Context [/hello] startup failed due to previous errors'", "localhost log excerpt"]],
+          "objectives": ["Identify the root cause line in a failed startup", "Resolve port, permission and class errors", "Write a short runbook for the team"]
+        },
+        {
+          "topic": "Capstone: Standing Up a Tomcat Instance for a Jakarta Application",
+          "subtopics": ["Instance layout with CATALINA_BASE and a systemd unit", "Connector, Host and access log configuration", "Manager access for a deploy user and a locked-down role set", "Application deployed with a context descriptor and a custom error page", "JVM options and heap dump settings in setenv.sh", "Smoke test and runbook for start, stop, redeploy and rollback"],
+          "tools": ["Tomcat 10.1", "systemd", "Maven", "curl", "setenv.sh", "AccessLogValve"],
+          "lab_task": "Build a Jakarta sample app with a servlet, a JSP, a protected /admin area and a health servlet. Stand up a dedicated CATALINA_BASE under systemd, deploy through the Manager text interface, configure logs and heap options, run a 200-request curl test and write a runbook covering rollback.",
+          "deliverable": "Working instance, deploy script, configuration set in a tarball and a two-page runbook",
+          "checks": [["systemctl status tomcat after a reboot", "active (running) and the app answers /health with HTTP 200", "Status output and curl output"], ["Request /admin without and with the correct role", "401 without credentials and 200 for the authorised user", "curl transcript"], ["Run the 200-request test and count status codes in the access log", "200 lines with zero 5xx statuses", "awk summary"]],
+          "objectives": ["Assemble a complete Tomcat instance from scratch", "Automate deployment and verify it", "Document operation and rollback"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For administrators and engineers who run Tomcat for real workloads. Covers TLS connectors and certificate renewal, HTTP/2 and compression, running behind Nginx or Apache httpd with RemoteIpValve, executors and thread sizing, JNDI data sources, DataSource and LDAP realms, credential handlers, form, client-certificate and single sign-on authentication, security filters, parallel deployment, virtual hosts, session persistence, JMX monitoring, GC and heap analysis, class loader leak protection, URL rewriting, containers and health checks.",
+      "prerequisites": ["Has completed the Beginner course or can install Tomcat, edit server.xml, deploy a WAR and read catalina.out and access logs", "Understands TLS basics: certificates, private keys, CAs and the difference between PEM, PKCS12 and JKS formats", "Has a Linux VM with JDK 21, Tomcat 10.1 or 11, keytool, openssl, curl and a second host or container for proxy and database tests"],
+      "outcomes": ["Secure Tomcat with TLS, HTTP/2, modern protocol settings and renewable certificates, with or without a reverse proxy in front", "Size connectors, executors, JDBC pools and the JVM from measurements rather than guesses", "Integrate authentication with databases, LDAP, client certificates and single sign-on while storing credentials as salted digests", "Monitor Tomcat through JMX, GC logs and health endpoints and find class loader and memory problems in running applications"],
+      "days": [
+        {
+          "topic": "TLS Connectors with JSSE Keystores",
+          "subtopics": ["Connector with SSLEnabled=\"true\" and an SSLHostConfig child", "Certificate element with certificateKeystoreFile, certificateKeystorePassword and type=\"RSA\"", "PKCS12 versus legacy JKS keystores", "Generating a keystore with keytool -genkeypair -keyalg RSA -keysize 3072 -alias tomcat", "SSLHostConfig protocols=\"TLSv1.2+TLSv1.3\" and ciphers", "honorCipherOrder", "Certificate chain order and importing intermediates", "redirectPort and the CONFIDENTIAL transport guarantee redirect", "Testing with openssl s_client and curl -v"],
+          "tools": ["keytool", "openssl", "curl", "server.xml", "testssl.sh"],
+          "lab_task": "Create a PKCS12 keystore with keytool -genkeypair -alias tomcat -keyalg RSA -keysize 3072 -storetype PKCS12, add a 8443 Connector with Http11NioProtocol, SSLHostConfig protocols=\"TLSv1.2+TLSv1.3\" and a Certificate element, then check with openssl s_client -tls1_1 and -tls1_3 which versions are accepted.",
+          "deliverable": "server.xml connector, keystore listing and openssl s_client results for TLS 1.1, 1.2 and 1.3",
+          "checks": [["openssl s_client -connect localhost:8443 -tls1_3", "Handshake completes and shows Protocol: TLSv1.3", "s_client output"], ["openssl s_client -connect localhost:8443 -tls1_1", "Handshake fails with 'alert protocol version' or 'no protocols available'", "s_client output"], ["curl -k -I https://localhost:8443/", "HTTP/1.1 200 over TLS with the keystore's self-signed certificate", "curl -v output"]],
+          "objectives": ["Configure a TLS connector with SSLHostConfig and Certificate", "Restrict protocol versions", "Test a TLS endpoint with openssl and curl"]
+        },
+        {
+          "topic": "Certificates: Let's Encrypt, PKCS12 Conversion and sslReload",
+          "subtopics": ["Obtaining certificates with certbot certonly --standalone or DNS-01", "PEM files fullchain.pem and privkey.pem", "Using PEM directly with certificateFile, certificateKeyFile and certificateChainFile", "Converting to PKCS12 with openssl pkcs12 -export", "Renewal hooks that copy files and call the Manager", "Reloading TLS config without restart: /manager/text/sslReload?tlsHostName=", "Checking expiry with openssl x509 -enddate", "Monitoring certificate expiry", "Private key file permissions"],
+          "tools": ["certbot", "openssl", "Manager text interface", "systemd timer", "curl"],
+          "lab_task": "Issue a certificate for a lab hostname with certbot using a staging or private CA, configure the connector with certificateFile and certificateKeyFile, then write a renew hook that runs curl -u deploy:<pw> 'http://localhost:8080/manager/text/sslReload'. Renew with --force-renewal and verify with openssl s_client that the serial changed with no restart.",
+          "deliverable": "Connector config, deploy hook script and before and after certificate serial numbers",
+          "checks": [["openssl s_client -connect host:443 | openssl x509 -noout -serial before renewal", "A serial number is shown and recorded", "Terminal output"], ["Run the renew hook and call sslReload", "Manager returns 'Reloaded TLS configuration for connector' lines and Tomcat's PID is unchanged", "Manager output and ps output"], ["Repeat the s_client serial command", "A different serial from the renewed certificate", "Terminal output"]],
+          "objectives": ["Use PEM or PKCS12 certificates in Tomcat", "Reload certificates without downtime", "Automate renewal with a hook"]
+        },
+        {
+          "topic": "HTTP/2, Compression and Keep-Alive Tuning",
+          "subtopics": ["UpgradeProtocol className=\"org.apache.coyote.http2.Http2Protocol\" on the TLS connector", "ALPN requirement and checking with curl --http2 -v", "h2c and why browsers need TLS", "Http2Protocol attributes: maxConcurrentStreams, overheadCountFactor", "compression=\"on\", compressionMinSize and compressibleMimeType", "Gzip versus pre-compressed static assets", "keepAliveTimeout and maxKeepAliveRequests", "Request and response header size limits", "Measuring with curl -w and browser network panel"],
+          "tools": ["curl", "nghttp", "server.xml", "browser DevTools", "wrk"],
+          "lab_task": "Add Http2Protocol to the 8443 connector, enable compression=\"on\" compressionMinSize=\"1024\" for text/html, application/json and text/css, then confirm with curl --http2 -sI that the response is HTTP/2 and with curl -H 'Accept-Encoding: gzip' that Content-Encoding: gzip appears for a 50 KB JSON file but not for a 500 byte file.",
+          "deliverable": "Connector config and a table of response sizes with and without compression",
+          "checks": [["curl --http2 -sI https://localhost:8443/ -k", "First line is HTTP/2 200", "curl output"], ["curl -H 'Accept-Encoding: gzip' -sI the 50 KB JSON URL", "Content-Encoding: gzip and a smaller Content-Length or chunked transfer", "Header capture"], ["Same request for a 500 byte file", "No Content-Encoding header because it is below compressionMinSize", "Header capture"]],
+          "objectives": ["Enable HTTP/2 on a TLS connector", "Configure compression and its limits", "Tune keep-alive behaviour"]
+        },
+        {
+          "topic": "Running Behind Nginx or Apache httpd with RemoteIpValve",
+          "subtopics": ["Why put a proxy in front of Tomcat", "proxy_pass and X-Forwarded-For, X-Forwarded-Proto and X-Forwarded-Host", "RemoteIpValve with remoteIpHeader, protocolHeader and internalProxies", "requestAttributesEnabled and request.getScheme() or isSecure()", "Access log showing the client IP through %{org.apache.catalina.AccessLog.RemoteAddr}r", "Connector attributes proxyName, proxyPort and scheme as a simpler alternative", "Redirect loops and wrong https links when the scheme is lost", "WebSocket upgrade headers through a proxy", "Restricting Tomcat's connector to the proxy's network"],
+          "tools": ["Nginx", "RemoteIpValve", "curl", "server.xml", "tcpdump"],
+          "lab_task": "Put Nginx on port 443 in front of Tomcat on 127.0.0.1:8080 with proxy_set_header X-Forwarded-For and X-Forwarded-Proto. First show that a servlet printing getRemoteAddr and getScheme returns 127.0.0.1 and http. Then add RemoteIpValve with internalProxies=\"127\\.0\\.0\\.1\" and show it now returns the client IP and https.",
+          "deliverable": "Nginx location block, valve configuration and servlet output before and after",
+          "checks": [["Call the diagnostic servlet through Nginx before adding the valve", "getRemoteAddr is 127.0.0.1 and getScheme is http", "curl output"], ["Add RemoteIpValve and call again", "getRemoteAddr is the client's address and getScheme is https", "curl output"], ["Send a forged X-Forwarded-For header directly to port 8080 from an untrusted address", "Header is ignored and getRemoteAddr is the real peer", "curl output"]],
+          "objectives": ["Forward client IP and scheme correctly", "Configure RemoteIpValve trusted proxies", "Diagnose redirect loops behind a proxy"]
+        },
+        {
+          "topic": "Thread Pools: Executors and maxThreads Sizing",
+          "subtopics": ["Default Connector pool: maxThreads=200, minSpareThreads=10", "Shared Executor element and executor attribute on the Connector", "maxConnections, acceptCount and what happens when each is full", "Little's law: concurrency = throughput x latency", "CPU-bound versus I/O-bound sizing", "threadsPriority and namePrefix", "Reading Catalina:type=ThreadPool MBean values currentThreadsBusy and connectionCount", "Symptoms of exhaustion: rising latency, connection resets, accept queue overflow", "Load test to find the knee of the curve"],
+          "tools": ["Executor", "JMX", "wrk", "jcmd", "server.xml"],
+          "lab_task": "Define Executor name=tomcatThreadPool maxThreads=\"50\" minSpareThreads=\"5\" and link the connector. Apply 200 concurrent connections with wrk -t4 -c200 -d60s to a servlet that sleeps 100 ms. Compute the expected maximum throughput from Little's law, compare to measured requests per second, and record currentThreadsBusy during the run.",
+          "deliverable": "Executor configuration and a table of expected versus measured throughput",
+          "checks": [["Compute max throughput for 50 threads and 100 ms latency", "About 500 requests per second", "Calculation sheet"], ["Run wrk -t4 -c200 -d60s against the sleeping servlet", "Requests/sec within roughly 10 percent of 500 and latency near 400 ms", "wrk summary"], ["Read currentThreadsBusy via JMX during the test", "Value equals 50, showing saturation", "JConsole or jcmd output"]],
+          "objectives": ["Configure an Executor and tune connector limits", "Predict throughput from latency and thread count", "Recognise thread pool exhaustion"]
+        },
+        {
+          "topic": "JDBC DataSources with JNDI Resource Definitions",
+          "subtopics": ["Resource element in context.xml or GlobalNamingResources", "type=\"javax.sql.DataSource\" and factory org.apache.tomcat.jdbc.pool.DataSourceFactory or the bundled DBCP 2", "url, username, password, driverClassName", "maxTotal or maxActive, maxIdle, maxWaitMillis", "validationQuery, testOnBorrow and testWhileIdle", "removeAbandoned and logAbandoned for leaked connections", "Placing the JDBC driver JAR in CATALINA_HOME/lib", "resource-ref in web.xml and InitialContext lookup of java:comp/env/jdbc/AppDB", "ResourceLink for sharing a global pool", "Keeping passwords out of XML with placeholders resolved from system properties"],
+          "tools": ["PostgreSQL", "Tomcat JDBC Pool", "JNDI", "context.xml", "psql"],
+          "lab_task": "Define jdbc/AppDB for PostgreSQL with maxActive=10 maxWait=2000 removeAbandoned=true removeAbandonedTimeout=30 logAbandoned=true. Deploy a servlet that looks up the DataSource and runs SELECT 1. Then add an endpoint that borrows 11 connections without closing them and observe the failure and the abandoned-connection stack trace.",
+          "deliverable": "context.xml Resource, servlet code and log lines for pool exhaustion",
+          "checks": [["Call the SELECT 1 servlet", "Returns 1 with HTTP 200", "curl output"], ["Call the leaking endpoint that opens 11 connections", "After 2 seconds the 11th borrow fails with 'Timeout: Pool empty' or 'Cannot get a connection, pool error'", "catalina log excerpt"], ["Wait 30 seconds after the leaky request", "Log shows 'Pool ... connection abandoned' with the stack trace of the borrower", "Log excerpt"]],
+          "objectives": ["Define a JNDI DataSource in Tomcat", "Tune pool size and validation", "Detect leaked connections"]
+        },
+        {
+          "topic": "Realms: DataSourceRealm and JNDIRealm for LDAP",
+          "subtopics": ["Realm hierarchy and CombinedRealm", "DataSourceRealm tables and columns: userTable, userNameCol, userCredCol, userRoleTable, roleNameCol", "Creating users and user_roles tables in PostgreSQL", "JNDIRealm connectionURL=\"ldap://host:389\", userPattern or userSearch, roleBase and roleName", "LDAPS and StartTLS", "connectionName and connectionPassword service account", "Role mapping from groups", "Caching and the cache TTL attributes", "Debugging with the realm's logger set to FINE"],
+          "tools": ["PostgreSQL", "OpenLDAP", "ldapsearch", "JNDIRealm", "DataSourceRealm"],
+          "lab_task": "Replace the UserDatabase realm with a DataSourceRealm using the jdbc/AppDB data source and users and user_roles tables with two test users. Then put a CombinedRealm around a JNDIRealm for a test OpenLDAP server with userPattern=\"uid={0},ou=people,dc=lab,dc=local\". Authenticate with curl as one user from each source and record roles reported by request.isUserInRole.",
+          "deliverable": "Realm configuration, SQL schema, LDIF sample and a table of test logins",
+          "checks": [["curl -u dbuser:<pw> http://localhost:8080/hello/whoami", "Returns dbuser with the role from the user_roles table", "curl output"], ["curl -u ldapuser:<pw> http://localhost:8080/hello/whoami", "Returns ldapuser with the role mapped from LDAP groups", "curl output"], ["curl -u dbuser:wrong http://localhost:8080/hello/whoami", "HTTP 401 and a failed authentication log line from the realm", "curl output and log excerpt"]],
+          "objectives": ["Authenticate users from a database", "Authenticate users from LDAP", "Combine multiple realms"]
+        },
+        {
+          "topic": "Password Digests, CredentialHandlers and LockOutRealm",
+          "subtopics": ["Why plain-text passwords in tomcat-users.xml are a risk", "CredentialHandler: MessageDigestCredentialHandler versus SecretKeyCredentialHandler", "bin/digest.sh -a SHA-512 -i 100000 -s 16 -h org.apache.catalina.realm.MessageDigestCredentialHandler", "Stored format salt$iterations$hash", "Setting algorithm, iterations and saltLength on the handler", "Nesting a CredentialHandler in the Realm", "LockOutRealm with failureCount, lockOutTime and cacheSize", "Observing a lock-out as repeated 401 responses", "Migrating existing passwords without breaking logins"],
+          "tools": ["digest.sh", "tomcat-users.xml", "LockOutRealm", "curl", "bash"],
+          "lab_task": "Generate a digest for a lab password with digest.sh using SHA-512, 100000 iterations and a 16 byte salt, put it in tomcat-users.xml, and nest a MessageDigestCredentialHandler with matching settings in the realm. Wrap the realm in LockOutRealm failureCount=3 lockOutTime=300 and show that after three wrong passwords even the correct password returns 401.",
+          "deliverable": "Digest command line, tomcat-users.xml entry, realm configuration and lock-out test transcript",
+          "checks": [["Log in with the correct password after the digest change", "HTTP 200", "curl output"], ["Three wrong passwords then the correct password within 300 seconds", "Fourth attempt returns HTTP 401 and the log shows the user is locked out", "curl transcript and log line"], ["Inspect tomcat-users.xml", "password attribute holds a salt$iterations$hash string, not the clear text", "File excerpt"]],
+          "objectives": ["Generate salted password digests", "Configure credential handlers consistently", "Add brute-force protection with LockOutRealm"]
+        },
+        {
+          "topic": "FORM, Client-Certificate and Single Sign-On Authentication",
+          "subtopics": ["FORM login-config with form-login-page and form-error-page", "j_security_check, j_username and j_password", "Session fixation protection and changeSessionIdOnAuthentication", "CLIENT-CERT with clientAuth and certificateVerification=\"required\" in SSLHostConfig", "truststoreFile and caCertificateFile", "Mapping the certificate subject to a user in a realm", "SingleSignOn valve across applications in one Host", "cookieDomain and requireReauthentication", "OIDC or SAML via a proxy or library, and what Tomcat provides natively"],
+          "tools": ["openssl", "keytool", "SingleSignOn valve", "curl", "browser"],
+          "lab_task": "Switch /admin to FORM authentication with login.jsp and error.jsp and confirm that the session ID changes after login. Then configure a second 8444 connector with certificateVerification=\"required\" and a private CA truststore, issue a client certificate with openssl, and call it with curl --cert and --key. Compare a call with no certificate.",
+          "deliverable": "FORM pages, truststore connector configuration and results for each request",
+          "checks": [["POST j_username and j_password to /hello/j_security_check and capture cookies before and after", "JSESSIONID value differs after login", "curl -v transcript"], ["curl --cert client.pem --key client.key https://localhost:8444/ --cacert ca.pem", "HTTP 200 and the subject DN is visible to the app", "curl output"], ["curl https://localhost:8444/ without a client certificate", "TLS handshake fails with 'certificate required' or 'bad certificate'", "curl error text"]],
+          "objectives": ["Configure FORM authentication safely", "Require client certificates", "Share logins across applications"]
+        },
+        {
+          "topic": "Filters and Valves: CORS, CSRF Prevention and Security Headers",
+          "subtopics": ["Filter versus Valve: where each runs and what it can see", "CorsFilter with cors.allowed.origins and cors.support.credentials", "CsrfPreventionFilter with entryPoints and nonceCacheSize", "HttpHeaderSecurityFilter: hstsEnabled, hstsMaxAgeSeconds, antiClickJackingOption, blockContentSniffingEnabled", "RateLimitFilter bucketDuration and bucketRequests", "ExpiresFilter and cache headers", "RemoteCIDRValve and RemoteAddrValve for allow-lists", "SetCharacterEncodingFilter", "Order of filter-mapping elements"],
+          "tools": ["CorsFilter", "CsrfPreventionFilter", "HttpHeaderSecurityFilter", "RateLimitFilter", "curl"],
+          "lab_task": "In hello's web.xml add HttpHeaderSecurityFilter with HSTS 31536000 seconds and X-Frame-Options DENY, CorsFilter allowing only https://app.example.com, and RateLimitFilter with bucketRequests=20 bucketDuration=10. Test headers with curl -I, a cross-origin preflight with curl -X OPTIONS -H 'Origin: ...', and 30 quick requests.",
+          "deliverable": "web.xml filter block and test captures for headers, CORS and rate limiting",
+          "checks": [["curl -sI https://localhost:8443/hello/", "Strict-Transport-Security: max-age=31536000 and X-Frame-Options: DENY are present", "Header capture"], ["curl -i -X OPTIONS -H 'Origin: https://evil.test' -H 'Access-Control-Request-Method: GET'", "No Access-Control-Allow-Origin header, or HTTP 403 for the rejected origin", "curl output"], ["Send 30 requests in 10 seconds in a loop", "Requests after the 20th return HTTP 429 Too Many Requests", "Status code counts"]],
+          "objectives": ["Apply built-in security filters", "Configure CORS and CSRF protections", "Add rate limiting"]
+        },
+        {
+          "topic": "Parallel Deployment and Zero-Downtime Version Switching",
+          "subtopics": ["Parallel deployment with the ## version suffix: app##001.war and app##002.war", "How Tomcat chooses the version for new sessions", "Existing sessions staying on the old version", "Deploying through the Manager with the version query parameter", "Un-deploying the old version when sessions drain with the Manager's session counts", "Database schema compatibility between versions", "Rollback by undeploying the newer version", "Limits: shared resources, ports and schedulers", "Comparing with blue-green behind a load balancer"],
+          "tools": ["Manager text interface", "curl", "Tomcat 10.1", "web.xml"],
+          "lab_task": "Deploy shop##001.war that prints VERSION 1, open a session with curl -c jar, then deploy shop##002.war that prints VERSION 2. Show a new client sees version 2 and the existing session still sees version 1. Use /manager/text/list to display session counts and undeploy version 1 once its sessions reach 0.",
+          "deliverable": "Transcript of the two clients, manager list output and the undeploy command",
+          "checks": [["New curl client after deploying ##002", "Response shows VERSION 2", "curl output"], ["Existing client with the old cookie jar", "Response still shows VERSION 1", "curl output"], ["/manager/text/list after the old session expires", "Line for /shop:running:0:shop##001 shows 0 sessions and can be undeployed", "Manager output"]],
+          "objectives": ["Deploy multiple versions at once", "Explain session affinity to versions", "Retire an old version safely"]
+        },
+        {
+          "topic": "Virtual Hosts and Multi-Tenant Host Configuration",
+          "subtopics": ["Multiple Host elements with name and aliases via Alias", "appBase per host and separate webapps directories", "Default host and unmatched names", "Per-host AccessLogValve and ErrorReportValve", "Per-host context descriptors under conf/Catalina/<hostname>", "TLS SNI with several SSLHostConfig elements and hostName", "defaultSSLHostConfigName", "Isolating tenants: separate JVMs versus separate hosts", "The Host Manager's virtual host creation"],
+          "tools": ["server.xml", "SSLHostConfig", "curl", "openssl"],
+          "lab_task": "Create hosts a.lab and b.lab with separate appBase directories and access logs, each with its own certificate in SSLHostConfig hostName=\"a.lab\" and \"b.lab\". Use openssl s_client -servername to confirm that each name receives its own certificate and curl --resolve to check the two apps are isolated.",
+          "deliverable": "server.xml with two Hosts and SSLHostConfigs and certificate subject results",
+          "checks": [["openssl s_client -connect localhost:8443 -servername a.lab | openssl x509 -noout -subject", "subject CN=a.lab", "openssl output"], ["Same command with -servername b.lab", "subject CN=b.lab", "openssl output"], ["curl --resolve b.lab:8443:127.0.0.1 https://b.lab:8443/ and check logs", "Page from b's appBase and the line appears only in b's access log", "curl output and log listing"]],
+          "objectives": ["Host several sites in one Tomcat", "Use SNI with separate certificates", "Separate logs and applications per host"]
+        },
+        {
+          "topic": "Session Persistence: StandardManager, PersistentManager and Stores",
+          "subtopics": ["StandardManager pathname and SESSIONS.ser at shutdown", "PersistentManager with FileStore and JDBCStore", "maxIdleBackup, maxIdleSwap and minIdleSwap", "saveOnRestart and the effect of restarts", "Serializable session attributes and NotSerializableException", "sessionIdLength and the session ID entropy", "Session persistence in the context of rolling restarts", "Third-party stores (Redis-backed managers) and when to choose them", "Measuring session memory with the Manager and a heap histogram"],
+          "tools": ["PersistentManager", "FileStore", "jcmd", "Manager app", "Tomcat 10.1"],
+          "lab_task": "Configure a PersistentManager with FileStore directory=\"sessions\" maxIdleBackup=\"10\" for the hello context. Create a session with a serialisable cart, restart Tomcat, and prove the cart survives. Then put a non-serialisable object in the session and capture the NotSerializableException in the log.",
+          "deliverable": "Manager configuration, restart test transcript and the exception log lines",
+          "checks": [["Create a cart session, restart Tomcat, call /cart with the same cookie", "Cart items are still present", "curl transcript"], ["ls sessions/ after 15 seconds of inactivity", "A <sessionid>.session file exists", "Directory listing"], ["Store an object that does not implement Serializable and stop Tomcat", "Log shows java.io.NotSerializableException naming the class", "catalina log excerpt"]],
+          "objectives": ["Persist sessions across restarts", "Configure idle swap and backup", "Find non-serialisable session attributes"]
+        },
+        {
+          "topic": "JMX Monitoring and Remote JMX Access",
+          "subtopics": ["MBeans: Catalina:type=ThreadPool, GlobalRequestProcessor, Manager, DataSource", "Attributes: currentThreadsBusy, requestCount, errorCount, processingTime, maxTime", "JMX options -Dcom.sun.management.jmxremote.port, .authenticate, .ssl", "JmxRemoteLifecycleListener with rmiRegistryPortPlatform and rmiServerPortPlatform", "Firewalls and the second RMI port", "JConsole, VisualVM and jmxterm", "The Manager's /manager/jmxproxy and /manager/status?XML=true", "jolokia or JMX exporter for Prometheus", "Securing JMX with password and access files"],
+          "tools": ["JConsole", "VisualVM", "jmxterm", "JmxRemoteLifecycleListener", "jcmd"],
+          "lab_task": "Enable authenticated JMX on port 9010 with jmxremote.password and jmxremote.access files (monitorRole readonly), add JmxRemoteLifecycleListener so the RMI server port is fixed at 9011, and connect with JConsole. Read currentThreadsBusy for http-nio-8080, run 500 requests with wrk and chart requestCount and processingTime before and after.",
+          "deliverable": "JMX flags, the attribute readings before and after load and the firewall ports required",
+          "checks": [["jmxterm get -b Catalina:type=ThreadPool,name=\"http-nio-8080\" currentThreadsBusy during a load", "A value greater than 0 during load and 0 at rest", "jmxterm output"], ["Connect with a wrong password", "Authentication failed and no MBean access", "Client error text"], ["Compare GlobalRequestProcessor requestCount before and after 500 requests", "Counter increased by 500", "Two readings"]],
+          "objectives": ["Enable secure remote JMX", "Read connector and pool metrics", "Make JMX work through a firewall"]
+        },
+        {
+          "topic": "GC Selection, Heap Analysis and Metaspace Tuning",
+          "subtopics": ["G1 as the default collector and pause targets -XX:MaxGCPauseMillis", "ZGC and Shenandoah where latency matters", "Reading -Xlog:gc* output: pause time, heap before and after", "Metaspace growth and -XX:MaxMetaspaceSize", "jcmd GC.heap_info and GC.class_histogram", "Taking a heap dump with jcmd GC.heap_dump and opening in Eclipse MAT", "Dominator tree and retained size", "Container awareness and MaxRAMPercentage", "Sizing against total RAM leaving room for threads and native memory"],
+          "tools": ["jcmd", "Eclipse MAT", "GCViewer", "jstat", "VisualVM"],
+          "lab_task": "With a servlet that caches 200 MB of byte arrays in a static map, run Tomcat with -Xmx512m and G1 and record GC pause times in gc.log. Take a dump with jcmd <pid> GC.heap_dump /tmp/h.hprof, open it in Eclipse MAT, and identify the dominator holding the memory. Remove the leak and compare pause times.",
+          "deliverable": "GC log summary, MAT dominator screenshot and a before and after pause table",
+          "checks": [["jcmd <pid> GC.class_histogram | head -5", "byte[] is the top class by bytes", "jcmd output"], ["MAT Leak Suspects report", "Identifies the servlet's static map as the dominator with roughly 200 MB retained", "MAT screenshot"], ["Compare max GC pause before and after removing the cache", "Max pause drops and heap after full collection falls below 100 MB", "GC log comparison"]],
+          "objectives": ["Read GC logs", "Capture and analyse heap dumps", "Choose collector settings for a service"]
+        },
+        {
+          "topic": "Class Loading and Memory Leak Prevention",
+          "subtopics": ["Class loader hierarchy: bootstrap, platform, Common, then WebappClassLoader", "Parent-last delegation for webapps (delegate=\"false\") with Jakarta exceptions", "shared/lib versus WEB-INF/lib and conflicting JARs", "JDBC driver deregistration", "JreMemoryLeakPreventionListener and ThreadLocalLeakPreventionListener", "Log lines 'created a ThreadLocal' and 'failed to stop it'", "Redeploy leaks and OutOfMemoryError: Metaspace", "The Manager's Find leaks function", "Strategies: stop threads in ServletContextListener.contextDestroyed"],
+          "tools": ["Manager app", "jcmd", "Eclipse MAT", "Tomcat 10.1", "VisualVM"],
+          "lab_task": "Deploy leak.war that starts a non-daemon thread and registers a ThreadLocal in a static. Redeploy it 10 times with Manager text reload, watch Metaspace with jstat -gc, run Find leaks, and read the warnings in catalina.out. Then fix it with a ServletContextListener that stops the thread and confirm Find leaks reports nothing.",
+          "deliverable": "Leak demo WAR, jstat metaspace curve and a log of warnings before and after the fix",
+          "checks": [["Reload leak.war ten times and run jstat -gc <pid>", "Metaspace used (MU) grows with each reload", "jstat output"], ["Check catalina.out after undeploy", "SEVERE 'The web application [leak] appears to have started a thread named [...] but has failed to stop it'", "Log excerpt"], ["Same test after adding contextDestroyed cleanup", "No such warnings and Find leaks shows no leaked applications", "Log excerpt and Manager page"]],
+          "objectives": ["Explain Tomcat's class loader delegation", "Recognise leak warnings", "Fix a redeploy leak"]
+        },
+        {
+          "topic": "URL Rewriting with RewriteValve and Redirect Rules",
+          "subtopics": ["RewriteValve in the Host and the rewrite.config file in conf/Catalina/<host>", "RewriteRule, RewriteCond and flags [R=301,L], [NC], [QSA]", "Syntax similarity to Apache mod_rewrite and the supported subset", "Redirecting HTTP to HTTPS and non-www to www", "Rewriting legacy URLs to new paths", "Back-references and conditions on %{HTTP_HOST} and %{REQUEST_URI}", "Avoiding redirect loops", "Per-context rewriting", "Performance considerations of many rules"],
+          "tools": ["RewriteValve", "curl", "server.xml", "rewrite.config"],
+          "lab_task": "Add org.apache.catalina.valves.rewrite.RewriteValve to the Host and create conf/Catalina/localhost/rewrite.config with three rules: 301 from /old/(.*) to /new/$1, 301 from http host to https, and an internal rewrite of /api/v1/(.*) to /v1servlet?path=$1. Check each with curl -i and show there is no loop with curl -L --max-redirs 3.",
+          "deliverable": "rewrite.config and curl transcripts showing each rule",
+          "checks": [["curl -i http://localhost:8080/hello/old/page", "HTTP 301 with Location: /hello/new/page", "curl output"], ["curl -i http://localhost:8080/hello/api/v1/users", "HTTP 200 from the servlet with path=users in the response and no redirect", "curl output"], ["curl -L --max-redirs 3 -s -o /dev/null -w '%{num_redirects}' on the HTTP to HTTPS rule", "Prints 1, proving no redirect loop", "curl output"]],
+          "objectives": ["Configure RewriteValve", "Write redirect and internal rewrite rules", "Test rules for loops"]
+        },
+        {
+          "topic": "Tomcat in Containers: Official Images and Kubernetes Probes",
+          "subtopics": ["Official tomcat images and tags such as 10.1-jdk21-temurin", "Copying a WAR to /usr/local/tomcat/webapps and removing default webapps", "Mounting server.xml and setenv.sh as config", "Running as a non-root user and read-only root filesystem with writable temp, work and logs", "Logging to stdout with ConsoleHandler and access logs to stdout", "JVM container awareness with MaxRAMPercentage", "Kubernetes readiness and liveness probes, terminationGracePeriodSeconds and the preStop delay", "HealthCheckValve at /health", "Graceful shutdown and in-flight requests"],
+          "tools": ["Docker", "Kubernetes", "HealthCheckValve", "kubectl", "curl"],
+          "lab_task": "Build an image FROM the official tomcat 10.1 JDK 21 image that deletes the default webapps, copies hello.war as ROOT.war, runs as a non-root user and sets JAVA_OPTS=-XX:MaxRAMPercentage=75. Add HealthCheckValve at /health, deploy to a local Kubernetes cluster with readiness and liveness probes, then kill a pod and measure the time to Ready.",
+          "deliverable": "Dockerfile, deployment manifest and a timeline of pod restart and probe results",
+          "checks": [["docker run and curl http://localhost:8080/health", "HTTP 200 with body JVM running successfully", "curl output"], ["docker exec <c> id -u", "Non-zero UID, not 0", "Command output"], ["kubectl delete pod and kubectl get pods -w", "Replacement pod becomes Ready only after /health returns 200, within the measured time", "kubectl output with timestamps"]],
+          "objectives": ["Package Tomcat as a hardened container image", "Add health probes", "Handle graceful shutdown in Kubernetes"]
+        },
+        {
+          "topic": "Metrics, Status Pages and Alerting for Tomcat",
+          "subtopics": ["Key metrics: busy threads, connection count, request rate, error rate, p95 latency, heap, GC pause, session count, datasource active", "Manager status XML and the status page limitations", "Prometheus JMX exporter configuration rules for Catalina MBeans", "Access log parsing for latency percentiles with the %D field", "Alert thresholds: busy threads over 80 percent of maxThreads for 5 minutes, 5xx rate, heap after GC", "Dashboards in Grafana", "StuckThreadDetectionValve and its log warnings", "Synthetic checks against /health", "Retention and cardinality of labels"],
+          "tools": ["Prometheus", "Grafana", "JMX Exporter", "StuckThreadDetectionValve", "curl"],
+          "lab_task": "Attach the Prometheus JMX exporter javaagent on port 9404 with a rules file for ThreadPool, GlobalRequestProcessor and Manager MBeans. Scrape it with Prometheus, build a Grafana panel for busy threads divided by maxThreads, and write an alert rule that fires when the ratio exceeds 0.8 for 2 minutes. Trigger it with wrk.",
+          "deliverable": "Exporter configuration, Prometheus rule, dashboard JSON and a screenshot of the alert firing",
+          "checks": [["curl -s localhost:9404/metrics | grep -i threads", "Metric lines for busy and max threads of http-nio-8080 are present", "curl output"], ["Run wrk against a slow servlet with 200 connections and 50 threads", "The ratio exceeds 0.8 and the alert shows Pending then Firing", "Prometheus alerts page"], ["Stop the load", "Alert resolves and the ratio returns near 0", "Prometheus alerts page"]],
+          "objectives": ["Expose Tomcat metrics to Prometheus", "Design alerts from saturation signals", "Build a Tomcat dashboard"]
+        },
+        {
+          "topic": "Capstone: A TLS-fronted Tomcat Service with Database Realm and Monitoring",
+          "subtopics": ["TLS 1.2 and 1.3 connector with HTTP/2 and automatic certificate reload", "Nginx or httpd front end with RemoteIpValve and correct client IP in logs", "JNDI data source and DataSourceRealm with SHA-512 digests and LockOutRealm", "Security headers, CSRF and rate limiting filters", "JMX exporter metrics and an alert on thread saturation", "Load test, results table and a handover document"],
+          "tools": ["Tomcat 10.1", "Nginx", "PostgreSQL", "Prometheus", "wrk", "certbot"],
+          "lab_task": "Assemble a service with a TLS connector with HTTP/2, a proxy in front, a PostgreSQL DataSourceRealm with digested passwords, header filters and rate limiting, and the JMX exporter. Run wrk at three concurrency levels, record throughput, p95 and busy threads, and write a one-page tuning note with the final settings.",
+          "deliverable": "Configuration repository, test results table and a handover document",
+          "checks": [["testssl.sh or openssl s_client against the public endpoint", "TLS 1.2 and 1.3 accepted, TLS 1.1 refused and certificate chain valid", "Scanner output"], ["Login as a database user then as a user after three failures", "Valid user receives 200 and the locked user 401", "curl transcript"], ["wrk at 50, 100 and 200 connections", "Throughput plateaus at the executor limit and p95 values are recorded for each level", "wrk results table"]],
+          "objectives": ["Integrate TLS, proxy, authentication and monitoring in one design", "Validate it with measured tests", "Document final settings and reasons"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior administrators, platform engineers and architects who own Tomcat estates. Covers release-line strategy for Tomcat 10.1 and 11, javax to jakarta migration with the Apache migration tool, dependency and taglib compatibility, Tribes clustering and DeltaManager, load balancing and session affinity, externalised sessions, attack-surface reduction, request-limit hardening, CVE response, profiling with thread dumps and Flight Recorder, connector internals, virtual threads, custom valves and realms, stuck-thread and leak troubleshooting, rolling upgrades and immutable images.",
+      "prerequisites": ["Has completed the Intermediate course or operates Tomcat in production with TLS, JNDI resources, JMX monitoring and a reverse proxy", "Can read Java stack traces and thread dumps and has used jcmd, jstack or a profiler on a running JVM", "Has a lab with three or more Linux VMs or containers, Maven and JDK 21, plus an httpd or Nginx load balancer and a copy of a legacy javax-based WAR to migrate"],
+      "outcomes": ["Plan and execute a javax to jakarta migration of applications and their libraries onto Tomcat 10.1 or 11 with measured evidence", "Design clustered and load-balanced Tomcat tiers with a deliberate session strategy and rolling, zero-downtime upgrades", "Harden Tomcat against common attack classes, limit request abuse and respond to published CVEs within a defined process", "Diagnose stuck threads, leaks and latency problems with thread dumps, heap dumps and Flight Recorder, and extend Tomcat with custom valves and realms"],
+      "days": [
+        {
+          "topic": "Tomcat 10.1 versus 11 Release Lines and Upgrade Planning",
+          "subtopics": ["Release lines and support status on tomcat.apache.org/whichversion.html", "Servlet, JSP, EL and WebSocket specification levels per line", "Java baselines: 10.1 on Java 11 or later, 11 on Java 17 or later", "Features removed or deprecated in 11 such as SecurityManager support", "Reading the migration guide and changelog for each release", "Test strategy: unit, integration, soak and rollback", "Deciding when to stay on 9 with javax and when to move", "Version pinning, signatures and a patch cadence", "Risk register for a fleet upgrade"],
+          "tools": ["tomcat.apache.org", "Changelog", "version.sh", "Maven", "Spreadsheet"],
+          "lab_task": "Inventory five applications (real or sample) with their servlet API level, Java version, frameworks and Tomcat version. For each, use the Tomcat migration guide and release notes to decide a target (9, 10.1 or 11), list required changes, and rank risks. Run version.sh on each existing instance and attach the output to the inventory.",
+          "deliverable": "Estate inventory table with a target line, change list and risk rank per application",
+          "checks": [["Check each application's web.xml version attribute and servlet-api dependency", "Each app is classed as javax (Servlet 4.0 or earlier) or jakarta (5.0 or later) with its evidence", "Inventory table"], ["Compare Java versions with the baselines", "Any app on Java 8 is flagged as needing a JDK upgrade before Tomcat 10.1 or 11", "Table column and notes"], ["Review the plan with a rollback entry for each app", "Each row names the previous Tomcat version and the artefact to redeploy", "Plan document"]],
+          "objectives": ["Compare Tomcat release lines", "Plan an upgrade by risk", "Record baselines and rollback paths"]
+        },
+        {
+          "topic": "javax to jakarta Migration with the Apache Migration Tool",
+          "subtopics": ["Why Servlet 5.0 renamed javax.* to jakarta.* and what is renamed", "The Tomcat migration tool (Jakarta EE migration tool) CLI: migrate.sh source destination", "Profiles: -profile=TOMCAT or EE and -logLevel", "The webapps-javaee directory for automatic conversion on deploy", "Converting WAR files, JARs, class files, XML descriptors, service files and string constants", "What the tool cannot catch: reflection with computed names and non-class resources", "Source-level migration using IDE refactoring or search and replace", "Eclipse Transformer as an alternative", "Verifying with a classpath scan for remaining javax.servlet"],
+          "tools": ["Jakarta EE migration tool", "migrate.sh", "javap", "unzip", "Tomcat 10.1"],
+          "lab_task": "Take a javax WAR that uses a servlet, a filter and a JSP. Run it first on Tomcat 10.1 and record the failure. Convert it with migrate.sh legacy.war converted.war, deploy converted.war, and verify behaviour. Then drop the original in webapps-javaee and observe on-deploy conversion. Scan both outputs with javap and grep for leftover javax.servlet.",
+          "deliverable": "Failure log, conversion log, working WAR and a scan report with zero leftover javax.servlet references",
+          "checks": [["Deploy the unmodified javax WAR on Tomcat 10.1", "Deployment error includes ClassNotFoundException or NoClassDefFoundError for javax.servlet", "catalina log excerpt"], ["Run migrate.sh legacy.war converted.war then deploy", "App returns HTTP 200 and classes import jakarta.servlet", "curl output and javap output"], ["unzip -p converted.war WEB-INF/web.xml | grep -c javaee.sun.com", "0 matches, the descriptor uses the jakartaee namespace", "grep output"]],
+          "objectives": ["Run the Apache migration tool on a WAR", "Use the webapps-javaee on-deploy conversion", "Verify a conversion for leftovers"]
+        },
+        {
+          "topic": "Migrating Libraries, Frameworks and Tag Libraries to Jakarta",
+          "subtopics": ["Dependency matrix: Spring Framework 6, Hibernate ORM 6 and 7, Jakarta Persistence, JSTL 3.0, Jakarta Mail and Jakarta Faces", "Finding javax-dependent JARs with mvn dependency:tree and jdeps", "Replacement artefacts and Maven coordinates with the jakarta group", "Using transformed (-jakarta classifier) artefacts where no native release exists", "TLD URI changes such as jakarta.tags.core", "Libraries with their own servlet container hooks: logging, filters, session replication", "Shaded JARs and fat WARs", "Adding a migration check to CI", "Staged migrations: libraries first, then namespace"],
+          "tools": ["Maven", "jdeps", "mvn dependency:tree", "Spring 6", "Hibernate"],
+          "lab_task": "For a sample Spring MVC and JPA WAR, use mvn dependency:tree and jdeps --multi-release 21 --recursive to list every JAR referencing javax.servlet, javax.persistence or javax.mail. Produce a replacement table, upgrade the dependencies, change JSTL taglib URIs, build the WAR and deploy on Tomcat 10.1 with the app's smoke tests passing.",
+          "deliverable": "Dependency replacement table, updated pom.xml and smoke test results",
+          "checks": [["jdeps scan before the upgrade", "At least one JAR reported as depending on javax.servlet.*", "jdeps output"], ["jdeps scan after the upgrade", "No remaining references to javax.servlet, javax.persistence or javax.mail in application and library JARs", "jdeps output"], ["Run the smoke test suite against Tomcat 10.1", "All checks pass and /app/home renders the JSTL loop", "Test report"]],
+          "objectives": ["Locate javax dependencies in a build", "Replace libraries with Jakarta-compatible versions", "Add migration checks to the pipeline"]
+        },
+        {
+          "topic": "Clustering Architecture with Tribes and DeltaManager",
+          "subtopics": ["Cluster element: className=\"org.apache.catalina.ha.tcp.SimpleTcpCluster\"", "Tribes: McastService, StaticMembershipInterceptor, NioReceiver", "DeltaManager (all-to-all) versus BackupManager", "Channel settings: mcastAddr 228.0.0.4, mcastPort 45564, receiver port range 4000-4100", "ReplicationValve and filter for static content", "distributable element in web.xml and Serializable attributes", "jvmRoute on the Engine and session ID suffix", "Multicast versus static membership in clouds", "Scaling limits of all-to-all replication", "Failure detection and member dropped log lines"],
+          "tools": ["SimpleTcpCluster", "Tribes", "tcpdump", "Tomcat 10.1", "curl"],
+          "lab_task": "Run two Tomcat instances on one host with jvmRoute node1 and node2, ports offset, and a Cluster element using static membership (no multicast). Add <distributable/> to the app. Create a session on node1, then call node2 with the same JSESSIONID and prove the counter is replicated. Stop node1 and confirm node2 logs the member disappearing.",
+          "deliverable": "Cluster XML for both nodes, replication test transcript and member-change log lines",
+          "checks": [["Create a session on node1 and read it from node2 with the same cookie value", "The counter value is identical", "curl transcript"], ["Check node2 catalina.out at startup", "Log shows 'Replication member added' for node1", "Log excerpt"], ["Stop node1 and wait for the failure detector", "node2 logs 'Received memberDisappeared' for node1 and still serves the session", "Log excerpt and curl output"]],
+          "objectives": ["Configure Tomcat clustering", "Explain DeltaManager and BackupManager", "Verify replication and failure detection"]
+        },
+        {
+          "topic": "Load Balancing with Apache httpd mod_proxy_balancer and Sticky Sessions",
+          "subtopics": ["mod_proxy, mod_proxy_http, mod_proxy_balancer and mod_lbmethod_byrequests", "BalancerMember with route= matching Engine jvmRoute", "ProxySet stickysession=JSESSIONID", "scolonpathdelim and URL-encoded sessions", "Health probes with hcmethod and hcinterval", "Failover: status H, D, S and failonstatus", "Nginx upstream hash or sticky cookie equivalents", "AJP via mod_proxy_ajp versus HTTP and its secret", "Draining a node for maintenance with the balancer-manager", "Session affinity limits and rebalancing"],
+          "tools": ["Apache httpd", "mod_proxy_balancer", "balancer-manager", "curl", "Tomcat 10.1"],
+          "lab_task": "Configure httpd with a balancer of two BalancerMembers (route=node1, route=node2) and stickysession=JSESSIONID|jsessionid. Call it 20 times with a cookie jar and show every request hits one node via a servlet that returns the jvmRoute. Disable node1 in balancer-manager and show the clients move to node2, with the session replicated if the cluster is on.",
+          "deliverable": "httpd balancer configuration, per-node request counts and the drain test results",
+          "checks": [["20 requests with one cookie jar", "All 20 responses report the same jvmRoute", "Tally of response values"], ["20 requests with no cookies", "Responses are split between node1 and node2 near 50/50", "Tally of response values"], ["Set node1 to Disabled in balancer-manager and repeat with the old cookie", "Requests are served by node2 and no HTTP 503 appears", "curl output and balancer-manager screenshot"]],
+          "objectives": ["Configure sticky load balancing", "Drain a node for maintenance", "Explain failure handling and affinity limits"]
+        },
+        {
+          "topic": "Stateless Scaling and Externalising Sessions",
+          "subtopics": ["Why sticky sessions plus replication stop scaling", "Making apps stateless: signed tokens, small server state", "External session stores: Redis, Hazelcast, database-backed", "Tomcat Manager and Valve extension points used by session managers", "Third-party Tomcat session manager examples and their Tomcat version support", "Serialisation formats and class loader issues", "Session timeouts versus store TTL", "Latency cost per request and write-behind versus write-through", "Failure modes: store down, partial writes", "Comparing with DeltaManager on size, failure and cost"],
+          "tools": ["Redis", "Redisson", "Tomcat Manager", "wrk", "jcmd"],
+          "lab_task": "Configure a Redis-backed session manager for the sample app using the third-party library's documented Manager and Valve setup. Compare p95 latency and session survival against DeltaManager with wrk. Stop one Tomcat and verify the session continues on another, then stop Redis and capture the behaviour.",
+          "deliverable": "Configuration, latency table for both approaches and a failure-mode note",
+          "checks": [["Session counter before and after killing the node that created it", "Counter continues from the same value on a different node", "curl transcript"], ["wrk at 100 connections with each approach", "p95 latency figures are recorded for each; the store adds measurable latency per request", "wrk output table"], ["Stop Redis and call the app", "The documented failure behaviour is observed (error or fallback) and logged", "Log excerpt"]],
+          "objectives": ["Externalise sessions", "Measure the cost against replication", "Describe failure modes of the store"]
+        },
+        {
+          "topic": "Security Hardening: Reducing the Attack Surface",
+          "subtopics": ["Removing docs, examples, host-manager and manager from production", "Running as tomcat with no login shell and umask 027", "File permissions: conf 640, logs, no write access for the web user to webapps", "Setting the Server shutdown to -1 or a long random command", "Disabling AJP or setting secretRequired", "Server header and ServerInfo with server=\"\" and ErrorReportValve", "Disabling TRACE with allowTrace and unused connectors", "SecurityListener checking umask and lifecycle", "CIS Apache Tomcat Benchmark controls", "Default servlet readonly and PUT"],
+          "tools": ["CIS Benchmark", "SecurityListener", "nmap", "ls", "server.xml"],
+          "lab_task": "Take a default Tomcat install and apply a hardening checklist: delete webapps/docs, examples, host-manager and manager, set shutdown to a random string, set server=\"\", add ErrorReportValve showServerInfo=false, set umask 027 in setenv.sh, chmod 640 conf files, remove AJP. Run nmap -sV and curl -I before and after and score against ten CIS items.",
+          "deliverable": "Hardening checklist with pass or fail evidence for ten controls and before and after scans",
+          "checks": [["curl -sI http://localhost:8080/ | grep -i server", "Server header is empty or generic, not Apache-Coyote or a version", "Header capture"], ["curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/examples/", "404 after removing the examples application", "curl output"], ["stat -c '%a %U' conf/server.xml", "640 owned by root or tomcat with no world access", "stat output"]],
+          "objectives": ["Apply a hardening baseline", "Prove each control with evidence", "Map controls to the CIS Benchmark"]
+        },
+        {
+          "topic": "Hardening Request Handling and Denial-of-Service Limits",
+          "subtopics": ["maxHttpHeaderSize and maxHttpRequestHeaderSize, maxPostSize and maxSavePostSize", "maxParameterCount and parameter flooding", "Multipart limits: maxFileCount, maxRequestSize and fileSizeThreshold in multipart-config", "maxSwallowSize", "connectionTimeout and slow-loris style clients", "HTTP/2 limits and rapid-reset style abuse, overheadCountFactor", "rejectSuspiciousURIs and encodedSolidusHandling", "relaxedPathChars and relaxedQueryChars trade-offs", "Request smuggling prevention with a consistent proxy chain", "Logging 400 responses"],
+          "tools": ["curl", "slowhttptest", "server.xml", "Wireshark", "Tomcat 10.1"],
+          "lab_task": "Set maxHttpHeaderSize=8192, maxPostSize=1048576, maxParameterCount=100 and connectionTimeout=10000. Prove each limit: send a 20 KB header, a 2 MB POST, 200 parameters and a slow-header client using slowhttptest -H. Record status codes, log messages and how the connector recovers.",
+          "deliverable": "Limit configuration and a table of attack input, expected status and observed result",
+          "checks": [["curl -H \"X-Big: $(head -c 20000 /dev/zero | tr '\\0' a)\" http://localhost:8080/", "HTTP 400 Bad Request (request header too large) and a log message at INFO or FINE", "curl output and log excerpt"], ["POST 2 MB body to a form servlet with maxPostSize=1 MB", "Parameters are not parsed or the request fails with IllegalStateException for the size limit", "Servlet output and log"], ["slowhttptest -H -c 200 -r 50 -l 30", "Connections are closed after about 10 seconds and the service still answers other clients", "Tool summary and curl check"]],
+          "objectives": ["Apply request size and parameter limits", "Defend against slow clients", "Prove limits with attack simulations"]
+        },
+        {
+          "topic": "Securing the Manager, AJP and CVE Response",
+          "subtopics": ["Case study: Ghostcat CVE-2020-1938 and the AJP secret", "Case study: partial PUT and default servlet write risk CVE-2025-24813", "Subscribing to the tomcat-announce list and the Security Reports page", "Mapping a CVE to affected versions, configuration conditions and exposure", "Temporary mitigations: config changes, WAF rules, network ACLs", "RemoteCIDRValve on Manager and a separate admin network", "Manager over TLS only with CLIENT-CERT", "Patch SLAs by severity and verifying with a scanner", "Record keeping for audit"],
+          "tools": ["tomcat.apache.org/security", "nmap", "curl", "RemoteCIDRValve", "Trivy"],
+          "lab_task": "Read the Tomcat security pages for two CVEs, write for each: affected versions, precondition in configuration, exposure test and mitigation. Test the Manager ACL by calling it from an allowed and a blocked address, enable the AJP connector with secretRequired=\"true\" and prove a request without the secret is rejected, then scan the image with Trivy for known CVEs.",
+          "deliverable": "Two CVE assessment sheets, AJP test transcript and the scanner report",
+          "checks": [["Call /manager/html from a blocked address with RemoteCIDRValve", "HTTP 403", "curl output"], ["Send AJP traffic without the configured secret", "Request is rejected and a log line reports secret mismatch", "Test output and log"], ["trivy image on the Tomcat image", "Report lists the Tomcat version and any known CVEs with fixed versions", "Trivy output"]],
+          "objectives": ["Assess a CVE against a real configuration", "Restrict administrative interfaces", "Define a patch process"]
+        },
+        {
+          "topic": "Advanced Performance Profiling: Thread Dumps and Flight Recorder",
+          "subtopics": ["jcmd Thread.print and kill -3 and the catalina.out dump", "Reading thread states: RUNNABLE, BLOCKED, WAITING, TIMED_WAITING", "http-nio-8080-exec-N thread names and what they are doing", "Taking three dumps 10 seconds apart and diffing", "JFR: jcmd JFR.start duration=60s filename=rec.jfr settings=profile", "JDK Mission Control: hot methods, allocation, lock contention", "async-profiler flame graphs", "Correlating busy threads to slow SQL or remote calls", "Overhead of each tool in production"],
+          "tools": ["jcmd", "JDK Mission Control", "async-profiler", "jstack", "FlameGraph"],
+          "lab_task": "Run a servlet with a synchronized block that sleeps and a slow SQL call, then load it with wrk -c100. Take three thread dumps 10 seconds apart with jcmd <pid> Thread.print, find the lock owner and the BLOCKED threads, record a 60-second JFR with settings=profile, and name the hottest method and lock in JMC.",
+          "deliverable": "Three thread dumps with an annotation of the blocked chain and a JFR findings page",
+          "checks": [["Search the dump for 'waiting to lock'", "Many http-nio-8080-exec threads are BLOCKED on one monitor held by a single thread", "Dump excerpt"], ["JMC Lock Instances page", "Shows the same class monitor with the highest blocked time", "JMC screenshot"], ["Remove the synchronized sleep and repeat wrk", "Throughput rises and the BLOCKED threads disappear from a new dump", "wrk output and dump"]],
+          "objectives": ["Capture and read thread dumps", "Use JFR and flame graphs", "Trace blocked threads to root cause"]
+        },
+        {
+          "topic": "Load Testing and Capacity Planning for Connectors and Pools",
+          "subtopics": ["Defining workload models and service-level objectives", "Open versus closed workload models in wrk, k6 and JMeter", "Ramp, soak and spike tests", "Metrics to record: throughput, p50, p95, p99, errors, busy threads, GC pause, pool wait", "Finding the knee and the maximum safe utilisation", "Sizing maxThreads, JDBC maxActive and database connections together", "Coordinated omission", "Producing a capacity model: requests per second per core", "Test environment parity and noise"],
+          "tools": ["k6", "JMeter", "wrk", "Prometheus", "Grafana"],
+          "lab_task": "Write a k6 scenario with a ramp from 10 to 400 virtual users over 10 minutes against the sample app, with thresholds p95<500ms and error rate<1%. Record Tomcat busy threads, pool wait and CPU. Find the user count where the p95 threshold is first exceeded, then change maxThreads or the pool size one at a time and rerun.",
+          "deliverable": "k6 script, graphs of p95 against load and a capacity statement with one change per run",
+          "checks": [["Run the ramp test with the baseline configuration", "k6 reports the user count at which p95 first exceeds 500 ms", "k6 summary"], ["Increase only the JDBC pool size and rerun", "The knee moves or does not, showing whether the pool was the bottleneck", "Comparison table"], ["State capacity as requests per second at 70 percent of the knee", "A single number with the test conditions", "Capacity statement"]],
+          "objectives": ["Design a repeatable load test", "Find the saturation point", "State capacity with evidence"]
+        },
+        {
+          "topic": "NIO, NIO2 and Native OpenSSL Connector Internals",
+          "subtopics": ["Connector protocol implementations: Http11NioProtocol and Http11Nio2Protocol", "Acceptor, Poller and worker threads", "Selector, socket buffers and the NioEndpoint", "acceptorThreadCount, pollerThreadCount and socketBuffer", "SSL: JSSE versus OpenSSL via Tomcat Native or Java's Foreign Function API depending on the release", "SSLImplementation and the OpenSSLImplementation attribute", "Direct buffers and -XX:MaxDirectMemorySize", "Sendfile for static files", "useAsyncIO and HTTP/2 relation", "Observing connectors with thread names"],
+          "tools": ["Tomcat Native", "OpenSSL", "jcmd", "wrk", "server.xml"],
+          "lab_task": "List the Tomcat threads with jcmd Thread.print | grep -E 'Acceptor|Poller|exec' for NIO and NIO2 connectors and record the counts. Benchmark TLS throughput on JSSE and, if available for your release and JDK, the OpenSSL implementation with wrk against an 8 KB response, and record CPU use and handshake rate.",
+          "deliverable": "Thread inventory per connector and a TLS benchmark table with the configuration of each run",
+          "checks": [["jcmd <pid> Thread.print | grep -c 'http-nio-8443-Poller'", "Count equals pollerThreadCount, normally 1 or 2", "Command output"], ["Compare NIO and NIO2 connectors with wrk -c100", "Two result sets with throughput and CPU for the same payload", "wrk output"], ["Check catalina.out at startup for the SSL implementation line", "Log names the JSSE or OpenSSL implementation actually used", "Log excerpt"]],
+          "objectives": ["Describe the threads of an NIO connector", "Compare connector implementations", "Evaluate OpenSSL versus JSSE"]
+        },
+        {
+          "topic": "Virtual Threads and Asynchronous Servlet Processing",
+          "subtopics": ["Virtual threads in JDK 21 and their effect on blocking I/O", "StandardVirtualThreadExecutor in recent 10.1 and 11 releases (check the release notes for your version)", "Setting the executor on the Connector", "Servlet 3.0+ async: request.startAsync() and AsyncContext timeout", "Async listeners and dispatch", "Non-blocking I/O with ReadListener and WriteListener", "Pinning with synchronized blocks and -Djdk.tracePinnedThreads=full", "Database pools still limit concurrency", "When async or virtual threads do not help", "Testing under high concurrency"],
+          "tools": ["JDK 21", "StandardVirtualThreadExecutor", "wrk", "jcmd", "jfr"],
+          "lab_task": "Run the 100 ms sleeping servlet first with a 50-thread platform executor, then with a virtual-thread executor, driving 1000 connections with wrk -t4 -c1000 -d60s. Record throughput and thread counts. Then add a synchronized block around the sleep and capture pinned thread warnings with -Djdk.tracePinnedThreads=full.",
+          "deliverable": "Two benchmark results, thread count evidence and the pinning stack trace",
+          "checks": [["wrk -c1000 against the platform executor with maxThreads=50", "About 500 requests per second and large latency from queueing", "wrk summary"], ["Same test with virtual threads", "Throughput nearer 10000 requests per second limited by the sleep time and CPU, with far fewer platform threads", "wrk summary and jcmd Thread.print count"], ["Add synchronized around the sleep", "Pinned thread stack trace printed and throughput falls", "Console output and wrk summary"]],
+          "objectives": ["Configure a virtual thread executor", "Use async servlets", "Detect virtual thread pinning"]
+        },
+        {
+          "topic": "Request Lifecycle, the Pipeline and Custom Valve Development",
+          "subtopics": ["Coyote adapter, CoyoteAdapter.service and the container pipeline", "Engine, Host, Context and Wrapper basic valves", "ValveBase and invoke(Request, Response)", "Writing a Valve that adds a correlation ID header and an MDC-like log field", "Packaging the valve JAR in CATALINA_HOME/lib", "Declaring the valve in server.xml and per context", "Attributes available in the AccessLogValve via request attributes", "Unit testing with Tomcat's embedded API", "Ordering and performance cost", "Valve versus Filter decisions"],
+          "tools": ["Maven", "ValveBase", "Embedded Tomcat", "JUnit", "curl"],
+          "lab_task": "Write a Maven project that produces correlation-valve.jar with a ValveBase that reads X-Correlation-Id or generates a UUID, stores it as a request attribute, and sets it on the response. Put it in lib, declare it in server.xml, include %{X-Correlation-Id}o in the access log, and test with an embedded Tomcat JUnit test.",
+          "deliverable": "Valve source, JUnit test, server.xml change and access log lines containing the ID",
+          "checks": [["curl -i http://localhost:8080/hello/ping without the header", "Response includes X-Correlation-Id: <uuid>", "curl output"], ["curl -H 'X-Correlation-Id: abc123' and read the access log", "Log line ends with abc123 for that request", "Log excerpt"], ["mvn test with embedded Tomcat", "Test passes, asserting the header on both generated and supplied paths", "Maven output"]],
+          "objectives": ["Explain Tomcat's request pipeline", "Write and install a custom valve", "Test it with embedded Tomcat"]
+        },
+        {
+          "topic": "Custom Components: Lifecycle Listeners, Realms and Authenticators",
+          "subtopics": ["LifecycleListener events: before_init, after_start, before_stop", "Registering listeners in server.xml and per context", "Extending RealmBase and authenticate(String, String)", "GenericPrincipal and role lists", "Creating a CredentialHandler for a legacy hash", "Authenticators: AuthenticatorBase and the Jakarta Authentication (JASPIC) SPI", "ServletContainerInitializer and its order", "Thread-safety and caching", "Logging via org.apache.juli.logging.Log", "Maintaining a custom component across Tomcat upgrades"],
+          "tools": ["Maven", "RealmBase", "LifecycleListener", "JUnit", "Tomcat 10.1"],
+          "lab_task": "Build a LifecycleListener that logs the JVM and OS on after_start, and a Realm subclass that validates users against a REST endpoint stub with a 60-second cache. Deploy both as one JAR and prove logins, role lookup and cache hit behaviour using access logs and a counter on the stub.",
+          "deliverable": "Source repository, JAR, server.xml entries and a test log showing the cache hit rate",
+          "checks": [["Start Tomcat with the listener", "catalina.out shows the listener's startup line with Java and OS versions", "Log excerpt"], ["Authenticate the same user five times within 60 seconds", "The stub receives exactly one call", "Stub counter and curl output"], ["Authenticate with a wrong password", "HTTP 401 and no new role cache entry", "curl output and log"]],
+          "objectives": ["Write a lifecycle listener", "Implement a custom realm", "Manage component compatibility across upgrades"]
+        },
+        {
+          "topic": "Troubleshooting Stuck Threads and Hung Requests",
+          "subtopics": ["Symptoms: all exec threads busy, latency spike, 503 or connection timeouts", "StuckThreadDetectionValve threshold in seconds and interruptThreadThreshold", "Reading the 'Thread [...] has been active for [N] milliseconds' warning and its stack", "Thread dumps in sequence to separate slow from stuck", "Common causes: unbounded outbound HTTP calls, database locks, deadlocks, DNS", "Setting timeouts on HttpClient and JDBC (queryTimeout, socketTimeout)", "jcmd Thread.print deadlock reporting", "Emergency steps: dump, drain, restart", "Post-incident writeup"],
+          "tools": ["StuckThreadDetectionValve", "jcmd", "jstack", "tcpdump", "wrk"],
+          "lab_task": "Add StuckThreadDetectionValve threshold=\"10\" and a servlet that calls a remote stub which hangs. Load it until all 50 threads are busy, observe the Tomcat warnings and a failing /health, capture dumps, identify the socket read, then add a 3 second read timeout and show the pool recover.",
+          "deliverable": "Incident timeline, thread dump excerpts, root cause statement and a fix with timeouts",
+          "checks": [["Run the hanging endpoint with 60 concurrent requests", "WARN 'Thread [http-nio-8080-exec-N] has been active for [10xxx] milliseconds' appears for many threads", "catalina log excerpt"], ["jcmd Thread.print for the stuck threads", "Frames show SocketInputStream.read or equivalent under the HTTP client call", "Dump excerpt"], ["Add a 3 second read timeout and repeat", "Requests fail fast with a timeout error and busy threads fall to near 0 after the test", "Servlet output and JMX reading"]],
+          "objectives": ["Detect stuck threads", "Find blocking calls from dumps", "Apply timeouts to prevent recurrence"]
+        },
+        {
+          "topic": "Troubleshooting Memory Leaks and OutOfMemoryError",
+          "subtopics": ["OOM types: Java heap space, Metaspace, GC overhead limit exceeded, unable to create native thread, Direct buffer memory", "Heap dump on OOM and -XX:+ExitOnOutOfMemoryError in containers", "Eclipse MAT: histogram, dominator tree, path to GC roots", "Class loader leaks: retained WebappClassLoader instances after undeploy", "Native memory with -XX:NativeMemoryTracking=summary and jcmd VM.native_memory", "Thread count limits and ulimit -u", "Session bloat and caches without bounds", "Leak detection in the Manager", "Writing a leak report"],
+          "tools": ["Eclipse MAT", "jcmd", "NativeMemoryTracking", "Manager app", "jmap"],
+          "lab_task": "Reproduce a heap OOM by caching HttpSession attributes without limits and a Metaspace OOM by redeploying a leaking WAR. For each, capture the dump, open it in MAT, find the dominator or retained WebappClassLoader, and write the root cause with the offending code line. Record NMT summary for a baseline.",
+          "deliverable": "Two leak reports with MAT screenshots, root cause code lines and fixes",
+          "checks": [["Trigger the session OOM", "java.lang.OutOfMemoryError: Java heap space and a .hprof is created", "Log excerpt and file listing"], ["MAT dominator tree for the session leak", "StandardManager sessions map holds the majority of retained heap", "MAT screenshot"], ["Redeploy the leaking WAR 20 times and open the dump", "Multiple WebappClassLoader instances for the same context are retained, and a GC root path names the offending static field", "MAT path to GC roots"]],
+          "objectives": ["Classify OutOfMemoryError types", "Find leak roots in dumps", "Report fixes with evidence"]
+        },
+        {
+          "topic": "Zero-Downtime Rolling Upgrades and Patch Deployment",
+          "subtopics": ["Rolling restart across nodes: drain, stop, upgrade, start, health check, enable", "Load balancer drain with balancer-manager or API", "Waiting for in-flight requests with a graceful stop and connector pause", "Session continuity with replication or an external store", "Upgrading Tomcat while keeping CATALINA_BASE intact", "Symlinked CATALINA_HOME and instant rollback", "Verifying with a continuous client during the upgrade", "Database migrations compatible with old and new code", "Automating with a script and a canary node"],
+          "tools": ["Apache httpd", "bash", "curl", "wrk", "Tomcat 10.1"],
+          "lab_task": "Run a two-node cluster behind the balancer and a client that calls /ping every 100 ms recording status codes. Script an upgrade of each node from 10.1.x to a newer patch by symlink switch: drain, stop, switch the symlink, start, wait for /health, enable. Report total errors and the longest gap in responses across the upgrade.",
+          "deliverable": "Rolling upgrade script and the client's error count and maximum response gap",
+          "checks": [["Run the continuous client for the whole procedure", "Zero non-2xx responses across the roll, or the exact failures are counted and explained", "Client summary"], ["After each node is enabled, call /manager/text/serverinfo", "Output shows the new Tomcat version on that node", "curl output"], ["Switch the symlink back on one node", "Old version runs again within one restart and passes /health", "Version output and health result"]],
+          "objectives": ["Roll a patch release across a cluster", "Prove zero downtime with a continuous client", "Roll back quickly"]
+        },
+        {
+          "topic": "Immutable Tomcat Images and Configuration Management",
+          "subtopics": ["Image layers: base JDK, Tomcat, hardened conf, application WAR", "Pinning by digest rather than tag", "Verifying Tomcat downloads by checksum and signature in the build", "Generating server.xml from templates with env substitution", "Secrets from Kubernetes secrets or a vault and not from the image", "SBOM generation with Syft and vulnerability scanning in CI", "Rebuild cadence for base image and Tomcat patches", "Config drift detection", "Ansible roles for VM estates", "Promotion from dev to test to prod with the same image"],
+          "tools": ["Docker", "Syft", "Trivy", "Ansible", "GitHub Actions"],
+          "lab_task": "Write a multi-stage Dockerfile that downloads Tomcat, verifies the SHA-512 and signature, removes default webapps, applies a hardened conf, and copies the WAR. Build it in CI, generate an SBOM with Syft, scan with Trivy failing on HIGH or CRITICAL, and run the same digest in two environments differing only in environment variables.",
+          "deliverable": "Dockerfile, CI workflow, SBOM and scan report, and proof that the digest is identical across environments",
+          "checks": [["Build with a wrong checksum in the Dockerfile argument", "Build fails at the verification step before the image is produced", "Build log"], ["syft packages <image> and trivy image --severity HIGH,CRITICAL --exit-code 1", "SBOM lists tomcat and the JDK, and Trivy returns exit code 0 for a clean image", "Tool output"], ["docker inspect --format '{{.Id}}' in dev and prod", "The same image ID or digest is in both environments", "inspect output"]],
+          "objectives": ["Build a reproducible Tomcat image", "Automate scanning and SBOMs", "Promote the same artefact across environments"]
+        },
+        {
+          "topic": "Capstone: Migrate and Harden a javax Estate onto Clustered Tomcat 11",
+          "subtopics": ["Inventory and risk ranking of three javax applications", "Automated conversion, dependency upgrades and regression tests", "Tomcat 11 cluster with hardening baseline and TLS", "Load balancer with sticky sessions, health checks and rolling upgrade script", "Monitoring, alerts and a stuck-thread detector in place", "Migration report, rollback plan and handover runbook"],
+          "tools": ["Tomcat 11", "migrate.sh", "Apache httpd", "Maven", "Prometheus", "k6"],
+          "lab_task": "Migrate three javax sample WARs to Tomcat 11 on JDK 21 using the migration tool and dependency upgrades. Build a two-node cluster behind httpd with TLS, a hardening checklist and monitoring. Run k6 before and after migration, perform a rolling upgrade with a continuous client, and deliver a report with results and rollback steps.",
+          "deliverable": "Migrated WARs, cluster configuration, test and performance results, and a migration report with rollback plan",
+          "checks": [["jdeps and grep for javax.servlet across all migrated artefacts", "Zero remaining references in application code and bundled libraries", "Scan report"], ["Session test through the balancer with node1 stopped", "Session survives on node2 and the counter continues", "curl transcript"], ["Compare k6 p95 on Tomcat 9 baseline and Tomcat 11", "Both p95 values and error rates are reported, with no error-rate increase above 1 percent", "k6 comparison table"]],
+          "objectives": ["Execute an end-to-end estate migration", "Prove security, availability and performance", "Hand over with a runbook and rollback"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,573 @@
+{
+  "domain": "MATLAB",
+  "name": "MATLAB",
+  "category": "Programming Languages",
+  "icon": "code",
+  "aliases": ["MATLAB Programming", "Matrix Laboratory", "MATLAB Scientific Computing", "MATLAB Developer", "MATLAB for Engineers", "Advanced MATLAB", "MATLAB and Simulink", "MATLAB Numerical Computing"],
+  "certifications": ["MathWorks Certified MATLAB Associate", "MathWorks Certified MATLAB Professional"],
+  "tools": ["MATLAB", "MATLAB Online", "Live Editor", "App Designer", "Simulink", "Stateflow", "MATLAB Coder", "MATLAB Compiler", "Parallel Computing Toolbox", "Statistics and Machine Learning Toolbox", "Signal Processing Toolbox", "Image Processing Toolbox", "Git"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For people who have used a spreadsheet or another programming language and are new to MATLAB. Covers the desktop and Live Editor, numeric types and floating-point precision, vectors and matrices, indexing and logical masks, linear algebra with backslash, control flow and preallocation, functions and the search path, strings, cells, structs, dictionaries, tables and datetimes, file import and export, data cleaning, plotting and exporting figures, descriptive statistics, curve fitting, debugging, live scripts with Git, and a sensor-log capstone.",
+      "prerequisites": ["Comfortable with high-school algebra, vectors and basic statistics", "Has used a spreadsheet or written a few lines of code in any language", "Has MATLAB installed with a licence, or a MathWorks account for MATLAB Online"],
+      "outcomes": ["Navigate the desktop and write scripts, functions and live scripts that run without errors", "Create, index and combine vectors, matrices, tables and text correctly, and solve linear systems with backslash", "Import, clean, summarize and plot real data and export publication-quality figures", "Debug code with breakpoints and the Code Analyzer and keep work under Git version control"],
+      "days": [
+        {
+          "topic": "MATLAB Desktop, Live Editor and Command Window Orientation",
+          "subtopics": ["Installing MATLAB or opening MATLAB Online with a MathWorks account", "Desktop layout: Current Folder, Command Window, Workspace and Command History", "ver and version to list the release and installed toolboxes", "Arithmetic in the Command Window and the ans variable", "Display control with format short, format long and the trailing semicolon", "Inspecting and removing workspace entries with who, whos, clear and clc", "Getting help with doc, help, lookfor and the Add-On Explorer", "Saving and loading workspace data with save and load (.mat files)", "Live Editor basics: sections, output beside code and Ctrl+Enter", "Keyboard shortcuts, the Quick Access toolbar and Command History search"],
+          "tools": ["MATLAB", "MATLAB Online", "Live Editor", "Add-On Explorer"],
+          "lab_task": "Open MATLAB and run ver and version to record the release. Compute r = 3; A = pi*r^2 and show it with format short and format long. Run whos to list name, size and class, save the variables with save('session1.mat'), run clear, load the file back, then create a live script with two sections that plot sin(x) over 0:0.1:2*pi.",
+          "deliverable": "Live script session1.mlx, the saved session1.mat and a screenshot of the whos output",
+          "checks": [["Run format short; pi and then format long; pi", "3.1416 followed by 3.141592653589793", "Command Window output"], ["Run x = 5; clear x; x", "Error: Unrecognized function or variable 'x'.", "Command Window error text"], ["Run save('session1.mat'), clear, load('session1.mat'), whos", "Variables r and A are back, both 1x1 of class double", "whos output"]],
+          "objectives": ["Navigate the MATLAB desktop and Live Editor", "Inspect, save and restore workspace variables", "Find documentation with doc, help and lookfor"]
+        },
+        {
+          "topic": "Numeric Types, Operators and Floating-Point Precision",
+          "subtopics": ["double as the default class and single, int8 to int64 and uint8 to uint64", "intmin and intmax limits", "Saturation arithmetic: int8(200) returns 127", "Integer division and rounding with idivide, floor, ceil, round and fix", "Operator precedence for ^, unary minus, *, / and the short-circuit && and ||", "Floating-point representation, eps and why 0.1+0.2 is not 0.3", "Comparing floats with an absolute tolerance instead of ==", "NaN, Inf and -Inf with isnan, isinf and isfinite", "Complex numbers: 1i, abs, angle, real and imag", "class, isa, cast and typecast"],
+          "tools": ["MATLAB", "Live Editor", "Command Window"],
+          "lab_task": "Show that 0.1+0.2==0.3 returns logical 0 and that abs((0.1+0.2)-0.3) < eps is 1. Evaluate int8(200), uint8(5)-uint8(10) and int32(7)/int32(2) and record each value and class with class(). Print intmax('int32') and eps(1) using fprintf('%d\\n', ...) and fprintf('%.4e\\n', ...).",
+          "deliverable": "Precision notebook with a table of expression, result and class for ten expressions",
+          "checks": [["Evaluate int8(200)", "127 of class int8 (saturated, no error)", "Command Window output"], ["Evaluate uint8(5)-uint8(10)", "0, with no error or warning", "Command Window output"], ["Evaluate 0.1+0.2-0.3", "5.5511e-17", "Command Window output"]],
+          "objectives": ["Choose the right numeric class for a task", "Explain saturation and floating-point rounding", "Compare floating-point values with a tolerance"]
+        },
+        {
+          "topic": "Row and Column Vectors, Ranges and Indexing",
+          "subtopics": ["Building vectors with square brackets, spaces, commas and semicolons", "The colon operator and ranges such as 0:0.25:2", "linspace and logspace and the difference from a step range", "Transpose with the apostrophe and the dot-apostrophe", "One-based indexing, end and index vectors such as x([1 end])", "size, length, numel and ndims", "sum, cumsum, prod, max and min with a second output for the position", "sort, find, any and all on vectors", "Index errors: MATLAB:badsubscript and what the message says", "Deleting elements with x(2) = []"],
+          "tools": ["MATLAB", "Live Editor", "Workspace"],
+          "lab_task": "Build t = 0:0.25:2 and u = linspace(0,2,9) and confirm isequal(t,u) is true. Extract t(end), t(2:4) and t([1 end]), compute cumsum(t) and [m,i] = max(t), then run t(10) and t(0) and record both error messages together with the identifier returned by lasterr or the caught MException.",
+          "deliverable": "Script vectors_indexing.m with commented results for each indexing expression",
+          "checks": [["Run isequal(0:0.25:2, linspace(0,2,9))", "ans = logical 1", "Command Window output"], ["Run t(10) on a 9-element vector", "Error: Index exceeds the number of array elements. Index must not exceed 9.", "Error text"], ["Run t(0)", "Error: Index in position 1 is invalid. Array indices must be positive integers or logical values.", "Error text"]],
+          "objectives": ["Create vectors with ranges and linspace", "Index and slice vectors safely", "Read and explain MATLAB index error messages"]
+        },
+        {
+          "topic": "Matrices, Colon Indexing and Logical Masks",
+          "subtopics": ["Creating matrices with literals, zeros, ones, eye, rand, randi and magic", "Row and column indexing with A(i,j), A(i,:) and A(:,j)", "Linear indexing and column-major order", "Submatrices, end in two dimensions and A(:)", "Logical comparison results and masks such as A(A>10)", "find with row and column outputs", "nnz, any, all and cumsum on masks", "Concatenation with [A B], [A; B], horzcat and vertcat", "reshape, repmat, flip, rot90 and circshift", "Removing rows and columns with A(2,:) = []"],
+          "tools": ["MATLAB", "Live Editor", "Variables editor"],
+          "lab_task": "Create A = magic(4) and verify that sum(A), sum(A,2) and sum(diag(A)) all equal 34. Extract A(2:3,2:3) and A(:,end), replace every entry above 10 with 0 using A(A>10) = 0, count the zeros with nnz(A==0), and use reshape(A,2,8) and find(A==0,1) to report the linear index of the first zero.",
+          "deliverable": "Script matrix_indexing.m plus a table of each expression, its size and its value",
+          "checks": [["Run rank(magic(4)) and sum(magic(4))", "rank is 3 and every column sum is 34", "Command Window output"], ["Run A = magic(4); A(A>10) = 0; nnz(A==0)", "6", "Command Window output"], ["Run size(reshape(magic(4),2,8))", "2 8", "Command Window output"]],
+          "objectives": ["Slice matrices with colon and logical masks", "Reshape and concatenate arrays", "Explain column-major linear indexing"]
+        },
+        {
+          "topic": "Element-wise and Matrix Arithmetic with Implicit Expansion",
+          "subtopics": ["Matrix product with * versus element-wise .*", "Element-wise power .^ versus matrix power ^", "Division operators ./, / and \\", "Implicit expansion: a column plus a row yields a matrix", "Size compatibility rules and the size 1 dimension", "Broadcasting functions such as max(A,[],2) and bsxfun as the older form", "Reductions along dimensions with sum(A,1) and mean(A,2)", "Identity, inverse and transpose properties", "Error MATLAB:innerdim and MATLAB:sizeDimensionsMustMatch", "Mixed-class arithmetic between double and integer types"],
+          "tools": ["MATLAB", "Live Editor", "Workspace"],
+          "lab_task": "With A = [1 2;3 4] compute A*A, A.*A, A.^2 and A^2 and explain which pairs match. Add [1;2;3] + [10 20] to produce a 3x2 matrix by implicit expansion. Trigger [1 2 3]*[4 5 6] and ones(3,2)+ones(1,3) and record both error identifiers from MException.",
+          "deliverable": "Script arithmetic_expansion.m with an explanation table of the four matrix expressions",
+          "checks": [["Run A = [1 2;3 4]; A*A", "[7 10; 15 22]", "Command Window output"], ["Run [1;2;3] + [10 20]", "[11 21; 12 22; 13 23]", "Command Window output"], ["Run [1 2 3]*[4 5 6]", "Error with identifier MATLAB:innerdim", "Caught MException identifier"]],
+          "objectives": ["Distinguish matrix and element-wise operators", "Use implicit expansion correctly", "Diagnose dimension-mismatch errors"]
+        },
+        {
+          "topic": "Linear Systems with the Backslash Operator",
+          "subtopics": ["Writing a system of equations as A*x = b", "Solving with x = A\\b", "Why backslash is preferred over inv(A)*b", "Checking the answer with the residual norm(A*x-b)", "det, rank, cond and what they say about solvability", "Singular matrices and the warning Matrix is singular to working precision", "Ill-conditioning with hilb(n) and cond", "Over-determined systems and least squares through A\\b", "Under-determined systems and the minimum-norm idea", "Triangular and symmetric systems and the solver MATLAB selects"],
+          "tools": ["MATLAB", "Live Editor", "Variables editor"],
+          "lab_task": "Solve A = [2 1;1 3], b = [3;5] with x = A\\b and confirm x = [0.8;1.4]. Compute norm(A*x-b) and compare with inv(A)*b. Run A\\b on the singular matrix [1 2;2 4] and record the warning. Compute cond(hilb(10)) and use a 3x2 matrix with A\\b to get a least-squares fit, recording the residual.",
+          "deliverable": "Script linear_systems.m and a table of residual norms for each system",
+          "checks": [["Solve [2 1;1 3]*x = [3;5] with backslash", "x = [0.8; 1.4]", "Command Window output"], ["Run [1 2;2 4]\\[1;2]", "Warning: Matrix is singular to working precision.", "Warning text"], ["Run cond(hilb(10))", "About 1.6025e+13", "Command Window output"]],
+          "objectives": ["Solve square and rectangular linear systems", "Judge solution quality with residuals and cond", "Recognize singular and ill-conditioned systems"]
+        },
+        {
+          "topic": "Conditionals, Loops and Preallocation",
+          "subtopics": ["if, elseif and else with scalar logical conditions", "Short-circuit && and || versus element-wise & and the pipe operator", "switch with strings and cell-array cases", "for loops over ranges and over the columns of a matrix", "while loops with break and continue", "Collatz sequence as a worked while-loop example", "Why growing an array inside a loop is slow", "Preallocation with zeros, ones and nan", "tic and toc for first timings", "Code Analyzer message: variable appears to change size on every loop iteration"],
+          "tools": ["MATLAB", "Live Editor", "Code Analyzer", "tic/toc"],
+          "lab_task": "Write a while loop that counts Collatz steps for n = 27 and records the largest value reached. Then fill a vector of 100000 squares first by growing y(end+1) in a for loop and then with y = zeros(1,100000) preallocated, time both with tic and toc, and capture the Code Analyzer warning for the growing version.",
+          "deliverable": "Script loops_prealloc.m with a timing table for the grown and the preallocated vector",
+          "checks": [["Run Collatz counting for n = 27", "111 steps and a maximum value of 9232", "Command Window output"], ["Open the growing-vector loop in the editor", "Code Analyzer flags that the variable appears to change size on every loop iteration", "Editor message"], ["Compare toc for grown and preallocated loops", "Preallocated version is faster and the two vectors satisfy isequal", "Timing table"]],
+          "objectives": ["Write correct conditionals and loops", "Preallocate arrays and measure the effect", "Read Code Analyzer suggestions"]
+        },
+        {
+          "topic": "Scripts, Functions and the Search Path",
+          "subtopics": ["Script files versus function files and their separate workspaces", "Function signature with several outputs: function [m,s,r] = stats3(x)", "nargin, nargout and default values by hand", "Local functions inside script files and function files", "The MATLAB search path with path, addpath, genpath and which", "Name shadowing and which -all", "Anonymous functions with @(x)", "Help text and the H1 line that help displays", "exist and isfile for checking names", "Calling a function with fewer outputs than defined"],
+          "tools": ["MATLAB", "Live Editor", "Path tool", "Code Analyzer"],
+          "lab_task": "Create stats3.m returning the mean, sample standard deviation and range of a vector and call [m,s,r] = stats3([2 4 4 4 5 5 7 9]). Add a help comment and view it with help stats3. Then run sum = 5; sum(1:3), record the error, clear sum, and use which sum -all to show the built-in function again.",
+          "deliverable": "Function file stats3.m with help text and a script that calls it",
+          "checks": [["Run [m,s,r] = stats3([2 4 4 4 5 5 7 9])", "m = 5, s = 2.1381, r = 7", "Command Window output"], ["Run sum = 5; sum(1:3)", "Error: Index exceeds the number of array elements. Index must not exceed 1.", "Error text"], ["Run help stats3", "The first comment block is printed as help text", "Command Window output"]],
+          "objectives": ["Write function files with multiple outputs", "Explain the search path and name shadowing", "Document functions with help text"]
+        },
+        {
+          "topic": "Strings, Characters and Text Processing",
+          "subtopics": ["string arrays with double quotes versus char arrays with single quotes", "strlength, upper, lower, strtrim and strip", "Concatenating with + on strings and with [] on chars", "split, strsplit, join and strjoin", "contains, startsWith, endsWith and strfind", "replace, extractBetween and erase", "regexp with 'match', 'tokens' and 'names'", "sprintf, fprintf and compose for formatted text", "str2double, num2str and string conversion", "Text pitfalls: 'abc'+'def' is numeric"],
+          "tools": ["MATLAB", "Live Editor", "regexp", "Variables editor"],
+          "lab_task": "Parse the log line \"2026-03-14 12:00:07 ERROR sensor=T3 value=87.5\" with regexp named tokens to return date, level, sensor and value as a double. Split it with split, test it with contains and startsWith, rebuild it with compose, and evaluate 'abc'+'def' and str2double(\"abc\").",
+          "deliverable": "Script text_processing.m that returns a struct with date, level, sensor and value",
+          "checks": [["Evaluate 'abc'+'def'", "[197 199 201] numeric, not text", "Command Window output"], ["Evaluate str2double(\"abc\")", "NaN", "Command Window output"], ["Run the regexp on the log line", "level = ERROR, sensor = T3, value = 87.5 as a double", "Struct display"]],
+          "objectives": ["Manipulate string and char data", "Extract fields with regular expressions", "Convert between text and numbers safely"]
+        },
+        {
+          "topic": "Cell Arrays, Structures and Dictionaries",
+          "subtopics": ["struct creation, field access and dynamic field names s.(name)", "Struct arrays and arrayfun over them", "Cell arrays with braces and parentheses", "Curly-brace indexing versus parenthesis indexing", "cellfun with function handles", "dictionary objects: keys, values and lookups", "isKey, numEntries and removal", "containers.Map as the older alternative", "jsonencode and jsondecode on structs", "Choosing between struct, cell, table and dictionary"],
+          "tools": ["MATLAB", "Live Editor", "Variables editor"],
+          "lab_task": "Create c = {1,'text',[1 2 3]} and run cellfun(@numel,c), class(c(3)) and class(c{3}). Build a struct array of three students with fields name and score and compute the mean score with arrayfun. Create d = dictionary([\"a\" \"b\"],[1 2]), check numEntries(d) and isKey(d,\"z\"), then jsonencode the struct array.",
+          "deliverable": "Script containers_demo.m with a one-line justification for each container type",
+          "checks": [["Run cellfun(@numel,{1,'text',[1 2 3]})", "[1 4 3]", "Command Window output"], ["Run class(c(3)) and class(c{3})", "cell and double", "Command Window output"], ["Run numEntries(d) and isKey(d,\"z\")", "2 and logical 0", "Command Window output"]],
+          "objectives": ["Store heterogeneous data in structs and cells", "Use dictionaries for key-value lookups", "Serialize structures to JSON"]
+        },
+        {
+          "topic": "Tables, Categorical Data and Datetimes",
+          "subtopics": ["Creating a table with table(), array2table and cell2table", "Variable access with T.Name and T{:,2}", "Row selection with logical conditions and sortrows", "height, width, summary and head", "categorical arrays, categories and countcats", "datetime creation and display formats", "Date arithmetic with days, hours and between", "duration and calendarDuration", "Adding computed variables and removing with removevars", "Joins with innerjoin and outerjoin"],
+          "tools": ["MATLAB", "Live Editor", "Variables editor", "Table editor"],
+          "lab_task": "Create a table of five employees with Name, Dept (categorical), Hired (datetime) and Salary. Show summary(T), select Dept == \"Ops\" rows, sort by Salary descending, compute datetime(2026,3,14)+days(30) and days(datetime(2026,12,25)-datetime(2026,1,1)), and add a Tenure variable in years.",
+          "deliverable": "Script tables_dates.m and the exported summary(T) output",
+          "checks": [["Run datetime(2026,3,14)+days(30)", "13-Apr-2026", "Command Window output"], ["Run days(datetime(2026,12,25)-datetime(2026,1,1))", "358", "Command Window output"], ["Run T(T.Dept==\"Ops\",:) on the five-row table", "Only the Ops rows are returned with all four variables", "Table display"]],
+          "objectives": ["Organize mixed data in tables", "Use categorical and datetime types", "Filter, sort and join tabular data"]
+        },
+        {
+          "topic": "Importing and Exporting Files with readtable and writetable",
+          "subtopics": ["readtable, readmatrix and readcell and when to use each", "detectImportOptions and setvartype", "Delimiter, header lines, missing-value tokens and DateLocale", "writetable, writematrix and writecell", "Excel files, sheet and range selection", "fileread, fopen, fgetl and fclose for raw text", "textscan for irregular text", "Reading from URLs with webread and websave", "Large-file preview with datastore and preview", "Error MATLAB:textio:textio:FileNotFound"],
+          "tools": ["MATLAB", "Import Tool", "Live Editor", "detectImportOptions"],
+          "lab_task": "Generate 1000 rows of timestamp, temperature, humidity and status with rng(42) and write them to readings.csv with writetable. Read it back with detectImportOptions, set the status variable to categorical, report height and the variable types, write an Excel copy with writetable(T,'readings.xlsx','Sheet','data'), and read a missing.csv to capture the error.",
+          "deliverable": "Script import_export.m, readings.csv and readings.xlsx",
+          "checks": [["Run height(readtable('readings.csv'))", "1000", "Command Window output"], ["Inspect opts.VariableTypes after detectImportOptions", "The timestamp variable is datetime and the numeric variables are double", "Command Window output"], ["Run readtable('missing.csv')", "Error: Unable to find file or directory 'missing.csv'.", "Error text"]],
+          "objectives": ["Read and write CSV and Excel files", "Control import types with import options", "Handle file-not-found errors"]
+        },
+        {
+          "topic": "Cleaning Missing and Outlier Data",
+          "subtopics": ["ismissing and standardizeMissing for sentinel values such as -999", "rmmissing for rows and columns", "fillmissing with 'linear', 'previous' and 'movmedian'", "mean and sum with 'omitnan'", "isoutlier methods: median, mean and quartiles", "filloutliers and rmoutliers", "normalize and rescale", "smoothdata and movmean", "Documenting cleaning decisions in a live script", "Checking that cleaning does not leak into later analysis"],
+          "tools": ["MATLAB", "Live Editor", "Clean Missing Data task", "Clean Outlier Data task"],
+          "lab_task": "Take the readings table and replace -999 sentinels with NaN via standardizeMissing, count missing values with sum(ismissing(T)), fill gaps in temperature with fillmissing(x,'linear'), flag spikes with isoutlier, replace them using filloutliers(x,'linear'), and confirm the cleaned series has no missing values.",
+          "deliverable": "Cleaning live script with before and after counts for missing values and outliers",
+          "checks": [["Run fillmissing([1 2 NaN 4 5],'linear')", "[1 2 3 4 5]", "Command Window output"], ["Run isoutlier([1 2 3 4 100])", "[0 0 0 0 1]", "Command Window output"], ["Run mean([1 NaN 3]) and mean([1 NaN 3],'omitnan')", "NaN and 2", "Command Window output"]],
+          "objectives": ["Detect and fill missing values", "Identify and treat outliers", "Record cleaning decisions reproducibly"]
+        },
+        {
+          "topic": "Line, Scatter and Bar Plots with tiledlayout",
+          "subtopics": ["figure, plot, hold on and line specifications", "tiledlayout and nexttile for subplot grids", "scatter with color and size data", "bar, barh and histogram", "title, xlabel, ylabel, legend and grid", "Axis limits, ticks and log scales with semilogy", "yyaxis for two y-axes", "Plotting tables directly with plot(T.x,T.y)", "Interactive tools: zoom, pan and data tips", "Choosing the chart type for the question being asked"],
+          "tools": ["MATLAB", "Live Editor", "Plots tab", "Figure window"],
+          "lab_task": "Create a 2x2 tiledlayout holding a line plot of the cleaned temperature, a scatter of temperature against humidity coloured by status, a bar chart of counts per status and a histogram of 1000 randn values. Add titles, axis labels and a legend, then check numel(findall(gcf,'Type','axes')) and sum(histcounts(x)).",
+          "deliverable": "Figure script plot_tiles.m and a PNG of the four-panel figure",
+          "checks": [["Run numel(findall(gcf,'Type','axes')) on the finished figure", "4", "Command Window output"], ["Run sum(histcounts(randn(1000,1)))", "1000", "Command Window output"], ["Open the line plot and call legend", "Legend entries match the plotted series names", "Figure screenshot"]],
+          "objectives": ["Build multi-panel figures with tiledlayout", "Select the chart type that fits the data", "Label axes and legends clearly"]
+        },
+        {
+          "topic": "Customizing and Exporting Figures",
+          "subtopics": ["Axes and line properties via dot notation such as ax.FontSize", "get, set and the Property Inspector", "colororder and colormap choices", "Colour-blind-safe palettes and contrast", "Figure size with Units and Position", "exportgraphics for PNG, PDF and vector output", "Resolution and ContentType options", "savefig, openfig and saving .fig files", "Reusing styling in a helper function", "Light and dark themes for figures in current releases"],
+          "tools": ["MATLAB", "Live Editor", "Property Inspector", "exportgraphics"],
+          "lab_task": "Write a helper function styleAxes(ax) that sets FontSize 12, LineWidth 1 and grid on. Apply it to the four-panel figure, set fig.Units = 'inches' and fig.Position(3:4) = [6 4], export it with exportgraphics(fig,'panel.png','Resolution',300) and 'panel.pdf' with ContentType 'vector', then read the PNG size with imfinfo.",
+          "deliverable": "styleAxes.m, panel.png, panel.pdf and the imfinfo output",
+          "checks": [["Run imfinfo('panel.png') for a 6 by 4 inch figure at 300 dpi", "Width about 1800 and Height about 1200 pixels", "imfinfo output"], ["Run isfile('panel.pdf')", "logical 1 and the PDF opens with selectable text", "Command Window output and PDF"], ["Call styleAxes on all four axes", "Every axes reports FontSize 12", "Command Window output"]],
+          "objectives": ["Customize graphics objects through properties", "Export figures for print and web", "Reuse figure styling in a function"]
+        },
+        {
+          "topic": "Descriptive Statistics and Groupwise Summaries",
+          "subtopics": ["mean, median and mode and when they differ", "std, var and the normalization flag", "min, max, range and prctile", "iqr and quantile", "corrcoef and corr", "groupsummary with 'mean', 'std' and 'nnz'", "groupcounts and findgroups with splitapply", "histcounts and discretize", "cumulative and moving statistics with movmean and cummax", "Reporting statistics with units and sample size"],
+          "tools": ["MATLAB", "Live Editor", "groupsummary", "Statistics functions"],
+          "lab_task": "For x = [2 4 4 4 5 5 7 9] compute mean, median, std(x), std(x,1) and var. Compute corrcoef(x,2*x+1). Using the employee table, run groupsummary(T,'Dept','mean','Salary') and groupcounts(T,'Dept'), and write one sentence on how outliers move the mean but not the median.",
+          "deliverable": "Script descriptive_stats.m and a summary table of the group statistics",
+          "checks": [["Run mean(x), median(x) and std(x,1) for the eight values", "5, 4.5 and 2", "Command Window output"], ["Run corrcoef(x,2*x+1)", "Off-diagonal value 1.0000", "Command Window output"], ["Run groupsummary(T,'Dept','mean','Salary')", "One row per department with GroupCount and mean_Salary", "Table display"]],
+          "objectives": ["Compute and interpret summary statistics", "Summarize data by group", "Choose between mean and median"]
+        },
+        {
+          "topic": "Curve Fitting with polyfit and Interpolation",
+          "subtopics": ["polyfit and polyval for least-squares polynomials", "Goodness of fit with R-squared and residuals", "Choosing polynomial degree and overfitting", "interp1 methods: linear, spline, pchip and makima", "Extrapolation behaviour and the NaN default", "interp2 and griddedInterpolant", "fit with the Curve Fitting app", "Plotting data, fit and residuals together", "Smoothing with smoothdata versus fitting", "Reporting fit parameters with uncertainty"],
+          "tools": ["MATLAB", "Live Editor", "Curve Fitter app", "polyfit"],
+          "lab_task": "Generate x = 0:10 and y = 2*x+1+0.5*randn(size(x)) with rng(3), fit p = polyfit(x,y,1), compute R-squared from the residuals and plot data and fit. Then evaluate interp1([1 2 3],[10 20 30],[2.5 4]) with the default and with 'linear','extrap', and compare degree 1 and degree 8 fits on 10 points.",
+          "deliverable": "Script curve_fit.m with a plot and a table of fit coefficients and R-squared",
+          "checks": [["Run polyfit(0:5, 2*(0:5)+1, 1)", "[2 1] to within 1e-12", "Command Window output"], ["Run interp1([1 2 3],[10 20 30],2.5)", "25", "Command Window output"], ["Run interp1([1 2 3],[10 20 30],4)", "NaN", "Command Window output"]],
+          "objectives": ["Fit polynomials and judge fit quality", "Interpolate between data points", "Explain overfitting and extrapolation risk"]
+        },
+        {
+          "topic": "Debugging with Breakpoints and the Code Analyzer",
+          "subtopics": ["Setting breakpoints in the editor and with dbstop in file at line", "dbstop if error and dbstop if warning", "Stepping with dbstep, dbstep in, dbstep out and dbcont", "Inspecting variables and dbstack", "Conditional breakpoints and dbclear all", "The Code Analyzer and checkcode message IDs", "try and catch with the MException fields", "disp and fprintf debugging and its limits", "Reproducing a bug with a minimal input", "Reading error stack traces"],
+          "tools": ["MATLAB", "Editor", "Debugger", "checkcode"],
+          "lab_task": "Given a supplied function normalizeScores.m with an off-by-one index and an unused variable, run it, use dbstop if error to stop at the failure, inspect variables with whos and dbstack, fix the bug, rerun, then run checkcode('normalizeScores.m','-id') and clear every Code Analyzer message.",
+          "deliverable": "Fixed normalizeScores.m and a short bug report with the failing input, cause and fix",
+          "checks": [["Run normalizeScores with dbstop if error enabled", "Execution pauses on the failing line and K>> appears", "Debugger screenshot"], ["Run checkcode on the original file", "Message with ID NASGU: the value assigned to variable might be unused", "checkcode output"], ["Rerun checkcode after the fix", "No messages are returned", "Command Window output"]],
+          "objectives": ["Use breakpoints and stepping to find faults", "Act on Code Analyzer findings", "Write a minimal bug report"]
+        },
+        {
+          "topic": "Live Scripts, Reports and Git Source Control",
+          "subtopics": ["Live Editor text, equations and hyperlinks", "Interactive controls: sliders, drop-downs and check boxes", "Live tasks such as Clean Missing Data and Smooth Data", "Generating code from live tasks", "export to PDF, HTML and Word with export", "Output display options and hiding code", "Initialising a Git repository from the Current Folder", ".gitignore entries for *.asv and slprj", "Commit, branch, compare and merge from the MATLAB toolstrip", "Comparing .mlx files with the Comparison Tool"],
+          "tools": ["MATLAB", "Live Editor", "Git", "Comparison Tool"],
+          "lab_task": "Convert the cleaning script to a live script with a slider that sets the outlier threshold. Add text, an equation and a figure, export it with export('clean.mlx','clean.pdf'), then use the Current Folder source control menu to initialise Git, add a .gitignore, commit, edit the slider default on a branch and compare the .mlx revisions.",
+          "deliverable": "clean.mlx, clean.pdf and the Git log showing two commits and one branch",
+          "checks": [["Run export('clean.mlx','clean.pdf')", "clean.pdf exists and includes the figure and equation", "File listing and PDF"], ["Run git status after adding .gitignore", "No .asv files are listed as untracked", "git status output"], ["Compare the two .mlx revisions", "The Comparison Tool shows only the changed slider default", "Comparison report"]],
+          "objectives": ["Author reproducible live scripts", "Export reports in standard formats", "Version MATLAB files with Git"]
+        },
+        {
+          "topic": "Beginner Capstone: Sensor Log Analysis Report",
+          "subtopics": ["Problem statement and data dictionary for a 24-hour temperature log", "Import, type and clean the data with documented rules", "Hourly summary with groupsummary and a trend fit", "Four-panel figure with exported images", "Live script report exported to PDF", "Peer review checklist and Git commit of the final project"],
+          "tools": ["MATLAB", "Live Editor", "Git", "exportgraphics"],
+          "lab_task": "Generate 86400 one-second temperature samples with rng(7), a daily sine trend and noise, then inject 50 NaN dropouts and 20 spikes. Clean them, compute 24 hourly means and standard deviations with groupsummary, fit a 2nd-degree trend, plot four panels, and export a live-script PDF and a CSV of hourly results.",
+          "deliverable": "Project folder with clean_log.mlx, hourly.csv, report.pdf and a Git history",
+          "checks": [["Run sum(ismissing(Tclean.temp)) on the cleaned data", "0", "Command Window output"], ["Run height(hourly)", "24", "Command Window output"], ["Open report.pdf", "The PDF contains four panels, the cleaning counts 50 and 20, and the trend coefficients", "PDF review"]],
+          "objectives": ["Run a complete import, clean, analyse and report workflow", "Justify every cleaning rule with counts", "Deliver a reproducible report under version control"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For analysts and engineers who write MATLAB scripts and now need maintainable, fast and tested code. Covers function validation with arguments blocks, error handling, vectorization, memory and the Profiler, classes and handles, closures, timetables, datastore and tall arrays, sparse matrices and factorizations, solvers and optimization, integration and differentiation, ODEs, Fourier analysis, filter design, image segmentation, machine learning with Statistics and Machine Learning Toolbox, parallel computing, unit testing, App Designer, and a vibration-analysis capstone.",
+      "prerequisites": ["Completed the beginner material or writes MATLAB scripts with vectors, tables and plots", "Knows basic calculus, linear algebra and what a Fourier transform represents", "Has access to MATLAB with Signal Processing, Statistics and Machine Learning, Image Processing and Parallel Computing Toolboxes"],
+      "outcomes": ["Write validated, documented functions and classes with proper error handling and unit tests", "Profile and speed up code through vectorization, preallocation, sparse storage and parallel loops", "Apply numerical solvers, spectral analysis, filter design, image segmentation and classification to real data", "Build a tested app with App Designer that wraps a reusable analysis library"],
+      "days": [
+        {
+          "topic": "Function Design with arguments Blocks and Validation",
+          "subtopics": ["arguments blocks: positional arguments with size, class and validators", "Name-value arguments with the opts.Name syntax and defaults", "Built-in validators: mustBePositive, mustBeNumeric, mustBeMember and mustBeFinite", "Custom validator functions", "nargin, nargout and varargin for variable-length calls", "inputParser compared with arguments blocks", "Output argument validation", "Error identifiers such as MATLAB:validators:mustBePositive and MATLAB:validation:IncompatibleSize", "Documenting functions with help text and a Contents.m or functionSignatures.json", "Autocompletion of name-value pairs in the editor"],
+          "tools": ["MATLAB", "Editor", "Code Analyzer", "functionSignatures.json"],
+          "lab_task": "Write movingRms(x, win, opts) with an arguments block: x as (1,:) double, win as positive integer, and name-value Tol (1,1) double {mustBePositive} = 1e-6 and Method string {mustBeMember(Method,[\"valid\",\"same\"])} = \"same\". Call it with a default, a negative Tol and a 2x2 matrix for x and record the identifiers.",
+          "deliverable": "movingRms.m with validation, a functionSignatures.json file and a table of calls with outcomes",
+          "checks": [["Call movingRms(1:10, 3)", "Returns a 1x10 vector with Method \"same\" and Tol 1e-6 applied", "Command Window output"], ["Call movingRms(1:10, 3, Tol=-1)", "Error with identifier MATLAB:validators:mustBePositive", "Caught MException identifier"], ["Call movingRms(magic(2), 3)", "Error with identifier MATLAB:validation:IncompatibleSize", "Caught MException identifier"]],
+          "objectives": ["Declare and validate function inputs with arguments blocks", "Provide name-value options with defaults", "Interpret validation error identifiers"]
+        },
+        {
+          "topic": "Error Handling, MException and Assertions",
+          "subtopics": ["error with identifiers and formatted messages", "try, catch ME and the fields identifier, message and stack", "MException construction, throw, rethrow and addCause", "getReport for readable diagnostics", "assert with condition, message and identifier", "onCleanup objects for guaranteed cleanup", "warning, lastwarn and warning('off',id)", "Converting a warning to an error with warning('error',id)", "validateattributes and its error identifiers", "Designing error identifiers with a component:mnemonic convention"],
+          "tools": ["MATLAB", "Editor", "Debugger", "matlab.unittest"],
+          "lab_task": "Write loadSensor(file) that opens a file with fopen, uses onCleanup to close it, throws error('Sensor:range','Value %g out of range',v) when a reading exceeds 120, and wraps lower-level failures with addCause. Catch both failures in a caller, print ME.identifier and getReport, and check fopen('all') afterwards.",
+          "deliverable": "loadSensor.m, a caller script and a log of identifiers, messages and cleanup results",
+          "checks": [["Feed a file with a reading of 150 to loadSensor", "Caught ME.identifier equals 'Sensor:range' and message contains 150", "Command Window output"], ["Run fopen('all') after the failure", "Empty result, so the onCleanup object closed the file", "Command Window output"], ["Run assert(false,'Sensor:check','Check %d failed',3)", "Error Check 3 failed with identifier Sensor:check", "Error text"]],
+          "objectives": ["Throw and catch errors with meaningful identifiers", "Guarantee resource cleanup with onCleanup", "Use assertions and warnings deliberately"]
+        },
+        {
+          "topic": "Vectorizing Loops with Logical Indexing, cumsum and accumarray",
+          "subtopics": ["Identifying loop patterns that can be vectorized", "Logical indexing instead of if inside a for loop", "cumsum, cumprod, cummax and diff for running quantities", "accumarray for grouped sums and counts", "histcounts and discretize for binning", "movmean, movsum and movmedian", "arrayfun and cellfun as readability tools, not speed tools", "Implicit expansion for pairwise distance tables", "When a loop is still the right choice", "Verifying that vectorized and loop results match"],
+          "tools": ["MATLAB", "Profiler", "timeit", "Editor"],
+          "lab_task": "Take a loop that sums 1e6 values grouped by 100 group labels and rewrite it with accumarray, then rewrite a loop that clips negative values with logical indexing. Compare results with max(abs(a-b)) and time both versions with timeit, recording the speedup.",
+          "deliverable": "Script vectorize.m with loop and vector versions side by side and a timing table",
+          "checks": [["Run accumarray([1;2;1;3],[10;20;30;40])", "[40;20;40]", "Command Window output"], ["Compare loop and vectorized grouped sums", "max(abs(a-b)) is below 1e-9", "Command Window output"], ["Time both versions with timeit", "Vectorized version is at least 10 times faster for 1e6 elements", "Timing table"]],
+          "objectives": ["Replace loops with array operations", "Use accumarray and cumulative functions", "Verify equivalence before and after refactoring"]
+        },
+        {
+          "topic": "Memory, Preallocation and Profiler-Guided Speedups",
+          "subtopics": ["tic and toc versus timeit and why timeit is more reliable", "The Profiler: profile on, profile viewer and profile('info')", "Self time versus total time", "Preallocation and in-place modification of arrays", "Memory per class: double 8 bytes, single 4 bytes", "Copy-on-write behaviour and functions that modify inputs", "Column-major access and loop order", "Avoiding repeated concatenation and cell growth", "Clearing large variables and the memory function on Windows", "Writing a performance regression check"],
+          "tools": ["MATLAB", "Profiler", "timeit", "whos"],
+          "lab_task": "Profile a supplied slow script with profile on and profile viewer, identify the line with the highest self time, fix it by preallocating and reordering loops to run down columns, and confirm the speedup with timeit. Also compare whos bytes for zeros(1000) and zeros(1000,'single').",
+          "deliverable": "Profiler report before and after, optimized script and a timing table",
+          "checks": [["Run whos on x = zeros(1000) and y = zeros(1000,'single')", "8000000 bytes and 4000000 bytes", "whos output"], ["Open the Profiler summary of the slow script", "The highest self-time line is the one that grows the array", "Profiler screenshot"], ["Run timeit on the original and optimized functions", "Optimized time is lower and isequal on the outputs is true", "Timing table"]],
+          "objectives": ["Measure with the Profiler and timeit", "Reduce memory use and copying", "Prove an optimization with before and after numbers"]
+        },
+        {
+          "topic": "Object-Oriented MATLAB: Classes, Properties and Handles",
+          "subtopics": ["classdef files with properties, methods and a constructor", "Property attributes: Access, Dependent and Constant", "Property validation such as Balance (1,1) double {mustBeNonnegative}", "Value classes versus handle classes", "Static methods and enumerations", "Operator overloading with plus and disp", "Events, notify and addlistener", "isvalid and delete for handle objects", "Inheritance and abstract classes", "Testing class behaviour"],
+          "tools": ["MATLAB", "Editor", "Debugger", "matlab.unittest"],
+          "lab_task": "Write classdef Account < handle with a validated Balance property, deposit and withdraw methods that error on overdraft, and a Dependent property Status. Create b = a and show that changing b changes a, then make a value-class copy and show it does not.",
+          "deliverable": "Account.m, ValueAccount.m and a demonstration script",
+          "checks": [["Run a = Account(100); b = a; b.deposit(50); a.Balance", "150, because handles share one object", "Command Window output"], ["Run the same sequence with ValueAccount", "100 for the original, because value objects copy", "Command Window output"], ["Call a.withdraw(500) on a balance of 150", "Error with the identifier thrown by the class, balance unchanged at 150", "Caught MException and property value"]],
+          "objectives": ["Design classes with validated properties", "Choose between value and handle semantics", "Use events and listeners"]
+        },
+        {
+          "topic": "Function Handles, Closures and Higher-Order Functions",
+          "subtopics": ["Anonymous functions and captured variables", "Closure capture at creation time: a = 2; f = @(x) a*x", "func2str, str2func and feval", "cellfun, arrayfun and structfun with UniformOutput", "Error MATLAB:cellfun:NotAScalarOutput", "Passing handles to solvers such as fzero, integral and ode45", "Nested functions and shared state", "Handles to local functions and callbacks", "Function composition and partial application", "Debugging anonymous functions"],
+          "tools": ["MATLAB", "Editor", "Command Window", "Debugger"],
+          "lab_task": "Create a = 2; f = @(x) a*x; change a to 5 and call f(3). Write makeCounter() using a nested function with shared state, apply cellfun with and without 'UniformOutput',false on {'a','bcd'}, and pass @(x) x.^2-2 to fzero over [0 2].",
+          "deliverable": "Script handles_closures.m with outputs annotated",
+          "checks": [["Run a = 2; f = @(x) a*x; a = 5; f(3)", "6, because a was captured when f was created", "Command Window output"], ["Run cellfun(@(s) s, {'a','bcd'})", "Error with identifier MATLAB:cellfun:NotAScalarOutput", "Caught MException identifier"], ["Run fzero(@(x) x.^2-2,[0 2])", "1.4142", "Command Window output"]],
+          "objectives": ["Create and pass function handles", "Explain closure capture", "Apply higher-order functions to arrays and cells"]
+        },
+        {
+          "topic": "Timetables, Resampling and Time-Series Handling",
+          "subtopics": ["timetable construction from datetime and duration row times", "Row selection with timerange and withtol", "retime to regular grids with 'mean', 'linear' and 'previous'", "synchronize with 'union', 'intersection' and 'commonrange'", "isregular, sortrows and duplicate row times", "Time zones and UTC offsets in datetime", "Moving statistics over time windows with movmean", "Gaps, fillmissing and lag features with lag", "Aggregating to hours and days with groupsummary", "stackedplot for multi-signal time series"],
+          "tools": ["MATLAB", "Live Editor", "stackedplot", "retime"],
+          "lab_task": "Build a timetable of 1440 one-minute temperatures for one day with a 30-minute gap, call retime(TT,'hourly','mean'), synchronize it with a 5-minute humidity timetable using 'union' and 'linear', select 09:00 to 09:59 with timerange, and test isregular before and after.",
+          "deliverable": "Script timeseries_demo.m with a stackedplot of both signals",
+          "checks": [["Run height(retime(TT,'hourly','mean'))", "24", "Command Window output"], ["Select 09:00 to 09:59 from the one-minute timetable with timerange and count rows", "60 rows", "Command Window output"], ["Run isregular(TT) before and after removing the gap rows", "false after removal and true on the original one-minute grid", "Command Window output"]],
+          "objectives": ["Work with timetables and regular time grids", "Align signals sampled at different rates", "Aggregate and window time series"]
+        },
+        {
+          "topic": "Large Data with datastore, tall Arrays and Parquet",
+          "subtopics": ["datastore for folders of CSV files", "Preview, read and readall and when memory runs out", "SelectedVariableNames and ReadSize", "tall arrays and deferred evaluation", "gather and why it triggers computation", "groupsummary and mean on tall tables", "parquetwrite, parquetread and parquetDatastore", "Column pruning and predicate pushdown with rowfilter", "transform and combine for datastore pipelines", "Choosing between in-memory, tall and parallel approaches"],
+          "tools": ["MATLAB", "Datastore", "tall arrays", "Parquet"],
+          "lab_task": "Write 12 CSV files of 100000 rows each, create ds = datastore('part*.csv'), build tt = tall(ds), compute gather(height(tt)) and a grouped mean with groupsummary on the tall table, convert the data to Parquet with parquetwrite and compare file sizes and the time to read two columns.",
+          "deliverable": "Script big_data.m with a table of CSV versus Parquet size and read time",
+          "checks": [["Run numel(ds.Files)", "12", "Command Window output"], ["Run gather(height(tt))", "1200000", "Command Window output"], ["Compare total CSV bytes with total Parquet bytes", "Parquet total is smaller than the CSV total", "dir listing sizes"]],
+          "objectives": ["Process data larger than memory with datastore and tall", "Use Parquet for columnar storage", "Explain deferred evaluation and gather"]
+        },
+        {
+          "topic": "Sparse Matrices and Matrix Factorizations",
+          "subtopics": ["Sparse storage: sparse, spalloc, nnz and spy", "spdiags, speye and building a 1-D Poisson matrix", "Memory comparison of full and sparse storage", "Sparse backslash and the solver selection", "lu, qr, chol and ldl factorizations", "decomposition objects for repeated solves", "Cholesky and the error Matrix must be positive definite", "Fill-in and reordering with symrcm and amd", "eigs and svds for a few eigenvalues", "Choosing factorization for symmetric positive definite systems"],
+          "tools": ["MATLAB", "spy", "decomposition", "whos"],
+          "lab_task": "Build the n = 2000 tridiagonal matrix with spdiags([-1 2 -1],-1:1,n,n), compare whos bytes for the sparse and full(A) versions, solve A*x = ones(n,1) with backslash, then time 50 solves with and without dA = decomposition(A). Call chol on [1 2;2 1] and record the error.",
+          "deliverable": "Script sparse_demo.m with a memory and timing table",
+          "checks": [["Run nnz(A) for the n = 2000 tridiagonal matrix", "5998", "Command Window output"], ["Run whos on full(A)", "32000000 bytes", "whos output"], ["Run chol([1 2;2 1])", "Error: Matrix must be positive definite.", "Error text"]],
+          "objectives": ["Store and solve large sparse systems", "Reuse factorizations with decomposition", "Choose a factorization from matrix properties"]
+        },
+        {
+          "topic": "Root Finding, Optimization and Curve Fitting Solvers",
+          "subtopics": ["fzero with brackets and the sign-change requirement", "fminbnd for one-variable minimization", "fminsearch for derivative-free minimization", "fminunc and lsqcurvefit from Optimization Toolbox", "optimoptions, Display and exit flags", "Fitting y = a*exp(-b*t) by least squares", "Initial guesses and local minima", "Reading exitflag and output structures", "Sum of squared errors versus robust loss", "Reporting fitted parameters with confidence intervals"],
+          "tools": ["MATLAB", "Optimization Toolbox", "Curve Fitter app", "Live Editor"],
+          "lab_task": "Simulate y = 3*exp(-0.5*t) + 0.05*randn using rng(2), fit [a b] with fminsearch on the sum of squares and with lsqcurvefit, compare both to the true values, then run fzero(@cos,[0 1]) to record the bracketing error and fminbnd(@(x) x.^2-4*x,0,5).",
+          "deliverable": "Script solver_fit.m with a parameter comparison table",
+          "checks": [["Run fminbnd(@(x) x.^2-4*x,0,5)", "2.0000", "Command Window output"], ["Run fzero(@cos,[0 1])", "Error: Function values at interval endpoints must differ in sign.", "Error text"], ["Compare fminsearch and lsqcurvefit estimates of [a b]", "Both within 0.1 of [3 0.5] and exitflag is positive", "Parameter table"]],
+          "objectives": ["Choose the right solver for root finding and fitting", "Interpret solver exit flags", "Fit nonlinear models to noisy data"]
+        },
+        {
+          "topic": "Numerical Integration and Differentiation",
+          "subtopics": ["integral with AbsTol, RelTol and Waypoints", "Improper integrals with Inf limits", "trapz and cumtrapz on sampled data", "integral2 and integral3", "Singular integrands such as 1/sqrt(x)", "diff and gradient on grids", "Forward and central finite differences and their truncation error", "Round-off error and the choice of step h", "Richardson extrapolation", "Symbolic cross-check with Symbolic Math Toolbox"],
+          "tools": ["MATLAB", "Live Editor", "Symbolic Math Toolbox", "Editor"],
+          "lab_task": "Compute integral(@(x) exp(-x.^2),0,Inf) and compare with sqrt(pi)/2, integral(@(x) 1./sqrt(x),0,1), and trapz on x = 0:0.1:1 with y = x.^2. Differentiate sin at x = 1 with forward and central differences for h = 10.^(-1:-1:-10) and plot the errors on log axes.",
+          "deliverable": "Script integ_diff.m with an error-versus-h plot",
+          "checks": [["Run integral(@(x) exp(-x.^2),0,Inf)", "0.8862, matching sqrt(pi)/2", "Command Window output"], ["Run trapz(0:0.1:1,(0:0.1:1).^2)", "0.3350", "Command Window output"], ["Run forward and central differences of sin at 1 with h = 1e-5", "Forward error about 4e-6, central error below 1e-10", "Error table"]],
+          "objectives": ["Integrate functions and sampled data accurately", "Differentiate numerically and quantify error", "Explain truncation versus round-off error"]
+        },
+        {
+          "topic": "Solving ODEs with ode45 and ode15s",
+          "subtopics": ["Writing a first-order system as dydt = f(t,y)", "ode45 for non-stiff problems", "ode15s and ode23s for stiff problems", "odeset: RelTol, AbsTol, MaxStep and Events", "Event functions and terminal events", "Van der Pol oscillator as a stiffness test", "Solution structure and deval", "Comparing step counts between solvers", "Choosing tolerances against run time", "Plotting phase portraits"],
+          "tools": ["MATLAB", "ode45", "ode15s", "Live Editor"],
+          "lab_task": "Solve y' = -2y, y(0) = 1 on [0 1] with RelTol 1e-8 and compare y(1) with exp(-2). Solve the Van der Pol equation with mu = 1000 on [0 3000] with ode45 and ode15s and compare numel(t). Add an event that stops a bouncing ball model when it reaches the ground.",
+          "deliverable": "Script ode_demo.m with a step-count table and event time",
+          "checks": [["Compare y(1) from ode45 with exp(-2)", "0.1353 with absolute error below 1e-6", "Command Window output"], ["Compare numel(t) for ode45 and ode15s on Van der Pol with mu = 1000", "ode15s uses at least 10 times fewer steps", "Step-count table"], ["Run the bouncing ball with a terminal event", "te equals sqrt(2*h0/g) for the chosen height and gravity", "Command Window output"]],
+          "objectives": ["Formulate and solve initial-value problems", "Choose stiff or non-stiff solvers", "Detect events during integration"]
+        },
+        {
+          "topic": "Fourier Analysis and Spectral Estimation",
+          "subtopics": ["Sampling, Nyquist frequency and aliasing", "fft, ifft and the frequency axis f = (0:N/2)*fs/N", "Single-sided amplitude spectrum scaling", "Spectral leakage and windows such as hann", "Zero padding versus frequency resolution", "findpeaks on spectra", "pwelch for power spectral density", "spectrogram for time-frequency views", "Coherent sampling", "Reporting resolution fs/N"],
+          "tools": ["MATLAB", "Signal Processing Toolbox", "Live Editor", "Signal Analyzer"],
+          "lab_task": "Create fs = 1000 and x = sin(2*pi*50*t) + 0.5*sin(2*pi*120*t) for one second, compute the single-sided FFT amplitude and find both peaks. Repeat with 50.5 Hz and a hann window to show leakage, then sample a 600 Hz tone at 1000 Hz and report the aliased frequency.",
+          "deliverable": "Script spectrum_demo.m with spectra plots and a peak table",
+          "checks": [["Find peaks of the single-sided amplitude spectrum for the two-tone signal", "50 Hz with amplitude 1.0 and 120 Hz with amplitude 0.5", "Peak table"], ["Sample a 600 Hz tone at fs = 1000 and locate the spectrum peak", "400 Hz, the aliased frequency", "Spectrum plot"], ["Apply a hann window to the 50.5 Hz tone", "Side lobes drop compared with the rectangular window", "Overlaid spectra"]],
+          "objectives": ["Compute and scale amplitude spectra", "Control leakage with windows", "Recognize aliasing"]
+        },
+        {
+          "topic": "Digital Filter Design and Zero-Phase Filtering",
+          "subtopics": ["FIR versus IIR trade-offs", "butter, cheby1 and ellip design", "Second-order sections with [sos,g] = butter", "designfilt and the Filter Designer", "freqz and the magnitude response", "filter versus filtfilt", "Phase delay and group delay", "Notch filters with iirnotch", "medfilt1 and moving average filters", "Edge effects and filter initial conditions"],
+          "tools": ["MATLAB", "Signal Processing Toolbox", "Filter Designer", "designfilt"],
+          "lab_task": "Design a 4th-order Butterworth low-pass at 100 Hz for fs = 1000 using butter(4,100/(fs/2)), plot freqz, filter a noisy 20 Hz sine with filter and filtfilt, measure the delay by xcorr, and remove 50 Hz hum with iirnotch(50/(fs/2),(50/(fs/2))/35).",
+          "deliverable": "Script filter_design.m with magnitude response and filtered signals",
+          "checks": [["Evaluate the Butterworth magnitude at 100 Hz with freqz", "About 0.7071, which is -3 dB", "freqz output"], ["Compare filter and filtfilt on a 20 Hz sine", "filter shows a delay while filtfilt output has zero lag", "xcorr lag values"], ["Apply the notch to a signal containing 50 Hz hum", "The 50 Hz peak falls by at least 30 dB in pwelch", "pwelch comparison"]],
+          "objectives": ["Design IIR and FIR filters", "Choose between filter and filtfilt", "Verify filters in the frequency domain"]
+        },
+        {
+          "topic": "Image Segmentation and Measurement with regionprops",
+          "subtopics": ["imread, imshow and image classes uint8 and double", "Grayscale conversion with im2gray", "Thresholding with graythresh and imbinarize", "Morphology: strel, imopen, imclose and imfill", "Connected components with bwconncomp and labelmatrix", "regionprops for Area, Centroid and BoundingBox", "Filtering regions by area", "Noise with imnoise and median filtering with medfilt2", "Overlays with labeloverlay", "Validating measurements against ground truth"],
+          "tools": ["MATLAB", "Image Processing Toolbox", "Image Segmenter", "regionprops"],
+          "lab_task": "Synthesize a 200x200 binary image with four discs of radius 20 at known centres, add salt-and-pepper noise using imnoise(I,'salt & pepper',0.02), clean it with medfilt2 and imopen using strel('disk',3), run bwconncomp and regionprops, and compare centroids and areas with the known values.",
+          "deliverable": "Script segment_discs.m with a labeled overlay and a measurement table",
+          "checks": [["Run cc = bwconncomp(cleaned); cc.NumObjects", "4", "Command Window output"], ["Compare regionprops centroids with the known centres", "Every centroid is within 1 pixel", "Measurement table"], ["Compare mean Area with pi*20^2", "Within 2 percent of 1256.6 pixels", "Measurement table"]],
+          "objectives": ["Segment objects with thresholds and morphology", "Measure regions with regionprops", "Validate measurements against ground truth"]
+        },
+        {
+          "topic": "Regression and Classification with Statistics and Machine Learning Toolbox",
+          "subtopics": ["fitlm and coefficient tables", "Train and test splits with cvpartition", "Classification with fitctree, fitcknn, fitcdiscr and fitcecoc", "resubLoss, loss and kfoldLoss", "crossval and 10-fold cross-validation", "confusionchart and per-class metrics", "Feature scaling and categorical predictors", "The Classification Learner and Regression Learner apps", "Exporting a trained model with predictFcn", "Avoiding leakage between training and test data"],
+          "tools": ["MATLAB", "Statistics and Machine Learning Toolbox", "Classification Learner", "confusionchart"],
+          "lab_task": "Load fisheriris and train fitcdiscr, fitctree and fitcknn, compute resubLoss and 10-fold kfoldLoss for each with rng(1), draw confusionchart for the best model on a 30 percent holdout, and fit fitlm(carsmall, 'MPG ~ Weight') to report coefficients and R-squared.",
+          "deliverable": "Script classify_iris.m and a model comparison table",
+          "checks": [["Run resubLoss(fitcdiscr(meas,species))", "0.0200", "Command Window output"], ["Run size(meas)", "150 4", "Command Window output"], ["Run crossval and kfoldLoss for the tree", "Loss below 0.10 and reported for all three models", "Comparison table"]],
+          "objectives": ["Train and evaluate classifiers with cross-validation", "Fit and interpret linear regression", "Avoid training-test leakage"]
+        },
+        {
+          "topic": "Parallel Computing with parfor, parpool and Background Pool",
+          "subtopics": ["parpool profiles: Processes and Threads", "parfor rules: independence, slicing, reduction and broadcast variables", "The error Unable to classify the variable", "gcp and the pool size", "parfeval and fetchOutputs", "backgroundPool for non-blocking work", "spmd and Composite objects", "DataQueue for progress updates", "Reproducible random numbers across workers", "Measuring speedup and Amdahl limits"],
+          "tools": ["MATLAB", "Parallel Computing Toolbox", "parpool", "Profiler"],
+          "lab_task": "Start parpool('Processes',4), run a Monte Carlo estimate of pi with 4e7 points in a for loop and in parfor with a reduction, and report the speedup. Add a loop with a cross-iteration dependency to trigger the classification error, and use parfeval with afterEach to report progress.",
+          "deliverable": "Script parallel_pi.m with a speedup table",
+          "checks": [["Run parfor i=1:100, s = s + i; end with s = 0 beforehand", "s equals 5050", "Command Window output"], ["Run a parfor where iteration i uses the result of i-1", "Error: Unable to classify the variable in the body of the parfor-loop", "Error text"], ["Compare for and parfor times for the Monte Carlo run", "Speedup above 1.5 with 4 workers and pi estimates within 0.001", "Timing table"]],
+          "objectives": ["Parallelize independent iterations safely", "Use parfeval for asynchronous work", "Measure and explain speedup"]
+        },
+        {
+          "topic": "Unit Testing with matlab.unittest and Coverage",
+          "subtopics": ["Function-based tests with local test functions and setup and teardown", "Class-based tests with Test methods and TestParameter", "Qualifications: verifyEqual, verifyError, verifyTrue and assumeTrue", "Tolerances with AbsTol and RelTol", "Fixtures such as TemporaryFolderFixture", "runtests and the TestResult table", "CodeCoveragePlugin and the coverage report", "JUnit XML output with XMLPlugin", "Test-driven development loop", "Organising tests in a tests folder"],
+          "tools": ["MATLAB", "matlab.unittest", "Test Browser", "CodeCoveragePlugin"],
+          "lab_task": "Write a function-based test file for movingRms covering a constant signal, a ramp, an invalid Tol with verifyError, and a parameterized window size. Run results = runtests('tests'), table(results), then a runner with CodeCoveragePlugin.forFolder and XMLPlugin.producingJUnitFormat('results.xml').",
+          "deliverable": "tests folder, results.xml and an HTML coverage report",
+          "checks": [["Run results = runtests('tests'); sum([results.Passed])", "All tests pass and sum([results.Failed]) is 0", "Command Window output"], ["Open the coverage report for movingRms.m", "Statement coverage of at least 90 percent", "HTML coverage report"], ["Break the function and rerun", "One test fails and the diagnostic shows expected versus actual values", "Test result table"]],
+          "objectives": ["Write function-based and class-based tests", "Measure coverage", "Produce CI-readable test reports"]
+        },
+        {
+          "topic": "Building Apps with App Designer and uifigure",
+          "subtopics": ["App Designer Design View and Code View", "uifigure, uigridlayout and component layout", "Buttons, sliders, drop-downs and uiaxes", "Callbacks and the app object", "startupFcn and properties for shared state", "Dialogs with uialert and uiprogressdlg", "Keeping the UI responsive during computation", "Testing with matlab.uitest.TestCase press, choose and type", "Packaging the app as a .mlapp and .mlappinstall", "Accessibility and resizing"],
+          "tools": ["MATLAB", "App Designer", "matlab.uitest", "uifigure"],
+          "lab_task": "Build an app that loads a CSV signal, shows it in uiaxes, offers a slider for a low-pass cutoff and a button that applies the filter and updates an RMS label. Write a matlab.uitest.TestCase that presses the button after choosing a cutoff and verifies the label text.",
+          "deliverable": "SignalApp.mlapp, a UI test file and a screen recording or screenshots",
+          "checks": [["Run the app and press Load with a valid CSV", "The axes shows the signal and the sample-count label matches height(T)", "App screenshot"], ["Use testCase.choose(app.CutoffSlider,100) then press the Apply button", "The RMS label updates to the filtered value within 1e-6", "UI test result"], ["Press Apply before loading a file", "A uialert dialog explains that no data is loaded", "Dialog screenshot"]],
+          "objectives": ["Build apps with callbacks and shared state", "Handle errors with dialogs", "Test app behaviour automatically"]
+        },
+        {
+          "topic": "Intermediate Capstone: Vibration Analysis Toolbox with Tests and App",
+          "subtopics": ["Requirements, folder layout and validated function signatures", "Signal pipeline: import, filter, FFT peaks and windowed RMS", "Test suite with at least 85 percent coverage", "App Designer front end that reuses the library", "Profiling and a documented performance budget", "Packaged release notes and a Git tag"],
+          "tools": ["MATLAB", "Signal Processing Toolbox", "App Designer", "matlab.unittest"],
+          "lab_task": "Build a vibration toolbox for 2000 Hz accelerometer CSV files: load with datastore, band-pass 10 to 500 Hz with filtfilt, find spectral peaks, compute windowed RMS, and expose it in an app. Test with a synthetic 120 Hz signal and a 10-minute file, with coverage of at least 85 percent and a run time budget under 5 seconds.",
+          "deliverable": "Toolbox folder, tests, app, coverage report and release notes",
+          "checks": [["Run the pipeline on a synthetic 120 Hz sine plus noise", "Reported dominant frequency is within 1 Hz of 120", "Command Window output"], ["Run runtests with CodeCoveragePlugin", "All tests pass and coverage is at least 85 percent", "Coverage report"], ["Time the pipeline on a 10-minute file with timeit", "Under 5 seconds as recorded in the performance budget", "Timing table"]],
+          "objectives": ["Deliver a tested, documented MATLAB toolbox", "Connect a library to an app", "Meet a measurable performance budget"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For experienced MATLAB users who build and ship engineering software. Covers projects and toolbox packaging, buildtool and CI, headless and container runs, MEX and C++ libraries, Python interoperability, MATLAB Coder, GPU computing, clusters and Parallel Server, deep learning with dlnetwork and trainnet, Bayesian optimization and explainability, Kalman filtering, constrained optimization, PDEs and finite elements, Simulink modelling, scripted simulation, Stateflow, verification and coverage, deployment with MATLAB Compiler and Production Server, REST services, and a predictive-maintenance capstone.",
+      "prerequisites": ["Completed the intermediate material or writes tested MATLAB functions, classes and apps", "Comfortable with Git, a command line and basic C or Python", "Has access to MATLAB, Simulink and the Coder, Compiler, Parallel Computing and Statistics and Machine Learning products, or equivalent trial licences"],
+      "outcomes": ["Package, build, test and release MATLAB code through projects, buildtool and CI", "Accelerate and deploy algorithms with MEX, MATLAB Coder, GPUs, clusters and MATLAB Production Server", "Model, simulate and verify dynamic systems with Simulink, Stateflow and scripted parameter sweeps", "Deliver an end-to-end machine learning service with measurable accuracy, generated-code fidelity and latency"],
+      "days": [
+        {
+          "topic": "MATLAB Projects, Toolbox Packaging and Dependency Analysis",
+          "subtopics": ["Creating a project with matlab.project.createProject and currentProject", "Adding files and folders with addFile and addFolderIncludingChildFiles", "Project path, startup and shutdown shortcuts", "File labels and custom categories", "Dependency analysis with updateDependencies and listRequiredFiles", "Finding missing and unused files", "Packaging with matlab.addons.toolbox.ToolboxOptions and packageToolbox", "Installing a .mltbx with matlab.addons.install", "Versioning, release notes and semantic versioning", "Project-level Git integration and merge conflicts in project files"],
+          "tools": ["MATLAB", "MATLAB Projects", "Dependency Analyzer", "Git", "packageToolbox"],
+          "lab_task": "Convert the vibration toolbox into a project with proj = matlab.project.createProject, add folders with addFolderIncludingChildFiles, run updateDependencies(proj), list required files for the app, then build opts = matlab.addons.toolbox.ToolboxOptions with ToolboxVersion '1.0.0' and call packageToolbox(opts). Install the .mltbx on a clean profile.",
+          "deliverable": "Project file, vibration.mltbx and a dependency report listing required and unused files",
+          "checks": [["Run listRequiredFiles(proj, 'SignalApp.mlapp')", "The list includes every library function the app calls and no test files", "Command Window output"], ["Run packageToolbox(opts)", "A vibration.mltbx file is created with version 1.0.0", "File listing"], ["Install the toolbox and run which movingRms", "The path points to the installed toolbox folder", "Command Window output"]],
+          "objectives": ["Organize code as a MATLAB project", "Analyze dependencies before release", "Package and install a toolbox"]
+        },
+        {
+          "topic": "Build Automation with buildtool and Continuous Integration",
+          "subtopics": ["buildfile.m with function-based tasks and the buildplan function", "Task dependencies and plan(\"test\").Dependencies", "Built-in tasks: CodeIssuesTask, TestTask, CleanTask and MexTask", "Task inputs and outputs and incremental builds", "Running buildtool from the command line with task names", "Failing the build on Code Analyzer errors", "matlab-actions setup-matlab and run-build in GitHub Actions", "Equivalent steps for Azure DevOps, GitLab CI and Jenkins", "Caching products and artefacts in CI", "Publishing test and coverage artefacts"],
+          "tools": ["MATLAB", "buildtool", "GitHub Actions", "matlab-actions"],
+          "lab_task": "Add a buildfile.m with check, test, mex and package tasks, where test depends on check and mex declares its Inputs and Outputs. Run buildtool test, run buildtool mex twice to see incremental skipping, then write a GitHub Actions workflow with matlab-actions/setup-matlab and matlab-actions/run-build that uploads results.xml.",
+          "deliverable": "buildfile.m, .github/workflows/ci.yml and a screenshot of a green workflow run",
+          "checks": [["Run buildtool test with a Code Analyzer error present", "The check task fails and test is not run, exit status is nonzero", "Build output and exit status"], ["Run buildtool mex twice without changing the source", "The second run reports the mex task as skipped because outputs are up to date", "Build output"], ["Push the workflow", "The Actions run completes with all tasks passing and results.xml attached", "Workflow run page"]],
+          "objectives": ["Define incremental builds with buildtool", "Gate changes on code issues and tests", "Run MATLAB builds in CI services"]
+        },
+        {
+          "topic": "Containerized and Headless Runs with matlab -batch and Docker",
+          "subtopics": ["matlab -batch for noninteractive runs and its exit codes", "-sd, -logfile and -nosplash style startup options", "Using the official MATLAB image from Docker Hub", "Installing products with MATLAB Package Manager mpm", "Licensing: network license via port@host and batch licensing tokens", "Environment variables such as MLM_LICENSE_FILE", "Mounting a project with docker run -v", "Running tests and builds inside the container", "Image size, layers and caching", "Security of license tokens and secrets in CI"],
+          "tools": ["MATLAB", "Docker", "mpm", "matlab -batch"],
+          "lab_task": "Run matlab -batch \"disp(1+1)\" and capture the exit status. Run matlab -batch \"error('x')\" and record the nonzero status. Write a Dockerfile that starts from the official MATLAB image, installs required products with mpm, mounts the project, and runs buildtool test with a license supplied through an environment variable.",
+          "deliverable": "Dockerfile, run script and a log showing exit codes 0 and nonzero",
+          "checks": [["Run matlab -batch \"disp(1+1)\" and read $?", "Prints 2 and exits with status 0", "Terminal output"], ["Run matlab -batch \"error('x')\" and read $?", "Prints the error and exits with a nonzero status", "Terminal output"], ["Run the container with the project mounted", "buildtool test completes and results.xml appears in the mounted folder", "Container log and file listing"]],
+          "objectives": ["Run MATLAB headless with exit codes", "Containerize MATLAB workloads", "Keep licenses out of images and logs"]
+        },
+        {
+          "topic": "MEX Files and Calling C and C++ Libraries",
+          "subtopics": ["mex -setup and compiler selection", "The C MEX gateway mexFunction(nlhs, plhs, nrhs, prhs)", "mxArray creation with mxCreateDoubleMatrix and typed data access", "Argument checking with mexErrMsgIdAndTxt", "Compiling with mex -R2018a, -O and -g", "mexext platform extensions", "The C++ MEX Data API", "clibgen.generateLibraryDefinition and build for C++ libraries", "Memory ownership and mexMakeMemoryPersistent hazards", "Debugging a MEX file with a native debugger"],
+          "tools": ["MATLAB", "MEX", "C compiler", "clibgen"],
+          "lab_task": "Write movingSumMex.c that returns the cumulative sum of a double vector, validates nrhs with mexErrMsgIdAndTxt('movingsum:nrhs','One input required.'), compile it with mex -R2018a movingSumMex.c, compare to cumsum on 1e7 elements with isequal and timeit, and call it with zero arguments to capture the error.",
+          "deliverable": "movingSumMex.c, compiled MEX file, and a timing and correctness table",
+          "checks": [["Run mexext and check the built file extension", "The built file ends with the platform's mexext such as mexw64 or mexa64", "Directory listing"], ["Run isequal(movingSumMex(x), cumsum(x)) for rand(1,1e7)", "logical 1", "Command Window output"], ["Run movingSumMex with no arguments", "Error with identifier movingsum:nrhs", "Caught MException identifier"]],
+          "objectives": ["Build and call C MEX functions", "Validate inputs at the MEX gateway", "Wrap an external C++ library"]
+        },
+        {
+          "topic": "Python Interoperability with pyenv and the MATLAB Engine API",
+          "subtopics": ["pyenv, Version and ExecutionMode (InProcess and OutOfProcess)", "Calling Python from MATLAB with py. prefixes", "Data conversion between MATLAB arrays and Python lists, dicts and NumPy arrays", "pyrun and pyrunfile", "Installing the MATLAB Engine API for Python with pip install matlabengine", "matlab.engine.start_matlab and calling MATLAB functions", "matlab.double and NumPy conversion", "Asynchronous calls with background=True", "Shared sessions with matlab.engine.shareEngine and connect_matlab", "Version pairing between engine and MATLAB release"],
+          "tools": ["MATLAB", "Python", "matlabengine", "pyenv"],
+          "lab_task": "In MATLAB set pyenv to a supported Python, run py.math.sqrt(2), pass a NumPy array to np.linalg.norm through py. and convert the result with double. In Python install matlabengine, start the engine, call eng.sqrt(4.0) and eng.cumsum(matlab.double([1,2,3])), and run one call in the background.",
+          "deliverable": "MATLAB script py_interop.m, Python script engine_demo.py and a conversion table",
+          "checks": [["Run py.math.sqrt(2) in MATLAB", "1.4142", "Command Window output"], ["Run pyenv and inspect ExecutionMode", "InProcess by default and the selected Python version is shown", "pyenv output"], ["Run eng.cumsum(matlab.double([1,2,3])) in Python", "[[1.0, 3.0, 6.0]] as a matlab.double", "Python console output"]],
+          "objectives": ["Call Python libraries from MATLAB", "Drive MATLAB from Python", "Manage version and data-type conversion issues"]
+        },
+        {
+          "topic": "Code Generation with MATLAB Coder",
+          "subtopics": ["The %#codegen directive and codegen command", "-args with coder.typeof and coder.Constant", "Variable-size inputs with coder.varsize", "Generating a MEX file for speed and a C library for deployment", "Code generation reports and the Code Generation Readiness tool", "Dynamic memory allocation settings", "Unsupported functions and fixes", "Testing generated code with coder.runTest", "Software-in-the-loop verification with Embedded Coder", "Integrating generated C into a C main program"],
+          "tools": ["MATLAB", "MATLAB Coder", "codegen", "Embedded Coder"],
+          "lab_task": "Take movingRms and prepare it for codegen with %#codegen, run codegen movingRms -args {coder.typeof(0,[1 1e6],[0 1]),0} -report, compare movingRms_mex to the MATLAB result on 1e6 samples, time both, then generate a static library with coder.config('lib') and call it from a small C main.",
+          "deliverable": "Generated MEX and C library, code generation report and a speed and accuracy table",
+          "checks": [["Compare movingRms_mex with movingRms on 1e6 samples", "max(abs(difference)) is below 1e-12", "Command Window output"], ["Time both versions with timeit", "Generated MEX is faster or the report explains why not", "Timing table"], ["Open the code generation report", "No errors are listed and the readiness check passes", "Report screenshot"]],
+          "objectives": ["Prepare MATLAB code for code generation", "Generate and verify MEX and C code", "Interpret code generation reports"]
+        },
+        {
+          "topic": "GPU Computing with gpuArray and Custom Kernels",
+          "subtopics": ["gpuDeviceCount, gpuDevice and device properties", "gpuArray, gather and data transfer cost", "Running built-in functions on the GPU", "arrayfun on gpuArray for fused element-wise kernels", "gputimeit and wait(gpuDevice) for fair timing", "Single versus double precision throughput", "GPU memory limits and AvailableMemory", "pagemtimes and batched operations", "parallel.gpu.CUDAKernel and mexcuda", "When the GPU is slower than the CPU"],
+          "tools": ["MATLAB", "Parallel Computing Toolbox", "gputimeit", "CUDA"],
+          "lab_task": "Check gpuDeviceCount(\"available\"), then compare a 4000x4000 matrix multiply and an FFT on CPU and gpuArray with timeit and gputimeit, in single and double. Use arrayfun with a custom element-wise function on the GPU and record the transfer cost of gpuArray and gather.",
+          "deliverable": "Script gpu_bench.m with a table of CPU and GPU times and transfer cost",
+          "checks": [["Run gpuDeviceCount(\"available\")", "A count of at least 1 on a GPU machine, or 0 with a documented CPU fallback", "Command Window output"], ["Compare class(gather(gpuArray(single(1))))", "single", "Command Window output"], ["Time the 4000x4000 multiply with gputimeit and timeit", "GPU is faster in single precision, with the ratio recorded", "Timing table"]],
+          "objectives": ["Move computations to the GPU correctly", "Time GPU code fairly", "Decide when the GPU is worth using"]
+        },
+        {
+          "topic": "Cluster and Cloud Computing with MATLAB Parallel Server and batch",
+          "subtopics": ["parcluster and cluster profiles", "batch with function handles and the Pool option", "Job states: queued, running, finished and failed", "fetchOutputs and diary for results and logs", "createJob and createTask for independent tasks", "AttachedFiles and AdditionalPaths", "Scheduler integration with Slurm using generic cluster scripts", "parfor on a cluster pool", "Cloud clusters and cost control", "Debugging failed tasks with ErrorMessage and Error"],
+          "tools": ["MATLAB", "Parallel Server", "parcluster", "batch"],
+          "lab_task": "Using the local cluster profile or a supplied Slurm profile, submit job = batch(@pi_mc,1,{1e8},'Pool',3), wait for the finished state, call fetchOutputs, and read job.Tasks(1).Diary. Then submit a task that calls error('fail') and read ErrorMessage to practise debugging.",
+          "deliverable": "Script cluster_jobs.m and a job log with states and outputs",
+          "checks": [["Run job.wait; job.State after the batch submission", "finished", "Command Window output"], ["Run fetchOutputs(job)", "Returns a pi estimate within 0.001 of 3.1416", "Command Window output"], ["Submit a task that calls error('fail') and read job.Tasks(1).ErrorMessage", "The message contains fail and the job state is failed", "Command Window output"]],
+          "objectives": ["Submit and monitor batch jobs on clusters", "Collect outputs and diagnose failures", "Control resources and cost"]
+        },
+        {
+          "topic": "Deep Learning with dlnetwork, trainnet and Custom Loops",
+          "subtopics": ["Layer arrays: imageInputLayer, convolution2dLayer, batchNormalizationLayer, reluLayer, fullyConnectedLayer and softmaxLayer", "analyzeNetwork and learnable counts", "trainingOptions with adam, MiniBatchSize and ValidationData", "trainnet with a loss name such as crossentropy", "minibatchpredict and testnet", "dlarray and automatic differentiation with dlfeval and dlgradient", "A custom training loop with adamupdate", "Experiment Manager for sweeps", "Data augmentation and datastores", "Why dlnetwork workflows replace the older trainNetwork function"],
+          "tools": ["MATLAB", "Deep Learning Toolbox", "trainnet", "Experiment Manager"],
+          "lab_task": "Load the digit images with [XTrain,TTrain] = digitTrain4DArrayData, build a small convolutional network, train it with trainnet, trainingOptions(\"adam\") and a validation split, evaluate with testnet and minibatchpredict, then reproduce one training epoch in a custom loop with dlfeval, dlgradient and adamupdate.",
+          "deliverable": "Script train_digits.m, trained network file and an accuracy and loss report",
+          "checks": [["Run size(XTrain) after digitTrain4DArrayData", "28 28 1 5000", "Command Window output"], ["Run testnet on the held-out digits", "Accuracy above 0.95", "Command Window output"], ["Run one epoch of the custom loop", "Loss decreases from the first to the last minibatch and matches trainnet within normal run-to-run variation", "Loss curve"]],
+          "objectives": ["Train networks with the dlnetwork workflow", "Write a custom training loop", "Evaluate and compare models reproducibly"]
+        },
+        {
+          "topic": "Hyperparameter Optimization, Explainability and Model Export",
+          "subtopics": ["bayesopt with optimizableVariable and an objective function", "OptimizeHyperparameters in fitc* functions", "fitcauto for automated model selection", "Explainability with lime, shapley and plotPartialDependence", "Interpretable models and global importance", "compact models and saveLearnerForCoder", "Exporting networks with exportONNXNetwork and importNetworkFromONNX", "Verifying exported models against MATLAB output", "Model cards and documentation", "Reproducibility with rng and recorded options"],
+          "tools": ["MATLAB", "Statistics and Machine Learning Toolbox", "bayesopt", "ONNX"],
+          "lab_task": "Tune a fitcsvm model on a supplied dataset with bayesopt over BoxConstraint and KernelScale, compare its 10-fold loss with the default, explain one prediction with shapley, export a small network to ONNX, import it back with importNetworkFromONNX, and compare outputs on 100 inputs.",
+          "deliverable": "Script tune_explain.m, tuning results table and an ONNX round-trip report",
+          "checks": [["Compare 10-fold kfoldLoss of the tuned and default SVM", "The tuned model's loss is lower than or equal to the default", "Comparison table"], ["Sum shapley values with the mean prediction for one query point", "The total is close to the model's prediction for that point", "Shapley table"], ["Compare outputs of the original and ONNX round-trip networks on 100 inputs", "Maximum absolute difference below 1e-4", "Command Window output"]],
+          "objectives": ["Tune models with Bayesian optimization", "Explain individual predictions", "Export models and verify the round trip"]
+        },
+        {
+          "topic": "State Estimation with Kalman Filters",
+          "subtopics": ["State-space model for constant velocity with F, H, Q and R", "Predict and update equations written by hand", "Innovation, innovation covariance and the Kalman gain", "trackingKF, trackingEKF and trackingUKF objects", "configureKalmanFilter", "Steady-state gain and Control System Toolbox kalman", "Tuning Q and R from sensor specifications", "Consistency checks with normalized innovation squared", "Handling missed detections", "Nonlinear measurement models"],
+          "tools": ["MATLAB", "Sensor Fusion and Tracking Toolbox", "Control System Toolbox", "Live Editor"],
+          "lab_task": "Simulate a target moving at 5 m/s sampled at 10 Hz for 60 s with position measurement noise sigma 2 m. Implement a constant-velocity Kalman filter by hand, compare with trackingKF, compute RMSE of the raw measurements and of the filtered position, and compute the mean normalized innovation squared.",
+          "deliverable": "Script kalman_cv.m with position and error plots and an RMSE table",
+          "checks": [["Compare RMSE of filtered position with raw measurements", "Filtered RMSE is lower than the raw RMSE of about 2 m", "RMSE table"], ["Compare the hand filter with trackingKF on the same data", "Maximum position difference below 1e-6", "Command Window output"], ["Compute the mean normalized innovation squared", "Close to 1, the measurement dimension, within 0.8 to 1.2", "Command Window output"]],
+          "objectives": ["Implement and tune a Kalman filter", "Use tracking filter objects", "Check filter consistency statistically"]
+        },
+        {
+          "topic": "Constrained Optimization with fmincon, quadprog and intlinprog",
+          "subtopics": ["Problem forms for linprog, quadprog, fmincon and intlinprog", "Linear and bound constraints and the A, b, Aeq, beq, lb, ub arguments", "Nonlinear constraints and gradients", "Algorithm choices such as interior-point and sqp", "The problem-based approach with optimvar and optimproblem", "Mixed-integer problems and the knapsack example", "Feasibility, exit flags and Lagrange multipliers", "Scaling and starting points", "Sensitivity from the lambda output", "Reporting results in business units"],
+          "tools": ["MATLAB", "Optimization Toolbox", "optimproblem", "Live Editor"],
+          "lab_task": "Maximize 3x+2y subject to x+y<=4, x+3y<=6 and x<=3 with linprog, solve the 0-1 knapsack with values [60 100 120], weights [10 20 30] and capacity 50 with intlinprog, and minimize the Rosenbrock function inside the unit disk with fmincon and a nonlinear constraint.",
+          "deliverable": "Script constrained_opt.m and a table of solutions, objective values and exit flags",
+          "checks": [["Solve the linprog problem for -3x-2y", "x = 3, y = 1 and fval = -11", "Command Window output"], ["Solve the knapsack with intlinprog", "Items 2 and 3 are chosen for a total value of 220", "Command Window output"], ["Solve Rosenbrock inside the unit disk with fmincon", "x is about [0.7864 0.6177] and fval about 0.0457", "Command Window output"]],
+          "objectives": ["Formulate linear, quadratic, integer and nonlinear programs", "Read exit flags and multipliers", "Use problem-based optimization"]
+        },
+        {
+          "topic": "Finite Element Modeling with the PDE Toolbox and pdepe",
+          "subtopics": ["pdepe for one-dimensional parabolic and elliptic problems", "The pdefun, icfun and bcfun functions", "createpde, geometry and generateMesh", "specifyCoefficients and applyBoundaryCondition", "solvepde and results interpolation", "Thermal models with createpde('thermal')", "Mesh refinement with Hmax", "Verification against analytic solutions", "pdeplot and visualization", "Convergence and error estimates"],
+          "tools": ["MATLAB", "PDE Toolbox", "pdepe", "Live Editor"],
+          "lab_task": "Solve u_t = u_xx on [0,1] with u(0)=u(1)=0 and u(x,0)=sin(pi*x) using pdepe and compare u(0.5,0.1) with exp(-pi^2*0.1). Then solve Laplace's equation on the unit square with PDE Toolbox, set 100 on the top edge and 0 on the others, refine the mesh and record the value at the centre.",
+          "deliverable": "Script pde_demo.m with solution plots and a verification table",
+          "checks": [["Compare pdepe u(0.5,0.1) with exp(-pi^2*0.1)", "0.3727 within 1e-3", "Command Window output"], ["Evaluate the square-plate solution at (0.5,0.5)", "25 within 0.5 after mesh refinement", "Command Window output"], ["Halve Hmax and re-solve", "The centre value error against 25 decreases", "Convergence table"]],
+          "objectives": ["Solve PDEs with pdepe and finite elements", "Verify solutions against analytic results", "Control accuracy with mesh refinement"]
+        },
+        {
+          "topic": "Simulink Models: Subsystems, Signals and Solvers",
+          "subtopics": ["Building a model with new_system, add_block, add_line and set_param", "Sources, sinks, Integrator and Gain blocks", "Subsystems and bus signals", "Fixed-step versus variable-step solvers and ode45", "Zero-crossing detection", "Algebraic loops and how to break them", "Signal logging and the Simulation Data Inspector", "Model referencing", "Model Advisor checks", "Saving, closing with bdclose and loading models"],
+          "tools": ["Simulink", "Simulation Data Inspector", "Model Advisor", "Scope"],
+          "lab_task": "Build a first-order system dx/dt = -x + u with a Step source, Sum, Gain and Integrator blocks using add_block and add_line, set StopTime to 5 with solver ode45, log the output, run sim, then verify the output at t = 1 and the final value. Wrap the plant in a subsystem and run Model Advisor.",
+          "deliverable": "Script build_plant.m, saved model plant.slx and a verification table",
+          "checks": [["Read the logged output at t = 1 from the step response", "0.6321, matching 1-exp(-1)", "Command Window output"], ["Read the logged output at t = 5", "0.9933, matching 1-exp(-5)", "Command Window output"], ["Run Model Advisor on the model", "No failures in the selected checks and the report is saved", "Model Advisor report"]],
+          "objectives": ["Create Simulink models programmatically", "Choose solvers and log signals", "Check model quality with Model Advisor"]
+        },
+        {
+          "topic": "Scripted Simulation: Simulink.SimulationInput and Parameter Sweeps",
+          "subtopics": ["Simulink.SimulationInput and setVariable", "setModelParameter and setBlockParameter", "sim and parsim for parameter sweeps", "Fast Restart", "Simulink.SimulationOutput and Dataset logging", "stepinfo for overshoot and settling time", "Simulation Data Inspector comparison runs", "PreSimFcn and PostSimFcn", "Monte Carlo simulations with seeded random numbers", "Collecting results into tables"],
+          "tools": ["Simulink", "parsim", "Simulation Data Inspector", "stepinfo"],
+          "lab_task": "For a second-order plant with natural frequency 1 rad/s, build an array of Simulink.SimulationInput objects sweeping damping zeta over [0.3 0.5 0.7 0.9 1.0], run them with parsim, collect stepinfo overshoot into a table, and compare run times with Fast Restart on and off for 50 runs.",
+          "deliverable": "Script sweep_zeta.m and a table of zeta, overshoot and settling time",
+          "checks": [["Read the overshoot for zeta = 0.5", "About 16.3 percent", "Result table"], ["Read the overshoot for zeta = 1.0", "0 percent, so overshoot decreases as zeta rises", "Result table"], ["Compare 50 runs with Fast Restart on and off", "Fast Restart total time is lower", "Timing table"]],
+          "objectives": ["Automate simulations with SimulationInput", "Run sweeps in parallel", "Quantify results with stepinfo"]
+        },
+        {
+          "topic": "Stateflow Charts and Event-Driven Logic",
+          "subtopics": ["States, transitions and default transitions", "Entry, during and exit actions", "Temporal logic with after(n,sec) and before", "Events, messages and input data", "Junctions and flow charts", "Hierarchy and parallel (AND) decomposition", "Truth tables and MATLAB functions in charts", "Creating a chart with sfnew and the Stateflow API", "Debugging with animation and breakpoints", "Logging active states"],
+          "tools": ["Simulink", "Stateflow", "sfnew", "Simulation Data Inspector"],
+          "lab_task": "Build a traffic-light chart with Green, Yellow and Red states using after(5,sec), after(2,sec) and after(4,sec), run for 20 seconds with state-activity logging, and read the times at which each state becomes active. Add a pedestrian-request event that shortens Green and test it with a Step input.",
+          "deliverable": "Model traffic.slx and a table of state entry times",
+          "checks": [["Read the time Yellow becomes active", "5 s", "State activity log"], ["Read the time Red becomes active", "7 s", "State activity log"], ["Read the time Green becomes active again", "11 s", "State activity log"]],
+          "objectives": ["Design state machines in Stateflow", "Use temporal logic and events", "Verify behaviour with logged state activity"]
+        },
+        {
+          "topic": "Model Verification, Requirements and Simulink Test",
+          "subtopics": ["Requirements Toolbox: slreq.new, requirement sets and links", "Linking requirements to blocks and tests", "Simulink Test Manager and sltest.testmanager", "Test Assessment blocks and verify statements", "Baseline and equivalence tests", "Model coverage with decision, condition and MC/DC", "cvtest and cvsim", "Model Advisor and custom checks", "Traceability reports", "Running tests in CI"],
+          "tools": ["Simulink", "Simulink Test", "Requirements Toolbox", "Simulink Coverage"],
+          "lab_task": "Write three requirements for the plant controller in a requirement set, link each to a block and to a Simulink Test case with a verify assessment, run the tests with sltest.testmanager.run, record decision coverage, and add two boundary tests to raise coverage to 100 percent.",
+          "deliverable": "Requirement set, test file, coverage report and a traceability report",
+          "checks": [["Run sltest.testmanager.run on the test file", "All test cases pass and the result set shows 0 failures", "Test Manager results"], ["Open the coverage report for the controller", "Decision coverage reaches 100 percent after the two boundary tests", "Coverage report"], ["Open the traceability report", "Each requirement shows an implementing block and a verifying test", "Traceability report"]],
+          "objectives": ["Link requirements to models and tests", "Measure model coverage", "Automate model verification"]
+        },
+        {
+          "topic": "Production Deployment with MATLAB Compiler and Production Server",
+          "subtopics": ["Standalone apps with compiler.build.standaloneApplication and mcc", "MATLAB Runtime installation and version matching", "compiler.package.installer for distributable installers", "compiler.build.productionServerArchive and .ctf files", "MATLAB Production Server instances with mps-new", "Calling archives over REST with JSON rhs and lhs", "Web apps with compiler.build.webAppArchive", "Logging, timeouts and worker pool sizing", "Version and rollback strategy", "Latency and throughput testing"],
+          "tools": ["MATLAB", "MATLAB Compiler", "MATLAB Compiler SDK", "Production Server"],
+          "lab_task": "Build a standalone command-line app from the vibration pipeline with compiler.build.standaloneApplication and run it on a machine with only MATLAB Runtime. Then build a .ctf with compiler.build.productionServerArchive, deploy it to a Production Server instance, call it with curl and JSON, and measure p95 latency over 200 requests.",
+          "deliverable": "Standalone installer, .ctf archive, curl script and a latency report",
+          "checks": [["Run the standalone executable on a machine with only MATLAB Runtime", "It returns the same peak frequency as in MATLAB", "Terminal output"], ["POST {\"rhs\":[...],\"nargout\":1} to the archive endpoint with curl", "HTTP 200 and a JSON response with an lhs field", "curl output"], ["Send 200 requests and compute the 95th percentile latency", "p95 is under the agreed budget of 200 ms", "Latency report"]],
+          "objectives": ["Compile and distribute standalone applications", "Deploy functions to Production Server", "Measure service latency"]
+        },
+        {
+          "topic": "Web Services, REST APIs and Secure Credentials",
+          "subtopics": ["webread, webwrite and weboptions", "matlab.net.http.RequestMessage, send and ResponseMessage", "Status codes and the error MATLAB:webservices:HTTP404StatusCodeError", "jsonencode and jsondecode for payloads", "Retries with exponential backoff and HTTP 429 handling", "Bearer tokens with the AuthorizationField", "Keeping secrets in environment variables with getenv and never in source", "Timeouts and certificate validation", "Pagination", "Testing against a local Python http.server"],
+          "tools": ["MATLAB", "webread", "matlab.net.http", "Python http.server"],
+          "lab_task": "Run a local Python http.server that serves data.json, read it with webread and jsondecode, request a missing path to capture the 404 identifier, then write fetchWithRetry that retries on 429 and 503 with backoff. Read an API token with getenv and send it in an AuthorizationField without printing it.",
+          "deliverable": "fetchWithRetry.m, a test against the local server and a note on secret handling",
+          "checks": [["Run webread('http://localhost:8000/data.json')", "A struct matching the contents of the file", "Command Window output"], ["Run webread('http://localhost:8000/missing.json')", "Error with identifier MATLAB:webservices:HTTP404StatusCodeError", "Caught MException identifier"], ["Run fetchWithRetry against a stub that returns 503 twice then 200", "Succeeds on the third attempt and the delays double", "Log of attempts"]],
+          "objectives": ["Call REST services from MATLAB", "Handle HTTP errors and retries", "Handle credentials without leaking them"]
+        },
+        {
+          "topic": "Advanced Capstone: Real-Time Predictive Maintenance Pipeline",
+          "subtopics": ["Architecture and requirements for vibration-based fault detection", "Synthetic bearing data generation, feature extraction and labeling", "Model training, tuning and holdout evaluation", "Code generation and Production Server packaging", "Build, test and CI automation", "Runbook, monitoring plan and a handover review"],
+          "tools": ["MATLAB", "Statistics and Machine Learning Toolbox", "MATLAB Coder", "Production Server", "buildtool"],
+          "lab_task": "Generate labelled bearing vibration data, extract RMS, kurtosis and spectral peak features, train and tune a fitcensemble classifier, generate C code for the predictor, package a .ctf for Production Server, and add buildtool tasks and CI. Meet F1 of at least 0.90, codegen difference under 1e-6 and p95 latency under 50 ms.",
+          "deliverable": "Capstone repository, CI results, deployed archive, evaluation report and a review presentation",
+          "checks": [["Evaluate the model on the holdout set", "Macro F1 is at least 0.90", "Evaluation report"], ["Compare generated code with the MATLAB predictor on 1000 samples", "Maximum difference is below 1e-6", "Command Window output"], ["Run 500 REST requests against the deployed archive", "p95 latency is under 50 ms with zero errors", "Latency report"]],
+          "objectives": ["Deliver an end-to-end analytics pipeline from data to service", "Automate build, test and release", "Present results against measurable acceptance criteria"]
+        }
+      ]
+    }
+  }
+}

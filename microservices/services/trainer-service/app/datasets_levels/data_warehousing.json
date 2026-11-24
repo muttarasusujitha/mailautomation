@@ -1,0 +1,573 @@
+{
+  "domain": "Data Warehousing",
+  "name": "Data Warehousing",
+  "category": "Data Engineering and Analytics",
+  "icon": "database",
+  "aliases": ["Enterprise Data Warehouse", "EDW", "Data Warehouse", "Data Warehouse Design", "Dimensional Modelling", "Kimball Methodology", "Data Vault", "Data Warehouse Architect"],
+  "certifications": ["DAMA Certified Data Management Professional (CDMP)", "Certified Data Vault 2.0 Practitioner (CDVP2)", "SnowPro Core Certification", "Google Cloud Professional Data Engineer", "AWS Certified Data Engineer - Associate", "Microsoft Certified: Fabric Data Engineer Associate (DP-700)"],
+  "tools": ["PostgreSQL", "DuckDB", "Apache Parquet", "Apache Iceberg", "dbt Core", "Apache Airflow", "Soda", "SQLGlot", "Flyway", "Metabase", "Cube", "OpenLineage", "pgBackRest", "DBeaver"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For analysts, developers and BI staff who know basic SQL and are new to data warehousing. Covers OLTP versus OLAP, warehouse layers, facts, dimensions and grain, star and snowflake schemas, surrogate keys and the date dimension, slowly changing dimensions Types 0 to 2, loading with SQL, additivity, conformed dimensions, analytical SQL and window functions, columnar storage, incremental loads, data quality checks, marts and BI access, documentation, query plans and a retail star schema capstone, using PostgreSQL and DuckDB.",
+      "prerequisites": ["Can write SELECT queries with joins, GROUP BY and WHERE in any SQL dialect", "Uses a terminal and can install software or run Docker containers on a laptop", "Understands basic relational concepts such as tables, primary keys and foreign keys"],
+      "outcomes": ["Design and build a star schema from a stated grain with surrogate keys, SCD2 and a date dimension", "Load and reconcile dimensions and facts with idempotent SQL and watermark-based incremental loads", "Write analytical SQL with ROLLUP, window functions and read query plans to fix simple slowness", "Expose a governed mart to a BI tool through views and a read-only role"],
+      "days": [
+        {
+          "topic": "Data Warehouse Orientation: OLTP, OLAP and the Reporting Problem",
+          "subtopics": ["OLTP and OLAP workload shapes: many small writes versus few large scans", "Why reporting directly on the operational database hurts: locks, normalised joins and slow scans", "The four classic properties: subject-oriented, integrated, time-variant and non-volatile", "Data warehouse, data mart, data lake and lakehouse compared", "Typical consumers: finance, sales analysts, executives and data scientists", "Source systems: ERP, CRM, e-commerce, flat files and SaaS APIs", "Batch refresh versus near-real-time loading", "Roles on a warehouse team: architect, data engineer, analytics engineer and data steward", "The two founding schools: Kimball bottom-up and Inmon top-down", "Success measures: trusted numbers, refresh latency, query time and adoption"],
+          "tools": ["PostgreSQL", "psql", "DuckDB", "draw.io"],
+          "lab_task": "In PostgreSQL create schema oltp with customers (500 rows) and orders (200000 rows) using INSERT ... SELECT FROM generate_series. Run a monthly revenue by region report with \\timing and EXPLAIN (ANALYZE, BUFFERS). Then UPDATE customer 7 to region 'West', re-run the report and record how past months changed.",
+          "deliverable": "One-page memo with the report timings, the plan and a before-and-after table showing history rewritten",
+          "checks": [["SELECT count(*) FROM oltp.orders", "Returns exactly 200000", "psql output"], ["Run the monthly revenue report under EXPLAIN (ANALYZE, BUFFERS)", "Plan shows a Seq Scan on orders and an Execution Time in milliseconds", "Plan text saved to a file"], ["UPDATE oltp.customers SET region='West' WHERE customer_id=7, then re-run the report", "Revenue of customer 7 moves from the old region to West for every past month, proving the OLTP model keeps no history", "Two result sets side by side"]],
+          "objectives": ["Contrast OLTP and OLAP workloads with measured evidence", "State the four properties of a data warehouse", "Explain why operational databases rewrite history and why a warehouse must not"]
+        },
+        {
+          "topic": "Setting Up a Practice Warehouse with PostgreSQL and DuckDB",
+          "subtopics": ["Running PostgreSQL 16 or later with docker run -e POSTGRES_PASSWORD=dw -p 5432:5432 postgres:17", "psql connection flags: -h, -p, -U and -d, and the PGPASSWORD variable", "Installing the DuckDB CLI and the duckdb Python package", "DuckDB database files versus the in-memory database", "Creating the schemas raw, stg, core and mart", "Generating sample data with generate_series and random()", "Loading CSV with DuckDB read_csv_auto and PostgreSQL \\copy", "Profiling a table with DuckDB SUMMARIZE and DESCRIBE", "Repository layout for SQL scripts: sql/01_ddl, sql/02_load and sql/03_checks", "Naming roles and databases: dw_owner, dw_loader and dw_reader"],
+          "tools": ["PostgreSQL", "Docker", "psql", "DuckDB", "Git"],
+          "lab_task": "Start PostgreSQL with docker run -e POSTGRES_PASSWORD=dw -p 5432:5432 postgres:17, create database dw and schemas raw, stg, core and mart. In DuckDB export 5000 generated rows with COPY (SELECT ...) TO 'orders.csv' (HEADER), load them with read_csv_auto, run SUMMARIZE, and commit init.sql to Git.",
+          "deliverable": "Git repository containing init.sql, orders.csv generator and a README with the commands used",
+          "checks": [["Run \\dn in psql connected to dw", "Lists raw, stg, core and mart plus public", "psql output"], ["Run SUMMARIZE on the DuckDB orders table", "Reports count 5000 for every column and a min and max for order_date", "DuckDB output"], ["Run git log --oneline in the repository", "Shows one commit that contains init.sql", "Git log"]],
+          "objectives": ["Stand up a local PostgreSQL and DuckDB practice environment", "Create layered schemas and load sample data", "Keep warehouse DDL under version control from day one"]
+        },
+        {
+          "topic": "Warehouse Architecture Layers: Sources, Staging, Core and Marts",
+          "subtopics": ["Source systems and extraction methods: full, incremental and CDC", "Landing and staging: raw copies with no business logic", "Core or integration layer: conformed, cleaned and keyed data", "Presentation layer: dimensional marts for reporting", "Semantic and BI layer on top of the marts", "Metadata, orchestration and monitoring as cross-cutting services", "Kimball bus, Inmon hub-and-spoke and independent marts compared", "Medallion bronze, silver and gold as the same layering idea", "Separating dev, test and prod environments"],
+          "tools": ["PostgreSQL", "psql", "draw.io", "Markdown"],
+          "lab_task": "In PostgreSQL create one orders table in each of schemas raw, stg, core and mart. Write LAYERS.md stating allowed reads: stg reads raw only, core reads stg only, mart reads core only. Query information_schema.tables grouped by table_schema and add a check query that lists any view in mart referencing raw.",
+          "deliverable": "LAYERS.md with a layer contract and a diagram, plus the check query",
+          "checks": [["SELECT table_schema, count(*) FROM information_schema.tables WHERE table_schema IN ('raw','stg','core','mart') GROUP BY 1", "Returns four rows, each with count 1", "Query output"], ["Create a mart view that selects from raw.orders and run the check query", "The view is returned as a layer violation", "Check query output"], ["Review LAYERS.md", "States for each layer who may read it and what logic is allowed", "Markdown file"]],
+          "objectives": ["Name the layers of a warehouse and their responsibilities", "Keep business logic out of staging", "Enforce a layer contract with a query"]
+        },
+        {
+          "topic": "Facts, Dimensions and Declaring the Grain",
+          "subtopics": ["Business process events become fact rows", "Grain: the sentence that says what one fact row represents", "Declaring grain before choosing dimensions and facts", "Dimensions as descriptive context: who, what, where, when and why", "Numeric measures versus descriptive attributes", "Degenerate dimensions such as the order number", "Foreign keys in the fact table", "Mixed grain: the most common modelling error", "Text attributes instead of cryptic codes", "Fact tables are narrow and deep, dimensions wide and shallow"],
+          "tools": ["PostgreSQL", "psql", "dbdiagram.io"],
+          "lab_task": "Given a source with orders, order_lines, products, customers and stores, write the grain statement 'one row per order line'. Classify 14 source columns as measure, dimension attribute, key or degenerate dimension. Create core.fact_sales and core.dim_product in PostgreSQL, then attempt to load a header-level shipping_fee and record why it breaks the grain.",
+          "deliverable": "Grain statement, a 14-row column classification table and the DDL for fact_sales and dim_product",
+          "checks": [["Read the grain statement", "It is a single sentence naming one row per order line", "Document"], ["Count columns in the classification table", "14 rows, each with exactly one class", "Table"], ["Load shipping_fee 5.00 onto each of 3 lines of one order", "SUM(shipping_fee) returns 15.00 instead of 5.00, showing the grain violation", "Query result"]],
+          "objectives": ["Write a precise grain statement", "Classify columns as facts, dimension attributes or keys", "Recognise and avoid mixed-grain fact tables"]
+        },
+        {
+          "topic": "Star Schema Design with the Four-Step Process",
+          "subtopics": ["Kimball four steps: business process, grain, dimensions, facts", "Star join shape: one fact table surrounded by denormalised dimensions", "Choosing the retail sales process as a worked example", "Dimension table design: wide, descriptive and denormalised", "Primary and foreign key constraints in a warehouse", "Why analysts find stars easy to query", "Drawing an ERD from DDL", "The standard star query pattern: join, filter, group, aggregate", "Row counts as a design sanity check"],
+          "tools": ["PostgreSQL", "psql", "DBeaver", "pg_dump"],
+          "lab_task": "Build the retail sales star in PostgreSQL: dim_date, dim_product, dim_store, dim_customer and fact_sales with foreign keys. Load 10000 fact rows with INSERT ... SELECT using random(). Run a top-5 categories by revenue star query, and export the schema with pg_dump -s to review the ERD in DBeaver.",
+          "deliverable": "DDL script, ERD image and the top-5 query with its result",
+          "checks": [["SELECT count(*) FROM core.fact_sales", "Returns 10000", "psql output"], ["INSERT INTO core.fact_sales with product_key 999999", "ERROR 23503: violates foreign key constraint on product_key", "Error message"], ["Run the top-5 categories query", "Returns 5 rows ordered by revenue descending", "Result set"]],
+          "objectives": ["Apply the four-step design process", "Create a star schema with enforced keys", "Write a standard star query"]
+        },
+        {
+          "topic": "Snowflake Schemas and the Normalisation Trade-off",
+          "subtopics": ["Snowflaking a dimension into product, subcategory and category tables", "Outrigger dimensions", "Join count and query complexity cost", "Storage savings and why they are small with columnar compression", "Update simplicity when a hierarchy changes", "When snowflaking is justified: shared sub-dimensions or very large dimensions", "Why Kimball recommends stars for presentation layers", "Views that hide a snowflake behind a star"],
+          "tools": ["PostgreSQL", "psql", "EXPLAIN"],
+          "lab_task": "Snowflake dim_product into dim_product, dim_subcategory and dim_category in PostgreSQL. Run revenue by category on the star and the snowflake with EXPLAIN (ANALYZE), count Join nodes in each plan, compare pg_total_relation_size of the dimension tables, then create a view that presents the snowflake as a star and write a half-page recommendation.",
+          "deliverable": "Comparison table of join count, runtime and size, a hiding view and a written recommendation",
+          "checks": [["Count Join nodes in the star plan for revenue by category", "1 join between fact and dimension", "EXPLAIN output"], ["Count Join nodes in the snowflake plan", "3 joins along the fact, product, subcategory and category chain", "EXPLAIN output"], ["SELECT pg_total_relation_size for both dimension designs", "Both sizes are recorded in a table and the saving is under 20 percent for a 5000-row dimension", "Size table"]],
+          "objectives": ["Compare star and snowflake designs with evidence", "List valid reasons to snowflake", "Hide normalised structures behind a presentation view"]
+        },
+        {
+          "topic": "Surrogate Keys, Natural Keys and the Date Dimension",
+          "subtopics": ["Natural and business keys from source systems", "Why surrogate keys: key reuse, multiple sources and history versions", "Identity columns and sequences", "Hash keys as an alternative", "Keeping the business key as an attribute", "Unknown and not-applicable members with key -1", "Date dimension attributes: day name, ISO week, quarter, fiscal year, holiday flag", "The smart integer date key yyyymmdd as the accepted exception", "Time of day as a separate dimension", "Role-playing date keys on a fact table"],
+          "tools": ["PostgreSQL", "psql", "DuckDB"],
+          "lab_task": "In PostgreSQL build core.dim_date for 2020-01-01 to 2030-12-31 with generate_series: date_key as yyyymmdd integer, day_name, iso_week, month, quarter, fiscal_year (July start, named for the year it ends), is_weekend. Add an Unknown row with date_key -1. Verify counts and the fiscal year of 2025-07-01.",
+          "deliverable": "dim_date DDL and load script with three verification queries",
+          "checks": [["SELECT count(*) FROM core.dim_date", "Returns 4019, which is 4018 days plus the Unknown row", "psql output"], ["SELECT * FROM core.dim_date WHERE date_key = 20240229", "Returns one row for the leap day", "Query output"], ["SELECT fiscal_year FROM core.dim_date WHERE date_key = 20250701", "Returns 2026", "Query output"]],
+          "objectives": ["Choose surrogate keys and explain why", "Build a complete date dimension", "Add unknown members for missing references"]
+        },
+        {
+          "topic": "Slowly Changing Dimensions: Types 0, 1 and 2",
+          "subtopics": ["What changes in a dimension and why history matters", "Type 0: retain original value", "Type 1: overwrite and lose history", "Type 2: add a new row per version", "Type 2 columns: valid_from, valid_to, is_current and a 9999-12-31 end date", "Surrogate key per version and fact-to-version joins", "Change detection with a row hash", "Choosing a type per attribute", "Closing and inserting in one transaction"],
+          "tools": ["PostgreSQL", "psql", "md5"],
+          "lab_task": "In PostgreSQL create core.dim_customer with customer_key, customer_id, city, valid_from, valid_to and is_current. Load 3 customers, then in one transaction close the current row of customer 2 and insert a new York version replacing Leeds. Add two facts dated before and after the move and report revenue by city.",
+          "deliverable": "SCD2 script, version table and a revenue-by-city report",
+          "checks": [["SELECT count(*) FROM core.dim_customer", "Returns 4 rows, with two for customer 2", "psql output"], ["Report revenue by city", "The earlier fact is attributed to Leeds and the later fact to York", "Result set"], ["Repeat the change as a Type 1 UPDATE on a copy", "Both facts move to York, showing history lost", "Result set"]],
+          "objectives": ["Implement a Type 2 dimension", "Explain Type 0, 1 and 2 behaviour", "Choose a type per attribute"]
+        },
+        {
+          "topic": "Loading Dimensions and Facts with SQL",
+          "subtopics": ["Load order: dimensions first, then facts", "Surrogate key lookup by joining facts to dimensions", "Unknown member handling with COALESCE(key, -1)", "INSERT ... SELECT versus MERGE in PostgreSQL 15 and later", "INSERT ... ON CONFLICT for dimension upserts", "Idempotent loads: rerun without duplicating rows", "Wrapping loads in transactions", "Rejected-row tables", "Row count and amount reconciliation against staging"],
+          "tools": ["PostgreSQL", "psql", "SQL"],
+          "lab_task": "Load stg.orders (1000 rows, 12 with unknown product_id) into core.fact_sales using a LEFT JOIN to dim_product and COALESCE(product_key,-1). Wrap the load in one transaction in load_fact_sales.sql, run it twice, make the second run insert nothing with WHERE NOT EXISTS, and reconcile row count and SUM(amount) with staging.",
+          "deliverable": "load_fact_sales.sql and a reconciliation report",
+          "checks": [["Run load_fact_sales.sql the first time", "psql reports INSERT 0 1000", "psql output"], ["Run it a second time", "psql reports INSERT 0 0", "psql output"], ["SELECT count(*) FROM core.fact_sales WHERE product_key = -1", "Returns 12", "Query output"]],
+          "objectives": ["Load facts with key lookups and unknown members", "Make loads idempotent", "Reconcile warehouse totals to staging"]
+        },
+        {
+          "topic": "Transaction Fact Tables and Measure Additivity",
+          "subtopics": ["Transaction grain: one row per event", "Additive, semi-additive and non-additive measures", "Storing ratios as numerator and denominator", "Degenerate dimensions: order number on the fact row", "Null versus zero in measures", "Fact table keys and whether to declare a primary key", "Quantity, price, discount and net amount derivations", "Sizing a fact table", "Timestamps versus date keys"],
+          "tools": ["PostgreSQL", "psql", "DuckDB"],
+          "lab_task": "Add unit_price, quantity, discount_amount, net_amount, cost_amount and order_number to fact_sales. Compute margin percent three ways: SUM(margin)/SUM(net) by category, the same by month, and AVG(margin_pct) by category. Show that averaging row ratios differs from the ratio of sums and record both figures.",
+          "deliverable": "SQL file and a table comparing ratio-of-sums with average-of-ratios",
+          "checks": [["Compute SUM(margin)/SUM(net_amount) by category", "Returns one correct ratio per category", "Result set"], ["Compute AVG(margin_pct) for the same categories", "At least one category differs from the ratio of sums by more than 0.1 percentage points", "Comparison table"], ["Sum the monthly ratios to a total", "The total of ratios is not meaningful and is rejected in review notes", "Written note"]],
+          "objectives": ["Classify measures by additivity", "Store ratio inputs rather than ratios", "Explain why averaging ratios misleads"]
+        },
+        {
+          "topic": "Conformed Dimensions and the Enterprise Bus Matrix",
+          "subtopics": ["Conformed dimensions: identical or strict subsets across facts", "Bus matrix: business processes as rows, dimensions as columns", "Drill-across queries on shared dimensions", "Fan-out error when two facts are joined directly", "Aggregating each fact separately before combining", "Shrunken dimensions for aggregate tables", "Conformed facts and units of measure", "Stewardship of shared dimensions"],
+          "tools": ["PostgreSQL", "psql", "draw.io"],
+          "lab_task": "Create core.fact_inventory_snapshot (date_key, product_key, store_key, on_hand_qty) that shares dim_product and dim_date with fact_sales. Write a drill-across query that aggregates each fact to product and month in separate CTEs and joins them. Run the wrong direct join, compare totals, and draw a bus matrix of 4 processes by 5 dimensions.",
+          "deliverable": "Drill-across SQL, a fan-out demonstration and a bus matrix diagram",
+          "checks": [["Run the drill-across query", "Sales total equals SELECT SUM(net_amount) from fact_sales", "Query result"], ["Join fact_sales directly to fact_inventory_snapshot on product and month", "Sales total is inflated by a multiple of the inventory rows per product-month", "Query result"], ["Inspect the bus matrix", "4 process rows by 5 dimension columns, with dim_date and dim_product marked for sales and inventory", "Diagram"]],
+          "objectives": ["Design conformed dimensions", "Draw a bus matrix", "Write drill-across queries that avoid fan-out"]
+        },
+        {
+          "topic": "Analytical SQL: GROUPING SETS, ROLLUP, CUBE and FILTER",
+          "subtopics": ["GROUP BY and HAVING on star joins", "GROUPING SETS for several aggregation levels in one pass", "ROLLUP for hierarchical subtotals", "CUBE for all combinations", "The GROUPING() function to tell total rows from NULL data", "Conditional aggregation with FILTER (WHERE ...)", "CASE pivots", "Date truncation with date_trunc", "Top-N per group"],
+          "tools": ["DuckDB", "PostgreSQL", "SQL"],
+          "lab_task": "In DuckDB over the sales star write a ROLLUP(category, brand) query using GROUPING() flags, a second query using GROUPING SETS ((region, month), (region), ()), and a third adding SUM(net_amount) FILTER (WHERE channel = 'web'). Verify the grand-total row equals SELECT SUM(net_amount).",
+          "deliverable": "Three queries with outputs and a grand-total reconciliation",
+          "checks": [["Run the ROLLUP query", "Includes one row where both GROUPING flags equal 1 as the grand total", "Result set"], ["Compare the grand-total row with SELECT SUM(net_amount)", "Both values are identical", "Two outputs"], ["Run the GROUPING SETS query", "Returns detail rows, region subtotals and one grand-total row", "Result set"]],
+          "objectives": ["Produce subtotals and totals in one query", "Distinguish total rows from NULL data", "Use FILTER for conditional measures"]
+        },
+        {
+          "topic": "Window Functions for Warehouse Reporting",
+          "subtopics": ["PARTITION BY and ORDER BY inside OVER", "ROW_NUMBER, RANK and DENSE_RANK", "LAG and LEAD for period-over-period change", "Running totals with ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW", "Moving averages over seven days", "ROWS versus RANGE frames", "NTILE and percentiles", "FIRST_VALUE and LAST_VALUE", "QUALIFY in DuckDB and the subquery equivalent in PostgreSQL"],
+          "tools": ["DuckDB", "PostgreSQL", "SQL"],
+          "lab_task": "On daily revenue per store in DuckDB compute a running total, a 7-day moving average, month-over-month change with LAG, and rank stores per month with DENSE_RANK. Use QUALIFY to keep the top 3 stores per month, then rewrite the same query for PostgreSQL with a subquery and confirm both return identical rows.",
+          "deliverable": "Window-function query pack with DuckDB and PostgreSQL versions",
+          "checks": [["Run the running-total query for one store", "The last running total equals SUM(revenue) for that store", "Query result"], ["Run the QUALIFY query", "Returns at most 3 rows per month", "Result set"], ["Diff the DuckDB and PostgreSQL outputs", "Zero differing rows", "Diff output"]],
+          "objectives": ["Write ranking, offset and running-total windows", "Choose correct frames", "Port window queries across engines"]
+        },
+        {
+          "topic": "Columnar Storage and Compression Basics",
+          "subtopics": ["Row storage versus column storage", "Reading only the columns a query needs", "Dictionary, run-length and bit-packed encodings", "Min and max statistics per block, called zone maps", "Parquet files, row groups and column chunks", "Vectorised execution", "Sorted data compresses better", "When row storage wins: point lookups and heavy updates", "Compression codecs: snappy, zstd and gzip trade-offs", "Reading Parquet metadata"],
+          "tools": ["DuckDB", "Apache Parquet", "ls"],
+          "lab_task": "In DuckDB generate 5 million fact rows. COPY them to sales.parquet (FORMAT parquet, COMPRESSION zstd, ROW_GROUP_SIZE 122880) and to sales.csv. Compare sizes with ls -l, time SELECT sum(net_amount) on each with .timer on, and inspect SELECT count(DISTINCT row_group_id) FROM parquet_metadata('sales.parquet').",
+          "deliverable": "Size and timing table plus a note on row groups and encodings",
+          "checks": [["Compare ls -l for sales.csv and sales.parquet", "The Parquet file is smaller than the CSV", "ls output"], ["Time sum(net_amount) on both files", "Parquet is faster than CSV for the single-column scan", "Timer output"], ["Count row groups in parquet_metadata", "About 41 row groups of at most 122880 rows each", "Query output"]],
+          "objectives": ["Explain why columnar layouts suit analytics", "Measure compression and scan benefits", "Read Parquet metadata"]
+        },
+        {
+          "topic": "Staging and Incremental Loads with Watermarks",
+          "subtopics": ["Full refresh versus incremental extraction", "High-water mark on updated_at or a sequence", "A control table: etl_control(table_name, last_watermark)", "Overlap windows for late updates", "Handling deletes with soft-delete flags or full key comparison", "Truncate-and-load staging", "Audit columns: batch_id, loaded_at and source_file", "Idempotent reruns", "Row-count logging per batch"],
+          "tools": ["PostgreSQL", "psql", "Python"],
+          "lab_task": "Create stg.orders with batch_id and loaded_at plus etl_control. Write incremental_extract.sql that selects source rows where updated_at > last_watermark minus a 1-hour overlap, loads them, and advances the watermark in the same transaction. Run three batches with 1000, 40 changed and 0 new rows, then log row counts.",
+          "deliverable": "Incremental load script, control table state after each batch and a batch log",
+          "checks": [["Run batch 1", "Loads 1000 rows and sets last_watermark to the maximum updated_at", "Control table"], ["Update 40 source rows and run batch 2", "Loads 40 rows and no more", "Batch log"], ["Run batch 3 with no changes", "Loads 0 rows and the watermark is unchanged", "Batch log"]],
+          "objectives": ["Design watermark-based incremental loads", "Track batch metadata", "Make reruns safe"]
+        },
+        {
+          "topic": "Data Quality Checks: Nulls, Duplicates and Referential Integrity",
+          "subtopics": ["Quality dimensions: completeness, uniqueness, validity, consistency, timeliness", "NOT NULL and unique checks in SQL", "Orphan foreign keys", "Range and domain checks", "Future-dated and negative values", "Row-count reconciliation to the source", "Fail the load versus quarantine bad rows", "A dq.check_result table with severity", "Running checks with psql -v ON_ERROR_STOP=1"],
+          "tools": ["PostgreSQL", "psql", "SQL"],
+          "lab_task": "Write six checks in checks.sql: null customer_id, duplicate order_id, orphan product_key, negative quantity, future order_date and row-count mismatch against staging. Seed 6 bad rows, one per rule. Run the checks with psql -v ON_ERROR_STOP=1 and store PASS or FAIL per check in dq.check_result.",
+          "deliverable": "checks.sql, seeded-error script and a dq.check_result export",
+          "checks": [["Run checks on clean data", "All 6 rows in dq.check_result have status PASS", "Table output"], ["Run checks after seeding the bad rows", "All 6 rules report FAIL with failing row counts of at least 1", "Table output"], ["Run with a fail-fast severity on the orphan rule", "psql stops with a non-zero exit code", "Shell exit code"]],
+          "objectives": ["Write SQL data quality checks", "Record results in a table", "Decide between failing and quarantining"]
+        },
+        {
+          "topic": "Data Marts, Views and BI Tool Connections",
+          "subtopics": ["Data mart definition and departmental scope", "A view layer: mart.v_sales with friendly names", "Hiding surrogate keys from analysts", "Roles and GRANT USAGE ON SCHEMA", "A read-only BI role", "JDBC and ODBC connections", "Live connection versus extract", "Metabase and Superset as free BI tools", "Row limits and query timeouts for BI users"],
+          "tools": ["PostgreSQL", "Metabase", "Apache Superset", "psql"],
+          "lab_task": "Create mart.v_sales with business-friendly column names over the star. Create role bi_reader with LOGIN, GRANT USAGE on schema mart and SELECT on mart views only. Confirm bi_reader cannot read core.fact_sales, then connect Metabase on port 3000 as bi_reader and chart revenue by month.",
+          "deliverable": "View DDL, grants script and a screenshot of the dashboard chart",
+          "checks": [["As bi_reader run SELECT * FROM core.fact_sales", "ERROR permission denied for schema core, SQLSTATE 42501", "Error output"], ["As bi_reader run SELECT count(*) FROM mart.v_sales", "Returns the same count as the fact table", "Query output"], ["Open the Metabase question", "Monthly revenue chart renders with 12 or more points", "Screenshot"]],
+          "objectives": ["Expose a mart through views", "Apply least-privilege BI roles", "Connect a BI tool"]
+        },
+        {
+          "topic": "Naming Standards, Documentation and the Data Dictionary",
+          "subtopics": ["Naming conventions: dim_, fact_, _key, _id, _date, _amount", "COMMENT ON TABLE and COMMENT ON COLUMN", "Generating a dictionary from information_schema.columns", "Business definitions and owners", "ERD upkeep", "SQL style with SQLFluff", "Change logs and versioning of models", "Lineage notes per table", "Documentation review as part of done"],
+          "tools": ["PostgreSQL", "psql", "SQLFluff", "Git"],
+          "lab_task": "Add COMMENT ON TABLE and COMMENT ON COLUMN to every core table. Generate data_dictionary.csv by joining information_schema.columns with pg_description using psql \\copy. Run sqlfluff lint --dialect postgres sql/ and fix violations until it reports none. Target 100 percent of core columns documented.",
+          "deliverable": "data_dictionary.csv, lint report and a naming standard document",
+          "checks": [["Count core columns without a description in data_dictionary.csv", "0 columns undocumented", "Query result"], ["Run sqlfluff lint --dialect postgres sql/", "Exits with code 0 and no violations", "Terminal output"], ["Check every table name against the naming standard", "All tables begin with dim_ or fact_ in the core schema", "Review checklist"]],
+          "objectives": ["Apply naming standards", "Generate a data dictionary automatically", "Lint SQL for consistent style"]
+        },
+        {
+          "topic": "Reading Query Plans and First Performance Wins",
+          "subtopics": ["EXPLAIN versus EXPLAIN ANALYZE", "Seq Scan, Index Scan and Hash Join nodes", "Estimated versus actual rows", "Updating statistics with ANALYZE", "Selecting only needed columns", "Avoiding functions on filtered columns", "Indexes on foreign keys in PostgreSQL", "DuckDB EXPLAIN ANALYZE and the profiling output", "Recording a baseline before tuning"],
+          "tools": ["PostgreSQL", "DuckDB", "EXPLAIN", "psql"],
+          "lab_task": "On a 2 million row fact_sales in PostgreSQL run a revenue-by-store query for one month with EXPLAIN (ANALYZE, BUFFERS). Fix it by replacing WHERE date_trunc('month', order_date) = ... with a range predicate and adding an index on order_date, then run ANALYZE and record runtime, rows scanned and buffers before and after.",
+          "deliverable": "Before-and-after plans with a tuning log of three recorded changes",
+          "checks": [["Run EXPLAIN (ANALYZE, BUFFERS) on the original query", "Shows a Seq Scan on fact_sales with a runtime recorded", "Plan text"], ["Rewrite as a range predicate and add the index", "Plan shows an Index Scan or Bitmap Index Scan on order_date", "Plan text"], ["Compare buffers hit and read before and after", "Buffers drop by at least half", "Comparison table"]],
+          "objectives": ["Read a query plan", "Apply sargable predicates and indexes", "Measure tuning against a baseline"]
+        },
+        {
+          "topic": "Capstone: Retail Sales Star Schema from Source to Dashboard Query",
+          "subtopics": ["Source extract, staging and incremental load", "Star schema with SCD2 customer and date dimensions", "Data quality checks and reconciliation", "Mart views and a read-only BI role", "Documentation and data dictionary", "Plan-based performance review"],
+          "tools": ["PostgreSQL", "DuckDB", "psql", "SQLFluff", "Metabase", "Git"],
+          "lab_task": "Build an end-to-end retail warehouse from a generated 100000-row source in a Git repo: stg load with watermark, dim_date, dim_product, SCD2 dim_customer, fact_sales, six quality checks, mart.v_sales, bi_reader role and a Metabase chart. Run the whole pipeline twice and prove the second run changes nothing.",
+          "deliverable": "Git repository with scripts, data dictionary, reconciliation report and a five-minute walkthrough",
+          "checks": [["Run the pipeline twice end to end", "The second run inserts 0 rows and the fact count stays 100000", "Run logs"], ["Run checks.sql", "All six checks PASS and totals reconcile to staging", "dq.check_result"], ["Change one customer city in the source and rerun", "dim_customer gains one new version and history is preserved", "Query output"]],
+          "objectives": ["Deliver a complete dimensional warehouse", "Prove correctness with reconciliation and checks", "Present design decisions"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For data engineers and analytics engineers who have built a basic star schema. Covers requirements gathering, dimension patterns, hierarchies and bridge tables, advanced SCD types, snapshot and factless facts, late-arriving data, currency handling, ELT layering, CDC with MERGE, Inmon and Data Vault 2.0 with PIT tables, MPP distribution and skew, partitioning, materialised aggregates, semantic layers, data quality frameworks, orchestration and backfills, and a multi-process warehouse capstone.",
+      "prerequisites": ["Has completed a star schema with fact and dimension tables and can write window functions", "Can script SQL loads with psql or a similar client and use Git", "Understands incremental loading, surrogate keys and Type 2 history"],
+      "outcomes": ["Model complex requirements with hierarchies, bridges, snapshot facts and late-arriving data", "Build ELT pipelines with CDC, MERGE, Data Vault 2.0 loads and information marts", "Tune storage layout using partitioning, distribution and materialised aggregates and prove the gain", "Govern metrics with a semantic layer, quality tests and parameterised backfills"],
+      "days": [
+        {
+          "topic": "Requirements Gathering and Business Process Selection",
+          "subtopics": ["Kimball lifecycle: programme planning, requirements, design, build and deployment", "Interviewing business users: goals, decisions and metrics", "Interviewing source owners: data realities and quality", "Business process prioritisation by value versus feasibility", "Requirements-to-bus-matrix traceability", "Metric definitions with a glossary and named owners", "Questions that expose the grain", "Data profiling to test requirements against reality", "Scope control with a release roadmap"],
+          "tools": ["Miro", "DuckDB", "PostgreSQL", "Markdown"],
+          "lab_task": "Run a mock interview set for an insurance claims company (use a provided 10-question script), then profile claims.csv in DuckDB with SUMMARIZE and a duplicate-claim query. Produce a prioritised list of 6 business processes scored on value and feasibility from 1 to 5, a bus matrix and 8 glossary metrics with owners.",
+          "deliverable": "Requirements pack: prioritised process list, bus matrix, glossary and profiling findings",
+          "checks": [["Review the prioritisation table", "6 processes each carry value and feasibility scores and a rank", "Table"], ["Run the duplicate-claim query in DuckDB", "Returns the count of claim_id values appearing more than once, with the figure noted in findings", "Query output"], ["Check the glossary", "8 metrics each have a definition, formula and named owner", "Glossary"]],
+          "objectives": ["Translate business interviews into modelling requirements", "Use profiling to test requirements", "Prioritise processes by value and feasibility"]
+        },
+        {
+          "topic": "Dimension Patterns: Role-Playing, Junk and Degenerate Dimensions",
+          "subtopics": ["Role-playing dimensions: order, ship and delivery dates from one dim_date", "Implementing roles with views", "Junk dimensions to absorb low-cardinality flags", "Building a junk dimension from the cross product of observed combinations", "Degenerate dimensions for transaction identifiers", "Outrigger versus role-playing decisions", "Dimensions that are too wide and splitting by change rate", "Null handling in dimension attributes", "Column naming for role-based keys"],
+          "tools": ["PostgreSQL", "psql", "SQL"],
+          "lab_task": "In PostgreSQL create views dim_order_date and dim_ship_date over dim_date and add order_date_key and ship_date_key to the fact. Build dim_order_profile as a junk dimension from 4 flags (gift, express, web, first_order), load only observed combinations and replace the flags in the fact with a profile_key.",
+          "deliverable": "DDL, role-playing views and a junk dimension with a row-count comparison",
+          "checks": [["SELECT count(*) FROM core.dim_order_profile", "Returns at most 16, the number of observed combinations of 4 boolean flags", "Query output"], ["Query delivery lag by joining both date views to the fact", "Returns ship-month and order-month in separate columns", "Result set"], ["Count flag columns left in fact_sales", "0 columns, replaced by profile_key", "information_schema query"]],
+          "objectives": ["Implement role-playing dimensions", "Consolidate flags into a junk dimension", "Place degenerate dimensions correctly"]
+        },
+        {
+          "topic": "Hierarchies, Ragged Trees and Bridge Tables",
+          "subtopics": ["Fixed-depth hierarchies flattened into dimension columns", "Ragged and variable-depth hierarchies", "Parent-child tables and recursive queries with WITH RECURSIVE", "Hierarchy bridge table: parent_key, child_key, depth", "Navigating up and down a bridge", "Slowly changing hierarchies", "Alternate hierarchies on one dimension", "Performance of bridge joins versus flattening"],
+          "tools": ["PostgreSQL", "psql", "SQL"],
+          "lab_task": "Load an organisation tree of 40 nodes with variable depth (maximum 6) into dim_org with parent_key. Use WITH RECURSIVE to build bridge_org (ancestor_key, descendant_key, depth) including self rows, then write a query that rolls up fact_expense to any node using the bridge, and verify the root total equals SUM(amount).",
+          "deliverable": "Recursive SQL, bridge table and a roll-up query with reconciliation",
+          "checks": [["SELECT count(*) FROM bridge_org WHERE depth = 0", "Returns 40, one self row per node", "Query output"], ["Roll up fact_expense to the root node", "Equals SELECT SUM(amount) FROM fact_expense", "Two results"], ["Roll up to a mid-level node", "Equals the sum of that node and all its descendants computed with a recursive CTE", "Query comparison"]],
+          "objectives": ["Model fixed and ragged hierarchies", "Build a hierarchy bridge with recursion", "Roll up facts through a bridge"]
+        },
+        {
+          "topic": "Many-to-Many Relationships and Multivalued Dimensions",
+          "subtopics": ["Multivalued dimensions: diagnoses per visit, authors per book", "Group tables and bridge tables between fact and dimension", "Weighting factors that sum to 1", "Allocated versus unweighted reporting", "Double counting and how to detect it", "Many-to-many between dimensions", "Alternatives: repeating facts at a finer grain", "Impact on conformed dimensions"],
+          "tools": ["PostgreSQL", "psql", "SQL"],
+          "lab_task": "For a hospital visits fact with 500 visits and 1-4 diagnoses each, build dim_diagnosis, dim_diagnosis_group and bridge_group_diagnosis with weighting_factor summing to 1 per group. Compare revenue by diagnosis with and without the weighting factor and show that the weighted total equals SUM(visit_charge).",
+          "deliverable": "Bridge DDL, weighted and unweighted reports and a double-counting note",
+          "checks": [["SELECT group_key, SUM(weighting_factor) FROM bridge_group_diagnosis GROUP BY 1 HAVING ROUND(SUM(weighting_factor),4) <> 1", "Returns 0 rows", "Query output"], ["Weighted revenue by diagnosis summed across all diagnoses", "Equals SUM(visit_charge) exactly", "Reconciliation"], ["Unweighted revenue by diagnosis summed", "Exceeds SUM(visit_charge), proving double counting", "Reconciliation"]],
+          "objectives": ["Model multivalued dimensions with bridges", "Apply weighting factors", "Detect double counting"]
+        },
+        {
+          "topic": "Slowly Changing Dimensions Beyond Type 2: Types 3, 4, 6 and 7",
+          "subtopics": ["Type 3: previous value column", "Type 4: mini-dimension for rapidly changing attributes", "Banded attributes such as income band and age band", "Type 5, 6 and 7 hybrid approaches", "Type 6: current value columns on every Type 2 row", "Type 7: durable key plus a current view", "Querying as-was versus as-is", "Deciding by change rate and reporting need", "Testing SCD logic with edge cases"],
+          "tools": ["PostgreSQL", "psql", "SQL"],
+          "lab_task": "Extend dim_customer: add previous_segment (Type 3), build dim_customer_demographics as a Type 4 mini-dimension from segment and income band, and add current_city to each Type 2 row (Type 6). Write one query reporting 2025 revenue by the city at transaction time and one by the current city, and explain any differences.",
+          "deliverable": "DDL for each type, update script and the two comparative reports",
+          "checks": [["Move 100 of 1000 customers to a new city and apply the update", "Exactly 100 historical rows have current_city updated and 100 new versions exist", "Row counts"], ["Compare revenue by city at transaction time and by current city", "The two reports differ only for moved customers", "Two result sets"], ["Count rows in dim_customer_demographics", "At most the number of segment and band combinations, for example 20", "Query output"]],
+          "objectives": ["Implement SCD Types 3, 4 and 6", "Report as-was and as-is views", "Select an SCD type by change rate"]
+        },
+        {
+          "topic": "Periodic and Accumulating Snapshot Fact Tables",
+          "subtopics": ["Periodic snapshot grain: one row per account per day", "Semi-additive balances", "Snapshot loading with generate_series and carry-forward", "Accumulating snapshot: one row per order lifecycle", "Multiple date keys and milestone lags", "Updating rows in place as milestones occur", "Choosing transaction, periodic or accumulating grain", "Sparsity and dense snapshots", "Fact table type comparison"],
+          "tools": ["PostgreSQL", "psql", "SQL"],
+          "lab_task": "Build fact_account_balance_daily for 200 accounts over 90 days from a 5000-row transaction table using a carry-forward join, and fact_order_pipeline with order_date_key, pick_date_key, ship_date_key and deliver_date_key plus lag columns. Update milestones with an UPDATE and report average order-to-ship days.",
+          "deliverable": "Both fact tables, load scripts and a lag report",
+          "checks": [["SELECT count(*) FROM fact_account_balance_daily", "Returns 18000 (200 accounts times 90 days)", "Query output"], ["Compare the month-end balance with the transaction ledger sum", "Both equal for every account", "Reconciliation query"], ["Ship 50 pending orders and rerun the lag report", "Average order-to-ship days is computed over the 50 newly updated rows and the row count of fact_order_pipeline is unchanged", "Before-and-after output"]],
+          "objectives": ["Choose the right fact table type", "Build periodic and accumulating snapshots", "Compute milestone lags"]
+        },
+        {
+          "topic": "Factless Facts, Late-Arriving Data and Inferred Members",
+          "subtopics": ["Factless fact tables: events and coverage", "Attendance and promotion-coverage examples", "Finding what did not happen with NOT EXISTS", "Late-arriving facts and picking the dimension version by date range", "Late-arriving dimensions and inferred members", "Updating inferred rows when the real data arrives", "Early-arriving facts", "Audit counters for late data"],
+          "tools": ["PostgreSQL", "psql", "SQL"],
+          "lab_task": "Create fact_promo_coverage (date_key, product_key, promo_key) and list products on promotion with zero sales using NOT EXISTS. Then load 20 late facts whose customers are missing from dim_customer, insert inferred members with is_inferred = true, later load the real rows and update them in place. Report the count before and after.",
+          "deliverable": "Factless fact, zero-sales query and late-data scripts",
+          "checks": [["Run the promoted-but-unsold query", "Returns the products with no matching sales row, a count recorded in the report", "Query output"], ["Load 20 late facts", "20 inferred rows appear with is_inferred = true and none of the facts has key -1", "Query output"], ["Load the real customers", "The inferred rows are updated, the count with is_inferred = true returns 0 and dim_customer row count is unchanged", "Before-and-after counts"]],
+          "objectives": ["Model events and coverage with factless facts", "Handle late-arriving facts", "Create and resolve inferred members"]
+        },
+        {
+          "topic": "Semi-Additive Measures, Currency and Unit Conversion",
+          "subtopics": ["Balances that can be summed across accounts but not time", "Last-value and average-over-time patterns", "Currency conversion at transaction date versus reporting date", "Storing both local and reporting currency amounts", "Exchange-rate fact table design", "Unit-of-measure conversion", "Rounding and reconciliation of converted amounts", "Fiscal calendars and period-end rates"],
+          "tools": ["PostgreSQL", "psql", "DuckDB"],
+          "lab_task": "Create fact_sales with amount_local and currency_code, and fact_fx_rate_daily for EUR, GBP, INR and USD. Convert to USD at transaction-date rates and at month-end rates, store both in the fact, and write a query for closing balance per month that uses the last day's value rather than SUM. Reconcile rounding to within 0.01 USD per row.",
+          "deliverable": "Currency fact tables, conversion SQL and a rounding reconciliation",
+          "checks": [["Compare converted USD totals at transaction rates and month-end rates", "The totals differ and each row is within 0.01 USD of an independently calculated value", "Reconciliation output"], ["Run the closing-balance query", "Returns one row per account per month using the month's last date", "Result set"], ["Run SUM(balance) across months by mistake", "The result equals roughly 12 times a month's balance and is flagged as invalid", "Query output and note"]],
+          "objectives": ["Handle semi-additive measures correctly", "Convert currencies with a rate fact", "Document conversion rules"]
+        },
+        {
+          "topic": "ELT Patterns: Load First, Transform in the Warehouse",
+          "subtopics": ["ETL and ELT compared for warehousing", "Raw landing as immutable history", "Layering: raw, staging, intermediate and marts", "Set-based SQL transformations over row-by-row code", "Reprocessing from raw after logic changes", "Transformation tools: SQL scripts, dbt Core and stored procedures", "Schema drift handling in raw", "Cost and compute considerations of in-warehouse transforms", "Idempotent rebuilds of derived layers"],
+          "tools": ["PostgreSQL", "dbt Core", "DuckDB", "Git"],
+          "lab_task": "Land 3 days of JSON order files unchanged into raw.orders_json (payload jsonb, file_name, loaded_at) in PostgreSQL, then build stg_orders, int_order_lines and mart tables with SQL (->>, jsonb_array_elements). Change a business rule, rebuild every layer from raw, and prove the raw row count and checksum did not change.",
+          "deliverable": "Layered SQL project in Git and a rebuild proof",
+          "checks": [["Compare count(*) and md5(string_agg(payload::text, ',' ORDER BY file_name)) for raw.orders_json before and after rebuild", "Identical count and checksum", "Query output"], ["Run the full rebuild twice", "Row counts of mart tables are identical on both runs", "Run log"], ["Add a new JSON field to day 3 files", "Raw loads without error and staging ignores the field until modelled", "Load log"]],
+          "objectives": ["Apply the ELT pattern with immutable raw data", "Rebuild layers from raw", "Handle schema drift"]
+        },
+        {
+          "topic": "Incremental Models, MERGE and Change Data Capture",
+          "subtopics": ["Log-based CDC versus query-based extraction", "CDC record shape: key, operation, commit timestamp and sequence", "Deduplicating events to the latest per key with ROW_NUMBER", "MERGE with WHEN MATCHED and WHEN NOT MATCHED in PostgreSQL 15 or later", "Handling deletes in MERGE", "Out-of-order and duplicate events", "Incremental SQL models with a high-water mark", "Type 2 maintenance with MERGE", "Reconciliation of CDC target to source"],
+          "tools": ["PostgreSQL", "Debezium", "psql", "SQL"],
+          "lab_task": "Create cdc.orders_events (order_id, op, ts, seq, payload) with 5000 events including 300 duplicates and 100 out-of-order updates. Deduplicate to the latest event per key, apply it with MERGE using WHEN MATCHED AND op = 'D' THEN DELETE, and verify the target equals a full snapshot computed from the same events.",
+          "deliverable": "CDC apply script with a snapshot comparison",
+          "checks": [["Run SELECT count(*) FROM (SELECT DISTINCT ON (order_id) ... ORDER BY order_id, seq DESC) latest WHERE op <> 'D'", "Equals the count of rows in the merged target", "Query output"], ["Replay the same events through the MERGE a second time", "The target row count and checksum are unchanged", "Checksum output"], ["EXCEPT between target and snapshot", "Returns 0 rows in both directions", "Query output"]],
+          "objectives": ["Apply CDC with MERGE", "Deduplicate and order events", "Reconcile a target to a snapshot"]
+        },
+        {
+          "topic": "Inmon Corporate Information Factory and the Hub-and-Spoke Model",
+          "subtopics": ["Inmon's definition and the corporate information factory", "Enterprise data warehouse in third normal form", "Operational data store and its role", "Dependent data marts fed from the EDW", "Top-down versus bottom-up delivery trade-offs", "Normalised integration and subject areas", "Hybrid designs: 3NF core with dimensional marts", "Where Data Vault fits in the lineage", "Typical failure modes of big-bang EDW programmes"],
+          "tools": ["PostgreSQL", "draw.io", "Markdown", "psql"],
+          "lab_task": "Model a customer, account, product and transaction subject area in 3NF (at least 9 tables with foreign keys) in PostgreSQL, then derive a dimensional sales mart as views over it. Write a two-page comparison to the Kimball star for the same data covering load effort, history handling, ad hoc query speed and time to first report.",
+          "deliverable": "3NF DDL, mart views and a written comparison",
+          "checks": [["Run a count of foreign keys on the 3NF schema", "At least 9 tables and 8 or more foreign keys exist", "Catalog query"], ["Query the mart view for revenue by product", "Equals the same query against the normalised tables", "Two results"], ["Review the comparison", "Covers all four dimensions with one measured or reasoned point each", "Document"]],
+          "objectives": ["Describe the Inmon approach", "Derive marts from a normalised core", "Compare Inmon and Kimball for a given context"]
+        },
+        {
+          "topic": "Data Vault 2.0: Hubs, Links and Satellites",
+          "subtopics": ["Why Data Vault: auditability, agility and parallel loading", "Hubs: business keys, hash key, load date and record source", "Links: relationships between hubs", "Satellites: descriptive attributes and hash diff", "Hash key and hash diff calculation with normalisation of case and whitespace", "Insert-only loading and load patterns", "Multi-active and effectivity satellites", "Non-historised links for events", "Raw vault versus business vault", "Sources of record and record_source conventions"],
+          "tools": ["PostgreSQL", "DuckDB", "SQL", "psql"],
+          "lab_task": "Model customers, orders and products as hub_customer, hub_order, hub_product, link_order_line and sat_customer_details in PostgreSQL. Use md5(upper(trim(business_key))) for hash keys and a hash diff over attributes. Load a first batch of 1000 customers and a second with 80 changed rows and show that only 80 satellite rows are added.",
+          "deliverable": "Raw vault DDL, loading SQL and a change-detection test",
+          "checks": [["Load batch 1", "hub_customer has 1000 rows and sat_customer_details has 1000 rows", "Row counts"], ["Load batch 2 with 80 changed and 920 unchanged customers", "sat_customer_details grows by exactly 80 rows and hub_customer stays at 1000", "Row counts"], ["Reload batch 2 again", "No rows are added anywhere", "Row counts"]],
+          "objectives": ["Model hubs, links and satellites", "Load a raw vault with hash keys", "Detect change with hash diffs"]
+        },
+        {
+          "topic": "Information Marts from a Raw Vault: PIT and Bridge Tables",
+          "subtopics": ["Why querying a raw vault directly is expensive", "Point-in-time (PIT) tables: one row per key per snapshot date", "Bridge tables across links", "Computing satellite end dates with LEAD", "Business vault rules and computed satellites", "Building a dimension view from hub plus satellites", "Building a fact view from links", "Refresh strategy for PIT tables", "Equi-join performance with PIT"],
+          "tools": ["PostgreSQL", "psql", "SQL"],
+          "lab_task": "From the raw vault build pit_customer for 30 daily snapshot dates referencing the satellite load date valid at each snapshot, using LEAD for end dates. Create dim_customer_v as a view joining hub_customer to sat_customer_details through the PIT, and compare EXPLAIN ANALYZE runtime with joining the satellite using a range predicate.",
+          "deliverable": "PIT build SQL, dimension view and a plan comparison",
+          "checks": [["SELECT count(*) FROM pit_customer", "Returns 30 times the customer count", "Query output"], ["Query dim_customer_v for a date before a known change", "Returns the old attribute value", "Query output"], ["Compare runtimes of the PIT join and range join", "Both runtimes are recorded and the PIT query uses equality joins only", "EXPLAIN output"]],
+          "objectives": ["Build PIT and bridge tables", "Present a raw vault as dimensional views", "Compute satellite end dates"]
+        },
+        {
+          "topic": "MPP Distribution, Sort Order and Data Skew",
+          "subtopics": ["Massively parallel processing: nodes, slices and shared-nothing design", "Distribution styles: hash, round robin and replicated", "Choosing a distribution key: high cardinality and join alignment", "Data skew and a skew ratio", "Broadcast versus shuffle joins and data movement cost", "Sort or cluster order and zone-map effectiveness", "Small dimensions replicated, large facts hashed", "How different engines expose these ideas: explicit keys versus automatic management", "Co-located joins"],
+          "tools": ["DuckDB", "PostgreSQL", "Python", "SQL"],
+          "lab_task": "In DuckDB simulate a 4-node cluster over a 10 million row fact with node = hash(customer_key) % 4 and again with hash(store_key) % 4 where one store holds 40 percent of rows. Compute the skew ratio (max rows divided by average rows) for each key and estimate shuffle bytes for joining to a 2 million row dimension versus broadcasting it.",
+          "deliverable": "Skew analysis query, estimates for shuffle versus broadcast and a key recommendation",
+          "checks": [["Compute rows per node for customer_key", "Skew ratio is below 1.05", "Query output"], ["Compute rows per node for the hot store_key", "Skew ratio is above 1.5", "Query output"], ["Compute broadcast bytes (dimension size times 3 receiving nodes) and shuffle bytes", "A numeric comparison names the cheaper strategy", "Calculation sheet"]],
+          "objectives": ["Explain MPP data distribution", "Measure data skew", "Choose between broadcast and shuffle joins"]
+        },
+        {
+          "topic": "Partitioning, Clustering and Partition Pruning",
+          "subtopics": ["Range, list and hash partitioning", "PostgreSQL declarative partitioning with PARTITION BY RANGE", "Hive-style partitioned Parquet with PARTITION_BY in DuckDB", "Partition pruning and how to see it in plans", "Partition key choice: filters, not join keys", "Too many partitions and the small-file problem", "Clustering or sort within partitions", "Partition lifecycle: attach, detach and drop for retention", "Statistics on partitioned tables"],
+          "tools": ["PostgreSQL", "DuckDB", "Apache Parquet", "psql"],
+          "lab_task": "Partition fact_sales by month with PARTITION BY RANGE (order_date) for 24 months in PostgreSQL. Run a one-month query with EXPLAIN and confirm the other 23 partitions are excluded. Then COPY the data to Parquet with PARTITION_BY (year, month) in DuckDB, count the files, and detach the oldest partition for retention.",
+          "deliverable": "Partitioned DDL, pruning proof and a retention script",
+          "checks": [["EXPLAIN a single-month query on the partitioned table", "Plan scans one partition (23 are removed, shown as Subplans Removed or absent)", "Plan text"], ["Count files in the Parquet output", "24 directories of month partitions each containing at least one file", "ls output"], ["ALTER TABLE ... DETACH PARTITION the oldest month", "Row count falls by exactly that partition's rows", "Count before and after"]],
+          "objectives": ["Design partitioning by query filters", "Prove pruning in plans", "Use partitions for retention"]
+        },
+        {
+          "topic": "Materialised Views, Aggregate Tables and Result Caching",
+          "subtopics": ["Aggregate fact tables and aggregate navigation", "Shrunken dimensions for aggregates", "Materialised views in PostgreSQL", "REFRESH MATERIALIZED VIEW CONCURRENTLY and its unique index requirement", "Incremental maintenance versus full refresh", "Staleness and refresh schedules", "Result caches and their invalidation", "When not to aggregate: cost of maintenance", "Measuring benefit with before-and-after plans"],
+          "tools": ["PostgreSQL", "psql", "pgAdmin"],
+          "lab_task": "Create mv_sales_month_category over a 5 million row fact in PostgreSQL. Add a unique index, run REFRESH MATERIALIZED VIEW CONCURRENTLY while a second session reads it, and compare dashboard query runtimes against the base tables. Attempt the concurrent refresh without the unique index and record the error.",
+          "deliverable": "Materialised view script, runtime table and refresh notes",
+          "checks": [["Run the dashboard query on the base fact and on the materialised view", "The view is at least 10 times faster and returns identical totals", "Timings and result comparison"], ["Run REFRESH ... CONCURRENTLY without a unique index", "ERROR: cannot refresh materialized view concurrently", "Error message"], ["Insert 1000 new fact rows and query the view before refresh", "The view still reflects the old totals until refreshed", "Query output"]],
+          "objectives": ["Create and refresh materialised aggregates", "Weigh speed against staleness", "Measure the benefit with evidence"]
+        },
+        {
+          "topic": "Semantic Layers: Governed Metrics and Definitions",
+          "subtopics": ["Why one definition of revenue matters", "Semantic model parts: entities, dimensions, measures and metrics", "Metric types: simple, ratio, derived and cumulative", "Semantic layers in BI tools, dbt MetricFlow and Cube", "Serving metrics over REST, GraphQL and SQL", "Pre-aggregations for speed", "Access control inside the semantic layer", "Open semantic interchange efforts and portability", "Testing metric outputs against SQL"],
+          "tools": ["Cube", "PostgreSQL", "MetricFlow", "curl", "YAML"],
+          "lab_task": "Run Cube with docker run -p 4000:4000 and CUBEJS_DB_TYPE=postgres against the sales star. Define cubes for sales and customers with measures revenue, orders and avg_order_value and a joined dimension, then call POST /cubejs-api/v1/load with curl for revenue by month and diff the result against hand-written SQL.",
+          "deliverable": "Cube schema files, curl request and a SQL diff showing identical numbers",
+          "checks": [["curl POST /cubejs-api/v1/load for revenue grouped by month", "Returns 24 rows for a 24-month dataset", "JSON output"], ["Compare with SQL SUM(net_amount) by month", "All 24 values match exactly", "Diff output"], ["Define avg_order_value as a ratio measure and query by region", "Value equals SUM(revenue)/COUNT(DISTINCT order_id) per region", "Result"]],
+          "objectives": ["Define governed metrics once", "Query a semantic layer over an API", "Validate metrics against SQL"]
+        },
+        {
+          "topic": "Data Quality Frameworks: Tests, Contracts and Reconciliation",
+          "subtopics": ["Declarative checks versus ad hoc SQL", "Soda checks and Great Expectations suites", "Freshness, volume, schema and distribution checks", "Source-to-target reconciliation: counts, sums and hash totals", "Data contracts between producers and consumers", "Severity levels and alert routing", "Quarantine tables and remediation workflow", "Anomaly detection on row counts", "Quality metrics for governance dashboards"],
+          "tools": ["Soda", "Great Expectations", "PostgreSQL", "Python"],
+          "lab_task": "Install Soda and write checks.yml for fact_sales with row_count > 0, missing_count(customer_key) = 0, duplicate_count(order_line_id) = 0 and freshness(loaded_at) < 1d. Run soda scan -d dw -c configuration.yml checks.yml, seed 3 failures, and write a reconciliation query that compares source and target sums and a hash total.",
+          "deliverable": "Checks file, scan outputs before and after seeding and a reconciliation query",
+          "checks": [["Run soda scan on clean data", "All checks pass and the scan exits with code 0", "Scan output"], ["Seed 3 failures (null key, duplicate line, stale load) and rescan", "3 checks fail and the exit code is non-zero", "Scan output"], ["Run the reconciliation query", "Row count, SUM(amount) and hash total match between staging and target", "Query result"]],
+          "objectives": ["Automate data quality checks", "Reconcile sources and targets", "Route failures by severity"]
+        },
+        {
+          "topic": "Orchestration, Dependencies and Backfills",
+          "subtopics": ["Pipeline DAGs and dependency ordering", "Scheduling with cron and with orchestrators such as Apache Airflow", "Parameterised runs with a run_date", "Idempotent partition-based loads", "Backfilling a date range safely", "Retries, timeouts and alerting", "Run metadata: ops.run_log with status and row counts", "Dependencies between loads: dimensions before facts", "Rerunning a failed step without a full rebuild"],
+          "tools": ["Apache Airflow", "Make", "PostgreSQL", "psql", "Bash"],
+          "lab_task": "Parameterise load_fact_sales.sql with psql -v run_date=2026-03-01 so it deletes and reloads only that day's partition. Write a Makefile that runs dimensions then facts then checks and logs to ops.run_log. Backfill 30 days with a shell loop, kill the run on day 12, resume from day 12, and show the final counts equal a clean run.",
+          "deliverable": "Parameterised scripts, Makefile, run log and a resumed-backfill proof",
+          "checks": [["Run the 30-day backfill", "ops.run_log shows 30 successful date runs", "Table output"], ["Interrupt on day 12 and resume", "Days 1 to 11 are not rerun and the final fact count equals a clean run", "Run log and counts"], ["Run the same date twice", "Row count for that day is unchanged", "Counts"]],
+          "objectives": ["Parameterise loads by date", "Backfill idempotently", "Record run metadata"]
+        },
+        {
+          "topic": "Capstone: Multi-Process Dimensional Warehouse with ELT and Quality Gates",
+          "subtopics": ["Three business processes on a conformed bus: sales, inventory and returns", "ELT layers rebuilt from raw with CDC applies", "SCD2 and snapshot facts", "Partitioning and a materialised aggregate", "Quality gates and reconciliation", "Semantic layer metrics"],
+          "tools": ["PostgreSQL", "DuckDB", "Cube", "Soda", "Make", "Git"],
+          "lab_task": "Build a three-process warehouse over a generated 1-million-row source: sales transactions, daily inventory snapshots and returns. Use conformed dim_date, dim_product and SCD2 dim_customer, apply CDC with MERGE, partition sales by month, add one materialised aggregate, enforce Soda checks as a gate in the Makefile and expose 3 Cube metrics.",
+          "deliverable": "Git repository, bus matrix, reconciliation report, Soda results and a metric validation sheet",
+          "checks": [["Run the full Makefile pipeline", "Gates pass and sales, inventory and returns facts load with counts reconciled to source", "Run log"], ["Inject a duplicate order line and rerun", "The Soda duplicate check fails and the pipeline stops before marts are published", "Pipeline output"], ["Query 3 Cube metrics and the same SQL", "All figures match to the cent", "Diff output"]],
+          "objectives": ["Deliver a multi-process conformed warehouse", "Gate publication on quality checks", "Validate metrics end to end"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior engineers and architects who own warehouse platforms. Covers enterprise architecture choices, open table formats, optimiser statistics, workload management, tuning at billions of rows, FinOps, row-level security and masking, governance and lineage, privacy and erasure, bitemporal modelling, streaming ingestion, data contracts and sharing, a two-day vendor-neutral comparison of Snowflake, BigQuery, Redshift and Fabric, migration reconciliation, CI/CD, observability, disaster recovery, AI-assisted analytics and a design-review capstone.",
+      "prerequisites": ["Has delivered at least one production warehouse or mart with incremental loads and quality checks", "Reads query plans and understands partitioning, distribution and SCD patterns", "Is comfortable with Python or shell scripting, Docker and a CI system"],
+      "outcomes": ["Choose and defend an enterprise warehouse architecture and platform using weighted evidence", "Secure, govern and make the warehouse privacy-compliant with row policies, masking, lineage and erasure", "Run the warehouse reliably with workload isolation, FinOps, observability, CI/CD and tested recovery", "Plan and reconcile a legacy migration and evaluate AI-assisted analytics safely"],
+      "days": [
+        {
+          "topic": "Enterprise Warehouse Architecture: Central Warehouse, Lakehouse and Data Mesh",
+          "subtopics": ["Centralised EDW, lakehouse and federated mesh patterns compared", "Domain ownership and data products", "Capability maps and platform responsibilities", "Architecture decision records and weighted decision matrices", "Hub-and-spoke versus fabric topologies", "Shared dimension governance in a federated model", "Build, buy and managed service boundaries", "Cost of centralisation versus cost of inconsistency"],
+          "tools": ["Markdown", "draw.io", "Excel", "Git"],
+          "lab_task": "Write an ADR for a 5000-employee retailer choosing between a central warehouse, a lakehouse and a mesh. Score 6 criteria (time to value, governance, cost, skills, scale, vendor risk) with weights summing to 100 and scores of 1 to 5 for each option. Run a sensitivity test by changing two weights by 10 points and record whether the ranking changes.",
+          "deliverable": "ADR document with weighted matrix, sensitivity table and a target architecture diagram",
+          "checks": [["Sum the criteria weights", "Equal exactly 100", "Spreadsheet"], ["Change two weights by 10 points", "The ranking either holds or flips and the result is documented", "Sensitivity table"], ["Read the ADR", "Contains context, decision, alternatives and consequences sections", "Markdown file"]],
+          "objectives": ["Compare enterprise architecture patterns", "Record decisions in ADRs", "Test decision sensitivity"]
+        },
+        {
+          "topic": "Open Table Formats in Warehouses: Iceberg, Delta and Interoperability",
+          "subtopics": ["Table format layers: data files, metadata, manifests and catalog", "Iceberg snapshots and metadata JSON", "Delta Lake transaction log and Hudi timelines", "REST catalogs and engine interoperability", "Time travel and rollback", "Schema and partition evolution", "Compaction and orphan file cleanup", "Row-level deletes: copy-on-write versus merge-on-read", "Warehouse-native versus external table trade-offs"],
+          "tools": ["Apache Iceberg", "PyIceberg", "DuckDB", "Python"],
+          "lab_task": "With PyIceberg create a SqlCatalog on SQLite and an Iceberg table sales. Append three batches of 10000 rows, list table.snapshots(), then read the table through DuckDB with the iceberg extension and read the first snapshot with time travel. Add a column with schema evolution and read old files.",
+          "deliverable": "Python scripts, snapshot listing and cross-engine read results",
+          "checks": [["Run len(table.snapshots()) after three appends", "Returns 3", "Python output"], ["Read the first snapshot id", "Returns 10000 rows", "Query output"], ["Add a column and read the pre-change data", "Existing rows return NULL for the new column and no data files are rewritten", "Query output and file listing"]],
+          "objectives": ["Explain open table format internals", "Read one table from two engines", "Use time travel and schema evolution"]
+        },
+        {
+          "topic": "Query Optimiser Internals: Statistics, Cardinality and Join Order",
+          "subtopics": ["Cost-based optimisation and statistics", "Histograms, most common values and n_distinct", "Cardinality estimation errors and correlated columns", "Join algorithms: hash, merge and nested loop", "Join order search and join_collapse_limit", "Extended statistics with CREATE STATISTICS", "default_statistics_target and column-level tuning", "Plan regressions after data growth", "Reading estimated and actual rows to find the bad node"],
+          "tools": ["PostgreSQL", "EXPLAIN", "psql", "pg_stats"],
+          "lab_task": "In PostgreSQL create a 5 million row table where city and postcode are perfectly correlated. Run EXPLAIN (ANALYZE) with both predicates and note the row-estimate error. Add CREATE STATISTICS s1 (dependencies) ON city, postcode FROM t, run ANALYZE, and show the estimate converge toward the actual rows and the join method change.",
+          "deliverable": "Before-and-after plans with an estimate-error table",
+          "checks": [["EXPLAIN ANALYZE before extended statistics", "Estimated rows differ from actual rows by a factor of 10 or more", "Plan text"], ["CREATE STATISTICS and ANALYZE, then rerun", "Estimate is within 2x of actual rows", "Plan text"], ["Query pg_stats_ext", "A dependencies entry for city and postcode appears", "Catalog output"]],
+          "objectives": ["Diagnose cardinality estimation errors", "Fix plans with extended statistics", "Read join algorithm choices"]
+        },
+        {
+          "topic": "Workload Management, Concurrency and Compute Isolation",
+          "subtopics": ["Workload classes: ETL, BI, ad hoc and data science", "Queues, resource groups and priorities", "Compute isolation and per-workload sizing", "Autoscaling and queueing behaviour", "Statement timeouts and result-size limits", "Noisy neighbour diagnosis", "Concurrency scaling and the cost of idle capacity", "Query tagging for chargeback", "Measuring latency percentiles under load"],
+          "tools": ["PostgreSQL", "pgbench", "pg_stat_activity", "psql"],
+          "lab_task": "Run pgbench -c 32 -j 4 -T 60 -f bi_query.sql while a heavy ETL query runs as another role. Record average latency and tps. Then ALTER ROLE bi_reader SET statement_timeout = '30s', limit connections with ALTER ROLE ... CONNECTION LIMIT 16, rerun the benchmark and compare latency and error counts.",
+          "deliverable": "Before-and-after benchmark table and a workload isolation policy",
+          "checks": [["Run pgbench without limits while ETL runs", "Average latency and tps are recorded as a baseline", "pgbench output"], ["Set statement_timeout to 30s and run a 60-second query as bi_reader", "ERROR: canceling statement due to statement timeout", "Error message"], ["Rerun pgbench with limits", "Concurrent BI connections never exceed 16 in pg_stat_activity", "Catalog query"]],
+          "objectives": ["Separate workloads by class", "Apply limits and timeouts", "Measure latency under concurrency"]
+        },
+        {
+          "topic": "Performance Tuning at Billions of Rows: Skew, Spill and Join Strategy",
+          "subtopics": ["Reading profiling output for the slowest operator", "Memory limits and spill to disk", "Skewed join keys and salting", "Broadcast joins for small dimensions", "Pre-aggregation before joins", "Approximate aggregates: HyperLogLog and approx_count_distinct", "Sorting and clustering for pruning", "Denormalising hot paths", "Benchmark hygiene: warm cache, cold cache and repeat runs"],
+          "tools": ["DuckDB", "PostgreSQL", "EXPLAIN ANALYZE", "Python"],
+          "lab_task": "In DuckDB generate 200 million rows with a skewed customer_id and set memory_limit = '2GB' and temp_directory. Run COUNT(DISTINCT customer_id) by month, observe spilling in EXPLAIN ANALYZE, replace it with approx_count_distinct and measure error and runtime. Fix a skewed join by salting the hot key with 8 buckets.",
+          "deliverable": "Benchmark table of exact versus approximate results and a salting write-up",
+          "checks": [["Run exact COUNT(DISTINCT) under the memory limit", "Query completes with temp files created or reports an out-of-memory error that is recorded", "Output and temp directory listing"], ["Compare approx_count_distinct with exact results", "Relative error is under 3 percent and runtime is lower", "Comparison table"], ["Run the salted join", "The result checksum equals the unsalted join", "Checksum output"]],
+          "objectives": ["Diagnose spill and skew", "Choose approximate aggregates responsibly", "Apply salting to hot keys"]
+        },
+        {
+          "topic": "Cost Management and FinOps for Data Warehouses",
+          "subtopics": ["Billing models: per byte scanned, per compute time and fixed capacity", "Storage, time-travel retention and egress costs", "Unit costs: per query, per dashboard and per team", "Tagging and chargeback", "Budgets, quotas and anomaly alerts", "Auto-suspend and right-sizing", "Materialisation trade-offs: compute saved versus storage and refresh cost", "Break-even analysis between pricing models", "Top-N expensive queries and fixing them"],
+          "tools": ["SQL", "DuckDB", "Excel", "PostgreSQL"],
+          "lab_task": "Load a 5000-row query_history.csv (user, bytes_scanned, seconds, warehouse) into DuckDB. Using stated assumptions of 5 USD per TB scanned and 4 USD per compute hour, compute monthly cost under each model, the break-even scan volume, cost per team and the top 10 queries by cost. Recommend which model to use and one fix per expensive query.",
+          "deliverable": "Cost model workbook, top-10 query list and a recommendation memo",
+          "checks": [["Compute total scanned TB and total compute hours", "Both values appear in the model with assumptions documented", "Query output"], ["Compute the break-even scan volume", "Break-even TB equals compute cost divided by 5 USD and is stated numerically", "Calculation"], ["List the top 10 queries by cost", "The list is ordered descending and each has a fix", "Table"]],
+          "objectives": ["Model warehouse cost under different pricing schemes", "Attribute costs to teams", "Prioritise optimisation by cost"]
+        },
+        {
+          "topic": "Warehouse Security: Role-Based Access, Row Policies and Masking",
+          "subtopics": ["Role hierarchies and least privilege", "Row-level security policies in PostgreSQL", "Column-level grants", "Dynamic masking through views and role checks", "Encryption at rest and in transit, and customer-managed keys", "Service accounts and secrets", "Network isolation and private connectivity", "Audit logging and separation of duties", "Testing access with impersonation"],
+          "tools": ["PostgreSQL", "psql", "pgAudit", "SQL"],
+          "lab_task": "Enable row-level security on fact_sales with CREATE POLICY region_policy USING (region = current_setting('app.region')). Create analyst roles for EMEA and APAC, a masked view of dim_customer that shows email only to members of pii_reader, and a column grant that denies salary. Test each with SET ROLE and record outputs.",
+          "deliverable": "Security script, a test matrix with outputs and an access model diagram",
+          "checks": [["SET ROLE emea_analyst; SET app.region = 'EMEA'; SELECT DISTINCT region FROM fact_sales", "Returns only EMEA", "Query output"], ["As a non-pii role select email from the masked view", "Returns masked values such as ****@example.com", "Query output"], ["Select salary as the analyst role", "ERROR permission denied for table, SQLSTATE 42501", "Error output"]],
+          "objectives": ["Apply row-level and column-level controls", "Mask sensitive data dynamically", "Test security from the user's role"]
+        },
+        {
+          "topic": "Governance: Catalogue, Lineage, Classification and Stewardship",
+          "subtopics": ["Governance operating model: owners, stewards and councils", "DAMA-DMBOK knowledge areas", "Business glossary and certified datasets", "Data catalogues and metadata harvesting", "Column-level lineage and OpenLineage events", "Sensitivity classification and tags", "Data quality ownership and SLAs", "Policy enforcement versus documentation", "Governance metrics: coverage, ownership and certification"],
+          "tools": ["OpenLineage", "Marquez", "DataHub", "curl", "Docker"],
+          "lab_task": "Run Marquez on ports 5000 and 5001. Send two OpenLineage run events with curl to POST /api/v1/lineage (START and COMPLETE) for a job that reads stg.orders and writes core.fact_sales, then query GET /api/v1/lineage?nodeId=dataset:dw:core.fact_sales and tag two columns as PII in a catalogue spreadsheet.",
+          "deliverable": "Lineage events, API response and a classification register",
+          "checks": [["POST the START and COMPLETE events", "Both return HTTP 201", "curl output"], ["GET the lineage graph for core.fact_sales", "Graph contains the job node and the stg.orders input dataset", "JSON output"], ["Review the classification register", "Every PII column lists owner, sensitivity and a handling rule", "Spreadsheet"]],
+          "objectives": ["Operate a governance model", "Emit and read lineage", "Classify sensitive data"]
+        },
+        {
+          "topic": "Privacy Engineering: Erasure, Retention and Pseudonymisation",
+          "subtopics": ["GDPR right to erasure and warehouse implications", "Retention schedules and automated purges", "Pseudonymisation versus anonymisation", "Splitting PII into separate satellites or tables", "Crypto-shredding with per-subject keys", "Erasure in history tables, backups and derived marts", "Consent and purpose tags", "Privacy-safe sharing: k-anonymity thresholds", "Erasure request logs and proof"],
+          "tools": ["PostgreSQL", "pgcrypto", "psql", "SQL"],
+          "lab_task": "Split customer PII (name, email) from dim_customer into pii.customer_pii keyed by subject_key, encrypted with pgp_sym_encrypt using a per-subject key in pii.subject_key. Process an erasure request that deletes the subject's key and PII row, logs it in pii.erasure_log, and prove facts remain and the name is no longer recoverable.",
+          "deliverable": "Privacy schema, erasure procedure and a verification script",
+          "checks": [["Call the erasure procedure for subject 42", "pii.erasure_log gains one row and the key row is deleted", "Query output"], ["Join facts to the PII view for subject 42", "Fact rows remain and name and email are NULL", "Result set"], ["Count fact_sales rows before and after erasure", "The count is unchanged", "Counts"]],
+          "objectives": ["Design a warehouse for erasure", "Apply crypto-shredding", "Log and prove erasure"]
+        },
+        {
+          "topic": "Bitemporal Modelling and Historical Reconstruction",
+          "subtopics": ["Valid time versus transaction time", "As-of versus as-was reporting", "Corrections that rewrite the past without losing the audit trail", "Range types with tstzrange and exclusion constraints", "btree_gist and EXCLUDE USING gist", "Bitemporal dimension and fact patterns", "Querying two time axes", "Restating reports for a prior date", "Alternatives to full bitemporal models"],
+          "tools": ["PostgreSQL", "btree_gist", "psql", "SQL"],
+          "lab_task": "Create dim_price_bitemporal (product_id, price, valid_range tstzrange, recorded_range tstzrange) in PostgreSQL with an EXCLUDE USING gist constraint preventing overlapping valid ranges for the same product within current records. Load a price, apply a retroactive correction, and answer: what was the price on 1 March, and what did we believe on 15 March?",
+          "deliverable": "Bitemporal DDL, correction script and two as-of queries",
+          "checks": [["Insert an overlapping valid range for the same product in current records", "ERROR 23P01 conflicting key value violates exclusion constraint", "Error output"], ["Query the price valid on 1 March as known today", "Returns the corrected price", "Result set"], ["Query the same date as known on 15 March", "Returns the original price", "Result set"]],
+          "objectives": ["Model valid and transaction time", "Prevent overlapping ranges with constraints", "Answer as-of and as-was questions"]
+        },
+        {
+          "topic": "Real-Time and Streaming Ingestion into the Warehouse",
+          "subtopics": ["Micro-batch, streaming ingestion and CDC pipelines", "Debezium, Kafka and sink connectors in outline", "Upserts and ordering by source sequence", "Exactly-once effects through idempotent writes", "Event time versus processing time and late data", "Freshness SLAs and measuring lag", "Compaction of small files from streaming writes", "Serving fresh data: dynamic tables, materialised views and streaming aggregates", "Cost of low latency"],
+          "tools": ["PostgreSQL", "Kafka", "Debezium", "Python", "psql"],
+          "lab_task": "Write a Python consumer that reads 20000 JSON change events from a file (including 5 percent duplicates and 2 percent out-of-order events) and applies them in micro-batches of 1000 with INSERT ... ON CONFLICT DO UPDATE WHERE excluded.seq > target.seq. Compute freshness lag per batch and prove that replaying the file yields the same checksum.",
+          "deliverable": "Consumer code, lag metrics and a replay checksum",
+          "checks": [["Run the consumer on the event file", "Target row count equals the number of distinct keys in the file", "Count query"], ["Replay the full file again", "md5 checksum of the target table is identical", "Checksum output"], ["Compute p95 lag per batch", "p95 is recorded and compared to a stated 60-second freshness target", "Metrics table"]],
+          "objectives": ["Apply streaming changes idempotently", "Handle late and out-of-order events", "Measure freshness"]
+        },
+        {
+          "topic": "Data Sharing, Data Products and Clean Rooms",
+          "subtopics": ["Zero-copy sharing versus copy-based exports", "Delta Sharing and cloud sharing models in outline", "Data product definition: owner, schema, SLA and quality", "Data contracts with the Open Data Contract Standard", "Versioning and deprecation of shared datasets", "Clean rooms and aggregate-only access", "Minimum group size thresholds", "Differential privacy basics", "Chargeback for shared data"],
+          "tools": ["datacontract-cli", "YAML", "PostgreSQL", "Python"],
+          "lab_task": "Write datacontract.yaml for core.fact_sales with schema, quality and SLA sections, then run datacontract lint and datacontract test against PostgreSQL. Drop a required column in a copy and rerun the test. Create a clean-room view that returns aggregates only for groups with at least 25 customers.",
+          "deliverable": "Contract file, test outputs and a thresholded aggregate view",
+          "checks": [["Run datacontract lint datacontract.yaml", "Reports the contract is valid", "CLI output"], ["Run datacontract test after dropping a required column", "The test fails and names the missing column", "CLI output"], ["Query the clean-room view", "Groups with fewer than 25 customers are absent from the output", "Query output"]],
+          "objectives": ["Specify data contracts", "Share data with controlled exposure", "Enforce minimum group sizes"]
+        },
+        {
+          "topic": "Platform Comparison I: Snowflake, BigQuery, Redshift and Fabric Warehouse",
+          "subtopics": ["Storage and compute separation in each platform", "Scaling models: virtual warehouses, slots, RA3 and serverless, capacity units", "Pricing dimensions to compare: compute, storage, scan and egress", "Data layout controls: clustering, partitioning, sort and distribution keys", "Semi-structured data support", "Concurrency and workload isolation features", "Ecosystem: sharing, ML and open table format support", "Reading vendor documentation critically"],
+          "tools": ["Snowflake docs", "BigQuery docs", "Redshift docs", "Microsoft Fabric docs", "Excel"],
+          "lab_task": "Build a 12-row by 4-column comparison workbook of Snowflake, BigQuery, Redshift and Fabric Warehouse covering compute model, scaling, pricing unit, layout controls, semi-structured support and sharing. Every cell cites a vendor documentation URL with a retrieval date. Add a workload costing sheet for 2 TB storage, 500 GB scanned per day and 8 BI hours per day using each vendor's current public price list.",
+          "deliverable": "Comparison workbook with cited URLs and a costing sheet with assumptions",
+          "checks": [["Count cells without a source URL", "0 of 48 cells are uncited", "Workbook"], ["Review the costing sheet", "Each platform shows a monthly cost with the price-list URL and date", "Sheet"], ["Review the summary", "Names the pricing unit that most affects cost for this workload", "Written summary"]],
+          "objectives": ["Compare platform architectures neutrally", "Cite sources for every claim", "Cost one workload on four platforms"]
+        },
+        {
+          "topic": "Platform Comparison II: Selection Criteria, Proof of Concept and SQL Dialect Differences",
+          "subtopics": ["Weighted selection criteria and exit strategy", "Proof of concept design: ten representative queries and a concurrency test", "Success criteria set before testing", "Lock-in risk and open formats", "Dialect differences: QUALIFY, MERGE, date functions, identifier case and semi-structured access", "SQL transpilation with SQLGlot", "Security and compliance fit", "Skills and operating model fit", "Three-year total cost of ownership"],
+          "tools": ["SQLGlot", "Python", "DuckDB", "Excel"],
+          "lab_task": "Use sqlglot.transpile to translate 10 warehouse queries (window, QUALIFY, MERGE, date_trunc, JSON access) from PostgreSQL to the bigquery, snowflake, redshift and tsql dialects. Run each output through sqlglot.parse_one to check it parses, mark which queries need manual rework, and write PoC success criteria with thresholds before any testing.",
+          "deliverable": "Transpilation results table, manual rework list and PoC plan with success thresholds",
+          "checks": [["Run the transpile script for all 10 queries and 4 dialects", "40 outputs are produced and every output parses", "Script output"], ["Review the manual rework list", "Each rework item names a construct such as QUALIFY or MERGE and the dialect", "Table"], ["Review the PoC plan", "Every criterion has a numeric threshold, for example p95 under 5 seconds at 25 concurrent users", "Document"]],
+          "objectives": ["Plan a platform proof of concept", "Anticipate dialect differences", "Set thresholds before testing"]
+        },
+        {
+          "topic": "Legacy Warehouse Migration and Reconciliation at Scale",
+          "subtopics": ["Assessment: object inventory and query-log analysis", "Lift-and-shift versus re-engineering", "Wave planning and dependency order", "Parallel runs and cutover criteria", "Reconciliation levels: counts, aggregates and row-level hashes", "Bisection on bucketed checksums to find differing rows", "Typical differences: numeric precision, trailing spaces and time zones", "Rollback planning", "Decommissioning evidence"],
+          "tools": ["PostgreSQL", "SQL", "psql", "Python"],
+          "lab_task": "Create schemas legacy and new with a 1 million row table. Inject three differences into new: a numeric rounding change, a trailing space in a text column and a timestamp shifted by one hour. Compare using md5(string_agg(...)) over 256 hash buckets, bisect to differing buckets, and identify the three differences with row-level queries.",
+          "deliverable": "Reconciliation SQL, bucket comparison output and a list of the three root causes",
+          "checks": [["Compare total counts and SUM(amount)", "Counts match but the SUM differs by the rounding change", "Query output"], ["Compare bucket checksums", "Only a small number of buckets differ and they are listed", "Query output"], ["Run row-level queries on the differing buckets", "Exactly three issue types are identified: rounding, trailing space and timestamp shift", "Findings table"]],
+          "objectives": ["Plan a warehouse migration", "Reconcile with hashes and bisection", "Explain typical conversion differences"]
+        },
+        {
+          "topic": "Warehouse Testing, CI/CD and Environment Management",
+          "subtopics": ["Unit tests for SQL with fixtures", "Data tests versus code tests", "Schema migrations with Flyway or Liquibase", "Checksum validation of applied migrations", "Pull request pipelines with GitHub Actions", "Ephemeral and zero-copy-clone environments", "Slim CI that tests only changed models", "Blue-green swaps with table renames", "Release and rollback process"],
+          "tools": ["Flyway", "GitHub Actions", "pytest", "PostgreSQL", "DuckDB"],
+          "lab_task": "Create Flyway migrations V1__create_schemas.sql and V2__fact_sales.sql, run flyway migrate against PostgreSQL, edit V1 after it is applied and run flyway validate. Add a GitHub Actions workflow with a postgres service container that runs flyway migrate and pytest tests of a SQL transformation using fixtures with 5 input rows.",
+          "deliverable": "Migrations, workflow YAML and a green CI run",
+          "checks": [["Run flyway info after migrate", "Shows V1 and V2 with state Success", "Flyway output"], ["Edit an applied migration and run flyway validate", "Fails with a checksum mismatch validation error", "Error output"], ["Run pytest on the transformation fixtures", "5 input rows produce the expected 3 aggregate rows and the test passes", "pytest output"]],
+          "objectives": ["Version warehouse schemas", "Test SQL with fixtures", "Automate pull request checks"]
+        },
+        {
+          "topic": "Observability, SLAs and Incident Response for Warehouses",
+          "subtopics": ["The five pillars: freshness, volume, schema, distribution and lineage", "SLIs and SLOs for data products", "Pipeline run metadata and query history", "Anomaly detection with rolling z-scores", "Alert routing and on-call", "Incident runbooks and blameless reviews", "MTTD and MTTR for data incidents", "pg_stat_statements for slow-query monitoring", "Communicating data incidents to consumers"],
+          "tools": ["PostgreSQL", "pg_stat_statements", "Grafana", "SQL", "Python"],
+          "lab_task": "Build ops.run_log with 60 days of row counts and a SQL view computing a 14-day rolling mean and standard deviation with window functions. Inject one day at 40 percent below normal and one stale load. Flag rows beyond 3 standard deviations and freshness over 6 hours, and write a runbook with detection and recovery steps.",
+          "deliverable": "Anomaly view, injected-incident results and a runbook",
+          "checks": [["Query the anomaly view", "Flags the 40-percent-low day and no normal days", "Query output"], ["Check freshness for the stale load", "Reports lag above the 6-hour SLO", "Query output"], ["Read the runbook", "Lists detection, triage, rollback, communication and a post-incident review step", "Document"]],
+          "objectives": ["Define data SLIs and SLOs", "Detect volume and freshness anomalies", "Write incident runbooks"]
+        },
+        {
+          "topic": "Disaster Recovery, Time Travel and Backup Strategy",
+          "subtopics": ["RPO and RTO per data product", "Snapshots, time travel and fail-safe concepts across platforms", "Point-in-time recovery with WAL archiving", "Cross-region and cross-account replication", "Table-level restore and undrop", "Immutable and offline backups", "Rebuilding derived layers from raw and code", "Game days and recovery drills", "Retention cost versus recovery value"],
+          "tools": ["PostgreSQL", "pg_basebackup", "WAL archiving", "psql", "Bash"],
+          "lab_task": "On PostgreSQL enable archive_mode and archive_command, take pg_basebackup -D /backup/base -Ft -z -P, insert 1000 rows at a noted time T, then drop a table at T plus 5 minutes. Restore to recovery_target_time = T plus 2 minutes using recovery.signal and measure the elapsed restore time as your RTO.",
+          "deliverable": "Recovery runbook, restore log and measured RPO and RTO",
+          "checks": [["Restore with recovery_target_time set to T plus 2 minutes", "The dropped table exists and contains the 1000 inserted rows", "Query output"], ["Check the PostgreSQL log", "Contains recovery stopping at the target time", "Log excerpt"], ["Compare measured RTO to the stated target", "Elapsed minutes are recorded and the pass or fail is stated", "Drill report"]],
+          "objectives": ["Design backup and recovery to RPO and RTO", "Perform point-in-time recovery", "Rebuild derived layers from raw"]
+        },
+        {
+          "topic": "AI-Assisted Analytics: Text-to-SQL, Vector Columns and Guardrails",
+          "subtopics": ["Text-to-SQL on governed semantic models", "Schema comments and glossary as model context", "Golden question sets and execution-accuracy evaluation", "Read-only roles, row limits and table allowlists", "SQL validation before execution", "Vector embeddings in the warehouse with pgvector", "Retrieval of metadata and documents", "Hallucinated columns and wrong joins", "Auditing AI-generated queries"],
+          "tools": ["PostgreSQL", "pgvector", "Python", "OpenLineage"],
+          "lab_task": "Write 30 golden questions with expected result checksums over the sales star. Build a harness that sends the schema comments and each question to any LLM API configured by environment variables, runs the SQL as a read-only role, and scores execution accuracy. Add a pgvector column vector(384) on dim_product and query top-5 neighbours with <=>.",
+          "deliverable": "Evaluation harness, accuracy report out of 30 and a guardrail test log",
+          "checks": [["Run the harness", "Prints execution accuracy as N/30 with each failed question listed", "Harness output"], ["Submit DROP TABLE core.fact_sales through the harness", "Blocked with permission denied, SQLSTATE 42501, and the table still exists", "Error output"], ["Query neighbours with ORDER BY embedding <=> query_vector LIMIT 5", "Returns 5 rows in ascending distance order", "Query output"]],
+          "objectives": ["Evaluate text-to-SQL objectively", "Constrain AI-generated queries", "Use vector columns for metadata retrieval"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Warehouse Design Review and Platform Selection",
+          "subtopics": ["Target architecture with ADRs and a bus matrix", "Security, privacy and governance controls", "Performance and cost model", "Platform scoring and PoC thresholds", "Migration, testing and recovery plan", "Review panel presentation"],
+          "tools": ["PostgreSQL", "DuckDB", "Markdown", "draw.io", "Excel", "Git"],
+          "lab_task": "For a fictional 3-billion-row retail group, deliver a design pack: bus matrix of 6 processes, partitioned and distributed fact designs, RLS and masking rules, a cost model with stated assumptions, a four-platform weighted scoring with PoC thresholds and a 12-week migration and recovery plan. Prototype one fact table and two controls in PostgreSQL.",
+          "deliverable": "Design pack in Git with ADRs, prototype scripts, cost model and a 20-minute review presentation",
+          "checks": [["Run the prototype scripts from a clean database", "Fact table, RLS policy and masked view create with no errors", "Run log"], ["Check the scoring sheet", "Weights total 100 and a sensitivity run is included", "Spreadsheet"], ["Review the plan", "Includes reconciliation gates, rollback, RPO and RTO targets and named owners", "Document"]],
+          "objectives": ["Defend an enterprise warehouse design", "Integrate security, cost, governance and recovery", "Select a platform with evidence"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,460 @@
+{
+    "domain":  "Prompt Engineering",
+    "name":  "Prompt Engineering â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Prompt Design",
+                    "LLM Prompting"
+                ],
+    "tools":  [
+                  "Chat interfaces",
+                  "Prompt templates",
+                  "Evaluation tools"
+              ],
+    "certifications":  [
+                           "Prompt Engineering official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Foundations and Setup",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Use cases",
+                                       "Terminology",
+                                       "Environment setup",
+                                       "SDK/runtime setup",
+                                       "First example",
+                                       "Prompt Engineering terminology and feature mapping for this topic",
+                                       "Prompt Engineering configuration and implementation considerations",
+                                       "Prompt Engineering best practices and common mistakes for this topic",
+                                       "instruction prompts",
+                                       "context",
+                                       "few-shot examples",
+                                       "role prompting",
+                                       "delimiters",
+                                       "structured output",
+                                       "chain-of-thought avoidance in production prompts",
+                                       "self-consistency concepts",
+                                       "prompt templates",
+                                       "evaluation",
+                                       "prompt injection",
+                                       "versioning"
+                                   ],
+                     "tools":  [
+                                   "Chat interfaces",
+                                   "Prompt templates",
+                                   "Evaluation tools"
+                               ],
+                     "lab_task":  "Set up Prompt Engineering and run a first working example.",
+                     "technology":  "Prompt Engineering",
+                     "technology_id":  "prompt-engineering",
+                     "learning_objectives":  [
+                                                 "Explain the Foundations and Setup concepts in the context of Prompt Engineering.",
+                                                 "Configure or implement the key Prompt Engineering features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Foundations and Setup practically using Prompt Engineering.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Data and Representations",
+                     "subtopics":  [
+                                       "Inputs",
+                                       "Outputs",
+                                       "Token/embedding/model concepts as applicable",
+                                       "Data preparation",
+                                       "Schemas",
+                                       "Metadata",
+                                       "Validation",
+                                       "Preprocessing",
+                                       "Prompt Engineering terminology and feature mapping for this topic",
+                                       "Prompt Engineering configuration and implementation considerations",
+                                       "Prompt Engineering best practices and common mistakes for this topic",
+                                       "instruction prompts",
+                                       "context",
+                                       "few-shot examples",
+                                       "role prompting",
+                                       "delimiters",
+                                       "structured output",
+                                       "chain-of-thought avoidance in production prompts",
+                                       "self-consistency concepts",
+                                       "prompt templates",
+                                       "evaluation",
+                                       "prompt injection",
+                                       "versioning"
+                                   ],
+                     "tools":  [
+                                   "Chat interfaces",
+                                   "Prompt templates",
+                                   "Evaluation tools"
+                               ],
+                     "lab_task":  "Prepare representative data for Prompt Engineering.",
+                     "technology":  "Prompt Engineering",
+                     "technology_id":  "prompt-engineering",
+                     "learning_objectives":  [
+                                                 "Explain the Core Data and Representations concepts in the context of Prompt Engineering.",
+                                                 "Configure or implement the key Prompt Engineering features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Data and Representations practically using Prompt Engineering.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Core APIs or Algorithms",
+                     "subtopics":  [
+                                       "Primary API/algorithm",
+                                       "Parameters",
+                                       "Configuration",
+                                       "Batching",
+                                       "Error handling",
+                                       "Reproducibility",
+                                       "Result interpretation",
+                                       "Prompt Engineering terminology and feature mapping for this topic",
+                                       "Prompt Engineering configuration and implementation considerations",
+                                       "Prompt Engineering best practices and common mistakes for this topic",
+                                       "instruction prompts",
+                                       "context",
+                                       "few-shot examples",
+                                       "role prompting",
+                                       "delimiters",
+                                       "structured output",
+                                       "chain-of-thought avoidance in production prompts",
+                                       "self-consistency concepts",
+                                       "prompt templates",
+                                       "evaluation",
+                                       "prompt injection",
+                                       "versioning"
+                                   ],
+                     "tools":  [
+                                   "Chat interfaces",
+                                   "Prompt templates",
+                                   "Evaluation tools"
+                               ],
+                     "lab_task":  "Implement the core workflow for Prompt Engineering.",
+                     "technology":  "Prompt Engineering",
+                     "technology_id":  "prompt-engineering",
+                     "learning_objectives":  [
+                                                 "Explain the Core APIs or Algorithms concepts in the context of Prompt Engineering.",
+                                                 "Configure or implement the key Prompt Engineering features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core APIs or Algorithms practically using Prompt Engineering.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Advanced Techniques",
+                     "subtopics":  [
+                                       "Advanced features",
+                                       "Optimization",
+                                       "Caching",
+                                       "Streaming",
+                                       "Structured outputs",
+                                       "Hybrid techniques",
+                                       "Performance trade-offs",
+                                       "Prompt Engineering terminology and feature mapping for this topic",
+                                       "Prompt Engineering configuration and implementation considerations",
+                                       "Prompt Engineering best practices and common mistakes for this topic",
+                                       "instruction prompts",
+                                       "context",
+                                       "few-shot examples",
+                                       "role prompting",
+                                       "delimiters",
+                                       "structured output",
+                                       "chain-of-thought avoidance in production prompts",
+                                       "self-consistency concepts",
+                                       "prompt templates",
+                                       "evaluation",
+                                       "prompt injection",
+                                       "versioning"
+                                   ],
+                     "tools":  [
+                                   "Chat interfaces",
+                                   "Prompt templates",
+                                   "Evaluation tools"
+                               ],
+                     "lab_task":  "Implement an advanced Prompt Engineering workflow.",
+                     "technology":  "Prompt Engineering",
+                     "technology_id":  "prompt-engineering",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Techniques concepts in the context of Prompt Engineering.",
+                                                 "Configure or implement the key Prompt Engineering features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Techniques practically using Prompt Engineering.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Evaluation",
+                     "subtopics":  [
+                                       "Quality metrics",
+                                       "Offline evaluation",
+                                       "Online evaluation concepts",
+                                       "Test sets",
+                                       "Failure analysis",
+                                       "Regression testing",
+                                       "Human review",
+                                       "Prompt Engineering terminology and feature mapping for this topic",
+                                       "Prompt Engineering configuration and implementation considerations",
+                                       "Prompt Engineering best practices and common mistakes for this topic",
+                                       "instruction prompts",
+                                       "context",
+                                       "few-shot examples",
+                                       "role prompting",
+                                       "delimiters",
+                                       "structured output",
+                                       "chain-of-thought avoidance in production prompts",
+                                       "self-consistency concepts",
+                                       "prompt templates",
+                                       "evaluation",
+                                       "prompt injection",
+                                       "versioning"
+                                   ],
+                     "tools":  [
+                                   "Chat interfaces",
+                                   "Prompt templates",
+                                   "Evaluation tools"
+                               ],
+                     "lab_task":  "Create an evaluation harness for Prompt Engineering.",
+                     "technology":  "Prompt Engineering",
+                     "technology_id":  "prompt-engineering",
+                     "learning_objectives":  [
+                                                 "Explain the Evaluation concepts in the context of Prompt Engineering.",
+                                                 "Configure or implement the key Prompt Engineering features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Evaluation practically using Prompt Engineering.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Safety and Security",
+                     "subtopics":  [
+                                       "Prompt/input security where relevant",
+                                       "Data privacy",
+                                       "Secrets",
+                                       "Access control",
+                                       "Abuse prevention",
+                                       "Policy controls",
+                                       "Auditability",
+                                       "Prompt Engineering terminology and feature mapping for this topic",
+                                       "Prompt Engineering configuration and implementation considerations",
+                                       "Prompt Engineering best practices and common mistakes for this topic",
+                                       "instruction prompts",
+                                       "context",
+                                       "few-shot examples",
+                                       "role prompting",
+                                       "delimiters",
+                                       "structured output",
+                                       "chain-of-thought avoidance in production prompts",
+                                       "self-consistency concepts",
+                                       "prompt templates",
+                                       "evaluation",
+                                       "prompt injection",
+                                       "versioning"
+                                   ],
+                     "tools":  [
+                                   "Chat interfaces",
+                                   "Prompt templates",
+                                   "Evaluation tools"
+                               ],
+                     "lab_task":  "Add safety and security controls.",
+                     "technology":  "Prompt Engineering",
+                     "technology_id":  "prompt-engineering",
+                     "learning_objectives":  [
+                                                 "Explain the Safety and Security concepts in the context of Prompt Engineering.",
+                                                 "Configure or implement the key Prompt Engineering features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Safety and Security practically using Prompt Engineering.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Production Architecture",
+                     "subtopics":  [
+                                       "Service architecture",
+                                       "Scalability",
+                                       "Latency",
+                                       "Cost",
+                                       "Caching",
+                                       "Fallbacks",
+                                       "Observability",
+                                       "Reliability",
+                                       "Prompt Engineering terminology and feature mapping for this topic",
+                                       "Prompt Engineering configuration and implementation considerations",
+                                       "Prompt Engineering best practices and common mistakes for this topic",
+                                       "instruction prompts",
+                                       "context",
+                                       "few-shot examples",
+                                       "role prompting",
+                                       "delimiters",
+                                       "structured output",
+                                       "chain-of-thought avoidance in production prompts",
+                                       "self-consistency concepts",
+                                       "prompt templates",
+                                       "evaluation",
+                                       "prompt injection",
+                                       "versioning"
+                                   ],
+                     "tools":  [
+                                   "Chat interfaces",
+                                   "Prompt templates",
+                                   "Evaluation tools"
+                               ],
+                     "lab_task":  "Design a production architecture.",
+                     "technology":  "Prompt Engineering",
+                     "technology_id":  "prompt-engineering",
+                     "learning_objectives":  [
+                                                 "Explain the Production Architecture concepts in the context of Prompt Engineering.",
+                                                 "Configure or implement the key Prompt Engineering features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Production Architecture practically using Prompt Engineering.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "APIs",
+                                       "Databases/vector stores",
+                                       "Tools/functions",
+                                       "Agents or workflows",
+                                       "Web/backend integration",
+                                       "Streaming",
+                                       "Testing",
+                                       "Prompt Engineering terminology and feature mapping for this topic",
+                                       "Prompt Engineering configuration and implementation considerations",
+                                       "Prompt Engineering best practices and common mistakes for this topic",
+                                       "instruction prompts",
+                                       "context",
+                                       "few-shot examples",
+                                       "role prompting",
+                                       "delimiters",
+                                       "structured output",
+                                       "chain-of-thought avoidance in production prompts",
+                                       "self-consistency concepts",
+                                       "prompt templates",
+                                       "evaluation",
+                                       "prompt injection",
+                                       "versioning"
+                                   ],
+                     "tools":  [
+                                   "Chat interfaces",
+                                   "Prompt templates",
+                                   "Evaluation tools"
+                               ],
+                     "lab_task":  "Integrate Prompt Engineering into an application.",
+                     "technology":  "Prompt Engineering",
+                     "technology_id":  "prompt-engineering",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of Prompt Engineering.",
+                                                 "Configure or implement the key Prompt Engineering features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using Prompt Engineering.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "Operations and Optimization",
+                     "subtopics":  [
+                                       "Monitoring",
+                                       "Tracing",
+                                       "Cost tracking",
+                                       "Versioning",
+                                       "Rollbacks",
+                                       "Performance tuning",
+                                       "Incident handling",
+                                       "Prompt Engineering terminology and feature mapping for this topic",
+                                       "Prompt Engineering configuration and implementation considerations",
+                                       "Prompt Engineering best practices and common mistakes for this topic",
+                                       "instruction prompts",
+                                       "context",
+                                       "few-shot examples",
+                                       "role prompting",
+                                       "delimiters",
+                                       "structured output",
+                                       "chain-of-thought avoidance in production prompts",
+                                       "self-consistency concepts",
+                                       "prompt templates",
+                                       "evaluation",
+                                       "prompt injection"
+                                   ],
+                     "tools":  [
+                                   "Chat interfaces",
+                                   "Prompt templates",
+                                   "Evaluation tools"
+                               ],
+                     "lab_task":  "Monitor and optimize a production-style workload.",
+                     "technology":  "Prompt Engineering",
+                     "technology_id":  "prompt-engineering",
+                     "learning_objectives":  [
+                                                 "Explain the Operations and Optimization concepts in the context of Prompt Engineering.",
+                                                 "Configure or implement the key Prompt Engineering features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Operations and Optimization practically using Prompt Engineering.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  10,
+                     "topic":  "Capstone AI Project",
+                     "subtopics":  [
+                                       "Requirements",
+                                       "Data",
+                                       "Implementation",
+                                       "Evaluation",
+                                       "Safety",
+                                       "Observability",
+                                       "Deployment",
+                                       "Documentation",
+                                       "Prompt Engineering terminology and feature mapping for this topic",
+                                       "Prompt Engineering configuration and implementation considerations",
+                                       "Prompt Engineering best practices and common mistakes for this topic",
+                                       "instruction prompts",
+                                       "context",
+                                       "few-shot examples",
+                                       "role prompting",
+                                       "delimiters",
+                                       "structured output",
+                                       "chain-of-thought avoidance in production prompts",
+                                       "self-consistency concepts",
+                                       "prompt templates",
+                                       "prompt injection",
+                                       "versioning"
+                                   ],
+                     "tools":  [
+                                   "Chat interfaces",
+                                   "Prompt templates",
+                                   "Evaluation tools"
+                               ],
+                     "lab_task":  "Build an end-to-end production-style project using Prompt Engineering.",
+                     "technology":  "Prompt Engineering",
+                     "technology_id":  "prompt-engineering",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone AI Project concepts in the context of Prompt Engineering.",
+                                                 "Configure or implement the key Prompt Engineering features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone AI Project practically using Prompt Engineering.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "prompt-engineering"
+}

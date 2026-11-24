@@ -1,0 +1,573 @@
+{
+  "domain": "Platform Engineering",
+  "name": "Platform Engineering and Internal Developer Platforms",
+  "category": "DevOps and CI/CD",
+  "icon": "layers",
+  "aliases": ["Platform Engineering Training", "Platform Engineer", "Platform Engineers", "Internal Developer Platform", "Internal Developer Platforms", "Internal Developer Portal", "Backstage", "Backstage.io", "Spotify Backstage", "Certified Backstage Associate", "Golden Paths", "Platform as a Product", "Crossplane", "CNPA", "CNPE"],
+  "certifications": ["Certified Cloud Native Platform Engineering Associate (CNPA)", "Certified Cloud Native Platform Engineer (CNPE)", "Certified Backstage Associate (CBA)"],
+  "tools": ["Backstage", "Argo CD", "Crossplane", "kind", "Kyverno or OPA Gatekeeper", "OpenTelemetry", "Terraform or OpenTofu", "Score"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For DevOps engineers, SREs, infrastructure engineers and developers moving into platform teams. Covers why platform teams exist, a lab with kind, Backstage and Argo CD, Team Topologies, platform as a product, reference architectures, the Backstage software catalog, software templates for golden paths, TechDocs, GitOps with Argo CD, infrastructure modules, team namespaces, shared CI pipelines, default observability, secrets and supply chain security, policy as code, developer experience, platform metrics, self-service infrastructure requests and platform support. Follows the CNPA exam domains.",
+      "prerequisites": ["Uses Git and a CI/CD tool", "Deploys containers to Kubernetes with kubectl", "Comfortable with YAML and the command line"],
+      "outcomes": ["Explain platform engineering, Team Topologies and platform as a product", "Build a catalog, golden path templates and TechDocs in Backstage", "Deliver services with GitOps, shared pipelines, team namespaces, policies and default observability", "Measure the platform with DORA metrics, adoption figures and developer feedback"],
+      "days": [
+        {
+          "topic": "Platform Engineering Overview: Why Platform Teams Exist",
+          "subtopics": ["Cognitive load on product teams", "From DevOps practices to platform teams", "What an internal developer platform is", "Platform, portal and orchestrator as separate parts", "Self-service, golden paths and guardrails", "Platform as a product", "CNCF platforms white paper and maturity model", "Anti-patterns: ticket ops and renamed operations teams", "Roles on a platform team", "Course project overview: a platform for three product teams"],
+          "tools": ["CNCF Platforms White Paper", "CNCF Platform Engineering Maturity Model", "Team Topologies"],
+          "lab_task": "Interview two developers or use the provided personas, map every step and waiting time from a new service idea to production, and name the three biggest sources of cognitive load.",
+          "deliverable": "Current-state delivery map with cognitive load hotspots",
+          "checks": [["Map", "Every step from idea to production is on the map with its waiting time", "Delivery map"], ["Identify", "Three sources of cognitive load are named with evidence", "Hotspot list"], ["Explain", "Platform, portal and orchestrator are told apart correctly", "Notes"]],
+          "objectives": ["Explain why platform teams exist", "Describe an internal developer platform", "Map developer pain points"]
+        },
+        {
+          "topic": "Lab Setup: kind Cluster, Backstage and GitOps Tooling",
+          "subtopics": ["Installing Docker or Podman, kubectl and kind", "Creating a local cluster with kind", "Node.js LTS and Yarn for Backstage", "Creating a Backstage app with create-app", "Running Backstage locally", "Installing Argo CD on the cluster", "A Git repository for platform configuration", "Container registry access", "Folder layout for the course platform", "Smoke-testing the environment"],
+          "tools": ["kind", "kubectl", "Backstage CLI", "Argo CD", "Git"],
+          "lab_task": "Create a kind cluster, install Argo CD, scaffold a Backstage app and run it locally, then push the platform configuration repository with a README that describes its layout.",
+          "deliverable": "Working lab environment and platform repository",
+          "checks": [["Cluster", "The kind cluster runs and Argo CD is healthy", "kubectl get pods output"], ["Portal", "Backstage starts and shows the catalog page", "Screenshot"], ["Repository", "The platform repository is pushed with the agreed layout", "Repository link"]],
+          "objectives": ["Prepare the lab environment", "Run Backstage locally", "Keep platform configuration in Git"]
+        },
+        {
+          "topic": "Team Topologies: Stream-Aligned, Platform and Enabling Teams",
+          "subtopics": ["The four team types", "Interaction modes: collaboration, X-as-a-Service and facilitating", "Cognitive load and team boundaries", "Conway's law and the reverse Conway manoeuvre", "Thinnest viable platform", "Platform team charters", "Team APIs", "Changing interaction modes over time"],
+          "tools": ["Team Topologies", "Team API template", "Whiteboard tool"],
+          "lab_task": "Model the course organisation of three product teams, one platform team and one security team with team types and interaction modes, and write a team API for the platform team.",
+          "deliverable": "Team topology map and platform team API",
+          "checks": [["Model", "Each team has a type and each relationship an interaction mode", "Topology map"], ["Define", "The team API lists services, contacts and ways of working", "Team API"], ["Scope", "The thinnest viable platform for the first quarter is described", "Notes"]],
+          "objectives": ["Apply team types and interaction modes", "Write a team API", "Define a thinnest viable platform"]
+        },
+        {
+          "topic": "Platform as a Product: Users, Research and Roadmaps",
+          "subtopics": ["Developers as customers", "User research: interviews, surveys and shadowing", "Jobs to be done for developers", "The platform product manager role", "Prioritising by value and effort", "Platform roadmaps", "Adoption instead of mandates", "Announcing releases and changes"],
+          "tools": ["Interview guide", "Survey tool", "Roadmap template"],
+          "lab_task": "Run a short developer survey and two interviews or use the provided transcripts, write three jobs to be done and turn them into a prioritised first roadmap.",
+          "deliverable": "Research summary and first platform roadmap",
+          "checks": [["Research", "Findings come from survey and interview evidence", "Research summary"], ["Prioritise", "Roadmap items are ranked by value and effort", "Roadmap"], ["Communicate", "A one-page release note template exists", "Template"]],
+          "objectives": ["Treat the platform as a product", "Run developer research", "Build a platform roadmap"]
+        },
+        {
+          "topic": "Internal Developer Platform Reference Architecture",
+          "subtopics": ["Planes: developer control, integration and delivery, resources, observability and security", "Portal, orchestrator and platform APIs", "Where Kubernetes, GitOps and infrastructure as code fit", "Build versus buy", "Open source building blocks in the CNCF landscape", "Commercial portals and orchestrators", "Integration with existing tools", "Drawing the first version of a platform"],
+          "tools": ["CNCF Landscape", "Diagram tool", "Reference architecture templates"],
+          "lab_task": "Draw the target architecture of the course platform with its planes, name the tool behind each capability and record two build-versus-buy decisions with reasons.",
+          "deliverable": "Platform architecture diagram and decision records",
+          "checks": [["Draw", "Every plane has named capabilities and tools", "Diagram"], ["Decide", "Two build-versus-buy decisions are recorded with trade-offs", "Decision records"], ["Review", "A peer can follow a request from portal to running service on the diagram", "Walkthrough notes"]],
+          "objectives": ["Describe a reference architecture", "Choose building blocks", "Record architecture decisions"]
+        },
+        {
+          "topic": "Backstage Software Catalog: Entities, Owners and Relations",
+          "subtopics": ["Entity kinds: Component, API, Resource, System, Domain, Group and User", "catalog-info.yaml descriptors", "Ownership with the owner field", "Relations through system, providesApis, consumesApis and dependsOn", "Registering entities from Git", "Discovering repositories from GitHub or GitLab", "Lifecycle and type fields", "Keeping the catalog accurate"],
+          "tools": ["Backstage", "catalog-info.yaml", "GitHub or GitLab integration"],
+          "lab_task": "Write catalog descriptors for the course systems, register them from Git, add groups and users, and show the dependency graph of one system.",
+          "deliverable": "Catalog with systems, components, APIs and owners",
+          "checks": [["Register", "All course components appear in the catalog", "Catalog screenshot"], ["Own", "Every entity has an owning group", "Catalog filter output"], ["Relate", "The graph shows the APIs and resources of one system", "Graph screenshot"]],
+          "objectives": ["Model software in the catalog", "Assign ownership", "Show relations between entities"]
+        },
+        {
+          "topic": "Software Templates: Golden Paths with the Scaffolder",
+          "subtopics": ["What a golden path is and what it is not", "Template parameters and forms", "Steps and built-in actions such as fetch:template, publish:github and catalog:register", "Skeleton repositories", "Publishing to GitHub or GitLab", "Registering the new component in the catalog", "Template versions and owners", "Counting template use"],
+          "tools": ["Backstage Scaffolder", "Template YAML", "GitHub or GitLab"],
+          "lab_task": "Write a software template that creates a service repository from a skeleton with CI, a Dockerfile and catalog-info.yaml, publishes it and registers it in the catalog.",
+          "deliverable": "Working golden path template",
+          "checks": [["Create", "A new service repository is created from the form", "Repository link"], ["Register", "The new service appears in the catalog with its owner", "Catalog screenshot"], ["Build", "The generated CI pipeline passes on the first commit", "Pipeline run"]],
+          "objectives": ["Build a golden path", "Use Scaffolder actions", "Register new services automatically"]
+        },
+        {
+          "topic": "TechDocs: Documentation as Code in the Portal",
+          "subtopics": ["Docs like code", "MkDocs and the techdocs-core plugin", "mkdocs.yml and the docs folder", "Local preview with techdocs-cli", "Local and external build strategies", "Publishing to object storage", "Linking docs to catalog entities", "Keeping docs next to the code"],
+          "tools": ["TechDocs", "MkDocs", "techdocs-cli", "Object storage"],
+          "lab_task": "Add TechDocs to two services and to the golden path template, preview them locally, publish them from CI to object storage and read them in Backstage.",
+          "deliverable": "Published TechDocs for the course services",
+          "checks": [["Write", "Two services keep docs in their repositories", "Repository links"], ["Publish", "CI builds and publishes the docs", "Pipeline run"], ["Read", "Docs appear on the entity pages in Backstage", "Screenshot"]],
+          "objectives": ["Treat documentation as code", "Publish TechDocs from CI", "Link docs to the catalog"]
+        },
+        {
+          "topic": "GitOps Principles and Argo CD for Platform Teams",
+          "subtopics": ["The four OpenGitOps principles", "Desired state in Git and reconciliation", "Argo CD applications and projects", "Sync policies, self-heal and pruning", "Repository layout for environments", "Promotion between environments", "Drift detection", "Argo CD compared with Flux"],
+          "tools": ["Argo CD", "Git", "Kustomize or Helm"],
+          "lab_task": "Deploy two services to dev and staging with Argo CD applications from the platform repository, turn on self-heal, change a live resource by hand and watch Argo CD revert it.",
+          "deliverable": "GitOps repository with two environments",
+          "checks": [["Deploy", "Both services sync to dev and staging", "Argo CD screenshot"], ["Heal", "A manual change is reverted automatically", "Sync history"], ["Promote", "A version change moves from dev to staging by pull request", "Pull request"]],
+          "objectives": ["Apply GitOps principles", "Deliver with Argo CD", "Promote between environments"]
+        },
+        {
+          "topic": "Infrastructure as Code in the Platform: Terraform and OpenTofu Modules",
+          "subtopics": ["Where infrastructure as code sits in a platform", "Reusable modules as platform building blocks", "Module inputs, outputs and versions", "Remote state and locking", "Running plans and applies from pipelines", "Policy checks before apply", "Self-service through modules", "Limits of module-based self-service"],
+          "tools": ["Terraform or OpenTofu", "Module registry", "CI pipeline"],
+          "lab_task": "Write a versioned module that creates a database and a bucket for a team with tags and safe defaults, run it from a pipeline with a plan review and list what a developer still has to know.",
+          "deliverable": "Versioned infrastructure module with a pipeline",
+          "checks": [["Build", "The module creates the resources with the required tags", "Plan and apply output"], ["Version", "A tagged module release is used by a team stack", "Release and usage"], ["Assess", "Gaps in developer self-service are listed", "Notes"]],
+          "objectives": ["Package infrastructure as modules", "Run infrastructure as code from pipelines", "Judge module-based self-service"]
+        },
+        {
+          "topic": "Team Namespaces with Quotas, Limits and RBAC",
+          "subtopics": ["A namespace per team and environment", "Resource quotas and limit ranges", "Role-based access for teams", "Default network policies for isolation", "Labels and annotations for ownership", "Automating namespace creation", "Namespace requests from the portal", "Cleaning up unused namespaces"],
+          "tools": ["Kubernetes", "kubectl", "Argo CD"],
+          "lab_task": "Create a namespace bundle with a namespace, quota, limit range, role binding and default network policy as a GitOps-managed template, and onboard one team with a pull request.",
+          "deliverable": "Team namespace bundle in Git",
+          "checks": [["Onboard", "A team namespace is created by pull request", "Pull request and sync"], ["Limit", "Workloads above the quota are rejected", "Error output"], ["Isolate", "Traffic from another team's namespace is blocked", "Connection test"]],
+          "objectives": ["Give teams isolated namespaces", "Apply quotas and RBAC", "Automate team onboarding"]
+        },
+        {
+          "topic": "Continuous Integration Pipelines as a Platform Service",
+          "subtopics": ["Shared pipeline templates", "Reusable workflows in GitHub Actions or CI/CD components in GitLab", "Build, test and scan stages", "Caches and runners as shared services", "Versioning pipeline templates", "Letting teams extend templates without forking", "Pipeline metrics", "Support and ownership of shared pipelines"],
+          "tools": ["GitHub Actions or GitLab CI", "Container registry", "Trivy"],
+          "lab_task": "Publish a reusable pipeline template with build, test, image scan and push stages, adopt it in two services with one extra step each and record pipeline durations.",
+          "deliverable": "Versioned shared pipeline template",
+          "checks": [["Reuse", "Two services use the shared template", "Pipeline files"], ["Extend", "Each service adds a step without copying the template", "Diff"], ["Measure", "Pipeline durations are recorded", "Metrics"]],
+          "objectives": ["Offer CI as a platform service", "Version shared pipelines", "Measure pipeline performance"]
+        },
+        {
+          "topic": "Observability for Platform Users: Default Dashboards and Alerts",
+          "subtopics": ["What every service gets by default", "OpenTelemetry instrumentation and the Collector", "Pipelines for metrics, logs and traces", "Default dashboards per service", "Alert templates routed to owners", "Service level objectives as a platform feature", "Linking telemetry to the catalog", "The cost of telemetry"],
+          "tools": ["OpenTelemetry Collector", "Prometheus", "Grafana", "Loki or another log store"],
+          "lab_task": "Deploy an OpenTelemetry Collector and give the golden path a default dashboard and an alert that is routed to the owning team from catalog data.",
+          "deliverable": "Default observability bundle for new services",
+          "checks": [["Collect", "Metrics, logs and traces arrive from a new service", "Dashboard"], ["Route", "A test alert reaches the owning team", "Alert notification"], ["Link", "The catalog page of the service links to its dashboard", "Screenshot"]],
+          "objectives": ["Provide default observability", "Route alerts by ownership", "Link telemetry to the catalog"]
+        },
+        {
+          "topic": "Platform Security Basics: Secrets, Identity and Supply Chain",
+          "subtopics": ["Secrets from a vault through External Secrets Operator", "Workload identity instead of static keys", "Single sign-on for platform tools", "Image scanning and SBOMs", "Signing images with Sigstore cosign", "SLSA build levels", "Least privilege for pipelines", "Security defaults in golden paths"],
+          "tools": ["External Secrets Operator", "Vault or OpenBao", "cosign", "Trivy or Grype"],
+          "lab_task": "Deliver secrets from a vault through External Secrets Operator, sign the golden path images with cosign, generate an SBOM in CI and verify signatures before deployment.",
+          "deliverable": "Secure-by-default golden path",
+          "checks": [["Secrets", "Services read secrets and no secret is stored in Git", "Repository scan"], ["Sign", "Images are signed and the signature verifies", "cosign verify output"], ["SBOM", "Every build publishes an SBOM", "Build artefacts"]],
+          "objectives": ["Manage secrets safely", "Secure the software supply chain", "Build security into golden paths"]
+        },
+        {
+          "topic": "Policy as Code with Kyverno and OPA Gatekeeper",
+          "subtopics": ["Guardrails compared with gates", "Admission control in Kubernetes", "Kyverno validate, mutate and generate rules", "OPA Gatekeeper constraint templates and Rego", "Audit mode before enforce mode", "Policy exceptions with expiry dates", "Testing policies in CI", "Reporting violations to teams"],
+          "tools": ["Kyverno", "OPA Gatekeeper", "Kyverno CLI or Conftest"],
+          "lab_task": "Write policies that require owner labels, block privileged containers and add default resource requests, run them in audit mode, then enforce them with one time-limited exception.",
+          "deliverable": "Platform policy set with tests",
+          "checks": [["Audit", "Violations are reported without blocking", "Policy report"], ["Enforce", "A privileged pod is rejected with a clear message", "Error output"], ["Test", "Policies pass their CI tests", "Test output"]],
+          "objectives": ["Write guardrails as code", "Roll out policies safely", "Report violations to teams"]
+        },
+        {
+          "topic": "Developer Experience: Onboarding, Feedback Loops and Cognitive Load",
+          "subtopics": ["What developer experience means", "DevEx dimensions: feedback loops, cognitive load and flow state", "Time to first commit and time to first deploy", "Onboarding journeys for new engineers", "Local development environments", "Removing waiting and handoffs", "Collecting feedback in the portal", "Developer satisfaction surveys"],
+          "tools": ["Survey tool", "Backstage", "Dev containers"],
+          "lab_task": "Measure time to first deploy for a new engineer who uses the golden path, remove one waiting step and measure again.",
+          "deliverable": "Before-and-after onboarding measurement",
+          "checks": [["Measure", "Time to first deploy is recorded as a baseline", "Timeline"], ["Improve", "One waiting step is removed", "Change record"], ["Compare", "The second measurement shows the difference", "Comparison"]],
+          "objectives": ["Explain developer experience", "Measure onboarding", "Remove friction for developers"]
+        },
+        {
+          "topic": "Measuring the Platform: DORA Metrics, SPACE and Adoption",
+          "subtopics": ["The five DORA software delivery metrics", "Throughput and instability", "SPACE dimensions", "Adoption and retention of platform features", "Time saved per golden path", "Leading and lagging indicators", "Avoiding vanity metrics", "Sharing a platform scorecard"],
+          "tools": ["DORA Quick Check", "Spreadsheet or dashboard", "Backstage"],
+          "lab_task": "Collect DORA metrics for two services from pipeline and incident data, add adoption figures for the golden path and present a one-page platform scorecard.",
+          "deliverable": "Platform scorecard",
+          "checks": [["Calculate", "All five delivery metrics are calculated for two services", "Metrics sheet"], ["Count", "Golden path use is counted", "Adoption figures"], ["Present", "The scorecard separates leading and lagging indicators", "Scorecard"]],
+          "objectives": ["Measure delivery performance", "Track platform adoption", "Report platform value"]
+        },
+        {
+          "topic": "Self-Service Infrastructure Requests from the Portal",
+          "subtopics": ["Request types developers need", "Templates that call infrastructure as code or Kubernetes APIs", "Approvals only where they add value", "Request status and feedback", "Ownership of created resources", "Cost tags on every request", "Deprovisioning", "Auditing requests"],
+          "tools": ["Backstage Scaffolder", "Terraform or Crossplane", "Git"],
+          "lab_task": "Build a portal template that requests a team database through a pull request to the infrastructure repository, shows its status and registers the new resource in the catalog.",
+          "deliverable": "Self-service database request",
+          "checks": [["Request", "A database is requested from the portal", "Pull request"], ["Track", "The developer can see the request status", "Screenshot"], ["Register", "The database appears as a Resource owned by the team", "Catalog entry"]],
+          "objectives": ["Offer infrastructure through self-service", "Keep ownership and cost data", "Audit requests"]
+        },
+        {
+          "topic": "Troubleshooting Platform Services for Developers",
+          "subtopics": ["Support model and service levels for the platform", "Failed template runs", "GitOps sync failures", "Failures in shared pipeline templates", "Policy rejections developers do not understand", "Self-service runbooks in TechDocs", "Escalation and on-call for the platform team", "Learning from support requests"],
+          "tools": ["Backstage", "Argo CD", "kubectl", "Support tracker"],
+          "lab_task": "Diagnose four seeded failures, a template error, a sync failure, a policy rejection and a pipeline failure, then fix each one and publish a runbook for it in TechDocs.",
+          "deliverable": "Four fixes and runbooks",
+          "checks": [["Diagnose", "All four failures have a root cause", "Notes"], ["Fix", "Each failure is fixed and verified", "Evidence for each fix"], ["Document", "Runbooks are published in TechDocs", "Docs page"]],
+          "objectives": ["Troubleshoot platform services", "Write self-service runbooks", "Run platform support"]
+        },
+        {
+          "topic": "Beginner Capstone: First Internal Developer Platform for Three Teams",
+          "subtopics": ["Catalog and ownership", "Golden path with CI, GitOps and observability", "Namespace onboarding and policies", "Scorecard and roadmap"],
+          "tools": ["Backstage", "Argo CD", "kind", "GitHub Actions or GitLab CI"],
+          "lab_task": "Build a first platform for the three course teams with an owned catalog, a golden path that creates a service with CI, GitOps deployment, default dashboards and policies, team onboarding by pull request and a scorecard.",
+          "deliverable": "Working first platform with a demo and scorecard",
+          "checks": [["Create", "A new team service goes from template to running in under an hour", "Timed demo"], ["Govern", "Policies and quotas apply to the new service", "Policy report"], ["Report", "The scorecard shows adoption and delivery metrics", "Scorecard"]],
+          "objectives": ["Combine beginner platform skills", "Deliver a working golden path", "Measure the platform"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For platform engineers who build and run an internal developer platform. Covers platform APIs with custom resources and operators, Crossplane v2 compositions, kro and KubeVela, Score workload specifications, Backstage plugins and the new frontend system, portal sign-in, permissions and catalog ingestion, golden path versioning, preview environments, multi-tenancy, Cluster API fleets, progressive delivery, supply chain controls, platform SLOs, scorecards, FinOps, AI workloads, MCP access for AI assistants, platform incident response and CNPA exam preparation.",
+      "prerequisites": ["Has built or used a golden path and a GitOps workflow", "Writes Kubernetes manifests and Helm or Kustomize configuration", "Comfortable reading TypeScript or Go for small extensions"],
+      "outcomes": ["Build self-service platform APIs with Crossplane, kro or operators", "Extend and secure Backstage for a whole organisation", "Offer environments, tenancy, progressive delivery and supply chain controls as platform services", "Run the platform with SLOs, scorecards, cost reports and incident reviews, and prepare for the CNPA exam"],
+      "days": [
+        {
+          "topic": "Platform APIs with Kubernetes Custom Resources and Operators",
+          "subtopics": ["Why platforms offer APIs instead of tickets", "Custom resource definitions", "Controllers and reconciliation loops", "Operators as platform services", "API versions and deprecation", "Schema validation with OpenAPI and CEL rules", "Status conditions for users", "Building or reusing operators"],
+          "tools": ["kubectl", "Kubebuilder or Operator SDK", "kind"],
+          "lab_task": "Define a custom resource for a team environment with validation rules and status conditions, and write or reuse a controller that reconciles it.",
+          "deliverable": "Team environment API with a controller",
+          "checks": [["Define", "The CRD rejects invalid requests", "kubectl output"], ["Reconcile", "Creating the resource creates the environment", "Resource listing"], ["Report", "Status conditions tell the user what happened", "Status output"]],
+          "objectives": ["Design platform APIs", "Use the operator pattern", "Report status to users"]
+        },
+        {
+          "topic": "Crossplane v2: Composite Resources, XRDs and Compositions",
+          "subtopics": ["Crossplane as a framework for control planes", "Providers and managed resources", "Composite resource definitions (XRDs)", "Namespaced composite resources in v2", "Compositions as function pipelines", "Composing any Kubernetes resource", "Provider configuration and credentials", "Moving from v1 claims to namespaced XRs"],
+          "tools": ["Crossplane v2", "Crossplane providers", "function-patch-and-transform or function-go-templating", "kind"],
+          "lab_task": "Install Crossplane, define an XRD for a team database, write a composition with a function pipeline that creates the database, a secret and a network policy, and create a database from a team namespace.",
+          "deliverable": "Database API with an XRD and a composition",
+          "checks": [["Define", "The XRD exposes only the fields teams need", "XRD file"], ["Compose", "Creating the XR creates all composed resources", "Resource tree"], ["Scope", "The XR lives in the team namespace with RBAC applied", "kubectl output"]],
+          "objectives": ["Build infrastructure APIs with Crossplane", "Write composition pipelines", "Use namespaced composite resources"]
+        },
+        {
+          "topic": "Comparing API Builders: Crossplane, kro and KubeVela",
+          "subtopics": ["Resource graph definitions in kro", "CEL expressions that wire resources together", "KubeVela and the Open Application Model", "Helm or Kustomize as thin abstractions", "Choosing by team skills and scope", "Leaky abstractions and escape hatches", "Mixing builders in one platform", "A decision record for the course platform"],
+          "tools": ["kro", "KubeVela", "Crossplane", "kind"],
+          "lab_task": "Build the same web application abstraction with kro and with Crossplane, compare authoring effort, error messages and upgrade path, and record a decision.",
+          "deliverable": "Two implementations and a decision record",
+          "checks": [["Build", "Both implementations create the same resources", "Resource listings"], ["Compare", "Effort, errors and upgrades are compared with evidence", "Comparison table"], ["Decide", "The decision record states the choice and its trade-offs", "Decision record"]],
+          "objectives": ["Compare API builders", "Recognise leaky abstractions", "Choose tools deliberately"]
+        },
+        {
+          "topic": "Workload Specifications with Score",
+          "subtopics": ["The problem of environment-specific configuration", "score.yaml: containers, resources and service", "score-compose for local development", "score-k8s for Kubernetes manifests", "Resource provisioners", "Platform-owned defaults and developer intent", "Score in the golden path", "When a workload specification helps and when it does not"],
+          "tools": ["Score", "score-compose", "score-k8s", "Docker Compose"],
+          "lab_task": "Describe a service with a database dependency in score.yaml, run it locally with score-compose and deploy it to the cluster with score-k8s and a platform-owned provisioner.",
+          "deliverable": "One workload specification running locally and on the cluster",
+          "checks": [["Describe", "One score.yaml describes the workload and its dependencies", "Specification file"], ["Run", "score-compose runs the service with its database", "Compose output"], ["Deploy", "The score-k8s output deploys and the service responds", "Response and manifests"]],
+          "objectives": ["Separate developer intent from platform detail", "Use Score implementations", "Provision dependencies"]
+        },
+        {
+          "topic": "Backstage Plugins: Frontend, Backend and the New Frontend System",
+          "subtopics": ["How Backstage plugins fit together", "Installing community plugins", "The new backend system and modules", "The new frontend system and extensions", "Writing a frontend plugin", "Writing a backend plugin with a REST endpoint", "Plugin configuration in app-config", "Upgrading Backstage with versions:bump"],
+          "tools": ["Backstage", "Backstage CLI", "TypeScript", "Node.js"],
+          "lab_task": "Install the Kubernetes and Argo CD plugins, then write a frontend and backend plugin pair that shows the on-call contact of each service from an internal API.",
+          "deliverable": "Installed plugins and one custom plugin pair",
+          "checks": [["Install", "The Kubernetes plugin shows workloads on entity pages", "Screenshot"], ["Build", "The custom plugin shows on-call data for a service", "Plugin page"], ["Upgrade", "Backstage upgrades with versions:bump and still builds", "Build output"]],
+          "objectives": ["Extend Backstage with plugins", "Use the new frontend and backend systems", "Keep Backstage current"]
+        },
+        {
+          "topic": "Portal Authentication, Permissions and Catalog Ingestion at Scale",
+          "subtopics": ["Sign-in through an identity provider", "Resolving users to catalog entities", "Ingesting users and groups from the directory", "The permission framework and policies", "Entity providers and processors", "GitHub or GitLab discovery for many repositories", "Catalog errors and orphaned entities", "Catalog performance and caching"],
+          "tools": ["Backstage", "OIDC identity provider", "Microsoft Entra ID or LDAP", "GitHub or GitLab"],
+          "lab_task": "Configure sign-in with an OIDC provider, ingest users and groups from the directory, write a permission policy so only owners can unregister entities and fix catalog ingestion errors.",
+          "deliverable": "Secured portal with directory-backed ownership",
+          "checks": [["Sign in", "Users sign in and resolve to their catalog user", "Login test"], ["Restrict", "A non-owner cannot unregister an entity", "Permission test"], ["Ingest", "Directory groups appear with their members", "Catalog screenshot"]],
+          "objectives": ["Secure the portal", "Ingest organisation data", "Run the catalog at scale"]
+        },
+        {
+          "topic": "Golden Path Design: Paved Roads, Escape Hatches and Versioning",
+          "subtopics": ["Opinionated defaults", "Escape hatches and supported deviations", "Template versions and updates for existing services", "Keeping generated repositories current", "Golden paths for different workload types", "Testing templates in CI", "Owners and deprecation of templates", "Measuring golden path success"],
+          "tools": ["Backstage Scaffolder", "Renovate or a template update tool", "CI pipeline"],
+          "lab_task": "Release version 2 of the golden path with a breaking change, roll it out to services created from version 1 with automated pull requests and test the template in CI.",
+          "deliverable": "Versioned golden path with automated updates",
+          "checks": [["Release", "Template version 2 is published with release notes", "Release"], ["Update", "Existing services receive update pull requests", "Pull requests"], ["Test", "Template CI creates and builds a sample service", "Pipeline run"]],
+          "objectives": ["Design golden paths that last", "Update existing services", "Test templates"]
+        },
+        {
+          "topic": "Environment Management: Preview, Ephemeral and Long-Lived Environments",
+          "subtopics": ["Environment types and their costs", "Preview environments per pull request", "Ephemeral environments with automatic teardown", "Argo CD ApplicationSets and generators", "Virtual clusters with vCluster", "Environment configuration and promotion", "Data for test environments", "Cost limits and time-to-live"],
+          "tools": ["Argo CD ApplicationSets", "vCluster", "GitHub Actions or GitLab CI"],
+          "lab_task": "Create a preview environment for every pull request with an ApplicationSet pull request generator, remove it when the pull request closes and report its cost.",
+          "deliverable": "Preview environments per pull request",
+          "checks": [["Create", "Opening a pull request creates a preview environment", "Environment URL"], ["Remove", "Closing the pull request removes the environment", "Sync history"], ["Cost", "Running cost per preview environment is reported", "Cost report"]],
+          "objectives": ["Offer environments as a service", "Automate preview environments", "Control environment cost"]
+        },
+        {
+          "topic": "Multi-Tenancy Models: Namespaces, Virtual Clusters and Dedicated Clusters",
+          "subtopics": ["Soft and hard multi-tenancy", "Namespace-based tenancy with Capsule", "Virtual clusters", "Dedicated clusters per tenant", "Noisy neighbours and fair sharing", "Tenant isolation for network, storage and identity", "Automated tenant onboarding", "Choosing a model per workload"],
+          "tools": ["Capsule", "vCluster", "Cluster API", "Kubernetes"],
+          "lab_task": "Onboard two tenants with Capsule and one with a virtual cluster, test isolation between them and recommend a model for each course team.",
+          "deliverable": "Tenancy comparison and recommendation",
+          "checks": [["Onboard", "Three tenants run in their chosen models", "Tenant listing"], ["Isolate", "Cross-tenant access attempts fail", "Test output"], ["Recommend", "Each team has a tenancy model with reasons", "Recommendation"]],
+          "objectives": ["Compare tenancy models", "Test tenant isolation", "Recommend tenancy per team"]
+        },
+        {
+          "topic": "Cluster Fleet Lifecycle with Cluster API",
+          "subtopics": ["Clusters as replaceable units", "Management and workload clusters", "Infrastructure providers", "ClusterClass templates", "Declarative cluster upgrades", "Registering new clusters with GitOps", "Fleet add-ons", "Retiring clusters"],
+          "tools": ["Cluster API", "clusterctl", "Cluster API provider for Docker or a cloud", "Argo CD"],
+          "lab_task": "Create a management cluster, define a ClusterClass, create two workload clusters, register them with Argo CD and upgrade one of them by a Kubernetes minor version from Git.",
+          "deliverable": "Cluster fleet managed from Git",
+          "checks": [["Create", "Two workload clusters come from one ClusterClass", "clusterctl describe output"], ["Register", "Argo CD deploys add-ons to both clusters", "Argo CD screenshot"], ["Upgrade", "One cluster upgrades while its workloads stay available", "Upgrade log"]],
+          "objectives": ["Manage clusters declaratively", "Use ClusterClass", "Register clusters with GitOps"]
+        },
+        {
+          "topic": "Progressive Delivery as a Platform Capability",
+          "subtopics": ["Canary and blue-green releases", "Argo Rollouts or Flagger", "Analysis with metrics", "Automatic rollback", "Feature flags with OpenFeature", "Release defaults in the golden path", "Who owns release safety", "Release metrics"],
+          "tools": ["Argo Rollouts or Flagger", "Prometheus", "OpenFeature"],
+          "lab_task": "Add canary releases with metric analysis to the golden path, release a faulty version and show the automatic rollback, then put a feature behind an OpenFeature flag.",
+          "deliverable": "Progressive delivery in the golden path",
+          "checks": [["Release", "A healthy version completes its canary steps", "Rollout history"], ["Roll back", "A faulty version rolls back automatically", "Analysis run"], ["Flag", "A feature is switched on without a deployment", "Flag change record"]],
+          "objectives": ["Offer safe releases by default", "Use metric analysis", "Separate deploying from releasing"]
+        },
+        {
+          "topic": "Software Supply Chain Controls: SLSA, Provenance and Admission Verification",
+          "subtopics": ["Supply chain threats", "SLSA build levels in practice", "Build provenance attestations", "Keyless signing with Sigstore", "Verifying signatures at admission", "Storing SBOMs and matching vulnerabilities", "Dependency updates at scale", "Exceptions and risk acceptance"],
+          "tools": ["cosign", "SLSA generators for GitHub or GitLab provenance", "Kyverno", "Trivy or Grype"],
+          "lab_task": "Produce SLSA provenance and keyless signatures for golden path builds, verify them at admission with Kyverno and block an unsigned image.",
+          "deliverable": "Verified supply chain for platform services",
+          "checks": [["Attest", "Builds publish provenance and signatures", "Attestation output"], ["Verify", "Signed images are admitted", "Admission log"], ["Block", "An unsigned image is rejected", "Error output"]],
+          "objectives": ["Apply SLSA to platform builds", "Verify images at admission", "Manage supply chain risk"]
+        },
+        {
+          "topic": "Platform Observability: SLOs for the Platform Itself",
+          "subtopics": ["The platform as a production system", "SLIs for the portal, pipelines and GitOps", "SLOs and error budgets for platform services", "Synthetic checks for golden paths", "Platform dashboards", "On-call for the platform team", "Reviews of platform outages", "Publishing platform status to users"],
+          "tools": ["Prometheus", "Grafana", "Sloth or Pyrra", "Synthetic monitoring"],
+          "lab_task": "Define SLOs for template runs, pipeline start time and GitOps sync time, build burn-rate alerts and a status page, and run a synthetic golden path check every hour.",
+          "deliverable": "Platform SLOs, alerts and status page",
+          "checks": [["Define", "Three platform SLOs have SLIs and targets", "SLO file"], ["Alert", "A simulated failure triggers a burn-rate alert", "Alert record"], ["Publish", "Users can see platform status", "Status page"]],
+          "objectives": ["Run the platform as a production service", "Define platform SLOs", "Communicate platform health"]
+        },
+        {
+          "topic": "Scorecards and Service Maturity Standards",
+          "subtopics": ["Why scorecards help teams", "Choosing standards for ownership, docs, alerts, SLOs and security", "Bronze, silver and gold levels", "Automating checks against catalog data", "Scorecard plugins and tools", "Using scorecards without blame", "Campaigns to raise standards", "Reviewing standards each quarter"],
+          "tools": ["Backstage Tech Insights or a scorecard plugin", "Catalog API", "CI checks"],
+          "lab_task": "Define a three-level maturity scorecard, automate its checks against catalog data, publish team results and run a campaign that fixes one standard across all services.",
+          "deliverable": "Automated service scorecard",
+          "checks": [["Define", "Each level has measurable checks", "Scorecard definition"], ["Automate", "Results update without manual entry", "Scorecard page"], ["Improve", "The campaign raises the pass rate of one check", "Before-and-after results"]],
+          "objectives": ["Set service standards", "Automate scorecards", "Raise standards without blame"]
+        },
+        {
+          "topic": "FinOps for Platforms: Cost Allocation, Showback and Budgets",
+          "subtopics": ["FinOps phases: inform, optimise and operate", "Cost allocation with labels and tags", "Kubernetes cost with OpenCost", "Showback and chargeback", "Budgets and alerts per team", "Rightsizing defaults in golden paths", "Cost data in the developer portal", "Unit economics for services"],
+          "tools": ["OpenCost", "Cloud billing exports", "Grafana", "Backstage cost plugin"],
+          "lab_task": "Install OpenCost, allocate cluster and cloud costs to teams with labels, publish a monthly showback report and add a cost card to every service page.",
+          "deliverable": "Team showback report and cost cards",
+          "checks": [["Allocate", "Over 90 percent of cost is assigned to a team", "Allocation report"], ["Show", "Each team sees its monthly cost", "Showback report"], ["Act", "One rightsizing change lowers cost", "Before-and-after cost"]],
+          "objectives": ["Allocate platform cost", "Run showback", "Build cost awareness into the platform"]
+        },
+        {
+          "topic": "AI Workloads on the Platform: GPU Pools, Notebooks and Model Serving",
+          "subtopics": ["What data and ML teams need from a platform", "GPU node pools and scheduling", "Notebooks as a self-service resource", "Model serving with KServe", "Data access and secrets for ML jobs", "Quotas and fair sharing with Kueue", "Golden paths for model services", "Cost control for GPU workloads"],
+          "tools": ["KServe", "JupyterHub or Kubeflow Notebooks", "NVIDIA GPU Operator", "Kueue"],
+          "lab_task": "Add a golden path for a model-serving service with KServe, a self-service notebook template and GPU or CPU quotas with Kueue, and test fair sharing between two teams.",
+          "deliverable": "AI workload golden path and quotas",
+          "checks": [["Serve", "A model service created from the template answers requests", "Inference response"], ["Share", "Jobs from two teams follow their quotas", "Queue status"], ["Cost", "Accelerator cost per team is visible", "Cost report"]],
+          "objectives": ["Support AI workloads on the platform", "Share accelerators fairly", "Offer model-serving golden paths"]
+        },
+        {
+          "topic": "AI Assistants in the Platform: MCP Servers and Agent Guardrails",
+          "subtopics": ["Where AI assistants help developers on a platform", "Exposing platform actions through MCP", "The Backstage actions registry and MCP actions backend", "Catalog data as context for assistants", "Permissions and audit for agent actions", "Human approval for risky actions", "Measuring the impact of assistants", "DORA AI capabilities and quality internal platforms"],
+          "tools": ["Backstage MCP actions backend", "MCP client", "Backstage permission framework"],
+          "lab_task": "Expose catalog search and the golden path template through the Backstage MCP actions backend, call them from an MCP client and allow template runs only for approved users, with audit logs.",
+          "deliverable": "Platform actions for AI assistants with permissions",
+          "checks": [["Expose", "An MCP client lists and calls the platform actions", "Client transcript"], ["Restrict", "An unapproved user cannot run the template through MCP", "Error output"], ["Audit", "Agent actions appear in the audit log", "Log entries"]],
+          "objectives": ["Connect AI assistants to the platform", "Apply permissions to agent actions", "Measure assistant impact"]
+        },
+        {
+          "topic": "Platform Incident Response: Outages, Rollbacks and Reviews",
+          "subtopics": ["Platform failure modes and blast radius", "Incident roles and communication", "Rolling back platform changes", "Testing platform changes on a staging platform", "Change management for shared components", "Post-incident reviews", "The reliability backlog", "Chaos experiments on platform services"],
+          "tools": ["Argo CD", "Incident tracker", "Chaos Mesh or LitmusChaos", "Status page"],
+          "lab_task": "Run a game day where a bad policy change blocks every deployment, respond, roll back, communicate through the status page and write the post-incident review.",
+          "deliverable": "Game day record and post-incident review",
+          "checks": [["Respond", "The incident is declared and roles are assigned", "Incident timeline"], ["Recover", "Deployments work again after the rollback", "Deployment record"], ["Review", "Actions from the review are in the backlog", "Review document"]],
+          "objectives": ["Respond to platform incidents", "Change shared components safely", "Learn from incidents"]
+        },
+        {
+          "topic": "CNPA Exam Preparation: Domains, Practice and Review",
+          "subtopics": ["Exam format: 120 minutes, multiple choice, online and proctored", "Domain weights: core fundamentals 36%, observability, security and conformance 20%, continuous delivery 16%", "Domain weights: platform APIs and provisioning 12%, IDPs and developer experience 8%, measuring the platform 8%", "Mapping course days to the domains", "Practice on core platform concepts", "Practice on GitOps and delivery", "Practice on APIs, portals and metrics", "Review plan for weak domains"],
+          "tools": ["CNCF CNPA curriculum", "Practice question bank", "Course notes"],
+          "lab_task": "Take a timed practice exam, map every wrong answer to a domain and a course day, and complete a review plan for the two weakest domains.",
+          "deliverable": "Practice exam result and review plan",
+          "checks": [["Practise", "A timed practice exam is completed", "Score report"], ["Map", "Each wrong answer is mapped to a domain and a day", "Error log"], ["Plan", "The review plan covers the two weakest domains", "Review plan"]],
+          "objectives": ["Prepare for the CNPA exam", "Find weak domains", "Plan focused review"]
+        },
+        {
+          "topic": "Intermediate Capstone: Self-Service Platform with APIs, Environments and Scorecards",
+          "subtopics": ["Crossplane or kro APIs behind portal templates", "Preview environments and progressive delivery", "Supply chain and policy controls", "SLOs, scorecards and cost reports"],
+          "tools": ["Backstage", "Crossplane or kro", "Argo CD", "Kyverno", "OpenCost"],
+          "lab_task": "Extend the course platform with infrastructure APIs behind portal templates, preview environments, canary releases, verified images, platform SLOs, service scorecards and team cost reports, and demo it to the three product teams.",
+          "deliverable": "Self-service platform demo with evidence",
+          "checks": [["Self-serve", "A team creates a service with a database and preview environments without a ticket", "Timed demo"], ["Protect", "Unsigned images and policy violations are blocked", "Admission logs"], ["Report", "SLOs, scorecards and cost are visible to teams", "Dashboards"]],
+          "objectives": ["Combine intermediate platform skills", "Deliver self-service APIs", "Run the platform with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform leads, architects and staff engineers who run platform engineering across an organisation. Covers platform strategy and investment cases, maturity assessment, multi-cloud and hybrid architecture, control plane engineering, security architecture, compliance automation, fleet-scale GitOps, platform performance and reliability, organisation-wide engineering metrics, AI-native platforms, platform interfaces, portal product evaluation, adoption at scale, team leadership, governance, regulated industries, inner source and CNPE exam preparation.",
+      "prerequisites": ["Has built or run an internal developer platform in production", "Strong Kubernetes, GitOps and infrastructure as code experience", "Responsible for platform design, a platform team or platform investment"],
+      "outcomes": ["Set platform strategy, investment cases and operating models backed by evidence", "Design multi-cloud control planes and security and compliance automation for fleets", "Engineer platform performance, reliability and metrics programmes", "Lead platform teams, governance, adoption and inner source, and prepare for the CNPE exam"],
+      "days": [
+        {
+          "topic": "Platform Strategy: Vision, Investment Cases and Operating Model",
+          "subtopics": ["Platform vision and principles", "Investment cases from time saved and risk reduced", "Funding models", "Operating model and team structure at scale", "A portfolio of platform products", "Build, buy and partner decisions", "Reporting to executives", "Stopping or merging platform products"],
+          "tools": ["Business case template", "Platform portfolio canvas", "Course platform metrics"],
+          "lab_task": "Write a two-year platform strategy with a vision, an investment case backed by course metrics, a funding model and a portfolio of platform products with owners.",
+          "deliverable": "Platform strategy and investment case",
+          "checks": [["Vision", "Principles guide at least three concrete decisions", "Strategy document"], ["Invest", "The case uses measured time saved and risk data", "Investment case"], ["Portfolio", "Each platform product has an owner and a measure", "Portfolio"]],
+          "objectives": ["Set platform strategy", "Make investment cases", "Design the operating model"]
+        },
+        {
+          "topic": "Maturity Assessment with the CNCF Platform Engineering Maturity Model",
+          "subtopics": ["Aspects: investment, adoption, interfaces, operations and measurement", "Levels: provisional, operational, scalable and optimizing", "Assessing with evidence", "Choosing the next level for each aspect", "Maturity as a means, not a goal", "Linking maturity to outcomes", "Repeating the assessment", "Sharing results with leadership"],
+          "tools": ["CNCF Platform Engineering Maturity Model", "Assessment worksheet", "Interviews"],
+          "lab_task": "Assess the course platform against the maturity model with evidence for each aspect, choose target levels for the next two quarters and turn the gaps into roadmap items.",
+          "deliverable": "Maturity assessment and targets",
+          "checks": [["Assess", "Each aspect has a level and evidence", "Assessment"], ["Target", "Targets are tied to outcomes", "Target list"], ["Plan", "Roadmap items cover the gaps", "Roadmap"]],
+          "objectives": ["Assess platform maturity", "Set evidence-based targets", "Plan improvements"]
+        },
+        {
+          "topic": "Multi-Cloud and Hybrid Platform Architecture",
+          "subtopics": ["Why estates become multi-cloud", "One control plane across clouds", "Abstracting cloud services without the lowest common denominator", "Identity and networking across clouds", "On-premises and edge clusters", "Data gravity and placement rules", "Portability that is worth paying for", "Reference design reviews"],
+          "tools": ["Crossplane", "Cluster API", "Argo CD", "Cloud provider services"],
+          "lab_task": "Design a platform for two clouds and one data centre with a shared control plane, placement rules and identity, and defend its portability choices in a design review.",
+          "deliverable": "Multi-cloud platform design and review record",
+          "checks": [["Design", "Control plane, identity and networking cover every site", "Design document"], ["Place", "Placement rules decide where each workload runs", "Rules table"], ["Defend", "The review records accepted and rejected portability choices", "Review record"]],
+          "objectives": ["Design multi-cloud platforms", "Set placement rules", "Make portability trade-offs"]
+        },
+        {
+          "topic": "Control Plane Engineering: Composition Functions and Custom Controllers",
+          "subtopics": ["Writing composition functions in Go or Python", "Testing functions with the Crossplane CLI render command", "Day-two automation with Crossplane Operations", "Controller design: idempotency and backoff", "Controller scale and API server load", "Evolving platform APIs without breaking users", "Observability for controllers", "Upgrading and rolling back control plane components"],
+          "tools": ["Crossplane function SDK for Go or Python", "Crossplane CLI", "Kubebuilder", "Prometheus"],
+          "lab_task": "Write a composition function that sets sizes and backups by environment, test it with render, add an optional field without breaking existing resources and chart reconcile latency.",
+          "deliverable": "Tested composition function and evolved API",
+          "checks": [["Test", "Render tests cover every environment", "Test output"], ["Evolve", "Existing resources keep working after the API change", "kubectl output"], ["Observe", "Reconcile latency and errors are on a dashboard", "Dashboard"]],
+          "objectives": ["Engineer control planes", "Test composition logic", "Evolve platform APIs safely"]
+        },
+        {
+          "topic": "Platform Security Architecture: Zero Trust, Tenancy and Secrets at Scale",
+          "subtopics": ["Threat model for an internal developer platform", "Zero trust between platform components", "Workload identity federation to clouds", "Secrets at scale: rotation and dynamic secrets", "Isolating tenants in shared control planes", "Securing the portal and its plugins", "Protecting GitOps and pipeline credentials", "Security reviews for new platform features"],
+          "tools": ["SPIFFE and SPIRE", "Vault or OpenBao", "External Secrets Operator", "Cloud workload identity"],
+          "lab_task": "Threat-model the course platform, replace static cloud keys with workload identity, add dynamic database credentials and prove that a compromised team namespace cannot read another team's secrets.",
+          "deliverable": "Threat model and hardened platform",
+          "checks": [["Model", "Threats are ranked with owners and mitigations", "Threat model"], ["Remove", "No static cloud keys remain in the platform", "Credential scan"], ["Isolate", "Cross-tenant secret access fails", "Test output"]],
+          "objectives": ["Threat-model a platform", "Apply zero trust", "Isolate tenant secrets"]
+        },
+        {
+          "topic": "Policy and Compliance Automation Across the Platform",
+          "subtopics": ["Mapping controls to policies", "Policy libraries and versions", "Policies in CI, at admission and at runtime", "Collecting compliance evidence", "Exception workflow with expiry and approval", "Audit-ready reports", "Cloud resource policies", "Policy performance and failure modes"],
+          "tools": ["Kyverno or OPA Gatekeeper", "Conftest", "Cloud policy services", "Evidence store"],
+          "lab_task": "Map ten controls from a compliance framework to policies in CI, at admission and in the cloud, collect evidence automatically and produce an audit report with open exceptions.",
+          "deliverable": "Control-to-policy map and audit report",
+          "checks": [["Map", "Each control has policies at the right layer", "Control map"], ["Evidence", "Evidence is collected without manual screenshots", "Evidence store"], ["Report", "The audit report lists exceptions with owners and expiry dates", "Audit report"]],
+          "objectives": ["Automate compliance", "Collect evidence continuously", "Manage exceptions"]
+        },
+        {
+          "topic": "GitOps at Fleet Scale: Argo CD Sharding, Hub-and-Spoke and Flux",
+          "subtopics": ["Hub-and-spoke compared with one Argo CD per cluster", "Controller sharding and tuning", "ApplicationSets across a fleet", "Flux for decentralised delivery", "Repository strategies at scale", "Promotion pipelines with Kargo", "Secrets in fleet GitOps", "Disaster recovery for GitOps tooling"],
+          "tools": ["Argo CD", "Flux", "Kargo", "ApplicationSet cluster generator"],
+          "lab_task": "Run Argo CD in hub-and-spoke mode for five clusters with sharding, promote a release through three stages with Kargo and restore Argo CD from backup.",
+          "deliverable": "Fleet GitOps design with promotion and recovery",
+          "checks": [["Scale", "Applications on five clusters sync within the target time", "Sync metrics"], ["Promote", "A release moves through three stages with approvals", "Promotion history"], ["Recover", "Argo CD is restored and resumes syncing", "Recovery log"]],
+          "objectives": ["Run GitOps across fleets", "Automate promotion", "Recover GitOps tooling"]
+        },
+        {
+          "topic": "Platform Performance and Scale: Portal, Catalog and Pipelines",
+          "subtopics": ["Load profile of a large engineering organisation", "Catalog size and ingestion speed", "Scaling the Backstage database and search", "Scaling CI runners and caches", "Reconcile load from controllers", "Capacity planning for platform services", "Load testing platform APIs", "Performance budgets for golden paths"],
+          "tools": ["Backstage", "k6", "PostgreSQL", "Autoscaling CI runners"],
+          "lab_task": "Load-test the portal and template runs for 2,000 engineers, find the bottleneck, fix it and show that the platform meets its performance budget.",
+          "deliverable": "Load test results and fixes",
+          "checks": [["Test", "Load tests reproduce peak usage", "k6 results"], ["Fix", "The main bottleneck is removed", "Before-and-after metrics"], ["Budget", "Golden path runs finish within the budget", "Timing report"]],
+          "objectives": ["Plan platform capacity", "Find platform bottlenecks", "Meet performance budgets"]
+        },
+        {
+          "topic": "Reliability Engineering for Platform Services",
+          "subtopics": ["Mapping platform dependencies", "Failure domains and redundancy", "Degraded modes when the portal or GitOps is down", "Break-glass access", "Backup and restore of platform state", "Multi-region platform services", "Chaos experiments on the control plane", "Reliability reviews before launches"],
+          "tools": ["Velero", "Chaos Mesh or LitmusChaos", "Argo CD", "Backstage"],
+          "lab_task": "Map platform dependencies, define degraded modes, run a chaos experiment that removes the control plane cluster and restore it from backup within the recovery target.",
+          "deliverable": "Platform reliability plan and recovery evidence",
+          "checks": [["Map", "Every platform service has dependencies and failure domains", "Dependency map"], ["Degrade", "Teams can still deploy in the degraded mode", "Test record"], ["Restore", "The control plane is restored within the target", "Recovery timeline"]],
+          "objectives": ["Engineer platform reliability", "Plan degraded modes", "Recover platform state"]
+        },
+        {
+          "topic": "Engineering Metrics at Organisation Scale: DORA, DX Core 4 and Experiments",
+          "subtopics": ["DORA metrics across many teams", "DX Core 4: speed, effectiveness, quality and impact", "Combining system data with survey data", "Experiments that prove platform impact", "Attribution and confounders", "Metrics that teams game", "Reporting to engineering leadership", "Privacy and trust in developer metrics"],
+          "tools": ["Delivery data warehouse", "Survey tool", "Dashboard tool"],
+          "lab_task": "Design an experiment that tests whether the golden path improves lead time and developer satisfaction, analyse pilot data against a control group and report the result honestly.",
+          "deliverable": "Experiment design and result report",
+          "checks": [["Design", "The experiment has a hypothesis, a control group and metrics", "Experiment design"], ["Analyse", "Results account for confounders", "Analysis"], ["Report", "The leadership report states the result and its limits", "Report"]],
+          "objectives": ["Measure engineering at scale", "Prove platform impact", "Report metrics responsibly"]
+        },
+        {
+          "topic": "AI-Native Platforms: Agents, Context and Governance",
+          "subtopics": ["Agents as platform users", "Platform context for agents: catalog, docs and scorecards", "MCP servers for platform capabilities", "Guardrails and approval for agent changes", "Cost and quotas for AI use", "Checking agent changes against standards", "The DORA AI capabilities model", "Governance and audit for AI in delivery"],
+          "tools": ["Backstage MCP actions backend", "MCP clients", "Policy engine", "Audit logs"],
+          "lab_task": "Let a coding agent create and change a service only through platform MCP actions, enforce policy and approval on its changes and compare its output with the scorecard standards.",
+          "deliverable": "Governed agent workflow on the platform",
+          "checks": [["Act", "The agent changes services only through platform actions", "Transcript and audit log"], ["Govern", "A risky change waits for human approval", "Approval record"], ["Evaluate", "Services created by the agent meet scorecard standards", "Scorecard results"]],
+          "objectives": ["Design platforms for AI agents", "Govern agent actions", "Evaluate agent output"]
+        },
+        {
+          "topic": "Platform Interfaces: Portals, CLIs, APIs and ChatOps",
+          "subtopics": ["Choosing interfaces by user and task", "Portal, CLI or API", "Designing a platform CLI", "API-first platform design", "ChatOps for routine requests", "Consistent naming and errors across interfaces", "Retiring interfaces", "Measuring interface use"],
+          "tools": ["Backstage", "Cobra or Typer for a platform CLI", "OpenAPI", "Chat tool"],
+          "lab_task": "Offer the same environment request through the portal, a CLI and the API with consistent errors, and measure which interface each team uses during a pilot.",
+          "deliverable": "Three interfaces to one platform capability",
+          "checks": [["Build", "Portal, CLI and API create the same environment", "Outputs"], ["Align", "Errors match across interfaces", "Error samples"], ["Measure", "Interface use per team is reported", "Usage report"]],
+          "objectives": ["Design platform interfaces", "Keep interfaces consistent", "Choose interfaces by evidence"]
+        },
+        {
+          "topic": "Evaluating Portal Products: Port, Cortex, Roadie and Developer Hub",
+          "subtopics": ["The cost of running Backstage yourself", "Managed Backstage offerings", "Commercial portals such as Port, Cortex and OpsLevel", "Platform orchestrators", "Evaluation criteria and scoring", "Designing a proof of concept", "Data portability and lock-in", "Total cost of ownership"],
+          "tools": ["Evaluation scorecard", "Vendor trials", "Backstage"],
+          "lab_task": "Run a two-week proof of concept plan for two portal options against weighted criteria and total cost, and write the recommendation with an exit plan.",
+          "deliverable": "Portal evaluation and recommendation",
+          "checks": [["Criteria", "Weighted criteria come from user research", "Criteria sheet"], ["Trial", "Both options are tested with the same tasks", "Trial results"], ["Recommend", "The recommendation includes total cost and an exit plan", "Recommendation"]],
+          "objectives": ["Evaluate portal products", "Compare total cost", "Plan an exit"]
+        },
+        {
+          "topic": "Platform Adoption at Scale: Migration, Communication and Advocacy",
+          "subtopics": ["Adoption curves and early adopters", "Moving existing services onto the platform", "Migration tooling and automated pull requests", "Documentation and office hours", "Developer advocates and champions", "Release notes and changelogs", "Resistance and mandates", "Measuring adoption and churn"],
+          "tools": ["Backstage", "Automated pull request tooling", "Survey tool"],
+          "lab_task": "Plan the move of five legacy services onto the golden path with automated pull requests, run office hours and report adoption after two iterations.",
+          "deliverable": "Migration plan and adoption report",
+          "checks": [["Plan", "Five services have a migration path and an owner", "Migration plan"], ["Migrate", "At least two services move with automated pull requests", "Pull requests"], ["Report", "Adoption and feedback are reported", "Adoption report"]],
+          "objectives": ["Drive platform adoption", "Move existing services", "Run developer advocacy"]
+        },
+        {
+          "topic": "Platform Team Leadership: Hiring, Skills and On-Call",
+          "subtopics": ["Roles: product manager, engineers, SREs and advocates", "A skills matrix for platform engineers", "Hiring and interviewing", "Sustainable on-call and support", "Team health and burnout", "Growing platform engineers", "Working with security, finance and architecture", "Scaling to several platform teams"],
+          "tools": ["Skills matrix", "Role descriptions", "On-call schedule"],
+          "lab_task": "Design the platform organisation for 400 engineers with roles, a skills matrix, an on-call rota and interfaces to security and finance, and plan the first two hires.",
+          "deliverable": "Platform organisation design",
+          "checks": [["Design", "Roles and team boundaries are defined", "Organisation design"], ["Support", "On-call load is defined and sustainable", "On-call plan"], ["Hire", "Two role descriptions with interview loops exist", "Role descriptions"]],
+          "objectives": ["Lead platform teams", "Build platform skills", "Run sustainable support"]
+        },
+        {
+          "topic": "Platform Governance: Standards, Deprecation and Change Control",
+          "subtopics": ["Who decides platform standards", "Architecture decision records and RFCs", "A technology radar for the platform", "Deprecation policies and timelines", "Change control for shared components", "Announcing breaking changes", "Exceptions and their review", "Governance that does not slow teams down"],
+          "tools": ["RFC template", "Technology radar", "Deprecation tracker"],
+          "lab_task": "Run an RFC to retire a pipeline template, publish a deprecation timeline with automated migration pull requests and track progress until no service uses it.",
+          "deliverable": "RFC, deprecation plan and progress report",
+          "checks": [["Decide", "The RFC records options and the decision", "RFC"], ["Deprecate", "Users get a timeline and a migration path", "Notices"], ["Track", "Remaining users are tracked to zero", "Progress report"]],
+          "objectives": ["Govern platform standards", "Deprecate safely", "Keep governance light"]
+        },
+        {
+          "topic": "Platforms for Regulated Industries: Audit, Data Residency and Segregation",
+          "subtopics": ["Regulations that shape platforms", "Data residency and workload placement", "Segregation of duties in pipelines", "Audit trails for every change", "Change approval without manual gates", "Validated golden paths", "Evidence for auditors", "Working with compliance teams"],
+          "tools": ["Policy engine", "Audit log store", "GitOps tooling", "Evidence reports"],
+          "lab_task": "Adapt the golden path for a regulated team with data residency rules, segregation of duties and complete audit trails, and walk an auditor through the evidence.",
+          "deliverable": "Regulated golden path and audit walkthrough",
+          "checks": [["Place", "Workloads run only in allowed regions", "Placement test"], ["Segregate", "No single person can both change and approve production", "Pipeline settings"], ["Trace", "Every production change traces back to a request", "Audit trail"]],
+          "objectives": ["Build platforms for regulated teams", "Automate audit evidence", "Apply segregation of duties"]
+        },
+        {
+          "topic": "Inner Source for the Platform: Contributions and Shared Ownership",
+          "subtopics": ["Why platform teams cannot build everything", "Inner source principles", "Contribution guides and CODEOWNERS", "Template and plugin contributions from product teams", "Review service levels for contributions", "Trusted committers", "Recognising contributors", "Measuring contribution health"],
+          "tools": ["Git hosting", "CODEOWNERS", "Contribution guide", "Backstage"],
+          "lab_task": "Write contribution guidelines for templates and plugins, accept one contribution from a product team through review and publish contribution metrics.",
+          "deliverable": "Contribution model with one merged contribution",
+          "checks": [["Guide", "Guidelines explain how to propose and review changes", "Contribution guide"], ["Merge", "A template change from a product team is reviewed and merged", "Pull request"], ["Measure", "Contribution lead time is reported", "Metrics"]],
+          "objectives": ["Run inner source for the platform", "Review contributions well", "Share ownership"]
+        },
+        {
+          "topic": "CNPE Exam Preparation: Hands-On Tasks Across Five Domains",
+          "subtopics": ["Exam format: 120 minutes of performance-based tasks in a remote Linux desktop", "Domain weights: GitOps and continuous delivery 25%, platform APIs and self-service 25%", "Domain weights: observability and operations 20%, architecture and infrastructure 15%, security and policy 15%", "Drills on GitOps sync and promotion", "Drills on platform APIs and self-service", "Drills on observability and operations", "Drills on policy and security", "Time management and documentation use"],
+          "tools": ["CNCF CNPE curriculum", "Practice cluster", "Course labs"],
+          "lab_task": "Complete a timed set of hands-on tasks that covers all five CNPE domains on a practice cluster, record the time per task and repeat the slowest domain.",
+          "deliverable": "Timed practice results and a second attempt",
+          "checks": [["Practise", "All five domains are attempted under time limits", "Task log"], ["Time", "Time per task is recorded and the slowest domain is named", "Timing sheet"], ["Repeat", "The second attempt at the slowest domain is faster", "Comparison"]],
+          "objectives": ["Prepare for the CNPE exam", "Practise hands-on tasks", "Manage exam time"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Platform Strategy, Design and Evidence",
+          "subtopics": ["Strategy and investment case", "Fleet, security and compliance design", "Reliability and performance evidence", "Metrics, governance and organisation"],
+          "tools": ["Course platform", "Strategy and design documents", "Metrics dashboards"],
+          "lab_task": "Present an enterprise platform plan for 2,000 engineers to a review board with the strategy and investment case, fleet and control plane design, security and compliance automation, reliability and performance evidence from the course platform, metrics and the organisation design.",
+          "deliverable": "Enterprise platform plan with evidence and a board decision",
+          "checks": [["Strategy", "The investment case is backed by measured results", "Investment case"], ["Design", "Fleet, security and compliance designs pass review", "Review record"], ["Evidence", "Reliability, performance and metrics claims have evidence", "Evidence pack"]],
+          "objectives": ["Combine advanced platform skills", "Defend an enterprise platform plan", "Back decisions with evidence"]
+        }
+      ]
+    }
+  }
+}

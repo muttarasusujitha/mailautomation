@@ -1,0 +1,573 @@
+{
+  "domain": "Linux Administration",
+  "name": "Linux System Administration",
+  "category": "DevOps and CI/CD",
+  "icon": "terminal",
+  "aliases": ["Linux", "Linux Training", "Linux Administrator", "Linux Server Administration", "RHEL", "Red Hat Linux", "Red Hat Enterprise Linux", "RHEL Administration", "Ubuntu Server Administration", "RHCSA", "RHCE", "LFCS"],
+  "certifications": ["Red Hat Certified System Administrator (RHCSA, EX200)", "Red Hat Certified Engineer (RHCE, EX294)", "Linux Foundation Certified System Administrator (LFCS)", "CompTIA Linux+"],
+  "tools": ["RHEL 9 or Rocky Linux 9", "Ubuntu Server 24.04", "Bash", "systemd", "dnf and apt", "SSH", "VirtualBox or KVM"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For support engineers, developers and new administrators. Covers installing Linux, the shell, files and directories, editors, permissions, users and groups, processes, packages, systemd services, logs, file systems, LVM, networking, SSH, text processing, Bash scripting, scheduled jobs, archives and backups, and the host firewall, on RHEL-family and Ubuntu servers.",
+      "prerequisites": ["Comfortable using a computer and installing software", "Knows what an IP address is", "No previous Linux experience needed"],
+      "outcomes": ["Work confidently at the Linux command line", "Manage users, permissions, packages, services, storage and networking", "Write Bash scripts and schedule jobs", "Keep a server secured, logged and backed up"],
+      "days": [
+        {
+          "topic": "Linux Overview, Distributions and Lab Setup",
+          "subtopics": ["What Linux is: kernel, GNU tools and distributions", "RHEL, Rocky, AlmaLinux, Ubuntu and Debian compared", "Where Linux runs: servers, cloud, containers and devices", "Creating virtual machines with VirtualBox or KVM", "Installing Rocky Linux 9 and Ubuntu Server 24.04", "Disk partitioning choices during installation", "Logging in on the console and over SSH", "The Linux file system hierarchy", "Getting help with man, --help and info", "Snapshots of lab machines before risky changes"],
+          "tools": ["VirtualBox or KVM", "Rocky Linux 9", "Ubuntu Server 24.04"],
+          "lab_task": "Build two lab servers, one Rocky Linux and one Ubuntu, take a snapshot of each, log in over SSH and record the kernel version, distribution, disk layout and main directories.",
+          "deliverable": "Lab build notes and a system information sheet for both servers",
+          "checks": [["Run uname -r and cat /etc/os-release", "Kernel and distribution recorded for both servers", "Terminal output"], ["Restore a snapshot after a change", "Server back to the saved state", "Screenshot"], ["Explain /etc, /var, /home and /usr", "Purpose of each stated correctly", "Information sheet"]],
+          "objectives": ["Describe Linux and its distributions", "Install lab servers", "Find help"]
+        },
+        {
+          "topic": "The Shell and Moving Around the File System",
+          "subtopics": ["Bash and other shells", "The prompt, commands, options and arguments", "pwd, cd and ls", "Absolute and relative paths", "Tab completion and history", "Wildcards and globbing", "Environment and PATH", "Aliases and .bashrc"],
+          "tools": ["Bash", "Terminal"],
+          "lab_task": "Navigate the file system using only relative paths, find commands with history search, list files with wildcards and add two useful aliases to .bashrc.",
+          "deliverable": "Command log and .bashrc changes",
+          "checks": [["List all .conf files in /etc", "Correct files listed with a wildcard", "Terminal output"], ["Open a new shell", "Aliases work", "Terminal output"], ["Explain PATH", "Why a command runs from any directory explained", "Written note"]],
+          "objectives": ["Use the shell", "Navigate the file system", "Customise the shell"]
+        },
+        {
+          "topic": "Working with Files and Directories",
+          "subtopics": ["Creating files and directories", "Copying, moving and renaming", "Deleting safely", "Hard and symbolic links", "Finding files with find", "locate and which", "File types and the file command", "Disk usage with du and df"],
+          "tools": ["Bash", "find", "du", "df"],
+          "lab_task": "Organise a messy project folder, create links, find files over 10 MB changed in the last week and report which directories use the most space.",
+          "deliverable": "Command log and a space report",
+          "checks": [["Run find for large recent files", "Correct files listed", "Terminal output"], ["Delete the target of a symlink", "Link shown as broken and explained", "Terminal output"], ["Report space use", "Top five directories by size", "du output"]],
+          "objectives": ["Manage files and directories", "Use links", "Find files and space use"]
+        },
+        {
+          "topic": "Editing Text with vim and nano",
+          "subtopics": ["Why administrators need a terminal editor", "nano basics", "vim modes", "Moving, editing and saving in vim", "Search and replace in vim", "Editing several files", "Recovering from swap files", "Editing configuration files safely"],
+          "tools": ["vim", "nano"],
+          "lab_task": "Edit a configuration file in nano, then make ten timed edits in vim including search and replace, and recover a file from a vim swap file after a simulated crash.",
+          "deliverable": "Edited files and notes on the recovery",
+          "checks": [["Replace a word throughout a file in vim", "All occurrences replaced", "File diff"], ["Recover from the swap file", "Unsaved changes restored", "Recovered file"], ["Back up a config before editing", "Original kept as a copy", "File listing"]],
+          "objectives": ["Edit files in the terminal", "Use vim efficiently", "Edit configurations safely"]
+        },
+        {
+          "topic": "File Permissions and Ownership",
+          "subtopics": ["Users, groups and others", "Read, write and execute on files and directories", "chmod in symbolic and numeric form", "chown and chgrp", "umask", "setuid, setgid and the sticky bit", "Access control lists", "Common permission mistakes"],
+          "tools": ["chmod", "chown", "setfacl", "getfacl"],
+          "lab_task": "Set up a shared project directory where the dev group can edit files, new files inherit the group, users cannot delete each other's files and one auditor has read-only access through an ACL.",
+          "deliverable": "Permission commands and test results",
+          "checks": [["Create a file as a group member", "File gets the project group", "ls -l output"], ["Delete another user's file", "Blocked by the sticky bit", "Error output"], ["Read as the auditor", "Read works and write fails", "Terminal output"]],
+          "objectives": ["Set permissions", "Use special bits", "Use ACLs"]
+        },
+        {
+          "topic": "Users, Groups and sudo",
+          "subtopics": ["User accounts and /etc/passwd", "Passwords and /etc/shadow", "Creating, changing and removing users", "Groups and membership", "Password ageing", "sudo and the sudoers file", "su compared with sudo", "Locking and expiring accounts"],
+          "tools": ["useradd", "usermod", "passwd", "visudo"],
+          "lab_task": "Create users and groups for a team, set password ageing, give one group sudo access for service restarts only and lock a leaver's account.",
+          "deliverable": "Commands, sudoers rule and test results",
+          "checks": [["Restart a service as a team member", "Allowed by sudo", "Terminal output"], ["Run another sudo command", "Denied and logged", "Log entry"], ["Log in as the locked user", "Login refused", "Terminal output"]],
+          "objectives": ["Manage users and groups", "Grant limited sudo", "Control accounts"]
+        },
+        {
+          "topic": "Processes, Jobs and Signals",
+          "subtopics": ["What a process is", "ps and top", "Process states", "Foreground and background jobs", "Signals and kill", "nice and renice", "Finding what uses a file with lsof", "Zombie and orphan processes"],
+          "tools": ["ps", "top", "htop", "kill", "lsof"],
+          "lab_task": "Start CPU-heavy and long-running processes, move jobs between foreground and background, lower a process's priority, stop a hung process with the right signal and find what holds a deleted log file open.",
+          "deliverable": "Command log and notes",
+          "checks": [["Renice a busy process", "New priority shown in top", "top output"], ["Stop a process with SIGTERM then SIGKILL", "Difference explained", "Terminal output and note"], ["Find the deleted open file", "Process found with lsof", "lsof output"]],
+          "objectives": ["Monitor processes", "Control jobs", "Use signals"]
+        },
+        {
+          "topic": "Installing Software with dnf and apt",
+          "subtopics": ["Packages and repositories", "dnf on RHEL-family systems", "apt on Ubuntu and Debian", "Searching, installing and removing", "Updates and security updates", "Adding repositories and GPG keys", "Package information and file ownership", "Flatpak and snap in brief"],
+          "tools": ["dnf", "apt", "rpm", "dpkg"],
+          "lab_task": "Install, update and remove packages on both servers, add a third-party repository with its signing key, find which package owns a file and apply only security updates.",
+          "deliverable": "Command log for both distributions",
+          "checks": [["Find the package owning /etc/ssh/sshd_config", "Correct package named", "rpm or dpkg output"], ["Install from the new repository", "Package installed with signature checked", "Terminal output"], ["List security updates", "Security-only list produced", "dnf or apt output"]],
+          "objectives": ["Manage packages", "Add repositories safely", "Apply updates"]
+        },
+        {
+          "topic": "Managing Services with systemd",
+          "subtopics": ["systemd and units", "systemctl start, stop, restart and status", "Enabling services at boot", "Targets", "Unit files", "Writing a simple service unit", "Service dependencies", "Troubleshooting failed services"],
+          "tools": ["systemctl", "systemd"],
+          "lab_task": "Install and enable a web server, write a unit file for a small script so it runs as a service and restarts on failure, and fix a service that fails to start.",
+          "deliverable": "Unit file and troubleshooting notes",
+          "checks": [["Reboot the server", "Both services running after boot", "systemctl output"], ["Kill the script process", "systemd restarts it", "Journal output"], ["Fix the failing service", "Cause found and service starts", "Troubleshooting notes"]],
+          "objectives": ["Manage services", "Write unit files", "Fix failing services"]
+        },
+        {
+          "topic": "System Logs with journald and rsyslog",
+          "subtopics": ["Where logs live", "journalctl filters", "Persistent journal storage", "rsyslog and /var/log files", "Log levels", "logrotate", "Authentication logs", "Finding the cause of a problem in logs"],
+          "tools": ["journalctl", "rsyslog", "logrotate"],
+          "lab_task": "Make the journal persistent, find failed SSH logins in the last hour, configure log rotation for an application log and trace a service failure through the logs.",
+          "deliverable": "Configuration and log extracts",
+          "checks": [["Reboot and query the previous boot", "Earlier boot's logs available", "journalctl output"], ["Find failed SSH logins", "Source addresses listed", "Log extract"], ["Force a rotation", "Old log compressed and a new file created", "File listing"]],
+          "objectives": ["Read logs", "Keep logs", "Rotate logs"]
+        },
+        {
+          "topic": "Disks, Partitions and File Systems",
+          "subtopics": ["Block devices and lsblk", "Partition tables: MBR and GPT", "Creating partitions with fdisk and parted", "File systems: XFS and ext4", "Mounting and /etc/fstab", "UUIDs and labels", "Swap space", "Checking and repairing file systems"],
+          "tools": ["lsblk", "parted", "mkfs", "mount", "blkid"],
+          "lab_task": "Add a new virtual disk, partition it with GPT, create XFS and ext4 file systems, mount them permanently by UUID, add swap and recover a server that will not boot because of a bad fstab line.",
+          "deliverable": "Commands, fstab entries and recovery notes",
+          "checks": [["Reboot", "File systems mounted from fstab", "df output"], ["Check swap", "New swap active", "swapon output"], ["Recover from the bad fstab line", "Server boots after the fix", "Recovery notes"]],
+          "objectives": ["Partition disks", "Create and mount file systems", "Recover from mount errors"]
+        },
+        {
+          "topic": "Logical Volume Management",
+          "subtopics": ["Why LVM", "Physical volumes, volume groups and logical volumes", "Creating logical volumes", "Extending volumes and file systems online", "Reducing ext4 volumes safely", "LVM snapshots", "Moving data between disks with pvmove", "Viewing LVM state"],
+          "tools": ["LVM", "xfs_growfs", "resize2fs"],
+          "lab_task": "Create a volume group across two disks, create a logical volume for application data, grow it online while files are being written, take a snapshot before a change and move data off one disk.",
+          "deliverable": "LVM commands and before and after output",
+          "checks": [["Grow the volume online", "File system larger without unmounting", "df output"], ["Roll back with the snapshot", "Data back to the snapshot state", "File comparison"], ["Run pvmove", "Disk emptied and removable", "pvs output"]],
+          "objectives": ["Use LVM", "Resize storage online", "Use snapshots"]
+        },
+        {
+          "topic": "Network Configuration and Troubleshooting",
+          "subtopics": ["Interfaces and addresses with ip", "NetworkManager and nmcli", "Netplan on Ubuntu", "Static and DHCP addressing", "Routes and the default gateway", "DNS resolution and /etc/hosts", "Testing with ping, traceroute, ss and curl", "Hostnames"],
+          "tools": ["ip", "nmcli", "netplan", "ss", "dig"],
+          "lab_task": "Give each server a static address, set DNS and the hostname, add a static route, find which process listens on port 80 and fix a server that cannot resolve names.",
+          "deliverable": "Network configuration and troubleshooting notes",
+          "checks": [["Reboot", "Static address kept", "ip addr output"], ["Find the listening process", "Process and port shown", "ss output"], ["Fix name resolution", "dig returns the right address", "dig output"]],
+          "objectives": ["Configure networking", "Test connections", "Fix common network problems"]
+        },
+        {
+          "topic": "Secure Remote Access with SSH",
+          "subtopics": ["How SSH works", "Key pairs and ssh-keygen", "authorized_keys", "The SSH client config file", "Disabling password and root logins", "Copying files with scp and rsync", "Port forwarding", "Jump hosts"],
+          "tools": ["OpenSSH", "ssh-keygen", "rsync"],
+          "lab_task": "Set up key-only SSH between the servers, disable root and password logins, create client config shortcuts, copy files with rsync and reach a private server through a jump host.",
+          "deliverable": "SSH configuration and test results",
+          "checks": [["Log in with a password", "Refused", "Terminal output"], ["Connect through the jump host", "Login to the private server works", "Terminal output"], ["Re-run rsync", "Only changed files copied", "rsync output"]],
+          "objectives": ["Use SSH keys", "Harden SSH", "Transfer files securely"]
+        },
+        {
+          "topic": "Text Processing with grep, sed and awk",
+          "subtopics": ["Pipes and redirection", "grep and regular expressions", "cut, sort, uniq and wc", "sed for search and replace", "awk for columns and totals", "tr and paste", "xargs", "Building one-line reports"],
+          "tools": ["grep", "sed", "awk", "sort", "uniq"],
+          "lab_task": "Analyse a web server access log with pipes to report the top ten client addresses, error counts by hour and the slowest pages, and change a setting in many config files with sed.",
+          "deliverable": "Commands and reports",
+          "checks": [["Report top client addresses", "Ten addresses with counts", "Report output"], ["Count errors by hour", "Hourly counts correct for a sample hour", "Report output"], ["Change settings with sed", "All files updated and backups kept", "File diff"]],
+          "objectives": ["Process text", "Use regular expressions", "Build reports from logs"]
+        },
+        {
+          "topic": "Bash Scripting for Administrators",
+          "subtopics": ["Script structure and the shebang line", "Shell parameters and quoting", "Reading input and arguments", "Conditions with test and [[ ]]", "Loops", "Functions", "Exit codes and set -euo pipefail", "Checking scripts with ShellCheck"],
+          "tools": ["Bash", "ShellCheck"],
+          "lab_task": "Write a script that creates users from a CSV file, validates its input, logs what it does, exits with clear codes on errors and passes ShellCheck.",
+          "deliverable": "Script, sample CSV and test results",
+          "checks": [["Run with a valid file", "Users created and actions logged", "Script log"], ["Run with a bad row", "Error reported and other rows processed", "Script output"], ["Run ShellCheck", "No warnings", "ShellCheck output"]],
+          "objectives": ["Write Bash scripts", "Handle errors", "Check scripts"]
+        },
+        {
+          "topic": "Scheduling Jobs with cron and systemd Timers",
+          "subtopics": ["cron syntax", "User and system crontabs", "Environment in cron jobs", "systemd timers", "Timer accuracy and missed runs", "at for one-off jobs", "Logging scheduled jobs", "Preventing overlapping runs with flock"],
+          "tools": ["cron", "systemd timers", "flock"],
+          "lab_task": "Schedule the user script nightly with cron, rewrite it as a systemd timer that catches up after downtime, prevent overlapping runs and send output to the journal.",
+          "deliverable": "Crontab, timer and service units and logs",
+          "checks": [["List timers", "Next run time shown", "systemctl list-timers output"], ["Power off over the run time then boot", "Missed run executed", "Journal output"], ["Start two runs at once", "Second run exits because of the lock", "Log output"]],
+          "objectives": ["Schedule jobs", "Use systemd timers", "Avoid overlapping runs"]
+        },
+        {
+          "topic": "Archives, Compression and Backups",
+          "subtopics": ["tar archives", "gzip, bzip2, xz and zstd", "Backing up with rsync", "Incremental backups", "Backing up configuration", "Restoring files", "Testing restores", "Off-server copies"],
+          "tools": ["tar", "zstd", "rsync"],
+          "lab_task": "Back up /etc and a data directory with tar and zstd, set up nightly incremental rsync backups to the second server, delete files and restore them, and record restore time.",
+          "deliverable": "Backup scripts, schedule and restore evidence",
+          "checks": [["Restore a deleted file", "File back with its permissions", "ls -l output"], ["Compare compression tools", "Size and time for each recorded", "Comparison table"], ["Run the incremental backup", "Only changes copied", "rsync output"]],
+          "objectives": ["Create archives", "Back up with rsync", "Test restores"]
+        },
+        {
+          "topic": "Host Firewalls and Basic Server Security",
+          "subtopics": ["Why host firewalls", "firewalld zones and services", "ufw on Ubuntu", "Opening and closing ports", "Rich rules and source restrictions", "fail2ban for brute-force protection", "Keeping servers updated", "A first hardening checklist"],
+          "tools": ["firewalld", "ufw", "fail2ban"],
+          "lab_task": "Allow only SSH and HTTPS on both servers, restrict SSH to the admin subnet, install fail2ban to block repeated failed logins and complete a hardening checklist.",
+          "deliverable": "Firewall rules, fail2ban configuration and checklist",
+          "checks": [["Connect to a closed port", "Connection refused or dropped", "Terminal output"], ["Fail SSH logins five times", "Source address banned", "fail2ban status"], ["Review the checklist", "Every item done or explained", "Checklist"]],
+          "objectives": ["Configure host firewalls", "Block brute-force attempts", "Harden servers"]
+        },
+        {
+          "topic": "Beginner Capstone: Building and Running a Web Server",
+          "subtopics": ["Build and configure", "Users, storage and security", "Automation and backups", "Handover"],
+          "tools": ["Rocky Linux 9", "Nginx", "LVM", "firewalld", "Bash", "systemd"],
+          "lab_task": "Build a web server from a fresh install: users and sudo, LVM storage for site data, Nginx as a service, SSH hardening, firewall, log rotation, a scheduled backup script and a restore test, then hand it over with a runbook.",
+          "deliverable": "Build commands, scripts, runbook and restore evidence",
+          "checks": [["Reboot the server", "Site, mounts and firewall all come back", "Demo recording"], ["Restore the site from backup", "Site works after the restore", "Demo recording"], ["Hand over with the runbook", "A classmate can restart and restore using it", "Peer feedback"]],
+          "objectives": ["Combine the beginner topics in one server", "Build a secure, maintained server", "Document it for others"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For administrators who run Linux servers. Covers advanced Bash, SELinux, performance monitoring, the boot process, kernel tuning, RAID and storage, NFS and Samba, DNS and DHCP servers, Apache and Nginx, central authentication, sudo and PAM, hardening and auditing, Podman, Ansible, patching, backup and recovery, central logging, KVM and RHCSA preparation.",
+      "prerequisites": ["Manages users, packages, services and storage on Linux", "Writes simple Bash scripts", "Configures networking and SSH"],
+      "outcomes": ["Secure servers with SELinux, PAM, auditing and hardening standards", "Diagnose performance and boot problems", "Run network services, containers and virtual machines", "Automate administration with Ansible and pass RHCSA"],
+      "days": [
+        {
+          "topic": "Advanced Bash Scripting and Automation",
+          "subtopics": ["Arrays and associative arrays", "Parameter expansion", "Functions with local scope and return values", "getopts for options", "trap for cleanup", "Here documents", "Parallel work with xargs -P", "Testing scripts with bats"],
+          "tools": ["Bash", "bats", "ShellCheck"],
+          "lab_task": "Write a health-check tool with options, arrays of checks, cleanup on exit, parallel checks against many hosts and bats tests.",
+          "deliverable": "Script, tests and sample output",
+          "checks": [["Run with --help", "Usage shown from getopts", "Terminal output"], ["Interrupt the script", "Temporary files removed by trap", "File listing"], ["Run the bats tests", "All pass", "bats output"]],
+          "objectives": ["Write larger Bash tools", "Clean up reliably", "Test scripts"]
+        },
+        {
+          "topic": "SELinux in Practice",
+          "subtopics": ["Mandatory access control", "Modes: enforcing, permissive and disabled", "Contexts and labels", "Booleans", "Port labels", "Fixing denials with audit2why and sealert", "Restoring contexts", "Custom policy modules in brief"],
+          "tools": ["SELinux", "semanage", "restorecon", "audit2why"],
+          "lab_task": "Serve a website from a non-default directory and port with SELinux enforcing, fix each denial correctly with contexts, port labels and booleans, and never set permissive mode.",
+          "deliverable": "Commands, denial analysis and working site",
+          "checks": [["Load the site from the new directory", "Works with SELinux enforcing", "curl output"], ["Read the denial", "Cause explained with audit2why", "audit2why output"], ["Relabel the file system", "Contexts kept after restorecon", "ls -Z output"]],
+          "objectives": ["Understand SELinux", "Fix denials properly", "Keep SELinux enforcing"]
+        },
+        {
+          "topic": "Performance Monitoring and Tuning",
+          "subtopics": ["The USE method", "CPU with top, mpstat and pidstat", "Memory with free and vmstat", "Disk I/O with iostat and iotop", "Network with sar and iftop", "Historical data with sysstat", "tuned profiles", "Finding the bottleneck"],
+          "tools": ["sysstat", "iostat", "vmstat", "tuned"],
+          "lab_task": "Diagnose four slow servers (CPU bound, memory pressure, disk bound and network bound) with the USE method, record evidence and apply a tuned profile where it helps.",
+          "deliverable": "Diagnosis report with evidence for each server",
+          "checks": [["Diagnose the disk-bound server", "High await and utilisation found", "iostat output"], ["Diagnose memory pressure", "Swapping and low available memory found", "vmstat output"], ["Apply a tuned profile", "Profile active and effect measured", "Before and after metrics"]],
+          "objectives": ["Measure performance", "Find bottlenecks", "Tune servers"]
+        },
+        {
+          "topic": "The Boot Process and Recovering Unbootable Systems",
+          "subtopics": ["Firmware: BIOS and UEFI", "GRUB 2", "The kernel and initramfs", "systemd boot targets", "Rescue and emergency targets", "Resetting a lost root password", "Rebuilding initramfs", "Reading boot logs"],
+          "tools": ["GRUB 2", "dracut", "systemd", "journalctl"],
+          "lab_task": "Recover four broken servers: a lost root password, a broken GRUB entry, a missing initramfs and a service that blocks boot, using rescue targets and boot logs.",
+          "deliverable": "Recovery notes for each server",
+          "checks": [["Reset the root password", "Login works and SELinux relabelled", "Terminal output"], ["Rebuild initramfs", "Server boots normally", "Boot log"], ["Find the blocking service", "Unit identified in the boot log", "journalctl output"]],
+          "objectives": ["Explain the boot process", "Use rescue modes", "Recover unbootable systems"]
+        },
+        {
+          "topic": "Kernel Modules and System Tuning with sysctl",
+          "subtopics": ["Kernel versions and updates", "Loading and blacklisting modules", "Module parameters", "/proc and /sys", "sysctl settings", "Persistent tuning with sysctl.d", "Network and memory tuning examples", "Kernel boot parameters"],
+          "tools": ["modprobe", "sysctl", "grubby"],
+          "lab_task": "Blacklist an unneeded module, set module parameters, tune network buffers and swappiness with persistent sysctl files and add a kernel boot parameter with grubby.",
+          "deliverable": "Configuration files and verification output",
+          "checks": [["Reboot", "sysctl values persist", "sysctl output"], ["Try to load the blacklisted module at boot", "Module not loaded", "lsmod output"], ["Check boot parameters", "New parameter in /proc/cmdline", "cat output"]],
+          "objectives": ["Manage kernel modules", "Tune with sysctl", "Set boot parameters"]
+        },
+        {
+          "topic": "Storage: RAID, Stratis and File System Tuning",
+          "subtopics": ["Software RAID with mdadm", "RAID levels and trade-offs", "Replacing a failed disk", "Stratis pools", "VDO for deduplication and compression", "XFS and ext4 options", "Quotas", "Monitoring disk health with smartctl"],
+          "tools": ["mdadm", "Stratis", "VDO", "smartctl"],
+          "lab_task": "Build a RAID 1 array, fail and replace a disk, create a Stratis pool with a snapshot, set user quotas and compare space saved with VDO.",
+          "deliverable": "Storage commands and results",
+          "checks": [["Fail a disk", "Array degraded and rebuilt after replacement", "mdadm output"], ["Exceed a quota", "Write refused", "Error output"], ["Measure VDO savings", "Space saved recorded", "vdostats output"]],
+          "objectives": ["Build RAID", "Use modern storage features", "Enforce quotas"]
+        },
+        {
+          "topic": "File Sharing with NFS and Samba",
+          "subtopics": ["NFS versions", "Exporting directories", "Mounting with autofs", "NFS security options", "Samba shares for Windows clients", "Samba users and permissions", "SELinux and firewall rules for sharing", "Troubleshooting mounts"],
+          "tools": ["NFS", "autofs", "Samba"],
+          "lab_task": "Export home directories over NFS and mount them on demand with autofs, share a team folder with Samba for Windows users and fix a permission problem on each.",
+          "deliverable": "Server and client configuration and test results",
+          "checks": [["Change to an automounted directory", "Mounted on access", "mount output"], ["Open the Samba share from Windows", "Files readable and writable by the group", "Screenshot"], ["Fix the NFS permission problem", "Cause found and fixed", "Troubleshooting notes"]],
+          "objectives": ["Share files with NFS", "Share with Windows clients", "Fix sharing problems"]
+        },
+        {
+          "topic": "DNS and DHCP Servers",
+          "subtopics": ["DNS concepts: zones, records and resolvers", "BIND configuration", "Forward and reverse zones", "Caching resolvers", "DHCP with Kea or ISC DHCP", "Reservations", "DNS and DHCP together", "Troubleshooting with dig"],
+          "tools": ["BIND", "Kea DHCP", "dig"],
+          "lab_task": "Run an authoritative zone and a caching resolver with BIND, serve DHCP with reservations and confirm clients get addresses and resolve names both ways.",
+          "deliverable": "Zone files, DHCP configuration and test output",
+          "checks": [["Resolve a name and its reverse", "Both answers correct", "dig output"], ["Boot a client", "Reserved address assigned", "DHCP lease log"], ["Change a record", "Update visible after the TTL", "dig output"]],
+          "objectives": ["Run DNS servers", "Run DHCP", "Troubleshoot name resolution"]
+        },
+        {
+          "topic": "Web Servers: Apache and Nginx",
+          "subtopics": ["Apache and Nginx compared", "Virtual hosts and server blocks", "TLS certificates with Let's Encrypt", "Reverse proxying to applications", "Load balancing upstreams", "Caching and compression", "Access and error logs", "Basic tuning"],
+          "tools": ["Apache httpd", "Nginx", "certbot"],
+          "lab_task": "Host two sites with TLS on Nginx, reverse proxy an application on Apache, load-balance two app servers and confirm failover when one stops.",
+          "deliverable": "Server configurations and test results",
+          "checks": [["Load both sites over HTTPS", "Valid certificates for each", "Browser screenshot"], ["Stop one app server", "Requests served by the other", "Access log"], ["Check compression", "Responses compressed", "curl headers"]],
+          "objectives": ["Configure web servers", "Use TLS", "Proxy and balance traffic"]
+        },
+        {
+          "topic": "Central Authentication with FreeIPA and Active Directory",
+          "subtopics": ["Why central identity", "LDAP and Kerberos concepts", "FreeIPA servers and clients", "SSSD", "Joining Linux to Active Directory with realmd", "Host-based access control", "Central sudo rules", "Troubleshooting logins"],
+          "tools": ["FreeIPA", "SSSD", "realmd"],
+          "lab_task": "Set up a FreeIPA server, enrol both servers, log in with central accounts, apply host-based access control and central sudo rules, and join a third server to Active Directory.",
+          "deliverable": "Enrolment steps, rules and login tests",
+          "checks": [["Log in with a central user", "Login works on every enrolled server", "Terminal output"], ["Log in where access is not allowed", "Refused by host-based access control", "Terminal output"], ["Log in with an AD account", "Login works on the AD-joined server", "Terminal output"]],
+          "objectives": ["Centralise identity", "Join directories", "Control access centrally"]
+        },
+        {
+          "topic": "sudo Policy, PAM and Login Controls",
+          "subtopics": ["sudoers design for teams", "Command aliases and restrictions", "sudo logging and session recording", "PAM architecture", "Password quality rules", "Account lockout with faillock", "Login time and access restrictions", "Testing changes without locking yourself out"],
+          "tools": ["sudo", "PAM", "faillock", "pwquality"],
+          "lab_task": "Write sudo rules for three teams with command aliases and logging, enforce password quality and lockout through PAM, and test with a second session open in case of mistakes.",
+          "deliverable": "sudoers files, PAM settings and test results",
+          "checks": [["Run an allowed command", "Allowed and logged", "sudo log"], ["Set a weak password", "Rejected by pwquality", "Terminal output"], ["Fail logins past the limit", "Account locked by faillock", "faillock output"]],
+          "objectives": ["Design sudo policies", "Configure PAM", "Control logins"]
+        },
+        {
+          "topic": "Server Hardening and Auditing",
+          "subtopics": ["Hardening standards: CIS and DISA STIG", "Removing unneeded services", "Secure SSH settings", "File integrity with AIDE", "auditd rules", "Searching audit logs with ausearch", "Scanning with OpenSCAP", "Keeping exceptions documented"],
+          "tools": ["OpenSCAP", "auditd", "AIDE"],
+          "lab_task": "Scan a server with OpenSCAP against a CIS profile, fix the findings, add audit rules for changes to sudoers and passwd, and detect a changed binary with AIDE.",
+          "deliverable": "Scan reports before and after, audit rules and AIDE report",
+          "checks": [["Re-run the scan", "Pass rate higher with exceptions documented", "OpenSCAP report"], ["Edit sudoers", "Change recorded by auditd", "ausearch output"], ["Change a binary", "AIDE reports the change", "AIDE report"]],
+          "objectives": ["Harden servers", "Audit changes", "Check file integrity"]
+        },
+        {
+          "topic": "Containers with Podman",
+          "subtopics": ["Containers compared with virtual machines", "Podman and rootless containers", "Images and registries", "Running and managing containers", "Volumes and SELinux labels", "Pods", "Running containers as systemd services with Quadlet", "Building images with Buildah"],
+          "tools": ["Podman", "Buildah", "Quadlet"],
+          "lab_task": "Run a rootless web app and database in a pod with persistent volumes, build a custom image with Buildah and run the pod as a systemd service that starts at boot.",
+          "deliverable": "Container definitions, image and service files",
+          "checks": [["Reboot", "Pod starts as a service", "systemctl output"], ["Recreate the database container", "Data kept in the volume", "Query result"], ["Check the user", "Containers run without root", "ps output"]],
+          "objectives": ["Run containers with Podman", "Build images", "Run containers as services"]
+        },
+        {
+          "topic": "Managing Many Servers with Ansible Playbooks",
+          "subtopics": ["Why configuration management", "Inventories", "Ad hoc commands", "Playbooks and modules", "Templates and handlers", "Roles", "Idempotence", "RHEL system roles"],
+          "tools": ["Ansible", "RHEL system roles"],
+          "lab_task": "Turn the beginner capstone build into an Ansible role that configures users, firewall, Nginx and backups, run it against three servers and show a second run makes no changes.",
+          "deliverable": "Inventory, role and run output",
+          "checks": [["Run the playbook on new servers", "Servers configured with no manual steps", "Ansible output"], ["Run it again", "No changes reported", "Ansible output"], ["Change a template", "Handler restarts only the affected service", "Ansible output"]],
+          "objectives": ["Automate with Ansible", "Write roles", "Keep runs idempotent"]
+        },
+        {
+          "topic": "Patch Management and Local Repositories",
+          "subtopics": ["Patch policies", "Errata and advisories", "Local mirrors", "Testing patches", "Rolling patches across servers", "Rebooting safely", "Kernel updates and rollback", "Reporting patch status"],
+          "tools": ["dnf", "reposync", "Red Hat Satellite or Foreman"],
+          "lab_task": "Mirror repositories locally, patch a test group first, roll patches across production in batches with reboots, roll back a bad kernel and report patch status across all servers.",
+          "deliverable": "Patch process, batch log and status report",
+          "checks": [["Patch in batches", "No more than one batch down at a time", "Patch log"], ["Roll back the kernel", "Server boots the previous kernel", "uname output"], ["Report patch status", "Missing advisories per server listed", "Status report"]],
+          "objectives": ["Patch servers safely", "Use local repositories", "Report compliance"]
+        },
+        {
+          "topic": "Backup and Disaster Recovery for Linux Servers",
+          "subtopics": ["Backup strategies", "Borg or restic for deduplicated backups", "Encrypting backups", "Application-consistent backups", "Bare-metal recovery with Relax-and-Recover", "Retention policies", "Restore testing", "Recovery runbooks"],
+          "tools": ["BorgBackup or restic", "Relax-and-Recover"],
+          "lab_task": "Back up a server with encrypted deduplicated backups and retention, create a bare-metal recovery image, destroy the server and rebuild it on a new VM.",
+          "deliverable": "Backup configuration, recovery image and rebuild log",
+          "checks": [["Rebuild from the recovery image", "Server boots with data and settings", "Rebuild log"], ["Check backup encryption", "Repository unreadable without the key", "Terminal output"], ["Apply retention", "Old archives pruned to the policy", "Backup list"]],
+          "objectives": ["Back up servers", "Recover whole servers", "Test recovery"]
+        },
+        {
+          "topic": "Central Logging and Log Analysis",
+          "subtopics": ["Why central logs", "rsyslog forwarding over TLS", "journald remote", "Structured logs", "Shipping logs to Loki or Elasticsearch", "Retention and storage", "Searching across servers", "Alerting on log patterns"],
+          "tools": ["rsyslog", "Loki", "Grafana"],
+          "lab_task": "Forward logs from all servers to a central rsyslog server over TLS and into Loki, search for failed logins across servers and alert on repeated sudo failures.",
+          "deliverable": "Logging configuration, queries and alert",
+          "checks": [["Log in with a bad password on one server", "Event visible centrally", "Loki query result"], ["Capture traffic between servers", "Logs encrypted in transit", "tcpdump output"], ["Fail sudo three times", "Alert fires", "Alert notification"]],
+          "objectives": ["Centralise logs", "Secure log transport", "Search and alert on logs"]
+        },
+        {
+          "topic": "Virtualisation with KVM and libvirt",
+          "subtopics": ["KVM and QEMU", "libvirt and virsh", "Creating VMs with virt-install", "Storage pools and volumes", "Virtual networks and bridges", "Snapshots", "Live migration", "Cockpit for management"],
+          "tools": ["KVM", "libvirt", "virsh", "Cockpit"],
+          "lab_task": "Turn a server into a KVM host, create two VMs on a bridged network, snapshot one before a change and roll back, and live-migrate a VM to a second host.",
+          "deliverable": "Host configuration, VM definitions and migration log",
+          "checks": [["Reach a VM from the LAN", "Bridged network works", "ping output"], ["Roll back the snapshot", "VM back to the earlier state", "VM check"], ["Live-migrate a running VM", "VM keeps running on the new host", "virsh output"]],
+          "objectives": ["Run virtual machines", "Manage networks and storage", "Migrate VMs"]
+        },
+        {
+          "topic": "RHCSA Certification Preparation",
+          "subtopics": ["Exam format and rules", "Exam objectives", "Time management in a practical exam", "Common mistakes: persistence and SELinux", "Practice: storage tasks", "Practice: users, permissions and services", "Practice: containers and networking", "Final review"],
+          "tools": ["RHEL 9 lab", "Practice exams"],
+          "lab_task": "Complete two timed practice exams on fresh servers, reboot after each to check persistence, review every failed task and repeat weak areas.",
+          "deliverable": "Two scored practice exams and a weak-areas list",
+          "checks": [["Reboot after the practice exam", "All changes persist", "Verification script output"], ["Score the first exam", "Score recorded by objective", "Score sheet"], ["Score the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the RHCSA exam", "Work fast and accurately", "Reach a passing score"]
+        },
+        {
+          "topic": "Intermediate Capstone: Secure Multi-Server Environment",
+          "subtopics": ["Design", "Build with automation", "Security and operations", "Recovery test"],
+          "tools": ["Ansible", "FreeIPA", "SELinux", "Podman", "Loki", "Relax-and-Recover"],
+          "lab_task": "Build a small company environment with Ansible: central identity, a web tier behind Nginx, containerised apps, NFS storage, DNS, central logging, hardening scans and backups, then recover a destroyed server and present it.",
+          "deliverable": "Ansible repository, scan reports, recovery evidence and presentation",
+          "checks": [["Rebuild a destroyed server", "Back in service from automation and backups", "Demo recording"], ["Run the hardening scan on all servers", "Pass rate at the agreed level", "OpenSCAP reports"], ["Present the environment", "Design and trade-offs explained", "Presentation feedback"]],
+          "objectives": ["Combine the intermediate topics in one environment", "Build securely with automation", "Prove recovery works"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior administrators, SREs and platform engineers. Covers kernel and system call tracing, performance engineering, eBPF, high availability clusters, advanced networking, container internals, crash dumps, golden images, identity at scale, compliance automation, live patching and fleet patching, Linux in the cloud, enterprise storage, systemd resource control, distribution upgrades, incident response, fleet monitoring, production troubleshooting and RHCE preparation.",
+      "prerequisites": ["Administers production Linux servers", "Uses Ansible, SELinux and performance tools", "Comfortable reading logs and kernel messages"],
+      "outcomes": ["Diagnose hard performance and kernel problems with tracing tools", "Build highly available, compliant and patched Linux fleets", "Run Linux well in clouds and containers", "Respond to incidents and lead Linux platform work"],
+      "days": [
+        {
+          "topic": "Tracing System Calls and Kernel Behaviour",
+          "subtopics": ["How user space talks to the kernel", "strace and ltrace", "perf for CPU profiling", "Flame graphs", "Kernel messages with dmesg", "/proc/<pid> in depth", "Tracing overhead", "Safe tracing in production"],
+          "tools": ["strace", "perf", "FlameGraph"],
+          "lab_task": "Find why a program is slow by tracing its system calls, profile a CPU-heavy service with perf, produce a flame graph and explain the top three hot functions.",
+          "deliverable": "Traces, flame graph and explanation",
+          "checks": [["Trace the slow program", "Blocking system call found", "strace output"], ["Produce a flame graph", "Hot functions visible", "Flame graph"], ["Measure tracing overhead", "Overhead recorded", "Timing comparison"]],
+          "objectives": ["Trace system calls", "Profile CPU use", "Trace safely"]
+        },
+        {
+          "topic": "Linux Performance Engineering: CPU, Memory and I/O",
+          "subtopics": ["CPU scheduling and the CFS and EEVDF schedulers", "CPU affinity and isolation", "NUMA", "Huge pages and transparent huge pages", "Page cache and dirty page tuning", "I/O schedulers", "Network stack tuning", "Benchmarking with fio and sysbench"],
+          "tools": ["fio", "sysbench", "numactl", "tuned"],
+          "lab_task": "Tune a database server: pin processes to NUMA nodes, configure huge pages, pick an I/O scheduler and dirty page settings with fio benchmarks, and show the gain under load.",
+          "deliverable": "Benchmark results and tuning changes",
+          "checks": [["Compare NUMA-pinned and unpinned runs", "Throughput difference measured", "sysbench output"], ["Compare I/O schedulers", "Latency recorded for each", "fio output"], ["Review the final settings", "Each change justified by a benchmark", "Tuning notes"]],
+          "objectives": ["Tune CPU, memory and I/O", "Benchmark properly", "Justify tuning"]
+        },
+        {
+          "topic": "eBPF Observability with bpftrace and BCC",
+          "subtopics": ["What eBPF is", "BCC tools", "bpftrace one-liners", "Tracing disk latency", "Tracing network connections", "Off-CPU analysis", "Writing small bpftrace scripts", "eBPF in production tools"],
+          "tools": ["bpftrace", "BCC", "bpftool"],
+          "lab_task": "Use BCC tools and bpftrace to find a process causing slow disk I/O, list new outbound connections, measure off-CPU time for a service and write a script for a custom metric.",
+          "deliverable": "Commands, scripts and findings",
+          "checks": [["Find the slow I/O process", "Process and latency histogram shown", "biolatency or bpftrace output"], ["List outbound connections", "Connections with process names", "tcpconnect output"], ["Run the custom script", "Metric printed every second", "Script output"]],
+          "objectives": ["Use eBPF tools", "Write bpftrace scripts", "Find hidden problems"]
+        },
+        {
+          "topic": "High Availability Clusters with Pacemaker and Corosync",
+          "subtopics": ["Cluster concepts", "Corosync membership and quorum", "Pacemaker resources and constraints", "Fencing with STONITH", "Floating IP addresses", "Shared and replicated storage", "Cluster maintenance", "Testing failover"],
+          "tools": ["Pacemaker", "Corosync", "pcs", "DRBD"],
+          "lab_task": "Build a three-node cluster running a floating IP, a web service and replicated storage with fencing, then fail nodes and the network and measure failover.",
+          "deliverable": "Cluster configuration and failover test results",
+          "checks": [["Power off the active node", "Services move and the time is recorded", "pcs status output"], ["Split the network", "Quorum and fencing prevent split brain", "Cluster logs"], ["Put a node in maintenance", "Resources moved with no outage", "Client log"]],
+          "objectives": ["Build HA clusters", "Configure fencing", "Test failover"]
+        },
+        {
+          "topic": "Advanced Networking: Bonding, VLANs, Bridges and nftables",
+          "subtopics": ["Bonding and teaming modes", "VLAN interfaces", "Linux bridges", "Network namespaces", "veth pairs", "nftables rules and sets", "Policy routing", "Packet capture with tcpdump"],
+          "tools": ["nmcli", "ip", "nftables", "tcpdump"],
+          "lab_task": "Configure a bonded uplink with VLANs and a bridge, build two network namespaces joined by veth pairs, write nftables rules with sets and route traffic by source with policy routing.",
+          "deliverable": "Network configuration, rules and captures",
+          "checks": [["Unplug one bonded link", "Traffic continues", "ping output"], ["Ping between namespaces", "Works only through the intended path", "tcpdump output"], ["Test nftables sets", "Blocked addresses dropped", "nft counters"]],
+          "objectives": ["Configure advanced networking", "Use namespaces", "Write nftables rules"]
+        },
+        {
+          "topic": "Container Internals: Namespaces and cgroups v2",
+          "subtopics": ["Namespaces: pid, net, mount, user and others", "cgroups v2 hierarchy", "CPU, memory and I/O controllers", "Building a container by hand with unshare", "Seccomp and capabilities", "Container runtimes: runc and crun", "OCI images", "Debugging containers from the host"],
+          "tools": ["unshare", "nsenter", "systemd-cgls", "crun"],
+          "lab_task": "Build a minimal container by hand with unshare and cgroups, limit its memory and CPU, drop capabilities and enter a running Podman container's namespaces from the host.",
+          "deliverable": "Commands and notes on each namespace and limit",
+          "checks": [["Exceed the memory limit", "Process killed by the OOM killer in its cgroup", "Kernel log"], ["Drop a capability", "Operation needing it fails", "Terminal output"], ["Enter a container with nsenter", "Container processes visible", "Terminal output"]],
+          "objectives": ["Explain how containers work", "Use cgroups v2", "Debug containers from the host"]
+        },
+        {
+          "topic": "Kernel Crash Dumps and Analysis",
+          "subtopics": ["Kernel panics and oops messages", "kdump configuration", "Testing kdump", "The crash utility", "Reading backtraces", "Hung task detection", "Watchdogs", "Working with vendors on kernel bugs"],
+          "tools": ["kdump", "crash", "sysrq"],
+          "lab_task": "Configure kdump, trigger a test crash, analyse the dump with crash to find the panic cause and backtrace, and set up hung task detection.",
+          "deliverable": "kdump configuration, dump analysis and notes",
+          "checks": [["Trigger a test crash", "vmcore saved", "Dump directory listing"], ["Analyse the dump", "Panic message and backtrace found", "crash output"], ["Cause a hung task", "Warning logged", "Kernel log"]],
+          "objectives": ["Capture kernel crashes", "Analyse dumps", "Detect hangs"]
+        },
+        {
+          "topic": "Golden Images and Immutable Builds",
+          "subtopics": ["Why golden images", "RHEL Image Builder", "Packer", "cloud-init", "Image testing", "Image versioning and promotion", "Immutable approaches: image mode and rpm-ostree", "Image security scanning"],
+          "tools": ["Image Builder", "Packer", "cloud-init", "OpenSCAP"],
+          "lab_task": "Build a hardened golden image with Image Builder and Packer, configure first boot with cloud-init, test and scan it, and promote it from test to production.",
+          "deliverable": "Image definitions, test results and promotion record",
+          "checks": [["Boot from the image", "cloud-init settings applied", "cloud-init log"], ["Scan the image", "Hardening profile passes", "OpenSCAP report"], ["Promote the image", "New version tagged for production", "Image registry"]],
+          "objectives": ["Build golden images", "Test images", "Version and promote images"]
+        },
+        {
+          "topic": "Identity and Access at Fleet Scale",
+          "subtopics": ["Identity design for thousands of servers", "FreeIPA replicas and topology", "AD trusts", "Certificates for hosts and services", "SSH certificates", "Just-in-time privileged access", "Session recording with tlog", "Access reviews"],
+          "tools": ["FreeIPA", "SSH certificates", "tlog"],
+          "lab_task": "Add FreeIPA replicas, create an AD trust, replace SSH keys with short-lived SSH certificates, record privileged sessions and run an access review.",
+          "deliverable": "Identity design, configuration and access review",
+          "checks": [["Log in with an expired SSH certificate", "Login refused", "Terminal output"], ["Play back a recorded session", "Commands visible", "Session recording"], ["Run the access review", "Unused privileged access removed", "Review report"]],
+          "objectives": ["Scale identity", "Use SSH certificates", "Record privileged access"]
+        },
+        {
+          "topic": "Compliance Automation at Scale",
+          "subtopics": ["Compliance frameworks and Linux controls", "OpenSCAP profiles and tailoring", "Remediation with Ansible", "Continuous compliance scanning", "Evidence collection", "Exceptions and risk acceptance", "Reporting to auditors", "Drift detection"],
+          "tools": ["OpenSCAP", "Ansible", "Red Hat Insights or Foreman"],
+          "lab_task": "Tailor a CIS profile, scan 20 servers, remediate with generated Ansible, schedule continuous scans with drift alerts and produce an auditor report with exceptions.",
+          "deliverable": "Tailored profile, remediation playbook, reports and exception register",
+          "checks": [["Re-scan after remediation", "Fleet pass rate at the target", "Scan reports"], ["Introduce drift", "Drift alert raised", "Alert notification"], ["Review the auditor report", "Evidence and exceptions included", "Report"]],
+          "objectives": ["Automate compliance", "Remediate at scale", "Report to auditors"]
+        },
+        {
+          "topic": "Live Patching and Fleet Patching Strategy",
+          "subtopics": ["Patching at fleet scale", "Maintenance windows and rings", "kpatch and live kernel patching", "Canary groups", "Automated reboots and draining", "Measuring patch latency", "Emergency patching for critical CVEs", "Reporting and SLAs"],
+          "tools": ["kpatch", "Ansible", "Red Hat Satellite or Foreman"],
+          "lab_task": "Design a ring-based patch process, apply a live kernel patch without rebooting, roll an emergency CVE fix across the fleet in under four hours and report patch latency.",
+          "deliverable": "Patch process, live patch evidence and latency report",
+          "checks": [["Apply the live patch", "Fix active without reboot", "kpatch list output"], ["Run the emergency rollout", "Fleet patched within the time limit", "Rollout log"], ["Report patch latency", "Days from release to patch per ring", "Latency report"]],
+          "objectives": ["Patch fleets", "Use live patching", "Measure patch performance"]
+        },
+        {
+          "topic": "Linux in the Cloud: AWS and Azure",
+          "subtopics": ["Cloud images and instance types", "cloud-init in depth", "Instance metadata and its security", "Cloud storage for Linux: EBS, managed disks and file services", "Cloud networking from inside the VM", "Agents: SSM and Azure guest agents", "Serial console and recovery in the cloud", "Cost and right-sizing"],
+          "tools": ["AWS EC2", "Azure Virtual Machines", "cloud-init", "AWS Systems Manager"],
+          "lab_task": "Launch Linux on AWS and Azure from the golden image, require IMDSv2, manage instances through Systems Manager without SSH, recover an instance with a broken fstab through the serial console and right-size from metrics.",
+          "deliverable": "Launch configuration, recovery notes and right-sizing report",
+          "checks": [["Query metadata without a token", "Request refused with IMDSv2 required", "curl output"], ["Run a command through Systems Manager", "Command runs with no SSH open", "Run command output"], ["Recover the broken instance", "Instance boots after serial console fix", "Console log"]],
+          "objectives": ["Run Linux in clouds", "Secure instance metadata", "Recover cloud instances"]
+        },
+        {
+          "topic": "Enterprise Storage: iSCSI, Multipath and Ceph Clients",
+          "subtopics": ["SAN concepts", "iSCSI targets and initiators", "Device mapper multipath", "Persistent device naming", "Ceph RBD and CephFS clients", "Clustered file systems in brief", "Storage performance testing", "Storage failure handling"],
+          "tools": ["targetcli", "iscsiadm", "multipath", "Ceph clients"],
+          "lab_task": "Connect a server to iSCSI storage over two paths with multipath, fail a path under load, mount Ceph RBD and CephFS and compare performance with fio.",
+          "deliverable": "Storage configuration, failover test and performance results",
+          "checks": [["Fail one path under load", "I/O continues on the other path", "multipath output"], ["Reboot", "Devices keep the same names", "lsblk output"], ["Compare storage", "fio results for each type", "Comparison table"]],
+          "objectives": ["Use SAN storage", "Configure multipath", "Use Ceph clients"]
+        },
+        {
+          "topic": "systemd in Depth: Resource Control and Sandboxing",
+          "subtopics": ["Unit types and dependencies", "Drop-in overrides", "Resource control with slices", "Sandboxing options: ProtectSystem, PrivateTmp and others", "systemd-analyze security", "Socket activation", "Journald tuning at scale", "Boot time analysis"],
+          "tools": ["systemd", "systemd-analyze", "journalctl"],
+          "lab_task": "Harden three services with sandboxing until systemd-analyze security scores them low risk, limit a batch job's CPU and memory with a slice and reduce boot time with systemd-analyze.",
+          "deliverable": "Unit overrides, security scores and boot time comparison",
+          "checks": [["Run systemd-analyze security", "Scores lower after hardening", "Command output"], ["Run the batch job", "Limits enforced by the slice", "systemd-cgtop output"], ["Compare boot time", "Faster boot recorded", "systemd-analyze output"]],
+          "objectives": ["Use systemd deeply", "Sandbox services", "Control resources"]
+        },
+        {
+          "topic": "Distribution Upgrades and Migrations",
+          "subtopics": ["Upgrade paths: RHEL 8 to 9 and Ubuntu releases", "Leapp", "In-place versus rebuild", "Migrating from CentOS to Rocky or RHEL", "Pre-upgrade checks", "Application testing", "Rollback with snapshots", "Planning fleet upgrades"],
+          "tools": ["Leapp", "convert2rhel or migrate2rocky", "LVM snapshots"],
+          "lab_task": "Upgrade a RHEL 8 server to RHEL 9 with Leapp after fixing the pre-upgrade report, migrate a CentOS server to Rocky Linux and roll back one upgrade with a snapshot.",
+          "deliverable": "Pre-upgrade reports, upgrade logs and fleet plan",
+          "checks": [["Run the Leapp pre-upgrade", "Inhibitors listed and fixed", "Leapp report"], ["Upgrade", "Server on RHEL 9 with applications working", "Test results"], ["Roll back", "Server restored to the earlier version", "Version output"]],
+          "objectives": ["Upgrade distributions", "Migrate between distributions", "Plan fleet upgrades"]
+        },
+        {
+          "topic": "Security Incident Response on Linux",
+          "subtopics": ["Signs of compromise", "Live response: processes, connections and persistence", "Collecting evidence safely", "Checking packages with rpm -V", "Rootkit checks", "Containment", "Rebuilding instead of cleaning", "Post-incident lessons"],
+          "tools": ["rpm -V", "auditd", "chkrootkit", "tcpdump"],
+          "lab_task": "Investigate a compromised lab server: find the malicious process, its network connection and persistence, collect evidence, contain the host and write the incident report.",
+          "deliverable": "Evidence log, findings and incident report",
+          "checks": [["Find persistence", "Cron job, unit or key added by the attacker found", "Findings"], ["Verify packages", "Modified binaries identified", "rpm -V output"], ["Write the report", "Timeline, impact and actions recorded", "Incident report"]],
+          "objectives": ["Detect compromise", "Collect evidence", "Contain and recover"]
+        },
+        {
+          "topic": "Monitoring Linux Fleets",
+          "subtopics": ["What to monitor on Linux servers", "node_exporter and Prometheus", "Grafana dashboards for hosts", "Alerting on symptoms", "Log and metric correlation", "Capacity trends", "Monitoring agents at scale", "Alert runbooks"],
+          "tools": ["node_exporter", "Prometheus", "Grafana", "Alertmanager"],
+          "lab_task": "Deploy node_exporter to the fleet with Ansible, build host dashboards, write alerts for disk, memory, load and failed units with runbooks and trigger each alert.",
+          "deliverable": "Deployment playbook, dashboards, alert rules and runbooks",
+          "checks": [["Fill a disk", "Disk alert fires with a runbook link", "Alertmanager notification"], ["Fail a systemd unit", "Failed unit alert fires", "Alertmanager notification"], ["View the fleet dashboard", "Every server reporting", "Dashboard screenshot"]],
+          "objectives": ["Monitor Linux fleets", "Alert on symptoms", "Write runbooks"]
+        },
+        {
+          "topic": "Troubleshooting Production Linux Incidents",
+          "subtopics": ["An incident method", "High load with no obvious cause", "Out-of-memory kills", "Disks full of deleted files", "DNS and network timeouts", "File descriptor and process limits", "Clock drift", "Post-incident reviews"],
+          "tools": ["journalctl", "perf", "bpftrace", "ss", "lsof"],
+          "lab_task": "Diagnose five injected incidents (an OOM kill loop, a disk full of deleted files, file descriptor exhaustion, intermittent DNS timeouts and clock drift), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix the OOM loop", "Cause found and memory limits set", "Kernel log and fix notes"], ["Fix descriptor exhaustion", "Limit raised and the leak reported", "Terminal output"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose production incidents", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "RHCE Certification Preparation",
+          "subtopics": ["Exam format and objectives", "Ansible control node and inventories", "Playbooks, roles and collections", "Vault and secrets", "System roles", "Managing content with Ansible", "Timed practice", "Final review"],
+          "tools": ["Ansible", "RHEL 9 lab", "Practice exams"],
+          "lab_task": "Complete two timed RHCE practice exams writing playbooks against fresh managed nodes, review failed tasks and repeat weak areas.",
+          "deliverable": "Two scored practice exams and a weak-areas list",
+          "checks": [["Re-run every playbook", "Idempotent with no changes", "Ansible output"], ["Score the first exam", "Score recorded by objective", "Score sheet"], ["Score the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the RHCE exam", "Automate under time pressure", "Reach a passing score"]
+        },
+        {
+          "topic": "Advanced Capstone: Production Linux Platform",
+          "subtopics": ["Design", "Build and harden", "Operate and observe", "Game day"],
+          "tools": ["Image Builder", "Ansible", "Pacemaker", "OpenSCAP", "Prometheus", "kpatch"],
+          "lab_task": "Design and build a Linux platform for a payments service: golden images, central identity, an HA cluster, compliance automation, fleet monitoring, patch rings and backups, then run a game day with node failure, an emergency CVE and a security incident.",
+          "deliverable": "Architecture records, automation repository, game day report and review presentation",
+          "checks": [["Fail a cluster node in the game day", "Service continues within the target", "Game day report"], ["Roll out the emergency CVE fix", "Fleet patched within the time limit", "Rollout log"], ["Present to the review board", "Design choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run Linux at production standard", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}

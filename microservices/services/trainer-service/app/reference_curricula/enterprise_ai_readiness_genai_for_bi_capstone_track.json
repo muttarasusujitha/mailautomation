@@ -1,0 +1,1300 @@
+{
+  "name": "Enterprise AI Readiness (GenAI for BI Capstone Track)",
+  "audience": "Non-technical execution staff and mixed departmental teams with Tableau and Power BI proficiency",
+  "version": "reference-import-v2",
+  "source_file": "Execution_Plan_Enterprise_AI_Readiness (1).xlsx",
+  "source_sha256": "a1bdc7a153ca60678e2828db1a77625a19468c23533c22ea843abd23791432b3",
+  "review_status": "unreviewed",
+  "review_warnings": [
+    "Overview duration is 2 days; detailed schedule contains 4 days. Resolve before reuse."
+  ],
+  "usage": "Reference examples only; original client brief and subject-matter approval not supplied.",
+  "modules": [
+    {
+      "topic": "F1 - Introduction to GenAI",
+      "code": "F1",
+      "reference_day": 1,
+      "minutes": 90,
+      "subtopics": [
+        "Explain the difference between core AI, GenAI and agentic AI, and choose the right one for a BI automation problem.",
+        "Classify the request as core AI, GenAI or agentic and list what each approach would need.",
+        "Decide why this is a GenAI fit and what data and guardrails it needs.",
+        "Compare a manual approach with an agentic one and note where AI should not be used."
+      ],
+      "learning_objectives": [
+        "Explain the difference between core AI, GenAI and agentic AI, and choose the right one for a BI automation problem."
+      ],
+      "lab": "Classify sample BI automation requests and discuss the choice.",
+      "deliverable": "Use-case selection matrix",
+      "assessment": "Foundations check at 70% or above",
+      "scenarios": [
+        {
+          "id": "F1.1",
+          "situation": "An operations team asks for an AI-powered dashboard without saying what it should do.",
+          "activity": "Classify the request as core AI, GenAI or agentic and list what each approach would need.",
+          "outcome": "Clear choice of approach before any build starts.",
+          "evidence": "Classification agreed and documented."
+        },
+        {
+          "id": "F1.2",
+          "situation": "A manager wants weekly commentary written automatically on the sales dashboard.",
+          "activity": "Decide why this is a GenAI fit and what data and guardrails it needs.",
+          "outcome": "A scoped, realistic GenAI use case.",
+          "evidence": "Use-case card completed."
+        },
+        {
+          "id": "F1.3",
+          "situation": "A backlog of dashboards must be moved between platforms.",
+          "activity": "Compare a manual approach with an agentic one and note where AI should not be used.",
+          "outcome": "Balanced view of when agents help.",
+          "evidence": "Comparison table with reasons."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A5:K5",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Explain the difference between core AI, GenAI and agentic AI, and choose the right one for a BI automation problem.; Classify the request as core AI, GenAI or agentic and list what each approach would need.; Decide why this is a GenAI fit and what data and guardrails it needs.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Classify sample BI automation requests and discuss the choice.",
+          "evidence": "Use-case selection matrix"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Foundations check at 70% or above",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "F2 - Machine Learning Fundamentals (Refresher) [Optional]",
+      "code": "F2",
+      "reference_day": 1,
+      "minutes": 45,
+      "subtopics": [
+        "Describe in plain language how a neural network learns and where ML sits relative to GenAI.",
+        "Explain it in plain language using a simple diagram.",
+        "Decide which approach fits and why."
+      ],
+      "learning_objectives": [
+        "Describe in plain language how a neural network learns and where ML sits relative to GenAI."
+      ],
+      "lab": "Guided walkthrough of a small neural network.",
+      "deliverable": "Reference sheet",
+      "assessment": "Covered in the foundations check if delivered",
+      "scenarios": [
+        {
+          "id": "F2.1",
+          "situation": "A business sponsor asks how a neural network learns.",
+          "activity": "Explain it in plain language using a simple diagram.",
+          "outcome": "Participants can talk to sponsors without jargon.",
+          "evidence": "Peer explanation understood by a non-technical listener."
+        },
+        {
+          "id": "F2.2",
+          "situation": "A forecasting need comes in and the team is unsure whether ML or GenAI applies.",
+          "activity": "Decide which approach fits and why.",
+          "outcome": "Right tool for the problem.",
+          "evidence": "Decision noted in the use-case matrix."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A6:K6",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Describe in plain language how a neural network learns and where ML sits relative to GenAI.; Explain it in plain language using a simple diagram.; Decide which approach fits and why.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Guided walkthrough of a small neural network.",
+          "evidence": "Reference sheet"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Covered in the foundations check if delivered",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "F3 - Prompt Engineering",
+      "code": "F3",
+      "reference_day": 1,
+      "minutes": 60,
+      "subtopics": [
+        "Write role-based, few-shot, chain-of-thought and constraint-based prompts that turn a stakeholder brief into usable requirements.",
+        "Use RCCO to draft clarifying questions and a first specification.",
+        "Add constraints and a few-shot example to stabilise output.",
+        "Use chain-of-thought prompting to explain the logic before writing the formula."
+      ],
+      "learning_objectives": [
+        "Write role-based, few-shot, chain-of-thought and constraint-based prompts that turn a stakeholder brief into usable requirements."
+      ],
+      "lab": "Practise each prompt style on a sample business brief.",
+      "deliverable": "RCCO prompt card",
+      "assessment": "Prompt produces a usable structured requirement on the sample brief",
+      "scenarios": [
+        {
+          "id": "F3.1",
+          "situation": "A stakeholder says 'show me sales performance' and nothing else.",
+          "activity": "Use RCCO to draft clarifying questions and a first specification.",
+          "outcome": "Vague requests become clear requirements.",
+          "evidence": "Specification covers measures, dimensions and filters."
+        },
+        {
+          "id": "F3.2",
+          "situation": "The same prompt gives different chart choices each time.",
+          "activity": "Add constraints and a few-shot example to stabilise output.",
+          "outcome": "Predictable results.",
+          "evidence": "Three runs produce the same structure."
+        },
+        {
+          "id": "F3.3",
+          "situation": "A calculation is complex and the logic is unclear.",
+          "activity": "Use chain-of-thought prompting to explain the logic before writing the formula.",
+          "outcome": "Logic can be checked before it is used.",
+          "evidence": "Explanation matches the intended calculation."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A7:K7",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Write role-based, few-shot, chain-of-thought and constraint-based prompts that turn a stakeholder brief into usable requirements.; Use RCCO to draft clarifying questions and a first specification.; Add constraints and a few-shot example to stabilise output.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Practise each prompt style on a sample business brief.",
+          "evidence": "RCCO prompt card"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Prompt produces a usable structured requirement on the sample brief",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "F4 - LLM Fundamentals [Optional]",
+      "code": "F4",
+      "reference_day": 1,
+      "minutes": 60,
+      "subtopics": [
+        "Explain why LLMs behave as they do, including tokens, embeddings and training versus inference parameters.",
+        "Change inference parameters and observe the effect.",
+        "Explore tokens and chunking and decide how to split it."
+      ],
+      "learning_objectives": [
+        "Explain why LLMs behave as they do, including tokens, embeddings and training versus inference parameters."
+      ],
+      "lab": "Demonstrations of tokenisation, embeddings and parameter changes.",
+      "deliverable": "Reference sheet",
+      "assessment": "Covered in the foundations check if delivered",
+      "scenarios": [
+        {
+          "id": "F4.1",
+          "situation": "The same prompt returns different answers on different runs.",
+          "activity": "Change inference parameters and observe the effect.",
+          "outcome": "Participants know how to make output steadier.",
+          "evidence": "Result variation reduced on the sample."
+        },
+        {
+          "id": "F4.2",
+          "situation": "A long requirements document does not fit in one prompt.",
+          "activity": "Explore tokens and chunking and decide how to split it.",
+          "outcome": "Practical handling of long inputs.",
+          "evidence": "Split plan that preserves meaning."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A8:K8",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Explain why LLMs behave as they do, including tokens, embeddings and training versus inference parameters.; Change inference parameters and observe the effect.; Explore tokens and chunking and decide how to split it.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Demonstrations of tokenisation, embeddings and parameter changes.",
+          "evidence": "Reference sheet"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Covered in the foundations check if delivered",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "F5 - Baseline RAG Application Development",
+      "code": "F5",
+      "reference_day": 1,
+      "minutes": 90,
+      "subtopics": [
+        "Build a baseline RAG pipeline that retrieves the right Tableau and DAX syntax reference.",
+        "Retrieve the right reference from indexed documentation and use it in the prompt.",
+        "Run the translation with and without RAG and compare.",
+        "Choose prompting, RAG or fine-tuning for each and justify."
+      ],
+      "learning_objectives": [
+        "Build a baseline RAG pipeline that retrieves the right Tableau and DAX syntax reference."
+      ],
+      "lab": "Chunk, embed and index syntax documentation, then run similarity search.",
+      "deliverable": "Working retrieval pipeline",
+      "assessment": "Pipeline returns the correct reference for sample queries",
+      "scenarios": [
+        {
+          "id": "F5.1",
+          "situation": "A user needs the correct DAX for a time-intelligence measure.",
+          "activity": "Retrieve the right reference from indexed documentation and use it in the prompt.",
+          "outcome": "Accurate syntax without manual searching.",
+          "evidence": "Retrieved reference matches the correct function."
+        },
+        {
+          "id": "F5.2",
+          "situation": "A Tableau function must be translated to Power BI.",
+          "activity": "Run the translation with and without RAG and compare.",
+          "outcome": "Evidence that retrieval improves accuracy.",
+          "evidence": "Side-by-side accuracy comparison."
+        },
+        {
+          "id": "F5.3",
+          "situation": "Three different needs come up: brand tone, live syntax lookup, and a specialised style.",
+          "activity": "Choose prompting, RAG or fine-tuning for each and justify.",
+          "outcome": "Right technique for each need.",
+          "evidence": "Choices reviewed and explained."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A9:K9",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Build a baseline RAG pipeline that retrieves the right Tableau and DAX syntax reference.; Retrieve the right reference from indexed documentation and use it in the prompt.; Run the translation with and without RAG and compare.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Chunk, embed and index syntax documentation, then run similarity search.",
+          "evidence": "Working retrieval pipeline"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Pipeline returns the correct reference for sample queries",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "F6 - Foundations Wrap & Segue to Capstones",
+      "code": "F6",
+      "reference_day": 1,
+      "minutes": 60,
+      "subtopics": [
+        "Link GenAI, prompting and RAG concepts to the two capstone agents and confirm the build environment works.",
+        "Trace it end to end on paper, noting where each concept is used.",
+        "Each participant runs a smoke test on the capstone environment."
+      ],
+      "learning_objectives": [
+        "Link GenAI, prompting and RAG concepts to the two capstone agents and confirm the build environment works."
+      ],
+      "lab": "Consolidation exercise and a tour of the capstone build environment.",
+      "deliverable": "Capstone readiness checklist",
+      "assessment": "Every participant passes an environment smoke test",
+      "scenarios": [
+        {
+          "id": "F6.1",
+          "situation": "A sample requirement must flow through both capstone agents.",
+          "activity": "Trace it end to end on paper, noting where each concept is used.",
+          "outcome": "Foundations tied to the builds.",
+          "evidence": "Trace diagram completed."
+        },
+        {
+          "id": "F6.2",
+          "situation": "Access problems in the build environment can stall Day 2.",
+          "activity": "Each participant runs a smoke test on the capstone environment.",
+          "outcome": "Everyone ready to build.",
+          "evidence": "All smoke tests pass or issues logged."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A10:K10",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Link GenAI, prompting and RAG concepts to the two capstone agents and confirm the build environment works.; Trace it end to end on paper, noting where each concept is used.; Each participant runs a smoke test on the capstone environment.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Consolidation exercise and a tour of the capstone build environment.",
+          "evidence": "Capstone readiness checklist"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Every participant passes an environment smoke test",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "M1 - Anatomy of the Modern AI Stack for BI Agents",
+      "code": "M1",
+      "reference_day": 2,
+      "minutes": 90,
+      "subtopics": [
+        "Explain how LLMs, RAG and knowledge graphs each support a BI agent and sketch both capstone architectures.",
+        "Decide when a knowledge graph helps compared with RAG.",
+        "Draw its components and data flow.",
+        "Draw its architecture and mark where human review sits."
+      ],
+      "learning_objectives": [
+        "Explain how LLMs, RAG and knowledge graphs each support a BI agent and sketch both capstone architectures."
+      ],
+      "lab": "Draw the requirements-to-dashboard and migration agent architectures.",
+      "deliverable": "Agent architecture maps",
+      "assessment": "Architecture diagrams reviewed by the trainer",
+      "scenarios": [
+        {
+          "id": "M1.1",
+          "situation": "Metric definitions and their relationships must be looked up reliably.",
+          "activity": "Decide when a knowledge graph helps compared with RAG.",
+          "outcome": "Right component for each job.",
+          "evidence": "Component choice justified."
+        },
+        {
+          "id": "M1.2",
+          "situation": "The team needs a design for the requirements-to-dashboard agent.",
+          "activity": "Draw its components and data flow.",
+          "outcome": "Shared design for Capstone 1.",
+          "evidence": "Diagram reviewed by the trainer."
+        },
+        {
+          "id": "M1.3",
+          "situation": "The migration agent has steps where an error would be costly.",
+          "activity": "Draw its architecture and mark where human review sits.",
+          "outcome": "Human checks placed deliberately.",
+          "evidence": "Review points marked on the diagram."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A11:K11",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Explain how LLMs, RAG and knowledge graphs each support a BI agent and sketch both capstone architectures.; Decide when a knowledge graph helps compared with RAG.; Draw its components and data flow.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Draw the requirements-to-dashboard and migration agent architectures.",
+          "evidence": "Agent architecture maps"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Architecture diagrams reviewed by the trainer",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "M2 - Structuring Data and Semantic Models for AI-Driven BI",
+      "code": "M2",
+      "reference_day": 2,
+      "minutes": 105,
+      "subtopics": [
+        "Fact grain versus dimension attributes",
+        "Unique keys and one-to-many relationships",
+        "Fan-out and double-counted measures",
+        "Business glossary and schema metadata",
+        "AI-readable schema with explicit unknowns"
+      ],
+      "learning_objectives": [
+        "Identify the join that inflates sales from 200 to 300",
+        "Describe grain, keys and cardinalities without inventing missing business definitions",
+        "Reject a generated schema that allows the demonstrated double count"
+      ],
+      "lab": "Use three order lines worth 100, 60 and 40 and a product-tag table that duplicates the first line under a naive join. Inspect the resulting 300 total against the correct 200 baseline. Create a grain and relationship map and a JSON metadata description with table keys, relationship cardinalities, measure definitions and unresolved questions. Review an intentionally incorrect AI-produced schema.",
+      "deliverable": "Relationship diagram, JSON schema description and reconciliation of 300 incorrect versus 200 correct sales",
+      "assessment": "The submitted model reproduces the 200 baseline. Its metadata names order-line grain and the product-tag multiplicity. The review identifies the seeded relationship error and records unknown KPI definitions as questions rather than invented values.",
+      "scenarios": [
+        {
+          "id": "M2.1",
+          "situation": "A Tableau data source joins several tables and totals double count.",
+          "activity": "Document the grain and relationships so the agent avoids double counting.",
+          "outcome": "Correct numbers on generated dashboards.",
+          "evidence": "Grain and join notes match the sample data."
+        },
+        {
+          "id": "M2.2",
+          "situation": "A Power BI model uses a star schema.",
+          "activity": "Represent its tables and relationships in an AI-readable schema.",
+          "outcome": "Agent understands the model.",
+          "evidence": "Schema round-trips to the original model."
+        },
+        {
+          "id": "M2.3",
+          "situation": "Field names are cryptic and lookups return poor results.",
+          "activity": "Add a business glossary and field descriptions to the metadata.",
+          "outcome": "Better retrieval and better generated logic.",
+          "evidence": "Lookup accuracy improves on sample queries."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A12:K12",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "minutes": 20,
+          "method": "Demonstration",
+          "activity": "Show the naive join and inflated aggregate",
+          "evidence": "300 versus 200 reconciliation"
+        },
+        {
+          "minutes": 40,
+          "method": "Guided lab",
+          "activity": "Map grain, keys and relationships",
+          "evidence": "Reviewed relationship diagram"
+        },
+        {
+          "minutes": 30,
+          "method": "Independent exercise",
+          "activity": "Correct generated metadata and list unknowns",
+          "evidence": "JSON metadata and questions"
+        },
+        {
+          "minutes": 15,
+          "method": "Assessment",
+          "activity": "Recompute total and defend relationship choices",
+          "evidence": "200 baseline with explanation"
+        }
+      ],
+      "delivery_basis": "Authored scenario and acceptance checks; sample assets must be prepared before delivery",
+      "proposed_fields": [
+        "delivery_steps",
+        "subtopics",
+        "scenario",
+        "lab",
+        "deliverable",
+        "learning_objectives",
+        "assessment",
+        "prerequisites",
+        "preparation_requirements",
+        "source_urls",
+        "minutes"
+      ],
+      "preparation_requirements": [
+        "Prepare order-line, product and product-tag tables plus the deliberately incorrect schema",
+        "Provide a working BI environment and metadata skeleton; AI-generated metadata must be checked against the supplied tables"
+      ],
+      "original_reference_content": {
+        "subtopics": [
+          "Describe a Tableau or Power BI semantic model (sources, relationships, grain) in a form an AI agent can use.",
+          "Document the grain and relationships so the agent avoids double counting.",
+          "Represent its tables and relationships in an AI-readable schema.",
+          "Add a business glossary and field descriptions to the metadata."
+        ],
+        "scenario": null,
+        "lab": "Map a sample semantic layer to an AI-readable schema and prepare metadata.",
+        "deliverable": "AI-readable schema and metadata",
+        "learning_objectives": [
+          "Describe a Tableau or Power BI semantic model (sources, relationships, grain) in a form an AI agent can use."
+        ],
+        "assessment": "Schema captures joins, grain and relationships of the sample dataset",
+        "prerequisites": null,
+        "preparation_requirements": [
+          "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+        ],
+        "source_urls": null
+      },
+      "scenario": "An AI-generated sales model joins product tags directly to order lines, doubling the value of one order. The team must describe a semantic model that prevents the error.",
+      "prerequisites": [
+        "Power BI or Tableau relationships and basic sales measures"
+      ],
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/power-bi/guidance/star-schema"
+      ],
+      "duration_basis": "Proposed pilot teaching budget; trainer feasibility review required",
+      "content_quality_stage": "authored_pilot_pending_lab_validation",
+      "review_status": "unreviewed"
+    },
+    {
+      "topic": "M3 - Prompt Engineering for Requirements Elicitation",
+      "code": "M3",
+      "reference_day": 2,
+      "minutes": 90,
+      "subtopics": [
+        "Convert a stakeholder brief into a schema-constrained dashboard specification using the RCCO framework.",
+        "Convert it into a structured JSON dashboard specification.",
+        "Prompt the model to surface the conflict rather than pick one silently.",
+        "Constrain the prompt to the real schema."
+      ],
+      "learning_objectives": [
+        "Convert a stakeholder brief into a schema-constrained dashboard specification using the RCCO framework."
+      ],
+      "lab": "Apply RCCO prompting and reduce hallucination with constraints.",
+      "deliverable": "Structured dashboard specification",
+      "assessment": "Specification validates against the schema and covers the brief",
+      "scenarios": [
+        {
+          "id": "M3.1",
+          "situation": "A stakeholder brief arrives as an email.",
+          "activity": "Convert it into a structured JSON dashboard specification.",
+          "outcome": "Brief turned into a machine-usable spec.",
+          "evidence": "Specification validates against the schema."
+        },
+        {
+          "id": "M3.2",
+          "situation": "Two stakeholders define a KPI differently.",
+          "activity": "Prompt the model to surface the conflict rather than pick one silently.",
+          "outcome": "Conflicts resolved with the business.",
+          "evidence": "Conflict listed with both definitions."
+        },
+        {
+          "id": "M3.3",
+          "situation": "The model invents fields that do not exist.",
+          "activity": "Constrain the prompt to the real schema.",
+          "outcome": "No made-up fields in the spec.",
+          "evidence": "Every field in the spec exists in the schema."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A13:K13",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Convert a stakeholder brief into a schema-constrained dashboard specification using the RCCO framework.; Convert it into a structured JSON dashboard specification.; Prompt the model to surface the conflict rather than pick one silently.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Apply RCCO prompting and reduce hallucination with constraints.",
+          "evidence": "Structured dashboard specification"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Specification validates against the schema and covers the brief",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "M4 - LLM Agents, Tool Use & Structured Output",
+      "code": "M4",
+      "reference_day": 2,
+      "minutes": 75,
+      "subtopics": [
+        "Build an agent that calls the Tableau and Power BI APIs with structured output and recovers from errors.",
+        "Implement a 'list data sources' tool and let the agent choose.",
+        "Add retry and fallback behaviour.",
+        "Add validation and a self-correction loop."
+      ],
+      "learning_objectives": [
+        "Build an agent that calls the Tableau and Power BI APIs with structured output and recovers from errors."
+      ],
+      "lab": "Implement function calling, JSON-schema output and a self-correction loop.",
+      "deliverable": "Agent skeleton that calls platform APIs",
+      "assessment": "Agent completes a sample tool-call sequence on both platforms",
+      "scenarios": [
+        {
+          "id": "M4.1",
+          "situation": "The agent must pick the correct data source from a list.",
+          "activity": "Implement a 'list data sources' tool and let the agent choose.",
+          "outcome": "Agent acts on real platform data.",
+          "evidence": "Correct source selected on the sample."
+        },
+        {
+          "id": "M4.2",
+          "situation": "A platform call fails because of a timeout or expired sign-in.",
+          "activity": "Add retry and fallback behaviour.",
+          "outcome": "Agent recovers instead of stopping.",
+          "evidence": "Simulated failure is handled."
+        },
+        {
+          "id": "M4.3",
+          "situation": "The model returns output that breaks the required schema.",
+          "activity": "Add validation and a self-correction loop.",
+          "outcome": "Reliable structured output.",
+          "evidence": "Invalid output is corrected automatically."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A14:K14",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Build an agent that calls the Tableau and Power BI APIs with structured output and recovers from errors.; Implement a 'list data sources' tool and let the agent choose.; Add retry and fallback behaviour.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement function calling, JSON-schema output and a self-correction loop.",
+          "evidence": "Agent skeleton that calls platform APIs"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Agent completes a sample tool-call sequence on both platforms",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "M5 - Predictive and Prescriptive Analytics Core (retained)",
+      "code": "M5",
+      "reference_day": 3,
+      "minutes": 90,
+      "subtopics": [
+        "Separate predictive from prescriptive questions and define rules for automated mitigation recommendations.",
+        "Frame the question as predictive, then as prescriptive.",
+        "Write an if-then rule that recommends a mitigation.",
+        "List the measures and fields the agent must produce."
+      ],
+      "learning_objectives": [
+        "Separate predictive from prescriptive questions and define rules for automated mitigation recommendations."
+      ],
+      "lab": "Interpret historical data and write recommendation rules.",
+      "deliverable": "Recommendation rule set",
+      "assessment": "Rules applied correctly to the sample data",
+      "scenarios": [
+        {
+          "id": "M5.1",
+          "situation": "System history shows rising service-level breaches.",
+          "activity": "Frame the question as predictive, then as prescriptive.",
+          "outcome": "Clear difference between forecasting and recommending.",
+          "evidence": "Both framings written for the sample."
+        },
+        {
+          "id": "M5.2",
+          "situation": "The business wants automated recommendations when a threshold is crossed.",
+          "activity": "Write an if-then rule that recommends a mitigation.",
+          "outcome": "Actionable recommendations from data.",
+          "evidence": "Rule triggers correctly on sample data."
+        },
+        {
+          "id": "M5.3",
+          "situation": "Dashboards need to support these insights.",
+          "activity": "List the measures and fields the agent must produce.",
+          "outcome": "Analytics needs feed the dashboard spec.",
+          "evidence": "Measure list added to the specification."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A15:K15",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Separate predictive from prescriptive questions and define rules for automated mitigation recommendations.; Frame the question as predictive, then as prescriptive.; Write an if-then rule that recommends a mitigation.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Interpret historical data and write recommendation rules.",
+          "evidence": "Recommendation rule set"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Rules applied correctly to the sample data",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "M6 - Requirements to Dashboard Spec: Generating Calculated Fields & DAX",
+      "code": "M6",
+      "reference_day": 3,
+      "minutes": 105,
+      "subtopics": [
+        "Generate calculated fields and DAX measures from natural language and validate them against sample data.",
+        "Generate the measure from natural language.",
+        "Have the agent ask for the definition before generating logic.",
+        "Validate against sample totals and find the filter-context issue."
+      ],
+      "learning_objectives": [
+        "Generate calculated fields and DAX measures from natural language and validate them against sample data."
+      ],
+      "lab": "Generate, test and correct measures; handle ambiguous requirements.",
+      "deliverable": "Validated calculated fields and DAX measures",
+      "assessment": "Generated measures match values computed directly from sample data",
+      "scenarios": [
+        {
+          "id": "M6.1",
+          "situation": "The requirement is 'year-on-year growth by region'.",
+          "activity": "Generate the measure from natural language.",
+          "outcome": "Business logic produced in minutes.",
+          "evidence": "Measure matches values calculated directly."
+        },
+        {
+          "id": "M6.2",
+          "situation": "The requirement mentions 'active customers' without defining it.",
+          "activity": "Have the agent ask for the definition before generating logic.",
+          "outcome": "No silent assumptions.",
+          "evidence": "Clarifying question raised and answered."
+        },
+        {
+          "id": "M6.3",
+          "situation": "A generated measure returns totals that look wrong.",
+          "activity": "Validate against sample totals and find the filter-context issue.",
+          "outcome": "Wrong logic caught before it reaches a dashboard.",
+          "evidence": "Corrected measure matches sample totals."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A16:K16",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Generate calculated fields and DAX measures from natural language and validate them against sample data.; Generate the measure from natural language.; Have the agent ask for the definition before generating logic.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Generate, test and correct measures; handle ambiguous requirements.",
+          "evidence": "Validated calculated fields and DAX measures"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Generated measures match values computed directly from sample data",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "M7 - Agent Build: Assembling the Dashboard via API",
+      "code": "M7",
+      "reference_day": 3,
+      "minutes": 90,
+      "subtopics": [
+        "Build Capstone 1: an agent that assembles a working dashboard from a requirements brief.",
+        "Run the agent to create the data source, fields and charts.",
+        "Retry only the failed step rather than starting again.",
+        "Update the dashboard without rebuilding everything."
+      ],
+      "learning_objectives": [
+        "Build Capstone 1: an agent that assembles a working dashboard from a requirements brief."
+      ],
+      "lab": "Drive the platform APIs to create data sources, fields and visuals, with retries for partial failures.",
+      "deliverable": "Working Capstone 1 prototype",
+      "assessment": "Dashboard assembled from a brief on the sample data",
+      "scenarios": [
+        {
+          "id": "M7.1",
+          "situation": "A requirements brief must become a working dashboard.",
+          "activity": "Run the agent to create the data source, fields and charts.",
+          "outcome": "Working dashboard draft from a brief.",
+          "evidence": "Dashboard built on the sample data."
+        },
+        {
+          "id": "M7.2",
+          "situation": "One visual fails to build.",
+          "activity": "Retry only the failed step rather than starting again.",
+          "outcome": "Resilient build process.",
+          "evidence": "Failed step retried and succeeds."
+        },
+        {
+          "id": "M7.3",
+          "situation": "The requirement changes after the first build.",
+          "activity": "Update the dashboard without rebuilding everything.",
+          "outcome": "Changes handled quickly.",
+          "evidence": "Updated dashboard reflects the change."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A17:K17",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Build Capstone 1: an agent that assembles a working dashboard from a requirements brief.; Run the agent to create the data source, fields and charts.; Retry only the failed step rather than starting again.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Drive the platform APIs to create data sources, fields and visuals, with retries for partial failures.",
+          "evidence": "Working Capstone 1 prototype"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Dashboard assembled from a brief on the sample data",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "M8 - Capstone 1 Validation & Stakeholder Sign-off",
+      "code": "M8",
+      "reference_day": 3,
+      "minutes": 75,
+      "subtopics": [
+        "Validate a generated dashboard against the original requirement and secure mock stakeholder sign-off.",
+        "Compare the generated dashboard against each point.",
+        "Detect the hallucinated field and correct it.",
+        "Run a mock walkthrough and record change requests."
+      ],
+      "learning_objectives": [
+        "Validate a generated dashboard against the original requirement and secure mock stakeholder sign-off."
+      ],
+      "lab": "Run accuracy and hallucination checks and a mock walkthrough.",
+      "deliverable": "Validation report and mock sign-off",
+      "assessment": "Generated dashboard validated against the original requirement",
+      "scenarios": [
+        {
+          "id": "M8.1",
+          "situation": "The client's original requirement is a checklist of needs.",
+          "activity": "Compare the generated dashboard against each point.",
+          "outcome": "Objective check of the output.",
+          "evidence": "Checklist completed with pass or fail."
+        },
+        {
+          "id": "M8.2",
+          "situation": "A field on the dashboard does not exist in the source data.",
+          "activity": "Detect the hallucinated field and correct it.",
+          "outcome": "Hallucinations caught before sign-off.",
+          "evidence": "Field validated against the source."
+        },
+        {
+          "id": "M8.3",
+          "situation": "A stakeholder review is coming.",
+          "activity": "Run a mock walkthrough and record change requests.",
+          "outcome": "Confidence the output will be accepted.",
+          "evidence": "Sign-off notes recorded."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A18:K18",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Validate a generated dashboard against the original requirement and secure mock stakeholder sign-off.; Compare the generated dashboard against each point.; Detect the hallucinated field and correct it.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Run accuracy and hallucination checks and a mock walkthrough.",
+          "evidence": "Validation report and mock sign-off"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Generated dashboard validated against the original requirement",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "M9 - Parsing & Logic Mapping: Tableau and Power BI",
+      "code": "M9",
+      "reference_day": 4,
+      "minutes": 90,
+      "subtopics": [
+        "Parse Tableau and Power BI artefacts and map LOD expressions and calculated fields to DAX, and back.",
+        "Map it to the equivalent DAX pattern using RAG-assisted lookup.",
+        "Translate it in the reverse direction.",
+        "Classify each as direct, needs review, or no equivalent."
+      ],
+      "learning_objectives": [
+        "Parse Tableau and Power BI artefacts and map LOD expressions and calculated fields to DAX, and back."
+      ],
+      "lab": "Parse a sample workbook and build a logic mapping table with RAG-assisted lookup.",
+      "deliverable": "Parsed logic inventory and mapping table",
+      "assessment": "Mapping table covers all calculated fields and LODs in the sample",
+      "scenarios": [
+        {
+          "id": "M9.1",
+          "situation": "A Tableau FIXED LOD expression must move to Power BI.",
+          "activity": "Map it to the equivalent DAX pattern using RAG-assisted lookup.",
+          "outcome": "Logic preserved across platforms.",
+          "evidence": "Result matches the source value."
+        },
+        {
+          "id": "M9.2",
+          "situation": "A Power BI measure must become a Tableau calculated field.",
+          "activity": "Translate it in the reverse direction.",
+          "outcome": "Two-way translation understood.",
+          "evidence": "Result matches the source value."
+        },
+        {
+          "id": "M9.3",
+          "situation": "A workbook has dozens of calculated fields of varying difficulty.",
+          "activity": "Classify each as direct, needs review, or no equivalent.",
+          "outcome": "Clear picture of migration effort and risk.",
+          "evidence": "Inventory covers every calculated field in the sample."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A19:K19",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Parse Tableau and Power BI artefacts and map LOD expressions and calculated fields to DAX, and back.; Map it to the equivalent DAX pattern using RAG-assisted lookup.; Translate it in the reverse direction.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Parse a sample workbook and build a logic mapping table with RAG-assisted lookup.",
+          "evidence": "Parsed logic inventory and mapping table"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Mapping table covers all calculated fields and LODs in the sample",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "M10 - Agent Build: Automated Migration Pipeline",
+      "code": "M10",
+      "reference_day": 4,
+      "minutes": 105,
+      "subtopics": [
+        "Build Capstone 2: an agent that migrates a dashboard between platforms, checks numeric parity and flags unsupported features.",
+        "Run parse, translate and rebuild, then diff the numbers.",
+        "Trace the cause: filter context, aggregation or null handling.",
+        "Flag it with a recommended manual workaround."
+      ],
+      "learning_objectives": [
+        "Build Capstone 2: an agent that migrates a dashboard between platforms, checks numeric parity and flags unsupported features."
+      ],
+      "lab": "Orchestrate parse, translate and rebuild, then diff source and target numbers.",
+      "deliverable": "Working Capstone 2 prototype and parity report",
+      "assessment": "Numeric parity achieved; unsupported features flagged for review",
+      "scenarios": [
+        {
+          "id": "M10.1",
+          "situation": "A sample Tableau workbook must move to Power BI.",
+          "activity": "Run parse, translate and rebuild, then diff the numbers.",
+          "outcome": "Working migrated dashboard.",
+          "evidence": "Numbers match the source."
+        },
+        {
+          "id": "M10.2",
+          "situation": "A migrated figure differs from the source.",
+          "activity": "Trace the cause: filter context, aggregation or null handling.",
+          "outcome": "Root cause found and fixed.",
+          "evidence": "Corrected figure matches the source."
+        },
+        {
+          "id": "M10.3",
+          "situation": "A feature has no direct equivalent on the target platform.",
+          "activity": "Flag it with a recommended manual workaround.",
+          "outcome": "No silent loss of functionality.",
+          "evidence": "Flag report lists the item and workaround."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A20:K20",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Build Capstone 2: an agent that migrates a dashboard between platforms, checks numeric parity and flags unsupported features.; Run parse, translate and rebuild, then diff the numbers.; Trace the cause: filter context, aggregation or null handling.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Orchestrate parse, translate and rebuild, then diff source and target numbers.",
+          "evidence": "Working Capstone 2 prototype and parity report"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Numeric parity achieved; unsupported features flagged for review",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "M11 - AI Risk Assessment Framework for BI Agents",
+      "code": "M11",
+      "reference_day": 4,
+      "minutes": 90,
+      "subtopics": [
+        "Assess data privacy, hallucination and compliance risks for a generated or migrated dashboard and decide go or no-go.",
+        "Identify sensitive fields and decide what may be sent.",
+        "List the controls that would have caught it.",
+        "Use the checklist to rate readiness for each agent."
+      ],
+      "learning_objectives": [
+        "Assess data privacy, hallucination and compliance risks for a generated or migrated dashboard and decide go or no-go."
+      ],
+      "lab": "Adapt a deployment checklist to both agents.",
+      "deliverable": "Completed risk assessment worksheet",
+      "assessment": "All critical controls identified and documented",
+      "scenarios": [
+        {
+          "id": "M11.1",
+          "situation": "Prompts might send sensitive columns to an external model.",
+          "activity": "Identify sensitive fields and decide what may be sent.",
+          "outcome": "Privacy risk controlled.",
+          "evidence": "Data-handling rule documented."
+        },
+        {
+          "id": "M11.2",
+          "situation": "A hallucinated field reaches a production dashboard.",
+          "activity": "List the controls that would have caught it.",
+          "outcome": "Preventive controls defined.",
+          "evidence": "Controls added to the checklist."
+        },
+        {
+          "id": "M11.3",
+          "situation": "Leadership needs a go or no-go decision on rollout.",
+          "activity": "Use the checklist to rate readiness for each agent.",
+          "outcome": "Decision based on evidence.",
+          "evidence": "Completed readiness rating."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A21:K21",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Assess data privacy, hallucination and compliance risks for a generated or migrated dashboard and decide go or no-go.; Identify sensitive fields and decide what may be sent.; List the controls that would have caught it.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Adapt a deployment checklist to both agents.",
+          "evidence": "Completed risk assessment worksheet"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "All critical controls identified and documented",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "M12 - Bias Mitigation, QA & Production Handoff",
+      "code": "M12",
+      "reference_day": 4,
+      "minutes": 75,
+      "subtopics": [
+        "Test generated and migrated logic for bias and failures, apply mitigations, and present a signed-off handoff.",
+        "Inject the failure and observe how the agent behaves.",
+        "Detect the skew and correct it.",
+        "Present to a mock panel and complete the sign-off sheet."
+      ],
+      "learning_objectives": [
+        "Test generated and migrated logic for bias and failures, apply mitigations, and present a signed-off handoff."
+      ],
+      "lab": "Run failure-injection tests, complete the sign-off sheet and present to a mock client panel.",
+      "deliverable": "Sign-off sheet and final capstone presentation",
+      "assessment": "Clear logic, feasibility and safe deployment recommendations",
+      "scenarios": [
+        {
+          "id": "M12.1",
+          "situation": "Input data has many nulls or a renamed field.",
+          "activity": "Inject the failure and observe how the agent behaves.",
+          "outcome": "Known failure modes and fixes.",
+          "evidence": "Failure log with mitigations."
+        },
+        {
+          "id": "M12.2",
+          "situation": "A default filter quietly excludes one region.",
+          "activity": "Detect the skew and correct it.",
+          "outcome": "Fair, complete outputs.",
+          "evidence": "Corrected output covers all regions."
+        },
+        {
+          "id": "M12.3",
+          "situation": "The capstone must be presented to the client.",
+          "activity": "Present to a mock panel and complete the sign-off sheet.",
+          "outcome": "Credible handoff and certification presentation.",
+          "evidence": "Panel scores the presentation."
+        }
+      ],
+      "source_locator": "Day-wise Plan!A22:K22",
+      "subtopics_basis": "Source outcomes and scenario activities; no separate topic list provided",
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Test generated and migrated logic for bias and failures, apply mitigations, and present a signed-off handoff.; Inject the failure and observe how the agent behaves.; Detect the skew and correct it.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Run failure-injection tests, complete the sign-off sheet and present to a mock client panel.",
+          "evidence": "Sign-off sheet and final capstone presentation"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Clear logic, feasibility and safe deployment recommendations",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    }
+  ]
+}
