@@ -208,6 +208,58 @@ def test_out_of_quota_model_moves_to_another_flash_model_and_never_the_live_one(
     assert client.generated == ["gemini-3.8-flash", "gemini-3.6-flash"]  # no lite, pro or live model after a quota stop
 
 
+def test_a_model_out_of_daily_quota_hands_over_to_the_next_flash_model(tmp_path, monkeypatch):
+    _, _, designs = _copy_courses(tmp_path, monkeypatch)
+    monkeypatch.setenv("LIVE_GEMINI_MODEL", "gemini-2.5-flash")
+    fake = _fake_post()
+
+    class Response:
+        def __init__(self, status, body):
+            self.status_code, self._body, self.headers = status, body, {}
+            self.is_error = status >= 400
+
+        def json(self):
+            return self._body
+
+    class Client:
+        """Each model answers a fixed number of calls a day, probes included, then returns the daily 429."""
+
+        def __init__(self, allowance):
+            self.allowance, self.generated = dict(allowance), []
+
+        async def get(self, url, headers=None, params=None):
+            return Response(200, {"models": [{"name": f"models/{name}", "supportedGenerationMethods": ["generateContent"]}
+                                             for name in ("gemini-2.5-flash", "gemini-3.8-flash", "gemini-3.6-flash",
+                                                          "gemini-3.8-flash-lite")]})
+
+        async def post(self, url, headers=None, json=None):
+            model = url.split("/models/")[1].split(":")[0]
+            self.generated.append(model)
+            if self.allowance.get(model, 0) <= 0:
+                return Response(429, {"error": {"message": "You exceeded your current quota", "details": [
+                    {"@type": "type.googleapis.com/google.rpc.QuotaFailure", "violations": [
+                        {"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier", "quotaValue": "20"}]}]}})
+            self.allowance[model] -= 1
+            user = json["contents"][0]["parts"][0]["text"]
+            text = await fake(INSTRUCTIONS, user) if '"modules"' in user else "{}"
+            return Response(200, {"candidates": [{"content": {"parts": [{"text": text}]}}]})
+
+    INSTRUCTIONS = drafts.INSTRUCTIONS
+    client = Client({"gemini-3.8-flash": 2, "gemini-3.6-flash": 3})  # 3.6: one probe and two batches
+    settings = {"provider": "gemini", "key": "k", "model": "gemini-3.8-flash"}
+    pending = drafts.inventory(["sap"])
+    summary = asyncio.run(drafts.run(pending, post=drafts.switching_post(client, settings, log=_quiet), model="gemini-3.8-flash",
+                                     limit=6, batch_size=1, concurrency=1, log=_quiet))
+
+    assert summary["accepted"] == 4
+    assert summary["models"] == ["gemini-3.8-flash", "gemini-3.6-flash"]
+    assert summary["error"].startswith("Daily Gemini quota reached for every model tried")
+    # Never the live app's model, and no lite model once a daily quota has been hit.
+    assert set(client.generated) == {"gemini-3.8-flash", "gemini-3.6-flash"}
+    stored = json.loads((designs / "sap.json").read_text(encoding="utf-8"))["designs"].values()
+    assert sorted(design["model"] for design in stored) == ["gemini-3.6-flash"] * 2 + ["gemini-3.8-flash"] * 2
+
+
 def test_course_selection_covers_every_course_once():
     every = drafts.select_courses("all")
     assert set(drafts.DEFAULT_COURSES) <= set(every)

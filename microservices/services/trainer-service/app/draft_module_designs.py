@@ -24,6 +24,7 @@ subtopics) are skipped because a design would hide that they need real content.
 """
 import argparse
 import asyncio
+import contextvars
 import hashlib
 import json
 import os
@@ -384,15 +385,16 @@ def _avoided_models():
     return {name.strip() for name in os.environ.get("LIVE_GEMINI_MODEL", "").split(",") if name.strip()}
 
 
-async def resolve_model(client, settings):
+async def resolve_model(client, settings, exclude=frozenset()):
     """The first model that actually answers: configured, then any suggested by Gemini, then the best Flash models.
 
     Quota is counted per model, so when one model's daily quota is used up the other Flash
-    models are tried; the run stops only when every one tried is out of quota.
+    models are tried; the run stops only when every one tried is out of quota. ``exclude``
+    names models already out of quota in this run; only full Flash models replace them.
     """
     if settings["provider"] != "gemini":
         return settings["model"]
-    avoided = _avoided_models()
+    avoided = _avoided_models() | set(exclude)
     response = await client.get("https://generativelanguage.googleapis.com/v1beta/models",
                                 headers={"x-goog-api-key": settings["key"]}, params={"pageSize": 200})
     if response.is_error:
@@ -403,6 +405,9 @@ async def resolve_model(client, settings):
     names = [n for n in names if n.startswith("gemini") and not any(
         tag in n.lower() for tag in ("image", "tts", "embedding", "live", "audio", "vision", "robotics", "computer-use"))]
     queue, tried, notes, out_of_quota = [settings["model"]] + sorted(names, key=_model_rank), [], [], []
+    out_of_quota += [f"{model}: used up earlier in this run" for model in sorted(exclude)]
+    if exclude:
+        queue = [name for name in queue if _is_flash(name)]
     while queue and len(tried) < 8:
         model = queue.pop(0)
         if model in tried or model in avoided:
@@ -458,6 +463,38 @@ async def _post(client, settings, system, user):
         candidate = (data.get("candidates") or [{}])[0]
         return "".join(part.get("text", "") for part in (candidate.get("content") or {}).get("parts", []))
     raise RuntimeError("Provider still rate-limited after retries")
+
+
+_MODEL_USED = contextvars.ContextVar("model_used", default="")
+
+
+def switching_post(client, settings, log=print):
+    """A model call that moves to the next Flash model when one model's daily quota is used up.
+
+    Gemini counts the free-tier daily quota per model, so the run carries on with another
+    model and stops only when every Flash model is out of quota (``resolve_model`` raises).
+    The model that answered is kept per batch, so each design records the model that drafted it.
+    """
+    exhausted, lock = set(), asyncio.Lock()
+
+    async def post(system, user):
+        while True:
+            model = settings["model"]
+            try:
+                text = await _post(client, {**settings, "model": model}, system, user)
+            except FatalProviderError as exc:
+                if settings["provider"] != "gemini" or not str(exc).startswith("Daily Gemini quota reached"):
+                    raise
+                async with lock:
+                    if settings["model"] == model:  # a concurrent batch may already have switched
+                        exhausted.add(model)
+                        settings["model"] = await resolve_model(client, settings, exclude=exhausted)
+                        log(json.dumps({"model": settings["model"], "switched_from": model}), flush=True)
+                continue
+            _MODEL_USED.set(model)
+            return text
+
+    return post
 
 
 def _parse(text):
@@ -575,7 +612,8 @@ async def run(pending, *, post, model, limit=0, per_course=0, batch_size=3, conc
     example = example_design()
     batches = [chosen[i:i + batch_size] for i in range(0, len(chosen), batch_size)]
     gate, lock = asyncio.Semaphore(max(1, concurrency)), asyncio.Lock()
-    summary = {"modules": len(chosen), "accepted": 0, "rejected": [], "days_updated": 0, "model": model}
+    summary = {"modules": len(chosen), "accepted": 0, "rejected": [], "days_updated": 0, "model": model,
+               "models": []}
 
     async def one(batch):
         async with gate:
@@ -589,8 +627,11 @@ async def run(pending, *, post, model, limit=0, per_course=0, batch_size=3, conc
             except FatalProviderError as exc:
                 summary["error"] = str(exc)
                 return
+        used = _MODEL_USED.get() or model  # the model that answered this batch, after any quota switch
         async with lock:
-            summary["days_updated"] += save(results, pending, model)
+            if used not in summary["models"]:
+                summary["models"].append(used)
+            summary["days_updated"] += save(results, pending, used)
             for key, (_, issues) in results.items():
                 if issues:
                     source = pending[key]["source"]
@@ -655,7 +696,7 @@ def main():
             async with httpx.AsyncClient(timeout=300) as client:
                 settings["model"] = await resolve_model(client, settings)
                 print(json.dumps({"model": settings["model"]}), flush=True)
-                return await run(pending, post=lambda system, user: _post(client, settings, system, user),
+                return await run(pending, post=switching_post(client, settings),
                                  model=settings["model"], limit=args.limit, per_course=args.per_course,
                                  batch_size=max(1, args.batch_size), concurrency=args.concurrency,
                                  max_minutes=args.max_minutes)
@@ -664,12 +705,17 @@ def main():
         except FatalProviderError as exc:
             # Provider messages are short and have the key redacted; headers are never printed.
             summary["error"] = str(exc)
+    # Running out of the daily quota is the normal end of a free-tier day, not a failure:
+    # the work is saved and the next run continues. Any other provider error fails the run.
+    quota_stop = str(summary.get("error") or "").startswith("Daily Gemini quota reached")
+    if quota_stop:
+        summary["stopped_at_daily_quota"] = True
     print(json.dumps(summary, ensure_ascii=False), flush=True)
     if args.summary:
         summary_path = Path(args.summary)
         summary_path.parent.mkdir(parents=True, exist_ok=True)
         summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    if summary.get("error"):
+    if summary.get("error") and not quota_stop:
         raise SystemExit(1)
 
 
