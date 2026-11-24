@@ -119,7 +119,12 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
     """Read current visible post cards and copy their public permalink."""
     await context.grant_permissions(['clipboard-read', 'clipboard-write'], origin='https://www.linkedin.com')
     cards = page.locator('[role="listitem"][componentkey^="update-card-focus"]')
-    await cards.first.wait_for(timeout=15000)
+    try:
+        await cards.first.wait_for(timeout=8000)
+    except Exception:
+        # LinkedIn sometimes omits that card key. Activity cards still carry the post.
+        cards = page.locator('[data-urn^="urn:li:activity"]')
+        await cards.first.wait_for(timeout=7000)
     if mode == 'trainer':
         for _ in range(4):
             await page.mouse.wheel(0, 1800)
@@ -144,16 +149,37 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
                 results.append({'url': canonical_url(author['url']), 'title': author_name, 'content': headline})
             processed.add(fingerprint)
             continue
+        visible = _visible_post_url(data['links'])
         menu = card.locator('button[aria-label^="Open control menu for post"]')
         if not await menu.count():
-            raise ValueError('Post card has no source-link menu')
+            # A missing menu used to abort the whole client scan. The activity
+            # link already on the card is enough to save the post.
+            if not visible:
+                processed.add(fingerprint)
+                continue
+            results.append({'url': visible, 'title': title, 'content': data['content'],
+                            'contact_name': author_name,
+                            'contact_linkedin_url': canonical_url(author.get('url', ''))})
+            processed.add(fingerprint)
+            if len(results) >= limit:
+                break
+            continue
         await menu.click()
         copy = page.get_by_text('Copy link to post', exact=True)
         try:
             await copy.wait_for(timeout=3000)
-        except Exception as exc:
+        except Exception:
             await page.keyboard.press('Escape')
-            raise ValueError(f'Post copy-link menu unavailable: {exc}') from exc
+            if not visible:
+                processed.add(fingerprint)
+                continue
+            results.append({'url': visible, 'title': title, 'content': data['content'],
+                            'contact_name': author_name,
+                            'contact_linkedin_url': canonical_url(author.get('url', ''))})
+            processed.add(fingerprint)
+            if len(results) >= limit:
+                break
+            continue
         # Capture only the URL written by this explicit Copy link action. Reading
         # the OS clipboard is unreliable when a headless tab loses focus.
         await page.evaluate('''() => {
@@ -188,42 +214,98 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
             if len(results) >= limit:
                 break
         else:
-            raise ValueError(f'Post link did not resolve: {urlsplit(copied).hostname} {urlsplit(copied).path}; resolved {url}')
+            if not visible:
+                processed.add(fingerprint)
+                continue
+            url = visible
+            results.append({'url': url, 'title': title, 'content': data['content'],
+                            'contact_name': author_name,
+                            'contact_linkedin_url': canonical_url(author.get('url', ''))})
+            processed.add(fingerprint)
+            if len(results) >= limit:
+                break
     return results
 
 
-# Result-card text, not the name link alone. Navigation and profile-menu links stay out.
+def _visible_post_url(links):
+    for link in links or []:
+        url = canonical_url((link or {}).get('url', ''))
+        if url and urlsplit(url).path.startswith(('/posts/', '/feed/update/')):
+            return url
+    return ''
+
+
+# Walk up from the profile link. The name link alone has no headline, so a
+# closest() match on an inner list item used to reject every real trainer.
+# Header and profile-menu links are the signed-in user, not search results.
 PEOPLE_CARDS = """els => els.flatMap(a => {
-  if (!a || !a.href || !/\\/in\\//.test(a.href)) return [];
-  if (a.closest('header, nav, footer, [role="navigation"], [role="banner"], [role="contentinfo"]')) return [];
+  if (a.closest('header, nav, footer, [role="banner"], [role="navigation"]')) return [];
+  const layers = [];
   let node = a;
-  let text = '';
-  for (let depth = 0; depth < 6 && node && node.parentElement; depth += 1) {
-    const parent = node.parentElement;
-    if (parent.matches('main, [role="main"], body, html')) break;
-    const candidate = (parent.innerText || '').trim();
-    if (!candidate) { node = parent; continue; }
-    if (candidate.length > 1200) break;
-    text = candidate;
-    const lines = candidate.split('\\n').map(line => line.trim()).filter(Boolean);
-    if (lines.length >= 2 && candidate.length >= 12) break;
-    node = parent;
+  for (let depth = 0; depth < 8 && node; depth += 1) {
+    if (node.matches && node.matches('main, [role="main"], body, header, nav')) break;
+    const text = (node.innerText || '').trim();
+    if (text) layers.push(text.slice(0, 4000));
+    node = node.parentElement;
   }
-  if (!text) text = (a.innerText || '').trim();
-  if (!text) return [];
-  return [{url: a.href, text: text.slice(0, 1500)}];
+  if (!layers.length) return [];
+  return [{url: a.href, layers}];
 })"""
 
 
-def profile_title(text):
-    lines = [line.strip() for line in str(text or '').splitlines() if line.strip()]
-    for line in lines:
-        if re.fullmatch(r'(?i)(?:connect|follow|message|pending)', line):
+_ROLE_TEXT = re.compile(r'\b(?:trainer|instructor|facilitator|coach)\b', re.IGNORECASE)
+
+
+def select_profile_text(layers):
+    """Use the profile card, including its headline, not the whole results page."""
+    best = ''
+    for raw in layers or []:
+        text = str(raw or '').strip()
+        if not text:
             continue
-        if re.fullmatch(r'(?i)\d+(?:st|nd|rd|th)\+?', line):
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        if len(text) > 2200 or len(lines) > 18:
+            head = '\n'.join(lines[:18])[:2200]
+            if _ROLE_TEXT.search(head) and not _ROLE_TEXT.search(best):
+                best = head
+            break
+        best = text
+        if _ROLE_TEXT.search(text):
+            return text[:4000]
+    return best[:4000]
+
+
+def profiles_from_html(html):
+    """Read profile URLs from the page body when the result anchors are not queryable."""
+    if not isinstance(html, str) or '/in/' not in html:
+        return []
+    sample = html[:500_000]
+    found, seen = [], set()
+    pattern = re.compile(r'(?:https://(?:[\w.-]+\.)?linkedin\.com)?/in/[A-Za-z0-9\-_%]{3,100}', re.I)
+    for match in pattern.finditer(sample):
+        raw = match.group(0)
+        if raw.startswith('/'):
+            raw = 'https://www.linkedin.com' + raw
+        url = canonical_url(raw)
+        if not url or url in seen:
             continue
-        return line[:200]
-    return (lines[0] if lines else '')[:200]
+        window = sample[max(0, match.start() - 500):match.end() + 900]
+        text = re.sub(r'<[^>]+>', '\n', window)
+        text = re.sub(r'&(?:amp|nbsp);', ' ', text, flags=re.I)
+        text = re.sub(r'[ \t]+', ' ', text)
+        text = re.sub(r'\n{2,}', '\n', text).strip()
+        seen.add(url)
+        found.append({'url': url, 'text': text[:4000]})
+        if len(found) >= 30:
+            break
+    return found
+
+
+def _people_search_url(keywords, page_number):
+    return 'https://www.linkedin.com/search/results/people/?' + urlencode({'keywords': keywords, 'page': page_number})
+
+
+from shared.trainer_targets import TRAINER_RESULT_TARGET, TRAINER_SCAN_LIMIT
 
 
 async def collect_trainer_profiles(page, domain, location, limit, collected=None):
@@ -237,18 +319,42 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     def timed_out():
         return asyncio.get_running_loop().time() >= deadline
 
-    async def read_people():
-        links = await page.locator('a[href*="/in/"]').evaluate_all(PEOPLE_CARDS)
+    def profile_title(text):
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        for line in lines:
+            if not re.fullmatch(r'(?i)(?:connect|follow|message|pending)', line):
+                return line[:200]
+        return (lines[0] if lines else '')[:200]
+
+    def card_text(item):
+        layers = (item or {}).get('layers')
+        if layers:
+            return select_profile_text(layers)
+        return str((item or {}).get('text') or '')
+
+    async def read_people(finalize_thin=False):
+        links = await page.locator('main a[href*="/in/"], [role="main"] a[href*="/in/"]').evaluate_all(PEOPLE_CARDS)
+        if not links:
+            links = await page.locator('a[href*="/in/"]').evaluate_all(PEOPLE_CARDS)
         if not links:
             links = await page.locator('a[href*="linkedin.com/in/"]').evaluate_all(PEOPLE_CARDS)
+        if not links:
+            try:
+                html = await page.content()
+            except Exception:
+                html = ''
+            links = profiles_from_html(html)
         new_urls = 0
         for item in links or []:
-            if not isinstance(item, dict):
+            url = canonical_url((item or {}).get('url', ''))
+            text = card_text(item)
+            if not url or url in visited or len(visited) >= scan_limit:
                 continue
-            url = canonical_url(item.get('url') or '')
-            text = item.get('text') or ''
-            # Photo links often come first and have no text. Do not let them hide the name card.
-            if not url or '/in/' not in urlsplit(url).path or not text.strip() or url in visited:
+            if not text.strip():
+                continue
+            # A name-only first paint has no headline yet. Leave it unread so
+            # the next pass can qualify the same person.
+            if not finalize_thin and '\n' not in text and len(text) < 80:
                 continue
             visited.add(url)
             new_urls += 1
@@ -303,7 +409,8 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
         # the whole search budget when LinkedIn never answers.
         timeout = 20000 if page_number == 1 else 12000
         try:
-            return await page.goto(_people_search_url(keywords, page_number), wait_until='commit', timeout=timeout), True
+            return await page.goto(
+                _people_search_url(keywords, page_number), wait_until='domcontentloaded', timeout=timeout), True
         except Exception:
             return None, False
 
@@ -316,13 +423,12 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
         failed_opens = 0
         plain_pages = 0
         for keywords in queries:
-            if (len(results) >= limit or len(visited) >= scan_limit or timed_out()
-                    or failed_opens >= 2 or plain_pages >= 2):
+            if len(results) >= limit or len(visited) >= scan_limit or timed_out() or failed_opens >= 2:
                 break
+            plain_pages = 0
             for page_number in range(1, page_cap + 1):
-                reserve_fallback = not results and asyncio.get_running_loop().time() > deadline - 25
                 if (len(results) >= limit or len(visited) >= scan_limit or page_loads >= page_cap
-                        or timed_out() or failed_opens >= 2 or plain_pages >= 2 or reserve_fallback):
+                        or timed_out() or failed_opens >= 2 or plain_pages >= 3):
                     break
                 page_loads += 1
                 response, opened = await open_people_page(keywords, page_number)
@@ -335,20 +441,20 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                 if response and response.status in (403, 429):
                     raise ValueError('LinkedIn limited this session. Fetching stopped.')
                 try:
-                    await page.locator('a[href*="/in/"]').first.wait_for(timeout=8000)
+                    await page.locator('main a[href*="/in/"], [role="main"] a[href*="/in/"]').first.wait_for(timeout=8000)
                 except Exception:
                     pass
                 await require_session(page)
                 qualified_before = len(results)
                 new_urls, raw_count = await read_people()
-                if new_urls == 0 and raw_count == 0:
+                if new_urls == 0:
                     # The result list often paints after the first lookup.
                     try:
                         await page.mouse.wheel(0, 1600)
                         await page.wait_for_timeout(500)
                     except Exception:
                         pass
-                    new_urls, raw_count = await read_people()
+                    new_urls, raw_count = await read_people(finalize_thin=True)
                 if new_urls == 0:
                     break
                 if len(results) == qualified_before:
