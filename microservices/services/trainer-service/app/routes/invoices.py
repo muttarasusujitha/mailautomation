@@ -1,5 +1,6 @@
 """Invoice routes - download PDF and send by email."""
 import logging
+import uuid
 from datetime import datetime
 from typing import Optional
 
@@ -7,11 +8,12 @@ import httpx
 import base64
 from fastapi import APIRouter, Depends, HTTPException, Response
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.config import get_settings
 from shared.database.service import get_db
 from shared.generation_mode import application_ai_enabled
+from shared.document_amounts import calculate_document
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -25,6 +27,87 @@ class InvoiceSendRequest(BaseModel):
     to_email: Optional[str] = ""
     subject: Optional[str] = ""
     body: Optional[str] = ""
+
+
+class LabInvoiceRequest(BaseModel):
+    lab_amount: float = Field(gt=0)
+    gst_rate: float = Field(default=18, ge=0, le=100)
+    due_date: str = ""
+    invoice_number: str = ""
+
+
+async def _lab_invoice_source(requirement_id: str, db):
+    request = await db["lab_cost_requests"].find_one(
+        {"requirement_id": requirement_id}, {"_id": 0},
+    ) or {}
+    requirement = await db["requirements"].find_one(
+        {"requirement_id": requirement_id}, {"_id": 0},
+    ) or {}
+    source = request or requirement
+    if not source:
+        raise HTTPException(404, "Lab-cost request not found")
+    return source
+
+
+@router.get("/lab/{requirement_id}")
+async def get_lab_invoice(requirement_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+    invoice = await db["invoices"].find_one(
+        {"invoice_kind": "lab", "lab_requirement_id": requirement_id}, {"_id": 0},
+    )
+    return {"invoice": invoice}
+
+
+@router.post("/lab/{requirement_id}")
+async def generate_lab_invoice(
+    requirement_id: str,
+    payload: LabInvoiceRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    existing = await db["invoices"].find_one(
+        {"invoice_kind": "lab", "lab_requirement_id": requirement_id}, {"_id": 0},
+    )
+    if existing:
+        return {"success": True, "already_generated": True, "invoice": existing}
+    source = await _lab_invoice_source(requirement_id, db)
+    client_email = str(source.get("client_email") or "").strip()
+    if not client_email:
+        raise HTTPException(422, "Client email is required before creating the lab invoice")
+    course = source.get("technology_needed") or source.get("technology") or source.get("domain") or "Training"
+    totals = calculate_document(
+        [{"description": f"{course} lab services", "quantity": 1, "rate": payload.lab_amount}],
+        gst_rate=payload.gst_rate,
+    )
+    now = datetime.utcnow()
+    invoice_id = f"LINV-{uuid.uuid4().hex[:10].upper()}"
+    invoice = {
+        "invoice_id": invoice_id,
+        "invoice_number": payload.invoice_number or invoice_id,
+        "invoice_kind": "lab",
+        "lab_requirement_id": requirement_id,
+        "requirement_id": requirement_id,
+        "client_name": source.get("client_name") or source.get("client_company") or "",
+        "client_email": client_email,
+        "client_billing_address": source.get("client_billing_address") or source.get("client_address") or "",
+        "client_address": source.get("client_billing_address") or source.get("client_address") or "",
+        "client_gstin": source.get("client_gstin") or "",
+        "training_domain": course,
+        "duration": str(source.get("duration_days") or ""),
+        "mode": source.get("mode") or "",
+        "total_amount": totals["subtotal"],
+        "gst_rate": totals["gst_rate"],
+        "items": totals["items"],
+        "invoice_date": now.strftime("%d-%m-%Y"),
+        "issue_date": now.strftime("%d-%m-%Y"),
+        "due_date": payload.due_date,
+        "commercials": totals,
+        "balance_due": totals["grand_total"],
+        "status": "draft",
+        "created_at": now,
+        "updated_at": now,
+    }
+    await db["invoices"].insert_one(invoice)
+    invoice.pop("_id", None)
+    return {"success": True, "invoice": invoice}
 
 
 @router.get("/{invoice_id}/download")
@@ -114,18 +197,18 @@ async def send_invoice(
             "success": True,
             "already_sent": True,
             "invoice_id": invoice_id,
-            "sent_to": doc.get("sent_to") or to_email,
+            "sent_to": doc.get("sent_to"),
             "invoice": doc,
         }
 
     invoice_number = doc.get("invoice_number") or invoice_id
-    subject = payload.subject or f"Invoice {invoice_number} - Clahan Technologies"
+    subject = payload.subject or f"Invoice {invoice_number} - Beulix Solutions Private Limited"
     client_name = str(doc.get("client_name") or "").strip()
     greeting = f"Hello {client_name}," if client_name and client_name.lower() not in {"client", "team"} else "Hello,"
     body = payload.body or (
         f"{greeting}\n\n"
         f"Please find the invoice {invoice_number} attached.\n\n"
-        "Thanks and Regards,\nMurali Mohan M\nClahan Technologies"
+        "Thanks and Regards,\nMurali Mohan M\nBeulix Solutions Private Limited"
     )
 
     try:

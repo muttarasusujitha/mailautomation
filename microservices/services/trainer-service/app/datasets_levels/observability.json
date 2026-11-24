@@ -1,0 +1,573 @@
+{
+  "domain": "Observability",
+  "name": "Observability",
+  "category": "Observability and SRE",
+  "icon": "activity",
+  "aliases": ["Modern Observability", "Telemetry and Monitoring", "Observability Engineering", "Observability Engineer", "Monitoring and Observability", "Full-Stack Observability", "Observability Strategy", "Observability Training"],
+  "certifications": ["OpenTelemetry Certified Associate (OTCA)", "Prometheus Certified Associate (PCA)"],
+  "tools": ["OpenTelemetry SDKs", "OpenTelemetry Collector", "Prometheus", "Grafana", "Loki", "Jaeger", "Grafana Tempo", "Pyroscope", "Fluent Bit", "Vector", "Alertmanager", "ClickHouse", "k6", "kube-state-metrics"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, operations engineers, testers and support staff who run or build services but have not yet worked with telemetry in a structured way. Covers why observability matters, the five signal types (metrics, logs, traces, profiles and events), metric types, golden signals with the RED and USE methods, structured logging and log shipping, distributed tracing and context propagation, automatic and manual instrumentation, querying metrics, logs and traces, label cardinality, dashboard and alert design, first SLIs, signal correlation, host and container telemetry, and a first-responder investigation routine. Prometheus, Grafana, Loki, Jaeger and the OpenTelemetry SDKs appear as example tools; every idea is taught so it transfers to any commercial or open-source backend.",
+      "prerequisites": ["Has built, deployed or supported at least one web application or API and can read code in Python, Java, Go or JavaScript", "Uses a terminal confidently, including curl, environment variables and reading command output", "Has a laptop with Docker and Docker Compose installed, at least 8 GB of RAM and rights to pull container images"],
+      "outcomes": ["Explain what metrics, logs, traces, profiles and events each answer, and choose the right signal for a given question", "Instrument a web service with OpenTelemetry so it emits structured logs, RED metrics and traces that share a trace ID", "Query metrics, logs and traces to locate a latency or error problem and build a service dashboard that shows it", "Write symptom-based alerts and first SLIs, and follow a repeatable workflow from alert to likely cause"],
+      "days": [
+        {
+          "topic": "Observability Orientation: Why Telemetry Beats Guesswork",
+          "subtopics": ["Definition of observability: asking new questions of a system without shipping new code", "Control-theory origin of the term and how software usage differs", "Cost of blind spots: mean time to detect (MTTD) and mean time to resolve (MTTR)", "Telemetry producers, pipelines, backends and consumers", "Push versus pull collection models", "Open standards: OpenTelemetry, OTLP, W3C Trace Context and the Prometheus exposition format", "Open-source and commercial backends as interchangeable examples", "Who uses telemetry: developers, SREs, support, security and product teams", "Lab environment: a Docker Compose demo shop with a collector and example backends", "Course map from beginner signals to advanced strategy"],
+          "tools": ["Docker Compose", "OpenTelemetry Demo", "Grafana", "Prometheus", "Jaeger"],
+          "lab_task": "Start the lab stack with docker compose up -d, open the demo shop and place 5 orders. Then break the payment service with docker compose stop payment, place 5 more orders and, using only the Grafana and Jaeger UIs (no code or log files on disk), record the time you spent finding which service failed and which signal showed it first.",
+          "deliverable": "Lab notes with the running stack, the failed service, the first signal that showed it and the time to find it",
+          "checks": [["Run docker compose ps after startup", "Every lab container reports a running or healthy status", "Terminal output"], ["Stop the payment service and place an order", "Jaeger shows a trace with an error span on the call to payment", "Trace screenshot"], ["Compare the order error rate panel before and after the stop", "Error rate rises from about 0% to near 100% for checkout", "Dashboard screenshot"]],
+          "objectives": ["Define observability in terms of questions a team can answer", "Name the components of a telemetry system", "Use a running lab stack to detect a failure from telemetry alone"]
+        },
+        {
+          "topic": "Monitoring versus Observability and the Unknown-Unknowns Problem",
+          "subtopics": ["Known-unknowns: questions you predicted and built checks for", "Unknown-unknowns: new failure modes in distributed systems", "Monitoring as a subset of observability", "Black-box checks compared with white-box telemetry", "Why aggregate dashboards hide single-customer problems", "High-dimensional data and slicing by arbitrary attributes", "Debugging from first principles instead of runbooks only", "Common anti-patterns: dashboard sprawl and alert-on-everything"],
+          "tools": ["Grafana", "Prometheus", "Jaeger", "curl"],
+          "lab_task": "Inject a fault that slows only requests with header X-Customer-Tier: gold by 2 s in the lab gateway. Show that the average-latency panel moves by less than 10%, then find the affected customers by grouping trace spans by the customer.tier attribute in Jaeger or Grafana. Write a one-paragraph comparison of what the static check and the attribute search each revealed.",
+          "deliverable": "Fault description, before-and-after panel screenshots and the attribute-based query that isolated the gold tier",
+          "checks": [["Send 100 gold-tier and 900 standard requests with the fault active", "Average latency rises by under 10% while gold-tier p95 exceeds 2 s", "Panel and query screenshots"], ["Run the existing HTTP 200 health check against the gateway", "The check still passes during the fault", "curl output with status 200"], ["Filter traces by customer.tier=gold", "All returned traces show a span of about 2 s in the gateway", "Trace search screenshot"]],
+          "objectives": ["Distinguish known-unknowns from unknown-unknowns", "Explain why averages and health checks miss partial failures", "Use high-dimensional attributes to isolate an affected group"]
+        },
+        {
+          "topic": "Telemetry Signal Types: Metrics, Logs, Traces, Profiles and Events",
+          "subtopics": ["Metrics: numeric time series with labels, cheap to store and fast to query", "Logs: timestamped records with free text or structured fields", "Traces: trees of spans across services for one request", "Profiles: where CPU time and memory go inside a process", "Events: discrete changes such as deploys, config changes and Kubernetes events", "Resolution, retention and cost trade-offs of each signal", "Which question each signal answers best", "How signals link: shared resource attributes, trace IDs and timestamps"],
+          "tools": ["Prometheus", "Loki", "Jaeger", "Pyroscope", "Grafana"],
+          "lab_task": "For one slow checkout request in the lab, collect all five signals: the latency metric in Prometheus, the matching log lines in Loki, the trace in Jaeger, a 30-second CPU profile of the checkout process and the deploy event that preceded it. Build a table with one row per signal listing the question it answered, its storage size per day in the lab and its retention setting.",
+          "deliverable": "Signal comparison table with one example of each signal from the same incident",
+          "checks": [["Query rate(http_server_request_duration_seconds_count[5m]) for checkout", "A non-zero per-second request rate is returned", "Prometheus query result"], ["Search Loki for the trace ID of the slow request", "At least one log line containing that trace ID is returned", "Loki query result"], ["Open the profile captured during the slow period", "A flame graph shows the function using the most CPU", "Profile screenshot"]],
+          "objectives": ["Describe the five telemetry signal types", "Match each signal to the question it answers best", "Collect related signals for a single request"]
+        },
+        {
+          "topic": "Metric Data Model: Counters, Gauges, Histograms and Summaries",
+          "subtopics": ["Time series identity: metric name plus label set", "Counters only go up and reset on restart", "Gauges go up and down: queue depth, memory in use, temperature", "Histograms: bucket counts, sum and count", "Summaries: client-side quantiles and why they cannot be aggregated", "Cumulative versus delta temporality", "Units and naming conventions such as _seconds, _bytes and _total", "Prometheus exposition format and the /metrics endpoint", "OpenTelemetry instruments: Counter, UpDownCounter, Histogram and asynchronous Gauge"],
+          "tools": ["Prometheus", "OpenTelemetry SDK", "curl", "promtool"],
+          "lab_task": "Add a counter orders_created_total, an up-down counter cart_items_active, a gauge queue_depth and a histogram order_value_usd to a small service. Expose /metrics, run curl localhost:8000/metrics | promtool check metrics, restart the service mid-test and show with rate() that the counter reset does not produce a negative rate.",
+          "deliverable": "Service code with four instruments, the /metrics output and a rate graph across a restart",
+          "checks": [["Run curl -s localhost:8000/metrics | promtool check metrics", "promtool reports no errors for the four metrics", "Terminal output"], ["Restart the service and graph rate(orders_created_total[5m])", "The rate stays at or above 0 across the restart", "Prometheus graph"], ["Inspect the order_value_usd metric family on /metrics", "Lines for _bucket with le labels, _sum and _count are present", "curl output"]],
+          "objectives": ["Choose the correct metric type for a measurement", "Name metrics with units and suffixes that tools expect", "Explain why rate() handles counter resets"]
+        },
+        {
+          "topic": "Golden Signals, RED and USE Methods",
+          "subtopics": ["The four golden signals: latency, traffic, errors and saturation", "RED for request-driven services: rate, errors and duration", "USE for resources: utilisation, saturation and errors", "Separating latency of successful and failed requests", "Saturation indicators: queue length, thread-pool exhaustion and CPU throttling", "Choosing which method fits a service, a database or a host", "Mapping methods to existing metric names", "Avoiding vanity metrics that never drive a decision"],
+          "tools": ["Prometheus", "Grafana", "node_exporter", "k6"],
+          "lab_task": "Write PromQL for RED on the checkout service (request rate, error ratio for status 5xx and p95 duration) and USE for the lab host (CPU utilisation from node_cpu_seconds_total, load average per core and network receive errors). Run k6 run --vus 50 --duration 5m load.js and record each of the 6 values at idle and under load.",
+          "deliverable": "RED and USE query sheet with idle and load values for each query",
+          "checks": [["Run the error-ratio query while 10% of requests are forced to return 500", "The ratio returns about 0.10", "Prometheus query result"], ["Run 1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) during the k6 test", "CPU utilisation is higher under load than at idle", "Grafana panel"], ["Query p95 duration with histogram_quantile(0.95, ...)", "A value in seconds is returned for checkout", "Query output"]],
+          "objectives": ["Apply RED to request-driven services", "Apply USE to hosts and other resources", "Translate both methods into working queries"]
+        },
+        {
+          "topic": "Structured Logging with JSON Fields and Log Levels",
+          "subtopics": ["Unstructured text versus structured key-value logs", "A stable JSON log schema: timestamp, level, service, message, trace_id and span_id", "Log levels and when to use DEBUG, INFO, WARN, ERROR and FATAL", "Logging exceptions with stack traces in one record", "ISO 8601 timestamps in UTC", "What never to log: secrets, tokens, card numbers and personal data", "Logging libraries such as Python structlog, Java Logback with a JSON encoder and Go slog", "Log volume and the cost of DEBUG in production"],
+          "tools": ["Python structlog", "Go log/slog", "Logback", "jq"],
+          "lab_task": "Convert a service that prints free-text logs to JSON logs with timestamp, level, service.name, message, trace_id, span_id and http.response.status_code fields. Trigger 3 errors, then run docker logs checkout 2>&1 | jq -c 'select(.level==\"error\")' and confirm each error record carries a stack trace in one field instead of spanning multiple lines.",
+          "deliverable": "Before-and-after log samples, the logging configuration and the jq query output",
+          "checks": [["Pipe 100 log lines through jq -e .", "jq parses all 100 lines without an error", "Terminal output"], ["Filter with jq for level error after triggering 3 errors", "Exactly 3 records are returned", "jq output"], ["Search the logs for a test password sent in a login request", "The password string does not appear in any record", "grep output with zero matches"]],
+          "objectives": ["Design a consistent JSON log schema", "Pick log levels that keep production volume useful", "Keep secrets and personal data out of logs"]
+        },
+        {
+          "topic": "Log Collection and Shipping with Node Agents",
+          "subtopics": ["Collection patterns: stdout to node agent, sidecar and direct API", "Tailing files and container logs under /var/log/containers", "Parsers for JSON, regular expressions and multiline stack traces", "Adding metadata such as host, container and environment", "Buffering, retries and checkpointing file offsets", "Agents as examples: Fluent Bit, Vector and the OpenTelemetry Collector filelog receiver", "Shipping to a log backend such as Loki, Elasticsearch or a SaaS endpoint", "Agent self-monitoring metrics"],
+          "tools": ["Fluent Bit", "Vector", "Loki", "Docker Compose"],
+          "lab_task": "Deploy Fluent Bit or Vector as a container that tails the lab services' Docker log files, parses JSON, adds env=lab and ships to Loki. Stop Loki for 2 minutes while generating 600 log lines, restart it and show with a Loki count query that all 600 lines arrived. Report the agent's retry metrics during the outage.",
+          "deliverable": "Agent configuration, outage test notes and the count query result",
+          "checks": [["Run vector validate or fluent-bit --dry-run on the configuration", "The configuration is reported as valid", "Terminal output"], ["Count lines with sum(count_over_time({env=\"lab\", job=\"test\"}[10m])) after the outage", "The count is 600", "Loki query result"], ["Read the agent retry or error metric during the outage", "The retry counter increases while Loki is down", "Agent metrics output"]],
+          "objectives": ["Compare log collection patterns", "Configure an agent to parse and enrich logs", "Prove that buffering prevents loss during a short outage"]
+        },
+        {
+          "topic": "Distributed Tracing Concepts: Spans, Context and Propagation",
+          "subtopics": ["Trace, span, parent span and root span", "Span kinds: SERVER, CLIENT, PRODUCER, CONSUMER and INTERNAL", "Span attributes, events and status", "Trace and span IDs and their lengths", "W3C traceparent header format: version-traceid-parentid-flags", "tracestate and baggage headers", "Context propagation in HTTP, gRPC and message headers", "Broken traces when a hop drops the header"],
+          "tools": ["Jaeger", "OpenTelemetry SDK", "curl", "Wireshark"],
+          "lab_task": "Send curl -H 'traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01' to the gateway and confirm in Jaeger that the trace with ID 4bf92f3577b34da6a3ce929d0e0e4736 contains spans from all 3 services. Then remove propagation from one HTTP client, repeat and document how the trace splits into 2 separate traces.",
+          "deliverable": "Two trace screenshots (connected and broken) with the code change that broke propagation",
+          "checks": [["Search Jaeger for trace ID 4bf92f3577b34da6a3ce929d0e0e4736", "One trace with spans from 3 services is found", "Jaeger screenshot"], ["Print the traceparent header received by the downstream service", "The header has 4 dash-separated fields and the same 32-character trace ID", "Service log line"], ["Disable propagation in one client and repeat the request", "Two traces with different trace IDs appear", "Jaeger search result"]],
+          "objectives": ["Explain the structure of a trace", "Read and construct a W3C traceparent header", "Diagnose a broken trace caused by lost context"]
+        },
+        {
+          "topic": "Automatic and Manual Instrumentation of a Web Service",
+          "subtopics": ["Zero-code instrumentation agents and what they capture", "Python opentelemetry-bootstrap and opentelemetry-instrument", "Java agent with -javaagent and Node.js --require registration", "Configuration through OTEL_SERVICE_NAME, OTEL_EXPORTER_OTLP_ENDPOINT and OTEL_RESOURCE_ATTRIBUTES", "Adding manual spans around business logic", "Adding attributes such as order.id and recording exceptions", "Exporting with OTLP over gRPC on port 4317 or HTTP on port 4318", "Checking overhead after instrumentation"],
+          "tools": ["OpenTelemetry SDK", "OpenTelemetry Collector", "Jaeger", "Flask"],
+          "lab_task": "Run pip install opentelemetry-distro opentelemetry-exporter-otlp, then opentelemetry-bootstrap -a install, and start a Flask service with opentelemetry-instrument --service_name orders python app.py. Add one manual span named reserve_inventory with an order.id attribute and record an exception on failure. Compare p50 latency for 1,000 requests with and without the agent.",
+          "deliverable": "Instrumented service, a trace screenshot showing the manual span and the overhead measurement",
+          "checks": [["Send one request to /orders and search Jaeger for service orders", "A trace with an HTTP server span and a child reserve_inventory span appears", "Jaeger screenshot"], ["Force the inventory call to raise an exception", "The span has status ERROR and an exception event with the message", "Span detail view"], ["Run 1,000 requests with and without the agent", "The p50 difference is recorded in milliseconds", "Benchmark output"]],
+          "objectives": ["Apply zero-code instrumentation through environment variables", "Add manual spans and attributes for business steps", "Measure instrumentation overhead"]
+        },
+        {
+          "topic": "Querying Metrics: Rates, Aggregations and Percentiles",
+          "subtopics": ["Instant vectors, range vectors and the [5m] selector", "rate and increase for counters", "sum by and without for aggregation", "histogram_quantile over bucket rates", "Why you must not average percentiles", "Choosing a range at least four times the scrape interval", "Comparing to the past with offset", "Querying through the HTTP API /api/v1/query"],
+          "tools": ["Prometheus", "PromQL", "Grafana", "curl"],
+          "lab_task": "Write 6 queries against the lab: requests per second per service, errors per route over the last hour with increase, p99 latency per service with histogram_quantile, top 3 slowest routes with topk, today's traffic against the same time last week with offset 1w, and one query run through curl 'localhost:9090/api/v1/query?query=...'. Record each result and explain each function used.",
+          "deliverable": "Query workbook with 6 queries, results and one-line explanations",
+          "checks": [["Run sum by (service) (rate(http_server_request_duration_seconds_count[5m]))", "One series per service is returned", "Query output"], ["Call /api/v1/query through curl with a URL-encoded query", "JSON with status success and resultType vector is returned", "curl output"], ["Average two p99 series and compare with histogram_quantile on summed buckets", "The two numbers differ, showing averaging percentiles is wrong", "Side-by-side query results"]],
+          "objectives": ["Use rate, increase and aggregation operators correctly", "Calculate percentiles from histograms", "Query metrics through the UI and the API"]
+        },
+        {
+          "topic": "Querying Logs: Filters, Parsers and Pattern Extraction",
+          "subtopics": ["Stream selectors on labels versus filters on log content", "Line filters such as |= and |~", "Parsing JSON and logfmt at query time", "Extracting fields with regular expressions", "Turning logs into metrics with count_over_time and rate", "Grouping logs into recurring patterns", "Equivalent queries in other backends such as KQL, SPL and Lucene", "Keeping queries cheap by narrowing time and labels first"],
+          "tools": ["Loki", "LogQL", "logcli", "Grafana"],
+          "lab_task": "With logcli or Grafana Explore, write queries that find all error lines for checkout in the last hour, parse JSON and count errors by http.route, extract durations from a legacy text log with regexp, and graph sum by (level) (rate({app=\"checkout\"} | json [1m])). Rewrite one query in KQL or SPL syntax to show the same idea in another backend.",
+          "deliverable": "Log query sheet with results for 4 queries and one translated query",
+          "checks": [["Run logcli query '{app=\"checkout\"} |= \"error\"' --since=1h", "Only lines containing error are returned", "logcli output"], ["Count errors by route with | json and sum by", "One series per route with a non-zero count for the faulty route", "Grafana panel"], ["Extract a duration field from text logs with regexp", "A numeric duration label appears on each matched line", "Query result"]],
+          "objectives": ["Filter logs by stream labels and content", "Parse and aggregate logs at query time", "Recognise the same query ideas in other log query languages"]
+        },
+        {
+          "topic": "Reading a Trace Waterfall to Find Latency",
+          "subtopics": ["Waterfall view: time axis, nesting and span durations", "Critical path: the chain of spans that decides total latency", "Self time versus total time of a span", "Sequential calls that could run in parallel", "N+1 query patterns visible as repeated spans", "Gaps between spans that indicate queueing or untraced work", "Comparing a slow trace with a typical one", "Trace search by duration, service and attribute"],
+          "tools": ["Jaeger", "Grafana Tempo", "TraceQL", "k6"],
+          "lab_task": "The lab product page makes 1 database call per product. Load a page with 20 products, find the trace with a duration filter above 500 ms and count the repeated SELECT spans. Change the code to one batched query, repeat the test and report the before and after span count and page duration.",
+          "deliverable": "Before-and-after trace screenshots with span counts and the code change",
+          "checks": [["Search for traces of the product page with duration > 500ms", "At least one trace with 20 sequential database spans appears", "Trace search screenshot"], ["Count database spans after batching", "The trace contains 1 database span", "Trace screenshot"], ["Compare page duration in the two traces", "The batched version is faster by a recorded number of milliseconds", "Measurement table"]],
+          "objectives": ["Read a trace waterfall and identify the critical path", "Spot N+1 and sequential-call patterns", "Use traces to verify a performance fix"]
+        },
+        {
+          "topic": "Labels, Tags and the Cost of Cardinality",
+          "subtopics": ["Cardinality: number of unique label combinations per metric", "Multiplying effect of each added label", "Unbounded values: user IDs, request IDs, raw URLs and timestamps", "Memory and cost impact on time-series databases", "Route templates instead of raw paths", "Putting high-cardinality detail in traces and logs instead", "Finding the biggest metrics with count by (__name__)", "The TSDB status page and /api/v1/status/tsdb"],
+          "tools": ["Prometheus", "PromQL", "curl", "Grafana"],
+          "lab_task": "Add a label user_id with 10,000 values to a request counter, generate traffic, then measure the active series in /api/v1/status/tsdb and prometheus_tsdb_head_series. Replace the label with a bounded plan label (free, pro, enterprise), restart and compare series count and Prometheus memory use (process_resident_memory_bytes).",
+          "deliverable": "Cardinality experiment report with series counts and memory before and after",
+          "checks": [["Run count({__name__=\"app_requests_total\"}) with user_id", "About 10,000 series are returned", "Query output"], ["Repeat the count with the plan label only", "About 3 series per route and status combination remain instead of thousands", "Query output"], ["Compare process_resident_memory_bytes for both runs", "Memory is lower with the bounded label", "Graph screenshot"]],
+          "objectives": ["Calculate metric cardinality", "Identify unbounded labels before they reach production", "Move high-cardinality detail to the right signal"]
+        },
+        {
+          "topic": "Designing a Service Dashboard That Answers Questions",
+          "subtopics": ["Starting from questions instead of available metrics", "Top row: request rate, error ratio, latency and saturation", "Drill-down rows per dependency", "Template variables for service, environment and region", "Units, thresholds and consistent colours", "Choosing time series, stat, heatmap and table panels", "Linking panels to logs and traces", "Dashboard review checklist and removing unused panels"],
+          "tools": ["Grafana", "Prometheus", "Loki", "Jaeger"],
+          "lab_task": "Build a checkout service dashboard with a top row of 4 golden-signal panels, a latency heatmap, a dependency row and a log panel, all driven by $service and $env variables. Ask a teammate to answer 3 written questions (Is checkout healthy? Which dependency is slowest? What errors appeared in the last 15 minutes?) and time how long each answer takes.",
+          "deliverable": "Exported dashboard JSON and the teammate timing results",
+          "checks": [["Switch the $service variable from checkout to cart", "Every panel updates to show cart data", "Dashboard screenshots"], ["Inject errors in payment and open the dashboard", "The error panel turns red past its threshold within 2 minutes", "Screenshot"], ["Teammate answers the 3 questions", "Each answer is found in under 60 seconds", "Timing sheet"]],
+          "objectives": ["Design dashboards from user questions", "Use variables, units and thresholds consistently", "Test a dashboard with real users"]
+        },
+        {
+          "topic": "Writing First Symptom-Based Alerts",
+          "subtopics": ["Symptom versus cause alerts", "Alerting on what users feel: errors and latency", "Alert rule parts: expression, for duration, labels and annotations", "Pending and firing states", "Severity levels: page versus ticket", "Runbook links in every alert", "Testing rules before they reach production", "Notification channels and routing basics"],
+          "tools": ["Prometheus", "Alertmanager", "promtool", "amtool"],
+          "lab_task": "Write two alert rules for checkout: CheckoutHighErrorRate when the 5xx ratio is above 5% for 5 minutes, and CheckoutSlow when p95 is above 1 s for 10 minutes. Add severity labels and runbook_url annotations, validate with promtool check rules alerts.yml, write a promtool test rules unit test and trigger the error alert in the lab.",
+          "deliverable": "Alert rule file, unit test file, test output and a fired alert notification",
+          "checks": [["Run promtool check rules alerts.yml", "Output reports SUCCESS and 2 rules found", "Terminal output"], ["Run promtool test rules alerts_test.yml", "The test reports SUCCESS for the firing and non-firing cases", "Terminal output"], ["Force 10% errors for 6 minutes", "CheckoutHighErrorRate reaches firing state and a notification arrives", "Alertmanager UI and notification"]],
+          "objectives": ["Write alerts on user-facing symptoms", "Add severity and runbook information", "Unit-test alert rules"]
+        },
+        {
+          "topic": "Defining SLIs from User Journeys",
+          "subtopics": ["Service level indicator as good events divided by valid events", "Mapping critical user journeys such as login, search and checkout", "Availability SLIs from request status", "Latency SLIs from histogram buckets", "Where to measure: load balancer, server or client", "Excluding invalid events such as health checks and bots", "Freshness and correctness SLIs for pipelines", "First SLO targets and measurement windows"],
+          "tools": ["Prometheus", "Grafana", "k6", "OpenTelemetry SDK"],
+          "lab_task": "Pick the checkout journey and write two SLIs as PromQL: availability (non-5xx requests divided by all requests excluding /healthz) and latency (requests under 500 ms from the le=\"0.5\" bucket divided by all requests). Run a 10-minute k6 test with injected faults and record both SLI values next to the fault rate you injected.",
+          "deliverable": "SLI specification sheet with the two queries and measured values",
+          "checks": [["Inject 2% errors and run the availability SLI query", "The SLI reports about 0.98", "Query result"], ["Add 5,000 /healthz requests and rerun the SLI", "The SLI value does not change", "Query result"], ["Slow 20% of requests to 800 ms and run the latency SLI", "The SLI reports about 0.80", "Query result"]],
+          "objectives": ["Express an SLI as a ratio of good to valid events", "Build availability and latency SLIs from existing metrics", "Exclude events that do not reflect user experience"]
+        },
+        {
+          "topic": "Correlating Signals with Trace IDs and Exemplars",
+          "subtopics": ["Injecting trace_id and span_id into every log record", "Shared resource attributes: service.name, service.version and deployment environment", "Exemplars: a trace ID attached to a metric sample", "Enabling exemplar storage in Prometheus", "Jumping from a metric spike to a trace", "Jumping from a span to its logs", "Time alignment and clock skew", "Correlation in commercial tools as the same pattern"],
+          "tools": ["Prometheus", "Grafana", "Loki", "Jaeger", "OpenTelemetry SDK"],
+          "lab_task": "Start Prometheus with --enable-feature=exemplar-storage, record exemplars on the latency histogram, configure Grafana data source links from Loki trace_id to Jaeger and from Jaeger spans back to Loki. Starting from a latency spike, click through metric to exemplar to trace to log in under 4 clicks and record each step.",
+          "deliverable": "Correlation walkthrough screenshots and the data source configuration",
+          "checks": [["Query the latency histogram with exemplars enabled in Grafana", "Exemplar dots appear on the panel with trace IDs", "Panel screenshot"], ["Click an exemplar", "The matching trace opens in Jaeger", "Screenshot"], ["Click the logs link on a span", "Loki shows log lines with the same trace_id", "Screenshot"]],
+          "objectives": ["Put trace context into logs", "Link metrics to traces with exemplars", "Navigate between signals during an investigation"]
+        },
+        {
+          "topic": "Host and Container Telemetry with node_exporter and cAdvisor",
+          "subtopics": ["Host metrics from node_exporter: CPU, memory, disk and network", "Filesystem fill prediction with predict_linear", "Container metrics from cAdvisor", "container_memory_working_set_bytes and OOM kills", "CPU throttling from cgroup limits", "Disk I/O saturation signals", "Host-level logs: journald and syslog", "Mapping container metrics back to services"],
+          "tools": ["node_exporter", "cAdvisor", "Prometheus", "Grafana", "stress-ng"],
+          "lab_task": "Add node_exporter and cAdvisor to the lab, then run stress-ng --vm 1 --vm-bytes 90% in a container limited to 256 MB and stress-ng --cpu 4 in a container limited to 0.5 CPU. Show the OOM kill in container metrics or docker inspect, the CPU throttling ratio and a predict_linear disk alert that would fire within 4 hours.",
+          "deliverable": "Dashboard screenshots of memory, throttling and disk prediction with the queries used",
+          "checks": [["Run the memory stress container", "docker inspect shows OOMKilled true", "docker inspect output"], ["Query rate(container_cpu_cfs_throttled_periods_total[5m]) / rate(container_cpu_cfs_periods_total[5m])", "The throttling ratio is above 0.5 for the CPU-limited container", "Query result"], ["Run predict_linear(node_filesystem_avail_bytes[1h], 4*3600) < 0 while filling a test volume", "The expression returns the test filesystem", "Query result"]],
+          "objectives": ["Monitor hosts with the USE method", "Detect container memory kills and CPU throttling", "Predict resource exhaustion before it happens"]
+        },
+        {
+          "topic": "First-Responder Investigation Workflow",
+          "subtopics": ["Acknowledge, assess impact and communicate first", "Scope: which services, regions and customers", "Recent changes: deploys, feature flags and config", "From symptom dashboard to suspect service", "Confirm with traces and logs", "Mitigate before you fully diagnose: rollback, failover or scale", "Keeping a timeline during the incident", "Handing over with evidence"],
+          "tools": ["Grafana", "Jaeger", "Loki", "Alertmanager"],
+          "lab_task": "The trainer injects an unannounced fault (a bad config release that adds 3 s latency to one dependency for one region). Follow the workflow: record alert time, scope the impact with dashboards, find the change through deploy annotations, confirm with a trace and log line, apply the rollback and write a timeline with at least 6 timestamped entries.",
+          "deliverable": "Incident timeline with evidence links and the mitigation action",
+          "checks": [["Fault injected by the trainer", "The faulty dependency and region are named correctly", "Timeline entry with trace link"], ["Rollback applied", "p95 latency returns below 500 ms within 5 minutes", "Dashboard screenshot"], ["Timeline reviewed by the trainer", "At least 6 timestamped entries from alert to recovery are present", "Timeline document"]],
+          "objectives": ["Follow a repeatable investigation routine", "Use changes and scoping to narrow suspects quickly", "Mitigate first and record a timeline"]
+        },
+        {
+          "topic": "Beginner Capstone: Instrument and Observe a Three-Service Shop",
+          "subtopics": ["Instrumentation of three services with traces, metrics and JSON logs", "Collector and backend configuration in Docker Compose", "Service dashboard with golden signals and drill-downs", "Two SLIs and two tested alert rules"],
+          "tools": ["OpenTelemetry SDK", "OpenTelemetry Collector", "Prometheus", "Grafana", "Loki", "Jaeger"],
+          "lab_task": "Take an uninstrumented three-service shop (frontend, orders, payments), instrument it with OpenTelemetry, ship all signals through one collector to the lab backends, build a dashboard, define availability and latency SLIs, write and unit-test two alerts, then diagnose 2 faults the trainer injects without access to the source code or containers.",
+          "deliverable": "Repository with instrumentation, collector config, dashboard JSON, alert rules and tests, plus a short incident report for each fault",
+          "checks": [["Send one order through the frontend", "One trace contains spans from all 3 services and its trace ID appears in logs from each service", "Trace and log screenshots"], ["Run promtool test rules on the alert tests", "All tests pass", "Terminal output"], ["Trainer injects 2 faults", "Both faulty components are identified within 15 minutes each", "Incident reports"]],
+          "objectives": ["Combine instrumentation, collection, dashboards and alerts", "Prove correlation across all three signals", "Diagnose unseen faults from telemetry alone"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already instrument services and use dashboards and alerts, and now need to run observability for a team or a Kubernetes platform. Covers semantic conventions and resource attributes, a vendor-neutral collector pipeline, head and tail sampling, histogram bucket design, SLO specification with error budgets and multi-window burn-rate alerts, alert routing, log processing with redaction, cardinality control, recording rules, continuous profiling, Kubernetes and event telemetry, asynchronous and dependency tracing, real user and synthetic monitoring, dashboards as code and change-aware observability with canary analysis. Example tools include the OpenTelemetry Collector, Prometheus, Grafana, Loki, Tempo, Jaeger, Pyroscope and Fluent Bit; the same designs apply to Datadog, Dynatrace, Splunk or New Relic.",
+      "prerequisites": ["Has completed the beginner level or can instrument a service with OpenTelemetry and query metrics, logs and traces", "Can deploy workloads to Kubernetes with kubectl and Helm and read YAML manifests", "Has access to a local Kubernetes cluster such as kind or k3d with at least 4 CPU cores and 12 GB of RAM"],
+      "outcomes": ["Run a collector-based telemetry pipeline with consistent semantic conventions, sampling, redaction and cardinality limits", "Specify SLOs with error budgets and implement multi-window burn-rate alerts with clean routing and grouping", "Observe a Kubernetes platform end to end, including workloads, events, asynchronous flows, dependencies, browsers and synthetic probes", "Manage dashboards and alerts as code and use telemetry to judge deploys and canary releases"],
+      "days": [
+        {
+          "topic": "Semantic Conventions and Resource Attributes for Consistent Telemetry",
+          "subtopics": ["Why shared attribute names make cross-service queries possible", "Resource attributes: service.name, service.namespace, service.version and deployment.environment.name", "HTTP conventions: http.request.method, http.route and http.response.status_code", "Database, messaging and RPC attribute groups", "Stability levels of conventions and migration opt-in flags", "Mapping OpenTelemetry names to Prometheus metric names and labels", "Writing an organisation attribute dictionary for custom fields", "Linting telemetry against the dictionary"],
+          "tools": ["OpenTelemetry SDK", "OpenTelemetry Collector", "Prometheus", "Weaver"],
+          "lab_task": "Audit 3 lab services that use different attribute names for the same idea (status, http_status, statusCode). Write an attribute dictionary that adopts the OpenTelemetry HTTP conventions, change the services or add a collector transform to rename the fields, then write one query that returns error ratio by http.route across all 3 services.",
+          "deliverable": "Attribute dictionary, the renaming changes and the cross-service query with its result",
+          "checks": [["List the distinct status attribute names before the change", "3 different attribute names are found", "Trace attribute search"], ["Run the cross-service error-ratio query after the change", "One query returns results for all 3 services", "Query output"], ["Check resource attributes on a span from each service", "service.name, service.version and deployment.environment.name are present on all 3", "Span detail screenshots"]],
+          "objectives": ["Apply semantic conventions to spans, metrics and logs", "Write and enforce an attribute dictionary", "Normalise inconsistent telemetry from existing services"]
+        },
+        {
+          "topic": "Building a Vendor-Neutral Telemetry Pipeline with a Collector",
+          "subtopics": ["Receivers, processors, exporters, connectors and extensions", "Pipelines per signal in the service section", "Agent and gateway deployment patterns", "memory_limiter and batch processors and their order", "Exporting the same data to two backends", "health_check, pprof and zpages extensions", "Collector internal metrics on port 8888", "Validating configuration with otelcol-contrib validate"],
+          "tools": ["OpenTelemetry Collector", "Helm", "Prometheus", "Jaeger", "Grafana Tempo"],
+          "lab_task": "Deploy the collector as a DaemonSet agent plus a 2-replica gateway Deployment with Helm. Configure OTLP receivers, memory_limiter then batch, and fan out traces to both Jaeger and Tempo. Run otelcol-contrib validate --config=gateway.yaml, then compare sent span counts from the collector's internal exporter metrics with the counts each backend received.",
+          "deliverable": "Collector configurations, Helm values and the span count comparison",
+          "checks": [["Run otelcol-contrib validate --config=gateway.yaml", "The command exits with code 0", "Terminal output"], ["Curl the health_check extension on port 13133", "The response reports the collector as available", "curl output"], ["Compare exporter sent-span metrics for the two trace exporters over 10 minutes", "Both exporters report the same count within 1%", "Metrics query result"]],
+          "objectives": ["Design agent and gateway collector tiers", "Configure processors in a safe order", "Send one stream of telemetry to several backends"]
+        },
+        {
+          "topic": "Head-Based and Tail-Based Trace Sampling",
+          "subtopics": ["Why trace every request is rarely affordable", "Head sampling with parentbased_traceidratio", "OTEL_TRACES_SAMPLER and OTEL_TRACES_SAMPLER_ARG", "Tail sampling: deciding after the trace completes", "Policies: status_code, latency, probabilistic, string_attribute and composite", "Routing all spans of a trace to the same gateway with load balancing by trace ID", "Adjusting metric counts for sampled data and generating metrics before sampling", "Measuring kept-trace ratio and decision latency"],
+          "tools": ["OpenTelemetry Collector", "Grafana Tempo", "Jaeger", "k6"],
+          "lab_task": "Configure a two-tier collector: an agent with the loadbalancing exporter keyed on traceID and gateways with a tail_sampling processor that keeps 100% of error traces, 100% of traces over 1 s and 5% of the rest. Run k6 with 10,000 requests including 2% errors and 3% slow requests and report the kept-trace counts per policy.",
+          "deliverable": "Sampling configuration, test plan and per-policy kept-trace report",
+          "checks": [["Count error traces in the backend after the test", "All about 200 error traces are present", "Trace search result"], ["Count normal traces kept", "About 5% of the roughly 9,500 normal traces are kept", "Trace search count"], ["Check spans of one kept trace from 3 services", "No spans are missing, showing all spans reached the same gateway", "Trace screenshot"]],
+          "objectives": ["Compare head and tail sampling", "Write tail-sampling policies that keep interesting traces", "Keep traces complete across a scaled gateway"]
+        },
+        {
+          "topic": "Histogram Design: Bucket Boundaries and Exponential Histograms",
+          "subtopics": ["Bucket boundaries decide percentile accuracy", "Placing boundaries around SLO thresholds", "Default SDK boundaries and why they often miss", "Interpolation error inside a bucket", "Exponential histograms in OpenTelemetry and native histograms in Prometheus", "Series cost of classic histograms per label set", "Views to change aggregation without code changes", "Heatmaps for latency distribution"],
+          "tools": ["OpenTelemetry SDK", "Prometheus", "Grafana", "k6"],
+          "lab_task": "Generate latency that clusters at 280 ms and 320 ms around a 300 ms SLO threshold. Record it with default buckets, with custom buckets that include 0.3, and with an exponential or native histogram. Compare the computed fraction under 300 ms from each against the exact fraction measured by k6.",
+          "deliverable": "Comparison table of fraction-under-threshold from the 3 histogram setups and the SDK view configuration",
+          "checks": [["Compute the fraction under 300 ms from default buckets", "The result differs from k6 by more than 5 percentage points", "Query result and k6 summary"], ["Compute it from custom buckets with a 0.3 boundary", "The result matches k6 within 1 percentage point", "Query result"], ["Count series for one label set in classic and native form", "The native histogram uses 1 series compared with one per bucket for classic", "Series count query"]],
+          "objectives": ["Choose bucket boundaries for SLO thresholds", "Configure SDK views to change histogram aggregation", "Compare classic and exponential histograms"]
+        },
+        {
+          "topic": "SLO Specification, Error Budgets and Budget Policies",
+          "subtopics": ["SLO = SLI + target + window", "Rolling and calendar windows", "Error budget as 1 minus target, in minutes and in requests", "Budget policy: what happens when the budget is spent", "Choosing targets from historical data and user expectations", "Dependency SLOs and the limits they place on yours", "SLO documents and the OpenSLO format", "Budget remaining and burn-down dashboards"],
+          "tools": ["Prometheus", "Grafana", "Sloth", "OpenSLO"],
+          "lab_task": "Write an SLO document for checkout availability at 99.5% over 30 days and latency with 95% of requests under 500 ms. Express it in OpenSLO or Sloth YAML, generate recording rules, and build a dashboard with budget remaining. Replay a week of lab traffic with a 40-minute outage and calculate the budget consumed.",
+          "deliverable": "SLO document, generated rules and a budget dashboard with the outage calculation",
+          "checks": [["Calculate the availability budget for 30 days at 99.5%", "The budget is 216 minutes", "Worked calculation"], ["Replay the 40-minute full outage", "The dashboard shows about 18.5% of the budget consumed", "Dashboard screenshot"], ["Run promtool check rules on the generated rules", "The rules pass validation", "Terminal output"]],
+          "objectives": ["Write a complete SLO specification", "Calculate error budgets in time and requests", "Agree a budget policy with service owners"]
+        },
+        {
+          "topic": "Multi-Window Multi-Burn-Rate Alerting",
+          "subtopics": ["Burn rate: how fast the budget is spent relative to the target", "Why a single threshold alert is either noisy or slow", "Fast burn: 14.4 over 1 hour with a 5-minute short window", "Slow burn: 6 over 6 hours with a 30-minute short window", "Ticket-level burn: 1 over 3 days with a 6-hour short window", "Short windows to reset alerts quickly after recovery", "Recording rules per window to keep alerts cheap", "Testing burn-rate alerts with synthetic error series"],
+          "tools": ["Prometheus", "Alertmanager", "promtool", "Sloth"],
+          "lab_task": "For a 99.9% 30-day SLO, write page and ticket alerts using burn rates 14.4 (1h and 5m), 6 (6h and 30m) and 1 (3d and 6h). Write promtool unit tests for: a 2% error spike for 1 hour, a 0.8% error rate for 8 hours and a 2-minute blip of 10% errors. Record which alert fires in each case.",
+          "deliverable": "Burn-rate rule file, unit tests and a results table per scenario",
+          "checks": [["Test a 2% error rate for 1 hour", "The fast-burn page alert fires", "promtool test output"], ["Test a 0.8% error rate for 8 hours", "The 6x page alert fires and the fast-burn alert does not", "promtool test output"], ["Test a 2-minute blip of 10% errors", "No page alert fires", "promtool test output"]],
+          "objectives": ["Calculate burn rates for an SLO", "Implement multi-window multi-burn-rate alerts", "Prove alert behaviour with unit tests"]
+        },
+        {
+          "topic": "Alert Routing, Grouping, Inhibition and Silences",
+          "subtopics": ["Routing trees by team, service and severity", "group_by, group_wait, group_interval and repeat_interval", "Inhibition: suppress symptoms when a root alert fires", "Silences for planned maintenance", "Receivers: paging tools, chat and ticket systems", "Templates for readable notifications", "Dead-man's-switch alerts for a broken pipeline", "Testing routes with amtool"],
+          "tools": ["Alertmanager", "amtool", "Prometheus", "Grafana"],
+          "lab_task": "Write an Alertmanager config that routes severity=page alerts for team=payments to a paging receiver and everything else to chat, groups by alertname and cluster, and inhibits all service alerts in a cluster when ClusterDown fires. Test routes with amtool config routes test, fire 30 alerts with amtool alert add and count the notifications received.",
+          "deliverable": "Alertmanager configuration, route test output and the notification count",
+          "checks": [["Run amtool check-config alertmanager.yml", "The check reports SUCCESS", "Terminal output"], ["Run amtool config routes test severity=page team=payments", "The output names the paging receiver", "Terminal output"], ["Fire ClusterDown plus 29 service alerts for one cluster", "Only the ClusterDown notification is delivered", "Receiver log"]],
+          "objectives": ["Design a routing tree that reaches the right team", "Reduce noise with grouping and inhibition", "Detect a silent pipeline with a heartbeat alert"]
+        },
+        {
+          "topic": "Log Pipeline Processing: Parsing, Redaction and Enrichment",
+          "subtopics": ["Parse at the edge or at query time", "Multiline joining for stack traces", "Redacting card numbers, emails and tokens before storage", "Dropping debug and health-check noise", "Enriching with Kubernetes metadata", "Routing logs to different stores by type", "Vector Remap Language and the OpenTelemetry transform processor with OTTL", "Unit-testing pipeline transforms"],
+          "tools": ["Vector", "OpenTelemetry Collector", "Fluent Bit", "Loki"],
+          "lab_task": "Build a log pipeline that joins Java stack traces, redacts 16-digit card numbers and bearer tokens with a regular expression, drops GET /healthz lines and adds k8s.namespace.name and k8s.pod.name. Write vector test cases or collector test data covering each rule and measure the stored volume reduction over 30 minutes.",
+          "deliverable": "Pipeline configuration, transform tests and a volume report",
+          "checks": [["Send a log containing 4111 1111 1111 1111", "The stored line shows the card number masked", "Backend query result"], ["Run vector test or the collector test harness", "All transform tests pass", "Terminal output"], ["Compare ingested bytes before and after dropping health checks", "Stored volume falls by a measured percentage", "Volume report"]],
+          "objectives": ["Parse and join log records reliably", "Redact sensitive data before it is stored", "Reduce log volume without losing useful records"]
+        },
+        {
+          "topic": "Cardinality Management: Detection, Limits and Relabeling",
+          "subtopics": ["Finding top metrics and labels by series count", "TSDB head statistics and label value counts", "metric_relabel_configs with labeldrop, drop and replace", "sample_limit and label_limit in scrape configs", "Collector processors that remove or hash attributes", "OpenTelemetry views to drop attributes on instruments", "Cardinality budgets per team", "Alerting on series growth"],
+          "tools": ["Prometheus", "OpenTelemetry Collector", "promtool", "Grafana"],
+          "lab_task": "A team ships a metric with pod_uid, raw path and session_id labels. Find it with topk(10, count by (__name__)({__name__=~\".+\"})) and /api/v1/status/tsdb, drop session_id with metric_relabel_configs, collapse raw paths into route templates, set sample_limit: 5000 on the job and add an alert on prometheus_tsdb_head_series growth over 20% in 1 hour.",
+          "deliverable": "Cardinality investigation report, relabel configuration and growth alert",
+          "checks": [["Run the topk query before the fix", "The offending metric is in the top 3", "Query result"], ["Count series for the metric after relabeling", "Series fall by at least 90%", "Query result"], ["Expose 6,000 samples from a test target with sample_limit 5000", "The scrape fails and up is 0 for that target", "Targets page screenshot"]],
+          "objectives": ["Find the source of cardinality growth", "Apply relabeling and limits to contain it", "Alert before cardinality becomes an outage"]
+        },
+        {
+          "topic": "Recording Rules and Pre-Aggregation for Fast Dashboards",
+          "subtopics": ["When dashboards become slow and why", "Recording rules and naming like level:metric:operations", "Evaluation interval and rule groups", "Pre-aggregating away high-cardinality labels", "Using recorded series in alerts and SLOs", "Stream aggregation in agents and collectors", "Checking rule evaluation duration", "Keeping raw data for drill-down"],
+          "tools": ["Prometheus", "promtool", "Grafana", "OpenTelemetry Collector"],
+          "lab_task": "Measure the query time of a dashboard that computes p99 per service from raw buckets over 7 days. Write recording rules job:http_server_request_duration_seconds_bucket:rate5m and service-level error ratios, point the dashboard at them and measure again. Check rule cost with prometheus_rule_group_last_duration_seconds.",
+          "deliverable": "Recording rule file and a before-and-after query time table",
+          "checks": [["Run promtool check rules recording.yml", "The rules pass validation", "Terminal output"], ["Load the 7-day dashboard before and after", "Query time falls by a measured factor", "Query inspector timings"], ["Query prometheus_rule_group_last_duration_seconds", "Each new group evaluates in less than its interval", "Query result"]],
+          "objectives": ["Write recording rules with standard names", "Speed up dashboards and alerts with pre-aggregation", "Monitor the cost of rule evaluation"]
+        },
+        {
+          "topic": "Continuous Profiling and Flame Graph Analysis",
+          "subtopics": ["Profiles as the fourth signal", "CPU, allocation, heap, lock and goroutine profiles", "Sampling profilers and their overhead", "Reading flame graphs and icicle graphs", "Diff flame graphs between two versions", "Linking profiles to traces with span IDs", "pprof format and the OpenTelemetry profiles signal", "Tools as examples: Pyroscope, Parca, py-spy and async-profiler"],
+          "tools": ["Pyroscope", "pprof", "py-spy", "async-profiler", "Grafana"],
+          "lab_task": "Profile the lab search service with Pyroscope while running load, find the hottest function, then deploy a version with a regex compiled per request. Use a diff flame graph between versions to prove which function grew, and confirm with go tool pprof -top or py-spy top on the running process.",
+          "deliverable": "Flame graph and diff screenshots with the identified regression and the fix",
+          "checks": [["Open the CPU profile for the search service under load", "The hottest function and its percentage of CPU are shown", "Flame graph screenshot"], ["Compare old and new versions in a diff flame graph", "The regex compile function shows a clear increase", "Diff screenshot"], ["Apply the fix and repeat", "CPU usage per request returns to the earlier level", "Profile and metric screenshot"]],
+          "objectives": ["Explain profile types and their uses", "Read flame graphs and diffs", "Find a code-level regression with continuous profiling"]
+        },
+        {
+          "topic": "Observing a Kubernetes Cluster: Nodes, Workloads and Control Plane",
+          "subtopics": ["kube-state-metrics for object state", "Kubelet and cAdvisor container metrics", "Control-plane metrics: API server latency and etcd", "Requests and limits compared with actual usage", "The k8sattributes processor for pod metadata", "kubeletstats and k8s_cluster receivers", "Pod restarts, pending pods and OOMKilled containers", "Namespace and team dashboards"],
+          "tools": ["kube-state-metrics", "OpenTelemetry Collector", "Prometheus", "Grafana", "kubectl", "kind"],
+          "lab_task": "In a kind cluster, deploy kube-state-metrics and a collector with the k8sattributes processor. Create a Deployment whose pods exceed their memory limit and another stuck Pending on a large CPU request. Find both with kube_pod_container_status_last_terminated_reason{reason=\"OOMKilled\"} and kube_pod_status_phase{phase=\"Pending\"}, and confirm spans carry k8s.pod.name.",
+          "deliverable": "Cluster dashboard, the two queries with results and a span showing pod metadata",
+          "checks": [["Run the OOMKilled query", "The memory-hungry pod is returned", "Query result"], ["Run the Pending phase query", "The over-requested pod is returned with value 1", "Query result"], ["Open a span from a workload pod", "k8s.namespace.name and k8s.pod.name attributes are present", "Span screenshot"]],
+          "objectives": ["Collect cluster and workload telemetry", "Detect common Kubernetes failure states", "Enrich application telemetry with Kubernetes metadata"]
+        },
+        {
+          "topic": "Kubernetes Events and Pod Lifecycle Telemetry",
+          "subtopics": ["Kubernetes events and their one-hour default retention", "Warning events: FailedScheduling, BackOff, Unhealthy and FailedMount", "Collecting events with the k8sobjects or k8s_events receiver", "Storing events as logs for search", "Deploy, scale and config change events as annotations", "Linking events to the affected workload", "Alerting on event patterns", "Event noise and deduplication"],
+          "tools": ["kubectl", "OpenTelemetry Collector", "Loki", "Grafana"],
+          "lab_task": "Collect cluster events with the collector into the log backend. Cause a CrashLoopBackOff, a failed readiness probe and a FailedScheduling event, then run kubectl get events --field-selector type=Warning and the matching backend query. Add a Grafana annotation query that shows Warning events on the service dashboard.",
+          "deliverable": "Event collector configuration, backend queries and an annotated dashboard",
+          "checks": [["Run kubectl get events --field-selector type=Warning", "BackOff, Unhealthy and FailedScheduling reasons are listed", "kubectl output"], ["Query the log backend for events older than 1 hour", "Events are still found after they expire from the API server", "Query result"], ["Open the service dashboard during the CrashLoopBackOff", "An annotation marks the event on the latency panel", "Dashboard screenshot"]],
+          "objectives": ["Capture Kubernetes events as durable telemetry", "Interpret common warning events", "Show events in context on dashboards"]
+        },
+        {
+          "topic": "Tracing Asynchronous Messaging and Background Jobs",
+          "subtopics": ["Producer and consumer spans", "Propagating context through message headers", "Span links for batch consumers", "Queue lag and consumer group lag metrics", "Messaging semantic conventions", "Tracing scheduled jobs and cron tasks", "Retries and dead-letter queues in telemetry", "End-to-end latency from publish to processing"],
+          "tools": ["OpenTelemetry SDK", "Apache Kafka", "RabbitMQ", "Jaeger", "Prometheus"],
+          "lab_task": "Instrument an order publisher and a batch consumer that reads 50 messages per poll from Kafka or RabbitMQ. Propagate traceparent in message headers, create consumer spans with links to each producer span, record publish-to-process latency as a histogram and alert when consumer lag exceeds 1,000 messages for 5 minutes.",
+          "deliverable": "Instrumented publisher and consumer, a linked trace screenshot and the lag alert",
+          "checks": [["Publish one message and open its trace", "A PRODUCER span and a CONSUMER span share the trace or are linked", "Trace screenshot"], ["Consume a batch of 50 messages", "The batch span has 50 span links", "Span detail view"], ["Pause the consumer while publishing 2,000 messages", "The consumer lag alert fires", "Alert screenshot"]],
+          "objectives": ["Propagate context across message queues", "Use span links for fan-in work", "Measure and alert on queue lag"]
+        },
+        {
+          "topic": "Database and External Dependency Observability",
+          "subtopics": ["Client-side spans for database and HTTP calls", "db.system, db.query.text and sanitised statements", "Connection pool metrics: active, idle and wait time", "Slow query logs and database server metrics", "Third-party API latency and error budgets", "Retries, timeouts and circuit breaker states as telemetry", "Service graphs from span metrics", "Showing dependency health on the owning service dashboard"],
+          "tools": ["OpenTelemetry Collector", "PostgreSQL", "postgres_exporter", "Grafana", "Jaeger"],
+          "lab_task": "Add the spanmetrics and servicegraph connectors to the collector, run load that saturates a PostgreSQL connection pool of 10 and slows a third-party API. Show the pool wait time metric, the slow SELECT span with a sanitised statement and the service graph edge with the highest error rate.",
+          "deliverable": "Collector connector configuration, service graph screenshot and dependency findings",
+          "checks": [["Open the service graph after load", "An edge from orders to postgresql shows request rate and latency", "Service graph screenshot"], ["Inspect a database span", "The statement has parameter values replaced with placeholders", "Span detail view"], ["Run 50 concurrent requests against a pool of 10", "Pool wait time rises above 0 and is shown on the dashboard", "Metric graph"]],
+          "objectives": ["Trace and measure database and API dependencies", "Generate metrics and service graphs from spans", "Detect connection pool saturation"]
+        },
+        {
+          "topic": "Real User Monitoring and Core Web Vitals",
+          "subtopics": ["Browser telemetry compared with server telemetry", "Core Web Vitals: LCP, INP and CLS with their good thresholds", "The web-vitals library and the browser OpenTelemetry SDK", "Propagating trace context from the browser to the backend", "JavaScript errors and source maps", "Sampling and consent for user data", "Segmenting by device, country and connection type", "Beacon endpoints and CORS setup"],
+          "tools": ["OpenTelemetry JS", "web-vitals", "Grafana Faro", "Lighthouse", "Chrome DevTools"],
+          "lab_task": "Add the web-vitals library to the lab frontend and send LCP, INP and CLS to a collector endpoint with CORS allowed for the site. Throttle the network to Slow 4G in Chrome DevTools, record 20 page loads and report p75 for each metric against the good thresholds of 2.5 s, 200 ms and 0.1.",
+          "deliverable": "Frontend instrumentation code, collector receiver config and a p75 Web Vitals report",
+          "checks": [["Load the page with DevTools open", "A beacon request to the collector returns status 200 or 204", "Network tab screenshot"], ["Query p75 LCP for the 20 throttled loads", "A value in seconds is compared against 2.5 s", "Query result"], ["Click a button that triggers a backend call", "The backend trace has a browser span as its parent", "Trace screenshot"]],
+          "objectives": ["Collect Core Web Vitals from real browsers", "Link browser activity to backend traces", "Report user experience by percentile and segment"]
+        },
+        {
+          "topic": "Synthetic Monitoring and Blackbox Probes",
+          "subtopics": ["Synthetic checks versus real user data", "HTTP, TCP, DNS, ICMP and TLS probes", "Multi-step browser journeys", "probe_success, probe_duration_seconds and probe_http_status_code", "TLS certificate expiry with probe_ssl_earliest_cert_expiry", "Probing from several locations", "Avoiding false alerts with retries and multiple locations", "Synthetic checks as SLIs for low-traffic services"],
+          "tools": ["blackbox_exporter", "Prometheus", "Playwright", "k6", "Grafana"],
+          "lab_task": "Deploy blackbox_exporter with http_2xx and tcp_connect modules and probe the lab frontend, the API and a test TLS endpoint. Test with curl 'localhost:9115/probe?target=https://shop.lab&module=http_2xx'. Add a certificate-expiry alert for under 14 days and a k6 or Playwright browser check that logs in and adds an item to the cart.",
+          "deliverable": "Probe configuration, alert rules and browser check script with results",
+          "checks": [["Curl the /probe endpoint for the frontend", "Output contains probe_success 1", "curl output"], ["Probe a certificate that expires in 7 days", "The certificate-expiry alert fires", "Alert screenshot"], ["Break the add-to-cart button and run the browser check", "The check fails at the add-to-cart step", "Check report"]],
+          "objectives": ["Choose synthetic probe types for each endpoint", "Alert on availability and certificate expiry", "Script a multi-step user journey check"]
+        },
+        {
+          "topic": "Dashboards and Alerts as Code",
+          "subtopics": ["Why click-built dashboards drift and break", "Grafana provisioning files for data sources and dashboards", "Generating dashboards with Jsonnet, the Foundation SDK or Terraform", "Rule files in version control", "Code review of dashboards and alerts", "CI checks: JSON lint, promtool and schema tests", "Promoting from staging to production", "Detecting manual edits"],
+          "tools": ["Grafana", "Terraform", "Jsonnet", "promtool", "GitHub Actions"],
+          "lab_task": "Turn the checkout dashboard and its alert rules into code: a Terraform grafana provider module or Jsonnet library that renders one dashboard per service from a list, plus rule files. Add a CI job that runs promtool check rules, promtool test rules and terraform plan, and show that a manual UI change is reverted on the next apply.",
+          "deliverable": "Repository with dashboard code, rules, CI workflow and a run log",
+          "checks": [["Run the CI pipeline on a pull request", "promtool and terraform plan steps pass", "CI run log"], ["Add a new service to the list and apply", "A new dashboard appears with the same panels", "Grafana screenshot"], ["Edit a panel in the UI and run terraform apply", "The plan shows the change and apply restores the coded version", "Terraform output"]],
+          "objectives": ["Manage dashboards and alerts in version control", "Generate consistent dashboards from templates", "Validate telemetry configuration in CI"]
+        },
+        {
+          "topic": "Change-Aware Observability: Deploy Markers and Canary Analysis",
+          "subtopics": ["Most incidents follow a change", "Deploy annotations through the Grafana /api/annotations endpoint", "service.version on all telemetry", "Comparing old and new versions side by side", "Automated canary analysis with metric queries", "Argo Rollouts AnalysisTemplate and Flagger metric checks", "Feature flag change events", "Rollback triggers from SLI degradation"],
+          "tools": ["Argo Rollouts", "Flagger", "Prometheus", "Grafana", "curl"],
+          "lab_task": "Add a CI step that posts a deploy annotation with curl -X POST /api/annotations including service and version tags. Configure an Argo Rollouts canary with an AnalysisTemplate that queries the canary error ratio every minute and fails above 1%. Deploy a good version and a faulty one and record the outcome of each.",
+          "deliverable": "CI step, AnalysisTemplate, and outcome report for both releases",
+          "checks": [["Run the deploy step", "The annotation API returns a JSON body with an id", "curl output"], ["Deploy the good version", "The rollout completes to 100% with analysis Successful", "kubectl argo rollouts get rollout output"], ["Deploy the faulty version with 5% errors", "The analysis fails and the rollout is aborted", "Rollout status output"]],
+          "objectives": ["Mark changes on every relevant dashboard", "Compare versions with service.version", "Automate release decisions from telemetry"]
+        },
+        {
+          "topic": "Intermediate Capstone: SLO-Driven Observability for a Kubernetes Platform",
+          "subtopics": ["Collector agent and gateway with sampling, redaction and limits", "SLOs, burn-rate alerts and routing for three services", "Kubernetes, events, dependency, RUM and synthetic coverage", "Dashboards, rules and canary analysis managed as code"],
+          "tools": ["OpenTelemetry Collector", "Prometheus", "Grafana", "Loki", "Grafana Tempo", "Argo Rollouts"],
+          "lab_task": "On a kind cluster running a 6-service shop, deliver a collector pipeline with tail sampling and redaction, SLOs with burn-rate alerts for 3 user journeys, Kubernetes and event telemetry, RUM and synthetic checks, all in a Git repository. Then handle 3 trainer-run game-day faults and show that a faulty canary release is stopped automatically.",
+          "deliverable": "Platform repository, SLO documents, game-day reports and a 10-minute demo",
+          "checks": [["Run the CI pipeline for the repository", "All rule tests, config validation and plans pass", "CI run log"], ["Trainer injects a slow-burn fault over 2 hours", "The correct burn-rate alert fires and routes to the owning team", "Alert notification"], ["Release a faulty canary", "Analysis fails and the rollout aborts with no SLO breach", "Rollout status and SLO dashboard"]],
+          "objectives": ["Design and run observability for a whole platform", "Tie alerting and releases to SLOs", "Prove coverage through game-day exercises"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior engineers, SRE leads, platform owners and architects who are responsible for observability across many teams and need to set its strategy, scale and budget. Covers maturity assessment and strategy, telemetry cost models, scaling metric, log and trace storage, pipeline resilience and loss accounting, wide events for high-cardinality analysis, eBPF-based zero-code telemetry, serverless and LLM application observability, multi-tenancy and access control, telemetry security and privacy, anomaly detection, hypothesis-driven investigation and topology-aware root cause, instrumentation testing in CI, vendor migration, on-call health, business telemetry and an enterprise platform capstone. Open-source tools are used for the labs; Datadog, Dynatrace, Splunk, New Relic and AppDynamics are discussed as examples when comparing build and buy options.",
+      "prerequisites": ["Has completed the intermediate level or has run a collector pipeline, SLOs and burn-rate alerts for production services", "Has operated Kubernetes in production and can read Go, Python or Java code and Terraform or Helm configuration", "Has access to a cloud account or a Kubernetes cluster with at least 8 CPU cores, 32 GB of RAM and S3-compatible object storage"],
+      "outcomes": ["Assess observability maturity and write a funded multi-year strategy with cost models, ownership and success measures", "Design scalable, resilient and multi-tenant telemetry storage and pipelines with measured data loss and controlled cost", "Observe hard environments including eBPF-instrumented legacy services, serverless functions and LLM agents", "Lead complex investigations with wide events, anomaly detection and topology, and run a vendor migration without blind spots"],
+      "days": [
+        {
+          "topic": "Observability Strategy and Maturity Assessment",
+          "subtopics": ["Maturity levels from reactive monitoring to proactive, SLO-driven operations", "Assessment dimensions: coverage, correlation, SLO adoption, cost control and culture", "Interviewing teams and measuring MTTD, MTTR and alert precision", "Current-state inventory of tools, agents and contracts", "Target architecture and principles such as open standards first", "Central platform team versus federated ownership", "Roadmap, funding model and success metrics", "Presenting the strategy to engineering leadership"],
+          "tools": ["OpenTelemetry Collector", "Grafana", "spreadsheet", "Backstage"],
+          "lab_task": "Using the supplied fictional company pack (40 services, 4 monitoring tools, incident history for 6 months), score maturity on 5 dimensions from 1 to 5, calculate current MTTD, MTTR and the share of pages that needed action, and write a 3-page strategy with a target architecture, 4 quarterly milestones and 3 measurable success metrics.",
+          "deliverable": "Maturity scorecard, baseline metrics and a 3-page strategy document",
+          "checks": [["Compute MTTD and MTTR from the incident history", "Both values in minutes match the trainer's reference within 5%", "Calculation sheet"], ["Count actionable pages divided by all pages", "An alert precision percentage is reported", "Calculation sheet"], ["Peer review of the strategy", "Each milestone has an owner, a date and a measurable exit criterion", "Review notes"]],
+          "objectives": ["Assess an organisation's observability maturity", "Set baseline and target metrics", "Write a strategy leadership can fund"]
+        },
+        {
+          "topic": "Telemetry Cost Modelling and Budget Governance",
+          "subtopics": ["Cost drivers: ingest volume, indexed fields, active series, retention and queries", "Pricing models: per host, per GB, per series and per user", "Unit cost per service, team and request", "Showback and chargeback using resource attributes", "Tiered retention and archive storage", "Sampling, aggregation and dropping as cost levers", "Usage alerts and quotas per team", "Estimating the value of telemetry against its cost"],
+          "tools": ["OpenTelemetry Collector", "Prometheus", "Loki", "Grafana", "Datadog"],
+          "lab_task": "Build a cost model for the lab: measure GB of logs per day, active series and spans per second per team from collector and backend usage metrics, then price them with two pricing models (per GB ingested and per host). Apply 3 cost levers, re-measure and report the monthly saving and any lost debugging capability.",
+          "deliverable": "Cost model spreadsheet, per-team showback dashboard and a saving report",
+          "checks": [["Group ingest bytes by the team resource attribute", "A per-team daily volume is shown for every team", "Showback dashboard"], ["Apply log dropping, sampling and series reduction", "Monthly projected cost falls by a reported percentage", "Before-and-after model"], ["Replay a known incident on the reduced data", "The root cause can still be found from the remaining telemetry", "Investigation notes"]],
+          "objectives": ["Model telemetry costs per team and per signal", "Apply cost levers without losing key evidence", "Set up showback and usage quotas"]
+        },
+        {
+          "topic": "Scaling Metrics Storage: Remote Write, Sharding and Long-Term Retention",
+          "subtopics": ["Single Prometheus limits and vertical scaling", "Functional sharding and hashmod sharding of targets", "remote_write with queue_config tuning", "Horizontally scaled stores: Mimir, Thanos, Cortex and VictoriaMetrics", "Object storage blocks, compaction and downsampling", "Query federation and global views", "High availability pairs and deduplication", "Monitoring the store: remote write lag and ingester limits"],
+          "tools": ["Prometheus", "Grafana Mimir", "Thanos", "VictoriaMetrics", "MinIO"],
+          "lab_task": "Run 2 Prometheus replicas with remote_write to a horizontally scaled store backed by MinIO. Generate 1 million active series with a series generator, tune queue_config max_shards and capacity until prometheus_remote_storage_samples_pending stays flat, kill one replica and show deduplicated, gap-free data. Query 30 days of downsampled data.",
+          "deliverable": "Storage architecture diagram, tuning notes and failure test evidence",
+          "checks": [["Run the load at 1 million series", "Remote write pending samples stay below a stable ceiling for 30 minutes", "Metrics graph"], ["Kill one Prometheus replica for 10 minutes", "Queries show no gap and no doubled values", "Dashboard screenshot"], ["Query a 30-day range", "The query returns from downsampled blocks within a recorded time", "Query inspector"]],
+          "objectives": ["Scale metric ingestion beyond one server", "Tune remote write for high throughput", "Design long-term metric retention"]
+        },
+        {
+          "topic": "Scaling Log and Trace Backends: Object Storage and Indexing Trade-offs",
+          "subtopics": ["Full-text indexing compared with label-only indexing", "Columnar stores for logs and traces", "Object storage as the main tier", "Write path, read path and caching tiers", "Bloom filters and trace ID lookup", "Retention per tenant and per stream", "Query limits to protect the cluster", "Choosing between search-heavy and cost-heavy designs"],
+          "tools": ["Loki", "Grafana Tempo", "OpenSearch", "ClickHouse", "MinIO"],
+          "lab_task": "Load the same 50 GB of JSON logs into a label-indexed store and a full-text store. Measure storage size, ingest CPU, and query time for 3 queries: exact trace ID lookup, keyword search over 24 hours and an error count by service over 7 days. Write a recommendation matching each design to a use case.",
+          "deliverable": "Benchmark table and a backend selection recommendation",
+          "checks": [["Compare stored bytes for both backends", "Storage size for each is recorded and the ratio calculated", "Benchmark table"], ["Run the keyword search over 24 hours", "Query times for both backends are recorded", "Query timings"], ["Look up one trace ID in the trace store", "The trace is returned in under 2 seconds", "Query result"]],
+          "objectives": ["Compare indexing strategies for logs and traces", "Benchmark backends with realistic queries", "Recommend storage designs by use case"]
+        },
+        {
+          "topic": "Pipeline Resilience: Buffering, Backpressure and Loss Accounting",
+          "subtopics": ["Where telemetry gets lost: SDK, agent, gateway and backend", "In-memory and persistent queues with file_storage", "Retry with backoff and its limits", "Backpressure and refused data with memory_limiter", "Collector internal metrics for refused, dropped and failed data", "End-to-end loss accounting with test counters", "Capacity planning for gateways", "Chaos tests for the pipeline itself"],
+          "tools": ["OpenTelemetry Collector", "Vector", "Prometheus", "Chaos Mesh"],
+          "lab_task": "Enable a persistent sending_queue backed by file_storage on the gateway, then generate a known count of 1,000,000 spans while causing a 10-minute backend outage and a gateway pod restart with Chaos Mesh. Compare sent, refused and failed counters from collector internal metrics with the count stored in the backend and report loss as a percentage.",
+          "deliverable": "Resilience configuration, chaos experiment definitions and a loss report",
+          "checks": [["Run the backend outage with the persistent queue", "Queue size metrics rise during the outage and drain afterwards", "Metrics graph"], ["Count spans stored after both faults", "Loss is under 0.1% of 1,000,000", "Backend count query"], ["Repeat with the in-memory queue and a gateway restart", "Loss is higher and is shown in the failed or dropped counters", "Comparison table"]],
+          "objectives": ["Find every point of possible telemetry loss", "Configure queues and backpressure correctly", "Measure and report pipeline loss"]
+        },
+        {
+          "topic": "High-Cardinality Analytics with Wide Events",
+          "subtopics": ["Wide events: one rich record per unit of work", "Arbitrary attributes such as customer, build, feature flag and region", "Columnar storage that handles high cardinality", "Asking new questions with group by on any field", "Outlier comparison between a slow set and a baseline set", "Deriving metrics from wide events", "Traces as wide events with span attributes", "Schema discipline for wide events"],
+          "tools": ["ClickHouse", "OpenTelemetry SDK", "OpenTelemetry Collector", "Grafana", "Honeycomb"],
+          "lab_task": "Emit one wide event per request with 30 attributes, including customer_id, build_id, feature flags and region, into ClickHouse through the collector. Hide a fault affecting only one build on one region for customers with a flag enabled. Write SQL that compares the slow set with the baseline by attribute and isolates all 3 conditions.",
+          "deliverable": "Wide event schema, SQL queries and a written explanation of the isolated fault",
+          "checks": [["Count distinct customer_id values in the table", "More than 50,000 distinct values are stored", "SQL result"], ["Run the attribute comparison query on requests over 1 s", "build_id, region and the flag are the top 3 differing attributes", "SQL result"], ["Filter on all 3 conditions", "p95 latency for that group is above 1 s while others are below 300 ms", "SQL result"]],
+          "objectives": ["Design wide events for unknown questions", "Query high-cardinality data efficiently", "Isolate multi-condition faults"]
+        },
+        {
+          "topic": "eBPF-Based Zero-Code Telemetry",
+          "subtopics": ["What eBPF is and how kernel probes observe programs", "Protocol-level tracing of HTTP, gRPC and SQL without code changes", "Network flow telemetry between pods", "Kernel and runtime version requirements", "Limits: encrypted traffic, context propagation and language support", "Security permissions and privileged DaemonSets", "Overhead measurement", "Tools as examples: Grafana Beyla, Pixie, Cilium Hubble and Parca"],
+          "tools": ["Grafana Beyla", "Cilium Hubble", "Pixie", "bpftool", "kubectl"],
+          "lab_task": "Deploy an eBPF auto-instrumentation agent as a DaemonSet against a legacy service you may not modify. Show RED metrics and spans produced without code changes, view pod-to-pod network flows, check the kernel version with uname -r and compare CPU overhead and p99 latency with and without the agent under 500 requests per second.",
+          "deliverable": "Agent deployment, screenshots of generated telemetry and an overhead and limitations report",
+          "checks": [["Send traffic to the legacy service", "RED metrics for its HTTP routes appear without code changes", "Dashboard screenshot"], ["Run uname -r on the nodes", "The kernel version meets the agent's documented minimum", "Terminal output"], ["Measure p99 latency with and without the agent", "The difference is recorded in milliseconds and CPU overhead in percent", "Benchmark table"]],
+          "objectives": ["Explain how eBPF observes applications", "Instrument services that cannot be changed", "Assess eBPF limits, permissions and overhead"]
+        },
+        {
+          "topic": "Serverless Observability: Cold Starts, Short-Lived Functions and Flushing",
+          "subtopics": ["Function lifecycle: init, invoke and shutdown", "Cold start detection and Init Duration in platform logs", "Flushing telemetry before the function freezes", "Extension and layer-based collectors", "Trace context through queues, event buses and API gateways", "Concurrency, throttles and timeouts as signals", "Cost per invocation as a metric", "Examples on AWS Lambda, Azure Functions and Google Cloud Run functions"],
+          "tools": ["AWS Lambda", "OpenTelemetry Lambda layer", "AWS X-Ray", "OpenTelemetry Collector", "CloudWatch Logs"],
+          "lab_task": "Deploy a function with the OpenTelemetry layer that is called from an API gateway and writes to a queue consumed by a second function. Invoke it 200 times after a 15-minute idle period, report cold start rate and Init Duration from REPORT log lines, then remove the force-flush call and show how many spans go missing.",
+          "deliverable": "Function code, layer configuration and a cold start and flush report",
+          "checks": [["Search platform logs for REPORT lines with Init Duration", "Cold start count and average Init Duration are reported", "Log query result"], ["Open a trace for one request", "Spans from the gateway, both functions and the queue appear in one trace", "Trace screenshot"], ["Remove the flush and invoke 200 times", "Fewer spans than invocations are stored and the gap is measured", "Span count query"]],
+          "objectives": ["Observe function lifecycles and cold starts", "Make sure telemetry leaves short-lived functions", "Trace event-driven serverless flows"]
+        },
+        {
+          "topic": "LLM Application Observability: Prompts, Tokens and Agent Traces",
+          "subtopics": ["What differs in LLM apps: non-deterministic output, token cost and long latency", "OpenTelemetry GenAI semantic conventions such as gen_ai.request.model and gen_ai.usage.input_tokens", "Tracing retrieval, model calls and tool calls as spans", "Agent loops and recursion depth in traces", "Time to first token and tokens per second", "Capturing prompts and completions safely and optionally", "Cost per request and per user from token counts", "Tools as examples: OpenLLMetry, Langfuse and Arize Phoenix"],
+          "tools": ["OpenTelemetry SDK", "OpenLLMetry", "Langfuse", "Arize Phoenix", "Grafana"],
+          "lab_task": "Instrument a retrieval-augmented agent that calls a vector search, an LLM and 2 tools. Emit spans with gen_ai attributes, metrics for input and output tokens, time to first token and cost per request. Run 100 questions, then find the trace with the most tool calls and the question with the highest token cost.",
+          "deliverable": "Instrumented agent, LLM dashboard and the two findings with trace links",
+          "checks": [["Open a trace for one question", "Spans for retrieval, the model call and each tool call appear with gen_ai attributes", "Trace screenshot"], ["Sum gen_ai.usage.input_tokens and output tokens across 100 questions", "Totals match the token counts reported by the model API within 1%", "Comparison table"], ["Set prompt capture off and inspect spans", "No prompt or completion text is stored", "Span detail view"]],
+          "objectives": ["Apply GenAI semantic conventions", "Trace agent and tool-call flows", "Measure LLM latency and cost per request"]
+        },
+        {
+          "topic": "LLM Production Telemetry: Quality Signals, Guardrails and Cost Alerts",
+          "subtopics": ["Feedback events such as thumbs up or down linked to traces", "Guardrail block and redaction events as telemetry", "Evaluation scores attached to spans", "Detecting runaway agent loops", "Rate-limit errors and fallback model usage", "Token budget alerts per tenant", "Prompt version as a resource or span attribute", "Sampling and retention rules for sensitive content"],
+          "tools": ["OpenTelemetry Collector", "Langfuse", "Prometheus", "Alertmanager", "Grafana"],
+          "lab_task": "Extend the agent so user feedback, guardrail blocks and an evaluation score are recorded as span events or linked events with the prompt.version attribute. Add alerts for agent loops over 10 iterations, a token spend above a daily tenant budget and a rate-limit error ratio over 5%. Trigger each condition and compare quality between 2 prompt versions.",
+          "deliverable": "Event schema, alert rules, triggered alerts and a prompt version comparison",
+          "checks": [["Run a question that makes the agent loop 12 times", "The agent loop alert fires", "Alert notification"], ["Exceed the test tenant's daily token budget", "The token budget alert fires for that tenant only", "Alert notification"], ["Compare average evaluation score by prompt.version", "Scores for the 2 versions are shown with sample counts", "Dashboard panel"]],
+          "objectives": ["Record quality and guardrail outcomes as telemetry", "Alert on LLM cost and failure patterns", "Compare prompt versions with production data"]
+        },
+        {
+          "topic": "Multi-Tenant Observability and Access Control",
+          "subtopics": ["Tenancy models: per team, per environment and per customer", "Tenant headers such as X-Scope-OrgID", "Per-tenant limits for ingest, series and queries", "Role-based access to data sources, folders and dashboards", "Label-based access control", "Single sign-on and team sync", "Noisy neighbour protection", "Audit logs for telemetry access"],
+          "tools": ["Grafana", "Grafana Mimir", "Loki", "OpenTelemetry Collector", "Keycloak"],
+          "lab_task": "Configure the collector to set a tenant header from the team resource attribute, set per-tenant ingest and series limits in the metric and log stores, and map 2 SSO groups to Grafana teams with access to their own data only. Have tenant A exceed its series limit and show that tenant B ingests normally.",
+          "deliverable": "Tenancy configuration, access test results and a noisy-neighbour test",
+          "checks": [["Log in as a tenant A user", "Only tenant A dashboards and data are visible", "Grafana screenshot"], ["Push series beyond tenant A's limit", "Writes for tenant A are rejected with a per-tenant limit error", "Store error log"], ["Check tenant B ingestion during the test", "Tenant B ingest rate stays unchanged", "Metrics graph"]],
+          "objectives": ["Design a tenancy model for shared telemetry", "Isolate tenants with limits and access control", "Audit who reads which telemetry"]
+        },
+        {
+          "topic": "Telemetry Security and Privacy Controls",
+          "subtopics": ["Threats: leaked secrets, personal data and attacker reconnaissance", "TLS and mutual TLS for OTLP", "Authentication extensions on receivers", "Redaction and allowlists for attributes", "Data residency and retention for personal data", "Handling deletion requests in telemetry stores", "Least privilege for agents and service accounts", "Telemetry endpoints exposed to the internet"],
+          "tools": ["OpenTelemetry Collector", "cert-manager", "Vector", "trufflehog", "openssl"],
+          "lab_task": "Enable mutual TLS between agents and gateway using cert-manager certificates, add bearer token authentication on the public OTLP HTTP receiver, and add an attribute allowlist that removes everything except approved keys. Scan 24 hours of stored logs with trufflehog or regex rules and report any secrets found before and after.",
+          "deliverable": "Security configuration, test results and a before-and-after secret scan report",
+          "checks": [["Send OTLP from a client without a certificate", "The gateway rejects the TLS handshake", "Client error output"], ["Send OTLP HTTP without a bearer token", "The receiver returns HTTP 401", "curl output"], ["Scan stored logs after the changes", "The scan reports 0 secrets", "Scanner output"]],
+          "objectives": ["Protect telemetry in transit and at rest", "Keep secrets and personal data out of stored telemetry", "Apply least privilege to telemetry components"]
+        },
+        {
+          "topic": "Anomaly Detection and Dynamic Baselines for Alerting",
+          "subtopics": ["Static thresholds and where they fail", "Seasonality: daily and weekly patterns", "Z-score with avg_over_time and stddev_over_time", "Comparing to the same time last week with offset 1w", "Forecasting with predict_linear and Holt-Winters style smoothing", "Machine learning detectors in commercial tools", "False positive rate and alert precision", "When to use anomalies for tickets but not pages"],
+          "tools": ["Prometheus", "Grafana", "Python", "promtool"],
+          "lab_task": "Using 4 weeks of recorded traffic with weekly seasonality, write 3 detectors: a static threshold, a z-score over 3 on a 1-hour window, and a ratio to the same hour last week. Replay 5 labelled incidents and 20 normal peaks and calculate precision and recall for each detector.",
+          "deliverable": "Detector rules, replay results and a precision and recall table",
+          "checks": [["Replay the 5 labelled incidents", "The number of incidents each detector caught is recorded", "Results table"], ["Replay the 20 normal peaks", "False alarms per detector are recorded", "Results table"], ["Calculate precision and recall", "The detector with the best precision is named with its score", "Calculation sheet"]],
+          "objectives": ["Build seasonal baselines from metrics", "Measure detector precision and recall", "Choose where anomaly detection belongs in alerting"]
+        },
+        {
+          "topic": "Hypothesis-Driven Investigation of Complex Incidents",
+          "subtopics": ["The investigation loop: observe, hypothesise, test and refine", "Bisecting the system: region, version, tenant and dependency", "Using wide events and traces to test hypotheses quickly", "Avoiding confirmation bias and fixation", "Incident command roles and communication", "Recording evidence for every ruled-out hypothesis", "Gray failures and partial outages", "Building the post-incident timeline from telemetry"],
+          "tools": ["Grafana", "Grafana Tempo", "Loki", "ClickHouse", "Pyroscope"],
+          "lab_task": "In teams of 3 with incident roles, investigate a trainer-built gray failure: 3% of requests on one node pool fail because of a DNS resolver timeout that only affects one dependency. Record each hypothesis, the query used to test it and the result. Find the cause within 45 minutes and write the timeline from telemetry.",
+          "deliverable": "Hypothesis log, final root cause with evidence and an incident timeline",
+          "checks": [["Review the hypothesis log", "At least 4 hypotheses each have a query and a result", "Hypothesis log"], ["State the root cause", "DNS resolver timeouts on the named node pool are identified", "Evidence links"], ["Check the timeline", "The first symptom time matches the fault start within 2 minutes", "Timeline document"]],
+          "objectives": ["Run a structured investigation under time pressure", "Test hypotheses with targeted queries", "Diagnose partial and gray failures"]
+        },
+        {
+          "topic": "Service Topology and Dependency-Aware Root Cause Analysis",
+          "subtopics": ["Service maps from traces and network flows", "Upstream versus downstream symptoms", "Alert storms and correlation into a single problem", "Topology-aware inhibition", "Causal ordering using first-anomaly time", "Change data from CI, config and feature flag systems", "Automated root-cause suggestions and their limits", "Validating suggestions against ground truth"],
+          "tools": ["OpenTelemetry Collector", "Grafana", "Prometheus", "Alertmanager", "Dynatrace"],
+          "lab_task": "Build a service graph from span metrics for a 10-service lab, then fail the deepest dependency so that 8 services alert. Write a script or query that ranks services by first-anomaly time and graph depth, compare its suggestion to the real cause and configure topology-aware inhibition so on-call receives 1 page instead of 8.",
+          "deliverable": "Service graph, ranking script, inhibition rules and an accuracy note",
+          "checks": [["Fail the deepest dependency", "8 service alerts fire before inhibition is configured", "Alertmanager screenshot"], ["Run the ranking script", "The failed dependency is ranked first", "Script output"], ["Repeat with inhibition configured", "On-call receives 1 page naming the dependency", "Receiver log"]],
+          "objectives": ["Use topology to separate cause from symptom", "Cut alert storms down to one actionable page", "Judge automated root-cause suggestions critically"]
+        },
+        {
+          "topic": "Testing Instrumentation and Telemetry Contracts in CI",
+          "subtopics": ["Telemetry as a contract between producers and consumers", "Unit tests with in-memory span and metric exporters", "Asserting attribute names against the dictionary", "Integration tests with a test collector and file exporter", "Detecting broken propagation automatically", "Schema checks for semantic convention versions", "Breaking dashboards and alerts when metric names change", "Telemetry review in pull requests"],
+          "tools": ["OpenTelemetry SDK", "OpenTelemetry Collector", "pytest", "Weaver", "GitHub Actions"],
+          "lab_task": "Write pytest tests that use InMemorySpanExporter to assert the checkout span names, required attributes and status on error. Add a CI integration job that runs the service with a collector file exporter, sends 1 request, and fails if any span lacks service.version or the trace has fewer than 3 services. Rename a metric in a pull request and catch the broken alert.",
+          "deliverable": "Test suite, CI workflow and a failing run that caught the rename",
+          "checks": [["Run pytest locally", "All instrumentation tests pass", "pytest output"], ["Remove the propagation call and push", "The integration job fails on the 3-service check", "CI run log"], ["Rename a metric used by an alert", "CI fails with the missing metric named in the output", "CI run log"]],
+          "objectives": ["Test instrumentation like any other code", "Treat telemetry names as contracts", "Stop changes that break dashboards and alerts"]
+        },
+        {
+          "topic": "Migrating Between Observability Backends Without Blind Spots",
+          "subtopics": ["Reasons to migrate: cost, consolidation and open standards", "Inventory: agents, dashboards, alerts, integrations and users", "Dual-shipping through the collector", "Translating queries, dashboards and monitors", "Parity checks on counts and alert behaviour", "Cut-over waves and rollback plans", "Contract and data retention overlap", "Examples: proprietary agents such as Datadog, New Relic or AppDynamics to OpenTelemetry"],
+          "tools": ["OpenTelemetry Collector", "Datadog", "New Relic", "Grafana", "Prometheus"],
+          "lab_task": "Plan a migration of 5 lab services from a vendor agent to OpenTelemetry. Dual-ship through the collector for 7 simulated days, translate 3 dashboards and 5 monitors, and build a parity report comparing request counts, error counts and p95 latency between old and new backends. Define go and no-go criteria for cut-over.",
+          "deliverable": "Migration plan, parity report and a cut-over checklist with rollback steps",
+          "checks": [["Compare request counts per service between backends", "Counts match within 2%", "Parity report"], ["Replay an error spike in both backends", "Equivalent monitors fire in both within 2 minutes of each other", "Alert timestamps"], ["Review the cut-over checklist", "Every wave has a rollback step and an owner", "Checklist document"]],
+          "objectives": ["Plan a telemetry migration in waves", "Prove parity before cut-over", "Avoid losing coverage during a vendor change"]
+        },
+        {
+          "topic": "Alert Fatigue Reduction and On-Call Health Metrics",
+          "subtopics": ["Measuring alert quality: actionable rate, duplicates and time to acknowledge", "Pages per shift and out-of-hours pages", "Flapping alerts and hysteresis", "Alert ownership and expiry dates", "Turning pages into tickets or deleting them", "Regular alert review meetings", "Linking alerts to SLOs", "On-call health surveys alongside data"],
+          "tools": ["Alertmanager", "Prometheus", "Grafana", "PagerDuty", "Python"],
+          "lab_task": "Export 90 days of alert history from the supplied dataset or the lab, then calculate pages per week, actionable rate, top 10 noisiest alerts and flap count. Delete, merge or convert at least 5 noisy alerts to SLO burn-rate alerts, replay the history and report the new page count and any incidents that would have been missed.",
+          "deliverable": "Alert review report with before-and-after numbers and change list",
+          "checks": [["Calculate the actionable rate from the history", "A percentage is reported with the method used", "Analysis notebook"], ["Replay history after the changes", "Pages per week fall by a reported percentage", "Replay output"], ["Check the labelled incidents in the history", "No labelled incident goes undetected after the changes", "Replay output"]],
+          "objectives": ["Measure alert quality and on-call load", "Remove or rework noisy alerts safely", "Set up a regular alert review"]
+        },
+        {
+          "topic": "Business KPIs and Product Signals from Telemetry",
+          "subtopics": ["Connecting technical signals to revenue and user outcomes", "Business events: orders, sign-ups and payments", "Funnel metrics from traces and events", "Revenue at risk during an incident", "Dashboards for product and executive audiences", "Privacy limits on user-level analytics", "Avoiding double counting with product analytics tools", "Agreeing definitions with finance and product teams"],
+          "tools": ["OpenTelemetry SDK", "ClickHouse", "Grafana", "Prometheus"],
+          "lab_task": "Emit business events for cart, checkout start, payment and order complete with an order value attribute. Build a funnel panel and a revenue-per-minute metric, then replay a 20-minute payment incident and calculate revenue at risk from the drop against the same period last week. Present the panel to a non-technical reviewer.",
+          "deliverable": "Business event schema, funnel dashboard and a revenue-at-risk calculation",
+          "checks": [["Run 1,000 test journeys", "The funnel shows counts at each of the 4 steps", "Dashboard screenshot"], ["Replay the 20-minute payment incident", "Revenue at risk is calculated in currency units", "Calculation sheet"], ["Non-technical reviewer reads the panel", "The reviewer states the impact correctly without help", "Review note"]],
+          "objectives": ["Emit business events alongside technical telemetry", "Quantify incident impact in business terms", "Build views for non-engineering audiences"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Observability Platform Design and Rollout",
+          "subtopics": ["Strategy, target architecture and cost model for 200 services", "Scaled, multi-tenant and secured telemetry pipeline and stores", "Coverage for Kubernetes, serverless and LLM workloads", "Migration plan, alert quality goals and adoption measures"],
+          "tools": ["OpenTelemetry Collector", "Grafana Mimir", "Loki", "Grafana Tempo", "Terraform", "Grafana"],
+          "lab_task": "Design an observability platform for a fictional company with 200 services, 3 regions and a fixed budget. Build a working slice: a multi-tenant pipeline with mTLS, sampling and redaction, scaled metric, log and trace stores on object storage, coverage for one Kubernetes, one serverless and one LLM service, a measured loss report and a cost model that meets the budget.",
+          "deliverable": "Architecture document, working slice repository, cost model and a 20-minute board presentation",
+          "checks": [["Run the pipeline chaos test", "Measured telemetry loss is under 0.1%", "Loss report"], ["Compare the cost model with the budget", "Projected annual cost is at or under budget with assumptions listed", "Cost model"], ["Trainer injects a fault into the LLM service", "The cause is found through traces within 20 minutes", "Investigation notes"]],
+          "objectives": ["Combine strategy, scale, security and cost into one design", "Prove the design with a working slice", "Defend the platform to leadership"]
+        }
+      ]
+    }
+  }
+}

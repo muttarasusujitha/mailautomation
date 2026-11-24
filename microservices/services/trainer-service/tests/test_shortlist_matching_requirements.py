@@ -1,4 +1,4 @@
-from app.routes.shortlists import _score_trainer
+from app.routes.shortlists import _location_balanced_trainers, _score_trainer
 
 
 def test_shortlist_requires_minimum_experience_and_every_required_topic():
@@ -46,3 +46,30 @@ def test_shortlist_excludes_resume_below_minimum_despite_higher_stored_number():
         "required_skills": ["Docker", "Kubernetes"],
         "min_experience_years": 5,
     }) is None
+
+
+def test_shortlist_uses_five_local_and_five_other_location_trainers():
+    local = [
+        {"trainer_id": f"L{index}", "location": "Bengaluru", "match_score": 100 - index}
+        for index in range(7)
+    ]
+    other = [
+        {"trainer_id": f"O{index}", "location": "Chennai", "match_score": 90 - index}
+        for index in range(7)
+    ]
+    chosen = _location_balanced_trainers(local + other, "Bengaluru")
+
+    assert len(chosen) == 10
+    assert [trainer["trainer_id"] for trainer in chosen[:5]] == ["L0", "L1", "L2", "L3", "L4"]
+    assert [trainer["trainer_id"] for trainer in chosen[5:]] == ["O0", "O1", "O2", "O3", "O4"]
+
+
+def test_shortlist_fills_missing_local_places_with_other_qualified_trainers():
+    scored = [
+        {"trainer_id": "L1", "current_location": "Bengaluru"},
+        *[{"trainer_id": f"O{index}", "location": "Chennai"} for index in range(9)],
+    ]
+    chosen = _location_balanced_trainers(scored, "Bengaluru")
+
+    assert len(chosen) == 10
+    assert sum(trainer["trainer_id"].startswith("L") for trainer in chosen) == 1

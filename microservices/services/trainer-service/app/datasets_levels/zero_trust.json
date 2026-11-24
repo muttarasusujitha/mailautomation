@@ -1,0 +1,573 @@
+{
+  "domain": "Zero Trust",
+  "name": "Zero Trust",
+  "category": "Cybersecurity and Identity",
+  "icon": "shield-check",
+  "aliases": ["Zero Trust Architecture", "ZTA", "Zero Trust Security", "Zero Trust Network Access", "ZTNA", "Zero Trust Model", "NIST SP 800-207", "Zero Trust Implementation"],
+  "certifications": ["CSA Certificate of Competence in Zero Trust (CCZT)", "Zscaler Zero Trust Certified Architect (ZTCA)"],
+  "tools": ["Microsoft Entra Conditional Access", "Microsoft Entra Private Access", "Microsoft Intune", "Okta Identity Engine", "Cloudflare Zero Trust (Access, Gateway, Tunnel, WARP)", "Zscaler Private Access", "SPIFFE and SPIRE", "Open Policy Agent", "Istio", "Cilium", "Microsoft Purview", "Microsoft Sentinel", "Terraform"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For IT administrators, network and security engineers and architects who know traditional perimeter security (VPNs, firewalls, Active Directory) and are new to Zero Trust. Covers the NIST SP 800-207 tenets and logical components, the CISA Zero Trust Maturity Model pillars and stages, protect surfaces and transaction flows, phishing-resistant MFA and signal-based conditional access, device posture, least privilege, ZTNA compared with VPNs, a first Cloudflare Tunnel and Access deployment, secure web gateway filtering, segmentation and mutual TLS concepts, data classification, access telemetry, a maturity self-assessment and a capstone that puts one internal app behind identity- and device-aware access.",
+      "prerequisites": ["Explains how a corporate network, VPN, firewall and Active Directory or another directory work together today", "Understands TCP/IP, DNS, HTTPS and certificates at the level of reading a browser certificate chain", "Has a laptop, a free Cloudflare account with a test domain, and a Microsoft Entra ID or Okta developer tenant with admin rights"],
+      "outcomes": ["Explain the NIST SP 800-207 tenets, the PE/PA/PEP model and the CISA Zero Trust Maturity Model pillars and stages", "Map a protect surface, its transaction flows and the identity, device and network signals an access decision needs", "Configure phishing-resistant MFA, a device-aware conditional access policy and a ZTNA-published private application", "Collect access-decision logs and score a starting maturity baseline for an organisation"],
+      "days": [
+        {
+          "topic": "Zero Trust Principles and the NIST SP 800-207 Tenets",
+          "subtopics": ["Why perimeter trust fails: flat networks, stolen VPN credentials and lateral movement", "The seven tenets of NIST SP 800-207", "Resources: users, devices, services and data treated alike", "Per-session access and no implicit trust from network location", "Dynamic policy using identity, device state and behaviour", "Continuous monitoring of asset integrity and security posture", "Strict, dynamic authentication and re-authorisation", "Collecting telemetry to improve policy over time", "Forrester ZTX and John Kindervag's original Zero Trust model", "Zero Trust as a strategy, not a single product"],
+          "tools": ["NIST SP 800-207", "Microsoft Entra ID", "Cloudflare Zero Trust"],
+          "lab_task": "Read NIST SP 800-207 section 2.1 and list the seven tenets in your own words. For each tenet, write one current control in a sample company (VPN, AD, firewall) that violates it and one control that would satisfy it. Then trace a real breach pattern (phished VPN password to lateral SMB movement) and mark the exact step where each tenet would have stopped it.",
+          "deliverable": "Tenet gap table (7 rows) plus an annotated breach timeline",
+          "checks": [["Compare the tenet table with SP 800-207 section 2.1", "All 7 tenets appear and none is merged or missing", "Tenet table"], ["Review the breach timeline", "At least 3 distinct steps are marked with the tenet that would block them", "Annotated timeline"], ["Ask the learner why network location is not a trust signal", "Answer cites tenet 2: all communication is secured regardless of network location", "Recorded answer"]],
+          "objectives": ["List and explain the seven SP 800-207 tenets", "Identify implicit trust in a perimeter design", "Link Zero Trust tenets to real attack paths"]
+        },
+        {
+          "topic": "Policy Engine, Policy Administrator and Policy Enforcement Point",
+          "subtopics": ["The control plane and data plane split in SP 800-207 section 3", "Policy Engine (PE): the trust algorithm and grant/deny decision", "Policy Administrator (PA): creating and tearing down session paths", "Policy Enforcement Point (PEP): the gate in front of the resource", "Policy Decision Point (PDP) as PE plus PA", "Policy information points: CDM, threat intelligence, ID management, SIEM, activity logs", "Trust algorithm inputs: access request, subject database, asset database, resource policy", "Criteria-based versus score-based and singular versus contextual trust algorithms"],
+          "tools": ["NIST SP 800-207", "Cloudflare Access", "Microsoft Entra Conditional Access", "Open Policy Agent"],
+          "lab_task": "Draw the SP 800-207 Figure 2 component model for two real products: Microsoft Entra Conditional Access protecting Exchange Online, and Cloudflare Access protecting a web app. For each, label which component is the PE, PA and PEP, and list at least 5 policy information sources it consumes. Then walk one request end to end and number every hop from client to resource.",
+          "deliverable": "Two labelled component diagrams with a numbered request walkthrough",
+          "checks": [["Check the Entra diagram", "PE/PA is Entra ID and the PEP is the Exchange Online or token-issuance gate", "Diagram"], ["Count policy information sources per diagram", "Each diagram lists 5 or more sources such as sign-in risk, device compliance and location", "Source list"], ["Classify each trust algorithm", "Entra is labelled contextual and criteria-based, with the reason written beside it", "Diagram notes"]],
+          "objectives": ["Name and separate the PE, PA and PEP roles", "Identify policy information points feeding a decision", "Map commercial products onto the NIST logical model"]
+        },
+        {
+          "topic": "SP 800-207 Deployment Models: Agent/Gateway, Enclave, Portal and Sandbox",
+          "subtopics": ["Device agent/gateway-based deployment", "Enclave-based deployment for legacy data centres", "Resource portal-based deployment for unmanaged devices", "Device application sandboxing", "Approaches: enhanced identity governance, microsegmentation, software-defined perimeter", "Choosing a model per application and per user population", "Where the PEP sits in each model and what traffic it sees", "Trade-offs: agent coverage, protocol support and blast radius"],
+          "tools": ["NIST SP 800-207", "Cloudflare WARP", "Zscaler Client Connector", "Microsoft Global Secure Access client"],
+          "lab_task": "Take a list of 6 sample applications (SaaS CRM, internal wiki, SSH to Linux hosts, mainframe TN3270, contractor HR portal, OT historian). For each, pick an SP 800-207 deployment model and approach, state where the PEP sits, which users and devices it serves, and one limitation. Justify every choice in 2 sentences and mark any app that needs two models.",
+          "deliverable": "Deployment model decision matrix for 6 applications",
+          "checks": [["Review the contractor HR portal row", "Resource portal model is chosen because contractor devices are unmanaged", "Decision matrix"], ["Review the mainframe row", "Enclave-based model with a gateway in front of the enclave is chosen", "Decision matrix"], ["Count rows with a stated PEP location and limitation", "All 6 rows have both fields filled", "Decision matrix"]],
+          "objectives": ["Describe the four SP 800-207 deployment models", "Choose a model based on device management and protocol", "State the limits of each model"]
+        },
+        {
+          "topic": "CISA Zero Trust Maturity Model 2.0: Pillars, Stages and Cross-Cutting Capabilities",
+          "subtopics": ["History: OMB M-22-09 and the CISA ZTMM versions 1.0 and 2.0", "Five pillars: Identity, Devices, Networks, Applications and Workloads, Data", "Cross-cutting capabilities: Visibility and Analytics, Automation and Orchestration, Governance", "Four stages: Traditional, Initial, Advanced, Optimal", "Reading a function row: from static to dynamic, manual to automated", "Example functions: authentication, device risk management, network segmentation, data encryption", "How pillars depend on each other (identity before data access policy)", "Using the ZTMM outside the US federal government"],
+          "tools": ["CISA Zero Trust Maturity Model", "Microsoft Excel", "NIST SP 800-207"],
+          "lab_task": "Download CISA ZTMM version 2.0 and build a spreadsheet with one row per function across the five pillars and three cross-cutting capabilities, with columns for the Traditional, Initial, Advanced and Optimal descriptions. Pick the Identity pillar authentication function and rewrite each stage as a testable control statement. Record the total number of functions you captured per pillar.",
+          "deliverable": "ZTMM function spreadsheet and four testable authentication-stage statements",
+          "checks": [["Count pillars and cross-cutting capabilities in the sheet", "5 pillars and 3 cross-cutting capabilities are present", "Spreadsheet"], ["Read the Optimal authentication statement", "It requires continuous validation with phishing-resistant MFA, not just MFA at login", "Spreadsheet cell"], ["Check stage names", "Exactly Traditional, Initial, Advanced and Optimal are used in that order", "Column headers"]],
+          "objectives": ["Name the ZTMM pillars, cross-cutting capabilities and stages", "Interpret a maturity function across stages", "Turn maturity text into testable controls"]
+        },
+        {
+          "topic": "Protect Surfaces and Transaction Flow Mapping",
+          "subtopics": ["Kindervag's five-step method: protect surface, flows, architecture, policy, monitor", "DAAS elements: data, applications, assets and services", "Choosing a first protect surface by business impact", "Mapping transaction flows: who, what, when, where, why and how", "The Kipling method for writing policy", "Discovering flows with firewall logs, NetFlow and application owners", "Documenting dependencies such as DNS, AD and backup", "Avoiding the boil-the-ocean trap"],
+          "tools": ["Microsoft Visio", "draw.io", "Wireshark", "NetFlow"],
+          "lab_task": "Choose a payroll application as the first protect surface. List its DAAS elements, then use a 24-hour firewall log export or a supplied NetFlow sample to identify every inbound and outbound flow with source, destination, port and purpose. Draw the flow map and write 5 Kipling-method policy statements (who, what, when, where, why, how). Mark any flow nobody can explain.",
+          "deliverable": "Protect surface definition, transaction flow diagram and 5 Kipling policy statements",
+          "checks": [["Compare the flow list with the NetFlow sample", "Every flow with more than 10 sessions in the sample appears in the map", "Flow table"], ["Read a Kipling policy statement", "It names a user group, the application, time, source device type, reason and protocol", "Policy statements"], ["Check unexplained flows", "At least 1 unexplained flow is flagged for owner review", "Flow table"]],
+          "objectives": ["Define a protect surface using DAAS", "Map transaction flows from real traffic data", "Write Kipling-method access policy"]
+        },
+        {
+          "topic": "Asset, Identity and Application Inventory for Zero Trust Planning",
+          "subtopics": ["Why you cannot write policy for assets you do not know", "Identity sources: HR system, Entra ID, Active Directory, Okta", "Device sources: Intune, Jamf, EDR consoles and DHCP leases", "Application sources: SSO catalogues, CASB discovery and DNS logs", "Service accounts and other non-human identities", "Ownership, data classification and criticality fields", "Reconciling duplicates and orphans across sources", "Keeping inventory current with automated feeds"],
+          "tools": ["Microsoft Graph PowerShell", "Microsoft Intune", "Microsoft Defender for Endpoint", "Microsoft Excel"],
+          "lab_task": "Export users with Get-MgUser -All, devices with Get-MgDeviceManagementManagedDevice -All and enterprise apps with Get-MgServicePrincipal -All from a test tenant into CSV. Join the user and device lists on UPN, then count devices without a primary user, users with no MFA method registered and apps with no assigned owner. Record each count and 3 sample records.",
+          "deliverable": "Reconciled inventory workbook with orphan counts and remediation owners",
+          "checks": [["Run Get-MgUser -All | Measure-Object", "The count matches the Users blade total in the Entra admin centre", "PowerShell output and screenshot"], ["Filter devices with an empty userPrincipalName", "An exact count of unassigned devices is recorded", "Workbook tab"], ["Check app ownership column", "Every app without an owner is assigned a proposed owner", "Workbook tab"]],
+          "objectives": ["Build an identity, device and application inventory", "Find orphaned and unowned assets", "Explain why inventory drives Zero Trust policy"]
+        },
+        {
+          "topic": "Phishing-Resistant MFA as the Zero Trust Identity Baseline",
+          "subtopics": ["Why SMS, voice, OTP and push approval can be phished or fatigued", "OMB M-22-09 and the phishing-resistant MFA requirement", "FIDO2 security keys and WebAuthn origin binding", "Synced and device-bound passkeys", "Windows Hello for Business and platform authenticators", "Certificate-based authentication and PIV/CAC smart cards", "Number matching as a stopgap for push MFA", "Recovery and onboarding without falling back to weak factors"],
+          "tools": ["Microsoft Entra ID", "YubiKey", "Windows Hello for Business", "Evilginx (lab only)"],
+          "lab_task": "In a test Entra tenant enable the Passkey (FIDO2) authentication method for a pilot group, register a FIDO2 key or passkey for a test user at https://mysignins.microsoft.com/security-info, then sign in to https://myapps.microsoft.com. Inspect the sign-in log Authentication Details and confirm the method. Then explain why an adversary-in-the-middle proxy page on another domain cannot complete this sign-in.",
+          "deliverable": "MFA method comparison table and sign-in log evidence of a passkey sign-in",
+          "checks": [["Open the pilot user's sign-in log entry", "Authentication Details shows Passkey or FIDO2 security key as the satisfied method", "Sign-in log screenshot"], ["Ask why WebAuthn resists phishing", "Answer explains the credential is bound to the relying party ID and fails on a different origin", "Written answer"], ["Review the method comparison table", "SMS, OTP and push are marked phishable and FIDO2, passkeys and CBA are marked phishing-resistant", "Comparison table"]],
+          "objectives": ["Distinguish phishable and phishing-resistant MFA", "Enable and register a FIDO2 passkey", "Verify the satisfied authentication method in logs"]
+        },
+        {
+          "topic": "Signal-Based Conditional Access for Zero Trust Decisions",
+          "subtopics": ["Conditional Access as the Entra ID policy engine", "Assignments: users, groups, workload identities and target resources", "Conditions: user risk, sign-in risk, device platform, locations, client apps", "Grant controls: require MFA, authentication strength, compliant device", "Session controls: sign-in frequency and persistent browser", "Report-only mode and the What If tool", "Excluding emergency access accounts", "Common sign-in errors such as AADSTS53000 and AADSTS53003"],
+          "tools": ["Microsoft Entra Conditional Access", "Microsoft Entra ID", "What If tool", "Microsoft Graph PowerShell"],
+          "lab_task": "Create a Conditional Access policy in report-only mode targeting a pilot group and all resources, requiring the built-in Phishing-resistant MFA authentication strength, and excluding two emergency access accounts. Use the What If tool for one pilot user and one excluded account, then sign in as the pilot user with a password plus OTP and read the Report-only tab in the sign-in log.",
+          "deliverable": "Exported policy JSON, What If results and report-only sign-in evidence",
+          "checks": [["Run the What If tool for the pilot user", "The new policy appears under Policies that will apply", "What If screenshot"], ["Run the What If tool for an emergency access account", "The policy appears under Policies that will not apply with reason excluded", "What If screenshot"], ["Read the pilot OTP sign-in Report-only tab", "The policy result is Report-only: Failure because OTP does not meet the strength", "Sign-in log"]],
+          "objectives": ["Build a Conditional Access policy from identity and device signals", "Test policy safely with report-only mode and What If", "Protect emergency access accounts from lockout"]
+        },
+        {
+          "topic": "Device Posture Signals for Access Decisions",
+          "subtopics": ["Managed, registered and unmanaged devices", "Compliance policies: OS version, encryption, firewall, screen lock", "EDR health and risk score as a posture signal", "Entra hybrid joined versus Entra joined devices", "Client certificates as device identity", "Posture freshness and re-evaluation intervals", "Bring-your-own-device options: app protection and browser-only access", "Error AADSTS53000: device must be compliant"],
+          "tools": ["Microsoft Intune", "Microsoft Defender for Endpoint", "Microsoft Entra Conditional Access", "Cloudflare WARP"],
+          "lab_task": "Create an Intune Windows compliance policy requiring BitLocker, Microsoft Defender Antimalware and a minimum OS build, assign it to a test device, and check Compliance status in the Intune admin centre. Add a report-only Conditional Access rule requiring a compliant device. Turn off real-time protection on the device, wait for check-in, and record the compliance change and the sign-in result.",
+          "deliverable": "Compliance policy settings, device state before and after, and sign-in log entries",
+          "checks": [["View device compliance after enrolment", "The device shows Compliant in Intune", "Intune screenshot"], ["Disable real-time protection and sync the device", "The device changes to Not compliant with the antimalware setting listed", "Intune device report"], ["Sign in from the non-compliant device", "The report-only result shows failure with AADSTS53000 for the compliant device requirement", "Sign-in log"]],
+          "objectives": ["Define device compliance as an access signal", "Connect device posture to conditional access", "Observe posture changes affecting access"]
+        },
+        {
+          "topic": "Least Privilege and Just-in-Time Access in a Zero Trust Model",
+          "subtopics": ["Standing privilege as the largest identity risk", "Role-based versus attribute-based access control", "Just-in-time elevation with Entra Privileged Identity Management", "Approval, justification and maximum activation duration", "Access reviews and removing unused permissions", "Separating admin accounts and privileged access workstations", "Time-bound access for third parties", "Measuring privilege: count of standing admins"],
+          "tools": ["Microsoft Entra Privileged Identity Management", "Microsoft Entra ID", "Microsoft Graph PowerShell"],
+          "lab_task": "Count permanent Global Administrator and Privileged Role Administrator assignments in a test tenant with Get-MgRoleManagementDirectoryRoleAssignment. Convert all but the two emergency accounts to eligible assignments in PIM with a 2-hour maximum activation, MFA and justification required. Activate the role as a test admin, confirm it expires, and record standing admin count before and after.",
+          "deliverable": "Before-and-after privileged role report and PIM activation audit entry",
+          "checks": [["Count permanent Global Administrator assignments after the change", "Only the 2 emergency access accounts remain permanent", "PowerShell output"], ["Activate the eligible role as the test admin", "Activation asks for MFA and a justification and shows a 2-hour end time", "PIM screenshot"], ["Check the PIM audit log after 2 hours", "A role assignment expiry event is recorded for the test admin", "Audit log entry"]],
+          "objectives": ["Reduce standing privilege", "Configure just-in-time role activation", "Measure privilege exposure before and after"]
+        },
+        {
+          "topic": "ZTNA Concepts: Identity-Aware Proxies Compared with VPN Tunnels",
+          "subtopics": ["What a remote-access VPN grants: network-level reach", "ZTNA: per-application, per-session brokered access", "Outbound-only connectors and no inbound listening ports", "Agent-based versus agentless (clientless browser) ZTNA", "Identity-aware proxies and Google BeyondCorp", "SASE and SSE: where ZTNA fits beside SWG and CASB", "Protocol coverage: HTTP, SSH, RDP and arbitrary TCP/UDP", "Vendor landscape: Cloudflare Access, Zscaler Private Access, Entra Private Access"],
+          "tools": ["Cloudflare Access", "Zscaler Private Access", "Microsoft Entra Private Access", "nmap"],
+          "lab_task": "From a laptop connected to a lab VPN, run nmap -sT -p 22,80,443,3389,445 against the internal 10.0.0.0/24 range and count reachable hosts. Then describe the equivalent ZTNA design in which the same user can reach only the wiki and one SSH host. List what an attacker with that user's session could reach in each case, and record the reduction in reachable host-ports.",
+          "deliverable": "VPN versus ZTNA exposure comparison with nmap evidence",
+          "checks": [["Run the nmap scan over the VPN", "A count of open host-port pairs across the subnet is recorded", "nmap output"], ["Review the ZTNA design", "Only 2 applications are reachable and no subnet route is published to the client", "Design document"], ["Compare attacker reach", "The ZTNA case shows a stated percentage reduction in reachable host-ports", "Comparison table"]],
+          "objectives": ["Explain how ZTNA differs from VPN access", "Quantify lateral exposure of a VPN", "Place ZTNA within SSE and SASE"]
+        },
+        {
+          "topic": "Publishing a Private Web App with Cloudflare Tunnel and Access",
+          "subtopics": ["cloudflared install and cloudflared tunnel login", "Creating a named tunnel and its credentials file", "Ingress rules in config.yml and the catch-all http_status:404", "cloudflared tunnel route dns for a public hostname", "Creating a self-hosted Access application", "Allow policies with emails, groups and identity providers", "The CF_Authorization cookie and Cf-Access-Jwt-Assertion header", "Validating the Access JWT at the origin"],
+          "tools": ["Cloudflare Tunnel", "cloudflared", "Cloudflare Access", "curl", "Docker"],
+          "lab_task": "Run a sample app with docker run -d -p 8080:80 nginx. Run cloudflared tunnel create wiki and cloudflared tunnel route dns wiki wiki.example.com, set an ingress rule to http://localhost:8080 with a final http_status:404 rule, then cloudflared tunnel run wiki. Create an Access application for wiki.example.com allowing one email. Test with curl -I and with an allowed and a blocked browser identity.",
+          "deliverable": "Tunnel config.yml, Access policy export and test results",
+          "checks": [["Run curl -I https://wiki.example.com without a session", "Response is HTTP 302 redirecting to the team's cloudflareaccess.com login", "curl output"], ["Sign in with the allowed email", "The nginx welcome page loads and the CF_Authorization cookie is set", "Browser developer tools screenshot"], ["Sign in with an email not in the policy", "Access shows the You don't have access page and the request appears as blocked in Access logs", "Access log entry"]],
+          "objectives": ["Publish a private app without inbound firewall rules", "Protect it with an identity-based Access policy", "Verify access decisions from logs"]
+        },
+        {
+          "topic": "Secure Web Gateway and DNS Filtering in a Zero Trust Program",
+          "subtopics": ["Why outbound traffic needs the same scrutiny as inbound", "DNS filtering by category and threat feed", "HTTP filtering and TLS inspection trade-offs", "Identity-based web policy with the device client", "Blocking newly registered domains and known malware", "Do-not-inspect lists for certificate-pinned apps", "Tenant restrictions for SaaS", "Logging and privacy considerations"],
+          "tools": ["Cloudflare Gateway", "Cloudflare WARP", "dig", "Zscaler Internet Access"],
+          "lab_task": "Enroll a test device in Cloudflare WARP with your Zero Trust organisation. Create a Gateway DNS policy blocking the Security Risks and New Domains categories, and an HTTP policy blocking file uploads to personal cloud storage for one group. Test with dig malware.testcategory.com and an upload attempt, then find both events in Gateway logs with user and device attached.",
+          "deliverable": "Gateway policy export and log entries for blocked DNS and HTTP events",
+          "checks": [["Run dig malware.testcategory.com on the enrolled device", "The answer is 0.0.0.0 or the block page IP instead of the real address", "dig output"], ["Attempt an upload to a blocked storage service", "The upload fails with the Gateway block page", "Browser screenshot"], ["Search Gateway logs for the test user", "Both events show Blocked with the user email and device name", "Log export"]],
+          "objectives": ["Apply identity-aware outbound filtering", "Decide where TLS inspection is appropriate", "Attribute web activity to user and device"]
+        },
+        {
+          "topic": "Segmentation Models: Macro, Micro and Identity-Based",
+          "subtopics": ["VLAN and zone-based macrosegmentation", "Microsegmentation down to workload or process", "Identity-based segmentation using labels instead of IP addresses", "East-west traffic and lateral movement", "Default deny and allow-listing known flows", "Enforcement points: host firewalls, hypervisor, cloud security groups, CNI", "Visibility-first rollout: map, simulate, enforce", "Measuring segmentation: reachable attack paths"],
+          "tools": ["Windows Defender Firewall", "nftables", "AWS security groups", "Wireshark"],
+          "lab_task": "On two Linux VMs, write an nftables policy for an app server that defaults to drop and allows only TCP 443 from a web tier IP and TCP 22 from a bastion IP. Apply it with nft -f, then from a third VM run nc -zv against ports 22, 443 and 5432. Record which connections succeed and the drop counter values shown by nft list ruleset.",
+          "deliverable": "nftables ruleset, connection test results and segmentation diagram",
+          "checks": [["Run nc -zv app 443 from the web tier", "Connection succeeds", "Terminal output"], ["Run nc -zv app 22 from the third VM", "Connection times out", "Terminal output"], ["Run nft list ruleset after tests", "The drop rule counter shows packets greater than 0", "nft output"]],
+          "objectives": ["Compare macro and microsegmentation", "Write a default-deny host policy", "Prove segmentation with connection tests and counters"]
+        },
+        {
+          "topic": "Encrypting Every Session: TLS Everywhere and Mutual TLS Concepts",
+          "subtopics": ["SP 800-207 tenet: secure all communication regardless of location", "TLS 1.3 handshake and server authentication", "Mutual TLS: client certificates as identity", "Private certificate authorities and short-lived certificates", "Certificate revocation, OCSP and why short lifetimes help", "mTLS between services versus user-facing TLS", "Inspecting certificates with openssl", "Common errors: unknown CA, expired certificate, wrong SAN"],
+          "tools": ["OpenSSL", "step-ca", "nginx", "curl"],
+          "lab_task": "Create a lab CA with step ca init, issue a server certificate and a client certificate with step ca certificate, and configure nginx with ssl_verify_client on and ssl_client_certificate pointing at the CA root. Call the server with curl --cacert root.crt, first without and then with --cert and --key. Record both responses and the client subject nginx logs.",
+          "deliverable": "CA setup notes, nginx TLS config and curl test results",
+          "checks": [["Call the server without a client certificate", "nginx returns 400 No required SSL certificate was sent", "curl output"], ["Call the server with the client certificate", "HTTP 200 is returned", "curl output"], ["Check the certificate with openssl x509 -noout -dates", "notAfter is within the configured short lifetime such as 24 hours", "openssl output"]],
+          "objectives": ["Explain why all traffic is encrypted in Zero Trust", "Configure mutual TLS with a private CA", "Diagnose common certificate errors"]
+        },
+        {
+          "topic": "Data Classification and Labelling for Zero Trust Data Protection",
+          "subtopics": ["The Data pillar in the CISA ZTMM", "Classification schemes: public, internal, confidential, restricted", "Sensitivity labels and their encryption and marking settings", "Sensitive information types and trainable classifiers", "Auto-labelling versus user labelling", "Labels as an access policy input", "Data discovery and where sensitive data lives", "Measuring label coverage"],
+          "tools": ["Microsoft Purview Information Protection", "Microsoft 365", "Microsoft Purview Content Explorer"],
+          "lab_task": "In a Microsoft 365 test tenant create a 4-level label taxonomy in Microsoft Purview, configure the Restricted label to encrypt content and allow only one group, and publish it to a pilot group. Label a Word document Restricted, then try to open it as a user outside the group. Use Content Explorer to count files matching the Credit Card Number sensitive information type.",
+          "deliverable": "Label taxonomy, encryption settings and access test evidence",
+          "checks": [["Open the Restricted document as a non-member", "Access is denied with a message that the user lacks permission", "Screenshot"], ["Open it as a group member", "The document opens with the Restricted marking visible", "Screenshot"], ["Query Content Explorer for credit card numbers", "An exact count of matching items is recorded", "Content Explorer screenshot"]],
+          "objectives": ["Design a data classification scheme", "Apply encryption tied to identity through labels", "Find sensitive data that needs protection"]
+        },
+        {
+          "topic": "Zero Trust Telemetry: Sign-In, Access and Policy Decision Logs",
+          "subtopics": ["Why every decision must be logged: tenet 7", "Entra sign-in logs, audit logs and conditional access results", "Cloudflare Access and Gateway logs", "Key fields: user, device, app, decision, policy, reason", "Correlation IDs and request IDs", "Log retention defaults and exporting to a SIEM", "Querying with KQL", "Spotting failure patterns from logs"],
+          "tools": ["Microsoft Entra sign-in logs", "Log Analytics", "KQL", "Cloudflare Logpush"],
+          "lab_task": "Send Entra sign-in logs to a Log Analytics workspace through Diagnostic settings. Run the KQL query SigninLogs | where TimeGenerated > ago(7d) | summarize count() by ResultType, ConditionalAccessStatus | order by count_ desc. Identify the top 3 failure ResultType codes, look up their meaning, and write one sentence on what each says about your policy or users.",
+          "deliverable": "Diagnostic settings screenshot, KQL query and failure code analysis",
+          "checks": [["Run the KQL summary query", "A table of ResultType and ConditionalAccessStatus counts is returned", "Query results"], ["Look up ResultType 50126", "It is identified as invalid username or password", "Analysis notes"], ["Filter ConditionalAccessStatus == \"failure\"", "An exact count of CA-blocked sign-ins for 7 days is recorded", "Query results"]],
+          "objectives": ["Collect access decision logs centrally", "Query sign-in logs with KQL", "Interpret failure codes"]
+        },
+        {
+          "topic": "Zero Trust Maturity Self-Assessment and Baseline",
+          "subtopics": ["Choosing the assessment scope", "Evidence-based scoring versus opinion", "Scoring each ZTMM function Traditional to Optimal", "Microsoft Zero Trust assessment and other vendor tools", "Interviewing owners for each pillar", "Visualising results as a heat map", "Picking 3 quick wins", "Repeating the assessment over time"],
+          "tools": ["CISA Zero Trust Maturity Model", "Microsoft Excel", "Microsoft Secure Score"],
+          "lab_task": "Score a provided case-study company against 10 ZTMM functions covering all five pillars. For every score, cite one piece of evidence from the case pack (a config export, policy or log). Build a heat map in Excel, compute the average stage per pillar on a 1 to 4 scale, and choose 3 quick wins that each move one function up a stage within 90 days.",
+          "deliverable": "Scored assessment, heat map and 90-day quick-win list",
+          "checks": [["Check each score for cited evidence", "All 10 scores reference a specific document from the case pack", "Assessment sheet"], ["Review the pillar averages", "Five averages between 1.0 and 4.0 are calculated with the formula visible", "Spreadsheet"], ["Review the quick wins", "Each names the function, current stage, target stage and owner", "Quick-win list"]],
+          "objectives": ["Score maturity using evidence", "Visualise maturity by pillar", "Prioritise achievable improvements"]
+        },
+        {
+          "topic": "Zero Trust Misconceptions and Failure Patterns",
+          "subtopics": ["Misconception: buying one product delivers Zero Trust", "Misconception: Zero Trust means trusting nothing and blocking everything", "Failure: MFA everywhere except legacy protocols", "Failure: broad exclusions in conditional access", "Failure: ZTNA policies that recreate the flat VPN", "Failure: no break-glass plan", "Failure: ignoring service accounts and APIs", "User experience as a success factor"],
+          "tools": ["Microsoft Entra Conditional Access", "Cloudflare Access", "Microsoft Graph PowerShell"],
+          "lab_task": "Review a supplied export of 12 Conditional Access policies and 8 ZTNA application policies. Find at least 6 weaknesses, such as an exclusion group with 300 members, legacy authentication not blocked, or a ZTNA app granting a whole /16. For each, state the risk, the tenet it breaks and a fix. Use Get-MgIdentityConditionalAccessPolicy to verify exclusions in your own tenant.",
+          "deliverable": "Weakness register with risk, tenet and fix for each finding",
+          "checks": [["Count findings in the register", "At least 6 distinct weaknesses are listed", "Weakness register"], ["Check the legacy authentication finding", "It recommends a policy blocking Exchange ActiveSync and other clients", "Register entry"], ["Run Get-MgIdentityConditionalAccessPolicy and list excluded groups", "Every excluded group in the tenant is listed with member count", "PowerShell output"]],
+          "objectives": ["Recognise common Zero Trust design mistakes", "Audit policies for broad exclusions", "Propose fixes tied to tenets"]
+        },
+        {
+          "topic": "Beginner Capstone: Zero Trust Access for an Internal Application",
+          "subtopics": ["Protect surface and transaction flows for the target app", "Identity: phishing-resistant MFA through the identity provider", "Device: posture check before access", "Network: Cloudflare Tunnel with no inbound ports", "Logging and a simple KQL or log report", "Presentation with before-and-after maturity scores"],
+          "tools": ["Cloudflare Tunnel", "Cloudflare Access", "Cloudflare WARP", "Microsoft Entra ID", "Log Analytics"],
+          "lab_task": "Put an internal app behind Cloudflare Tunnel and Access with Entra ID as the identity provider. Require a group, phishing-resistant MFA via Entra Conditional Access, and a WARP device posture check such as disk encryption. Close all inbound ports on the origin. Demonstrate 1 allowed and 3 denied cases (wrong group, no posture, no MFA) and present log evidence for all 4 plus before-and-after ZTMM scores.",
+          "deliverable": "Working protected app, design document, test log and 10-minute presentation",
+          "checks": [["Scan the origin's public IP with nmap -Pn -p 1-65535", "No open TCP ports are found", "nmap output"], ["Run the 4 access test cases", "1 allowed and 3 denied, each matching the expected reason", "Access log entries"], ["Compare ZTMM scores before and after", "At least 3 functions move up one stage with evidence", "Assessment sheet"]],
+          "objectives": ["Combine identity, device and network controls for one app", "Prove access decisions with logs", "Report maturity progress with evidence"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For security and platform engineers who completed the beginner level or already run MFA, conditional access and a pilot ZTNA service. Covers attribute- and risk-based policy design, externalised authorization with Open Policy Agent, Conditional Access at scale with authentication strengths and Continuous Access Evaluation, device trust from Intune and Okta, Zscaler Private Access, Microsoft Entra Private Access and Cloudflare Access with device posture, microsegmentation for Kubernetes and virtual machines, SPIFFE/SPIRE workload identity, service mesh mTLS from a Zero Trust angle, secretless CI/CD federation, short-lived SSH certificates, data loss prevention, SIEM detections, VPN-to-ZTNA migration planning and access-denial troubleshooting, ending with a VPN replacement capstone.",
+      "prerequisites": ["Completed the beginner level or has deployed MFA, a Conditional Access policy and one ZTNA-protected app", "Administers Linux and Windows hosts and can run kubectl, Docker and a shell script", "Has lab access to a Kubernetes cluster (kind or k3d is fine), an Entra ID or Okta tenant and a Cloudflare or Zscaler trial"],
+      "outcomes": ["Design and test attribute- and risk-based access policies in Conditional Access, Cloudflare Access, ZPA and OPA", "Deploy microsegmentation and SPIFFE-based workload identity with mTLS for service-to-service traffic", "Remove long-lived secrets from CI/CD and admin access using federation and short-lived certificates", "Plan and execute a staged VPN-to-ZTNA migration with monitoring and troubleshooting runbooks"],
+      "days": [
+        {
+          "topic": "Access Policy Design with Attributes, Context and Risk",
+          "subtopics": ["Subject, resource, action and environment attributes", "RBAC limits and the move to ABAC", "Contextual signals: time, geolocation, network, device posture", "Risk scores from identity protection and EDR", "Coarse-grained versus fine-grained authorization", "Policy precedence, conflicts and default deny", "Writing policies that business owners can read", "Keeping policy count manageable"],
+          "tools": ["Microsoft Entra Conditional Access", "Cloudflare Access", "Open Policy Agent", "Microsoft Excel"],
+          "lab_task": "For a finance app, write an ABAC policy set covering 3 user roles, 2 device states (compliant, unmanaged), 2 risk levels and 3 actions (read, export, approve). Express it as a decision table, then reduce it to the smallest rule set that gives the same outcomes. Test 12 sample requests against both forms and record any mismatches.",
+          "deliverable": "Decision table, reduced rule set and 12-request test sheet",
+          "checks": [["Run the 12 sample requests against the decision table", "Every request has exactly one outcome", "Test sheet"], ["Compare reduced rules with the decision table", "0 mismatches across the 12 requests", "Test sheet"], ["Check the unmanaged high-risk approve request", "Outcome is deny", "Test sheet row"]],
+          "objectives": ["Model access with attributes and context", "Simplify policy without changing outcomes", "Test policy with sample requests"]
+        },
+        {
+          "topic": "Externalised Authorization with Open Policy Agent and Rego",
+          "subtopics": ["OPA as a general-purpose policy decision point", "Rego rules, default values and input documents", "import rego.v1 and current Rego syntax", "opa eval for ad-hoc queries", "opa test for unit tests and coverage", "Running OPA as a server: POST /v1/data/<path>", "Bundles and decision logs", "Calling OPA from an API gateway or Envoy ext_authz"],
+          "tools": ["Open Policy Agent", "Rego", "curl", "Envoy"],
+          "lab_task": "Write a Rego package authz with default allow := false and a rule allowing GET /reports only when input.user.dept == \"finance\" and input.device.compliant is true. Add 4 tests and run opa test . -v --coverage. Start opa run --server, then POST two inputs to /v1/data/authz/allow with curl and record the JSON results and decision log lines.",
+          "deliverable": "Rego policy, test file, coverage output and curl results",
+          "checks": [["Run opa test . -v", "All 4 tests report PASS", "Test output"], ["POST a finance user with a non-compliant device", "Response body is {\"result\":false}", "curl output"], ["Check coverage from --coverage", "Coverage is 100 percent for the authz package", "Coverage JSON"]],
+          "objectives": ["Write and test Rego policies", "Run OPA as a PDP over HTTP", "Read OPA decision logs"]
+        },
+        {
+          "topic": "Conditional Access at Scale: Authentication Strengths, Locations and Templates",
+          "subtopics": ["Policy design personas: users, admins, guests, workload identities", "Built-in and custom authentication strengths", "Named locations and compliant network checks", "Blocking legacy authentication and device code flow", "Token protection for sign-in sessions", "Policy templates and naming conventions", "Deploying policy as code with Microsoft Graph", "Monitoring with the Conditional Access insights workbook"],
+          "tools": ["Microsoft Entra Conditional Access", "Microsoft Graph PowerShell", "Log Analytics", "Microsoft Entra workbooks"],
+          "lab_task": "Script 5 persona-based Conditional Access policies with New-MgIdentityConditionalAccessPolicy from JSON files: admins need phishing-resistant strength, users need MFA, guests need MFA and sign-in frequency 8 hours, legacy auth is blocked, device code flow is blocked. Deploy in report-only, run for 3 days, then query SigninLogs to count sign-ins each policy would block.",
+          "deliverable": "Policy JSON files, deployment script and impact report per policy",
+          "checks": [["Run Get-MgIdentityConditionalAccessPolicy after deployment", "5 policies exist with state enabledForReportingButNotEnforced", "PowerShell output"], ["Query report-only results for the legacy auth policy", "An exact count of would-be-blocked legacy sign-ins is reported", "KQL result"], ["Redeploy the same JSON files", "No duplicate policies are created", "Script output"]],
+          "objectives": ["Design persona-based Conditional Access", "Deploy policies as code", "Measure impact before enforcement"]
+        },
+        {
+          "topic": "Continuous Access Evaluation and Session Revocation",
+          "subtopics": ["Why one-hour tokens break continuous verification", "Continuous Access Evaluation (CAE) critical events", "Location enforcement through CAE", "Long-lived CAE tokens and the claims challenge", "Revoke-MgUserSignInSession and refresh token revocation", "Strict location enforcement mode", "Which clients and resources support CAE", "Cloudflare Access session duration and revoking sessions"],
+          "tools": ["Microsoft Entra ID", "Microsoft Graph PowerShell", "Microsoft Outlook", "Cloudflare Access"],
+          "lab_task": "Sign in to Outlook on the web and Teams as a test user. Disable the account in Entra ID and time how long until each client loses access. Re-enable, sign in, then run Revoke-MgUserSignInSession and time again. In Cloudflare Access, revoke the user's session from the Users page and time access loss for a protected app. Tabulate all results.",
+          "deliverable": "Revocation timing table with sign-in log evidence",
+          "checks": [["Disable the account and refresh Outlook on the web", "Access is lost within a few minutes rather than at token expiry", "Timing table"], ["Check the sign-in log for the CAE event", "Entries show the session with CAE token marked as used", "Sign-in log"], ["Revoke the Cloudflare Access session", "The next request to the app redirects to login", "Browser screenshot"]],
+          "objectives": ["Explain how CAE shortens revocation time", "Revoke sessions in Entra and Cloudflare", "Measure real revocation delays"]
+        },
+        {
+          "topic": "Device Trust with Intune Compliance and Okta Device Assurance",
+          "subtopics": ["Compliance policy design per platform", "Defender for Endpoint risk level in compliance", "Grace periods and noncompliance actions", "Okta Device Assurance policies and Okta Verify", "Managed device detection in Okta authentication policies", "Third-party posture: CrowdStrike ZTA score", "Device identity certificates", "Handling posture outages"],
+          "tools": ["Microsoft Intune", "Microsoft Defender for Endpoint", "Okta Device Assurance", "Okta Verify"],
+          "lab_task": "In Intune, set a Windows compliance policy requiring machine risk score at or below Low from Defender for Endpoint. In Okta, create a Device Assurance policy requiring a minimum macOS version and disk encryption, and attach it to an app authentication policy. Trigger a test detection (such as the EICAR file) on Windows and an outdated OS on macOS, and record both access outcomes.",
+          "deliverable": "Compliance and Device Assurance settings with test outcomes",
+          "checks": [["Run the EICAR test on the Windows device", "Device risk rises and Intune marks the device Not compliant", "Intune and Defender screenshots"], ["Sign in from the outdated macOS device", "Okta denies access citing the Device Assurance policy", "Okta System Log event"], ["Remediate both devices", "Both regain access after the next check-in", "Logs"]],
+          "objectives": ["Combine EDR risk with compliance", "Configure Okta Device Assurance", "Test posture-driven denials"]
+        },
+        {
+          "topic": "Zscaler Private Access: App Connectors, Segments and Access Policies",
+          "subtopics": ["ZPA architecture: Client Connector, ZPA cloud, App Connectors", "App Connector groups and provisioning keys", "Server groups and dynamic discovery", "Application segments: domains, ports and TCP/UDP", "Segment groups", "Access policy rules and rule order", "Posture profiles and trusted networks", "Diagnostics: Client Connector logs and ZPA diagnostics"],
+          "tools": ["Zscaler Private Access", "Zscaler Client Connector", "ZPA App Connector", "nslookup"],
+          "lab_task": "Deploy a ZPA App Connector VM with a provisioning key, confirm it shows Healthy, then create an application segment for wiki.corp.local on TCP 443 and ssh.corp.local on TCP 22. Create an access policy allowing the Engineering group to both and Finance only to the wiki. Test from Client Connector as each user and record the result and ZPA diagnostic log entry.",
+          "deliverable": "App Connector status, segment and policy configuration, and test results",
+          "checks": [["Check the App Connector in the admin portal", "Status is Healthy and the version is current", "Admin portal screenshot"], ["SSH to ssh.corp.local as a Finance user", "Connection fails and diagnostics show the access policy denied it", "ZPA diagnostics log"], ["Open the wiki as Finance", "The page loads and the log shows the matching allow rule", "ZPA log"]],
+          "objectives": ["Deploy ZPA connectors", "Define application segments and access policies", "Use ZPA diagnostics"]
+        },
+        {
+          "topic": "Microsoft Entra Private Access with the Global Secure Access Client",
+          "subtopics": ["Global Secure Access: Entra Internet Access and Entra Private Access", "Private network connectors and connector groups", "Quick Access for broad replacement", "Per-app access enterprise applications", "Applying Conditional Access to private apps", "Private DNS and suffixes", "Traffic forwarding profiles", "Traffic logs in Global Secure Access"],
+          "tools": ["Microsoft Entra Private Access", "Global Secure Access client", "Microsoft Entra private network connector", "Microsoft Entra Conditional Access"],
+          "lab_task": "Install a Microsoft Entra private network connector on a Windows Server in the lab, enable the Private Access traffic forwarding profile, and create a per-app Global Secure Access application for an RDP host on TCP 3389. Assign a pilot group and add a Conditional Access policy requiring a compliant device. Connect with mstsc from the GSA client and find the session in Traffic logs.",
+          "deliverable": "Connector status, app configuration, CA policy and traffic log evidence",
+          "checks": [["Check the connector in the Entra admin centre", "Status is Active", "Screenshot"], ["Connect via mstsc from a compliant device", "RDP session opens and Traffic logs show the destination and user", "Traffic log entry"], ["Connect from a non-compliant device", "Access is blocked and the sign-in log shows AADSTS53000", "Sign-in log"]],
+          "objectives": ["Deploy Entra Private Access connectors", "Publish a non-HTTP app per application", "Apply Conditional Access to private apps"]
+        },
+        {
+          "topic": "Cloudflare Access Policies with WARP Device Posture and Private Networks",
+          "subtopics": ["WARP client enrolment and device profiles", "Device posture checks: OS version, disk encryption, firewall, serial number list", "EDR integrations as posture providers", "Private network routes over Cloudflare Tunnel", "Access for infrastructure targets (SSH, RDP) and private hostnames", "Policy rule types: Include, Require, Exclude", "Service tokens for machine access", "Access and Gateway network logs"],
+          "tools": ["Cloudflare Access", "Cloudflare WARP", "Cloudflare Tunnel", "cloudflared"],
+          "lab_task": "Add a private route with cloudflared tunnel route ip add 10.10.0.0/24 lab, then create a Gateway network policy allowing only a group with disk encryption posture to reach 10.10.0.20 on TCP 22 and denying the rest of the range. Test from an encrypted and an unencrypted device with ssh and nc -zv 10.10.0.21 22, and record each Gateway log result.",
+          "deliverable": "Tunnel route, posture checks, network policy and test log",
+          "checks": [["ssh 10.10.0.20 from the encrypted device", "Connection succeeds", "Terminal output"], ["ssh 10.10.0.20 from the unencrypted device", "Connection is blocked and the Gateway network log shows Block", "Gateway log"], ["nc -zv 10.10.0.21 22 from the encrypted device", "Connection is blocked because only .20 is allowed", "Terminal output and log"]],
+          "objectives": ["Use device posture in Cloudflare policy", "Expose private networks without a full VPN", "Combine Include, Require and Exclude rules"]
+        },
+        {
+          "topic": "Kubernetes Microsegmentation with NetworkPolicy and Cilium",
+          "subtopics": ["Kubernetes default allow-all pod networking", "Default-deny ingress and egress NetworkPolicy", "podSelector, namespaceSelector and policyTypes", "Allowing DNS egress to kube-dns", "CiliumNetworkPolicy with L7 HTTP rules", "Identity-based enforcement from labels", "Hubble flow visibility and dropped verdicts", "Policy testing before enforcement"],
+          "tools": ["Kubernetes", "kubectl", "Cilium", "Hubble", "kind"],
+          "lab_task": "On a kind cluster with Cilium, deploy frontend, backend and db pods in namespace shop. Apply a default-deny NetworkPolicy, then allow frontend to backend on 8080 and backend to db on 5432, plus DNS. Add a CiliumNetworkPolicy permitting only GET /api/* to backend. Test with kubectl exec and curl, then run hubble observe -n shop --verdict DROPPED.",
+          "deliverable": "Policy manifests, connectivity test matrix and Hubble drop output",
+          "checks": [["kubectl exec frontend -- curl -s backend:8080/api/items", "Returns HTTP 200", "Terminal output"], ["kubectl exec frontend -- nc -zv db 5432", "Connection times out", "Terminal output"], ["POST to backend /api/items from frontend", "Returns HTTP 403 Access denied from the Cilium L7 policy", "curl output and Hubble flow"]],
+          "objectives": ["Apply default-deny in Kubernetes", "Write label-based allow policies", "Verify enforcement with Hubble"]
+        },
+        {
+          "topic": "Host-Based Microsegmentation for VMs and Data Centres",
+          "subtopics": ["Agent-based microsegmentation products", "Labelling workloads by application, environment and role", "Building policy from observed flows", "Test or visibility mode before enforcement", "Ring-fencing a crown-jewel application", "Legacy and unmanaged hosts", "Windows Defender Firewall with GPO at scale", "Change control and rollback"],
+          "tools": ["Illumio", "Akamai Guardicore Segmentation", "Windows Defender Firewall", "PowerShell"],
+          "lab_task": "On 4 Windows Server VMs labelled web, app, db and jump, use Get-NetTCPConnection over 24 hours of sample traffic to build an allowed-flow list. Write New-NetFirewallRule commands allowing only those flows and blocking all other inbound traffic. Apply with a GPO, attempt SMB from web to db with Test-NetConnection -Port 445, and record results and firewall log entries.",
+          "deliverable": "Observed-flow list, firewall rules, GPO export and test results",
+          "checks": [["Test-NetConnection db -Port 1433 from app", "TcpTestSucceeded : True", "PowerShell output"], ["Test-NetConnection db -Port 445 from web", "TcpTestSucceeded : False", "PowerShell output"], ["Read pfirewall.log on db", "A DROP entry for the web host on port 445 is present", "Log excerpt"]],
+          "objectives": ["Build segmentation policy from observed flows", "Ring-fence a crown-jewel database", "Verify enforcement and logging"]
+        },
+        {
+          "topic": "Workload Identity with SPIFFE IDs and SVIDs",
+          "subtopics": ["Why IP addresses and shared secrets fail as workload identity", "SPIFFE ID format: spiffe://trust-domain/path", "X.509-SVID: the SPIFFE ID in the URI SAN", "JWT-SVID and audience claims", "Trust bundles and trust domains", "The Workload API over a Unix domain socket", "Short SVID lifetimes and automatic rotation", "SPIFFE compared with cloud IAM roles and Kubernetes service account tokens"],
+          "tools": ["SPIFFE", "SPIRE", "OpenSSL", "go-spiffe"],
+          "lab_task": "Using a running SPIRE lab, fetch an X.509-SVID with spire-agent api fetch x509 -write /tmp/svid and inspect it with openssl x509 -in /tmp/svid/svid.0.pem -noout -text. Record the URI SAN, the issuer and the validity period. Then fetch a JWT-SVID with spire-agent api fetch jwt -audience billing and decode its sub, aud and exp claims.",
+          "deliverable": "Annotated X.509-SVID and JWT-SVID with explanation of each field",
+          "checks": [["Read the URI SAN in the X.509-SVID", "It shows spiffe://example.org/ns/default/sa/web or the configured ID", "openssl output"], ["Compare notBefore and notAfter", "Lifetime is 1 hour or the configured short TTL", "openssl output"], ["Decode the JWT-SVID aud claim", "aud equals billing", "Decoded token"]],
+          "objectives": ["Explain SPIFFE IDs, SVIDs and trust bundles", "Inspect X.509 and JWT SVIDs", "Compare workload identity options"]
+        },
+        {
+          "topic": "Running SPIRE Server and Agents with Node and Workload Attestation",
+          "subtopics": ["SPIRE Server, datastore and CA", "SPIRE Agent and the Workload API", "Node attestation: join_token, k8s_psat, aws_iid", "Workload attestation: unix, k8s and docker selectors", "Registration entries with spire-server entry create", "Parent IDs and node aliases", "Health checks and telemetry", "SPIRE Controller Manager for Kubernetes"],
+          "tools": ["SPIRE", "kubectl", "Helm", "SPIRE Controller Manager"],
+          "lab_task": "Install SPIRE on a kind cluster with the SPIFFE Helm charts. Run spire-server healthcheck, then create an entry with spire-server entry create -parentID spiffe://example.org/agent/k8s_psat/kind/<node> -spiffeID spiffe://example.org/ns/shop/sa/backend -selector k8s:ns:shop -selector k8s:sa:backend. Fetch the SVID from the backend pod and from a pod with a different service account.",
+          "deliverable": "Helm values, registration entries and attestation test results",
+          "checks": [["Run spire-server healthcheck", "Prints Server is healthy.", "Terminal output"], ["Fetch an SVID from the backend pod", "The SVID carries spiffe://example.org/ns/shop/sa/backend", "Terminal output"], ["Fetch from a pod with another service account", "No identity is issued and the agent logs show no matching entry", "Agent log"]],
+          "objectives": ["Deploy SPIRE on Kubernetes", "Register workloads with selectors", "Prove that attestation gates identity issuance"]
+        },
+        {
+          "topic": "Enforcing Service-to-Service Zero Trust with Mesh mTLS",
+          "subtopics": ["SP 800-207A view of a service mesh as PEP", "Automatic mTLS and STRICT mode", "SPIFFE identities issued by the mesh", "Authorization by peer principal instead of IP", "Deny-by-default authorization", "Sidecar and ambient data planes as enforcement points", "Proving encryption on the wire", "Exporting mesh access logs as Zero Trust telemetry"],
+          "tools": ["Istio", "istioctl", "kubectl", "tcpdump"],
+          "lab_task": "In an Istio lab, apply a mesh-wide PeerAuthentication with mtls mode STRICT and an AuthorizationPolicy in namespace shop allowing only principals cluster.local/ns/shop/sa/frontend to call backend. Call backend from frontend, from another service account and from a non-mesh pod. Capture traffic with tcpdump on the node and confirm it is TLS, not plaintext HTTP.",
+          "deliverable": "Mesh policies, test results and packet capture evidence",
+          "checks": [["curl backend from frontend", "Returns HTTP 200", "Terminal output"], ["curl backend from another service account", "Returns HTTP 403 RBAC: access denied", "Terminal output"], ["curl backend from a pod without a sidecar", "Connection is reset because STRICT mTLS rejects plaintext", "Terminal output"]],
+          "objectives": ["Use a mesh as a Zero Trust enforcement point", "Authorize by workload identity", "Prove encryption and denial on the wire"]
+        },
+        {
+          "topic": "Secretless CI/CD Access with OIDC Workload Identity Federation",
+          "subtopics": ["Long-lived cloud keys in CI as a Zero Trust gap", "OIDC tokens from GitHub Actions and GitLab CI", "permissions: id-token: write", "AWS IAM OIDC provider and trust policy conditions", "sub claim scoping: repo, branch, environment", "Azure federated credentials and GCP Workload Identity Federation", "Removing old access keys safely", "Auditing federated sessions"],
+          "tools": ["GitHub Actions", "AWS IAM", "aws-actions/configure-aws-credentials", "AWS CloudTrail"],
+          "lab_task": "Create an IAM OIDC provider for token.actions.githubusercontent.com and a role whose trust policy requires aud sts.amazonaws.com and sub repo:org/app:ref:refs/heads/main. Use aws-actions/configure-aws-credentials with role-to-assume in a workflow running aws sts get-caller-identity. Run it on main and on a feature branch, then delete the old access key from the repo secrets.",
+          "deliverable": "Trust policy, workflow file and run logs for both branches",
+          "checks": [["Run the workflow on main", "get-caller-identity prints the assumed role ARN", "Actions log"], ["Run the workflow on a feature branch", "Fails with Not authorized to perform sts:AssumeRoleWithWebIdentity", "Actions log"], ["Search CloudTrail for AssumeRoleWithWebIdentity", "The event shows the GitHub subject claim", "CloudTrail event"]],
+          "objectives": ["Replace stored CI secrets with federation", "Scope trust to repository and branch", "Audit federated sessions"]
+        },
+        {
+          "topic": "Short-Lived Certificates for Zero Trust SSH and Database Access",
+          "subtopics": ["Static SSH keys and shared database passwords as standing access", "SSH certificate authorities and TrustedUserCAKeys", "Principals, validity and critical options", "Identity-provider-issued certificates through an access proxy", "Cloudflare Access for infrastructure and Teleport-style access planes", "Database access with IAM authentication tokens", "Session recording and command logging", "Revocation by expiry"],
+          "tools": ["OpenSSH", "ssh-keygen", "Teleport", "Cloudflare Access"],
+          "lab_task": "Create a user CA with ssh-keygen -t ed25519 -f user_ca, add TrustedUserCAKeys /etc/ssh/user_ca.pub to sshd_config, and sign a user key with ssh-keygen -s user_ca -I alice -n deploy -V +15m alice.pub. SSH as deploy within 15 minutes, check ssh-keygen -L -f alice-cert.pub, then retry after expiry and read the sshd log message.",
+          "deliverable": "sshd configuration, signed certificate details and expiry test",
+          "checks": [["Run ssh-keygen -L -f alice-cert.pub", "Shows Principals: deploy and a Valid window of 15 minutes", "Terminal output"], ["SSH as deploy within the window", "Login succeeds", "Terminal output"], ["SSH after expiry", "Login fails and the sshd log reports the certificate has expired", "journalctl output"]],
+          "objectives": ["Replace static keys with short-lived certificates", "Limit principals and validity", "Rely on expiry instead of revocation"]
+        },
+        {
+          "topic": "Data Loss Prevention, Sensitivity Labels and CASB Session Controls",
+          "subtopics": ["DLP policies on email, endpoints and SaaS", "Policy tips, block with override and audit modes", "Endpoint DLP: USB, print and upload controls", "Defender for Cloud Apps session policies via Conditional Access App Control", "Blocking downloads on unmanaged devices", "Labels driving DLP actions", "False positives and tuning", "Data pillar maturity evidence"],
+          "tools": ["Microsoft Purview DLP", "Microsoft Defender for Cloud Apps", "Microsoft Entra Conditional Access", "Microsoft Purview Activity Explorer"],
+          "lab_task": "Create a Purview DLP policy blocking external sharing of files containing 10 or more credit card numbers, starting in simulation mode. Add a Conditional Access session control routed to Defender for Cloud Apps that blocks downloads of Confidential files from unmanaged devices. Test both and count matches in Activity Explorer after enforcement.",
+          "deliverable": "DLP and session policy configuration with test evidence",
+          "checks": [["Share a file with 12 test card numbers externally", "Sharing is blocked and a policy tip appears", "Screenshot"], ["Download a Confidential file from an unmanaged browser", "Download is blocked by the session policy", "Defender for Cloud Apps activity log"], ["Query Activity Explorer for DLP rule matches", "An exact match count is recorded for the test window", "Activity Explorer export"]],
+          "objectives": ["Protect data with DLP policies", "Apply session controls by device state", "Measure DLP effectiveness"]
+        },
+        {
+          "topic": "Zero Trust Detections: Feeding Policy Decisions into a SIEM",
+          "subtopics": ["Data sources: IdP, ZTNA, EDR, DNS, mesh and cloud logs", "Normalising user and device identifiers", "Detections: impossible travel, MFA fatigue, token replay", "Detecting policy drift and new exclusions", "Automated response: revoke sessions, isolate device", "Microsoft Sentinel analytics rules and playbooks", "Cloudflare Logpush to a SIEM", "Measuring time to detect and contain"],
+          "tools": ["Microsoft Sentinel", "KQL", "Cloudflare Logpush", "Azure Logic Apps"],
+          "lab_task": "Connect Entra ID and Cloudflare logs to Microsoft Sentinel. Write a scheduled KQL rule that fires when one user has 5 or more MFA denials in 10 minutes, and a rule for any Conditional Access policy change in AuditLogs. Attach a playbook that runs Revoke-MgUserSignInSession. Simulate 6 denied push prompts and a policy edit, then record alerts and playbook runs.",
+          "deliverable": "Analytics rules, playbook and incident evidence",
+          "checks": [["Simulate 6 denied MFA prompts", "One incident is created for the test user", "Sentinel incident"], ["Edit a Conditional Access policy", "The policy-change rule raises an alert naming the actor", "Sentinel alert"], ["Check the playbook run history", "The revoke-sessions action shows Succeeded", "Logic App run"]],
+          "objectives": ["Centralise Zero Trust telemetry", "Write detections for identity attacks", "Automate session revocation"]
+        },
+        {
+          "topic": "VPN-to-ZTNA Migration Planning: Discovery, Waves and Coexistence",
+          "subtopics": ["Discovering applications used over the VPN", "Classifying apps: web, thick client, server-initiated, UDP", "Wave planning by risk and complexity", "Pilot groups and success criteria", "Split tunnelling and coexistence with the VPN", "Communications and helpdesk preparation", "Decommission criteria for the VPN", "Tracking progress: apps migrated, users migrated, VPN sessions"],
+          "tools": ["Zscaler Private Access", "Cloudflare Access", "Microsoft Entra Private Access", "Microsoft Excel"],
+          "lab_task": "From a provided 30-day VPN flow export, list every destination host and port with unique user counts. Group them into applications, classify each, and plan 3 migration waves with pilot groups, success criteria and a rollback step. Define VPN decommission criteria such as fewer than 5 percent of users connecting for 30 days, and project the wave dates.",
+          "deliverable": "Application discovery sheet, wave plan and decommission criteria",
+          "checks": [["Check the discovery sheet against the flow export", "Every destination with more than 5 unique users is mapped to an application", "Discovery sheet"], ["Review wave 1", "It contains only web applications with low dependency risk", "Wave plan"], ["Read decommission criteria", "They contain a measurable threshold and a time window", "Plan document"]],
+          "objectives": ["Discover applications behind a VPN", "Plan migration waves with success criteria", "Define measurable VPN retirement criteria"]
+        },
+        {
+          "topic": "Troubleshooting Zero Trust Access Denials",
+          "subtopics": ["A layered method: identity, device, policy, network, application", "Reading Entra sign-in failure codes and the CA tab", "Cloudflare Access and Gateway log fields", "ZPA diagnostics and Client Connector logs", "Clock skew, certificate and DNS failures", "Building a support runbook and escalation path"],
+          "tools": ["Microsoft Entra sign-in logs", "Cloudflare Zero Trust logs", "Zscaler Private Access", "dig", "openssl"],
+          "lab_task": "Work through 6 injected faults in the lab: user missing from group, device not compliant, wrong application segment port, expired origin certificate, private DNS suffix missing and device clock skew of 10 minutes. For each, record the symptom, the log entry or command that identifies it, the fix and the time to resolve. Turn the results into a runbook.",
+          "deliverable": "Fault log for 6 cases and a support runbook",
+          "checks": [["Diagnose the device compliance fault", "Sign-in log shows AADSTS53000 and the fix is recorded", "Fault log"], ["Diagnose the expired origin certificate", "openssl s_client shows certificate has expired and the cert is renewed", "Terminal output"], ["Check total resolution time", "All 6 faults are resolved with times recorded", "Fault log"]],
+          "objectives": ["Diagnose access denials layer by layer", "Use each platform's logs", "Write a support runbook"]
+        },
+        {
+          "topic": "Intermediate Capstone: Replacing a VPN for Three Internal Applications",
+          "subtopics": ["Discovery and wave plan for 3 applications", "ZTNA publishing with identity and device policy", "Microsegmentation around the application servers", "Workload identity or short-lived credentials for admin access", "Monitoring, detection and a support runbook", "Cutover, rollback test and VPN removal for the pilot group"],
+          "tools": ["Cloudflare Access", "Zscaler Private Access", "Microsoft Entra Private Access", "Microsoft Sentinel", "OpenSSH"],
+          "lab_task": "Move a pilot group off the VPN for 3 apps: a web wiki, an SSH host and an RDP server, using one ZTNA platform. Enforce group, phishing-resistant MFA and compliant device. Restrict the servers to accept traffic only from connectors, use 15-minute SSH certificates, and add a SIEM alert for repeated denials. Disable VPN access for the group and run 9 test cases.",
+          "deliverable": "Working migration, test report, runbook and presentation",
+          "checks": [["Run 9 test cases (3 apps by allowed, wrong group and non-compliant)", "3 allowed and 6 denied, each matching expectations", "Test report"], ["Attempt the VPN as a pilot user", "VPN authentication is refused", "VPN log"], ["Connect to a server directly from a non-connector host", "Connection is dropped by host firewall", "Terminal output"]],
+          "objectives": ["Execute a staged VPN replacement", "Combine identity, device, network and workload controls", "Prove the result with tests and monitoring"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For security architects, platform leads and programme owners who run Zero Trust controls in production and must scale them across clouds, workloads and the organisation. Covers NIST SP 800-207A identity-tier and network-tier policy for cloud-native apps, the NCCoE SP 1800-35 example builds, PDP availability and fail-closed design, the policy-as-code lifecycle, risk-adaptive access, the OpenID Shared Signals Framework with CAEP and RISC, SPIFFE federation, identity propagation across microservices, OT and IoT, non-human identities, key management and attribute-based data access, third-party access, break-glass resilience, authorised adversary testing, maturity metrics, the DoD Zero Trust strategy, governance, compliance mapping and a multi-year roadmap capstone.",
+      "prerequisites": ["Completed the intermediate level or has run ZTNA, conditional access and microsegmentation in production", "Reads and writes infrastructure and policy code (Terraform, Rego, YAML) and works with Kubernetes in more than one cloud", "Has authority or a sponsor to engage application owners, risk management and leadership on a Zero Trust programme"],
+      "outcomes": ["Design multi-cloud Zero Trust architectures using SP 800-207A identity-tier and network-tier policies and federated workload identity", "Engineer resilient, tested policy decision points and policy-as-code pipelines with fail-closed behaviour and break-glass paths", "Extend Zero Trust to shared signals, non-human identities, OT and IoT, third parties and data-level controls", "Measure maturity with metrics, map controls to compliance frameworks and present a funded multi-year roadmap"],
+      "days": [
+        {
+          "topic": "NIST SP 800-207A: Identity-Tier and Network-Tier Policies for Cloud-Native Apps",
+          "subtopics": ["Scope of SP 800-207A: multi-cloud and hybrid application environments", "Network-tier policies: IP, port and segment rules", "Identity-tier policies: user and service identity at the application layer", "The five identity-tier policy elements: user, service, device, resource and environment", "Service mesh and API gateways as PEPs", "Combining both tiers for defence in depth", "Policy for ingress, east-west and egress", "Mapping 800-207A recommendations to existing controls"],
+          "tools": ["NIST SP 800-207A", "Istio", "Cilium", "Envoy", "Open Policy Agent"],
+          "lab_task": "For a 3-cloud reference app (frontend on GKE, payments on EKS, reporting on AKS), write a policy catalogue with both network-tier rules (CiliumNetworkPolicy or security groups) and identity-tier rules (mesh AuthorizationPolicy or OPA) for every service-to-service call. Mark each SP 800-207A element the rule uses and identify any call protected by only one tier.",
+          "deliverable": "Two-tier policy catalogue and gap list for the reference app",
+          "checks": [["Count service calls in the architecture diagram", "Every call has at least one network-tier and one identity-tier rule, or is listed as a gap", "Policy catalogue"], ["Review the payments ingress rule", "It names a workload identity, not only an IP range", "Policy entry"], ["Ask which tier blocks a stolen pod IP", "Answer: the identity tier, because the attacker lacks the SVID", "Recorded answer"]],
+          "objectives": ["Apply SP 800-207A to multi-cloud apps", "Combine network-tier and identity-tier policy", "Find single-tier gaps"]
+        },
+        {
+          "topic": "NCCoE SP 1800-35 Example Builds and Reference Patterns",
+          "subtopics": ["Purpose of the NCCoE Implementing a Zero Trust Architecture project", "Example implementation builds from vendor collaborators", "Enhanced identity governance, microsegmentation and SDP builds", "Use cases: on-premises, cloud, branch, remote and guest access", "Lessons learned on integration and interoperability", "Reusing build diagrams in your own architecture", "Mapping builds to NIST SP 800-53 controls", "Limits of lab builds versus production"],
+          "tools": ["NIST SP 1800-35", "NIST SP 800-53", "draw.io", "Microsoft Excel"],
+          "lab_task": "Read the NCCoE SP 1800-35 summary and pick two example builds that use products close to your estate. For each, list the PE, PA and PEP products, the use cases demonstrated and one documented gap. Redraw one build against your environment and note which components you already own, which you lack and the integration work needed.",
+          "deliverable": "Build comparison table and adapted reference diagram",
+          "checks": [["Check the comparison table", "Both builds list PE, PA and PEP products and use cases", "Comparison table"], ["Review the adapted diagram", "Each component is tagged owned, missing or replace", "Diagram"], ["Check documented gaps", "At least one gap per build is quoted with its section reference", "Comparison table"]],
+          "objectives": ["Use NCCoE builds as reference patterns", "Compare vendor implementations against NIST roles", "Adapt a reference build to an estate"]
+        },
+        {
+          "topic": "Policy Decision Point Engineering: Latency, Availability and Fail-Closed Design",
+          "subtopics": ["The PDP as a tier-0 dependency", "Latency budgets for inline decisions", "Caching decisions and token lifetimes", "Fail-open versus fail-closed per resource class", "Regional redundancy and IdP outage scenarios", "Sidecar or local PDPs such as OPA next to the service", "Load testing the decision path", "SLOs for decision latency and availability"],
+          "tools": ["Open Policy Agent", "Envoy", "k6", "Prometheus", "Grafana"],
+          "lab_task": "Deploy OPA as an Envoy ext_authz service in front of a test API. Use k6 to send 500 requests per second for 5 minutes and record p50 and p99 decision latency from OPA's Prometheus metrics. Kill the OPA pod, observe behaviour with failure_mode_allow false and then true, and write which setting each resource class should use.",
+          "deliverable": "Load test results, failure-mode test and fail-open/fail-closed policy",
+          "checks": [["Read the k6 summary", "p99 request latency and error rate are recorded", "k6 output"], ["Kill OPA with failure_mode_allow: false", "Requests return HTTP 403 while OPA is down", "k6 output"], ["Review the failure-mode policy", "Each resource class has a stated mode with a reason", "Policy document"]],
+          "objectives": ["Treat the PDP as critical infrastructure", "Measure decision latency under load", "Choose fail-open or fail-closed deliberately"]
+        },
+        {
+          "topic": "Policy-as-Code Lifecycle for Access Policies",
+          "subtopics": ["Storing Conditional Access, Access and Rego policy in Git", "Unit tests and golden decision tests", "Static checks with conftest and Regal", "Terraform providers for Entra ID, Cloudflare and Zscaler", "Plan review and two-person approval", "Staged rollout: report-only, canary group, full", "Drift detection against live configuration", "Rollback and change audit"],
+          "tools": ["Terraform", "Open Policy Agent", "conftest", "Regal", "GitHub Actions"],
+          "lab_task": "Put the Cloudflare Access applications and policies for a lab team under Terraform with the cloudflare provider. Add a GitHub Actions pipeline that runs terraform fmt -check, terraform validate, a conftest rule rejecting any Access policy whose include contains everyone, and terraform plan. Open a pull request adding an everyone rule and record the failed check.",
+          "deliverable": "Terraform code, pipeline file and failed and passing PR runs",
+          "checks": [["Open a PR adding an everyone include", "The conftest step fails with the custom deny message", "Actions log"], ["Change a policy in the dashboard and run terraform plan", "Plan shows 1 resource to change, revealing drift", "Plan output"], ["Merge a valid PR", "terraform apply completes with 0 errors", "Actions log"]],
+          "objectives": ["Manage access policy as code", "Block risky policy changes automatically", "Detect configuration drift"]
+        },
+        {
+          "topic": "Risk-Adaptive Access with Behaviour Analytics",
+          "subtopics": ["User and entity behaviour analytics baselines", "Identity Protection user risk and sign-in risk", "Risk-based Conditional Access: step-up versus block", "Insider risk signals as policy input", "Dynamic risk scores from EDR, UEBA and threat intelligence", "False positive cost and user friction", "Feedback loops: confirm compromised, dismiss risk", "Measuring adaptive policy effectiveness"],
+          "tools": ["Microsoft Entra ID Protection", "Microsoft Entra Conditional Access", "Microsoft Sentinel UEBA", "KQL"],
+          "lab_task": "Configure a risk-based Conditional Access policy: medium sign-in risk requires phishing-resistant MFA, high user risk requires secure password change or blocks if the user has no passwordless method. Generate risk with a Tor browser sign-in for a test user, confirm the step-up, then query AADUserRiskEvents and SigninLogs to compute how many risky sign-ins were remediated versus blocked in 30 days.",
+          "deliverable": "Risk policies, test evidence and 30-day remediation metrics",
+          "checks": [["Sign in through Tor as the test user", "The sign-in is flagged with anonymous IP address risk and MFA is required", "Sign-in log"], ["Query risky sign-ins for 30 days", "Counts of remediated, blocked and dismissed are reported", "KQL result"], ["Confirm the user compromised in Identity Protection", "User risk becomes High and access is blocked or requires reset", "Identity Protection screenshot"]],
+          "objectives": ["Use risk scores as access signals", "Balance step-up against block", "Measure adaptive access outcomes"]
+        },
+        {
+          "topic": "Shared Signals Framework: CAEP and RISC Event Streams",
+          "subtopics": ["The OpenID Shared Signals Framework (SSF)", "Security Event Tokens (RFC 8417)", "CAEP events: session-revoked, credential-change, device-compliance-change", "RISC events: account-disabled, credential-compromise", "Transmitters, receivers and stream configuration", "Push and poll delivery", "Subject identifiers (RFC 9493)", "Using shared signals to close the gap between IdP, EDR and SaaS"],
+          "tools": ["OpenID Shared Signals Framework", "CAEP", "RISC", "Python", "jq"],
+          "lab_task": "Use an open-source SSF transmitter or the caep.dev test service to create a stream to a small receiver you write in Python. Send a session-revoked and a device-compliance-change event for a test subject. In the receiver, verify the SET signature, parse the event type URI and subject, and revoke the user's local session. Log the time from send to revocation.",
+          "deliverable": "SSF receiver code, stream configuration and event timing log",
+          "checks": [["Send a session-revoked event", "The receiver logs event type https://schemas.openid.net/secevent/caep/event-type/session-revoked", "Receiver log"], ["Send an event with a tampered signature", "The receiver rejects it and does not revoke the session", "Receiver log"], ["Measure send-to-revoke time", "Time is recorded in milliseconds for both events", "Timing log"]],
+          "objectives": ["Explain SSF, CAEP and RISC", "Receive and validate security event tokens", "Act on shared signals in near real time"]
+        },
+        {
+          "topic": "Federating SPIFFE Trust Domains across Clusters and Clouds",
+          "subtopics": ["Why one trust domain per environment or organisation", "Bundle endpoints and https_spiffe versus https_web profiles", "spire-server federation create and federatesWith on entries", "Nested SPIRE and upstream authorities", "Exchanging bundles with cloud IAM for keyless cloud access", "Authorization across trust domains", "Bundle rotation and outages", "Observing cross-domain calls"],
+          "tools": ["SPIRE", "SPIFFE", "kubectl", "Envoy"],
+          "lab_task": "Run two kind clusters with SPIRE trust domains a.example and b.example. Expose each bundle endpoint, create federation relationships with spire-server federation create, register a client in a.example with -federatesWith spiffe://b.example, and call a server in b.example over mTLS that authorizes only spiffe://a.example/ns/app/sa/client. Test from an unfederated workload.",
+          "deliverable": "Federation configuration, entries and cross-cluster test results",
+          "checks": [["Run spire-server bundle list on b.example", "The a.example bundle is listed", "Terminal output"], ["Call the server from the federated client", "mTLS succeeds and returns HTTP 200", "Terminal output"], ["Call from a workload without federatesWith", "Handshake fails with unknown certificate authority", "Client log"]],
+          "objectives": ["Federate workload identity across trust domains", "Authorize foreign SPIFFE IDs", "Diagnose cross-domain trust failures"]
+        },
+        {
+          "topic": "Identity Propagation and Transaction Tokens across Microservices",
+          "subtopics": ["Confused deputy and over-privileged internal tokens", "Passing user context beyond the edge", "OAuth 2.0 Token Exchange (RFC 8693)", "IETF Transaction Tokens work: purpose-bound, short-lived internal tokens", "Combining workload identity with user context", "Downscoping audiences per hop", "Signing and validating internal tokens", "Logging the full call chain"],
+          "tools": ["Keycloak", "Envoy", "Open Policy Agent", "jq"],
+          "lab_task": "Configure a token exchange endpoint (Keycloak supports RFC 8693) so the gateway swaps the user's access token for a 60-second internal token with audience orders and a scope limited to orders:read. Have the orders service validate the token, call inventory with another exchange, and log both token jti values. Replay the orders token against inventory and record the result.",
+          "deliverable": "Token exchange configuration, service logs and replay test",
+          "checks": [["Decode the internal token", "aud is orders and exp is 60 seconds after iat", "Decoded JWT"], ["Replay the orders token against inventory", "Inventory returns HTTP 401 due to audience mismatch", "Service log"], ["Read the gateway and service logs", "The call chain links both jti values to the same user subject", "Log excerpt"]],
+          "objectives": ["Propagate user identity safely", "Downscope tokens at each hop", "Prevent token replay inside the service graph"]
+        },
+        {
+          "topic": "Zero Trust for Operational Technology and IoT",
+          "subtopics": ["Purdue model levels and the OT perimeter", "Devices that cannot run agents or MFA", "Passive asset discovery for OT and IoT", "Enclave-based deployment around controllers", "Remote vendor access through brokered sessions", "Device identity with certificates and 802.1X", "Safety and availability over confidentiality", "ISA/IEC 62443 zones and conduits mapped to Zero Trust"],
+          "tools": ["Microsoft Defender for IoT", "Claroty", "FreeRADIUS", "Wireshark"],
+          "lab_task": "Using a supplied PCAP from a lab plant network, identify every device, protocol (Modbus/TCP, S7, BACnet) and flow. Define 4 zones and the allowed conduits, then design vendor remote access through a brokered, recorded session with just-in-time approval. List which ZTMM functions you can meet without agents and which need compensating controls.",
+          "deliverable": "OT asset list, zone and conduit design and vendor access design",
+          "checks": [["Compare the asset list with the PCAP", "Every IP that sent Modbus/TCP on port 502 appears in the list", "Asset list"], ["Review conduits", "Each conduit lists source zone, destination zone, protocol and port", "Design document"], ["Review vendor access", "Sessions require approval, are time-limited and are recorded", "Design document"]],
+          "objectives": ["Adapt Zero Trust to agentless OT devices", "Design zones, conduits and brokered vendor access", "Identify compensating controls"]
+        },
+        {
+          "topic": "Non-Human Identity Governance: Service Accounts, Keys and AI Agents",
+          "subtopics": ["Scale of machine identities versus human ones", "Inventory of service principals, API keys and service accounts", "Credential types: secrets, certificates, federated credentials, managed identities", "Ownership and lifecycle", "Workload identity Conditional Access", "AI agents acting with delegated user permissions", "Detecting unused and over-privileged identities", "Rotation and replacement with federation"],
+          "tools": ["Microsoft Graph PowerShell", "Microsoft Entra Workload ID", "AWS IAM Access Analyzer", "HashiCorp Vault"],
+          "lab_task": "Run Get-MgServicePrincipal -All and Get-MgApplication -All to list every app with a password credential, its endDateTime and its owners. In AWS run aws iam generate-credential-report and find access keys older than 90 days. Pick 3 identities, replace their secrets with managed identities or federated credentials, and record the secret count before and after.",
+          "deliverable": "Non-human identity inventory, risk ranking and before-and-after secret counts",
+          "checks": [["Count Entra apps with password credentials", "An exact count and the oldest secret date are recorded", "PowerShell output"], ["Read the AWS credential report", "Every access key older than 90 days is listed with its user", "CSV excerpt"], ["Check the 3 replaced identities", "Each has 0 remaining secrets and works with federation", "Configuration evidence"]],
+          "objectives": ["Inventory machine identities", "Find stale and risky credentials", "Replace secrets with federated identity"]
+        },
+        {
+          "topic": "Data-Level Zero Trust: Key Management and Attribute-Based Data Access",
+          "subtopics": ["Encryption at rest, in transit and in use", "Customer-managed keys and separation of duties", "Envelope encryption and key policies", "Attribute-based access to data: row and column level", "Tokenisation and format-preserving encryption", "Confidential computing", "Data access logging and anomaly detection", "Data pillar Optimal-stage requirements"],
+          "tools": ["AWS KMS", "Azure Key Vault", "PostgreSQL", "HashiCorp Vault"],
+          "lab_task": "In AWS, create a KMS key whose key policy allows Decrypt only when aws:PrincipalTag/dept equals finance, encrypt a file with aws kms encrypt, and decrypt it as a finance-tagged and a non-finance role. Then in PostgreSQL enable row-level security with CREATE POLICY using a current_setting('app.dept') check and test SELECT counts for two departments.",
+          "deliverable": "Key policy, decrypt test results and RLS policy with query counts",
+          "checks": [["Decrypt as the non-finance role", "Fails with AccessDeniedException", "CLI output"], ["Decrypt as the finance role", "Plaintext matches the original file checksum", "sha256sum output"], ["SELECT count(*) with app.dept set to hr", "Only hr rows are counted", "psql output"]],
+          "objectives": ["Tie data access to identity attributes", "Apply key policies with separation of duties", "Enforce row-level access in databases"]
+        },
+        {
+          "topic": "Third-Party and Unmanaged Device Access: Browser Isolation and Clientless ZTNA",
+          "subtopics": ["Contractor, partner and BYOD access patterns", "Clientless, browser-based access to web, SSH and RDP", "Remote browser isolation and its controls", "Copy, paste, print and download restrictions", "Guest identities with B2B federation", "Access reviews and expiry for guests", "Watermarking and session recording", "Contractual and privacy considerations"],
+          "tools": ["Cloudflare Browser Isolation", "Cloudflare Access", "Microsoft Entra External ID", "Microsoft Entra access reviews"],
+          "lab_task": "Invite a partner user as an Entra B2B guest, set an access package that expires in 30 days, and publish an internal app through Cloudflare Access with browser isolation enabled for the partner group. Disable copy, paste, download and printing in the isolation policy. Test each action from an unmanaged browser and record the outcome and log entry.",
+          "deliverable": "Guest lifecycle settings, isolation policy and test results",
+          "checks": [["Try to download a file in the isolated session", "The download is blocked", "Screenshot and Gateway log"], ["Try to paste text from the app to a local editor", "Paste is blocked", "Screenshot"], ["Check the access package assignment", "Expiry date is 30 days after approval", "Entra screenshot"]],
+          "objectives": ["Give third parties least-privilege access", "Control data on unmanaged devices with isolation", "Enforce guest lifecycle expiry"]
+        },
+        {
+          "topic": "Resilience Engineering: Break-Glass Accounts, IdP Outages and Degraded Modes",
+          "subtopics": ["Emergency access accounts and their protection", "Monitoring every break-glass sign-in", "IdP outage scenarios and backup authentication", "ZTNA provider outage and fallback access", "Pre-approved degraded mode policies", "Game days and chaos testing for access", "Recovery time objectives for access", "Post-incident review and policy changes"],
+          "tools": ["Microsoft Entra ID", "Microsoft Sentinel", "FIDO2 security keys", "Cloudflare Access"],
+          "lab_task": "Create two cloud-only emergency access accounts with FIDO2 keys stored in separate safes, exclude them only from the policies required, and add a Sentinel rule alerting within 5 minutes on any sign-in. Run a game day simulating a ZTNA provider outage: execute the documented fallback, time access restoration to one critical app, and record gaps.",
+          "deliverable": "Break-glass design, alert rule, game day report and timing",
+          "checks": [["Sign in with an emergency account", "An alert fires within 5 minutes", "Sentinel alert"], ["Run Get-MgIdentityConditionalAccessPolicy and inspect exclusions", "Emergency accounts are excluded only where documented", "PowerShell output"], ["Run the outage game day", "Time to restore access to the critical app is recorded against the RTO", "Game day report"]],
+          "objectives": ["Design safe break-glass access", "Plan for PDP and provider outages", "Test access resilience with a game day"]
+        },
+        {
+          "topic": "Authorised Adversary Testing of a Zero Trust Deployment",
+          "subtopics": ["Rules of engagement and written authorisation", "Token theft and session cookie replay", "Adversary-in-the-middle phishing against weaker factors", "MFA fatigue and helpdesk social engineering", "Policy gap hunting: excluded apps, legacy protocols, device code flow", "Lateral movement attempts after initial access", "Measuring detection and containment", "Reporting findings to policy owners"],
+          "tools": ["Evilginx", "ROADtools", "BloodHound", "Microsoft Sentinel"],
+          "lab_task": "With written authorisation in a lab tenant only, run 4 tests: an Evilginx phishing page against an OTP user and a passkey user, replay of a stolen browser session cookie from another device, a device code flow phishing attempt, and enumeration with ROADtools. For each, record whether the policy blocked it, whether Sentinel detected it and the time to containment.",
+          "deliverable": "Signed rules of engagement, test results matrix and remediation plan",
+          "checks": [["Run the AiTM page against the passkey user", "Sign-in fails because the WebAuthn origin does not match", "Test log"], ["Replay the stolen session cookie from an unmanaged device", "Access is denied or a detection fires with the time recorded", "Sign-in log and Sentinel alert"], ["Attempt device code flow phishing", "The block device code flow policy stops it with a CA failure", "Sign-in log"]],
+          "objectives": ["Test Zero Trust controls against real attack techniques", "Measure detection and containment", "Turn findings into policy fixes"]
+        },
+        {
+          "topic": "Zero Trust Metrics: Maturity Scoring, KPIs and Executive Reporting",
+          "subtopics": ["Outcome metrics versus activity metrics", "Coverage KPIs: phishing-resistant MFA, compliant device, ZTNA apps", "Exposure KPIs: standing admins, open inbound ports, flat segments", "Response KPIs: time to revoke, time to contain", "Automating metric collection from APIs", "Mapping KPIs to ZTMM functions", "Dashboards for engineers and for executives", "Targets, trends and avoiding vanity metrics"],
+          "tools": ["Microsoft Graph PowerShell", "Power BI", "KQL", "CISA Zero Trust Maturity Model"],
+          "lab_task": "Write a script that collects 6 KPIs weekly: percent of users with a phishing-resistant method (Get-MgReportAuthenticationMethodUserRegistrationDetail), percent of sign-ins from compliant devices, count of standing admins, ZTNA-published apps, VPN active users and mean time to revoke. Store results in CSV, build a Power BI dashboard with targets and map each KPI to a ZTMM function.",
+          "deliverable": "KPI collection script, 4-week dataset and dashboard",
+          "checks": [["Run the script twice a week apart", "Two CSV rows with 6 numeric KPIs each are produced", "CSV file"], ["Check the phishing-resistant percentage", "It matches the Authentication methods activity report within 1 percent", "Report screenshot"], ["Review the dashboard", "Each KPI shows current value, target and ZTMM function", "Dashboard screenshot"]],
+          "objectives": ["Define outcome-based Zero Trust KPIs", "Automate metric collection", "Report maturity to technical and executive audiences"]
+        },
+        {
+          "topic": "DoD Zero Trust Strategy and Reference Architecture: Target and Advanced Levels",
+          "subtopics": ["DoD Zero Trust Strategy and its seven pillars", "Capabilities and activities", "Target level and advanced level definitions", "DoD Zero Trust Reference Architecture", "Overlay with NIST SP 800-207 and CISA ZTMM", "Course of action options: commercial cloud, private cloud, brownfield", "Reuse for regulated industries outside defence", "Evidence expected for assessments"],
+          "tools": ["DoD Zero Trust Strategy", "DoD Zero Trust Reference Architecture", "CISA Zero Trust Maturity Model", "Microsoft Excel"],
+          "lab_task": "Map the DoD seven pillars (User; Device; Application and Workload; Data; Network and Environment; Automation and Orchestration; Visibility and Analytics) to the CISA ZTMM pillars and cross-cutting capabilities. Then pick 10 target-level activities, score your lab estate against each with evidence, and list what is missing for target-level completion.",
+          "deliverable": "Pillar crosswalk, 10-activity scorecard and gap list",
+          "checks": [["Review the pillar crosswalk", "All 7 DoD pillars map to a CISA pillar or cross-cutting capability", "Crosswalk table"], ["Check the scorecard", "Each of the 10 activities has a status and evidence reference", "Scorecard"], ["Read the gap list", "Each gap names an owner and an estimated effort", "Gap list"]],
+          "objectives": ["Compare DoD and CISA Zero Trust models", "Score target-level activities with evidence", "Plan for target-level completion"]
+        },
+        {
+          "topic": "Zero Trust Governance: Operating Model, Exceptions and Policy Ownership",
+          "subtopics": ["Programme structure: sponsor, architecture board, pillar leads", "RACI for identity, device, network, application and data policy", "Exception process with expiry and compensating controls", "Policy review cadence", "Working with application owners", "Change management and user communications", "Funding models and vendor management", "Measuring exception debt"],
+          "tools": ["Microsoft Excel", "Jira", "ServiceNow", "Confluence"],
+          "lab_task": "Write a governance pack for a 5,000-user organisation: a RACI covering 10 policy types, an exception request form requiring risk owner, compensating controls and an expiry of at most 90 days, and a monthly review agenda. Load 15 sample exceptions into a tracker and report how many have expired, how many lack compensating controls and the oldest exception age.",
+          "deliverable": "RACI, exception process and exception debt report",
+          "checks": [["Review the RACI", "Every policy type has exactly one Accountable role", "RACI table"], ["Run the exception report", "Counts of expired and missing-control exceptions are given", "Tracker export"], ["Check the form", "The form rejects an expiry beyond 90 days", "Form screenshot"]],
+          "objectives": ["Set up Zero Trust governance", "Control exceptions with expiry", "Track exception debt"]
+        },
+        {
+          "topic": "Compliance Mapping: OMB M-22-09, NIST SP 800-53 and Zero Trust Controls",
+          "subtopics": ["OMB M-22-09 goals by pillar", "NIST SP 800-53 Rev. 5 controls relevant to Zero Trust", "Mapping controls to SP 800-207 components", "ISO/IEC 27001:2022 Annex A overlaps", "PCI DSS v4.0 MFA and segmentation requirements", "Evidence collection for auditors", "Continuous control monitoring", "Avoiding duplicate work across frameworks"],
+          "tools": ["NIST SP 800-53", "OMB M-22-09", "Microsoft Purview Compliance Manager", "Microsoft Excel"],
+          "lab_task": "Build a control map linking 15 Zero Trust controls you have built (for example phishing-resistant MFA, device compliance, ZTNA, microsegmentation, DLP) to NIST SP 800-53 Rev. 5 control IDs such as IA-2, AC-3, AC-4 and SC-7, plus the relevant M-22-09 goal. For each, name the automated evidence source and the query or report that produces it.",
+          "deliverable": "Control map with evidence sources and sample evidence",
+          "checks": [["Check the MFA control row", "It maps to IA-2 and IA-2(1) and names the M-22-09 phishing-resistant goal", "Control map"], ["Check evidence sources", "All 15 controls name an automated source and query", "Control map"], ["Run one evidence query", "It returns current results that match the control claim", "Query output"]],
+          "objectives": ["Map Zero Trust controls to compliance frameworks", "Automate audit evidence", "Reduce duplicate compliance effort"]
+        },
+        {
+          "topic": "Multi-Year Zero Trust Roadmap and Business Case",
+          "subtopics": ["Sequencing: identity first, then devices, network, apps, data", "Dependencies and critical path", "Quick wins versus multi-year changes", "Cost model: licences, people, decommissioned VPN and MPLS", "Risk reduction quantification", "Roadmap formats for executives and engineering", "Milestones tied to ZTMM stage targets", "Re-planning after each assessment"],
+          "tools": ["CISA Zero Trust Maturity Model", "Microsoft Excel", "Microsoft Project", "Power BI"],
+          "lab_task": "From your maturity baseline, build a 3-year roadmap with quarterly milestones per pillar, each tied to a target ZTMM stage and KPI. Produce a cost model including licence costs, staff time and savings from retiring the VPN concentrators, and a risk section estimating reduction in reachable attack paths. Present a 1-page executive summary.",
+          "deliverable": "3-year roadmap, cost model and 1-page executive summary",
+          "checks": [["Review the roadmap", "Every milestone names a pillar, target stage and KPI", "Roadmap"], ["Check the cost model", "Net 3-year cost is calculated with savings listed separately", "Spreadsheet"], ["Review dependency order", "No data-pillar milestone precedes the identity milestone it depends on", "Roadmap"]],
+          "objectives": ["Sequence Zero Trust work by dependency", "Build a business case with costs and savings", "Communicate a roadmap to executives"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Zero Trust Reference Architecture and Roadmap",
+          "subtopics": ["Current-state assessment with evidence", "Target architecture with PE, PA and PEP placement across clouds", "Workload identity and two-tier policy design", "Resilience, break-glass and fail-closed decisions", "KPI dashboard and compliance mapping", "Funded 3-year roadmap and executive presentation"],
+          "tools": ["CISA Zero Trust Maturity Model", "NIST SP 800-207A", "SPIRE", "Open Policy Agent", "Terraform", "Power BI"],
+          "lab_task": "For a supplied case-study enterprise, deliver a reference architecture covering all 5 pillars, a working demo of one cross-cloud service call protected by SPIFFE mTLS plus an OPA identity-tier policy deployed through a tested Terraform pipeline, a KPI dashboard with real lab data, a break-glass game day result and a 3-year roadmap. Defend it in a 20-minute review.",
+          "deliverable": "Architecture document, working demo, dashboard, roadmap and review recording",
+          "checks": [["Run the cross-cloud demo call", "Allowed SPIFFE ID gets HTTP 200 and an unlisted ID gets HTTP 403", "Demo recording"], ["Open a PR with a risky policy", "The pipeline blocks it", "Actions log"], ["Review the roadmap with the panel", "Every pillar has a target stage, KPI and cost", "Review notes"]],
+          "objectives": ["Design an enterprise Zero Trust architecture", "Prove key controls with a working demo", "Defend a funded roadmap"]
+        }
+      ]
+    }
+  }
+}

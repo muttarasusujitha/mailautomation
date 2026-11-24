@@ -12,6 +12,7 @@ import LeadBot from '../components/LeadBot'
 import { LinkedInLeadVerifyButton, TrustLegend, VerificationBadge } from '../components/VerificationBadge'
 
 const STATUS = ['all', 'new', 'reviewed', 'contacted', 'converted', 'rejected']
+const MAX_VISIBLE_LEADS = 500
 const STATUS_LABELS = {
   all: 'All',
   new: 'New',
@@ -120,6 +121,7 @@ export default function LinkedInSearch() {
   const navigate = useNavigate()
   const [mode, setMode] = useState('client')
   const [leads, setLeads] = useState([])
+  const [storedTotal, setStoredTotal] = useState(0)
   const [filter, setFilter] = useState('all')
   const [q, setQ] = useState('')
   const [selectedDomain, setSelectedDomain] = useState('all')
@@ -142,13 +144,16 @@ export default function LinkedInSearch() {
     try {
       const trainerList = searchMode === 'trainer'
       const endpoint = trainerList ? '/trainer-profile-leads' : '/client-leads'
-      const params = { q: query.trim(), limit: 150 }
+      // The API supports up to 500. A 150-row browser cap made the dashboard
+      // look frozen even when the collector had saved additional posts.
+      const params = { q: query.trim(), limit: MAX_VISIBLE_LEADS }
       if (statusFilter !== 'all') params.status = statusFilter
       const res = await api.get(endpoint, { params })
       if (token !== listToken.current) return []
       const rows = res.data.leads || []
       const visible = trainerList ? rows.filter(isTrainerProviderProfile) : rows
       setLeads(visible)
+      setStoredTotal(Number(res.data.total || rows.length))
       return visible
     } catch (e) {
       if (token === listToken.current) toast.error(e.message)
@@ -168,12 +173,13 @@ export default function LinkedInSearch() {
     try {
       const savedListEndpoint = trainerSearch ? '/trainer-profile-leads' : '/client-leads'
       try {
-        const savedRes = await api.get(savedListEndpoint, { params: { q: '', limit: 150 } })
+        const savedRes = await api.get(savedListEndpoint, { params: { q: '', limit: MAX_VISIBLE_LEADS } })
         if (token === listToken.current) {
           const savedNow = trainerSearch
             ? (savedRes.data.leads || []).filter(isTrainerProviderProfile)
             : (savedRes.data.leads || [])
           setLeads(savedNow)
+          setStoredTotal(Number(savedRes.data.total || savedRes.data.leads?.length || 0))
         }
       } catch {
         // The search below still reports its own result. Saved rows stay as they are.
@@ -185,7 +191,11 @@ export default function LinkedInSearch() {
       const skippedCount = res.data.skipped_count || 0
       const autoSentCount = res.data.auto_sent_count || 0
       const warnings = leadSearchWarnings(res.data)
-      setSearchReport({ ...res.data, warnings })
+      const queuedRetries = res.data.queued_retries || []
+      const retryMessage = queuedRetries.length
+        ? `${queuedRetries.map(item => item.domain).join(', ')} search is queued for automatic retry when a source becomes available.`
+        : ''
+      setSearchReport({ ...res.data, warnings: retryMessage ? [...warnings, retryMessage] : warnings })
       setShowSearchMatches((res.data.results || []).length > 0)
       if (!automatic && savedCount) {
         const savedText = `Saved ${savedCount} LinkedIn result${savedCount === 1 ? '' : 's'}`
@@ -208,12 +218,13 @@ export default function LinkedInSearch() {
       setSelectedDomain('all')
       setQ('')
       const listEndpoint = trainerSearch ? '/trainer-profile-leads' : '/client-leads'
-      const listRes = await api.get(listEndpoint, { params: { q: '', limit: 150 } })
+      const listRes = await api.get(listEndpoint, { params: { q: '', limit: MAX_VISIBLE_LEADS } })
       if (token !== listToken.current) return
       const saved = trainerSearch
         ? (listRes.data.leads || []).filter(isTrainerProviderProfile)
         : (listRes.data.leads || [])
       setLeads(mergeSearchLeads(saved, res.data.results || []))
+      setStoredTotal(Number(listRes.data.total || saved.length))
     } catch (e) {
       if (token !== listToken.current) return
       setSearchReport(current => current
@@ -243,6 +254,7 @@ export default function LinkedInSearch() {
     setSearchDomains(domains)
     setSearchReport(null)
     setShowSearchMatches(false)
+    setStoredTotal(0)
     runSearch({ domainText: domains, automatic: true, searchMode: mode })
     return () => { listToken.current += 1 }
   }, [mode])
@@ -328,12 +340,14 @@ export default function LinkedInSearch() {
 
   const visibleLeads = useMemo(() => {
     const searchHits = (searchReport?.results || []).filter(lead => lead?.source_url || lead?.linkedin_url || lead?.lead_id)
-    if (showSearchMatches && searchHits.length) return visibleSearchLeads([], searchReport.results, true)
-    if (selectedDomain === 'all') return leads
+    // A selected domain must win over the temporary latest-search view.  The
+    // headline cards and result list therefore always describe the same set.
+    const source = showSearchMatches && searchHits.length
+      ? visibleSearchLeads([], searchReport.results, true)
+      : leads
+    if (selectedDomain === 'all') return source
     const selected = selectedDomain.toLowerCase()
-    const matched = leads.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
-    // A search term that is not a saved domain must not hide the profiles already collected.
-    return matched.length ? matched : leads
+    return source.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
   }, [leads, selectedDomain, showSearchMatches, searchReport])
 
   const visibleStats = useMemo(() => ({
@@ -446,7 +460,7 @@ export default function LinkedInSearch() {
       <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] p-3">
         <div className="mb-2 flex items-center justify-between gap-3">
           <p className="text-sm font-bold text-slate-800">Domain Results</p>
-          <span className="text-xs font-semibold text-slate-400">{visibleLeads.length} visible</span>
+          <span className="text-xs font-semibold text-slate-400">{visibleLeads.length} visible{selectedDomain === 'all' && storedTotal > visibleLeads.length ? ` of ${storedTotal} saved` : ''}</span>
         </div>
         <div className="flex flex-wrap gap-2">
           <button

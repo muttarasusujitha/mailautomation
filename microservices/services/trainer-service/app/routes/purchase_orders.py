@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from app.config import get_settings
 from shared.database.service import get_db
 from shared.generation_mode import application_ai_enabled
-from shared.document_amounts import calculate_document
+from shared.document_amounts import calculate_document, offline_expense_items
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -27,6 +27,11 @@ class POGenerateRequest(BaseModel):
     requirement_id: str
     trainer_id: str
     vendor_name: Optional[str] = ""
+    vendor_address: Optional[str] = ""
+    vendor_email: Optional[str] = ""
+    vendor_contact: Optional[str] = ""
+    vendor_pan: Optional[str] = ""
+    vendor_gst: Optional[str] = ""
     client_name: Optional[str] = ""
     client_email: Optional[str] = ""
     client_po_number: Optional[str] = ""
@@ -117,6 +122,11 @@ async def generate_purchase_order(payload: POGenerateRequest, db: AsyncIOMotorDa
         "requirement_id": payload.requirement_id,
         "trainer_id": payload.trainer_id,
         "vendor_name": payload.vendor_name or trainer.get("name", ""),
+        "vendor_address": payload.vendor_address or trainer.get("address") or trainer.get("location", ""),
+        "vendor_email": payload.vendor_email or trainer.get("email", ""),
+        "vendor_contact": payload.vendor_contact or trainer.get("phone") or trainer.get("mobile", ""),
+        "vendor_pan": payload.vendor_pan or trainer.get("pan") or trainer.get("pan_number", ""),
+        "vendor_gst": payload.vendor_gst or trainer.get("gstin") or trainer.get("gst_number", ""),
         "client_name": payload.client_name or req.get("client_name") or req.get("client_company", ""),
         "client_email": payload.client_email or req.get("client_email", ""),
         "client_billing_address": payload.client_billing_address or req.get("client_billing_address", ""),
@@ -166,6 +176,11 @@ async def download_po_pdf(po_id: str, db: AsyncIOMotorDatabase = Depends(get_db)
                 "po_number": doc.get("po_number", po_id),
                 "date": doc.get("date", ""),
                 "vendor_name": doc.get("vendor_name", ""),
+                "vendor_address": doc.get("vendor_address", ""),
+                "vendor_email": doc.get("vendor_email", ""),
+                "vendor_contact": doc.get("vendor_contact", ""),
+                "vendor_pan": doc.get("vendor_pan", ""),
+                "vendor_gst": doc.get("vendor_gst", ""),
                 "client_name": doc.get("client_name", ""),
                 "client_email": doc.get("client_email", ""),
                 "client_billing_address": doc.get("client_billing_address", ""),
@@ -199,14 +214,14 @@ async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase =
     if doc.get("status") in {"sent", "acknowledged"}:
         return {"success": True, "already_sent": True, "po_id": po_id, "sent_to": doc.get("sent_to")}
 
-    subject = payload.subject or f"Purchase Order {doc.get('po_number', po_id)} - Clahan Technologies"
+    subject = payload.subject or f"Purchase Order {doc.get('po_number', po_id)} - Beulix Solutions Private Limited"
     client_name = str(doc.get("client_name") or "").strip()
     greeting = f"Hello {client_name}," if client_name and client_name.lower() not in {"client", "team"} else "Hello,"
     body = payload.body or (
         f"{greeting}\n\n"
         f"Please find the purchase order {doc.get('po_number', po_id)} attached.\n\n"
         "Please confirm once you have received it.\n\n"
-        "Thanks and Regards,\nMurali Mohan M\nClahan Technologies"
+        "Thanks and Regards,\nMurali Mohan M\nBeulix Solutions Private Limited"
     )
 
     # generate purchase-order PDF and attach to email
@@ -217,6 +232,11 @@ async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase =
                 "po_number": doc.get("po_number", po_id),
                 "date": doc.get("date", ""),
                 "vendor_name": doc.get("vendor_name", ""),
+                "vendor_address": doc.get("vendor_address", ""),
+                "vendor_email": doc.get("vendor_email", ""),
+                "vendor_contact": doc.get("vendor_contact", ""),
+                "vendor_pan": doc.get("vendor_pan", ""),
+                "vendor_gst": doc.get("vendor_gst", ""),
                 "client_name": doc.get("client_name", ""),
                 "client_email": doc.get("client_email", ""),
                 "client_billing_address": doc.get("client_billing_address", ""),
@@ -295,6 +315,8 @@ async def generate_invoice_from_po(po_id: str, payload: InvoiceGenerateRequest, 
     if not po:
         raise HTTPException(404, "Purchase order not found")
 
+    if po.get("po_kind") == "trainer" or po_id.startswith("TPO-"):
+        raise HTTPException(422, "Generate the invoice from the client PO")
     existing = await db["invoices"].find_one(
         {"po_id": po_id, "status": {"$nin": ["cancelled", "void"]}},
         {"_id": 0},
@@ -316,6 +338,10 @@ async def generate_invoice_from_po(po_id: str, payload: InvoiceGenerateRequest, 
             duration=po.get('duration'), day_rate=po.get('day_rate'))
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
+    requirement = await db["requirements"].find_one({"requirement_id": po.get("requirement_id")}, {"offline_logistics": 1})
+    expenses = offline_expense_items(requirement)
+    if expenses:
+        totals = calculate_document(totals["items"] + expenses, 0, totals["gst_rate"])
     items = totals['items']
     subtotal = totals['subtotal']
     def issuer_value(key: str) -> str:

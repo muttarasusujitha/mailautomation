@@ -1,0 +1,573 @@
+{
+  "domain": "MariaDB",
+  "name": "MariaDB",
+  "category": "Databases",
+  "icon": "database",
+  "aliases": ["MariaDB Server", "MariaDB Database", "MariaDB SQL", "MariaDB DBA", "MariaDB Administration", "Galera Cluster", "MariaDB MaxScale", "MariaDB Developer"],
+  "certifications": [],
+  "tools": ["MariaDB Server", "mariadb client", "MariaDB MaxScale", "MariaDB Galera Cluster", "mariadb-backup", "MariaDB ColumnStore", "MariaDB Spider", "MariaDB Vector", "DBeaver", "Prometheus", "Grafana", "sysbench", "Docker"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, analysts and aspiring administrators who are new to MariaDB. Covers installation, how MariaDB differs from MySQL, storage engines, data types, constraints and sql_mode, querying, joins, window functions and CTEs, RETURNING and upserts, sequences, indexes, transactions, users and roles, stored code, views and events, JSON, bulk loading, connectors and logical backups, finishing with an online shop database.",
+      "prerequisites": ["Knows what a database table and a row are, or has used a spreadsheet with formulas", "Uses a terminal to run commands and edit text files", "Has a Linux, macOS or Windows machine with Docker or permission to install MariaDB Server"],
+      "outcomes": ["Install MariaDB, connect securely and explain how it differs from MySQL", "Write correct queries using joins, window functions, CTEs, RETURNING and sequences", "Protect data with constraints, transactions, roles and tested logical backups", "Build, load, secure and back up a complete shop database from an application"],
+      "days": [
+        {
+          "topic": "MariaDB Server Installation and First Connection",
+          "subtopics": ["Choosing a package source: distro repositories versus the MariaDB repository tool", "Installing mariadb-server with apt or dnf and the official mariadb Docker image", "mariadb-install-db and the data directory under /var/lib/mysql", "Starting and enabling the service with systemctl and reading journalctl -u mariadb", "Connecting with the mariadb client over the Unix socket and over TCP port 3306", "unix_socket authentication for the root account", "mariadb-secure-installation and what each prompt changes", "Config file layers: /etc/mysql/mariadb.conf.d and /etc/my.cnf.d", "SELECT VERSION(), @@version_comment and SHOW GLOBAL STATUS LIKE 'Uptime'", "Client binaries named mariadb*, with mysql* names kept as compatibility symlinks"],
+          "tools": ["MariaDB Server", "mariadb client", "systemctl", "Docker", "DBeaver", "HeidiSQL"],
+          "lab_task": "Install MariaDB Server on a Linux VM or run docker run -e MARIADB_ROOT_PASSWORD=Lab#2026 -p 3306:3306 mariadb:lts. Connect with the mariadb client, run SELECT VERSION(), @@datadir, @@port, then SHOW DATABASES. Run mariadb-secure-installation and note which questions you answered. Save the output of SHOW GLOBAL STATUS LIKE 'Uptime'.",
+          "deliverable": "Installation record with version string, datadir, port, the mariadb-secure-installation answers and a connection screenshot from a GUI client",
+          "checks": [["Run SELECT VERSION() after install", "Returns a string containing MariaDB and a version from a currently supported release", "Client output"], ["Run sudo mariadb -e \"SELECT USER(), CURRENT_USER()\" as the OS root user", "Connects without a password through unix_socket and shows root@localhost", "Terminal output"], ["Run mariadb -h 127.0.0.1 -P 3306 -u root with no password after hardening", "ERROR 1698 (28000) or 1045 Access denied is returned for TCP root login", "Error message"]],
+          "objectives": ["Install MariaDB Server and start it as a service", "Connect over socket and TCP and explain which authentication each uses", "Locate the configuration files and data directory"]
+        },
+        {
+          "topic": "MariaDB and MySQL Differences, Releases and Compatibility",
+          "subtopics": ["Fork history and why MariaDB and MySQL diverged after 5.5", "Release model: long-term support releases and rolling releases", "Drop-in compatibility limits for 5.x and later versions", "Binary and command names: mariadb, mariadb-dump, mariadb-admin", "Features only in MariaDB: sequences, system versioning, RETURNING, Galera, Spider", "Features only in MySQL: Group Replication, MySQL Shell, the X Protocol", "Different system tables: mysql.global_priv in MariaDB versus mysql.user as a base table", "Differences in the JSON type and the optimizer", "Checking compatibility with SELECT @@version_comment and information_schema.PLUGINS", "Reading the MariaDB Knowledge Base and the release notes for your version"],
+          "tools": ["MariaDB Server", "mariadb client", "information_schema", "MariaDB Knowledge Base", "Docker"],
+          "lab_task": "Start mariadb:lts and mysql:8.4 containers side by side. On each run SELECT VERSION(), SHOW ENGINES and SELECT PLUGIN_NAME FROM information_schema.PLUGINS WHERE PLUGIN_TYPE='STORAGE ENGINE'. Run CREATE SEQUENCE s; SELECT NEXTVAL(s); on both. Record which statements fail on MySQL and write a ten-row difference table.",
+          "deliverable": "Ten-row MariaDB versus MySQL difference table backed by command output from both containers",
+          "checks": [["Run CREATE SEQUENCE s; SELECT NEXTVAL(s); on MariaDB", "Returns 1 on MariaDB", "Client output"], ["Run the same CREATE SEQUENCE statement on MySQL 8.4", "ERROR 1064 syntax error is returned", "Error message"], ["Run SHOW ENGINES on MariaDB", "Lists Aria and InnoDB, with InnoDB as DEFAULT", "Query output"]],
+          "objectives": ["Describe the release model and choose between LTS and rolling for a given need", "List five features that exist only in MariaDB", "Predict which MySQL applications will run unchanged on MariaDB"]
+        },
+        {
+          "topic": "MariaDB Databases, Tables and Engines: InnoDB, Aria and MyISAM",
+          "subtopics": ["CREATE DATABASE with CHARACTER SET and COLLATE options", "CREATE TABLE, DROP TABLE and CREATE OR REPLACE TABLE", "IF NOT EXISTS and IF EXISTS guards", "InnoDB as the default transactional engine", "Aria as the crash-safe engine used for system tables", "MyISAM, MEMORY and the SEQUENCE engine", "SHOW ENGINES and SHOW CREATE TABLE", "Table files on disk: .frm, .ibd and .MAI", "information_schema.TABLES for sizes and engines", "Choosing an engine for a workload"],
+          "tools": ["MariaDB Server", "mariadb client", "information_schema", "DBeaver"],
+          "lab_task": "Create database shop. Create three tables named t_innodb, t_aria and t_memory with the same two columns and different ENGINE clauses. Insert 1000 rows into each with INSERT ... SELECT seq FROM seq_1_to_1000. Query information_schema.TABLES for ENGINE and TABLE_ROWS, then restart the server and count the rows in t_memory.",
+          "deliverable": "Engine comparison table with row counts before and after restart and a short recommendation per engine",
+          "checks": [["Run SELECT COUNT(*) FROM t_innodb after loading", "Returns 1000", "Query output"], ["Restart the server and run SELECT COUNT(*) FROM t_memory", "Returns 0 because MEMORY tables lose rows on restart", "Query output"], ["Run SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_NAME='t_aria'", "Returns Aria", "Query output"]],
+          "objectives": ["Create databases and tables with explicit engines", "Compare InnoDB, Aria, MyISAM and MEMORY behaviour", "Read table metadata from information_schema"]
+        },
+        {
+          "topic": "Data Types, Character Sets and Collations",
+          "subtopics": ["Integer types, DECIMAL and why FLOAT is unsafe for money", "CHAR, VARCHAR, TEXT and BLOB sizes", "DATE, TIME, DATETIME and TIMESTAMP ranges and the year-2038 limit", "The native UUID and INET6 types", "utf8mb4 as the character set for new schemas and utf8mb3 as the legacy alias", "Collations: utf8mb4_general_ci, utf8mb4_unicode_ci and the UCA 14.0.0 collations", "Comparing strings with accents and case", "ENUM and SET trade-offs", "Implicit conversions and the warnings they raise", "CAST and CONVERT between types"],
+          "tools": ["MariaDB Server", "mariadb client", "DBeaver"],
+          "lab_task": "Create table people(id UUID PRIMARY KEY, ip INET6, name VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci). Insert UUID() and '2001:db8::1'. Compare SELECT 'a'='A', 'e'='é' under general_ci and under utf8mb4_bin. Insert 300 into a TINYINT column in strict mode and capture the error.",
+          "deliverable": "Type reference sheet with executed examples for every type used and the observed collation results",
+          "checks": [["Insert 300 into a TINYINT column with strict mode on", "ERROR 1264 (22003) Out of range value for column", "Error message"], ["SELECT 'e' = 'é' COLLATE utf8mb4_general_ci", "Returns 1 because the accent is ignored", "Query output"], ["SELECT 'e' = 'é' COLLATE utf8mb4_bin", "Returns 0 because bytes differ", "Query output"]],
+          "objectives": ["Select suitable types for numbers, text and time values", "Explain how character set and collation change comparisons", "Use UUID and INET6 columns"]
+        },
+        {
+          "topic": "Constraints, Keys and SQL_MODE",
+          "subtopics": ["PRIMARY KEY and surrogate versus natural keys", "UNIQUE constraints and NULL handling", "FOREIGN KEY with ON DELETE and ON UPDATE actions", "CHECK constraints enforced since 10.2", "NOT NULL, DEFAULT and expression defaults", "Generated columns: VIRTUAL and PERSISTENT", "The sql_mode variable and its default flags", "STRICT_TRANS_TABLES versus non-strict behaviour", "SET sql_mode='ORACLE' as a preview", "Reading SHOW WARNINGS after each statement"],
+          "tools": ["MariaDB Server", "mariadb client", "DBeaver"],
+          "lab_task": "Create customers and orders tables with a PRIMARY KEY, a FOREIGN KEY ... ON DELETE RESTRICT and CHECK (amount > 0). Insert a valid row, then an order for a missing customer, a negative amount and a duplicate key. Capture each error number. Run SELECT @@sql_mode and test one insert with SET sql_mode='' to see the truncation warning.",
+          "deliverable": "Constraint test log with each violated rule, error number and message, plus the final DDL",
+          "checks": [["Insert an order referencing a customer id that does not exist", "ERROR 1452 (23000) cannot add or update a child row", "Error message"], ["Insert an order with amount = -5", "ERROR 4025 (23000) CONSTRAINT failed", "Error message"], ["Insert a duplicate primary key", "ERROR 1062 (23000) Duplicate entry", "Error message"]],
+          "objectives": ["Declare keys and constraints that protect data integrity", "Interpret constraint error numbers", "Explain how sql_mode changes what the server accepts"]
+        },
+        {
+          "topic": "Querying with SELECT, WHERE, LIMIT and ORDER BY",
+          "subtopics": ["SELECT lists, aliases and DISTINCT", "WHERE with AND, OR, IN, BETWEEN and LIKE", "NULL logic and IS NULL, <=> and COALESCE", "ORDER BY with multiple columns and collations", "LIMIT, OFFSET and the standard FETCH FIRST n ROWS ONLY", "LIMIT ROWS EXAMINED as a guard rail", "String, numeric and date functions", "CASE expressions and IF", "Pagination pitfalls with large offsets", "Reading a query plan with EXPLAIN for the first time"],
+          "tools": ["MariaDB Server", "mariadb client", "DBeaver", "HeidiSQL"],
+          "lab_task": "Load the employees sample database or generate 100000 rows with seq_1_to_100000. Write five queries: a filtered list, a LIKE search, an ORDER BY with LIMIT 10 OFFSET 20, a CASE bucket and a FETCH FIRST 5 ROWS ONLY query. Run EXPLAIN on each and record type, key and rows. Add LIMIT ROWS EXAMINED 1000 to one query and note the warning.",
+          "deliverable": "Query workbook with five queries, EXPLAIN output and one paragraph on pagination cost",
+          "checks": [["SELECT * FROM t ORDER BY id LIMIT 10 OFFSET 20", "Returns exactly 10 rows starting from the 21st", "Result grid"], ["SELECT * FROM t FETCH FIRST 5 ROWS ONLY", "Returns exactly 5 rows", "Result grid"], ["Run a query with LIMIT ROWS EXAMINED 1000 on a 100000-row table", "Warning 1931 Query execution was interrupted and the partial result is returned", "SHOW WARNINGS output"]],
+          "objectives": ["Write filtered, sorted and paged queries", "Handle NULL correctly in predicates", "Run EXPLAIN and name the access type"]
+        },
+        {
+          "topic": "Joins and Set Operations",
+          "subtopics": ["INNER JOIN and the ON versus USING clauses", "LEFT and RIGHT OUTER JOIN and the anti-join pattern", "CROSS JOIN and accidental Cartesian products", "Self-joins for hierarchies", "Joining three or more tables", "UNION and UNION ALL", "INTERSECT and EXCEPT, supported since 10.3", "INTERSECT ALL and EXCEPT ALL in 10.5 and later", "Join order and STRAIGHT_JOIN", "Choosing join columns that are indexed"],
+          "tools": ["MariaDB Server", "mariadb client", "DBeaver"],
+          "lab_task": "Using customers, orders and products tables with at least 5000 orders, write an INNER JOIN, a LEFT JOIN that lists customers with no orders, a self-join on employees.manager_id, and one UNION ALL. Then write SELECT city FROM a INTERSECT SELECT city FROM b and the EXCEPT version. Compare row counts against a manual check.",
+          "deliverable": "Join cookbook with each query, row count and the expected count",
+          "checks": [["LEFT JOIN customers to orders filtered on orders.id IS NULL", "Returns only customers that have no orders and the count matches the manual count", "Row count"], ["SELECT city FROM a INTERSECT SELECT city FROM b", "Returns only cities present in both tables, with duplicates removed", "Result grid"], ["CROSS JOIN two tables of 100 and 50 rows", "Returns 5000 rows", "Row count"]],
+          "objectives": ["Choose the right join type for a question", "Use INTERSECT and EXCEPT to compare result sets", "Spot an accidental Cartesian product"]
+        },
+        {
+          "topic": "Aggregation, ROLLUP, MEDIAN and Window Functions in MariaDB",
+          "subtopics": ["COUNT, SUM, AVG, MIN and MAX", "GROUP BY and HAVING", "GROUP_CONCAT with ORDER BY and SEPARATOR", "WITH ROLLUP for subtotals", "ROW_NUMBER, RANK and DENSE_RANK", "LAG, LEAD and running totals with SUM() OVER", "Frame clauses ROWS BETWEEN and RANGE BETWEEN", "MEDIAN and PERCENTILE_CONT window functions", "Named windows with the WINDOW clause", "Aggregate pitfalls with NULL and DISTINCT"],
+          "tools": ["MariaDB Server", "mariadb client", "DBeaver"],
+          "lab_task": "On a sales table with 10000 rows, compute revenue per region with GROUP BY ... WITH ROLLUP, the top 3 products per region with ROW_NUMBER() OVER (PARTITION BY region ORDER BY revenue DESC), a 7-day running total with ROWS BETWEEN 6 PRECEDING AND CURRENT ROW, and MEDIAN(amount) OVER (PARTITION BY region). Verify one total by hand.",
+          "deliverable": "Analytics query set with outputs and a hand-checked total",
+          "checks": [["GROUP BY region WITH ROLLUP", "Adds one extra row with region NULL holding the grand total", "Result grid"], ["ROW_NUMBER() OVER (PARTITION BY region ORDER BY revenue DESC) <= 3", "Returns at most three rows per region", "Result grid"], ["MEDIAN(amount) OVER (PARTITION BY region) on a region with values 1, 2, 9", "Returns 2", "Query output"]],
+          "objectives": ["Summarise data with GROUP BY and HAVING", "Write ranking and running-total window queries", "Use MariaDB MEDIAN and PERCENTILE_CONT"]
+        },
+        {
+          "topic": "Subqueries, Recursive CTEs and max_recursive_iterations",
+          "subtopics": ["Scalar, row and table subqueries", "IN, EXISTS and NOT EXISTS", "Correlated subqueries and their cost", "Derived tables in FROM", "WITH clauses and readability", "Recursive CTEs for trees and number series", "max_recursive_iterations and runaway recursion", "CYCLE detection with a visited path column", "Rewriting subqueries as joins", "Reading EXPLAIN for semi-join strategies"],
+          "tools": ["MariaDB Server", "mariadb client", "DBeaver"],
+          "lab_task": "Build an employees table with manager_id and 200 rows. Write a recursive CTE that returns each employee with depth and a path string such as 1>4>17. Write the same customers-without-orders question three ways: NOT IN, NOT EXISTS and LEFT JOIN. Set max_recursive_iterations=10 and run an unbounded recursion to see it stop.",
+          "deliverable": "Hierarchy query and a three-way comparison of the anti-join forms with EXPLAIN output",
+          "checks": [["Recursive CTE over employees with a CEO whose manager_id is NULL", "CEO is returned at depth 0 and every other row has depth >= 1", "Result grid"], ["Run the three anti-join forms", "All three return the same row count", "Row counts"], ["Run an unbounded recursive CTE with max_recursive_iterations=10", "Stops after 10 iterations and returns a warning instead of looping", "SHOW WARNINGS output"]],
+          "objectives": ["Write correlated and uncorrelated subqueries", "Build recursive CTEs for hierarchies", "Rewrite a subquery as a join and compare plans"]
+        },
+        {
+          "topic": "Changing Data: INSERT, UPDATE, DELETE, RETURNING and Upserts",
+          "subtopics": ["Multi-row INSERT and INSERT ... SELECT", "INSERT ... RETURNING to get generated ids", "DELETE ... RETURNING and REPLACE ... RETURNING", "UPDATE with joins and ORDER BY ... LIMIT", "INSERT ... ON DUPLICATE KEY UPDATE", "REPLACE versus upsert and the delete-then-insert side effect", "INSERT IGNORE and its hidden warnings", "TRUNCATE versus DELETE", "Autocommit and explicit transactions around changes", "ROW_COUNT() and affected-rows semantics"],
+          "tools": ["MariaDB Server", "mariadb client", "DBeaver"],
+          "lab_task": "On table items(id AUTO_INCREMENT, sku UNIQUE, qty) run INSERT INTO items(sku,qty) VALUES ('A',5),('B',7) RETURNING id, sku. Upsert 'A' with ON DUPLICATE KEY UPDATE qty=qty+VALUES(qty). Run DELETE FROM items WHERE qty<6 RETURNING *. Compare ROW_COUNT() after an upsert of an unchanged row and after a changed row.",
+          "deliverable": "Data-change script with the RETURNING output of each statement and an affected-row explanation",
+          "checks": [["INSERT ... VALUES ('A',5),('B',7) RETURNING id, sku", "Returns two rows with generated ids without a second SELECT", "Result grid"], ["Upsert an existing sku with a new quantity", "Reports 2 rows affected for the changed row", "Client message"], ["Upsert an existing sku with the same quantity", "Reports 0 rows affected", "Client message"]],
+          "objectives": ["Use RETURNING to avoid extra round trips", "Write safe upserts", "Explain affected-row counts"]
+        },
+        {
+          "topic": "Sequences, AUTO_INCREMENT and Invisible Columns",
+          "subtopics": ["AUTO_INCREMENT behaviour, gaps and the innodb_autoinc_lock_mode setting", "CREATE SEQUENCE with START WITH, INCREMENT BY, CACHE and CYCLE", "NEXT VALUE FOR, NEXTVAL, LASTVAL and SETVAL", "Using a sequence as a column DEFAULT", "Sharing one sequence across tables", "Sequences in Galera and replication", "INVISIBLE columns and when they help schema evolution", "Generated columns as a computed key", "Gap handling and why gap-free numbering is not guaranteed", "Inspecting sequences with SHOW CREATE SEQUENCE"],
+          "tools": ["MariaDB Server", "mariadb client", "DBeaver"],
+          "lab_task": "Create SEQUENCE inv_no START WITH 1000 INCREMENT BY 10 CACHE 20. Create table invoices(no BIGINT DEFAULT NEXTVAL(inv_no) PRIMARY KEY, amount DECIMAL(10,2), note TEXT INVISIBLE). Insert three rows, roll one back, restart the server and insert again. Record the numbers to show gaps. Run SELECT * and SELECT note to show invisibility.",
+          "deliverable": "Sequence behaviour report with the number series before and after restart and rollback",
+          "checks": [["Insert three invoices with NEXTVAL on a sequence starting at 1000 step 10", "Numbers are 1000, 1010 and 1020", "Result grid"], ["Run SELECT * on a table with an INVISIBLE column", "The invisible column is not in the output", "Result grid"], ["Insert after a rollback and a restart with CACHE 20", "The next number skips ahead, proving gaps are allowed", "Result grid"]],
+          "objectives": ["Create and use sequences", "Explain why gaps occur", "Add an INVISIBLE column without breaking SELECT * clients"]
+        },
+        {
+          "topic": "Indexes and Ignored Indexes with EXPLAIN",
+          "subtopics": ["B-tree structure and the clustered primary key in InnoDB", "Secondary indexes and covering indexes", "Composite index column order and the leftmost prefix rule", "Prefix indexes on long strings", "FULLTEXT indexes and MATCH ... AGAINST", "IGNORED indexes (ALTER TABLE ... ALTER INDEX ... IGNORED) to test removal safely", "USE INDEX, FORCE INDEX and IGNORE INDEX hints", "EXPLAIN columns: type, key, rows and Extra", "ANALYZE TABLE and cardinality", "Finding unused indexes with the performance schema"],
+          "tools": ["MariaDB Server", "mariadb client", "EXPLAIN", "DBeaver"],
+          "lab_task": "Create table events with 500000 rows from seq_1_to_500000. Run EXPLAIN on WHERE user_id=42 AND created > '2026-01-01' before indexing, then add INDEX (user_id, created) and compare rows. Mark the index IGNORED with ALTER TABLE events ALTER INDEX idx_user_created IGNORED and run EXPLAIN again to confirm the plan reverts to type ALL.",
+          "deliverable": "Before and after EXPLAIN comparison, the ignored-index test and a note on index order",
+          "checks": [["EXPLAIN a query on user_id before adding the index", "type is ALL and rows is near 500000", "EXPLAIN output"], ["EXPLAIN the same query after INDEX (user_id, created)", "type is ref or range and rows drops below 100", "EXPLAIN output"], ["EXPLAIN again after setting the index IGNORED", "The key column is NULL and type returns to ALL", "EXPLAIN output"]],
+          "objectives": ["Design a composite index using the leftmost prefix rule", "Use IGNORED indexes to test a drop safely", "Read EXPLAIN output"]
+        },
+        {
+          "topic": "Transactions, Isolation Levels and InnoDB Locking",
+          "subtopics": ["ACID and what InnoDB guarantees", "START TRANSACTION, COMMIT, ROLLBACK and SAVEPOINT", "REPEATABLE READ as the default isolation level", "READ COMMITTED, READ UNCOMMITTED and SERIALIZABLE", "Row locks, gap locks and next-key locks", "SELECT ... FOR UPDATE, LOCK IN SHARE MODE and SKIP LOCKED", "Deadlocks and error 1213", "innodb_lock_wait_timeout and error 1205", "Reading SHOW ENGINE INNODB STATUS", "Keeping transactions short"],
+          "tools": ["MariaDB Server", "mariadb client", "SHOW ENGINE INNODB STATUS", "DBeaver"],
+          "lab_task": "Open two client sessions on table accounts. In session A run START TRANSACTION; UPDATE accounts SET bal=bal-10 WHERE id=1; leave it open. In session B update the same row and wait for ERROR 1205. Then force a deadlock by updating rows 1 and 2 in opposite order, capture ERROR 1213 and the LATEST DETECTED DEADLOCK section. Repeat a read under READ COMMITTED.",
+          "deliverable": "Concurrency lab log with both errors, the deadlock section and a two-line explanation of each isolation level observed",
+          "checks": [["Session B updates a row locked by session A for longer than innodb_lock_wait_timeout", "ERROR 1205 Lock wait timeout exceeded", "Error message"], ["Two sessions update rows 1 and 2 in opposite order", "ERROR 1213 Deadlock found when trying to get lock in one session", "Error message"], ["Run SHOW ENGINE INNODB STATUS after the deadlock", "A LATEST DETECTED DEADLOCK section lists both transactions", "Status output"]],
+          "objectives": ["Control transactions explicitly", "Predict behaviour under each isolation level", "Diagnose lock waits and deadlocks"]
+        },
+        {
+          "topic": "Users, Roles, Privileges and Authentication Plugins",
+          "subtopics": ["CREATE USER with host patterns and the account name 'user'@'host'", "GRANT and REVOKE at global, database, table and column level", "Roles: CREATE ROLE, GRANT role, SET ROLE and SET DEFAULT ROLE", "Authentication plugins: mysql_native_password, ed25519 and unix_socket", "IDENTIFIED VIA with more than one plugin", "SHOW GRANTS and information_schema views for privileges", "mysql.global_priv and why not to edit it directly", "Password expiry with ALTER USER ... PASSWORD EXPIRE", "Least privilege for application accounts", "Resource limits with WITH MAX_USER_CONNECTIONS"],
+          "tools": ["MariaDB Server", "mariadb client", "DBeaver"],
+          "lab_task": "Create role app_ro with GRANT SELECT ON shop.* TO app_ro. Create user 'report'@'10.0.%' IDENTIFIED VIA ed25519 USING PASSWORD('Rep0rt#26') and grant the role with SET DEFAULT ROLE app_ro. Log in as report, confirm SELECT works and INSERT fails. Run SHOW GRANTS for the user and the role and set MAX_USER_CONNECTIONS 5.",
+          "deliverable": "Access model with CREATE and GRANT statements, SHOW GRANTS output and the failed INSERT error",
+          "checks": [["Log in as report and run INSERT INTO shop.orders", "ERROR 1142 (42000) INSERT command denied", "Error message"], ["Run SELECT CURRENT_ROLE() after login", "Returns app_ro", "Query output"], ["Log in as report from a host outside 10.0.%", "ERROR 1045 (28000) Access denied for user", "Error message"]],
+          "objectives": ["Create accounts and roles with least privilege", "Choose an authentication plugin", "Audit grants with SHOW GRANTS"]
+        },
+        {
+          "topic": "Stored Procedures, Functions and Triggers",
+          "subtopics": ["CREATE PROCEDURE and DELIMITER", "IN, OUT and INOUT parameters", "Stored functions and DETERMINISTIC", "Variables, IF, CASE, LOOP and WHILE", "Cursors and handlers with DECLARE ... HANDLER", "SIGNAL and RESIGNAL for custom errors", "BEFORE and AFTER triggers on INSERT, UPDATE and DELETE", "Multiple triggers per event with FOLLOWS and PRECEDES", "SQL/PSM versus sql_mode=ORACLE PL/SQL syntax", "Privileges: SQL SECURITY DEFINER versus INVOKER"],
+          "tools": ["MariaDB Server", "mariadb client", "DBeaver"],
+          "lab_task": "Write procedure transfer(IN src INT, IN dst INT, IN amt DECIMAL(10,2)) that updates two accounts in one transaction and uses SIGNAL SQLSTATE '45000' when the balance would go negative. Add an AFTER UPDATE trigger that writes to audit_log. Call the procedure with a valid and an overdrawn amount and confirm audit_log has one row.",
+          "deliverable": "Procedure and trigger source with test calls and audit_log output",
+          "checks": [["CALL transfer(1,2,50) with enough balance", "Both balances change and audit_log gains rows", "Table output"], ["CALL transfer(1,2,99999)", "ERROR 1644 (45000) with the custom message and no balance change", "Error message"], ["SHOW TRIGGERS LIKE 'accounts'", "Lists the AFTER UPDATE trigger", "Query output"]],
+          "objectives": ["Write procedures and functions with error handling", "Create triggers that keep an audit trail", "Explain DEFINER versus INVOKER"]
+        },
+        {
+          "topic": "Views and the Event Scheduler",
+          "subtopics": ["CREATE VIEW and CREATE OR REPLACE VIEW", "Updatable views and WITH CHECK OPTION", "ALGORITHM=MERGE versus TEMPTABLE", "Views for access control", "The event_scheduler variable", "CREATE EVENT with ON SCHEDULE EVERY", "One-time events and ON COMPLETION PRESERVE", "Event privileges and the definer", "Monitoring with information_schema.EVENTS", "Cleanup jobs implemented as events"],
+          "tools": ["MariaDB Server", "mariadb client", "DBeaver"],
+          "lab_task": "Create view v_open_orders AS SELECT ... WHERE status='open' WITH CHECK OPTION. Try inserting a closed order through the view. Run SET GLOBAL event_scheduler=ON and create event purge_old EVERY 1 MINUTE that deletes rows older than 30 days from sessions. Check information_schema.EVENTS for LAST_EXECUTED and verify the deleted count.",
+          "deliverable": "View and event definitions with the CHECK OPTION failure and the event run evidence",
+          "checks": [["INSERT a closed order through a WITH CHECK OPTION view", "ERROR 1369 (HY000) CHECK OPTION failed", "Error message"], ["SELECT @@event_scheduler after SET GLOBAL event_scheduler=ON", "Returns ON", "Query output"], ["SELECT LAST_EXECUTED FROM information_schema.EVENTS after two minutes", "LAST_EXECUTED is not NULL and old rows are gone", "Query output"]],
+          "objectives": ["Create updatable views with CHECK OPTION", "Schedule maintenance with events", "Verify event execution"]
+        },
+        {
+          "topic": "JSON and Dynamic Columns",
+          "subtopics": ["JSON as an alias for LONGTEXT with a JSON_VALID check", "JSON_VALUE, JSON_QUERY and JSON_EXTRACT", "JSON_SET, JSON_INSERT and JSON_REMOVE", "JSON_TABLE to turn arrays into rows", "JSON_ARRAYAGG and JSON_OBJECTAGG", "Indexing JSON through generated columns", "Dynamic columns: COLUMN_CREATE, COLUMN_GET and COLUMN_ADD", "Choosing between JSON, dynamic columns and normalised tables", "Differences from MySQL's binary JSON type", "Validating documents with JSON_SCHEMA_VALID"],
+          "tools": ["MariaDB Server", "mariadb client", "DBeaver"],
+          "lab_task": "Create table docs(id INT, body JSON CHECK (JSON_VALID(body))). Insert three order documents with an items array. Query JSON_VALUE(body,'$.customer'), expand items with JSON_TABLE into rows, and add a PERSISTENT generated column on customer with an index. Try inserting '{bad' and capture the error. Create one dynamic column with COLUMN_CREATE.",
+          "deliverable": "JSON query pack with JSON_TABLE output, the generated-column index and the rejected insert",
+          "checks": [["INSERT the text '{bad' into the JSON column", "ERROR 4025 CONSTRAINT docs.body failed", "Error message"], ["JSON_TABLE over an items array of 3 elements", "Returns 3 rows per document", "Result grid"], ["EXPLAIN a WHERE on the indexed generated customer column", "key shows the generated-column index", "EXPLAIN output"]],
+          "objectives": ["Store and query JSON in MariaDB", "Index JSON values via generated columns", "Know when to use dynamic columns"]
+        },
+        {
+          "topic": "Loading, Exporting and Connecting Applications",
+          "subtopics": ["LOAD DATA INFILE and LOAD DATA LOCAL INFILE", "local_infile and secure_file_priv", "mariadb-import and CSV options", "SELECT ... INTO OUTFILE", "Bulk loading speed: batching, disabling checks and sorted primary keys", "MariaDB Connector/J, Connector/Python and Connector/Node.js", "Parameterised queries to prevent SQL injection", "Connection strings, TLS options and timeouts", "Connection pooling basics", "Handling error 2006 MySQL server has gone away"],
+          "tools": ["MariaDB Server", "mariadb-import", "MariaDB Connector/Python", "MariaDB Connector/J", "DBeaver"],
+          "lab_task": "Generate a 200000-row CSV and load it with LOAD DATA LOCAL INFILE ... FIELDS TERMINATED BY ','. Time it, then repeat after wrapping in one transaction. Export 1000 rows with SELECT ... INTO OUTFILE. Write a Python script using mariadb.connect and cursor.execute('SELECT ... WHERE id=?', (5,)) and show that a quote in the input does not break the query.",
+          "deliverable": "Load timings, export file and the parameterised script with its output",
+          "checks": [["LOAD DATA LOCAL INFILE with local_infile=0 on the server", "ERROR 1148 The used command is not allowed", "Error message"], ["SELECT COUNT(*) after loading the 200000-row CSV", "Returns 200000", "Query output"], ["Pass the string x' OR '1'='1 as a bound parameter", "Returns 0 rows and no injection occurs", "Script output"]],
+          "objectives": ["Load and export data in bulk", "Connect from an application with a MariaDB connector", "Use parameters to prevent injection"]
+        },
+        {
+          "topic": "Logical Backups with mariadb-dump and Restores",
+          "subtopics": ["Logical versus physical backups", "mariadb-dump options: --single-transaction, --routines, --triggers, --events", "--master-data and --gtid for replication-ready dumps", "Dumping a single table and a table subset with --where", "Compression and streaming over a pipe", "Restoring with mariadb < dump.sql", "Restoring one table from a full dump", "Verifying a restore with row counts and CHECKSUM TABLE", "Scheduling with cron and retention", "Backup security: file permissions and credentials in an option file"],
+          "tools": ["mariadb-dump", "MariaDB Server", "cron", "gzip", "mariadb client"],
+          "lab_task": "Run mariadb-dump --single-transaction --routines --triggers --events --all-databases | gzip > full.sql.gz. Drop database shop, restore it with zcat full.sql.gz | mariadb, then compare CHECKSUM TABLE for each table with values saved earlier. Add a cron entry that runs the dump at 02:00 and deletes files older than 7 days.",
+          "deliverable": "Backup script, cron entry, restore log and a CHECKSUM TABLE comparison",
+          "checks": [["Run CHECKSUM TABLE on each table before and after restore", "Checksums match for every table", "Query output"], ["Run mariadb-dump with --single-transaction on an InnoDB database", "Completes without blocking writes and the dump ends with -- Dump completed", "Dump tail"], ["Restore into a server where the database already exists without dropping it", "Duplicate rows error 1062 or table exists error 1050 is returned", "Error message"]],
+          "objectives": ["Take consistent logical backups", "Restore and verify data", "Automate backups with retention"]
+        },
+        {
+          "topic": "Beginner Capstone: MariaDB Online Shop with Sequences and Roles",
+          "subtopics": ["Design the schema with keys, CHECK constraints and a sequence for order numbers", "Load sample data with LOAD DATA and verify counts", "Reporting views and window-function queries", "Roles for application and reporting accounts", "Stored procedure for placing an order inside a transaction", "Backup, drop and restore with verification"],
+          "tools": ["MariaDB Server", "mariadb-dump", "MariaDB Connector/Python", "DBeaver", "Docker"],
+          "lab_task": "Build the shop database: customers, products, orders, order_items, a sequence for order numbers, and a procedure place_order that rolls back on insufficient stock. Load 10000 rows, create view v_sales_by_month and roles shop_app and shop_ro. Back up with mariadb-dump, drop the database, restore and compare CHECKSUM TABLE. Run a Python client that calls the procedure.",
+          "deliverable": "Repository with DDL, seed script, procedure, grants, backup script, restore log and a README with the test results",
+          "checks": [["CALL place_order for a product with stock 1 and quantity 2", "ERROR 1644 insufficient stock and no rows added to orders", "Error message"], ["Restore the dump into an empty server and run CHECKSUM TABLE on all tables", "All checksums equal the pre-backup values", "Query output"], ["Log in as shop_ro and run DELETE FROM orders", "ERROR 1142 DELETE command denied", "Error message"]],
+          "objectives": ["Deliver a working relational schema end to end", "Apply security, integrity and backup together", "Document and demonstrate the result"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers and junior DBAs who run MariaDB beyond a single test server. Covers configuration and the InnoDB buffer pool, EXPLAIN and ANALYZE, statistics and histograms, slow query analysis, Performance Schema, locking, system-versioned and application-time tables, GTID replication, semi-sync and parallel replication, mariadb-backup with point-in-time recovery, partitioning, online DDL, TLS and auditing, MaxScale, Galera bootstrapping, monitoring and upgrades.",
+      "prerequisites": ["Completes the beginner level or writes joins, transactions and grants without help", "Can use Docker Compose or manage Linux services with systemctl", "Reads basic Linux metrics such as CPU, memory and disk usage"],
+      "outcomes": ["Tune a server and queries using evidence from EXPLAIN, the slow log and Performance Schema", "Build and monitor replicated, MaxScale-routed and Galera clusters", "Recover to a point in time from mariadb-backup and binary logs", "Use system versioning, online DDL, TLS and auditing in a controlled upgrade-ready platform"],
+      "days": [
+        {
+          "topic": "MariaDB Server Configuration and InnoDB Buffer Pool Sizing",
+          "subtopics": ["Config file order and mariadbd --print-defaults", "Dynamic versus static variables with SET GLOBAL and my.cnf", "SHOW GLOBAL VARIABLES and SHOW GLOBAL STATUS", "innodb_buffer_pool_size sizing and online resizing", "Buffer pool hit ratio from Innodb_buffer_pool_reads and read_requests", "innodb_log_file_size and innodb_flush_log_at_trx_commit", "innodb_flush_method=O_DIRECT", "max_connections, table_open_cache and open_files_limit", "Per-connection buffers: sort_buffer_size, join_buffer_size and tmp_table_size", "Persisting changes in a drop-in file under /etc/mysql/mariadb.conf.d"],
+          "tools": ["MariaDB Server", "mariadb client", "mariadb-admin", "sysbench", "Grafana"],
+          "lab_task": "On a 8 GB VM set innodb_buffer_pool_size=4G in a drop-in file and restart. Load a 2 GB sysbench oltp_read_write dataset, run sysbench --threads=16 --time=120 and record TPS. Compute hit ratio as 1 - Innodb_buffer_pool_reads / Innodb_buffer_pool_read_requests before and after SET GLOBAL innodb_buffer_pool_size=1073741824 and compare TPS.",
+          "deliverable": "Tuning report with both sysbench results, the hit ratios and the final drop-in configuration file",
+          "checks": [["Run SELECT @@innodb_buffer_pool_size after the change", "Returns 4294967296", "Query output"], ["Compare sysbench TPS with a 1 GB pool versus a 4 GB pool on a 2 GB dataset", "The 4 GB run shows higher TPS and fewer Innodb_buffer_pool_reads", "sysbench summaries"], ["Set a static variable with SET GLOBAL", "ERROR 1238 Variable is a read only variable", "Error message"]],
+          "objectives": ["Size the InnoDB buffer pool from the working set", "Separate dynamic from static settings", "Measure the effect of a change with a benchmark"]
+        },
+        {
+          "topic": "EXPLAIN, ANALYZE and the Optimizer Trace",
+          "subtopics": ["EXPLAIN versus ANALYZE: estimated versus executed plans", "ANALYZE FORMAT=JSON with r_rows, r_total_time_ms and r_filtered", "EXPLAIN FORMAT=JSON and the cost fields", "Spotting full scans, filesort and Using temporary", "Using optimizer_trace to see rejected plans", "optimizer_switch flags such as index_merge and derived_merge", "Estimate versus actual gaps as a sign of stale statistics", "EXPLAIN for UPDATE and DELETE", "SHOW EXPLAIN FOR a running thread", "Documenting a tuning decision"],
+          "tools": ["MariaDB Server", "mariadb client", "EXPLAIN", "ANALYZE", "optimizer_trace"],
+          "lab_task": "On a 1 million row orders table run ANALYZE FORMAT=JSON SELECT ... WHERE customer_id=77 ORDER BY created LIMIT 20. Note r_rows versus rows and r_total_time_ms. Enable SET optimizer_trace='enabled=on' and read information_schema.OPTIMIZER_TRACE. Start a 60 second query in one session and run SHOW EXPLAIN FOR <id> from another.",
+          "deliverable": "Plan analysis with estimated and actual rows, the trace excerpt and one chosen improvement",
+          "checks": [["Run ANALYZE FORMAT=JSON on a filtered query", "Output contains r_rows and r_total_time_ms next to rows", "JSON output"], ["Query information_schema.OPTIMIZER_TRACE after enabling the trace", "Returns a JSON document listing considered access paths", "Query output"], ["Run SHOW EXPLAIN FOR 12 against a running statement", "Returns the plan of that thread, or ERROR 1933 if the statement is not explainable", "Client output"]],
+          "objectives": ["Compare estimated and actual rows", "Use the optimizer trace", "Inspect plans of running queries"]
+        },
+        {
+          "topic": "Index Design, Histograms and Engine-Independent Statistics",
+          "subtopics": ["Selectivity and cardinality", "Composite index design for WHERE, ORDER BY and GROUP BY", "Covering indexes and Using index in Extra", "Descending indexes and function-based access through generated columns", "Engine-independent statistics in mysql.table_stats, column_stats and index_stats", "use_stat_tables and histogram_type=DOUBLE_PREC_HB", "histogram_size and ANALYZE TABLE ... PERSISTENT FOR ALL", "Redundant and unused index detection", "Index cost on writes", "Invisible testing with IGNORED indexes before dropping"],
+          "tools": ["MariaDB Server", "mariadb client", "EXPLAIN", "Percona Toolkit", "information_schema"],
+          "lab_task": "On a skewed table where 95 percent of rows have status='done', set SET GLOBAL histogram_type='DOUBLE_PREC_HB' and histogram_size=254, run ANALYZE TABLE t PERSIST FOR ALL, and read mysql.column_stats. Compare EXPLAIN for status='done' and status='failed' before and after. Use pt-duplicate-key-checker to find one redundant index and test dropping it as IGNORED.",
+          "deliverable": "Statistics before and after report, histogram contents and the redundant index decision",
+          "checks": [["EXPLAIN WHERE status='failed' before collecting a histogram", "rows estimate is far from the true count of the table", "EXPLAIN output"], ["Same EXPLAIN after ANALYZE TABLE ... PERSISTENT FOR ALL", "rows estimate is within a small factor of the true count and the index is chosen", "EXPLAIN output"], ["SELECT * FROM mysql.column_stats WHERE table_name='t'", "Shows a populated histogram column", "Query output"]],
+          "objectives": ["Collect persistent engine-independent statistics", "Use histograms to fix bad estimates", "Remove redundant indexes safely"]
+        },
+        {
+          "topic": "Slow Query Log, Query Response Time Plugin and Log Analysis",
+          "subtopics": ["slow_query_log, slow_query_log_file and long_query_time", "log_slow_verbosity=query_plan,explain for extra detail", "log_queries_not_using_indexes and log_slow_rate_limit", "min_examined_row_limit", "Rotating logs with logrotate and FLUSH SLOW LOGS", "Summarising with pt-query-digest", "The QUERY_RESPONSE_TIME plugin and its histogram table", "Query fingerprints and top-N by total time", "Turning findings into tickets with before and after metrics", "Overhead of logging at long_query_time=0"],
+          "tools": ["MariaDB Server", "pt-query-digest", "logrotate", "mariadb client", "sysbench"],
+          "lab_task": "Set slow_query_log=ON, long_query_time=0.2 and log_slow_verbosity='query_plan,explain'. Run sysbench for 5 minutes, then run pt-query-digest /var/lib/mysql/slow.log. Pick the top fingerprint, fix it with an index, rerun and compare total time. Install the QUERY_RESPONSE_TIME plugin and read information_schema.QUERY_RESPONSE_TIME.",
+          "deliverable": "Digest report before and after the fix with the changed total time per fingerprint",
+          "checks": [["Run SELECT @@slow_query_log, @@long_query_time", "Returns 1 and 0.200000", "Query output"], ["pt-query-digest on the log", "Prints a profile with the top fingerprint ranked by total response time", "Digest output"], ["Rerun the benchmark after the index fix", "Top fingerprint total time drops compared with the first digest", "Two digest summaries"]],
+          "objectives": ["Capture slow queries safely", "Rank queries with pt-query-digest", "Prove a fix with before and after numbers"]
+        },
+        {
+          "topic": "Performance Schema and sys Schema in MariaDB",
+          "subtopics": ["Enabling performance_schema=ON at startup because it is off by default", "Instruments and consumers with setup_instruments and setup_consumers", "events_statements_summary_by_digest", "Wait events and the file_summary tables", "The sys schema bundled with current releases", "sys.statement_analysis and sys.schema_unused_indexes", "sys.innodb_lock_waits and sys.host_summary", "Memory instrumentation", "Overhead and selective instrumentation", "Resetting with TRUNCATE on summary tables"],
+          "tools": ["MariaDB Server", "performance_schema", "sys schema", "mariadb client", "Grafana"],
+          "lab_task": "Set performance_schema=ON in the config and restart. Run a sysbench workload, then query sys.statement_analysis ORDER BY total_latency DESC LIMIT 5 and sys.schema_unused_indexes. Create a lock wait with two sessions and read sys.innodb_lock_waits. Record the memory used by the schema from SHOW ENGINE PERFORMANCE_SCHEMA STATUS.",
+          "deliverable": "Top-five statement table, unused index list and the lock-wait evidence",
+          "checks": [["SELECT @@performance_schema after restart", "Returns 1", "Query output"], ["SELECT * FROM sys.innodb_lock_waits during a blocked update", "Returns one row naming the waiting and blocking thread", "Query output"], ["SELECT * FROM sys.statement_analysis LIMIT 5", "Rows are ordered by total latency and include digest text", "Query output"]],
+          "objectives": ["Enable and scope the Performance Schema", "Find expensive statements with sys views", "Identify blocking sessions"]
+        },
+        {
+          "topic": "InnoDB Internals for MariaDB Administrators",
+          "subtopics": ["Pages, extents and tablespaces", "The clustered index and secondary index lookups", "Redo log, doublewrite buffer and crash recovery", "Undo logs, purge and the history list length", "MVCC and read views", "Change buffering and the adaptive hash index", "innodb_io_capacity, page cleaners and flushing", "File-per-table tablespaces and innodb_file_per_table", "Compression with ROW_FORMAT=COMPRESSED and page compression", "Reading SHOW ENGINE INNODB STATUS sections"],
+          "tools": ["MariaDB Server", "SHOW ENGINE INNODB STATUS", "innochecksum", "mariadb client", "sysbench"],
+          "lab_task": "Open a REPEATABLE READ transaction with START TRANSACTION WITH CONSISTENT SNAPSHOT and leave it idle. Run 500000 updates in another session and watch History list length in SHOW ENGINE INNODB STATUS and information_schema.INNODB_METRICS trx_rseg_history_len grow. Commit the idle session and watch purge drain it. Run innochecksum on one .ibd file.",
+          "deliverable": "Observation log showing history list growth and drain with a written explanation of the cause",
+          "checks": [["Run updates while an old snapshot is open", "History list length grows into the hundreds of thousands", "INNODB STATUS excerpt"], ["COMMIT the idle transaction and wait", "History list length falls back near zero", "INNODB STATUS excerpt"], ["Run innochecksum on a healthy .ibd file", "Completes with no checksum errors", "Command output"]],
+          "objectives": ["Explain redo, undo and purge", "Spot long transactions through history list length", "Read InnoDB status output"]
+        },
+        {
+          "topic": "Locking, Deadlocks and Metadata Lock Waits",
+          "subtopics": ["Row, gap and next-key locks under REPEATABLE READ", "innodb_print_all_deadlocks=ON and the error log", "information_schema.INNODB_LOCKS and INNODB_LOCK_WAITS", "Metadata locks and the METADATA_LOCK_INFO plugin", "lock_wait_timeout and why a long SELECT blocks ALTER TABLE", "WAIT n and NOWAIT options on DDL and SELECT ... FOR UPDATE", "SKIP LOCKED for queue tables", "Retry logic for error 1213", "Killing the blocker safely with KILL QUERY", "Reducing contention through shorter transactions and index choices"],
+          "tools": ["MariaDB Server", "metadata_lock_info", "information_schema", "mariadb client", "sysbench"],
+          "lab_task": "Install SONAME 'metadata_lock_info'. Start a SELECT in a transaction that holds a metadata lock, then run ALTER TABLE t ADD COLUMN c INT in a second session and a third query that queues behind it. Read information_schema.METADATA_LOCK_INFO. Repeat the ALTER with WAIT 2. Enable innodb_print_all_deadlocks and cause one deadlock.",
+          "deliverable": "Lock chain diagram from METADATA_LOCK_INFO, the WAIT 2 failure and the deadlock log entry",
+          "checks": [["ALTER TABLE ... WAIT 2 while another transaction holds the table", "ERROR 1205 Lock wait timeout exceeded after 2 seconds", "Error message"], ["SELECT * FROM information_schema.METADATA_LOCK_INFO", "Shows a granted lock for the holder and a pending lock for the ALTER", "Query output"], ["Cause a deadlock with innodb_print_all_deadlocks=ON", "The error log contains a TRANSACTION section for each participant", "Error log excerpt"]],
+          "objectives": ["Diagnose metadata lock queues", "Use WAIT and NOWAIT to bound DDL", "Log and analyse deadlocks"]
+        },
+        {
+          "topic": "System-Versioned Tables and Temporal Queries",
+          "subtopics": ["CREATE TABLE ... WITH SYSTEM VERSIONING and ALTER TABLE ... ADD SYSTEM VERSIONING", "Hidden row_start and row_end columns", "FOR SYSTEM_TIME AS OF, BETWEEN, FROM ... TO and ALL", "Querying deleted rows and reconstructing a past state", "Explicit row_start and row_end columns with GENERATED ALWAYS AS ROW START", "Storage growth and purging with DELETE HISTORY", "PARTITION BY SYSTEM_TIME with INTERVAL or LIMIT", "Excluding wide or noisy columns with WITHOUT SYSTEM VERSIONING", "Interaction with foreign keys, replication and backups", "Audit, undo-accident and regulatory use cases"],
+          "tools": ["MariaDB Server", "mariadb client", "DBeaver", "information_schema"],
+          "lab_task": "Create products(id INT PRIMARY KEY, price DECIMAL(10,2)) WITH SYSTEM VERSIONING. Insert five rows, update a price twice, delete one row, sleeping 2 seconds between steps. Query FOR SYSTEM_TIME AS OF a timestamp before the delete to recover the row, run FOR SYSTEM_TIME ALL, then DELETE HISTORY FROM products BEFORE SYSTEM_TIME NOW() - INTERVAL 1 MINUTE.",
+          "deliverable": "Temporal query set with recovered row, full history output and the purge result",
+          "checks": [["SELECT ... FOR SYSTEM_TIME AS OF a time before the delete", "Returns the deleted row with its old price", "Query output"], ["SELECT COUNT(*) FROM products FOR SYSTEM_TIME ALL after 2 updates and 1 delete on 5 rows", "Returns 8 row versions", "Query output"], ["Run DELETE HISTORY FROM products BEFORE SYSTEM_TIME NOW()", "History rows are removed and FOR SYSTEM_TIME ALL returns only current rows", "Query output"]],
+          "objectives": ["Create and query system-versioned tables", "Recover data from history", "Control history growth with partitions or purge"]
+        },
+        {
+          "topic": "Application-Time Periods and Temporal Constraints",
+          "subtopics": ["PERIOD FOR with start and end DATE columns", "WITHOUT OVERLAPS on a primary key or unique key", "UPDATE ... FOR PORTION OF and DELETE ... FOR PORTION OF", "How a portion update splits a row into up to three rows", "Bitemporal tables: application time plus system versioning", "Gap and overlap checks with window functions", "Modelling price lists, contracts and room bookings", "Validation errors for invalid periods", "Indexing period columns", "Comparing with application-level overlap checks"],
+          "tools": ["MariaDB Server", "mariadb client", "DBeaver"],
+          "lab_task": "Create rental(room INT, guest VARCHAR(30), d_from DATE, d_to DATE, PERIOD FOR dates(d_from, d_to), UNIQUE(room, dates WITHOUT OVERLAPS)). Insert a booking for 2026-03-01 to 2026-03-10. Attempt an overlapping booking and capture the error. Run UPDATE rental FOR PORTION OF dates FROM '2026-03-04' TO '2026-03-06' SET guest='Block' and count the resulting rows.",
+          "deliverable": "Booking model with the overlap error and the split-row result",
+          "checks": [["Insert an overlapping booking for the same room", "ERROR 1062 Duplicate entry for key with WITHOUT OVERLAPS", "Error message"], ["UPDATE ... FOR PORTION OF in the middle of a booking", "The booking is split and the table has 3 rows for that room", "Query output"], ["Insert a row with d_to earlier than d_from", "An error is raised because the period start must be before the end", "Error message"]],
+          "objectives": ["Model application-time periods", "Prevent overlaps with a constraint", "Use FOR PORTION OF correctly"]
+        },
+        {
+          "topic": "MariaDB Replication with Domain-Based GTIDs",
+          "subtopics": ["Primary and replica roles and the binary log", "log_bin, server_id, binlog_format=ROW and binlog_expire_logs_seconds", "MariaDB GTID format domain-server-sequence and gtid_domain_id", "gtid_slave_pos, gtid_binlog_pos and gtid_current_pos", "CHANGE MASTER TO ... MASTER_USE_GTID=slave_pos and the newer CHANGE MASTER syntax", "SHOW REPLICA STATUS and key fields Slave_IO_Running, Slave_SQL_Running and Seconds_Behind_Master", "Creating a replica from mariadb-dump or mariadb-backup", "Replication users and the REPLICATION SLAVE privilege", "Skipping an error safely and why not to", "Differences from MySQL GTIDs"],
+          "tools": ["MariaDB Server", "mariadb client", "mariadb-binlog", "Docker Compose", "mariadb-backup"],
+          "lab_task": "With Docker Compose start primary (server_id=1, log_bin) and replica (server_id=2). On the replica run CHANGE MASTER TO MASTER_HOST='primary', MASTER_USER='repl', MASTER_PASSWORD='Repl#26', MASTER_USE_GTID=slave_pos; START REPLICA. Insert 10000 rows on the primary, compare gtid_binlog_pos and gtid_slave_pos, run SHOW REPLICA STATUS\\G and stop the SQL thread to measure lag.",
+          "deliverable": "Replication diagram, SHOW REPLICA STATUS output and matching GTID positions",
+          "checks": [["SHOW REPLICA STATUS\\G after setup", "Slave_IO_Running: Yes and Slave_SQL_Running: Yes", "Status output"], ["Compare @@gtid_binlog_pos on the primary with @@gtid_slave_pos on the replica after the load", "Both show the same sequence number", "Query output"], ["Insert a row on the replica and then the same key on the primary", "Replica SQL thread stops with Last_SQL_Errno 1062", "Status output"]],
+          "objectives": ["Build a GTID replica", "Read replication status fields", "Explain MariaDB GTID components"]
+        },
+        {
+          "topic": "Semi-Synchronous, Parallel, Multi-Source and Delayed Replication",
+          "subtopics": ["Semi-sync built into the server with rpl_semi_sync_master_enabled and rpl_semi_sync_slave_enabled", "rpl_semi_sync_master_timeout and fallback to async", "Parallel replication: slave_parallel_threads and slave_parallel_mode=optimistic", "slave_parallel_max_queued", "Multi-source replication with named connections", "CHANGE MASTER 'conn' TO and SHOW ALL REPLICAS STATUS", "Delayed replication with MASTER_DELAY", "Filtering with replicate_do_db and its risks", "Lag monitoring with Seconds_Behind_Master and heartbeat tables", "Crash-safe replica state in mysql.gtid_slave_pos"],
+          "tools": ["MariaDB Server", "mariadb client", "Docker Compose", "sysbench", "pt-heartbeat"],
+          "lab_task": "Enable semi-sync on primary and replica and verify Rpl_semi_sync_master_status=ON. Stop the replica and write on the primary to watch the timeout fall back to async. Set slave_parallel_threads=8 and compare apply time for 500000 rows against 0 threads. Add a second connection named 'reporting' with MASTER_DELAY=300.",
+          "deliverable": "Replication tuning notes with semi-sync status changes and the parallel versus single-thread apply times",
+          "checks": [["SHOW GLOBAL STATUS LIKE 'Rpl_semi_sync_master_status' with a healthy replica", "Value is ON", "Status output"], ["Stop the replica and commit on the primary", "After the timeout Rpl_semi_sync_master_status turns OFF and commits continue", "Status output"], ["SHOW ALL REPLICAS STATUS with two connections", "Two rows appear, one named reporting with SQL_Delay 300", "Status output"]],
+          "objectives": ["Choose between async, semi-sync and delayed replication", "Tune parallel apply", "Run multi-source replication"]
+        },
+        {
+          "topic": "Backups with mariadb-backup and Point-in-Time Recovery",
+          "subtopics": ["Physical backup with mariadb-backup --backup --target-dir", "--prepare and what it does to the redo log", "--copy-back and --move-back with an empty datadir", "Incremental backups with --incremental-basedir", "Streaming with --stream=mbstream and compression", "Backup user privileges: RELOAD, PROCESS, LOCK TABLES, BINLOG MONITOR", "Recording the GTID in xtrabackup_binlog_info", "Point-in-time recovery with mariadb-binlog --start-position and --stop-datetime", "Testing restores on a schedule", "Encrypted backups and storage policies"],
+          "tools": ["mariadb-backup", "mariadb-binlog", "MariaDB Server", "systemctl", "rsync"],
+          "lab_task": "Take a full backup with mariadb-backup --backup --target-dir=/backup/full --user=bkp --password=..., an incremental after 100000 more rows, then run --prepare on both. Delete a table at a known time, restore with --copy-back, and replay mariadb-binlog --start-position=<pos> --stop-datetime='...' to recover to one second before the delete.",
+          "deliverable": "Backup runbook with commands, the recorded binlog position and a verified recovered row count",
+          "checks": [["mariadb-backup --prepare on the full backup", "Ends with completed OK!", "Command output"], ["Restore full plus binlog replay stopped one second before the DROP", "The dropped table exists with its pre-drop row count", "Query output"], ["Start the server on a datadir that was not prepared", "InnoDB crash recovery fails or the server refuses to start with an error in the log", "Error log excerpt"]],
+          "objectives": ["Take full and incremental physical backups", "Restore to a point in time", "Document a tested recovery runbook"]
+        },
+        {
+          "topic": "MariaDB Partitioning: RANGE COLUMNS, Pruning and EXCHANGE PARTITION",
+          "subtopics": ["RANGE, LIST, HASH and KEY partitioning", "RANGE COLUMNS on dates and the primary key rule", "Partition pruning in EXPLAIN PARTITIONS", "ALTER TABLE ... ADD, DROP and REORGANIZE PARTITION", "EXCHANGE PARTITION for fast loads", "Subpartitioning and its cost", "Partition limits and the 8192 limit", "Archiving by dropping a partition versus DELETE", "Automating monthly partitions with events", "Partitioning compared with sharding"],
+          "tools": ["MariaDB Server", "mariadb client", "EXPLAIN", "information_schema.PARTITIONS"],
+          "lab_task": "Create log_events PARTITION BY RANGE COLUMNS(created) with a partition per month and a MAXVALUE partition. Load 2 million rows across 12 months. Run EXPLAIN SELECT ... WHERE created >= '2026-03-01' AND created < '2026-04-01' and confirm one partition. Time DELETE of one month versus ALTER TABLE ... DROP PARTITION p202601 and compare.",
+          "deliverable": "Partitioned DDL, pruning proof and the drop-versus-delete timing",
+          "checks": [["EXPLAIN a one-month range query", "partitions column lists exactly one partition", "EXPLAIN output"], ["ALTER TABLE ... DROP PARTITION p202601", "Completes in under a second and the rows of that month are gone", "Timing and row count"], ["Insert a row whose key has no matching partition and no MAXVALUE partition", "ERROR 1526 Table has no partition for value", "Error message"]],
+          "objectives": ["Design a partitioning scheme", "Confirm pruning with EXPLAIN", "Retire data by dropping partitions"]
+        },
+        {
+          "topic": "Online DDL in MariaDB: INSTANT, INPLACE and pt-online-schema-change",
+          "subtopics": ["ALGORITHM=INSTANT, INPLACE and COPY and LOCK=NONE", "Which operations are instant: adding a column at the end, dropping a column, renaming", "ALTER TABLE ... ALGORITHM=NOCOPY", "innodb_online_alter_log_max_size and the failure it prevents", "ALTER ONLINE TABLE syntax", "Replication lag from large ALTER TABLE statements", "pt-online-schema-change with triggers and its limits with foreign keys", "Checking progress with information_schema.PROCESSLIST and the PROGRESS column", "Rollback planning and disk space", "Rolling changes: replicas first, then switchover"],
+          "tools": ["MariaDB Server", "pt-online-schema-change", "mariadb client", "sysbench"],
+          "lab_task": "On a 5 million row table run ALTER TABLE t ADD COLUMN flag TINYINT NULL, ALGORITHM=INSTANT, LOCK=NONE and record the time. Then ALTER TABLE t MODIFY name VARCHAR(500), ALGORITHM=INSTANT to see the refusal, repeat with INPLACE while sysbench writes run. Finally run pt-online-schema-change --alter 'ADD INDEX (flag)' --execute and compare.",
+          "deliverable": "Change matrix of operation, algorithm used, duration and whether writes were blocked",
+          "checks": [["ADD COLUMN ... ALGORITHM=INSTANT on 5 million rows", "Finishes in well under a second", "Timing output"], ["An operation that cannot be instant with ALGORITHM=INSTANT", "ERROR 1845 or 1846 ALGORITHM=INSTANT is not supported", "Error message"], ["pt-online-schema-change --execute on the table", "Ends with Successfully altered and sysbench shows no failed queries", "Tool output"]],
+          "objectives": ["Choose the least blocking algorithm", "Run pt-online-schema-change safely", "Plan schema changes with replicas"]
+        },
+        {
+          "topic": "Securing MariaDB: TLS, Auditing and Password Policy",
+          "subtopics": ["TLS server setup with ssl_ca, ssl_cert and ssl_key and tls_version", "REQUIRE SSL and REQUIRE X509 on accounts", "Checking the cipher with SHOW STATUS LIKE 'Ssl_cipher'", "Password validation plugins: simple_password_check and cracklib_password_check", "The server_audit plugin: server_audit_events, server_audit_logging and server_audit_output_type", "Binding and skip_name_resolve", "Removing anonymous users and the test database", "Account lockout and password expiry options", "Protecting configuration files and the datadir", "Reviewing grants regularly"],
+          "tools": ["MariaDB Server", "OpenSSL", "server_audit plugin", "mariadb client", "nmap"],
+          "lab_task": "Create a CA and server certificate with openssl, set ssl_ca, ssl_cert, ssl_key and tls_version=TLSv1.3 in a drop-in file. Create a user with REQUIRE SSL and prove a non-TLS login fails. Install server_audit with server_audit_events=CONNECT,QUERY_DDL and read the log. Install simple_password_check and try a weak password.",
+          "deliverable": "Hardening checklist with TLS proof, audit excerpt and password-policy rejection",
+          "checks": [["Connect as the REQUIRE SSL user with --ssl=0", "ERROR 1045 Access denied", "Error message"], ["SHOW STATUS LIKE 'Ssl_version' over TLS", "Returns TLSv1.3", "Query output"], ["CREATE USER with password 'abc'", "ERROR 1819 Your password does not satisfy the current policy requirements", "Error message"]],
+          "objectives": ["Enable TLS and require it per account", "Audit connections and DDL", "Enforce password policy"]
+        },
+        {
+          "topic": "MariaDB MaxScale: Routing, Read/Write Split and Monitors",
+          "subtopics": ["MaxScale role: proxy, router and monitor", "maxscale.cnf sections: [maxscale], servers, monitor, service and listener", "The mariadbmon monitor and its server states", "The readwritesplit router and transaction handling", "causal_reads and max_slave_replication_lag", "Users and the maxscale account privileges", "maxctrl list servers, list services and show service", "Log in via MaxScale on port 4006", "Connection pooling and persistent connections", "Failure of a replica and its effect on routing"],
+          "tools": ["MariaDB MaxScale", "maxctrl", "MariaDB Server", "Docker Compose", "mariadb client"],
+          "lab_task": "Put MaxScale in front of one primary and two replicas. Configure mariadbmon with auto_failover=false, a readwritesplit service and a listener on 4006. Connect and run SELECT @@server_id repeatedly and INSERT then SELECT. Stop one replica and run maxctrl list servers. Use causal_reads=local and test a write followed by an immediate read.",
+          "deliverable": "maxscale.cnf, maxctrl list servers output and a routing test table",
+          "checks": [["maxctrl list servers with all nodes healthy", "Primary shows Master, Running and replicas show Slave, Running", "maxctrl output"], ["Run 20 SELECT @@server_id statements through port 4006", "Results come only from replica server ids, and writes go to the primary", "Client output"], ["Stop one replica", "maxctrl shows that server as Down and queries continue on the other", "maxctrl output"]],
+          "objectives": ["Configure MaxScale services and monitors", "Verify read/write splitting", "Read server states"]
+        },
+        {
+          "topic": "Galera Cluster Bootstrapping, SST and IST",
+          "subtopics": ["Synchronous multi-primary replication with wsrep", "wsrep_on, wsrep_provider and wsrep_cluster_address", "Bootstrapping with galera_new_cluster", "Adding nodes: SST with mariadb-backup versus IST with gcache", "wsrep_sst_method and wsrep_sst_auth", "wsrep_cluster_size, wsrep_cluster_status and wsrep_local_state_comment", "gcache.size sizing for IST", "Requirements: InnoDB only, primary keys, binlog_format=ROW and innodb_autoinc_lock_mode=2", "Ports 3306, 4567, 4568 and 4444", "Safe rolling restart of one node"],
+          "tools": ["MariaDB Galera Cluster", "mariadb-backup", "Docker Compose", "mariadb client", "socat"],
+          "lab_task": "Start a three-node cluster: bootstrap node1 with galera_new_cluster, then start node2 and node3 with wsrep_cluster_address=gcomm://n1,n2,n3. Check wsrep_cluster_size=3. Write on node1 and read on node3. Stop node3 for a few minutes, write 1000 rows, restart and watch the IST in the error log. Then delete grastate.dat and force an SST.",
+          "deliverable": "Cluster configuration, status variables and a log excerpt showing IST and SST",
+          "checks": [["SHOW STATUS LIKE 'wsrep_cluster_size' with three nodes joined", "Value is 3", "Status output"], ["Restart a node that was down briefly with gcache intact", "Error log shows IST receiving the missed write-sets", "Log excerpt"], ["Restart a node with grastate.dat removed", "Error log shows a full SST and the node reaches Synced", "Log excerpt"]],
+          "objectives": ["Bootstrap and join Galera nodes", "Tell SST from IST", "Check cluster health variables"]
+        },
+        {
+          "topic": "Monitoring MariaDB with Prometheus, mysqld_exporter and Grafana",
+          "subtopics": ["Exporter options: mysqld_exporter and MaxScale metrics", "Exporter account with PROCESS, REPLICATION CLIENT and SELECT", "Scrape configuration in prometheus.yml", "Key metrics: connections, threads running, InnoDB buffer pool, replication lag", "Galera metrics: wsrep_flow_control_paused and wsrep_local_recv_queue", "Grafana dashboards and variables", "Alert rules with for: clauses and severity labels", "Alertmanager routing", "Avoiding alert fatigue with rate windows", "Logging and metrics retention"],
+          "tools": ["Prometheus", "mysqld_exporter", "Grafana", "Alertmanager", "MariaDB Server", "Docker Compose"],
+          "lab_task": "Run MariaDB, mysqld_exporter, Prometheus and Grafana with Docker Compose. Create the exporter user, check curl localhost:9104/metrics for mysql_up 1, and import a MariaDB dashboard. Write an alert rule for mysql_global_status_threads_running > 50 for 2m and one for replication lag over 30. Trigger the first with sysbench --threads=100 and capture the firing alert.",
+          "deliverable": "Compose file, alert rules and a screenshot of a firing alert",
+          "checks": [["curl localhost:9104/metrics | grep mysql_up", "Shows mysql_up 1", "Command output"], ["Stop the MariaDB container", "mysql_up becomes 0 and the target alert fires", "Alertmanager screenshot"], ["Run sysbench with 100 threads", "The threads_running alert enters pending then firing after 2 minutes", "Prometheus alerts page"]],
+          "objectives": ["Expose MariaDB metrics to Prometheus", "Build dashboards and alerts", "Choose thresholds from evidence"]
+        },
+        {
+          "topic": "Upgrades and Migration from MySQL and Older MariaDB",
+          "subtopics": ["Supported upgrade paths and the rule to upgrade one LTS at a time", "Reading the release notes and the upgrade page for removed variables", "mariadb-upgrade after the binaries change", "Dry run on a restored backup", "Rolling upgrade of replicas before the primary", "Downgrade limits and the need for a backup", "Migrating from MySQL: mysqldump, authentication plugin and collation differences", "Incompatible items such as the MySQL JSON binary type and caching_sha2_password", "Application test suite and query plan regression checks", "Rollback plan with delayed replica"],
+          "tools": ["MariaDB Server", "mariadb-upgrade", "mariadb-dump", "mariadb-backup", "Docker"],
+          "lab_task": "Restore a backup into a container running an older LTS image, upgrade it by switching the image to mariadb:lts and running mariadb-upgrade. Compare SHOW VARIABLES before and after with diff, run EXPLAIN on the ten most frequent queries and record plan changes. Import a MySQL 8.4 mysqldump and fix one caching_sha2_password account issue.",
+          "deliverable": "Upgrade runbook with diff of variables, plan comparison and a rollback step",
+          "checks": [["Run mariadb-upgrade after the binary swap", "Finishes with OK for every database and a message that the upgrade completed", "Command output"], ["Compare EXPLAIN for ten queries before and after", "Any changed plan is listed and judged acceptable or fixed", "Plan comparison table"], ["Create a user from a MySQL dump using caching_sha2_password", "ERROR 1524 Plugin 'caching_sha2_password' is not loaded", "Error message"]],
+          "objectives": ["Plan and rehearse an upgrade", "Migrate a MySQL dump into MariaDB", "Prepare rollback"]
+        },
+        {
+          "topic": "Intermediate Capstone: MaxScale-Routed Replicated Shop on MariaDB",
+          "subtopics": ["Primary with two replicas through MaxScale readwritesplit", "mariadb-backup full plus incremental backup and a timed point-in-time restore", "Slow log analysis and one index fix with before and after metrics", "System-versioned orders table with history purge", "TLS and server_audit enabled", "Prometheus alerts and a runbook"],
+          "tools": ["MariaDB Server", "MariaDB MaxScale", "mariadb-backup", "Prometheus", "Grafana", "sysbench"],
+          "lab_task": "Deploy primary plus two replicas behind MaxScale with Docker Compose. Run sysbench for 10 minutes, fix the slowest query found by pt-query-digest, version the orders table, enable TLS and server_audit, take a full and incremental mariadb-backup, drop a table and recover to one second before the drop. Collect Prometheus metrics throughout.",
+          "deliverable": "Repository with compose files, configuration, scripts, dashboards, test results and a one-page runbook",
+          "checks": [["Recover after DROP TABLE using backup plus binlog", "Row count equals the count recorded before the drop", "Query output"], ["Stop a replica under sysbench load", "MaxScale keeps routing, and no client error is reported beyond reconnects", "sysbench and maxctrl output"], ["Compare top fingerprint time before and after the index fix", "Total time drops by at least 50 percent", "pt-query-digest reports"]],
+          "objectives": ["Build a replicated, tuned and monitored platform", "Prove recovery with a timed restore", "Present evidence-based improvements"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior DBAs, SREs and architects who own MariaDB platforms. Covers Galera conflicts, flow control and multi-data-center quorum, MaxScale failover, filters and the binlog router, ColumnStore, Spider sharding, MariaDB Vector and hybrid retrieval, optimizer internals, thread pool tuning, archiving, schema change on Galera, encryption, DR across regions, Kubernetes with the MariaDB Operator, Oracle and MySQL migration, managed services, fleet capacity planning and incident response.",
+      "prerequisites": ["Completes the intermediate level or runs replicated MariaDB in production", "Knows Linux networking, containers and basic Kubernetes objects", "Has benchmarked a database with sysbench or an equivalent tool"],
+      "outcomes": ["Design and test multi-region Galera, MaxScale and replica topologies with measured RTO and RPO", "Choose and operate ColumnStore, Spider and Vector for the right workloads", "Run encrypted, compliant and observable fleets with capacity forecasts", "Lead incident response and migrations with documented runbooks"],
+      "days": [
+        {
+          "topic": "Galera Flow Control, Certification Conflicts and Multi-Primary Tuning",
+          "subtopics": ["Write-set certification and first-committer-wins", "Deadlock error 1213 on commit from certification failure", "wsrep_local_cert_failures and wsrep_local_bf_aborts", "Flow control: wsrep_flow_control_paused, fc_limit and gcs.fc_factor", "Apply threads: wsrep_slave_threads and wsrep_applier_threads", "wsrep_causal_reads and wsrep_sync_wait for read-your-writes", "Single-writer pattern versus true multi-primary", "Large transactions and wsrep_max_ws_size", "Hot-row and AUTO_INCREMENT conflicts", "Tuning the slowest node that throttles the cluster"],
+          "tools": ["MariaDB Galera Cluster", "sysbench", "mariadb client", "Prometheus", "wsrep status variables"],
+          "lab_task": "On a 3-node Galera cluster run sysbench oltp_update_index with --threads=64 against two nodes at once on a 100-row table to produce conflicts. Record wsrep_local_cert_failures, wsrep_local_bf_aborts and client error 1213. Then throttle one node with a slow disk using cgroups and observe wsrep_flow_control_paused. Raise wsrep_slave_threads from 1 to 8 and compare.",
+          "deliverable": "Conflict and flow-control report with metric deltas, client error counts and the chosen settings",
+          "checks": [["Run two-node concurrent updates on the same 100 rows", "Clients receive ERROR 1213 and wsrep_local_cert_failures increases", "Client error log and status delta"], ["Slow down one node's disk during load", "wsrep_flow_control_paused rises above 0.1 on the cluster", "SHOW STATUS output"], ["Set wsrep_slave_threads=8 on the slow node", "wsrep_flow_control_paused falls compared with the 1-thread run", "Before and after status values"]],
+          "objectives": ["Explain certification conflicts and flow control", "Measure conflicts and pauses with wsrep variables", "Choose a safe writer topology"]
+        },
+        {
+          "topic": "Galera Across Data Centers: Segments, Quorum and Garbd",
+          "subtopics": ["Quorum rules and why two nodes cannot be a safe cluster", "Weighted quorum with pc.weight", "Galera segments: gmcast.segment and cross-site traffic reduction", "Galera Arbitrator (garbd) as a tie-breaker", "evs.* timeouts for WAN: evs.suspect_timeout and evs.inactive_timeout", "wsrep_provider_options string syntax", "Split brain, non-Primary state and error 1047 WSREP has not yet prepared node", "Recovering a non-Primary component with pc.bootstrap=YES", "Safe-to-bootstrap in grastate.dat and wsrep_recover", "Network partition tests with tc and iptables"],
+          "tools": ["MariaDB Galera Cluster", "garbd", "iptables", "tc netem", "mariadb client"],
+          "lab_task": "Build a 2+2+garbd cluster across three simulated sites. Set gmcast.segment per site and pc.weight on the primary site. Use tc qdisc add dev eth0 root netem delay 80ms to add WAN latency and measure commit time. Cut one site with iptables, observe quorum, and query a minority node to capture ERROR 1047. Recover with SET GLOBAL wsrep_provider_options='pc.bootstrap=YES'.",
+          "deliverable": "Topology diagram, partition test log and a recovery runbook",
+          "checks": [["Isolate a minority site with iptables DROP rules", "Minority nodes report wsrep_cluster_status Non-Primary and queries fail with ERROR 1047", "Status and error output"], ["Add 80 ms latency between sites", "Commit time increases by about the round trip and is shown in a timing table", "Timing measurements"], ["Run pc.bootstrap=YES on one surviving node of a lost-quorum cluster", "wsrep_cluster_status returns Primary", "Status output"]],
+          "objectives": ["Design quorum for multiple sites", "Test partitions deliberately", "Recover a non-Primary cluster safely"]
+        },
+        {
+          "topic": "MaxScale Failover, Switchover and Cluster Operations",
+          "subtopics": ["mariadbmon auto_failover, auto_rejoin and failcount", "Switchover with maxctrl call command mariadbmon switchover", "failover_timeout and verify_master_failure", "cooperative_monitoring_locks with several MaxScale instances", "Promotion candidates and promotion_sql_file", "enforce_read_only_slaves and enforce_simple_topology", "Galera monitoring with galeramon and its priority settings", "REST API and maxctrl users with TLS", "Replicas that lag and switchover_timeout", "Testing failover with kill -9 and network cuts"],
+          "tools": ["MariaDB MaxScale", "maxctrl", "MariaDB Server", "Docker Compose", "mariadb client"],
+          "lab_task": "Configure mariadbmon with auto_failover=true, auto_rejoin=true and failcount=3 on a 1 primary plus 2 replica topology. Run a write loop through readwritesplit, kill -9 the primary, and time the interval until the client can write again. Run maxctrl call command mariadbmon switchover MariaDB-Monitor server3 for a planned move, then rejoin the old primary.",
+          "deliverable": "Failover timing table for unplanned and planned events and the final server states",
+          "checks": [["kill -9 the primary under a write loop", "A replica is promoted and writes succeed again within failcount times the monitor interval plus failover time", "Write loop timestamps"], ["maxctrl call command mariadbmon switchover", "Command returns OK and maxctrl list servers shows the new Master", "maxctrl output"], ["Restart the old primary with auto_rejoin=true", "It reappears as a Slave, Running", "maxctrl output"]],
+          "objectives": ["Automate failover with mariadbmon", "Run planned switchovers", "Measure client-visible downtime"]
+        },
+        {
+          "topic": "MaxScale Binlog Router, Filters and Data Masking",
+          "subtopics": ["The binlogrouter and replicating from MaxScale rather than the primary", "Primary changes without re-pointing replicas", "The masking filter with a rules file", "The firewall filter and allowed or denied query patterns", "The cache filter and its invalidation limits", "The top and qlafilter filters for diagnostics", "Filter ordering in a service", "Schemarouter for sharded databases", "Dynamic configuration with maxctrl create and alter", "Performance cost of filters"],
+          "tools": ["MariaDB MaxScale", "maxctrl", "mariadb client", "jq"],
+          "lab_task": "Add a masking filter with a rules file that masks the email column of customers, then a qlafilter that logs queries over 100 ms. Query through the listener and compare with a direct connection. Add a firewall filter rule that blocks DELETE without WHERE and run one. Configure a binlogrouter service and point a replica at it.",
+          "deliverable": "maxscale.cnf with filters, masked output and the blocked-statement error",
+          "checks": [["SELECT email FROM customers through the masking listener", "Values are replaced with masked text such as XXXX", "Result grid"], ["The same SELECT via a direct connection to the server", "Real values are returned", "Result grid"], ["DELETE FROM customers without WHERE through the firewall filter", "ERROR 1141 or a Query matches a deny rule error and no rows are deleted", "Error message"]],
+          "objectives": ["Use MaxScale filters for masking and protection", "Order filters correctly", "Route replicas through the binlog router"]
+        },
+        {
+          "topic": "ColumnStore Columnar Analytics Engine",
+          "subtopics": ["Columnar storage and when it beats InnoDB", "ENGINE=ColumnStore tables and supported types", "User Module and Performance Module roles", "Loading with cpimport and LOAD DATA INFILE and their speed difference", "Extent maps and automatic partition elimination", "Distributed aggregation and joins", "Compression and storage sizing", "Cluster status with mcs cluster status", "Mixing InnoDB and ColumnStore in one MariaDB", "Limits: no foreign keys, limited DML and transaction behaviour"],
+          "tools": ["MariaDB ColumnStore", "cpimport", "mcs", "mariadb client", "Docker"],
+          "lab_task": "Start a ColumnStore container. Create fact_sales(id BIGINT, d DATE, region VARCHAR(10), amount DECIMAL(12,2)) ENGINE=ColumnStore and the same table in InnoDB. Load 50 million generated rows with cpimport and with INSERT ... SELECT. Time SELECT region, SUM(amount) GROUP BY region on both. Compare on-disk sizes and run mcs cluster status.",
+          "deliverable": "Benchmark table of load time, query time and size for both engines with a recommendation",
+          "checks": [["SELECT region, SUM(amount) FROM fact_sales GROUP BY region on 50 million rows", "ColumnStore returns faster than InnoDB and the timings are tabulated", "Query timings"], ["Load with cpimport versus row-by-row INSERT", "cpimport finishes in a small fraction of the INSERT time", "Timing output"], ["Create a FOREIGN KEY on a ColumnStore table", "An error is returned because foreign keys are not supported", "Error message"]],
+          "objectives": ["Explain columnar storage benefits", "Load and query ColumnStore tables", "Decide between InnoDB and ColumnStore per table"]
+        },
+        {
+          "topic": "Spider Storage Engine and Sharding",
+          "subtopics": ["Spider as a sharding engine over remote MariaDB servers", "CREATE SERVER and connection definitions", "CREATE TABLE ... ENGINE=Spider COMMENT='wrapper \"mysql\", table \"t\"'", "Partitioning Spider tables by RANGE or HASH across servers", "Pushdown of WHERE, GROUP BY and joins", "Spider system variables such as spider_support_xa", "Transactions across shards and XA", "Rebalancing and adding shards", "Failure of one shard and error behaviour", "Alternatives: application sharding, MaxScale schemarouter"],
+          "tools": ["MariaDB Spider", "MariaDB Server", "Docker Compose", "mariadb client"],
+          "lab_task": "Start a spider node and two data nodes. On the data nodes create table orders_part; on the spider node run CREATE SERVER s1 and s2, then CREATE TABLE orders (...) ENGINE=Spider PARTITION BY HASH(id) (PARTITION p1 COMMENT='srv \"s1\", table \"orders_part\"', PARTITION p2 COMMENT='srv \"s2\", table \"orders_part\"'). Insert 10000 rows and count rows on each node. Stop one data node and run a query.",
+          "deliverable": "Spider topology, row distribution counts and the shard-failure behaviour",
+          "checks": [["Insert 10000 rows through the Spider table", "The two data nodes hold about 5000 rows each and the sum is 10000", "Row counts on each node"], ["SELECT COUNT(*) on the Spider table", "Returns 10000", "Query output"], ["Stop one data node and query the Spider table", "An error such as 1429 Unable to connect to foreign data source is returned", "Error message"]],
+          "objectives": ["Build a sharded table with Spider", "Verify data placement", "Describe failure behaviour and alternatives"]
+        },
+        {
+          "topic": "MariaDB Vector: Embeddings and Similarity Search",
+          "subtopics": ["The VECTOR(n) column type", "Inserting with VEC_FromText and VEC_ToText", "Distance functions VEC_DISTANCE_EUCLIDEAN and VEC_DISTANCE_COSINE and VEC_DISTANCE", "CREATE VECTOR INDEX with DISTANCE=cosine", "The M parameter and the HNSW-style index structure", "mhnsw_ef_search and mhnsw_max_cache_size", "Dimension limits and storage cost per row", "Exact search versus indexed approximate search and recall measurement", "ORDER BY distance LIMIT k to use the index", "Requirements: InnoDB tables and a vector index on one column"],
+          "tools": ["MariaDB Vector", "mariadb client", "Python", "MariaDB Connector/Python", "NumPy"],
+          "lab_task": "Create docs(id INT PRIMARY KEY, title VARCHAR(100), emb VECTOR(384) NOT NULL, VECTOR INDEX (emb) DISTANCE=cosine). Generate 100000 embeddings with a sentence-transformer model, insert with VEC_FromText. Run SELECT id FROM docs ORDER BY VEC_DISTANCE_COSINE(emb, VEC_FromText(?)) LIMIT 10 and compare against an exact scan for recall at 10. Change mhnsw_ef_search and record recall and latency.",
+          "deliverable": "Notebook or script with recall@10 and latency at three mhnsw_ef_search values",
+          "checks": [["EXPLAIN the ORDER BY VEC_DISTANCE_COSINE ... LIMIT 10 query", "The plan uses the vector index rather than a filesort over all rows", "EXPLAIN output"], ["Insert a 3-element text into a VECTOR(384) column", "An error is raised for the wrong dimension", "Error message"], ["Raise mhnsw_ef_search from low to high", "Recall@10 rises and latency rises, shown in a table", "Measurements"]],
+          "objectives": ["Store embeddings in MariaDB", "Build and query a vector index", "Measure recall against latency"]
+        },
+        {
+          "topic": "Retrieval Applications on MariaDB Vector",
+          "subtopics": ["Retrieval-augmented generation with the database as the store", "Chunking documents and keeping metadata in relational columns", "Filtering by tenant or date together with vector search", "Hybrid ranking with FULLTEXT MATCH and vector distance", "Reciprocal rank fusion in SQL with window functions", "Embedding refresh and versioning with system-versioned tables", "Access control and row-level separation of tenants", "Connection use from MariaDB Connector/Python", "Cost of re-embedding and index rebuilds", "Evaluating answers with a labelled question set"],
+          "tools": ["MariaDB Vector", "MariaDB Connector/Python", "Python", "mariadb client", "FULLTEXT"],
+          "lab_task": "Create chunks(id, doc_id, tenant_id, body TEXT, emb VECTOR(384), FULLTEXT(body), VECTOR INDEX(emb)). Load 20000 chunks. Write a Python function that retrieves top 5 by vector distance WHERE tenant_id=?, top 5 by MATCH ... AGAINST, and fuses them with reciprocal rank in one SQL statement. Score 30 labelled questions for hit rate at 5 for vector only, text only and hybrid.",
+          "deliverable": "Retrieval script and a table with hit rate at 5 for each method",
+          "checks": [["Hybrid retrieval versus vector only on 30 labelled questions", "Hybrid hit rate at 5 is greater than or equal to vector only and the numbers are tabulated", "Results table"], ["Query with tenant_id=2 as the filter", "No chunk from another tenant appears in the top 5", "Query output"], ["Pass a hostile string as the question parameter", "It is bound as a parameter and causes no SQL error", "Script output"]],
+          "objectives": ["Build a hybrid retrieval query in SQL", "Keep tenancy and metadata in relational columns", "Evaluate retrieval quality with numbers"]
+        },
+        {
+          "topic": "Optimizer Internals, Join Strategies and Optimizer Switches",
+          "subtopics": ["Cost-based optimizer and the cost model constants in recent releases", "optimizer_switch flags: index_merge, join_cache_incremental, semijoin and subquery_cache", "join_cache_level and BKA joins", "Hash joins in MariaDB with join_cache_level=4 and above", "Derived and condition pushdown", "Subquery strategies: materialization versus IN-to-EXISTS", "Index condition pushdown", "Using optimizer_use_condition_selectivity", "Plan stability: statistics, hints and index hints", "Regression testing plans across upgrades"],
+          "tools": ["MariaDB Server", "ANALYZE FORMAT=JSON", "optimizer_trace", "sysbench", "mariadb client"],
+          "lab_task": "Pick a 5 table report query on 10 million rows. Capture ANALYZE FORMAT=JSON. Change join_cache_level between 2 and 8, toggle optimizer_switch='index_merge=off', and set optimizer_use_condition_selectivity to 1 and 4, recording time and plan each time. Pick the best combination and apply it per session rather than globally.",
+          "deliverable": "Experiment matrix of setting, plan change and time, and the recommendation",
+          "checks": [["Run the query with join_cache_level=2 and with 8", "Plans differ and the Extra column shows a join buffer type in at least one run", "EXPLAIN and ANALYZE output"], ["Set optimizer_switch='index_merge=off'", "The plan no longer uses index_merge and the time is recorded", "EXPLAIN output"], ["Apply the best setting with SET SESSION only", "The global value is unchanged", "SELECT @@global and @@session output"]],
+          "objectives": ["Control the optimizer with switches and hints", "Run controlled plan experiments", "Scope changes to sessions"]
+        },
+        {
+          "topic": "Thread Pool, Concurrency and Write-Heavy Tuning",
+          "subtopics": ["thread_handling=one-thread-per-connection versus pool-of-threads", "thread_pool_size, thread_pool_max_threads and thread_pool_stall_limit", "extra_port and extra_max_connections for administrators", "innodb_flush_log_at_trx_commit values and durability trade-offs", "sync_binlog and group commit with binlog_commit_wait_count", "innodb_log_file_size and checkpoint age stalls", "innodb_io_capacity and innodb_io_capacity_max", "Page cleaner tuning and innodb_max_dirty_pages_pct", "Hot-row contention and sharding counters", "Benchmarking with sysbench at 64, 256 and 1024 threads"],
+          "tools": ["MariaDB Server", "sysbench", "Performance Schema", "mariadb client", "Grafana"],
+          "lab_task": "Run sysbench oltp_write_only at 64, 256 and 1024 threads with thread_handling=one-thread-per-connection, then with pool-of-threads and thread_pool_size equal to CPU cores. Record TPS and 95th percentile latency. Then test innodb_flush_log_at_trx_commit=1, 2 and sync_binlog=1 and 0, and write a durability versus TPS table.",
+          "deliverable": "Benchmark tables for the thread-pool and durability tests with a recommended configuration",
+          "checks": [["Run 1024 threads under pool-of-threads", "TPS is at least as high as under one-thread-per-connection and 95th percentile latency is lower", "sysbench summaries"], ["Connect on extra_port during saturation", "An administrator can still log in", "Client session"], ["Set innodb_flush_log_at_trx_commit=2", "TPS increases against value 1 and the durability risk is documented", "sysbench summaries"]],
+          "objectives": ["Tune concurrency with the thread pool", "Quantify durability against throughput", "Present a benchmark-backed configuration"]
+        },
+        {
+          "topic": "Large Tables, Archiving and History Lifecycle",
+          "subtopics": ["Row count growth and the point where backups and ALTER become painful", "Archiving with pt-archiver and chunked deletes", "PARTITION BY SYSTEM_TIME to rotate history", "Partition-based retention with scheduled EXCHANGE PARTITION", "Moving cold data to Aria, ColumnStore or Spider backed archive tables", "Compressed InnoDB tables and page compression", "Foreign keys and archive order", "Replication-safe purging in small batches", "Verification counts and checksums before delete", "Legal retention and recorded deletion evidence"],
+          "tools": ["pt-archiver", "MariaDB Server", "MariaDB ColumnStore", "mariadb client", "cron"],
+          "lab_task": "On a 100 million row events table run pt-archiver --source ... --dest ... --where 'created < \"2025-01-01\"' --limit 5000 --commit-each --purge to archive into events_archive, checking replica lag below 5 seconds. Compare with a PARTITION BY SYSTEM_TIME INTERVAL 1 MONTH table where history drops by partition. Verify counts match before the purge.",
+          "deliverable": "Archive runbook with batch size, lag evidence and row-count verification",
+          "checks": [["Count rows archived against rows removed from the source", "The two counts are equal", "Query output"], ["Check Seconds_Behind_Master during the archive", "Stays below 5 seconds", "Monitoring graph"], ["DROP PARTITION on an old history partition", "Old history disappears instantly and current rows are untouched", "Query output"]],
+          "objectives": ["Archive data in safe batches", "Rotate history by partition", "Prove completeness before deleting"]
+        },
+        {
+          "topic": "Schema Evolution at Scale on Galera and Replicas",
+          "subtopics": ["wsrep_OSC_method: TOI versus RSU", "Total Order Isolation and its cluster-wide stall", "Rolling Schema Upgrade node by node and its compatibility rules", "pt-online-schema-change on Galera and wsrep_OSC_method=TOI interactions", "Using ALGORITHM=INSTANT in TOI to avoid stalls", "wsrep_desync during RSU", "Schema change windows and flow control", "Expand-and-contract migrations with two application versions", "Online DDL in replication with a delayed replica as a safety net", "Rollback strategy and verification queries"],
+          "tools": ["MariaDB Galera Cluster", "pt-online-schema-change", "mariadb client", "sysbench"],
+          "lab_task": "On a 3-node Galera cluster under sysbench write load, run ALTER TABLE t ADD INDEX with default TOI and record the stall in TPS. Repeat with SET SESSION wsrep_OSC_method=RSU on each node in turn with SET GLOBAL wsrep_desync=ON. Then try ALGORITHM=INSTANT with a new nullable column. Record TPS during each and confirm schema parity at the end.",
+          "deliverable": "Schema-change matrix with TPS impact per method and a parity check",
+          "checks": [["Run a long ALTER under the default TOI", "TPS drops sharply for the whole cluster while it runs", "sysbench TPS graph"], ["Run the change by RSU on each node", "TPS stays above 70 percent of baseline and each node shows the new index", "TPS graph and SHOW CREATE TABLE"], ["Compare SHOW CREATE TABLE on all three nodes at the end", "Definitions are identical", "Diff output"]],
+          "objectives": ["Choose TOI or RSU for a change", "Perform rolling schema upgrades", "Verify schema parity across nodes"]
+        },
+        {
+          "topic": "Encryption at Rest, Key Management and Compliance Hardening",
+          "subtopics": ["Table encryption with innodb_encrypt_tables and innodb_encryption_threads", "Aria encryption with aria_encrypt_tables", "Binary log and relay log encryption with encrypt_binlog", "Redo log encryption with innodb_encrypt_log", "Key plugins: file_key_management, hashicorp_key_management and AWS KMS", "Key rotation with innodb_encryption_rotate_key_age", "Checking encryption status in information_schema.INNODB_TABLESPACES_ENCRYPTION", "Backups of encrypted data and key custody", "Audit logging for compliance evidence", "Mapping controls to PCI DSS or GDPR requirements"],
+          "tools": ["MariaDB Server", "file_key_management", "HashiCorp Vault", "server_audit plugin", "mariadb-backup"],
+          "lab_task": "Create a key file with openssl rand -hex 32 and configure file_key_management with innodb_encrypt_tables=FORCE and encrypt_binlog=ON. Create an encrypted table, verify the .ibd file shows no plaintext with strings, and check INNODB_TABLESPACES_ENCRYPTION. Rotate to key id 2, then take a mariadb-backup and restore it on a server without the key file.",
+          "deliverable": "Encryption evidence pack with strings output, status query and the restore failure without the key",
+          "checks": [["Run strings on the .ibd file of an encrypted table for a known value", "The plaintext value is not found", "Command output"], ["SELECT ENCRYPTION_SCHEME FROM information_schema.INNODB_TABLESPACES_ENCRYPTION", "Shows 1 for the encrypted tablespace", "Query output"], ["Start a restored copy without the key file", "Startup fails with an error about encryption keys in the log", "Error log excerpt"]],
+          "objectives": ["Encrypt data, logs and backups", "Manage and rotate keys", "Produce compliance evidence"]
+        },
+        {
+          "topic": "Disaster Recovery: Cross-Region Replication and Galera Async Bridges",
+          "subtopics": ["RPO and RTO targets and costing them", "Async replica in a second region from a Galera cluster", "log_slave_updates, wsrep_gtid_mode and wsrep_gtid_domain_id", "Keeping GTIDs consistent across Galera nodes", "Failover to the DR region and fencing the old region", "Failback with mariadb-backup or reverse replication", "Delayed replica for logical-error protection", "Point-in-time recovery from binlogs in object storage", "DR drills with game days", "Measuring replication lag across regions"],
+          "tools": ["MariaDB Galera Cluster", "MariaDB MaxScale", "mariadb-backup", "mariadb-binlog", "tc netem"],
+          "lab_task": "Make a Galera cluster the source for an async replica in a second region by setting wsrep_gtid_mode=ON, log_slave_updates=ON and the same gtid_domain_id on all nodes. Add 100 ms of latency with tc netem. Stop the replica's source node and re-point it to another Galera node with MASTER_USE_GTID=slave_pos. Run a DR drill that promotes the replica and record RTO and data loss.",
+          "deliverable": "DR design, drill log with RTO in seconds and RPO in transactions",
+          "checks": [["Kill the Galera node serving as the async source", "Replica re-pointed to another node continues with no missing or duplicate transactions", "GTID positions"], ["Promote the DR replica", "Writes are accepted and the measured RTO is recorded against the target", "Drill log"], ["Compare row checksums between regions after failback", "Checksums match", "Query output"]],
+          "objectives": ["Design cross-region recovery", "Keep GTIDs consistent with Galera", "Run and score a DR drill"]
+        },
+        {
+          "topic": "MariaDB on Kubernetes with the MariaDB Operator",
+          "subtopics": ["Operator custom resources: MariaDB, MaxScale, Backup, Restore and SqlJob", "StatefulSets, PersistentVolumeClaims and storage classes", "Replication and Galera topologies defined in the MariaDB resource", "Automated failover by the operator", "Scheduled backups to S3-compatible storage", "Secrets, TLS certificates and cert-manager", "Resource requests, limits and InnoDB buffer pool sizing", "Rolling updates and PodDisruptionBudgets", "Connecting applications with the Connection resource", "Monitoring with the built-in exporter"],
+          "tools": ["Kubernetes", "MariaDB Operator", "Helm", "kubectl", "Prometheus", "cert-manager"],
+          "lab_task": "Install the operator with Helm into a kind cluster. Apply a MariaDB resource with replicas: 3 and Galera enabled, a Backup resource scheduled every 10 minutes to MinIO, and a MaxScale resource. Run kubectl get mariadb,pods,backups, delete one pod during a write loop, and record recovery time. Restore into a new MariaDB with a Restore resource.",
+          "deliverable": "Manifests, kubectl output of the healthy cluster and a pod-failure test",
+          "checks": [["kubectl get mariadb mariadb-galera", "Ready is True with 3 replicas", "kubectl output"], ["Delete one database pod during a write loop", "The pod is recreated and rejoins and the write loop sees only a brief error window", "Pod events and loop log"], ["Apply a Restore resource to a new cluster", "Row counts equal the backed-up database", "Query output"]],
+          "objectives": ["Declare MariaDB clusters as Kubernetes resources", "Operate backups and failover on Kubernetes", "Size resources for InnoDB"]
+        },
+        {
+          "topic": "Migrating to MariaDB from Oracle and MySQL",
+          "subtopics": ["sql_mode=ORACLE and what it enables", "PL/SQL-compatible packages, %TYPE, %ROWTYPE and DECODE", "VARCHAR2, NUMBER and DATE mapping", "Sequences replacing Oracle sequences, ROWNUM and CONNECT BY alternatives", "Schema conversion and the gaps that remain", "Data movement with CSV, mariadb-dump and change data capture", "Migrating MySQL: authentication, collation and JSON differences", "Validation with row counts and checksum queries", "Cutover plan with reverse replication", "Application SQL rewrite list"],
+          "tools": ["MariaDB Server", "sql_mode=ORACLE", "mariadb-dump", "Debezium", "DBeaver"],
+          "lab_task": "Under SET sql_mode='ORACLE' create a package-style procedure using a VARCHAR2 parameter, a sequence and DECODE, and port a three-table Oracle sample schema. Migrate 1 million rows via CSV and LOAD DATA, then run a checksum query per table against the source. List five statements that needed rewriting and why.",
+          "deliverable": "Conversion notes, a rewrite list and per-table validation results",
+          "checks": [["Compare row counts for the three tables between source and target", "Counts are identical", "Query output"], ["Run a procedure with VARCHAR2 and DECODE under sql_mode=ORACLE", "It compiles and returns the expected value", "Client output"], ["Run the same code without sql_mode=ORACLE", "ERROR 1064 syntax error", "Error message"]],
+          "objectives": ["Use Oracle compatibility mode", "Migrate and validate data", "Plan a cutover with a rollback path"]
+        },
+        {
+          "topic": "Managed MariaDB Services and Cloud Operations",
+          "subtopics": ["Amazon RDS for MariaDB parameter groups and option groups", "Multi-AZ versus read replicas", "Backups, snapshots and point-in-time restore on RDS", "MariaDB Cloud as the vendor-managed service", "Limits of managed services: no SUPER, no filesystem access", "Parameter differences from self-managed tuning", "Network, IAM and encryption with KMS", "Cost drivers: instance class, IOPS, storage and cross-AZ traffic", "Cross-region read replicas", "Choosing managed versus self-managed"],
+          "tools": ["Amazon RDS", "AWS CLI", "Terraform", "mariadb client", "CloudWatch"],
+          "lab_task": "With Terraform create an RDS for MariaDB instance with a custom parameter group (innodb_buffer_pool_size set by formula, slow_query_log=1, long_query_time=1), a read replica and 7-day backups. Connect with the mariadb client over TLS. Run aws rds restore-db-instance-to-point-in-time and record time to restore. Estimate monthly cost of two sizing options.",
+          "deliverable": "Terraform code, restore timing and a two-option cost comparison",
+          "checks": [["Run SHOW VARIABLES LIKE 'long_query_time' on the instance", "Returns 1.000000 from the parameter group", "Query output"], ["aws rds restore-db-instance-to-point-in-time", "A new instance becomes available and the elapsed time is recorded", "AWS CLI output"], ["GRANT SUPER on the managed instance", "An access denied error is returned because SUPER is restricted", "Error message"]],
+          "objectives": ["Operate MariaDB on a managed service", "Translate tuning into parameter groups", "Compare managed and self-managed cost"]
+        },
+        {
+          "topic": "Fleet Observability and Capacity Planning",
+          "subtopics": ["SLIs and SLOs for a database: latency, availability and replication lag", "Fleet inventory and labels", "Trend metrics: data growth, connections, buffer pool misses and redo pressure", "Forecasting with predict_linear in Prometheus", "Capacity headroom rules for CPU, memory, IOPS and disk", "Query-level observability with Performance Schema digests", "MaxScale and Galera metrics in one dashboard", "Load tests to find a saturation point", "Cost per transaction reporting", "Quarterly capacity review template"],
+          "tools": ["Prometheus", "Grafana", "mysqld_exporter", "sysbench", "MariaDB MaxScale"],
+          "lab_task": "Using Prometheus data from three databases, write predict_linear(mysql_info_schema_table_size[7d], 30*24*3600) to forecast disk, build a Grafana dashboard with replication lag, threads_running, buffer pool miss rate and wsrep_flow_control_paused, and run a sysbench ramp from 16 to 512 threads to find the knee in the TPS curve. Write the SLO and alert thresholds.",
+          "deliverable": "Dashboard JSON, saturation curve and a capacity memo with the 30-day forecast",
+          "checks": [["Run predict_linear on table size", "Returns a forecast number that exceeds current size and is stated in the memo", "Prometheus query result"], ["sysbench ramp from 16 to 512 threads", "A knee is identified where TPS stops increasing and latency rises", "TPS and latency graph"], ["Fire an alert for replication lag above the SLO", "The alert reaches the receiver with lag value and server label", "Alertmanager payload"]],
+          "objectives": ["Define SLOs for MariaDB", "Forecast capacity with data", "Find the saturation point of a node"]
+        },
+        {
+          "topic": "Troubleshooting Production MariaDB Incidents",
+          "subtopics": ["Triage order: availability, errors, saturation, recent changes", "Reading the error log and error codes 1040, 1205, 1213, 2002 and 2013", "Too many connections and the extra_port escape", "InnoDB crash recovery and innodb_force_recovery levels", "Corrupted tables: CHECK TABLE, REPAIR TABLE for Aria and recovery from backups", "Replication breaks: error 1062, 1032 and 1236", "Galera failures: SST failures, grastate.dat and wsrep_recover", "Disk full and tmpdir exhaustion", "Runaway queries and KILL QUERY with max_statement_time", "Post-incident review and prevention"],
+          "tools": ["MariaDB Server", "mariadb client", "journalctl", "gdb", "Percona Toolkit"],
+          "lab_task": "Run a game day with five injected faults: fill max_connections, break replication with a conflicting insert, kill -9 mariadbd during writes, corrupt an Aria table, and stop a Galera node with a removed grastate.dat. Diagnose each from logs and status only, fix it, and write a one page incident note per fault with the first symptom, root cause, fix and prevention.",
+          "deliverable": "Five incident notes and a timeline with time to detect and time to resolve",
+          "checks": [["Exceed max_connections", "ERROR 1040 Too many connections and the admin connects through extra_port", "Error and session output"], ["Break replication with a conflicting insert", "Last_SQL_Errno 1062 is identified and fixed with the correct row repair, not a blind skip", "SHOW REPLICA STATUS output"], ["kill -9 mariadbd during writes then start", "InnoDB crash recovery completes and committed rows are present", "Error log excerpt and row count"]],
+          "objectives": ["Triage incidents in a fixed order", "Diagnose from logs and status variables", "Write blameless incident reviews"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Region MariaDB Platform with Galera, MaxScale and Vector",
+          "subtopics": ["Three-node Galera cluster with MaxScale and a DR async replica", "Encrypted tables, TLS and audit evidence", "Vector search service with hybrid retrieval and tenant filters", "Backup, point-in-time recovery and a timed DR drill", "Observability with SLOs and a capacity forecast", "Architecture, runbooks and a final review"],
+          "tools": ["MariaDB Galera Cluster", "MariaDB MaxScale", "MariaDB Vector", "mariadb-backup", "Prometheus", "Kubernetes"],
+          "lab_task": "Build the platform: Galera with three nodes plus MaxScale, an async DR replica with 80 ms latency, encrypted tables, TLS and server_audit, a documents table with VECTOR(384) and a vector index, and dashboards with SLO alerts. Run sysbench and a vector query load, inject a node failure and a region failover, and measure RTO, RPO, TPS and recall at 10.",
+          "deliverable": "Repository with infrastructure code, configuration, runbooks, dashboards and a results report covering RTO, RPO, TPS and recall",
+          "checks": [["Kill one Galera node during load", "MaxScale keeps serving, wsrep_cluster_size drops to 2 and the node rejoins by IST", "maxctrl and status output"], ["Fail over to the DR replica", "Measured RTO and RPO meet the stated targets", "Drill log"], ["Run 100 vector queries with the index", "Recall at 10 is at least 0.9 against exact search", "Evaluation script output"]],
+          "objectives": ["Deliver a resilient multi-region MariaDB platform", "Demonstrate security, recovery and vector search together", "Defend the design with measured results"]
+        }
+      ]
+    }
+  }
+}

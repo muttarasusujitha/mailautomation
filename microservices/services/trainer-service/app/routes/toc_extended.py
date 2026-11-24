@@ -243,7 +243,7 @@ async def list_lab_cost_requests(limit: int = Query(default=100, ge=1, le=250), 
          "duration_days": 1, "training_dates": 1, "participant_count": 1,
          "hours_per_day": 1, "cloud_provider": 1, "cloud_region": 1, "status": 1,
          "lab_context": 1, "created_at": 1, "updated_at": 1, "workbook_filename": 1,
-         "pricing_review_required": 1, "rate_change_summary": 1},
+         "pricing_review_required": 1, "rate_change_summary": 1, "lab_client_price": 1},
     ).sort("updated_at", -1).limit(limit)]
     items = []
     for request in requests:
@@ -280,7 +280,7 @@ async def get_lab_cost_request(requirement_id: str, db=Depends(get_db)):
                 "domain", "duration_days", "training_dates", "participant_count", "hours_per_day",
                 "cloud_provider", "cloud_region", "mode", "topics", "custom_topics", "toc_or_topics",
                 "status", "created_at", "updated_at", "workbook_filename", "pricing_review_required",
-                "rate_change_summary",
+                "rate_change_summary", "lab_client_price",
             ) if request.get(key) is not None
         } | {"missing_inputs": context.get("missing_quote_inputs") or [], "known_inputs": context.get("known_inputs") or {}},
         "original_message": {

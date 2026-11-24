@@ -1,9 +1,10 @@
 """LinkedIn account lead discovery, with optional public and Tavily providers."""
 import logging
+import os
 import re
 import time
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 from typing import Literal
 
@@ -41,6 +42,7 @@ class LinkedInLeadSearchRequest(BaseModel):
     save: bool = True
     mode: Literal['trainer', 'client'] = "trainer"
     source: Optional[str] = "linkedin"
+    queue_retry_on_blocked: bool = True
 
 
 class BackfillClientContactsRequest(BaseModel):
@@ -63,6 +65,57 @@ async def _post_with_local_fallback(
                 fallback_url = local_base + url[len(service_base):]
                 return await client.post(fallback_url, **kwargs)
         raise
+
+
+def _retry_after_from_outcome(outcome: Dict[str, Any]) -> datetime:
+    """Use a reported cooldown where possible; otherwise retry soon and safely."""
+    message = " ".join(str(value or "") for value in (
+        outcome.get("primary_error"), outcome.get("reason"), outcome.get("limit_reason"),
+        *[item.get("error", "") if isinstance(item, dict) else item for item in outcome.get("warnings") or []],
+    ))
+    match = re.search(r"retrying after\s+(\d{1,2}):(\d{2})\s+UTC", message, flags=re.IGNORECASE)
+    now = datetime.utcnow()
+    if match:
+        candidate = now.replace(hour=int(match.group(1)), minute=int(match.group(2)), second=0, microsecond=0)
+        if candidate <= now:
+            candidate += timedelta(days=1)
+        return candidate + timedelta(minutes=1)
+    match = re.search(r"paused until\s+(\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2})\s+UTC", message, flags=re.IGNORECASE)
+    if match:
+        try:
+            return datetime.strptime(match.group(1), "%Y-%m-%d %H:%M") + timedelta(minutes=1)
+        except ValueError:
+            pass
+    return now + timedelta(minutes=15)
+
+
+async def _queue_blocked_trainer_domains(db, payload: LinkedInLeadSearchRequest, outcomes: List[Dict[str, Any]]) -> List[Dict[str, str]]:
+    """Persist transiently blocked trainer searches for the service retry loop."""
+    if payload.mode != "trainer" or not payload.queue_retry_on_blocked:
+        return []
+    try:
+        retries_collection = db["lead_search_retries"]
+    except (KeyError, TypeError):
+        # Unit callers and legacy deployments may not expose this collection
+        # yet. The next normal MongoDB run creates it automatically.
+        return []
+    queued = []
+    for outcome in outcomes:
+        if str(outcome.get("status") or "").lower() not in {"blocked", "no_results"}:
+            continue
+        domain = str(outcome.get("domain") or "").strip()
+        if not domain:
+            continue
+        next_attempt_at = _retry_after_from_outcome(outcome)
+        key = f"trainer:{domain.lower()}"
+        await retries_collection.update_one({"_id": key}, {"$set": {
+            "mode": "trainer", "domain": domain, "location": str(payload.location or "").strip(),
+            "status": "queued", "next_attempt_at": next_attempt_at,
+            "last_reason": str(outcome.get("primary_error") or outcome.get("reason") or "Sources temporarily unavailable.")[:800],
+            "updated_at": datetime.utcnow(),
+        }, "$setOnInsert": {"created_at": datetime.utcnow(), "attempt_count": 0}}, upsert=True)
+        queued.append({"domain": domain, "next_attempt_at": next_attempt_at.isoformat() + "Z"})
+    return queued
 
 
 def _slug_from_url(url: str) -> str:
@@ -576,7 +629,21 @@ async def search_linkedin_leads(
                 raw_results, outcome = await discover_with_trainer_finder(
                     domain, domain_goal, payload.location or '', db, raw_results, outcome,
                     time_left=_SEARCH_TIME_LIMIT - (time.monotonic() - search_started), mode=mode)
-            elif len(raw_results) < domain_goal and should_use_public_fallback:
+            # Tavily is independent of LinkedIn and key-free engine cooldowns.
+            # When configured, it can fill the remaining trainer profiles while
+            # those sources are unavailable. Results remain fully validated.
+            if mode == 'trainer' and os.environ.get('TAVILY_API_KEY', '').strip() and len(raw_results) < domain_goal:
+                try:
+                    tavily_rows = await _plain_tavily_search(
+                        f'{domain} corporate trainer instructor India', min(20, domain_goal - len(raw_results)))
+                    raw_results.extend(tavily_rows)
+                    outcome = {**outcome, 'fallback_source': 'tavily',
+                               'matched': len(raw_results), 'target_met': len(raw_results) >= domain_goal,
+                               'status': 'target_met' if len(raw_results) >= domain_goal else 'partial' if raw_results else outcome.get('status', 'no_results')}
+                except Exception as exc:
+                    outcome = {**outcome, 'warnings': [*(outcome.get('warnings') or []),
+                                                        {'source': 'tavily', 'error': str(exc)[:300]}]}
+            if len(raw_results) < domain_goal and should_use_public_fallback:
                 account_results = list(raw_results)
                 try:
                     fallback_results, fallback_outcome = await discover_public_fallback(
@@ -733,6 +800,7 @@ async def search_linkedin_leads(
             if 'time limit' not in str(item.get('error') or '').lower()
         ]
 
+    retries = await _queue_blocked_trainer_domains(db, payload, domain_outcomes)
     return {
         "success": not search_errors,
         "domain_outcomes": domain_outcomes,
@@ -744,6 +812,7 @@ async def search_linkedin_leads(
         "skipped": skipped[:20],
         "found": len(all_results),
         "results": all_results,
+        "queued_retries": retries,
     }
 
 

@@ -1,9 +1,15 @@
 from app.toc_generation_agent import _subtopic_target, generate_toc_from_dataset, resolve_content_level
 from app.toc_domain_dataset import COMPACT_DOMAINS, _load_compact_domains
 
+# A compact dataset key with no level course, used to test the catalog (non-level) path.
+# Kotlin itself now has a level course, so tests that need the old path use its compact file.
+CATALOG_ONLY = "kotlin_15"
+# DevOps now has a level course; its curated catalog path is still reachable by dataset key.
+DEVOPS_CATALOG = "devops_30"
+
 
 def test_intermediate_toc_is_cumulative_and_keeps_foundations():
-    toc = generate_toc_from_dataset("DevOps", 10, level="intermediate")
+    toc = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="intermediate")
 
     titles = " ".join(day["focus_area"].lower() for day in toc["days"])
     assert "linux fundamentals" in titles
@@ -14,7 +20,7 @@ def test_intermediate_toc_is_cumulative_and_keeps_foundations():
 
 
 def test_intermediate_ten_day_devops_path_is_ordered_and_does_not_add_azure():
-    toc = generate_toc_from_dataset("DevOps", 10, level="intermediate")
+    toc = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="intermediate")
     titles = [day["focus_area"] for day in toc["days"]]
 
     assert titles == [
@@ -48,16 +54,16 @@ def test_devops_toc_supports_every_duration_from_one_to_thirty_without_azure_sco
 
 
 def test_beginner_toc_retains_progressive_foundations():
-    toc = generate_toc_from_dataset("DevOps", 10, level="beginner")
+    toc = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="beginner")
 
     titles = " ".join(day["focus_area"].lower() for day in toc["days"])
     assert any(marker in titles for marker in ("basics", "fundamentals", "orientation"))
 
 
 def test_levels_use_distinct_ordered_depth_bands():
-    beginner = generate_toc_from_dataset("DevOps", 10, level="beginner")
-    intermediate = generate_toc_from_dataset("DevOps", 10, level="intermediate")
-    advanced = generate_toc_from_dataset("DevOps", 10, level="advanced")
+    beginner = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="beginner")
+    intermediate = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="intermediate")
+    advanced = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="advanced")
 
     beginner_titles = [day["focus_area"] for day in beginner["days"]]
     intermediate_titles = [day["focus_area"] for day in intermediate["days"]]
@@ -132,10 +138,10 @@ def test_knowledge_mixed_includes_foundation_core_and_advanced():
 
 
 def test_mixed_compact_track_spans_early_and_later_days():
-    mixed = generate_toc_from_dataset("DevOps", 10, level="mixed")
-    beginner = generate_toc_from_dataset("DevOps", 10, level="beginner")
-    intermediate = generate_toc_from_dataset("DevOps", 10, level="intermediate")
-    advanced = generate_toc_from_dataset("DevOps", 10, level="advanced")
+    mixed = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="mixed")
+    beginner = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="beginner")
+    intermediate = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="intermediate")
+    advanced = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="advanced")
     mixed_titles = [day["focus_area"] for day in mixed["days"]]
     assert mixed["level"] == "mixed"
     assert mixed_titles[0] == "DevOps Orientation, SDLC and Agile Delivery"
@@ -182,8 +188,8 @@ def test_python_days_have_ten_concrete_subtopics():
 
 
 def test_short_advanced_compact_toc_skips_the_introductory_days():
-    beginner = [day["focus_area"] for day in generate_toc_from_dataset("Kotlin", 5, level="beginner")["days"]]
-    advanced = [day["focus_area"] for day in generate_toc_from_dataset("Kotlin", 5, level="advanced")["days"]]
+    beginner = [day["focus_area"] for day in generate_toc_from_dataset(CATALOG_ONLY, 5, level="beginner")["days"]]
+    advanced = [day["focus_area"] for day in generate_toc_from_dataset(CATALOG_ONLY, 5, level="advanced")["days"]]
     assert beginner[0] == "Kotlin Introduction and Environment Setup"
     assert not set(advanced[:-1]) & set(beginner[:-1])
     assert "capstone" in advanced[-1].lower()
@@ -193,7 +199,7 @@ def test_level_days_carry_scenarios_and_catalog_days_keep_their_assessment():
     level_day = generate_toc_from_dataset("Kubernetes", 5, level="intermediate")["days"][1]
     assert len(level_day["scenarios"]) == len(level_day["acceptance_checks"]) == 3
     assert level_day["scenarios"][0]["outcome"] == level_day["acceptance_checks"][0]["expected_result"]
-    catalog_days = generate_toc_from_dataset("Kotlin", 5, level="intermediate")["days"]
+    catalog_days = generate_toc_from_dataset(CATALOG_ONLY, 5, level="intermediate")["days"]
     assert all(not day["assessment"].startswith("Daily knowledge check") for day in catalog_days)
 
 
@@ -254,7 +260,7 @@ def test_long_programmes_use_all_course_content_before_practice_days():
 
 
 def test_practice_days_build_on_taught_topics_and_are_disclosed():
-    toc = generate_toc_from_dataset("Kotlin", 30, level="intermediate")
+    toc = generate_toc_from_dataset(CATALOG_ONLY, 30, level="intermediate")
     practice = [day for day in toc["days"] if day["focus_area"].startswith("Project Sprint")]
     assert practice and len(practice) == toc["practice_days"]
     taught = [day["focus_area"] for day in toc["days"] if not day["focus_area"].startswith("Project Sprint")]
@@ -305,7 +311,7 @@ def test_advanced_check_ignores_fundamentals_of_a_subject():
 
 
 def test_mostly_practice_long_programmes_need_review():
-    toc = generate_toc_from_dataset("Kotlin", 60, level="intermediate")
+    toc = generate_toc_from_dataset(CATALOG_ONLY, 60, level="intermediate")
     assert toc["practice_days"] * 2 > 60
     assert toc["quality"]["status"] == "requires_review"
 
@@ -343,3 +349,52 @@ def test_long_programmes_keep_borrowed_days_before_the_advanced_end():
     titles = [day["focus_area"] for day in generate_toc_from_dataset("Java", 90, level="intermediate")["days"]]
     assert not any(re.search(r"\b(basics|fundamentals)\b", title, re.I) for title in titles[len(titles) // 2:])
     assert titles[-1].startswith("Advanced Capstone")
+
+
+def test_devops_uses_its_level_course_with_timed_modules():
+    for level, first in (("beginner", "DevOps Culture and the CALMS Model"),
+                         ("intermediate", "Trunk-Based Development with Short-Lived Branches"),
+                         ("advanced", "From Ticket Queues to Self-Service Delivery")):
+        toc = generate_toc_from_dataset("DevOps", 10, level=level)
+        assert toc["days"][0]["focus_area"] == first, level
+        assert "capstone" in toc["days"][-1]["focus_area"].lower(), level
+        assert toc["quality"]["status"] == "approved", level
+        for day in toc["days"]:
+            assert 3 <= len(day["modules"]) <= 4, day["focus_area"]
+            assert sum(module["minutes"] for module in day["modules"]) == 420, day["focus_area"]
+            assert all(len(module["scenarios"]) >= 3 for module in day["modules"]), day["focus_area"]
+
+
+def test_devops_days_carry_an_ordered_subtopic_roadmap():
+    from app.level_curriculum import ROADMAP_STAGES
+    from app.toc_pdf_template import build_toc_html
+    toc = generate_toc_from_dataset("DevOps", 5, level="beginner")
+    for day in toc["days"]:
+        stages = [step["stage"] for step in day["roadmap"]]
+        assert 3 <= len(stages) <= 5, day["focus_area"]
+        assert [ROADMAP_STAGES.index(s) for s in stages] == sorted(ROADMAP_STAGES.index(s) for s in stages)
+        # The flat subtopics follow the roadmap order, so every export reads the same way.
+        assert day["subtopics"] == [item for step in day["roadmap"] for item in step["subtopics"]]
+    html = build_toc_html(toc)
+    assert html.count("Learning Roadmap") == 5
+    assert "Step 1: Understand" in html
+
+
+def test_roadmap_validation_rejects_missing_subtopics_and_bad_order():
+    from app.level_curriculum import _roadmap_problems
+    day = {"subtopics": ["a", "b", "c"]}
+    good = [{"stage": "Understand", "subtopics": ["a"]}, {"stage": "Build", "subtopics": ["b"]},
+            {"stage": "Verify", "subtopics": ["c"]}]
+    assert _roadmap_problems({**day, "roadmap": good}, "Day 1") == []
+    assert "exactly once" in _roadmap_problems({**day, "roadmap": good[:2] + [{"stage": "Verify", "subtopics": ["x"]}]}, "Day 1")[0]
+    assert "follow" in _roadmap_problems({**day, "roadmap": list(reversed(good))}, "Day 1")[0]
+    assert "3 to 5" in _roadmap_problems({**day, "roadmap": good[:2]}, "Day 1")[0]
+
+
+def test_days_without_modules_show_their_roadmap_as_topic_groups():
+    from app.course_outline import outline_from_flat
+    outline = outline_from_flat({"subtopics": ["a", "b", "c"], "roadmap": [
+        {"stage": "Understand", "subtopics": ["a"]}, {"stage": "Build", "subtopics": ["b"]},
+        {"stage": "Verify", "subtopics": ["c"]}]})
+    assert [group["heading"] for group in outline["topic_groups"]] == [
+        "Step 1: Understand", "Step 2: Build", "Step 3: Verify"]

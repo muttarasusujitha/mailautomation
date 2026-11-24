@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     CORE_API_URL: str = "http://core-api:8001"
     INTERNAL_SERVICE_TOKEN: str = ""
 
+    # Live travel supplier. Keep these only in the service environment; never
+    # expose them to the browser or store them in a booking task.
+    AMADEUS_CLIENT_ID: str = ""
+    AMADEUS_CLIENT_SECRET: str = ""
+    AMADEUS_API_BASE_URL: str = "https://test.api.amadeus.com"
+
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-3.5-flash-lite"
     ANTHROPIC_API_KEY: str = ""

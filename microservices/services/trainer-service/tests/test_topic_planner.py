@@ -25,10 +25,12 @@ def test_without_topics_the_level_course_is_used_unchanged():
 def test_topics_taught_at_another_level_are_explained():
     toc = generate_toc_from_dataset("Docker", 3, level="intermediate",
                                     requested_topics="Docker Compose, Multi-stage builds, Docker Swarm")
+    # Docker Compose has its own level course, so its intermediate day is borrowed and needs no
+    # level note; the other two topics only exist as beginner Docker days.
     assert [day["focus_area"] for day in toc["days"]] == [
-        "Docker Compose for Multi-Container Apps", "Multi-Stage Builds and Smaller Images",
-        "Docker Swarm and Moving to Orchestration"]
-    assert len(toc["topic_plan"]["level_notes"]) == 3
+        "Multi-Stage Builds and Smaller Images", "Docker Swarm and Moving to Orchestration",
+        "Single-Host Production with Docker Compose"]
+    assert len(toc["topic_plan"]["level_notes"]) == 2
     assert all("more depth" in note for note in toc["topic_plan"]["level_notes"])
 
 
@@ -93,7 +95,7 @@ def test_model_draft_modules_need_review(monkeypatch):
 
 
 def test_the_standard_plan_is_kept_when_it_already_covers_the_topics():
-    toc = generate_toc_from_dataset("DevOps", 10, level="intermediate", requested_topics="DevOps; Jenkins; Docker; Kubernetes")
+    toc = generate_toc_from_dataset("devops_30", 10, level="intermediate", requested_topics="DevOps; Jenkins; Docker; Kubernetes")
     titles = [day["focus_area"] for day in toc["days"]]
     assert titles[:3] == ["DevOps Orientation, SDLC and Agile Delivery", "Linux Fundamentals for DevOps", "Git and GitHub Collaboration"]
     assert toc["topic_plan"]["missing"] == []
