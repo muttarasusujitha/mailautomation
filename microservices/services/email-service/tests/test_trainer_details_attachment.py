@@ -58,6 +58,37 @@ def test_missing_trainer_details_followup_blocks_unknown_recipient_mismatch():
     assert result["reason"] == "trainer_followup_recipient_mismatch"
 
 
+def test_slot_followup_is_sent_once():
+    db = {
+        "email_logs": SimpleNamespace(find_one=AsyncMock(return_value={"email_id": "EML-1", "status": "sent"})),
+        "shortlists": SimpleNamespace(update_one=AsyncMock()),
+    }
+    result = asyncio.run(_send_missing_trainer_details_followup(
+        db,
+        email_doc={
+            "requirement_id": "REQ-1",
+            "trainer_id": "TR-1",
+            "from_email": "trainer@example.com",
+        },
+        requirement={"client_email": "client@example.com"},
+        trainer_state={"email": "trainer@example.com"},
+        missing_details=["Exactly three interview/discussion slots (date, time, and time zone)"],
+        now=None,
+    ))
+    assert result["already_attempted"] is True
+    assert result["success"] is True
+    db["shortlists"].update_one.assert_not_awaited()
+
+
+def test_missing_three_slots_is_one_followup_and_valid_slots_are_not():
+    from app.routes.inbox import _mail1_reply_followup_gaps
+    slots = "Exactly three interview/discussion slots (date, time, and time zone)"
+    assert _mail1_reply_followup_gaps([], "unknown") == [slots]
+    assert _mail1_reply_followup_gaps(["LinkedIn Profile"], "unclear_slots") == ["LinkedIn Profile", slots]
+    assert _mail1_reply_followup_gaps(["LinkedIn Profile"], "valid_slots") == ["LinkedIn Profile"]
+    assert _mail1_reply_followup_gaps([], "valid_slots") == []
+
+
 def test_cv_attachment_supplies_profile_and_experience_for_slot_mail():
     reply = (
         "linkedin: https://www.linkedin.com/in/john-doe/\n"

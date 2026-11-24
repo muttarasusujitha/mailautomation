@@ -996,6 +996,54 @@ def _should_start_trainer_automation(subject: str, email_doc: Dict[str, Any], ex
     )
 
 
+def _confirmed_requirement_on_first_client_mail(
+    subject: str,
+    email_doc: Dict[str, Any],
+    extracted: Dict[str, Any],
+) -> bool:
+    """Mail 1 starts on the opening confirmed client mail, without a later authorizing reply."""
+    if extracted.get("is_non_client_email") or not _has_training_domain(extracted):
+        return False
+    if email_doc.get("trainer_automation_status") in {"started", "no_trainers_emailed"}:
+        return False
+    if _is_reply_thread(subject, email_doc):
+        return False
+    source = _strip_quoted_email_history(
+        email_doc.get("classification_body")
+        or email_doc.get("clean_body")
+        or email_doc.get("raw_body")
+        or email_doc.get("body")
+        or extracted.get("client_requirement_text")
+        or ""
+    )
+    return _requirement_flow_from_email(extracted, source) == "confirmed"
+
+
+def _should_send_trainer_mail1_now(
+    *,
+    automation_ready: bool,
+    confirmed_first_mail: bool,
+    is_first_client_mail: bool,
+    explicit_trainer_authorization: bool,
+    details_ready_on_client_reply: bool,
+    is_training_request: bool,
+    has_domain: bool,
+) -> bool:
+    """Confirmed intake sends Mail 1 immediately. Other mail waits for authorization."""
+    return bool(
+        (automation_ready or confirmed_first_mail)
+        and (
+            confirmed_first_mail
+            or (
+                not is_first_client_mail
+                and (explicit_trainer_authorization or details_ready_on_client_reply)
+            )
+        )
+        and (is_training_request or confirmed_first_mail)
+        and has_domain
+    )
+
+
 def _trainer_automation_update(send_result: Dict[str, Any]) -> Dict[str, Any]:
     sent_count = _safe_int(send_result.get("sent"), 0)
     total_count = _safe_int(send_result.get("total"), 0)
@@ -2389,7 +2437,9 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         lower,
         flags=re.IGNORECASE | re.DOTALL,
     ))
-    lab_cost_requested = lab_delivery_requested or explicit_lab_cost_requested
+    # Only an explicit lab-cost request attaches the workbook. A mention of
+    # lab tools, setup, access, or a local/cloud lab must not force it.
+    lab_cost_requested = explicit_lab_cost_requested
     lab_hours_per_day = None
     total_lab_duration_hours = None
     lab_daily_match = re.search(
@@ -2398,7 +2448,7 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         text,
         flags=re.IGNORECASE,
     )
-    if lab_daily_match and lab_cost_requested:
+    if lab_daily_match and (lab_cost_requested or lab_delivery_requested):
         lab_hours_per_day = _safe_float(lab_daily_match.group(1))
     lab_total_match = re.search(r"\btotal\s+lab\s+duration\s*:\s*(\d+(?:\.\d+)?)\s*hours?", text, flags=re.IGNORECASE)
     if lab_total_match:
@@ -4406,6 +4456,22 @@ async def _send_missing_trainer_details_followup(
         "office_mail_category": "trainer_interested",
     }
     message = _trainer_mail2_details_reply(followup_doc)
+    if await _global_ai_wording_enabled(db):
+        rewritten, generation_source = await _client_pipeline_email_body(
+            db,
+            requirement=requirement,
+            workflow="trainer_mail2_followup",
+            subject=message["subject"],
+            reference_body=message["body"],
+            context={
+                "trainer_name": followup_doc.get("trainer_name") or "",
+                "missing_items": clean_missing,
+                "batch_type": "confirmed",
+            },
+        )
+        message = {**message, "body": rewritten, "generation_source": generation_source}
+    else:
+        message = {**message, "generation_source": "confirmed_body"}
     # Reuse the standard, idempotent sender but explicitly mark this as the
     # one permitted missing-details follow-up, not the old generic Mail 2.
     send_result = await _send_client_auto_reply(
@@ -5326,18 +5392,15 @@ def _trainer_missing_requested_details(
     return missing
 
 
-DATED_SLOT_FOLLOWUP = "Exactly three dated interview/discussion slots (date, time, and time zone)"
+SLOT_FOLLOWUP_ITEM = "Exactly three interview/discussion slots (date, time, and time zone)"
 
 
-def _with_missing_dated_slots(missing: List[str], reply_text: Any) -> List[str]:
-    """An interested reply without three dated slots gets one Mail 2, not a second one later."""
-    items = [item for item in missing if _clean(item)]
-    if _slot_reply_intent(reply_text) == "valid_slots":
-        return items
-    if any("slot" in item.lower() for item in items):
-        return items
-    items.append(DATED_SLOT_FOLLOWUP)
-    return items
+def _mail1_reply_followup_gaps(missing_details: List[str], slot_intent: str) -> List[str]:
+    """One follow-up covers missing profile details and omitted dated slots."""
+    gaps = list(dict.fromkeys(_clean(item) for item in (missing_details or []) if _clean(item)))
+    if slot_intent != "valid_slots" and SLOT_FOLLOWUP_ITEM not in gaps:
+        gaps.append(SLOT_FOLLOWUP_ITEM)
+    return gaps
 
 
 def _trainer_reply_has_requested_details(
@@ -13838,9 +13901,9 @@ async def _process_client_requirement_email(
         document_review = await _persist_trainer_requirement_fit(
             db, email_doc, mail2_requirement, current_trainer_state,
         )
-        missing_requested_details = _with_missing_dated_slots(
+        missing_requested_details = _mail1_reply_followup_gaps(
             _trainer_missing_requested_details(evidence_text, mail2_requirement, evidence_doc),
-            latest_reply_text,
+            _slot_reply_intent(latest_reply_text),
         )
         if missing_requested_details:
             # If three valid slots were already provided with this partial
@@ -13938,21 +14001,39 @@ async def _process_client_requirement_email(
                     },
                 )
             else:
-                # Mail 1 already contains the requested slot format. Do not
-                # generate a second slot request when the reply omits it.
+                # Availability without exactly three dated slots gets the same
+                # one Mail 2 follow-up used for a missing CV, profile, LinkedIn
+                # URL, or experience. The sender refuses a second request.
+                followup_result = await _send_missing_trainer_details_followup(
+                    db,
+                    email_doc={
+                        **trainer_doc,
+                        "trainer_name": email_doc.get("trainer_name") or current_trainer_state.get("name") or current_trainer_state.get("trainer_name"),
+                    },
+                    requirement=mail2_requirement,
+                    trainer_state=current_trainer,
+                    missing_details=_mail1_reply_followup_gaps([], slot_intent),
+                    now=now,
+                )
+                followup_success = bool(followup_result.get("success") or followup_result.get("already_attempted"))
                 slot_result = {
-                    "attempted": False,
-                    "success": False,
-                    "reason": "interested_reply_missing_valid_slots",
+                    "attempted": True,
+                    "success": followup_success,
+                    "followup_sent": bool(followup_result.get("success")) and not followup_result.get("already_attempted"),
+                    "already_attempted": bool(followup_result.get("already_attempted")),
+                    "reason": "one_missing_slot_followup",
                     "intent": slot_intent,
+                    "error": "" if followup_success else _clean(followup_result.get("error") or followup_result.get("reason")),
+                    "email_id": followup_result.get("email_id") or "",
                 }
             handoff_retry_pending = _client_handoff_retry_pending(slot_result)
+            slot_followup = slot_result.get("reason") == "one_missing_slot_followup"
             update = {
                 "processed": not handoff_retry_pending,
                 "processed_at": now,
-                "status": "processed" if slot_result.get("pending_approval") else "processed" if slot_result.get("success") else "pending_retry" if handoff_retry_pending else "needs_manual_review",
-                "reply_status": "client_handoff_pending_approval" if slot_result.get("pending_approval") else "slots_sent_to_client" if slot_result.get("success") else "client_handoff_retry_pending" if handoff_retry_pending else "interested_without_slots",
-                "reply_template_key": "client_slots" if slot_result.get("success") else "trainer_interested",
+                "status": "processed" if slot_result.get("pending_approval") or slot_followup and slot_result.get("success") else "processed" if slot_result.get("success") else "pending_retry" if handoff_retry_pending else "needs_manual_review",
+                "reply_status": "missing_details_followup_sent" if slot_followup and slot_result.get("success") else "client_handoff_pending_approval" if slot_result.get("pending_approval") else "slots_sent_to_client" if slot_result.get("success") else "client_handoff_retry_pending" if handoff_retry_pending else "interested_without_slots",
+                "reply_template_key": "mail2_followup" if slot_followup else "client_slots" if slot_result.get("success") else "trainer_interested",
                 "email_classification": {"person_type": "trainer", "scenario": "trainer_interested"},
                 "office_mail_category": "trainer_interested",
                 "trainer_details_received": not bool(missing_requested_details),
@@ -14132,7 +14213,14 @@ async def _process_client_requirement_email(
         # slots must go directly to the client handoff instead of triggering
         # another request for the same trainer details.
         legacy_slot_intent = _slot_reply_intent(latest_mail2_details_body)
-        if legacy_slot_intent in {"valid_slots", "unclear_slots", "too_many_slots", "rejected"}:
+        # A reply to the one slot follow-up is not asked again. Valid slots
+        # still go straight to the client. An older Mail 2 thread may send
+        # that single follow-up when the slots were never requested.
+        slot_followup_already_used = source_mail_type == "mail2_followup"
+        if legacy_slot_intent == "valid_slots" or (
+            not slot_followup_already_used
+            and legacy_slot_intent in {"unclear_slots", "too_many_slots", "rejected"}
+        ):
             slot_result = await _handle_trainer_slot_reply(
                 db,
                 {
@@ -14369,6 +14457,8 @@ async def _process_client_requirement_email(
                 "source_email_id": source_email_id,
                 "client_email": _email_address(email_doc.get("from_email") or ""),
                 "client_name": email_doc.get("from_name") or "",
+                "requirement_id": email_doc.get("requirement_id") or "",
+                "trainer_id": email_doc.get("trainer_id") or "",
                 "subject": subject,
                 "request_type": "po_to_invoice" if is_client_po else "invoice_request",
                 "requirement_id": email_doc.get("requirement_id") or "",
@@ -14647,28 +14737,21 @@ async def _process_client_requirement_email(
         or details_later
         or email_doc.get("client_authorized_trainer_search")
     )
-    existing_trainer_mail = (email_doc.get("mail_automation") or {}).get("trainer_mail") or {}
-    trainer_search_already_dispatched = (
-        email_doc.get("trainer_automation_status") in {"started", "no_trainers_emailed"}
-        or _safe_int(existing_trainer_mail.get("sent"), 0) > 0
-    )
-    confirmed_intake_ready = bool(
-        is_first_client_mail
-        and not trainer_search_already_dispatched
-        and _confirmed_intake_ready_for_trainer_mail(extracted, email_doc, classification_body)
-    )
-    should_start_trainer_search = bool(
-        (should_start_trainer_search or confirmed_intake_ready)
-        and (
-            confirmed_intake_ready
-            or (
-                is_first_client_mail
-                or explicit_trainer_authorization
-                or details_ready_on_client_reply
-            )
-        )
-        and extracted.get("is_training_request")
-        and _has_training_domain(extracted)
+    confirmed_first_mail = _confirmed_requirement_on_first_client_mail(subject, email_doc, extracted)
+    if confirmed_first_mail:
+        extracted["is_training_request"] = True
+        extracted["is_non_client_email"] = False
+    # A confirmed requirement on the opening client mail sends Mail 1 as soon
+    # as ranking finds a trainer. Proposal mail still waits for a later reply
+    # that authorizes the search or supplies the missing details.
+    should_start_trainer_search = _should_send_trainer_mail1_now(
+        automation_ready=should_start_trainer_search,
+        confirmed_first_mail=confirmed_first_mail,
+        is_first_client_mail=is_first_client_mail,
+        explicit_trainer_authorization=explicit_trainer_authorization,
+        details_ready_on_client_reply=details_ready_on_client_reply,
+        is_training_request=bool(extracted.get("is_training_request")),
+        has_domain=_has_training_domain(extracted),
     )
     if (
         extracted.get("is_training_request")
