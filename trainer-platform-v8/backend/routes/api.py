@@ -15364,33 +15364,47 @@ TRAINER_PROVIDER_SIGNALS = [
 ]
 
 TRAINER_PROFILE_BLOCKERS = [
-    # Job listing indicators
-    "job vacancies", "job vacancy", "apply to", "job description",
-    "required candidate profile", "hiring office", "we are hiring",
-    "we are looking for", "salary", "lacs p.a", "job opening", "job role",
-    # Job seeker indicators
-    "current ctc", "expected ctc", "notice period", "immediate joiner",
-    "last working day", "offer in hand", "open to opportunities",
-    "actively exploring", "willing to relocate", "seeking opportunity",
-    "looking for job", "looking for opportunities", "application for",
-    "my resume", "work preference", "ready to work from office",
-    # Recruitment/staffing (not trainer)
-    "bench sales", "bench consultant", "hotlist", "available consultant",
-    "h1b", "visa status", "work authorization", "staffing",
-    "placement agency", "manpower", "temp staffing",
-    # Product/company pages (not person profiles)
-    "add to cart", "buy now", "subscribe now", "pricing plans",
-    "terms of service", "privacy policy", "cookie policy",
-    "sign up free", "free trial", "download app",
+    # ── Job-seeker signals (not a trainer) ───────────────────────────────────
+    "job vacancies", "job vacancy", "apply to", "job description", "required candidate profile",
+    "hiring office", "we are hiring", "we are looking for", "salary", "lacs p.a",
+    "job opening", "job role", "current ctc", "expected ctc", "notice period",
+    "immediate joiner", "last working day", "offer in hand", "open to opportunities",
+    "actively exploring", "willing to relocate", "seeking opportunity", "looking for job",
+    "looking for opportunities", "application for", "my resume", "work preference",
+    "ready to work from office",
+    # ── Academic / school / college — NOT corporate trainers ─────────────────
+    # These people teach in schools or colleges, not corporate IT batch training.
+    "school teacher", "high school", "secondary school", "primary school",
+    "college professor", "assistant professor", "associate professor",
+    "university professor", "professor", "lecturer",
+    "engineering college", "degree college", "polytechnic",
+    "teaching students", "student mentoring",
+    # ── Student / fresher / learner — actively learning, not delivering ───────
+    "currently learning", "i am learning", "learning python", "learning devops",
+    "learning aws", "learning java", "learning data science",
+    "fresher", "fresh graduate", "final year student",
+    "btech student", "b.tech student", "mca student", "mba student",
+    "pursuing", "enrolled in", "completed my degree",
+    # ── Non-Indian location signals ───────────────────────────────────────────
+    # These indicate the profile is from outside India — not Clahan's market.
+    "united states", "united kingdom", "netherlands", "belgium", "germany",
+    "france", "canada", "australia", "singapore", "dubai", "uae",
+    "new york", "london", "amsterdam", "brussels", "berlin", "toronto",
+    "silicon valley", "san francisco", "chicago", "sydney",
+    # ── Non-IT / soft-skills only trainers ───────────────────────────────────
+    # Clahan places IT trainers; soft-skills-only profiles waste credits.
+    "soft skills trainer only", "communication skills trainer",
+    "personality development trainer", "behavioural trainer",
+    "life coach", "motivational speaker",
 ]
 
 TRAINER_PROFILE_SOFT_BLOCKERS = [
-    "institute", "academy", "pvt ltd", "private limited", "solutions",
-    "technologies", "consultant", "consulting",
-    "consultant1 day ago", "consultant2 days ago", "consultant3 days ago",
-    "recruiter", "location ", "experience ", "yrs · consultant",
-    "yrs consultant", "talent acquisition", "recruitment specialist",
-    "hr manager", "hr executive", "placement officer",
+    "institute", "academy", "pvt ltd", "private limited", "solutions", "technologies",
+    "consultant", "consulting", "consultant1 day ago", "consultant2 days ago",
+    "consultant3 days ago", "recruiter",
+    "location ", "experience ", "yrs · consultant", "yrs consultant",
+    # School / college context — soft block (only blocks if no strong provider signals)
+    "school", "college", "university", "sikkim", "manipur",
 ]
 
 INDIA_LOCATION_TERMS = [
@@ -16857,8 +16871,12 @@ async def search_public_client_leads(payload: dict = {}):
     query_domain_map = {}
 
     # ── CREDIT-SAFE phrase list ───────────────────────────────────────────────
-    # Use only the most effective high-signal phrases.
-    # Fewer phrases × fewer domains = fewer credits used.
+    # Only IT/corporate training requirement phrases.
+    # Removed: "Guest Faculty Required", "Campus Trainer Required",
+    #          "College Trainer Required", "Need Soft Skills Trainer",
+    #          "Need Communication Skills Trainer", "Behavioral Skills Trainer Required",
+    #          "Leadership Trainer Required"
+    # These attract school/college/non-IT posts — wrong audience for Clahan.
     HIGH_SIGNAL_PHRASES = [
         "Corporate Trainer Required",
         "Technical Training Requirement",
@@ -16866,9 +16884,12 @@ async def search_public_client_leads(payload: dict = {}):
         "Trainer Required",
         "Subject Matter Expert Trainer Required",
         "Looking for Corporate Trainer",
+        "Need IT Trainer",
+        "Corporate Training Requirement",
     ]
 
-    # Full phrase list — only used when caller requests deep search
+    # Full phrase list — only used when caller requests deep_search=true
+    # All phrases here are IT / corporate context only — no academic phrases.
     ALL_PHRASES = [
         "Need Trainer",
         "Seeking Trainer",
@@ -16884,22 +16905,23 @@ async def search_public_client_leads(payload: dict = {}):
         "Corporate Training Requirement",
         "Looking for Corporate Trainer",
         "Need Technical Trainer",
-        "Need Soft Skills Trainer",
+        "Need IT Trainer",
         "Need Python Trainer",
         "Need AI Trainer",
         "Need Data Analytics Trainer",
         "Need Power BI Trainer",
-        "Need Excel Trainer",
-        "Need Communication Skills Trainer",
+        "Need DevOps Trainer",
+        "Need Cloud Trainer",
+        "Need SAP Trainer",
+        "Need Java Trainer",
+        "Need AWS Trainer",
+        "Need Azure Trainer",
         "Freelance Trainer Required",
         "Contract Trainer Required",
         "Part-Time Trainer Required",
         "Online Trainer Required",
         "Offline Trainer Required",
-        "Guest Faculty Required",
-        "Resource Person Required",
         "Workshop Trainer Required",
-        "Faculty Required for Training",
         "Learning and Development Trainer Required",
         "L&D Trainer Hiring",
         "Training Consultant Required",
@@ -16911,14 +16933,10 @@ async def search_public_client_leads(payload: dict = {}):
         "Instructor Required",
         "Subject Matter Expert Trainer Required",
         "Training Program Facilitator Required",
-        "Campus Trainer Required",
-        "College Trainer Required",
         "Industrial Trainer Required",
         "Professional Trainer Required",
-        "Leadership Trainer Required",
-        "Behavioral Skills Trainer Required",
         "Corporate Coach Required",
-        "Business Trainer Required",
+        "SME Trainer Required",
     ]
 
     # Use high-signal phrases by default (saves credits)
@@ -17175,58 +17193,50 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
         "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura",
         "Uttar Pradesh", "Uttarakhand", "West Bengal",
     ]
+    # ── CORPORATE IT trainer roles only ──────────────────────────────────────
+    # Removed: "guest faculty", "visiting faculty", "academic trainer",
+    #          "college trainer", "apprenticeship trainer", "education consultant",
+    #          "seminar speaker", "keynote trainer"
+    # These leak school/college/non-corporate profiles.
+    # Added: stronger corporate batch-training signals used by Clahan clients.
     TRAINER_SEARCH_ROLES = [
-        "trainer",
-        CORPORATE_TRAINER,
-        FREELANCE_TRAINER,
+        "corporate trainer",
+        "freelance trainer",
         "certified trainer",
-        "instructor",
-        TRAINING_CONSULTANT,
+        "technical trainer",
+        "training consultant",
         "SME trainer",
-        "mentor",
-        "trainer India",
-        TECHNICAL_TRAINER,
-        "soft skills trainer",
-        "professional trainer",
-        "guest faculty",
-        "resource person",
-        WORKSHOP_FACILITATOR,
-        "learning facilitator",
+        "subject matter expert",
         "corporate facilitator",
         "training specialist",
         "training manager",
         "training lead",
-        SUBJECT_MATTER_EXPERT,
-        "coach",
         "industry trainer",
-        "visiting faculty",
         "online trainer",
         "offline trainer",
         "virtual trainer",
         "contract trainer",
-        "part-time trainer",
         "L&D trainer",
-        "learning and development specialist",
-        "curriculum trainer",
-        "education consultant",
-        "instructional trainer",
+        "learning and development trainer",
         "corporate coach",
-        "professional coach",
-        "skills trainer",
         "technical instructor",
-        "faculty trainer",
-        "bootcamp instructor",
         "workshop trainer",
-        "seminar speaker",
-        "keynote trainer",
+        "bootcamp instructor",
         "training provider",
-        "training partner",
         "industry expert",
         "practitioner trainer",
         "certification trainer",
-        "apprenticeship trainer",
-        "academic trainer",
-        "college trainer",
+        # High-signal corporate batch-training phrases
+        "batch training",
+        "corporate batch",
+        "delivered corporate training",
+        "trained professionals",
+        "trained employees",
+        "trained at TCS",
+        "trained at Infosys",
+        "trained at Wipro",
+        "trained at Accenture",
+        "corporate training experience",
     ]
     for item in (payload.get("queries") or []):
         if isinstance(item, dict):
@@ -17243,25 +17253,17 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
 
     for domain in domains:
         if source_mode in {"linkedin", "both", "all"}:
-            # ── Queries that actually work from cloud IPs ──────────────────────
-            # site:linkedin.com is blocked by search engines from cloud server IPs.
-            # These formats return real cached LinkedIn results.
+            for role in TRAINER_SEARCH_ROLES:
+                # Scope every query to India + corporate context
+                queries.append(f'site:linkedin.com/in "{domain}" "{role}" India')
             queries.extend([
-                f'"{domain}" "corporate trainer" India linkedin',
-                f'"{domain}" "freelance trainer" India linkedin',
-                f'"{domain}" "certified trainer" India linkedin',
-                f'"{domain}" trainer India linkedin profile',
-                f'"{domain}" "technical trainer" India linkedin',
-                f'"{domain}" instructor trainer India linkedin',
-                f'"{domain}" trainer India "years experience" linkedin',
-                f'"{domain}" trainer India contact email',
-                f'"{domain}" trainer resume India',
-                f'"{domain}" "training consultant" India linkedin',
-                f'"{domain}" "subject matter expert" trainer India',
+                f'site:linkedin.com/in "{domain}" "corporate trainer" "batch training" India',
+                f'site:linkedin.com/in "{domain}" "certified" "corporate trainer" India',
+                f'site:linkedin.com/in "{domain}" "years experience" "corporate trainer" India',
+                f'site:linkedin.com/in "{domain}" "trained professionals" India',
             ])
-            for location in LOCATIONS[:15]:
-                queries.append(f'"{domain}" trainer "{location}" linkedin profile')
-                queries.append(f'"{domain}" trainer "{location}" contact email')
+            for location in LOCATIONS:
+                queries.append(f'site:linkedin.com/in "{domain}" "corporate trainer" "{location}"')
         if source_mode in {"naukri", "both", "all"}:
             queries.extend([
                 f'"{domain}" trainer naukri.com India',

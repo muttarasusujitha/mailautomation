@@ -54,6 +54,36 @@ BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PROJECT_DIR = os.path.abspath(os.path.join(BACKEND_DIR, ".."))
 CONFIG_DIR = os.path.join(BACKEND_DIR, "config")
 ENV_PATH = os.path.join(BACKEND_DIR, ".env")
+CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS_FILE", os.path.join(CONFIG_DIR, "credentials.json"))
+TOKEN_PATH = os.getenv("GOOGLE_TOKEN_FILE", os.path.join(CONFIG_DIR, "token.json"))
+
+TRAINING_KEYWORDS = [
+    "training", "trainer", "workshop", "corporate training", "need trainer",
+    "require trainer", "kubernetes", "devops", "python", "java", "azure", "aws",
+    "data science", "machine learning", "power bi", "tableau", "cloud", "genai",
+    "sap", "salesforce", "full stack", "react", "node", "cybersecurity",
+    # Common subject-line typos / shorthand clients actually write
+    "recuriment",   # typo of "requirement" — seen in real emails
+    "requiremnt",   # another common typo
+    "requrement",
+    "requriment",
+    "requirment",
+    "trainer req",
+    "training req",
+    "traning",      # typo of "training"
+    "trainner",     # typo of "trainer"
+]
+
+TECHNOLOGY_KEYWORDS = [
+    "full stack", "data science", "machine learning", "power bi", "cybersecurity",
+    "kubernetes", "devops", "python", "java", "azure", "aws", "tableau", "cloud",
+    "genai", "sap", "salesforce", "react", "node",
+]
+
+AUTO_REPLY_MARKERS = [
+    "out of office", "automatic reply", "auto-reply", "autoreply", "vacation responder",
+    "i am away", "away from office", "delivery status notification",
+]
 
 
 def _is_placeholder_value(value: str) -> bool:
@@ -618,10 +648,23 @@ def is_likely_training_email(
         return False
 
     request_markers = (
+        # Direct need/require phrases
         "need trainer", "require trainer", "required trainer", "looking for trainer",
-        "trainer requirement", TRAINING_REQUIREMENT, "corporate training requirement",
-        "need a trainer", "we need", "we require", "please share suitable trainer",
-        "share trainer profiles", "duration", "participants", "budget",
+        "need a trainer", "require a trainer", "we need", "we require",
+        "have a requirement", "have requirement", "we have a requirement",
+        "training requirement", "trainer requirement", "training requirement",
+        "corporate training requirement", "corporate training engagement",
+        # Share / send trainer profiles (without mandatory "please" prefix)
+        "share suitable trainer", "share trainer profiles", "share trainer profile",
+        "share suitable profiles", "kindly share", "please share",
+        "send trainer profiles", "send suitable trainer",
+        "share profiles", "trainer profiles",
+        # Availability / commercials — a client asking for rates is a client
+        "availability", "commercials", "experience and certifications",
+        "certifications, availability", "availability and commercials",
+        "suitable trainer profiles",
+        # Standard structured requirement fields
+        "duration", "participants", "budget",
         "mode:", "technology:", "domain:",
     )
     if any(keyword in subject_haystack for keyword in TRAINING_KEYWORDS) and any(marker in haystack for marker in request_markers):
