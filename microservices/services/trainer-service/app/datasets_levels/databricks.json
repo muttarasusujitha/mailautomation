@@ -12,6 +12,22 @@
       "summary": "For data engineers, analysts and developers new to Databricks. Covers the workspace, compute, Spark concepts, DataFrames, Spark SQL, Delta Lake, transformations, semi-structured data, Unity Catalog, Auto Loader, the medallion architecture, Lakeflow Jobs, PySpark functions, AI/BI dashboards, table maintenance, Git folders, cost basics, BI connections and the Spark UI.",
       "prerequisites": ["Writes SQL with joins and GROUP BY", "Knows basic Python", "Understands what a data warehouse or data lake is in general terms"],
       "outcomes": ["Load, transform and store data as Delta tables in Unity Catalog", "Build bronze, silver and gold layers with SQL and PySpark", "Schedule pipelines with Lakeflow Jobs and share results in dashboards", "Keep jobs efficient and find problems in the Spark UI"],
+      "course_outcomes": [
+        {"outcome": "Set up a Databricks workspace and choose clusters, serverless or SQL warehouses", "topics": ["Databricks Platform Overview and Workspace Setup", "Compute on Databricks: Clusters, Serverless and SQL Warehouses"]},
+        {"outcome": "Explain Spark concepts and read and write data with DataFrames", "topics": ["Apache Spark Concepts on Databricks", "Reading and Writing Data with DataFrames"]},
+        {"outcome": "Query data with Spark SQL and Databricks SQL", "topics": ["Spark SQL and Databricks SQL Queries"]},
+        {"outcome": "Create and maintain Delta Lake tables with OPTIMIZE, VACUUM and time travel", "topics": ["Delta Lake Tables", "Delta Table Maintenance: OPTIMIZE, VACUUM and Time Travel"]},
+        {"outcome": "Join, aggregate and window data and work with semi-structured data", "topics": ["Transformations: Joins, Aggregations and Windows", "Working with Semi-Structured Data"]},
+        {"outcome": "Organise and secure data with Unity Catalog", "topics": ["Unity Catalog: Catalogs, Schemas and Permissions"]},
+        {"outcome": "Ingest files with Auto Loader and COPY INTO", "topics": ["Ingesting Files with Auto Loader and COPY INTO"]},
+        {"outcome": "Build a medallion architecture with bronze, silver and gold tables", "topics": ["Medallion Architecture: Bronze, Silver and Gold"]},
+        {"outcome": "Schedule notebooks with Lakeflow Jobs", "topics": ["Scheduling Notebooks with Lakeflow Jobs"]},
+        {"outcome": "Write PySpark functions and user-defined functions", "topics": ["PySpark Functions and User-Defined Functions"]},
+        {"outcome": "Build AI/BI dashboards and connect BI tools", "topics": ["Visualising Data with AI/BI Dashboards", "Connecting BI Tools and External Systems"]},
+        {"outcome": "Develop together with Git folders", "topics": ["Git Folders and Collaborative Development"]},
+        {"outcome": "Track costs and debug Spark jobs with the Spark UI", "topics": ["Cost Awareness on Databricks", "Debugging Spark Jobs with the Spark UI"]},
+        {"outcome": "Deliver a retail sales lakehouse", "topics": ["Beginner Capstone: Retail Sales Lakehouse"]}
+      ],
       "days": [
         {
           "topic": "Databricks Platform Overview and Workspace Setup",
@@ -199,6 +215,23 @@
       "summary": "For data engineers who build pipelines on Databricks. Covers Lakeflow Declarative Pipelines, change data capture, Structured Streaming, layout and Spark tuning, Unity Catalog governance, Asset Bundles and CI/CD, testing, Lakeflow Connect, multi-task orchestration, SQL warehouses, Delta Sharing, MLflow, feature tables, slowly changing dimensions, monitoring, Terraform, cloud differences and Data Engineer Associate preparation.",
       "prerequisites": ["Has built Delta tables and jobs on Databricks", "Writes PySpark and Spark SQL", "Uses Git for code"],
       "outcomes": ["Build declarative batch and streaming pipelines with data quality rules", "Tune Spark and Delta layout for speed and cost", "Govern data with Unity Catalog and deploy with Asset Bundles through CI/CD", "Prepare for the Data Engineer Associate exam"],
+      "course_outcomes": [
+        {"outcome": "Build Lakeflow Declarative Pipelines with change data capture", "topics": ["Lakeflow Declarative Pipelines", "Change Data Capture with AUTO CDC"]},
+        {"outcome": "Process streams with Structured Streaming", "topics": ["Structured Streaming on Databricks"]},
+        {"outcome": "Tune Delta layouts with partitioning and liquid clustering", "topics": ["Delta Layout Tuning: Partitioning, Liquid Clustering and Data Skipping"]},
+        {"outcome": "Tune Spark shuffles and joins with adaptive query execution", "topics": ["Spark Execution: Shuffles, Joins and Adaptive Query Execution"]},
+        {"outcome": "Govern data with Unity Catalog lineage, tags and fine-grained access", "topics": ["Unity Catalog Governance: Lineage, Tags and Fine-Grained Access"]},
+        {"outcome": "Deliver with Databricks Asset Bundles and test pipeline code", "topics": ["Databricks Asset Bundles and CI/CD", "Testing PySpark and Pipeline Code"]},
+        {"outcome": "Ingest from databases and SaaS with Lakeflow Connect", "topics": ["Ingestion from Databases and SaaS with Lakeflow Connect"]},
+        {"outcome": "Orchestrate multi-task workflows", "topics": ["Orchestrating Multi-Task Workflows"]},
+        {"outcome": "Optimise queries on SQL warehouses", "topics": ["Databricks SQL Warehouses and Query Optimisation"]},
+        {"outcome": "Share data with Delta Sharing", "topics": ["Delta Sharing and Data Collaboration"]},
+        {"outcome": "Track models with MLflow and build feature tables", "topics": ["Machine Learning with MLflow on Databricks", "Feature Engineering and Feature Tables"]},
+        {"outcome": "Model slowly changing dimensions in Delta", "topics": ["Slowly Changing Dimensions and Dimensional Models in Delta"]},
+        {"outcome": "Monitor the lakehouse and deploy it with Terraform on Azure, AWS or GCP", "topics": ["Lakehouse Monitoring and Alerts", "Infrastructure as Code with the Databricks Terraform Provider", "Databricks on Azure, AWS and GCP"]},
+        {"outcome": "Answer Data Engineer Associate practice questions", "topics": ["Data Engineer Associate Certification Preparation"]},
+        {"outcome": "Deliver a streaming orders lakehouse", "topics": ["Intermediate Capstone: Streaming Orders Lakehouse"]}
+      ],
       "days": [
         {
           "topic": "Lakeflow Declarative Pipelines",
@@ -386,6 +419,23 @@
       "summary": "For senior data engineers, platform owners and architects. Covers enterprise lakehouse architecture, multi-workspace Unity Catalog, network security, stateful streaming, performance at scale, cost governance, data mesh, migrations, Mosaic AI model serving and vector search, RAG and agents, MLOps, Genie, data applications, disaster recovery, backfills, open table formats, platform automation, production troubleshooting and the Data Engineer Professional exam.",
       "prerequisites": ["Has run Databricks pipelines in production", "Knows Unity Catalog, declarative pipelines and Asset Bundles", "Understands cloud networking and identity on at least one cloud"],
       "outcomes": ["Design secure, multi-workspace lakehouse platforms", "Run streaming and batch at scale with controlled cost", "Deliver AI applications on governed data", "Operate, recover and troubleshoot the platform"],
+      "course_outcomes": [
+        {"outcome": "Design an enterprise lakehouse architecture with multi-workspace Unity Catalog", "topics": ["Enterprise Lakehouse Architecture", "Multi-Workspace Unity Catalog and Federation"]},
+        {"outcome": "Harden network and platform security", "topics": ["Network and Platform Security Hardening"]},
+        {"outcome": "Build stateful, exactly-once streaming", "topics": ["Advanced Streaming: Stateful Processing and Exactly-Once"]},
+        {"outcome": "Engineer performance at scale and govern cost with budgets and system tables", "topics": ["Performance Engineering at Scale", "Cost Governance: Budgets, Policies and System Tables"]},
+        {"outcome": "Build data products in a data mesh", "topics": ["Data Mesh and Data Products on Databricks"]},
+        {"outcome": "Plan a migration from Hadoop and legacy warehouses", "topics": ["Migrating from Hadoop and Legacy Warehouses"]},
+        {"outcome": "Serve models and run vector search with Mosaic AI", "topics": ["Mosaic AI: Model Serving and Vector Search"]},
+        {"outcome": "Build RAG and agent applications and run MLOps on Databricks", "topics": ["Building RAG and Agent Applications on Databricks", "MLOps on Databricks"]},
+        {"outcome": "Offer natural-language analytics with Genie", "topics": ["Genie and Natural-Language Analytics"]},
+        {"outcome": "Build data applications with Databricks Apps and Lakebase", "topics": ["Data Applications with Databricks Apps and Lakebase"]},
+        {"outcome": "Plan disaster recovery and build idempotent backfills", "topics": ["Disaster Recovery and Business Continuity", "Backfills, Reprocessing and Idempotent Pipelines"]},
+        {"outcome": "Choose between Delta, Iceberg and UniForm", "topics": ["Open Table Formats: Delta, Iceberg and UniForm"]},
+        {"outcome": "Automate platform operations and troubleshoot production workloads", "topics": ["Platform Operations and Workspace Automation", "Troubleshooting Production Databricks Workloads"]},
+        {"outcome": "Answer Data Engineer Professional practice questions", "topics": ["Data Engineer Professional Certification Preparation"]},
+        {"outcome": "Deliver an enterprise lakehouse platform", "topics": ["Advanced Capstone: Enterprise Lakehouse Platform"]}
+      ],
       "days": [
         {
           "topic": "Enterprise Lakehouse Architecture",

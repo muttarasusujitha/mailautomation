@@ -12,6 +12,22 @@
       "summary": "For finance professionals and new consultants with no SAP experience. Covers the finance organisation in SAP, general ledger, accounts payable, accounts receivable, asset accounting, bank and tax postings, controlling basics with cost centres and internal orders, period-end closing and finance reporting in S/4HANA.",
       "prerequisites": ["Understands basic accounting: debits, credits, ledgers and financial statements", "Comfortable with business software and spreadsheets", "Access to an SAP S/4HANA training system"],
       "outcomes": ["Post and display finance documents in S/4HANA", "Run payables, receivables, asset and bank processes", "Track costs with cost centres and internal orders", "Perform basic month-end closing and finance reporting"],
+      "course_outcomes": [
+        {"outcome": "Navigate SAP Finance and explain the finance organisation", "topics": ["SAP Finance Overview and System Navigation", "Finance Organisation: Company Code, Chart of Accounts and Fiscal Year"]},
+        {"outcome": "Create general ledger accounts and post journal entries", "topics": ["General Ledger Accounts and Master Data", "Posting General Ledger Journal Entries"]},
+        {"outcome": "Process supplier invoices and run supplier payments", "topics": ["Accounts Payable: Supplier Master and Invoices", "Accounts Payable: Payments and the Payment Run"]},
+        {"outcome": "Process customer invoices and incoming payments and run dunning and credit control", "topics": ["Accounts Receivable: Customer Invoices and Incoming Payments", "Accounts Receivable: Dunning and Credit Control"]},
+        {"outcome": "Acquire, depreciate, transfer and retire assets", "topics": ["Asset Accounting: Asset Master and Acquisitions", "Asset Accounting: Depreciation, Transfers and Retirements"]},
+        {"outcome": "Post bank and cash journal entries", "topics": ["Bank Accounting and the Cash Journal"]},
+        {"outcome": "Post GST and indirect tax", "topics": ["Tax Postings: GST and Indirect Tax in SAP"]},
+        {"outcome": "Track costs with cost centres, cost elements and internal orders", "topics": ["Controlling with Cost Centres and Cost Elements", "Internal Orders and Settlement"]},
+        {"outcome": "Report by profit centre and segment", "topics": ["Profit Centres and Segment Reporting"]},
+        {"outcome": "Trace finance postings from purchasing and sales", "topics": ["Integration of Finance with Purchasing and Sales"]},
+        {"outcome": "Run period-end closing", "topics": ["Period-End Closing in Finance"]},
+        {"outcome": "Report finance results", "topics": ["Finance Reporting and Analytics"]},
+        {"outcome": "Apply finance roles and controls and support audits", "topics": ["Finance Roles, Controls and Audit Support"]},
+        {"outcome": "Run a month of finance for a model company", "topics": ["Beginner Capstone: A Month of Finance for the Model Company"]}
+      ],
       "days": [
         {
           "topic": "SAP Finance Overview and System Navigation",
@@ -199,6 +215,23 @@
       "summary": "For finance users and junior consultants who know SAP postings. Covers configuration of the finance organisation, general ledger, payables, receivables, assets, banks and tax, controlling configuration with product costing and margin analysis, integration settings and closing processes in S/4HANA.",
       "prerequisites": ["Can post and report finance documents in S/4HANA", "Knows payables, receivables, assets and cost centres as a user", "Understands accounting standards at a basic level"],
       "outcomes": ["Configure the finance organisation and core finance processes", "Configure controlling, product costing and margin analysis", "Set up integration between finance and logistics", "Design and run efficient closing processes"],
+      "course_outcomes": [
+        {"outcome": "Configure the finance organisation, ledgers, accounting principles and currencies", "topics": ["Configuring the Finance Organisation", "Ledgers, Accounting Principles and Currencies in S/4HANA"]},
+        {"outcome": "Configure document splitting with segment balancing", "topics": ["Document Splitting and Segment Balancing"]},
+        {"outcome": "Configure accounts payable and the payment program", "topics": ["Configuring Accounts Payable and the Payment Program"]},
+        {"outcome": "Configure accounts receivable, dunning and credit management", "topics": ["Configuring Accounts Receivable, Dunning and Credit Management"]},
+        {"outcome": "Configure asset accounting", "topics": ["Configuring Asset Accounting"]},
+        {"outcome": "Configure banking and electronic bank statements", "topics": ["Banking Configuration and Electronic Bank Statements"]},
+        {"outcome": "Configure tax for GST compliance", "topics": ["Tax Configuration and GST Compliance"]},
+        {"outcome": "Configure the controlling area and cost centres", "topics": ["Controlling Configuration: Controlling Area and Cost Centre Accounting"]},
+        {"outcome": "Calculate product costs and analyse production order variances", "topics": ["Product Costing: Cost Estimates and Standard Prices", "Cost Object Controlling: Production Order Costs and Variances"]},
+        {"outcome": "Analyse margins with CO-PA", "topics": ["Margin Analysis (CO-PA) in S/4HANA"]},
+        {"outcome": "Configure automatic account determination", "topics": ["Integration Settings: Automatic Account Determination"]},
+        {"outcome": "Run material ledger actual costing, foreign currency valuation and intercompany processes", "topics": ["Material Ledger and Actual Costing", "Foreign Currency Valuation and Intercompany Processes"]},
+        {"outcome": "Run advanced financial closing and migrate finance data", "topics": ["Closing Processes: Advanced Financial Closing", "Finance Data Migration"]},
+        {"outcome": "Use Fiori finance apps and test and support finance processes", "topics": ["Fiori Apps for Finance Users and Consultants", "Testing and Supporting Finance Processes"]},
+        {"outcome": "Deliver the finance configuration for a new company", "topics": ["Intermediate Capstone: Finance Configuration for a New Company Code"]}
+      ],
       "days": [
         {
           "topic": "Configuring the Finance Organisation",
@@ -386,6 +419,23 @@
       "summary": "For senior finance consultants, solution architects and finance transformation leads. Covers Universal Journal design, parallel accounting, group reporting, central finance, treasury and cash management, revenue and lease accounting, advanced controlling, finance in conversions, analytics and AI in finance, and finance transformation leadership.",
       "prerequisites": ["Has configured SAP finance and controlling in a project", "Knows integration, closing and migration", "Understands IFRS and local accounting requirements"],
       "outcomes": ["Design finance architectures on the Universal Journal", "Lead group reporting, central finance and treasury solutions", "Implement revenue, lease and advanced controlling requirements", "Lead finance transformation and conversion workstreams"],
+      "course_outcomes": [
+        {"outcome": "Design finance architecture around the universal journal", "topics": ["Universal Journal Design and Finance Architecture"]},
+        {"outcome": "Run parallel accounting for IFRS, local GAAP and tax ledgers", "topics": ["Parallel Accounting: IFRS, Local GAAP and Tax Ledgers"]},
+        {"outcome": "Run group reporting and consolidation", "topics": ["Group Reporting and Consolidation"]},
+        {"outcome": "Design and implement Central Finance", "topics": ["Central Finance Design and Implementation"]},
+        {"outcome": "Manage treasury and cash", "topics": ["Treasury and Cash Management"]},
+        {"outcome": "Account for revenue under IFRS 15 and leases under IFRS 16", "topics": ["Revenue Accounting and IFRS 15", "Lease Accounting and IFRS 16"]},
+        {"outcome": "Apply activity-based costing and transfer pricing", "topics": ["Advanced Controlling: Activity-Based Costing and Overhead Management", "Transfer Pricing and Profit Centre Valuation"]},
+        {"outcome": "Plan finance in S/4HANA conversion projects", "topics": ["Finance in S/4HANA Conversion Projects"]},
+        {"outcome": "Plan with SAP Analytics Cloud and report at scale", "topics": ["Financial Planning and Analysis with SAP Analytics Cloud", "Finance Analytics and Embedded Reporting at Scale"]},
+        {"outcome": "Automate finance with AI", "topics": ["Automation and AI in Finance"]},
+        {"outcome": "Run finance controls, GRC, tax and statutory compliance at scale", "topics": ["Finance Controls, GRC and Audit at Scale", "Tax and Statutory Compliance at Scale"]},
+        {"outcome": "Design shared services and a finance transformation roadmap", "topics": ["Shared Services and Finance Operations Design", "Finance Transformation Roadmaps and Business Cases"]},
+        {"outcome": "Find and fix posting and reconciliation differences", "topics": ["Troubleshooting Finance Postings and Reconciliation Differences"]},
+        {"outcome": "Lead finance solution architecture reviews", "topics": ["Finance Solution Architecture Reviews"]},
+        {"outcome": "Deliver a group finance transformation blueprint", "topics": ["Advanced Capstone: Group Finance Transformation Blueprint"]}
+      ],
       "days": [
         {
           "topic": "Universal Journal Design and Finance Architecture",

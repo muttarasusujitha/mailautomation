@@ -26,6 +26,23 @@
         "Deploy and secure Compute Engine, Cloud Storage, VPC networks and Cloud SQL",
         "Deploy, monitor and cost-control a simple web application on Google Cloud"
       ],
+      "course_outcomes": [
+        {"outcome": "Explain cloud service models and Google Cloud regions and zones", "topics": ["Cloud Computing Concepts and Google Cloud Global Infrastructure"]},
+        {"outcome": "Organise projects in the resource hierarchy and control access with IAM", "topics": ["Resource Hierarchy, Projects and IAM"]},
+        {"outcome": "Run Compute Engine VMs with persistent disks, snapshots and images", "topics": ["Compute Engine Virtual Machines", "Persistent Disks, Snapshots and Images"]},
+        {"outcome": "Store and protect objects in Cloud Storage", "topics": ["Cloud Storage"]},
+        {"outcome": "Build VPC networks with subnets and firewall rules", "topics": ["VPC Networks, Subnets and Firewall Rules"]},
+        {"outcome": "Make workloads highly available with load balancing and managed instance groups", "topics": ["Load Balancing and Managed Instance Groups"]},
+        {"outcome": "Run data on Cloud SQL, Firestore and Bigtable", "topics": ["Cloud SQL Managed Databases", "Firestore and Bigtable NoSQL"]},
+        {"outcome": "Serve applications with Cloud DNS and Cloud CDN", "topics": ["Cloud DNS and Cloud CDN"]},
+        {"outcome": "Monitor and log with Cloud Monitoring and Cloud Logging", "topics": ["Cloud Monitoring and Cloud Logging"]},
+        {"outcome": "Automate with the gcloud CLI and deploy infrastructure as code", "topics": ["gcloud CLI and Scripting", "Infrastructure as Code on Google Cloud"]},
+        {"outcome": "Run serverless containers and functions with Cloud Run, Cloud Functions and Eventarc", "topics": ["Cloud Run Serverless Containers", "Cloud Functions and Eventarc"]},
+        {"outcome": "Connect services with Pub/Sub", "topics": ["Pub/Sub Messaging"]},
+        {"outcome": "Run containers from Artifact Registry on GKE Autopilot", "topics": ["Containers on Google Cloud: Artifact Registry and GKE Autopilot"]},
+        {"outcome": "Protect secrets and keys with Secret Manager and Cloud KMS", "topics": ["Security Basics: Secret Manager, Cloud KMS and Security Command Center"]},
+        {"outcome": "Control costs and deliver a highly available web application on Google Cloud", "topics": ["Cost Management and the Google Cloud Architecture Framework", "Beginner Capstone: Highly Available Web Application on Google Cloud"]}
+      ],
       "days": [
         {
           "topic": "Cloud Computing Concepts and Google Cloud Global Infrastructure",
@@ -223,6 +240,23 @@
         "Run workloads on GKE and data pipelines with BigQuery, Dataflow and Pub/Sub",
         "Deliver workloads with Cloud Build and Cloud Deploy, with observability and cost controls"
       ],
+      "course_outcomes": [
+        {"outcome": "Design folders, projects and organisation policies", "topics": ["Organisation Design: Folders, Projects and Organisation Policies"]},
+        {"outcome": "Connect networks with Shared VPC, peering and Private Service Connect", "topics": ["Shared VPC, Peering and Private Service Connect"]},
+        {"outcome": "Build Google Cloud infrastructure with Terraform modules", "topics": ["Terraform Modules for Google Cloud"]},
+        {"outcome": "Run GKE Standard clusters", "topics": ["GKE Standard Clusters in Depth"]},
+        {"outcome": "Build a data warehouse in BigQuery and pipelines with Dataflow and Pub/Sub", "topics": ["Data Warehousing with BigQuery", "Data Pipelines with Dataflow and Pub/Sub"]},
+        {"outcome": "Orchestrate work with Cloud Composer and Workflows", "topics": ["Orchestration with Cloud Composer and Workflows"]},
+        {"outcome": "Deliver releases with Cloud Build and Cloud Deploy", "topics": ["CI/CD with Cloud Build and Cloud Deploy"]},
+        {"outcome": "Give workloads and pipelines their own identities", "topics": ["Identity for Workloads and Pipelines"]},
+        {"outcome": "Protect applications with Cloud Armor, IAP and VPC Service Controls", "topics": ["Application Security: Cloud Armor, IAP and VPC Service Controls"]},
+        {"outcome": "Trace, profile and monitor with Managed Prometheus", "topics": ["Observability: Cloud Trace, Profiler and Managed Prometheus"]},
+        {"outcome": "Design backup, disaster recovery and multi-region workloads", "topics": ["Backup, Disaster Recovery and Multi-Region Design on Google Cloud"]},
+        {"outcome": "Patch and manage fleets with OS Config and cut running costs", "topics": ["Operations: OS Config, Patching and Fleet Management", "Cost Optimisation for Running Workloads on Google Cloud"]},
+        {"outcome": "Migrate workloads to Google Cloud and integrate Vertex AI", "topics": ["Migrating Workloads to Google Cloud", "Vertex AI and Generative AI Integration"]},
+        {"outcome": "Govern with policy as code and asset inventory and run hybrid GKE Enterprise", "topics": ["Governance: Policy as Code, Asset Inventory and Compliance", "Hybrid and Multi-Cloud with GKE Enterprise"]},
+        {"outcome": "Compare Google Cloud with AWS and Azure and deliver a data-driven application platform", "topics": ["Comparing Google Cloud with AWS and Azure", "Intermediate Capstone: Data-Driven Application Platform on Google Cloud"]}
+      ],
       "days": [
         {
           "topic": "Organisation Design: Folders, Projects and Organisation Policies",
@@ -418,6 +452,23 @@
         "Run security, compliance and data protection at scale",
         "Build platforms and data or AI platforms that teams can self-serve",
         "Lead architecture reviews and justify trade-offs with evidence"
+      ],
+      "course_outcomes": [
+        {"outcome": "Implement an enterprise landing zone blueprint", "topics": ["Enterprise Landing Zone Blueprint Implementation"]},
+        {"outcome": "Design multi-region active-active architectures and test their resilience", "topics": ["Global Architecture: Multi-Region Active-Active on Google Cloud", "Resilience Engineering and Chaos Testing on Google Cloud"]},
+        {"outcome": "Run security at scale with Security Command Center and Chronicle", "topics": ["Security at Scale: Security Command Center, Chronicle and Response"]},
+        {"outcome": "Protect data with Cloud KMS and confidential computing", "topics": ["Data Protection: Cloud KMS, Confidential Computing and Sensitive Data Protection"]},
+        {"outcome": "Provide zero-trust access with BeyondCorp and VPC Service Controls", "topics": ["Zero-Trust Access with BeyondCorp and VPC Service Controls"]},
+        {"outcome": "Build a platform for teams and run GKE fleets with multi-tenancy and cost control", "topics": ["Platform Engineering on Google Cloud", "GKE at Scale: Fleets, Multi-Tenancy and Cost"]},
+        {"outcome": "Design serverless and event-driven architectures at scale", "topics": ["Serverless and Event-Driven Architecture at Scale"]},
+        {"outcome": "Build an enterprise data platform with a BigQuery lakehouse and Dataplex", "topics": ["Enterprise Data Platform: BigQuery Lakehouse and Dataplex"]},
+        {"outcome": "Run production AI platforms on Vertex AI", "topics": ["Production AI Platforms on Vertex AI"]},
+        {"outcome": "Run FinOps and automate compliance with Assured Workloads", "topics": ["FinOps Practice on Google Cloud", "Compliance Automation and Assured Workloads"]},
+        {"outcome": "Engineer workload performance", "topics": ["Performance Engineering for Google Cloud Workloads"]},
+        {"outcome": "Plan large-scale migration and modernisation", "topics": ["Large-Scale Migration and Modernisation Strategy on Google Cloud"]},
+        {"outcome": "Run SRE practice and set a hybrid and distributed cloud strategy", "topics": ["SRE Practice on Google Cloud", "Hybrid and Distributed Cloud Strategy"]},
+        {"outcome": "Govern infrastructure at scale and lead architecture reviews", "topics": ["Infrastructure Governance at Scale with Terraform and Config Connector", "Google Cloud Architecture Reviews and Trade-off Decisions"]},
+        {"outcome": "Deliver a global regulated platform on Google Cloud", "topics": ["Advanced Capstone: Global Regulated Platform on Google Cloud"]}
       ],
       "days": [
         {

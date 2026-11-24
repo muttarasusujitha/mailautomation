@@ -12,6 +12,23 @@
       "summary": "For new administrators, process owners and support staff. Covers the Now Platform and the Next Experience interface, users, groups and roles, tables and the dictionary, forms and lists, incident, problem and change, the service catalog, knowledge, Flow Designer, notifications, reports, data imports, the CMDB, access controls, SLAs, UI and data policies, update sets, the Employee Center and CSA exam preparation.",
       "prerequisites": ["Basic understanding of IT support or business service processes", "Comfortable using web applications", "No coding experience required"],
       "outcomes": ["Administer a ServiceNow instance: users, roles, tables, forms and lists", "Configure ITSM processes, the catalog, knowledge and SLAs", "Automate work with Flow Designer and notifications and build reports", "Move configuration safely with update sets and prepare for the CSA exam"],
+      "course_outcomes": [
+        {"outcome": "Navigate a ServiceNow instance and manage users, groups and roles", "topics": ["ServiceNow Platform Overview and Instance Setup", "ServiceNow Users, Groups and Roles"]},
+        {"outcome": "Configure tables, fields, forms and lists", "topics": ["Tables, Fields and the Data Dictionary", "Configuring Forms and Lists"]},
+        {"outcome": "Run incident, problem and change management", "topics": ["Incident Management in ServiceNow", "Problem and Change Management"]},
+        {"outcome": "Build service catalog items and request fulfilment", "topics": ["Service Catalog and Request Fulfilment"]},
+        {"outcome": "Publish knowledge articles", "topics": ["Knowledge Management in ServiceNow"]},
+        {"outcome": "Automate work with Flow Designer and email notifications", "topics": ["Automating Work with Flow Designer", "Email Notifications and Templates"]},
+        {"outcome": "Build reports and dashboards", "topics": ["ServiceNow Reports and Dashboards"]},
+        {"outcome": "Import data with import sets and transform maps", "topics": ["Importing Data with Import Sets and Transform Maps"]},
+        {"outcome": "Maintain the CMDB and its configuration items", "topics": ["CMDB and Configuration Items"]},
+        {"outcome": "Secure data with access control rules", "topics": ["Access Control Rules and Platform Security"]},
+        {"outcome": "Track service level agreements", "topics": ["Service Level Agreements"]},
+        {"outcome": "Enforce form behaviour with UI policies and data policies", "topics": ["UI Policies and Data Policies"]},
+        {"outcome": "Move configuration between instances with update sets", "topics": ["Update Sets and Moving Configuration"]},
+        {"outcome": "Set up the Service Portal and Employee Center", "topics": ["Service Portal and Employee Center"]},
+        {"outcome": "Answer CSA practice questions and deliver an IT service desk", "topics": ["CSA Certification Preparation", "Beginner Capstone: IT Service Desk on ServiceNow"]}
+      ],
       "days": [
         {
           "topic": "ServiceNow Platform Overview and Instance Setup",
@@ -199,6 +216,23 @@
       "summary": "For administrators moving into development and new ServiceNow developers. Covers GlideRecord and server-side scripting, business rules, client scripts and GlideAjax, script includes, UI actions, scoped applications in App Engine Studio, custom Flow Designer actions and IntegrationHub, scripted REST APIs, outbound integrations, the MID Server, events and scheduled jobs, the Automated Test Framework, portal widgets, UI Builder, Performance Analytics, Discovery, CMDB identification, debugging and the CAD exam.",
       "prerequisites": ["Administers a ServiceNow instance at CSA level", "Writes basic JavaScript", "Understands ITSM processes in ServiceNow"],
       "outcomes": ["Write server and client scripts that follow platform good practice", "Build scoped applications, custom actions and integrations", "Test with ATF and build portal and workspace experiences", "Use Discovery, CMDB identification and Performance Analytics"],
+      "course_outcomes": [
+        {"outcome": "Write server-side scripts with GlideRecord and business rules", "topics": ["Server-Side Scripting with GlideRecord", "ServiceNow Business Rules"]},
+        {"outcome": "Write client scripts with GlideAjax", "topics": ["Client Scripts and GlideAjax"]},
+        {"outcome": "Reuse code with script includes, UI actions and UI scripts", "topics": ["Script Includes and Reusable Code", "UI Actions and UI Scripts"]},
+        {"outcome": "Build scoped applications with App Engine Studio", "topics": ["Scoped Applications with App Engine Studio"]},
+        {"outcome": "Build custom Flow Designer actions and IntegrationHub spokes", "topics": ["Custom Flow Designer Actions and IntegrationHub Spokes"]},
+        {"outcome": "Build inbound scripted REST APIs and outbound REST and SOAP integrations", "topics": ["Scripted REST APIs and Inbound Integrations", "Outbound REST and SOAP Integrations"]},
+        {"outcome": "Install and use a MID Server", "topics": ["MID Server Installation and Use"]},
+        {"outcome": "Run events, scheduled jobs and background processing", "topics": ["Events, Scheduled Jobs and Background Processing"]},
+        {"outcome": "Test with the Automated Test Framework", "topics": ["Automated Test Framework"]},
+        {"outcome": "Develop Service Portal widgets and UI Builder workspaces", "topics": ["Service Portal Widget Development", "Workspaces with UI Builder"]},
+        {"outcome": "Track performance with Performance Analytics", "topics": ["Performance Analytics"]},
+        {"outcome": "Run Discovery and keep CMDB data accurate with identification and reconciliation", "topics": ["Discovery and IT Operations Management", "CMDB Identification, Reconciliation and Data Quality"]},
+        {"outcome": "Debug scripts and improve their performance", "topics": ["Debugging and Script Performance"]},
+        {"outcome": "Answer CAD practice questions", "topics": ["CAD Certification Preparation"]},
+        {"outcome": "Deliver a scoped asset booking application", "topics": ["Intermediate Capstone: Scoped Asset Booking Application"]}
+      ],
       "days": [
         {
           "topic": "Server-Side Scripting with GlideRecord",
@@ -386,6 +420,23 @@
       "summary": "For senior developers, platform owners and architects. Covers instance strategy and architecture, governance, upgrades and clones, CI/CD, the Common Service Data Model, Service Mapping and event management, Predictive Intelligence, Now Assist, Virtual Agent, integration architecture, performance at scale, security hardening, data lifecycle, workflow products (HRSD, CSM, SPM and IRM), technical debt, implementation leadership and production troubleshooting.",
       "prerequisites": ["Develops scoped applications and integrations at CAD level", "Has delivered ServiceNow work into production", "Understands ITSM, CMDB and Discovery"],
       "outcomes": ["Design ServiceNow instance landscapes and govern the platform", "Run upgrades, CI/CD and integrations at scale", "Apply AI features, CSDM and ITOM to real services", "Lead implementations and keep the platform healthy"],
+      "course_outcomes": [
+        {"outcome": "Design platform architecture and an instance strategy", "topics": ["ServiceNow Platform Architecture and Instance Strategy"]},
+        {"outcome": "Run platform governance through a centre of excellence", "topics": ["Platform Governance and the Centre of Excellence"]},
+        {"outcome": "Plan upgrades, clones and releases with source control and CI/CD", "topics": ["Upgrades, Clones and Release Planning", "Source Control, CI/CD and DevOps for ServiceNow"]},
+        {"outcome": "Apply the Common Service Data Model", "topics": ["Common Service Data Model in Practice"]},
+        {"outcome": "Map services and run event management", "topics": ["Service Mapping and Event Management"]},
+        {"outcome": "Automate processes with Predictive Intelligence and Now Assist", "topics": ["Predictive Intelligence and Process Automation", "Now Assist and Generative AI on ServiceNow"]},
+        {"outcome": "Build Virtual Agent conversations", "topics": ["Virtual Agent and Conversational Experiences"]},
+        {"outcome": "Design integration architecture at scale", "topics": ["Integration Architecture at Scale"]},
+        {"outcome": "Keep large instances fast and harden platform security", "topics": ["Performance and Scalability of Large Instances", "Platform Security Hardening"]},
+        {"outcome": "Archive data and clean up tables", "topics": ["Data Lifecycle: Archiving, Retention and Table Cleanup"]},
+        {"outcome": "Implement HR Service Delivery and Customer Service Management", "topics": ["HR Service Delivery and Customer Service Management"]},
+        {"outcome": "Implement Strategic Portfolio Management and Integrated Risk Management", "topics": ["Strategic Portfolio Management", "Integrated Risk Management and GRC"]},
+        {"outcome": "Reduce technical debt and customisation", "topics": ["Technical Debt and Reducing Customisation"]},
+        {"outcome": "Lead ServiceNow implementations and troubleshoot production issues", "topics": ["Leading ServiceNow Implementations", "Troubleshooting Production ServiceNow Issues"]},
+        {"outcome": "Deliver an enterprise service management platform", "topics": ["Advanced Capstone: Enterprise Service Management Platform"]}
+      ],
       "days": [
         {
           "topic": "ServiceNow Platform Architecture and Instance Strategy",

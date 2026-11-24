@@ -12,6 +12,22 @@
       "summary": "For developers and DBAs new to MongoDB. Covers document databases, installation and Atlas, databases and collections, inserting, querying and updating documents, query operators, projections and sorting, arrays and embedded documents, data modelling, indexes, the aggregation pipeline, schema validation, transactions, drivers, users and roles, backups, Atlas search, change streams and Compass.",
       "prerequisites": ["Writes code in JavaScript or Python", "Knows what JSON is", "Basic database concepts such as tables and keys"],
       "outcomes": ["Store, query and update documents with mongosh and drivers", "Model data with embedding and references", "Index collections and build aggregation pipelines", "Secure, back up and run MongoDB on Atlas"],
+      "course_outcomes": [
+        {"outcome": "Set up MongoDB locally and on Atlas", "topics": ["MongoDB Overview, Atlas and Local Setup"]},
+        {"outcome": "Insert, query, project, sort and page documents", "topics": ["Creating and Inserting Documents", "Querying Documents", "Projections, Sorting and Paging"]},
+        {"outcome": "Update and delete documents", "topics": ["Updating and Deleting Documents"]},
+        {"outcome": "Work with arrays and embedded documents", "topics": ["Working with Arrays and Embedded Documents"]},
+        {"outcome": "Model data by embedding or referencing and apply schema design patterns", "topics": ["Data Modelling: Embedding and Referencing", "Schema Design Patterns"]},
+        {"outcome": "Speed up queries with indexes, including text, geospatial, TTL and partial indexes", "topics": ["Indexes and Query Performance", "Special Indexes: Text, Geospatial, TTL and Partial"]},
+        {"outcome": "Analyse data with the aggregation pipeline, $lookup, $facet and window functions", "topics": ["The Aggregation Pipeline", "Advanced Aggregation: $lookup, $facet and Window Functions"]},
+        {"outcome": "Validate documents against a schema", "topics": ["Schema Validation"]},
+        {"outcome": "Use transactions where consistency needs them", "topics": ["Transactions and Consistency"]},
+        {"outcome": "Use MongoDB from applications", "topics": ["Using MongoDB from Applications"]},
+        {"outcome": "Secure data with users and roles", "topics": ["Users, Roles and Security"]},
+        {"outcome": "Back up and restore databases", "topics": ["Backups and Restores"]},
+        {"outcome": "Add Atlas Search, Vector Search and change streams", "topics": ["Atlas Search and Vector Search", "Change Streams and Event-Driven Features"]},
+        {"outcome": "Deliver an online bookshop database", "topics": ["Beginner Capstone: Online Bookshop Database"]}
+      ],
       "days": [
         {
           "topic": "MongoDB Overview, Atlas and Local Setup",
@@ -199,6 +215,23 @@
       "summary": "For developers and DBAs running MongoDB. Covers replica sets, read and write concerns in depth, sharding, shard keys, balancing, performance tuning, the profiler, WiredTiger, connection management, advanced modelling, time series collections, Queryable Encryption, monitoring, Atlas operations, Kubernetes operators, migrations from relational databases, upgrades, data APIs, testing and the developer certification.",
       "prerequisites": ["Models documents, writes queries and builds aggregation pipelines", "Creates indexes and reads explain output", "Uses a driver in an application"],
       "outcomes": ["Run replica sets and sharded clusters", "Tune queries, indexes and storage", "Secure, monitor and operate MongoDB on Atlas or Kubernetes", "Migrate relational data and pass the developer certification"],
+      "course_outcomes": [
+        {"outcome": "Run replica sets for high availability", "topics": ["Replica Sets and High Availability"]},
+        {"outcome": "Choose write concern, read concern and causal consistency", "topics": ["Write Concern, Read Concern and Causal Consistency"]},
+        {"outcome": "Design sharded clusters with good shard keys", "topics": ["Sharding Architecture", "Choosing Shard Keys"]},
+        {"outcome": "Control balancing, zones and data locality", "topics": ["Balancing, Zones and Data Locality"]},
+        {"outcome": "Tune performance with the profiler", "topics": ["Performance Tuning and the Profiler"]},
+        {"outcome": "Size WiredTiger storage and server resources", "topics": ["WiredTiger Storage and Server Resources"]},
+        {"outcome": "Tune connections and drivers", "topics": ["Connection Management and Driver Tuning"]},
+        {"outcome": "Model data for scale and use time series collections", "topics": ["Advanced Data Modelling for Scale", "Time Series Collections"]},
+        {"outcome": "Encrypt data with Queryable Encryption and field-level encryption", "topics": ["Queryable Encryption and Field-Level Encryption"]},
+        {"outcome": "Monitor MongoDB and operate Atlas", "topics": ["Monitoring MongoDB", "Operating MongoDB Atlas"]},
+        {"outcome": "Run MongoDB on Kubernetes with operators", "topics": ["MongoDB on Kubernetes with Operators"]},
+        {"outcome": "Migrate from relational databases and plan upgrades", "topics": ["Migrating from Relational Databases to MongoDB", "Upgrades and Feature Compatibility"]},
+        {"outcome": "Build data APIs and test MongoDB applications", "topics": ["Data APIs, GraphQL and App Services Patterns", "Testing MongoDB Applications"]},
+        {"outcome": "Answer Associate Developer practice questions", "topics": ["MongoDB Associate Developer Certification Preparation"]},
+        {"outcome": "Deliver a scaled order platform on MongoDB", "topics": ["Intermediate Capstone: Scaled Order Platform on MongoDB"]}
+      ],
       "days": [
         {
           "topic": "Replica Sets and High Availability",
@@ -386,6 +419,23 @@
       "summary": "For senior developers, DBAs and architects. Covers internals, very large sharded clusters, global clusters, multi-region disaster recovery, performance engineering, advanced schema design, multi-tenancy, security and compliance, encryption key management, AI applications with vector search, streaming with Atlas Stream Processing and Kafka, analytics, data lifecycle, migrations at scale, cost, platform operations, troubleshooting and strategy.",
       "prerequisites": ["Runs replica sets or sharded clusters in production", "Tunes queries and models data for scale", "Operates Atlas or self-managed MongoDB"],
       "outcomes": ["Design global, sharded and multi-tenant MongoDB platforms", "Tune performance and cost at very large scale", "Build AI and streaming workloads on MongoDB", "Lead migrations, operations and incident response"],
+      "course_outcomes": [
+        {"outcome": "Explain query engine, replication and storage internals", "topics": ["MongoDB Internals: Query Engine, Replication and Storage"]},
+        {"outcome": "Run very large sharded clusters", "topics": ["Very Large Sharded Clusters"]},
+        {"outcome": "Design global clusters for data residency and multi-region disaster recovery", "topics": ["Global Clusters and Data Residency", "Multi-Region Disaster Recovery"]},
+        {"outcome": "Engineer performance at scale", "topics": ["MongoDB Performance Engineering at Scale"]},
+        {"outcome": "Review schema designs", "topics": ["Advanced Schema Design Reviews"]},
+        {"outcome": "Design multi-tenant databases", "topics": ["Multi-Tenant MongoDB Design"]},
+        {"outcome": "Meet security and compliance requirements with an encryption and key management architecture", "topics": ["Security and Compliance at Scale", "Encryption and Key Management Architecture"]},
+        {"outcome": "Build AI applications with Atlas Vector Search", "topics": ["AI Applications with Atlas Vector Search"]},
+        {"outcome": "Process streams with Atlas Stream Processing and Kafka", "topics": ["Streaming with Atlas Stream Processing and Kafka"]},
+        {"outcome": "Run analytics and manage the data life cycle with archiving and tiering", "topics": ["Analytics on MongoDB Data", "Data Lifecycle: Archiving, Tiering and Retention"]},
+        {"outcome": "Run migrations at scale and cut costs", "topics": ["Migrations at Scale", "Cost Optimisation for MongoDB"]},
+        {"outcome": "Run MongoDB as a platform with fleet observability", "topics": ["Running MongoDB as a Platform", "Observability for MongoDB Fleets"]},
+        {"outcome": "Troubleshoot production incidents", "topics": ["Troubleshooting Production MongoDB Incidents"]},
+        {"outcome": "Decide when MongoDB is the right database", "topics": ["Database Strategy: When to Choose MongoDB"]},
+        {"outcome": "Deliver a global MongoDB platform", "topics": ["Advanced Capstone: Global MongoDB Platform"]}
+      ],
       "days": [
         {
           "topic": "MongoDB Internals: Query Engine, Replication and Storage",

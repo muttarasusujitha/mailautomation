@@ -12,6 +12,21 @@
       "summary": "For developers moving from single applications to services. Covers what microservices are, monoliths and modular monoliths, finding service boundaries, REST service APIs, a first service with its own database, synchronous calls, messaging with RabbitMQ, containers, Docker Compose, discovery and configuration, API gateways, database per service, timeouts and retries, correlation IDs, health checks, service-to-service security, testing, CI/CD per service and a first Kubernetes deployment. Labs use Spring Boot, Node.js, .NET or Python, whichever the group knows.",
       "prerequisites": ["Builds REST APIs in one back-end language such as Java, C#, Node.js or Python", "Knows SQL and basic Git", "Has run Docker containers"],
       "outcomes": ["Explain when microservices help and when they hurt", "Build services with their own data, APIs and messaging", "Run several services with containers, a gateway and monitoring", "Test, deliver and deploy services independently"],
+      "course_outcomes": [
+        {"outcome": "Explain when microservices fit compared with monoliths and modular monoliths", "topics": ["Microservices Overview and Lab Setup", "Monoliths, Modular Monoliths and Microservices Compared"]},
+        {"outcome": "Find service boundaries from business capabilities and design REST APIs", "topics": ["Finding Service Boundaries with Business Capabilities", "Designing Service APIs with REST"]},
+        {"outcome": "Build a service with its own database", "topics": ["Building a First Service with Its Own Database", "Data Management: Database per Service"]},
+        {"outcome": "Connect services with synchronous calls and asynchronous messaging over RabbitMQ", "topics": ["Synchronous Communication Between Services", "Asynchronous Messaging with RabbitMQ"]},
+        {"outcome": "Run services in containers with Docker Compose", "topics": ["Packaging Each Service in a Container", "Running Several Services with Docker Compose"]},
+        {"outcome": "Add service discovery, configuration and an API gateway", "topics": ["Service Discovery and Configuration", "API Gateway Concepts and a First Gateway"]},
+        {"outcome": "Handle failures between services with timeouts, retries and fallbacks", "topics": ["Timeouts, Retries and Fallbacks Between Services"]},
+        {"outcome": "Trace requests across services with correlation IDs", "topics": ["Logging Across Services with Correlation IDs"]},
+        {"outcome": "Monitor service health", "topics": ["Health Checks and Monitoring Services"]},
+        {"outcome": "Secure service-to-service calls", "topics": ["Securing Service-to-Service Calls"]},
+        {"outcome": "Test services with unit, component and contract tests", "topics": ["Testing Microservices: Unit, Component and Contract Tests"]},
+        {"outcome": "Deliver each service through its own CI/CD pipeline and deploy to Kubernetes", "topics": ["CI/CD per Service", "First Deployment of Services to Kubernetes"]},
+        {"outcome": "Deliver an online food ordering system built from microservices", "topics": ["Beginner Capstone: Online Food Ordering Microservices"]}
+      ],
       "days": [
         {
           "topic": "Microservices Overview and Lab Setup",
@@ -199,6 +214,23 @@
       "summary": "For developers and leads already running a few services. Covers domain-driven design and context maps, event-driven architecture with Kafka, sagas, the outbox and inbox patterns, CQRS, event sourcing, gateway and BFF patterns, service mesh, resilience patterns, distributed tracing, consumer-driven contracts, versioning APIs and events, OAuth2 and mTLS, consistency and idempotency, Kubernetes deployment patterns, progressive delivery, configuration at scale, workflow engines and strangler migrations.",
       "prerequisites": ["Has built and deployed several services that talk over HTTP and messaging", "Comfortable with Docker and basic Kubernetes", "Knows one back-end framework well"],
       "outcomes": ["Design services and events with domain-driven design", "Keep data consistent with sagas, outbox and CQRS", "Secure, observe and test service estates", "Release and migrate services safely"],
+      "course_outcomes": [
+        {"outcome": "Model bounded contexts with domain-driven design", "topics": ["Domain-Driven Design for Microservices: Bounded Contexts and Context Maps"]},
+        {"outcome": "Build event-driven services with Kafka", "topics": ["Event-Driven Architecture with Kafka"]},
+        {"outcome": "Coordinate work with sagas and the outbox and inbox patterns", "topics": ["Sagas: Choreography and Orchestration", "The Transactional Outbox and Inbox Patterns"]},
+        {"outcome": "Build read models with CQRS and store state with event sourcing", "topics": ["CQRS and Read Models", "Event Sourcing"]},
+        {"outcome": "Apply API gateway and backend-for-frontend patterns", "topics": ["API Gateway Patterns and Backends for Frontends"]},
+        {"outcome": "Run a service mesh with Istio or Linkerd", "topics": ["Service Mesh with Istio or Linkerd"]},
+        {"outcome": "Apply circuit breakers, bulkheads and rate limits", "topics": ["Resilience Patterns: Circuit Breakers, Bulkheads and Rate Limits"]},
+        {"outcome": "Trace requests with OpenTelemetry", "topics": ["Distributed Tracing with OpenTelemetry"]},
+        {"outcome": "Test with consumer-driven contracts in Pact and version APIs and events", "topics": ["Consumer-Driven Contract Testing with Pact", "Versioning APIs and Events"]},
+        {"outcome": "Secure services with OAuth2, JWT propagation and mTLS", "topics": ["Security: OAuth2, JWT Propagation and mTLS"]},
+        {"outcome": "Keep data consistent with idempotent operations", "topics": ["Data Consistency and Idempotency"]},
+        {"outcome": "Deploy to Kubernetes with canary and blue-green releases", "topics": ["Kubernetes Deployment Patterns for Microservices", "Progressive Delivery: Canary and Blue-Green Releases"]},
+        {"outcome": "Manage configuration and secrets at scale and run long workflows with Temporal or Camunda", "topics": ["Configuration and Secrets at Scale", "Workflow Engines: Temporal and Camunda"]},
+        {"outcome": "Migrate a monolith with the strangler fig pattern", "topics": ["Migrating a Monolith with the Strangler Fig Pattern"]},
+        {"outcome": "Deliver an event-driven order management platform", "topics": ["Intermediate Capstone: Event-Driven Order Management Platform"]}
+      ],
       "days": [
         {
           "topic": "Domain-Driven Design for Microservices: Bounded Contexts and Context Maps",
@@ -386,6 +418,23 @@
       "summary": "For architects, staff engineers and platform leads. Covers architecture trade-offs and when not to use microservices, team topologies and Conway's law, platform engineering, large-scale event streaming, multi-region services and data, reliability engineering, capacity planning, zero trust, change data capture and data mesh integration, observability at scale, cost engineering, governance and paved roads, cell-based architecture, multi-tenancy, serverless services, testing in production, merging over-split services, AI services and distributed incident troubleshooting.",
       "prerequisites": ["Several years building and running microservices in production", "Strong knowledge of messaging, Kubernetes and observability", "Has led design decisions for a team"],
       "outcomes": ["Make and defend architecture decisions for service estates", "Design multi-region, reliable and secure platforms", "Run platforms, governance and cost programmes", "Lead troubleshooting of distributed incidents"],
+      "course_outcomes": [
+        {"outcome": "Decide when not to use microservices and organise teams around services", "topics": ["Microservices Architecture Trade-offs and When Not to Use Them", "Team Topologies and Conway's Law"]},
+        {"outcome": "Build a platform for microservice teams", "topics": ["Platform Engineering for Microservices"]},
+        {"outcome": "Design large-scale event streaming", "topics": ["Large-Scale Event Streaming Architecture"]},
+        {"outcome": "Run services across regions with data replication", "topics": ["Multi-Region Microservices and Data Replication"]},
+        {"outcome": "Run SLOs, error budgets and chaos experiments across services", "topics": ["Reliability Engineering: SLOs, Error Budgets and Chaos"]},
+        {"outcome": "Plan performance and capacity across services", "topics": ["Performance and Capacity Planning Across Services"]},
+        {"outcome": "Design zero trust security for microservices", "topics": ["Zero Trust Security Architecture for Microservices"]},
+        {"outcome": "Use change data capture and data mesh patterns", "topics": ["Advanced Data Patterns: Change Data Capture and Data Mesh Integration"]},
+        {"outcome": "Observe hundreds of services and control their cost", "topics": ["Observability Across Hundreds of Services", "Cost Engineering for Microservices"]},
+        {"outcome": "Govern services with standards, paved roads and architecture reviews", "topics": ["Governance: Standards, Paved Roads and Architecture Reviews"]},
+        {"outcome": "Limit blast radius with cell-based and multi-tenant architectures", "topics": ["Cell-Based Architecture and Blast Radius", "Multi-Tenant Microservices"]},
+        {"outcome": "Build serverless services and test in production with synthetic monitoring", "topics": ["Serverless and Event-Driven Microservices", "Testing in Production and Synthetic Monitoring"]},
+        {"outcome": "Merge over-split services and add AI services to the estate", "topics": ["Merging Services and Reversing Over-Splitting", "AI Services in a Microservices Estate"]},
+        {"outcome": "Troubleshoot distributed systems incidents", "topics": ["Troubleshooting Distributed Systems Incidents"]},
+        {"outcome": "Deliver a multi-region microservices platform", "topics": ["Advanced Capstone: Multi-Region Microservices Platform"]}
+      ],
       "days": [
         {
           "topic": "Microservices Architecture Trade-offs and When Not to Use Them",
