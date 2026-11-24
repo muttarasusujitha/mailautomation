@@ -325,6 +325,15 @@ async def search_public(query, limit=10):
     return (await _search_bing(query, limit))[:limit]
 
 
+class SearchBatch(tuple):
+    """Matched rows and attempt count. timed_out is set when nothing was kept."""
+
+    def __new__(cls, found, attempts, timed_out=False):
+        batch = super().__new__(cls, (list(found), attempts))
+        batch.timed_out = bool(timed_out)
+        return batch
+
+
 async def search_public_many(queries, limit=50):
     """Keep reading result pages until the route minimum is filled or the connection stops answering."""
     limit = min(max(int(limit or 1), 1), 60)

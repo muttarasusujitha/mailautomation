@@ -1,4 +1,4 @@
-"""LinkedIn account, public search and optional Tavily lead discovery."""
+"""LinkedIn account lead discovery, with optional public and Tavily providers."""
 import logging
 import re
 import uuid
@@ -28,7 +28,7 @@ BAD_EMAIL_LOCALS = {"noreply", "no-reply", "donotreply", "support", "admin", "in
 
 
 class LinkedInLeadSearchRequest(BaseModel):
-    search_provider: Literal['public', 'tavily', 'linkedin_account', 'auto'] = 'public'
+    search_provider: Literal['public', 'tavily', 'linkedin_account', 'auto'] = 'auto'
     query: Optional[str] = ""
     domain: Optional[str] = ""
     domains: Optional[List[str]] = None
@@ -527,7 +527,7 @@ async def search_linkedin_leads(
                 search_errors.append({'domain': domain, 'error': outcome['warnings'][-1]})
         if payload.search_provider == "auto":
             from app.clients.lead_discovery import discover
-            raw_results, outcome = await discover(domain, mode, domain_goal, payload.location or "")
+            raw_results, outcome = await discover(domain, mode, domain_goal, payload.location or "", db=db)
             domain_outcomes.append(outcome)
             if outcome['status'] == 'blocked':
                 search_errors.append({'domain': domain, 'error': outcome.get('primary_error') or outcome['warnings'][0]['error']})
