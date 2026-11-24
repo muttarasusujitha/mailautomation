@@ -78,6 +78,7 @@ Thumbs.db
 /frontend/src/components/*
 !/frontend/src/components/ClientHandoffReview.jsx
 !/frontend/src/components/LeadBot.jsx
+!/frontend/src/components/GlobalVoiceControl.jsx
 !/frontend/src/components/Pager.jsx
 !/frontend/src/components/SearchSourceReport.jsx
 !/frontend/src/utils/leadSearchFeedback.js
