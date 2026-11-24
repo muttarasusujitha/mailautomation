@@ -1,0 +1,368 @@
+{
+    "domain":  "TestNG",
+    "name":  "TestNG â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "TestNG Framework",
+                    "Java Test Automation"
+                ],
+    "tools":  [
+                  "TestNG",
+                  "Maven",
+                  "Java"
+              ],
+    "certifications":  [
+                           "TestNG official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Framework Fundamentals",
+                     "subtopics":  [
+                                       "Purpose and use cases",
+                                       "Architecture",
+                                       "Installation",
+                                       "Project structure",
+                                       "Core syntax/API",
+                                       "First test",
+                                       "Test lifecycle",
+                                       "TestNG terminology and feature mapping for this topic",
+                                       "TestNG configuration and implementation considerations",
+                                       "TestNG best practices and common mistakes for this topic",
+                                       "annotations",
+                                       "test suites",
+                                       "groups",
+                                       "parameters",
+                                       "DataProvider",
+                                       "assertions",
+                                       "listeners",
+                                       "parallel execution",
+                                       "dependencies",
+                                       "XML suites",
+                                       "reports",
+                                       "Maven integration"
+                                   ],
+                     "tools":  [
+                                   "TestNG",
+                                   "Maven",
+                                   "Java"
+                               ],
+                     "lab_task":  "Set up TestNG and execute the first automated test.",
+                     "technology":  "TestNG",
+                     "technology_id":  "testng",
+                     "learning_objectives":  [
+                                                 "Explain the Framework Fundamentals concepts in the context of TestNG.",
+                                                 "Configure or implement the key TestNG features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Framework Fundamentals practically using TestNG.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Test Design",
+                     "subtopics":  [
+                                       "Test cases",
+                                       "Test data",
+                                       "Assertions",
+                                       "Positive/negative tests",
+                                       "Boundary tests",
+                                       "Reusable test components",
+                                       "Naming conventions",
+                                       "TestNG terminology and feature mapping for this topic",
+                                       "TestNG configuration and implementation considerations",
+                                       "TestNG best practices and common mistakes for this topic",
+                                       "annotations",
+                                       "test suites",
+                                       "groups",
+                                       "parameters",
+                                       "DataProvider",
+                                       "listeners",
+                                       "parallel execution",
+                                       "dependencies",
+                                       "XML suites",
+                                       "reports",
+                                       "Maven integration"
+                                   ],
+                     "tools":  [
+                                   "TestNG",
+                                   "Maven",
+                                   "Java"
+                               ],
+                     "lab_task":  "Design a maintainable test suite.",
+                     "technology":  "TestNG",
+                     "technology_id":  "testng",
+                     "learning_objectives":  [
+                                                 "Explain the Test Design concepts in the context of TestNG.",
+                                                 "Configure or implement the key TestNG features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Test Design practically using TestNG.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Selectors, Inputs and Data",
+                     "subtopics":  [
+                                       "Test inputs",
+                                       "Parameterization",
+                                       "Data-driven testing",
+                                       "Fixtures",
+                                       "Environment configuration",
+                                       "Secrets handling",
+                                       "Test isolation",
+                                       "TestNG terminology and feature mapping for this topic",
+                                       "TestNG configuration and implementation considerations",
+                                       "TestNG best practices and common mistakes for this topic",
+                                       "annotations",
+                                       "test suites",
+                                       "groups",
+                                       "parameters",
+                                       "DataProvider",
+                                       "assertions",
+                                       "listeners",
+                                       "parallel execution",
+                                       "dependencies",
+                                       "XML suites",
+                                       "reports",
+                                       "Maven integration"
+                                   ],
+                     "tools":  [
+                                   "TestNG",
+                                   "Maven",
+                                   "Java"
+                               ],
+                     "lab_task":  "Create parameterized/data-driven tests.",
+                     "technology":  "TestNG",
+                     "technology_id":  "testng",
+                     "learning_objectives":  [
+                                                 "Explain the Selectors, Inputs and Data concepts in the context of TestNG.",
+                                                 "Configure or implement the key TestNG features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Selectors, Inputs and Data practically using TestNG.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Advanced Automation",
+                     "subtopics":  [
+                                       "Hooks",
+                                       "Suites",
+                                       "Parallel execution",
+                                       "Retries",
+                                       "Tagging/grouping",
+                                       "Mocks/stubs concepts",
+                                       "Reusable libraries",
+                                       "TestNG terminology and feature mapping for this topic",
+                                       "TestNG configuration and implementation considerations",
+                                       "TestNG best practices and common mistakes for this topic",
+                                       "annotations",
+                                       "test suites",
+                                       "groups",
+                                       "parameters",
+                                       "DataProvider",
+                                       "assertions",
+                                       "listeners",
+                                       "dependencies",
+                                       "XML suites",
+                                       "reports",
+                                       "Maven integration"
+                                   ],
+                     "tools":  [
+                                   "TestNG",
+                                   "Maven",
+                                   "Java"
+                               ],
+                     "lab_task":  "Implement advanced automation patterns.",
+                     "technology":  "TestNG",
+                     "technology_id":  "testng",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Automation concepts in the context of TestNG.",
+                                                 "Configure or implement the key TestNG features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Automation practically using TestNG.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Reporting and Debugging",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Screenshots/traces where applicable",
+                                       "Reports",
+                                       "Failure diagnostics",
+                                       "Flaky test handling",
+                                       "Root-cause analysis",
+                                       "TestNG terminology and feature mapping for this topic",
+                                       "TestNG configuration and implementation considerations",
+                                       "TestNG best practices and common mistakes for this topic",
+                                       "annotations",
+                                       "test suites",
+                                       "groups",
+                                       "parameters",
+                                       "DataProvider",
+                                       "assertions",
+                                       "listeners",
+                                       "parallel execution",
+                                       "dependencies",
+                                       "XML suites",
+                                       "Maven integration"
+                                   ],
+                     "tools":  [
+                                   "TestNG",
+                                   "Maven",
+                                   "Java"
+                               ],
+                     "lab_task":  "Diagnose failures and generate test reports.",
+                     "technology":  "TestNG",
+                     "technology_id":  "testng",
+                     "learning_objectives":  [
+                                                 "Explain the Reporting and Debugging concepts in the context of TestNG.",
+                                                 "Configure or implement the key TestNG features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Reporting and Debugging practically using TestNG.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "CI/CD Integration",
+                     "subtopics":  [
+                                       "Pipeline execution",
+                                       "Headless mode",
+                                       "Artifacts",
+                                       "Environment variables",
+                                       "Test reports",
+                                       "Quality gates",
+                                       "Scheduled runs",
+                                       "TestNG terminology and feature mapping for this topic",
+                                       "TestNG configuration and implementation considerations",
+                                       "TestNG best practices and common mistakes for this topic",
+                                       "annotations",
+                                       "test suites",
+                                       "groups",
+                                       "parameters",
+                                       "DataProvider",
+                                       "assertions",
+                                       "listeners",
+                                       "parallel execution",
+                                       "dependencies",
+                                       "XML suites",
+                                       "reports",
+                                       "Maven integration"
+                                   ],
+                     "tools":  [
+                                   "TestNG",
+                                   "Maven",
+                                   "Java"
+                               ],
+                     "lab_task":  "Run the test suite in CI.",
+                     "technology":  "TestNG",
+                     "technology_id":  "testng",
+                     "learning_objectives":  [
+                                                 "Explain the CI/CD Integration concepts in the context of TestNG.",
+                                                 "Configure or implement the key TestNG features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply CI/CD Integration practically using TestNG.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Performance and Maintainability",
+                     "subtopics":  [
+                                       "Execution optimization",
+                                       "Parallelization",
+                                       "Test pyramid",
+                                       "Coverage concepts",
+                                       "Refactoring",
+                                       "Coding standards",
+                                       "Reliability",
+                                       "TestNG terminology and feature mapping for this topic",
+                                       "TestNG configuration and implementation considerations",
+                                       "TestNG best practices and common mistakes for this topic",
+                                       "annotations",
+                                       "test suites",
+                                       "groups",
+                                       "parameters",
+                                       "DataProvider",
+                                       "assertions",
+                                       "listeners",
+                                       "parallel execution",
+                                       "dependencies",
+                                       "XML suites",
+                                       "reports",
+                                       "Maven integration"
+                                   ],
+                     "tools":  [
+                                   "TestNG",
+                                   "Maven",
+                                   "Java"
+                               ],
+                     "lab_task":  "Optimize and refactor the suite.",
+                     "technology":  "TestNG",
+                     "technology_id":  "testng",
+                     "learning_objectives":  [
+                                                 "Explain the Performance and Maintainability concepts in the context of TestNG.",
+                                                 "Configure or implement the key TestNG features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Performance and Maintainability practically using TestNG.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Capstone Testing Project",
+                     "subtopics":  [
+                                       "Test strategy",
+                                       "Automation design",
+                                       "Data",
+                                       "Execution",
+                                       "Reporting",
+                                       "CI integration",
+                                       "Defect workflow",
+                                       "Documentation",
+                                       "TestNG terminology and feature mapping for this topic",
+                                       "TestNG configuration and implementation considerations",
+                                       "TestNG best practices and common mistakes for this topic",
+                                       "annotations",
+                                       "test suites",
+                                       "groups",
+                                       "parameters",
+                                       "DataProvider",
+                                       "assertions",
+                                       "listeners",
+                                       "parallel execution",
+                                       "dependencies",
+                                       "XML suites",
+                                       "reports",
+                                       "Maven integration"
+                                   ],
+                     "tools":  [
+                                   "TestNG",
+                                   "Maven",
+                                   "Java"
+                               ],
+                     "lab_task":  "Build an end-to-end automation project with TestNG.",
+                     "technology":  "TestNG",
+                     "technology_id":  "testng",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone Testing Project concepts in the context of TestNG.",
+                                                 "Configure or implement the key TestNG features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone Testing Project practically using TestNG.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "testng"
+}

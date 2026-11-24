@@ -1,0 +1,573 @@
+{
+  "domain": "VMware vSphere",
+  "name": "VMware vSphere and VMware Cloud Foundation",
+  "category": "Infrastructure and Virtualisation",
+  "icon": "server",
+  "aliases": ["VMware", "vSphere", "VMware ESXi", "ESXi", "vCenter", "vCenter Server", "VMware Administration", "VMware Admin", "VMware VCP", "VMware Virtualisation", "VMware Virtualization", "VMware Cloud Foundation", "VCF", "vSAN", "VMware vSAN"],
+  "certifications": ["VMware Certified Professional - Data Center Virtualization (VCP-DCV)", "VMware Certified Professional - VMware vSphere Foundation Administrator (VCP-VVF)", "VMware Certified Professional - VMware Cloud Foundation Administrator (VCP-VCF)", "VMware Certified Advanced Professional (VCAP)"],
+  "tools": ["vSphere Client", "ESXi Host Client", "vCenter Server Appliance", "vSphere Lifecycle Manager", "vSAN", "NSX", "VCF.PowerCLI", "esxtop", "SDDC Manager", "VCF Operations", "HCX"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For system administrators, support engineers and freshers moving into data centre roles. Covers virtualisation concepts and a nested lab, installing ESXi, deploying vCenter, building the inventory, creating virtual machines, VMware Tools, templates and content libraries, standard switches, VMFS, NFS and iSCSI storage, vMotion, snapshots and clones, resource controls and pools, vSphere HA and DRS, roles and permissions, performance charts and alarms, logs and everyday troubleshooting, patching with vSphere Lifecycle Manager and backups.",
+      "prerequisites": ["Comfortable with Windows or Linux server administration", "Knows IP addressing, VLANs, DNS and DHCP", "A laptop with 32 GB RAM or access to a lab server for nested ESXi"],
+      "outcomes": ["Install and configure ESXi hosts and vCenter Server", "Create, migrate, protect and patch virtual machines", "Configure networking, storage, HA and DRS for a small cluster", "Monitor, troubleshoot and back up a vSphere environment"],
+      "days": [
+        {
+          "topic": "VMware vSphere Overview and Nested Lab Setup",
+          "subtopics": ["Server virtualisation and what a hypervisor does", "Type 1 and type 2 hypervisors", "ESXi, vCenter Server and the vSphere Client", "VMware vSphere Foundation and VMware Cloud Foundation editions", "Subscription licensing after the Broadcom acquisition", "The Broadcom Compatibility Guide for servers and devices", "Lab options: nested ESXi on VMware Workstation Pro or a spare server", "Lab sizing for CPU, memory and storage", "Lab network plan: management, vMotion and storage networks", "DNS and NTP as prerequisites for vCenter"],
+          "tools": ["VMware Workstation Pro", "ESXi installer ISO", "Broadcom Compatibility Guide"],
+          "lab_task": "Plan a nested lab on VMware Workstation Pro, create three ESXi virtual machines with hardware virtualisation passed through, and write an IP, VLAN and DNS plan for management, vMotion and storage traffic.",
+          "deliverable": "Lab design document and three prepared ESXi virtual machines",
+          "checks": [["Create the nested hosts", "Three VMs with Intel VT-x or AMD-V passed through", "Screenshot of VM settings"], ["Write the IP plan", "Management, vMotion and storage addresses with forward and reverse DNS records", "Lab design document"], ["Check the hardware", "CPU and memory meet ESXi 8 minimums", "Completed checklist"]],
+          "objectives": ["Explain how vSphere virtualises servers", "Name the vSphere components and editions", "Plan a working nested lab"]
+        },
+        {
+          "topic": "Installing and Configuring ESXi Hosts",
+          "subtopics": ["ESXi 8 hardware requirements and boot devices", "Installing ESXi from ISO or USB media", "The Direct Console User Interface (DCUI)", "Management network: IP address, VLAN, DNS and hostname", "The ESXi Host Client", "NTP and time synchronisation", "Enabling SSH and the ESXi Shell only when needed", "Evaluation mode and host licensing"],
+          "tools": ["ESXi installer", "DCUI", "ESXi Host Client"],
+          "lab_task": "Install ESXi 8 on the three nested hosts, set the management network and hostname in the DCUI, configure NTP and DNS, and log in to each host with the Host Client.",
+          "deliverable": "Three installed ESXi hosts with a configuration record",
+          "checks": [["Install ESXi", "Each host boots to the DCUI showing its management IP", "DCUI screenshots"], ["Configure NTP", "NTP service running and host time in sync", "Host Client screenshot"], ["Test name resolution", "Forward and reverse lookups return each host FQDN", "nslookup output"]],
+          "objectives": ["Install ESXi on supported hardware", "Configure host management networking", "Prepare hosts for vCenter"]
+        },
+        {
+          "topic": "Deploying the vCenter Server Appliance",
+          "subtopics": ["vCenter Server Appliance (VCSA) architecture and services", "The two-stage installer: deploy, then configure", "Choosing deployment size and storage size", "The single sign-on domain (vsphere.local)", "The embedded PostgreSQL database", "The appliance management interface (VAMI) on port 5480", "Assigning licences in vCenter", "Scheduling file-based backups of vCenter"],
+          "tools": ["VCSA installer", "vSphere Client", "VAMI"],
+          "lab_task": "Deploy a tiny vCenter Server Appliance onto the first host with the GUI installer, create the SSO domain, log in to the vSphere Client and the VAMI, and schedule a file-based backup to an SFTP server.",
+          "deliverable": "Running vCenter with a scheduled backup",
+          "checks": [["Deploy vCenter", "vSphere Client login works as administrator@vsphere.local", "Login screenshot"], ["Check appliance health", "VAMI shows all services and health indicators green", "VAMI screenshot"], ["Run a backup", "File-based backup job completes to the SFTP target", "Backup job log"]],
+          "objectives": ["Deploy vCenter Server", "Manage the appliance through the VAMI", "Protect vCenter with backups"]
+        },
+        {
+          "topic": "Building the vCenter Inventory: Datacenters, Clusters and Hosts",
+          "subtopics": ["Inventory objects: datacenter, cluster, host, folder and VM", "Creating a datacenter and a cluster", "Adding ESXi hosts to vCenter", "Cluster Quickstart workflow", "Host and VM folders for organisation", "Tags and custom attributes", "Maintenance mode and disconnecting hosts", "Naming standards for inventory objects"],
+          "tools": ["vSphere Client", "Cluster Quickstart"],
+          "lab_task": "Create a datacenter and a cluster, add the three hosts with Cluster Quickstart, organise folders by environment, tag hosts and VMs by owner, and put one host into maintenance mode and back.",
+          "deliverable": "Organised inventory with a naming standard",
+          "checks": [["Add the hosts", "Three connected hosts in one cluster", "Inventory screenshot"], ["Apply tags", "Every host carries an owner and environment tag", "Tag assignment screenshot"], ["Use maintenance mode", "Host enters and exits maintenance mode cleanly", "Recent tasks screenshot"]],
+          "objectives": ["Build a vCenter inventory", "Add and manage hosts", "Organise objects with folders and tags"]
+        },
+        {
+          "topic": "Creating and Configuring Virtual Machines",
+          "subtopics": ["Virtual machine files: VMX, VMDK, NVRAM and logs", "Virtual hardware versions and compatibility", "vCPU, memory, disks and network adapters", "Thin, lazy-zeroed and eager-zeroed thick disks", "SCSI controllers: LSI Logic SAS, PVSCSI and NVMe", "Installing a guest OS from an ISO", "Editing, hot-adding and removing hardware", "The VM console and remote console"],
+          "tools": ["vSphere Client", "VMware Remote Console"],
+          "lab_task": "Create a Linux VM and a Windows Server VM with thin disks and VMXNET3 adapters, install the guest operating systems from ISO, add a second disk while running and browse the VM files on the datastore.",
+          "deliverable": "Two working VMs and a hardware comparison sheet",
+          "checks": [["Create the VMs", "Both guests boot and reach the network", "Console screenshots"], ["Hot-add a disk", "New disk visible inside the running guest", "Guest disk listing"], ["Browse VM files", "VMX, VMDK and log files identified on the datastore", "Datastore browser screenshot"]],
+          "objectives": ["Create virtual machines", "Choose virtual hardware and disk types", "Change VM hardware safely"]
+        },
+        {
+          "topic": "VMware Tools, Templates and Content Libraries",
+          "subtopics": ["What VMware Tools provides and open-vm-tools on Linux", "Installing and upgrading VMware Tools", "Converting a VM to a template", "Guest customisation specifications for Windows and Linux", "Deploying VMs from templates", "Local, published and subscribed content libraries", "Storing OVF, OVA and ISO files in a library", "VM template versioning with check-in and check-out"],
+          "tools": ["vSphere Client", "VMware Tools", "Content Library"],
+          "lab_task": "Install VMware Tools, build a hardened Linux template, create a customisation specification, deploy three VMs with unique names and IPs, and publish the template in a content library.",
+          "deliverable": "Template, customisation specification and content library",
+          "checks": [["Deploy from the template", "Three VMs with unique hostnames and IPs", "VM summary screenshots"], ["Check VMware Tools", "Tools status shows running and current", "VM summary page"], ["Version the template", "Library shows a second template version after check-in", "Content library history"]],
+          "objectives": ["Maintain VMware Tools", "Deploy VMs from templates", "Share images through content libraries"]
+        },
+        {
+          "topic": "vSphere Standard Switches and Port Groups",
+          "subtopics": ["Virtual switch concepts: ports, uplinks and port groups", "VMkernel adapters and their services", "VM port groups and VLAN tagging", "NIC teaming and failover order", "Load balancing policies on a standard switch", "Security policies: promiscuous mode, MAC changes and forged transmits", "Traffic shaping on standard switches", "Testing connectivity with vmkping"],
+          "tools": ["vSphere Client", "vmkping", "esxcli network"],
+          "lab_task": "Build a standard switch on every host with management, vMotion and VM port groups on separate VLANs, configure active and standby uplinks, and test VMkernel connectivity with vmkping.",
+          "deliverable": "Standard switch configuration on all hosts",
+          "checks": [["Create port groups", "Matching port groups and VLAN IDs on all hosts", "Networking screenshots"], ["Test failover", "Traffic continues after an uplink is disconnected", "Ping log"], ["Test VMkernel paths", "vmkping succeeds between vMotion adapters", "vmkping output"]],
+          "objectives": ["Configure standard switches", "Separate traffic with port groups and VLANs", "Make networking resilient"]
+        },
+        {
+          "topic": "VMFS and NFS Datastores",
+          "subtopics": ["Datastore types in vSphere", "VMFS 6 features and block sizes", "Creating and expanding VMFS datastores", "NFS 3 and NFS 4.1 datastores", "Mounting the same datastore on all hosts", "Datastore browser and file operations", "Thin provisioning and space monitoring", "Unmapping space with automatic UNMAP"],
+          "tools": ["vSphere Client", "Linux NFS server", "esxcli storage"],
+          "lab_task": "Present a disk to create a shared VMFS datastore, mount an NFS 4.1 export on all hosts, expand the VMFS datastore and check UNMAP after deleting a large file.",
+          "deliverable": "Shared VMFS and NFS datastores with a capacity report",
+          "checks": [["Create the VMFS datastore", "Datastore mounted on all three hosts", "Datastore hosts tab"], ["Mount NFS 4.1", "NFS datastore accessible from every host", "Datastore screenshot"], ["Reclaim space", "Free space returns after the file is deleted", "Capacity before and after"]],
+          "objectives": ["Create VMFS and NFS datastores", "Share storage across hosts", "Monitor and reclaim capacity"]
+        },
+        {
+          "topic": "iSCSI Storage for ESXi",
+          "subtopics": ["iSCSI terminology: initiator, target, IQN and LUN", "The software iSCSI adapter", "Dynamic and static discovery", "Port binding with VMkernel adapters", "CHAP authentication", "Multipathing and path selection policies", "Rescanning adapters and datastores", "Building a lab target on Linux or TrueNAS"],
+          "tools": ["Software iSCSI adapter", "TrueNAS or Linux targetcli", "esxcli storage nmp"],
+          "lab_task": "Build an iSCSI target, enable the software iSCSI adapter with port binding on two VMkernel adapters, connect with CHAP, set round robin multipathing and create a VMFS datastore on the LUN.",
+          "deliverable": "Multipathed iSCSI datastore and configuration notes",
+          "checks": [["Connect the target", "LUN visible on all hosts", "Storage devices screenshot"], ["Check multipathing", "Two active paths with round robin", "Paths tab screenshot"], ["Enable CHAP", "Connection fails with a wrong secret and works with the right one", "Event log entries"]],
+          "objectives": ["Connect ESXi to iSCSI storage", "Configure multipathing", "Secure iSCSI with CHAP"]
+        },
+        {
+          "topic": "vMotion and Cold Migration",
+          "subtopics": ["How vMotion moves a running VM", "vMotion requirements and the vMotion VMkernel adapter", "Compute vMotion and shared-nothing vMotion", "Cold migration of powered-off VMs", "CPU compatibility checks", "Migrating VMs between clusters", "Encrypted vMotion settings", "Monitoring migration tasks"],
+          "tools": ["vSphere Client", "vMotion"],
+          "lab_task": "Enable vMotion on a dedicated VMkernel adapter, live-migrate a VM while pinging it, run a shared-nothing vMotion to local storage and cold-migrate a powered-off VM to another cluster.",
+          "deliverable": "Migration test log with timings",
+          "checks": [["Live-migrate a VM", "No more than one dropped ping during vMotion", "Ping log"], ["Run shared-nothing vMotion", "VM runs on a new host and datastore", "Task details"], ["Cold-migrate a VM", "Powered-off VM registered in the target cluster", "Inventory screenshot"]],
+          "objectives": ["Configure vMotion", "Migrate VMs with and without shared storage", "Plan maintenance with migration"]
+        },
+        {
+          "topic": "VM Snapshots and Clones",
+          "subtopics": ["What a snapshot captures and how delta disks work", "Snapshot memory and guest quiescing", "Reverting and deleting snapshots", "Snapshot consolidation", "Why long-lived snapshots cause problems", "Full clones and linked clones", "Cloning running VMs", "Finding old snapshots with alarms and reports"],
+          "tools": ["vSphere Client", "Snapshot manager"],
+          "lab_task": "Take a snapshot before an application change, break the application and revert, consolidate a VM that needs consolidation, clone a running VM and create an alarm for snapshots older than three days.",
+          "deliverable": "Snapshot procedure and an aged snapshot alarm",
+          "checks": [["Revert a snapshot", "Application works again after the revert", "Before and after screenshots"], ["Consolidate disks", "Needs consolidation warning cleared", "VM summary screenshot"], ["Alert on old snapshots", "Alarm fires for a test snapshot", "Triggered alarm screenshot"]],
+          "objectives": ["Use snapshots safely", "Clone virtual machines", "Prevent snapshot sprawl"]
+        },
+        {
+          "topic": "Resource Controls: Shares, Reservations, Limits and Pools",
+          "subtopics": ["How ESXi schedules CPU and memory", "Shares, reservations and limits", "Memory reclamation: page sharing, ballooning, compression and swapping", "CPU ready time and overcommitment", "Resource pools and expandable reservations", "The resource pool priority pie problem", "vApps and start-up order", "Choosing controls for production and test"],
+          "tools": ["vSphere Client", "Resource pools"],
+          "lab_task": "Create production and test resource pools with different shares, add a CPU reservation for a database VM, run a CPU stress test and compare ready time, then fix a pool that starves its VMs.",
+          "deliverable": "Resource policy design with test results",
+          "checks": [["Apply shares", "Production VMs get more CPU under contention", "Performance chart"], ["Set a reservation", "Database VM keeps its guaranteed CPU", "Resource allocation tab"], ["Fix the pool design", "Per-VM shares match the intended priority", "Before and after calculation"]],
+          "objectives": ["Control CPU and memory allocation", "Use resource pools correctly", "Avoid common resource mistakes"]
+        },
+        {
+          "topic": "vSphere High Availability (HA)",
+          "subtopics": ["How HA restarts VMs after a host failure", "The HA agent and the primary host", "Network and datastore heartbeats", "Admission control basics", "Host isolation response", "VM restart priority and orchestration", "VM monitoring with VMware Tools heartbeats", "Testing HA safely"],
+          "tools": ["vSphere Client", "vSphere HA"],
+          "lab_task": "Enable HA on the cluster, set restart priorities for application tiers, power off a host to simulate failure, and record how long each VM takes to restart.",
+          "deliverable": "HA configuration and failover test report",
+          "checks": [["Enable HA", "All hosts show HA configured without errors", "Cluster summary"], ["Simulate a host failure", "VMs restart on surviving hosts", "Events list"], ["Check restart order", "Database VMs restart before application VMs", "Restart timestamps"]],
+          "objectives": ["Configure vSphere HA", "Set restart priorities", "Test host failure recovery"]
+        },
+        {
+          "topic": "DRS Load Balancing",
+          "subtopics": ["What DRS does in a cluster", "Automation levels: manual, partially and fully automated", "Migration threshold", "The VM DRS score", "Initial placement", "DRS recommendations and history", "Maintenance mode with DRS", "When DRS cannot balance"],
+          "tools": ["vSphere Client", "vSphere DRS"],
+          "lab_task": "Enable DRS in fully automated mode, load one host with CPU-heavy VMs, watch DRS rebalance, compare migration thresholds and put a host into maintenance mode to see automatic evacuation.",
+          "deliverable": "DRS behaviour report",
+          "checks": [["Enable DRS", "Cluster balance improves after load is added", "DRS score screenshot"], ["Change the threshold", "Different migration counts at two threshold settings", "Comparison table"], ["Evacuate a host", "Maintenance mode moves every VM automatically", "Task list"]],
+          "objectives": ["Configure DRS", "Interpret DRS scores and recommendations", "Use DRS for maintenance"]
+        },
+        {
+          "topic": "vCenter Roles, Permissions and SSO Users",
+          "subtopics": ["vCenter permission model: user, role and object", "Default roles and custom roles", "Permission inheritance and propagation", "Global permissions", "Adding Active Directory over LDAPS as an identity source", "SSO users and groups", "Least privilege for operators and application teams", "Reviewing permissions regularly"],
+          "tools": ["vSphere Client", "Single sign-on", "Active Directory"],
+          "lab_task": "Add Active Directory over LDAPS, create a VM operator role that can power and console VMs only, assign it on an application folder, and prove the operator cannot change hosts or networks.",
+          "deliverable": "Role design and permission matrix",
+          "checks": [["Add the identity source", "Domain users can log in to vCenter", "Login screenshot"], ["Assign the operator role", "Operator can power on VMs in the folder", "Task screenshot"], ["Test least privilege", "Host and network changes are denied for the operator", "Permission error screenshot"]],
+          "objectives": ["Design vCenter roles", "Apply permissions with inheritance", "Integrate Active Directory"]
+        },
+        {
+          "topic": "Performance Charts, Events and Alarms",
+          "subtopics": ["Overview and advanced performance charts", "Key counters for CPU, memory, disk and network", "Real-time and historical statistics", "Events and tasks", "Default alarms and custom alarm definitions", "Alarm actions: email, SNMP and scripts", "Acknowledging and resetting alarms", "Building a daily health check"],
+          "tools": ["vSphere Client", "Alarms", "SMTP server"],
+          "lab_task": "Create alarms for datastore usage, host CPU and VM ready time with email actions, trigger each alarm in the lab, and build a daily health check sheet from the performance charts.",
+          "deliverable": "Custom alarms and daily health check sheet",
+          "checks": [["Trigger the datastore alarm", "Email arrives when usage passes the threshold", "Email screenshot"], ["Read performance charts", "Busiest VM identified with the correct counters", "Annotated chart"], ["Run the health check", "Every item on the sheet completed with values", "Completed health check"]],
+          "objectives": ["Read vSphere performance data", "Configure alarms", "Run daily health checks"]
+        },
+        {
+          "topic": "Logs and Troubleshooting Everyday vSphere Problems",
+          "subtopics": ["Key ESXi logs: vmkernel, hostd and vpxa", "vCenter logs and service status", "Exporting support bundles", "Forwarding logs with syslog", "VM will not power on: locks and resource issues", "Host disconnected from vCenter", "Datastore full and stuck snapshots", "Opening a support case with the right evidence"],
+          "tools": ["ESXi Shell", "vSphere Client", "Syslog server"],
+          "lab_task": "Forward host logs to a syslog server, then fix five broken scenarios: a VM that will not power on, a disconnected host, a full datastore, a failed vMotion and a VM with a stuck snapshot.",
+          "deliverable": "Troubleshooting runbook for five common problems",
+          "checks": [["Forward logs", "Host logs arrive at the syslog server", "Syslog screenshot"], ["Fix the broken scenarios", "All five scenarios resolved with root cause noted", "Runbook"], ["Export a support bundle", "Bundle generated for one host and vCenter", "Bundle file list"]],
+          "objectives": ["Find and read vSphere logs", "Fix common problems", "Collect evidence for support"]
+        },
+        {
+          "topic": "Patching Hosts with vSphere Lifecycle Manager",
+          "subtopics": ["vSphere Lifecycle Manager images", "Base image, vendor add-ons and components", "Moving from baselines to images", "Checking cluster compliance", "Remediation pre-checks", "Rolling remediation with maintenance mode", "Quick Boot to shorten host restarts", "Patch cadence and change approval"],
+          "tools": ["vSphere Lifecycle Manager", "vSphere Client"],
+          "lab_task": "Convert the lab cluster to an image, check compliance against a newer ESXi patch, run the remediation pre-check and remediate the cluster one host at a time while VMs stay online.",
+          "deliverable": "Patched cluster and a patching procedure",
+          "checks": [["Check compliance", "Non-compliant hosts listed against the new image", "Compliance screenshot"], ["Remediate the cluster", "All hosts compliant at the new build", "Hosts build list"], ["Keep VMs online", "No VM outage during remediation", "Ping log"]],
+          "objectives": ["Manage clusters with images", "Patch ESXi hosts safely", "Write a patching procedure"]
+        },
+        {
+          "topic": "Backing Up VMs and vCenter",
+          "subtopics": ["Backup requirements: RPO, RTO and retention", "vSphere Storage APIs for Data Protection (VADP)", "Changed Block Tracking (CBT)", "Transport modes: hot-add, network and SAN", "Application-consistent backups with quiescing", "Restoring full VMs and single files", "Restoring vCenter from a file-based backup", "The 3-2-1 backup rule"],
+          "tools": ["Veeam Backup & Replication Community Edition", "VAMI", "vSphere Client"],
+          "lab_task": "Back up three VMs with a VADP-based tool, restore one VM and one file, delete a test VM and restore it, and rehearse a vCenter restore from the file-based backup.",
+          "deliverable": "Backup policy and restore test report",
+          "checks": [["Back up the VMs", "Jobs succeed with CBT enabled", "Job report"], ["Restore a file", "File content matches the original", "Checksum comparison"], ["Restore vCenter", "Restored vCenter shows the full inventory", "Login screenshot"]],
+          "objectives": ["Back up VMs with VADP", "Restore VMs and files", "Recover vCenter"]
+        },
+        {
+          "topic": "Beginner Capstone: Building a Small vSphere Cluster",
+          "subtopics": ["Design", "Build", "Protect", "Hand over"],
+          "tools": ["ESXi", "vCenter Server", "vSphere Lifecycle Manager", "Backup tool"],
+          "lab_task": "Build a three-host cluster from scratch for a small company with shared storage, separated networks, HA, DRS, roles, alarms, patching and backups, then hand it over with documentation.",
+          "deliverable": "Working cluster, build document and handover runbook",
+          "checks": [["Demonstrate failover", "VMs restart after a host is powered off", "Demo recording"], ["Show operations", "Patching, alarms and backups all working", "Evidence pack"], ["Hand over", "Runbook lets a peer complete routine tasks", "Peer sign-off"]],
+          "objectives": ["Combine the beginner topics in one build", "Run a small vSphere cluster", "Document for handover"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For VMware administrators with a year of hands-on work. Covers distributed switches, Network I/O Control and teaming, vSAN with OSA and ESA, storage policies, Storage DRS, Fault Tolerance, advanced HA, DRS rules and EVC, esxtop performance troubleshooting, hardening, certificates, identity federation, PowerCLI automation, the vSphere Kubernetes Service, upgrades, Veeam backup, vSphere Replication and Live Site Recovery, VM encryption and vTPM, and VCP-DCV exam preparation.",
+      "prerequisites": ["Runs ESXi and vCenter in daily work", "Comfortable with HA, DRS, vMotion and datastores", "Basic PowerShell knowledge"],
+      "outcomes": ["Build and run vSAN clusters with distributed networking", "Tune performance and troubleshoot with esxtop", "Secure, upgrade and automate vSphere", "Protect workloads with backup, replication and encryption"],
+      "days": [
+        {
+          "topic": "vSphere Distributed Switches",
+          "subtopics": ["Distributed switch architecture: management and data planes", "Distributed port groups and uplink port groups", "Migrating hosts and VMkernel adapters from standard switches", "Load-based teaming (route based on physical NIC load)", "LACP link aggregation groups", "Port mirroring and NetFlow", "Health check for VLAN and MTU", "Backing up and restoring switch configuration"],
+          "tools": ["vSphere Distributed Switch", "vSphere Client"],
+          "lab_task": "Create a distributed switch, migrate hosts and VMkernel adapters from standard switches without losing management access, enable health check and NetFlow, and export the switch configuration.",
+          "deliverable": "Distributed switch with a migration runbook",
+          "checks": [["Migrate the hosts", "All hosts on the distributed switch with no lost connections", "Topology screenshot"], ["Run health check", "VLAN and MTU checks pass on every uplink", "Health check screenshot"], ["Export the configuration", "Backup file restores the switch in a test datacenter", "Restore screenshot"]],
+          "objectives": ["Build distributed switches", "Migrate hosts safely", "Monitor and back up network configuration"]
+        },
+        {
+          "topic": "Network I/O Control, VLAN Trunking and NIC Teaming",
+          "subtopics": ["Network I/O Control version 3", "System traffic shares, reservations and limits", "Network resource pools for VM traffic", "VLAN trunking and private VLANs", "Jumbo frames for vMotion and storage traffic", "Teaming design for two and four uplinks", "Physical switch configuration to match", "Testing contention"],
+          "tools": ["Network I/O Control", "Distributed switch", "iperf3"],
+          "lab_task": "Enable Network I/O Control, give vSAN and vMotion guaranteed bandwidth, set jumbo frames end to end, create a trunk port group for a virtual firewall, and test behaviour under heavy VM traffic.",
+          "deliverable": "Network traffic design and contention test results",
+          "checks": [["Set reservations", "vSAN traffic keeps its reserved bandwidth under load", "iperf3 results"], ["Enable jumbo frames", "vmkping with 8972-byte packets and no fragmentation succeeds", "vmkping output"], ["Trunk VLANs", "Virtual firewall receives traffic tagged on several VLANs", "Packet capture"]],
+          "objectives": ["Manage bandwidth with Network I/O Control", "Design teaming and VLANs", "Configure jumbo frames correctly"]
+        },
+        {
+          "topic": "Building vSAN Clusters with OSA and ESA",
+          "subtopics": ["vSAN architecture and ReadyNodes", "Original Storage Architecture: disk groups, cache and capacity", "Express Storage Architecture: storage pools on NVMe", "vSAN networking requirements", "RAID-1, RAID-5 and RAID-6 placement", "Deduplication, compression and capacity planning", "vSAN health checks", "vSAN file services"],
+          "tools": ["vSAN", "vSAN health", "vSphere Client"],
+          "lab_task": "Build a vSAN cluster on the nested hosts with a dedicated vSAN network, claim disks, review health findings and fix them, then create a file share with vSAN file services.",
+          "deliverable": "Healthy vSAN cluster and capacity plan",
+          "checks": [["Create the vSAN datastore", "Datastore shows capacity from all hosts", "Capacity view"], ["Fix health findings", "Health checks pass or have documented exceptions", "Health screenshot"], ["Create a file share", "NFS share mounted from a Linux VM", "Mount output"]],
+          "objectives": ["Build vSAN clusters", "Choose OSA or ESA", "Keep vSAN healthy"]
+        },
+        {
+          "topic": "Storage Policy-Based Management",
+          "subtopics": ["VM storage policies", "vSAN rules: failures to tolerate and RAID level", "Tag-based placement rules", "Host-based rules for encryption and I/O control", "Applying policies to VMs and disks", "Policy compliance and remediation", "Changing policies on running VMs", "Policy design for gold, silver and bronze tiers"],
+          "tools": ["VM Storage Policies", "vSAN", "vSphere tags"],
+          "lab_task": "Create gold, silver and bronze storage policies, apply them to VMs and individual disks, change a policy on a running VM and watch the resync, and fix a non-compliant VM.",
+          "deliverable": "Storage policy catalogue",
+          "checks": [["Apply policies", "Each VM compliant with its assigned policy", "Compliance screenshot"], ["Change a policy", "Resync completes and the VM stays online", "Resync monitor"], ["Fix non-compliance", "Previously non-compliant VM becomes compliant", "Before and after screenshot"]],
+          "objectives": ["Design storage policies", "Apply policies to VMs and disks", "Manage policy compliance"]
+        },
+        {
+          "topic": "Storage vMotion, Storage DRS and Datastore Clusters",
+          "subtopics": ["Storage vMotion and disk format changes", "Datastore clusters", "Storage DRS space and I/O balancing", "Storage DRS affinity and anti-affinity rules", "Datastore maintenance mode", "Storage I/O Control", "Migrating between storage arrays", "Avoiding Storage DRS conflicts with array features"],
+          "tools": ["Storage vMotion", "Storage DRS", "Storage I/O Control"],
+          "lab_task": "Create a datastore cluster, enable Storage DRS, keep the disks of two database VMs on separate datastores, put a datastore into maintenance mode and convert a thick disk to thin with Storage vMotion.",
+          "deliverable": "Datastore cluster and storage migration plan",
+          "checks": [["Enable Storage DRS", "Recommendations appear when a datastore fills", "Recommendations screenshot"], ["Apply anti-affinity", "Database disks stay on separate datastores", "Placement screenshot"], ["Convert a disk", "Disk becomes thin with no VM downtime", "Disk properties"]],
+          "objectives": ["Migrate storage live", "Balance datastores with Storage DRS", "Plan array migrations"]
+        },
+        {
+          "topic": "vSphere Fault Tolerance",
+          "subtopics": ["How Fault Tolerance keeps a secondary VM in step", "FT requirements and limits", "The FT logging network", "Turning FT on and off", "Testing failover and restarting the secondary", "FT and HA working together", "Performance cost of FT", "When to choose FT, HA or application clustering"],
+          "tools": ["vSphere Fault Tolerance", "vSphere Client"],
+          "lab_task": "Configure an FT logging network, turn on Fault Tolerance for a small VM, test failover while a client keeps a session open, and measure the performance impact.",
+          "deliverable": "FT test report and decision guide",
+          "checks": [["Turn on FT", "Primary and secondary VMs protected", "VM summary"], ["Test failover", "Client session survives the failover", "Session log"], ["Measure the cost", "Latency difference with and without FT recorded", "Measurement table"]],
+          "objectives": ["Configure Fault Tolerance", "Test FT failover", "Choose the right availability option"]
+        },
+        {
+          "topic": "Advanced HA: Admission Control, Isolation Response and Proactive HA",
+          "subtopics": ["Admission control policies: cluster percentage, slots and failover hosts", "Performance degradation tolerated", "Isolation addresses and isolation response", "VM Component Protection for APD and PDL", "Datastore heartbeat selection", "Proactive HA with hardware providers", "HA orchestrated restart and dependencies", "Reading the HA logs (fdm.log)"],
+          "tools": ["vSphere HA", "fdm.log", "vSphere Client"],
+          "lab_task": "Compare admission control policies on the same cluster, set isolation addresses, simulate a host isolation and a storage PDL event, and configure orchestrated restart between dependent VMs.",
+          "deliverable": "HA design decisions with test evidence",
+          "checks": [["Compare admission control", "Capacity reserved under each policy calculated", "Comparison table"], ["Simulate isolation", "Isolation response triggers as configured", "fdm.log extract"], ["Test PDL handling", "Affected VM restarted on a healthy host", "Events screenshot"]],
+          "objectives": ["Choose admission control policies", "Handle isolation and storage failures", "Orchestrate VM restarts"]
+        },
+        {
+          "topic": "DRS Rules, VM Overrides and Enhanced vMotion Compatibility",
+          "subtopics": ["VM-VM affinity and anti-affinity rules", "VM-host groups with must and should rules", "Licensing and software placement rules", "VM overrides for DRS and HA", "Enhanced vMotion Compatibility (EVC) modes", "Per-VM EVC", "Predictive DRS with VCF Operations", "Conflicts between rules"],
+          "tools": ["vSphere DRS", "EVC", "vSphere Client"],
+          "lab_task": "Keep two domain controllers apart with an anti-affinity rule, pin a licensed database to two hosts with a should rule, enable EVC for a cluster with mixed CPUs and fix a rule conflict.",
+          "deliverable": "Placement rule register",
+          "checks": [["Apply anti-affinity", "Domain controllers never share a host", "DRS placement screenshot"], ["Pin the database", "Database runs only on its host group", "Host group screenshot"], ["Enable EVC", "vMotion works between hosts of different CPU generations", "Migration task"]],
+          "objectives": ["Control placement with DRS rules", "Use VM overrides", "Mix CPU generations with EVC"]
+        },
+        {
+          "topic": "Performance Troubleshooting with esxtop",
+          "subtopics": ["esxtop panels and navigation", "CPU counters: %RDY, %CSTP and %USED", "Memory counters: ballooning, swapping and compression", "Disk counters: DAVG, KAVG, GAVG and queues", "Network counters: dropped packets", "Batch mode capture and analysis", "Right-sizing oversized VMs", "A structured troubleshooting method"],
+          "tools": ["esxtop", "resxtop", "vSphere performance charts"],
+          "lab_task": "Create CPU, memory, storage and network bottlenecks in the lab, find each with esxtop, capture batch output for analysis, and fix each problem with evidence.",
+          "deliverable": "Performance troubleshooting report with captures",
+          "checks": [["Find CPU contention", "High %RDY VM identified and fixed", "esxtop capture"], ["Find storage latency", "Latency source shown as device or kernel", "DAVG and KAVG values"], ["Right-size a VM", "Oversized VM reduced with better ready time", "Before and after counters"]],
+          "objectives": ["Use esxtop confidently", "Diagnose bottlenecks", "Right-size virtual machines"]
+        },
+        {
+          "topic": "Security Hardening for ESXi and vCenter",
+          "subtopics": ["The vSphere Security Configuration and Hardening Guide", "Lockdown mode: normal and strict", "Exception users and the DCUI", "SSH, ESXi Shell and service timeouts", "Account lockout and password policies", "UEFI Secure Boot and TPM 2.0 attestation", "Running only signed binaries (execInstalledOnly)", "vCenter firewall and network isolation of management"],
+          "tools": ["vSphere Client", "ESXi Host Client", "VCF.PowerCLI"],
+          "lab_task": "Assess hosts against the hardening guide with a PowerCLI script, enable lockdown mode with exception users, set shell timeouts and password policies, and confirm TPM attestation on hosts.",
+          "deliverable": "Hardening baseline with an exceptions register",
+          "checks": [["Assess the hosts", "Report lists every deviation from the guide", "PowerCLI report"], ["Enable lockdown mode", "Direct host login blocked except for exception users", "Login attempt screenshot"], ["Confirm attestation", "Hosts show TPM attestation passed", "Host security screenshot"]],
+          "objectives": ["Harden ESXi and vCenter", "Use lockdown mode", "Track security exceptions"]
+        },
+        {
+          "topic": "vSphere Certificate Management",
+          "subtopics": ["The VMware Certificate Authority (VMCA)", "Machine SSL and solution user certificates", "Certificate modes: VMCA, subordinate and custom", "Replacing the vCenter Machine SSL certificate", "ESXi host certificates", "Trusted root certificates", "STS signing certificate expiry", "Certificate expiry alarms"],
+          "tools": ["vSphere Client", "Certificate Management", "OpenSSL"],
+          "lab_task": "Issue a certificate from an enterprise CA, replace the vCenter Machine SSL certificate, renew host certificates, check the STS signing certificate and set expiry alarms.",
+          "deliverable": "Certificate inventory and replacement procedure",
+          "checks": [["Replace the Machine SSL certificate", "Browser trusts vCenter with no warning", "Browser screenshot"], ["Renew host certificates", "Hosts show new expiry dates", "Certificate screenshot"], ["Check STS expiry", "STS certificate valid for more than a year", "Certificate details"]],
+          "objectives": ["Understand vSphere certificates", "Replace certificates safely", "Prevent expiry outages"]
+        },
+        {
+          "topic": "Identity Federation with External Identity Providers",
+          "subtopics": ["vCenter identity providers and SSO", "Identity federation with AD FS", "Microsoft Entra ID, Okta and PingFederate", "Multi-factor authentication for vCenter", "Group mapping and provisioning", "Moving away from Integrated Windows Authentication", "Break-glass local accounts", "Testing and rolling back federation"],
+          "tools": ["vCenter identity provider settings", "Microsoft Entra ID or Okta"],
+          "lab_task": "Configure vCenter federation with Microsoft Entra ID or Okta, require MFA, map groups to roles, test a break-glass local account and document the rollback.",
+          "deliverable": "Federation configuration and access runbook",
+          "checks": [["Federate vCenter", "Users sign in through the identity provider", "Login flow screenshot"], ["Require MFA", "Sign-in prompts for a second factor", "MFA screenshot"], ["Test break-glass", "Local SSO administrator still works", "Break-glass test record"]],
+          "objectives": ["Federate vCenter identity", "Enforce MFA", "Keep emergency access"]
+        },
+        {
+          "topic": "Automating vSphere with PowerCLI",
+          "subtopics": ["Installing VCF.PowerCLI (formerly VMware.PowerCLI)", "Connect-VIServer and sessions", "Get-VM, Get-VMHost and the object pipeline", "Bulk VM changes", "Reports with Get-Stat and Export-Csv", "Running scripts inside guests with Invoke-VMScript", "Scheduled scripts and credential storage", "Error handling and safe dry runs with -WhatIf"],
+          "tools": ["VCF.PowerCLI", "PowerShell 7", "VS Code"],
+          "lab_task": "Write PowerCLI scripts that report snapshots older than seven days, add a tag to every VM missing an owner, export weekly CPU and memory statistics, and run them on a schedule.",
+          "deliverable": "PowerCLI script library with a README",
+          "checks": [["Report old snapshots", "Report matches what the vSphere Client shows", "CSV report"], ["Tag missing owners", "Every VM has an owner tag", "Tag report"], ["Test with WhatIf", "Dry run lists changes without making them", "Console output"]],
+          "objectives": ["Automate tasks with PowerCLI", "Produce reports", "Run scripts safely"]
+        },
+        {
+          "topic": "vSphere Kubernetes Service and the Supervisor",
+          "subtopics": ["vSphere with Kubernetes concepts", "Enabling the Supervisor on a cluster", "Networking choices: VDS with a load balancer or NSX", "vSphere Namespaces, quotas and permissions", "VM classes and storage classes from storage policies", "Creating a VKS cluster", "kubectl vsphere login", "The VM Service for developer-requested VMs"],
+          "tools": ["Supervisor", "vSphere Kubernetes Service", "kubectl", "Load balancer"],
+          "lab_task": "Enable the Supervisor with a VDS network and load balancer, create a namespace with quotas for a team, deploy a VKS cluster and run a sample application behind a load balancer.",
+          "deliverable": "Namespace design and a running VKS cluster",
+          "checks": [["Enable the Supervisor", "Supervisor shows running in the cluster", "Workload management screenshot"], ["Create a VKS cluster", "kubectl get nodes lists ready nodes", "kubectl output"], ["Apply quotas", "Namespace refuses work above its CPU quota", "Error output"]],
+          "objectives": ["Run Kubernetes on vSphere", "Give teams namespaces", "Deploy VKS clusters"]
+        },
+        {
+          "topic": "Upgrading vCenter Server and ESXi",
+          "subtopics": ["Interoperability matrix and upgrade paths", "Upgrade order across vCenter, ESXi, vSAN and switches", "Pre-checks and backups before upgrade", "vCenter reduced downtime upgrade", "Upgrading ESXi with cluster images", "VM hardware and VMware Tools upgrades", "vSAN on-disk format and distributed switch versions", "Rollback planning"],
+          "tools": ["vCenter installer", "vSphere Lifecycle Manager", "Interoperability matrix"],
+          "lab_task": "Plan an upgrade of the lab from one vSphere 8 update to the next, check interoperability, back up vCenter, upgrade vCenter and then the cluster, and finish with VMware Tools and switch versions.",
+          "deliverable": "Upgrade plan with rollback steps and results",
+          "checks": [["Check interoperability", "Every component pair supported at the target version", "Interoperability report"], ["Upgrade vCenter", "vCenter running the target build", "VAMI summary"], ["Upgrade the cluster", "All hosts compliant with the new image", "Compliance screenshot"]],
+          "objectives": ["Plan vSphere upgrades", "Upgrade in the right order", "Prepare rollback"]
+        },
+        {
+          "topic": "Backup and Restore with Veeam",
+          "subtopics": ["Veeam Backup & Replication components", "Backup proxies and transport modes", "Hardened Linux repositories with immutability", "Backup jobs, retention and GFS", "Backup copy jobs offsite", "Instant VM Recovery", "SureBackup verification", "The 3-2-1-1-0 rule"],
+          "tools": ["Veeam Backup & Replication", "Hardened Linux repository"],
+          "lab_task": "Deploy Veeam with a proxy and a hardened Linux repository, back up a three-tier application, prove backups are immutable, restore with Instant VM Recovery and verify with SureBackup.",
+          "deliverable": "Backup design and restore test evidence",
+          "checks": [["Prove immutability", "Deleting a recent backup fails", "Error screenshot"], ["Run Instant VM Recovery", "Application online from backup within minutes", "Recovery timeline"], ["Verify with SureBackup", "Verification job passes for all tiers", "SureBackup report"]],
+          "objectives": ["Design Veeam backups", "Protect backups from deletion", "Restore quickly"]
+        },
+        {
+          "topic": "vSphere Replication and VMware Live Site Recovery",
+          "subtopics": ["vSphere Replication appliances and RPO settings", "Replicating VMs between sites", "Point-in-time instances", "VMware Live Site Recovery (formerly Site Recovery Manager)", "Protection groups and recovery plans", "Test recovery without disruption", "Planned migration, failover and reprotect", "IP customisation during recovery"],
+          "tools": ["vSphere Replication", "VMware Live Site Recovery"],
+          "lab_task": "Pair two lab sites, replicate a two-tier application with a 15-minute RPO, build a recovery plan with IP changes, run a test recovery and then a planned migration with reprotect.",
+          "deliverable": "Recovery plan with test and migration reports",
+          "checks": [["Replicate VMs", "Replication status OK within the RPO", "Replication screenshot"], ["Run a test recovery", "Application works in the test network with no production impact", "Test report"], ["Reprotect", "Replication reversed to the original site", "Reprotect report"]],
+          "objectives": ["Replicate VMs between sites", "Build recovery plans", "Test disaster recovery safely"]
+        },
+        {
+          "topic": "VM Encryption, vTPM and Key Providers",
+          "subtopics": ["Standard, native and trusted key providers", "KMIP and external key servers", "Encrypting VMs with a storage policy", "Encrypted vMotion", "Virtual TPM for Windows 11 and BitLocker", "vSAN data-at-rest encryption", "Key provider backup and recovery", "Performance and operations impact"],
+          "tools": ["vSphere Native Key Provider", "VM encryption policy", "vTPM"],
+          "lab_task": "Configure the Native Key Provider and back it up, encrypt a VM with a storage policy, add a vTPM to a Windows 11 VM and confirm encrypted vMotion is required for an encrypted VM.",
+          "deliverable": "Encryption design and key recovery procedure",
+          "checks": [["Back up the key provider", "Backup file stored offline with a password", "Backup record"], ["Encrypt a VM", "VM shows encrypted status", "VM summary"], ["Add a vTPM", "Windows 11 sees TPM 2.0", "tpm.msc screenshot"]],
+          "objectives": ["Configure key providers", "Encrypt VMs", "Support vTPM workloads"]
+        },
+        {
+          "topic": "VCP-DCV Exam Preparation",
+          "subtopics": ["Exam blueprint and current exam code", "Architecture and technology objectives", "Installation and configuration objectives", "Performance tuning and optimisation objectives", "Administrative and operational tasks", "Troubleshooting objectives", "Practice questions and time management", "Booking the exam and exam rules"],
+          "tools": ["Exam blueprint", "Lab environment", "Practice tests"],
+          "lab_task": "Map every blueprint objective to a lab task, run a timed practice test, redo the lab tasks for weak objectives and write a two-week study plan.",
+          "deliverable": "Blueprint coverage map and study plan",
+          "checks": [["Map the blueprint", "Every objective linked to a lab task", "Coverage map"], ["Take a practice test", "Score of 75 percent or more", "Score report"], ["Plan revision", "Weak areas scheduled in the study plan", "Study plan"]],
+          "objectives": ["Prepare for VCP-DCV", "Find weak areas", "Plan revision"]
+        },
+        {
+          "topic": "Intermediate Capstone: Production-Ready vSphere and vSAN Cluster",
+          "subtopics": ["Design", "Build and secure", "Protect", "Operate"],
+          "tools": ["vSAN", "Distributed switch", "VCF.PowerCLI", "Veeam", "vSphere Replication"],
+          "lab_task": "Build a production-style vSAN cluster with distributed networking, storage policies, hardening, federation, encryption, backups and replication to a second site, then hand over PowerCLI reports and runbooks.",
+          "deliverable": "Design document, build evidence and operations runbooks",
+          "checks": [["Present the design", "Each decision justified against requirements", "Design review notes"], ["Recover from a failure", "Host and site failure tests pass", "Test recordings"], ["Hand over operations", "PowerCLI reports run for the operations team", "Report outputs"]],
+          "objectives": ["Combine the intermediate topics in one build", "Run vSphere at production standard", "Prove recovery"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior VMware engineers, architects and platform leads. Covers VCF architecture and workload domains, NSX overlay networking and micro-segmentation, cluster design, capacity planning with VCF Operations, private cloud automation with VCF Automation and Terraform, multi-site disaster recovery, vSAN stretched clusters, performance engineering for NUMA, latency-sensitive and GPU workloads, compliance automation, ransomware resilience, hybrid cloud on hyperscalers, HCX migrations, Broadcom licensing and cost, exit planning, multi-tenant Kubernetes, observability, fleet lifecycle with SDDC Manager, deep troubleshooting and platform strategy.",
+      "prerequisites": ["Several years running vSphere in production", "Holds VCP-DCV or has equivalent experience", "Knows routing, BGP and enterprise storage"],
+      "outcomes": ["Design VCF private clouds with NSX, vSAN and disaster recovery", "Automate, secure and audit large vSphere estates", "Plan migrations, hybrid cloud and licensing decisions", "Lead platform strategy and complex troubleshooting"],
+      "days": [
+        {
+          "topic": "VCF Architecture: Management and Workload Domains",
+          "subtopics": ["VCF components and the bill of materials", "SDDC Manager and VCF Operations fleet management", "The management domain", "VI workload domains and their storage options", "Deploying with the VCF installer", "Standard and consolidated architectures", "Network pools and host commissioning", "Design decisions for domains and clusters"],
+          "tools": ["VCF installer", "SDDC Manager", "VCF Operations"],
+          "lab_task": "Design management and workload domains for a company with production, test and DMZ workloads, prepare host commissioning and network pools, and justify standard against consolidated architecture.",
+          "deliverable": "VCF logical design with domain layout",
+          "checks": [["Lay out the domains", "Each workload mapped to a domain and cluster", "Logical design diagram"], ["Prepare commissioning", "Host and network pool inputs pass validation", "Validation report"], ["Justify the architecture", "Choice explained with cost and risk", "Decision record"]],
+          "objectives": ["Explain VCF architecture", "Design workload domains", "Prepare VCF deployments"]
+        },
+        {
+          "topic": "NSX Overlay Networking and Micro-Segmentation",
+          "subtopics": ["NSX Manager cluster and transport nodes", "Overlay transport zones, Geneve and TEPs", "Segments and Tier-1 gateways", "Tier-0 gateways, Edge clusters and BGP", "Distributed Firewall and security groups", "Tag-based dynamic membership", "Zone, application and micro-segmentation phases", "Distributed IDS/IPS with vDefend"],
+          "tools": ["NSX Manager", "Distributed Firewall", "Edge nodes"],
+          "lab_task": "Build overlay segments and Tier-1 and Tier-0 gateways with BGP to a lab router, tag a three-tier application, write Distributed Firewall rules that allow only required flows and prove other traffic is blocked.",
+          "deliverable": "NSX design and micro-segmentation policy",
+          "checks": [["Peer with BGP", "Routes exchanged with the lab router", "BGP neighbour table"], ["Segment the application", "Only web to app and app to database flows allowed", "Firewall logs"], ["Block lateral movement", "Test VM cannot reach the database", "Connection test output"]],
+          "objectives": ["Build NSX overlay networks", "Route with Tier-0 and BGP", "Micro-segment applications"]
+        },
+        {
+          "topic": "vSphere Cluster Design for Availability and Scale",
+          "subtopics": ["Requirements, constraints, assumptions and risks", "Conceptual, logical and physical design", "Host sizing and scale up against scale out", "N+1 and N+2 failure capacity", "Failure domains, racks and power", "Configuration maximums", "Licensing cores per host in design", "Design documentation and review"],
+          "tools": ["Configuration maximums tool", "Sizing spreadsheet", "Design templates"],
+          "lab_task": "Size clusters for 600 VMs with growth, compare scale-up and scale-out host options on cost, availability and licensing, and present the design for peer review.",
+          "deliverable": "Cluster design document with sizing workbook",
+          "checks": [["Size the clusters", "Capacity meets demand with N+1 after growth", "Sizing workbook"], ["Compare host options", "Cost, risk and licence impact quantified", "Comparison table"], ["Pass the review", "Review findings closed or accepted as risks", "Review log"]],
+          "objectives": ["Apply a design method", "Size clusters correctly", "Document design decisions"]
+        },
+        {
+          "topic": "Capacity Planning and Rightsizing with VCF Operations",
+          "subtopics": ["VCF Operations (formerly Aria Operations) architecture", "Capacity models and time remaining", "What-if scenarios for projects and hardware", "Rightsizing oversized and undersized VMs", "Reclaiming idle VMs, old snapshots and orphaned disks", "Cost drivers and showback", "Custom dashboards and views", "Capacity reports for management"],
+          "tools": ["VCF Operations", "Dashboards", "What-if analysis"],
+          "lab_task": "Connect VCF Operations to vCenter, find reclaimable capacity, model a 200-VM project with a what-if scenario and build a monthly capacity dashboard for management.",
+          "deliverable": "Capacity report with reclamation plan",
+          "checks": [["Find reclaimable capacity", "Idle VMs and orphaned disks listed with savings", "Reclamation report"], ["Model a project", "Time remaining before and after the project shown", "What-if result"], ["Build the dashboard", "Management dashboard refreshes with live data", "Dashboard screenshot"]],
+          "objectives": ["Plan capacity", "Rightsize and reclaim", "Report capacity to management"]
+        },
+        {
+          "topic": "Private Cloud Automation with VCF Automation and Terraform",
+          "subtopics": ["VCF Automation (formerly Aria Automation) concepts", "Projects, cloud zones and catalog items", "Cloud templates in YAML", "Extensibility with Orchestrator workflows", "Terraform vSphere and NSX providers", "Storing state and reviewing plans", "Self-service with approvals and leases", "Choosing between VCF Automation and Terraform"],
+          "tools": ["VCF Automation", "Terraform", "Orchestrator", "Git"],
+          "lab_task": "Publish a self-service catalog item for a two-VM application with an approval and lease, build the same application with Terraform from Git, and compare the two approaches.",
+          "deliverable": "Catalog item, Terraform module and comparison",
+          "checks": [["Request from the catalog", "Application deployed after approval with a lease", "Request history"], ["Apply with Terraform", "terraform plan shows no changes after apply", "Plan output"], ["Compare approaches", "Recommendation backed by team and governance needs", "Comparison document"]],
+          "objectives": ["Offer self-service infrastructure", "Manage vSphere as code", "Choose automation tools"]
+        },
+        {
+          "topic": "Multi-Site Disaster Recovery Design",
+          "subtopics": ["Business impact analysis and recovery tiers", "RPO and RTO per tier", "Active-passive and active-active sites", "Replication choices: vSphere Replication and array-based", "Network design for recovery: stretched networks or re-IP", "DNS, identity and dependency mapping", "DR runbooks and decision authority", "Testing schedules and evidence"],
+          "tools": ["VMware Live Site Recovery", "vSphere Replication", "Dependency mapping"],
+          "lab_task": "Classify 40 applications into recovery tiers, map dependencies, choose replication and network options per tier, and run a recovery test for the top-tier application.",
+          "deliverable": "DR design with tiered recovery plans",
+          "checks": [["Classify applications", "Each application has a tier, RPO and RTO", "Tier register"], ["Map dependencies", "Recovery order respects every dependency", "Dependency map"], ["Run a recovery test", "Top-tier application recovered within its RTO", "Test report"]],
+          "objectives": ["Design multi-site recovery", "Match replication to recovery tiers", "Prove recovery with tests"]
+        },
+        {
+          "topic": "vSAN Stretched Clusters and Witness Hosts",
+          "subtopics": ["Stretched cluster architecture", "The vSAN witness appliance at a third site", "Latency and bandwidth requirements between sites", "Site disaster tolerance and local failures to tolerate", "Site affinity in storage policies", "HA and DRS settings for stretched clusters", "vSphere Metro Storage Cluster with arrays", "Site failure and witness failure behaviour"],
+          "tools": ["vSAN stretched cluster", "vSAN witness appliance", "vSphere HA"],
+          "lab_task": "Build a stretched cluster across two simulated sites with a witness, set site affinity and DRS should rules, then fail a site and the witness in turn and record the behaviour.",
+          "deliverable": "Stretched cluster design and failure test results",
+          "checks": [["Build the cluster", "Stretched cluster health checks pass", "vSAN health screenshot"], ["Fail a site", "VMs restart at the surviving site", "Events timeline"], ["Fail the witness", "VMs keep running and data stays accessible", "Test record"]],
+          "objectives": ["Design stretched clusters", "Configure site-aware policies", "Predict failure behaviour"]
+        },
+        {
+          "topic": "Performance Engineering: NUMA, Latency-Sensitive and GPU Workloads",
+          "subtopics": ["NUMA, vNUMA and VM sizing", "Why CPU hot-add affects vNUMA", "Latency sensitivity settings", "PVSCSI, NVMe controllers and queue depths", "VMXNET3 tuning and receive side scaling", "NVIDIA vGPU, DirectPath I/O and MIG", "Private AI workloads on vSphere", "Benchmarking before and after changes"],
+          "tools": ["esxtop", "vscsiStats", "NVIDIA vGPU", "Benchmark tools"],
+          "lab_task": "Size a large database VM to the NUMA layout, benchmark it, tune storage controllers and networking, assign a vGPU profile to an AI VM and report gains with evidence.",
+          "deliverable": "Performance tuning report with benchmarks",
+          "checks": [["Align to NUMA", "VM vNUMA layout matches the host", "vmware.log or esxtop evidence"], ["Tune storage", "Higher IOPS at the same or lower latency", "Benchmark results"], ["Assign a vGPU", "GPU visible inside the guest with nvidia-smi", "nvidia-smi output"]],
+          "objectives": ["Tune large VMs", "Run latency-sensitive and GPU workloads", "Prove tuning with benchmarks"]
+        },
+        {
+          "topic": "Compliance Automation: CIS, DISA STIG and Audit Evidence",
+          "subtopics": ["CIS benchmarks and DISA STIGs for vSphere", "Mapping controls to PCI DSS and ISO 27001", "Compliance packs in VCF Operations", "PowerCLI compliance scripts", "Drift detection and remediation", "Audit logging to a SIEM", "Exception handling and risk acceptance", "Audit evidence packs"],
+          "tools": ["VCF Operations", "VCF.PowerCLI", "SIEM"],
+          "lab_task": "Scan the estate against a STIG or CIS profile, remediate high findings with PowerCLI, forward audit events to a SIEM and prepare an evidence pack for an auditor.",
+          "deliverable": "Compliance report, remediation scripts and evidence pack",
+          "checks": [["Scan the estate", "Findings listed by control and severity", "Compliance report"], ["Remediate findings", "High-severity findings closed on rescan", "Rescan report"], ["Prepare evidence", "Auditor sample answered from the pack", "Evidence pack index"]],
+          "objectives": ["Automate compliance checks", "Remediate drift", "Produce audit evidence"]
+        },
+        {
+          "topic": "Ransomware Resilience and Isolated Recovery Environments",
+          "subtopics": ["How ransomware groups target ESXi and vCenter", "Patching exposed services and disabling unused ones", "Keeping ESXi out of Active Directory admin groups", "Separate privileged access and MFA", "Immutable and air-gapped backups", "Isolated recovery environments", "Scanning restored VMs before release", "Ransomware recovery runbooks and drills"],
+          "tools": ["VMware Live Recovery", "Immutable backup repository", "EDR tools"],
+          "lab_task": "Review the lab against known ESXi attack paths, close the gaps, build an isolated recovery network, restore and scan a set of VMs and run a tabletop ransomware drill.",
+          "deliverable": "Ransomware resilience assessment and recovery runbook",
+          "checks": [["Close attack paths", "Unused services disabled and admin groups reviewed", "Assessment checklist"], ["Recover in isolation", "Restored VMs scanned clean before release", "Scan reports"], ["Run the drill", "Decisions and timings recorded with actions", "Drill report"]],
+          "objectives": ["Reduce ransomware risk", "Recover in isolation", "Rehearse recovery"]
+        },
+        {
+          "topic": "Hybrid Cloud: VMware Cloud on AWS, Azure VMware Solution and Google Cloud VMware Engine",
+          "subtopics": ["Hyperscaler VMware offerings compared", "Connectivity: Direct Connect, ExpressRoute and Interconnect", "Identity and management across sites", "Using native cloud services from VMware VMs", "Licence portability and commercial models", "Disaster recovery to the cloud", "Cost comparison with on-premises", "Exit and data egress considerations"],
+          "tools": ["VMware Cloud on AWS", "Azure VMware Solution", "Google Cloud VMware Engine", "HCX"],
+          "lab_task": "Compare the three hyperscaler offerings for a data centre exit, design connectivity and identity for the chosen option and build a three-year cost model against staying on-premises.",
+          "deliverable": "Hybrid cloud options paper with cost model",
+          "checks": [["Compare offerings", "Features, regions and limits compared side by side", "Comparison table"], ["Design connectivity", "Network design shows routing and bandwidth", "Network diagram"], ["Model the cost", "Three-year cost with assumptions stated", "Cost model"]],
+          "objectives": ["Compare hyperscaler VMware services", "Design hybrid connectivity", "Build cost models"]
+        },
+        {
+          "topic": "Large-Scale Workload Migration with HCX",
+          "subtopics": ["HCX components: Interconnect, WAN optimisation and network extension", "Service meshes and compute profiles", "Migration types: bulk, vMotion, replication-assisted vMotion and cold", "Network extension and mobility optimised networking", "Mobility groups and migration waves", "Scheduling switchover windows", "Testing and rollback", "Tracking a migration programme"],
+          "tools": ["HCX", "vSphere Client", "Migration tracker"],
+          "lab_task": "Deploy HCX between two lab sites, extend a network, migrate a wave of VMs with bulk migration and replication-assisted vMotion, and roll one VM back.",
+          "deliverable": "Migration wave plan and results",
+          "checks": [["Build the service mesh", "Service mesh appliances up and tunnels connected", "HCX dashboard"], ["Migrate a wave", "All wave VMs running at the target site", "Migration report"], ["Roll back a VM", "VM returns to the source site and works", "Rollback record"]],
+          "objectives": ["Deploy HCX", "Plan migration waves", "Migrate with minimal downtime"]
+        },
+        {
+          "topic": "Broadcom Licensing, Core Counting and Cost Control",
+          "subtopics": ["Product editions and what each includes", "Per-core subscription licensing and core minimums", "vSAN capacity entitlements", "Counting cores across the estate with scripts", "Renewal planning and support terms", "Consolidating hosts to cut licensed cores", "Comparing VCF and vSphere Foundation for your needs", "Presenting licensing options to finance"],
+          "tools": ["VCF.PowerCLI", "Licence counting script", "Spreadsheet"],
+          "lab_task": "Count licensed cores across a sample estate with a script, model edition choices and host consolidation, and present three renewal options with costs and risks.",
+          "deliverable": "Licensing model and renewal recommendation",
+          "checks": [["Count cores", "Core totals match host inventory with minimums applied", "Core count report"], ["Model consolidation", "Savings from fewer hosts calculated", "Consolidation model"], ["Present options", "Three options with cost and risk compared", "Finance presentation"]],
+          "objectives": ["Understand current VMware licensing", "Count cores accurately", "Recommend renewal options"]
+        },
+        {
+          "topic": "Planning an Exit from VMware: Nutanix, Hyper-V, OpenShift Virtualization and Proxmox",
+          "subtopics": ["Reasons for and against leaving", "Nutanix AHV and Nutanix Move", "Microsoft Hyper-V and Azure Local", "Red Hat OpenShift Virtualization and the Migration Toolkit for Virtualization", "Proxmox VE and its ESXi import tool", "Feature gaps: DRS, vMotion, backup and ecosystem", "Total cost and skills impact", "Pilot migrations and risk control"],
+          "tools": ["Nutanix Move", "Migration Toolkit for Virtualization", "Proxmox import tool"],
+          "lab_task": "Score four alternative platforms against workload requirements, migrate a test VM to one alternative, list feature gaps and estimate total cost and skills impact.",
+          "deliverable": "Platform options assessment with a pilot report",
+          "checks": [["Score the platforms", "Each platform scored against weighted requirements", "Scoring matrix"], ["Migrate a pilot VM", "Test VM runs on the alternative platform", "Pilot report"], ["List feature gaps", "Each gap has a workaround or risk owner", "Gap register"]],
+          "objectives": ["Assess alternatives to VMware", "Run a pilot migration", "Advise on exit decisions"]
+        },
+        {
+          "topic": "Multi-Tenant Kubernetes on VCF with VKS and NSX",
+          "subtopics": ["Supervisor with NSX networking", "Namespaces per team and tenant isolation", "NSX VPCs and network policies", "VKS cluster classes and VM classes", "Supervisor Services: Harbor, Contour and Velero", "RBAC with the identity provider", "Lifecycle of VKS clusters", "Platform team operating model"],
+          "tools": ["Supervisor", "vSphere Kubernetes Service", "NSX", "Harbor", "Velero"],
+          "lab_task": "Build namespaces for two tenant teams with isolated networking, deploy Harbor and Velero as Supervisor Services, give each team a VKS cluster and prove tenants cannot reach each other.",
+          "deliverable": "Multi-tenant Kubernetes platform design",
+          "checks": [["Isolate tenants", "Traffic between tenant namespaces blocked", "Network test output"], ["Back up a cluster", "Velero restore recreates the workload", "Restore output"], ["Use the registry", "Images pulled from Harbor with tenant credentials", "Pull output"]],
+          "objectives": ["Run multi-tenant Kubernetes on VCF", "Isolate tenants", "Operate platform services"]
+        },
+        {
+          "topic": "Observability with VCF Operations for Logs and Networks",
+          "subtopics": ["VCF Operations for logs (formerly Aria Operations for Logs)", "Content packs and log queries", "VCF Operations for networks (formerly Aria Operations for Networks)", "Flow analysis and application discovery", "Alerts and notification to ITSM", "Correlating logs, metrics and network flows", "Dashboards for operations teams", "Retention and archiving"],
+          "tools": ["VCF Operations for logs", "VCF Operations for networks", "ServiceNow"],
+          "lab_task": "Collect logs from hosts, vCenter and NSX, build alerts that open ITSM incidents, discover an application from flows and trace a slow request across logs, metrics and flows.",
+          "deliverable": "Observability dashboards and alert catalogue",
+          "checks": [["Collect logs", "Logs from hosts, vCenter and NSX searchable", "Log query screenshot"], ["Raise incidents", "Alert creates an incident with context", "Incident record"], ["Trace a slow request", "Root cause found across logs and flows", "Investigation notes"]],
+          "objectives": ["Centralise logs and flows", "Alert into ITSM", "Investigate across data sources"]
+        },
+        {
+          "topic": "Fleet Lifecycle Management with SDDC Manager",
+          "subtopics": ["Bundles, depots and the bill of materials", "Upgrade sequence across components", "Pre-checks and upgrade planning", "Asynchronous patches", "Password rotation for service accounts", "Certificate rotation at scale", "Backups of SDDC Manager and NSX", "Maintenance windows across domains"],
+          "tools": ["SDDC Manager", "VCF Operations", "Offline depot"],
+          "lab_task": "Plan a VCF upgrade across management and workload domains, run pre-checks, rotate service account passwords and certificates, and schedule maintenance windows per domain.",
+          "deliverable": "Fleet lifecycle plan and rotation evidence",
+          "checks": [["Run pre-checks", "Pre-check findings resolved before upgrade", "Pre-check report"], ["Rotate passwords", "Service account passwords rotated without outage", "Rotation history"], ["Rotate certificates", "Components show new certificates", "Certificate inventory"]],
+          "objectives": ["Manage VCF lifecycle", "Rotate credentials and certificates", "Plan maintenance at scale"]
+        },
+        {
+          "topic": "Deep Troubleshooting: PSODs, Storage Latency and Packet Loss",
+          "subtopics": ["Reading a purple screen and the core dump", "Configuring network core dump collection", "All paths down and permanent device loss", "Storage latency with vscsiStats and path analysis", "Packet capture with pktcap-uw", "vCenter service failures with service-control", "hostd and vpxa failures", "Working with Broadcom support"],
+          "tools": ["pktcap-uw", "vscsiStats", "service-control", "Log bundles"],
+          "lab_task": "Analyse a provided PSOD core dump and logs, trace a storage latency problem to a path, capture dropped packets at a VMkernel port and recover a failed vCenter service.",
+          "deliverable": "Root cause reports for four incidents",
+          "checks": [["Analyse the PSOD", "Faulting module and likely cause identified", "Root cause report"], ["Trace storage latency", "Bad path found and isolated", "Path analysis"], ["Capture packet loss", "Drop point located in the capture", "pktcap-uw output"]],
+          "objectives": ["Troubleshoot complex failures", "Use low-level tools", "Write root cause reports"]
+        },
+        {
+          "topic": "Virtualisation Platform Strategy and Roadmaps",
+          "subtopics": ["Business drivers and platform goals", "Current state assessment and technical debt", "On-premises, hybrid and exit options", "Three-year roadmap and funding", "Skills and team structure", "KPIs for availability, cost and delivery", "Vendor management", "Board-level reporting"],
+          "tools": ["Strategy templates", "Roadmap tool", "KPI dashboard"],
+          "lab_task": "Assess a sample estate, choose a platform direction with options and risks, write a three-year roadmap with costs and KPIs, and present it to a mock leadership panel.",
+          "deliverable": "Platform strategy and roadmap presentation",
+          "checks": [["Assess the estate", "Current state scored with risks", "Assessment report"], ["Set the direction", "Recommendation backed by costs and risks", "Strategy paper"], ["Present the roadmap", "Leadership questions answered", "Panel feedback"]],
+          "objectives": ["Set platform strategy", "Build a funded roadmap", "Report to leadership"]
+        },
+        {
+          "topic": "Advanced Capstone: Private Cloud Design with DR and Migration Plan",
+          "subtopics": ["Architecture", "Security and compliance", "Recovery and migration", "Business case"],
+          "tools": ["VCF", "NSX", "vSAN", "VMware Live Site Recovery", "HCX", "VCF Operations"],
+          "lab_task": "Design a two-site VCF private cloud for 1,500 VMs with NSX micro-segmentation, stretched or replicated storage, compliance automation, ransomware recovery and an HCX migration plan, and defend it with a business case.",
+          "deliverable": "Architecture, recovery plan, migration plan and business case",
+          "checks": [["Defend the architecture", "Design questions answered with evidence", "Review panel notes"], ["Prove recovery", "DR and ransomware recovery tests meet targets", "Test reports"], ["Present the business case", "Costs, risks and benefits accepted", "Approval record"]],
+          "objectives": ["Combine the advanced topics in one design", "Lead a private cloud programme", "Justify investment"]
+        }
+      ]
+    }
+  }
+}

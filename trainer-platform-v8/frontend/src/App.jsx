@@ -4,7 +4,6 @@ import { Suspense, lazy, useState } from 'react'
 import Layout from './components/Layout'
 import ChatAssistant from './components/ChatAssistant'
 import FloatingIntegrations from './components/FloatingIntegrations'
-import ThemeToggle from './components/ThemeToggle'
 
 const Login = lazy(() => import('./pages/Login'))
 const Home = lazy(() => import('./pages/Home'))
@@ -47,14 +46,16 @@ function PageLoader() {
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     try {
-      const auth = JSON.parse(localStorage.getItem('ts_auth') || '{}')
+      // SEC-009: Use sessionStorage so auth token is not persisted across browser sessions,
+      // reducing XSS exposure. Tokens are cleared when the tab/browser is closed.
+      const auth = JSON.parse(sessionStorage.getItem('ts_auth') || '{}')
       return !!auth.loggedIn
     } catch { return false }
   })
 
   const handleLogin = () => setIsLoggedIn(true)
   const handleLogout = () => {
-    localStorage.removeItem('ts_auth')
+    sessionStorage.removeItem('ts_auth')
     setIsLoggedIn(false)
   }
 
@@ -63,7 +64,7 @@ export default function App() {
       <Toaster
         position="top-right"
         toastOptions={{
-          style: { borderRadius: '12px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px' },
+          style: { borderRadius: '12px', fontFamily: "'Inter', sans-serif", fontSize: '14px' },
           success: { iconTheme: { primary: '#2563eb', secondary: '#fff' } },
         }}
       />
@@ -75,7 +76,7 @@ export default function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/feedback" element={<Feedback />} />
-          <Route path="/auth/callback" element={<GmailCallback />} />
+          <Route path="/auth/callback" element={<GmailCallback onLogin={handleLogin} />} />
           <Route path="/" element={
             <PrivateRoute isLoggedIn={isLoggedIn}>
               <Layout onLogout={handleLogout} />
@@ -104,6 +105,7 @@ export default function App() {
             <Route path="toc-knowledge" element={<TocKnowledge />} />
             <Route path="interviews"   element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="shortlist"    element={<Shortlist />} />
+            <Route path="ai-pipeline"  element={<Shortlist1 />} />
             <Route path="shortlist1"   element={<Shortlist1 />} />
             <Route path="profile"      element={<Profile />} />
           </Route>
@@ -114,7 +116,6 @@ export default function App() {
       {/* Chat assistant — visible on all authenticated pages */}
       {isLoggedIn && (
         <>
-          <ThemeToggle floating />
           <FloatingIntegrations />
           <ChatAssistant />
         </>

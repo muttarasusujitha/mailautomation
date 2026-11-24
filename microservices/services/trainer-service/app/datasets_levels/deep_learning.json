@@ -1,0 +1,573 @@
+{
+  "domain": "Deep Learning",
+  "name": "Deep Learning",
+  "category": "Data Science and Machine Learning",
+  "icon": "brain-circuit",
+  "aliases": ["DL", "Neural Networks", "Deep Neural Networks", "Deep Learning Concepts", "Deep Learning Engineering", "Neural Network Engineering", "Applied Deep Learning", "Deep Learning Training"],
+  "certifications": [],
+  "tools": ["PyTorch", "Python", "NumPy", "Jupyter", "TensorBoard", "Matplotlib", "scikit-learn", "Optuna", "MLflow", "ONNX Runtime", "PyTorch Profiler", "Captum"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For programmers and analysts who know Python and some linear algebra and want a framework-neutral grounding in how neural networks work. Covers tensors and shapes, perceptrons, activations, losses and maximum likelihood, gradient descent, backpropagation, the training loop, data splits and leakage, overfitting and regularisation, initialisation, normalisation, optimisers, one day on convolutional networks, embeddings, metrics, debugging and reproducible runs, with PyTorch used only as the lab vehicle, ending in a diagnosed Fashion-MNIST classifier.",
+      "prerequisites": ["Writes Python functions and uses NumPy arrays and pandas DataFrames", "Knows vectors, matrices, derivatives and the chain rule at undergraduate level", "Has a laptop with Python 3.10 or later and about 5 GB of free disk space, with a GPU optional"],
+      "outcomes": ["Explain forward propagation, backpropagation, loss functions and gradient descent and verify them numerically", "Write and debug a complete training and evaluation loop with correct data splits and metrics", "Diagnose overfitting, bad initialisation and training failures using curves and statistics", "Deliver a reproducible classifier study with baselines, ablations and a written diagnosis"],
+      "days": [
+        {
+          "topic": "The Deep Learning Workflow and a Reproducible GPU Environment",
+          "subtopics": ["Where deep learning sits against classical machine learning: learned representations, data and compute", "The loop every project repeats: data, model, loss, optimiser, evaluation", "Creating a virtual environment with python -m venv and installing the right PyTorch build for CPU or CUDA", "Checking the stack with torch.__version__, torch.cuda.is_available() and nvidia-smi", "Seeding Python, NumPy and PyTorch with torch.manual_seed", "Choosing a device: cpu, cuda and mps through torch.device", "Scripts versus Jupyter notebooks for experiments", "A project layout with configs, data, src and runs folders", "Reading a first loss curve"],
+          "tools": ["Python", "PyTorch", "Jupyter", "nvidia-smi", "Matplotlib"],
+          "lab_task": "Create a venv, install PyTorch, print torch.__version__ and torch.cuda.is_available(), seed with torch.manual_seed(0), then fit y = 3x + 2 with noise (std 0.1, x drawn from U(-1, 1)) using one nn.Linear(1, 1) and SGD(lr=0.1) for 200 steps on 100 points. Record the learned weight, bias and final MSE, and run the script twice to show the numbers repeat.",
+          "deliverable": "Environment report with the install commands, version output and a script that fits the line",
+          "checks": [["Run python -c 'import torch; print(torch.__version__, torch.cuda.is_available())'", "A version string prints, and the flag is True on a GPU machine or False on a CPU-only machine", "Terminal output"], ["Fit y = 3x + 2 with noise std 0.1 for 200 SGD steps", "Learned weight is within 0.1 of 3.0 and bias within 0.1 of 2.0", "Printed parameters"], ["Run the script twice with torch.manual_seed(0)", "Both runs print identical final loss values to every digit", "Two run logs"]],
+          "objectives": ["Build a working PyTorch environment and confirm which device it uses", "Describe the data, model, loss, optimiser and evaluation loop of a deep learning project", "Make a small experiment repeatable with fixed seeds"]
+        },
+        {
+          "topic": "Tensors, Shapes and Broadcasting for Network Math",
+          "subtopics": ["Tensors as the data structure for inputs, weights and activations: rank, shape, dtype and device", "Batch dimension conventions: (N, features), (N, C, H, W) and (N, T, D)", "Broadcasting rules and the silent bugs they hide", "Matrix multiplication with @ and torch.matmul, and batched matmul with bmm", "Reductions with sum, mean, amax and the keepdim argument", "view, reshape, permute and contiguous memory layout", "Indexing, masking and torch.where", "Shape assertions and einops-style thinking to catch errors early", "Reading the error RuntimeError: mat1 and mat2 shapes cannot be multiplied"],
+          "tools": ["PyTorch", "NumPy", "einops", "Jupyter"],
+          "lab_task": "Write a function that applies a dense layer to a batch with explicit shapes: X of shape (32, 20), W of shape (20, 5), b of shape (5,). Compute X @ W + b, then reproduce it with torch.einsum and nn.Linear(20, 5) after copying weights. Trigger and fix one broadcasting bug where a (32, 1) tensor is subtracted from a (32,) tensor and silently becomes (32, 32).",
+          "deliverable": "Notebook with the three equivalent layer implementations, a shape table and the broadcasting bug fix",
+          "checks": [["Compute X @ W + b for X (32, 20), W (20, 5), b (5,)", "Output shape is torch.Size([32, 5])", "Printed shape"], ["Compare the manual result with nn.Linear after copying W.T and b", "torch.allclose returns True with atol=1e-6", "Notebook cell output"], ["Subtract a (32, 1) tensor from a (32,) tensor", "Result has shape (32, 32), showing the silent broadcast, and the fixed version keeps shape (32,)", "Before and after shapes"]],
+          "objectives": ["Predict the output shape of tensor operations before running them", "Express a dense layer as batched matrix algebra", "Spot and fix silent broadcasting errors"]
+        },
+        {
+          "topic": "The Perceptron, Linear Layers and Why Depth Needs Nonlinearity",
+          "subtopics": ["The artificial neuron: weighted sum, bias and activation", "A linear classifier and its decision boundary", "The XOR problem and the limit of a single linear layer", "Stacking linear layers without activations collapses to one linear map", "Hidden layers as learned feature transformations", "Counting parameters by hand: in_features * out_features + out_features", "Width versus depth and the universal approximation idea in plain terms", "nn.Sequential and nn.Linear as the first building blocks"],
+          "tools": ["PyTorch", "Matplotlib", "scikit-learn"],
+          "lab_task": "Train nn.Linear(2, 1) with a sigmoid output on the four XOR points for 2,000 steps and record the loss and accuracy. Then train nn.Sequential(nn.Linear(2, 4), nn.Tanh(), nn.Linear(4, 1)) on the same data with Adam(lr=0.05), plot both decision boundaries on a grid with Matplotlib, and compute the parameter counts of each model with sum(p.numel()).",
+          "deliverable": "Notebook with both models, two decision-boundary plots and a parameter-count table",
+          "checks": [["Train the single linear layer on XOR", "Accuracy stays at 75% or lower and loss stays near 0.69", "Training log"], ["Train the two-layer tanh network with 4 hidden units", "All four XOR points are classified correctly and loss is below 0.05", "Training log and plot"], ["Count parameters of Linear(2, 4) + Linear(4, 1)", "The total is 17 (12 in the first layer, 5 in the second)", "Printed counts"]],
+          "objectives": ["Explain why a purely linear model cannot represent XOR", "Show that stacked linear layers without activations stay linear", "Count the parameters of a small network by hand and in code"]
+        },
+        {
+          "topic": "Activation Functions and Their Gradients",
+          "subtopics": ["Sigmoid, tanh and the saturation problem", "ReLU, leaky ReLU and the dying ReLU failure", "GELU and SiLU (Swish) as smooth modern defaults", "Softmax for multi-class outputs and its temperature", "Derivatives of each activation and where they approach zero", "How repeated sigmoid derivatives (maximum 0.25) shrink gradients with depth", "Choosing an activation for hidden layers versus the output layer", "Plotting activations and gradients with autograd"],
+          "tools": ["PyTorch", "Matplotlib", "Jupyter"],
+          "lab_task": "Plot sigmoid, tanh, ReLU, GELU and SiLU and their gradients over [-6, 6] using autograd. Build a 10-layer sigmoid MLP and a 10-layer ReLU MLP of width 64, push a batch of 128 random inputs through each, call backward on the mean output, and print the gradient norm of the first layer weights for both networks.",
+          "deliverable": "Notebook with activation and gradient plots plus a table of first-layer gradient norms",
+          "checks": [["Evaluate the sigmoid gradient at x = 0", "The value is 0.25, the maximum of the sigmoid derivative", "Printed gradient"], ["Compare first-layer gradient norms of the 10-layer sigmoid and ReLU networks", "The sigmoid network's norm is at least 100 times smaller", "Printed norms"], ["Pass a negative input to ReLU and call backward", "The gradient is exactly 0.0, which demonstrates a dead unit", "Printed gradient"]],
+          "objectives": ["Compare common activation functions by shape and derivative", "Explain how saturating activations cause vanishing gradients", "Choose sensible activations for hidden and output layers"]
+        },
+        {
+          "topic": "Loss Functions and Maximum Likelihood",
+          "subtopics": ["Loss as a measure of disagreement between prediction and target", "Mean squared error and the Gaussian noise assumption", "Cross-entropy as negative log-likelihood of a categorical distribution", "Logits versus probabilities: why nn.CrossEntropyLoss takes raw logits", "BCEWithLogitsLoss for binary and multi-label targets", "Numerical stability: log-sum-exp and the NaN from naive softmax", "Class weights and label smoothing as loss adjustments", "The expected loss at initialisation, ln(C) for C balanced classes"],
+          "tools": ["PyTorch", "NumPy", "Jupyter"],
+          "lab_task": "Implement softmax cross-entropy by hand with logsumexp and compare it to F.cross_entropy on a batch of 64 logits for 10 classes. Show that a naive exp-based softmax of logits [1000, 1000] returns nan while F.log_softmax does not. Then compute the loss of an untrained 10-class model on random inputs and compare it with ln(10).",
+          "deliverable": "Notebook with the manual loss, the stability demonstration and the initial-loss check",
+          "checks": [["Compare the hand-written cross-entropy with F.cross_entropy on 64 x 10 logits", "The two values match within 1e-6", "Printed values"], ["Apply F.log_softmax to logits [1000., 1000.]", "The output is [-0.6931, -0.6931] with no nan, while the naive version returns nan", "Printed tensors"], ["Evaluate an untrained 10-class classifier on random inputs", "The mean loss lies between 2.2 and 2.5, close to ln(10) = 2.303", "Printed loss"]],
+          "objectives": ["Derive cross-entropy and MSE from a likelihood view", "Implement a numerically stable softmax cross-entropy", "Use the expected initial loss as a sanity check"]
+        },
+        {
+          "topic": "Gradient Descent and the Learning Rate",
+          "subtopics": ["The gradient as the direction of steepest increase and the update w = w - lr * grad", "Batch, stochastic and mini-batch gradient descent", "Learning rate too small, too large and just right", "Convergence on a quadratic: the factor (1 - 2 * lr) for f(w) = w^2", "Noise in mini-batch gradients and why it can help", "Epochs, iterations and batch size bookkeeping", "A learning-rate sweep on a log scale", "Plotting loss versus step to read divergence and plateaus"],
+          "tools": ["PyTorch", "Matplotlib", "NumPy"],
+          "lab_task": "Run gradient descent by hand on f(w) = w^2 starting at w = 5 with lr values 0.01, 0.1, 1.0 and 1.1 for 30 steps and plot all four trajectories. Then train a logistic-regression model on make_moons (1,000 points) with SGD at lr values 1e-4, 1e-3, 1e-2, 1e-1 and 1, and plot the loss curves on one figure.",
+          "deliverable": "Notebook with trajectory plots, a learning-rate sweep figure and a one-paragraph interpretation",
+          "checks": [["Run f(w) = w^2 with lr = 0.1 from w = 5", "After 30 steps w is about 0.0006 (5 * 0.8^30), so it converges", "Printed trajectory"], ["Run the same function with lr = 1.0", "w alternates between 5 and -5 and never converges", "Trajectory plot"], ["Run the same function with lr = 1.1", "|w| grows by a factor of 1.2 each step and exceeds 1,000 within 40 steps", "Printed values"]],
+          "objectives": ["Apply the gradient descent update rule by hand and in PyTorch", "Predict convergence or divergence from the learning rate on a simple function", "Run and read a learning-rate sweep"]
+        },
+        {
+          "topic": "Backpropagation by Hand and with Autograd",
+          "subtopics": ["The chain rule and local derivatives", "Computational graphs: nodes, edges and the forward pass", "Backward pass for a two-layer network written out by hand", "The softmax plus cross-entropy gradient: probabilities minus one-hot targets", "requires_grad, .grad and loss.backward() in PyTorch", "Gradient accumulation across backward calls and why zero_grad exists", "torch.no_grad and detach to stop tracking", "Verifying gradients numerically with torch.autograd.gradcheck"],
+          "tools": ["PyTorch", "NumPy", "Jupyter"],
+          "lab_task": "Write the forward and backward pass of a 2-layer MLP (Linear 4 to 8, ReLU, Linear 8 to 3, cross-entropy) by hand using only matrix operations. Compare each parameter gradient with the .grad values from loss.backward() on the same batch of 16, and run torch.autograd.gradcheck on a small double-precision function to confirm the derivative.",
+          "deliverable": "Notebook with the manual backward pass and a table comparing manual and autograd gradients",
+          "checks": [["Compare manual and autograd gradients for all four parameter tensors", "The maximum absolute difference is below 1e-6 for each tensor", "Printed differences"], ["Compute the gradient of softmax cross-entropy with respect to logits", "It equals softmax(logits) minus the one-hot target, divided by batch size for mean reduction", "Matching printed tensors"], ["Call loss.backward() twice without zeroing", "The .grad values double, showing accumulation", "Printed gradients"]],
+          "objectives": ["Apply the chain rule through a small network", "Check autograd output against a hand derivation", "Explain gradient accumulation and when to reset gradients"]
+        },
+        {
+          "topic": "Writing the Training Loop: Epochs, Batches and Metrics",
+          "subtopics": ["The five lines of a training step: forward, loss, zero_grad, backward, step", "Dataset and DataLoader with batch_size, shuffle and drop_last", "model.train() versus model.eval() and what changes", "Evaluation with torch.no_grad() or torch.inference_mode()", "Accumulating loss and accuracy correctly across batches", "Moving model and tensors to the same device", "Logging per-epoch metrics to a CSV file", "Common loop bugs: missing zero_grad, wrong reduction, evaluating in train mode"],
+          "tools": ["PyTorch", "torchvision", "pandas", "Matplotlib"],
+          "lab_task": "Write a train_one_epoch and an evaluate function and use them to train a 784-256-10 MLP on Fashion-MNIST (60,000 training images) with Adam(lr=1e-3), batch size 128, for 5 epochs. Log epoch, train loss, validation loss and validation accuracy to a CSV and plot the curves. Confirm one epoch has ceil(60000/128) = 469 steps.",
+          "deliverable": "Training script, metrics CSV and a plot of loss and accuracy per epoch",
+          "checks": [["Count optimiser steps in one epoch with batch size 128 and 60,000 images", "469 steps are performed", "Step counter output"], ["Train for 5 epochs with Adam at lr 1e-3", "Validation accuracy is at least 85%", "metrics.csv"], ["Remove optimizer.zero_grad() deliberately", "Training loss becomes unstable or increases compared with the correct loop", "Two loss curves"]],
+          "objectives": ["Write a complete training and evaluation loop without a high-level wrapper", "Track loss and accuracy correctly over batches and epochs", "Recognise the most common training-loop bugs"]
+        },
+        {
+          "topic": "Data Splits, Leakage and Baselines",
+          "subtopics": ["Train, validation and test sets and what each is for", "Stratified splitting for imbalanced classes", "Data leakage: scaling on the full dataset, duplicates across splits and time leakage", "Majority-class and simple linear baselines as the bar to beat", "Cross-validation and when it is too costly for deep models", "Fitting normalisation statistics on the training split only", "The test set is used once", "Keeping a data card: source, size, label definition and known problems"],
+          "tools": ["scikit-learn", "pandas", "PyTorch", "Jupyter"],
+          "lab_task": "Load sklearn's breast cancer dataset (569 rows), make a stratified 70/15/15 split with random_state=0, compute the majority-class accuracy and fit LogisticRegression as a baseline. Then show leakage by standardising with statistics from all rows versus train rows only, and train a small MLP in PyTorch on the correct split to compare against the baseline.",
+          "deliverable": "Notebook with split sizes, baselines, a leakage demonstration and a data card",
+          "checks": [["Compute majority-class accuracy on the full breast cancer data", "About 0.627 (357 benign of 569)", "Printed accuracy"], ["Check class balance in each stratified split", "Each split has a malignant share within 2 percentage points of 37.3%", "Printed class ratios"], ["Compare the MLP with the logistic-regression baseline on the test split", "Both accuracies are reported and the MLP is judged against the baseline, not against 100%", "Results table"]],
+          "objectives": ["Create splits that avoid leakage", "Set a baseline before training a network", "Document a dataset with a short data card"]
+        },
+        {
+          "topic": "Overfitting, Underfitting and Learning Curves",
+          "subtopics": ["Capacity, bias and variance in neural networks", "Reading the gap between training and validation curves", "Underfitting signs: high error on both sets", "Overfitting signs: training error keeps falling while validation error rises", "Learning curves versus dataset size", "Memorising random labels as proof of capacity", "Fixes ranked by cost: more data, simpler model, regularisation, earlier stopping", "Choosing the epoch from the validation curve"],
+          "tools": ["PyTorch", "torchvision", "Matplotlib", "pandas"],
+          "lab_task": "Train a 784-512-512-10 MLP on only 500 Fashion-MNIST training images with Adam(lr=1e-3) for 100 epochs, plot train and validation accuracy, and mark the epoch with the lowest validation loss. Repeat with a 784-16-10 MLP, and with 500 images whose labels are shuffled randomly, then report all three train/validation gaps.",
+          "deliverable": "Notebook with three learning-curve plots and a table of train and validation accuracy",
+          "checks": [["Train the large MLP on 500 images for 100 epochs", "Training accuracy reaches at least 99% while validation accuracy is at least 10 points lower", "Learning-curve plot"], ["Train the large MLP on 500 images with shuffled labels", "Training accuracy rises well above 10% while validation accuracy stays near 10%", "Printed accuracies"], ["Locate the minimum of validation loss for the large model", "It occurs before the final epoch and the epoch number is recorded", "Annotated plot"]],
+          "objectives": ["Diagnose overfitting and underfitting from curves", "Explain what memorisation of random labels shows about capacity", "Select the stopping epoch from validation data"]
+        },
+        {
+          "topic": "Regularisation: Weight Decay, Dropout and Early Stopping",
+          "subtopics": ["Regularisation as any change that reduces generalisation error", "L2 penalty and weight decay in optimisers", "Dropout: random masking in training and 1/(1-p) scaling", "nn.Dropout behaviour in train and eval modes", "Early stopping with patience and best-checkpoint restore", "Data augmentation as regularisation (concept only, details in later days)", "Label smoothing and noise injection", "Measuring the effect with a controlled ablation"],
+          "tools": ["PyTorch", "torchvision", "Matplotlib"],
+          "lab_task": "Using the 500-image Fashion-MNIST overfitting setup from the previous day, train four versions of the 784-512-512-10 MLP: baseline, weight_decay=1e-2 with AdamW, nn.Dropout(0.5) after each hidden layer, and early stopping with patience 10. Report the best validation accuracy of each across 3 seeds, and verify that dropout zeroes about half the activations only in train mode.",
+          "deliverable": "Ablation table with mean and standard deviation over 3 seeds plus the dropout-mode demonstration",
+          "checks": [["Apply nn.Dropout(0.5) to a tensor of ones in train mode", "About 50% of values are 0 and the rest equal 2.0", "Printed tensor statistics"], ["Apply the same dropout layer after model.eval()", "The output equals the input exactly", "Printed comparison"], ["Compare the four configurations over 3 seeds", "At least one regularised variant beats the baseline in mean validation accuracy, with standard deviations shown", "Ablation table"]],
+          "objectives": ["Apply weight decay, dropout and early stopping correctly", "Explain how dropout behaves differently in training and evaluation", "Compare regularisers with a small multi-seed ablation"]
+        },
+        {
+          "topic": "Input Scaling and Weight Initialisation",
+          "subtopics": ["Why unscaled inputs slow or break training", "Standardisation, min-max scaling and where to compute the statistics", "Why initial weights must break symmetry", "Variance propagation through a layer", "Xavier (Glorot) initialisation for tanh and sigmoid", "He (Kaiming) initialisation for ReLU: std = sqrt(2 / fan_in)", "nn.init functions and PyTorch's defaults", "Plotting activation statistics layer by layer"],
+          "tools": ["PyTorch", "Matplotlib", "NumPy"],
+          "lab_task": "Build a 20-layer tanh MLP of width 256 and feed 1,000 standard-normal inputs. Print the standard deviation of each layer's activations for three initialisations: normal std 0.01, normal std 1.0 and Xavier uniform. Then repeat with ReLU using Xavier versus Kaiming normal and plot the activation standard deviation by depth for all five runs.",
+          "deliverable": "Notebook with an activation-statistics plot and a table of the final-layer standard deviation per initialisation",
+          "checks": [["Run the tanh network with weights drawn from N(0, 0.01^2)", "Activation standard deviation at layer 20 is below 1e-6", "Printed statistics"], ["Run the tanh network with weights drawn from N(0, 1)", "Most layer-20 activations are saturated near +1 or -1", "Histogram"], ["Run the tanh network with Xavier uniform", "Layer-20 activation standard deviation stays above 0.05", "Printed statistics"]],
+          "objectives": ["Explain how initial weight scale changes activations and gradients", "Apply Xavier and He initialisation correctly", "Diagnose bad initialisation from layer statistics"]
+        },
+        {
+          "topic": "Normalisation Layers: BatchNorm, LayerNorm and GroupNorm",
+          "subtopics": ["The idea: re-centre and re-scale activations, then learn scale and shift", "BatchNorm statistics over the batch and running averages (momentum 0.1, eps 1e-5)", "Train mode versus eval mode and the classic evaluation bug", "Very small batches and why BatchNorm degrades", "LayerNorm over features and its use in sequence models", "GroupNorm and InstanceNorm as batch-independent options", "Where to place the layer relative to the activation", "Normalisation and learning-rate tolerance"],
+          "tools": ["PyTorch", "Matplotlib", "torchvision"],
+          "lab_task": "Train a 784-256-256-10 MLP on Fashion-MNIST for 3 epochs three ways: no normalisation, nn.BatchNorm1d after each Linear, and nn.LayerNorm. Use lr=0.5 SGD for all three to test learning-rate tolerance. Then feed one test batch in train mode and eval mode to the BatchNorm model and compare the outputs, and read bn.num_batches_tracked.",
+          "deliverable": "Notebook with the three training curves and a train-versus-eval output comparison",
+          "checks": [["Read bn.num_batches_tracked after 3 epochs at batch size 128", "It equals 1,407 (3 x 469 steps)", "Printed value"], ["Pass the same batch in train mode and eval mode", "Outputs differ, with a printed maximum absolute difference above 1e-3", "Printed difference"], ["Compare the three models at SGD lr 0.5", "The normalised models reach higher validation accuracy than the unnormalised one", "Metrics table"]],
+          "objectives": ["Describe what BatchNorm and LayerNorm compute", "Avoid train/eval mode mistakes with BatchNorm", "Choose a normalisation layer for a given batch size and model"]
+        },
+        {
+          "topic": "Optimisers: Momentum, RMSprop, Adam and AdamW",
+          "subtopics": ["SGD and its sensitivity to curvature", "Momentum as an exponential average of gradients", "Nesterov momentum", "RMSprop and per-parameter step sizes", "Adam: first and second moment estimates with bias correction", "Adam defaults: lr 1e-3, betas (0.9, 0.999), eps 1e-8", "AdamW and decoupled weight decay", "Optimiser state: exp_avg, exp_avg_sq and momentum_buffer in state_dict()"],
+          "tools": ["PyTorch", "Matplotlib", "torchvision"],
+          "lab_task": "Train the same 784-256-10 MLP on Fashion-MNIST for 3 epochs with SGD(lr=0.1), SGD(lr=0.01, momentum=0.9), RMSprop(lr=1e-3) and Adam(lr=1e-3). Plot validation loss per epoch for all four. After training, print the keys inside optimizer.state_dict()['state'][0] for each optimiser and implement one Adam update by hand for a single scalar to match PyTorch.",
+          "deliverable": "Notebook with the comparison plot, optimiser-state keys and the hand-computed Adam step",
+          "checks": [["Inspect the state of the SGD momentum optimiser", "The state contains a momentum_buffer entry for each parameter", "Printed keys"], ["Inspect the state of Adam", "The state contains step, exp_avg and exp_avg_sq entries", "Printed keys"], ["Train with Adam at lr 1e-3 for 3 epochs", "Validation accuracy is at least 83%", "Metrics table"]],
+          "objectives": ["Explain how momentum and adaptive methods change the update", "Reproduce an Adam step by hand", "Choose and configure an optimiser with sensible defaults"]
+        },
+        {
+          "topic": "Convolutional Networks: Filters, Receptive Fields and Weight Sharing",
+          "subtopics": ["Why fully connected layers waste parameters on images", "Convolution as a sliding dot product and cross-correlation in practice", "Kernel size, stride, padding and the output-size formula floor((H + 2P - K) / S) + 1", "Channels, feature maps and parameter counts: C_in * C_out * K * K + C_out", "Weight sharing and translation equivariance", "Receptive field growth with depth", "Pooling and strided convolution for downsampling", "A small convolutional classifier end to end"],
+          "tools": ["PyTorch", "torchvision", "Matplotlib"],
+          "lab_task": "Implement a 2D convolution with loops and compare it with nn.Conv2d(1, 1, 3, bias=False) on a 28x28 image. Compute output sizes and parameter counts for Conv2d(3, 16, 3) and Conv2d(1, 16, 3), then build Conv(1,16,3)-ReLU-MaxPool2d(2)-Conv(16,32,3)-ReLU-MaxPool2d(2)-Linear to 10 and train it for 5 epochs on Fashion-MNIST.",
+          "deliverable": "Notebook with the manual convolution, size and parameter tables and the trained model",
+          "checks": [["Compare loop-based convolution with nn.Conv2d on a 28x28 input", "Output is 26x26 and torch.allclose returns True", "Printed shape and result"], ["Count parameters in Conv2d(3, 16, 3) and Conv2d(1, 16, 3)", "448 and 160 parameters respectively", "Printed counts"], ["Train the small CNN for 5 epochs", "Validation accuracy is at least 89%", "Metrics log"]],
+          "objectives": ["Compute convolution output sizes and parameter counts", "Explain weight sharing and receptive fields", "Train a small convolutional classifier and compare it with an MLP"]
+        },
+        {
+          "topic": "Embeddings and Representing Categories and Text",
+          "subtopics": ["One-hot vectors versus dense learned embeddings", "nn.Embedding as a lookup table and its parameter count", "Tokenisation at word level and the out-of-vocabulary token", "Padding, masking and padding_idx", "nn.EmbeddingBag for averaging a variable-length bag of tokens", "Cosine similarity and nearest neighbours in embedding space", "Embeddings for categorical tabular features", "What a bag-of-embeddings model cannot capture, such as word order"],
+          "tools": ["PyTorch", "scikit-learn", "NumPy"],
+          "lab_task": "Load four categories of the 20 Newsgroups corpus with sklearn fetch_20newsgroups (remove headers, footers and quotes), build a 20,000-word vocabulary, and train nn.EmbeddingBag(20000, 64) followed by nn.Linear(64, 4) for 10 epochs. Report test accuracy, the parameter total, and the five nearest neighbours by cosine similarity of the word 'space'.",
+          "deliverable": "Notebook with the vocabulary build, trained classifier, parameter count and neighbour table",
+          "checks": [["Count parameters of EmbeddingBag(20000, 64) plus Linear(64, 4)", "1,280,260 parameters (1,280,000 plus 260)", "Printed count"], ["Evaluate the trained model on the held-out test split", "Test accuracy is at least 75%", "Printed accuracy"], ["Pad two documents of different length and use padding_idx", "The padding row stays all zeros and receives no gradient", "Printed gradient and row"]],
+          "objectives": ["Explain embeddings as learned lookup tables", "Build a bag-of-embeddings text classifier", "Inspect an embedding space with cosine similarity"]
+        },
+        {
+          "topic": "Metrics Beyond Accuracy: Precision, Recall, AUC and Threshold Choice",
+          "subtopics": ["Confusion matrix terms: TP, FP, TN and FN", "Precision, recall and F1", "Why accuracy misleads on imbalanced data", "ROC curve and ROC-AUC", "Precision-recall curve and average precision", "Choosing a decision threshold from a cost or recall target", "Macro, micro and weighted averages for multi-class problems", "Metrics computed with torchmetrics or scikit-learn on accumulated predictions"],
+          "tools": ["scikit-learn", "torchmetrics", "PyTorch", "Matplotlib"],
+          "lab_task": "Create an imbalanced set with make_classification (20,000 samples, weights=[0.95, 0.05]), train a small PyTorch MLP with BCEWithLogitsLoss, and report accuracy, precision, recall, F1, ROC-AUC and average precision on the test split. Compare with an always-negative predictor, then pick the threshold that gives recall of at least 0.80 and report the precision at that point.",
+          "deliverable": "Metrics report with the confusion matrix, ROC and precision-recall plots and the chosen threshold",
+          "checks": [["Score an always-negative predictor on the 95/5 data", "Accuracy is about 0.95 while recall is exactly 0.0", "Printed metrics"], ["Compute ROC-AUC and average precision for the MLP", "Both are reported and the average precision is lower than the ROC-AUC", "Metrics table"], ["Select the threshold with recall of at least 0.80", "The threshold, resulting precision and confusion matrix are printed", "Threshold report"]],
+          "objectives": ["Choose metrics that match the cost of errors", "Explain why accuracy fails on imbalanced data", "Select a threshold from a recall or precision target"]
+        },
+        {
+          "topic": "Debugging a Network That Will Not Learn",
+          "subtopics": ["Start simple: a small model on a tiny dataset", "Check the initial loss against the expected value, ln(C)", "Overfit a single batch of 32 examples to near-zero loss", "Inspect inputs and labels visually before training", "Gradient checks: norms per layer and parameter update ratios", "Label bugs: shuffled labels, off-by-one classes and wrong dtype", "Preprocessing bugs: train and test pipelines that differ", "A written debugging checklist ordered by likelihood"],
+          "tools": ["PyTorch", "TensorBoard", "Matplotlib"],
+          "lab_task": "Take a working Fashion-MNIST CNN and break it three ways: shuffle the labels, forget model.train(), and scale inputs by 255 twice. For each bug, run the checks in order: initial loss against ln(10), overfit one batch of 32 for 200 Adam steps, and per-layer gradient norms. Record which check exposes each bug and how long it took.",
+          "deliverable": "Debugging checklist plus a table mapping each injected bug to the first check that caught it",
+          "checks": [["Measure the loss of the correct model before any training step", "The loss is between 2.2 and 2.4", "Printed loss"], ["Overfit a single batch of 32 images for 200 Adam steps at lr 1e-3", "Loss drops below 0.01 with the correct pipeline", "Loss curve"], ["Train with shuffled labels", "Validation accuracy stays at 10% plus or minus 2 points", "Metrics log"]],
+          "objectives": ["Apply a systematic order of checks when training fails", "Use single-batch overfitting as a pipeline test", "Map symptoms to likely causes"]
+        },
+        {
+          "topic": "Saving, Resuming and Reproducing Training Runs",
+          "subtopics": ["What state_dict() contains and what it leaves out", "Saving model, optimiser, scheduler, epoch and RNG state in one checkpoint", "Loading with map_location and torch.load(weights_only=True)", "Best-so-far versus last checkpoint", "Resuming a run and getting the same loss curve", "Seeding and determinism: torch.use_deterministic_algorithms and CUBLAS_WORKSPACE_CONFIG", "DataLoader worker seeding with worker_init_fn and generator", "Recording config, git commit and package versions with every run"],
+          "tools": ["PyTorch", "Python", "Git"],
+          "lab_task": "Train a small MLP for 10 epochs on CPU with full seeding and save a checkpoint (model, optimizer, epoch, RNG state) after epoch 5. In a second process load it and finish epochs 6 to 10, then compare the epoch-6 to epoch-10 losses with an uninterrupted run. Write config.json with seed, git commit hash and pip freeze output for the run folder.",
+          "deliverable": "Checkpoint and resume scripts, a run folder with config.json and a comparison of the two loss curves",
+          "checks": [["Resume from the epoch-5 checkpoint and train to epoch 10", "Losses for epochs 6 to 10 equal the uninterrupted run to 6 decimal places on CPU", "Two loss logs"], ["Load the checkpoint with torch.load(..., weights_only=True)", "The load succeeds for tensors and plain dicts and fails with an unpickling error for an arbitrary Python object", "Terminal output"], ["Inspect the run folder", "config.json holds seed, git commit hash and library versions", "config.json"]],
+          "objectives": ["Save and restore the complete state of a training run", "Make a run reproducible on the same hardware", "Record enough metadata to rerun an experiment later"]
+        },
+        {
+          "topic": "Beginner Capstone: Fashion-MNIST Classifier with a Written Diagnosis Report",
+          "subtopics": ["Problem statement, success metric and baseline for Fashion-MNIST", "An MLP and a small CNN trained with the same loop and seeds", "Learning curves, regularisation and the chosen stopping epoch", "Per-class precision and recall with a confusion matrix and the two most confused classes", "Reproducibility package: seeds, config and checkpoint", "A one-page diagnosis report with next steps"],
+          "tools": ["PyTorch", "torchvision", "scikit-learn", "Matplotlib"],
+          "lab_task": "Deliver a Fashion-MNIST study: a majority-class baseline, an MLP and a small CNN, each trained for 15 epochs with AdamW and a held-out 5,000-image validation split carved from the training set. Report test accuracy, per-class recall and the confusion matrix, include one regularisation change with evidence, and write a one-page report that ends with the two most confused classes.",
+          "deliverable": "Repository with code, config, checkpoints, metrics CSV and a one-page diagnosis report",
+          "checks": [["Evaluate the CNN once on the 10,000-image test set", "Test accuracy is at least 90% and the MLP is at least 87%", "Metrics table"], ["Rerun the CNN with the saved seed and config", "Validation accuracy matches the reported value to 3 decimals", "Two run logs"], ["Inspect the confusion matrix", "The two most confused classes are named (typically shirt and T-shirt/top) with their error rate", "Confusion matrix and report"]],
+          "objectives": ["Combine data splits, training loop, regularisation and metrics into one study", "Compare an MLP with a CNN fairly using identical protocols", "Communicate results and failure modes in a short report"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For practitioners who can train a basic network and now need design judgement and engineering depth. Covers residual design, learning-rate schedules and clipping, mixed precision, data pipelines and imbalance, recurrent gating, attention and the transformer block (one day), transfer learning, self-supervised learning, autoencoders, GANs and diffusion, loss design, hyperparameter search, calibration and uncertainty, interpretability, batch-size dynamics, profiling, data-parallel training, export and latency, and tabular versus deep models. Dedicated computer vision, transformer and framework courses go deeper on their own subjects.",
+      "prerequisites": ["Has completed the beginner level or trains small PyTorch models with a hand-written loop", "Reads training curves and knows overfitting, regularisation and common optimisers", "Can use Git, a terminal and, ideally, a single GPU or a cloud notebook"],
+      "outcomes": ["Choose architectures, schedules, precision and losses with reasons grounded in gradient flow and numerics", "Run tracked, pruned hyperparameter searches and report multi-seed ablations", "Measure calibration, uncertainty and attribution quality and use them to judge a model", "Profile, parallelise and export a model, and state its latency and throughput"],
+      "days": [
+        {
+          "topic": "Residual Connections and the Design of Deep Networks",
+          "subtopics": ["The degradation problem: deeper plain networks that train worse", "Residual block y = F(x) + x and the identity shortcut", "Gradient flow through skip paths", "Projection shortcuts when shapes change", "Bottleneck blocks and parameter budgets", "Pre-activation and pre-norm ordering", "Reading ResNet-18 in torchvision.models and counting its parameters", "Design heuristics: stages, width doubling and downsampling points"],
+          "tools": ["PyTorch", "torchvision", "Matplotlib"],
+          "lab_task": "Build a 30-layer ReLU MLP of width 128 with and without residual skips (y = x + Linear(ReLU(Linear(x))) per pair of layers), train both for 3 epochs on Fashion-MNIST, and log the ratio of first-layer to last-layer gradient norm at step 1. Count parameters of torchvision.models.resnet18() and print its stage layout.",
+          "deliverable": "Notebook with both training curves, the gradient-norm ratio table and the ResNet-18 structure summary",
+          "checks": [["Count parameters of torchvision.models.resnet18() with 1,000 classes", "11,689,512 parameters", "Printed count"], ["Compare the first-to-last layer gradient ratio at step 1 for plain and residual networks", "The residual network's ratio is at least 10 times closer to 1 than the plain network's", "Printed ratios"], ["Train both 30-layer networks for 3 epochs", "The residual network reaches higher validation accuracy than the plain one", "Metrics table"]],
+          "objectives": ["Explain why skip connections make deep networks trainable", "Read and modify a residual block", "Estimate parameter counts and design stage layouts"]
+        },
+        {
+          "topic": "Learning Rate Schedules, Warmup and Gradient Clipping",
+          "subtopics": ["Why a constant learning rate is rarely optimal", "Step, exponential and cosine decay", "Linear warmup and why Adam needs it at large learning rates", "OneCycleLR and the learning-rate range test", "Combining schedulers with SequentialLR and LinearLR", "Gradient clipping by norm with clip_grad_norm_", "Stepping the scheduler per batch versus per epoch", "Logging lr and gradient norm every step"],
+          "tools": ["PyTorch", "TensorBoard", "Matplotlib"],
+          "lab_task": "Train a 3-layer MLP on Fashion-MNIST for 20 epochs under three schedules: constant lr 1e-3, 2-epoch linear warmup followed by CosineAnnealingLR, and OneCycleLR(max_lr=1e-2). Log scheduler.get_last_lr() each step, apply clip_grad_norm_(max_norm=1.0) and log the returned norm, then run a learning-rate range test from 1e-6 to 1 and pick a max_lr.",
+          "deliverable": "Notebook with schedule plots, gradient-norm logs, a range-test figure and a comparison table",
+          "checks": [["Create CosineAnnealingLR(T_max=100, eta_min=0) with base lr 1e-3 and step 50 times", "get_last_lr() returns 5e-4 at step 50", "Printed learning rate"], ["Call clip_grad_norm_(params, max_norm=1.0) on gradients with total norm 10", "It returns 10.0 and the gradients afterwards have total norm 1.0", "Printed norms"], ["Run the learning-rate range test", "The loss curve shows a falling region and a divergence point, and the chosen max_lr is below the divergence point", "Range-test plot"]],
+          "objectives": ["Configure warmup, cosine and one-cycle schedules", "Use gradient clipping to stabilise training", "Pick a learning rate from a range test"]
+        },
+        {
+          "topic": "Mixed Precision, Numerics and Floating-Point Formats",
+          "subtopics": ["FP32, FP16 and BF16: bits for sign, exponent and mantissa", "Range and precision: FP16 max 65,504, BF16 with FP32's exponent range", "Underflow and overflow in gradients", "torch.autocast and which ops run in lower precision", "Loss scaling with torch.amp.GradScaler for FP16", "Why BF16 usually needs no loss scaling", "Master weights and accumulation in FP32", "Measuring speed-up and memory saving honestly"],
+          "tools": ["PyTorch", "NVIDIA nvidia-smi", "TensorBoard"],
+          "lab_task": "Demonstrate float limits with torch.finfo for float32, float16 and bfloat16 and cast 1e-8 and 70000 to float16. Then train a 6-layer MLP on a GPU for 3 epochs in FP32, in FP16 with autocast and GradScaler, and in BF16 with autocast, recording samples per second and torch.cuda.max_memory_allocated() for each. On CPU-only machines use bfloat16 autocast and report time only.",
+          "deliverable": "Report with the float-limit table, throughput and memory results and a note on accuracy parity",
+          "checks": [["Cast 1e-8 to torch.float16", "The value becomes 0.0 (underflow)", "Printed tensor"], ["Cast 70000 to torch.float16", "The value becomes inf (overflow, because the maximum is 65,504)", "Printed tensor"], ["Compare final validation accuracy across FP32, FP16 and BF16", "The three results are within 1 percentage point of each other", "Metrics table"]],
+          "objectives": ["Compare FP32, FP16 and BF16 ranges and precision", "Enable autocast and loss scaling correctly", "Measure the speed and memory effect of mixed precision"]
+        },
+        {
+          "topic": "Data Pipelines, Augmentation and Class Imbalance",
+          "subtopics": ["Dataset and IterableDataset, and what __getitem__ should do", "DataLoader num_workers, pin_memory and prefetch_factor", "Augmentation as a way to encode invariances: noise, masking, mixup", "CutMix and mixup as label-mixing regularisers", "Class imbalance: reweighting, resampling with WeightedRandomSampler and focal-style losses", "Label smoothing through CrossEntropyLoss(label_smoothing=0.1)", "Collate functions for variable-length data", "Testing a pipeline: determinism, shapes and one visual check"],
+          "tools": ["PyTorch", "torchvision", "scikit-learn"],
+          "lab_task": "Create a 90/10 imbalanced binary dataset of 10,000 rows and compare four setups with the same MLP: plain training, class-weighted BCE, WeightedRandomSampler, and plain training plus Gaussian input noise (std 0.1). Draw 100 batches of 64 from the sampler and report the mean positive fraction, and report recall and average precision on a balanced-prior test set.",
+          "deliverable": "Notebook with the four-way comparison table and the sampler balance measurement",
+          "checks": [["Draw 100 batches of 64 with WeightedRandomSampler on the 90/10 data", "The mean positive fraction per batch lies between 0.45 and 0.55", "Printed fraction"], ["Compare recall of plain training against class-weighted training", "The weighted model has higher recall than the plain model", "Metrics table"], ["Apply mixup with alpha 0.2 to one batch", "Mixed labels are soft values that sum to 1 in every row", "Printed label rows"]],
+          "objectives": ["Build efficient, testable data pipelines", "Handle class imbalance with weights and samplers", "Use augmentation and label mixing as regularisers"]
+        },
+        {
+          "topic": "Recurrent Networks, Vanishing Gradients and Gated Units",
+          "subtopics": ["Sequences, hidden state and weight sharing across time", "The vanilla RNN update and backpropagation through time", "Vanishing and exploding gradients over long spans", "LSTM gates: input, forget and output, and the cell state", "GRU as a lighter gated unit", "Parameter counts of nn.RNN, nn.GRU and nn.LSTM", "Packing and padding variable-length sequences", "Bidirectional and stacked recurrent layers and where they stop being worthwhile"],
+          "tools": ["PyTorch", "Matplotlib", "NumPy"],
+          "lab_task": "Count parameters of nn.RNN(8, 16), nn.GRU(8, 16) and nn.LSTM(8, 16) and match them to formulas. Then train nn.RNN and nn.LSTM on the adding problem for sequence lengths T = 10 and T = 100, and measure the gradient norm of the loss with respect to the first timestep input for each model and length, with default and forget-gate bias 1.0.",
+          "deliverable": "Notebook with the parameter-count table, gradient-norm table across lengths and a short written conclusion",
+          "checks": [["Count parameters of nn.LSTM(8, 16)", "1,664 parameters (4 gates x (16x8 + 16x16 + 2x16))", "Printed count"], ["Compare nn.RNN first-timestep gradient norms at T = 10 and T = 100", "The T = 100 norm is at least 1,000 times smaller", "Printed norms"], ["Set the LSTM forget-gate bias to 1.0 and measure at T = 100", "The first-timestep gradient norm is larger than with the default bias", "Printed norms"]],
+          "objectives": ["Explain vanishing gradients through time", "Describe LSTM and GRU gates and count their parameters", "Measure gradient flow across sequence length"]
+        },
+        {
+          "topic": "Attention Mechanisms and the Transformer Block",
+          "subtopics": ["Queries, keys and values as soft dictionary lookup", "Scaled dot-product attention: softmax(QK^T / sqrt(d_k))V", "Why the scaling factor matters for softmax saturation", "Causal and padding masks", "Multi-head attention and head dimension d_model / h", "Positional information: sinusoidal, learned and rotary at a conceptual level", "The block: attention, residual, normalisation and feed-forward layers", "Counting parameters of a block and F.scaled_dot_product_attention"],
+          "tools": ["PyTorch", "Matplotlib", "einops"],
+          "lab_task": "Implement single-head scaled dot-product attention with an optional causal mask for tensors of shape (2, 6, 16) and compare it with torch.nn.functional.scaled_dot_product_attention. Plot the attention weights for a causal and a non-causal run, count the parameters of nn.MultiheadAttention(64, 4), and assemble a pre-norm block with a 4x feed-forward layer.",
+          "deliverable": "Notebook with the attention implementation, weight heatmaps and a parameter-count table",
+          "checks": [["Compare the manual attention with F.scaled_dot_product_attention", "torch.allclose returns True with atol=1e-5", "Printed result"], ["Apply a causal mask and inspect the weight matrix", "All entries above the diagonal are 0 and each row sums to 1", "Printed matrix check"], ["Count parameters of nn.MultiheadAttention(64, 4)", "16,640 parameters (12,480 input projection plus 4,160 output projection)", "Printed count"]],
+          "objectives": ["Implement scaled dot-product attention from first principles", "Explain masks, heads and positional information", "Assemble a transformer block and count its parameters"]
+        },
+        {
+          "topic": "Transfer Learning and Representation Reuse",
+          "subtopics": ["Why features learned on a large dataset help small ones", "Feature extraction versus fine-tuning", "Freezing with requires_grad_(False) and what to pass to the optimiser", "Linear probes as a measure of representation quality", "Discriminative learning rates by layer group", "BatchNorm layers in frozen backbones: keep them in eval mode", "Catastrophic forgetting and low learning rates", "When transfer fails: domain mismatch and negative transfer"],
+          "tools": ["PyTorch", "torchvision", "TensorBoard"],
+          "lab_task": "Take torchvision resnet18 with pretrained weights and a CIFAR-10 training subset of 500 images. Compare three runs for 10 epochs: training from scratch, a linear probe with the backbone frozen, and full fine-tuning at lr 1e-4 for the backbone and 1e-3 for the head. Report trainable parameter counts, test accuracy and the effect of keeping BatchNorm in eval mode.",
+          "deliverable": "Notebook with three training runs, trainable-parameter counts and a test-accuracy table",
+          "checks": [["Freeze the backbone and replace fc with Linear(512, 10)", "Trainable parameters total 5,130", "Printed count"], ["Compare full fine-tuning with training from scratch on 500 images", "Fine-tuning is at least 10 points higher in test accuracy", "Metrics table"], ["Check frozen backbone weights after the linear probe finishes", "They equal their saved initial values exactly", "Printed comparison"]],
+          "objectives": ["Choose between feature extraction and fine-tuning", "Freeze layers correctly, including normalisation statistics", "Evaluate representations with a linear probe"]
+        },
+        {
+          "topic": "Self-Supervised and Contrastive Representation Learning",
+          "subtopics": ["Learning from unlabelled data with pretext tasks", "Two views of one sample as positives, other samples as negatives", "The InfoNCE (NT-Xent) loss and temperature", "Batch size, negatives and the effect on the loss", "Representation collapse and how negatives or other tricks prevent it", "Masked prediction as another self-supervised family", "Linear-probe evaluation with few labels", "Where self-supervision pays off: little labelled data and lots of unlabelled data"],
+          "tools": ["PyTorch", "torchvision", "scikit-learn"],
+          "lab_task": "Implement an NT-Xent loss with temperature 0.5 and train a small encoder on unlabelled Fashion-MNIST with two random augmentations per image, batch size 128, for 10 epochs. Check the initial loss, then evaluate a logistic regression probe on 1,000 labelled images using the learned encoder against a randomly initialised encoder, and measure embedding collapse with a positives-only loss.",
+          "deliverable": "Notebook with the loss implementation, probe comparison and collapse measurement",
+          "checks": [["Evaluate NT-Xent on random embeddings with N = 128 pairs", "The loss is about ln(255) = 5.54", "Printed loss"], ["Compare probe accuracy on 1,000 labels for learned versus random encoder", "The learned encoder is at least 5 points higher", "Metrics table"], ["Train with a positives-only loss and measure per-dimension standard deviation of normalised 128-d embeddings", "The deviation falls below 0.01, against about 0.088 (1/sqrt(128)) for healthy embeddings", "Printed statistics"]],
+          "objectives": ["Explain contrastive learning and the NT-Xent objective", "Detect representation collapse", "Judge learned representations with a linear probe"]
+        },
+        {
+          "topic": "Autoencoders and Variational Autoencoders",
+          "subtopics": ["Compression through a bottleneck and reconstruction loss", "Undercomplete autoencoders and denoising autoencoders", "Latent spaces and interpolation", "From autoencoder to VAE: encoder outputs a distribution", "The reparameterisation trick z = mu + sigma * eps", "The ELBO: reconstruction term plus KL divergence", "Closed-form KL for diagonal Gaussians", "Posterior collapse and the beta weighting"],
+          "tools": ["PyTorch", "torchvision", "Matplotlib"],
+          "lab_task": "Train a plain autoencoder and a VAE with a 2-dimensional latent space on Fashion-MNIST for 10 epochs each. Implement the KL term by hand, sample 64 images from z drawn from N(0, I), plot the latent space coloured by class, and retrain the VAE with the KL weight beta = 0 and beta = 4 to compare reconstruction error and sample quality.",
+          "deliverable": "Notebook with reconstructions, latent plots, prior samples and a beta comparison table",
+          "checks": [["Evaluate the KL term with mu = 0 and logvar = 0", "The KL divergence is exactly 0", "Printed value"], ["Compare reconstruction loss at beta = 0 and beta = 1", "The beta = 0 model has lower reconstruction loss", "Metrics table"], ["Decode 64 samples from the standard normal prior", "A 8x8 image grid is produced for the beta = 1 model, with the beta = 4 grid visibly blurrier", "Saved image grids"]],
+          "objectives": ["Explain the ELBO and the reparameterisation trick", "Implement a VAE and its KL term", "Describe the reconstruction versus regularisation trade-off"]
+        },
+        {
+          "topic": "Adversarial and Diffusion Generative Models",
+          "subtopics": ["The GAN minimax game and the non-saturating generator loss", "Why GAN training is unstable: oscillation and mode collapse", "Wasserstein loss and gradient penalty with lambda 10", "Diffusion forward process q(x_t | x_0) and the alpha-bar schedule", "Noise-prediction training: MSE between epsilon and the network output", "Reverse sampling loop and number of steps", "Comparing GANs, VAEs and diffusion on stability, quality and speed", "Evaluating generators: coverage and nearest-neighbour distance on toy data"],
+          "tools": ["PyTorch", "scikit-learn", "Matplotlib"],
+          "lab_task": "On the two-moons dataset (2,000 points, noise 0.05), train a small GAN and a DDPM-style noise-prediction MLP with T = 1000 and a linear beta schedule from 1e-4 to 0.02. Compute the cumulative alpha-bar, sample 1,000 points from each generator, and report the fraction of samples in each moon and the mean distance to the nearest training point.",
+          "deliverable": "Notebook with both generators, sample scatter plots and a coverage and distance table",
+          "checks": [["Compute alpha-bar at t = 1000 for the linear schedule", "The value is below 1e-3 (about 4e-5)", "Printed value"], ["Check diffusion samples for coverage of both moons", "Each moon holds at least 30% of the 1,000 samples", "Printed fractions"], ["Compute mean distance from diffusion samples to the nearest training point", "The mean is below 0.15", "Printed distance"]],
+          "objectives": ["Describe how GAN and diffusion training differ", "Implement the diffusion forward process and noise-prediction loss", "Measure sample quality and coverage on toy data"]
+        },
+        {
+          "topic": "Loss Design: Custom Objectives, Multi-Task and Metric Learning",
+          "subtopics": ["Matching the loss to the decision: asymmetric costs and ranking", "Focal loss: (1 - p_t)^gamma weighting", "Triplet and contrastive losses for embeddings", "Multi-task learning with shared trunks and separate heads", "Balancing task losses: fixed weights and uncertainty weighting", "Auxiliary losses and regularising terms", "Differentiability: surrogate losses for non-differentiable metrics", "Unit tests for custom losses"],
+          "tools": ["PyTorch", "pytest", "scikit-learn"],
+          "lab_task": "Implement focal loss for multi-class logits and unit-test it, then implement a two-head network (classification of Fashion-MNIST class plus regression of mean pixel intensity) with a learnable-weight multi-task loss. Train a triplet-loss embedding with nn.TripletMarginLoss(margin=1.0) and report 1-nearest-neighbour accuracy on its embeddings.",
+          "deliverable": "Module of custom losses with pytest tests and a notebook comparing multi-task weights",
+          "checks": [["Evaluate focal loss with gamma = 0 against F.cross_entropy", "The two values are equal to within 1e-6", "pytest output"], ["Compute the focal weight for p_t = 0.9 and gamma = 2", "The factor is 0.01, so an easy example is down-weighted 100 times", "Printed value"], ["Evaluate TripletMarginLoss where d(a, p) + margin <= d(a, n)", "The loss is exactly 0", "pytest output"]],
+          "objectives": ["Design a loss that reflects the real cost of errors", "Combine multiple objectives with weights", "Test custom losses with unit tests"]
+        },
+        {
+          "topic": "Hyperparameter Search and Experiment Tracking",
+          "subtopics": ["Which hyperparameters matter most: learning rate, batch size, weight decay, width", "Grid, random and Bayesian search compared", "Log-uniform sampling for learning rate and weight decay", "Optuna studies with the TPE sampler and the MedianPruner", "Early pruning of poor trials with trial.report and trial.should_prune", "Tracking metrics, parameters and artefacts with TensorBoard, MLflow or Weights & Biases", "Seeds, repeats and avoiding overfitting the validation set", "A final test-set evaluation done once"],
+          "tools": ["Optuna", "MLflow", "TensorBoard", "PyTorch"],
+          "lab_task": "Write an Optuna objective for a Fashion-MNIST MLP that samples lr (log-uniform 1e-5 to 1e-1), weight_decay (log-uniform 1e-6 to 1e-2), width (64, 128, 256, 512) and dropout (0 to 0.5), reports validation accuracy each epoch for pruning, and run 30 trials with TPESampler(seed=0) and MedianPruner. Log every trial to MLflow and retrain the best configuration with 3 seeds.",
+          "deliverable": "Optuna study, MLflow runs for all 30 trials and a table of the best configuration with 3-seed results",
+          "checks": [["Run the study with n_trials=30", "30 trials are recorded and at least 1 has the state PRUNED", "study.trials_dataframe()"], ["Repeat the study with TPESampler(seed=0) and one worker", "The best parameters are identical in both runs", "Two printed best_params dictionaries"], ["Open the MLflow UI", "Each trial appears as a run with its parameters and per-epoch validation accuracy", "MLflow UI screenshot"]],
+          "objectives": ["Run a budgeted hyperparameter search with pruning", "Log experiments so they can be compared and reproduced", "Avoid optimistic estimates from tuning on the validation set"]
+        },
+        {
+          "topic": "Uncertainty, Calibration and Out-of-Distribution Inputs",
+          "subtopics": ["Confidence versus correctness", "Expected calibration error with 15 bins and reliability diagrams", "Temperature scaling fitted on a validation set", "Monte Carlo dropout", "Deep ensembles as a strong uncertainty baseline", "Maximum softmax probability for detecting unfamiliar inputs", "AUROC for out-of-distribution detection", "Reporting uncertainty to users and abstaining on low confidence"],
+          "tools": ["PyTorch", "scikit-learn", "Matplotlib"],
+          "lab_task": "Train a Fashion-MNIST CNN for 15 epochs so that it overfits, and compute ECE with 15 bins and a reliability diagram. Fit a temperature on the validation split by minimising NLL with LBFGS, train an ensemble of 5 models, and score MNIST digits as out-of-distribution inputs with maximum softmax probability, reporting AUROC for single model and ensemble.",
+          "deliverable": "Notebook with reliability diagrams, ECE before and after scaling, ensemble NLL and OOD AUROC results",
+          "checks": [["Compare ECE before and after temperature scaling on the test set", "ECE is lower after scaling and the fitted temperature is above 1 for the overfit model", "Printed values"], ["Compare the 5-model ensemble with the mean of single-model test NLL", "Ensemble NLL is lower", "Metrics table"], ["Score MNIST against Fashion-MNIST with max softmax probability", "AUROC is above 0.7 and is reported for single model and ensemble", "Printed AUROC"]],
+          "objectives": ["Measure calibration and fix it with temperature scaling", "Build ensemble and dropout-based uncertainty estimates", "Detect out-of-distribution inputs with a simple baseline"]
+        },
+        {
+          "topic": "Interpretability: Saliency, Attribution and Probing",
+          "subtopics": ["Why explanations matter for debugging and trust", "Gradient saliency and its noise", "Integrated Gradients and the completeness property", "SmoothGrad and attribution baselines", "Sanity checks: randomising weights should change the attribution", "Linear probes for what a layer encodes", "Feature visualisation limits and misreading attributions", "Using attributions to find spurious features"],
+          "tools": ["Captum", "PyTorch", "Matplotlib"],
+          "lab_task": "Train a Fashion-MNIST CNN and use Captum to compute Saliency and IntegratedGradients (n_steps=200) for 20 test images, return the convergence delta, and plot the maps. Run the weight-randomisation sanity check by replacing the last two layers with random weights and compare attributions using Spearman correlation. Then train a linear probe on layer-2 activations to predict a coarse class group.",
+          "deliverable": "Notebook with attribution maps, the convergence delta, the sanity-check correlation and probe accuracy",
+          "checks": [["Run IntegratedGradients with n_steps=200 and return_convergence_delta=True", "The delta is below 0.05 for each of the 20 images", "Printed deltas"], ["Randomise the last two layers and recompute attributions", "Spearman correlation with the original maps drops below 0.5", "Printed correlation"], ["Train the linear probe on layer-2 activations", "The layer-2 probe scores higher test accuracy than a linear probe on raw pixels", "Metrics table"]],
+          "objectives": ["Compute and read attribution maps", "Apply sanity checks before trusting an explanation", "Use probes to test what a layer represents"]
+        },
+        {
+          "topic": "Training Dynamics: Batch Size, Loss Landscapes and Gradient Accumulation",
+          "subtopics": ["Gradient noise and the choice of batch size", "Linear scaling rule for learning rate with warmup", "Large-batch training and the generalisation gap", "Gradient accumulation to emulate a larger batch", "Interpolating between initial and final weights to inspect the loss along a line", "Sharp versus flat minima and why the idea is debated", "Effective epochs, steps and the compute budget", "Critical batch size as the point of diminishing returns"],
+          "tools": ["PyTorch", "Matplotlib", "TensorBoard"],
+          "lab_task": "Train a 2-layer MLP without BatchNorm on Fashion-MNIST at batch 32 with lr 0.01 and at batch 512 with lr 0.16. Show that accumulating gradients over 4 micro-batches of 32 (loss divided by 4) equals one batch of 128. Then evaluate the loss at 21 evenly spaced points along the line between initial and final weights.",
+          "deliverable": "Notebook with the gradient-equivalence test, the interpolation plot and the two batch-size runs",
+          "checks": [["Compare accumulated gradients over 4 x 32 with one batch of 128", "All gradients match with torch.allclose at atol=1e-6", "Printed result"], ["Count steps per epoch for batch 512 with 60,000 images and drop_last=False", "118 steps, against 1,875 at batch size 32", "Printed lengths"], ["Evaluate loss at 21 interpolation points between initial and final weights", "The loss at alpha = 1 is lower than at alpha = 0 and the curve is plotted", "Interpolation plot"]],
+          "objectives": ["Relate batch size and learning rate", "Implement gradient accumulation correctly", "Inspect a training run with a loss interpolation"]
+        },
+        {
+          "topic": "Profiling and Speeding Up Training",
+          "subtopics": ["Finding the bottleneck: data loading, host-to-device copies or compute", "torch.profiler schedules with wait, warmup and active steps", "Reading the profiler table and a TensorBoard trace", "CUDA is asynchronous: timing needs torch.cuda.synchronize", "DataLoader num_workers, pin_memory and non_blocking copies", "channels_last memory format and fused optimisers", "torch.compile: speed-up versus compile time", "Reporting throughput in samples per second with confidence"],
+          "tools": ["PyTorch Profiler", "TensorBoard", "nvidia-smi", "PyTorch"],
+          "lab_task": "Profile a CNN training loop with torch.profiler.profile (schedule wait=1, warmup=1, active=3) and export a TensorBoard trace. Measure samples per second for DataLoader num_workers 0, 2 and 4 with and without pin_memory, time forward passes with and without torch.cuda.synchronize, and compare eager mode with torch.compile(model) including first-call latency.",
+          "deliverable": "Profiling report with the top-5 operators, a throughput table and a recommendation list",
+          "checks": [["Time a GPU forward pass without and with torch.cuda.synchronize", "The unsynchronised time is much smaller, showing it measured only kernel launch", "Printed timings"], ["Compare samples per second across num_workers 0, 2 and 4", "A table lists all three values and names the best setting", "Throughput table"], ["Time the first and second call of torch.compile(model)", "The first call is slower than the second because of compilation", "Printed timings"]],
+          "objectives": ["Find a training bottleneck with a profiler", "Time GPU code correctly", "Apply and measure common speed-ups"]
+        },
+        {
+          "topic": "Data Parallelism and Synchronised Gradients",
+          "subtopics": ["Replicating the model across processes and splitting the batch", "All-reduce of gradients and what it costs", "Effective batch size equals per-device batch times world size", "DistributedSampler and set_epoch for correct shuffling", "Launching with torchrun and reading RANK, LOCAL_RANK and WORLD_SIZE", "Backends: NCCL for GPUs, gloo for CPU", "Saving checkpoints and logging only on rank 0", "Scaling efficiency and why it falls below 100%"],
+          "tools": ["PyTorch DDP", "torchrun", "NCCL", "gloo"],
+          "lab_task": "Write a DistributedDataParallel script and launch it with torchrun --nproc_per_node=2 using the gloo backend on CPU (or NCCL on 2 GPUs). Use DistributedSampler, print the first 5 sample indices on each rank per epoch with and without set_epoch, and verify after 1 step that parameters are identical across ranks with all_gather. Measure steps per second for 1 and 2 processes.",
+          "deliverable": "DDP training script, a log showing sampler indices per rank and a scaling-efficiency table",
+          "checks": [["Inspect sampler indices from both ranks for one epoch", "The two ranks hold disjoint index sets that together cover the dataset", "Printed index sets"], ["Run two epochs without sampler.set_epoch and compare the shuffling order", "The order is identical in both epochs; with set_epoch it differs", "Printed indices"], ["Compare parameters across ranks after one optimiser step", "All parameters are exactly equal on both ranks", "Printed comparison"]],
+          "objectives": ["Explain how DDP keeps replicas in sync", "Launch and debug a multi-process run with torchrun", "Compute effective batch size and scaling efficiency"]
+        },
+        {
+          "topic": "Exporting Models and Measuring Inference Latency",
+          "subtopics": ["Training mode versus inference: model.eval() and torch.inference_mode()", "Exporting to ONNX with torch.onnx.export and a dynamic batch axis", "Running with ONNX Runtime and checking numerical parity", "torch.export and TorchScript as other export routes", "Latency percentiles: warm-up, p50, p95 and p99", "Throughput versus latency as batch size grows", "Input preprocessing parity between training and serving", "Setting a latency budget and testing against it"],
+          "tools": ["ONNX", "ONNX Runtime", "PyTorch", "NumPy"],
+          "lab_task": "Export a trained Fashion-MNIST CNN with torch.onnx.export using a dynamic batch axis, load it in ONNX Runtime, and compare outputs with PyTorch on 100 test images. Time 1,000 single-image requests after 50 warm-up calls, report p50, p95 and p99 latency, and measure throughput for batch sizes 1, 8, 32 and 128.",
+          "deliverable": "Export script, parity check, a latency percentile table and a batch-size throughput chart",
+          "checks": [["Compare PyTorch and ONNX Runtime outputs on 100 images", "Maximum absolute difference is below 1e-4", "Printed difference"], ["Run exported model with batch sizes 1 and 32", "Both run successfully, proving the dynamic batch axis works", "Printed output shapes"], ["Report p50, p95 and p99 over 1,000 requests", "Percentiles satisfy p50 <= p95 <= p99 and are reported in milliseconds", "Latency table"]],
+          "objectives": ["Export a model and verify numerical parity", "Measure latency percentiles and throughput properly", "Set and check a latency budget"]
+        },
+        {
+          "topic": "Tabular and Time-Series Deep Learning: When Networks Lose to Trees",
+          "subtopics": ["Why tree ensembles often beat MLPs on tabular data", "Scaling numerical features and embedding categorical ones", "Strong tabular baselines: gradient-boosted trees", "Window construction for time series and chronological splitting", "Leakage in time series: random splits and future information", "Sequence models versus feature-engineered tabular models for forecasting", "Reporting error against a naive forecast", "Deciding when deep learning is worth its cost"],
+          "tools": ["PyTorch", "scikit-learn", "pandas", "Matplotlib"],
+          "lab_task": "On the California housing data (20,640 rows, 8 features) compare an MLP with and without standardised inputs against HistGradientBoostingRegressor, reporting test RMSE for all three. Then build a windowed forecasting set from a synthetic trending seasonal series, compare random and chronological splits, and report the error relative to a last-value naive forecast.",
+          "deliverable": "Notebook with the three-model RMSE table, split comparison and a written recommendation",
+          "checks": [["Compare MLP RMSE with and without standardised inputs", "The standardised model has lower test RMSE", "Metrics table"], ["Compare HistGradientBoostingRegressor with the best MLP", "Both RMSE values are reported and the gap is stated honestly", "Metrics table"], ["Compare random and chronological splits on the trending series", "The random split reports lower error than the chronological split, showing optimistic leakage", "Printed errors"]],
+          "objectives": ["Pick between deep and tree-based models for tabular data", "Split time-series data without leakage", "Compare forecasts with a naive baseline"]
+        },
+        {
+          "topic": "Intermediate Capstone: Reproducible Training Pipeline with Tracking and Ablations",
+          "subtopics": ["Config-driven training with a YAML file and command-line overrides", "Experiment tracking, seeds and checkpoint policy", "A grid of three ablations across three seeds", "Mean, standard deviation and a statement of significance", "A model card with limits and intended use", "A README that lets a colleague reproduce results"],
+          "tools": ["PyTorch", "MLflow", "Optuna", "pytest"],
+          "lab_task": "Build a configuration-driven training pipeline for CIFAR-10 or Fashion-MNIST with schedule, mixed precision, checkpointing and MLflow tracking. Run three ablations (augmentation, normalisation, weight decay) each with 3 seeds, a pytest suite for data and shapes, and a 2-page report with mean and standard deviation per ablation and a justified final configuration.",
+          "deliverable": "Repository with config, code, tests, 9+ tracked runs, ablation report and model card",
+          "checks": [["Rerun one configuration with its saved seed on CPU", "The final validation metric matches the tracked run to 4 decimals", "Two run logs"], ["Open the MLflow experiment", "At least 9 ablation runs are present with parameters, metrics and the config file attached", "MLflow screenshot"], ["Run pytest on the repository", "Tests for dataset length, batch shapes and one overfit-a-batch check all pass", "pytest output"]],
+          "objectives": ["Assemble a reproducible training pipeline from earlier techniques", "Run and report ablations with multiple seeds", "Document a model and a project for handover"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers and researchers who own training systems or must evaluate research claims. Covers curvature and optimiser theory, scaling laws and compute budgets, muP hyperparameter transfer, memory accounting, model parallelism, custom autograd and higher-order gradients, efficient attention and KV caches (the second transformer day), compression, adversarial robustness, privacy and fairness, reinforcement learning essentials, symmetry and inductive bias, generalisation theory, representation analysis, data-centric methods, statistical rigour, failure diagnosis, release engineering and paper reproduction.",
+      "prerequisites": ["Has completed the intermediate level or has shipped neural network training code", "Comfortable with probability, calculus and linear algebra including eigenvalues and Jacobians", "Has access to a GPU for the memory, attention and parallelism labs, and about 2 GPU-hours for the capstone"],
+      "outcomes": ["Reason about optimisation, scaling and memory quantitatively before launching a run", "Implement and test custom gradients, parallel layouts and compression methods", "Evaluate robustness, privacy, fairness and representation claims with appropriate statistics", "Reproduce and extend a published result and package it for others"],
+      "days": [
+        {
+          "topic": "Optimisation Theory for Practitioners: Curvature and Conditioning",
+          "subtopics": ["The Hessian, eigenvalues and the condition number", "Stable step size on a quadratic: lr < 2 / lambda_max", "Hessian-vector products with double backward and torch.autograd.functional.hvp", "Power iteration for the largest Hessian eigenvalue", "Why ill-conditioning slows SGD and how momentum and Adam help", "Adam as diagonal preconditioning and its failure modes", "Second-order and preconditioned optimisers at a conceptual level, including Shampoo-style and orthogonalised-momentum methods", "The edge of stability and sharpness during training"],
+          "tools": ["PyTorch", "torch.func", "NumPy", "Matplotlib"],
+          "lab_task": "On f(w) = 0.5 w^T A w with A = diag(1, 100), run gradient descent at lr 0.019 and lr 0.021 and plot both. Then train a 2-layer MLP on a 2,000-image Fashion-MNIST subset, estimate its top Hessian eigenvalue with 20 power-iteration steps using hvp, and compare 2 / lambda_max with the learning rates that diverge.",
+          "deliverable": "Notebook with quadratic experiments, a Hessian-eigenvalue estimator and a stability-versus-learning-rate table",
+          "checks": [["Run gradient descent on diag(1, 100) with lr = 0.019", "The loss converges toward 0 with an oscillating second coordinate", "Printed trajectory"], ["Run the same problem with lr = 0.021", "The loss grows without bound because 0.021 > 2/100 = 0.02", "Printed trajectory"], ["Estimate the top Hessian eigenvalue of a small MLP by power iteration", "The estimates change by less than 1% between iterations 19 and 20", "Printed estimates"]],
+          "objectives": ["Relate curvature to the largest stable learning rate", "Compute Hessian-vector products without forming the Hessian", "Explain what adaptive and preconditioned optimisers change"]
+        },
+        {
+          "topic": "Scaling Laws, Compute Budgets and Model Sizing",
+          "subtopics": ["Power-law relationship between loss and parameters, data and compute", "Training compute estimate C = 6 * N * D FLOPs", "Compute-optimal sizing and the roughly 20 tokens per parameter rule from Chinchilla", "Overtraining small models for cheaper inference", "Fitting a power law with an irreducible-loss term using scipy.optimize.curve_fit", "Extrapolation risk and error bars", "Hardware utilisation: model FLOPs utilisation (MFU)", "Using scaling curves to decide experiments before a large run"],
+          "tools": ["PyTorch", "SciPy", "NumPy", "Matplotlib"],
+          "lab_task": "Train 6 MLPs of widths 16 to 512 on a synthetic regression task with a fixed dataset size, record final validation loss against parameter count N, and fit L = a * N^(-alpha) + c with curve_fit on the 5 smallest. Predict the largest model's loss, compare to the measurement, and compute C = 6ND for a 1B-parameter model trained on 20B tokens.",
+          "deliverable": "Notebook with the fitted curve, extrapolation error and a compute-budget calculator",
+          "checks": [["Compute C = 6ND for N = 1e9 and D = 20e9", "1.2e20 FLOPs", "Printed value"], ["Fit the power law on the 5 smallest models and predict the 6th", "Prediction error is below 10% and the fitted alpha and c are printed", "Fit report"], ["Fit the power law to only the 3 smallest models", "The parameter confidence intervals are wider than for 5 points", "Printed intervals"]],
+          "objectives": ["Use scaling laws to plan model size and data", "Estimate training compute from parameters and tokens", "State the limits of extrapolating a fitted curve"]
+        },
+        {
+          "topic": "Parameterisation and Hyperparameter Transfer Across Width and Depth",
+          "subtopics": ["How optimal learning rate drifts with width under standard parameterisation", "Maximal update parametrisation (muP) in outline", "Per-layer learning rates and output multipliers", "Tuning on a small proxy model and transferring to a large one", "Depth scaling of residual branches, such as 1/sqrt(2L)", "Verifying transfer with learning-rate sweeps at several widths", "Coordinate checks of activation scale across steps", "When transfer breaks: schedules, batch size and data changes"],
+          "tools": ["PyTorch", "mup", "Optuna", "Matplotlib"],
+          "lab_task": "Sweep learning rates 2^-12 to 2^-2 for MLPs of width 128 and 1024 on Fashion-MNIST under standard parameterisation and under muP using the mup package, with 3 seeds each. Plot final validation loss against learning rate for all four settings and record the best learning rate at each width for both parameterisations.",
+          "deliverable": "Notebook with the four-curve plot, a table of best learning rates and a transfer verdict",
+          "checks": [["Compare the best lr at widths 128 and 1024 under standard parameterisation", "The optimum moves by at least 1 grid step (factor 2)", "Best-lr table"], ["Compare the best lr at widths 128 and 1024 under muP", "The optimum stays within 1 grid step of the width-128 value", "Best-lr table"], ["Record activation standard deviation per layer at steps 1, 10 and 100", "Coordinate-check curves for different widths overlap under muP", "Coordinate-check plot"]],
+          "objectives": ["Explain why hyperparameters drift with width", "Apply muP to transfer a learning rate from a small model", "Verify transfer with controlled sweeps"]
+        },
+        {
+          "topic": "Memory Accounting: Activations, Optimiser State and Checkpointing",
+          "subtopics": ["Memory components: parameters, gradients, optimiser state and activations", "Adam with mixed precision: 16 bytes per parameter (2 + 2 + 4 master + 4 + 4)", "Activation memory grows with batch size and depth", "Activation (gradient) checkpointing with torch.utils.checkpoint and use_reentrant=False", "CPU offloading and its bandwidth cost", "Reading torch.cuda.memory_summary and max_memory_allocated", "Out-of-memory errors: torch.cuda.OutOfMemoryError and how to bisect the cause", "Fragmentation and PYTORCH_CUDA_ALLOC_CONF"],
+          "tools": ["PyTorch", "nvidia-smi", "torch.utils.checkpoint", "Matplotlib"],
+          "lab_task": "Compute the predicted memory of a 50M-parameter model under mixed-precision Adam at 16 bytes per parameter, then measure peak memory with torch.cuda.max_memory_allocated() for one training step at batch 32, 64 and 128. Repeat with torch.utils.checkpoint on each block and record peak memory and step time. Provoke an OOM and bisect the batch size that fits.",
+          "deliverable": "Memory report with predicted versus measured memory, checkpointing trade-off table and the OOM bisection",
+          "checks": [["Compute predicted state memory for 50M parameters at 16 bytes each", "800 MB (0.8 GB) before activations", "Printed calculation"], ["Enable checkpointing on each block at a fixed batch size", "Peak memory is lower and step time is higher than without it", "Memory and timing table"], ["Increase the batch size until the step fails", "The error torch.cuda.OutOfMemoryError is raised and the largest working batch size is recorded", "Terminal output"]],
+          "objectives": ["Estimate training memory before running", "Trade compute for memory with activation checkpointing", "Diagnose and bisect out-of-memory failures"]
+        },
+        {
+          "topic": "Model Parallelism: Sharding, Pipelines and Tensor Parallel Concepts",
+          "subtopics": ["Why data parallelism stops when one replica no longer fits", "ZeRO stages 1, 2 and 3 and FSDP sharding of optimiser state, gradients and parameters", "Communication volume: all-gather and reduce-scatter", "Tensor parallelism with column-parallel and row-parallel linear layers", "Pipeline parallelism, micro-batches and the bubble fraction (p - 1) / (m + p - 1)", "Combining data, tensor and pipeline parallelism", "Interconnect bandwidth: NVLink versus network", "Choosing a strategy by model size and cluster shape"],
+          "tools": ["PyTorch FSDP", "torch.distributed", "NCCL", "NumPy"],
+          "lab_task": "Simulate tensor parallelism on one device: split a Linear(1024, 4096) weight into two column shards and a following Linear(4096, 1024) into two row shards, run each shard separately, sum the partial outputs and compare with the unsharded result. Compute the pipeline bubble fraction for p = 4 stages with m = 4, 8 and 32 micro-batches and plot the curve.",
+          "deliverable": "Notebook with the sharded-layer proof, a bubble-fraction plot and a strategy decision table",
+          "checks": [["Compare the column-then-row sharded MLP output with the unsharded result", "torch.allclose returns True with atol=1e-4", "Printed result"], ["Compute bubble fraction for p = 4 and m = 8", "3/11, about 27.3%", "Printed value"], ["Compute bubble fraction for p = 4 and m = 32", "3/35, about 8.6%, lower than at m = 8", "Printed value"]],
+          "objectives": ["Explain what each parallelism strategy shards", "Verify tensor-parallel layer equivalence numerically", "Estimate pipeline bubble overhead"]
+        },
+        {
+          "topic": "Custom Autograd Functions and Higher-Order Gradients",
+          "subtopics": ["torch.autograd.Function with forward, backward and ctx.save_for_backward", "Straight-through estimators for non-differentiable operations", "create_graph=True and second derivatives", "Gradient penalties such as WGAN-GP and input-gradient regularisation", "Forward-mode and Jacobian tools in torch.func: jvp, jacrev and vmap", "Verifying custom backward passes with gradcheck", "Detecting in-place modifications that break autograd", "Memory and speed costs of higher-order graphs"],
+          "tools": ["PyTorch", "torch.func", "pytest"],
+          "lab_task": "Write a custom autograd.Function for a clipped ReLU with a straight-through gradient, validate it with torch.autograd.gradcheck in double precision, and compute the second derivative of x^3 at x = 2 via create_graph=True. Add a gradient penalty (||grad_x f(x)|| - 1)^2 to a small classifier and use torch.func.vmap and jacrev to compute per-sample Jacobians.",
+          "deliverable": "Module with the custom function, gradcheck tests and a notebook with higher-order examples",
+          "checks": [["Run gradcheck on the custom function with float64 inputs", "gradcheck returns True", "pytest output"], ["Compute d2/dx2 of x^3 at x = 2 with create_graph=True", "The value is 12.0", "Printed value"], ["Modify a saved tensor in place before backward", "RuntimeError reports that a variable needed for gradient computation was modified by an inplace operation", "Terminal output"]],
+          "objectives": ["Write and test custom autograd functions", "Compute higher-order derivatives", "Apply gradient-based regularisers"]
+        },
+        {
+          "topic": "Efficient Attention and Long-Context Mechanisms",
+          "subtopics": ["Quadratic cost of attention in sequence length for compute and memory", "FlashAttention: tiling to avoid materialising the n x n score matrix", "SDPA backends in PyTorch and torch.nn.attention.sdpa_kernel", "KV cache for autoregressive decoding and its size formula", "Multi-query and grouped-query attention to shrink the KV cache", "Sliding-window and sparse attention patterns", "Rotary position embeddings and context extension at a conceptual level", "Choosing attention variants by sequence length and hardware"],
+          "tools": ["PyTorch", "FlashAttention", "torch.profiler", "Matplotlib"],
+          "lab_task": "Compare attention backends with sdpa_kernel on a GPU: math and flash at sequence lengths 512, 2048 and 8192 with 8 heads of dimension 64, recording peak memory and time. Verify outputs match within tolerance. Compute KV cache size for 32 layers, 8 KV heads, head dimension 128, 4,096 tokens in FP16 and the saving of grouped-query attention against 32 KV heads.",
+          "deliverable": "Benchmark table of time and memory by backend and length, plus a KV-cache calculator",
+          "checks": [["Compute KV cache for 32 layers, 8 KV heads, head dimension 128, 4,096 tokens, FP16", "536,870,912 bytes (512 MiB)", "Printed calculation"], ["Compare 8 KV heads with 32 KV heads for the same model", "The cache is 4 times smaller with grouped-query attention", "Printed ratio"], ["Compare math and flash backend outputs at length 2048", "Outputs match with atol=1e-3 in FP16 and the flash backend uses less peak memory", "Benchmark table"]],
+          "objectives": ["Explain why attention memory grows quadratically and how tiling avoids it", "Calculate KV cache size for a given model", "Select an attention variant for a latency or memory target"]
+        },
+        {
+          "topic": "Model Compression: Pruning and Knowledge Distillation",
+          "subtopics": ["Why compress: latency, memory, energy and cost", "Unstructured versus structured pruning", "Magnitude pruning with torch.nn.utils.prune.l1_unstructured", "Why unstructured sparsity rarely speeds up dense kernels", "Fine-tuning after pruning and the lottery-ticket idea", "Knowledge distillation: soft targets with temperature T and the T^2 loss factor", "Choosing a student size and matching layers", "Measuring accuracy, size and latency together"],
+          "tools": ["PyTorch", "ONNX Runtime", "torch.nn.utils.prune"],
+          "lab_task": "Train a 4-layer teacher MLP on Fashion-MNIST, prune 50% of each Linear layer's weights with l1_unstructured and measure accuracy before and after 3 recovery epochs. Train a student with 25% of the teacher's parameters twice: with hard labels and with distillation at T = 4 (loss weighted 0.5 / 0.5), and compare accuracy and CPU latency.",
+          "deliverable": "Notebook with pruning curves, a distillation comparison and a size, accuracy and latency table",
+          "checks": [["Measure sparsity after l1_unstructured(amount=0.5) on every Linear layer", "50.0% of weights are exactly zero in each pruned layer", "Printed sparsity"], ["Time dense CPU inference before and after unstructured pruning", "Latency is not meaningfully lower (within 10%)", "Timing table"], ["Compare the distilled student and the hard-label student", "Both accuracies are reported with 3 seeds, and the student has 25% or fewer of the teacher's parameters", "Metrics table"]],
+          "objectives": ["Apply pruning and distillation and measure their effect", "Explain why sparsity does not always reduce latency", "Report compression trade-offs on size, accuracy and speed"]
+        },
+        {
+          "topic": "Robustness, Adversarial Examples and Distribution Shift",
+          "subtopics": ["Adversarial examples and the threat model: epsilon, norm and knowledge", "FGSM: x + epsilon * sign(grad_x loss)", "PGD as an iterated, stronger attack", "Adversarial training and its cost in clean accuracy", "Natural distribution shift: noise, blur and sensor change", "Robustness evaluation pitfalls such as gradient masking", "Randomised smoothing in outline", "Reporting robust accuracy honestly"],
+          "tools": ["PyTorch", "torchattacks", "Matplotlib"],
+          "lab_task": "Train a Fashion-MNIST MLP, then attack the test set with FGSM at epsilon 0.05, 0.1 and 0.2 and with 10-step PGD at epsilon 0.1. Plot accuracy against epsilon, adversarially train a new model on PGD examples for 5 epochs, and evaluate clean and robust accuracy. Add Gaussian noise of std 0.3 to the test set as a natural-shift check.",
+          "deliverable": "Notebook with attack code, accuracy-versus-epsilon plot and a clean-versus-robust table",
+          "checks": [["Attack the undefended MLP with FGSM at epsilon 0.1", "Accuracy falls below 30% from a clean accuracy near 85-89%", "Printed accuracies"], ["Attack the same model with 10-step PGD at epsilon 0.1", "Accuracy is lower than or equal to the FGSM result", "Printed accuracies"], ["Evaluate the adversarially trained model under PGD at epsilon 0.1", "Robust accuracy is at least 20 points higher than the undefended model, with a clean-accuracy drop reported", "Metrics table"]],
+          "objectives": ["Craft and evaluate FGSM and PGD attacks", "Apply adversarial training and report its trade-off", "Separate adversarial robustness from natural distribution shift"]
+        },
+        {
+          "topic": "Privacy, Memorisation and Group Fairness in Neural Networks",
+          "subtopics": ["How networks memorise training data", "Membership inference with a loss-threshold attack", "Differential privacy: epsilon, delta and the privacy budget", "DP-SGD: per-sample gradient clipping and Gaussian noise (Opacus)", "Utility cost of private training", "Group fairness metrics: demographic parity and equalised odds", "Error analysis by subgroup", "Documentation: privacy statements and fairness caveats"],
+          "tools": ["Opacus", "PyTorch", "scikit-learn", "pandas"],
+          "lab_task": "Train an overfit Fashion-MNIST MLP on 5,000 images and run a loss-threshold membership-inference attack using train versus test examples, reporting AUC. Retrain with Opacus PrivacyEngine (max_grad_norm=1.0, noise_multiplier=1.0, delta=1e-5) and report epsilon. Then compute per-class recall and a demographic-parity gap on a synthetic grouped dataset.",
+          "deliverable": "Notebook with attack AUCs, privacy-budget results and a subgroup metric table",
+          "checks": [["Run the loss-threshold attack on the overfit model", "Attack AUC is above 0.6", "Printed AUC"], ["Run the same attack on the DP-SGD model", "AUC is lower than for the overfit model and epsilon is reported for delta = 1e-5", "Printed AUC and epsilon"], ["Compute demographic parity difference on the grouped data", "The absolute difference in positive rate between groups is printed and compared with a 0.1 threshold", "Metrics table"]],
+          "objectives": ["Measure memorisation with a membership-inference attack", "Train with differential privacy and interpret epsilon", "Compute and report group fairness metrics"]
+        },
+        {
+          "topic": "Reinforcement Learning Essentials for Deep Learning Engineers",
+          "subtopics": ["Agent, environment, reward and return", "Policy gradients and the REINFORCE estimator", "Variance reduction with baselines and advantages", "Value functions and actor-critic", "PPO's clipped objective with epsilon 0.2 at a conceptual level", "Gymnasium environments and the reset and step API", "Reward design and reward hacking", "Why RL results vary across seeds"],
+          "tools": ["Gymnasium", "PyTorch", "NumPy", "Matplotlib"],
+          "lab_task": "In Gymnasium CartPole-v1 measure the average return of a random policy over 100 episodes, then train REINFORCE with a small policy network and a learned value baseline using Adam(lr=1e-3), gamma 0.99. Run 5 seeds, plot mean return, and record the episode at which the 100-episode moving average first reaches 195.",
+          "deliverable": "Notebook with the policy-gradient implementation, learning curves over 5 seeds and a variance comparison",
+          "checks": [["Run a random policy for 100 CartPole-v1 episodes", "Mean return is about 22 (between 15 and 30)", "Printed mean"], ["Train REINFORCE with the baseline on 5 seeds", "At least 3 of 5 seeds reach a 100-episode moving average of 195 or more", "Learning-curve plot"], ["Compare gradient variance with and without the baseline", "The baseline run has lower gradient variance over 100 updates", "Printed variances"]],
+          "objectives": ["Derive and implement the policy-gradient estimator", "Reduce variance with baselines", "Interpret RL results across seeds"]
+        },
+        {
+          "topic": "Inductive Bias, Symmetry and Permutation-Invariant Models",
+          "subtopics": ["Inductive bias: what a model assumes before seeing data", "Invariance and equivariance defined as f(g x) = g f(x)", "Translation equivariance of convolution with circular padding", "Permutation invariance and the DeepSets sum-pooling design", "Graphs and message passing in outline", "Equivariant networks at a conceptual level", "Testing symmetry with property-based tests", "Choosing structure over scale when data is limited"],
+          "tools": ["PyTorch", "Hypothesis", "PyTorch Geometric"],
+          "lab_task": "Verify that a Conv1d with padding_mode='circular' is shift-equivariant by rolling an input by 1 and comparing outputs. Build a DeepSets model (sum pooling) for the sum of 5 MNIST digits and an MLP over the concatenated set, and test invariance by shuffling set order. Write a Hypothesis test for permutation invariance.",
+          "deliverable": "Notebook and tests showing equivariance, invariance and the failure of the unstructured MLP",
+          "checks": [["Roll a 1-D input by 1 and compare Conv1d(circular) outputs", "The output is the rolled original output, torch.allclose True", "Printed result"], ["Shuffle the order of the 5 digits for the DeepSets model", "Outputs are identical within 1e-6", "Hypothesis test output"], ["Shuffle the order for the plain MLP over concatenated inputs", "Outputs change, with a mean absolute difference above 1e-3", "Printed difference"]],
+          "objectives": ["Define invariance and equivariance precisely", "Build and test a permutation-invariant model", "Match model structure to the symmetry of the data"]
+        },
+        {
+          "topic": "Generalisation Theory: Double Descent, Implicit Bias and Grokking",
+          "subtopics": ["Classical bias-variance versus modern over-parameterised models", "The interpolation threshold and double descent", "Minimum-norm solutions and the implicit bias of gradient descent", "Random features as a tractable model of deep networks", "Epoch-wise double descent and grokking on modular arithmetic", "Weight decay and its role in delayed generalisation", "Uniform convergence bounds and why they are loose for deep nets", "What the theory does and does not justify in practice"],
+          "tools": ["PyTorch", "NumPy", "Matplotlib"],
+          "lab_task": "Fit minimum-norm least squares with random Fourier features on 100 noisy training points, varying the number of features p from 10 to 1,000 with torch.linalg.pinv, and plot test error against p to locate the peak. Then train a small network on modular addition mod 97 with 30% of pairs for training, with AdamW weight decay 1.0 and 0, and plot train and validation accuracy.",
+          "deliverable": "Notebook with the double-descent curve, a grokking experiment and a short interpretation",
+          "checks": [["Plot test error against p for 100 training points", "The peak lies between p = 80 and p = 120", "Double-descent plot"], ["Train modular addition with weight decay 1.0", "Training accuracy reaches 100% before validation accuracy exceeds 90%", "Accuracy curves"], ["Repeat with weight decay 0", "Validation accuracy ends lower than the weight-decay-1.0 run", "Accuracy curves"]],
+          "objectives": ["Describe and reproduce double descent", "Explain implicit bias and the role of weight decay", "Read modern generalisation phenomena critically"]
+        },
+        {
+          "topic": "Representation Analysis and Mechanistic Interpretability",
+          "subtopics": ["Linear probes and their limits", "Centered kernel alignment (CKA) for comparing representations", "Activation patching and causal interventions", "Sparse autoencoders for decomposing activations: expansion factor and L1 penalty", "Dead features and reconstruction versus sparsity", "Circuits and superposition in outline", "Validating interpretations with held-out interventions", "Risks of over-interpreting a feature"],
+          "tools": ["PyTorch", "NumPy", "Matplotlib"],
+          "lab_task": "Implement linear CKA and check CKA(X, X) = 1, rotation invariance and independent-noise baselines with n = 2,000 and d = 20. Compare layer-wise CKA between two seeds of a Fashion-MNIST MLP, train a sparse autoencoder with 8x expansion and an L1 coefficient on layer-2 activations, and count dead features and mean active features per input.",
+          "deliverable": "Notebook with CKA matrices, a sparse-autoencoder report and a list of limits of interpretation",
+          "checks": [["Compute linear CKA of X with itself and with X rotated by a random orthogonal matrix", "Both values equal 1.0 within 1e-6", "Printed values"], ["Compute CKA between two independent Gaussian matrices (n = 2,000, d = 20)", "The value is below 0.1", "Printed value"], ["Train the sparse autoencoder and report dead features and mean active features", "Both counts are printed, with reconstruction R-squared above 0.8", "Printed report"]],
+          "objectives": ["Compare representations with CKA", "Train and evaluate a sparse autoencoder", "State the limits of interpretability claims"]
+        },
+        {
+          "topic": "Data-Centric Deep Learning: Label Noise, Curation and Active Learning",
+          "subtopics": ["Label noise types: symmetric, asymmetric and instance-dependent", "Effect of noise on training and memorisation", "Confident learning and cleanlab for finding label issues", "Out-of-fold predicted probabilities", "Robust losses and early stopping against noisy labels", "Deduplication and near-duplicate leakage", "Active learning with entropy sampling", "Measuring data improvements against model improvements"],
+          "tools": ["cleanlab", "PyTorch", "scikit-learn", "pandas"],
+          "lab_task": "Flip 5% of Fashion-MNIST training labels at random (3,000 of 60,000), produce 5-fold out-of-fold probabilities from a small CNN, and run cleanlab.filter.find_label_issues. Report precision and recall against the known flips, retrain on cleaned data and compare test accuracy with the noisy run, then compare entropy sampling with random sampling at 1,000 labels.",
+          "deliverable": "Notebook with noise injection, cleanlab results and active-learning curves",
+          "checks": [["Count the flipped labels after injection", "Exactly 3,000 of 60,000 labels are changed", "Printed count"], ["Compare flagged issues with the known flips", "Recall is at least 0.6 and precision is reported", "Printed metrics"], ["Retrain on the cleaned training set", "Test accuracy is higher than the model trained on noisy labels", "Metrics table"]],
+          "objectives": ["Detect label errors with out-of-fold predictions", "Quantify the effect of noise and cleaning", "Use uncertainty to choose what to label next"]
+        },
+        {
+          "topic": "Evaluation Methodology and Statistical Rigour for Experiments",
+          "subtopics": ["Seed variance and why single runs mislead", "Reporting mean, standard deviation and confidence intervals", "Bootstrap confidence intervals with 10,000 resamples", "Paired comparisons and McNemar's test on the same test set", "Multiple comparisons and hyperparameter-tuning budgets", "Fair baselines: equal tuning effort and compute", "Ablation design and removing one change at a time", "Leaderboard overfitting and test-set reuse"],
+          "tools": ["NumPy", "SciPy", "PyTorch", "pandas"],
+          "lab_task": "Train two variants of a Fashion-MNIST CNN with 5 seeds each and compute mean and standard deviation of test accuracy. Compute a 95% bootstrap interval with 10,000 resamples, run McNemar's test on one seed pair using the discordant counts, and compute the interval half-width analytically for p = 0.9 and n = 10,000.",
+          "deliverable": "Notebook with the multi-seed table, bootstrap and McNemar results and a two-paragraph claim write-up",
+          "checks": [["Compute the 95% interval half-width for accuracy 0.9 with n = 10,000 using the normal approximation", "About 0.0059 (1.96 x sqrt(0.9 x 0.1 / 10000))", "Printed value"], ["Compute McNemar's statistic with discordant counts b and c", "(|b - c| - 1)^2 / (b + c) is compared with the chi-square critical value 3.84 for 1 degree of freedom", "Printed statistic"], ["Compare the bootstrap interval with the analytic interval", "The two half-widths agree within 15%", "Printed intervals"]],
+          "objectives": ["Report multi-seed results with intervals", "Test whether two models differ significantly", "Design fair baselines and ablations"]
+        },
+        {
+          "topic": "Diagnosing Loss Spikes, NaNs and Silent Training Failures",
+          "subtopics": ["Typical causes of NaN: log of zero, division by zero, overflow and a too-large learning rate", "Loss spikes from bad batches, Adam epsilon and instability in the optimiser state", "torch.autograd.set_detect_anomaly(True) and its cost", "Forward hooks that find the first non-finite activation", "Gradient-norm and update-ratio monitoring", "Silent failures: frozen layers, wrong masks and detached tensors", "Skipping or clipping bad updates and rolling back to a checkpoint", "A run book for failures in long training jobs"],
+          "tools": ["PyTorch", "TensorBoard", "Weights & Biases"],
+          "lab_task": "Inject three faults into a working training script: torch.log of a zero value, a learning rate of 10, and a batch with values of 1e30. Use set_detect_anomaly, a forward hook that reports the first non-finite module, and gradient-norm logging to locate each fault. Add an automatic skip-step rule and checkpoint rollback that recovers from a spike.",
+          "deliverable": "Failure-injection harness, a run book with symptom-to-cause table and a recovery demonstration",
+          "checks": [["Run backward with torch.log(0) under anomaly detection", "RuntimeError names LogBackward0 as returning nan values", "Terminal output"], ["Feed the 1e30 batch with the forward hook installed", "The hook prints the name of the first module with non-finite output", "Hook output"], ["Trigger a loss spike with the skip-and-rollback rule enabled", "Training resumes from the last good checkpoint and final validation accuracy is within 1 point of the clean run", "Training log"]],
+          "objectives": ["Locate the source of NaNs and spikes quickly", "Instrument training with hooks and gradient monitoring", "Recover automatically from bad updates"]
+        },
+        {
+          "topic": "Shipping a Model: Serving Contracts, Canary Checks and Rollback",
+          "subtopics": ["A model contract: input schema, preprocessing, output meaning and version", "Training-serving skew and preprocessing parity tests", "Versioned artefacts with checksums", "Golden test sets and regression gates before release", "Shadow mode and canary releases", "Drift signals: population stability index and Kolmogorov-Smirnov tests", "Rollback criteria and runbooks", "Post-release monitoring of inputs, outputs and latency"],
+          "tools": ["ONNX Runtime", "pytest", "SciPy", "FastAPI"],
+          "lab_task": "Package a trained classifier as an ONNX artefact with a SHA-256 checksum and a JSON contract. Write pytest checks for preprocessing parity between training code and serving code on 1,000 inputs, a golden-set regression gate (accuracy drop of no more than 0.5 points), and PSI and KS drift detectors. Simulate a canary that receives shifted inputs and trigger the rollback rule.",
+          "deliverable": "Release package with contract, tests, drift detectors and a rollback runbook",
+          "checks": [["Compare training and serving preprocessing on 1,000 inputs", "Maximum absolute difference is 0.0", "pytest output"], ["Compute PSI between identical samples and between a shifted sample", "PSI is near 0 for identical data and above 0.2 for the shifted data", "Printed values"], ["Send the shifted canary traffic", "The drift detector fires and the rollback rule selects the previous model version", "Log output"]],
+          "objectives": ["Define a testable contract for a deployed model", "Detect skew and drift with simple statistics", "Run canary and rollback procedures"]
+        },
+        {
+          "topic": "Reading and Reproducing Research Papers",
+          "subtopics": ["Reading order: abstract, figures, method, experiments, appendix", "Extracting the exact claim and the evidence behind it", "Hidden details: initialisation, schedules, data splits and tuning effort", "Reproducing a result from the paper's own setup", "Reading code releases critically", "Reporting a reproduction: matched, partly matched or not matched", "Estimating compute cost before starting", "Writing a short reproduction note"],
+          "tools": ["PyTorch", "Weights & Biases", "Git"],
+          "lab_task": "Pick the claim in 'Decoupled Weight Decay Regularization' (Loshchilov and Hutter, 2019) that Adam's best learning rate and weight decay interact while AdamW's separate. Train a small Fashion-MNIST CNN over a 4 x 4 grid of learning rates and weight decays for Adam with L2 and for AdamW, 1 seed each, and write a reproduction note.",
+          "deliverable": "Reproduction note with the claim, setup, two heatmaps of validation accuracy and a verdict",
+          "checks": [["Count the runs in the 4 x 4 grid for both optimisers", "32 runs are logged with their configuration", "Run table"], ["Compare the best cell location for Adam with L2 and for AdamW", "Both best cells are reported and the verdict states whether the optimum is more separable for AdamW", "Heatmaps"], ["Review the note against the checklist", "It lists the exact claim, deviations from the paper and the compute used", "Reproduction note"]],
+          "objectives": ["Extract a testable claim from a paper", "Run a scoped reproduction and report its outcome", "Document deviations and compute honestly"]
+        },
+        {
+          "topic": "Advanced Capstone: Reproduce and Extend a Published Result",
+          "subtopics": ["Choosing a feasible paper and agreeing the claim and success tolerance", "Faithful baseline reproduction with tracked seeds", "One extension with a clear hypothesis and ablations", "Statistics: 3 or more seeds, intervals and a significance check", "Compute, memory and cost log", "A final report and release checklist for code and artefacts"],
+          "tools": ["PyTorch", "Weights & Biases", "Optuna", "pytest"],
+          "lab_task": "Reproduce one published deep learning result on a dataset that trains in under 2 GPU-hours (for example a normalisation, regularisation or optimiser claim) within 1 percentage point, with 3 seeds. Add one extension with an ablation, analyse it with bootstrap intervals, and package code, configs, checkpoints and a 4-page report.",
+          "deliverable": "Repository with reproduction and extension code, tracked runs, statistical analysis and a 4-page report",
+          "checks": [["Compare the reproduced baseline with the paper's reported number", "The 3-seed mean lies within 1 percentage point, or the gap is explained", "Results table"], ["Evaluate the extension against the baseline", "A 95% bootstrap interval for the difference is reported with the number of seeds", "Statistical analysis"], ["Clone the repository on a clean machine and run the documented command", "The main result is regenerated within 0.5 points of the report", "Run log"]],
+          "objectives": ["Plan and execute a faithful reproduction with an extension", "Support claims with multi-seed statistics", "Package research code so others can rerun it"]
+        }
+      ]
+    }
+  }
+}

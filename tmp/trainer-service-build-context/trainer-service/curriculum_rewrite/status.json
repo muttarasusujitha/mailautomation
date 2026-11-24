@@ -1,0 +1,17 @@
+{
+  "dataset_files": 161,
+  "entries": 3014,
+  "stages": {
+    "generic_or_unreviewed_source": 3009,
+    "authored_pilot_pending_lab_validation": 5
+  },
+  "distinct_pending_or_rewritten": 2526,
+  "cached_candidates": 0,
+  "complete": false,
+  "technical_review_complete": false,
+  "error": {
+    "type": "RuntimeError",
+    "status": 429,
+    "code": "credit_balance_exhausted"
+  }
+}

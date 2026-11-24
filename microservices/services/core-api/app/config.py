@@ -1,0 +1,37 @@
+from pydantic_settings import BaseSettings
+from functools import lru_cache
+from typing import List
+
+
+class Settings(BaseSettings):
+    SERVICE_NAME: str = "core-api"
+    HOST: str = "0.0.0.0"
+    PORT: int = 8001
+    DEBUG: bool = False
+
+    MONGODB_URL: str = "mongodb://127.0.0.1:27017"
+    MONGODB_DB_NAME: str = "trainersync"
+    REDIS_URL: str = "redis://127.0.0.1:6379"
+    SCHEDULER_SERVICE_URL: str = "http://scheduler-service:8007"
+    EMAIL_SERVICE_URL: str = "http://email-service:8002"
+    INTELLIGENCE_SERVICE_URL: str = "http://intelligence-service:8005"
+    INTERNAL_SERVICE_TOKEN: str = ""
+    SECRET_KEY: str = "change-me-in-production"
+    RAZORPAY_KEY_ID: str = ""
+    RAZORPAY_KEY_SECRET: str = ""
+    RAZORPAY_WEBHOOK_SECRET: str = ""
+
+    ALLOWED_ORIGINS: str = "http://localhost:5174,http://127.0.0.1:5174,http://0.0.0.0:5174,http://*:5174,https://localhost:3000,https://localhost:8080"
+
+    @property
+    def allowed_origins_list(self) -> List[str]:
+        return [o.strip() for o in self.ALLOWED_ORIGINS.split(",")]
+
+    class Config:
+        env_file = ".env"
+        extra = "allow"
+
+
+@lru_cache()
+def get_settings() -> Settings:
+    return Settings()

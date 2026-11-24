@@ -1,0 +1,573 @@
+{
+  "domain": "Chroma",
+  "name": "Chroma",
+  "category": "Generative AI and Agents",
+  "icon": "database",
+  "aliases": ["ChromaDB", "Chroma Vector Store", "Chroma DB", "Chroma Vector Database", "Chroma Cloud", "Chroma Embedding Database", "trychroma"],
+  "certifications": [],
+  "tools": ["chromadb (Python)", "chromadb (npm)", "Chroma CLI", "Chroma Cloud", "Docker", "Helm", "Sentence Transformers", "OpenAI Embeddings", "Ollama", "OpenCLIP", "LangChain (langchain-chroma)", "LlamaIndex (llama-index-vector-stores-chroma)", "pytest", "Jupyter"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python developers, data engineers and AI application builders who have not used Chroma before. Covers installing the chromadb package, the ephemeral, persistent and HTTP clients, collections, adding, querying, getting, updating, upserting and deleting records, metadata filters with where and document filters with where_document, the default all-MiniLM-L6-v2 embedding function and hosted or local alternatives, precomputed embeddings, the l2, cosine and ip distance spaces, chunking documents, running the Chroma server with chroma run and Docker, the JavaScript/TypeScript client, testing with pytest, and an FAQ search capstone.",
+      "prerequisites": ["Writes and runs Python 3.10+ scripts, creates virtual environments and installs packages with pip or uv", "Understands at a conceptual level that an embedding is a list of numbers representing text meaning", "Has a laptop with rights to install Python packages and Docker Desktop or Docker Engine, plus about 2 GB of free disk space for models and data"],
+      "outcomes": ["Choose between EphemeralClient, PersistentClient and HttpClient and create, list, modify and delete Chroma collections", "Load, query, get, update, upsert and delete records with IDs, documents, metadata and embeddings, including where and where_document filters", "Select an embedding function and distance space for a collection and explain how each choice affects query distances", "Run Chroma as a server with chroma run or Docker with persistent storage and call it from Python and TypeScript clients with tested code"],
+      "days": [
+        {
+          "topic": "Installing Chroma and Creating a First Collection",
+          "subtopics": ["Installing chromadb with pip or uv in a virtual environment and checking chromadb.__version__", "What a Chroma record holds: ID, document, embedding, metadata and optional URI", "chromadb.EphemeralClient() for in-memory experiments", "client.create_collection compared with client.get_or_create_collection", "collection.add with ids and documents only", "collection.query with query_texts and n_results", "First-run download of the all-MiniLM-L6-v2 ONNX model used by the default embedding function", "Where Chroma sits in a retrieval-augmented generation (RAG) application", "Chroma documentation, the Chroma Cookbook and the GitHub repository chroma-core/chroma"],
+          "tools": ["Python 3", "pip", "chromadb", "Jupyter"],
+          "lab_task": "Create a virtual environment, run pip install chromadb and print chromadb.__version__. In a script create chromadb.EphemeralClient(), call get_or_create_collection(\"fruits\"), add five documents with ids f1 to f5 describing different fruits, then run collection.query(query_texts=[\"yellow tropical fruit\"], n_results=2). Record the returned ids and distances and confirm collection.count() returns 5.",
+          "deliverable": "Script, console output of the query result and a one-paragraph explanation of each returned field",
+          "checks": [["Call collection.count() after adding the five fruit records", "Returns 5", "Script output"], ["Query \"yellow tropical fruit\" with n_results=2", "results[\"ids\"] holds one inner list of 2 IDs and the banana record is first", "Printed result dictionary"], ["Call client.get_collection(\"missing\") on a name that was never created", "A NotFoundError is raised stating the collection does not exist", "Traceback"]],
+          "objectives": ["Install the chromadb package and confirm its version", "Create a collection and add documents", "Run a first semantic query and read its result"]
+        },
+        {
+          "topic": "Chroma Client Modes: Ephemeral, Persistent and HTTP",
+          "subtopics": ["EphemeralClient: data lives only for the life of the Python process", "PersistentClient(path=\"./chroma_data\") and the chroma.sqlite3 file it writes", "HttpClient(host=\"localhost\", port=8000) for a separately running Chroma server", "CloudClient for Chroma Cloud, previewed here and covered at advanced level", "Why only one process should open a given persistent path at a time", "client.heartbeat() and client.get_version() for connectivity checks", "Disabling anonymous product telemetry with Settings(anonymized_telemetry=False)", "Choosing a client mode for notebooks, single-process apps and multi-service systems"],
+          "tools": ["chromadb", "Python 3", "Jupyter", "tree or ls"],
+          "lab_task": "Write a script that adds three records to a collection named notes in both an EphemeralClient and a PersistentClient(path=\"./chroma_data\"). Rerun the script with the add step commented out, using get_or_create_collection, and print count() from each client. List the files in ./chroma_data, identify chroma.sqlite3 and the UUID-named segment directory, and print client.heartbeat().",
+          "deliverable": "Comparison table of the two client modes with counts before and after restart and a directory listing",
+          "checks": [["Rerun the script and call count() on the ephemeral collection", "Returns 0 because in-memory data did not survive the process", "Console output"], ["Rerun the script and call count() on the persistent collection", "Returns 3 read back from ./chroma_data", "Console output"], ["Call client.heartbeat()", "Returns a large integer nanosecond timestamp", "Console output"]],
+          "objectives": ["Explain the lifetime of data in each client mode", "Persist a collection to disk and reopen it", "Check connectivity with heartbeat"]
+        },
+        {
+          "topic": "Chroma Collections: Naming, Listing and Lifecycle",
+          "subtopics": ["Collection naming rules: at least 3 characters, letters, digits, dots, underscores and hyphens, starting and ending with a letter or digit", "create_collection raising an error when the name already exists", "get_or_create_collection for idempotent start-up code", "list_collections returning Collection objects and count_collections", "Collection metadata for owner, description and version notes", "collection.modify(name=..., metadata=...) to rename or relabel", "delete_collection and why it cannot be undone", "collection.id (a UUID) compared with collection.name"],
+          "tools": ["chromadb", "Python 3", "Jupyter"],
+          "lab_task": "With a PersistentClient create collections named support-faq and product_docs, then attempt one named a1 and capture the error. Print len(client.list_collections()), rename product_docs to product-docs-v2 with modify(name=...), add metadata {\"owner\": \"docs-team\"}, then delete support-faq and confirm count_collections() returns 1. Try create_collection(\"product-docs-v2\") and capture that error too.",
+          "deliverable": "Annotated notebook showing each lifecycle call, its output and the two captured errors",
+          "checks": [["create_collection(\"a1\")", "Fails with a validation error describing the collection naming rules", "Traceback"], ["create_collection(\"product-docs-v2\") after the rename", "Fails with an error stating the collection already exists", "Traceback"], ["count_collections() after deleting support-faq", "Returns 1", "Console output"]],
+          "objectives": ["Apply collection naming rules", "Rename and relabel a collection with modify", "Manage collection creation and deletion safely"]
+        },
+        {
+          "topic": "Adding Records with IDs, Documents and Metadata",
+          "subtopics": ["IDs are required, unique strings within a collection", "Parallel lists: ids, documents, metadatas and embeddings must have the same length", "Metadata values: str, int, float and bool scalars", "Rejection of nested dictionaries and other unsupported metadata values", "Embeddings generated automatically from documents by the collection embedding function", "DuplicateIDError when one add call repeats an ID", "Deterministic ID schemes such as source plus chunk number or a content hash", "add compared with upsert when an ID may already exist", "Keeping the original text in documents so query results are readable"],
+          "tools": ["chromadb", "pandas", "Python 3", "Jupyter"],
+          "lab_task": "Load 20 product descriptions from a CSV with pandas, use the sku column as ids, and build metadatas with category (str), price (float) and in_stock (bool). Call collection.add once with ids, documents and metadatas. Then try an add call that repeats one id twice and one whose metadata contains a nested dict, capturing both exceptions. Confirm count() is still 20 after the failed calls.",
+          "deliverable": "Ingestion script, the CSV and a log of both rejected calls with their exception class names",
+          "checks": [["Add a batch in which sku-001 appears twice", "DuplicateIDError is raised and no record from that batch is written", "Traceback and count() output"], ["Add a record with metadata {\"dims\": {\"w\": 10}}", "The call is rejected with an error about an unsupported metadata value type", "Traceback"], ["Call count() after both failed calls", "Returns 20", "Console output"]],
+          "objectives": ["Prepare aligned ids, documents and metadata lists", "Choose valid metadata types", "Handle duplicate and invalid records"]
+        },
+        {
+          "topic": "Querying a Chroma Collection by Text",
+          "subtopics": ["query_texts are embedded with the same embedding function as the collection", "n_results and its default of 10", "Several query texts in one call return one inner list per query", "Distances: a smaller value means a closer match", "query_embeddings as the alternative to query_texts", "Asking for more results than the collection holds", "Semantic matching compared with keyword matching", "Choosing n_results for a RAG prompt budget"],
+          "tools": ["chromadb", "pandas", "Python 3", "Jupyter"],
+          "lab_task": "Using the 20-product collection, run query(query_texts=[\"waterproof hiking gear\", \"gift for a coffee lover\"], n_results=3) and print a table of query, rank, id and distance. Repeat with n_results=50 and record how many results come back. Write one paraphrased query that shares no words with its best document and confirm that document still ranks in the top 3.",
+          "deliverable": "Query result table, the paraphrase experiment and a note on how n_results was chosen",
+          "checks": [["Run two query_texts with n_results=3", "results[\"ids\"] has 2 inner lists of 3 IDs each", "Printed table"], ["Run one query with n_results=50 on the 20-record collection", "Exactly 20 IDs are returned", "Console output"], ["Inspect the distances list of any query", "Values are sorted in ascending order", "Printed distances"]],
+          "objectives": ["Run single and batched text queries", "Interpret distances and ranking", "Explain how semantic search matches paraphrases"]
+        },
+        {
+          "topic": "Reading Query Results and the include Parameter",
+          "subtopics": ["QueryResult keys: ids, documents, metadatas, distances, embeddings, uris, data and included", "Default include of documents, metadatas and distances", "include=[\"embeddings\"] returning vectors as numpy arrays", "include=[] when only IDs are needed", "Nested lists in query results compared with flat lists in get results", "Flattening results with zip into row dictionaries", "Loading results into a pandas DataFrame", "Payload size cost of returning embeddings over HTTP"],
+          "tools": ["chromadb", "pandas", "numpy", "Python 3"],
+          "lab_task": "Write a function to_rows(result) that flattens a query result into dictionaries of id, distance, document and category. Run the same query with the default include, with include=[\"embeddings\", \"distances\"] and with include=[]. Measure the size of each result after converting arrays to lists and serialising with json.dumps, then load the flattened rows into a DataFrame sorted by distance.",
+          "deliverable": "to_rows helper, size comparison table for the three include settings and the resulting DataFrame",
+          "checks": [["Run a query with the default include and read results[\"embeddings\"]", "The value is None because embeddings are not returned by default", "Console output"], ["Run a query with include=[\"embeddings\", \"distances\"]", "Each returned embedding has length 384", "Console output"], ["Run a query with include=[]", "Only ids is populated and documents is None", "Console output"]],
+          "objectives": ["Read every field of a query result", "Control returned fields with include", "Convert results to tabular form"]
+        },
+        {
+          "topic": "Fetching Records with get, peek and count",
+          "subtopics": ["get(ids=[...]) for exact lookups without vector search", "get(where=...) for metadata-only retrieval", "limit and offset for paging", "include on get calls", "peek(limit=5) for a quick look at stored records", "count() for totals", "Missing IDs in get return fewer records rather than an error", "get results are not ordered by relevance"],
+          "tools": ["chromadb", "pandas", "Python 3", "Jupyter"],
+          "lab_task": "On the product collection call peek(limit=3), then get(ids=[\"sku-001\", \"sku-999\"]). Fetch two pages with get(where={\"category\": \"outdoor\"}, limit=5, offset=0) and offset=5, and verify the two pages share no IDs. Compare the total number of outdoor IDs returned by get(where=...) without a limit with the outdoor row count computed from the CSV in pandas.",
+          "deliverable": "Notebook with peek, get and paging output plus the pandas comparison",
+          "checks": [["get(ids=[\"sku-001\", \"sku-999\"]) where sku-999 does not exist", "Only sku-001 is returned and no exception is raised", "Console output"], ["Compare the ID sets of offset=0 and offset=5 pages", "The intersection is empty", "Set comparison output"], ["Compare outdoor count from get with the pandas count", "Both counts are equal", "Comparison output"]],
+          "objectives": ["Retrieve records by ID and by metadata", "Page through records with limit and offset", "Use peek and count for inspection"]
+        },
+        {
+          "topic": "Updating, Upserting and Deleting Chroma Records",
+          "subtopics": ["update for documents, metadata or embeddings of existing IDs", "Changing a document re-embeds it with the collection embedding function", "How update merges the supplied metadata keys into existing metadata", "upsert to insert new IDs and replace existing ones", "Idempotent re-ingestion with upsert", "delete(ids=[...]) and delete(where=...)", "Soft deletion with an is_active metadata flag compared with hard deletion", "Recording count() before and after each change"],
+          "tools": ["chromadb", "Python 3", "Jupyter"],
+          "lab_task": "Update the price metadata of sku-003 to 19.99 and change the document text of sku-004, then confirm a query that matched the old sku-004 text no longer ranks it first. Upsert sku-021 (new) and sku-005 (existing, with new text), then call delete(where={\"in_stock\": False}). Record count() after each step in a table and fetch sku-003 to confirm its price.",
+          "deliverable": "Change log table with count() after each operation and before-and-after query results",
+          "checks": [["get(ids=[\"sku-003\"]) after the update", "Metadata shows price 19.99", "Console output"], ["count() before and after upserting sku-021 and sku-005", "The count increases by exactly 1", "Change log table"], ["get(where={\"in_stock\": False}) after the delete", "Returns 0 IDs", "Console output"]],
+          "objectives": ["Modify existing records with update", "Insert or replace records with upsert", "Delete records by ID and by filter"]
+        },
+        {
+          "topic": "Chroma Metadata Filters with where",
+          "subtopics": ["Equality shorthand {\"category\": \"outdoor\"}", "$eq and $ne", "$gt, $gte, $lt and $lte on numbers", "$in and $nin with lists", "Combining conditions with $and and $or", "Type-sensitive matching: 2024 and \"2024\" are different values", "Records without the key never match a condition on it", "Using the same where filter in query, get and delete"],
+          "tools": ["chromadb", "pandas", "Python 3"],
+          "lab_task": "Write five filters for the product collection: category equals outdoor, price below 50, category in [kitchen, garden], in_stock true AND price >= 20, and category outdoor OR price > 100. Run each with get(where=..., include=[]) and compare the count with the same filter applied in pandas. Then run get(where={\"price\": \"20\"}) and a filter using an unknown operator $like, and record both results.",
+          "deliverable": "Filter catalogue with Chroma and pandas counts side by side and the two edge-case results",
+          "checks": [["Run the five filters in Chroma and pandas", "All five count pairs match", "Comparison table"], ["get(where={\"price\": \"20\"}) on a float field", "Returns 0 IDs because the string does not match float values", "Console output"], ["Use {\"category\": {\"$like\": \"out%\"}}", "The call is rejected with an error naming the invalid operator", "Traceback"]],
+          "objectives": ["Write comparison and set filters", "Combine filters with logical operators", "Avoid type mismatches in metadata filters"]
+        },
+        {
+          "topic": "Document Content Filters with where_document",
+          "subtopics": ["$contains for case-sensitive substring matching", "$not_contains to exclude text", "$regex and $not_regex", "Combining document conditions with $and and $or", "Using where and where_document in the same call", "Exact text matching compared with semantic matching", "Finding product codes, error codes and identifiers", "Cost of content scans on large single-node collections"],
+          "tools": ["chromadb", "Python 3", "Jupyter"],
+          "lab_task": "Load 40 support tickets. Query \"error when charging\" with where_document={\"$contains\": \"USB-C\"}, then the same with $not_contains. Use get(where_document={\"$regex\": \"[A-Z]{3}-[0-9]{4}\"}) to find tickets that mention part codes such as PWR-1042. Compare counts for $contains \"usb-c\" and \"USB-C\", and check that the $contains and $not_contains counts add up to 40.",
+          "deliverable": "Ticket filter report listing each where_document expression and its count",
+          "checks": [["get with $contains \"USB-C\" and get with $not_contains \"USB-C\"", "The two counts sum to 40", "Count table"], ["Compare $contains \"usb-c\" with $contains \"USB-C\"", "Counts differ because matching is case-sensitive", "Console output"], ["Run the part-code $regex filter", "Every returned document contains a code of three capitals, a hyphen and four digits", "Returned documents"]],
+          "objectives": ["Filter records by document text", "Use regular expressions in document filters", "Combine content and semantic search"]
+        },
+        {
+          "topic": "Chroma's Default Embedding Function and Model Cache",
+          "subtopics": ["DefaultEmbeddingFunction: all-MiniLM-L6-v2 running on ONNX Runtime", "384-dimensional output vectors", "Model cache location under ~/.cache/chroma/onnx_models", "Pre-downloading the model for offline or air-gapped hosts", "Calling an embedding function directly: ef([\"text\"])", "Truncation of long inputs and why chunking matters", "CPU throughput and batching", "Language coverage limits of an English-trained model", "The embedding function is stored in the collection configuration in Chroma 1.x"],
+          "tools": ["chromadb", "ONNX Runtime", "numpy", "Python 3"],
+          "lab_task": "Instantiate embedding_functions.DefaultEmbeddingFunction(), embed three sentences and print len() of each vector. Time embedding 1,000 short sentences on CPU with time.perf_counter. List ~/.cache/chroma/onnx_models to locate the model files, then use numpy to compute cosine similarity between two paraphrases and between one of them and an unrelated sentence.",
+          "deliverable": "Timing result in sentences per second, the cache listing and the similarity comparison",
+          "checks": [["Print len(ef([\"hello world\"])[0])", "Prints 384", "Console output"], ["Compare paraphrase similarity with unrelated-sentence similarity", "The paraphrase pair has the higher cosine similarity", "Similarity printout"], ["List ~/.cache/chroma/onnx_models", "A folder for all-MiniLM-L6-v2 is present", "Directory listing"]],
+          "objectives": ["Explain what the default embedding function does", "Measure embedding throughput", "Prepare a host for offline embedding"]
+        },
+        {
+          "topic": "Using OpenAI and Sentence Transformers Embedding Functions in Chroma",
+          "subtopics": ["OpenAIEmbeddingFunction with model_name=\"text-embedding-3-small\" and the OPENAI_API_KEY environment variable", "SentenceTransformerEmbeddingFunction with model_name=\"all-mpnet-base-v2\"", "Passing embedding_function= at collection creation", "Chroma 1.x persisting the embedding function name and config with the collection", "The first add fixes the collection dimension", "Dimension mismatch errors", "API cost and rate limits for hosted embeddings", "Keeping API keys out of code and notebooks"],
+          "tools": ["chromadb", "OpenAI API", "sentence-transformers", "python-dotenv"],
+          "lab_task": "Create two collections over the same 50 support articles: one with OpenAIEmbeddingFunction(model_name=\"text-embedding-3-small\") reading OPENAI_API_KEY from a .env file, and one with SentenceTransformerEmbeddingFunction(model_name=\"all-mpnet-base-v2\"). Run 10 test queries against both, record top-1 agreement and the vector dimension of each, then try to add a 384-dimension vector to the OpenAI collection.",
+          "deliverable": "Comparison sheet of the two embedding functions with dimensions, top-1 agreement and a cost estimate",
+          "checks": [["Read the dimension of a stored vector in each collection", "1536 for text-embedding-3-small and 768 for all-mpnet-base-v2", "Console output"], ["Add a 384-dimension embedding to the OpenAI collection", "The add fails with a dimension mismatch error naming 1536", "Traceback"], ["Unset OPENAI_API_KEY and create the OpenAI embedding function", "An error reports the missing API key", "Traceback"]],
+          "objectives": ["Configure hosted and local embedding functions", "Compare embedding models on the same data", "Handle API keys safely"]
+        },
+        {
+          "topic": "Bringing Precomputed Embeddings to Chroma",
+          "subtopics": ["add(embeddings=..., documents=...) with vectors computed elsewhere", "Python lists compared with numpy float32 arrays", "query_embeddings for queries embedded by your own code", "Normalising vectors before storing them", "Recording the embedding model name in collection metadata", "Why query_texts must use the same model as the stored vectors", "Re-embedding cost when the model changes", "Storing documents alongside vectors for readable results"],
+          "tools": ["chromadb", "sentence-transformers", "numpy", "Python 3"],
+          "lab_task": "Embed 100 paper abstracts with sentence-transformers all-mpnet-base-v2 outside Chroma, normalise them with numpy, and add them with embeddings= and documents= plus metadata {\"model\": \"all-mpnet-base-v2\"} on the collection. Query with query_embeddings for 5 of the stored abstracts and check each returns itself at rank 1. Then call query_texts on a collection created with the default embedding function and record the outcome.",
+          "deliverable": "Ingestion script, self-retrieval results for the 5 abstracts and an explanation of the query_texts failure",
+          "checks": [["Query with the stored embedding of abstract 7", "Abstract 7 is rank 1 with a distance close to 0", "Console output"], ["Call query_texts on the 768-dimension collection using the default 384-dimension function", "The query fails with a dimension mismatch error", "Traceback"], ["Read collection.metadata", "It shows {\"model\": \"all-mpnet-base-v2\"}", "Console output"]],
+          "objectives": ["Store vectors produced outside Chroma", "Query with precomputed embeddings", "Keep query and document embeddings consistent"]
+        },
+        {
+          "topic": "Chroma Distance Spaces: l2, cosine and ip",
+          "subtopics": ["l2, the default, as squared Euclidean distance", "cosine as 1 minus cosine similarity, ranging from 0 to 2", "ip as 1 minus the dot product", "Setting the space at creation with configuration={\"hnsw\": {\"space\": \"cosine\"}}", "The legacy metadata form {\"hnsw:space\": \"cosine\"} from older releases", "The space cannot be changed after creation, so recreate and reload", "Which embedding models expect cosine or inner product", "Choosing relevance thresholds that match the space"],
+          "tools": ["chromadb", "numpy", "Python 3", "Jupyter"],
+          "lab_task": "Create three collections with configuration={\"hnsw\": {\"space\": s}} for s in l2, cosine and ip, add the same 30 normalised embeddings to each, and query them with the same vector. Record the top-5 IDs and distances per space, check whether the rankings match, and print collection.configuration for each. Then try collection.modify(configuration={\"hnsw\": {\"space\": \"ip\"}}) on the l2 collection.",
+          "deliverable": "Distance comparison table across the three spaces and the captured modify error",
+          "checks": [["Compare top-5 IDs across spaces for normalised vectors", "The three rankings are identical", "Comparison table"], ["Compare l2 and cosine distances for the same pair of normalised vectors", "The l2 distance equals twice the cosine distance", "Calculation output"], ["modify the space of an existing collection", "The call is rejected because space is not a modifiable setting", "Traceback"]],
+          "objectives": ["Explain the three distance spaces", "Configure the space when creating a collection", "Interpret distances correctly in each space"]
+        },
+        {
+          "topic": "Chunking Documents for a Chroma Collection",
+          "subtopics": ["Why chunk: model input limits and retrieval precision", "Fixed-size character chunks with overlap", "Splitting on headings and paragraphs", "Token-aware chunk sizes with tiktoken", "Chunk IDs such as handbook.md#12", "Metadata for source, page and chunk_index", "Fetching neighbouring chunks by chunk_index", "Deleting all chunks of one document with where={\"source\": ...}"],
+          "tools": ["chromadb", "tiktoken", "pypdf", "Python 3"],
+          "lab_task": "Extract text from three PDFs with pypdf and split it into chunks of about 800 characters with 100 characters of overlap. Add them with ids \"<file>#<n>\" and metadata {source, page, chunk_index}. Write five questions with a known answer chunk and record whether it appears in the top 3. Re-chunk at 300 characters into a second collection, repeat and compare hit counts.",
+          "deliverable": "Chunking script and a hit-rate table for the 800 and 300 character settings",
+          "checks": [["Count chunks in each collection", "The 300-character collection holds more chunks than the 800-character one", "count() output"], ["delete(where={\"source\": \"policy.pdf\"}) on the 800-character collection", "get(where={\"source\": \"policy.pdf\"}) then returns 0 IDs", "Console output"], ["Run the five questions on the 800-character collection", "Hit count out of 5 is recorded for each chunk size", "Hit-rate table"]],
+          "objectives": ["Split documents into retrievable chunks", "Attach source metadata to chunks", "Compare chunk sizes by retrieval hits"]
+        },
+        {
+          "topic": "Running the Chroma Server with chroma run",
+          "subtopics": ["The chroma CLI installed with the chromadb package", "chroma run --path ./server_data --host localhost --port 8000", "Binding to 0.0.0.0 exposes the server to the network", "Connecting with chromadb.HttpClient(host=\"localhost\", port=8000)", "GET /api/v2/heartbeat for health checks", "Reading server start-up logs", "Why app code should not open the server's data directory with PersistentClient at the same time", "Stopping and restarting without data loss"],
+          "tools": ["Chroma CLI", "chromadb", "curl", "Python 3"],
+          "lab_task": "Start chroma run --path ./server_data --port 8000. From a second terminal connect with chromadb.HttpClient(host=\"localhost\", port=8000), create a collection and add 10 records. Call curl http://localhost:8000/api/v2/heartbeat. Stop the server with Ctrl+C, run a client call to see the failure, then restart the server and confirm count() still returns 10.",
+          "deliverable": "Server run log, heartbeat response and before-and-after restart counts",
+          "checks": [["curl http://localhost:8000/api/v2/heartbeat", "Returns JSON with a \"nanosecond heartbeat\" integer", "Terminal output"], ["Call collection.count() while the server is stopped", "The client raises a connection error", "Traceback"], ["Restart the server and call count()", "Returns 10", "Console output"]],
+          "objectives": ["Run Chroma as a local server", "Connect to it with HttpClient", "Check server health over HTTP"]
+        },
+        {
+          "topic": "Chroma in Docker with a Persistent Volume",
+          "subtopics": ["The chromadb/chroma image and pinning a specific tag", "docker run -d --name chroma -p 8000:8000 -v ./chroma-data:/data chromadb/chroma", "/data as the data path in Chroma 1.x images, compared with /chroma/chroma in 0.x images", "Mounting a config file at /config.yaml", "A docker-compose.yml service with a restart policy and named volume", "Reading container logs with docker logs chroma", "Port conflicts and changing the host port", "What happens to data when a container runs without a volume"],
+          "tools": ["Docker", "Docker Compose", "chromadb", "curl"],
+          "lab_task": "Run docker run -d --name chroma -p 8000:8000 -v $(pwd)/chroma-data:/data chromadb/chroma with a pinned tag, add 25 records via HttpClient, then docker rm -f chroma and start a new container on the same volume and check count(). Repeat once without -v to see the difference. Write an equivalent docker-compose.yml with restart: unless-stopped and a named volume and confirm curl reaches the heartbeat endpoint.",
+          "deliverable": "docker-compose.yml, docker logs excerpt and a table of counts with and without a volume",
+          "checks": [["Recreate the container with the same volume and call count()", "Returns 25", "Console output"], ["Recreate a container started without -v and call count() on a newly created collection", "Returns 0 because data was lost with the container", "Console output"], ["docker compose up -d then curl the heartbeat endpoint", "HTTP 200 with a heartbeat value", "Terminal output"]],
+          "objectives": ["Run Chroma in a container", "Persist container data with volumes", "Describe the server in Docker Compose"]
+        },
+        {
+          "topic": "Chroma JavaScript and TypeScript Client",
+          "subtopics": ["npm install chromadb for the JavaScript and TypeScript client", "@chroma-core/default-embed for the default embedding function in JavaScript", "The JavaScript client talks to a running server or Chroma Cloud", "new ChromaClient({ host: \"localhost\", port: 8000 })", "getOrCreateCollection({ name })", "add, upsert and query with camelCase fields such as queryTexts and nResults", "where filters in TypeScript", "Sharing one collection between Python and TypeScript services"],
+          "tools": ["Node.js", "npm", "chromadb (npm)", "TypeScript"],
+          "lab_task": "In a Node.js project run npm install chromadb @chroma-core/default-embed, connect to the local Chroma server, and write a TypeScript script that upserts 10 records with metadata and queries them with nResults: 3 and a where filter. Run the same query from Python against the same collection and confirm both clients return identical top-3 IDs.",
+          "deliverable": "TypeScript script, its output and the matching Python output",
+          "checks": [["Run the TypeScript query", "Returns 3 IDs in ids[0]", "Terminal output"], ["Compare TypeScript and Python top-3 IDs for the same query", "The two lists are identical", "Side-by-side output"], ["Stop the server and run the TypeScript script", "The script fails with a connection error", "Terminal output"]],
+          "objectives": ["Use Chroma from TypeScript", "Map Python parameters to JavaScript names", "Share a collection across languages"]
+        },
+        {
+          "topic": "Testing Chroma Code with pytest and EphemeralClient",
+          "subtopics": ["A pytest fixture that yields a fresh collection from chromadb.EphemeralClient()", "Unique collection names per test with uuid4", "Settings(allow_reset=True) and client.reset() for test clean-up", "A small deterministic custom embedding function so tests need no model download", "Asserting on IDs and counts rather than exact distances", "Testing where filters and upsert behaviour", "Testing error paths such as duplicate IDs", "Running the suite in continuous integration"],
+          "tools": ["pytest", "chromadb", "Python 3", "GitHub Actions"],
+          "lab_task": "Write a pytest suite with a fixture returning a fresh collection from chromadb.EphemeralClient() and a custom embedding function that maps text to fixed 8-dimension vectors. Add tests for add and count, a where filter, upsert replacement, delete by filter and DuplicateIDError using pytest.raises. Run pytest -q, record the pass count and runtime, and rerun with networking disabled to prove no model is downloaded.",
+          "deliverable": "Test file, pytest -q output and the offline run result",
+          "checks": [["Run pytest -q", "All 5 tests pass", "pytest output"], ["Run the suite with networking disabled", "Tests still pass with no download attempt", "pytest output"], ["Test that adds the same ID twice in one call", "pytest.raises(DuplicateIDError) passes", "Test code and result"]],
+          "objectives": ["Isolate Chroma state in tests", "Avoid model downloads in tests", "Test success and error paths"]
+        },
+        {
+          "topic": "Capstone: Chroma-Backed FAQ Search Service",
+          "subtopics": ["Loading and chunking a public FAQ set into a persistent collection", "Embedding function and distance space choice with reasons", "A FastAPI /search endpoint calling HttpClient query with where filters", "Running Chroma in Docker Compose next to the API", "pytest tests for ingestion and search", "Measuring hit rate on 20 labelled questions"],
+          "tools": ["chromadb", "Docker Compose", "FastAPI", "pytest", "sentence-transformers"],
+          "lab_task": "Build an FAQ search service: ingest at least 200 FAQ entries with upsert into a cosine collection on a Chroma container with a volume, expose GET /search?q=&category= in FastAPI using query with a where filter, and write pytest tests. Label 20 questions with their correct entry, report hit rate at k=3, then restart the stack and show results are unchanged.",
+          "deliverable": "Repository with docker-compose.yml, ingestion script, API, tests and a README with the hit-rate result",
+          "checks": [["Run the 20 labelled questions through /search", "Hit rate at k=3 is 80% or higher", "Evaluation report"], ["Rerun the ingestion script", "count() is unchanged because upsert is idempotent", "Console output"], ["docker compose down then up and call /search", "The same top-3 IDs are returned as before the restart", "Before-and-after responses"]],
+          "objectives": ["Build a working search service on Chroma", "Evaluate retrieval with labelled questions", "Run Chroma and an API together reliably"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who can already build a small Chroma application and now need to run it reliably for a team or product. Covers the Chroma 1.x storage layout, collection configuration and HNSW parameters, recall measurement, batched ingestion, custom and local embedding functions, combined filters, pagination and export, multi-modal collections with OpenCLIP, tenants and databases, server config.yaml settings, the v2 REST API, token checks at a reverse proxy, async clients, LangChain and LlamaIndex integrations, a RAG pipeline, retrieval evaluation and embedding model migration, ending with a multi-tenant document assistant capstone.",
+      "prerequisites": ["Completed the Chroma beginner level or has built an application that adds, queries and filters records in Chroma", "Comfortable with Docker, environment variables, HTTP status codes and reading JSON responses with curl", "Has access to an embedding provider (an OpenAI API key or a local Ollama install) and an LLM for the RAG exercises"],
+      "outcomes": ["Configure HNSW parameters per collection, measure recall@k against brute-force search and tune ef_search for a latency target", "Ingest large datasets in batches with custom, local or multi-modal embedding functions and export collections safely", "Operate a Chroma server with config.yaml, tenants and databases, the v2 REST API and token checks enforced at a reverse proxy", "Build and evaluate LangChain and LlamaIndex RAG pipelines on Chroma and migrate collections to a new embedding model without downtime"],
+      "days": [
+        {
+          "topic": "Chroma 1.x Storage Layout and Persistence Internals",
+          "subtopics": ["The Rust core introduced in Chroma 1.0 and the Python and JavaScript clients around it", "chroma.sqlite3: system catalog, metadata, documents and the write-ahead log", "UUID-named vector segment directories with HNSW files such as header.bin and data_level0.bin", "When HNSW segments are flushed to disk and the role of sync_threshold", "How deletes and updates leave space that is reclaimed later", "chroma utils vacuum --path for reclaiming disk space", "Why copying a live directory can produce an inconsistent snapshot", "Mapping collection IDs to segment directories with get_collection(...).id"],
+          "tools": ["Chroma CLI", "chromadb", "sqlite3", "du"],
+          "lab_task": "Load 50,000 records into a PersistentClient collection and record du -sh of the data directory. Open chroma.sqlite3 read-only with sqlite3 and list its tables with .tables. Match the collection ID to a segment directory and list its HNSW files. Delete 25,000 records, stop all clients, run chroma utils vacuum --path on the directory and record the size again.",
+          "deliverable": "Storage walkthrough with directory sizes before and after deletion and vacuum, and the SQLite table list",
+          "checks": [["Run .tables in sqlite3 on chroma.sqlite3", "Tables for collections, segments, embeddings and metadata are listed", "sqlite3 output"], ["List the segment directory named after the vector segment ID", "HNSW binary files including header.bin are present", "Directory listing"], ["Run chroma utils vacuum --path after deleting half the records", "The vacuum completes and du -sh reports a smaller size than before it", "Size table"]],
+          "objectives": ["Describe the on-disk layout of a persistent Chroma directory", "Relate collection IDs to segment files", "Reclaim disk space safely"]
+        },
+        {
+          "topic": "Collection Configuration and HNSW Parameters in Chroma",
+          "subtopics": ["configuration={\"hnsw\": {...}} at create_collection", "space, ef_construction, max_neighbors and ef_search", "Default values: ef_construction 100, ef_search 100 and max_neighbors 16", "num_threads, batch_size, sync_threshold and resize_factor", "Parameters fixed at creation compared with those modify can change", "collection.modify(configuration={\"hnsw\": {\"ef_search\": 200}})", "Reading collection.configuration", "Migrating legacy hnsw:* metadata keys to configuration"],
+          "tools": ["chromadb", "numpy", "Python 3", "Jupyter"],
+          "lab_task": "Create a collection with configuration={\"hnsw\": {\"space\": \"cosine\", \"ef_construction\": 200, \"max_neighbors\": 32, \"ef_search\": 50}} and print collection.configuration. Load 20,000 vectors and time the load. Raise ef_search to 200 with modify and confirm the new value. Then try to change max_neighbors with modify and capture the error. Compare load time with a default-configured collection.",
+          "deliverable": "Configuration report with load times, the modify results and a table of which parameters are mutable",
+          "checks": [["Print collection.configuration after creation", "hnsw shows ef_construction 200 and max_neighbors 32", "Console output"], ["modify ef_search to 200 and print configuration again", "ef_search shows 200", "Console output"], ["modify max_neighbors on the existing collection", "The call is rejected because max_neighbors cannot be changed after creation", "Traceback"]],
+          "objectives": ["Set HNSW parameters at collection creation", "Change search-time parameters after creation", "Explain which parameters are fixed"]
+        },
+        {
+          "topic": "Measuring Chroma Recall Against Brute-Force Search",
+          "subtopics": ["Approximate nearest neighbour search and what recall@k means", "Building exact ground truth with numpy matrix multiplication", "Sampling 200 held-out query vectors", "Computing recall@10 from Chroma results", "Effect of ef_search on recall and latency", "Effect of ef_construction and max_neighbors on recall", "Measuring p50 and p95 query latency with time.perf_counter", "Choosing a setting that meets a recall and latency target"],
+          "tools": ["chromadb", "numpy", "pandas", "matplotlib"],
+          "lab_task": "Load 100,000 normalised 384-dimension vectors into a cosine collection. Compute exact top-10 neighbours for 200 query vectors with numpy. Query Chroma with ef_search set to 10, 50, 100 and 400 via modify, and record recall@10 and p95 latency at each value. Plot recall against latency with matplotlib and pick the smallest ef_search giving recall@10 of at least 0.95.",
+          "deliverable": "Recall and latency table, the plot and the chosen ef_search with its justification",
+          "checks": [["Compute recall@10 at ef_search=400", "Recall@10 is at least 0.95", "Results table"], ["Compare p95 latency at ef_search=10 and ef_search=400", "Latency at 400 is higher than at 10", "Results table"], ["Query with a stored vector at any setting", "The vector's own ID is returned at rank 1", "Console output"]],
+          "objectives": ["Measure ANN recall against exact search", "Quantify the recall and latency trade-off", "Select HNSW settings from data"]
+        },
+        {
+          "topic": "Batch Ingestion and Max Batch Size in Chroma",
+          "subtopics": ["client.get_max_batch_size() and the error raised when a batch is too large", "Splitting records into batches with a generator", "Precomputing embeddings in GPU or provider batches before calling add", "Retrying failed batches with exponential backoff", "Checkpointing progress by last ingested ID", "upsert for safe resumption after a crash", "Measuring throughput in records per second", "Payload size limits on an HTTP server"],
+          "tools": ["chromadb", "tenacity", "tqdm", "Python 3"],
+          "lab_task": "Print client.get_max_batch_size(), then try to add one batch larger than that value and record the error. Write an ingester that sends 200,000 records in batches of 1,000 with upsert, retries failed batches with tenacity and writes the last completed batch number to a checkpoint file. Kill the process halfway, restart it and confirm it resumes. Record records per second at batch sizes 100, 1,000 and 5,000.",
+          "deliverable": "Ingester code, throughput table for three batch sizes and the crash-and-resume log",
+          "checks": [["add a batch larger than get_max_batch_size()", "The call fails with an error stating the batch size limit", "Traceback"], ["Kill the ingester midway and restart it", "It resumes from the checkpoint and the final count() is 200,000", "Ingestion log"], ["Compare throughput for batch sizes 100 and 1,000", "Batch size 1,000 reaches higher records per second", "Throughput table"]],
+          "objectives": ["Respect batch limits when loading data", "Build resumable ingestion", "Measure ingestion throughput"]
+        },
+        {
+          "topic": "Custom Embedding Functions and Persisted EF Config",
+          "subtopics": ["Subclassing EmbeddingFunction[Documents] and implementing __call__(self, input)", "Returning lists of float32 numpy arrays", "name(), get_config() and build_from_config() for persistence in Chroma 1.x", "Registering with @register_embedding_function", "What happens when get_collection is called without the embedding function", "Conflict errors when a different embedding function is passed to an existing collection", "Wrapping an internal embedding HTTP service", "Unit testing an embedding function"],
+          "tools": ["chromadb", "httpx", "pytest", "Python 3"],
+          "lab_task": "Write a custom embedding function that calls an internal /embed HTTP endpoint with httpx, implement name, get_config and build_from_config, and register it. Create a collection with it, restart Python, call get_collection by name without passing an embedding function and run query_texts. Then pass DefaultEmbeddingFunction() to get_collection on the same collection and record the error.",
+          "deliverable": "Embedding function module, its pytest tests and notes on persisted configuration",
+          "checks": [["Call get_collection by name in a new process without an embedding function and run query_texts", "The query succeeds using the persisted custom function", "Console output"], ["Call get_collection with DefaultEmbeddingFunction() on the custom collection", "An error reports the embedding function conflict", "Traceback"], ["Run the embedding function unit tests", "All tests pass and each vector has the expected dimension", "pytest output"]],
+          "objectives": ["Implement a custom embedding function", "Persist embedding function configuration with a collection", "Diagnose embedding function conflicts"]
+        },
+        {
+          "topic": "Local Embeddings for Chroma with Ollama",
+          "subtopics": ["Running Ollama and pulling nomic-embed-text with ollama pull", "OllamaEmbeddingFunction with url and model_name", "Dimension of the chosen model and checking it once before loading", "Throughput on CPU compared with GPU", "Keeping data on the machine for privacy requirements", "Handling Ollama timeouts during large ingests", "Comparing retrieval quality with a hosted model", "Pinning the model tag so embeddings stay reproducible"],
+          "tools": ["Ollama", "chromadb", "nomic-embed-text", "Python 3"],
+          "lab_task": "Run ollama pull nomic-embed-text, create a collection with OllamaEmbeddingFunction(url=\"http://localhost:11434\", model_name=\"nomic-embed-text\") and ingest 2,000 chunks, measuring chunks per second. Run 20 labelled questions against it and against an OpenAI text-embedding-3-small collection with the same chunks and compare hit rate at k=5. Stop Ollama and record what an add call returns.",
+          "deliverable": "Local embedding report with throughput, the hit-rate comparison and the failure behaviour",
+          "checks": [["Read the dimension of a stored nomic-embed-text vector", "The dimension is 768", "Console output"], ["Compare hit rate at k=5 for both collections", "Both hit rates are recorded for the same 20 questions", "Comparison table"], ["Stop Ollama and call add with new documents", "The call fails with a connection error and no record is written", "Traceback and count() output"]],
+          "objectives": ["Embed documents locally with Ollama", "Compare local and hosted embedding quality", "Handle embedding service failures"]
+        },
+        {
+          "topic": "Combining Metadata and Document Filters in Chroma Queries",
+          "subtopics": ["Nesting $and and $or", "Range filters for dates stored as integer Unix timestamps", "Combining where and where_document with a vector query", "Access-control filters such as {\"team\": {\"$in\": user_teams}}", "Building filters from user input safely in a function", "When a strict filter returns fewer than n_results", "Pre-filtering cost on single-node collections", "Logging the filter used for each query for debugging"],
+          "tools": ["chromadb", "Python 3", "pytest", "Jupyter"],
+          "lab_task": "Store 10,000 support tickets with metadata team, priority (int), created_at (Unix seconds) and status. Write build_filter(user, since, priorities) that returns a nested where expression and refuses unknown keys. Query \"payment failed\" with the filter plus where_document {\"$not_contains\": \"test\"}, and verify with get that every returned record satisfies all conditions. Add pytest cases for empty and single-condition inputs.",
+          "deliverable": "build_filter module, its tests and a sample of filtered query results with their metadata",
+          "checks": [["Check every record returned by the combined query", "All records match team, priority, date and text conditions", "Validation script output"], ["Call build_filter with an unknown key \"owner\"", "A ValueError is raised before any Chroma call", "pytest output"], ["Query with a filter matching only 2 records and n_results=10", "Exactly 2 results are returned", "Console output"]],
+          "objectives": ["Write nested metadata and document filters", "Generate filters from user input safely", "Enforce data access with filters"]
+        },
+        {
+          "topic": "Paginating and Exporting Chroma Collections",
+          "subtopics": ["get with limit and offset loops", "include=[\"embeddings\", \"documents\", \"metadatas\"] for a full export", "Writing JSON Lines files with one record per line", "Converting numpy embeddings to lists for JSON", "Re-importing an export into a new collection with upsert", "Verifying an export by count and sampled record comparison", "Exporting while writes continue and the consistency risk", "Community tools such as chromadb-data-pipes for import and export"],
+          "tools": ["chromadb", "Python 3", "jq", "gzip"],
+          "lab_task": "Export a 50,000-record collection to a gzipped JSON Lines file by paging with get(limit=1000, offset=n, include=[\"embeddings\", \"documents\", \"metadatas\"]). Import the file into a new collection on another server with upsert in batches of 1,000. Verify the counts match and that 100 randomly sampled IDs have identical documents, metadata and embeddings within 1e-6.",
+          "deliverable": "Export and import scripts, the export file size and the verification report",
+          "checks": [["Count lines in the export with zcat export.jsonl.gz | wc -l", "Prints 50000", "Terminal output"], ["Compare count() of source and target collections", "Both return 50,000", "Console output"], ["Compare 100 sampled records between source and target", "All 100 match on document, metadata and embedding", "Verification report"]],
+          "objectives": ["Page through a whole collection", "Export and re-import records with embeddings", "Verify a data copy"]
+        },
+        {
+          "topic": "Multi-Modal Collections with OpenCLIP and ImageLoader",
+          "subtopics": ["OpenCLIPEmbeddingFunction for images and text in one vector space", "ImageLoader from chromadb.utils.data_loaders", "create_collection(..., embedding_function=OpenCLIPEmbeddingFunction(), data_loader=ImageLoader())", "Adding images by uris or as numpy arrays with images=", "Text-to-image search with query_texts", "Image-to-image search with query_images", "include=[\"uris\", \"distances\"] and include=[\"data\"]", "Storing captions and labels as metadata"],
+          "tools": ["chromadb", "open-clip-torch", "Pillow", "numpy"],
+          "lab_task": "Install open-clip-torch and Pillow, create a collection with OpenCLIPEmbeddingFunction() and ImageLoader(), and add 300 product photos by file path with uris= and metadata {label}. Query with query_texts=[\"red running shoes\"] and include=[\"uris\", \"distances\"], then with query_images using one held-out photo. Record precision@5 by label for 10 text queries.",
+          "deliverable": "Multi-modal search notebook with result thumbnails and a precision@5 table",
+          "checks": [["Query \"red running shoes\" with include=[\"uris\"]", "The returned uris point to image files", "Console output"], ["Query with a held-out photo of a mug via query_images", "At least 3 of the top 5 results are labelled mug", "Result thumbnails"], ["Run 10 labelled text queries", "Average precision@5 is reported per label", "Precision table"]],
+          "objectives": ["Build a collection holding images", "Search images by text and by example image", "Measure multi-modal retrieval quality"]
+        },
+        {
+          "topic": "Chroma Tenants, Databases and AdminClient",
+          "subtopics": ["The hierarchy of tenant, database and collection", "default_tenant and default_database", "chromadb.AdminClient for create_tenant and create_database", "Connecting with HttpClient(tenant=..., database=...)", "Same collection name in two databases without conflict", "Listing and deleting databases", "Using databases per environment or per customer", "Limits of isolation without authentication at the server"],
+          "tools": ["chromadb", "Chroma CLI", "Python 3", "curl"],
+          "lab_task": "Using AdminClient against the local server, create tenant acme and databases staging and prod. Connect two HttpClients with tenant=\"acme\" and each database, create a collection named docs in both and add different records. Show that each client sees only its own records, list databases for acme, and call GET /api/v2/tenants/acme/databases with curl.",
+          "deliverable": "Tenant and database layout diagram with client code and the curl output",
+          "checks": [["Count docs in staging and prod after adding 5 and 8 records", "Counts are 5 and 8", "Console output"], ["curl GET /api/v2/tenants/acme/databases", "JSON lists both staging and prod", "Terminal output"], ["Connect an HttpClient to database \"missing\" under acme", "Connection fails with an error that the database does not exist", "Traceback"]],
+          "objectives": ["Organise data with tenants and databases", "Use AdminClient to manage them", "Explain the isolation they provide"]
+        },
+        {
+          "topic": "Chroma Server config.yaml Settings",
+          "subtopics": ["Passing a config file with chroma run <path> or mounting it at /config.yaml in Docker", "port and listen_address", "persist_path", "allow_reset and why it stays false outside tests", "max_payload_size_bytes for large batches", "cors_allow_origins for browser clients", "open_telemetry service_name and endpoint", "Validating a config by starting the server and reading the log"],
+          "tools": ["Chroma CLI", "Docker", "curl", "YAML"],
+          "lab_task": "Write config.yaml with port 8010, persist_path /data, allow_reset false and cors_allow_origins [\"http://localhost:5173\"], mount it in the chromadb/chroma container at /config.yaml and start it. Confirm the heartbeat answers on 8010, that client.reset() is refused, and that a browser preflight with curl -X OPTIONS from the allowed origin returns the CORS header. Repeat from a disallowed origin.",
+          "deliverable": "config.yaml, container start log and a table of the three verification results",
+          "checks": [["curl http://localhost:8010/api/v2/heartbeat", "HTTP 200 on port 8010", "Terminal output"], ["Call client.reset() with allow_reset false", "The server refuses the reset with an error", "Traceback"], ["Preflight request from http://localhost:5173", "Response includes Access-Control-Allow-Origin for that origin", "curl -i output"]],
+          "objectives": ["Configure a Chroma server with YAML", "Lock down destructive endpoints", "Set CORS for browser clients"]
+        },
+        {
+          "topic": "Chroma REST API v2 with curl",
+          "subtopics": ["The OpenAPI document served by the Chroma server", "/api/v2/heartbeat, /api/v2/version and /api/v2/healthcheck", "Collection routes under /api/v2/tenants/{tenant}/databases/{database}/collections", "Creating a collection with a POST body", "Adding records with explicit embeddings because the server does not embed text", "Querying with query_embeddings, n_results and include", "HTTP error codes such as 404 for a missing collection and 422 for an invalid body", "When to call the REST API directly instead of an SDK"],
+          "tools": ["curl", "jq", "Chroma server", "Postman"],
+          "lab_task": "With curl and jq, create a collection under default_tenant/default_database, capture its id, add 3 records with explicit 4-dimension embeddings, query with one embedding and n_results 2, and count records. Then request a collection that does not exist and send an add body with mismatched list lengths, recording the status code and error body of each.",
+          "deliverable": "curl script with every request and response and a table of status codes",
+          "checks": [["POST a query with one embedding and n_results 2", "The response ids contain one list of 2 IDs", "jq output"], ["GET the count endpoint after adding 3 records", "The response body is 3", "Terminal output"], ["GET a collection name that does not exist", "HTTP 404 with an error body", "curl -i output"]],
+          "objectives": ["Call Chroma over raw HTTP", "Understand how SDK calls map to REST routes", "Read API error responses"]
+        },
+        {
+          "topic": "Putting Chroma Behind a Reverse Proxy with Token Auth",
+          "subtopics": ["Chroma 1.x has no built-in authentication, so access control sits in front of the server", "Nginx or Caddy as a TLS-terminating reverse proxy", "Checking an X-Chroma-Token or Authorization: Bearer header at the proxy", "HttpClient(host=..., port=443, ssl=True, headers={...})", "Binding Chroma to localhost or a private network only", "Returning 401 for missing tokens and logging rejected requests", "Rotating tokens without restarting Chroma", "Passing headers from the JavaScript client"],
+          "tools": ["Nginx", "Docker Compose", "OpenSSL", "chromadb"],
+          "lab_task": "In Docker Compose run Chroma with no published port and an Nginx service on 8443 with a self-signed certificate made with openssl. Configure Nginx to reject requests unless the X-Chroma-Token header matches a value from an environment file. Connect with HttpClient(host=\"localhost\", port=8443, ssl=True, headers={\"X-Chroma-Token\": token}) and test missing, wrong and correct tokens.",
+          "deliverable": "docker-compose.yml, nginx.conf and a test log for the three token cases",
+          "checks": [["Call heartbeat through the proxy with no token", "HTTP 401 from Nginx", "curl -i output"], ["Call heartbeat with the correct token", "HTTP 200 with a heartbeat value", "curl -i output"], ["Connect directly to Chroma port 8000 from the host", "The connection is refused because the port is not published", "Terminal output"]],
+          "objectives": ["Explain why Chroma 1.x relies on external access control", "Enforce token checks at a proxy", "Connect clients over TLS with headers"]
+        },
+        {
+          "topic": "AsyncHttpClient and Concurrency in Chroma Apps",
+          "subtopics": ["await chromadb.AsyncHttpClient(host=..., port=...)", "Async collection methods: add, query and get", "Running parallel queries with asyncio.gather", "Sharing one client across FastAPI requests", "Limiting concurrency with asyncio.Semaphore", "Embedding work blocking the event loop and moving it to a thread", "Measuring throughput in queries per second", "Timeouts and cancellation"],
+          "tools": ["chromadb", "asyncio", "FastAPI", "Locust"],
+          "lab_task": "Create an AsyncHttpClient at FastAPI start-up and expose /search that calls await collection.query with precomputed query_embeddings. Run 500 queries sequentially and then with asyncio.gather under a Semaphore of 20, recording total time for each. Load test /search with Locust at 50 users for 2 minutes and record requests per second and p95 latency.",
+          "deliverable": "Async service code, the sequential and concurrent timings and the Locust report",
+          "checks": [["Compare sequential and gathered run times for 500 queries", "The gathered run finishes faster", "Timing output"], ["Run Locust with 50 users for 2 minutes", "Failure rate is 0% and p95 latency is reported", "Locust statistics"], ["Await query with a 1 ms timeout using asyncio.wait_for", "asyncio.TimeoutError is raised", "Traceback"]],
+          "objectives": ["Use the async Chroma client", "Run concurrent queries safely", "Load test a Chroma-backed endpoint"]
+        },
+        {
+          "topic": "LangChain Retrieval with langchain-chroma",
+          "subtopics": ["pip install langchain-chroma and from langchain_chroma import Chroma", "Chroma(collection_name=..., embedding_function=..., persist_directory=...) or client=...", "add_documents with explicit ids", "similarity_search_with_score with filter=", "as_retriever(search_type=\"mmr\", search_kwargs={\"k\": 5, \"fetch_k\": 20})", "Using a LangChain retriever in an LCEL chain", "Reading the same collection with the native chromadb client", "Deleting documents by ID through the vector store"],
+          "tools": ["LangChain", "langchain-chroma", "langchain-openai", "chromadb"],
+          "lab_task": "Load 30 markdown files with a LangChain loader, split them with RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100), and store them with Chroma(collection_name=\"kb\", embedding_function=OpenAIEmbeddings(model=\"text-embedding-3-small\"), client=http_client) using add_documents with ids. Compare top-5 results of similarity search and the MMR retriever for 5 questions, counting distinct source files.",
+          "deliverable": "LangChain notebook and a table comparing similarity and MMR results by distinct sources",
+          "checks": [["Count chunks via the native client with get_collection(\"kb\").count()", "Equals the number of split documents", "Console output"], ["Compare distinct sources in top-5 for similarity and MMR", "MMR returns at least as many distinct sources", "Comparison table"], ["similarity_search_with_score with filter={\"source\": \"faq.md\"}", "Every result has metadata source faq.md", "Console output"]],
+          "objectives": ["Use Chroma as a LangChain vector store", "Configure similarity and MMR retrievers", "Share a collection between LangChain and native code"]
+        },
+        {
+          "topic": "LlamaIndex Indexes on ChromaVectorStore",
+          "subtopics": ["pip install llama-index-vector-stores-chroma", "ChromaVectorStore(chroma_collection=collection)", "StorageContext.from_defaults(vector_store=vector_store)", "VectorStoreIndex.from_documents and from_vector_store", "index.as_query_engine(similarity_top_k=3)", "MetadataFilters and ExactMatchFilter", "How LlamaIndex node metadata is stored in Chroma metadata", "Reloading an index from an existing collection without re-embedding"],
+          "tools": ["LlamaIndex", "llama-index-vector-stores-chroma", "chromadb", "OpenAI API"],
+          "lab_task": "Load a folder of 30 documents with SimpleDirectoryReader, build a VectorStoreIndex on ChromaVectorStore over a persistent collection, and ask 5 questions with as_query_engine(similarity_top_k=3). Restart Python, rebuild the index with VectorStoreIndex.from_vector_store and confirm no embedding calls are made. Add a MetadataFilters filter on file_name and check the source nodes.",
+          "deliverable": "LlamaIndex notebook with answers, source nodes and evidence that reloading did not re-embed",
+          "checks": [["Reload with from_vector_store and ask a question", "The answer returns with source nodes and no new embedding API calls are logged", "Log output"], ["Inspect one record with the native client get(include=[\"metadatas\"])", "Metadata includes LlamaIndex node fields such as file_name", "Console output"], ["Query with a MetadataFilters filter on file_name", "Every source node comes from that file", "Source node list"]],
+          "objectives": ["Use Chroma as a LlamaIndex vector store", "Reload an index without re-embedding", "Filter LlamaIndex retrieval by metadata"]
+        },
+        {
+          "topic": "Building a RAG Pipeline on Chroma",
+          "subtopics": ["Retrieval step: query with n_results and a relevance distance threshold", "Building a prompt with retrieved chunks and their source IDs", "Citing sources in answers", "Returning a fallback answer when nothing passes the threshold", "Metadata filters for tenant, language or product version", "Context window budgeting by token count", "Caching answers for repeated questions", "Logging query, retrieved IDs and distances for review"],
+          "tools": ["chromadb", "OpenAI API", "tiktoken", "FastAPI"],
+          "lab_task": "Build an /ask endpoint that queries Chroma for 5 chunks, drops chunks above a cosine distance of 0.5, packs the rest into a prompt under 3,000 tokens counted with tiktoken, and asks an LLM to answer with [id] citations. Log query, retrieved IDs and distances. Test 15 in-scope questions and 5 out-of-scope ones and record correct citations and fallback responses.",
+          "deliverable": "RAG service code, request logs and an evaluation table for the 20 questions",
+          "checks": [["Ask an out-of-scope question", "The fallback answer is returned and no chunk passes the threshold", "API response and log"], ["Check citations for the 15 in-scope answers", "Every cited [id] exists in the retrieved set", "Evaluation table"], ["Count prompt tokens for the longest request", "The prompt is under 3,000 tokens", "tiktoken output"]],
+          "objectives": ["Build a retrieval-augmented answer flow on Chroma", "Apply distance thresholds and fallbacks", "Trace answers back to stored records"]
+        },
+        {
+          "topic": "Evaluating Chroma Retrieval Quality with Hit Rate and MRR",
+          "subtopics": ["Building a labelled question set with expected chunk IDs", "Hit rate at k", "Mean reciprocal rank (MRR)", "Comparing embedding models, chunk sizes and n_results", "Effect of metadata filters on recall", "Repeatable evaluation scripts with fixed collections", "Tracking results in a CSV over time", "Failing a CI job when hit rate drops"],
+          "tools": ["chromadb", "pandas", "pytest", "GitHub Actions"],
+          "lab_task": "Create 50 labelled questions with expected chunk IDs for the knowledge-base collection. Write evaluate(collection, k) returning hit rate@5 and MRR, and run it for two embedding models and two chunk sizes. Save results to results.csv, then add a pytest test that fails if hit rate@5 falls below the best run minus 5 points, and run it in GitHub Actions.",
+          "deliverable": "Evaluation script, results.csv for four configurations and a CI run log",
+          "checks": [["Run evaluate on all four configurations", "results.csv holds 4 rows with hit rate and MRR", "CSV file"], ["Compute MRR when every expected chunk is at rank 2", "MRR equals 0.5", "Unit test output"], ["Run the CI test against a degraded collection with 300-character chunks", "The test fails on the hit-rate threshold", "CI log"]],
+          "objectives": ["Measure retrieval quality with standard metrics", "Compare collection designs with data", "Guard retrieval quality in CI"]
+        },
+        {
+          "topic": "Chroma Re-indexing and Embedding Model Migration",
+          "subtopics": ["Why changing the embedding model requires re-embedding every record", "Blue-green collections such as kb_v1 and kb_v2", "Reading source text from documents to re-embed", "Dual reads during migration for comparison", "Switching the active collection name through configuration", "Validating counts and evaluation scores before cutover", "Rolling back by switching the name back", "Deleting the old collection after a retention period"],
+          "tools": ["chromadb", "OpenAI API", "sentence-transformers", "pandas"],
+          "lab_task": "Migrate kb_v1 (all-MiniLM-L6-v2) to kb_v2 (text-embedding-3-small) by paging documents and metadata out of kb_v1 and upserting into kb_v2 with the same IDs. Run the 50-question evaluation against both, switch the API's ACTIVE_COLLECTION environment variable to kb_v2, then roll back to kb_v1 and record the time each switch takes. Keep kb_v1 for one week before deletion.",
+          "deliverable": "Migration runbook with counts, evaluation results, cutover and rollback timings",
+          "checks": [["Compare count() of kb_v1 and kb_v2", "Counts are equal", "Console output"], ["Compare an ID set sample between collections", "The same IDs exist in both collections", "Comparison output"], ["Switch ACTIVE_COLLECTION back to kb_v1", "The API serves kb_v1 results again without re-ingestion", "API response"]],
+          "objectives": ["Plan an embedding model migration", "Cut over and roll back between collections", "Validate a migration with counts and evaluation"]
+        },
+        {
+          "topic": "Capstone: Multi-Tenant Document Assistant on Chroma Server",
+          "subtopics": ["One Chroma database per customer created with AdminClient", "Nginx token checks mapping tokens to tenants", "LangChain or LlamaIndex retrieval with citations", "Batched, resumable ingestion with a custom or local embedding function", "Evaluation with hit rate and MRR per customer", "Export and re-import verification for one customer"],
+          "tools": ["chromadb", "Docker Compose", "Nginx", "LangChain", "LlamaIndex", "pytest"],
+          "lab_task": "Deliver a document assistant for two customers: create one Chroma database each, ingest at least 1,000 chunks per customer with a resumable batch ingester, route requests through Nginx where each token maps to one database, and answer questions with citations. Report hit rate@5 and MRR per customer, prove isolation, and export and re-import one customer's collection with verified counts.",
+          "deliverable": "Repository with Compose stack, ingestion, API, evaluation results and an operations README",
+          "checks": [["Customer A token queries for a document that exists only for customer B", "No customer B document is returned", "API response and logs"], ["Run the evaluation for each customer", "Hit rate@5 is 80% or higher for both", "Evaluation report"], ["Re-import customer A's export into a new database", "Counts match and sampled records are identical", "Verification report"]],
+          "objectives": ["Design isolated multi-customer storage on Chroma", "Combine ingestion, retrieval and evaluation in one system", "Prove isolation and recoverability"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers who run Chroma in production or design search systems on it. Covers Chroma Cloud onboarding with the Chroma CLI and CloudClient, the Cloud Search API with Search, K, Knn, Rrf and GroupBy, collection Schema and index control, sparse vectors and BM25, hybrid ranking, full-text and regex matching, SPANN tuning, collection forking and copying data to the cloud, self-hosting on Kubernetes with Helm, single-node limits and the components of distributed Chroma, backups and disaster recovery, load testing, memory sizing, OpenTelemetry tracing, hardening and version upgrades, finishing with a production hybrid search platform capstone.",
+      "prerequisites": ["Completed the Chroma intermediate level or has operated a Chroma server with batched ingestion, filters and retrieval evaluation", "Works confidently with Kubernetes (kubectl, Helm, PersistentVolumeClaims) and Linux storage and networking", "Has a Chroma Cloud account or can create one, plus a Kubernetes cluster such as kind, minikube or a managed cluster"],
+      "outcomes": ["Build dense, sparse and hybrid searches with the Chroma Cloud Search API and Schema, and tune ranking with Rrf weights and GroupBy", "Choose between self-hosted single-node Chroma, distributed Chroma and Chroma Cloud based on measured load, memory and availability needs", "Deploy Chroma on Kubernetes with persistence, tracing, network controls and a tested backup and restore procedure", "Plan and execute version upgrades and data moves between local Chroma and Chroma Cloud with verified counts and quality"],
+      "days": [
+        {
+          "topic": "Chroma Cloud Onboarding with the Chroma CLI",
+          "subtopics": ["Chroma Cloud as the managed, serverless distributed deployment of Chroma", "Installing the Chroma CLI with pip, npm or the standalone installer", "chroma login and CLI profiles", "chroma db create and listing databases", "chroma db connect to print connection details or write a .env file", "Teams, tenants and databases in the Cloud dashboard", "API keys and their scope", "Usage-based pricing for writes, storage and queries and where to see usage"],
+          "tools": ["Chroma CLI", "Chroma Cloud", "chromadb", "python-dotenv"],
+          "lab_task": "Run chroma login, create a database with chroma db create rag-dev and write its connection settings to a .env file with chroma db connect. In Python load the .env file, create chromadb.CloudClient() and call heartbeat(). Create a collection, add 100 records and confirm the collection and record count in the Cloud dashboard. Record the usage shown for the writes.",
+          "deliverable": "Onboarding notes with CLI output, the .env keys (values redacted) and a dashboard screenshot",
+          "checks": [["Run chroma db create rag-dev then list databases", "rag-dev appears in the list", "CLI output"], ["Call CloudClient().heartbeat() with the .env loaded", "Returns a heartbeat value without error", "Console output"], ["Open the collection in the Cloud dashboard", "The dashboard shows 100 records", "Screenshot"]],
+          "objectives": ["Set up a Chroma Cloud database from the CLI", "Connect to it from Python", "Locate usage information"]
+        },
+        {
+          "topic": "CloudClient, API Keys and Chroma Cloud Databases",
+          "subtopics": ["chromadb.CloudClient(api_key=..., tenant=..., database=...)", "Reading CHROMA_API_KEY, CHROMA_TENANT and CHROMA_DATABASE from the environment", "Database-scoped API keys for least privilege", "Rotating and revoking keys", "Storing keys in a secret manager instead of code", "The x-chroma-token header used on raw HTTP calls", "Separate databases for development, staging and production", "Errors for invalid keys and wrong database names"],
+          "tools": ["Chroma Cloud", "chromadb", "AWS Secrets Manager", "curl"],
+          "lab_task": "Create two API keys in the Cloud dashboard, one limited to database rag-dev. Store them in a secret manager and load them at runtime. Use the scoped key to write to rag-dev, then try to read a collection in a second database with it. Call the API with curl and the x-chroma-token header. Revoke the scoped key and confirm the next call fails.",
+          "deliverable": "Key management runbook covering creation, scoping, storage, rotation and revocation with test results",
+          "checks": [["Use the rag-dev scoped key against a different database", "The request is rejected as unauthorised", "Traceback or HTTP response"], ["curl a heartbeat or collection list with a valid x-chroma-token header", "HTTP 200", "curl -i output"], ["Call CloudClient with the revoked key", "The call fails with an authentication error", "Traceback"]],
+          "objectives": ["Connect to Chroma Cloud with CloudClient", "Apply least-privilege API keys", "Rotate and revoke credentials"]
+        },
+        {
+          "topic": "Chroma Cloud Search API with Search, K and Knn",
+          "subtopics": ["The Search API, which runs on Chroma Cloud with single-node support planned", "from chromadb import Search, K, Knn", "Search().where(K(\"category\") == \"science\")", ".rank(Knn(query=\"...\")) for dense ranking", ".limit(10, offset=20) for pagination", ".select(K.DOCUMENT, K.SCORE, \"title\") to choose returned fields", "Running several searches in one collection.search([...]) call", "Scores where lower is better and how to read results"],
+          "tools": ["Chroma Cloud", "chromadb", "Python 3", "pandas"],
+          "lab_task": "On a Chroma Cloud collection of 10,000 articles, build Search().where((K(\"category\") == \"science\") & (K(\"year\") >= 2022)).rank(Knn(query=\"gene editing ethics\")).limit(10).select(K.DOCUMENT, K.SCORE, \"title\"). Run it, fetch page 2 with offset 10, and batch three different searches in one collection.search call. Compare the first page with the equivalent collection.query result.",
+          "deliverable": "Search API notebook with the four searches, timings and the comparison with query",
+          "checks": [["Inspect the returned rows of the filtered search", "Every row has category science and year 2022 or later", "Result table"], ["Compare IDs on page 1 and page 2", "The pages share no IDs", "Set comparison"], ["Pass three Search objects in one collection.search call", "Three result sets are returned in order", "Console output"]],
+          "objectives": ["Express filters and ranking with the Search API", "Paginate and select fields", "Batch several searches in one call"]
+        },
+        {
+          "topic": "Collection Schema and Index Control in Chroma Cloud",
+          "subtopics": ["Schema() and create_collection(..., schema=schema)", "Default indexes on metadata fields, documents and embeddings", "VectorIndexConfig with space and embedding_function", "Turning off a string inverted index on a field that is never filtered", "The full-text index on K.DOCUMENT and why it cannot be removed", "Per-key index configuration compared with global defaults", "Index choices and their effect on write cost and storage", "Inspecting a collection's schema after creation"],
+          "tools": ["Chroma Cloud", "chromadb", "Python 3", "Jupyter"],
+          "lab_task": "Create a Schema that sets VectorIndexConfig(space=\"cosine\") with OpenAI text-embedding-3-small and disables the string inverted index on a large raw_html metadata field. Create the collection with schema=, add 5,000 records and print the resulting schema. Run a filter on category (indexed) and on raw_html (not indexed) and record what happens to each.",
+          "deliverable": "Schema definition, printed schema and the filter results for indexed and non-indexed fields",
+          "checks": [["Print the collection schema after creation", "raw_html shows the string inverted index disabled", "Console output"], ["Filter with K(\"category\") == \"news\"", "Matching records are returned", "Result table"], ["Filter with K(\"raw_html\") == \"<p>x</p>\"", "The filter cannot use an index on raw_html and the result is recorded", "Console output or error"]],
+          "objectives": ["Define collection indexes with Schema", "Trade index coverage against cost", "Inspect index settings on a collection"]
+        },
+        {
+          "topic": "Sparse Vectors and BM25 in Chroma Cloud",
+          "subtopics": ["Dense compared with sparse vectors", "BM25 term weighting for exact keyword relevance", "SPLADE learned sparse vectors", "ChromaBm25EmbeddingFunction running locally without an API key", "SparseVectorIndexConfig(source_key=K.DOCUMENT, embedding_function=..., bm25=True)", "Creating the sparse index on a named key such as sparse_embedding", "Knn(query=..., key=\"sparse_embedding\") for sparse ranking", "Queries where sparse beats dense: part numbers, names and rare terms"],
+          "tools": ["Chroma Cloud", "chromadb", "Chroma BM25", "SPLADE"],
+          "lab_task": "Add a sparse index with schema.create_index(config=SparseVectorIndexConfig(source_key=K.DOCUMENT, embedding_function=ChromaBm25EmbeddingFunction(), bm25=True), key=\"sparse_embedding\") to a new collection of 10,000 product records. Run 10 keyword queries such as part numbers and 10 natural-language queries with dense Knn and with sparse Knn on sparse_embedding, recording hit rate@5 for each group.",
+          "deliverable": "Dense versus sparse hit-rate table for the two query groups with example results",
+          "checks": [["Run the 10 part-number queries with sparse Knn", "Sparse hit rate@5 is higher than dense for this group", "Results table"], ["Run the 10 natural-language queries", "Dense hit rate@5 is higher than or equal to sparse for this group", "Results table"], ["Create SparseVectorIndexConfig with source_key but no embedding function", "Creation is rejected with an error requiring an embedding function", "Traceback"]],
+          "objectives": ["Explain what sparse vectors capture", "Configure a BM25 sparse index", "Decide when sparse ranking helps"]
+        },
+        {
+          "topic": "Hybrid Ranking with Rrf in Chroma Search",
+          "subtopics": ["Reciprocal Rank Fusion and the k constant", "Rrf(ranks=[...], weights=[...], k=60)", "Knn(..., return_rank=True) inside Rrf", "Setting a candidate limit on each Knn before fusion", "Weighting dense and sparse rankings", "Combining a where filter with hybrid ranking", "Evaluating fusion weights on labelled queries", "Latency cost of two ranking paths"],
+          "tools": ["Chroma Cloud", "chromadb", "pandas", "matplotlib"],
+          "lab_task": "Build a hybrid Search with Rrf(ranks=[Knn(query=q, return_rank=True, limit=100), Knn(query=q, key=\"sparse_embedding\", return_rank=True, limit=100)], weights=[w, 1 - w], k=60) on the product collection. Evaluate hit rate@5 and MRR on all 20 labelled queries for w in 0.0, 0.3, 0.5, 0.7 and 1.0, plot the results and record p95 latency for dense-only and hybrid.",
+          "deliverable": "Fusion weight sweep table and plot, chosen weight and latency comparison",
+          "checks": [["Evaluate w=0.0 and w=1.0", "Results equal the sparse-only and dense-only runs", "Comparison table"], ["Find the best w on the 20 queries", "Its MRR is at least that of both single-method runs", "Weight sweep table"], ["Compare p95 latency of hybrid and dense-only", "Hybrid p95 latency is higher and the difference is recorded", "Latency table"]],
+          "objectives": ["Combine dense and sparse rankings with Rrf", "Tune fusion weights on labelled data", "Measure the latency cost of hybrid search"]
+        },
+        {
+          "topic": "GroupBy, MinK and Result Diversity in Chroma Search",
+          "subtopics": ["Why many top results can come from one long document", "GroupBy(keys=[K(\"doc_id\")], aggregate=MinK(keys=[K.SCORE], k=2))", "MaxK for attributes where higher is better", "How limit applies after grouping and flattening", "Grouping by source, author or product", "Combining GroupBy with hybrid ranking", "Measuring distinct sources in the top 10", "When grouping hurts precision"],
+          "tools": ["Chroma Cloud", "chromadb", "pandas", "Python 3"],
+          "lab_task": "On a chunk collection where each chunk has a doc_id, run 10 queries without grouping and with .group_by(GroupBy(keys=[K(\"doc_id\")], aggregate=MinK(keys=[K.SCORE], k=2))).limit(10). For each query count distinct doc_id values in the top 10 and the maximum chunks from one document. Record hit rate@10 for both settings on 20 labelled questions.",
+          "deliverable": "Diversity report with distinct-source counts and hit rates for grouped and ungrouped search",
+          "checks": [["Count chunks per doc_id in grouped results", "No doc_id appears more than 2 times", "Count table"], ["Compare distinct doc_id counts in the top 10", "Grouped results have at least as many distinct documents", "Comparison table"], ["Compare hit rate@10 on 20 labelled questions", "Both hit rates are recorded side by side", "Evaluation table"]],
+          "objectives": ["Control result diversity with GroupBy", "Explain MinK and MaxK aggregation", "Measure diversity against precision"]
+        },
+        {
+          "topic": "Full-Text and Regex Matching in Chroma",
+          "subtopics": ["where_document $contains and $regex in collection.query and get", "K.DOCUMENT.contains(\"...\") and regex filters in the Search API", "The full-text index on documents in Chroma Cloud", "Case sensitivity and escaping special characters", "Combining text filters with semantic ranking", "Full-text filtering compared with BM25 ranking", "Cost of broad regular expressions", "Detecting sensitive patterns such as email addresses"],
+          "tools": ["chromadb", "Chroma Cloud", "Python 3", "pytest"],
+          "lab_task": "On the same 10,000 documents locally and in Chroma Cloud, find records mentioning the error code ERR_TIMEOUT_504 with where_document $contains and with K.DOCUMENT.contains in Search. Find email addresses with a regex filter and count them. Time both text filters on each deployment, and write a pytest test that escapes user input containing a dot before building a regex.",
+          "deliverable": "Text filter report with counts and timings on both deployments and the escaping test",
+          "checks": [["Count ERR_TIMEOUT_504 matches locally and in Cloud", "Both counts are equal", "Comparison output"], ["Run the email regex filter", "Every returned document contains an email address", "Returned documents"], ["Run the escaping test with input \"v1.2\"", "The built regex matches \"v1.2\" and not \"v1x2\"", "pytest output"]],
+          "objectives": ["Use full-text and regex filters in both APIs", "Combine text filters with semantic ranking", "Build safe regex filters from user input"]
+        },
+        {
+          "topic": "SPANN Index Tuning in Chroma Cloud",
+          "subtopics": ["SPANN as the index used by distributed Chroma and Chroma Cloud, with HNSW on single-node", "Clustered posting lists and centroids", "search_nprobe and its effect on recall and latency", "write_nprobe and its effect on write cost", "ef_search and ef_construction inside SPANN", "Not specifying hnsw and spann in the same configuration", "Measuring recall with exact ground truth", "Background compaction and when new writes become indexed"],
+          "tools": ["Chroma Cloud", "chromadb", "numpy", "matplotlib"],
+          "lab_task": "Load 500,000 vectors with known exact neighbours into Chroma Cloud. Create collections with configuration={\"spann\": {\"search_nprobe\": n}} for at least three values allowed by the documentation and measure recall@10 and p95 latency on 200 queries. Then try a configuration with both hnsw and spann keys and record the error.",
+          "deliverable": "SPANN tuning table and plot, chosen setting and the captured configuration error",
+          "checks": [["Compare recall@10 for the lowest and highest search_nprobe", "Recall is higher at the higher search_nprobe", "Results table"], ["Compare p95 latency for the same two settings", "Latency is higher at the higher search_nprobe", "Results table"], ["Create a collection with both hnsw and spann in configuration", "Creation is rejected because only one index type is allowed", "Traceback"]],
+          "objectives": ["Explain how SPANN differs from HNSW", "Tune search_nprobe from measurements", "Account for asynchronous indexing"]
+        },
+        {
+          "topic": "Collection Forking and Copying Data to Chroma Cloud",
+          "subtopics": ["collection.fork(new_name=...) as a copy-on-write copy in Chroma Cloud", "Using forks for experiments, staging data and rollbacks", "Cost of forks compared with full copies", "The chroma copy CLI command between local Chroma and Chroma Cloud", "Selecting collections and databases to copy", "Re-embedding is not needed when embeddings are copied", "Verifying counts and sampled records after a copy", "Embedding function configuration after a move"],
+          "tools": ["Chroma CLI", "Chroma Cloud", "chromadb", "Python 3"],
+          "lab_task": "Copy a local 50,000-record collection to a Chroma Cloud database with the chroma copy command, checking the flags with chroma copy --help. Verify counts and 100 sampled records. Then fork the cloud collection with collection.fork(new_name=\"kb-experiment\"), delete 1,000 records in the fork and confirm the original count is unchanged. Time the fork and the copy.",
+          "deliverable": "Data move runbook with the copy command, verification output and fork timings",
+          "checks": [["Compare local and cloud count() after the copy", "Both return 50,000", "Console output"], ["Delete 1,000 records in the fork then count both collections", "The fork has 49,000 and the original still has 50,000", "Console output"], ["Compare the time taken by fork and by copy", "The fork completes faster than the full copy", "Timing table"]],
+          "objectives": ["Move data from local Chroma to Chroma Cloud", "Use forks for safe experiments", "Verify data after a move"]
+        },
+        {
+          "topic": "Running Chroma on Kubernetes with Helm",
+          "subtopics": ["The community chromadb Helm chart from amikos-tech", "A single-replica StatefulSet with a PersistentVolumeClaim", "Setting the image tag and resource requests and limits", "Mounting config.yaml through a ConfigMap", "Readiness and liveness probes on /api/v2/heartbeat", "Ignoring the chart's legacy auth values for Chroma 1.x", "A ClusterIP Service with Ingress or a gateway that handles authentication", "Storage class choice and volume expansion"],
+          "tools": ["Kubernetes", "Helm", "kubectl", "kind"],
+          "lab_task": "Create a kind cluster, add the amikos-tech chromadb chart repository with helm repo add and install it with a pinned image tag, a 10Gi PVC, resource limits and a ConfigMap-mounted config.yaml. Port-forward the Service, load 10,000 records, delete the pod with kubectl delete pod and confirm the data survives. Record kubectl get pvc and the probe configuration.",
+          "deliverable": "Helm values file, kubectl outputs and the pod restart test result",
+          "checks": [["Run kubectl get pvc after install", "The PVC is Bound with 10Gi capacity", "kubectl output"], ["Delete the Chroma pod and query after it restarts", "count() returns 10,000", "Console output"], ["Run kubectl describe pod and read the probes", "Readiness and liveness probes target /api/v2/heartbeat", "kubectl output"]],
+          "objectives": ["Deploy single-node Chroma on Kubernetes", "Persist data across pod restarts", "Configure health probes and resources"]
+        },
+        {
+          "topic": "Chroma High Availability and Single-Node Limits",
+          "subtopics": ["Single-node Chroma as one process owning one data directory", "Why running two replicas on one volume is unsafe", "Expected downtime during pod rescheduling", "Read replicas built from restored backups for read-heavy workloads", "Scaling up memory and CPU before scaling out", "Signals that a workload has outgrown single-node: memory, write rate and collection count", "Distributed Chroma and Chroma Cloud as the scale-out options", "Writing a recovery time and recovery point objective for a Chroma service"],
+          "tools": ["Kubernetes", "kubectl", "Locust", "Grafana"],
+          "lab_task": "On the Kubernetes deployment, run a Locust read load and delete the Chroma pod, recording the seconds of failed requests until the pod is ready. Then build a read-only second instance from the latest backup and route reads to it during a second pod deletion. Write down the measured RTO and RPO and the thresholds at which you would move to distributed Chroma or Chroma Cloud.",
+          "deliverable": "Availability report with outage timings, the read-replica result and a scale-out decision table",
+          "checks": [["Delete the pod during the Locust run", "The outage window in seconds is measured from the failure timeline", "Locust chart"], ["Repeat with reads routed to the restored replica", "Read failures during the pod deletion drop to 0", "Locust chart"], ["Write to the replica, then compare it with the primary", "The replica diverges, showing why it must stay read-only", "Count comparison"]],
+          "objectives": ["Measure the availability of single-node Chroma", "Reduce read downtime with a restored replica", "Decide when to move to a distributed deployment"]
+        },
+        {
+          "topic": "Distributed Chroma Architecture: Frontend, Log, Query and Compactor",
+          "subtopics": ["Stateless frontend service that receives client requests", "Write-ahead log service that makes writes durable", "Query service that serves reads from segments", "Compaction service that builds indexes from the log", "System database that stores the catalog of tenants, databases and collections", "Object storage for segment files", "Read-after-write behaviour while compaction is pending", "Running the distributed stack locally for development with the repository's Tilt setup"],
+          "tools": ["Kubernetes", "Tilt", "Chroma Cloud", "kubectl"],
+          "lab_task": "Read the distributed architecture page of the Chroma documentation and draw the request path for an add followed by a query. Clone chroma-core/chroma, start the distributed stack locally following its development guide, list the running services with kubectl get pods, and add records then query immediately and after a short wait, recording the results and any compaction log lines.",
+          "deliverable": "Architecture diagram with the request path, the pod list and the read-after-write test log",
+          "checks": [["Run kubectl get pods in the distributed dev cluster", "Frontend, log, query, compaction and sysdb pods are running", "kubectl output"], ["Query immediately after adding records", "The new records are returned and the result is recorded", "Console output"], ["Read the compaction service log after the add", "A compaction entry for the collection appears", "Log excerpt"]],
+          "objectives": ["Describe each component of distributed Chroma", "Trace a write and a read through the system", "Explain how compaction affects indexing"]
+        },
+        {
+          "topic": "Backup, Restore and Disaster Recovery for Chroma",
+          "subtopics": ["Consistent file-level backups: stop writes or the server, then archive the data directory", "Volume snapshots with Kubernetes VolumeSnapshot or cloud disk snapshots", "Logical backups with paged export to JSON Lines", "Backup retention and encryption", "Restoring to a new server and running integrity checks", "Measuring restore time for the RTO", "Chroma Cloud copies and forks as recovery options", "Scheduled restore drills"],
+          "tools": ["Kubernetes", "Velero", "tar", "chromadb"],
+          "lab_task": "Write a backup job that scales the Chroma StatefulSet to 0, archives the data directory with tar to object storage and scales it back. Run it, then restore the archive onto a fresh PVC and server, and verify count() for every collection and 100 sampled records. Repeat with a logical export and compare backup size, backup duration and restore duration for both methods.",
+          "deliverable": "Backup and restore runbook, job manifest and a comparison table of the two methods",
+          "checks": [["Compare count() per collection after restoring the file backup", "All collection counts match the source", "Verification report"], ["Restore from the logical export", "Sampled records match and the restore time is recorded", "Verification report"], ["Start a server from an archive taken while writes were running", "The result is recorded and the runbook requires stopped writes", "Restore log"]],
+          "objectives": ["Back up Chroma consistently", "Restore and verify a Chroma server", "Measure recovery time for each method"]
+        },
+        {
+          "topic": "Chroma Performance Profiling and Load Testing",
+          "subtopics": ["Defining a workload: query mix, filter selectivity, n_results and write rate", "Precomputed query embeddings to isolate database latency", "Locust or k6 scripts against the REST API or a thin service", "p50, p95 and p99 latency and throughput", "Effect of include fields on payload size and latency", "Effect of filters on latency", "Concurrent writes during reads", "Finding the saturation point"],
+          "tools": ["Locust", "k6", "chromadb", "Grafana"],
+          "lab_task": "Load 1,000,000 384-dimension vectors into a self-hosted server. Run a k6 or Locust test at 10, 50 and 100 concurrent users with precomputed query embeddings and n_results=10, first without filters, then with a 1% selectivity filter, then with include embeddings. Add a 200 records-per-second write stream to the last run and record p95 latency and throughput for each scenario.",
+          "deliverable": "Load test report with a table of latency and throughput per scenario and the saturation point",
+          "checks": [["Increase users from 10 to 100 without filters", "Throughput stops rising at a measured saturation point", "Load test chart"], ["Compare runs with and without include embeddings", "p95 latency is higher when embeddings are returned", "Results table"], ["Add the write stream to the read test", "The change in read p95 latency is measured and reported", "Results table"]],
+          "objectives": ["Design a realistic load test for Chroma", "Measure the effect of filters, payloads and writes", "Find the capacity limit of a deployment"]
+        },
+        {
+          "topic": "Memory Sizing and HNSW Capacity Planning for Chroma",
+          "subtopics": ["Raw vector memory: records x dimensions x 4 bytes", "HNSW graph overhead from max_neighbors", "Metadata and document storage in SQLite", "Why a queried collection's HNSW index needs to fit in memory on single-node", "Many small collections compared with one large collection", "Reducing dimensions with models that support shorter embeddings", "Container memory limits and out-of-memory kills", "Planning headroom for growth"],
+          "tools": ["chromadb", "Docker", "Kubernetes", "Grafana"],
+          "lab_task": "Estimate memory for 2,000,000 records at 1536 and at 512 dimensions using records x dimensions x 4 bytes plus graph overhead. Load 500,000 records at 1536 dimensions into a container and record its resident memory with docker stats after warm-up queries. Lower the container memory limit below the estimate, query again and record what happens. Write a sizing sheet for one year of growth.",
+          "deliverable": "Sizing spreadsheet with estimates, measured memory and the low-memory test result",
+          "checks": [["Compare the estimate for 500,000 x 1536 with docker stats", "Measured memory is within 30% of the estimate", "Sizing sheet"], ["Query with a memory limit below the estimate", "The container is OOM-killed or fails requests and this is recorded", "docker inspect output"], ["Compute raw vector memory for 2,000,000 x 512", "About 4.1 GB", "Sizing sheet"]],
+          "objectives": ["Estimate memory needs for Chroma collections", "Verify estimates with measurements", "Plan capacity for growth"]
+        },
+        {
+          "topic": "Observability for Chroma with OpenTelemetry",
+          "subtopics": ["open_telemetry settings in config.yaml: service_name and endpoint", "Sending traces to an OpenTelemetry Collector", "Viewing spans in Jaeger or Grafana Tempo", "Tracing the client application and the Chroma server together", "Log collection from the container", "Alerting on heartbeat failures and latency", "Disk usage alerts for the data volume", "A dashboard for latency, errors, ingest rate and disk"],
+          "tools": ["OpenTelemetry Collector", "Jaeger", "Grafana", "Prometheus"],
+          "lab_task": "Set open_telemetry.service_name to chroma and open_telemetry.endpoint to an OpenTelemetry Collector in config.yaml, and export traces to Jaeger. Instrument the FastAPI search service with OpenTelemetry so its spans join the Chroma spans. Run 100 queries and find the slowest trace. Add alerts for heartbeat failure over 1 minute and disk usage over 80%, then trigger the heartbeat alert by stopping Chroma.",
+          "deliverable": "Observability configuration, a trace screenshot, dashboard and the alert firing record",
+          "checks": [["Search Jaeger for service chroma after 100 queries", "Traces from the chroma service are listed", "Jaeger screenshot"], ["Open the slowest trace", "API and Chroma spans appear in the same trace", "Trace view"], ["Stop Chroma for more than 1 minute", "The heartbeat alert fires", "Alert notification"]],
+          "objectives": ["Export Chroma traces with OpenTelemetry", "Correlate application and database spans", "Alert on Chroma health and capacity"]
+        },
+        {
+          "topic": "Hardening Chroma: Network Controls, TLS and Secrets",
+          "subtopics": ["Threat model for a self-hosted Chroma server without built-in authentication", "Kubernetes NetworkPolicy allowing only the API pods", "TLS at the ingress or gateway and optional mTLS between services", "Token or OIDC checks at the gateway", "allow_reset false and limiting max_payload_size_bytes", "Embedding provider keys held in Kubernetes Secrets or a vault", "Image pinning, vulnerability scanning and tracking Chroma security advisories", "Limiting data exposure by keeping sensitive fields out of metadata"],
+          "tools": ["Kubernetes", "Trivy", "cert-manager", "Nginx"],
+          "lab_task": "Apply a NetworkPolicy so only pods labelled app=search-api can reach Chroma on port 8000, and put TLS on the ingress with cert-manager. Run trivy image on the pinned chromadb/chroma tag and record critical findings. From a test pod without the label, try to reach Chroma, and from outside send a request without a token. Confirm reset is refused.",
+          "deliverable": "Hardening checklist with NetworkPolicy, ingress config, Trivy summary and test results",
+          "checks": [["curl Chroma from a pod without app=search-api", "The connection times out", "kubectl exec output"], ["Send an external request without a token to the ingress", "HTTP 401", "curl -i output"], ["Run trivy image on the pinned tag", "A count of critical and high vulnerabilities is reported", "Trivy output"]],
+          "objectives": ["Restrict network access to Chroma", "Protect traffic and secrets", "Track image vulnerabilities"]
+        },
+        {
+          "topic": "Chroma Version Upgrades and Data Migration",
+          "subtopics": ["Reading release notes and the migration guide before upgrading", "Changes from 0.x to 1.x: no built-in auth, the /data path in Docker, list_collections returning objects and configuration replacing hnsw:* metadata", "Keeping client and server versions compatible", "Backing up before every upgrade", "Testing the upgrade on a restored copy", "Running the evaluation suite before and after", "chroma utils vacuum after upgrading old databases", "Rollback by restoring the backup and the previous image tag"],
+          "tools": ["Chroma CLI", "Docker", "pytest", "chromadb"],
+          "lab_task": "Take a backup of a server running an older pinned image tag, restore it to a test server and upgrade that server to the current tag. Run the full pytest suite and the 50-question evaluation before and after, fix code broken by API changes listed in the migration guide, and time the upgrade. Then roll back by restoring the backup with the old tag and confirm counts.",
+          "deliverable": "Upgrade runbook with compatibility notes, test and evaluation results before and after, and rollback evidence",
+          "checks": [["Run the evaluation before and after the upgrade", "Hit rate@5 changes by no more than 2 points", "Evaluation report"], ["Run pytest after the upgrade and code fixes", "All tests pass", "pytest output"], ["Restore the backup with the old image tag", "Collection counts match the pre-upgrade values", "Console output"]],
+          "objectives": ["Plan a Chroma upgrade from release notes", "Test upgrades on a restored copy", "Roll back safely"]
+        },
+        {
+          "topic": "Capstone: Production Hybrid Search Platform on Chroma",
+          "subtopics": ["Deployment choice between self-hosted Kubernetes and Chroma Cloud, justified with load and memory measurements", "Hybrid dense and BM25 search with Rrf and GroupBy", "Gateway authentication, NetworkPolicy and secrets", "OpenTelemetry tracing, dashboards and alerts", "Tested backup, restore and upgrade runbooks", "Evaluation and load test results against stated targets"],
+          "tools": ["Chroma Cloud", "Kubernetes", "Helm", "Locust", "OpenTelemetry Collector", "chromadb"],
+          "lab_task": "Deliver a product search platform over at least 500,000 records: justify self-hosted or Chroma Cloud from measurements, implement hybrid dense plus BM25 search with Rrf and GroupBy, secure it with gateway auth and network controls, and add tracing and alerts. Show hit rate@5 of 85% or higher on 50 labelled queries, p95 latency under 300 ms at 50 users, a timed restore drill and a tested upgrade.",
+          "deliverable": "Architecture document, deployment code, evaluation and load test reports, and runbooks",
+          "checks": [["Run the 50 labelled queries through hybrid search", "Hit rate@5 is 85% or higher", "Evaluation report"], ["Load test at 50 concurrent users for 10 minutes", "p95 latency is under 300 ms with 0% errors", "Load test report"], ["Run the restore drill", "All collection counts match and restore time is within the stated RTO", "Drill log"]],
+          "objectives": ["Design a production search platform on Chroma", "Prove quality, performance and recoverability with evidence", "Defend deployment and ranking choices"]
+        }
+      ]
+    }
+  }
+}

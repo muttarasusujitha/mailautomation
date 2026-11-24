@@ -2,11 +2,12 @@ import html
 import os
 import time
 import uuid
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 from urllib.parse import quote
 
 import httpx
 
+from config import get_settings
 from utils.time_utils import utc_now
 
 
@@ -16,6 +17,37 @@ TOKEN_URL_TEMPLATE = "https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/
 
 def _clean(value: Any) -> str:
     return str(value or "").strip()
+
+
+def _is_placeholder_value(value: Any) -> bool:
+    clean = _clean(value).lower()
+    return (
+        not clean
+        or clean.startswith("your_")
+        or clean.startswith("your.")
+        or clean.startswith("your-")
+        or clean.startswith("enter_")
+        or clean in {"placeholder", "changeme", "change_me", "your-client-id", "your-client-secret"}
+    )
+
+
+def _config_value(cfg: Dict[str, Any], key: str, env_name: str = "", default: str = "") -> str:
+    cfg_value = _clean(cfg.get(key))
+    if cfg_value and not _is_placeholder_value(cfg_value):
+        return cfg_value
+    env_value = ""
+    if env_name:
+        env_value = _clean(getattr(get_settings(), env_name.lower(), "") or os.getenv(env_name, ""))
+    if env_value and not _is_placeholder_value(env_value):
+        return env_value
+    return default
+
+
+def _safe_int(value: Any, default: int = 0) -> int:
+    try:
+        return int(value or default)
+    except (TypeError, ValueError):
+        return default
 
 
 def _trainer_teams_identity(trainer: Dict[str, Any], fallback: str = "") -> str:
@@ -46,16 +78,18 @@ async def get_teams_direct_config(db) -> Dict[str, Any]:
     cfg = (settings_doc or {}).get("teamsDirectCfg") or {}
     return {
         "enabled": bool(cfg.get("enabled", False)),
-        "tenantId": _clean(cfg.get("tenantId") or os.getenv("MICROSOFT_TENANT_ID", "common")),
-        "clientId": _clean(cfg.get("clientId") or os.getenv("MICROSOFT_CLIENT_ID", "")),
-        "clientSecret": _clean(cfg.get("clientSecret") or os.getenv("MICROSOFT_CLIENT_SECRET", "")),
-        "refreshToken": _clean(cfg.get("refreshToken") or os.getenv("MICROSOFT_REFRESH_TOKEN", "")),
-        "accessToken": _clean(cfg.get("accessToken") or os.getenv("MICROSOFT_ACCESS_TOKEN", "")),
-        "expiresAt": cfg.get("expiresAt") or 0,
-        "senderUser": _clean(cfg.get("senderUser") or os.getenv("MICROSOFT_SENDER_USER", "")),
-        "redirectUri": _clean(
-            cfg.get("redirectUri")
-            or os.getenv("MICROSOFT_REDIRECT_URI", "http://localhost:8000/api/teams-direct/oauth-callback")
+        "tenantId": _config_value(cfg, "tenantId", "MICROSOFT_TENANT_ID", "common"),
+        "clientId": _config_value(cfg, "clientId", "MICROSOFT_CLIENT_ID"),
+        "clientSecret": _config_value(cfg, "clientSecret", "MICROSOFT_CLIENT_SECRET"),
+        "refreshToken": _config_value(cfg, "refreshToken", "MICROSOFT_REFRESH_TOKEN"),
+        "accessToken": _config_value(cfg, "accessToken", "MICROSOFT_ACCESS_TOKEN"),
+        "expiresAt": _safe_int(cfg.get("expiresAt")),
+        "senderUser": _config_value(cfg, "senderUser", "MICROSOFT_SENDER_USER"),
+        "redirectUri": _config_value(
+            cfg,
+            "redirectUri",
+            "MICROSOFT_REDIRECT_URI",
+            "http://localhost:8000/api/teams-direct/oauth-callback",
         ),
     }
 
@@ -99,11 +133,20 @@ async def exchange_microsoft_code(db, code: str) -> Dict[str, Any]:
         response = await client.post(TOKEN_URL_TEMPLATE.format(tenant_id=cfg["tenantId"]), data=data)
     payload = response.json()
     if response.status_code >= 400:
-        return {"success": False, "error": payload.get("error_description") or payload.get("error") or response.text}
+        return {"success": False, "error": payload.get("error_description") or payload.get("error") or response.text, "payload": payload}
+
+    access_token = payload.get("access_token", "")
+    if not access_token:
+        pretty_payload = payload if isinstance(payload, dict) else {"raw": str(payload)}
+        return {
+            "success": False,
+            "error": "Microsoft did not return an access token.",
+            "payload": pretty_payload,
+        }
 
     expires_at = int(time.time()) + int(payload.get("expires_in") or 3600) - 120
     token_fields = {
-        "teamsDirectCfg.accessToken": payload.get("access_token", ""),
+        "teamsDirectCfg.accessToken": access_token,
         "teamsDirectCfg.refreshToken": payload.get("refresh_token") or cfg.get("refreshToken", ""),
         "teamsDirectCfg.expiresAt": expires_at,
         "teamsDirectCfg.enabled": True,
@@ -135,31 +178,58 @@ async def _refresh_access_token(db, cfg: Dict[str, Any]) -> Dict[str, Any]:
         response = await client.post(TOKEN_URL_TEMPLATE.format(tenant_id=cfg["tenantId"]), data=data)
     payload = response.json()
     if response.status_code >= 400:
-        return {"success": False, "error": payload.get("error_description") or payload.get("error") or response.text}
+        return {"success": False, "error": payload.get("error_description") or payload.get("error") or response.text, "payload": payload}
+
+    access_token = payload.get("access_token", "")
+    if not access_token:
+        pretty_payload = payload if isinstance(payload, dict) else {"raw": str(payload)}
+        return {
+            "success": False,
+            "error": "Microsoft refresh returned no access token.",
+            "payload": pretty_payload,
+        }
 
     expires_at = int(time.time()) + int(payload.get("expires_in") or 3600) - 120
     await db["admin_settings"].update_one(
         {"settings_id": "default"},
         {"$set": {
-            "teamsDirectCfg.accessToken": payload.get("access_token", ""),
+            "teamsDirectCfg.accessToken": access_token,
             "teamsDirectCfg.refreshToken": payload.get("refresh_token") or cfg.get("refreshToken", ""),
             "teamsDirectCfg.expiresAt": expires_at,
             "updated_at": utc_now(),
         }},
         upsert=True,
     )
-    return {"success": True, "access_token": payload.get("access_token", ""), "expires_at": expires_at}
+    return {"success": True, "access_token": access_token, "expires_at": expires_at}
 
 
 async def _access_token(db) -> Dict[str, Any]:
     cfg = await get_teams_direct_config(db)
     if not cfg.get("enabled"):
         return {"success": False, "status": "skipped", "error": "Teams direct chat is disabled"}
-    if cfg.get("accessToken") and int(cfg.get("expiresAt") or 0) > int(time.time()) + 60:
+    expires_at = _safe_int(cfg.get("expiresAt"))
+    has_access_token = bool(cfg.get("accessToken"))
+    has_refresh_token = bool(cfg.get("refreshToken"))
+    if has_access_token and expires_at > int(time.time()) + 60:
         return {"success": True, "access_token": cfg["accessToken"], "config": cfg}
+    if not has_refresh_token:
+        if has_access_token:
+            error = "Teams Direct access token expired and no refresh token is connected. Reconnect Microsoft Teams Direct Chat."
+        else:
+            error = "Teams Direct is not connected. Click Connect Direct Chat to create a Microsoft Graph access token."
+        return {"success": False, "status": "skipped", "error": error, "config": cfg}
     refreshed = await _refresh_access_token(db, cfg)
     if not refreshed.get("success"):
-        return {**refreshed, "status": "skipped", "config": cfg}
+        # Retry once for transient network/auth errors
+        retried = await _refresh_access_token(db, cfg)
+        if retried.get("success"):
+            refreshed = retried
+        else:
+            # Include the payload/error for easier debugging in logs/UI
+            error_payload = retried.get("payload") or retried.get("error") or refreshed.get("payload")
+            return {**retried, "status": "skipped", "config": cfg, "debug_payload": error_payload}
+    if not refreshed.get("access_token"):
+        return {"success": False, "status": "skipped", "error": "Missing access token after refresh.", "config": cfg, "debug_payload": refreshed.get("payload")}
     return {"success": True, "access_token": refreshed["access_token"], "config": cfg}
 
 
@@ -173,6 +243,67 @@ async def _graph_get_me(access_token: str) -> Dict[str, Any]:
     if response.status_code >= 400:
         raise RuntimeError(payload.get("error", {}).get("message") or response.text)
     return payload
+
+
+async def _find_existing_one_on_one_chat(access_token: str, sender_upn: str, recipient_upn: str) -> str:
+    """Return the chat-id of the existing 1-on-1 chat between sender and recipient.
+
+    The Graph API returns HTTP 201 with an existing chat-id when you POST
+    /chats with the same pair of members — effectively an upsert — so a
+    separate lookup is only needed as a belt-and-suspenders optimisation to
+    avoid the write round-trip on repeat messages.
+
+    Strategy:
+      1. GET /me/chats?$filter=chatType eq 'oneOnOne'&$expand=members
+         and scan for a chat whose members contain recipient_upn.
+      2. If found, return it.  If not (new conversation or API paging
+         hasn't surfaced it), fall through — the caller will POST /chats
+         which safely returns the existing chat-id via Graph's upsert
+         behaviour.
+    """
+    recipient_lower = _clean(recipient_upn).lower()
+    url = (
+        f"{GRAPH_BASE}/me/chats"
+        "?$filter=chatType eq 'oneOnOne'"
+        "&$expand=members($select=userId,email)"
+        "&$top=50"
+        "&$select=id,chatType"
+    )
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            response = await client.get(
+                url,
+                headers={"Authorization": f"Bearer {access_token}"},
+            )
+        if response.status_code >= 400:
+            # Non-fatal: fall through to create path.
+            return ""
+        data = response.json()
+        for chat in data.get("value") or []:
+            for member in chat.get("members") or []:
+                member_email = _clean(member.get("email", "")).lower()
+                member_user_id = _clean(member.get("userId", "")).lower()
+                if member_email == recipient_lower or member_user_id == recipient_lower:
+                    return chat.get("id") or ""
+    except Exception:
+        pass  # Non-fatal: fall through to create path.
+    return ""
+
+
+async def _get_or_create_one_on_one_chat(access_token: str, sender_upn: str, recipient_upn: str) -> str:
+    """Return an existing 1-on-1 chat-id or create a new one.
+
+    Always tries to find an existing chat first so that the same trainer
+    is not scattered across multiple separate chats when contacted repeatedly.
+    """
+    existing = await _find_existing_one_on_one_chat(access_token, sender_upn, recipient_upn)
+    if existing:
+        return existing
+    # Either no existing chat was found or the lookup failed gracefully.
+    # POST /chats — Graph API performs an upsert: if the pair already has
+    # a chat it returns the existing chat-id (HTTP 200) rather than
+    # creating a duplicate (HTTP 201).
+    return await _create_one_on_one_chat(access_token, sender_upn, recipient_upn)
 
 
 async def _create_one_on_one_chat(access_token: str, sender_upn: str, recipient_upn: str) -> str:
@@ -247,19 +378,20 @@ async def send_trainer_teams_direct_message(
     await db["teams_direct_logs"].insert_one(log_doc)
 
     token_result = await _access_token(db)
-    if not token_result.get("success"):
+    if not token_result.get("success") or not token_result.get("access_token"):
+        error_message = token_result.get("error") or "Missing Microsoft Graph access token"
         await db["teams_direct_logs"].update_one(
             {"teams_direct_id": log_doc["teams_direct_id"]},
             {"$set": {
                 "status": token_result.get("status", "failed"),
-                "error_message": token_result.get("error", ""),
+                "error_message": error_message,
                 "updated_at": utc_now(),
             }},
         )
         return {
             "success": False,
             "status": token_result.get("status", "skipped"),
-            "error": token_result.get("error", "Microsoft Graph is not connected"),
+            "error": error_message,
             "teams_direct_id": log_doc["teams_direct_id"],
             "teams_email": teams_email,
         }
@@ -279,7 +411,7 @@ async def send_trainer_teams_direct_message(
                 "Teams Direct Chat recipient cannot be the same as the sender. "
                 "Test with another Teams user or guest account."
             )
-        chat_id = await _create_one_on_one_chat(access_token, sender_upn, teams_email)
+        chat_id = await _get_or_create_one_on_one_chat(access_token, sender_upn, teams_email)
         message_body = f"Subject: {subject}\n\n{body}" if subject else body
         message = await _send_chat_message(access_token, chat_id, message_body)
         await db["teams_direct_logs"].update_one(

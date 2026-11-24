@@ -1,0 +1,881 @@
+"""LinkedIn account lead discovery, with optional public and Tavily providers."""
+import logging
+import os
+import re
+import time
+import uuid
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List, Optional
+from typing import Literal
+
+import httpx
+from fastapi import APIRouter, Depends
+from motor.motor_asyncio import AsyncIOMotorDatabase
+from pydantic import BaseModel
+
+from app.config import get_settings
+from shared.database.service import get_db
+from shared.trainer_targets import TRAINER_RESULT_TARGET, trainer_keep_limit
+
+router = APIRouter()
+logger = logging.getLogger(__name__)
+EMAIL_SVC = "http://email-service:8002"
+LOCAL_SERVICE_FALLBACKS = {
+    "https://email-service:8002": "http://email-service:8002",
+    "http://127.0.0.1:8002": "http://email-service:8002",
+}
+EMAIL_RE = re.compile(r"[A-Za-z0-9._%+\-]{2,64}@[A-Za-z0-9.\-]{2,253}\.[A-Za-z]{2,12}")
+PHONE_RE = re.compile(r"(?:\+91|0091|91)?[\s.\-()]*(6[\d\s.\-()]{9,20}|7[\d\s.\-()]{9,20}|8[\d\s.\-()]{9,20}|9[\d\s.\-()]{9,20})")
+BAD_EMAIL_LOCALS = {"noreply", "no-reply", "donotreply", "support", "admin", "info", "sales", "hr", "careers", "jobs"}
+# Whole-request budget. The gateway closes /linkedin-leads requests after 600 seconds.
+_SEARCH_TIME_LIMIT = 560
+
+
+class LinkedInLeadSearchRequest(BaseModel):
+    search_provider: Literal['public', 'tavily', 'linkedin_account', 'auto'] = 'auto'
+    query: Optional[str] = ""
+    domain: Optional[str] = ""
+    domains: Optional[List[str]] = None
+    location: Optional[str] = ""
+    max_results: int = 50
+    max_queries: Optional[int] = None
+    save: bool = True
+    mode: Literal['trainer', 'client'] = "trainer"
+    source: Optional[str] = "linkedin"
+    # An ID from the page, saved with the run report (GET /search-runs?search_ref=...).
+    search_ref: Optional[str] = ""
+
+
+class BackfillClientContactsRequest(BaseModel):
+    limit: int = 50
+    auto_send: bool = True
+    recheck: bool = False
+    external_lookup: bool = False
+
+
+async def _post_with_local_fallback(
+    client: httpx.AsyncClient,
+    url: str,
+    **kwargs: Any,
+) -> httpx.Response:
+    try:
+        return await client.post(url, **kwargs)
+    except httpx.RequestError:
+        for service_base, local_base in LOCAL_SERVICE_FALLBACKS.items():
+            if url.startswith(service_base):
+                fallback_url = local_base + url[len(service_base):]
+                return await client.post(fallback_url, **kwargs)
+        raise
+
+
+def _retry_after_from_outcome(outcome: Dict[str, Any]) -> datetime:
+    """Use a reported cooldown where possible; otherwise retry soon and safely."""
+    message = " ".join(str(value or "") for value in (
+        outcome.get("primary_error"), outcome.get("reason"), outcome.get("limit_reason"),
+        *[item.get("error", "") if isinstance(item, dict) else item for item in outcome.get("warnings") or []],
+    ))
+    match = re.search(r"retrying after\s+(\d{1,2}):(\d{2})\s+UTC", message, flags=re.IGNORECASE)
+    now = datetime.utcnow()
+    if match:
+        candidate = now.replace(hour=int(match.group(1)), minute=int(match.group(2)), second=0, microsecond=0)
+        if candidate <= now:
+            candidate += timedelta(days=1)
+        return candidate + timedelta(minutes=1)
+    match = re.search(r"paused until\s+(\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2})\s+UTC", message, flags=re.IGNORECASE)
+    if match:
+        try:
+            return datetime.strptime(match.group(1), "%Y-%m-%d %H:%M") + timedelta(minutes=1)
+        except ValueError:
+            pass
+    return now + timedelta(minutes=15)
+
+
+async def _queue_blocked_trainer_domains(db, payload: LinkedInLeadSearchRequest, outcomes: List[Dict[str, Any]]) -> List[Dict[str, str]]:
+    """Persist transiently blocked trainer searches for the service retry loop."""
+    if payload.mode != "trainer" or not payload.queue_retry_on_blocked:
+        return []
+    try:
+        retries_collection = db["lead_search_retries"]
+    except (KeyError, TypeError):
+        # Unit callers and legacy deployments may not expose this collection
+        # yet. The next normal MongoDB run creates it automatically.
+        return []
+    queued = []
+    for outcome in outcomes:
+        if str(outcome.get("status") or "").lower() not in {"blocked", "no_results"}:
+            continue
+        domain = str(outcome.get("domain") or "").strip()
+        if not domain:
+            continue
+        next_attempt_at = _retry_after_from_outcome(outcome)
+        key = f"trainer:{domain.lower()}"
+        await retries_collection.update_one({"_id": key}, {"$set": {
+            "mode": "trainer", "domain": domain, "location": str(payload.location or "").strip(),
+            "status": "queued", "next_attempt_at": next_attempt_at,
+            "last_reason": str(outcome.get("primary_error") or outcome.get("reason") or "Sources temporarily unavailable.")[:800],
+            "updated_at": datetime.utcnow(),
+        }, "$setOnInsert": {"created_at": datetime.utcnow(), "attempt_count": 0}}, upsert=True)
+        queued.append({"domain": domain, "next_attempt_at": next_attempt_at.isoformat() + "Z"})
+    return queued
+
+
+def _slug_from_url(url: str) -> str:
+    linkedin = re.search(r"linkedin\.com/in/([a-zA-Z0-9\-_%]+)", url or "", re.IGNORECASE)
+    if linkedin:
+        return linkedin.group(1)
+    return re.sub(r"[^a-zA-Z0-9]+", "-", (url or "").split("/", 3)[-1]).strip("-")[:80]
+
+
+def _contact_name_from_linkedin_post(url: str) -> str:
+    match = re.search(r"linkedin\.com/posts/([^_/]+)", url or "", re.IGNORECASE)
+    if not match:
+        return ""
+    parts = [part for part in match.group(1).split("-") if part and not part.isdigit()]
+    cleaned: List[str] = []
+    for part in parts:
+        if re.fullmatch(r"[a-f0-9]{6,}", part, re.IGNORECASE):
+            break
+        cleaned.append(part)
+    if not cleaned:
+        return ""
+    return " ".join(word.capitalize() for word in cleaned[:4])
+
+
+def _domain_terms(domain: str) -> List[str]:
+    words = re.findall(r"[a-zA-Z0-9+#.]+", domain.lower())
+    generic = {
+        "trainer",
+        "training",
+        "corporate",
+        "freelance",
+        "technical",
+        "online",
+        "instructor",
+        "consultant",
+        "developer",
+        "india",
+        "indian",
+    }
+    terms = [word for word in words if len(word) > 1 and word not in generic]
+    if "full" in terms and "stack" in terms:
+        terms.append("full stack")
+    return terms
+
+
+def _extract_emails(text: str) -> List[str]:
+    normalized = _normalize_contact_text(text)
+    found = EMAIL_RE.findall(normalized)
+    seen: set = set()
+    emails: List[str] = []
+    for email in found:
+        key = email.lower()
+        local = key.split("@", 1)[0]
+        if local in BAD_EMAIL_LOCALS or key in seen:
+            continue
+        seen.add(key)
+        emails.append(email)
+    return emails
+
+
+def _extract_phones(text: str) -> List[str]:
+    phones: List[str] = []
+    seen: set = set()
+    normalized = _normalize_contact_text(text)
+    for match in PHONE_RE.finditer(normalized):
+        digits = re.sub(r"\D", "", match.group(1))
+        if len(digits) > 10:
+            digits = digits[-10:]
+        if len(digits) == 10 and digits[0] in "6789":
+            phone = f"+91{digits}"
+            if phone not in seen:
+                seen.add(phone)
+                phones.append(phone)
+    return phones
+
+
+def _normalize_contact_text(text: str) -> str:
+    value = str(text or "")
+    value = re.sub(r"(?i)\s*(?:\[|\()?at(?:\]|\))?\s*", "@", value)
+    value = re.sub(r"(?i)\s*(?:\[|\()?dot(?:\]|\))?\s*", ".", value)
+    value = re.sub(r"(?i)\s+at\s+", "@", value)
+    value = re.sub(r"(?i)\s+dot\s+", ".", value)
+    return value
+
+
+def _best_email(text: str) -> str:
+    emails = _extract_emails(text)
+    personal_domains = {"gmail.com", "yahoo.com", "yahoo.co.in", "outlook.com", "hotmail.com", "rediffmail.com"}
+    personal = [email for email in emails if email.split("@")[-1].lower() in personal_domains]
+    return personal[0] if personal else (emails[0] if emails else "")
+
+
+def _looks_like_resume_trainer_post(text: str) -> bool:
+    return bool(
+        re.search(r"\b(resume|cv|trainer profile|profile attached|sharing profile|contact me|email|phone)\b", text)
+        and re.search(r"\b(trainer|instructor|training|corporate training|facilitator|coach)\b", text)
+    )
+
+
+def _looks_like_client_requirement_post(text: str) -> bool:
+    return bool(
+        re.search(r"\b(need|needs|needed|looking (?:out )?for|require|requires|required|requirements?|hiring|seeking)\b", text)
+        and re.search(r"\b(trainers?|instructors?|training|facilitators?)\b", text)
+    )
+
+
+def _keyword_card_is_trainer(combined_text: str) -> bool:
+    """A people-search hit can omit the skill and still be the trainer who was searched."""
+    if _looks_like_client_requirement_post(combined_text):
+        return False
+    if re.search(r"\b(actively seeking|job seeker|looking for job|open to work|full-time role)\b", combined_text):
+        return False
+    if re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", combined_text):
+        return True
+    if re.search(
+        r"\b(recruiter|recruiting|talent acquisition|human resources|\bhr\b|engineer|developer|director|analyst|manager|specialist|executive|architect|administrator|intern|consultant)\b",
+        combined_text,
+    ):
+        return False
+    return True
+
+
+def _text_has_domain(combined_text: str, terms: List[str]) -> bool:
+    required = [term for term in terms if term != "full stack"]
+    if all(re.search(r"(?<!\w)" + re.escape(term) + r"(?!\w)", combined_text) for term in required):
+        return True
+    # "SoftSkills" has no word boundary between the domain words.
+    if len(required) < 2:
+        return False
+    compact = re.sub(r"[^a-z0-9+#]+", "", combined_text)
+    phrase = re.sub(r"[^a-z0-9+#]+", "", "".join(required))
+    return bool(phrase) and phrase in compact
+
+
+def _result_text(item: Dict[str, Any]) -> str:
+    parts: List[str] = []
+    for key in (
+        "title",
+        "name",
+        "content",
+        "raw_content",
+        "snippet",
+        "description",
+        "answer",
+        "summary",
+    ):
+        value = item.get(key)
+        if isinstance(value, str) and value.strip():
+            parts.append(value.strip())
+    return "\n".join(parts)
+
+
+def _contact_update_fields(lead: Dict[str, Any]) -> Dict[str, Any]:
+    updates: Dict[str, Any] = {}
+    for key in ("email", "phone", "contact_email", "contact_phone", "contact_name", "contact_linkedin_url", "post_text", "notes", "verification_tier", "confidence"):
+        value = lead.get(key)
+        if value:
+            updates[key] = value
+    return updates
+
+
+def _client_mail(lead: Dict[str, Any]) -> Dict[str, str]:
+    domain = lead.get("domain") or "your training"
+    company = lead.get("company_name") or "your team"
+    contact = lead.get("contact_name") or "Client"
+    return {
+        "subject": f"Trainer Support for {domain} Requirement",
+        "body": (
+            f"Dear {contact},\n\n"
+            f"I saw your LinkedIn post about a {domain} trainer requirement for {company}.\n\n"
+            "We are a training consultancy and can provide experienced corporate trainers for your requirement. "
+            "Please share the training dates, duration, delivery mode, participant count, and commercials so we can send suitable trainer profiles.\n\n"
+            "Regards,\nRecruitment Team\nClahan Technologies"
+        ),
+    }
+
+
+async def _auto_send_client_mail(lead: Dict[str, Any], db: AsyncIOMotorDatabase, now: datetime) -> bool:
+    email = lead.get("email") or lead.get("contact_email") or ""
+    if not email:
+        return False
+    existing = await db["client_leads"].find_one(
+        {"source_url": lead.get("source_url", "")},
+        {"_id": 0, "status": 1, "last_emailed_at": 1, "auto_mail1_sent_at": 1},
+    )
+    if existing and (existing.get("last_emailed_at") or existing.get("auto_mail1_sent_at") or existing.get("status") == "contacted"):
+        return False
+
+    mail = _client_mail(lead)
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await _post_with_local_fallback(
+                client,
+                f"{EMAIL_SVC}/api/v1/email/send",
+                json={"to": email, "subject": mail["subject"], "body": mail["body"]},
+            )
+        success = resp.status_code < 400
+    except Exception as exc:
+        logger.warning("Auto Mail 1 failed for client lead %s: %s", lead.get("source_url"), exc)
+        success = False
+
+    await db["client_leads"].update_one(
+        {"source_url": lead.get("source_url", "")},
+        {"$set": {
+            "status": "contacted" if success else "email_failed",
+            "auto_mail1_sent_at": now if success else None,
+            "last_emailed_at": now if success else None,
+            "auto_mail1_error": "" if success else "Email delivery failed",
+            "updated_at": now,
+        }},
+    )
+    return success
+
+
+def _normalize_result(item: Dict[str, Any], domain: str, mode: str, require_domain: bool = True) -> Optional[Dict[str, Any]]:
+    url = item.get("url") or item.get("source_url") or item.get("link") or ""
+    from urllib.parse import urlsplit
+    host = (urlsplit(url).hostname or '').lower()
+    if not any(host == allowed or host.endswith('.' + allowed) for allowed in ('linkedin.com', 'naukri.com')):
+        return None
+
+    source = "linkedin" if "linkedin.com" in url.lower() else "naukri"
+    if mode == "client":
+        if source != "linkedin":
+            return None
+        if not re.search(r"linkedin\.com/(posts|feed/update|pulse)/", url, re.IGNORECASE):
+            return None
+        if re.search(r"linkedin\.com/(jobs|in)/", url, re.IGNORECASE):
+            return None
+        combined_text = _result_text(item).lower()
+        if not _looks_like_client_requirement_post(combined_text):
+            return None
+    title = item.get("title") or item.get("name") or ""
+    raw_text = _result_text(item)
+    snippet = raw_text or title
+    combined_text = raw_text.lower()
+    terms = _domain_terms(domain)
+    # Profile URLs such as /in/soft-skills-trainer count toward the skill check.
+    domain_text = f"{combined_text}\n{url.replace('-', ' ')}" if mode == "trainer" else combined_text
+    if require_domain and terms and not _text_has_domain(domain_text, terms):
+        return None
+    if mode == 'trainer' and _looks_like_client_requirement_post(combined_text):
+        return None
+    email = _best_email(raw_text)
+    phone = (_extract_phones(raw_text) or [""])[0]
+    if mode == "trainer":
+        searchable = f"{combined_text}\n{url.replace('-', ' ')}"
+        if re.search(r"\b(actively seeking|job seeker|looking for job|open to work|full-time role)\b", searchable):
+            return None
+        is_profile = bool(re.search(r"linkedin\.com/in/", url, re.IGNORECASE))
+        is_post = bool(re.search(r"linkedin\.com/(posts|feed/update|pulse)/", url, re.IGNORECASE))
+        is_resume_post = is_post and _looks_like_resume_trainer_post(searchable)
+        if source == "linkedin" and not (is_profile or is_resume_post):
+            return None
+        if source == "linkedin" and not re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", searchable):
+            return None
+    slug = _slug_from_url(url)
+    if mode == "client":
+        contact_name = item.get('contact_name', _contact_name_from_linkedin_post(url))
+        return {
+            "lead_id": f"CL-{uuid.uuid4().hex[:10].upper()}",
+            "company_name": title,
+            "contact_name": contact_name,
+            "contact_linkedin_url": item.get('contact_linkedin_url') or '',
+            "email": email,
+            "phone": phone,
+            "contact_email": email,
+            "contact_phone": phone,
+            "domain": domain,
+            "source": source,
+            "source_url": url,
+            "linkedin_url": url if source == "linkedin" else "",
+            "post_text": snippet[:5000],
+            "notes": snippet[:1000],
+            "status": "new",
+            "lead_type": "client_requirement_post",
+            "verification_tier": "contact_in_post" if email or phone else "linkedin_signal",
+            "confidence": 0.88 if email or phone else 0.75,
+        }
+
+    return {
+        "lead_id": f"TPL-{uuid.uuid4().hex[:10].upper()}",
+        "name": title,
+        "trainer_name": title,
+        "headline": title,
+        "email": email,
+        "phone": phone,
+        "contact_email": email,
+        "contact_phone": phone,
+        "domain": domain,
+        "source": source,
+        "source_url": url,
+        "linkedin_url": url if source == "linkedin" else "",
+        "linkedin_slug": slug if source == "linkedin" else "",
+        "external_slug": slug,
+        "snippet": snippet[:500],
+        "profile_text": snippet[:5000],
+        "status": "new",
+        "lead_type": "resume_trainer_post" if re.search(r"linkedin\.com/(posts|feed/update|pulse)/", url, re.IGNORECASE) else "trainer_profile",
+        "verification_tier": "contact_in_post" if email or phone else "linkedin_signal",
+        "confidence": 0.9 if email or phone else 0.75,
+    }
+
+
+async def _plain_tavily_search(query: str, max_results: int) -> List[Dict[str, Any]]:
+    settings = get_settings()
+    if not settings.TAVILY_API_KEY:
+        raise RuntimeError("TAVILY_API_KEY is not configured")
+
+    include_domains = ["linkedin.com", "naukri.com"]
+    payload = {
+        "query": query,
+        "max_results": max(1, min(max_results, 20)),
+        "search_depth": settings.TAVILY_SEARCH_DEPTH,
+        "include_domains": include_domains,
+    }
+    headers = {
+        "Authorization": f"Bearer {settings.TAVILY_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    async with httpx.AsyncClient(timeout=30) as client:
+        primary_url = f"{settings.TAVILY_API_URL.rstrip('/')}/search"
+        try:
+            resp = await client.post(primary_url, json=payload, headers=headers)
+        except httpx.HTTPError:
+            resp = await client.post("https://api.tavily.com/search", json=payload, headers=headers)
+        if resp.status_code == 404 and "api.tavily.dev" in settings.TAVILY_API_URL:
+            resp = await client.post("https://api.tavily.com/search", json=payload, headers=headers)
+        resp.raise_for_status()
+        data = resp.json()
+    return data.get("results") or []
+
+
+async def _find_existing_post_contact(lead: Dict[str, Any], external_lookup: bool = False) -> Dict[str, Any]:
+    source_url = lead.get("source_url") or lead.get("linkedin_url") or ""
+    saved_text = "\n".join(
+        str(lead.get(key) or "")
+        for key in ("post_text", "notes", "title", "description", "company_name", "domain")
+    )
+    email = _best_email(saved_text)
+    phone = (_extract_phones(saved_text) or [""])[0]
+    if email or phone:
+        updates: Dict[str, Any] = {
+            "verification_tier": "contact_in_saved_post_text",
+            "confidence": max(float(lead.get("confidence") or 0), 0.88),
+        }
+        if email:
+            updates["email"] = email
+            updates["contact_email"] = email
+        if phone:
+            updates["phone"] = phone
+            updates["contact_phone"] = phone
+        return updates
+
+    if not external_lookup:
+        return {}
+
+    search_terms = [
+        source_url,
+        " ".join(part for part in [
+            lead.get("company_name") or "",
+            lead.get("domain") or "",
+            "email phone contact",
+            "site:linkedin.com/posts OR site:linkedin.com/feed/update",
+        ] if part),
+    ]
+    for query in [term for term in search_terms if term.strip()]:
+        try:
+            results = await _plain_tavily_search(query, 5)
+        except Exception as exc:
+            logger.warning("Backfill search failed for %s: %s", source_url or lead.get("lead_id"), exc)
+            continue
+        for item in results:
+            if not isinstance(item, dict):
+                continue
+            item_url = item.get("url") or item.get("source_url") or item.get("link") or ""
+            if source_url and item_url and item_url != source_url:
+                if _slug_from_url(item_url) != _slug_from_url(source_url):
+                    continue
+            raw_text = _result_text(item)
+            email = _best_email(raw_text)
+            phone = (_extract_phones(raw_text) or [""])[0]
+            if email or phone:
+                updates: Dict[str, Any] = {
+                    "post_text": raw_text[:5000],
+                    "notes": raw_text[:1000],
+                    "verification_tier": "contact_in_post",
+                    "confidence": 0.88,
+                }
+                if email:
+                    updates["email"] = email
+                    updates["contact_email"] = email
+                if phone:
+                    updates["phone"] = phone
+                    updates["contact_phone"] = phone
+                return updates
+    return {}
+
+
+def _search_queries(domain: str, mode: str, location: str = "") -> List[str]:
+    location_text = f" {location}" if location else ""
+    if mode == "client":
+        topic = domain.strip() or "trainer"
+        return [
+            (
+                f'"{topic}" ("corporate trainer required" OR "trainer required" OR "training requirement"){location_text} '
+                "site:linkedin.com/posts OR site:linkedin.com/feed/update "
+                "-jobs -job -hiring -opening -vacancy -careers -jobseeker -resume"
+            ),
+            (
+                f'"{topic}" ("looking for freelance trainer" OR "need trainer" OR "trainer needed"){location_text} '
+                "site:linkedin.com/posts OR site:linkedin.com/feed/update "
+                "-jobs -job -hiring -opening -vacancy -careers -jobseeker -resume"
+            ),
+            (
+                f'"{topic}" ("looking for corporate trainer" OR "require trainer" OR "training vendor"){location_text} '
+                "site:linkedin.com/posts OR site:linkedin.com/feed/update "
+                "-jobs -job -hiring -opening -vacancy -careers -jobseeker -resume"
+            ),
+        ]
+
+    base = f"{domain}{location_text}"
+    return [
+        f'"{base}" ("resume trainer" OR "trainer resume" OR "trainer profile") ("email" OR "phone" OR "contact") site:linkedin.com/posts -jobs -job -hiring -opening -vacancy -careers',
+        f'"{base}" ("resume trainer" OR "trainer resume" OR "trainer profile") ("email" OR "phone" OR "contact") site:linkedin.com/feed/update -jobs -job -hiring -opening -vacancy -careers',
+        f'"{base}" "corporate trainer" site:linkedin.com/in -jobs -job -hiring -opening -vacancy -careers',
+        f'"{base}" "freelance trainer" site:linkedin.com/in -jobs -job -hiring -opening -vacancy -careers',
+        f'"{base}" "technical trainer" site:linkedin.com/in -jobs -job -hiring -opening -vacancy -careers',
+        f'"{base}" trainer instructor consultant site:linkedin.com/in -jobs -job -hiring -opening -vacancy -careers',
+        f'"{base}" "online trainer" site:linkedin.com/in -jobs -job -hiring -opening -vacancy -careers',
+        f'"{base}" "training consultant" site:linkedin.com/in -jobs -job -hiring -opening -vacancy -careers',
+        f'"{base}" "corporate training" "India" site:linkedin.com/in -jobs -job -hiring -opening -vacancy -careers',
+        f'"{base}" "trainer" "Bangalore" OR "Hyderabad" OR "Pune" site:linkedin.com/in -jobs -job -hiring -opening -vacancy -careers',
+        f'"{base}" trainer instructor corporate training site:naukri.com -jobs -job -hiring -opening -vacancy -careers',
+    ]
+
+
+@router.post("/search")
+async def search_linkedin_leads(
+    payload: LinkedInLeadSearchRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    domains = [item.strip() for item in (payload.domains or []) if item and item.strip()]
+    single = (payload.query or payload.domain or "").strip()
+    if single and not domains:
+        domains = [single]
+    if not domains:
+        return {"success": False, "error": "query, domain, or domains is required", "saved_count": 0, "results": []}
+
+    now = datetime.utcnow()
+    search_started_at = now
+    search_started = time.monotonic()
+    saved_count = 0
+    auto_sent_count = 0
+    skipped_count = 0
+    all_results: List[Dict[str, Any]] = []
+    skipped: List[Dict[str, Any]] = []
+    seen_urls: set = set()
+    search_errors = []
+    domain_outcomes = []
+
+    mode = "client" if payload.mode == "client" else "trainer"
+
+    target_results = max(1, min(payload.max_results, 100))
+    if mode == "trainer":
+        target_results = trainer_keep_limit(target_results)
+    elif payload.search_provider == 'public':
+        target_results = max(20, target_results)
+    query_budget = max(1, min(payload.max_queries or 2, 2 if payload.search_provider == 'public' else 8))
+    domains = list(dict.fromkeys(domains))[:4]
+
+    for domain in domains:
+        if mode == "trainer" and len(all_results) >= target_results:
+            break
+        domain_goal = target_results - len(all_results) if mode == "trainer" else target_results
+        domain_start = len(all_results)
+        raw_results: List[Dict[str, Any]] = []
+        if payload.search_provider == 'public':
+            from app.clients.public_discovery import discover_public
+            raw_results, outcome = await discover_public(domain, mode, domain_goal, payload.location or '')
+            domain_outcomes.append(outcome)
+            if outcome['status'] == 'blocked':
+                search_errors.append({'domain': domain, 'error': outcome['warnings'][-1]})
+        if payload.search_provider == "auto":
+            from app.clients.lead_discovery import (
+                discover,
+                discover_public_fallback,
+                linkedin_requires_public_fallback,
+                linkedin_session_requires_public_fallback,
+                search_warning,
+            )
+            from app.clients.trainer_finder import finder_enabled
+            raw_results, outcome = await discover(domain, mode, domain_goal, payload.location or "", db=db)
+            blocked_reason = outcome.get('primary_error') or ''
+            should_use_public_fallback = linkedin_requires_public_fallback(blocked_reason) or (
+                mode == 'client' and linkedin_session_requires_public_fallback(blocked_reason)
+            )
+            if finder_enabled() and len(raw_results) < domain_goal:
+                # Search every key-free engine for the rest, whatever stopped the account search:
+                # trainer profiles in trainer mode, posts that need a trainer in client mode.
+                from app.clients.lead_discovery import discover_with_trainer_finder
+                raw_results, outcome = await discover_with_trainer_finder(
+                    domain, domain_goal, payload.location or '', db, raw_results, outcome,
+                    time_left=_SEARCH_TIME_LIMIT - (time.monotonic() - search_started), mode=mode)
+            # Tavily is independent of LinkedIn and key-free engine cooldowns.
+            # When configured, it can fill the remaining trainer profiles while
+            # those sources are unavailable. Results remain fully validated.
+            if mode == 'trainer' and os.environ.get('TAVILY_API_KEY', '').strip() and len(raw_results) < domain_goal:
+                try:
+                    tavily_rows = await _plain_tavily_search(
+                        f'{domain} corporate trainer instructor India', min(20, domain_goal - len(raw_results)))
+                    raw_results.extend(tavily_rows)
+                    outcome = {**outcome, 'fallback_source': 'tavily',
+                               'matched': len(raw_results), 'target_met': len(raw_results) >= domain_goal,
+                               'status': 'target_met' if len(raw_results) >= domain_goal else 'partial' if raw_results else outcome.get('status', 'no_results')}
+                except Exception as exc:
+                    outcome = {**outcome, 'warnings': [*(outcome.get('warnings') or []),
+                                                        {'source': 'tavily', 'error': str(exc)[:300]}]}
+            if len(raw_results) < domain_goal and should_use_public_fallback:
+                account_results = list(raw_results)
+                try:
+                    fallback_results, fallback_outcome = await discover_public_fallback(
+                        domain, mode, domain_goal, payload.location or '')
+                except Exception as exc:
+                    fallback_results = []
+                    fallback_outcome = {
+                        'domain': domain,
+                        'target': domain_goal,
+                        'matched': 0,
+                        'target_met': False,
+                        'status': 'blocked',
+                        'warnings': [search_warning('public', exc)],
+                    }
+                raw_results = account_results + fallback_results
+                # Show why LinkedIn stopped, including when account searches resume.
+                account_reason = (blocked_reason.strip() if 'paused until' in blocked_reason.lower()
+                                  else 'LinkedIn limited this session.')
+                if fallback_results:
+                    linkedin_fallback_message = (
+                        f'{account_reason} Public indexed LinkedIn results were used as a fallback; '
+                        'review them as unverified.'
+                    )
+                elif fallback_outcome.get('status') == 'blocked':
+                    # The public search warning, listed next, explains the fallback failure.
+                    linkedin_fallback_message = account_reason
+                else:
+                    linkedin_fallback_message = (
+                        f'{account_reason} Public search returned no additional eligible indexed LinkedIn trainer profiles.'
+                    )
+                linkedin_warning = search_warning(
+                    'linkedin_account',
+                    linkedin_fallback_message,
+                )
+                outcome = {
+                    **fallback_outcome,
+                    'domain': domain,
+                    'target': domain_goal,
+                    'matched': len(raw_results),
+                    'target_met': len(raw_results) >= domain_goal,
+                    'status': (
+                        'target_met' if len(raw_results) >= domain_goal
+                        else 'partial' if raw_results
+                        else fallback_outcome.get('status', 'no_results')
+                    ),
+                    'fallback_source': 'public_search',
+                    'primary_error': linkedin_warning['error'],
+                    'warnings': [linkedin_warning, *(fallback_outcome.get('warnings') or [])],
+                }
+            domain_outcomes.append(outcome)
+            if outcome['status'] == 'blocked':
+                search_errors.append({'domain': domain, 'error': outcome.get('primary_error') or outcome['warnings'][0]['error']})
+        queries = _search_queries(domain, mode, payload.location or "")
+        if payload.search_provider == 'linkedin_account':
+            queries = [domain]
+        if payload.search_provider == 'public':
+            scope = f'{domain} {payload.location or ""}'
+            queries = ([f'{scope} corporate trainer site:linkedin.com/in/',
+                        f'{scope} technical instructor site:linkedin.com/in/'] if mode == 'trainer' else
+                       [f'{scope} "trainer required" site:linkedin.com/posts/',
+                        f'{scope} "training requirement" site:linkedin.com/posts/'])
+        for query in ([] if payload.search_provider in ('auto', 'public') else queries[:query_budget]):
+            if len(all_results) - domain_start >= domain_goal:
+                break
+            try:
+                if payload.search_provider == 'linkedin_account':
+                    from app.clients.linkedin_browser import search_linkedin_account
+                    # Trainer fetches keep 60 matches, then stop paging.
+                    fetch_limit = domain_goal if mode == "trainer" else min(TRAINER_RESULT_TARGET, target_results)
+                    raw_results.extend(await search_linkedin_account(domain, mode, fetch_limit, payload.location or ''))
+                elif payload.search_provider == 'public':
+                    from app.clients.public_search import search_public
+                    raw_results.extend(await search_public(query, min(20, target_results)))
+                else:
+                    raw_results.extend(await _plain_tavily_search(query, min(20, target_results)))
+            except Exception as exc:
+                message = str(exc) or 'Search timed out'
+                partial = list(getattr(exc, 'results', []) or [])
+                if payload.search_provider == 'linkedin_account' and partial:
+                    raw_results.extend(partial)
+                logger.warning("LinkedIn search failed for %s: %s", domain, exc)
+                # A time limit that already collected profiles is a finished search.
+                # The connect helper treats any search_error as "not ready".
+                if not (partial and 'time limit' in message.lower()):
+                    search_errors.append({'domain': domain, 'error': message})
+                break
+
+        for item in raw_results:
+            if len(all_results) - domain_start >= domain_goal:
+                break
+            if not isinstance(item, dict):
+                continue
+            lead = _normalize_result(item, domain, mode)
+            if not lead:
+                skipped_count += 1
+                skipped.append({"reason": "unsupported_result", "url": item.get("url") or item.get("link") or ""})
+                continue
+            lead['discovery_provider'] = item.get('discovery_provider', payload.search_provider)
+            lead['verification_status'] = 'unverified_linkedin_account' if lead['discovery_provider'] == 'linkedin_account' else 'unverified_public_search'
+            if item.get('engines'):
+                lead['found_by'] = list(item['engines'])
+            lead['discovered_at'] = now
+            source_url = lead.get("source_url", "")
+            from app.clients.client_post_identity import post_identity, save_client_post
+            from app.clients.lead_identity import save_trainer_lead, trainer_lead_key
+            identity = post_identity(source_url) if mode == 'client' else (trainer_lead_key(source_url) or source_url)
+            if identity in seen_urls:
+                skipped_count += 1
+                skipped.append({"reason": "duplicate_in_search", "source_url": source_url, "source": lead.get("source", "")})
+                continue
+            seen_urls.add(identity)
+            all_results.append(lead)
+            if not payload.save:
+                continue
+            if mode == "client":
+                if not await save_client_post(lead, db, now):
+                    # Show the saved post's ID and status, so Reviewed and Delete act on the saved lead.
+                    saved = await db["client_leads"].find_one({"post_key": identity}, {"_id": 0, "lead_id": 1, "status": 1})
+                    if saved:
+                        lead["lead_id"] = saved.get("lead_id") or lead["lead_id"]
+                        lead["status"] = saved.get("status") or lead["status"]
+                    skipped_count += 1
+                    skipped.append({"reason": "already_saved_updated", "source_url": lead["source_url"], "source": lead.get("source", "")})
+                    continue
+            else:
+                saved = await save_trainer_lead(db, lead, now)
+                # The response carries the saved lead's ID and status, which differ for a profile saved before.
+                lead["lead_id"] = saved["lead_id"]
+                lead["status"] = saved["status"] or lead["status"]
+                if not saved["created"]:
+                    skipped_count += 1
+                    skipped.append({"reason": "already_saved_updated", "source_url": lead["source_url"], "source": lead.get("source", "")})
+                    continue
+            saved_count += 1
+
+        if search_errors and payload.search_provider == 'linkedin_account':
+            break
+
+    if all_results:
+        search_errors = [
+            item for item in search_errors
+            if 'time limit' not in str(item.get('error') or '').lower()
+        ]
+
+    from app.clients.search_runs import merge_sources, record_search_run, search_succeeded
+    sources = merge_sources(outcome.get('sources') for outcome in domain_outcomes)
+    if any(outcome.get('sources') for outcome in domain_outcomes):
+        # Failure only when nothing was found and every source that ran failed.
+        success = search_succeeded(len(all_results), sources)
+    else:
+        success = bool(all_results) or not search_errors
+    result = {
+        "success": success,
+        "domain_outcomes": domain_outcomes,
+        "search_error": search_errors[0]['error'] if search_errors else None,
+        "search_errors": search_errors,
+        "saved_count": saved_count,
+        "auto_sent_count": auto_sent_count,
+        "skipped_count": skipped_count,
+        "skipped": skipped[:20],
+        "found": len(all_results),
+        "results": all_results,
+        "sources": sources,
+    }
+    result["run_id"] = await record_search_run(db, "linkedin_search", {
+        "mode": mode,
+        "provider": payload.search_provider,
+        "domains": domains,
+        "location": payload.location or "",
+        "max_results": payload.max_results,
+        "saved": payload.save,
+    }, result, search_started_at, payload.search_ref)
+    return result
+
+
+@router.get("/search-runs")
+async def list_search_runs(
+    kind: Optional[str] = None,
+    search_ref: Optional[str] = None,
+    limit: int = 20,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Recent lead searches, newest first, with each source's outcome.
+
+    kind: linkedin_search, trainer_search_public, naukri_search or client_search_public.
+    search_ref: the ID a page sent with its search, to find that search's report.
+    """
+    query = {"kind": kind.strip()} if kind and kind.strip() else {}
+    if search_ref and search_ref.strip():
+        query["search_ref"] = search_ref.strip()[:64]
+    limit = max(1, min(int(limit or 20), 100))
+    cursor = db["lead_search_runs"].find(query, {"_id": 0}).sort([("started_at", -1)]).limit(limit)
+    return {"success": True, "runs": [run async for run in cursor]}
+
+
+@router.post("/backfill-client-contacts")
+async def backfill_client_contacts(
+    payload: BackfillClientContactsRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    now = datetime.utcnow()
+    query = {
+        "source": "linkedin",
+        "$or": [
+            {"email": {"$in": ["", None]}},
+            {"phone": {"$in": ["", None]}},
+            {"contact_email": {"$in": ["", None]}},
+            {"contact_phone": {"$in": ["", None]}},
+        ],
+    }
+    if not payload.recheck:
+        query["contact_backfill_checked_at"] = {"$exists": False}
+    leads = await db["client_leads"].find(query, {"_id": 0}).sort("created_at", -1).limit(max(1, min(payload.limit, 100))).to_list(length=None)
+    updated_count = 0
+    auto_sent_count = 0
+    checked = 0
+    no_contact_count = 0
+    for lead in leads:
+        checked += 1
+        updates = await _find_existing_post_contact(lead, payload.external_lookup)
+        contact_name = _contact_name_from_linkedin_post(lead.get("source_url") or lead.get("linkedin_url") or "")
+        if contact_name and not lead.get("contact_name"):
+            updates["contact_name"] = contact_name
+        updates["contact_backfill_checked_at"] = now
+        if not (updates.get("email") or updates.get("phone") or updates.get("contact_email") or updates.get("contact_phone")):
+            updates["contact_backfill_note"] = "No email or phone found in available post text/search result"
+            no_contact_count += 1
+        updates["updated_at"] = now
+        await db["client_leads"].update_one({"lead_id": lead["lead_id"]}, {"$set": updates})
+        if updates.get("email") or updates.get("phone") or updates.get("contact_email") or updates.get("contact_phone") or updates.get("contact_name"):
+            updated_count += 1
+        merged = {**lead, **updates}
+        if payload.auto_send and (merged.get("email") or merged.get("contact_email")):
+            if await _auto_send_client_mail(merged, db, now):
+                auto_sent_count += 1
+
+    return {
+        "success": True,
+        "checked": checked,
+        "updated_count": updated_count,
+        "auto_sent_count": auto_sent_count,
+        "no_contact_count": no_contact_count,
+    }

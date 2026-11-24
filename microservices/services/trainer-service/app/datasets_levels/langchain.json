@@ -1,0 +1,573 @@
+{
+  "domain": "LangChain",
+  "name": "LangChain for LLM Applications",
+  "category": "Generative AI and Agents",
+  "icon": "link",
+  "aliases": ["LangChain Training", "LangChain Developer", "LangChain Framework", "LangChain Python", "LangChain.js", "LCEL", "LangChain Expression Language", "LangSmith", "LangChain RAG"],
+  "certifications": ["No official certification; assessed by projects", "Optional: LangChain Academy course completions", "Optional: cloud AI engineer certifications (Azure AI Engineer, AWS ML Engineer)"],
+  "tools": ["Python", "LangChain", "LangGraph", "LangSmith", "OpenAI, Anthropic or Azure OpenAI models", "Ollama", "Chroma or pgvector", "FastAPI"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python developers building their first LLM applications with LangChain. Covers set-up and model providers, chat models and messages, prompt templates, structured output, LCEL runnables, streaming, chat history, document loaders, text splitters, embeddings and vector stores, retrievers, RAG chains, tools, simple agents, LangSmith tracing and evaluation, callbacks, caching and rate limits and serving chains as APIs.",
+      "prerequisites": ["Writes Python functions, classes and virtual environments", "Has called a REST API", "Basic idea of what an LLM is"],
+      "outcomes": ["Build chains with prompts, models, parsers and LCEL", "Build RAG over company documents with loaders, splitters and vector stores", "Give models tools and build simple agents", "Trace, evaluate and serve LangChain applications"],
+      "days": [
+        {
+          "topic": "LangChain Overview, Packages and Environment Setup",
+          "subtopics": ["What LangChain is and when to use it", "LangChain, LangGraph and LangSmith", "Package layout: langchain-core, langchain and partner packages", "Installing with uv or pip", "API keys and environment variables", "Model providers: OpenAI, Anthropic, Azure OpenAI and Google", "Local models with Ollama", "LangSmith account and tracing set-up", "Versions and stability policy", "The course project: an internal knowledge assistant"],
+          "tools": ["Python", "uv", "LangChain", "Ollama", "LangSmith"],
+          "lab_task": "Set up a project with LangChain, a hosted model and a local Ollama model, call both with the same code, and view the calls as traces in LangSmith.",
+          "deliverable": "Project repository and trace screenshots",
+          "checks": [["Call the hosted model", "Response returned", "Terminal output"], ["Swap to Ollama", "Same code works with the local model", "Terminal output"], ["Open LangSmith", "Both calls traced with inputs and outputs", "Screenshot"]],
+          "objectives": ["Explain the LangChain ecosystem", "Set up providers", "Trace calls"]
+        },
+        {
+          "topic": "Chat Models and Messages",
+          "subtopics": ["The chat model interface", "System, human and AI messages", "Model parameters: temperature and max tokens", "init_chat_model for switching providers", "Token usage metadata", "Batching calls", "Async calls", "Handling provider errors"],
+          "tools": ["LangChain chat models", "Python asyncio"],
+          "lab_task": "Build a helper that answers HR questions with a system message, switch providers with init_chat_model, batch ten questions, run them asynchronously and record token use.",
+          "deliverable": "Code and token report",
+          "checks": [["Switch providers", "Same answers format from two providers", "Output comparison"], ["Run in batch and async", "All ten answered faster than one by one", "Timing output"], ["Read token usage", "Tokens per call recorded", "Usage report"]],
+          "objectives": ["Use chat models", "Work with messages", "Batch and run async calls"]
+        },
+        {
+          "topic": "Prompt Templates and Few-Shot Prompts",
+          "subtopics": ["ChatPromptTemplate", "Variables and partials", "Message placeholders", "Few-shot examples", "Example selectors", "Prompt versioning in code", "Pulling prompts from LangSmith", "Testing prompts"],
+          "tools": ["LangChain prompts", "LangSmith prompt hub"],
+          "lab_task": "Build templates for ticket triage with few-shot examples chosen by similarity, store the prompt in LangSmith and pull it into code.",
+          "deliverable": "Prompt templates and stored prompt",
+          "checks": [["Format the template", "Variables filled correctly", "Printed prompt"], ["Select examples", "Similar examples chosen for each ticket", "Output"], ["Pull from LangSmith", "Same prompt used in code", "Code and screenshot"]],
+          "objectives": ["Write prompt templates", "Use few-shot examples", "Manage prompts"]
+        },
+        {
+          "topic": "Output Parsers and Structured Output",
+          "subtopics": ["Why structured output", "with_structured_output", "Pydantic schemas", "JSON mode and tool-based output", "String and list parsers", "Handling invalid output", "Retries and fallbacks", "Validating fields"],
+          "tools": ["LangChain", "Pydantic"],
+          "lab_task": "Extract ticket category, priority and product from text into a Pydantic model, handle invalid output with retries and validate allowed values.",
+          "deliverable": "Extraction chain and tests",
+          "checks": [["Extract fields", "Valid Pydantic object returned", "Test output"], ["Force invalid output", "Retry produces valid output", "Log"], ["Validate values", "Unknown categories rejected", "Test output"]],
+          "objectives": ["Get structured output", "Use Pydantic schemas", "Handle invalid output"]
+        },
+        {
+          "topic": "LangChain Expression Language and Runnables",
+          "subtopics": ["Runnables and the pipe operator", "RunnableLambda", "RunnableParallel", "RunnablePassthrough and assign", "Branching with RunnableBranch", "Configurable fields", "Fallbacks", "Inspecting chain graphs"],
+          "tools": ["LangChain Core", "LCEL"],
+          "lab_task": "Compose a chain that classifies a ticket, runs two steps in parallel, branches by category and falls back to a second model on errors, then print its graph.",
+          "deliverable": "Chain code and graph",
+          "checks": [["Run in parallel", "Both branches results returned together", "Output"], ["Fail the main model", "Fallback model used", "Trace"], ["Print the graph", "Steps shown", "Graph output"]],
+          "objectives": ["Compose runnables", "Branch and run in parallel", "Add fallbacks"]
+        },
+        {
+          "topic": "Streaming Responses",
+          "subtopics": ["Why stream", "stream and astream", "Streaming events with astream_events", "Streaming structured output", "Streaming through FastAPI", "Server-sent events to a browser", "Cancelling streams", "Measuring time to first token"],
+          "tools": ["LangChain", "FastAPI", "Server-sent events"],
+          "lab_task": "Stream answers token by token to a web page through FastAPI, stream progress events from a multi-step chain and measure time to first token.",
+          "deliverable": "Streaming API, page and measurements",
+          "checks": [["Stream to the page", "Tokens appear as generated", "Screen recording"], ["Stream events", "Each step's start and end shown", "Event log"], ["Measure first-token time", "Time recorded for two models", "Timing table"]],
+          "objectives": ["Stream responses", "Stream events", "Improve perceived speed"]
+        },
+        {
+          "topic": "Conversation History and Memory",
+          "subtopics": ["Stateless models and history", "Message history stores", "RunnableWithMessageHistory", "Trimming messages", "Summarising old messages", "Session IDs", "Persisting history in Redis or a database", "Privacy of stored conversations"],
+          "tools": ["LangChain", "Redis or SQLite"],
+          "lab_task": "Add conversation history to the assistant with sessions stored in Redis, trim long histories to a token budget and summarise older messages.",
+          "deliverable": "Chat code and test transcripts",
+          "checks": [["Ask a follow-up question", "Model uses earlier context", "Transcript"], ["Exceed the token budget", "Old messages trimmed or summarised", "Log"], ["Restart the app", "History restored for the session", "Transcript"]],
+          "objectives": ["Add conversation memory", "Control history size", "Persist sessions"]
+        },
+        {
+          "topic": "Document Loaders",
+          "subtopics": ["What loaders return: Document objects", "PDF loaders", "Word, HTML and Markdown loaders", "Web page loaders", "Database and CSV loaders", "Metadata on documents", "Lazy loading for large sets", "Cleaning loaded text"],
+          "tools": ["LangChain document loaders", "PyPDF", "Unstructured"],
+          "lab_task": "Load HR policies from PDFs, an intranet web page and a CSV of FAQs, add source and department metadata and clean headers and footers.",
+          "deliverable": "Loader code and document samples",
+          "checks": [["Load PDFs", "Pages loaded with page numbers", "Output"], ["Add metadata", "Source and department on every document", "Output"], ["Clean text", "Headers and footers removed", "Sample output"]],
+          "objectives": ["Load documents", "Add metadata", "Clean text"]
+        },
+        {
+          "topic": "Text Splitters and Chunking",
+          "subtopics": ["Why split documents", "RecursiveCharacterTextSplitter", "Token-based splitting", "Markdown and code splitters", "Chunk size and overlap", "Keeping metadata on chunks", "Semantic chunking in brief", "Testing chunk quality"],
+          "tools": ["LangChain text splitters", "tiktoken"],
+          "lab_task": "Split the policies three ways, compare chunk sizes and overlaps, keep headings in metadata and check whether answers to five questions stay inside single chunks.",
+          "deliverable": "Splitter comparison and chosen settings",
+          "checks": [["Compare splitters", "Chunk counts and sizes recorded", "Comparison table"], ["Keep headings", "Section titles in chunk metadata", "Output"], ["Check answer coverage", "Chosen settings keep answers together", "Notes"]],
+          "objectives": ["Split documents", "Choose chunk settings", "Keep context in metadata"]
+        },
+        {
+          "topic": "Embeddings and Vector Stores in LangChain",
+          "subtopics": ["Embedding models", "Vector store interface", "Chroma for local work", "pgvector for production", "Adding and deleting documents", "Similarity search and scores", "Metadata filters", "Persisting stores"],
+          "tools": ["LangChain", "Chroma", "pgvector", "Embedding model"],
+          "lab_task": "Embed policy chunks into Chroma and pgvector, search with metadata filters by department, delete an outdated policy and compare results across stores.",
+          "deliverable": "Indexing code and search results",
+          "checks": [["Search with a filter", "Only that department's chunks returned", "Output"], ["Delete a policy", "Chunks no longer returned", "Output"], ["Compare stores", "Same top results from both", "Comparison"]],
+          "objectives": ["Use embeddings", "Use vector stores", "Filter by metadata"]
+        },
+        {
+          "topic": "Retrievers",
+          "subtopics": ["The retriever interface", "Vector store retrievers", "Search types: similarity and MMR", "Score thresholds", "Multi-query retriever", "Ensemble retriever with BM25", "Contextual compression", "Measuring retrieval"],
+          "tools": ["LangChain retrievers", "rank_bm25"],
+          "lab_task": "Compare similarity, MMR, multi-query and ensemble retrievers on 20 test questions and measure how often the right chunk is in the top five.",
+          "deliverable": "Retriever comparison and test set",
+          "checks": [["Run the test set", "Hit rate in the top five for each retriever", "Results table"], ["Use MMR", "Less duplicate content in results", "Output"], ["Use the ensemble", "Keyword questions answered better", "Results table"]],
+          "objectives": ["Use retrievers", "Compare retrieval methods", "Measure retrieval"]
+        },
+        {
+          "topic": "Building a RAG Chain with Citations",
+          "subtopics": ["RAG chain structure", "Formatting retrieved documents", "Prompting for grounded answers", "Returning sources", "Saying \"I don't know\"", "Conversational RAG", "History-aware retrieval", "Testing answers"],
+          "tools": ["LangChain", "Vector store", "Chat model"],
+          "lab_task": "Build a RAG chain that answers HR questions with source citations, refuses when the documents do not cover the question and handles follow-up questions.",
+          "deliverable": "RAG chain and test transcript",
+          "checks": [["Ask a covered question", "Answer with correct citations", "Transcript"], ["Ask an uncovered question", "Model says it does not know", "Transcript"], ["Ask a follow-up", "Retrieval uses the earlier question", "Trace"]],
+          "objectives": ["Build RAG chains", "Cite sources", "Handle follow-ups"]
+        },
+        {
+          "topic": "Tools and Tool Calling",
+          "subtopics": ["Defining tools with @tool", "Tool schemas and descriptions", "bind_tools", "Reading tool calls from responses", "Running tools and returning results", "Tool errors", "Built-in and community tools", "Choosing tools safely"],
+          "tools": ["LangChain tools", "Chat model with tool calling"],
+          "lab_task": "Create tools for leave balance lookup and ticket creation, let the model call them, run the calls and return results, and handle a tool error.",
+          "deliverable": "Tool code and traces",
+          "checks": [["Ask for a leave balance", "Lookup tool called with the right arguments", "Trace"], ["Ask to raise a ticket", "Ticket tool called", "Trace"], ["Break a tool", "Error returned to the model and handled", "Trace"]],
+          "objectives": ["Define tools", "Use tool calling", "Handle tool errors"]
+        },
+        {
+          "topic": "Building a First Agent with LangChain",
+          "subtopics": ["What an agent is in LangChain", "create_agent", "System prompts for agents", "Tool selection", "Limiting steps", "Streaming agent steps", "Agents compared with chains", "When not to use an agent"],
+          "tools": ["LangChain agents", "LangGraph runtime"],
+          "lab_task": "Build an HR helpdesk agent with retrieval, leave lookup and ticket tools, limit its steps and stream its progress.",
+          "deliverable": "Agent code and traces",
+          "checks": [["Ask a multi-step question", "Agent uses two tools in order", "Trace"], ["Hit the step limit", "Agent stops with a clear message", "Trace"], ["Compare with a chain", "Cases where a chain is better listed", "Notes"]],
+          "objectives": ["Build agents", "Limit agent steps", "Choose agents or chains"]
+        },
+        {
+          "topic": "Tracing and Debugging with LangSmith",
+          "subtopics": ["Tracing set-up", "Runs, traces and spans", "Tags and metadata", "Filtering traces", "Comparing runs", "Debugging bad answers from traces", "Sharing traces", "Data privacy in traces"],
+          "tools": ["LangSmith"],
+          "lab_task": "Tag traces by feature and user group, find three bad answers from traces, fix their causes and mask personal data before it is traced.",
+          "deliverable": "Tagged traces and fix notes",
+          "checks": [["Filter traces", "Traces found by tag", "Screenshot"], ["Fix bad answers", "Causes found from traces and fixed", "Fix notes"], ["Mask personal data", "Masked in traces", "Screenshot"]],
+          "objectives": ["Trace applications", "Debug with traces", "Protect data in traces"]
+        },
+        {
+          "topic": "Evaluating Chains with LangSmith Datasets",
+          "subtopics": ["Why evaluate", "Datasets and examples", "Evaluators: exact match, embedding distance and LLM judges", "Running experiments", "Comparing experiments", "Regression testing prompts", "Human feedback", "Evaluation in CI in brief"],
+          "tools": ["LangSmith datasets", "LangSmith evaluators"],
+          "lab_task": "Create a dataset of 30 HR questions with reference answers, evaluate the RAG chain with correctness and groundedness judges and compare two prompt versions.",
+          "deliverable": "Dataset, experiments and comparison",
+          "checks": [["Run an experiment", "Scores for all 30 questions", "Experiment page"], ["Compare prompts", "Better version chosen by scores", "Comparison"], ["Check a judge", "Judge agrees with a human on samples", "Notes"]],
+          "objectives": ["Build evaluation datasets", "Use evaluators", "Compare versions"]
+        },
+        {
+          "topic": "Callbacks, Configuration and Runtime Context",
+          "subtopics": ["Callbacks for logging and metrics", "RunnableConfig", "Run names, tags and metadata", "Passing user context", "Timeouts", "Concurrency limits", "Custom callback handlers", "Debug mode"],
+          "tools": ["LangChain callbacks"],
+          "lab_task": "Write a callback handler that logs latency and tokens to a file, pass user IDs in config for tracing and set timeouts and concurrency limits.",
+          "deliverable": "Callback handler and log output",
+          "checks": [["Run the chain", "Latency and tokens logged", "Log file"], ["Pass user context", "User ID visible in traces", "Trace"], ["Set a timeout", "Slow call stopped with an error", "Log"]],
+          "objectives": ["Use callbacks", "Configure runs", "Control timeouts"]
+        },
+        {
+          "topic": "Caching, Rate Limits and Retries",
+          "subtopics": ["LLM response caching", "In-memory and SQLite caches", "Semantic caching in brief", "Rate limiters", "Retries with backoff", "Handling provider outages", "Cost savings from caching", "Cache invalidation"],
+          "tools": ["LangChain caches", "Rate limiters"],
+          "lab_task": "Add a cache for repeated questions, a rate limiter for a provider limit and retries with backoff, and measure cost saved over a test run.",
+          "deliverable": "Configuration and measurements",
+          "checks": [["Ask the same question twice", "Second answer from cache", "Log"], ["Exceed the rate limit", "Requests delayed instead of failing", "Log"], ["Measure savings", "Tokens saved recorded", "Report"]],
+          "objectives": ["Cache responses", "Respect rate limits", "Retry safely"]
+        },
+        {
+          "topic": "Serving LangChain Applications as APIs",
+          "subtopics": ["FastAPI endpoints for chains", "Streaming endpoints", "Request validation", "Authentication", "Concurrency and async", "Containers", "Environment configuration", "Health checks"],
+          "tools": ["FastAPI", "Docker", "LangChain"],
+          "lab_task": "Serve the assistant through FastAPI with streaming, authentication and validation, containerise it and load test it with 20 users.",
+          "deliverable": "API, Dockerfile and load test results",
+          "checks": [["Call without a token", "Refused", "API response"], ["Stream through the API", "Tokens streamed", "Client output"], ["Load test", "Latency recorded for 20 users", "Load test report"]],
+          "objectives": ["Serve chains", "Secure APIs", "Containerise applications"]
+        },
+        {
+          "topic": "Beginner Capstone: HR Knowledge Assistant",
+          "subtopics": ["Ingestion and retrieval", "Chains and tools", "Evaluation and tracing", "Serving"],
+          "tools": ["LangChain", "Vector store", "LangSmith", "FastAPI"],
+          "lab_task": "Build an HR assistant that answers from policy documents with citations, looks up leave balances, raises tickets, remembers the conversation, is evaluated on a dataset and is served as a streaming API, then demo it.",
+          "deliverable": "Repository, evaluation results and demo recording",
+          "checks": [["Run the evaluation", "Correctness above the agreed target", "Experiment page"], ["Ask an uncovered question in the demo", "Assistant says it does not know", "Demo recording"], ["Show traces", "Every step traced", "LangSmith screenshot"]],
+          "objectives": ["Combine the beginner topics in one assistant", "Build a grounded LLM application", "Evaluate and serve it"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built LangChain applications. Covers moving from chains to LangGraph, advanced retrievers, hybrid search and reranking integrations, structured data and SQL, custom tools and toolkits, middleware and guardrails, structured output at scale, multimodal input, document processing pipelines, vector database integrations, advanced evaluation, prompt management, testing, async performance, cost tracking, deployment, security, MCP adapters and LangChain.js.",
+      "prerequisites": ["Builds RAG chains, tools and simple agents with LangChain", "Uses LangSmith for tracing", "Comfortable with async Python"],
+      "outcomes": ["Build stateful LangGraph applications from LangChain components", "Improve retrieval and connect LLMs to data and tools safely", "Evaluate, test and tune applications for cost and speed", "Deploy and secure LangChain applications"],
+      "days": [
+        {
+          "topic": "From Chains to Graphs: LangGraph for LangChain Developers",
+          "subtopics": ["Why move from chains to graphs", "State and reducers", "Nodes using LangChain runnables", "Conditional edges", "Prebuilt components", "Checkpointers", "Streaming from graphs", "Converting an existing chain"],
+          "tools": ["LangGraph", "LangChain"],
+          "lab_task": "Convert the HR assistant into a LangGraph graph with explicit state, a routing node, a checkpointer for memory and streaming, keeping the same LangChain components.",
+          "deliverable": "Graph code and comparison",
+          "checks": [["Run the graph", "Same answers as the chain version", "Comparison"], ["Resume a thread", "State restored from the checkpointer", "Trace"], ["Stream graph updates", "Node updates streamed", "Output"]],
+          "objectives": ["Move to LangGraph", "Manage state", "Reuse LangChain components"]
+        },
+        {
+          "topic": "Advanced Retrievers: Parent Documents, Self-Query and Time-Weighted",
+          "subtopics": ["Parent document retriever", "Multi-vector retriever", "Self-query retriever with metadata filters", "Time-weighted retrieval", "Retrieval with document summaries", "Choosing retrievers by data", "Combining retrievers", "Evaluating retrievers"],
+          "tools": ["LangChain retrievers", "Vector store", "Docstore"],
+          "lab_task": "Add a parent document retriever, a self-query retriever that turns \"policies changed this year in finance\" into filters and summaries for long documents, and evaluate each.",
+          "deliverable": "Retrievers and evaluation table",
+          "checks": [["Run self-query", "Filters built from the question", "Trace"], ["Use parent documents", "Full sections returned", "Output"], ["Evaluate", "Hit rate per retriever", "Evaluation table"]],
+          "objectives": ["Use advanced retrievers", "Filter with natural language", "Evaluate choices"]
+        },
+        {
+          "topic": "Hybrid Search and Reranking Integrations",
+          "subtopics": ["Hybrid search in vector databases", "BM25 with dense retrieval", "Cohere, Jina and cross-encoder rerankers", "FlashRank for local reranking", "Contextual compression pipelines", "Latency of reranking", "Tuning top-k values", "Evaluating gains"],
+          "tools": ["LangChain", "Reranker integrations", "Vector database with hybrid search"],
+          "lab_task": "Add hybrid search and a reranker to the assistant, tune top-k before and after reranking and measure answer quality and latency.",
+          "deliverable": "Pipeline and measurements",
+          "checks": [["Add reranking", "Correct chunk ranked higher", "Evaluation table"], ["Tune top-k", "Best setting chosen with data", "Tuning table"], ["Measure latency", "Added latency recorded", "Timing table"]],
+          "objectives": ["Use hybrid search", "Add reranking", "Balance quality and latency"]
+        },
+        {
+          "topic": "Working with Structured Data: SQL and Tables",
+          "subtopics": ["SQL chains and agents", "SQLDatabase utility", "Restricting tables and read-only access", "Query checking", "Answering from CSV and spreadsheets", "Combining SQL and documents", "Risks of generated SQL", "Evaluating text-to-SQL"],
+          "tools": ["LangChain SQL toolkit", "PostgreSQL", "pandas"],
+          "lab_task": "Build a question-answering agent over a read-only HR database with query checking, limit it to safe tables and combine its answers with policy documents.",
+          "deliverable": "SQL agent, permissions and test results",
+          "checks": [["Ask a data question", "Correct SQL and answer", "Trace"], ["Ask to delete data", "Refused by read-only access", "Trace"], ["Evaluate text-to-SQL", "Accuracy on 20 questions", "Evaluation table"]],
+          "objectives": ["Query databases with LLMs", "Restrict access", "Evaluate text-to-SQL"]
+        },
+        {
+          "topic": "Custom Tools, Toolkits and Integrations",
+          "subtopics": ["Tool design principles", "Structured tools with Pydantic arguments", "Async tools", "Toolkits for services", "Wrapping internal APIs", "Returning artifacts from tools", "Tool permission checks", "Testing tools"],
+          "tools": ["LangChain tools", "Internal API", "pytest"],
+          "lab_task": "Build a toolkit for an internal ticketing API with typed arguments, permission checks per user and tests, and give it to the agent.",
+          "deliverable": "Toolkit code and tests",
+          "checks": [["Call a tool as an unauthorised user", "Refused by the permission check", "Test output"], ["Pass invalid arguments", "Validation error returned to the model", "Trace"], ["Run the tests", "All pass", "pytest output"]],
+          "objectives": ["Design tools", "Build toolkits", "Check permissions in tools"]
+        },
+        {
+          "topic": "Middleware, Guardrails and Human Approval",
+          "subtopics": ["Agent middleware", "Input and output guardrails", "PII detection and redaction", "Content moderation", "Human approval before actions", "Model call limits", "Dynamic prompts and models", "Logging decisions"],
+          "tools": ["LangChain middleware", "Moderation API", "Presidio"],
+          "lab_task": "Add middleware that redacts personal data, blocks off-topic requests, limits model calls and asks a human to approve ticket creation.",
+          "deliverable": "Middleware configuration and tests",
+          "checks": [["Send personal data", "Redacted before reaching the model", "Trace"], ["Request ticket creation", "Paused for approval", "Trace"], ["Ask an off-topic question", "Blocked politely", "Transcript"]],
+          "objectives": ["Add guardrails", "Require approval", "Control model calls"]
+        },
+        {
+          "topic": "Structured Extraction at Scale",
+          "subtopics": ["Extraction schemas for documents", "Long documents and chunked extraction", "Merging extracted results", "Few-shot extraction examples", "Batch processing", "Error rates and review", "Cost control", "Storing extracted data"],
+          "tools": ["LangChain", "Pydantic", "Batch APIs"],
+          "lab_task": "Extract contract fields from 500 contracts in batches, merge results from chunks, send low-confidence cases for review and report accuracy and cost.",
+          "deliverable": "Extraction pipeline and report",
+          "checks": [["Process the batch", "All contracts processed", "Run log"], ["Measure accuracy", "Field accuracy against a labelled sample", "Accuracy report"], ["Report cost", "Cost per contract", "Cost report"]],
+          "objectives": ["Extract at scale", "Merge chunk results", "Control cost"]
+        },
+        {
+          "topic": "Multimodal Inputs: Images, PDFs and Audio",
+          "subtopics": ["Multimodal messages", "Images in prompts", "PDFs as images compared with text", "Charts and tables", "Audio transcription in pipelines", "Cost of multimodal input", "Model support differences", "Testing multimodal chains"],
+          "tools": ["LangChain", "Multimodal model", "Whisper"],
+          "lab_task": "Answer questions about scanned forms and charts with a multimodal model, transcribe a meeting recording and summarise it with action items.",
+          "deliverable": "Chains and results",
+          "checks": [["Read a scanned form", "Fields read correctly", "Output"], ["Read a chart", "Values answered correctly", "Output"], ["Summarise a meeting", "Action items listed", "Output"]],
+          "objectives": ["Use multimodal models", "Process images and audio", "Compare costs"]
+        },
+        {
+          "topic": "Document Processing Pipelines for RAG",
+          "subtopics": ["Ingestion pipelines", "Unstructured and Docling parsers", "Tables in documents", "Incremental indexing with the indexing API", "Record managers for de-duplication", "Scheduling ingestion", "Handling deleted documents", "Monitoring ingestion"],
+          "tools": ["LangChain indexing API", "Unstructured or Docling", "Scheduler"],
+          "lab_task": "Build an ingestion pipeline that parses tables properly, indexes only changed documents with a record manager, removes deleted files and runs nightly.",
+          "deliverable": "Pipeline code and run logs",
+          "checks": [["Re-run with no changes", "Nothing re-indexed", "Run log"], ["Delete a source file", "Chunks removed", "Output"], ["Parse a table", "Table kept intact", "Chunk sample"]],
+          "objectives": ["Build ingestion pipelines", "Index incrementally", "Handle deletions"]
+        },
+        {
+          "topic": "Vector Database Integrations: pgvector, Qdrant, Pinecone and Others",
+          "subtopics": ["Choosing a vector database", "pgvector", "Qdrant", "Pinecone", "Azure AI Search and OpenSearch", "Namespaces and multi-tenancy", "Index settings", "Migration between stores"],
+          "tools": ["pgvector", "Qdrant", "Pinecone or Azure AI Search"],
+          "lab_task": "Run the same retrieval on three vector databases, add namespaces per department, tune index settings and migrate data from one store to another.",
+          "deliverable": "Comparison and migration script",
+          "checks": [["Compare stores", "Quality and latency for each", "Comparison table"], ["Use namespaces", "Departments isolated", "Output"], ["Migrate data", "Same results after migration", "Comparison"]],
+          "objectives": ["Choose vector databases", "Use namespaces", "Migrate stores"]
+        },
+        {
+          "topic": "Advanced Evaluation with LangSmith",
+          "subtopics": ["Evaluation strategy", "Custom evaluators", "Pairwise evaluation", "Evaluating agents step by step", "Online evaluation of production traffic", "Annotation queues", "Dataset versioning", "Evaluation in CI"],
+          "tools": ["LangSmith", "GitHub Actions"],
+          "lab_task": "Add pairwise and agent step evaluators, set up online evaluation for a sample of traffic, review bad cases in an annotation queue and run evaluation in CI.",
+          "deliverable": "Evaluators, online evaluation and CI workflow",
+          "checks": [["Run pairwise evaluation", "Preferred version identified", "Experiment page"], ["Review the annotation queue", "Bad cases labelled", "Queue screenshot"], ["Run CI", "Regression blocks a change", "CI log"]],
+          "objectives": ["Evaluate deeply", "Evaluate production", "Automate evaluation"]
+        },
+        {
+          "topic": "Prompt Management and Versioning",
+          "subtopics": ["Prompts as code compared with prompts in a hub", "LangSmith prompt hub", "Versions and tags", "Environments for prompts", "Prompt playground", "Testing prompt changes", "Rolling back prompts", "Prompt ownership"],
+          "tools": ["LangSmith prompt hub", "Playground"],
+          "lab_task": "Store prompts in the hub with development and production tags, test a change in the playground against the dataset and roll back a bad prompt.",
+          "deliverable": "Prompt versions and rollback evidence",
+          "checks": [["Promote a prompt", "Production tag moved after tests", "Prompt history"], ["Test in the playground", "Results compared with the dataset", "Screenshot"], ["Roll back", "Previous prompt live", "Prompt history"]],
+          "objectives": ["Manage prompts", "Version prompts", "Roll back safely"]
+        },
+        {
+          "topic": "Testing LangChain Applications",
+          "subtopics": ["Unit tests with fake chat models", "Testing chains and tools", "Snapshot tests for prompts", "Integration tests with real models", "Testing retrieval", "Flaky tests and randomness", "Cost of tests", "Test organisation"],
+          "tools": ["pytest", "LangChain fake models"],
+          "lab_task": "Write unit tests with fake models for chains and tools, integration tests for retrieval and a small set of real-model tests marked to run nightly.",
+          "deliverable": "Test suite and run results",
+          "checks": [["Run unit tests", "Pass without calling a real model", "pytest output"], ["Break a tool", "Unit test fails", "pytest output"], ["Run nightly tests", "Real-model tests run on schedule", "CI log"]],
+          "objectives": ["Test LLM applications", "Use fake models", "Separate fast and slow tests"]
+        },
+        {
+          "topic": "Async, Concurrency and Performance",
+          "subtopics": ["Async chains", "Concurrency limits", "Parallel retrieval and tool calls", "Batching", "Reducing prompt size", "Model choice for speed", "Profiling latency with traces", "Performance targets"],
+          "tools": ["LangChain async", "LangSmith", "asyncio"],
+          "lab_task": "Profile the assistant with traces, run retrieval and tools in parallel, shrink prompts, switch simple steps to a faster model and hit a latency target.",
+          "deliverable": "Profile, changes and measurements",
+          "checks": [["Profile latency", "Slowest steps found in traces", "Trace analysis"], ["Run steps in parallel", "Total time lower", "Timing table"], ["Meet the target", "p95 latency under the target", "Load test report"]],
+          "objectives": ["Speed up applications", "Run steps in parallel", "Choose faster models"]
+        },
+        {
+          "topic": "Cost Tracking and Optimisation",
+          "subtopics": ["Token costs by model", "Tracking cost per request", "Cost by feature and user", "Choosing models per step", "Caching for cost", "Prompt compression", "Budgets and alerts", "Reporting cost"],
+          "tools": ["LangSmith", "Callbacks", "Dashboards"],
+          "lab_task": "Track cost per request and feature, route easy questions to a small model, cache common answers, set a budget alert and report savings.",
+          "deliverable": "Cost dashboard and savings report",
+          "checks": [["Track cost", "Cost per feature shown", "Dashboard"], ["Route by difficulty", "Cost lower with quality kept", "Comparison"], ["Exceed the budget", "Alert raised", "Alert"]],
+          "objectives": ["Track LLM cost", "Reduce cost", "Report savings"]
+        },
+        {
+          "topic": "Deploying LangChain and LangGraph Applications",
+          "subtopics": ["Deployment options", "Containers on cloud platforms", "LangGraph Platform", "Configuration and secrets", "Scaling workers", "Persistent state stores", "Blue-green releases", "Monitoring after deployment"],
+          "tools": ["Docker", "Kubernetes or a cloud app service", "LangGraph Platform"],
+          "lab_task": "Deploy the assistant to a cloud container service and to LangGraph Platform, with secrets, a Postgres checkpointer and a blue-green release.",
+          "deliverable": "Deployments and release notes",
+          "checks": [["Deploy to containers", "App healthy with secrets from a store", "Health check"], ["Use the Postgres checkpointer", "Conversations survive restarts", "Transcript"], ["Run a blue-green release", "No failed requests", "Load test output"]],
+          "objectives": ["Deploy applications", "Persist state", "Release safely"]
+        },
+        {
+          "topic": "Security for LLM Applications Built with LangChain",
+          "subtopics": ["Threats: prompt injection, data leaks and tool misuse", "Indirect prompt injection through documents", "Least privilege for tools", "Output handling", "Secrets in prompts and traces", "Sandboxing code execution", "Security testing", "Security review checklist"],
+          "tools": ["LangChain", "Security testing tools"],
+          "lab_task": "Attack the assistant with injected instructions in a policy document, fix tool permissions and output handling and pass a security checklist.",
+          "deliverable": "Attack results, fixes and checklist",
+          "checks": [["Inject instructions in a document", "Attack fails after fixes", "Test results"], ["Try tool misuse", "Blocked by permissions", "Trace"], ["Run the checklist", "All items pass", "Checklist"]],
+          "objectives": ["Secure LLM applications", "Defend against injection", "Limit tool power"]
+        },
+        {
+          "topic": "Model Context Protocol Adapters for LangChain",
+          "subtopics": ["MCP in brief", "langchain-mcp-adapters", "Connecting to MCP servers", "Loading MCP tools into agents", "Building an MCP server for internal tools", "Authentication for MCP", "Mixing MCP and native tools", "Testing MCP integrations"],
+          "tools": ["langchain-mcp-adapters", "MCP SDK"],
+          "lab_task": "Build an MCP server for the ticketing API, load its tools into a LangChain agent alongside native tools and secure the connection.",
+          "deliverable": "MCP server, agent and tests",
+          "checks": [["Load MCP tools", "Tools available to the agent", "Output"], ["Call an MCP tool", "Ticket created through MCP", "Trace"], ["Connect without auth", "Refused", "Log"]],
+          "objectives": ["Use MCP with LangChain", "Build MCP servers", "Secure MCP tools"]
+        },
+        {
+          "topic": "LangChain.js for JavaScript and TypeScript Developers",
+          "subtopics": ["LangChain.js packages", "Chat models and prompts in TypeScript", "Runnables in JavaScript", "RAG in Node.js", "Streaming to the browser", "Next.js integration", "Differences from the Python library", "Sharing prompts across languages"],
+          "tools": ["LangChain.js", "Node.js", "Next.js"],
+          "lab_task": "Rebuild a small RAG chat in Next.js with LangChain.js, stream answers to the browser and reuse the same prompt from the hub.",
+          "deliverable": "Next.js app and notes",
+          "checks": [["Ask a question in the app", "Streamed answer with sources", "Screen recording"], ["Reuse the hub prompt", "Same prompt in both languages", "Code review"], ["Compare libraries", "Differences listed", "Notes"]],
+          "objectives": ["Use LangChain.js", "Build web chat", "Share prompts"]
+        },
+        {
+          "topic": "Intermediate Capstone: Customer Support Copilot",
+          "subtopics": ["Design", "Retrieval, data and tools", "Safety and evaluation", "Deployment"],
+          "tools": ["LangGraph", "LangChain", "Vector database", "LangSmith", "FastAPI"],
+          "lab_task": "Build a support copilot as a LangGraph app with hybrid retrieval and reranking, a SQL tool for orders, MCP tools for tickets, guardrails and approval, online evaluation, cost tracking and a blue-green deployment, then demo it.",
+          "deliverable": "Repository, evaluation reports, dashboards and demo recording",
+          "checks": [["Run offline and online evaluation", "Scores meet targets", "Experiment pages"], ["Inject a malicious document in the demo", "Attack does not succeed", "Demo recording"], ["Present cost and latency", "Within budgets", "Dashboard"]],
+          "objectives": ["Combine the intermediate topics in one copilot", "Build a safe, measured application", "Deploy it"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior AI engineers and architects. Covers application architecture at scale, long-running agents, supervisor and swarm designs with LangGraph, long-term memory stores, human-in-the-loop at scale, production evaluation, data flywheels and fine-tuning from traces, latency engineering, multi-tenancy, self-hosted models, enterprise integration, governance and audit, red teaming, custom components, version migrations, framework choices, retrieval at scale, incident response, team practices and a platform capstone.",
+      "prerequisites": ["Builds and deploys LangGraph and LangChain applications", "Evaluates applications with LangSmith", "Understands security risks of LLM applications"],
+      "outcomes": ["Design scalable, multi-tenant LLM application platforms", "Build durable, multi-agent and memory-rich systems", "Run evaluation, feedback and fine-tuning loops", "Govern, secure and troubleshoot LLM applications"],
+      "days": [
+        {
+          "topic": "Architecture of LLM Applications at Scale",
+          "subtopics": ["Reference architectures", "Gateways and model routing", "Shared retrieval services", "State and memory services", "Evaluation and observability layers", "Synchronous and background work", "Failure modes", "Architecture decision records"],
+          "tools": ["Architecture diagrams", "Decision record templates"],
+          "lab_task": "Design the architecture for an LLM platform serving ten internal apps, decide which services are shared and defend the design in a review.",
+          "deliverable": "Architecture and decision records",
+          "checks": [["Review shared services", "Gateway, retrieval and memory justified", "Decision records"], ["Review failure modes", "Fallbacks for model and retrieval outages", "Architecture"], ["Defend the design", "Questions answered with trade-offs", "Review notes"]],
+          "objectives": ["Design LLM platforms", "Share services", "Plan for failure"]
+        },
+        {
+          "topic": "Long-Running and Durable Agents",
+          "subtopics": ["Long tasks and background runs", "Durable execution", "Checkpoints and resumption", "Interrupts and approvals over days", "Scheduling agent runs", "Idempotent tools", "Timeouts and cancellation", "Monitoring long runs"],
+          "tools": ["LangGraph", "Postgres checkpointer", "Task queue"],
+          "lab_task": "Build an agent that prepares a monthly report over several hours, survives restarts, waits for approval for a day and never repeats a side effect.",
+          "deliverable": "Agent code and recovery evidence",
+          "checks": [["Restart mid-run", "Run resumes from the checkpoint", "Trace"], ["Wait for approval", "Run paused then continues", "Trace"], ["Retry a tool", "No duplicate side effect", "Log"]],
+          "objectives": ["Build durable agents", "Resume runs", "Make tools idempotent"]
+        },
+        {
+          "topic": "Supervisor, Swarm and Hierarchical Agents with LangGraph",
+          "subtopics": ["Multi-agent designs", "Supervisor agents", "Swarm and hand-off designs", "Hierarchical teams", "Sharing state between agents", "Limiting cost in multi-agent systems", "Debugging multi-agent runs", "When one agent is enough"],
+          "tools": ["LangGraph", "langgraph-supervisor", "langgraph-swarm"],
+          "lab_task": "Build the same research task with one agent, a supervisor and a swarm, compare quality, cost and latency and decide which to use.",
+          "deliverable": "Three implementations and comparison",
+          "checks": [["Compare designs", "Quality, cost and latency for each", "Comparison table"], ["Debug a hand-off", "Failed hand-off found in traces", "Trace"], ["Decide", "Design chosen with reasons", "Decision record"]],
+          "objectives": ["Build multi-agent systems", "Compare designs", "Control cost"]
+        },
+        {
+          "topic": "Long-Term Memory Stores and Personalisation",
+          "subtopics": ["Memory types: semantic, episodic and procedural", "LangGraph store", "Memory extraction", "Namespaces per user", "Updating and forgetting", "Memory search", "Privacy and consent", "Evaluating memory"],
+          "tools": ["LangGraph store", "LangMem", "Vector store"],
+          "lab_task": "Give the assistant long-term memory of user preferences, update and delete memories, keep users isolated and test whether memory improves answers.",
+          "deliverable": "Memory implementation and evaluation",
+          "checks": [["Remember a preference", "Used in a later session", "Transcript"], ["Delete a memory on request", "Memory no longer used", "Transcript"], ["Evaluate", "Answer quality with and without memory", "Evaluation table"]],
+          "objectives": ["Add long-term memory", "Respect privacy", "Measure memory value"]
+        },
+        {
+          "topic": "Human-in-the-Loop at Scale",
+          "subtopics": ["Approval workflows", "Review queues", "Editing agent state", "Escalation rules", "Reviewer tooling", "Measuring reviewer load", "Learning from reviews", "Auditing approvals"],
+          "tools": ["LangGraph interrupts", "Review UI", "LangSmith annotation queues"],
+          "lab_task": "Route risky actions to a review queue with a simple UI, let reviewers edit proposed actions, measure reviewer load and feed corrections back into evaluation data.",
+          "deliverable": "Review workflow, UI and metrics",
+          "checks": [["Trigger a risky action", "Sent to the review queue", "Queue"], ["Edit a proposal", "Agent continues with the edit", "Trace"], ["Measure load", "Reviews per hour recorded", "Metrics"]],
+          "objectives": ["Run human review at scale", "Edit agent state", "Learn from reviewers"]
+        },
+        {
+          "topic": "Production Evaluation and Monitoring",
+          "subtopics": ["Offline and online evaluation together", "Sampling production traffic", "Automated judges in production", "Drift in questions and answers", "Feedback signals", "Alerting on quality drops", "Dashboards", "Evaluation governance"],
+          "tools": ["LangSmith", "Monitoring dashboards"],
+          "lab_task": "Monitor quality on sampled traffic with judges and user feedback, detect a quality drop after a model change and roll back.",
+          "deliverable": "Monitoring set-up, alert and rollback record",
+          "checks": [["Change the model", "Quality drop detected", "Alert"], ["Roll back", "Quality returns", "Dashboard"], ["Review feedback", "Feedback linked to traces", "Screenshot"]],
+          "objectives": ["Monitor quality in production", "Detect regressions", "Roll back"]
+        },
+        {
+          "topic": "Data Flywheels and Fine-Tuning from Traces",
+          "subtopics": ["Collecting good examples from traces", "Labelling with feedback", "Building fine-tuning datasets", "Fine-tuning small models", "Distilling a large model's behaviour", "Evaluating the tuned model", "Routing to the tuned model", "Keeping the loop running"],
+          "tools": ["LangSmith datasets", "Fine-tuning service or PEFT", "Evaluation"],
+          "lab_task": "Build a dataset from good production traces, fine-tune a small model for ticket triage, evaluate it against the large model and route triage to it.",
+          "deliverable": "Dataset, tuned model and evaluation",
+          "checks": [["Build the dataset", "Examples selected by feedback", "Dataset"], ["Evaluate", "Small model close to the large one", "Evaluation table"], ["Route triage", "Cost lower with quality kept", "Comparison"]],
+          "objectives": ["Build data flywheels", "Fine-tune from traces", "Route to tuned models"]
+        },
+        {
+          "topic": "Latency Engineering for LLM Applications",
+          "subtopics": ["Latency budgets", "Speculative and parallel steps", "Streaming partial results", "Smaller and faster models", "Prompt caching from providers", "Precomputing retrieval", "Regional deployment", "Measuring tail latency"],
+          "tools": ["LangSmith", "Provider prompt caching", "Load testing"],
+          "lab_task": "Cut p95 latency of the support copilot by half using parallel steps, prompt caching, faster models for simple steps and precomputed retrieval.",
+          "deliverable": "Latency report with each change",
+          "checks": [["Measure the baseline", "p50 and p95 recorded", "Load test report"], ["Use prompt caching", "Lower latency and cost for long prompts", "Comparison"], ["Reach the target", "p95 halved", "Load test report"]],
+          "objectives": ["Engineer latency", "Use caching", "Measure tail latency"]
+        },
+        {
+          "topic": "Multi-Tenant LLM Applications",
+          "subtopics": ["Tenant isolation", "Per-tenant retrieval", "Per-tenant prompts and models", "Usage limits and quotas", "Billing data", "Tenant-aware tracing", "Data residency", "Testing isolation"],
+          "tools": ["LangChain", "Vector database namespaces", "Gateway"],
+          "lab_task": "Make the copilot multi-tenant with isolated retrieval, per-tenant settings, quotas and cost reports, and prove one tenant cannot see another's data.",
+          "deliverable": "Multi-tenant design, tests and cost report",
+          "checks": [["Test isolation", "No cross-tenant results", "Test results"], ["Exceed a quota", "Requests limited", "API response"], ["Report cost", "Cost per tenant", "Cost report"]],
+          "objectives": ["Build multi-tenant apps", "Isolate tenants", "Bill by usage"]
+        },
+        {
+          "topic": "Self-Hosted and Open Models with LangChain",
+          "subtopics": ["When to self-host", "Ollama, vLLM and TGI integrations", "Tool calling with open models", "Structured output with open models", "Quality comparison", "Hardware and cost", "Mixed hosted and self-hosted setups", "Data residency benefits"],
+          "tools": ["vLLM", "Ollama", "LangChain integrations"],
+          "lab_task": "Run the copilot on a self-hosted open model with vLLM, fix tool calling and structured output issues and compare quality and cost with a hosted model.",
+          "deliverable": "Deployment, fixes and comparison",
+          "checks": [["Run tool calls", "Tools called correctly by the open model", "Trace"], ["Get structured output", "Valid output after fixes", "Test output"], ["Compare", "Quality and cost for both", "Comparison table"]],
+          "objectives": ["Use open models", "Fix compatibility", "Compare hosting"]
+        },
+        {
+          "topic": "Enterprise Integration Patterns",
+          "subtopics": ["Connecting to CRM, ERP and ITSM systems", "Identity and on-behalf-of access", "Event-driven triggers", "Long-running integrations", "Error handling with business systems", "Data synchronisation for retrieval", "Integration testing", "Audit trails"],
+          "tools": ["LangChain tools", "MCP", "Enterprise APIs"],
+          "lab_task": "Connect the copilot to a CRM and ITSM system with on-behalf-of access, trigger it from ticket events and keep an audit trail of every action.",
+          "deliverable": "Integrations, triggers and audit records",
+          "checks": [["Act as a user", "Actions use the user's permissions", "Audit log"], ["Trigger from an event", "Copilot runs on new tickets", "Trace"], ["Review the audit trail", "Every action recorded", "Audit log"]],
+          "objectives": ["Integrate with business systems", "Use delegated access", "Audit actions"]
+        },
+        {
+          "topic": "Governance and Audit for LLM Applications",
+          "subtopics": ["Policies for AI applications", "Inventories of apps, prompts and models", "Approval of changes", "Retention of traces and logs", "Explainability and records of decisions", "Regulatory requirements", "Incident reporting", "Governance reviews"],
+          "tools": ["LangSmith", "Documentation templates"],
+          "lab_task": "Build an inventory of apps, prompts and models, set change approval and trace retention and prepare a governance review for the copilot.",
+          "deliverable": "Inventory, policies and review pack",
+          "checks": [["Build the inventory", "All apps, prompts and models listed", "Inventory"], ["Change a prompt", "Approval recorded", "Change log"], ["Review the pack", "Requirements covered", "Review pack"]],
+          "objectives": ["Govern LLM apps", "Control changes", "Keep records"]
+        },
+        {
+          "topic": "Red Teaming LangChain Applications",
+          "subtopics": ["Red team planning", "Automated attack generation", "Attacks on retrieval", "Attacks on tools and agents", "Data exfiltration tests", "Scoring findings", "Fixing and retesting", "Reporting"],
+          "tools": ["garak or PyRIT", "LangSmith", "Custom attack scripts"],
+          "lab_task": "Red-team the copilot with automated attacks on prompts, documents and tools, score findings, fix the worst and retest.",
+          "deliverable": "Red team report and retest results",
+          "checks": [["Run attacks", "Success rate per attack type", "Results"], ["Fix findings", "Worst findings fixed", "Fix log"], ["Retest", "Success rate lower", "Results"]],
+          "objectives": ["Red-team applications", "Score findings", "Fix and retest"]
+        },
+        {
+          "topic": "Building Custom LangChain Components",
+          "subtopics": ["Custom chat model wrappers", "Custom retrievers", "Custom document loaders", "Custom embeddings", "Custom vector store integrations", "Following the core interfaces", "Testing with the standard test suites", "Publishing integrations"],
+          "tools": ["langchain-core", "langchain-tests"],
+          "lab_task": "Build a custom retriever for an internal search API and a chat model wrapper for an internal gateway, pass the standard tests and package them.",
+          "deliverable": "Components, tests and package",
+          "checks": [["Run standard tests", "Components pass", "Test output"], ["Use the retriever", "Internal search results returned as Document objects with sources", "Output"], ["Use the wrapper", "Gateway model answers inside a chain and calls a tool", "Trace"]],
+          "objectives": ["Build custom components", "Follow core interfaces", "Test integrations"]
+        },
+        {
+          "topic": "Migrating Across LangChain Versions",
+          "subtopics": ["Version history and deprecations", "Moving from legacy chains to LCEL and LangGraph", "Agent API changes", "Memory changes", "Package splits", "Automated migration tools", "Testing migrations", "Planning upgrades across teams"],
+          "tools": ["LangChain CLI migration tools", "pytest"],
+          "lab_task": "Migrate an old LangChain application with legacy agents and memory classes to current APIs, use migration tools and prove behaviour is unchanged with tests.",
+          "deliverable": "Migrated code, test results and upgrade guide",
+          "checks": [["Run migration tools", "Imports updated", "Diff"], ["Run tests", "Behaviour unchanged", "Test output"], ["Write the guide", "Steps for other teams", "Upgrade guide"]],
+          "objectives": ["Migrate versions", "Replace legacy APIs", "Guide upgrades"]
+        },
+        {
+          "topic": "Choosing Frameworks: LangChain, LlamaIndex, Semantic Kernel and SDKs",
+          "subtopics": ["What frameworks add", "LlamaIndex", "Semantic Kernel", "Provider SDKs and agents SDKs", "Writing without a framework", "Lock-in and portability", "Team skills", "Making the choice"],
+          "tools": ["LangChain", "LlamaIndex", "Provider SDK"],
+          "lab_task": "Build the same RAG feature with LangChain, LlamaIndex and a plain SDK, compare code size, flexibility, observability and performance and write a recommendation.",
+          "deliverable": "Three implementations and recommendation",
+          "checks": [["Compare implementations", "Same answers from all three", "Comparison"], ["Compare effort", "Code size and time recorded", "Comparison table"], ["Write the recommendation", "Framework chosen per case", "Recommendation"]],
+          "objectives": ["Compare frameworks", "Avoid lock-in", "Choose deliberately"]
+        },
+        {
+          "topic": "Retrieval at Enterprise Scale",
+          "subtopics": ["Millions of documents", "Index sharding and partitioning", "Freshness at scale", "Access control at retrieval time", "Caching retrieval", "Cost of embeddings", "Evaluation at scale", "Retrieval services for many apps"],
+          "tools": ["Vector database", "LangChain", "Evaluation tools"],
+          "lab_task": "Scale retrieval to five million chunks with partitions and permission filters, keep it fresh with streaming updates and evaluate quality at scale.",
+          "deliverable": "Retrieval service and evaluation",
+          "checks": [["Query with permissions", "Only allowed chunks returned", "Test results"], ["Update a document", "Change searchable within minutes", "Log"], ["Evaluate at scale", "Quality measured on a large sample", "Evaluation report"]],
+          "objectives": ["Scale retrieval", "Enforce permissions", "Keep indexes fresh"]
+        },
+        {
+          "topic": "Troubleshooting Production LLM Application Incidents",
+          "subtopics": ["An incident method for LLM apps", "Provider outages", "Quality regressions", "Retrieval failures", "Runaway costs", "Agent loops", "Security incidents", "Post-incident reviews"],
+          "tools": ["LangSmith", "Dashboards", "Logs"],
+          "lab_task": "Diagnose five injected incidents (a provider outage, a retrieval index failure, an agent loop, a cost spike and an injection attempt), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Stop the agent loop", "Cause found and limits added", "Trace"], ["Fix the cost spike", "Cause found and costs back to normal", "Cost dashboard"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose LLM incidents", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "Team Practices for LLM Application Engineering",
+          "subtopics": ["Standards for prompts, tools and evaluation", "Code review for LLM apps", "Shared components", "Evaluation ownership", "Roadmaps", "Training developers", "Measuring team output and quality", "Communicating with leadership"],
+          "tools": ["Standards templates", "Roadmap template"],
+          "lab_task": "Write team standards and a review checklist for LLM apps, plan shared components and present a 12-month roadmap to a role-play leadership panel.",
+          "deliverable": "Standards, checklist and roadmap",
+          "checks": [["Review standards", "Clear rules with examples", "Standards document"], ["Review the checklist", "Common failures covered", "Checklist"], ["Present the roadmap", "Priorities linked to measures", "Presentation feedback"]],
+          "objectives": ["Set team standards", "Share components", "Lead LLM engineering"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise LLM Application Platform",
+          "subtopics": ["Architecture", "Build", "Quality and safety", "Operations"],
+          "tools": ["LangGraph", "LangChain", "LangSmith", "Vector database", "vLLM", "Gateway"],
+          "lab_task": "Design and build a platform for internal LLM apps: shared retrieval with permissions, durable multi-agent workflows, long-term memory, multi-tenancy, evaluation and feedback loops, a fine-tuned routing model, red teaming and governance, then present it to an architecture board.",
+          "deliverable": "Architecture records, platform code, evaluation and red team reports and board presentation",
+          "checks": [["Run the evaluation suite", "Quality targets met", "Evaluation report"], ["Run a red team attack", "Attacks fail", "Red team report"], ["Present to the board", "Design choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run LLM applications at scale", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}
