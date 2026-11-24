@@ -187,21 +187,33 @@ def _toc_to_eight_column_template(toc: Dict[str, Any], template_path: Path) -> b
 
 
 def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
-    """Six-sheet course workbook: Contents, Course Overview, Course Outline,
-    Labs & Deliverables, Day-wise Schedule (multi-day only) and Assessment.
+    """Ten-sheet course workbook built from the validated curriculum.
 
-    ``Module No.`` is the shared key across sheets, so each module is named once.
-    Course Outline totals its hours with a SUM formula and Course Overview reads
-    that total, so the two always agree. Every value comes from the validated
-    curriculum; client text is written as data, never as a formula.
+    Sheets: Contents, Course Overview, Course Outline, Module Outcomes, Topic
+    Breakdown, Labs & Deliverables, Day-wise Schedule (multi-day only),
+    Assessment (with lab rubrics, pass rule and knowledge checks), Lab
+    Environment and Trainer & Support.
+
+    ``Module No.`` is the shared key across sheets. Course Outline totals its
+    hours with a SUM formula and Course Overview reads that total. A module
+    with an authored ``outline.design`` block fills every column; other
+    modules use the standard 7-hour split and leave unknown cells blank rather
+    than invent content. Client text is written as data, never as a formula.
     """
     import openpyxl
     from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
 
-    PURPLE, DEEP, INK, BAND = "FF5B21B6", "FF2E1065", "FF1F2937", "FFF3EEFF"
+    PURPLE, DEEP, INK, BAND, MUTED = "FF5B21B6", "FF2E1065", "FF1F2937", "FFF3EEFF", "FF6B7280"
     edge = Side(style="thin", color="E5E0F2")
     border = Border(left=edge, right=edge, top=edge, bottom=edge)
+    TBC = "To be confirmed"
+    # The agreed split of a 7-hour module day (minutes), scaled to the module length.
+    STANDARD_SPLIT = (("Concepts", 90, "discussion"), ("Demonstrations", 60, "demo"), ("Main lab", 150, "lab"),
+                      ("Troubleshooting a seeded failure", 60, "lab"), ("Knowledge check and recap", 60, "discussion"))
+    CAPSTONE_SPLIT = (("Capstone build", 270, "lab"), ("Presentation and defence", 90, "discussion"),
+                      ("Review and feedback", 60, "discussion"))
+    ASSESSMENT_RE = re.compile(r"knowledge check|quiz|recap|presentation|defen[cs]e|review and feedback", re.I)
 
     def text(value: Any) -> str:
         if isinstance(value, (list, tuple, set)):
@@ -212,14 +224,91 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
 
     def lines(value: Any) -> List[str]:
         if isinstance(value, (list, tuple, set)):
-            items = [str(i) for i in value]
+            items = [text(i) for i in value]
         else:
             items = re.split(r"[\n;]+", str(value or ""))
         return [i.strip().rstrip(".") for i in items if i and i.strip()]
 
-    def add_time(hhmm: str, hours: int) -> str:
-        total = int(hhmm[:2]) * 60 + int(hhmm[3:]) + round(hours * 60)
-        return f"{(total // 60) % 24:02d}:{total % 60:02d}"
+    def scaled(parts, total):
+        base = sum(minutes for _, minutes, _ in parts)
+        values = [round(minutes * total / base) for _, minutes, _ in parts]
+        values[-1] += total - sum(values)
+        return values
+
+    def hhmm(minutes_from_midnight: int) -> str:
+        return f"{(minutes_from_midnight // 60) % 24:02d}:{minutes_from_midnight % 60:02d}"
+
+    def numbered(value: str, module_no: int) -> str:
+        # Authored designs say "Lab check" or "Lab:"; number them for this module's position.
+        return re.sub(r"\bLab(?=\s+checks?\b|:)", f"Lab {module_no}", value)
+
+    # Modules without a design are filled from their own course-dataset checks and objectives,
+    # by rules only: nothing is invented, so a cell stays blank when the dataset has no source.
+    STOP = {"with", "from", "that", "this", "your", "into", "after", "before", "using", "when", "each",
+            "their", "them", "then", "they", "what", "which", "while", "about", "every", "without", "between",
+            "shown", "show", "make", "made", "only", "same", "other", "than", "more", "most", "used", "uses"}
+    FAILURE_RE = re.compile(r"#[A-Z0-9/]+!?|\b(?:errors?|fails?|failed|failure|denied|rejected|refused|blocked|"
+                            r"exceptions?|rolls?\s+back|rolled\s+back|warnings?|violations?|alerts?\s+fires?|crash(?:es)?)\b",
+                            re.I)
+
+    def check_parts(item: Any):
+        """(what to do, expected result, evidence) from a dataset check in any stored shape."""
+        if isinstance(item, dict):
+            return (text(item.get("input_or_condition") or item.get("check")), text(item.get("expected_result")),
+                    text(item.get("evidence")))
+        if isinstance(item, (list, tuple)):
+            values = [text(value) for value in item] + ["", "", ""]
+            return values[0], values[1], values[2]
+        return text(item), "", ""
+
+    def stems(value: str) -> set:
+        return {word[:5] for word in re.findall(r"[a-z0-9]+", value.lower()) if len(word) > 3 and word not in STOP}
+
+    # Objectives that start with one of these verbs read as a question ("How would you restore ...?").
+    VERBS = set("""analyse analyze apply assess automate back build calculate choose clean collect compare
+        configure connect create debug decide define deploy describe design detect diagnose distinguish document
+        enable estimate evaluate explain export filter find fix format handle identify implement import improve
+        install integrate interpret investigate load maintain manage map measure migrate model monitor navigate
+        optimise optimize organise organize perform plan prepare present prevent prioritise prioritize protect
+        query read recover reduce refactor report resolve restore review run save scale schedule secure select
+        set share solve store structure summarise summarize test track transform troubleshoot tune update
+        upgrade use validate verify visualise visualize write""".split())
+
+    def matched_check(objective: str, checks: List[tuple], module_no: int) -> str:
+        """The module's lab check that tests this objective, or '' when that is not clear.
+
+        A link needs two shared words and one clear best check; a single shared word linked
+        unrelated pairs ("Monitor identity activity" to "Collect") across the dataset.
+        """
+        wanted = stems(objective)
+        scored = sorted(((len(wanted & stems(f"{c} {e}")), -index) for index, (c, e, _) in enumerate(checks)),
+                        reverse=True)
+        if not scored or scored[0][0] < 2 or (len(scored) > 1 and scored[1][0] == scored[0][0]):
+            return ""
+        return f"Lab {module_no} check: {checks[-scored[0][1]][0]}"
+
+    def derived_rubric(checks: List[tuple]) -> List[List[str]]:
+        rows = []
+        for condition, expected, evidence in checks:
+            if not (condition and expected):
+                continue
+            proof = f", evidence: {evidence}" if evidence else ""
+            rows.append([condition, f"{expected}; done without help{proof}", f"{expected}; done with a hint",
+                         "Attempted; the result is incomplete", "Not attempted or not working"])
+        return rows[:5]
+
+    def derived_quiz(checks: List[tuple], objectives: List[str], subtopics: List[str]) -> List[str]:
+        questions = [f"{condition.rstrip('.')}: what result should you see, and how do you show it?"
+                     for condition, expected, _ in checks if condition and expected]
+        for objective in objectives:
+            verb, _, rest = objective.rstrip(".").partition(" ")
+            if verb.lower() in VERBS and rest:
+                questions.append(f"How would you {verb.lower()} {rest}?")
+        for subtopic in subtopics:
+            if len(questions) >= 5 or len(questions) < 2:
+                break  # sub-topic questions only top up a module that has its own specific questions
+            questions.append(f"Explain, with an example from this module's lab: {subtopic.rstrip('.')}.")
+        return list(dict.fromkeys(questions))[:6]
 
     days = list(toc.get("days") or [])
     try:
@@ -235,6 +324,8 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
     for i, day in enumerate(days, 1):
         outline = day.get("outline") if isinstance(day.get("outline"), dict) else {}
         lab = outline.get("lab") if isinstance(outline.get("lab"), dict) else {}
+        # A hand-authored outline design wins over a model-drafted day design.
+        design = next((value for value in (outline.get("design"), day.get("design")) if isinstance(value, dict) and value), {})
         topic = text(day.get("focus_area") or day.get("module") or day.get("title") or day.get("topic")) or f"Module {i}"
         subs = lines(day.get("subtopics"))
         if not subs:
@@ -243,30 +334,78 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
         lab_text = text(day.get("lab") or day.get("lab_task"))
         lab_title = text(lab.get("title"))
         if not lab_title:
-            if ":" in lab_text and len(lab_text.split(":", 1)[0]) <= 60:
-                lab_title = lab_text.split(":", 1)[0].strip()
-            else:
-                lab_title = f"{topic} Lab"
+            head = lab_text.split(":", 1)[0].strip() if ":" in lab_text else ""
+            lab_title = head if head and len(head) <= 60 else f"{topic} Lab"
         tasks = lines(lab.get("tasks")) or lines(lab_text.split(":", 1)[1] if ":" in lab_text else lab_text)
-        checks = day.get("acceptance_checks") or (lab.get("verify") if isinstance(lab, dict) else None) or []
+        seeded = design.get("seeded_failure") if isinstance(design.get("seeded_failure"), dict) else {}
+        checks = day.get("acceptance_checks") or lab.get("verify") or day.get("checks") or []
+        if not isinstance(checks, list):
+            checks = []
+        dataset_checks = [parts for parts in (check_parts(item) for item in checks) if parts[0]]
         success = ""
-        if checks:
-            first = checks[0]
-            success = text(first.get("expected_result") or first.get("input_or_condition")) if isinstance(first, dict) else text(first)
+        if dataset_checks:
+            success = dataset_checks[0][1] or dataset_checks[0][0]
         if not success:
             success = text(day.get("assessment")).split("\n")[0]
         try:
             minutes = int(day.get("minutes") or 0)
         except (TypeError, ValueError):
             minutes = 0
+        minutes = minutes or hours_per_day * 60
+        is_capstone = "capstone" in topic.lower()
+
+        rows = []
+        if isinstance(design.get("topics"), list) and design["topics"]:
+            authored = [item for item in design["topics"] if isinstance(item, dict) and int(item.get("minutes") or 0) > 0]
+            # Keep Topic Breakdown in step with Course Outline if this ToC changed the module length.
+            authored_minutes = scaled([(None, int(item["minutes"]), None) for item in authored], minutes) if authored else []
+            for item, item_minutes in zip(authored, authored_minutes):
+                rows.append({"topic": numbered(text(item.get("topic")), i), "subs": lines(item.get("subtopics")),
+                             "minutes": item_minutes, "mode": text(item.get("mode")) or "discussion",
+                             "failure": text(item.get("failure_scenario")), "practice": text(item.get("best_practice"))})
+        else:
+            parts = CAPSTONE_SPLIT if is_capstone else STANDARD_SPLIT
+            half = (len(subs) + 1) // 2
+            for (name, _, part_mode), part_minutes in zip(parts, scaled(parts, minutes)):
+                if name == "Concepts":
+                    part_subs = subs[:half]
+                elif name == "Demonstrations":
+                    part_subs = subs[half:]
+                elif name in ("Main lab", "Capstone build"):
+                    name, part_subs = f"Lab {i}: {lab_title}", tasks
+                else:
+                    part_subs = []
+                failure = ""
+                if name == "Troubleshooting a seeded failure":
+                    # A dataset check whose expected result is an error is the module's planned failure.
+                    failure = next((f"{c}: {e}" for c, e, _ in dataset_checks if e and FAILURE_RE.search(e)), "")
+                rows.append({"topic": name, "subs": part_subs, "minutes": part_minutes, "mode": part_mode,
+                             "failure": failure, "practice": ""})
+
+        outcomes = []
+        for item in design.get("outcomes") or []:
+            if isinstance(item, dict) and text(item.get("outcome")):
+                outcomes.append((text(item.get("outcome")), numbered(text(item.get("assessed_by")), i) or f"Lab {i} checks"))
+        if not outcomes:
+            outcomes = [(obj, matched_check(obj, dataset_checks, i) or f"Lab {i} checks")
+                        for obj in lines(day.get("learning_objectives") or day.get("objectives"))[:5]]
+        if not outcomes:
+            outcomes = [(f"Complete Lab {i}: {lab_title}", f"Lab {i} rubric")]
+
         modules.append({
-            "no": i, "name": topic, "day": day.get("day") or i,
-            "hrs": round(minutes / 60) if minutes else hours_per_day, "subs": subs,
-            "lab_title": lab_title, "tasks": tasks,
+            "no": i, "name": topic, "day": day.get("day") or i, "minutes": minutes,
+            "hrs": round(minutes / 60, 1) if minutes % 60 else minutes // 60, "subs": subs,
+            "lab_title": lab_title, "tasks": tasks, "seeded": seeded,
             "scenario": text(lab.get("scenario") or day.get("scenario")),
             "deliverable": text(lab.get("deliverables") or day.get("deliverable")),
-            "success": success, "objectives": lines(day.get("learning_objectives")),
-            "is_capstone": "capstone" in topic.lower(),
+            "success": success, "objectives": lines(day.get("learning_objectives") or day.get("objectives")),
+            "is_capstone": is_capstone, "rows": rows, "outcomes": outcomes,
+            "quiz": lines(design.get("quiz")) or ([] if is_capstone else derived_quiz(
+                dataset_checks, lines(day.get("learning_objectives") or day.get("objectives")), subs)),
+            "rubric": [r for r in design.get("lab_rubric") or [] if isinstance(r, (list, tuple)) and len(r) == 5]
+            or derived_rubric(dataset_checks),
+            "environment": [e for e in design.get("lab_environment") or [] if isinstance(e, dict) and text(e.get("tool"))],
+            "tools": lines(day.get("tools")),
         })
 
     num_days = len({m["day"] for m in modules})
@@ -281,11 +420,11 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
         return sheet
 
     def put(sheet, r, c, value, *, bold=False, size=10, color=INK, fill=None,
-            wrap=True, align="left", valign="top", data=True, bordered=True):
+            wrap=True, align="left", valign="top", data=True, bordered=True, italic=False):
         cell = sheet.cell(r, c, value)
         if data and isinstance(value, str):
             cell.data_type = "s"  # client text is data, never a formula
-        cell.font = Font(name="Calibri", size=size, bold=bold, color=color)
+        cell.font = Font(name="Calibri", size=size, bold=bold, italic=italic, color=color)
         if fill:
             cell.fill = PatternFill("solid", fgColor=fill)
         cell.alignment = Alignment(horizontal=align, vertical=valign, wrap_text=wrap)
@@ -304,6 +443,10 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
         for c, head in enumerate(headers, 1):
             put(sheet, r, c, head, bold=True, size=11, color="FFFFFFFF", fill=PURPLE, align="center", valign="center")
 
+    def section(sheet, r, label, ncols):
+        sheet.merge_cells(start_row=r, start_column=1, end_row=r, end_column=ncols)
+        put(sheet, r, 1, label, bold=True, size=12, color=DEEP, valign="center", bordered=False)
+
     def title_block(sheet, ncols, subtitle):
         sheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=ncols)
         put(sheet, 1, 1, course_name, bold=True, size=16, color=PURPLE, align="left", valign="center", bordered=False)
@@ -315,10 +458,15 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
         for c in range(1, ncols + 1):
             sheet.cell(r, c).fill = fill
 
-    order = ["Contents", "Course Overview", "Course Outline", "Labs & Deliverables"]
+    def widths(sheet, values):
+        for c, w in enumerate(values, 1):
+            sheet.column_dimensions[get_column_letter(c)].width = w
+
+    order = ["Contents", "Course Overview", "Course Outline", "Module Outcomes", "Topic Breakdown",
+             "Labs & Deliverables"]
     if multi_day:
         order.append("Day-wise Schedule")
-    order.append("Assessment")
+    order += ["Assessment", "Lab Environment", "Trainer & Support"]
 
     # 1. Contents
     contents = new_sheet("Contents")
@@ -328,8 +476,7 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
         put(contents, 4 + i, 1, i, align="center")
         link = formula(contents, 4 + i, 2, f"=HYPERLINK(\"#'{name}'!A1\",\"{name}\")", align="left", color=PURPLE)
         link.font = Font(name="Calibri", size=11, color=PURPLE, underline="single")
-    contents.column_dimensions["A"].width = 6
-    contents.column_dimensions["B"].width = 42
+    widths(contents, [6, 42])
 
     # 3. Course Outline (built before Overview so its total cell is known)
     outline_ws = new_sheet("Course Outline")
@@ -349,24 +496,27 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
         zebra(outline_ws, r, 7, i)
     total_row = oh + len(modules) + 1
     put(outline_ws, total_row, 3, "Total", bold=True, align="right")
-    formula(outline_ws, total_row, 4, f"=SUM(D{oh + 1}:D{oh + len(modules)})", bold=True) if modules else None
-    for c, w in zip(range(1, 8), [11, 30, 6, 13, 60, 13, 40]):
-        outline_ws.column_dimensions[get_column_letter(c)].width = w
+    if modules:
+        formula(outline_ws, total_row, 4, f"=SUM(D{oh + 1}:D{oh + len(modules)})", bold=True)
+    widths(outline_ws, [11, 30, 6, 13, 60, 13, 40])
     outline_ws.freeze_panes = outline_ws.cell(oh + 1, 1)
     total_ref = f"'Course Outline'!D{total_row}"
 
     # 2. Course Overview
     overview = new_sheet("Course Overview")
     title_block(overview, 2, "Course Overview")
+    certifications = "\n".join(lines(toc.get("certification_roadmap") or toc.get("certifications")))
     facts = [
         ("Course Name", course_name),
         ("Duration (hours)", f"={total_ref}"),
         ("Number of Days", num_days),
-        ("Audience", (level + " learners") if level else "Professional learners"),
-        ("Prerequisites", "\n".join(lines(toc.get("prerequisites"))) or "Confirmed with the trainer"),
+        ("Level", level or TBC),
+        ("Audience", text(toc.get("audience_level")) or ((level + " engineers") if level else "Professional engineers")),
+        ("Prerequisites", "\n".join(lines(toc.get("prerequisites"))) or TBC),
         ("Delivery Mode", mode),
-        ("Tools Required", "\n".join(lines(toc.get("tools_software") or toc.get("tools"))) or "Provided in the lab environment"),
+        ("Tools Required", "\n".join(lines(toc.get("tools_software") or toc.get("tools"))) or TBC),
         ("Certificate", text(toc.get("certificate")) or "Certificate of completion"),
+        ("Target Certifications", certifications or TBC),
     ]
     r = 4
     for label, value in facts:
@@ -377,7 +527,7 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
             put(overview, r, 2, value, valign="center")
         r += 1
     r += 1
-    put(overview, r, 1, "Learning Objectives", bold=True, size=11, color=DEEP, bordered=False)
+    section(overview, r, "Learning Objectives", 2)
     r += 1
     objectives = lines(toc.get("learning_outcomes") or toc.get("learning_objectives"))
     if not objectives:
@@ -385,15 +535,52 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
             for obj in m["objectives"]:
                 if obj not in objectives:
                     objectives.append(obj)
-        objectives = objectives[:12]
-    for i, obj in enumerate(objectives, 1):
+    for i, obj in enumerate(objectives[:15], 1):  # 12-15 "can do" statements, not 58
         put(overview, r, 1, i, align="center")
         put(overview, r, 2, obj)
         r += 1
-    overview.column_dimensions["A"].width = 24
-    overview.column_dimensions["B"].width = 82
+    widths(overview, [24, 82])
 
-    # 4. Labs & Deliverables
+    # 4. Module Outcomes
+    outcomes_ws = new_sheet("Module Outcomes")
+    title_block(outcomes_ws, 3, "Module Outcomes")
+    table_header(outcomes_ws, 4, ["Module No.", "Outcome", "Assessed By"])
+    r = 4
+    for m in modules:
+        for outcome, assessed_by in m["outcomes"]:
+            r += 1
+            put(outcomes_ws, r, 1, m["no"], align="center")
+            put(outcomes_ws, r, 2, outcome)
+            put(outcomes_ws, r, 3, assessed_by)
+            zebra(outcomes_ws, r, 3, m["no"])
+    widths(outcomes_ws, [11, 80, 40])
+    outcomes_ws.freeze_panes = outcomes_ws.cell(5, 1)
+
+    # 5. Topic Breakdown
+    topics_ws = new_sheet("Topic Breakdown")
+    title_block(topics_ws, 7, "Topic Breakdown")
+    th = 4
+    table_header(topics_ws, th, ["Module No.", "Topic", "Sub-topics", "Minutes", "Mode",
+                                 "Failure Scenario", "Best Practice"])
+    r = th
+    for m in modules:
+        for row in m["rows"]:
+            r += 1
+            put(topics_ws, r, 1, m["no"], align="center")
+            put(topics_ws, r, 2, row["topic"])
+            put(topics_ws, r, 3, "\n".join(row["subs"]))
+            put(topics_ws, r, 4, row["minutes"], align="center", data=False)
+            put(topics_ws, r, 5, row["mode"], align="center")
+            put(topics_ws, r, 6, row["failure"])
+            put(topics_ws, r, 7, row["practice"])
+            zebra(topics_ws, r, 7, m["no"])
+    if r > th:
+        put(topics_ws, r + 1, 3, "Total minutes", bold=True, align="right")
+        formula(topics_ws, r + 1, 4, f"=SUM(D{th + 1}:D{r})", bold=True)
+    widths(topics_ws, [11, 32, 48, 9, 11, 42, 42])
+    topics_ws.freeze_panes = topics_ws.cell(th + 1, 1)
+
+    # 6. Labs & Deliverables
     labs_ws = new_sheet("Labs & Deliverables")
     title_block(labs_ws, 7, "Labs & Deliverables")
     lh = 4
@@ -401,49 +588,68 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
                                "Tasks Participants Do", "Deliverable", "Success Measure"])
     for i, m in enumerate(modules, 1):
         r = lh + i
+        task_lines = list(m["tasks"])
+        if text(m["seeded"].get("symptom")):
+            # Participants see the symptom; the cause and fix stay with the trainer.
+            task_lines.append("Troubleshoot the seeded failure: " + text(m["seeded"].get("symptom")))
         put(labs_ws, r, 1, f"Lab {m['no']}", align="center")
         put(labs_ws, r, 2, m["lab_title"])
         put(labs_ws, r, 3, m["no"], align="center")
         put(labs_ws, r, 4, m["scenario"] or "Applied to a realistic training scenario.")
-        put(labs_ws, r, 5, "\n".join(m["tasks"]) if m["tasks"] else "Guided, hands-on practice.")
+        put(labs_ws, r, 5, "\n".join(task_lines) if task_lines else "Guided, hands-on practice.")
         put(labs_ws, r, 6, m["deliverable"] or "Working result and notes")
         put(labs_ws, r, 7, m["success"] or "Trainer confirms the output meets the brief")
         zebra(labs_ws, r, 7, i)
-    for c, w in zip(range(1, 8), [9, 28, 11, 42, 50, 36, 40]):
-        labs_ws.column_dimensions[get_column_letter(c)].width = w
+    widths(labs_ws, [9, 28, 11, 42, 56, 36, 40])
     labs_ws.freeze_panes = labs_ws.cell(lh + 1, 1)
 
-    # 5. Day-wise Schedule (multi-day only)
+    # 7. Day-wise Schedule (multi-day only): Theory / Lab / Assessment blocks from the topic minutes.
     if multi_day:
         sched = new_sheet("Day-wise Schedule")
         title_block(sched, 6, "Day-wise Schedule")
         sh = 4
         table_header(sched, sh, ["Day", "Start", "End", "Module No.", "Module Name", "Session Type"])
         r = sh
+        lunch = 60 if hours_per_day >= 6 else 0
+        # Lab time on the schedule is the lab-access time the Lab Cost Estimate prices, so the two always agree.
         from shared.lab_cost_inputs import course_workbook_lab_hours
-        lab_hrs = course_workbook_lab_hours(hours_per_day)
-        theory_hrs = hours_per_day - lab_hrs
+        priced_lab_minutes = round(course_workbook_lab_hours(hours_per_day) * 60)
         for m in modules:
-            r += 1
-            put(sched, r, 1, m["day"], align="center")
-            put(sched, r, 2, "09:00", align="center", data=False)
-            put(sched, r, 3, add_time("09:00", theory_hrs), align="center", data=False)
-            put(sched, r, 4, m["no"], align="center")
-            put(sched, r, 5, m["name"])
-            put(sched, r, 6, "Assessment" if m["is_capstone"] else "Theory", align="center")
-            r += 1
-            lab_start = add_time("09:00", theory_hrs + 1)  # one-hour lunch
-            put(sched, r, 1, m["day"], align="center")
-            put(sched, r, 2, lab_start, align="center", data=False)
-            put(sched, r, 3, add_time(lab_start, lab_hrs), align="center", data=False)
-            put(sched, r, 4, m["no"], align="center")
-            put(sched, r, 5, m["name"])
-            put(sched, r, 6, "Lab", align="center")
-        for c, w in zip(range(1, 7), [6, 9, 9, 11, 34, 16]):
-            sched.column_dimensions[get_column_letter(c)].width = w
+            blocks = []
+            for row in m["rows"]:
+                kind = "Assessment" if ASSESSMENT_RE.search(row["topic"]) else ("Lab" if row["mode"] == "lab" else "Theory")
+                if blocks and blocks[-1][0] == kind:
+                    blocks[-1][1] += row["minutes"]
+                else:
+                    blocks.append([kind, row["minutes"]])
+            lab_minutes = sum(b[1] for b in blocks if b[0] == "Lab")
+            if lab_minutes and not m["is_capstone"] and m["minutes"] == hours_per_day * 60 and lab_minutes != priced_lab_minutes:
+                # Move the difference to theory so the day length stays the same.
+                for block in blocks:
+                    if block[0] == "Lab":
+                        block[1] = round(block[1] * priced_lab_minutes / lab_minutes)
+                theory = next((b for b in blocks if b[0] == "Theory"), None)
+                if theory:
+                    theory[1] += m["minutes"] - sum(b[1] for b in blocks)
+            clock, taught, lunch_taken = 9 * 60, 0, not lunch
+            for kind, block_minutes in blocks:
+                if not lunch_taken and taught >= 120:  # lunch after the morning theory block
+                    clock += lunch
+                    lunch_taken = True
+                r += 1
+                put(sched, r, 1, m["day"], align="center")
+                put(sched, r, 2, hhmm(clock), align="center", data=False)
+                put(sched, r, 3, hhmm(clock + block_minutes), align="center", data=False)
+                put(sched, r, 4, m["no"], align="center")
+                put(sched, r, 5, m["name"])
+                put(sched, r, 6, kind, align="center")
+                zebra(sched, r, 6, m["no"])
+                clock += block_minutes
+                taught += block_minutes
+        widths(sched, [6, 9, 9, 11, 34, 16])
         sched.freeze_panes = sched.cell(sh + 1, 1)
 
-    # 6. Assessment
+    # 8. Assessment: weighted items, pass rule, lab rubrics and knowledge checks.
     assess = new_sheet("Assessment")
     title_block(assess, 5, "Assessment")
     ah = 4
@@ -453,13 +659,18 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
     span = f"1-{len(modules)}" if modules else "-"
     items = []
     if non_capstone:
-        items.append(("Lab deliverables", 60, "50%", f"1-{non_capstone[-1]['no']}",
-                      "Completed lab deliverables and trainer checks"))
+        lab_span = f"1-{non_capstone[-1]['no']}"
+        if capstone:
+            items.append(("Lab deliverables (rubric)", 50, "50%", lab_span, "Completed lab deliverables scored against the lab rubric"))
+            items.append(("Knowledge checks", 10, "60%", lab_span, "End-of-module quiz results"))
+        else:
+            items.append(("Lab deliverables (rubric)", 60, "50%", lab_span, "Completed lab deliverables scored against the lab rubric"))
+            items.append(("Knowledge checks", 10, "60%", lab_span, "End-of-module quiz results"))
     if capstone:
-        items.append(("Capstone project", 30, "60%", str(capstone["no"]), "Capstone deliverable and demonstration"))
+        items.append(("Capstone project", 30, "60%", str(capstone["no"]), "Capstone build, presentation and defence"))
         items.append(("Final review", 10, "50%", span, "Capstone review and Q&A"))
     else:
-        items.append(("Final assessment", 40, "60%", span, "End-of-course assessment results"))
+        items.append(("Final assessment", 30 if non_capstone else 100, "60%", span, "End-of-course assessment results"))
     for i, (item, weight, pass_mark, mods, evidence) in enumerate(items, 1):
         r = ah + i
         put(assess, r, 1, item)
@@ -468,13 +679,108 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
         put(assess, r, 4, mods, align="center")
         put(assess, r, 5, evidence)
         zebra(assess, r, 5, i)
-    total_r = ah + len(items) + 1
-    put(assess, total_r, 1, "Total", bold=True, align="right")
-    formula(assess, total_r, 2, f"=SUM(B{ah + 1}:B{ah + len(items)})", bold=True)
-    for c, w in zip(range(1, 6), [28, 10, 11, 18, 52]):
-        assess.column_dimensions[get_column_letter(c)].width = w
+    r = ah + len(items) + 1
+    put(assess, r, 1, "Total", bold=True, align="right")
+    formula(assess, r, 2, f"=SUM(B{ah + 1}:B{ah + len(items)})", bold=True)
 
-    wb._sheets = [wb[name] for name in order]  # exact order from the spec
+    r += 2
+    assess.merge_cells(start_row=r, start_column=1, end_row=r, end_column=5)
+    rule = "Pass rule: an overall weighted score of 60% or more and no lab scored 1 (Not met)"
+    put(assess, r, 1, rule + (", and the capstone passed." if capstone else "."), bold=True, bordered=False)
+
+    rubric_headers = ["Criterion", "4 - Exceeds", "3 - Meets", "2 - Partly meets", "1 - Not met"]
+    for m in modules:
+        if not m["rubric"]:
+            continue
+        r += 2
+        section(assess, r, f"Lab {m['no']} Rubric: {m['lab_title']}", 5)
+        r += 1
+        table_header(assess, r, rubric_headers)
+        for index, criterion in enumerate(m["rubric"], 1):
+            r += 1
+            for c, value in enumerate(criterion, 1):
+                put(assess, r, c, text(value), bold=c == 1)
+            zebra(assess, r, 5, index)
+    standard_rubric = [
+        ("Working result", "All tasks complete and verified against the success measure", "Core tasks complete and verified",
+         "Some tasks complete", "Lab not completed"),
+        ("Troubleshooting", "Seeded failure diagnosed and fixed without help, with evidence", "Fixed with a hint",
+         "Symptom found but not fixed", "Not attempted"),
+        ("Evidence", "Deliverable complete and clearly documented", "Deliverable complete",
+         "Deliverable partly complete", "No deliverable"),
+        ("Best practice", "Applies the module's best practices and explains why", "Applies most best practices",
+         "Applies some best practices", "Best practices not applied"),
+    ]
+    r += 2
+    authored = any(m["rubric"] for m in modules)
+    section(assess, r, "Standard Lab Rubric (all other labs)" if authored else "Lab Rubric (every lab)", 5)
+    r += 1
+    table_header(assess, r, rubric_headers)
+    for index, criterion in enumerate(standard_rubric, 1):
+        r += 1
+        for c, value in enumerate(criterion, 1):
+            put(assess, r, c, value, bold=c == 1)
+        zebra(assess, r, 5, index)
+
+    quiz_rows = [(m["no"], q) for m in modules for q in m["quiz"]]
+    if quiz_rows:
+        r += 2
+        section(assess, r, "Knowledge Check Questions", 5)
+        r += 1
+        table_header(assess, r, ["Module No.", "Question"])
+        assess.merge_cells(start_row=r, start_column=2, end_row=r, end_column=5)
+        for index, (module_no, question) in enumerate(quiz_rows, 1):
+            r += 1
+            put(assess, r, 1, module_no, align="center")
+            assess.merge_cells(start_row=r, start_column=2, end_row=r, end_column=5)
+            put(assess, r, 2, question)
+            zebra(assess, r, 2, index)  # style only real cells, not the merged range
+    widths(assess, [30, 30, 30, 30, 52])
+
+    # 9. Lab Environment: authored rows first, then any other course tools.
+    env_ws = new_sheet("Lab Environment")
+    title_block(env_ws, 5, "Lab Environment")
+    table_header(env_ws, 4, ["Tool", "Version", "Account or Access", "Setup Owner", "Cost per Participant"])
+    seen, env_rows = set(), []
+    for m in modules:
+        for item in m["environment"]:
+            key = re.sub(r"[^a-z0-9]+", " ", text(item.get("tool")).lower()).strip()
+            if key and key not in seen:
+                seen.add(key)
+                env_rows.append([text(item.get("tool")), text(item.get("version")) or TBC, text(item.get("access")) or TBC,
+                                 text(item.get("setup_owner")) or TBC, text(item.get("cost")) or TBC])
+    other_tools = lines(toc.get("tools_software") or toc.get("tools")) + [t for m in modules for t in m["tools"]]
+    for tool in other_tools:
+        for part in re.split(r"\s+\+\s+", tool):
+            key = re.sub(r"[^a-z0-9]+", " ", part.lower()).strip()
+            if not key or re.fullmatch(r"all .*tools?", key):
+                continue  # dataset filler such as "All DevOps Tools" is not a tool
+            if any(existing.startswith(key + " ") for existing in seen):
+                continue  # "Docker" is already covered by the authored "Docker Engine" row
+            if key not in seen:
+                seen.add(key)
+                env_rows.append([part.strip(), TBC, TBC, TBC, TBC])
+    for index, values in enumerate(env_rows, 1):
+        for c, value in enumerate(values, 1):
+            put(env_ws, 4 + index, c, value, color=MUTED if value == TBC else INK, italic=value == TBC)
+        zebra(env_ws, 4 + index, 5, index)
+    widths(env_ws, [28, 24, 40, 30, 40])
+    env_ws.freeze_panes = env_ws.cell(5, 1)
+
+    # 10. Trainer & Support
+    support = new_sheet("Trainer & Support")
+    title_block(support, 3, "Trainer & Support")
+    table_header(support, 4, ["Trainer Profile", "Batch Size", "Post-training Support"])
+    try:
+        participants = int(toc.get("participant_count") or 0)
+    except (TypeError, ValueError):
+        participants = 0
+    put(support, 5, 1, text(toc.get("trainer_profile_summary")) or "Shared separately in the trainer profile")
+    put(support, 5, 2, f"{participants} participants" if participants > 0 else TBC, align="center")
+    put(support, 5, 3, text(toc.get("post_training_support")) or "To be confirmed with the client")
+    widths(support, [48, 18, 48])
+
+    wb._sheets = [wb[name] for name in order]  # exact sheet order
     wb.active = 0
     output = io.BytesIO()
     wb.save(output)

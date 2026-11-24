@@ -67,6 +67,10 @@ def _load_compact_domains():
         for alias in data.get("aliases") or []:
             alias_key = _normalise_key(alias)
             _register_compact_domain(alias_key, data, duration)
+        for day in data.get("days") or []:
+            if isinstance(day, dict) and day.get("topic"):
+                # Detailed designs live in module_designs/ and are read only when a ToC uses this day.
+                day["design_ref"] = {"file": base_name, "level": None, "topic": day["topic"]}
         if file_key and file_key != key:
             trimmed = re.sub(r"_[0-9]+$", "", file_key)
             _register_compact_domain(trimmed, data, duration)

@@ -175,6 +175,8 @@ def _expand_day(day, course, level, position):
         "difficulty": LEVEL_LABELS.get(level, "Integrated"),
         "course_level": level,
         **({"shared_key": day["shared_key"]} if day.get("shared_key") else {}),
+        # Detailed module design (outcomes, timed topics, quiz, rubric) for the course workbook.
+        **({"design": day["design"]} if isinstance(day.get("design"), dict) else {}),
         "content_quality_stage": STAGE,
         "content_enrichment_version": VERSION,
         "review_status": "unreviewed",
@@ -307,6 +309,9 @@ def _load_courses():
                 for level in LEVELS:
                     track = course["levels"][level]
                     track["days"] = [_expand_day(day, course, level, index) for index, day in enumerate(track["days"])]
+                    for day in track["days"]:
+                        # Detailed designs live in module_designs/ and are read only when a ToC uses this day.
+                        day["design_ref"] = {"file": path.stem, "level": level, "topic": day["topic"]}
             except (ValueError, KeyError, TypeError, AttributeError, OSError) as exc:
                 # A broken file must not stop TOC generation; that domain keeps the old dataset.
                 logger.warning("Skipping level dataset %s: %s", path.name, exc)
