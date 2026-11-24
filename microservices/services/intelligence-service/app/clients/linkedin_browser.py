@@ -227,52 +227,55 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
     return results
 
 
-def _visible_post_url(links):
-    for link in links or []:
-        url = canonical_url((link or {}).get('url', ''))
-        if url and urlsplit(url).path.startswith(('/posts/', '/feed/update/')):
-            return url
-    return ''
-
-
-# Walk up from the profile link. The name link alone has no headline, so a
-# closest() match on an inner list item used to reject every real trainer.
-# Header and profile-menu links are the signed-in user, not search results.
+# Walk up from the profile link. closest() used to stop on the name row, so
+# the headline never reached the matcher and every real trainer was rejected.
 PEOPLE_CARDS = """els => els.flatMap(a => {
-  if (a.closest('header, nav, footer, [role="banner"], [role="navigation"]')) return [];
+  const href = a.href || '';
+  if (!/\\/in\\//i.test(href)) return [];
   const layers = [];
   let node = a;
-  for (let depth = 0; depth < 8 && node; depth += 1) {
+  let chosen = '';
+  const profileCount = root => {
+    const urls = new Set();
+    root.querySelectorAll('a[href*="/in/"]').forEach(link => {
+      const value = String(link.href || '').split('?')[0].replace(/\\/$/, '').toLowerCase();
+      if (value.includes('/in/')) urls.add(value);
+    });
+    return urls.size;
+  };
+  for (let depth = 0; depth < 10 && node; depth += 1) {
     if (node.matches && node.matches('main, [role="main"], body, header, nav')) break;
-    const text = (node.innerText || '').trim();
+    const text = String(node.innerText || '').replace(/\\u00a0/g, ' ').trim();
     if (text) layers.push(text.slice(0, 4000));
+    const lines = text ? text.split(/\\n/).map(line => line.trim()).filter(Boolean) : [];
+    const actions = (text.match(/(^|\\n)\\s*(Connect|Follow|Message|Pending)\\s*(?=\\n|$)/gi) || []).length;
+    const onePerson = profileCount(node) <= 4 && lines.length <= 40 && text.length <= 2500 && actions <= 3;
+    if (text && onePerson) chosen = text.slice(0, 4000);
+    else if (chosen) break;
     node = node.parentElement;
   }
-  if (!layers.length) return [];
-  return [{url: a.href, layers}];
+  if (!chosen && !layers.length) return [];
+  return [{url: href, text: chosen, layers}];
 })"""
 
 
-_ROLE_TEXT = re.compile(r'\b(?:trainer|instructor|facilitator|coach)\b', re.IGNORECASE)
-
-
 def select_profile_text(layers):
-    """Use the profile card, including its headline, not the whole results page."""
+    """Keep the largest block that is still one result card, not the whole page."""
     best = ''
     for raw in layers or []:
         text = str(raw or '').strip()
         if not text:
             continue
         lines = [line.strip() for line in text.splitlines() if line.strip()]
-        if len(text) > 2200 or len(lines) > 18:
-            head = '\n'.join(lines[:18])[:2200]
-            if _ROLE_TEXT.search(head) and not _ROLE_TEXT.search(best):
-                best = head
+        actions = len(re.findall(r'(?im)^(?:connect|follow|message|pending)$', text))
+        if len(text) > 1800 or len(lines) > 18 or actions > 3:
             break
         best = text
-        if _ROLE_TEXT.search(text):
-            return text[:4000]
     return best[:4000]
+
+
+def _single_line(text):
+    return len([line for line in str(text or '').splitlines() if line.strip()]) <= 1
 
 
 def profiles_from_html(html):
@@ -281,10 +284,19 @@ def profiles_from_html(html):
         return []
     sample = html[:500_000]
     found, seen = [], set()
-    pattern = re.compile(r'(?:https://(?:[\w.-]+\.)?linkedin\.com)?/in/[A-Za-z0-9\-_%]{3,100}', re.I)
+    pattern = re.compile(
+        r'https://(?:[\w.-]+\.)?linkedin\.com/in/[A-Za-z0-9\-_%]{3,100}|/in/[A-Za-z0-9\-_%]{3,100}',
+        re.I,
+    )
     for match in pattern.finditer(sample):
         raw = match.group(0)
         if raw.startswith('/'):
+            prefix = sample[max(0, match.start() - 80):match.start()]
+            host = re.search(r'https?://([^/\s"\'<>]+)$', prefix, re.I)
+            if host:
+                hostname = host.group(1).split(':')[0].lower()
+                if hostname != 'linkedin.com' and not hostname.endswith('.linkedin.com'):
+                    continue
             raw = 'https://www.linkedin.com' + raw
         url = canonical_url(raw)
         if not url or url in seen:
@@ -312,9 +324,14 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     """Page through people search and keep every qualified profile already read."""
     from app.routes.linkedin_leads import _normalize_result
     results = [] if collected is None else collected
-    seen = {row.get('url') for row in results if row.get('url')}
-    visited = set()
-    deadline = asyncio.get_running_loop().time() + 70
+    seen, visited = {row.get('url') for row in results}, set()
+    limit = min(max(int(limit or 1), 1), TRAINER_RESULT_TARGET)
+    scan_limit = TRAINER_SCAN_LIMIT if limit >= TRAINER_RESULT_TARGET else min(TRAINER_SCAN_LIMIT, max(limit * 4, limit))
+    # LinkedIn shows about ten people per page, so 200 profiles is 20 pages.
+    page_cap = 20 if limit >= TRAINER_RESULT_TARGET else min(20, max(limit, 2))
+    # A 20-profile hourly run needs the same page budget as a 50-profile search.
+    # Sixty-five seconds expired while the result list was still painting.
+    deadline = asyncio.get_running_loop().time() + (180 if limit >= 20 else 65)
 
     def timed_out():
         return asyncio.get_running_loop().time() >= deadline
@@ -326,28 +343,34 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                 return line[:200]
         return (lines[0] if lines else '')[:200]
 
-    def card_text(item):
-        layers = (item or {}).get('layers')
-        if layers:
-            return select_profile_text(layers)
-        return str((item or {}).get('text') or '')
+    async def page_html():
+        try:
+            return await page.content()
+        except Exception:
+            return ''
 
-    async def read_people(finalize_thin=False):
+    async def read_people():
+        # Result links live in main. The header profile link appears first and
+        # used to end the wait before any trainer card existed.
         links = await page.locator('main a[href*="/in/"], [role="main"] a[href*="/in/"]').evaluate_all(PEOPLE_CARDS)
         if not links:
             links = await page.locator('a[href*="/in/"]').evaluate_all(PEOPLE_CARDS)
-        if not links:
-            links = await page.locator('a[href*="linkedin.com/in/"]').evaluate_all(PEOPLE_CARDS)
-        if not links:
-            try:
-                html = await page.content()
-            except Exception:
-                html = ''
-            links = profiles_from_html(html)
-        new_urls = 0
+        prepared = []
         for item in links or []:
             url = canonical_url((item or {}).get('url', ''))
-            text = card_text(item)
+            text = (item or {}).get('text') or select_profile_text((item or {}).get('layers')) or ''
+            prepared.append((url, text))
+        if not prepared or all(_single_line(text) for _url, text in prepared):
+            html_rows = {row['url']: row['text'] for row in profiles_from_html(await page_html())}
+            if not prepared:
+                prepared = [(url, text) for url, text in html_rows.items()]
+            else:
+                prepared = [
+                    (url, html_rows.get(url, text) if _single_line(text) else text)
+                    for url, text in prepared
+                ]
+        new_urls = 0
+        for url, text in prepared:
             if not url or url in visited or len(visited) >= scan_limit:
                 continue
             if not text.strip():
@@ -358,7 +381,7 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                 continue
             visited.add(url)
             new_urls += 1
-            if url in seen:
+            if url in seen or not str(text or '').strip():
                 continue
             candidate = {'url': url, 'title': profile_title(text), 'content': text[:5000]}
             if _normalize_result(candidate, domain, 'trainer'):
@@ -366,42 +389,7 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                 results.append(candidate)
                 if len(results) >= limit:
                     break
-        return new_urls
-
-    queries = [trainer_keywords(domain, location)]
-    instructor = re.sub(r'\btrainer\b', 'instructor', queries[0], count=1, flags=re.IGNORECASE)
-    if instructor.lower() != queries[0].lower():
-        queries.append(instructor)
-    try:
-        page_loads = 0
-        for keywords in queries:
-            if len(results) >= limit or timed_out():
-                break
-            for page_number in range(1, 8):
-                if len(results) >= limit or page_loads >= 6 or timed_out():
-                    break
-                page_loads += 1
-                try:
-                    response = await page.goto(_people_search_url(keywords, page_number), wait_until='commit', timeout=12000)
-                except Exception:
-                    response = None
-                if response and response.status in (403, 429):
-                    raise ValueError('LinkedIn limited this session. Fetching stopped.')
-                try:
-                    await page.locator('a[href*="/in/"]').first.wait_for(timeout=8000)
-                except Exception:
-                    pass
-                await require_session(page)
-                try:
-                    await page.mouse.wheel(0, 1800)
-                    await page.wait_for_timeout(600)
-                except Exception:
-                    pass
-                if await read_people() == 0:
-                    break
-                if len(results) >= limit:
-                    break
-        return new_urls, len(order)
+        return new_urls, len(prepared)
 
     async def open_people_page(keywords, page_number):
         """Open one numbered people-search page. The page URL is the scan position."""
@@ -422,13 +410,15 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
         page_loads = 0
         failed_opens = 0
         plain_pages = 0
+        stop_people = False
         for keywords in queries:
-            if len(results) >= limit or len(visited) >= scan_limit or timed_out() or failed_opens >= 2:
+            if len(results) >= limit or len(visited) >= scan_limit or timed_out() or stop_people:
                 break
             plain_pages = 0
             for page_number in range(1, page_cap + 1):
                 if (len(results) >= limit or len(visited) >= scan_limit or page_loads >= page_cap
                         or timed_out() or failed_opens >= 2 or plain_pages >= 3):
+                    stop_people = failed_opens >= 2 or plain_pages >= 3
                     break
                 page_loads += 1
                 response, opened = await open_people_page(keywords, page_number)
@@ -441,26 +431,33 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                 if response and response.status in (403, 429):
                     raise ValueError('LinkedIn limited this session. Fetching stopped.')
                 try:
-                    await page.locator('main a[href*="/in/"], [role="main"] a[href*="/in/"]').first.wait_for(timeout=8000)
+                    await page.locator('main a[href*="/in/"], [role="main"] a[href*="/in/"]').first.wait_for(timeout=10000)
                 except Exception:
                     pass
                 await require_session(page)
                 qualified_before = len(results)
                 new_urls, raw_count = await read_people()
-                if new_urls == 0:
+                if len(results) == qualified_before:
                     # The result list often paints after the first lookup.
+                    # Keep the first read's count: a second pass sees those
+                    # links as already visited and would look like an empty page.
                     try:
                         await page.mouse.wheel(0, 1600)
-                        await page.wait_for_timeout(500)
+                        await page.wait_for_timeout(800)
                     except Exception:
                         pass
-                    new_urls, raw_count = await read_people(finalize_thin=True)
+                    more_urls, more_raw = await read_people()
+                    new_urls += more_urls
+                    raw_count = max(raw_count, more_raw)
                 if new_urls == 0:
                     break
                 if len(results) == qualified_before:
                     plain_pages += 1
                 else:
                     plain_pages = 0
+                if plain_pages >= 3:
+                    stop_people = True
+                    break
                 if len(results) >= limit or len(visited) >= scan_limit:
                     return results
     except ValueError:
@@ -512,9 +509,14 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                         headline = author_headline(card['content'])
                         for link in card['links']:
                             url = canonical_url(link['url'])
-                            if not url or '/in/' not in urlsplit(url).path or not link['title'].strip():
+                            if not url or '/in/' not in urlsplit(url).path:
                                 continue
-                            item = {'url': url, 'title': link['title'].strip().split('\n')[0], 'content': headline}
+                            title = str(link.get('title') or '').strip().split('\n')[0]
+                            if not title:
+                                title = profile_title(headline)
+                            if not title:
+                                continue
+                            item = {'url': url, 'title': title, 'content': headline}
                             if url not in seen and _normalize_result(item, domain, 'trainer'):
                                 seen.add(url)
                                 results.append(item)

@@ -2,10 +2,13 @@ const RETRYABLE_METHODS = new Set(['get', 'head', 'options'])
 const RETRYABLE_STATUSES = new Set([408, 429, 500, 502, 503, 504])
 
 export function requestTimeout(config = {}) {
-  if (config.timeout) return config.timeout
+  const explicit = Number(config.timeout)
+  if (explicit > 0) return explicit
+  const url = String(config.url || '')
   // Profile search reads public results and a signed-in browser session.
   // Keep the five-minute budget so Find Profiles is not aborted mid-search.
-  return 300000
+  if (url.includes('/linkedin-leads/search')) return 300000
+  return 120000
 }
 
 export function shouldRetryRequest(err) {
@@ -21,32 +24,28 @@ export function shouldRetryRequest(err) {
 
 export function createRequestGate() {
   let generation = 0
-  let current = null
+  let controller = null
+
   return {
     start({ supersede = true } = {}) {
-      if (current && !current.done && !supersede) return null
-      if (current && !current.done) current.controller.abort()
-      const id = ++generation
-      const controller = new AbortController()
-      const request = {
-        signal: controller.signal,
-        controller,
-        done: false,
-        isCurrent() {
-          return generation === id && !controller.signal.aborted
-        },
+      if (!supersede && controller && !controller.signal.aborted) return null
+      generation += 1
+      const id = generation
+      controller?.abort()
+      controller = new AbortController()
+      const signal = controller.signal
+      return {
+        signal,
+        isCurrent: () => id === generation,
         finish() {
-          this.done = true
-          if (current === request) current = null
+          if (id === generation) controller = null
         },
       }
-      current = request
-      return request
     },
     cancel() {
       generation += 1
-      if (current && !current.done) current.controller.abort()
-      current = null
+      controller?.abort()
+      controller = null
     },
   }
 }
