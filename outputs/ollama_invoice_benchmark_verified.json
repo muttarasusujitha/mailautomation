@@ -1,0 +1,284 @@
+{
+  "model": "qwen3:8b",
+  "created_at": "2026-09-29T16:30:08.515048+00:00",
+  "technical_accuracy_verified": false,
+  "pricing_verified": false,
+  "limitations": [
+    "Passing validates content and resource constraints, not trainer approval.",
+    "No cloud resources were provisioned and no prices were fetched."
+  ],
+  "results": [
+    {
+      "scenario": {
+        "name": "invoice_csv",
+        "domain": "Python",
+        "custom_topics": "CSV; duplicate invoices",
+        "client_notes": "Finance analysts know Python lists and dictionaries. Validate invoice CSV rows; write accepted.csv and rejected.csv with reasons. Use local machines only.",
+        "setup": "local"
+      },
+      "trainer_review_status": "pending",
+      "toc": {
+        "title": "Python training for intermediate learners",
+        "overview": "This one-day training focuses on validating CSV invoice data using Python, with an emphasis on detecting and handling duplicate invoices. Finance analysts will learn to process CSV files, validate rows, and generate accepted and rejected files with clear rejection reasons. The training is designed for intermediate Python users familiar with lists and dictionaries.",
+        "prerequisites": [
+          "Basic knowledge of Python lists and dictionaries.",
+          "Understanding of CSV file structure and file I/O operations.",
+          "Ability to write basic Python scripts for data processing."
+        ],
+        "learning_outcomes": [
+          "Validate CSV invoice rows for required fields and data types.",
+          "Detect duplicate order IDs and log them in rejected.csv.",
+          "Write accepted.csv and rejected.csv with clear rejection reasons.",
+          "Use local machine resources to process and validate CSV files."
+        ],
+        "assumptions": [],
+        "clarification_questions": [],
+        "domain": "Python",
+        "level": "intermediate",
+        "mode": "Online",
+        "duration_days": 1,
+        "hours_per_day": 6.0,
+        "planning_method": "ollama_client_curriculum",
+        "ai_provider": "ollama",
+        "generation_attempts": 2,
+        "requirement_brief": {
+          "audience": "intermediate learners",
+          "outcomes": [
+            "Validate CSV invoice rows for required fields and data types.",
+            "Detect duplicate order IDs and log them in rejected.csv.",
+            "Write accepted.csv and rejected.csv with clear rejection reasons.",
+            "Use local machine resources to process and validate CSV files."
+          ],
+          "required_topics": [
+            "CSV",
+            "duplicate invoices"
+          ],
+          "excluded_topics": [],
+          "prior_knowledge": [],
+          "constraints": [],
+          "clarification_questions": []
+        },
+        "coverage_matrix": {
+          "CSV": [
+            1
+          ],
+          "duplicate invoices": []
+        },
+        "retrieval": {
+          "method": "local_dataset_filter",
+          "embedding_model": null,
+          "corpus_records": 3014,
+          "warnings": []
+        },
+        "reference_candidates": [
+          {
+            "domain": "Python",
+            "title": "File Handling & Exceptions",
+            "subtopics": [
+              "csv.DictReader and explicit field conversion",
+              "Required fields and duplicate order IDs",
+              "ISO date validation and rejection reasons",
+              "Separate row validation from file I/O",
+              "Missing file versus invalid row handling",
+              "Regression tests for valid and rejected rows"
+            ]
+          },
+          {
+            "domain": "Python",
+            "title": "Pandas Data Analysis",
+            "subtopics": [
+              "DataFrames",
+              "Data Cleaning",
+              "Filtering",
+              "GroupBy",
+              "Merge/Join"
+            ]
+          },
+          {
+            "domain": "Python",
+            "title": "Pandas Data Analysis",
+            "subtopics": [
+              "DataFrames",
+              "Data Cleaning",
+              "Filtering",
+              "GroupBy",
+              "Merge/Join"
+            ]
+          },
+          {
+            "domain": "Python",
+            "title": "Data Structures",
+            "subtopics": [
+              "Lists",
+              "Tuples",
+              "Sets",
+              "Dictionaries",
+              "Comprehensions"
+            ]
+          }
+        ],
+        "quality": {
+          "status": "requires_regeneration",
+          "validation_errors": [
+            "Missing requested topic: duplicate invoices",
+            "Missing requested topics: duplicate invoices"
+          ],
+          "review_warnings": [
+            "Ollama-designed topics and sequence require trainer review for technical accuracy and client fit",
+            "Missing requested topics: duplicate invoices",
+            "Missing requested topic: duplicate invoices"
+          ],
+          "content_evaluation": {
+            "status": "fail",
+            "score": 100,
+            "issues": [
+              "Missing requested topics: duplicate invoices"
+            ],
+            "strengths": [
+              "Every module has a delivery sequence with participant activity and evidence",
+              "Every module has assessment evidence",
+              "Every module has a timed delivery plan"
+            ],
+            "module_count": 1,
+            "detailed_modules": 1,
+            "assessable_modules": 1,
+            "timed_modules": 1,
+            "ready_modules": 1,
+            "blocking_issues": [
+              "Missing requested topics: duplicate invoices"
+            ],
+            "technical_accuracy_verified": false,
+            "score_meaning": "Completeness of assessable delivery evidence, not technical accuracy"
+          },
+          "content_score": 100
+        },
+        "days": [
+          {
+            "day": 1,
+            "focus_area": "CSV Invoice Validation and Duplicate Detection",
+            "subtopics": [
+              "Validate invoice CSV rows with required fields",
+              "Detect and handle duplicate order IDs",
+              "Write accepted.csv and rejected.csv with rejection reasons",
+              "Use local machines for file processing and validation"
+            ],
+            "lab": "Validate a CSV file of invoices, detect duplicates, and write accepted and rejected files with reasons.",
+            "learning_objectives": [
+              "Validate CSV invoice rows for required fields and data types.",
+              "Detect duplicate order IDs and log them in rejected.csv.",
+              "Write accepted.csv and rejected.csv with clear rejection reasons.",
+              "Use local machine resources to process and validate CSV files."
+            ],
+            "tools": [
+              "Python 3.10+",
+              "CSV module",
+              "Standard file I/O operations"
+            ],
+            "prerequisites": [
+              "Basic knowledge of Python lists and dictionaries.",
+              "Understanding of CSV file structure and file I/O operations.",
+              "Ability to write basic Python scripts for data processing."
+            ],
+            "preparation_requirements": [
+              "Trainer must prepare sample CSV files with valid and invalid invoice data.",
+              "Trainer must ensure that all required Python modules are installed.",
+              "Trainer must prepare a script template for the lab."
+            ],
+            "prerequisite_days": [],
+            "deliverable": "Accepted.csv and rejected.csv files with valid and invalid invoice rows, respectively.",
+            "assessment": "Check if the script correctly identifies and logs duplicate order IDs and invalid rows.",
+            "acceptance_checks": [
+              {
+                "input_or_condition": "Run the script on a CSV file with one duplicate order ID.",
+                "expected_result": "The script should log the duplicate order ID in rejected.csv.",
+                "evidence": "Check the rejected.csv file for the presence of the duplicate order ID."
+              },
+              {
+                "input_or_condition": "Run the script on a CSV file with missing required fields.",
+                "expected_result": "The script should log the missing fields in rejected.csv.",
+                "evidence": "Check the rejected.csv file for the presence of the missing field error."
+              },
+              {
+                "input_or_condition": "Run the script on a CSV file with valid invoice data.",
+                "expected_result": "The script should log the valid invoice in accepted.csv.",
+                "evidence": "Check the accepted.csv file for the presence of the valid invoice data."
+              }
+            ],
+            "title": "Day 1: CSV Invoice Validation and Duplicate Detection",
+            "minutes": 360,
+            "scenario": "A intermediate participant applies csv invoice validation and duplicate detection to a task described in the client request.",
+            "delivery_steps": [
+              {
+                "method": "Explain and demonstrate",
+                "minutes": 60,
+                "activity": "Introduce CSV Invoice Validation and Duplicate Detection using the client objectives, then demonstrate a short example.",
+                "evidence": "Participants identify the key steps for Validate invoice CSV rows with required fields"
+              },
+              {
+                "method": "Guided practice",
+                "minutes": 270,
+                "activity": "Validate a CSV file of invoices, detect duplicates, and write accepted and rejected files with reasons.",
+                "evidence": "Accepted.csv and rejected.csv files with valid and invalid invoice rows, respectively."
+              },
+              {
+                "method": "Assessment",
+                "minutes": 30,
+                "activity": "Check if the script correctly identifies and logs duplicate order IDs and invalid rows.",
+                "evidence": "Check the rejected.csv file for the presence of the duplicate order ID.; Check the rejected.csv file for the presence of the missing field error.; Check the accepted.csv file for the presence of the valid invoice data."
+              }
+            ],
+            "lab_task": "Validate a CSV file of invoices, detect duplicates, and write accepted and rejected files with reasons.",
+            "morning_session": {
+              "topics": [
+                {
+                  "topic": "Validate invoice CSV rows with required fields",
+                  "type": "lecture"
+                },
+                {
+                  "topic": "Detect and handle duplicate order IDs",
+                  "type": "lecture"
+                },
+                {
+                  "topic": "Write accepted.csv and rejected.csv with rejection reasons",
+                  "type": "lecture"
+                },
+                {
+                  "topic": "Use local machines for file processing and validation",
+                  "type": "lecture"
+                }
+              ]
+            },
+            "afternoon_session": {
+              "topics": [
+                {
+                  "topic": "Validate a CSV file of invoices, detect duplicates, and write accepted and rejected files with reasons.",
+                  "type": "lab"
+                },
+                {
+                  "topic": "Check if the script correctly identifies and logs duplicate order IDs and invalid rows.",
+                  "type": "assessment"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "toc_gate_passed": false,
+      "resources": [
+        {
+          "vm_qty": 0,
+          "vm_profile": "None",
+          "k8s_control_plane": 0,
+          "k8s_worker_nodes": 0,
+          "managed_db": 0,
+          "object_storage_gb": 0.0,
+          "storage_put_requests": 0,
+          "storage_get_requests": 0,
+          "active_days": 1
+        }
+      ],
+      "resource_gate_passed": true,
+      "elapsed_seconds": 289.17
+    }
+  ]
+}

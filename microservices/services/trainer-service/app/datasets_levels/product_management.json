@@ -1,0 +1,573 @@
+{
+  "domain": "Product Management",
+  "name": "Product Management",
+  "category": "Project Management",
+  "icon": "layers",
+  "aliases": ["Product Manager", "Product Manager Training", "Product Management Training", "Digital Product Management", "Technical Product Management", "AI Product Management", "Product Strategy", "Product Discovery", "Product Roadmapping", "Product Leadership", "Product Management for Engineers"],
+  "certifications": ["No single required certification", "Optional: Pragmatic Institute certifications", "Optional: AIPMM Certified Product Manager (CPM)", "Optional: Scrum.org Professional Scrum Product Owner (PSPO I)"],
+  "tools": ["Jira or Azure Boards", "Miro or FigJam", "Figma", "Product analytics such as Amplitude, Mixpanel or Google Analytics", "Excel or Google Sheets", "Productboard or Aha!"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For aspiring and new product managers, business analysts and engineers moving into product roles. Covers the product manager's role, understanding customers and their problems, interviews, market analysis, vision and value propositions, problem statements, requirements and user stories, prioritisation, roadmaps, working with engineering and design, product metrics and analytics, experiments, launches, stakeholders, agile delivery, pricing and the everyday tools of the job.",
+      "prerequisites": ["Works in or near software, digital or product teams", "Comfortable with spreadsheets and basic data", "Curious about customers and business outcomes"],
+      "outcomes": ["Discover customer problems through interviews and research", "Write problem statements, requirements and user stories teams can build from", "Prioritise work and build an outcome-based roadmap", "Define product metrics, read analytics and plan a feature launch"],
+      "days": [
+        {
+          "topic": "Product Management Overview: The Role, the Product Lifecycle and Course Setup",
+          "subtopics": ["What product managers do and do not do", "Product, project and programme management compared", "The product lifecycle from idea to retirement", "Value, usability, feasibility and viability", "Working with engineering, design and business", "Types of product roles: B2C, B2B, platform and internal", "Product management in Indian and global companies", "A week in the life of a product manager", "Course project: choosing a product to work on", "Personal skills baseline"],
+          "tools": ["Role comparison sheet", "Product canvas", "Miro or FigJam"],
+          "lab_task": "Pick a real product for the course project, fill in a one-page product canvas, compare product and project management responsibilities for that product and rate your skills baseline.",
+          "deliverable": "Product canvas, role comparison and skills baseline",
+          "checks": [["Describe the product", "The canvas names users, problem, value and business model", "Product canvas"], ["Compare roles", "Product and project responsibilities are separated correctly", "Role comparison"], ["Rate skills", "The baseline covers discovery, delivery, data and communication", "Skills baseline"]],
+          "objectives": ["Explain the product manager's role", "Describe the product lifecycle", "Set up the course project"]
+        },
+        {
+          "topic": "Understanding Customers: Problems, Jobs to Be Done and Personas",
+          "subtopics": ["Customers, users and buyers", "Jobs to be done", "Pains and gains", "Proto-personas compared with research-based personas", "Customer segments", "Empathy maps", "Avoiding assumptions about users", "Turning insight into problem areas"],
+          "tools": ["Jobs-to-be-done template", "Persona template", "Empathy map"],
+          "lab_task": "Write jobs-to-be-done statements, two proto-personas and an empathy map for your course product, and list the assumptions you will test in interviews.",
+          "deliverable": "Jobs statements, personas, empathy map and assumption list",
+          "checks": [["Write jobs", "Each job states situation, motivation and outcome", "Jobs statements"], ["Build personas", "Personas describe goals and pains, not only demographics", "Personas"], ["List assumptions", "At least five testable assumptions are listed", "Assumption list"]],
+          "objectives": ["Understand customer jobs", "Build useful personas", "Identify assumptions to test"]
+        },
+        {
+          "topic": "Customer Interviews: Planning, Asking and Synthesising",
+          "subtopics": ["Recruiting the right people", "Interview guides", "Open questions about past behaviour", "Avoiding leading questions and pitching", "Taking notes and recording with consent", "Synthesis with affinity mapping", "Insights compared with opinions", "Sharing findings with the team"],
+          "tools": ["Interview guide template", "Recording tool", "Miro or FigJam"],
+          "lab_task": "Run three short customer interviews about your course product, synthesise the notes with an affinity map and present the top three insights with quotes.",
+          "deliverable": "Interview guide, notes, affinity map and insight summary",
+          "checks": [["Ask well", "Questions ask about past behaviour, not hypothetical wishes", "Interview guide and notes"], ["Synthesise", "Insights are grouped from notes across interviews", "Affinity map"], ["Support insights", "Each insight has at least one supporting quote", "Insight summary"]],
+          "objectives": ["Plan and run interviews", "Avoid leading questions", "Turn interviews into insights"]
+        },
+        {
+          "topic": "Market and Competitor Analysis",
+          "subtopics": ["Market size: TAM, SAM and SOM", "Competitor mapping", "Feature comparisons and their limits", "Positioning maps", "Trends and substitutes", "Sources of market data", "Strengths, weaknesses, opportunities and threats", "Writing a one-page market summary"],
+          "tools": ["Excel or Google Sheets", "Competitor map template", "Market research sources"],
+          "lab_task": "Estimate the market for your course product, map four competitors on a positioning map and write a one-page market summary with opportunities.",
+          "deliverable": "Market estimate, positioning map and market summary",
+          "checks": [["Size the market", "TAM, SAM and SOM are estimated with stated assumptions", "Market estimate"], ["Map competitors", "Competitors are positioned on two meaningful dimensions", "Positioning map"], ["Find opportunities", "The summary names at least two opportunities", "Market summary"]],
+          "objectives": ["Size markets", "Analyse competitors", "Spot product opportunities"]
+        },
+        {
+          "topic": "Product Vision and Value Proposition",
+          "subtopics": ["What a product vision is for", "Vision statements that guide decisions", "Value proposition canvas", "Differentiation", "Elevator pitch", "Vision compared with strategy and roadmap", "Testing the vision with stakeholders", "Keeping the vision stable while plans change"],
+          "tools": ["Value proposition canvas", "Vision template", "Pitch timer"],
+          "lab_task": "Write a product vision and a value proposition canvas for your course product, give a sixty-second pitch to the class and revise based on their questions.",
+          "deliverable": "Vision statement, value proposition canvas and pitch",
+          "checks": [["Guide decisions", "The vision helps decide between two sample features", "Decision exercise"], ["Match value to pains", "The canvas links product features to customer pains and gains", "Canvas"], ["Pitch", "The pitch states customer, problem and difference in sixty seconds", "Pitch recording"]],
+          "objectives": ["Write a product vision", "Build a value proposition", "Pitch a product clearly"]
+        },
+        {
+          "topic": "Defining Problems Before Solutions: Opportunity Statements",
+          "subtopics": ["Why teams jump to solutions", "Problem statements and opportunity statements", "Evidence for a problem", "Size and urgency of a problem", "Separating problems from requested features", "How might we questions", "Problem framing with stakeholders", "Choosing which problem to solve first"],
+          "tools": ["Problem statement template", "Evidence log", "Miro or FigJam"],
+          "lab_task": "Turn five feature requests into problem statements, gather evidence for each from your interviews and data, and choose the problem to solve first with reasons.",
+          "deliverable": "Five problem statements with evidence and a chosen problem",
+          "checks": [["Reframe requests", "Each request becomes a problem statement without a solution", "Problem statements"], ["Show evidence", "Each problem has supporting evidence", "Evidence log"], ["Choose", "The chosen problem is justified by size and urgency", "Decision note"]],
+          "objectives": ["Frame problems before solutions", "Gather evidence", "Choose problems to solve"]
+        },
+        {
+          "topic": "Writing Product Requirements: PRDs, User Stories and Acceptance Criteria",
+          "subtopics": ["What a requirements document is for", "One-page PRDs", "User stories and the INVEST criteria", "Acceptance criteria and examples", "Non-functional requirements", "Edge cases and error states", "Splitting large stories", "Reviewing requirements with engineers"],
+          "tools": ["PRD template", "Jira or Azure Boards", "Story splitting guide"],
+          "lab_task": "Write a one-page PRD for the chosen problem, break it into user stories with acceptance criteria, split two large stories and review the set with an engineer.",
+          "deliverable": "PRD and a set of user stories",
+          "checks": [["Write the PRD", "The PRD covers problem, goals, scope, non-goals and success measures", "PRD"], ["Write stories", "Every story has acceptance criteria", "Story set"], ["Review", "Engineer questions are answered in the revised stories", "Review notes"]],
+          "objectives": ["Write useful requirements", "Write user stories with acceptance criteria", "Review requirements with engineers"]
+        },
+        {
+          "topic": "Prioritisation Methods: RICE, MoSCoW and Kano",
+          "subtopics": ["Why prioritisation is a product manager's core job", "RICE scoring", "MoSCoW for releases", "Kano model", "Value and effort grids", "Bias in scoring", "Saying no to stakeholders", "Explaining priorities"],
+          "tools": ["RICE spreadsheet", "Kano survey template", "Excel or Google Sheets"],
+          "lab_task": "Score ten candidate features with RICE, classify five with a Kano survey, combine the results into a ranked list and write the reasons for the top three.",
+          "deliverable": "Scored and ranked feature list with reasons",
+          "checks": [["Score", "RICE scores use stated reach, impact, confidence and effort", "RICE sheet"], ["Classify", "Kano categories come from survey responses", "Kano results"], ["Explain", "The top three priorities have written reasons", "Priority note"]],
+          "objectives": ["Use prioritisation frameworks", "Combine methods", "Explain priorities"]
+        },
+        {
+          "topic": "Roadmaps: Outcome-Based Roadmaps and Communicating Them",
+          "subtopics": ["What roadmaps are for", "Feature roadmaps compared with outcome roadmaps", "Now, next and later", "Themes and goals", "Confidence and dates", "Roadmaps for different audiences", "Updating roadmaps", "Roadmap tools"],
+          "tools": ["Productboard or Aha!", "Miro or FigJam", "Roadmap template"],
+          "lab_task": "Turn a feature list into a now-next-later outcome roadmap for your course product, make versions for executives and engineers, and present it to role-played stakeholders.",
+          "deliverable": "Outcome roadmap in two versions",
+          "checks": [["Focus on outcomes", "Each roadmap item states an outcome", "Roadmap"], ["Show confidence", "Later items have lower date precision than now items", "Roadmap"], ["Tailor", "The two versions suit their audiences", "Both versions"]],
+          "objectives": ["Build outcome-based roadmaps", "Communicate roadmaps", "Update roadmaps"]
+        },
+        {
+          "topic": "Working with Engineering: Estimation, Trade-offs and Technical Debt",
+          "subtopics": ["How engineering teams plan work", "Estimates and uncertainty", "Scope, time and quality trade-offs", "Technical debt and why it matters to product", "Spikes and technical discovery", "Joining refinement and planning", "Building trust with engineers", "Handling disagreements about approach"],
+          "tools": ["Jira or Azure Boards", "Estimation cards", "Technical debt register"],
+          "lab_task": "Run a refinement session with role-played engineers, agree estimates and a trade-off for a deadline, and add two technical debt items to the roadmap with reasons.",
+          "deliverable": "Refined backlog, trade-off decision and debt items",
+          "checks": [["Refine", "Stories have estimates and open questions resolved", "Backlog"], ["Trade off", "The decision states what was cut or delayed and why", "Trade-off note"], ["Value debt", "Debt items have business impact stated", "Debt register"]],
+          "objectives": ["Work well with engineers", "Make trade-offs", "Plan for technical debt"]
+        },
+        {
+          "topic": "Working with Design: Wireframes, Prototypes and Usability Tests",
+          "subtopics": ["The product manager's role in design", "Wireframes and user flows", "Prototypes in Figma", "Usability testing basics in practice", "Task completion and observation", "Feedback that helps designers", "Accessibility in design reviews", "Iterating from test results"],
+          "tools": ["Figma", "Usability test script", "Recording tool"],
+          "lab_task": "Review a user flow and Figma prototype for the chosen problem, run two usability tests with a script and agree three changes with the designer.",
+          "deliverable": "Test script, test notes and agreed changes",
+          "checks": [["Test", "Both tests have tasks with success recorded", "Test notes"], ["Give feedback", "Feedback describes user problems, not preferred solutions", "Feedback notes"], ["Iterate", "Three changes are agreed with the designer", "Change list"]],
+          "objectives": ["Collaborate with designers", "Run usability tests", "Improve designs from evidence"]
+        },
+        {
+          "topic": "Product Metrics: North Star, Inputs and Guardrails",
+          "subtopics": ["Why metrics matter", "North star metrics", "Input metrics that teams can move", "Guardrail metrics", "Leading and lagging indicators", "Vanity metrics", "Metric definitions", "Building a metrics tree"],
+          "tools": ["Metrics tree template", "Excel or Google Sheets", "Product analytics tool"],
+          "lab_task": "Build a metrics tree for your course product with a north star, three input metrics and two guardrails, and write a precise definition for each.",
+          "deliverable": "Metrics tree with definitions",
+          "checks": [["Choose a north star", "The north star reflects customer value", "Metrics tree"], ["Link inputs", "Each input metric plausibly drives the north star", "Metrics tree"], ["Define precisely", "Every metric has a formula and a data source", "Definitions"]],
+          "objectives": ["Choose product metrics", "Build a metrics tree", "Define metrics precisely"]
+        },
+        {
+          "topic": "Product Analytics: Events, Funnels and Retention",
+          "subtopics": ["Event tracking plans", "Funnels and drop-off", "Retention curves and cohorts", "Segmentation", "Data quality checks", "Self-serve analytics tools", "Questions to ask of data", "Sharing findings"],
+          "tools": ["Amplitude, Mixpanel or Google Analytics demo data", "Tracking plan template", "Excel or Google Sheets"],
+          "lab_task": "Write a tracking plan for a feature, analyse a funnel and a retention cohort in sample data, and present two findings with a recommendation.",
+          "deliverable": "Tracking plan, analysis and findings",
+          "checks": [["Plan tracking", "Events have names, properties and triggers", "Tracking plan"], ["Analyse", "The largest funnel drop-off and a retention pattern are identified", "Analysis"], ["Recommend", "Each finding leads to a recommendation", "Findings summary"]],
+          "objectives": ["Plan event tracking", "Analyse funnels and retention", "Turn data into recommendations"]
+        },
+        {
+          "topic": "Experiments and A/B Testing in Practice",
+          "subtopics": ["When to run an experiment", "Hypotheses", "Control and variant", "Primary metric and guardrails", "Sample size in simple terms", "Running time and peeking", "Reading results", "Deciding after the test"],
+          "tools": ["Experiment template", "Sample size calculator", "Sample experiment data"],
+          "lab_task": "Design an A/B test for a feature change with a hypothesis, metrics and sample size, read the results from a sample data set and write the decision.",
+          "deliverable": "Experiment design, results reading and decision",
+          "checks": [["Write a hypothesis", "The hypothesis states change, expected effect and reason", "Experiment design"], ["Size the test", "Sample size is calculated for the stated effect", "Calculation"], ["Decide", "The decision follows from the results and guardrails", "Decision note"]],
+          "objectives": ["Design experiments", "Read A/B test results", "Decide from evidence"]
+        },
+        {
+          "topic": "Launching Features: Go-to-Market Checklists and Release Notes",
+          "subtopics": ["Launch tiers by size and risk", "Launch checklists", "Feature flags and gradual rollouts", "Release notes for customers", "Internal enablement for sales and support", "Launch metrics", "Post-launch review", "When to roll back"],
+          "tools": ["Launch checklist", "Feature flag tool", "Release notes template"],
+          "lab_task": "Plan the launch of a feature with a tier, checklist, gradual rollout, release notes and support briefing, and define launch metrics and a rollback trigger.",
+          "deliverable": "Launch plan with release notes and rollback trigger",
+          "checks": [["Plan the launch", "The checklist covers product, support, sales and marketing", "Launch checklist"], ["Write release notes", "Notes explain the benefit in customer language", "Release notes"], ["Define rollback", "A rollback trigger is linked to a metric", "Launch plan"]],
+          "objectives": ["Plan feature launches", "Communicate releases", "Manage launch risk"]
+        },
+        {
+          "topic": "Stakeholder Management for Product Managers",
+          "subtopics": ["Who product stakeholders are", "Mapping influence and interest", "Regular updates and reviews", "Handling feature requests from executives", "Saying no with evidence", "Aligning sales, support and marketing", "Building alignment before decisions", "Stakeholder communication rhythm"],
+          "tools": ["Stakeholder map", "Update template", "Request intake form"],
+          "lab_task": "Map stakeholders for your course product, handle three role-played feature requests including one from an executive and set up a monthly stakeholder update.",
+          "deliverable": "Stakeholder map, request responses and update template",
+          "checks": [["Map stakeholders", "Each stakeholder has influence, interest and needs", "Stakeholder map"], ["Say no well", "Declined requests are explained with evidence and alternatives", "Response notes"], ["Keep informed", "The update template covers progress, decisions and asks", "Update template"]],
+          "objectives": ["Manage product stakeholders", "Handle feature requests", "Communicate regularly"]
+        },
+        {
+          "topic": "Agile Delivery for Product Managers: Backlogs, Sprints and the Product Owner Role",
+          "subtopics": ["Product manager and product owner roles", "Backlog ordering and refinement", "Sprint planning and sprint goals", "Reviews and stakeholder feedback", "Kanban for product teams", "Definition of done", "Release planning", "Working agreements with the team"],
+          "tools": ["Jira or Azure Boards", "Sprint board", "Scrum Guide"],
+          "lab_task": "Order a backlog for the next two sprints, set sprint goals, run a role-played sprint review and update the backlog from the feedback.",
+          "deliverable": "Ordered backlog, sprint goals and review notes",
+          "checks": [["Order the backlog", "Items are ordered by value and dependencies", "Backlog"], ["Set goals", "Each sprint has a single clear goal", "Sprint goals"], ["Use feedback", "Review feedback leads to backlog changes", "Updated backlog"]],
+          "objectives": ["Work in agile delivery", "Order backlogs", "Use sprint reviews for feedback"]
+        },
+        {
+          "topic": "Pricing and Packaging Decisions",
+          "subtopics": ["Value-based pricing", "Cost-plus and competitor pricing", "Packaging into tiers", "Free trials and freemium", "Willingness to pay research", "Discounts and their effects", "Pricing pages", "Pricing changes and communication"],
+          "tools": ["Pricing survey template", "Excel or Google Sheets", "Competitor pricing sheet"],
+          "lab_task": "Propose a three-tier package for your course product based on willingness-to-pay research and competitor prices, and write the pricing page summary.",
+          "deliverable": "Pricing proposal and pricing page summary",
+          "checks": [["Use research", "Price points are supported by willingness-to-pay data", "Research summary"], ["Package", "Tiers have clear differences in value", "Tier table"], ["Communicate", "The pricing page summary is clear to a new customer", "Page draft"]],
+          "objectives": ["Understand pricing approaches", "Package a product", "Communicate pricing"]
+        },
+        {
+          "topic": "Product Management Tools: Jira, Figma and Analytics in a Week of Work",
+          "subtopics": ["A product manager's weekly rhythm", "Jira or Azure Boards for backlogs and roadmaps", "Figma for reviewing designs", "Analytics dashboards for weekly checks", "Docs and wikis for decisions", "Feedback tools and intake", "AI assistants for product work", "Keeping tools simple"],
+          "tools": ["Jira or Azure Boards", "Figma", "Product analytics tool", "Confluence or Notion"],
+          "lab_task": "Simulate a product manager's week with the course tools: refine a backlog, review a design, check a dashboard, record a decision and process customer feedback.",
+          "deliverable": "Week log with tool outputs",
+          "checks": [["Manage the backlog", "The backlog shows refined and ordered items", "Board screenshot"], ["Record decisions", "A decision is recorded with context and reasons", "Decision record"], ["Process feedback", "Feedback items are tagged and linked to problems", "Feedback log"]],
+          "objectives": ["Use common product tools", "Organise a product manager's week", "Keep decisions and feedback traceable"]
+        },
+        {
+          "topic": "Beginner Capstone: Problem-to-Feature Case from Discovery to Launch Plan",
+          "subtopics": ["Customer problem and evidence", "Problem statement and PRD", "Prioritised stories", "Metrics and tracking plan", "Launch plan", "Presentation to stakeholders"],
+          "tools": ["Miro or FigJam", "Jira or Azure Boards", "Figma", "PowerPoint or Google Slides"],
+          "lab_task": "Take your course product from customer interviews to a launch plan: present the evidence, problem statement, PRD, prioritised stories, metrics and launch plan to a stakeholder panel.",
+          "deliverable": "Product case pack and presentation",
+          "checks": [["Show evidence", "The problem is supported by interview and data evidence", "Case pack"], ["Plan delivery", "Stories, metrics and launch plan are consistent with the PRD", "Case pack"], ["Convince", "The panel approves the plan or sets specific conditions", "Panel notes"]],
+          "objectives": ["Combine beginner product skills", "Go from problem to launch plan", "Present to stakeholders"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For product managers with one to three years of experience who own a product area. Covers continuous discovery, opportunity solution trees, assumption testing, product strategy, outcome OKRs, cost of delay, experiment design, retention and growth loops, product-led growth, monetisation, B2B and platform products, product operations, technical fluency, product debt, go-to-market, customer success feedback, data-informed decisions and AI features.",
+      "prerequisites": ["Has worked as a product manager or product owner for at least a year", "Writes requirements and prioritises a backlog", "Uses product analytics regularly"],
+      "outcomes": ["Run continuous discovery and test assumptions before building", "Set product strategy and outcome OKRs for an area", "Design experiments and drive retention, growth and monetisation", "Work across engineering, marketing, sales and support to deliver outcomes"],
+      "days": [
+        {
+          "topic": "Continuous Discovery Habits: Weekly Customer Contact",
+          "subtopics": ["Discovery as a weekly habit, not a phase", "The product trio: product, design and engineering", "Automating interview recruiting", "Interview snapshots", "Sharing discovery with the wider team", "Balancing discovery and delivery", "Discovery in B2B and regulated settings", "Measuring discovery activity"],
+          "tools": ["Interview snapshot template", "Scheduling tool", "Miro or FigJam"],
+          "lab_task": "Set up a weekly interview cadence for your product area with automated recruiting, run two interviews as a trio and write interview snapshots that the team can use.",
+          "deliverable": "Discovery cadence plan and two interview snapshots",
+          "checks": [["Set a cadence", "The plan schedules at least one interview each week", "Cadence plan"], ["Work as a trio", "Product, design and engineering take part in both interviews", "Interview notes"], ["Share", "Snapshots capture opportunities in a reusable format", "Snapshots"]],
+          "objectives": ["Make discovery continuous", "Work as a product trio", "Share discovery findings"]
+        },
+        {
+          "topic": "Opportunity Solution Trees and Assumption Mapping",
+          "subtopics": ["Desired outcome at the top of the tree", "Opportunities from customer research", "Solutions for each opportunity", "Comparing and choosing opportunities", "Desirability, viability, feasibility and usability assumptions", "Assumption mapping by importance and evidence", "Picking the riskiest assumptions to test", "Updating the tree as you learn"],
+          "tools": ["Opportunity solution tree template", "Assumption map", "Miro or FigJam"],
+          "lab_task": "Build an opportunity solution tree for a product outcome, choose one opportunity with reasons, map assumptions for three solutions and pick the two riskiest to test.",
+          "deliverable": "Opportunity solution tree and assumption map",
+          "checks": [["Link to outcome", "Every opportunity connects to the desired outcome", "Tree"], ["Compare solutions", "At least three solutions are considered for the chosen opportunity", "Tree"], ["Pick risky assumptions", "The two chosen assumptions are high importance and low evidence", "Assumption map"]],
+          "objectives": ["Structure discovery with trees", "Map assumptions", "Choose what to test first"]
+        },
+        {
+          "topic": "Testing Assumptions: Prototypes, Fake Doors and Concierge Tests",
+          "subtopics": ["Matching test types to assumptions", "Prototype tests", "Fake door and painted door tests", "Concierge and Wizard of Oz tests", "Success criteria before testing", "Ethics of fake door tests", "Fast cycles of testing", "Deciding to build, change or stop"],
+          "tools": ["Figma", "Landing page tool", "Test card template"],
+          "lab_task": "Design and run two assumption tests with written success criteria (for example a prototype test and a fake door), and decide whether to build, change or stop the solution.",
+          "deliverable": "Two test cards, results and a decision",
+          "checks": [["Set criteria first", "Success criteria are written before the test runs", "Test cards"], ["Run tests", "Both tests produce evidence against the criteria", "Results"], ["Decide", "The decision follows from the evidence", "Decision note"]],
+          "objectives": ["Test assumptions cheaply", "Choose the right test type", "Decide with evidence"]
+        },
+        {
+          "topic": "Product Strategy: Where to Play and How to Win",
+          "subtopics": ["Strategy as choices", "Target customers and segments", "Sources of advantage", "Strategic bets and their risks", "Strategy kernel: diagnosis, guiding policy, actions", "Linking strategy to roadmap and OKRs", "Communicating strategy to teams", "Reviewing strategy regularly"],
+          "tools": ["Strategy canvas", "Strategy kernel template", "Competitor analysis"],
+          "lab_task": "Write a one-page product strategy for your area with a diagnosis, target segment, advantage and three bets, and test it by deciding between two roadmap options.",
+          "deliverable": "One-page product strategy and option decision",
+          "checks": [["Make choices", "The strategy says which customers and problems are not targeted", "Strategy page"], ["Diagnose", "The diagnosis names the key challenge with evidence", "Strategy page"], ["Guide decisions", "The strategy decides between the two options", "Decision note"]],
+          "objectives": ["Write product strategy", "Make clear strategic choices", "Use strategy to guide roadmaps"]
+        },
+        {
+          "topic": "Outcome-Based OKRs for Product Teams",
+          "subtopics": ["Outputs compared with outcomes", "Writing product objectives", "Key results that measure behaviour change", "Linking OKRs to strategy", "Team OKRs and company OKRs", "Weekly check-ins", "Scoring and learning from OKRs", "Common OKR mistakes in product teams"],
+          "tools": ["OKR template", "Metrics tree", "Dashboard"],
+          "lab_task": "Write quarterly OKRs for your product team that measure customer behaviour, link them to the strategy and metrics tree, and run a mid-quarter check-in with sample data.",
+          "deliverable": "Team OKRs and a check-in report",
+          "checks": [["Measure outcomes", "No key result is a feature delivery", "OKR sheet"], ["Link", "Each objective links to the strategy", "OKR sheet"], ["Check in", "The check-in reports progress and confidence for each key result", "Check-in report"]],
+          "objectives": ["Write outcome OKRs", "Link OKRs to strategy", "Track OKRs during the quarter"]
+        },
+        {
+          "topic": "Advanced Prioritisation: Cost of Delay and Opportunity Scoring",
+          "subtopics": ["Cost of delay", "CD3: cost of delay divided by duration", "Opportunity scoring from importance and satisfaction", "Portfolio balance: growth, retention and debt", "Prioritising across teams", "Dependencies and sequencing", "Re-prioritising when facts change", "Communicating changes in priority"],
+          "tools": ["Cost of delay calculator", "Excel or Google Sheets", "Survey data"],
+          "lab_task": "Calculate cost of delay and CD3 for eight initiatives, score opportunities from survey data, build a balanced quarter plan and explain one priority change to stakeholders.",
+          "deliverable": "Prioritised quarter plan with calculations",
+          "checks": [["Calculate", "Cost of delay and CD3 are calculated with stated assumptions", "Calculation sheet"], ["Balance", "The plan includes growth, retention and debt work", "Quarter plan"], ["Explain change", "The priority change is explained with the new evidence", "Stakeholder note"]],
+          "objectives": ["Prioritise with cost of delay", "Balance a product portfolio", "Explain priority changes"]
+        },
+        {
+          "topic": "Experiment Design: Hypotheses, Sample Size and Pitfalls",
+          "subtopics": ["Experiment design beyond simple A/B tests", "Power and minimum detectable effect", "Novelty effects and seasonality", "Multiple testing problems", "Network effects and interference", "Experiment review boards", "When not to experiment", "Writing experiment readouts"],
+          "tools": ["Sample size calculator", "Experiment readout template", "Sample experiment data"],
+          "lab_task": "Review three flawed experiment designs, fix each one, design a new experiment with power and minimum detectable effect, and write a readout from sample results.",
+          "deliverable": "Fixed designs, new experiment design and readout",
+          "checks": [["Find flaws", "Each flawed design has its main problem identified", "Review notes"], ["Size properly", "The new design states power and minimum detectable effect", "Experiment design"], ["Report", "The readout states result, confidence and decision", "Readout"]],
+          "objectives": ["Design reliable experiments", "Avoid common pitfalls", "Report results clearly"]
+        },
+        {
+          "topic": "Retention, Engagement and Growth Loops",
+          "subtopics": ["Why retention comes before acquisition", "Activation and the aha moment", "Engagement measures", "Growth loops compared with funnels", "Referral and content loops", "Habit-forming features and their ethics", "Resurrection of dormant users", "Retention experiments"],
+          "tools": ["Product analytics tool", "Cohort analysis sheet", "Growth loop template"],
+          "lab_task": "Find the activation moment in sample data, map one growth loop for your product and design two retention experiments with metrics.",
+          "deliverable": "Activation analysis, growth loop map and experiment designs",
+          "checks": [["Find activation", "The activation moment is supported by cohort data", "Activation analysis"], ["Map the loop", "The loop shows input, action, output and reinvestment", "Loop map"], ["Design experiments", "Each experiment targets a retention metric", "Experiment designs"]],
+          "objectives": ["Improve retention", "Design growth loops", "Run retention experiments"]
+        },
+        {
+          "topic": "Product-Led Growth and Onboarding",
+          "subtopics": ["What product-led growth means", "Free trials, freemium and reverse trials", "Onboarding flows", "Time to value", "In-product prompts and checklists", "Product-qualified leads", "Self-serve and sales-assisted motions", "Measuring onboarding success"],
+          "tools": ["Onboarding flow template", "Product analytics tool", "Figma"],
+          "lab_task": "Map the current onboarding of a product, measure time to value from sample data, redesign the first-run experience and define product-qualified lead criteria.",
+          "deliverable": "Onboarding map, redesigned flow and PQL criteria",
+          "checks": [["Measure time to value", "Time to value is calculated from data", "Analysis"], ["Redesign", "The new flow removes at least two steps before first value", "Flow design"], ["Define PQLs", "PQL criteria use product behaviour", "Criteria"]],
+          "objectives": ["Apply product-led growth", "Improve onboarding", "Define product-qualified leads"]
+        },
+        {
+          "topic": "Pricing Strategy and Monetisation Experiments",
+          "subtopics": ["Monetisation models: subscription, usage, transaction and ads", "Value metrics", "Price testing methods", "Van Westendorp and conjoint in brief", "Upgrades, add-ons and expansion revenue", "Discounting policy", "Communicating price changes", "Measuring monetisation"],
+          "tools": ["Pricing research templates", "Excel or Google Sheets", "Product analytics tool"],
+          "lab_task": "Choose a value metric for your product, design a price test, analyse sample willingness-to-pay data and recommend a change with expected revenue impact.",
+          "deliverable": "Value metric choice, price test design and recommendation",
+          "checks": [["Choose a value metric", "The metric grows with customer value", "Choice note"], ["Test prices", "The test design controls for segment and timing", "Test design"], ["Estimate impact", "Revenue impact is estimated with assumptions", "Recommendation"]],
+          "objectives": ["Choose monetisation models", "Test prices", "Estimate revenue impact"]
+        },
+        {
+          "topic": "B2B Product Management: Buyers, Users and Enterprise Requirements",
+          "subtopics": ["Buyers, users and influencers in B2B", "Enterprise requirements: security, compliance and integration", "Requests from large customers", "Customer advisory boards", "Configurability compared with customisation", "Contracts and roadmap commitments", "Working with sales engineers", "B2B discovery"],
+          "tools": ["Account map", "Requirement intake form", "Customer advisory board agenda"],
+          "lab_task": "Map buyers and users for an enterprise deal, evaluate three large-customer requests against strategy, and plan a customer advisory board session.",
+          "deliverable": "Account map, request evaluations and advisory board plan",
+          "checks": [["Map roles", "Buyers, users and influencers are identified with needs", "Account map"], ["Evaluate requests", "Each request is accepted, adapted or declined with reasons", "Evaluations"], ["Plan the board", "The agenda focuses on problems, not feature voting", "Board agenda"]],
+          "objectives": ["Manage B2B products", "Handle enterprise requests", "Run customer advisory boards"]
+        },
+        {
+          "topic": "Platform and API Products",
+          "subtopics": ["Platform products and their customers", "Developer experience", "API design decisions from a product view", "Documentation and onboarding for developers", "Versioning and deprecation", "Platform metrics", "Internal platforms", "Ecosystem partners"],
+          "tools": ["API documentation examples", "Developer journey map", "Platform metrics template"],
+          "lab_task": "Map the developer journey for an API product, find three friction points, propose a versioning and deprecation policy and define platform metrics.",
+          "deliverable": "Developer journey map, policy and metrics",
+          "checks": [["Map the journey", "The map runs from discovery to first successful call", "Journey map"], ["Set policy", "The policy covers versions, notice periods and support", "Policy"], ["Measure", "Metrics include time to first call and active integrations", "Metrics"]],
+          "objectives": ["Manage platform products", "Improve developer experience", "Govern API change"]
+        },
+        {
+          "topic": "Product Operations: Feedback Systems and Insights",
+          "subtopics": ["What product operations does", "Feedback intake from sales, support and users", "Tagging and linking feedback to problems", "Insight reports", "Product tooling and data", "Release and launch processes", "Product rituals and templates", "Measuring product operations"],
+          "tools": ["Productboard or Aha!", "Feedback tagging taxonomy", "Dashboard"],
+          "lab_task": "Design a feedback system with intake channels and tags, process fifty sample feedback items and produce a monthly insight report for leadership.",
+          "deliverable": "Feedback system design and an insight report",
+          "checks": [["Design intake", "All channels feed one system with tags", "System design"], ["Process feedback", "Items are tagged and linked to problems", "Feedback log"], ["Report insights", "The report ranks problems by frequency and impact", "Insight report"]],
+          "objectives": ["Set up product operations", "Process feedback at scale", "Report product insights"]
+        },
+        {
+          "topic": "Technical Fluency for Product Managers: Architecture, APIs and Data",
+          "subtopics": ["How web and mobile systems fit together", "APIs and integrations", "Databases and data models", "Cloud services and costs", "Performance and reliability", "Security and privacy by design"],
+          "tools": ["Architecture diagram examples", "API explorer such as Postman", "Cloud pricing calculator"],
+          "lab_task": "Read an architecture diagram with an engineer, trace one user action through the system, make an API call with Postman and estimate the cloud cost of a new feature.",
+          "deliverable": "Annotated diagram, traced flow and cost estimate",
+          "checks": [["Trace a flow", "The user action is traced through each component", "Annotated diagram"], ["Use an API", "A request and response are explained in plain terms", "Postman screenshot"], ["Estimate cost", "The cost estimate states assumptions", "Cost estimate"]],
+          "objectives": ["Understand system architecture", "Work with APIs and data", "Estimate technical costs"]
+        },
+        {
+          "topic": "Managing Product Debt and Quality Trade-offs",
+          "subtopics": ["Technical, design and product debt", "Measuring the cost of debt", "Quality targets and error budgets", "Planning debt work in roadmaps", "Feature removal and simplification", "Quality incidents and product response", "Talking about debt with executives", "Preventing new debt"],
+          "tools": ["Debt register", "Error budget sheet", "Roadmap template"],
+          "lab_task": "Build a debt register for a product area with costs, set an error budget with engineering and add a debt reduction theme to the roadmap with a business case.",
+          "deliverable": "Debt register, error budget and roadmap theme",
+          "checks": [["Measure debt", "Each debt item has an estimated cost or risk", "Debt register"], ["Set targets", "The error budget is agreed with engineering", "Error budget"], ["Justify", "The business case explains the value of the debt work", "Business case"]],
+          "objectives": ["Manage product debt", "Balance quality and features", "Explain debt to executives"]
+        },
+        {
+          "topic": "Go-to-Market with Marketing and Sales: Positioning and Enablement",
+          "subtopics": ["Positioning statements", "Messaging for segments", "Launch plans with marketing", "Sales enablement", "Competitive battle cards", "Pricing and packaging at launch", "Analyst and partner briefings", "Measuring go-to-market success"],
+          "tools": ["Positioning template", "Battle card template", "Launch plan"],
+          "lab_task": "Write a positioning statement and messaging for two segments, build a battle card and run a role-played sales enablement session for a new feature.",
+          "deliverable": "Positioning, messaging, battle card and enablement notes",
+          "checks": [["Position", "The statement names target, category, benefit and difference", "Positioning statement"], ["Equip sales", "The battle card covers objections and competitor comparisons", "Battle card"], ["Enable", "Role-played sellers can explain the feature value", "Session notes"]],
+          "objectives": ["Position products", "Enable sales teams", "Plan go-to-market with marketing"]
+        },
+        {
+          "topic": "Customer Success and Support Feedback Loops",
+          "subtopics": ["What support and success teams know", "Support ticket analysis", "Churn reasons and risk signals", "Health scores", "Closing the loop with customers", "Joint reviews with customer success", "Self-service and help content", "Measuring feedback loop health"],
+          "tools": ["Support ticket export", "Health score template", "Excel or Google Sheets"],
+          "lab_task": "Analyse a month of support tickets for themes, define a customer health score with customer success, and write a close-the-loop message for customers whose problem was fixed.",
+          "deliverable": "Ticket analysis, health score and close-the-loop message",
+          "checks": [["Find themes", "Top ticket themes are ranked by volume and impact", "Ticket analysis"], ["Define health", "The health score uses product and support signals", "Health score"], ["Close the loop", "The message tells customers what changed", "Message"]],
+          "objectives": ["Use support and success insight", "Define health scores", "Close feedback loops"]
+        },
+        {
+          "topic": "Data-Informed Decisions: Dashboards, Cohorts and Causality",
+          "subtopics": ["Data-informed compared with data-driven", "Product dashboards that drive action", "Cohort comparisons", "Correlation and causation", "Simpson's paradox and other traps", "Qualitative and quantitative together", "Decision records with data", "Data literacy for the product team"],
+          "tools": ["Product analytics tool", "Dashboard tool", "Decision record template"],
+          "lab_task": "Build a product dashboard for weekly reviews, analyse a cohort question from sample data, find one misleading correlation and record a decision with its evidence.",
+          "deliverable": "Dashboard, cohort analysis and decision record",
+          "checks": [["Build for action", "Each dashboard chart links to a decision or owner", "Dashboard"], ["Avoid traps", "The misleading correlation is explained", "Analysis note"], ["Record decisions", "The decision record cites data and research", "Decision record"]],
+          "objectives": ["Use data well in decisions", "Analyse cohorts", "Avoid causal mistakes"]
+        },
+        {
+          "topic": "AI Features: Use Cases, Evaluation and Responsible Design",
+          "subtopics": ["Finding good AI use cases", "When not to use AI", "Prototyping with LLM APIs", "Evaluation sets and quality measures", "Hallucination, bias and safety risks", "Human review and fallbacks", "Cost and latency trade-offs", "Communicating AI limits to users"],
+          "tools": ["LLM playground", "Evaluation spreadsheet", "Figma"],
+          "lab_task": "Choose an AI use case for your product, prototype it with an LLM playground, build a twenty-case evaluation set, measure quality and design the fallback and user messaging.",
+          "deliverable": "AI use case, prototype results, evaluation and design notes",
+          "checks": [["Choose well", "The use case explains why AI fits the problem", "Use case note"], ["Evaluate", "Quality is measured on the evaluation set", "Evaluation results"], ["Design safely", "Fallbacks and user messages handle failures", "Design notes"]],
+          "objectives": ["Choose AI use cases", "Evaluate AI features", "Design AI features responsibly"]
+        },
+        {
+          "topic": "Intermediate Capstone: Discovery-to-Delivery Plan for a Growth Opportunity",
+          "subtopics": ["Outcome and strategy link", "Opportunity solution tree", "Assumption tests and results", "Experiment plan", "Go-to-market plan", "Presentation to product leadership"],
+          "tools": ["Miro or FigJam", "Product analytics tool", "Experiment template", "PowerPoint or Google Slides"],
+          "lab_task": "Choose a growth opportunity, take it from outcome to opportunity tree, run two assumption tests, design the experiment and go-to-market plan and present it to role-played product leadership.",
+          "deliverable": "Discovery-to-delivery plan and presentation",
+          "checks": [["Link outcome", "The plan links to strategy and OKRs", "Plan"], ["Show evidence", "Assumption tests support the chosen solution", "Test results"], ["Win approval", "Leadership approves the plan or sets specific conditions", "Leadership notes"]],
+          "objectives": ["Combine intermediate product skills", "Plan from discovery to delivery", "Present to product leadership"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior product managers, group product managers and heads of product. Covers leading product managers, portfolio strategy, multi-year vision, product organisation design, business models and unit economics, AI-native products, platform strategy, pricing at scale, international expansion, rationalising products after acquisitions, executive reviews, metrics and experimentation platforms, regulation and trust, sunsetting, new bets, hiring and career ladders, product culture, competitive response and investment cases.",
+      "prerequisites": ["Has owned a product or product area for several years", "Leads other product managers or a significant product line", "Takes part in business planning and investment decisions"],
+      "outcomes": ["Set portfolio strategy and multi-year vision across products", "Design product organisations, career ladders and an empowered product culture", "Make business model, pricing, platform and investment decisions with evidence", "Lead products through regulation, competition, acquisitions and retirement"],
+      "days": [
+        {
+          "topic": "Product Leadership: Leading Product Managers and Product Teams",
+          "subtopics": ["From product manager to product leader", "Setting context instead of making every decision", "Coaching product managers", "Product reviews that teach", "Holding teams accountable for outcomes", "Managing up and across the executive team", "Your weekly rhythm as a product leader", "Common product leadership failures"],
+          "tools": ["Coaching template", "Product review agenda", "One-to-one template"],
+          "lab_task": "Run a role-played product review that coaches rather than directs, hold a coaching one-to-one with a struggling product manager and design your weekly leadership rhythm.",
+          "deliverable": "Review notes, coaching notes and leadership rhythm",
+          "checks": [["Coach in reviews", "Most leader contributions in the review are questions", "Observer tally"], ["Develop people", "The one-to-one ends with development actions", "Coaching notes"], ["Plan rhythm", "The rhythm includes reviews, coaching and strategy time", "Rhythm document"]],
+          "objectives": ["Lead product managers", "Run coaching product reviews", "Hold teams to outcomes"]
+        },
+        {
+          "topic": "Portfolio Strategy Across Multiple Products",
+          "subtopics": ["Portfolio views: lifecycle, growth and investment", "Allocating investment across products", "Core, adjacent and new bets", "Shared capabilities across products", "Cannibalisation and overlap", "Portfolio metrics", "Portfolio reviews", "Stopping investment"],
+          "tools": ["Portfolio matrix", "Investment allocation sheet", "Excel or Google Sheets"],
+          "lab_task": "Analyse a portfolio of five products, propose an investment allocation across core, adjacent and new bets and recommend one product for reduced investment.",
+          "deliverable": "Portfolio analysis and allocation proposal",
+          "checks": [["Analyse", "Each product has lifecycle, growth and margin data", "Portfolio analysis"], ["Allocate", "The allocation follows the stated strategy", "Allocation proposal"], ["Stop something", "The reduced-investment recommendation is justified", "Recommendation"]],
+          "objectives": ["Manage a product portfolio", "Allocate investment", "Decide where to stop investing"]
+        },
+        {
+          "topic": "Building Product Vision and Multi-Year Strategy",
+          "subtopics": ["Vision for three to five years", "Future customer and market scenarios", "Strategic themes", "Capabilities to build or buy", "Linking long-term vision to annual plans", "Narrative documents for strategy", "Socialising strategy with executives", "Revisiting the vision"],
+          "tools": ["Narrative document template", "Scenario planning template", "Strategy canvas"],
+          "lab_task": "Write a six-page strategy narrative for a product line with a three-year vision, scenarios, themes and capability plan, and review it with role-played executives.",
+          "deliverable": "Strategy narrative and review notes",
+          "checks": [["Look ahead", "The narrative covers scenarios for three years", "Narrative"], ["Link to plans", "Themes connect to the next year's plan", "Narrative"], ["Win support", "Executive questions are answered in the revised narrative", "Review notes"]],
+          "objectives": ["Build multi-year vision", "Write strategy narratives", "Align executives"]
+        },
+        {
+          "topic": "Product Organisation Design: Team Topologies and Ownership",
+          "subtopics": ["Organising teams by customer, product or capability", "Stream-aligned and platform teams", "Ownership boundaries and dependencies", "Ratio of product managers to engineers", "Product operations and design operations", "Changing structures without losing momentum", "Measuring team autonomy", "Interfaces with sales and marketing"],
+          "tools": ["Team topology map", "Dependency map", "Organisation design canvas"],
+          "lab_task": "Map the teams and dependencies of a case product organisation, design a new team structure that reduces dependencies and plan the transition.",
+          "deliverable": "Current map, new design and transition plan",
+          "checks": [["Map dependencies", "Cross-team dependencies are identified", "Dependency map"], ["Reduce dependencies", "The new design cuts dependencies for key outcomes", "New design"], ["Plan transition", "The plan covers people, ownership and timing", "Transition plan"]],
+          "objectives": ["Design product organisations", "Clarify ownership", "Reduce team dependencies"]
+        },
+        {
+          "topic": "Business Models and Unit Economics",
+          "subtopics": ["Business model types", "Customer acquisition cost", "Lifetime value", "Gross margin and contribution margin", "Payback period", "Cohort economics", "Unit economics for marketplaces and platforms", "Improving unit economics through product"],
+          "tools": ["Unit economics model", "Excel or Google Sheets", "Sample financial data"],
+          "lab_task": "Build a unit economics model for a case product, find the weakest metric and propose two product changes with their expected effect on payback.",
+          "deliverable": "Unit economics model and improvement proposal",
+          "checks": [["Model", "CAC, LTV, margin and payback are calculated", "Model"], ["Diagnose", "The weakest metric is identified with evidence", "Analysis"], ["Improve", "Each proposal states its expected effect", "Proposal"]],
+          "objectives": ["Analyse business models", "Calculate unit economics", "Improve economics through product"]
+        },
+        {
+          "topic": "Building AI-Native Products: Models, Data and Evaluation at Scale",
+          "subtopics": ["What makes a product AI-native", "Choosing models: hosted, open and fine-tuned", "Data strategy and feedback loops", "Evaluation pipelines and quality gates", "Cost and latency management at scale", "Safety, abuse and red teaming", "Pricing AI features", "Organising teams around AI products"],
+          "tools": ["Model comparison sheet", "Evaluation pipeline examples", "Cost model"],
+          "lab_task": "Write a strategy for an AI-native product covering model choice, data feedback loops, evaluation gates, cost model and safety plan, and defend it to a role-played review board.",
+          "deliverable": "AI product strategy and review notes",
+          "checks": [["Choose models", "The model choice compares quality, cost and control", "Strategy"], ["Gate quality", "Evaluation gates are defined before release", "Strategy"], ["Plan safety", "The safety plan covers abuse and red teaming", "Strategy"]],
+          "objectives": ["Build AI-native products", "Plan evaluation at scale", "Manage AI cost and safety"]
+        },
+        {
+          "topic": "Platform Strategy and Ecosystems",
+          "subtopics": ["Platforms, marketplaces and ecosystems", "Network effects", "Partners and third-party developers", "Platform governance and policies", "Opening and closing a platform", "Platform monetisation", "Measuring ecosystem health", "Risks of platform dependency"],
+          "tools": ["Ecosystem map", "Network effects analysis", "Partner programme template"],
+          "lab_task": "Map the ecosystem for a case platform, identify its network effects, design a partner programme and define ecosystem health metrics.",
+          "deliverable": "Ecosystem map, partner programme and health metrics",
+          "checks": [["Map", "The map shows participants and value flows", "Ecosystem map"], ["Design", "The partner programme states benefits, rules and tiers", "Partner programme"], ["Measure", "Health metrics cover supply, demand and quality", "Metrics"]],
+          "objectives": ["Build platform strategy", "Use network effects", "Govern ecosystems"]
+        },
+        {
+          "topic": "Pricing at Scale: Tiers, Usage-Based Pricing and Price Changes",
+          "subtopics": ["Pricing architecture", "Usage-based and hybrid pricing", "Enterprise pricing and negotiation guidelines", "Regional pricing", "Grandfathering and migration", "Price increase communication", "Revenue and churn effects", "Pricing governance"],
+          "tools": ["Pricing model", "Excel or Google Sheets", "Customer migration plan template"],
+          "lab_task": "Redesign the pricing architecture of a case product to include usage-based pricing, model revenue and churn effects and plan the migration of existing customers.",
+          "deliverable": "Pricing architecture, model and migration plan",
+          "checks": [["Design", "Tiers and usage metrics align with customer value", "Pricing architecture"], ["Model effects", "Revenue and churn effects are modelled with scenarios", "Model"], ["Migrate", "The plan covers communication and grandfathering", "Migration plan"]],
+          "objectives": ["Design pricing at scale", "Model pricing effects", "Migrate customers fairly"]
+        },
+        {
+          "topic": "International Expansion and Localisation of Products",
+          "subtopics": ["Choosing markets", "Localisation beyond translation", "Payments, tax and regulation by country", "Pricing by region", "Local competitors", "Go-to-market by country", "Operating across time zones", "Measuring market success"],
+          "tools": ["Market scoring model", "Localisation checklist", "Excel or Google Sheets"],
+          "lab_task": "Score four candidate countries for expansion, choose one, write the localisation checklist and launch plan, and define success measures for the first year.",
+          "deliverable": "Market scoring, localisation checklist and launch plan",
+          "checks": [["Choose a market", "The choice is supported by the scoring model", "Scoring model"], ["Localise", "The checklist covers language, payments, regulation and support", "Checklist"], ["Measure", "First-year success measures are defined", "Launch plan"]],
+          "objectives": ["Plan international expansion", "Localise products", "Measure new market success"]
+        },
+        {
+          "topic": "Product Rationalisation After Acquisitions",
+          "subtopics": ["Overlapping products after an acquisition", "Customer and revenue analysis", "Choosing which products to keep", "Migration paths for customers", "Integration of data and identity", "Team and culture integration", "Communication to customers and partners", "Measuring migration success"],
+          "tools": ["Product overlap matrix", "Migration plan template", "Revenue analysis sheet"],
+          "lab_task": "Analyse two overlapping products after a case acquisition, decide what to keep, merge or retire, and write the customer migration and communication plan.",
+          "deliverable": "Overlap analysis, decision and migration plan",
+          "checks": [["Analyse", "Revenue, customers and capabilities are compared", "Overlap analysis"], ["Decide", "The decision is justified for customers and the business", "Decision note"], ["Migrate", "The migration plan includes timing and support", "Migration plan"]],
+          "objectives": ["Rationalise products", "Plan customer migrations", "Communicate product changes"]
+        },
+        {
+          "topic": "Executive Reviews for Product Leaders: Strategy Updates and Board Reporting",
+          "subtopics": ["What executives need from product", "Quarterly business reviews", "Board updates on product", "Showing progress on outcomes", "Asking for investment", "Reporting bad news", "Handling challenge from executives", "Follow-up after reviews"],
+          "tools": ["QBR template", "Board update template", "Dashboard"],
+          "lab_task": "Prepare and deliver a quarterly business review for a product line with outcome progress, an investment ask and one piece of bad news, then handle challenge from a mock executive team.",
+          "deliverable": "QBR deck and review notes",
+          "checks": [["Show outcomes", "Progress is reported against OKRs", "QBR deck"], ["Ask clearly", "The investment ask has expected return and risks", "QBR deck"], ["Handle challenge", "Questions are answered directly", "Review notes"]],
+          "objectives": ["Report to executives", "Ask for investment", "Handle executive challenge"]
+        },
+        {
+          "topic": "Metrics Trees and Experimentation Platforms at Scale",
+          "subtopics": ["Company-level metrics trees", "Metric ownership across teams", "Experimentation platforms", "Experiment velocity and quality", "Guardrails across the company", "Long-term effects and holdouts", "Building an experimentation culture", "Governance of metrics"],
+          "tools": ["Metrics tree template", "Experimentation platform examples", "Governance template"],
+          "lab_task": "Build a company metrics tree with owners, design an experimentation programme with holdouts and guardrails, and write metric governance rules.",
+          "deliverable": "Metrics tree, experimentation programme and governance rules",
+          "checks": [["Assign ownership", "Every metric in the tree has an owner team", "Metrics tree"], ["Plan holdouts", "Long-term holdouts are included", "Programme design"], ["Govern", "Rules cover definitions, changes and reviews", "Governance rules"]],
+          "objectives": ["Scale metrics and experimentation", "Assign metric ownership", "Govern metrics"]
+        },
+        {
+          "topic": "Regulation, Privacy and Trust in Product Decisions",
+          "subtopics": ["Regulations affecting products: GDPR, India's DPDP Act and sector rules", "Privacy by design", "Consent and data minimisation", "AI regulation and transparency", "Accessibility requirements", "Trust and safety teams", "Balancing growth and trust", "Regulatory change roadmaps"],
+          "tools": ["Privacy impact assessment template", "Accessibility checklist", "Regulatory tracker"],
+          "lab_task": "Run a privacy impact assessment for a new data-driven feature, check accessibility requirements, and plan product changes for an upcoming regulation.",
+          "deliverable": "Privacy assessment, accessibility check and regulatory plan",
+          "checks": [["Assess privacy", "Data flows, risks and mitigations are documented", "Privacy assessment"], ["Check accessibility", "Accessibility gaps have fixes planned", "Accessibility check"], ["Plan for regulation", "The plan has deadlines and owners", "Regulatory plan"]],
+          "objectives": ["Build trust into products", "Meet privacy and accessibility rules", "Plan for regulation"]
+        },
+        {
+          "topic": "Sunsetting Products and Features",
+          "subtopics": ["When to retire a product or feature", "Usage and revenue analysis", "Customer impact and alternatives", "Notice periods and contracts", "Migration support", "Internal communication", "Removing code and data", "Measuring sunset success"],
+          "tools": ["Sunset checklist", "Customer impact analysis", "Communication templates"],
+          "lab_task": "Decide whether to sunset a low-usage feature from case data, write the sunset plan with notice, migration and communication, and define how success will be measured.",
+          "deliverable": "Sunset decision and plan",
+          "checks": [["Decide", "The decision uses usage, revenue and cost data", "Decision note"], ["Plan", "The plan covers notice, migration and support", "Sunset plan"], ["Communicate", "Customer messages explain alternatives", "Communication drafts"]],
+          "objectives": ["Retire products well", "Support affected customers", "Reduce product complexity"]
+        },
+        {
+          "topic": "Finding Product-Market Fit for New Bets",
+          "subtopics": ["Signals of product-market fit", "Sean Ellis survey and retention signals", "Small, fast teams for new bets", "Funding stages for internal bets", "Kill criteria", "Protecting new bets from the core business", "Moving from fit to scale", "Learning from failed bets"],
+          "tools": ["Product-market fit survey", "Bet funding template", "Retention analysis"],
+          "lab_task": "Evaluate a case new bet against product-market fit signals, decide whether to fund, pivot or stop it using kill criteria, and write the next stage plan.",
+          "deliverable": "Fit evaluation, decision and next stage plan",
+          "checks": [["Measure fit", "Survey and retention signals are analysed", "Fit evaluation"], ["Use kill criteria", "The decision applies criteria set in advance", "Decision note"], ["Plan next stage", "The plan has goals and funding for the next stage", "Stage plan"]],
+          "objectives": ["Assess product-market fit", "Fund new bets in stages", "Stop bets that fail"]
+        },
+        {
+          "topic": "Hiring, Coaching and Career Ladders for Product Managers",
+          "subtopics": ["Product manager competencies", "Career ladders and levels", "Hiring product managers", "Interview loops and exercises", "Onboarding new product managers", "Performance reviews for product managers", "Promotion decisions", "Building a product community"],
+          "tools": ["Competency matrix", "Interview loop template", "Career ladder template"],
+          "lab_task": "Write a product manager career ladder with competencies by level, design an interview loop with an exercise and assess two sample candidates.",
+          "deliverable": "Career ladder, interview loop and candidate assessments",
+          "checks": [["Define levels", "Each level has observable competencies", "Career ladder"], ["Design hiring", "The loop tests discovery, delivery and communication", "Interview loop"], ["Assess fairly", "Candidates are assessed against the same criteria", "Assessments"]],
+          "objectives": ["Build product careers", "Hire product managers", "Assess and promote fairly"]
+        },
+        {
+          "topic": "Product Culture and Operating Model: Empowered Teams",
+          "subtopics": ["Feature teams compared with empowered product teams", "Operating model for product", "Planning cycles", "Decision rights between product, design and engineering", "Rituals that reinforce culture", "Changing culture in a sales-led company", "Measuring empowerment", "Leading the change"],
+          "tools": ["Operating model canvas", "Culture survey", "Decision rights matrix"],
+          "lab_task": "Assess the product operating model of a case company, design a target model with empowered teams and decision rights, and plan the culture change.",
+          "deliverable": "Assessment, target operating model and change plan",
+          "checks": [["Assess", "The assessment identifies feature-team behaviours", "Assessment"], ["Design", "The target model defines planning, decisions and rituals", "Target model"], ["Plan change", "The plan has phases and measures", "Change plan"]],
+          "objectives": ["Build empowered product teams", "Design product operating models", "Lead culture change"]
+        },
+        {
+          "topic": "Competitive Strategy and Responding to Disruption",
+          "subtopics": ["Competitive moves and responses", "Disruptive innovation", "When to fast follow and when to differentiate", "War gaming", "Defending core customers", "Partnerships as a response", "Signals of disruption", "Long-term competitive advantage"],
+          "tools": ["War game template", "Competitor tracker", "Strategy canvas"],
+          "lab_task": "Run a war game where a competitor launches a cheaper AI-based alternative, choose your response and write the product and go-to-market changes.",
+          "deliverable": "War game notes and response plan",
+          "checks": [["Analyse", "The competitor's likely moves are mapped", "War game notes"], ["Respond", "The response protects core customers and builds advantage", "Response plan"], ["Plan changes", "Product and go-to-market changes have owners and dates", "Response plan"]],
+          "objectives": ["Respond to competition", "Recognise disruption", "Build lasting advantage"]
+        },
+        {
+          "topic": "Product Investment Cases and Due Diligence",
+          "subtopics": ["Investment cases for new products", "Build, buy or partner", "Product due diligence on acquisition targets", "Technology and product risk assessment", "Customer and market validation", "Financial projections and sensitivity", "Presenting to investment committees", "Tracking investment outcomes"],
+          "tools": ["Investment case template", "Due diligence checklist", "Excel or Google Sheets"],
+          "lab_task": "Prepare an investment case comparing build, buy and partner options for a new capability, including product due diligence on one acquisition target, and present it to a mock investment committee.",
+          "deliverable": "Investment case, due diligence report and committee outcome",
+          "checks": [["Compare options", "Build, buy and partner are compared on cost, time and risk", "Investment case"], ["Assess the target", "Due diligence covers product, technology and customers", "Due diligence report"], ["Win the decision", "The committee approves an option or sets conditions", "Committee notes"]],
+          "objectives": ["Build investment cases", "Run product due diligence", "Present to investment committees"]
+        },
+        {
+          "topic": "Advanced Capstone: Product Strategy and Operating Plan for a Business Line",
+          "subtopics": ["Portfolio and vision", "Business model and economics", "Organisation and operating model", "Metrics and experimentation", "Investment asks", "Presentation to the executive committee"],
+          "tools": ["Strategy narrative template", "Unit economics model", "Organisation design canvas", "PowerPoint or Google Slides"],
+          "lab_task": "Lead a business line in a detailed case: write the product vision and portfolio strategy, the economics, the organisation and operating model and the investment asks, and present them to a mock executive committee.",
+          "deliverable": "Product strategy pack and executive presentation",
+          "checks": [["Set strategy", "Vision, portfolio and economics are consistent", "Strategy pack"], ["Organise", "The operating model supports the strategy", "Strategy pack"], ["Win approval", "The committee approves or sets specific conditions", "Committee notes"]],
+          "objectives": ["Combine advanced product skills", "Lead strategy for a business line", "Present to executives"]
+        }
+      ]
+    }
+  }
+}

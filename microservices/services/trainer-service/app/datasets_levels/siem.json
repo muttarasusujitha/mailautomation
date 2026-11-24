@@ -1,0 +1,573 @@
+{
+  "domain": "SIEM",
+  "name": "SIEM",
+  "category": "Cybersecurity and Identity",
+  "icon": "shield",
+  "aliases": ["Security Information and Event Management", "Security Monitoring", "SIEM Engineering", "SIEM Administration", "SIEM Detection Engineering", "Security Log Management", "Detection-as-Code for SIEM", "Next-Generation SIEM"],
+  "certifications": ["Microsoft Certified: Security Operations Analyst Associate (SC-200)", "Splunk Enterprise Security Certified Admin", "Splunk Certified Cybersecurity Defense Analyst", "GIAC Certified Detection Analyst (GCDA)", "CompTIA CySA+"],
+  "tools": ["Microsoft Sentinel", "Splunk Enterprise Security", "Elastic Security", "Google Security Operations", "Wazuh", "sigma-cli (pySigma)", "MITRE ATT&CK Navigator", "Atomic Red Team", "Sysmon", "Fluent Bit", "Logstash", "MISP", "Shuffle", "TheHive"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For system administrators, network engineers, junior SOC staff and developers who will build or run a SIEM and have not done so before. Covers what a SIEM does, a practice lab with Wazuh and Elastic Security, the main log sources (Windows Security and Sysmon, Linux auditd and syslog, cloud and SaaS audit logs), agents and forwarders, timestamps, parsing, the ECS, OCSF and CIM schemas, searching with KQL in Microsoft Sentinel and ES|QL in Elastic Security, a first scheduled detection, MITRE ATT&CK mapping, alerts and incidents, enrichment, dashboards, Wazuh rules and active response, ingestion cost and retention, and a capstone that monitors a small hybrid estate end to end.",
+      "prerequisites": ["Administers Windows or Linux machines: installing packages, managing services and reading log files", "Understands TCP/IP basics: IP addresses, ports, DNS and the difference between TCP and UDP", "Has a laptop with 16 GB RAM and Docker or a hypervisor, plus a free Azure subscription or Elastic Cloud trial for the hosted labs"],
+      "outcomes": ["Collect Windows, Linux, network and cloud audit logs into a SIEM with agents or syslog and confirm each source is arriving", "Parse and normalise raw events into ECS, OCSF or CIM fields and explain why consistent field names matter for detection", "Search security data with KQL and ES|QL and write a scheduled detection rule mapped to a MITRE ATT&CK technique", "Triage the resulting alerts, enrich them with lookups and present the monitoring picture on a dashboard within a retention and cost budget"],
+      "days": [
+        {
+          "topic": "What a SIEM Does: Collection, Storage, Detection and Response",
+          "subtopics": ["The SIEM data flow: sources, collection, parsing, storage, analytics and response", "Events, alerts, incidents and cases and how they differ", "SIEM compared with log management, EDR, XDR and a security data lake", "Common SIEM use cases: authentication abuse, malware, data exfiltration and compliance", "Platform examples: Microsoft Sentinel, Splunk Enterprise Security, Elastic Security, Google SecOps and Wazuh", "SaaS, self-managed and hybrid deployment models", "Roles around a SIEM: platform engineer, detection engineer and analyst", "Pricing models: ingested GB per day, workload, entity and node based"],
+          "tools": ["Microsoft Sentinel", "Elastic Security", "Wazuh", "Google Security Operations"],
+          "lab_task": "Take the architecture diagram of a 300-employee company (two Windows domain controllers, 40 Linux servers, a firewall, Microsoft 365 and AWS). List every log source, the transport you would use for each, an estimated daily volume in GB, and three use cases each source supports. Total the daily volume and pick a deployment model with a one-paragraph justification.",
+          "deliverable": "Log source inventory spreadsheet with volumes, transports and use cases, plus the deployment model choice",
+          "checks": [["Sum of the per-source estimates in the inventory", "A single daily ingestion total in GB per day is stated and matches the column sum", "Inventory spreadsheet"], ["Classify an EDR alert, a firewall deny and a ransomware case", "They are labelled alert, event and incident or case respectively", "Written classification"], ["Map each listed use case to at least one source", "No use case is left without a supporting log source", "Use case to source matrix"]],
+          "objectives": ["Describe the stages of the SIEM data flow", "Distinguish events, alerts and incidents", "Estimate log volume for a small estate"]
+        },
+        {
+          "topic": "Building a SIEM Practice Lab with Wazuh and Elastic Security",
+          "subtopics": ["Lab topology: SIEM server, Windows endpoint, Linux endpoint and an attacker VM on an isolated network", "Wazuh single-node install: indexer, server and dashboard", "Elastic Stack with Docker Compose or an Elastic Cloud trial", "Elastic Agent enrolment through Fleet with the System and Windows integrations", "Wazuh agent enrolment with the WAZUH_MANAGER variable and agent keys", "Resource sizing for a laptop lab: memory, heap and disk", "Snapshotting VMs so attack simulations can be repeated", "Keeping lab credentials and attack tooling off production networks"],
+          "tools": ["Wazuh", "Elastic Security", "Elastic Agent", "Docker Compose", "VirtualBox", "Fleet"],
+          "lab_task": "Install Wazuh with the installation assistant (bash wazuh-install.sh -a) on an Ubuntu VM, enrol one Windows and one Linux agent, and run /var/ossec/bin/agent_control -l to list them. Separately enrol the same Windows VM in Elastic Fleet with the Windows integration. Generate a failed login on each endpoint and find both events in the Wazuh dashboard and in Kibana Discover within 2 minutes.",
+          "deliverable": "Lab build notes with agent list output and screenshots of the failed-login events in both consoles",
+          "checks": [["Run /var/ossec/bin/agent_control -l on the Wazuh server", "Both agents are listed with status Active", "Command output"], ["Open Fleet > Agents in Kibana", "The Windows agent shows Healthy with the Windows integration policy", "Fleet screenshot"], ["Enter a wrong password on the Linux VM over SSH", "A Wazuh sshd authentication failure alert (rule group authentication_failed) appears within 2 minutes", "Wazuh dashboard event"]],
+          "objectives": ["Build an isolated SIEM lab", "Enrol endpoints with agents", "Confirm end-to-end event delivery"]
+        },
+        {
+          "topic": "Windows Event Logs and Sysmon as SIEM Sources",
+          "subtopics": ["Security, System, Application and PowerShell Operational channels", "Key Security event IDs: 4624, 4625, 4672, 4688, 4720, 4732, 4769 and 1102", "Logon types 2, 3, 10 and their meaning in investigations", "Advanced audit policy with auditpol and Group Policy", "Process command-line auditing for event 4688", "Sysmon installation and a community configuration", "Sysmon event IDs 1, 3, 10, 11, 13 and 22", "Event volume per host and filtering noisy events at source"],
+          "tools": ["Sysmon", "auditpol", "Event Viewer", "wevtutil", "Elastic Agent", "Azure Monitor Agent"],
+          "lab_task": "On the lab Windows VM run auditpol /set /subcategory:\"Process Creation\" /success:enable, enable command-line logging, then install Sysmon with sysmon64 -accepteula -i sysmonconfig.xml. Run whoami /all, create a local user with net user, and resolve a domain with nslookup. Find the matching 4688, 4720, Sysmon 1 and Sysmon 22 events in the SIEM and record how many events per hour the host produces.",
+          "deliverable": "Table of generated actions with their event IDs and SIEM search results, plus an events-per-hour figure",
+          "checks": [["Run auditpol /get /subcategory:\"Process Creation\"", "The setting shows Success", "Command output"], ["Create a user with net user labuser P@ssw0rd! /add", "Security event 4720 with TargetUserName labuser is found in the SIEM", "SIEM search result"], ["Run nslookup example.org with Sysmon installed", "A Sysmon event ID 22 with QueryName example.org is found", "SIEM search result"]],
+          "objectives": ["Enable the Windows audit settings detections rely on", "Deploy Sysmon with a tuned configuration", "Recognise the key Windows event IDs"]
+        },
+        {
+          "topic": "Linux auditd, journald and Syslog as SIEM Sources",
+          "subtopics": ["Syslog facilities, severities and RFC 3164 compared with RFC 5424", "rsyslog and syslog-ng configuration files", "journald and journalctl filters", "auth.log and secure for SSH and sudo activity", "auditd rules with auditctl -w and -a always,exit", "Audit keys and ausearch or aureport for review", "Command execution auditing for execve", "Container and Kubernetes node logs on Linux hosts"],
+          "tools": ["auditd", "rsyslog", "journalctl", "Wazuh agent", "Elastic Agent", "Fluent Bit"],
+          "lab_task": "On the Linux VM add auditd rules auditctl -w /etc/passwd -p wa -k identity and auditctl -a always,exit -F arch=b64 -S execve -k exec, persist them in /etc/audit/rules.d/siem.rules, and restart auditd. Edit /etc/passwd with useradd, run sudo id, and confirm with ausearch -k identity. Then find the same records in the SIEM by audit key and compare counts between the host and the SIEM.",
+          "deliverable": "Audit rules file, ausearch output and a host-versus-SIEM count comparison",
+          "checks": [["Run auditctl -l", "Both rules with keys identity and exec are listed", "Command output"], ["Run useradd siemtest then ausearch -k identity", "At least one record with key identity references /etc/passwd", "ausearch output"], ["Count exec-key events on the host and in the SIEM for the same 10-minute window", "The counts match or differ by less than 1 percent", "Comparison table"]],
+          "objectives": ["Configure auditd rules for security events", "Read syslog and journald sources", "Reconcile host and SIEM event counts"]
+        },
+        {
+          "topic": "Collecting Logs with Agents, Forwarders and Syslog Relays",
+          "subtopics": ["Agent-based and agentless collection", "Syslog over UDP 514, TCP 514 and TLS on 6514", "Firewall and network device logs in CEF and LEEF formats", "Azure Monitor Agent with data collection rules for Sentinel", "Elastic Agent integrations and Fleet policies", "Fluent Bit inputs, parsers and outputs", "Buffering, back-pressure and disk queues during outages", "Securing transport with TLS and agent authentication"],
+          "tools": ["rsyslog", "Fluent Bit", "Azure Monitor Agent", "Elastic Agent", "logger", "openssl"],
+          "lab_task": "Set up an rsyslog relay that receives TCP 514 and forwards to the SIEM with *.* @@siem.lab:514 and a disk-assisted queue. Send test messages with logger -n relay.lab -P 514 -T \"siem-test-$(date +%s)\". Stop the SIEM listener for 5 minutes while sending 1,000 messages, restart it and count how many arrive. Then switch the relay to TLS on 6514 and confirm with openssl s_client.",
+          "deliverable": "Relay configuration, outage test results and TLS handshake evidence",
+          "checks": [["Send one logger message with a unique tag", "The message is searchable in the SIEM within 60 seconds", "SIEM search result"], ["Send 1,000 messages during a 5-minute listener outage with the disk queue enabled", "All 1,000 messages arrive after the listener returns", "Count query result"], ["Run openssl s_client -connect relay.lab:6514", "The handshake completes and shows the relay certificate chain", "openssl output"]],
+          "objectives": ["Choose agent or agentless collection per source", "Configure a resilient syslog relay", "Secure log transport with TLS"]
+        },
+        {
+          "topic": "Cloud and SaaS Audit Log Sources",
+          "subtopics": ["AWS CloudTrail management and data events", "Microsoft Entra ID sign-in and audit logs", "Microsoft 365 unified audit log", "Google Cloud Audit Logs: Admin Activity, Data Access and System Event", "SaaS sources such as Okta System Log and GitHub audit log", "Collection by API polling, storage bucket, event hub or native connector", "Delivery delay and why cloud events arrive late", "Required permissions and least-privilege collector identities"],
+          "tools": ["Microsoft Sentinel", "AWS CloudTrail", "Microsoft Entra ID", "Elastic Agent", "Google Cloud Logging"],
+          "lab_task": "Connect Entra ID sign-in logs to Sentinel with the Microsoft Entra ID data connector and AWS CloudTrail to Elastic with the AWS integration reading from an S3 bucket via SQS. Sign in to the AWS console and to Entra ID with a test user, then query SigninLogs in Sentinel and event.action:ConsoleLogin in Elastic. Measure the delay between the action and its arrival for each source.",
+          "deliverable": "Connector configuration notes, the two query results and a measured delivery delay per source",
+          "checks": [["Run SigninLogs | where UserPrincipalName == \"test@lab\" | take 5", "At least one row for the test sign-in is returned", "Sentinel query result"], ["Search event.provider:signin.amazonaws.com and event.action:ConsoleLogin in Elastic", "The console login with the test IAM user is returned", "Kibana Discover result"], ["Compare action time with ingestion time for both sources", "Each source has a measured delay in minutes recorded", "Delay table"]],
+          "objectives": ["Connect cloud audit logs to a SIEM", "Grant least-privilege collector permissions", "Measure cloud log delivery delay"]
+        },
+        {
+          "topic": "Timestamps, Time Zones and Clock Skew in Event Data",
+          "subtopics": ["Event time compared with ingestion time", "UTC, ISO 8601 and epoch formats", "Time zone errors from syslog sources without a zone", "NTP and chrony on hosts and network devices", "Late-arriving events and detection lookback windows", "TimeGenerated and _TimeReceived in Sentinel", "@timestamp and event.ingested in Elastic", "Detecting clock skew with an ingestion lag query"],
+          "tools": ["chrony", "Microsoft Sentinel", "Elastic Security", "KQL", "ES|QL"],
+          "lab_task": "Set the Linux VM clock 3 hours behind with timedatectl set-time, send syslog events, and see where they land in the SIEM timeline. Restore NTP with chronyc makestep. In Sentinel run Syslog | extend lag = ingestion_time() - TimeGenerated | summarize avg(lag), max(lag) by Computer, and in Elastic compare event.ingested with @timestamp. Identify the host with the largest lag.",
+          "deliverable": "Ingestion lag queries, their results and a short explanation of the skewed events",
+          "checks": [["Send events from a host 3 hours behind", "Events appear about 3 hours in the past on the SIEM timeline", "Timeline screenshot"], ["Run chronyc tracking after chronyc makestep", "System time offset is under 0.1 seconds", "chronyc output"], ["Run the lag query across all hosts", "One host is named as having the highest maximum lag", "Query result"]],
+          "objectives": ["Distinguish event time from ingestion time", "Find hosts with clock skew", "Size detection lookbacks for late data"]
+        },
+        {
+          "topic": "Parsing Raw Events: Regex, Grok, JSON and Key-Value",
+          "subtopics": ["Structured, semi-structured and unstructured logs", "Regular expressions with named capture groups", "Grok patterns such as SYSLOGTIMESTAMP, IPORHOST and NUMBER", "JSON and key=value parsing", "Elastic ingest pipeline processors: grok, dissect, kv and date", "Simulating pipelines with POST _ingest/pipeline/_simulate", "KQL parse and extract functions for parse-at-query-time", "Handling parse failures and keeping the original message"],
+          "tools": ["Elastic ingest pipelines", "Kibana Dev Tools", "Grok Debugger", "KQL", "regex101"],
+          "lab_task": "Take 20 sample sshd lines from auth.log. Write an Elastic ingest pipeline with a grok processor that extracts user, source IP, port and result, plus a date processor. Test it with POST _ingest/pipeline/_simulate on all 20 lines. Then write the same extraction in KQL with parse kind=regex over Syslog in Sentinel. Both must extract the same 20 source IPs.",
+          "deliverable": "Ingest pipeline JSON, simulate output and the equivalent KQL parse query",
+          "checks": [["Run _simulate on the 20 sample lines", "All 20 documents contain source.ip and user.name with no _grok_parse_failure tag", "Simulate response"], ["Run _simulate on a deliberately malformed line", "The document carries an error tag and keeps the original message field", "Simulate response"], ["Compare the source IPs from Elastic and KQL", "Both lists contain the same 20 addresses", "Comparison output"]],
+          "objectives": ["Write grok and regex parsers", "Test parsers before deploying them", "Handle parse failures safely"]
+        },
+        {
+          "topic": "Normalisation Schemas Compared: ECS, OCSF and CIM",
+          "subtopics": ["Why normalisation lets one rule cover many vendors", "Elastic Common Schema field sets: event, source, destination, user, process and host", "OCSF categories, classes and class_uid values such as 3002 Authentication", "Splunk Common Information Model data models such as Authentication and Network_Traffic", "Microsoft Sentinel ASIM schemas and parsers", "Google SecOps Unified Data Model at a glance", "Mapping vendor fields to a schema and keeping raw fields", "Schema version drift and custom extensions"],
+          "tools": ["Elastic Common Schema", "OCSF Schema Browser", "Splunk CIM", "Microsoft Sentinel ASIM"],
+          "lab_task": "Take one failed SSH login, one Windows 4625 event and one firewall deny in CEF. Map each to ECS, OCSF and CIM in a table with the source field, target field and value. Mark which target fields every schema shares, such as user, source IP and outcome. Use schema.ocsf.io to confirm the OCSF class and class_uid for each event.",
+          "deliverable": "Three-schema mapping table for three events with the OCSF class_uid of each",
+          "checks": [["Look up the OCSF class for a failed login", "Authentication with class_uid 3002 is identified", "OCSF schema page"], ["Map the 4625 event user field to ECS", "TargetUserName maps to user.name", "Mapping table"], ["Map the firewall deny to CIM", "It maps to the Network_Traffic data model with action set to blocked", "Mapping table"]],
+          "objectives": ["Compare ECS, OCSF and CIM", "Map vendor fields to a common schema", "Explain how normalisation supports detection"]
+        },
+        {
+          "topic": "Querying Microsoft Sentinel Tables with KQL",
+          "subtopics": ["Log Analytics workspace tables: SecurityEvent, SigninLogs, Syslog and CommonSecurityLog", "where, project, extend and take", "summarize with count(), dcount() and bin()", "Time filters with ago() and between", "String operators: has, contains, startswith and =~", "render timechart for quick visuals", "let statements and reusable functions", "Query cost and scanning less data"],
+          "tools": ["Microsoft Sentinel", "KQL", "Log Analytics", "Microsoft Defender portal"],
+          "lab_task": "In Sentinel write KQL that returns failed Windows logons in the last 24 hours: SecurityEvent | where TimeGenerated > ago(24h) and EventID == 4625 | summarize Failures=count(), Users=dcount(TargetUserName) by IpAddress | where Failures > 10 | order by Failures desc. Generate 15 failed logons from the attacker VM first. Add a timechart by hour and save the query as a function named FailedLogonsByIp.",
+          "deliverable": "Saved KQL function, its result table and the hourly timechart",
+          "checks": [["Run the query after 15 failed logons from the attacker VM", "The attacker IP is returned with Failures of at least 15", "Query result"], ["Call FailedLogonsByIp() in a new query window", "The function returns the same rows as the original query", "Query result"], ["Change has to contains on a large table and compare query statistics", "The has version scans less data or runs faster", "Query statistics panel"]],
+          "objectives": ["Write KQL searches over Sentinel tables", "Aggregate events with summarize", "Save reusable KQL functions"]
+        },
+        {
+          "topic": "Querying Elastic Security Data with ES|QL and Kibana Query Language",
+          "subtopics": ["Data views and index patterns such as logs-*", "Kibana Query Language for quick filters", "ES|QL pipeline: FROM, WHERE, EVAL, STATS and SORT", "Grouping with STATS ... BY and BUCKET for time series", "ECS fields in queries: event.code, source.ip and user.name", "Timeline investigations in Elastic Security", "Saved queries and saved searches", "Query performance on large indices"],
+          "tools": ["Elastic Security", "ES|QL", "Kibana Discover", "Timeline"],
+          "lab_task": "In Kibana run FROM logs-* | WHERE event.code == \"4625\" AND @timestamp > NOW() - 24 hours | STATS failures = COUNT(*), users = COUNT_DISTINCT(user.name) BY source.ip | WHERE failures > 10 | SORT failures DESC. Compare the result with the Sentinel query from the previous day for the same attack. Then open the attacker IP in a Timeline and add its events from the last hour.",
+          "deliverable": "ES|QL query, its result, a side-by-side comparison with the KQL result and the saved Timeline",
+          "checks": [["Run the ES|QL query after the 15 failed logons", "The attacker IP is returned with failures of at least 15", "Query result"], ["Search event.code:4625 and source.ip:<attacker IP> in Discover", "The hit count equals the failures value from ES|QL", "Discover hit count"], ["Open the saved Timeline", "It lists the attacker IP events in time order with user.name visible", "Timeline screenshot"]],
+          "objectives": ["Search Elastic Security data with ES|QL", "Translate a KQL search to ES|QL", "Build an investigation Timeline"]
+        },
+        {
+          "topic": "Investigation Search Patterns: Pivots, Rare Values and Time Buckets",
+          "subtopics": ["Pivoting from an IP to users, hosts and processes", "Stack counting and rare value analysis", "First-seen and last-seen queries", "Time bucketing to spot bursts", "Joining two tables or indices on a shared field", "Building a narrative timeline from several sources", "Recording queries so an investigation is reproducible", "The same patterns written in KQL, ES|QL and SPL"],
+          "tools": ["KQL", "ES|QL", "Microsoft Sentinel", "Elastic Security"],
+          "lab_task": "Starting from a suspicious IP that logged on successfully after many failures, write four queries: hosts the IP logged on to, processes started by the account within 30 minutes (4688 or Sysmon 1), the rarest parent-child process pairs on that host in 7 days, and the first time the account was ever seen. Write each in KQL and ES|QL and assemble a 10-line timeline.",
+          "deliverable": "Four paired queries and a 10-line investigation timeline",
+          "checks": [["Run the rare parent-child query on the compromised host", "The attack process pair appears among the 5 least frequent pairs", "Query result"], ["Run the first-seen query for the account", "A single earliest timestamp is returned", "Query result"], ["Check every timeline entry against a query", "Each of the 10 entries cites the query that produced it", "Timeline document"]],
+          "objectives": ["Pivot between entities during an investigation", "Use rare value analysis to find outliers", "Build a reproducible timeline"]
+        },
+        {
+          "topic": "Writing a First Scheduled Detection Rule",
+          "subtopics": ["Rule anatomy: query, schedule, lookback, threshold and severity", "Sentinel scheduled analytics rules and query frequency", "Elastic custom query and threshold rule types", "Entity mapping for accounts, hosts and IPs", "Lookback overlap so late events are not missed", "Alert grouping and suppression to avoid duplicates", "Naming, description and runbook fields", "Enabling, disabling and testing a rule safely"],
+          "tools": ["Microsoft Sentinel", "Elastic Security", "KQL", "ES|QL"],
+          "lab_task": "Create a Sentinel scheduled analytics rule from FailedLogonsByIp with a 5-minute frequency, 10-minute lookback, threshold of more than 10 failures, and entity mapping for IP and account. Create the equivalent Elastic threshold rule on event.code:4625 grouped by source.ip. Run a 20-attempt password guess from the attacker VM and confirm each platform raises exactly one alert.",
+          "deliverable": "Rule definitions exported as JSON or ARM and screenshots of the resulting alerts",
+          "checks": [["Run 20 failed logons from the attacker VM", "Sentinel creates one incident with the attacker IP as an entity", "Incident view"], ["Run the same attack against the Elastic lab", "Elastic raises one threshold alert for the attacker IP", "Alerts table"], ["Run only 5 failed logons", "Neither platform raises an alert", "Empty alerts view for the window"]],
+          "objectives": ["Build a scheduled detection rule", "Choose frequency, lookback and threshold", "Map entities on alerts"]
+        },
+        {
+          "topic": "MITRE ATT&CK Tactics and Techniques for Rule Mapping",
+          "subtopics": ["ATT&CK Enterprise matrix: tactics, techniques and sub-techniques", "Technique IDs such as T1110.003 Password Spraying and T1059.001 PowerShell", "Data sources and data components in ATT&CK", "Procedure examples and threat group pages", "Mapping a detection to one or more techniques", "Tactic and technique fields in Sentinel and Elastic rules", "ATT&CK Navigator layers for coverage pictures", "Common mapping mistakes: over-mapping and mapping to tactics only"],
+          "tools": ["MITRE ATT&CK Navigator", "Microsoft Sentinel", "Elastic Security", "attack.mitre.org"],
+          "lab_task": "Map the password-guessing rule and four other rules you write (new local user, event log cleared 1102, scheduled task creation 4698, encoded PowerShell) to ATT&CK techniques. Add the tactic and technique to each rule in Sentinel and Elastic. Build an ATT&CK Navigator layer that scores the five techniques, export it as JSON and list which data source each depends on.",
+          "deliverable": "Five mapped rules, a Navigator layer JSON and a data-source dependency list",
+          "checks": [["Map the event log cleared rule", "It is mapped to T1070.001 Clear Windows Event Logs", "Rule metadata"], ["Open the exported layer in ATT&CK Navigator", "Exactly five techniques are highlighted", "Navigator screenshot"], ["Check the MITRE ATT&CK view in Sentinel or Elastic", "The five rules appear under their mapped tactics", "Console screenshot"]],
+          "objectives": ["Read the ATT&CK matrix", "Map detections to techniques", "Show coverage with a Navigator layer"]
+        },
+        {
+          "topic": "Alerts, Incidents and Severity in the SIEM Console",
+          "subtopics": ["Alert to incident grouping rules", "Severity, status and classification fields", "Assigning owners and changing status", "Incident comments and evidence", "True positive, benign positive and false positive classifications", "Sentinel incidents in the Defender portal", "Elastic Security alerts and cases", "Wazuh alert levels 0 to 15"],
+          "tools": ["Microsoft Sentinel", "Elastic Security", "Wazuh", "Microsoft Defender portal"],
+          "lab_task": "Trigger the five rules from the previous day so that 12 alerts are created. Configure Sentinel incident grouping to combine alerts with the same account within 1 hour. Triage every incident: assign an owner, add a comment with evidence and close with a classification. In Elastic create a case from two related alerts. Report how many incidents the 12 alerts became.",
+          "deliverable": "Triage log with each incident's classification and the alert-to-incident counts",
+          "checks": [["Generate 12 alerts with grouping by account enabled", "Fewer than 12 incidents are created and the count is recorded", "Incident list"], ["Close an incident as benign positive", "Status shows Closed with classification Benign Positive and a comment", "Incident details"], ["Attach two alerts to an Elastic case", "The case lists both alerts", "Case view"]],
+          "objectives": ["Group alerts into incidents", "Triage and classify incidents", "Record evidence on a case"]
+        },
+        {
+          "topic": "Enrichment with Lookups, Watchlists and GeoIP",
+          "subtopics": ["Why enrichment speeds up triage", "Asset lists: owner, criticality and environment", "Identity data: department, manager and privileged status", "Sentinel watchlists and _GetWatchlist()", "Elastic enrich policies and the enrich processor", "GeoIP lookups for source addresses", "Keeping lookup data fresh and owned", "Query-time compared with ingest-time enrichment"],
+          "tools": ["Microsoft Sentinel", "Elastic Security", "KQL", "GeoIP"],
+          "lab_task": "Upload a 50-row CSV of servers with owner and criticality as a Sentinel watchlist named Assets and as an Elastic enrich policy. Join failed logons to the watchlist with _GetWatchlist('Assets') | join kind=inner ... on $left.Computer == $right.SearchKey, and add the geoip processor to the Elastic pipeline. Raise the rule severity to High when the target server has criticality High.",
+          "deliverable": "Watchlist and enrich policy definitions, enriched query output and the updated rule",
+          "checks": [["Run the KQL join against a failed logon on a critical server", "The result shows the owner and criticality from the watchlist", "Query result"], ["Run POST _enrich/policy/assets-policy/_execute then index a test event", "The event contains the asset owner field", "Indexed document"], ["Trigger the rule against a High criticality server", "The alert has severity High", "Alert details"]],
+          "objectives": ["Enrich events with asset and identity context", "Use watchlists and enrich policies", "Adjust severity with context"]
+        },
+        {
+          "topic": "Dashboards and Workbooks for Security Monitoring",
+          "subtopics": ["Audiences: analysts, SOC leads and auditors", "Sentinel workbooks with parameters and KQL tiles", "Kibana dashboards with Lens and ES|QL visualisations", "Wazuh dashboard modules", "Data source health tiles: last event time per source", "Alert volume and mean time to close", "Avoiding vanity metrics", "Sharing and access control for dashboards"],
+          "tools": ["Microsoft Sentinel workbooks", "Kibana Lens", "Wazuh dashboard", "KQL", "ES|QL"],
+          "lab_task": "Build a Sentinel workbook with a time-range parameter and four tiles: alerts by severity, top 10 failing source IPs, last event time per data source with any source silent for more than 1 hour shown in red, and incidents closed per classification. Build the same four panels as a Kibana dashboard. Stop the Linux agent and confirm its health tile turns red.",
+          "deliverable": "Exported workbook JSON and Kibana dashboard saved object with screenshots",
+          "checks": [["Stop the Linux agent for more than 1 hour", "Its row in the source health tile turns red", "Workbook screenshot"], ["Change the time-range parameter from 24 hours to 7 days", "All four tiles refresh to the new range", "Workbook screenshot"], ["Import the exported Kibana saved object into a new space", "The dashboard opens with all four panels", "Kibana screenshot"]],
+          "objectives": ["Design dashboards for a named audience", "Show data source health", "Share dashboards safely"]
+        },
+        {
+          "topic": "Wazuh Rules, Decoders and Active Response",
+          "subtopics": ["Wazuh architecture: agents, manager, indexer and dashboard", "Decoders in /var/ossec/etc/decoders/local_decoder.xml", "Rules in /var/ossec/etc/rules/local_rules.xml with IDs from 100000", "Rule levels, if_sid, frequency and timeframe", "Testing with /var/ossec/bin/wazuh-logtest", "File integrity monitoring with syscheck", "Active response scripts such as firewall-drop", "Avoiding self-inflicted outages from automatic blocking"],
+          "tools": ["Wazuh", "wazuh-logtest", "syscheck", "iptables"],
+          "lab_task": "Write a Wazuh custom decoder and rule (ID 100100, level 10) for a custom application log line \"APP LOGIN FAIL user=x ip=y\". Add a frequency rule (ID 100101) that fires on 5 failures from the same IP in 120 seconds. Test both with wazuh-logtest, then configure active response firewall-drop with a 600-second timeout for rule 100101 and confirm the attacker IP is blocked.",
+          "deliverable": "local_decoder.xml, local_rules.xml, wazuh-logtest output and active response evidence",
+          "checks": [["Paste one sample line into wazuh-logtest", "Phase 3 shows rule id 100100 at level 10 with user and ip decoded", "wazuh-logtest output"], ["Send 5 failures from the attacker IP within 120 seconds", "Rule 100101 fires and an iptables DROP rule for the IP appears", "Alert and iptables -L output"], ["Wait 600 seconds after the block", "The DROP rule is removed automatically", "iptables -L output"]],
+          "objectives": ["Write Wazuh decoders and rules", "Test rules before deploying", "Configure active response with a timeout"]
+        },
+        {
+          "topic": "SIEM Ingestion Volume, Retention Tiers and Cost",
+          "subtopics": ["What drives SIEM cost: GB per day, retention and query compute", "Measuring ingestion per table or data stream", "Hot, warm, cold and archive tiers", "Sentinel analytics tier compared with lower-cost data lake storage", "Elastic index lifecycle management and data tiers", "Filtering noisy events at the agent or collection rule", "Retention needs from regulation and investigations", "Free data sources and included benefits"],
+          "tools": ["Microsoft Sentinel", "Elastic index lifecycle management", "KQL", "Kibana Stack Monitoring"],
+          "lab_task": "In Sentinel run Usage | where TimeGenerated > ago(7d) | summarize GB = sum(Quantity) / 1024 by DataType | order by GB desc. Find the noisiest table, then add a data collection rule transformation that drops one low-value event ID. In Elastic create an ILM policy with hot 7 days, warm 30 days and delete at 90 days. Estimate the monthly saving.",
+          "deliverable": "Ingestion report, DCR transformation, ILM policy and a saving estimate",
+          "checks": [["Run the Usage query", "A ranked list of tables with GB per table for 7 days is returned", "Query result"], ["Apply the DCR transformation and wait 1 hour", "The dropped event ID no longer appears in new data", "Query result"], ["Run GET _ilm/policy/siem-90d", "The policy shows hot, warm and delete phases with 7d, 30d and 90d", "API response"]],
+          "objectives": ["Measure ingestion by source", "Reduce noisy data at collection", "Set retention tiers to a budget"]
+        },
+        {
+          "topic": "Beginner Capstone: SIEM Monitoring for a Small Hybrid Estate",
+          "subtopics": ["Source inventory and onboarding plan", "Collection, parsing and normalisation for Windows, Linux and one cloud source", "Five ATT&CK-mapped detections with tested thresholds", "Enrichment, triage workflow and incident classification", "Source health and alert dashboard", "Retention, cost estimate and handover"],
+          "tools": ["Wazuh", "Elastic Security", "Microsoft Sentinel", "Sysmon", "MITRE ATT&CK Navigator"],
+          "lab_task": "For a lab of one Windows server, one Linux server and an AWS account, onboard all three sources into Elastic Security or Sentinel, normalise them to ECS or ASIM, and deploy five detections mapped to ATT&CK. Run a scripted attack of password guessing, new local user and log clearing. All three attack steps must alert, a dashboard must show source health, and a cost estimate must cover 90 days of retention.",
+          "deliverable": "Working SIEM lab, detection list, attack test report, dashboard and cost estimate",
+          "checks": [["Run the scripted three-step attack", "Each step creates an alert mapped to its ATT&CK technique", "Alert list"], ["Stop one source for 1 hour", "The dashboard shows that source as silent", "Dashboard screenshot"], ["Review the cost estimate", "It states daily GB and the monthly cost for 90-day retention", "Cost sheet"]],
+          "objectives": ["Onboard and normalise several log sources", "Deploy and test mapped detections", "Present a monitored estate with cost"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For SIEM engineers, detection engineers and senior analysts who can already onboard sources and write basic searches and rules. Covers the detection engineering lifecycle, Sigma rules and pySigma conversion, correlation with thresholds, sequences and joins, identity and Windows attack detections, testing with Atomic Red Team, detection-as-code repositories with CI and API-based rule deployment, alert tuning, triage and case management with TheHive, threat intelligence with MISP and STIX/TAXII, UEBA, entity risk scoring, SOAR playbooks, parsing pipelines at scale, Google SecOps YARA-L, Splunk Enterprise Security detections over CIM, data source health, and a capstone pipeline that ships tested detections for ten ATT&CK techniques.",
+      "prerequisites": ["Has completed the SIEM beginner level or has run a SIEM with several onboarded sources and scheduled rules", "Writes searches in KQL, ES|QL or SPL and reads ECS or CIM field names without a reference", "Uses Git and a CI service such as GitHub Actions and can write small Python or PowerShell scripts"],
+      "outcomes": ["Write Sigma rules, convert them with pySigma to KQL, ES|QL and SPL, and add correlation logic for multi-event attacks", "Run a detection-as-code repository with linting, tests and CI that deploys rules to Sentinel and Elastic through their APIs", "Tune alerts against measured false positive rates and run triage, case management and SOAR playbooks for the resulting incidents", "Add threat intelligence, UEBA and entity risk scoring to detections and monitor data source health so detections do not fail silently"],
+      "days": [
+        {
+          "topic": "Detection Engineering Lifecycle: From Hypothesis to Production Rule",
+          "subtopics": ["Detection requirements from threat models, incidents and ATT&CK", "Writing a detection hypothesis and success criteria", "Checking data availability before writing a rule", "Development, testing, staging and production states", "Rule metadata: owner, version, references and tests", "Alert volume budgets and expected false positives", "Retiring and reviewing rules", "Frameworks such as the Alerting and Detection Strategy template"],
+          "tools": ["MITRE ATT&CK", "Sigma", "Microsoft Sentinel", "Elastic Security", "Git"],
+          "lab_task": "Pick T1053.005 Scheduled Task. Write an Alerting and Detection Strategy document with goal, categorisation, strategy abstract, technical context, blind spots, false positives, validation and response. Check data availability by querying 4698 and Sysmon 1 for schtasks.exe over 7 days and record the daily baseline count. Set an alert budget of at most 2 alerts per day.",
+          "deliverable": "Completed ADS document with a data availability query and the baseline count",
+          "checks": [["Query 4698 events for 7 days", "A daily baseline count is recorded in the document", "Query result"], ["Review the blind spots section", "At least two named gaps, such as tasks created through the COM API without schtasks.exe", "ADS document"], ["Compare the baseline with the alert budget", "The document states whether filtering is needed to stay within 2 alerts per day", "ADS document"]],
+          "objectives": ["Write a detection hypothesis", "Check data availability before building", "Set an alert budget"]
+        },
+        {
+          "topic": "Sigma Rule Anatomy: logsource, detection and condition",
+          "subtopics": ["Sigma YAML structure: title, id, status, description and references", "logsource: product, category and service", "detection selections, filters and field modifiers such as |contains, |endswith and |re", "condition expressions with and, or, not and 1 of selection_*", "level, tags with attack.t1059.001 and falsepositives", "The SigmaHQ repository and rule status values", "Validating rules with sigma check", "Writing rules for Windows process creation and Linux auditd"],
+          "tools": ["sigma-cli", "pySigma", "SigmaHQ rules", "Visual Studio Code"],
+          "lab_task": "Write a Sigma rule for encoded PowerShell: logsource category process_creation, product windows, selection Image|endswith powershell.exe and CommandLine|contains any of -enc, -EncodedCommand, with a filter for a known management tool path. Tag it attack.execution and attack.t1059.001. Run sigma check on it and on a copy with an invalid modifier.",
+          "deliverable": "Sigma rule YAML and sigma check output for the valid and invalid versions",
+          "checks": [["Run sigma check on the valid rule", "No errors are reported", "sigma check output"], ["Run sigma check on the copy with an invalid modifier such as |contain", "An error naming the unknown modifier is reported", "sigma check output"], ["Review the tags", "The rule carries attack.execution and attack.t1059.001", "Rule YAML"]],
+          "objectives": ["Write a valid Sigma rule", "Use selections, filters and modifiers", "Validate rules with sigma check"]
+        },
+        {
+          "topic": "Converting Sigma with pySigma Backends and Processing Pipelines",
+          "subtopics": ["sigma-cli install and sigma plugin list", "Backends: kusto, lucene, esql, eql and splunk", "Processing pipelines: sysmon, ecs_windows, microsoft_xdr and splunk_windows", "Field mapping and logsource-to-table mapping", "Output formats such as default and savedsearches", "Unsupported features and conversion errors", "Writing a custom pipeline YAML for in-house field names", "Reviewing converted queries before deployment"],
+          "tools": ["sigma-cli", "pySigma", "Microsoft Sentinel", "Elastic Security"],
+          "lab_task": "Install backends with sigma plugin install kusto, elasticsearch and splunk. Convert the encoded PowerShell rule with sigma convert -t kusto -p microsoft_xdr, -t esql -p ecs_windows and -t splunk -p splunk_windows. Run each result in its platform against lab data containing 3 encoded PowerShell executions. Write a custom pipeline that maps CommandLine to a renamed field and convert again.",
+          "deliverable": "Three converted queries, their result counts and the custom pipeline YAML",
+          "checks": [["Run sigma plugin list --plugin-type backend after installation", "kusto, elasticsearch and splunk are shown as installed", "sigma-cli output"], ["Run the KQL and ES|QL conversions against lab data", "Each returns exactly 3 events", "Query results"], ["Convert with the custom pipeline", "The output query uses the renamed field instead of CommandLine", "sigma convert output"]],
+          "objectives": ["Convert Sigma rules to platform queries", "Choose backends and pipelines", "Write a custom field-mapping pipeline"]
+        },
+        {
+          "topic": "Correlation Logic: Thresholds, Sequences and Joins",
+          "subtopics": ["Single-event, threshold and multi-event detections", "Sigma correlation rules: event_count, value_count, temporal and temporal_ordered", "Elastic EQL sequence by with maxspan", "KQL join kinds and time-window joins", "Grouping by entity: user, host or source IP", "State and lookback limits on scheduled rules", "Performance cost of joins over large tables", "Choosing between a correlation rule and a risk score"],
+          "tools": ["Elastic Security", "EQL", "Microsoft Sentinel", "KQL", "sigma-cli"],
+          "lab_task": "Detect a spray followed by success: at least 10 failed logons from one IP across 5 or more users followed by a successful logon from the same IP within 30 minutes. Write it as an Elastic EQL sequence by source.ip with maxspan=30m, as a KQL join on IpAddress, and as a Sigma temporal_ordered correlation rule. Replay the lab attack and a benign 3-failure user mistake.",
+          "deliverable": "EQL rule, KQL rule, Sigma correlation YAML and replay results for both scenarios",
+          "checks": [["Replay the spray-then-success attack", "Both platforms raise one alert for the attacker IP", "Alerts table"], ["Replay 3 failures then success from a normal user", "No alert is raised", "Empty alerts view for the window"], ["Compare the KQL query run time over 7 days with and without a pre-filter on EventID", "The pre-filtered version runs faster and the figures are recorded", "Query statistics"]],
+          "objectives": ["Write multi-event correlation rules", "Group correlations by entity", "Control the cost of correlation queries"]
+        },
+        {
+          "topic": "Identity Attack Detections: Password Spray, MFA Fatigue and Impossible Travel",
+          "subtopics": ["Entra ID ResultType codes such as 50126 and 50053", "Password spraying T1110.003 compared with brute force T1110.001", "MFA request flooding T1621", "Impossible travel and unfamiliar sign-in properties", "Kerberos events 4768 and 4769 and Kerberoasting indicators", "Service account and legacy authentication monitoring", "Conditional access results in sign-in logs", "Allowlisting VPN egress and known proxies"],
+          "tools": ["Microsoft Sentinel", "KQL", "Microsoft Entra ID", "Elastic Security"],
+          "lab_task": "Write KQL over SigninLogs that flags one IP failing with ResultType 50126 for 10 or more distinct users in 1 hour, and a second rule for 5 or more MFA denials for one user in 10 minutes. Write a 4769 rule for RC4 ticket requests (TicketEncryptionType 0x17) for service accounts. Replay the provided sample logs and record hits per rule.",
+          "deliverable": "Three identity detection rules with replay hit counts",
+          "checks": [["Replay the spray sample with 12 targeted users", "The spray rule returns the attacker IP with 12 distinct users", "Query result"], ["Replay 6 MFA denials for one user within 10 minutes", "The MFA rule fires once for that user", "Query result"], ["Replay a 4769 request with TicketEncryptionType 0x17", "The Kerberoasting rule returns the service account name", "Query result"]],
+          "objectives": ["Detect password spraying and MFA abuse", "Detect Kerberoasting indicators", "Exclude known benign sign-in sources"]
+        },
+        {
+          "topic": "Windows Attack Detections: Credential Dumping, Lateral Movement and Persistence",
+          "subtopics": ["LSASS access with Sysmon event 10 and GrantedAccess masks", "T1003.001 LSASS Memory indicators", "Lateral movement over SMB and admin shares T1021.002", "Remote service creation event 7045 and PsExec patterns", "WMI and WinRM remote execution", "Run key persistence T1547.001 with Sysmon event 13", "Scheduled task persistence with 4698", "Using parent-child process relationships to reduce noise"],
+          "tools": ["Sysmon", "Sigma", "Elastic Security", "Microsoft Sentinel", "KQL"],
+          "lab_task": "Write three Sigma rules: Sysmon 10 where TargetImage ends with lsass.exe from a non-system process, 7045 service creation with a service path in an admin share or temp folder, and Sysmon 13 registry writes to CurrentVersion\\Run from user-writable paths. Convert them to KQL and ES|QL, run them over 7 days of lab data and record alert counts before and after one tuning filter each.",
+          "deliverable": "Three Sigma rules, converted queries and a before-and-after count table",
+          "checks": [["Run the LSASS rule on lab data containing one procdump run against lsass", "The procdump event is returned", "Query result"], ["Run the 7045 rule after a PsExec session in the lab", "The PSEXESVC service creation is returned", "Query result"], ["Apply one tuning filter per rule", "The count table shows the post-tuning count for each rule without losing the attack events", "Count table"]],
+          "objectives": ["Detect credential dumping", "Detect lateral movement and persistence", "Tune Windows rules without losing true positives"]
+        },
+        {
+          "topic": "Testing Detections with Atomic Red Team and Replayed Logs",
+          "subtopics": ["Atomic Red Team tests and the Invoke-AtomicRedTeam module", "Invoke-AtomicTest with -ShowDetailsBrief, -CheckPrereqs, -TestNumbers and -Cleanup", "Replaying recorded logs such as the OTRF Security Datasets", "Expected-alert matrices per test", "Isolating test hosts and cleaning up artefacts", "Timing: waiting for ingestion and rule schedules", "Recording detected, missed and partially detected outcomes", "Feeding misses back into rule and data source fixes"],
+          "tools": ["Atomic Red Team", "Invoke-AtomicRedTeam", "PowerShell", "Elastic Security", "Microsoft Sentinel"],
+          "lab_task": "On the isolated Windows VM import Invoke-AtomicRedTeam and run tests for T1059.001, T1136.001, T1053.005, T1547.001 and T1070.001 with -CheckPrereqs first and -Cleanup after. Wait for the rule schedule, then record which rules alerted. For every missed technique, find whether the cause is missing telemetry, parsing or rule logic, and fix one of them.",
+          "deliverable": "Test matrix with detected or missed per technique, root causes and one fix",
+          "checks": [["Run Invoke-AtomicTest T1136.001 -ShowDetailsBrief", "The available tests for creating a local account are listed", "PowerShell output"], ["Run the five techniques and wait for the rule schedule", "The matrix records detected or missed for all five", "Test matrix"], ["Re-run the fixed technique", "It now shows as detected", "Alert screenshot"]],
+          "objectives": ["Validate detections with atomic tests", "Find the cause of missed detections", "Clean up after tests"]
+        },
+        {
+          "topic": "Detection-as-Code Repositories: Layout, Linting and CI",
+          "subtopics": ["Repository layout: rules, tests, pipelines and docs", "One rule per file with a stable UUID", "Branch protection and pull request review", "Linting with sigma check and yamllint", "Unit tests that run converted queries against sample events", "Elastic detection-rules repository structure as an example", "GitHub Actions workflow for validate and convert", "Versioning and change logs for rules"],
+          "tools": ["Git", "GitHub Actions", "sigma-cli", "yamllint", "pytest"],
+          "lab_task": "Create a repository with rules/, tests/ and pipelines/ folders holding your Sigma rules. Add a GitHub Actions workflow that runs yamllint, sigma check and sigma convert for kusto and esql on every pull request. Add a pytest test that checks every rule has a unique id, an ATT&CK tag and a level. Open a pull request with a duplicate id and confirm the workflow fails.",
+          "deliverable": "Repository with workflow file, tests and two pull request runs",
+          "checks": [["Open a pull request with valid rules", "The workflow passes all jobs", "GitHub Actions run"], ["Open a pull request where two rules share an id", "The pytest uniqueness test fails and the check is red", "GitHub Actions log"], ["Download the conversion artefact from the passing run", "It contains one KQL and one ES|QL query per rule", "Artefact contents"]],
+          "objectives": ["Structure a detection repository", "Lint and test rules in CI", "Block bad rules at review"]
+        },
+        {
+          "topic": "Deploying Rules from Git to Sentinel and Elastic through APIs",
+          "subtopics": ["Sentinel analytics rules REST API under Microsoft.SecurityInsights/alertRules", "ARM and Bicep templates for analytics rules", "Sentinel repositories connection to GitHub or Azure DevOps", "Elastic detection engine API POST /api/detection_engine/rules and _import", "Workload identity federation for CI instead of stored secrets", "Idempotent deployment keyed by rule id", "Staging workspace or space before production", "Rollback by reverting a commit"],
+          "tools": ["GitHub Actions", "Azure CLI", "Microsoft Sentinel", "Elastic Security", "curl"],
+          "lab_task": "Extend the CI workflow with a deploy job that runs on merge to main. Use OpenID Connect federation to Azure and az rest --method put to create or update each Sentinel analytics rule by its GUID, and the Kibana API with an API key from a repository secret to upsert Elastic rules by rule_id. Deploy to a staging workspace and space first, then production after approval.",
+          "deliverable": "Deploy workflow, a successful run log and screenshots of the rules in both platforms",
+          "checks": [["Merge a new rule to main", "The rule appears in the staging Sentinel workspace and Elastic space with the same id", "Console screenshots"], ["Run the deploy job twice without changes", "No duplicate rules are created", "Rule count before and after"], ["Revert the merge commit", "The next deployment disables or removes the rule", "Workflow log and console"]],
+          "objectives": ["Deploy rules through platform APIs", "Use federated credentials in CI", "Promote rules through staging"]
+        },
+        {
+          "topic": "Alert Tuning: Allowlists, Suppression and False Positive Rates",
+          "subtopics": ["Measuring precision: true positives divided by all alerts", "Alert volume per rule per day", "Allowlists by host, user, process hash or path", "Sentinel automation rules that close known benign alerts", "Elastic rule exceptions and alert suppression", "Narrowing the rule compared with suppressing the alert", "Expiry dates and owners for every exception", "Re-testing after tuning so true positives still fire"],
+          "tools": ["Microsoft Sentinel", "Elastic Security", "KQL", "ES|QL"],
+          "lab_task": "Export 14 days of closed incidents per rule with their classifications and calculate precision for each rule. For the two noisiest rules, add one narrow exception each with an owner and expiry in a comment, and one Elastic alert suppression by host.name for 1 hour. Re-run the matching atomic test to confirm the rule still fires.",
+          "deliverable": "Precision table per rule, exception definitions and re-test evidence",
+          "checks": [["Calculate precision for every rule from 14 days of incidents", "Each rule has a precision percentage and daily alert count", "Precision table"], ["Apply exceptions to the two noisiest rules for 3 days", "Their daily alert counts fall and the new figures are recorded", "Before and after counts"], ["Re-run the atomic test for each tuned rule", "Both rules still raise an alert", "Alert screenshots"]],
+          "objectives": ["Measure rule precision", "Tune with narrow exceptions", "Confirm tuning keeps true positives"]
+        },
+        {
+          "topic": "Alert Triage Workflow and Case Management with TheHive",
+          "subtopics": ["Triage questions: what, who, where, when and is it expected", "Severity and priority matrices", "TheHive 5 cases, alerts, tasks and observables", "Case templates per incident type", "Cortex analysers for observables", "Forwarding SIEM alerts to TheHive by API", "Evidence handling and timeline in a case", "Closing cases with resolution status and lessons learnt"],
+          "tools": ["TheHive", "Cortex", "Microsoft Sentinel", "Elastic Security", "Python"],
+          "lab_task": "Run TheHive and Cortex with Docker. Write a Python script with the TheHive API that pulls open Elastic alerts and creates TheHive alerts with observables for IP, user and host. Create a case template \"Password Spray\" with five tasks. Promote one alert to a case, run a Cortex analyser on the IP observable and close the case as True Positive with a summary.",
+          "deliverable": "Forwarding script, case template export and a closed case report",
+          "checks": [["Run the forwarding script with 3 open Elastic alerts", "Three alerts appear in TheHive with IP, user and host observables", "TheHive alerts list"], ["Promote an alert using the Password Spray template", "The case contains the five template tasks", "Case view"], ["Run a Cortex analyser on the IP observable", "A report is attached to the observable", "Observable report"]],
+          "objectives": ["Apply a consistent triage method", "Run cases with templates and tasks", "Forward SIEM alerts into case management"]
+        },
+        {
+          "topic": "Threat Intelligence Feeds: STIX, TAXII, MISP and Indicator Matching",
+          "subtopics": ["Indicator types: IP, domain, URL, file hash and certificate", "STIX 2.1 objects and TAXII 2.1 collections", "MISP events, attributes, tags and warning lists", "Sentinel ThreatIntelIndicators and TI matching analytics", "Elastic indicator match rules and threat.indicator fields", "Indicator confidence, age and expiry", "False positives from shared hosting and CDNs", "Tracking which indicators produced true positives"],
+          "tools": ["MISP", "Microsoft Sentinel", "Elastic Security", "STIX 2.1", "TAXII 2.1"],
+          "lab_task": "Run MISP, create an event with 20 indicators including 5 IPs seen in lab traffic, and enable its TAXII or API feed. Ingest it into Sentinel with the threat intelligence connector and into Elastic with the Threat Intel integration. Build an indicator match rule in Elastic on source.ip and destination.ip. Set 30-day expiry and confirm an expired indicator no longer matches.",
+          "deliverable": "Feed configuration, indicator match rule and match results",
+          "checks": [["Ingest the 20 indicators", "Both platforms show 20 active indicators from the feed", "Indicator lists"], ["Run the indicator match rule over lab traffic", "Alerts are raised for the 5 IPs seen in traffic", "Alerts table"], ["Expire one matching indicator and rerun", "The expired indicator produces no new alert", "Alerts table"]],
+          "objectives": ["Ingest threat intelligence into a SIEM", "Match indicators against events", "Manage indicator expiry"]
+        },
+        {
+          "topic": "UEBA Baselines, Peer Groups and Anomaly Scores",
+          "subtopics": ["What UEBA adds beyond rules", "Baselines per user and per host", "Peer groups by department or role", "Sentinel UEBA tables: BehaviorAnalytics and IdentityInfo", "Elastic entity analytics and anomaly detection jobs", "Writing a baseline yourself with KQL series functions", "Investigation priority scores and how analysts use them", "Limits: cold start, drift and explainability"],
+          "tools": ["Microsoft Sentinel UEBA", "Elastic Security", "KQL", "ES|QL"],
+          "lab_task": "Enable Sentinel UEBA and query BehaviorAnalytics for the top 10 activities by InvestigationPriority. Then build your own baseline: for each user, compute the daily count of distinct hosts logged on to over 30 days with make-series and flag days above 3 standard deviations with series_decompose_anomalies. Inject a user logging on to 25 hosts and confirm it is flagged.",
+          "deliverable": "UEBA query output and a custom baseline query with the injected anomaly flagged",
+          "checks": [["Query BehaviorAnalytics after UEBA has run", "Rows with an InvestigationPriority value are returned", "Query result"], ["Inject one user logging on to 25 hosts in a day", "The custom query flags that user and day as anomalous", "Query result"], ["Run the custom query for a normal week", "Fewer than 5 users are flagged per day", "Query result"]],
+          "objectives": ["Explain how UEBA baselines work", "Build a baseline with KQL series functions", "Judge UEBA limits honestly"]
+        },
+        {
+          "topic": "Entity Risk Scoring and Risk-Based Alerting Across Platforms",
+          "subtopics": ["Risk events compared with alerts", "Risk score, risk object and risk modifiers", "Threshold rules on accumulated risk per entity", "Splunk Enterprise Security risk index as one example", "Elastic entity risk scoring for hosts and users", "Building a risk table in Sentinel with KQL", "Weighting by asset criticality and ATT&CK tactic diversity", "Lowering alert volume while raising fidelity"],
+          "tools": ["Microsoft Sentinel", "KQL", "Elastic Security", "Splunk Enterprise Security"],
+          "lab_task": "Convert five low-fidelity rules into risk contributors that write to a custom Sentinel table RiskEvents_CL with entity, score and technique. Write a KQL rule that alerts when one entity accumulates a score of 100 or more from at least 3 distinct tactics in 24 hours. Replay a multi-step attack and a noisy benign week, and compare alert counts with the original rules.",
+          "deliverable": "Risk table schema, contributor queries, the threshold rule and a before-and-after alert comparison",
+          "checks": [["Replay the multi-step attack", "The threshold rule raises one alert for the compromised user", "Alert details"], ["Replay the noisy benign week", "The threshold rule raises fewer alerts than the five original rules combined", "Count comparison"], ["Query RiskEvents_CL for the compromised user", "Rows show at least 3 distinct tactics", "Query result"]],
+          "objectives": ["Turn noisy rules into risk contributors", "Alert on accumulated entity risk", "Compare risk-based and direct alerting"]
+        },
+        {
+          "topic": "SOAR Playbooks with Shuffle and Sentinel Automation",
+          "subtopics": ["Playbook design: trigger, enrichment, decision, action and record", "Sentinel automation rules and Logic Apps playbooks", "Shuffle workflows, webhooks and apps", "Enrichment actions: IP reputation, user lookup and host lookup", "Containment actions: disable user, isolate host and block IP", "Human approval steps for disruptive actions", "Error handling and retries", "Measuring time saved per incident"],
+          "tools": ["Shuffle", "Microsoft Sentinel", "Azure Logic Apps", "TheHive", "Microsoft Graph API"],
+          "lab_task": "Build a Shuffle workflow triggered by a webhook from an Elastic alert action: look up the source IP reputation, find the user in a CSV directory, post a summary to a chat channel with Approve and Reject options, and on Approve add the IP to a firewall blocklist. In Sentinel add an automation rule that tags and assigns password spray incidents. Time the playbook from alert to decision.",
+          "deliverable": "Shuffle workflow export, Sentinel automation rule and timing results",
+          "checks": [["Fire a test alert to the webhook", "The chat message appears with enrichment and both options", "Chat screenshot"], ["Choose Reject", "No firewall change is made and the decision is logged", "Shuffle execution log"], ["Create a password spray incident in Sentinel", "The automation rule adds the tag and owner within 1 minute", "Incident activity log"]],
+          "objectives": ["Design a SOAR playbook with approval", "Automate incident handling in Sentinel", "Measure playbook time savings"]
+        },
+        {
+          "topic": "Parsing Pipelines at Scale: Ingest Pipelines, Logstash and DCR Transformations",
+          "subtopics": ["Where to parse: at the edge, in a pipeline or at query time", "Elastic ingest pipelines with on_failure handlers", "Logstash filter plugins and pipeline-to-pipeline routing", "Logstash --config.test_and_exit and the monitoring API", "Sentinel data collection rule transformKql", "Custom tables and the Logs Ingestion API", "ASIM parsers for query-time normalisation", "Throughput, lag and dead-letter handling"],
+          "tools": ["Elastic ingest pipelines", "Logstash", "Microsoft Sentinel", "Azure Monitor Agent", "KQL"],
+          "lab_task": "Onboard a custom application JSON log at 500 events per second. In Logstash parse and map it to ECS with a dead-letter queue for failures, test with --config.test_and_exit, and check the node stats API for event throughput. For Sentinel, create a DCR with transformKql that renames fields and drops debug lines into a custom table. Send 5 malformed events and find them.",
+          "deliverable": "Logstash pipeline, DCR JSON, throughput figures and the location of malformed events",
+          "checks": [["Run bin/logstash -f app.conf --config.test_and_exit", "Output reports Configuration OK", "Logstash output"], ["Send 500 events per second for 5 minutes", "Node stats show events out matching events in with no growing backlog", "Monitoring API output"], ["Send 5 malformed events", "All 5 are found in the dead-letter queue or failure index and none are lost", "Query result"]],
+          "objectives": ["Choose where to parse each source", "Build parsing pipelines with failure handling", "Measure pipeline throughput"]
+        },
+        {
+          "topic": "Google SecOps: UDM Search, YARA-L Rules and Parsers",
+          "subtopics": ["Google Security Operations SIEM components", "Unified Data Model fields: metadata.event_type, principal, target and security_result", "UDM search syntax", "Default parsers and parser extensions", "YARA-L 2.0 sections: meta, events, match, outcome and condition", "Multi-event rules with match windows", "Reference lists and data tables in rules", "Curated detections compared with custom rules"],
+          "tools": ["Google Security Operations", "YARA-L 2.0", "UDM Search"],
+          "lab_task": "In a Google SecOps tenant or training instance, run a UDM search for metadata.event_type = \"USER_LOGIN\" with security_result.action = \"BLOCK\". Write a YARA-L rule that matches 10 or more failed logins for one principal.ip over 30 minutes followed by a successful one, with an outcome risk score. Test it with the rule editor against the last 7 days of data and record detections.",
+          "deliverable": "UDM search, YARA-L rule source and the test run results",
+          "checks": [["Run the UDM search", "Blocked login events are returned with principal.ip populated", "Search result"], ["Save the YARA-L rule", "The rule editor reports no compilation errors", "Rule editor"], ["Run the rule test over 7 days of lab data containing one attack", "Exactly one detection is returned for the attacker IP", "Test run output"]],
+          "objectives": ["Search UDM events", "Write a multi-event YARA-L rule", "Test rules before enabling them"]
+        },
+        {
+          "topic": "Splunk Enterprise Security Detections over CIM Data Models",
+          "subtopics": ["Enterprise Security detections, findings and investigations", "CIM data models: Authentication, Endpoint and Network_Traffic", "tstats over accelerated data models", "Risk modifiers and risk-based findings", "Annotations with MITRE ATT&CK", "Content from Splunk Security Content and ESCU", "Throttling and adaptive response actions", "Converting a Sigma rule to a CIM-based search"],
+          "tools": ["Splunk Enterprise Security", "SPL", "Splunk CIM", "sigma-cli"],
+          "lab_task": "In a Splunk Enterprise Security lab, write an event-based detection using | tstats summariesonly=true count from datamodel=Authentication where Authentication.action=failure by Authentication.src, Authentication.user, _time span=10m, that adds 20 risk to the source when 10 or more failures occur. Annotate it with T1110. Run the lab spray and find the risk events for the attacker IP.",
+          "deliverable": "Detection definition, tstats search and risk event output",
+          "checks": [["Run the tstats search after the spray", "The attacker source appears with a count of at least 10 in one bucket", "Search result"], ["Search the risk index for the attacker IP", "Risk events with score 20 and annotation T1110 are returned", "Search result"], ["Disable data model acceleration and rerun with summariesonly=true", "The search returns no results", "Search result"]],
+          "objectives": ["Write Enterprise Security detections over CIM", "Add risk to entities", "Explain accelerated data model dependence"]
+        },
+        {
+          "topic": "Data Source Health Monitoring and Log Gap Alerts",
+          "subtopics": ["Why silent sources break detections", "Last-seen time per source, host and table", "Expected volume bands per source", "Sentinel Heartbeat and the SentinelHealth table", "Elastic Fleet agent status and data stream statistics", "Wazuh agent disconnection alerts", "Alerting on volume drops and schema changes", "Mapping sources to the detections that depend on them"],
+          "tools": ["Microsoft Sentinel", "Elastic Security", "Wazuh", "KQL", "ES|QL"],
+          "lab_task": "Write a KQL rule that alerts when any table in a watchlist of 10 critical tables has no events for 60 minutes or its hourly volume falls below 30 percent of its 7-day average. Write the ES|QL equivalent over data streams. Stop the Windows agent, change a parser so a key field becomes null, and confirm both problems alert. Map each table to the rules that depend on it.",
+          "deliverable": "Health rules in KQL and ES|QL, test results and a table-to-detection dependency map",
+          "checks": [["Stop the Windows agent for 60 minutes", "The health rule raises an alert naming the affected table", "Alert details"], ["Break the parser so source.ip becomes null", "The field-null check alerts for that data stream", "Alert details"], ["Review the dependency map", "Every critical table lists at least one dependent detection", "Dependency map"]],
+          "objectives": ["Monitor data source health", "Alert on gaps and volume drops", "Link sources to dependent detections"]
+        },
+        {
+          "topic": "Intermediate Capstone: Detection-as-Code Pipeline for Ten ATT&CK Techniques",
+          "subtopics": ["Technique selection from a threat profile", "Sigma rules with tests and metadata", "CI validation, conversion and API deployment", "Atomic Red Team validation and tuning", "SOAR playbook and case template for the top alert", "Coverage layer, health monitoring and handover"],
+          "tools": ["sigma-cli", "GitHub Actions", "Microsoft Sentinel", "Elastic Security", "Atomic Red Team", "Shuffle"],
+          "lab_task": "Choose 10 ATT&CK techniques from a ransomware threat profile. Write Sigma rules with sample-event tests, deploy them through CI to Sentinel and Elastic staging, and validate each with an atomic test. At least 9 of 10 must alert, each with precision above 50 percent over a 7-day benign replay. Add one SOAR playbook, a Navigator coverage layer and a health rule for every source used.",
+          "deliverable": "Repository, CI runs, validation matrix, precision table, playbook and coverage layer",
+          "checks": [["Run the 10 atomic tests", "At least 9 techniques raise alerts in both platforms", "Validation matrix"], ["Replay the 7-day benign dataset", "Every rule shows precision above 50 percent", "Precision table"], ["Open a pull request that breaks one rule", "CI fails and nothing is deployed", "GitHub Actions run"]],
+          "objectives": ["Run detection-as-code end to end", "Validate and tune a rule set", "Hand over detections with coverage and health monitoring"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For SIEM architects, detection engineering leads and security platform owners who run production SIEMs and need to design, scale, govern and modernise them. Covers reference architectures and tenancy, security data pipelines that route and reduce data before the SIEM, OCSF mapping and security data lakes, storage tiers for long-term search, ATT&CK coverage measurement, multi-stage correlation, machine learning detections, detection regression suites, purple-team validation, SOAR engineering, threat intelligence platform integration, multi-tenant SIEM for MSSPs, query performance, platform migration, compliance reporting, log integrity, cost governance, Wazuh at scale, generative AI assistants, and a capstone modernisation design with a working pilot.",
+      "prerequisites": ["Has completed the SIEM intermediate level or has two or more years engineering detections and data onboarding on a production SIEM", "Writes advanced KQL, ES|QL or SPL including joins, time series and performance tuning", "Works with infrastructure as code, CI pipelines and cloud identity and networking in Azure, AWS or Google Cloud"],
+      "outcomes": ["Design a SIEM architecture with data pipelines, storage tiers and tenancy that meets stated volume, latency, retention and cost targets", "Measure and raise ATT&CK detection coverage with regression suites, purple-team validation and multi-stage correlation", "Engineer safe SOAR automation and threat intelligence integration and run multi-tenant or migrated SIEM estates", "Produce compliance evidence, prove log integrity and govern SIEM cost with budgets and showback"],
+      "days": [
+        {
+          "topic": "SIEM Reference Architecture: Tiers, Regions and Tenancy",
+          "subtopics": ["Collection, pipeline, storage, analytics and response tiers", "Single workspace, multiple workspaces and cross-workspace queries", "Data residency and regional workspaces or clusters", "Elastic cross-cluster search and Sentinel workspace manager", "High availability for collectors and relays", "Network paths: private links, proxies and egress control", "Role-based access per team, region and data type", "Architecture decision records for SIEM choices"],
+          "tools": ["Microsoft Sentinel", "Elastic Security", "Azure Private Link", "draw.io"],
+          "lab_task": "Design a SIEM for a company in the EU and US with 8 TB per day, a rule that EU personal data stays in the EU, and 15-minute detection latency. Produce an architecture diagram, choose single or multiple workspaces or clusters, show collector redundancy and private network paths, and write three architecture decision records. Size storage for 90 days hot and 2 years archive.",
+          "deliverable": "Architecture diagram, three decision records and a storage sizing sheet",
+          "checks": [["Trace an EU user's sign-in event through the design", "It is stored and queried only in EU-region components", "Annotated diagram"], ["Remove one collector in the design", "Another collector takes the load with no single point of failure", "Diagram review notes"], ["Calculate storage for 8 TB per day", "Hot and archive totals in TB are stated with compression assumptions", "Sizing sheet"]],
+          "objectives": ["Design SIEM tiers and tenancy", "Meet data residency constraints", "Record architecture decisions"]
+        },
+        {
+          "topic": "Security Data Pipelines: Routing, Filtering and Reduction Before the SIEM",
+          "subtopics": ["The pipeline layer between sources and destinations", "Tools: Cribl Stream, Vector, Logstash, Fluent Bit and Edge Processor style products", "Routing by value: SIEM for detection data, object storage for the rest", "Reduction: dropping fields, sampling and aggregating flow logs", "Schema mapping in the pipeline to ECS or OCSF", "Replay from object storage into the SIEM", "Measuring reduction without breaking detections", "Pipeline as code and testing"],
+          "tools": ["Vector", "Cribl Stream", "Fluent Bit", "Amazon S3", "Microsoft Sentinel", "Elastic Security"],
+          "lab_task": "Build a Vector pipeline that receives firewall syslog at 2,000 events per second, maps it to ECS, routes deny events and events touching critical subnets to Elastic, and writes everything to S3 as compressed JSON. Measure the reduction in bytes sent to the SIEM. Then replay one hour from S3 into Elastic and confirm all detections that use firewall data still fire.",
+          "deliverable": "Vector configuration, reduction measurement and replay test results",
+          "checks": [["Run vector validate on the configuration", "Validation reports success for all components", "vector output"], ["Compare bytes received with bytes sent to Elastic over 1 hour", "A reduction percentage is recorded", "Vector metrics"], ["Replay 1 hour from S3 and run the firewall detections", "All firewall detections produce the same alerts as before routing", "Alert comparison"]],
+          "objectives": ["Design a routing and reduction pipeline", "Keep full-fidelity data in cheap storage", "Prove detections survive reduction"]
+        },
+        {
+          "topic": "OCSF in Practice: Mapping Custom Sources and Security Data Lakes",
+          "subtopics": ["OCSF structure: categories, classes, profiles and extensions", "class_uid, activity_id and type_uid calculation", "Required, recommended and optional attributes", "Amazon Security Lake and OCSF in Parquet", "Mapping a custom application log to OCSF", "Validating events against the schema", "Querying OCSF data with Athena or a SIEM", "Converting between OCSF, ECS and UDM"],
+          "tools": ["OCSF Schema Browser", "Amazon Security Lake", "Amazon Athena", "Python", "jsonschema"],
+          "lab_task": "Map a custom VPN log to OCSF Authentication (class_uid 3002) with activity_id for logon and logoff, and calculate type_uid as class_uid times 100 plus activity_id. Write a Python converter, validate 1,000 converted events against the OCSF JSON schema, and send them to a Security Lake custom source. Query them in Athena by user and outcome.",
+          "deliverable": "OCSF mapping sheet, converter script, validation report and Athena query",
+          "checks": [["Convert a logon event", "type_uid is 300201 and class_uid is 3002", "Converted JSON"], ["Validate 1,000 converted events", "Zero schema validation errors are reported", "Validation report"], ["Run the Athena query for failed logons", "Failed logons are returned grouped by user", "Athena result"]],
+          "objectives": ["Map custom sources to OCSF", "Validate events against the schema", "Query OCSF data in a security data lake"]
+        },
+        {
+          "topic": "Hot, Warm and Data-Lake Tiers for Long-Term Security Data",
+          "subtopics": ["Detection-tier storage compared with long-term search storage", "Sentinel analytics tier, data lake tier and search jobs", "Elastic frozen tier and searchable snapshots", "Summary tables and restore for investigations", "Federated search over object storage", "Query latency per tier", "Rehydration cost and time", "Choosing a tier per source"],
+          "tools": ["Microsoft Sentinel", "Elastic searchable snapshots", "KQL", "ES|QL", "Amazon S3"],
+          "lab_task": "For six sources, assign a tier using detection use, investigation frequency and volume. In Elastic configure an ILM policy that moves firewall data to the frozen tier after 14 days as a searchable snapshot. In Sentinel move a high-volume table to a lower-cost tier and run a search job over 180 days. Record query time for the same search on each tier.",
+          "deliverable": "Tier assignment table, ILM policy, Sentinel table plan change and a latency comparison",
+          "checks": [["Run GET logs-firewall*/_ilm/explain after 14 days of simulated ageing", "Indices show phase frozen", "API response"], ["Run the same 30-day search on hot and frozen data", "Both return the same hit count and the latency difference is recorded", "Query timings"], ["Run a Sentinel search job over 180 days", "Results land in a _SRCH table", "Query result"]],
+          "objectives": ["Choose storage tiers per source", "Configure frozen and data lake tiers", "Measure search latency by tier"]
+        },
+        {
+          "topic": "Detection Coverage Measurement with ATT&CK Navigator and DeTT&CT",
+          "subtopics": ["Coverage by technique, data source and platform", "DeTT&CT data source administration and visibility scoring", "Detection scoring from none to excellent", "Weighting coverage by threat profile", "Navigator layers combined with score operations", "Coverage compared with confidence from tests", "Reporting coverage without inflating it", "Choosing the next ten techniques to build"],
+          "tools": ["DeTT&CT", "MITRE ATT&CK Navigator", "Python", "sigma-cli"],
+          "lab_task": "Describe your data sources in a DeTT&CT YAML file with quality scores, and generate a visibility layer. Generate a detection layer from your rule repository tags with a script. Combine both with a threat profile layer for two named threat groups in ATT&CK Navigator. List the 10 highest-weighted techniques with visibility but no detection.",
+          "deliverable": "DeTT&CT files, three Navigator layers, the combined layer and a prioritised backlog",
+          "checks": [["Run the DeTT&CT data source command to generate a layer", "A visibility layer JSON is produced", "Command output"], ["Generate the detection layer from repository tags", "Each tagged technique in the repository appears with a score", "Layer JSON"], ["Build the combined layer", "Exactly 10 techniques are listed as visible but undetected and ranked by threat weight", "Backlog list"]],
+          "objectives": ["Measure visibility and detection coverage", "Weight coverage by threat", "Prioritise new detections from gaps"]
+        },
+        {
+          "topic": "Advanced Correlation: Multi-Stage Attack Chains and Graph Pivots",
+          "subtopics": ["Kill-chain correlation across identity, endpoint and network", "Correlating alerts rather than raw events", "Entity resolution: same user across UPN, SAM and email", "Sentinel Fusion and multi-stage incidents", "Elastic EQL sequences with until and multiple joins", "KQL graph semantics with make-graph and graph-match", "Time-window design for slow attacks", "Explainable correlation output for analysts"],
+          "tools": ["Microsoft Sentinel", "KQL", "Elastic Security", "EQL"],
+          "lab_task": "Build a correlation that links a phishing click alert, a new OAuth consent or MFA method change, and a mailbox rule creation for the same resolved user within 72 hours. Normalise user identity across UPN and email first. Write it in KQL over SecurityAlert and audit tables, and as an EQL sequence. Use make-graph to show the user, IP and app relationships for the incident.",
+          "deliverable": "Correlation rules in KQL and EQL, entity resolution logic and the graph output",
+          "checks": [["Replay the three-stage scenario over 48 hours", "One correlated alert is raised for the user", "Alert details"], ["Replay only two of the three stages", "No correlated alert is raised", "Empty alerts view for the window"], ["Run the graph query for the incident user", "Edges between user, sign-in IP and OAuth app are returned", "Query result"]],
+          "objectives": ["Correlate alerts across domains", "Resolve entities across identifiers", "Explain multi-stage detections"]
+        },
+        {
+          "topic": "Machine Learning Detections and Their Limits",
+          "subtopics": ["Supervised, unsupervised and statistical methods in SIEMs", "Elastic anomaly detection jobs, datafeeds and influencers", "Sentinel anomaly rules and the Anomalies table", "Rare process, rare parent and rare destination models", "Seasonality, cold start and model drift", "Combining anomaly scores with rule logic", "Evaluating with precision and recall on labelled data", "Explaining ML alerts to analysts and auditors"],
+          "tools": ["Elastic machine learning", "Microsoft Sentinel", "KQL", "Python", "Jupyter"],
+          "lab_task": "Create an Elastic anomaly detection job for rare process names per host over 30 days of lab data. Inject 5 labelled malicious executions. Report how many anomalies score above 75, how many are the injected ones, and calculate precision and recall. Then add a rule that only alerts when an anomaly above 75 coincides with a network connection to a new external IP.",
+          "deliverable": "ML job configuration, labelled evaluation results and the combined rule",
+          "checks": [["Run the job over 30 days", "The job state is closed or started with anomaly records written", "Job management view"], ["Score the 5 injected executions", "Precision and recall figures are calculated and recorded", "Evaluation sheet"], ["Enable the combined rule", "It alerts on fewer events than the raw anomaly feed above 75", "Alert counts"]],
+          "objectives": ["Configure anomaly detection jobs", "Evaluate ML detections with labelled data", "Combine anomalies with rules"]
+        },
+        {
+          "topic": "Detection Regression Suites with Sample Events",
+          "subtopics": ["Positive and negative test events per rule", "Storing samples in the repository with redaction", "Running converted queries against an ephemeral cluster in CI", "Elastic detection-rules unit tests as an example", "KQL testing with datatable() inline data", "Testing parsers and rules together", "Coverage of the suite: rules without tests", "Fail-fast and flaky test management"],
+          "tools": ["pytest", "GitHub Actions", "Docker", "Elasticsearch", "KQL", "sigma-cli"],
+          "lab_task": "Add positive and negative sample events for 20 rules. In CI start a single-node Elasticsearch container, index the samples, run every converted ES|QL query and assert positives match and negatives do not. For KQL, generate a datatable() wrapper per rule and run it through the Log Analytics query API against a test workspace. Fail the build on any rule without tests.",
+          "deliverable": "Test framework code, CI workflow and a run summary",
+          "checks": [["Run the suite in CI", "All 20 rules pass with positive and negative results reported", "CI log"], ["Change one rule so it no longer matches its positive sample", "The build fails and names that rule", "CI log"], ["Add a rule without samples", "The coverage check fails the build", "CI log"]],
+          "objectives": ["Build regression tests for detections", "Run tests against ephemeral backends", "Enforce test coverage"]
+        },
+        {
+          "topic": "Purple-Team Detection Validation with Attack Simulation",
+          "subtopics": ["Planning an exercise from a threat profile", "Atomic Red Team, MITRE Caldera and commercial breach and attack simulation", "Rules of engagement and safety controls", "Logging every simulated action with timestamps", "Scoring: detected, alerted, triaged and contained", "Time to detect and time to respond per step", "Feeding findings into the detection backlog", "Repeating exercises to show improvement"],
+          "tools": ["MITRE Caldera", "Atomic Red Team", "VECTR", "Microsoft Sentinel", "Elastic Security"],
+          "lab_task": "Run a MITRE Caldera adversary profile of at least 8 abilities against an isolated lab host. Track each ability in VECTR with its start time, then score whether telemetry existed, an alert fired and an analyst triaged it. Calculate mean time to detect. Fix the two worst gaps and repeat the operation to show the change.",
+          "deliverable": "Exercise plan, VECTR results for both runs and a change summary",
+          "checks": [["Run the Caldera operation", "All 8 abilities complete and are logged with timestamps", "Caldera operation report"], ["Score each ability in VECTR", "Every ability has a telemetry, alert and triage outcome", "VECTR export"], ["Repeat after fixing two gaps", "The number of alerted abilities rises by at least 2", "Comparison table"]],
+          "objectives": ["Plan a safe purple-team exercise", "Score detection and response per step", "Show measured improvement"]
+        },
+        {
+          "topic": "SOAR Engineering: Idempotent Actions, Approvals and Rollback",
+          "subtopics": ["Playbooks as code with version control", "Idempotent actions and duplicate trigger handling", "Approval gates and break-glass procedures", "Rollback actions for blocks and disabled accounts", "Rate limits and blast-radius limits", "Secrets and managed identities for connectors", "Playbook testing with mocked connectors", "Audit logs for every automated action"],
+          "tools": ["Shuffle", "Azure Logic Apps", "Microsoft Sentinel", "Python", "pytest"],
+          "lab_task": "Rewrite the IP block playbook so it checks the blocklist before adding, refuses to block more than 20 IPs per hour or any address in an allowlist of critical ranges, requires approval for internal ranges, and schedules automatic removal after 24 hours. Write mocked tests for each guard and fire the same alert 3 times to prove only one block is created.",
+          "deliverable": "Playbook export, mocked tests and an audit log of the test runs",
+          "checks": [["Fire the same alert 3 times", "Only one blocklist entry is created", "Firewall blocklist and playbook log"], ["Trigger 25 block requests in 1 hour", "Requests after the 20th are refused and logged", "Playbook log"], ["Request a block for an allowlisted critical range", "The playbook refuses without calling the firewall", "Mocked test output"]],
+          "objectives": ["Build safe, idempotent automation", "Add approval and rollback", "Test playbooks with mocks"]
+        },
+        {
+          "topic": "Threat Intelligence Platform Integration and Indicator Lifecycle",
+          "subtopics": ["Strategic, operational and tactical intelligence", "MISP and OpenCTI as intelligence platforms", "Sending sightings back from the SIEM", "Confidence scoring and decay", "Deduplication across feeds", "Mapping intelligence to ATT&CK techniques and hunts", "Measuring feed value by true positive yield", "Sharing communities and TLP markings"],
+          "tools": ["MISP", "OpenCTI", "Microsoft Sentinel", "Elastic Security", "Python"],
+          "lab_task": "Connect OpenCTI to two feeds and to MISP, push indicators with a confidence of 50 or more to the SIEM, and decay confidence by 10 each week. Write a script that sends SIEM matches back to OpenCTI as sightings. After 2 weeks of lab traffic, report per feed how many indicators were pushed, matched and confirmed true positive, and drop the lowest-yield feed.",
+          "deliverable": "Integration configuration, sighting script and a feed value report",
+          "checks": [["Push indicators to the SIEM", "Only indicators with confidence of 50 or more are present", "Indicator list"], ["Run the sighting script after a match", "The indicator shows a sighting in OpenCTI", "OpenCTI screenshot"], ["Review the feed report", "Each feed has pushed, matched and confirmed counts", "Feed report"]],
+          "objectives": ["Integrate a threat intelligence platform with the SIEM", "Manage indicator confidence and decay", "Measure feed value"]
+        },
+        {
+          "topic": "Multi-Tenant SIEM for MSSPs: Lighthouse, Spaces and Data Isolation",
+          "subtopics": ["Tenant models: shared cluster, workspace per tenant and cluster per tenant", "Azure Lighthouse delegated access for Sentinel", "Elastic Spaces, roles and document-level security", "Content deployment to many tenants", "Per-tenant tuning and exceptions", "Cross-tenant hunting without data leakage", "Contracts, data ownership and offboarding", "Per-tenant cost reporting"],
+          "tools": ["Azure Lighthouse", "Microsoft Sentinel", "Elastic Security", "Terraform"],
+          "lab_task": "Onboard two customer tenants to a managing tenant with Azure Lighthouse using a Sentinel Contributor role assignment. Deploy the same rule set to both workspaces from CI and run a cross-workspace query with workspace(). In Elastic create two spaces with roles that restrict each customer index pattern, and prove a customer A analyst cannot read customer B data.",
+          "deliverable": "Lighthouse template, deployment logs, cross-workspace query and access test results",
+          "checks": [["Run the cross-workspace query from the managing tenant", "Rows from both customer workspaces are returned with tenant labels", "Query result"], ["Query customer B data as a customer A analyst in Elastic", "The query returns no documents or an authorisation error", "Query result"], ["Deploy a rule change once from CI", "Both tenants show the same rule version", "Rule details"]],
+          "objectives": ["Choose a multi-tenant model", "Delegate access with least privilege", "Prove tenant data isolation"]
+        },
+        {
+          "topic": "Query Performance Engineering in KQL, ES|QL and SPL",
+          "subtopics": ["Filter early on time and indexed fields", "has compared with contains and term-level matching", "summarize and STATS before join", "Materialising and caching intermediate results", "Elastic search profiler and shard behaviour", "Log Analytics query statistics and limits", "Scheduled rule cost at scale", "Setting query budgets for rule authors"],
+          "tools": ["KQL", "ES|QL", "SPL", "Elasticsearch Profile API", "Microsoft Sentinel"],
+          "lab_task": "Take the 5 slowest scheduled rules from query statistics. For each, rewrite with earlier time and table filters, has instead of contains, summarise before join, and materialize() for repeated subqueries. Record execution time and data scanned before and after. In Elastic, run one slow rule with profile enabled and fix the costliest clause. Every rule must return the same results after rewriting.",
+          "deliverable": "Before-and-after performance table and rewritten queries",
+          "checks": [["Compare results of each original and rewritten rule over 7 days", "Each pair returns identical result counts", "Comparison output"], ["Compare execution time for the 5 rewritten rules", "Each rule's before and after time is recorded and the total time is lower", "Performance table"], ["Run the Elastic query with profile true", "The costliest query clause is identified by name", "Profile output"]],
+          "objectives": ["Profile slow security queries", "Rewrite queries without changing results", "Set query budgets"]
+        },
+        {
+          "topic": "SIEM Migration: Moving Detections and Data Between Platforms",
+          "subtopics": ["Migration drivers and success criteria", "Inventory of rules, data sources, lookups and dashboards", "Mapping Splunk SPL and CIM content to KQL with ASIM or to ES|QL with ECS", "Sigma as a portable intermediate format", "Sentinel SIEM migration experience and Elastic migration tooling", "Parallel running and alert parity testing", "Historical data: export, archive or federated search", "Cutover, rollback and decommissioning"],
+          "tools": ["Splunk Enterprise Security", "Microsoft Sentinel", "Elastic Security", "sigma-cli", "SPL", "KQL"],
+          "lab_task": "Take 15 detections exported from a Splunk Enterprise Security lab. Classify each as translate, rebuild or retire. Translate 10 into KQL over ASIM or ES|QL over ECS, run both platforms in parallel on the same replayed data for 7 days, and record alert parity. Write a cutover and rollback plan with a date for archiving historical data.",
+          "deliverable": "Migration inventory, translated rules, parity report and cutover plan",
+          "checks": [["Classify the 15 detections", "Each has a translate, rebuild or retire decision with a reason", "Inventory sheet"], ["Replay 7 days of data to both platforms", "A parity percentage per translated rule is recorded", "Parity report"], ["Review the cutover plan", "It names rollback triggers and the historical data approach", "Cutover plan"]],
+          "objectives": ["Inventory SIEM content for migration", "Translate detections between query languages", "Prove alert parity before cutover"]
+        },
+        {
+          "topic": "Compliance Reporting from the SIEM: PCI DSS, ISO 27001, NIS2 and SOC 2",
+          "subtopics": ["PCI DSS v4.0.1 Requirement 10 logging and review controls", "ISO/IEC 27001:2022 Annex A controls 8.15 Logging and 8.16 Monitoring activities", "NIS2 incident reporting stages: 24-hour early warning, 72-hour notification and one-month final report", "SOC 2 common criteria for monitoring", "Mapping controls to data sources, rules and dashboards", "Evidence packs: scheduled reports and immutable exports", "Retention requirements such as PCI DSS 12 months with 3 months immediately available", "Auditor access with read-only roles"],
+          "tools": ["Microsoft Sentinel", "Elastic Security", "KQL", "ES|QL"],
+          "lab_task": "Build a control map for PCI DSS Requirement 10 and ISO 27001 controls 8.15 and 8.16 that links each control to a data source, a rule or report, and an evidence location. Create scheduled reports for privileged access changes and failed critical security controls, export them monthly as signed PDFs or hashed CSV, and confirm retention meets 12 months with 3 months searchable.",
+          "deliverable": "Control map, scheduled report definitions, a sample evidence pack and retention proof",
+          "checks": [["Review every mapped control", "Each control lists a data source, a report or rule, and an evidence location", "Control map"], ["Run sha256sum on an exported CSV and compare with the stored hash", "The hashes match", "Command output"], ["Query data from 85 days ago", "Results are returned without a restore", "Query result"]],
+          "objectives": ["Map compliance controls to SIEM content", "Produce repeatable evidence", "Confirm retention meets requirements"]
+        },
+        {
+          "topic": "Log Integrity, Chain of Custody and Auditing the SIEM Itself",
+          "subtopics": ["Threats to logs: deletion, tampering and agent disabling", "Immutable storage with object lock or WORM", "Hash chains and signed exports", "Detecting cleared logs and stopped agents", "Auditing SIEM administrators: rule changes, deletions and query access", "Sentinel LAQueryLogs and Azure Activity", "Elastic audit logging", "Chain of custody for evidence handed to legal teams"],
+          "tools": ["Amazon S3 Object Lock", "Microsoft Sentinel", "Elastic Security", "sha256sum", "KQL"],
+          "lab_task": "Configure an S3 bucket with Object Lock in compliance mode for 365 days and archive daily SIEM exports with a SHA-256 manifest. Try to delete an object and record the error. Enable Elastic audit logging and Sentinel LAQueryLogs, then write a rule that alerts when an analytics rule is disabled or deleted. Disable a rule as a test admin and confirm the alert.",
+          "deliverable": "Bucket configuration, deletion attempt output, audit settings and the rule-tamper alert",
+          "checks": [["Run aws s3api delete-object with a version ID on a locked object", "The request fails with AccessDenied", "CLI output"], ["Disable an analytics rule as the test admin", "The tamper rule alerts with the admin identity", "Alert details"], ["Run a query as an analyst and check LAQueryLogs", "The query text and the analyst identity are logged", "Query result"]],
+          "objectives": ["Store logs immutably", "Audit SIEM administrators", "Keep chain of custody for evidence"]
+        },
+        {
+          "topic": "SIEM Cost Governance: Ingestion Budgets, Commitment Tiers and Showback",
+          "subtopics": ["Cost model per platform: ingestion, retention, compute and licences", "Commitment tiers and reserved capacity", "Per-source cost per detection value", "Daily caps and their risks", "Budgets and anomaly alerts on ingestion", "Showback and chargeback to business units", "Forecasting growth", "Decision process for onboarding new sources"],
+          "tools": ["Microsoft Sentinel", "Azure Cost Management", "Elastic Security", "KQL", "Kibana Stack Monitoring"],
+          "lab_task": "Build a cost model for 12 sources using 30 days of usage data. For each source, compute monthly cost and the number of detections and investigations that used it. Recommend a commitment tier from the daily average. Add a KQL alert when any source grows over 50 percent above its 14-day average, and produce a showback report by business unit tag.",
+          "deliverable": "Cost model, tier recommendation, growth alert and showback report",
+          "checks": [["Compare the modelled monthly cost with the actual bill", "The difference is under 10 percent", "Cost comparison"], ["Inject a 60 percent spike in one source", "The growth alert fires naming the source", "Alert details"], ["Review the showback report", "Every source is assigned to a business unit with a cost", "Showback report"]],
+          "objectives": ["Model SIEM cost by source", "Choose commitment tiers from data", "Run budgets and showback"]
+        },
+        {
+          "topic": "Wazuh at Scale: Clusters, Indexer Shards and Agent Groups",
+          "subtopics": ["Wazuh server cluster with master and worker nodes", "Load balancing agents across workers", "Wazuh indexer cluster sizing, shards and replicas", "Agent groups and centralised agent.conf", "Ruleset updates and custom rule management in Git", "Vulnerability detection and SCA at scale", "Upgrading agents in waves", "Monitoring cluster health with the Wazuh API"],
+          "tools": ["Wazuh", "Wazuh indexer", "Wazuh API", "NGINX", "Ansible"],
+          "lab_task": "Deploy a Wazuh cluster with one master and two workers behind an NGINX TCP load balancer on port 1514, and a three-node indexer cluster. Create agent groups for Windows servers and Linux web servers with different agent.conf settings. Enrol 20 agents, stop one worker, and confirm agents reconnect to the other. Check cluster status with /var/ossec/bin/cluster_control -l.",
+          "deliverable": "Cluster configuration, group agent.conf files and failover test results",
+          "checks": [["Run /var/ossec/bin/cluster_control -l", "The master and both workers are listed", "Command output"], ["Stop one worker", "All its agents show Active on the remaining worker within 5 minutes", "Agent list"], ["Query GET _cluster/health on the indexer", "Status is green with three nodes", "API response"]],
+          "objectives": ["Scale Wazuh servers and indexers", "Manage agent groups centrally", "Test failover"]
+        },
+        {
+          "topic": "Generative AI Assistants for SIEM Investigation and Detection Authoring",
+          "subtopics": ["Assistant features in SIEM platforms: summaries, query generation and guided response", "Microsoft Security Copilot, Elastic AI Assistant and Gemini in Google SecOps as examples", "Prompting for KQL, ES|QL and YARA-L", "Verifying generated queries against known data", "Grounding with your own runbooks and knowledge bases", "Data handling, privacy and tenant boundaries", "Prompt injection through log content", "Measuring time saved and error rates"],
+          "tools": ["Microsoft Security Copilot", "Elastic AI Assistant", "Google Security Operations", "KQL", "ES|QL"],
+          "lab_task": "Give an AI assistant 10 investigation questions with known answers from lab data and ask it to write KQL or ES|QL for each. Run every generated query and score it as correct, wrong or unsafe. Plant a log line containing an instruction to ignore previous rules and see whether the summary follows it. Write usage guidelines based on the error rate you measured.",
+          "deliverable": "Scored question set, prompt injection test result and assistant usage guidelines",
+          "checks": [["Run the 10 generated queries", "Each query is scored and an error rate percentage is calculated", "Scoring sheet"], ["Ask for a summary of an incident containing the planted instruction", "The result records whether the assistant followed or ignored the instruction", "Assistant transcript"], ["Review the guidelines", "They require query verification before any action", "Guidelines document"]],
+          "objectives": ["Use AI assistants for investigations", "Verify generated queries", "Test assistants for prompt injection"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise SIEM Modernisation Design and Pilot",
+          "subtopics": ["Current-state assessment and target architecture", "Pipeline, storage tiers and tenancy design", "Detection-as-code with regression and purple-team validation", "SOAR, threat intelligence and case management integration", "Compliance evidence, log integrity and cost governance", "Migration roadmap and pilot results"],
+          "tools": ["Microsoft Sentinel", "Elastic Security", "Vector", "sigma-cli", "MITRE Caldera", "GitHub Actions"],
+          "lab_task": "Design the modernisation of a 5 TB per day SIEM: target architecture, pipeline routing that cuts SIEM ingestion by at least 30 percent, storage tiers, and a migration plan. Pilot it with 3 sources, 15 tested detections deployed from CI and one guarded SOAR playbook. Validate with a Caldera operation and present coverage, cost, compliance evidence and risks to a review panel.",
+          "deliverable": "Design pack, working pilot, validation report and panel presentation",
+          "checks": [["Measure pilot ingestion before and after the pipeline", "SIEM ingestion falls by at least 30 percent", "Pipeline metrics"], ["Run the Caldera operation against the pilot", "At least 80 percent of abilities raise alerts", "Validation report"], ["Run the regression suite in CI", "All 15 detections pass their tests", "CI log"]],
+          "objectives": ["Design a SIEM modernisation", "Prove the design with a pilot", "Present coverage, cost and risk to stakeholders"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,3 @@
+services:
+  frontend:
+    image: ${IMAGE_PREFIX:?Set IMAGE_PREFIX to your GHCR namespace}/frontend:latest

@@ -1,6 +1,8 @@
 # Environment and local secrets
 .env
 *.env
+.env.*
+*.env.*
 !.env.example
 config/credentials.json
 config/token.json
@@ -8,13 +10,37 @@ config/token.json
 **/config/token.json
 **/config/token*.bak
 **/config/*.secret.json
+microservices/services/email-service/config/token.json
+microservices/gmail_config/token.json
+microservices/services/email-service/data/client_ack_versions.json
+microservices/services/email-service/data/client_ack_versions.json.tmp
+
+# Databases and browser state
+linkedin-bot-profile/
+*.db
+*.db-journal
+.chrome-diagnostic*
+Last Browser
+Last Version
+Local State
+
+*.db
+*.db-journal
+.chrome-diagnostic*
+Last Browser
+Last Version
+Local State
 
 # Python
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+htmlcov/
 .venv/
 venv/
 
@@ -25,10 +51,59 @@ build/
 .vite/
 
 # Local/editor files
+.vscode/
 .DS_Store
 Thumbs.db
+.runlogs/
+.scannerwork/
 *.log
 *.tmp
 
 # Accidental sibling copy outside the app folder
-/frontend/
+/frontend/*
+!/frontend/src/
+/frontend/src/*
+!/frontend/src/utils/
+/frontend/src/utils/*
+!/frontend/src/utils/handoffStatus.js
+!/frontend/src/utils/interviewAlarm.js
+!/frontend/src/utils/handoffStatus.test.js
+!/frontend/src/utils/useLiveShortlist.js
+!/frontend/src/utils/pipelineRecords.js
+!/frontend/src/utils/pipelineRecords.test.js
+!/frontend/src/utils/navigation.js
+!/frontend/src/utils/navigation.test.js
+!/frontend/src/utils/usePipelineRecords.js
+!/frontend/src/components/
+/frontend/src/components/*
+!/frontend/src/components/ClientHandoffReview.jsx
+!/frontend/src/components/LeadBot.jsx
+!/frontend/src/components/Pager.jsx
+!/frontend/src/components/SearchSourceReport.jsx
+!/frontend/src/utils/leadSearchFeedback.js
+!/frontend/src/utils/leadSearchFeedback.test.js
+!/frontend/src/utils/leadPaging.js
+!/frontend/src/utils/leadPaging.test.js
+!/frontend/src/utils/trainerOutreachMail.js
+!/frontend/src/utils/trainerOutreachMail.test.js
+!/frontend/src/utils/workflowTemplates.test.js
+!/frontend/src/pages/
+/frontend/src/pages/*
+!/frontend/src/pages/PurchaseOrders.jsx
+!/frontend/src/pages/FinanceApprovals.jsx
+!/frontend/src/pages/TrainerPortal.jsx
+!/frontend/src/pages/TrainerApplications.jsx
+!/frontend/src/pages/ClientPortal.jsx
+!/frontend/src/pages/PartnerOpportunities.jsx
+!/frontend/src/pages/TravelBookings.jsx
+
+# Logs and runtime
+.scannerwork/
+.coverage
+htmlcov/
+# Ignore sensitive email service OAuth token config
+microservices/services/email-service/config/token.json
+microservices/services/intelligence-service/naukri-bot-profile/
+
+# Model drafts for level-course modules (applied content lives in datasets_levels)
+microservices/services/trainer-service/curriculum_module_drafts/

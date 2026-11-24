@@ -1,0 +1,929 @@
+{
+  "domain": "Prompt Engineering",
+  "name": "Prompt Engineering",
+  "icon": "pencil",
+  "program_title": "Generative AI and LLM Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Prompt Engineering Expert",
+  "certifications": [
+    "Prompt Engineering Fundamentals",
+    "DeepLearning.AI Prompt Engineering",
+    "Anthropic Prompt Engineer Certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Fundamentals of Prompting",
+      "subtopics": [
+        "Language Models",
+        "Tokens",
+        "Probability",
+        "Basic Prompts"
+      ],
+      "tools": [
+        "GPT-4"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Prompt basics"
+    },
+    {
+      "day": 2,
+      "topic": "Fundamentals of Prompting - Part 2",
+      "subtopics": [
+        "Part 2: Language Models",
+        "Part 2: Tokens",
+        "Part 2: Probability",
+        "Part 2: Basic Prompts"
+      ],
+      "tools": [
+        "GPT-4"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Prompt basics"
+    },
+    {
+      "day": 3,
+      "topic": "Prompt Techniques",
+      "subtopics": [
+        "Zero-shot",
+        "Few-shot",
+        "Chain of Thought"
+      ],
+      "tools": [
+        "ChatGPT"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Prompting techniques"
+    },
+    {
+      "day": 4,
+      "topic": "Prompt Techniques - Part 2",
+      "subtopics": [
+        "Part 2: Zero-shot",
+        "Part 2: Few-shot",
+        "Part 2: Chain of Thought"
+      ],
+      "tools": [
+        "ChatGPT"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Prompting techniques"
+    },
+    {
+      "day": 5,
+      "topic": "Writing Effective Prompts",
+      "subtopics": [
+        "Clarity",
+        "Specificity",
+        "Context",
+        "Instructions"
+      ],
+      "tools": [
+        "Claude"
+      ],
+      "jira_focus": "Sprint planning; review progress for Writing Effective Prompts",
+      "lab_task": "Effective prompts"
+    },
+    {
+      "day": 6,
+      "topic": "Writing Effective Prompts - Part 2",
+      "subtopics": [
+        "Part 2: Clarity",
+        "Part 2: Specificity",
+        "Part 2: Context",
+        "Part 2: Instructions"
+      ],
+      "tools": [
+        "Claude"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Effective prompts"
+    },
+    {
+      "day": 7,
+      "topic": "Chain of Thought Prompting",
+      "subtopics": [
+        "Step-by-step",
+        "Reasoning",
+        "Complex Problems"
+      ],
+      "tools": [
+        "GPT-4"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "CoT reasoning"
+    },
+    {
+      "day": 8,
+      "topic": "Chain of Thought Prompting - Part 2",
+      "subtopics": [
+        "Part 2: Step-by-step",
+        "Part 2: Reasoning",
+        "Part 2: Complex Problems"
+      ],
+      "tools": [
+        "GPT-4"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: CoT reasoning"
+    },
+    {
+      "day": 9,
+      "topic": "Role-Based Prompting",
+      "subtopics": [
+        "Personas",
+        "Expert Roles",
+        "Character Consistency"
+      ],
+      "tools": [
+        "LLMs"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Persona prompting"
+    },
+    {
+      "day": 10,
+      "topic": "Role-Based Prompting - Part 2",
+      "subtopics": [
+        "Part 2: Personas",
+        "Part 2: Expert Roles",
+        "Part 2: Character Consistency"
+      ],
+      "tools": [
+        "LLMs"
+      ],
+      "jira_focus": "Sprint planning; review progress for Role-Based Prompting",
+      "lab_task": "Part 2 hands-on: Persona prompting"
+    },
+    {
+      "day": 11,
+      "topic": "LLM Fundamentals",
+      "subtopics": [
+        "tokens",
+        "context",
+        "sampling",
+        "model families",
+        "limitations"
+      ],
+      "tools": [
+        "ChatGPT",
+        "OpenAI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Compare LLM responses across settings"
+    },
+    {
+      "day": 12,
+      "topic": "Prompt Structure Patterns",
+      "subtopics": [
+        "role",
+        "task",
+        "context",
+        "constraints",
+        "output format"
+      ],
+      "tools": [
+        "ChatGPT"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Create prompt templates for business tasks"
+    },
+    {
+      "day": 13,
+      "topic": "Few-Shot and Chain Techniques",
+      "subtopics": [
+        "examples",
+        "reasoning prompts",
+        "decomposition",
+        "self-check"
+      ],
+      "tools": [
+        "ChatGPT"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Build few-shot prompt library"
+    },
+    {
+      "day": 14,
+      "topic": "Structured Outputs",
+      "subtopics": [
+        "JSON schema",
+        "tables",
+        "validation",
+        "repair prompts"
+      ],
+      "tools": [
+        "OpenAI API"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Generate validated JSON outputs"
+    },
+    {
+      "day": 15,
+      "topic": "RAG Prompting",
+      "subtopics": [
+        "retrieval context",
+        "citations",
+        "grounding",
+        "source limits"
+      ],
+      "tools": [
+        "Vector DB",
+        "OpenAI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Create grounded answer workflow"
+    },
+    {
+      "day": 16,
+      "topic": "Prompt Injection Defense",
+      "subtopics": [
+        "untrusted text",
+        "instruction hierarchy",
+        "data boundaries"
+      ],
+      "tools": [
+        "ChatGPT"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Test and harden prompts against injection"
+    },
+    {
+      "day": 17,
+      "topic": "Multimodal Prompting",
+      "subtopics": [
+        "image inputs",
+        "document analysis",
+        "vision tasks"
+      ],
+      "tools": [
+        "GPT vision"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Analyze screenshots/documents with structured prompt"
+    },
+    {
+      "day": 18,
+      "topic": "GenAI for Coding",
+      "subtopics": [
+        "code generation",
+        "debugging",
+        "tests",
+        "refactoring prompts"
+      ],
+      "tools": [
+        "ChatGPT",
+        "Codex"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Create coding assistant prompt set"
+    },
+    {
+      "day": 19,
+      "topic": "GenAI for Business Workflows",
+      "subtopics": [
+        "email",
+        "reports",
+        "summaries",
+        "SOPs",
+        "analytics"
+      ],
+      "tools": [
+        "ChatGPT"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Automate business document drafts"
+    },
+    {
+      "day": 20,
+      "topic": "Evaluation and Rubrics",
+      "subtopics": [
+        "quality criteria",
+        "A/B prompts",
+        "human review",
+        "scoring"
+      ],
+      "tools": [
+        "Sheets",
+        "ChatGPT"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Create prompt evaluation rubric"
+    },
+    {
+      "day": 21,
+      "topic": "API-Based GenAI Apps",
+      "subtopics": [
+        "messages",
+        "system prompts",
+        "streaming",
+        "cost control"
+      ],
+      "tools": [
+        "OpenAI API",
+        "Python"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Build simple GenAI API app"
+    },
+    {
+      "day": 22,
+      "topic": "Embeddings and Semantic Search",
+      "subtopics": [
+        "embedding models",
+        "similarity",
+        "chunking",
+        "indexes"
+      ],
+      "tools": [
+        "OpenAI",
+        "FAISS"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build semantic search prototype"
+    },
+    {
+      "day": 23,
+      "topic": "Fine-Tuning vs Prompting",
+      "subtopics": [
+        "when to fine-tune",
+        "datasets",
+        "evals",
+        "risks"
+      ],
+      "tools": [
+        "OpenAI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Design improvement strategy"
+    },
+    {
+      "day": 24,
+      "topic": "Responsible AI",
+      "subtopics": [
+        "bias",
+        "privacy",
+        "copyright",
+        "policy",
+        "human review"
+      ],
+      "tools": [
+        "ChatGPT"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Create responsible AI checklist"
+    },
+    {
+      "day": 25,
+      "topic": "Capstone Planning",
+      "subtopics": [
+        "use case",
+        "prompt library",
+        "data",
+        "success metrics"
+      ],
+      "tools": [
+        "Jira"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Plan GenAI capstone"
+    },
+    {
+      "day": 26,
+      "topic": "Capstone Prompt System",
+      "subtopics": [
+        "templates",
+        "structured outputs",
+        "guardrails"
+      ],
+      "tools": [
+        "ChatGPT"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build capstone prompt system"
+    },
+    {
+      "day": 27,
+      "topic": "Capstone RAG Prototype",
+      "subtopics": [
+        "documents",
+        "retrieval",
+        "citations",
+        "answer format"
+      ],
+      "tools": [
+        "Vector DB"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build capstone RAG workflow"
+    },
+    {
+      "day": 28,
+      "topic": "Capstone App Integration",
+      "subtopics": [
+        "API",
+        "UI",
+        "streaming",
+        "feedback"
+      ],
+      "tools": [
+        "OpenAI API",
+        "React"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Integrate GenAI workflow into app"
+    },
+    {
+      "day": 29,
+      "topic": "Capstone Evaluation",
+      "subtopics": [
+        "test set",
+        "rubrics",
+        "failure fixes"
+      ],
+      "tools": [
+        "Sheets",
+        "pytest"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Evaluate capstone outputs"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Demo",
+      "subtopics": [
+        "demo",
+        "limitations",
+        "ROI",
+        "next steps"
+      ],
+      "tools": [
+        "All GenAI Tools"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Present GenAI capstone"
+    },
+    {
+      "day": 31,
+      "topic": "Temperature & Parameters",
+      "subtopics": [
+        "Sampling",
+        "Top-k",
+        "Top-p",
+        "Frequency Penalty"
+      ],
+      "tools": [
+        "API Parameters"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Parameter tuning"
+    },
+    {
+      "day": 32,
+      "topic": "Temperature & Parameters - Part 2",
+      "subtopics": [
+        "Part 2: Sampling",
+        "Part 2: Top-k",
+        "Part 2: Top-p",
+        "Part 2: Frequency Penalty"
+      ],
+      "tools": [
+        "API Parameters"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Parameter tuning"
+    },
+    {
+      "day": 33,
+      "topic": "Function Calling",
+      "subtopics": [
+        "Tool Use",
+        "Structured Output",
+        "API Integration"
+      ],
+      "tools": [
+        "Function Calling"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Tool integration"
+    },
+    {
+      "day": 34,
+      "topic": "Function Calling - Part 2",
+      "subtopics": [
+        "Part 2: Tool Use",
+        "Part 2: Structured Output",
+        "Part 2: API Integration"
+      ],
+      "tools": [
+        "Function Calling"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Tool integration"
+    },
+    {
+      "day": 35,
+      "topic": "Working with Structured Data",
+      "subtopics": [
+        "JSON",
+        "Parsing",
+        "Validation",
+        "Schema"
+      ],
+      "tools": [
+        "Structured Output"
+      ],
+      "jira_focus": "Sprint planning; review progress for Working with Structured Data",
+      "lab_task": "Structured prompts"
+    },
+    {
+      "day": 36,
+      "topic": "Working with Structured Data - Part 2",
+      "subtopics": [
+        "Part 2: JSON",
+        "Part 2: Parsing",
+        "Part 2: Validation",
+        "Part 2: Schema"
+      ],
+      "tools": [
+        "Structured Output"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Structured prompts"
+    },
+    {
+      "day": 37,
+      "topic": "Retrieval-Augmented Generation",
+      "subtopics": [
+        "Context Injection",
+        "Document Retrieval",
+        "Dynamic Context"
+      ],
+      "tools": [
+        "RAG"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "RAG prompting"
+    },
+    {
+      "day": 38,
+      "topic": "Retrieval-Augmented Generation - Part 2",
+      "subtopics": [
+        "Part 2: Context Injection",
+        "Part 2: Document Retrieval",
+        "Part 2: Dynamic Context"
+      ],
+      "tools": [
+        "RAG"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: RAG prompting"
+    },
+    {
+      "day": 39,
+      "topic": "Multi-turn Conversations",
+      "subtopics": [
+        "Context Management",
+        "Memory",
+        "Continuity"
+      ],
+      "tools": [
+        "Conversation"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Conversation design"
+    },
+    {
+      "day": 40,
+      "topic": "Multi-turn Conversations - Part 2",
+      "subtopics": [
+        "Part 2: Context Management",
+        "Part 2: Memory",
+        "Part 2: Continuity"
+      ],
+      "tools": [
+        "Conversation"
+      ],
+      "jira_focus": "Sprint planning; review progress for Multi-turn Conversations",
+      "lab_task": "Part 2 hands-on: Conversation design"
+    },
+    {
+      "day": 41,
+      "topic": "Prompt Optimization",
+      "subtopics": [
+        "Iterative Refinement",
+        "Testing",
+        "Evaluation"
+      ],
+      "tools": [
+        "Prompt Testing"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Optimization techniques"
+    },
+    {
+      "day": 42,
+      "topic": "Prompt Optimization - Part 2",
+      "subtopics": [
+        "Part 2: Iterative Refinement",
+        "Part 2: Testing",
+        "Part 2: Evaluation"
+      ],
+      "tools": [
+        "Prompt Testing"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Optimization techniques"
+    },
+    {
+      "day": 43,
+      "topic": "Error Handling & Robustness",
+      "subtopics": [
+        "Fallbacks",
+        "Validation",
+        "Recovery"
+      ],
+      "tools": [
+        "Error Handling"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Robust prompts"
+    },
+    {
+      "day": 44,
+      "topic": "Error Handling & Robustness - Part 2",
+      "subtopics": [
+        "Part 2: Fallbacks",
+        "Part 2: Validation",
+        "Part 2: Recovery"
+      ],
+      "tools": [
+        "Error Handling"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Robust prompts"
+    },
+    {
+      "day": 45,
+      "topic": "Cost Optimization",
+      "subtopics": [
+        "Token Counting",
+        "Model Selection",
+        "Efficiency"
+      ],
+      "tools": [
+        "Cost Analysis"
+      ],
+      "jira_focus": "Sprint planning; review progress for Cost Optimization",
+      "lab_task": "Cost optimization"
+    },
+    {
+      "day": 46,
+      "topic": "Cost Optimization - Part 2",
+      "subtopics": [
+        "Part 2: Token Counting",
+        "Part 2: Model Selection",
+        "Part 2: Efficiency"
+      ],
+      "tools": [
+        "Cost Analysis"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Cost optimization"
+    },
+    {
+      "day": 47,
+      "topic": "Creative Prompting",
+      "subtopics": [
+        "Storytelling",
+        "Code Generation",
+        "Content Creation"
+      ],
+      "tools": [
+        "Creative Uses"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Creative applications"
+    },
+    {
+      "day": 48,
+      "topic": "Creative Prompting - Part 2",
+      "subtopics": [
+        "Part 2: Storytelling",
+        "Part 2: Code Generation",
+        "Part 2: Content Creation"
+      ],
+      "tools": [
+        "Creative Uses"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Creative applications"
+    },
+    {
+      "day": 49,
+      "topic": "Advanced Patterns",
+      "subtopics": [
+        "Agent Prompts",
+        "Self-improving Prompts",
+        "Meta-prompting"
+      ],
+      "tools": [
+        "Advanced"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Advanced prompting"
+    },
+    {
+      "day": 50,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Agent Prompts",
+        "Self-improving Prompts",
+        "Meta-prompting"
+      ],
+      "tools": [
+        "Advanced"
+      ],
+      "jira_focus": "Sprint planning; review progress for Advanced Patterns",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    },
+    {
+      "day": 51,
+      "topic": "GenAI Capstone Use Case Design",
+      "subtopics": [
+        "GenAI Capstone Use Case Design concepts",
+        "GenAI Capstone Use Case Design hands-on workflow",
+        "GenAI Capstone Use Case Design validation",
+        "GenAI Capstone Use Case Design troubleshooting",
+        "GenAI Capstone Use Case Design best practices"
+      ],
+      "tools": [
+        "Prompt Engineering"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: GenAI Capstone Use Case Design"
+    },
+    {
+      "day": 52,
+      "topic": "Prompt Library Build",
+      "subtopics": [
+        "Prompt Library Build concepts",
+        "Prompt Library Build hands-on workflow",
+        "Prompt Library Build validation",
+        "Prompt Library Build troubleshooting",
+        "Prompt Library Build best practices"
+      ],
+      "tools": [
+        "Prompt Engineering"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Prompt Library Build"
+    },
+    {
+      "day": 53,
+      "topic": "RAG Prompting Sprint",
+      "subtopics": [
+        "RAG Prompting Sprint concepts",
+        "RAG Prompting Sprint hands-on workflow",
+        "RAG Prompting Sprint validation",
+        "RAG Prompting Sprint troubleshooting",
+        "RAG Prompting Sprint best practices"
+      ],
+      "tools": [
+        "Prompt Engineering"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: RAG Prompting Sprint"
+    },
+    {
+      "day": 54,
+      "topic": "Guardrails and Evaluation Sprint",
+      "subtopics": [
+        "Guardrails and Evaluation Sprint concepts",
+        "Guardrails and Evaluation Sprint hands-on workflow",
+        "Guardrails and Evaluation Sprint validation",
+        "Guardrails and Evaluation Sprint troubleshooting",
+        "Guardrails and Evaluation Sprint best practices"
+      ],
+      "tools": [
+        "Prompt Engineering"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Guardrails and Evaluation Sprint"
+    },
+    {
+      "day": 55,
+      "topic": "API Integration Sprint",
+      "subtopics": [
+        "API Integration Sprint concepts",
+        "API Integration Sprint hands-on workflow",
+        "API Integration Sprint validation",
+        "API Integration Sprint troubleshooting",
+        "API Integration Sprint best practices"
+      ],
+      "tools": [
+        "Prompt Engineering"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: API Integration Sprint"
+    },
+    {
+      "day": 56,
+      "topic": "GenAI Final Demo",
+      "subtopics": [
+        "GenAI Final Demo concepts",
+        "GenAI Final Demo hands-on workflow",
+        "GenAI Final Demo validation",
+        "GenAI Final Demo troubleshooting",
+        "GenAI Final Demo best practices"
+      ],
+      "tools": [
+        "Prompt Engineering"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: GenAI Final Demo"
+    },
+    {
+      "day": 57,
+      "topic": "Business Workflow Automation Sprint",
+      "subtopics": [
+        "Business Workflow Automation Sprint concepts",
+        "Business Workflow Automation Sprint hands-on workflow",
+        "Business Workflow Automation Sprint validation",
+        "Business Workflow Automation Sprint troubleshooting",
+        "Business Workflow Automation Sprint best practices"
+      ],
+      "tools": [
+        "Prompt Engineering"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Business Workflow Automation Sprint"
+    },
+    {
+      "day": 58,
+      "topic": "Responsible AI Review",
+      "subtopics": [
+        "Responsible AI Review concepts",
+        "Responsible AI Review hands-on workflow",
+        "Responsible AI Review validation",
+        "Responsible AI Review troubleshooting",
+        "Responsible AI Review best practices"
+      ],
+      "tools": [
+        "Prompt Engineering"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Responsible AI Review"
+    },
+    {
+      "day": 59,
+      "topic": "GenAI Production Readiness Review",
+      "subtopics": [
+        "GenAI Production Readiness Review concepts",
+        "GenAI Production Readiness Review hands-on workflow",
+        "GenAI Production Readiness Review validation",
+        "GenAI Production Readiness Review troubleshooting",
+        "GenAI Production Readiness Review best practices"
+      ],
+      "tools": [
+        "Prompt Engineering"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: GenAI Production Readiness Review"
+    },
+    {
+      "day": 60,
+      "topic": "Prompt Engineering Final Demo and Roadmap",
+      "subtopics": [
+        "Prompt Engineering Final Demo and Roadmap concepts",
+        "Prompt Engineering Final Demo and Roadmap hands-on workflow",
+        "Prompt Engineering Final Demo and Roadmap validation",
+        "Prompt Engineering Final Demo and Roadmap troubleshooting",
+        "Prompt Engineering Final Demo and Roadmap best practices"
+      ],
+      "tools": [
+        "Prompt Engineering"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Prompt Engineering Final Demo and Roadmap"
+    }
+  ],
+  "aliases": [
+    "Prompt Engineering",
+    "LLM",
+    "Large Language Models",
+    "Generative AI",
+    "Gen AI",
+    "GenAI",
+    "ChatGPT",
+    "OpenAI",
+    "LLM Training",
+    "Generative AI Training"
+  ],
+  "official_sources": [
+    "https://openai.github.io/openai-agents-python/",
+    "https://openai.github.io/openai-agents-python/agents/"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+}

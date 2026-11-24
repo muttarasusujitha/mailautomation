@@ -1,0 +1,573 @@
+{
+  "domain": "Shell Automation",
+  "name": "Shell Automation",
+  "category": "Programming Languages",
+  "icon": "terminal",
+  "aliases": ["Shell Scripting Automation", "Command-Line Automation", "Bash Scripting", "Shell Scripting", "Bash Automation", "Bash Shell Scripting", "Unix Shell Scripting", "Linux Shell Scripting"],
+  "certifications": ["LPIC-1 (Linux Professional Institute, shell scripting objectives)", "CompTIA Linux+"],
+  "tools": ["Bash", "ShellCheck", "shfmt", "bats-core", "GNU coreutils", "grep, sed and awk", "jq and yq", "curl", "OpenSSH and rsync", "cron and systemd timers", "flock", "strace", "Git", "Docker"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For system administrators, developers, testers and support engineers who use a terminal but have not written reliable scripts. Covers Bash 5 on Linux, WSL2 or macOS: running and permissioning scripts, variables and quoting, exit statuses, tests and branching, loops, arguments with getopts, input and here documents, redirection, functions, arrays, string handling, grep, sed and awk, safe file handling, debugging with ShellCheck and shfmt, and a log rotation and reporting utility as the capstone.",
+      "prerequisites": ["Can open a terminal and move around a file system with cd, ls and cat", "Has a Linux, WSL2, macOS or container environment where Bash 4 or later can be installed", "Can edit a text file in Visual Studio Code, nano or vim"],
+      "outcomes": ["Write, permission and run Bash scripts that quote correctly and return meaningful exit statuses", "Control flow with tests, case, loops, functions and arrays, and take input from arguments, prompts and files", "Process text and files safely with grep, sed, awk, find and xargs", "Lint, format and debug scripts with ShellCheck, shfmt and bash -x, and deliver a tested command-line utility"],
+      "days": [
+        {
+          "topic": "Shell Scripting Orientation and Lab Setup",
+          "subtopics": ["Terminals, shells and kernels: what Bash does between the keyboard and the system calls", "Bash versus sh, dash, zsh and fish, and why this course targets Bash", "Checking the version with bash --version and echo $BASH_VERSION", "Lab options: Linux VM, WSL2, a Docker image such as bash:5, or macOS with Homebrew Bash", "Why macOS ships Bash 3.2 and what breaks on it", "Login, interactive and non-interactive shells and the startup files each one reads", "~/.bashrc, ~/.bash_profile, ~/.profile and /etc/profile", "Installing ShellCheck and shfmt", "Editor setup: Visual Studio Code with the ShellCheck extension, vim or nano", "Lab repository layout with bin/, lib/, tests/ and a README"],
+          "tools": ["Bash", "ShellCheck", "shfmt", "Docker", "Visual Studio Code", "Git"],
+          "lab_task": "Create a lab on Linux, WSL2 or a container with docker run -it --rm bash:5 bash. Record bash --version, shellcheck --version and shfmt --version. Compare echo $- in an interactive shell with bash -c 'echo $-', and run shopt -q login_shell; echo $? in a login and a non-login shell. Create ~/lab/{bin,lib,tests}, run git init and commit a README.md.",
+          "deliverable": "Lab record with tool versions, the shell-type comparison table and the initial repository commit",
+          "checks": [["Run echo $BASH_VERSION in the lab shell", "Prints a 5.x or later version string such as 5.2.21(1)-release", "Terminal screenshot"], ["Run echo $- in an interactive session and bash -c 'echo $-'", "The interactive output contains the letter i and the bash -c output does not", "Terminal output"], ["Run shellcheck on a file that contains echo $1", "SC2086 (double quote to prevent globbing and word splitting) is reported and the exit status is 1", "ShellCheck output"]],
+          "objectives": ["Install and verify Bash, ShellCheck and shfmt in a reproducible lab", "Distinguish login, interactive and non-interactive shells", "Organise a script repository with a standard layout"]
+        },
+        {
+          "topic": "Command Anatomy, Help Systems and Shell Expansion Order",
+          "subtopics": ["Command, options and arguments: short options, long options and -- as the end of options", "Builtins, functions, aliases and external programs, and how type -a shows each form", "Getting help with help, man, info and apropos", "Reading a man page: SYNOPSIS brackets, ellipses and the EXIT STATUS section", "The order of expansions: brace, tilde, parameter, command, arithmetic, word splitting, pathname", "Quoting preview: single quotes, double quotes and backslash", "Globbing patterns: *, ?, [a-z] and [[:digit:]]", "History expansion: history, !!, !$ and Ctrl-R search"],
+          "tools": ["Bash", "man", "type", "set -x", "info", "apropos"],
+          "lab_task": "Run type -a echo and type -a ls to list every form each name resolves to, then read help cd and man 7 glob. Predict, then verify, the output of echo {a,b}{1,2}, echo ~, echo $((6*7)) and echo '$HOME' \"$HOME\". In a directory holding five .txt files, run set -x; echo *.txt to show the glob expands before echo starts.",
+          "deliverable": "Prediction table of ten commands with predicted output, actual output and the expansion stage responsible",
+          "checks": [["Run type -a echo", "Lists both 'echo is a shell builtin' and an external /usr/bin/echo or /bin/echo", "Terminal output"], ["Run echo {a,b}{1,2}", "Prints a1 a2 b1 b2", "Terminal output"], ["Run echo '$HOME' and then echo \"$HOME\"", "The first prints the literal text $HOME and the second prints the home directory path", "Terminal output"]],
+          "objectives": ["Find documentation for any command using the built-in help systems", "Explain the order in which Bash expands a command line", "Use globbing and quoting to control what a command receives"]
+        },
+        {
+          "topic": "Your First Script: Shebangs, Permissions and PATH",
+          "subtopics": ["The shebang line: #!/usr/bin/env bash versus #!/bin/bash", "The execute bit and chmod 755 versus chmod +x", "Running a script three ways: ./script, bash script and source script", "PATH, which, command -v and installing scripts into ~/bin", "A standard script header with purpose, usage, author and licence", "Windows line endings (CRLF) and the 'No such file or directory' error from env", "Setting an exit status with exit 0 and exit 1 and reading it with $?", "Naming conventions: .sh extension for libraries, none for commands"],
+          "tools": ["Bash", "chmod", "dos2unix", "env", "command", "Visual Studio Code"],
+          "lab_task": "Write bin/hello.sh with a #!/usr/bin/env bash shebang that prints the user, host and date. Run it before chmod to capture the Permission denied error and exit status 126, then chmod 755 it, add ~/lab/bin to PATH in ~/.bashrc and call it by name. Convert it to CRLF with sed -i 's/$/\\r/' and capture the env error, then repair it with dos2unix.",
+          "deliverable": "Working hello.sh, the captured error messages with exit statuses and the PATH change in ~/.bashrc",
+          "checks": [["Run ./hello.sh before chmod +x; echo $?", "Prints 'Permission denied' and the status 126", "Terminal output"], ["Run command -v hello.sh after adding ~/lab/bin to PATH", "Prints the full path ending in /lab/bin/hello.sh", "Terminal output"], ["Run the CRLF version of the script; echo $?", "env reports that 'bash\\r' is not found (No such file or directory) and the status is 127", "Terminal output"]],
+          "objectives": ["Create, permission and run an executable script", "Place scripts on PATH so they run by name", "Diagnose shebang and line-ending failures"]
+        },
+        {
+          "topic": "Shell and Environment Variables, Quoting and Parameter Expansion",
+          "subtopics": ["Assignment rules: no spaces around = and why name = value fails", "Naming conventions: UPPER_CASE for exported settings, lower_case for locals", "Quoting: single quotes, double quotes and $'...' ANSI-C strings", "Word splitting and globbing: why unquoted expansions break on spaces", "The environment: export, env, printenv, unset and inheritance by child processes", "Default and required values: ${var:-x}, ${var:=x}, ${var:?message}, ${var:+x}", "Length and substrings: ${#var} and ${var:2:3}", "Trimming and replacing: ${var#pat}, ${var%pat}, ${var/a/b}, ${var^^}", "Command substitution with $(...) versus backticks", "Integer arithmetic with $((...)), declare -i and readonly"],
+          "tools": ["Bash", "env", "printenv", "ShellCheck", "declare", "set -u"],
+          "lab_task": "Write vars.sh that reads NAME from the environment with ${NAME:?NAME is required}, builds a path in a directory containing a space (/tmp/my files) and strips the extension with ${f%.txt}. Show that ls $file fails when unquoted and works when quoted, then run NAME=Ada ./vars.sh and ./vars.sh and compare the output and exit status of each.",
+          "deliverable": "vars.sh plus a before-and-after record of the quoting bug and the exit statuses",
+          "checks": [["Run ./vars.sh with NAME unset; echo $?", "Prints the message 'NAME is required' and the status 1", "Terminal output"], ["Set file='/tmp/my files/a.txt' and run ls $file", "ls reports cannot access '/tmp/my' and then cannot access 'files/a.txt'", "Terminal output"], ["Set x=hello.tar.gz and run echo ${x%.gz} ${x%%.*}", "Prints hello.tar hello", "Terminal output"]],
+          "objectives": ["Quote expansions correctly to survive spaces and wildcards", "Use parameter expansion for defaults, required values and trimming", "Control which variables child processes inherit"]
+        },
+        {
+          "topic": "Exit Status, Command Lists and Conditional Execution",
+          "subtopics": ["$? and the meaning of 0 versus non-zero", "Conventional codes: 1, 2, 64, 126, 127, 128+n and 130", "true, false and the : builtin", "&&, || and ; between commands, and the A && B || C trap", "Negating a command with !", "Pipeline status: the last command wins, PIPESTATUS holds all of them", "set -o pipefail as a first look", "Grouping with { ...; } versus a subshell ( ... )", "Documenting exit codes in the script header"],
+          "tools": ["Bash", "true", "false", "ls", "PIPESTATUS", "ShellCheck"],
+          "lab_task": "Run ls /nonexistent, a missing command nosuchcmd and a file without execute permission, recording $? for each (expected 2, 127 and 126). Run false | true and print ${PIPESTATUS[@]}, then repeat with set -o pipefail and echo $?. Show the A && B || C trap with true && false || echo 'still runs' and rewrite it with an if statement.",
+          "deliverable": "Exit-status reference table filled in from your own experiments plus the corrected conditional",
+          "checks": [["Run ls /nonexistent; echo $?", "GNU ls prints 'cannot access' and the status is 2", "Terminal output"], ["Run nosuchcmd; echo $?", "Bash prints 'command not found' and the status is 127", "Terminal output"], ["Run false | true; echo ${PIPESTATUS[@]}", "Prints 1 0", "Terminal output"]],
+          "objectives": ["Read and set exit statuses deliberately", "Chain commands with && and || without falling into the A && B || C trap", "Inspect the status of every stage in a pipeline"]
+        },
+        {
+          "topic": "Test Expressions with [ ], [[ ]] and (( ))",
+          "subtopics": ["test, [ ] and [[ ]]: what each is and which to use in Bash", "File tests: -e, -f, -d, -L, -r, -w, -x and -s", "String tests: -z, -n, = and ==, plus pattern matching inside [[ ]]", "Regular expressions with =~ and the BASH_REMATCH array", "Integer comparison with -eq, -lt and the (( )) arithmetic form", "Combining tests with && and || inside [[ ]] and why -a and -o are avoided", "Frequent errors: missing spaces, '[: too many arguments' and 'unary operator expected'", "String versus numeric comparison: [[ 10 < 9 ]] is lexical"],
+          "tools": ["Bash", "test", "ShellCheck", "stat", "ls", "grep"],
+          "lab_task": "Write checkfile.sh that takes a path and reports whether it is missing, a regular file, a directory, a symlink or empty using -e, -f, -d, -L and -s. Add a [[ $1 =~ ^([0-9]{4})-([0-9]{2})-([0-9]{2})$ ]] date validator that prints the parts from BASH_REMATCH. Trigger '[: too many arguments' with an unquoted two-word variable in single brackets, then fix it.",
+          "deliverable": "checkfile.sh with a test matrix covering a file, directory, symlink, empty file and missing path",
+          "checks": [["Run ./checkfile.sh /etc", "Reports that /etc is a directory", "Terminal output"], ["Run the date validator with 2026-03-09", "Prints year 2026, month 03 and day 09 from BASH_REMATCH", "Terminal output"], ["Run v='a b'; [ $v = x ]", "bash prints '[: too many arguments' and the status is 2", "Terminal output"]],
+          "objectives": ["Choose the right test construct for files, strings and numbers", "Validate input with regular expressions and capture groups", "Recognise and fix the common test-syntax errors"]
+        },
+        {
+          "topic": "Branching with if, elif and case",
+          "subtopics": ["The if, elif, else and fi structure with any command as the condition", "Negation with if ! command; then", "case patterns, the | alternation and the *) default", "Fall-through with ;& and ;;& in Bash 4 and later", "Building a start, stop, status and restart dispatcher", "Validating input with case before using it", "Checking that required tools exist with command -v git >/dev/null", "One-line conditionals and where they stop being readable"],
+          "tools": ["Bash", "case", "command", "uname", "pgrep", "systemctl"],
+          "lab_task": "Write svc.sh that accepts start, stop, status or restart through case, prints usage to stderr and exits 64 for anything else, and checks with command -v that systemctl or pgrep exists before use. Add an if grep -q ssh /etc/services; then branch that uses the command exit status directly, and a case on $(uname -s) that sets OS to Linux or macOS.",
+          "deliverable": "svc.sh with a test table of valid and invalid arguments and the observed exit statuses",
+          "checks": [["Run ./svc.sh with no argument; echo $?", "Prints 'Usage: svc.sh {start|stop|status|restart}' on stderr and the status is 64", "Terminal output"], ["Run ./svc.sh restart", "Prints action=restart and no other branch runs", "Terminal output"], ["Run the OS detection on Linux", "The variable OS holds the value Linux", "Terminal output"]],
+          "objectives": ["Write multi-way branches with case and pattern lists", "Use command exit statuses directly as conditions", "Guard scripts against missing dependencies"]
+        },
+        {
+          "topic": "Loops: for, while, until and select",
+          "subtopics": ["for over a word list, globs and brace ranges such as {01..10} and {1..10..2}", "The C-style loop for ((i=0; i<n; i++))", "Reading lines with while IFS= read -r line", "until loops and retry-until-success patterns", "break, continue and break N for nested loops", "Looping over files safely with globs instead of ls output", "Why for f in $(ls) breaks on spaces", "select menus and the PS3 prompt"],
+          "tools": ["Bash", "seq", "touch", "sleep", "wc", "ShellCheck"],
+          "lab_task": "Create ten files with touch log{01..10}.txt, loop over log*.txt and rename each to .bak. Write a while IFS= read -r line loop that reads /etc/passwd and counts accounts whose shell is /bin/bash. Write an until loop that polls for a file with sleep 1, prints each attempt and gives up with exit 1 after 5 attempts.",
+          "deliverable": "Three loop scripts with captured output, including the failed retry run",
+          "checks": [["Run touch log{01..10}.txt; ls log*.txt | wc -l", "Prints 10", "Terminal output"], ["Run the rename loop and then ls", "Ten .bak files exist and no log*.txt files remain", "Directory listing"], ["Run the until loop with no file ever appearing; echo $?", "Prints attempts 1 to 5 and then exits with status 1", "Terminal output"]],
+          "objectives": ["Choose the right loop form for the task", "Iterate over files and lines without breaking on whitespace", "Bound retry loops so they cannot run forever"]
+        },
+        {
+          "topic": "Script Arguments, Positional Parameters and getopts",
+          "subtopics": ["$0, $1 to ${10}, $#, $@ and $*, and why \"$@\" is almost always right", "shift and shift N", "Checking argument counts and printing usage to stderr", "getopts with a leading colon in the optstring, OPTARG and OPTIND", "Options with values and boolean flags", "Defaults and required options", "The -- marker and filenames that start with a dash", "Choosing exit code 64 or 2 for usage errors"],
+          "tools": ["Bash", "getopts", "ShellCheck", "shift", "printf", "mktemp"],
+          "lab_task": "Write backup.sh -s SRC -d DEST [-v] [-n] using getopts ':s:d:vn' that prints usage to stderr and exits 64 for a missing required option or an unknown flag (OPTARG holds the offending letter). After the loop run shift $((OPTIND-1)) and loop over the remaining arguments with for f in \"$@\". Test with a filename that contains a space.",
+          "deliverable": "backup.sh with a usage-error test table and the output for a filename containing a space",
+          "checks": [["Run ./backup.sh -x; echo $?", "Prints 'Unknown option: -x' on stderr and the status is 64", "Terminal output"], ["Run ./backup.sh -s src -d dst -v a.txt 'b c.txt'", "Reports 2 remaining arguments and 'b c.txt' stays a single item", "Terminal output"], ["Run ./backup.sh -s with no value", "Prints 'Option -s requires an argument' and exits with status 64", "Terminal output"]],
+          "objectives": ["Parse flags with getopts and report usage errors correctly", "Handle remaining arguments with spaces safely", "Distinguish positional parameters from options"]
+        },
+        {
+          "topic": "Reading Input: read, Here Documents and Prompts",
+          "subtopics": ["read -r with -p, -s, -t, -n, -a and -d", "IFS and field splitting in read, and IFS= to keep leading whitespace", "A confirmation prompt with a safe default of No", "Reading standard input and detecting a terminal with [ -t 0 ]", "Here documents: <<EOF, <<-EOF and the quoted 'EOF' that disables expansion", "Here strings with <<<", "Reading CSV fields with while IFS=, read -r", "Non-interactive fallbacks and a --yes flag"],
+          "tools": ["Bash", "read", "cat", "ShellCheck", "tee", "Visual Studio Code"],
+          "lab_task": "Write confirm.sh that asks 'Delete X? [y/N]' with read -r -p, treats empty input as No, times out after 10 seconds with read -t and accepts --yes for unattended runs. Add a while IFS=, read -r name dept salary < users.csv loop and a pair of here documents that write a config file, one with expansion and one with <<'EOF' so $HOME stays literal.",
+          "deliverable": "confirm.sh and a CSV reader with captured runs for answer y, empty answer, timeout and --yes",
+          "checks": [["Run echo | ./confirm.sh; echo $?", "An empty answer is treated as No: prints Aborted and exits 1", "Terminal output"], ["Run ./confirm.sh --yes; echo $?", "Proceeds without prompting and exits 0", "Terminal output"], ["Compare the two here documents that contain $HOME", "The unquoted version writes the real home path and the quoted 'EOF' version writes the literal text $HOME", "File contents"]],
+          "objectives": ["Prompt for input safely with defaults and timeouts", "Generate files with here documents", "Support both interactive and unattended execution"]
+        },
+        {
+          "topic": "Redirection, File Descriptors and Pipelines",
+          "subtopics": ["Standard streams: stdin 0, stdout 1 and stderr 2", "Operators >, >>, <, 2>, &> and 2>&1", "Why order matters: > file 2>&1 versus 2>&1 > file", "/dev/null, /dev/stdout and /dev/stderr", "Pipes, pipeline subshells and tee -a", "Writing errors to stderr with echo msg >&2", "Custom descriptors: exec 3>>file and closing with 3>&-", "noclobber and the >| override"],
+          "tools": ["Bash", "tee", "cat", "wc", "ls", "mkfifo"],
+          "lab_task": "Run ls /etc /nonexistent three ways: with >out.txt, with 2>err.txt and with >all.txt 2>&1, then compare the files. Show that 2>&1 >file differs from >file 2>&1 using a command that writes to both streams. Write a script that logs with exec 3>>run.log and echo step >&3, closes the descriptor, and uses tee -a to show output on screen and in the log at once.",
+          "deliverable": "Redirection experiment sheet with the contents of each output file and one-line explanations",
+          "checks": [["Run ls /etc /nonexistent >out.txt 2>err.txt", "out.txt lists /etc and err.txt holds only the 'cannot access' message", "File contents"], ["Compare cmd 2>&1 >file with cmd >file 2>&1", "With 2>&1 first the error still reaches the terminal; with >file first both streams land in the file", "Terminal output and file"], ["Run exec 3>>run.log; echo step >&3; wc -l < run.log", "Prints 1 after one write to descriptor 3", "Terminal output"]],
+          "objectives": ["Redirect stdout and stderr independently", "Predict the effect of redirection order", "Use custom file descriptors for logging"]
+        },
+        {
+          "topic": "Functions, Scope and Return Values",
+          "subtopics": ["Defining name() { ...; } and why a function must be defined before it is called", "Arguments inside functions: $1, $#, \"$@\"", "local variables and Bash dynamic scoping", "Return status 0 to 255 versus returning data on stdout", "Returning data: command substitution, a global result variable and namerefs as a preview", "A small utility library: die, log, is_int and require_cmd", "declare -f, unset -f and functions versus aliases", "Recursion and its limits"],
+          "tools": ["Bash", "declare", "ShellCheck", "bats-core", "Visual Studio Code", "Git"],
+          "lab_task": "Write die(), log(), is_int() and require_cmd() in lib/util.sh, where die prints to stderr and exits with a given code. Show scope by writing one function that sets a variable without local and another with local, printing both after the calls. Return a computed value three ways: status, echo captured with $(...) and a global RESULT, and note which survives a subshell.",
+          "deliverable": "lib/util.sh with a demonstration script for scope and the three return styles",
+          "checks": [["Run is_int 42; echo $? and is_int 4x2; echo $?", "Prints 0 for the first call and 1 for the second", "Terminal output"], ["Run a function that assigns without local and print the variable afterwards", "The variable is visible after the call; with local it is empty", "Terminal output"], ["Run (die 'boom' 3); echo $?", "boom appears on stderr and the status is 3", "Terminal output"]],
+          "objectives": ["Write reusable functions with local variables", "Return status and data from functions correctly", "Predict variable scope in nested calls"]
+        },
+        {
+          "topic": "Indexed and Associative Arrays",
+          "subtopics": ["Indexed arrays: a=(x y z), a+=(w), ${a[0]}, ${#a[@]} and ${!a[@]}", "\"${a[@]}\" versus \"${a[*]}\"", "Slices ${a[@]:1:2}, unset a[1] and sparse arrays", "mapfile and readarray -t", "Associative arrays with declare -A (Bash 4 and later) and key iteration", "Testing for a key with [[ -v m[key] ]]", "Passing arrays to functions", "Building command arguments in an array and running cmd \"${args[@]}\""],
+          "tools": ["Bash", "mapfile", "declare", "sort", "ShellCheck", "awk"],
+          "lab_task": "Read /etc/passwd into an array with mapfile -t, then build a declare -A shells map counting users per login shell and print it sorted with sort -k2 -nr. Build a command argument array holding a filename with a space and run it with \"${args[@]}\". Unset a middle index and print ${!a[@]} to show the sparse indices.",
+          "deliverable": "Array cheat sheet script with the shell-count report and sparse-array demonstration",
+          "checks": [["Run a=(x y z); echo ${#a[@]} ${a[1]}", "Prints 3 y", "Terminal output"], ["Run a=(x y z); unset 'a[1]'; echo ${!a[@]}", "Prints 0 2", "Terminal output"], ["Run declare -A m; m[k]=v; [[ -v m[k] ]] && echo yes", "Prints yes", "Terminal output"]],
+          "objectives": ["Store and iterate lists with indexed arrays", "Count and group data with associative arrays", "Replace space-separated strings with arrays for safe argument handling"]
+        },
+        {
+          "topic": "String Manipulation and Pattern Matching in Bash",
+          "subtopics": ["Trimming prefixes and suffixes with #, ##, % and %%", "Replacement with ${var/old/new}, ${var//old/new}, ${var/#pre/} and ${var/%suf/}", "Case conversion with ${v^^} and ${v,,}", "Formatting with printf '%-10s %5d\\n'", "printf versus echo: portability and the -e flag", "Splitting strings with IFS and read -ra", "Joining array elements with IFS in \"${a[*]}\"", "Extended globs: shopt -s extglob with +(...) and !(...)"],
+          "tools": ["Bash", "printf", "time", "extglob", "ShellCheck", "basename"],
+          "lab_task": "Write basename_noext and dirname_of using only parameter expansion and compare their time over 10000 iterations with $(basename ...) and $(dirname ...). Print the five largest files in a directory as a table with printf '%-30s %10d\\n'. Split PATH into an array with IFS=: read -ra, print one entry per line, and use shopt -s extglob with !(*.log) to list the non-log files.",
+          "deliverable": "String toolkit script with a timing comparison and a formatted table",
+          "checks": [["Run f=/var/log/app.tar.gz; echo ${f##*/} ${f%/*}", "Prints app.tar.gz /var/log", "Terminal output"], ["Run s=Hello; echo ${s^^} ${s,,}", "Prints HELLO hello", "Terminal output"], ["Run printf '%-6s|%4d|\\n' ab 7", "Prints 'ab    |   7|'", "Terminal output"]],
+          "objectives": ["Transform strings with parameter expansion instead of external commands", "Format output precisely with printf", "Apply extended globs to select files"]
+        },
+        {
+          "topic": "Searching Text with grep and Regular Expressions",
+          "subtopics": ["Core options: -i, -v, -n, -c, -l, -L, -o, -w and -x", "Context lines with -A, -B and -C", "Basic versus extended regular expressions, -E and POSIX classes such as [[:digit:]]", "Anchors, groups, alternation and the {n,m} quantifier", "Fixed strings with -F and escaping special characters", "Recursive search with -r, --include and --exclude-dir", "grep -q in scripts and the exit statuses 0, 1 and 2", "GNU-only -P for lookaheads and counting patterns with grep -o | sort | uniq -c"],
+          "tools": ["grep", "sort", "uniq", "wc", "ripgrep", "Bash"],
+          "lab_task": "Using a sample access.log, extract 5xx responses with grep -E ' 5[0-9]{2} ', count requests per status with grep -oE ' [0-9]{3} ' | sort | uniq -c | sort -nr, list the top five client IPs with grep -oE '^[0-9.]+', and compare grep -c with wc -l. Show exit statuses 0, 1 and 2 using a matching pattern, a non-matching pattern and a missing file.",
+          "deliverable": "Log-analysis cheat sheet containing each pipeline, its output and the exit status table",
+          "checks": [["Run grep -q ERROR app.log; echo $? on a file containing ERROR", "Prints 0", "Terminal output"], ["Run grep -q ERROR missing.log; echo $?", "Prints 'No such file or directory' and the status 2", "Terminal output"], ["Run grep -c ' 500 ' access.log on a log with three such lines", "Prints 3", "Terminal output"]],
+          "objectives": ["Write regular expressions to find and count patterns in logs", "Use grep exit statuses to drive script logic", "Choose between basic, extended and Perl-style expressions"]
+        },
+        {
+          "topic": "Stream Editing with sed",
+          "subtopics": ["The substitute command s/old/new/ with the g, p and Nth-occurrence flags", "Addresses: line numbers, ranges, /regex/ and $, and -n with p", "d, p, a, i and c commands", "Extended regex with -E, & and \\1 back-references", "Alternative delimiters for paths such as s#/usr/local#/opt#", "In-place edits with -i and -i.bak and the macOS BSD sed difference", "Multiple expressions with -e and script files with -f", "Removing comments and blank lines: sed '/^[[:space:]]*#/d;/^$/d'"],
+          "tools": ["sed", "diff", "grep", "Bash", "ShellCheck", "Git"],
+          "lab_task": "Copy a configuration file such as sshd_config to a test file. Use sed -i.bak to set PermitRootLogin no and uncomment Port 22, print lines 10 to 20 with sed -n '10,20p', and strip comments and blank lines. Reformat dates from 2026-03-09 to 09/03/2026 with sed -E 's#([0-9]{4})-([0-9]{2})-([0-9]{2})#\\3/\\2/\\1#' and diff the edited file against the .bak.",
+          "deliverable": "Annotated sed one-liner collection with before and after diffs",
+          "checks": [["Run echo 2026-03-09 | sed -E with the date-reformatting expression", "Prints 09/03/2026", "Terminal output"], ["Run sed -n '2,3p' on a five-line file", "Prints exactly lines 2 and 3", "Terminal output"], ["Run sed -i.bak on the config copy and then diff the two files", "Both the file and file.bak exist and diff shows only the intended changed lines", "diff output"]],
+          "objectives": ["Edit streams and files non-interactively with sed", "Use addresses and back-references to target changes", "Make in-place edits that keep a backup"]
+        },
+        {
+          "topic": "Field Processing with awk Basics",
+          "subtopics": ["The record and field model: $0, $1, NF, NR, FS and OFS", "The pattern { action } structure", "-F for the delimiter and -v for passing variables", "Conditions such as $3 > 100, /regex/ and $1 == \"x\"", "BEGIN and END blocks", "Sums, averages and counts with variables", "Counting with associative arrays: count[$1]++", "printf formatting for aligned columns", "String functions length, substr, toupper and split", "Combining awk with sort and head in a pipeline"],
+          "tools": ["awk", "sort", "head", "column", "Bash", "gawk"],
+          "lab_task": "On sales.csv (region,product,amount) use awk -F, to print rows where amount > 100, total the amount per region with sums[$1]+=$3 in an END block, and compute the average with NR>1 to skip the header. Print aligned output with printf '%-10s %8.2f\\n'. Run awk -F: '{print NF}' /etc/passwd | sort -u to confirm the field count.",
+          "deliverable": "awk report script with sample CSV input and the formatted output",
+          "checks": [["Run awk -F: '{print NF}' /etc/passwd | sort -u", "Prints 7", "Terminal output"], ["Run the per-region total on a CSV where East has rows 100.00 and 50.00", "East total is 150.00", "Terminal output"], ["Run awk 'END{print NR}' sales.csv", "Prints the same number that wc -l reports", "Terminal output"]],
+          "objectives": ["Select and transform delimited records with awk", "Aggregate values by key using associative arrays", "Produce aligned reports with printf"]
+        },
+        {
+          "topic": "Safe File Handling with find, xargs, Globbing and mktemp",
+          "subtopics": ["find tests: -name, -type, -mtime, -size, -newer and -maxdepth", "-exec with {} + versus \\;", "-print0 with xargs -0 and while IFS= read -r -d ''", "Filenames with spaces, leading dashes and newlines", "nullglob, dotglob and failglob", "mktemp -d with a trap cleanup", "Atomic writes: write a temporary file then mv it into place", "cp, mv and rm safety: --, -i, -n and ${var:?} before rm -rf"],
+          "tools": ["find", "xargs", "mktemp", "Bash", "ShellCheck", "ls"],
+          "lab_task": "Create files named 'a b.txt', '-n.txt' and one with a newline using $'x\\ny.txt'. Compare for f in $(find .) with find . -type f -print0 | xargs -0 -n1 printf '[%s]\\n'. List stale candidates with find /var/log -name '*.log' -mtime +7 -size +1M -exec ls -lh {} +. Write a script that works in mktemp -d and removes it in a trap on EXIT, and show nullglob stopping a literal *.zzz.",
+          "deliverable": "File-safety script plus a table of what breaks with naive loops and why",
+          "checks": [["Run find . -type f -print0 | tr -cd '\\0' | wc -c on the three odd filenames", "Prints 3", "Terminal output"], ["Run the mktemp script and then ls -d /tmp/tmp.*", "The workspace directory created by the script no longer exists", "Terminal output"], ["Run shopt -s nullglob; files=(*.zzz); echo ${#files[@]}", "Prints 0 (without nullglob it prints 1)", "Terminal output"]],
+          "objectives": ["Process filenames with spaces and newlines without breaking", "Use temporary files and atomic moves safely", "Guard destructive commands against empty variables"]
+        },
+        {
+          "topic": "Debugging and Linting with set -x, trap and ShellCheck",
+          "subtopics": ["bash -n for syntax checks without running", "set -x and a useful PS4 with ${BASH_SOURCE}:${LINENO}", "Scoped tracing with set -x and set +x", "ShellCheck codes SC2086, SC2046, SC2164 and SC2155", "shellcheck -x and disable directives with a reason", "shfmt -d and -w with -i 2 and -ci", "trap DEBUG and trap ERR as debugging aids", "Reading messages such as 'unexpected EOF while looking for matching' and 'syntax error near unexpected token'"],
+          "tools": ["Bash", "ShellCheck", "shfmt", "bash -x", "Visual Studio Code", "Git"],
+          "lab_task": "Take a broken 40-line script with an unclosed quote, an unquoted variable and a cd without || exit. Find the syntax error with bash -n, trace a logic bug with bash -x and PS4='+ ${BASH_SOURCE}:${LINENO}: ', find SC2086 and SC2164 with shellcheck and fix them. Run shfmt -d, then shfmt -w -i 2, and repeat shellcheck until it exits 0.",
+          "deliverable": "Fixed script with a log of each defect, the tool that found it and the fix",
+          "checks": [["Run bash -n broken.sh; echo $?", "Reports an unexpected EOF while looking for a matching quote and the status is 2", "Terminal output"], ["Run shellcheck broken.sh on the cd line", "Reports SC2164 (use cd ... || exit in case cd fails)", "ShellCheck output"], ["Run shellcheck fixed.sh; echo $?", "No findings are printed and the status is 0", "Terminal output"]],
+          "objectives": ["Locate syntax and logic errors with bash -n and bash -x", "Fix ShellCheck findings and explain why each matters", "Apply consistent formatting with shfmt"]
+        },
+        {
+          "topic": "Beginner Capstone: Log Rotation and Report Utility",
+          "subtopics": ["Requirements: rotate, compress, report and retain", "Design: options, functions and exit codes", "Implementation with getopts, find, gzip and an awk summary", "Safety: dry-run flag, validation and a mktemp workspace", "Tests with generated logs whose counts are known", "Review: ShellCheck, shfmt and a README"],
+          "tools": ["Bash", "find", "gzip", "awk", "ShellCheck", "shfmt"],
+          "lab_task": "Build logtool.sh with -d DIR, -k DAYS and -n (dry run): gzip *.log files older than DAYS, delete .gz files older than 4*DAYS, then print an awk summary of status-code counts per file. Generate 30 logs with touch -d '10 days ago' for 12 of them, run -n first, then run for real. It must pass shellcheck and shfmt -d and exit 64 on bad usage.",
+          "deliverable": "logtool.sh, the 30-log fixture generator, a README and the shellcheck and shfmt clean runs",
+          "checks": [["Run ./logtool.sh -n -d logs -k 7 on 30 logs where 12 are older than 7 days", "Prints 12 'would compress' lines and changes no file", "Terminal output and directory listing"], ["Run the same command without -n", "12 .gz files are created and the 12 original .log files are removed", "Directory listing"], ["Run ./logtool.sh -d logs -k abc; echo $?", "Rejects the non-numeric value with a usage message and status 64", "Terminal output"]],
+          "objectives": ["Combine arguments, loops, find and text tools into one tested utility", "Add dry-run and validation to protect data", "Deliver a script that passes lint and format checks"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who write basic Bash and now need scripts that are safe to run unattended. Covers strict mode and its gaps, script structure and libraries, long-option parsing, traps and cleanup, logging, subshell semantics, advanced awk and sed, jq and yq, curl for APIs, parallel jobs, locking and idempotency, cron and systemd timers, SSH automation, snapshot backups, bats testing, POSIX portability, secrets and injection, CI with GitHub Actions, and a multi-host toolkit capstone.",
+      "prerequisites": ["Has completed the beginner level or writes Bash scripts with functions, loops and getopts", "Can use grep, sed, awk, find and ssh on the command line", "Has Docker or two Linux hosts available for multi-host exercises and a GitHub account for CI exercises"],
+      "outcomes": ["Build modular scripts with strict-mode discipline, traps, logging and tested argument parsing", "Automate APIs, JSON and YAML data, SSH fleets, backups and scheduled jobs with jq, yq, curl, ssh, rsync, cron and systemd timers", "Make scripts idempotent, lock-protected and parallel without race conditions", "Test with bats-core, run lint and test gates in CI, and handle secrets and untrusted input safely"],
+      "days": [
+        {
+          "topic": "Strict Mode and Defensive Scripting Patterns",
+          "subtopics": ["set -e (errexit) and the places it is silently ignored: if conditions, && and || lists, negated commands", "set -u (nounset) and ${var:-} for optional values, including empty arrays before Bash 4.4", "set -o pipefail and reading PIPESTATUS", "shopt -s inherit_errexit for command substitutions", "Why local x=$(cmd) hides failures (ShellCheck SC2155)", "IFS=$'\\n\\t' and why it is a partial fix", "A standard header: #!/usr/bin/env bash with set -Eeuo pipefail", "Explicit || die checks versus relying on errexit"],
+          "tools": ["Bash", "ShellCheck", "PIPESTATUS", "set -e", "yes", "head"],
+          "lab_task": "Write three short scripts that each expose a set -e gap: a failing command inside an if condition, a failure on the left of &&, and local out=$(false). Fix them with explicit || die checks and shopt -s inherit_errexit. Then add set -Eeuo pipefail to a 60-line script, run it with an unset variable (expect 'unbound variable') and run yes | head -1 under pipefail to see status 141.",
+          "deliverable": "Strict-mode cookbook with the three failing scripts, their fixes and a recommended header",
+          "checks": [["Run bash -c 'set -e; f(){ local x=$(false); echo reached; }; f'", "Prints reached because local masks the failing substitution", "Terminal output"], ["Run bash -uc 'echo $undefined'; echo $?", "Prints an 'unbound variable' error and the status is 1", "Terminal output"], ["Run set -o pipefail; yes | head -1; echo ${PIPESTATUS[@]}", "Prints y and then 141 0", "Terminal output"]],
+          "objectives": ["Explain exactly when errexit does and does not stop a script", "Apply nounset and pipefail without breaking optional values", "Choose explicit error checks where strict mode is unreliable"]
+        },
+        {
+          "topic": "Script Structure: Libraries, source and Reusable Modules",
+          "subtopics": ["The main() pattern and the [[ ${BASH_SOURCE[0]} == \"$0\" ]] guard", "Locating the script directory with ${BASH_SOURCE[0]} and dirname", "source versus . and include guards", "Namespacing library functions with prefixes such as log::info", "Constants with readonly and declare -r", "Avoiding global state and documenting function contracts", "A require() helper for dependency checks", "Project layout: bin/, lib/, etc/ and tests/", "Resolving symlinks with readlink -f and the macOS difference"],
+          "tools": ["Bash", "source", "readlink", "ShellCheck", "shfmt", "Git"],
+          "lab_task": "Refactor a 150-line script into bin/tool, lib/log.sh, lib/args.sh and lib/fs.sh with namespaced functions (log::info) and an include guard. Resolve library paths from BASH_SOURCE so the tool works from any directory and through a symlink in ~/bin. Prove it by running it from /tmp and via the symlink, and show that sourcing the entry script with the main guard runs nothing.",
+          "deliverable": "Refactored multi-file tool with a layout diagram and the three proof runs",
+          "checks": [["Run cd /tmp && ~/bin/tool --help through the symlink; echo $?", "The help text prints, libraries are found and the status is 0", "Terminal output"], ["Run source bin/tool in an interactive shell", "Functions are defined and no command runs (no output)", "Terminal output"], ["Source lib/log.sh twice in one shell", "No 'readonly variable' error appears on the second source", "Terminal output"]],
+          "objectives": ["Split a script into libraries that load reliably from any location", "Use main guards and include guards to make code reusable and testable", "Namespace shared functions to avoid collisions"]
+        },
+        {
+          "topic": "Robust Argument Parsing: Long Options and Usage Text",
+          "subtopics": ["A while [[ $# -gt 0 ]]; do case $1 in ... shift loop for long options", "--name=value versus --name value forms", "getopt from util-linux versus getopts versus BSD getopt", "Repeated options collected into arrays, and -- to end option parsing", "Validation: integers, paths and enumerations", "Generating usage text from a single source of truth", "--help and --version returning 0, usage errors returning 64", "Configuration precedence: flags over environment over config file over defaults", "Subcommands such as tool build and tool test"],
+          "tools": ["Bash", "getopt", "getopts", "ShellCheck", "bats-core", "Git"],
+          "lab_task": "Implement a parser handling -v/--verbose, -o/--output FILE, --count=N, repeated --exclude PATTERN stored in an array, and -- to stop parsing, using a while/case/shift loop. Make --help exit 0 and an unknown option print to stderr and exit 64. Implement flag over environment over config-file over default precedence for --count and print the winning source with --show-config.",
+          "deliverable": "Argument parser library with a table of accepted and rejected command lines",
+          "checks": [["Run tool --count=abc; echo $?", "Prints 'count must be an integer' and the status is 64", "Terminal output"], ["Run tool --exclude a --exclude b -- -file", "The excludes array holds 2 entries and -file is treated as a positional argument", "Terminal output"], ["Run COUNT=5 tool --count=9 --show-config", "Prints count=9 source=flag", "Terminal output"]],
+          "objectives": ["Parse long and short options with validation", "Generate consistent help and exit codes", "Implement predictable configuration precedence"]
+        },
+        {
+          "topic": "Error Handling with trap, ERR and Cleanup Handlers",
+          "subtopics": ["trap for EXIT, ERR, INT and TERM, and listing handlers with trap -p", "Keeping the original exit status inside an EXIT handler", "set -E (errtrace) so ERR reaches functions and subshells", "Stack traces from FUNCNAME, BASH_SOURCE, BASH_LINENO and caller", "Cleaning up temporary files, lock files and background children", "Re-raising signals and exit status 130 for SIGINT", "Error classes and mapping them to exit codes", "Handler pitfalls: a later trap replaces an earlier one, and errexit inside traps"],
+          "tools": ["Bash", "trap", "mktemp", "kill", "ShellCheck", "bats-core"],
+          "lab_task": "Write a script that creates a mktemp -d workspace, installs trap cleanup EXIT and an ERR trap printing file:line plus the FUNCNAME stack under set -E, then fails three function levels deep. Send SIGINT with kill -INT during sleep 30 and confirm status 130 and that the temp directory is removed. Show the handler preserves the original code by failing with exit 7.",
+          "deliverable": "Error-handling template with the stack-trace output and cleanup proofs",
+          "checks": [["Run a script that calls exit 7 after installing trap cleanup EXIT; echo $?", "The cleanup message prints and the status is still 7", "Terminal output"], ["Fail inside three nested functions under set -E", "The ERR trap prints script:line and the stack f3 <- f2 <- f1 <- main", "Terminal output"], ["Send kill -INT to the running script", "The status is 130 and the temporary directory no longer exists", "Terminal output"]],
+          "objectives": ["Install reliable cleanup and error handlers", "Produce stack traces for failures in nested functions", "Exit with correct signal-related statuses"]
+        },
+        {
+          "topic": "Logging, Verbosity and Structured Output",
+          "subtopics": ["Log levels DEBUG to ERROR with numeric thresholds", "stderr for diagnostics and stdout for data", "Timestamps with the printf '%(%Y-%m-%dT%H:%M:%S%z)T' -1 builtin", "Colours only when [[ -t 2 ]] is true and NO_COLOR is unset", "Logging to syslog with logger -t and -p", "Writing to journald with systemd-cat and reading with journalctl -t", "JSON log lines built with jq -n --arg", "Log rotation with logrotate: copytruncate versus create"],
+          "tools": ["Bash", "logger", "journalctl", "jq", "logrotate", "systemd-cat"],
+          "lab_task": "Create lib/log.sh providing log::debug, info, warn and error with LOG_LEVEL filtering, timestamps from printf '%(%FT%T%z)T' -1, colour only when stderr is a terminal and NO_COLOR is unset, and a LOG_FORMAT=json mode built with jq -n --arg. Send a copy to syslog with logger -t mytool -p user.notice, find it with journalctl -t mytool -n 5, and validate a logrotate entry with logrotate -d.",
+          "deliverable": "Reusable logging library, sample text and JSON output and a logrotate configuration",
+          "checks": [["Run LOG_LEVEL=warn tool with one info, one warn and one error call", "Only the WARN and ERROR lines appear", "Terminal output"], ["Run tool 2>log.txt and then cat -v log.txt", "No escape sequences such as ^[[ are present when stderr is not a terminal", "File contents"], ["Run journalctl -t mytool -n 1", "Shows the message sent with logger", "journalctl output"]],
+          "objectives": ["Build a level-aware logging library", "Send logs to files, syslog and journald", "Emit machine-readable JSON logs"]
+        },
+        {
+          "topic": "Process Substitution, Coprocesses and Subshell Semantics",
+          "subtopics": ["<(cmd) and >(cmd) and the /dev/fd/N paths they create", "diff <(sort a) <(sort b) and comm on sorted streams", "Why cmd | while read loses variables and how while read < <(cmd) fixes it", "shopt -s lastpipe in non-interactive shells", "( ) subshells versus { } groups for cd and variables", "Command substitution strips trailing newlines; $(<file) as a fast file read", "coproc and two-way communication with a background process", "Here strings versus pipes for feeding a command"],
+          "tools": ["Bash", "diff", "comm", "bc", "coproc", "ShellCheck"],
+          "lab_task": "Demonstrate that count=0; cat /etc/passwd | while read -r l; do ((count++)); done; echo $count prints 0, then fix it three ways: process substitution, shopt -s lastpipe and a here string from a variable. Compare two directories with diff <(ls dirA) <(ls dirB). Write a coproc that runs bc -l, sends 2^10 and reads back 1024.",
+          "deliverable": "Subshell scope lab report with the broken and the three fixed versions",
+          "checks": [["Run the piped while loop and print $count", "Prints 0 because the loop ran in a subshell", "Terminal output"], ["Run the process-substitution version and print $count", "Prints the same number that wc -l reports for the file", "Terminal output"], ["Send '2^10' to the bc coprocess and read the answer", "The variable ans equals 1024", "Terminal output"]],
+          "objectives": ["Explain which constructs create subshells and what that does to variables", "Use process substitution to compare and feed command output", "Drive a long-running helper with coproc"]
+        },
+        {
+          "topic": "Advanced awk Programs and Report Generation",
+          "subtopics": ["Program files with -f, user-defined functions and local parameters", "Arrays: SUBSEP, the in operator, delete and sorted traversal", "gawk extensions: asort, asorti, PROCINFO[\"sorted_in\"], strftime and FPAT", "CSV parsing with FPAT and gawk --csv in gawk 5.3 and later", "Range patterns /start/,/end/ and getline", "Joining two files with the NR==FNR idiom", "Writing to files and pipes: print > $1\".csv\", | \"sort\" and close()", "Portability: mawk and BusyBox awk versus gawk"],
+          "tools": ["gawk", "awk", "sort", "column", "Bash", "ShellCheck"],
+          "lab_task": "Write report.awk and run gawk -f report.awk orders.csv customers.csv. Join the files with the NR==FNR idiom, produce a revenue-by-region table sorted descending with PROCINFO[\"sorted_in\"]=\"@val_num_desc\", print percentages with printf '%5.1f%%', and write one file per region with print > ($1 \".csv\"). Check the grand total against awk '{s+=$3} END{print s}'.",
+          "deliverable": "report.awk, sample inputs and the generated regional files",
+          "checks": [["Add up the per-region totals and compare with the grand total", "Both agree to two decimal places", "Terminal output"], ["Run ls *.csv after the program finishes", "One output file per region exists", "Directory listing"], ["Run with an order whose customer id is missing from customers.csv", "The row is reported under the region UNKNOWN", "Report output"]],
+          "objectives": ["Write multi-file awk reports with functions and sorted output", "Join datasets without a database", "Write per-key output files from a single pass"]
+        },
+        {
+          "topic": "sed Scripts, Hold Space and In-Place Editing at Scale",
+          "subtopics": ["Pattern space and hold space: h, H, g, G and x", "Multi-line commands N, D and P", "Joining lines with sed ':a;N;$!ba;s/\\n/,/g'", "Branching with b, t and labels", "Script files with -f, null-separated input with -z and per-file addressing with -s", "Back-references and word boundaries with \\b, \\< and \\>", "Bulk edits: find -exec sed -i with backup suffixes and --follow-symlinks", "Idempotent configuration edits: replace the key if present, append if absent", "GNU versus BSD sed (-i '') and perl -pi -e as an alternative"],
+          "tools": ["sed", "find", "grep", "perl", "diff", "Bash"],
+          "lab_task": "Reverse a file with the classic sed -n '1!G;h;$p', join lines with sed ':a;N;$!ba;s/\\n/,/g', and convert key = value lines to export KEY='value'. Write a set_conf function that replaces a key if present or appends it if absent, run it three times against a config file and confirm with grep -c that each key appears exactly once.",
+          "deliverable": "sed recipe library and an idempotent set_conf function with its test run",
+          "checks": [["Run printf '1\\n2\\n3\\n' | sed -n '1!G;h;$p'", "Prints 3, 2 and 1 on separate lines", "Terminal output"], ["Run printf 'a\\nb\\nc\\n' | sed ':a;N;$!ba;s/\\n/,/g'", "Prints a,b,c", "Terminal output"], ["Run set_conf Port 2222 three times and then grep -c '^Port' file", "Prints 1", "Terminal output"]],
+          "objectives": ["Use hold space and multi-line commands for transformations that need context", "Edit many files in place safely with backups", "Make configuration edits idempotent"]
+        },
+        {
+          "topic": "JSON and YAML Processing with jq and yq",
+          "subtopics": ["jq basics: ., .key, .[], select(), map(), -r, -c and -e", "Passing shell values safely with --arg and --argjson instead of string interpolation", "Building output with jq -n and the @csv, @tsv, @sh and @base64 formats", "group_by, unique_by, sort_by, reduce and to_entries", "Exit statuses: jq -e returns 1 for false or null and 5 for errors", "Handling null and missing keys with // and ?", "yq (mikefarah v4): reading, editing in place with -i and eval-all", "Large inputs with jq --stream and inputs"],
+          "tools": ["jq", "yq", "curl", "Bash", "Git", "ShellCheck"],
+          "lab_task": "Using a saved JSON array of release objects, emit a TSV of tag_name and published_at with jq -r, drop drafts with select(.draft|not), and count releases per year with group_by. Build a payload with jq -n --arg msg \"$text\" '{text:$msg}' where $text contains double quotes. With yq v4 change image.tag in a values.yaml using yq -i and show that git diff touches one line.",
+          "deliverable": "jq and yq recipe sheet with sample inputs and verified outputs",
+          "checks": [["Run jq -e '.[0].draft' releases.json where the first release is not a draft; echo $?", "Prints false and the status is 1", "Terminal output"], ["Run jq -n --arg msg 'say \"hi\"' '{text:$msg}'", "Valid JSON in which the inner double quotes are escaped with backslashes", "Terminal output"], ["Run yq -i '.image.tag = \"1.4.2\"' values.yaml and then git diff --stat", "Reports 1 file changed, 1 insertion(+), 1 deletion(-)", "git output"]],
+          "objectives": ["Query and reshape JSON in pipelines with jq", "Pass shell variables into jq without injection or quoting bugs", "Edit YAML files programmatically with yq"]
+        },
+        {
+          "topic": "HTTP and REST Automation with curl",
+          "subtopics": ["Essential flags: -fsSL, -o, -O, -w \"%{http_code}\" and exit status 22 with -f", "Methods and bodies: -X, -d, --data-binary @file and --json", "Headers and tokens, keeping secrets out of the process list with a header file or --config", "Timeouts and retries: --connect-timeout, --max-time, --retry and --retry-all-errors", "Pagination loops with page parameters or Link headers", "Capturing status and body together using -w and a temporary file", "TLS options: --cacert, --resolve and why -k is dangerous", "Resumable downloads with -C - and verification with sha256sum"],
+          "tools": ["curl", "jq", "Bash", "Python http.server", "sha256sum", "ShellCheck"],
+          "lab_task": "Start python3 -m http.server 8080 as a mock API. Write api.sh with http_get that calls curl -sS --connect-timeout 5 --max-time 20 --retry 3 -w '%{http_code}' -o body.json, fails on status 400 or above with the code in the message, and pages through ?page=N with a while loop until jq 'length' is 0. Test a 200, a 404 and a request to a listener that never replies.",
+          "deliverable": "api.sh with a pagination demonstration and a results table for 200, 404 and timeout cases",
+          "checks": [["Run curl -fsS http://localhost:8080/missing; echo $?", "Prints 'The requested URL returned error: 404' and the status is 22", "Terminal output"], ["Run curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/", "Prints 200", "Terminal output"], ["Run curl --max-time 2 against a socket that accepts but never replies (for example nc -l 9999); echo $?", "Fails after about 2 seconds with status 28", "Terminal output"]],
+          "objectives": ["Call REST APIs from scripts with correct status and error handling", "Apply timeouts and retries that match the failure type", "Keep tokens out of command lines and logs"]
+        },
+        {
+          "topic": "Parallelism: Background Jobs, wait and xargs -P",
+          "subtopics": ["Background jobs with &, $! and wait, plus wait -n", "jobs, fg and bg and their limits in non-interactive shells", "xargs -P N -n 1 and -I {} and interleaved output", "GNU parallel versus xargs: --halt and --joblog", "Limiting concurrency with a counter and wait -n", "Collecting the exit status of every background job", "Keeping output ordered with per-job temporary files", "Resource limits: nproc, ulimit -u and API rate limits"],
+          "tools": ["Bash", "xargs", "GNU parallel", "gzip", "nproc", "time"],
+          "lab_task": "Compress 40 files three ways: sequentially, with find -print0 | xargs -0 -P \"$(nproc)\" -n 1 gzip, and with a Bash loop capped at 4 jobs using wait -n. Time each with time, collect the status of every background job with wait \"$pid\" into a failures counter, and make one job fail on purpose to confirm the script exits non-zero.",
+          "deliverable": "Timing table for the three approaches and a job runner that reports failures",
+          "checks": [["Time the sequential run and the xargs -P run on a machine with 4 or more cores", "The parallel wall time is lower than the sequential time", "time output"], ["Run the job runner with one deliberately failing job; echo $?", "Reports 1 failed job and exits with status 1", "Terminal output"], ["Sample pgrep -c gzip while the capped loop runs", "Never more than 4 gzip processes at once", "Terminal output"]],
+          "objectives": ["Run work in parallel with a bounded number of workers", "Collect and report failures from background jobs", "Measure whether parallelism actually helps"]
+        },
+        {
+          "topic": "Locking, Idempotency and Concurrency-Safe Scripts",
+          "subtopics": ["Race conditions in check-then-act code", "flock -n on a file descriptor, flock -w and wrapping cron jobs with flock", "mkdir as an atomic lock and PID files with stale detection using kill -0", "Atomic writes: temporary file in the same directory then mv; ln -sfn for symlink swaps", "Idempotent operations: mkdir -p, ln -sfn, install -D and grep -q || append", "State and marker files, and checksum-based change detection", "Releasing locks on exit, and why flock on NFS needs care", "Testing by launching ten instances at once"],
+          "tools": ["flock", "Bash", "mktemp", "sha256sum", "ShellCheck", "bats-core"],
+          "lab_task": "Wrap a script body with exec 200>/tmp/mytool.lock; flock -n 200 || { echo 'already running' >&2; exit 75; } (EX_TEMPFAIL). Start 10 copies with & while the first sleeps 5 seconds and count how many print 'already running'. Convert a provisioning script so three runs produce an identical state, verified by sha256sum over the resulting tree.",
+          "deliverable": "Locked script, a ten-instance test result and an idempotency proof with checksums",
+          "checks": [["Start 10 instances at once with the first sleeping 5 seconds", "Exactly 9 print 'already running' and exit with status 75", "Terminal output"], ["Run the provisioning script three times and run sha256sum -c against the saved manifest after each", "The checksum manifest verifies identically after the first, second and third run", "Terminal output"], ["kill -9 the lock holder and start a new instance", "The new instance acquires the lock immediately because the kernel released it", "Terminal output"]],
+          "objectives": ["Prevent overlapping runs with kernel-backed locks", "Make provisioning scripts safe to run repeatedly", "Write atomically so readers never see partial files"]
+        },
+        {
+          "topic": "Unattended Execution: cron Environment, systemd Timers and Missed Runs",
+          "subtopics": ["crontab -e and -l, the five time fields, @daily and @reboot", "The cron environment: minimal PATH, /bin/sh, no TTY and MAILTO", "Reproducing the cron environment with env -i and absolute paths", "Redirecting job output with >> log 2>&1 or logger", "systemd timers: OnCalendar, Persistent=true, RandomizedDelaySec and systemd-analyze calendar", "A oneshot service unit and reading logs with journalctl -u", "anacron and missed runs on machines that are off at the scheduled time", "Overlap prevention with flock and TimeoutStartSec"],
+          "tools": ["cron", "systemd", "systemd-analyze", "journalctl", "flock", "Bash"],
+          "lab_task": "Create a cron job that runs backup.sh every 15 minutes and reproduce the classic failure by calling a tool in /usr/local/bin that is missing from cron's PATH, then diagnose it from the log. Recreate the environment with env -i HOME=$HOME /bin/sh -c '...'. Port the job to mytool.service (Type=oneshot) and mytool.timer with OnCalendar=*:0/15 and Persistent=true, then validate with systemd-analyze calendar and systemctl list-timers.",
+          "deliverable": "Cron entry, the diagnosed failure, and a working service and timer unit pair",
+          "checks": [["Log echo $PATH from inside a cron job", "Shows a short PATH, typically /usr/bin:/bin on Debian-family systems", "Log file"], ["Run systemd-analyze calendar '*:0/15'", "Shows the normalized form *-*-* *:00/15:00 and the next elapse times", "Terminal output"], ["Run systemctl list-timers mytool.timer", "Shows NEXT and LEFT columns with a time less than 15 minutes away", "Terminal output"]],
+          "objectives": ["Explain why scripts that work interactively fail under cron", "Replace cron jobs with systemd timers including catch-up behaviour", "Prevent overlapping scheduled runs"]
+        },
+        {
+          "topic": "Remote Execution over SSH: Keys, ControlMaster and Fan-Out",
+          "subtopics": ["Non-interactive options: BatchMode=yes, ConnectTimeout and StrictHostKeyChecking=accept-new", "ssh-keygen -t ed25519, ssh-agent and authorized_keys restrictions such as command= and from=", "~/.ssh/config Host blocks and ProxyJump", "ControlMaster auto, ControlPath and ControlPersist", "Passing commands safely: quoted strings, bash -s -- args < script and printf %q", "Exit status propagation and ssh -n inside while read loops", "scp and rsync -az -e ssh with --partial and a dry run using -n", "Fan-out with xargs -P and per-host output files"],
+          "tools": ["ssh", "ssh-keygen", "rsync", "scp", "xargs", "Docker"],
+          "lab_task": "Create an ed25519 key and loop over a hosts.txt of three hosts (containers or VMs) running ssh -o BatchMode=yes -o ConnectTimeout=5 host uptime. Reproduce ssh swallowing the rest of the file inside while read, then fix it with ssh -n. Enable ControlMaster auto with ControlPersist 60 and time 20 sequential commands before and after. Run a local script remotely with ssh host 'bash -s' -- arg < script.sh and preview a sync with rsync -avn.",
+          "deliverable": "SSH automation kit with the loop bug demonstration and a before-and-after timing table",
+          "checks": [["Run while read h; do ssh $h hostname; done < hosts.txt without -n on 3 hosts", "Only the first host is processed because ssh consumes the remaining stdin", "Terminal output"], ["Run the same loop with ssh -n", "All 3 hostnames are printed", "Terminal output"], ["Run ssh -O check host after ControlPersist is enabled", "Prints 'Master running' with a process id", "Terminal output"]],
+          "objectives": ["Run commands on many hosts non-interactively and securely", "Reduce connection overhead with multiplexing", "Avoid the stdin-consumption bug in ssh loops"]
+        },
+        {
+          "topic": "Snapshot Backups, Retention and Verification Scripts",
+          "subtopics": ["tar -czf and -cJf with --exclude, --one-file-system and -C", "Incremental tar with --listed-incremental", "rsync -a --delete and hard-link snapshots with --link-dest", "Dated directory names and an atomically updated latest symlink", "Retention: keeping the newest N with sort and head -n -N", "Verification: sha256sum -c, tar -tzf and test restores", "Database dumps through a pipe under pipefail, such as pg_dump | gzip", "Pre-flight free-space checks with df --output=avail and failure notifications"],
+          "tools": ["rsync", "tar", "df", "sha256sum", "cron", "Bash"],
+          "lab_task": "Write snapshot.sh that creates /backup/YYYY-MM-DD with rsync -a --link-dest=../latest from a 1,000-file tree, repoints latest with ln -sfn plus mv -T, keeps the 7 newest snapshots and refuses to run when df shows under 1 GiB free. Show hard links share data with du -sh across two snapshots and prove restores with diff -r.",
+          "deliverable": "Snapshot script, retention test log and a restore verification report",
+          "checks": [["Take two snapshots of an unchanged tree and run du -sh --total /backup/*", "The second snapshot adds almost no space (under 1 MB)", "du output"], ["Run the script with 10 existing dated snapshots and retention 7", "Only the 7 newest snapshot directories remain", "Directory listing"], ["Restore latest to /tmp/restore and run diff -r on it and the source", "No output and the exit status is 0", "Terminal output"]],
+          "objectives": ["Build space-efficient snapshots with rsync hard links", "Enforce retention and free-space guards", "Verify backups by restoring them"]
+        },
+        {
+          "topic": "Testing Shell Scripts with bats-core",
+          "subtopics": ["Installing bats-core and the bats-support, bats-assert and bats-file helpers", "@test blocks and run with $status, $output and ${lines[@]}", "setup, teardown, setup_file and BATS_TEST_TMPDIR", "Designing for testability: functions, a main guard and an injected PATH", "Stubbing commands with PATH shims and function mocks", "Asserting exit codes, stderr (run --separate-stderr) and file effects", "TAP output, --formatter junit and --jobs", "Coverage ideas with kcov"],
+          "tools": ["bats-core", "bats-assert", "Bash", "kcov", "Git", "ShellCheck"],
+          "lab_task": "Install bats-core and bats-assert, then write tests/logtool.bats with at least 8 tests for the beginner log tool: usage exit 64, dry run changes nothing, compress creates .gz and others. Stub curl using a shim directory prepended to PATH to simulate an HTTP 500. Run bats --formatter junit tests/ > report.xml and bats --jobs 4 tests/, then mutate the script to prove at least one test fails.",
+          "deliverable": "bats test suite, the JUnit report and a mutation experiment log",
+          "checks": [["Run bats tests/", "Output ends with 8 tests, 0 failures", "Terminal output"], ["Change the usage exit code from 64 to 1 and run bats tests/; echo $?", "The usage test fails and bats exits with status 1", "Terminal output"], ["Run bats --formatter junit tests/ > report.xml", "The XML contains a testsuite element reporting tests=\"8\"", "report.xml"]],
+          "objectives": ["Write automated tests for scripts including stubbed dependencies", "Design scripts so their functions can be tested in isolation", "Produce CI-friendly test reports"]
+        },
+        {
+          "topic": "Portability: POSIX sh, dash, BSD Tools and macOS",
+          "subtopics": ["POSIX sh versus Bash: [[ ]], arrays, ${var//}, <<< and process substitution", "Detecting Bashisms with checkbashisms, shellcheck --shell=sh and dash -n", "/bin/sh on Debian and Ubuntu is dash; Alpine uses BusyBox ash", "GNU versus BSD tools: sed -i, date -d, readlink -f, stat -c versus -f, grep -P and xargs -r", "macOS: Bash 3.2, Homebrew Bash and #!/usr/bin/env bash", "BusyBox applets and Alpine containers", "Feature detection with command -v and trial runs instead of uname", "Windows: Git Bash, WSL2 and MSYS path conversion"],
+          "tools": ["dash", "BusyBox", "ShellCheck", "checkbashisms", "Docker", "Bash"],
+          "lab_task": "Take a 40-line script that uses [[ ]], arrays and <<< and run it with sh script.sh on Ubuntu to capture the errors. Write a POSIX version and verify it with shellcheck --shell=sh and dash -n. Add a portable file_mtime function that tries stat -c %Y then stat -f %m. Run the tests in docker run --rm -v \"$PWD\":/w alpine sh /w/test.sh.",
+          "deliverable": "Portable script, a compatibility matrix for Bash, dash, BusyBox ash and macOS, and test output",
+          "checks": [["Run sh script.sh on Ubuntu for the Bash-only script", "dash reports '[[: not found'", "Terminal output"], ["Run shellcheck --shell=sh posix.sh; echo $?", "No findings and the status is 0", "Terminal output"], ["Run the test script in an Alpine container", "Prints PASS for every test under BusyBox ash", "Terminal output"]],
+          "objectives": ["Write scripts that run on more than one shell and OS", "Detect and remove Bash-only constructs", "Handle GNU and BSD tool differences"]
+        },
+        {
+          "topic": "Secrets Handling, Input Sanitization and Script Security",
+          "subtopics": ["Secrets on the command line are visible in ps and /proc/PID/cmdline", "Passing secrets by stdin, file descriptor or a 0600 file, with umask 077 and read -s", "Secret stores: aws secretsmanager get-secret-value, vault kv get, pass and sops", "set -x leaking secrets and redacting logs", "Injection through eval, unquoted expansions and bash -c with interpolated input", "Allowlist validation with case and regular expressions", "Safe temporary files and symlink attacks in /tmp", "sudo in scripts, a reset PATH and why setuid shell scripts are unsafe", "Secret scanning with gitleaks and git hooks"],
+          "tools": ["Bash", "gitleaks", "ShellCheck", "sops", "Vault", "ps"],
+          "lab_task": "Write deploy.sh that takes a database password only through --password-stdin, never argv, and prove with ps -ef and cat /proc/$$/cmdline that it is not visible. Show command injection by passing '; touch /tmp/pwned' to a vulnerable version that uses eval or an unquoted $1, then fix it with arrays, -- and an allowlist regex. Run gitleaks detect --no-git and confirm zero findings.",
+          "deliverable": "Hardened deploy.sh, an exploit-and-fix write-up and a clean gitleaks report",
+          "checks": [["Run ps -ef | grep deploy while the script runs with --password-stdin", "The password string does not appear in the process list", "ps output"], ["Run the vulnerable version with the argument '; touch /tmp/pwned' and ls /tmp/pwned", "The marker file exists, which proves injection", "Terminal output"], ["Run the fixed version with the same argument; echo $?", "No file is created and the script rejects the value with status 64", "Terminal output"]],
+          "objectives": ["Keep secrets out of process lists, logs and repositories", "Recognise and remove shell injection paths", "Validate untrusted input with allowlists"]
+        },
+        {
+          "topic": "Shell Scripts in CI: GitHub Actions, ShellCheck and bats Pipelines",
+          "subtopics": ["run steps and the default shell flags, including bash -e {0} versus --noprofile --norc -eo pipefail {0}", "Running ShellCheck with -S warning and the gcc or checkstyle output formats", "shfmt -d as a formatting gate", "A bats matrix across ubuntu-latest and macos-latest", "Testing against several Bash versions with bash container images", "Uploading JUnit reports as artifacts", "Masking and handling secrets with ::add-mask:: and environment variables", "Writing to GITHUB_OUTPUT, GITHUB_ENV and GITHUB_STEP_SUMMARY from scripts", "Script injection through ${{ github.event.* }} in run steps and the env-variable fix"],
+          "tools": ["GitHub Actions", "ShellCheck", "shfmt", "bats-core", "Docker", "Bash"],
+          "lab_task": "Create .github/workflows/shell.yml with jobs that run shellcheck -S warning and shfmt -d on all *.sh files and a bats matrix on ubuntu-latest and macos-latest. Add a step that appends a Markdown table to $GITHUB_STEP_SUMMARY and sets an output with echo \"count=$n\" >> \"$GITHUB_OUTPUT\". Open a pull request containing an unquoted variable to prove the lint job fails, then fix it.",
+          "deliverable": "Workflow file, a failing and a passing pull request run and the job summary",
+          "checks": [["Open a pull request containing echo $1 unquoted", "The ShellCheck job fails with SC2086 and the pull request check is red", "Actions run log"], ["Run the bats matrix", "Two bats jobs, one on ubuntu-latest and one on macos-latest, finish green", "Actions run page"], ["Open the run Summary tab", "A Markdown table written by the script is visible", "Summary screenshot"]],
+          "objectives": ["Gate shell code with lint, format and test jobs in CI", "Pass data between steps safely with the GitHub Actions files", "Avoid script injection in workflow run steps"]
+        },
+        {
+          "topic": "Intermediate Capstone: Server Health-Check and Provisioning Toolkit",
+          "subtopics": ["Requirements: inventory, idempotent provisioning, health checks and a report", "Architecture: bin/, lib/, tests/ and a CI workflow", "Implementation: SSH fan-out, flock and logging", "Reliability: timeouts, retries and traps", "Quality gates: ShellCheck, shfmt, bats and CI", "Handover: README, --help and a runbook"],
+          "tools": ["Bash", "ssh", "jq", "flock", "bats-core", "GitHub Actions"],
+          "lab_task": "Build toolkit with provision, check and report subcommands across three Linux containers over SSH. provision installs a package and writes a config idempotently; check tests disk with df, memory with free -m and a service port with curl -fsS, then prints JSON through jq; report writes a Markdown pass/fail summary. Require 15 bats tests green in Actions, a second provision run reporting 0 changes and flock blocking a parallel run.",
+          "deliverable": "Toolkit repository with README, runbook, 15 passing bats tests and a sample report",
+          "checks": [["Run provision a second time on all 3 hosts", "Reports changed=0 for every host", "Terminal output"], ["Stop the service on one host and run check; echo $?", "The report shows 1 FAIL and 2 PASS and the status is 1", "Report and terminal output"], ["Start two simultaneous runs", "The second run exits with status 75 and prints 'already running'", "Terminal output"]],
+          "objectives": ["Deliver a multi-host automation toolkit with idempotent actions", "Combine locking, logging, retries and JSON reporting", "Prove quality with automated tests in CI"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior engineers, SREs and platform engineers who run shell automation in production. Covers Bash parsing and expansion internals, performance measurement, namerefs and indirection, signals and process groups, FIFO concurrency, command-line frameworks with completion, large text pipelines, binary data, containers, cloud CLIs, fleet orchestration, kubectl, resilience patterns, security hardening, signed releases, metrics and alerting, zero-downtime deployment, production troubleshooting, migration decisions and a platform capstone.",
+      "prerequisites": ["Has completed the intermediate level or maintains production Bash scripts with tests and CI", "Can read strace output and basic Linux process, signal and file-descriptor behaviour", "Has access to a sandbox cloud account or local kind, Docker and Prometheus for the platform exercises"],
+      "outcomes": ["Explain Bash expansion, subshell and signal behaviour precisely enough to debug any script", "Engineer fast, concurrent and resilient automation with measured performance and bounded failure behaviour", "Harden, sign, deploy, observe and roll back shell automation across hosts, containers, clouds and clusters", "Decide when to keep, restructure or replace shell code and defend the decision with evidence"],
+      "days": [
+        {
+          "topic": "Bash Internals: Parsing, Expansion Order and Quoting Edge Cases",
+          "subtopics": ["The processing phases: tokenizing, alias expansion, expansions, redirections and execution", "Why brace expansion runs before parameter expansion: {1..$n} fails", "Word splitting rules: IFS whitespace versus non-whitespace characters", "Quote removal, $'...' and \"$@\" with empty arguments", "Globbing options: globstar, extglob, nocaseglob, GLOBIGNORE and GLOBSORT in Bash 5.3", "POSIX mode with set -o posix and special builtins", "eval, printf %q and when quoting round-trips", "Reading the SHELL GRAMMAR section of the manual and tracing expansions with bash -x"],
+          "tools": ["Bash", "bash -x", "printf", "ShellCheck", "man bash", "Visual Studio Code"],
+          "lab_task": "Predict and then verify the output of ten tricky commands, including n=3; echo {1..$n}, a=('' b); printf '[%s]' \"${a[@]}\", IFS=: read -r x y <<< 'a::b'; echo \"[$x][$y]\" and files=*.nomatch; echo $files. Document each with bash -x and name the stage responsible. Show that printf %q output survives eval for a filename containing quotes and a newline.",
+          "deliverable": "Ten-case prediction journal with traces, plus a quoting round-trip test",
+          "checks": [["Run n=3; echo {1..$n}", "Prints {1..3} because brace expansion happens before parameter expansion", "Terminal output"], ["Run a=('' b); printf '[%s]' \"${a[@]}\"", "Prints [][b]", "Terminal output"], ["Run echo *.nomatch in a directory with no match under shopt -s failglob; echo $?", "Bash reports 'no match' and the status is 1 instead of printing the literal pattern", "Terminal output"]],
+          "objectives": ["Predict exactly how Bash expands and splits any command line", "Use printf %q and arrays to build safe commands", "Trace expansion stages with bash -x"]
+        },
+        {
+          "topic": "Performance Engineering: Forks, Builtins and Profiling",
+          "subtopics": ["Cost model: fork and exec versus builtins, measured with strace -f -c", "Avoiding subshells with printf -v, ${var%x}, read <<< and mapfile", "One awk process versus a pipeline of small tools", "Why while read loops are slow on large files and when to hand the job to awk or sort", "Profiling with PS4='+ $EPOCHREALTIME ' tracing, time and hyperfine", "SECONDS, EPOCHSECONDS, EPOCHREALTIME and printf '%(...)T'", "LC_ALL=C for faster grep and sort", "Memory limits of big arrays and when to stop using Bash"],
+          "tools": ["Bash", "strace", "hyperfine", "awk", "time", "LC_ALL"],
+          "lab_task": "Implement a top-10 client IP count on a 100,000-line log four ways: a while read loop calling echo | cut, a parameter-expansion-only version, grep -o | sort | uniq -c and a single awk. Time each with hyperfine --warmup 1 or time, count processes with strace -f -c -e trace=process, and test LC_ALL=C sort. Report wall time and process count in a table.",
+          "deliverable": "Benchmark report with a table of wall time and process count for the four implementations",
+          "checks": [["Run all four versions on the same 100,000 lines and diff their outputs", "All four print the identical top-10 list (diff exit status 0)", "Terminal output"], ["Run strace -f -c -e trace=process on the loop and the awk versions", "The loop version shows at least 100,000 clone calls and the awk version fewer than 10", "strace summary"], ["Compare the wall times", "The awk version is at least 10 times faster than the loop version", "Timing table"]],
+          "objectives": ["Measure shell performance by process count and wall time", "Replace external commands with builtins where it pays off", "Decide when a single awk or sort beats a loop"]
+        },
+        {
+          "topic": "Advanced Parameter Expansion, Namerefs and Indirection",
+          "subtopics": ["declare -n namerefs, returning arrays from functions and the circular-reference warning", "Indirection with ${!name}, ${!prefix@} and ${!arr[@]}", "Transform operators ${var@Q}, @E, @P, @a, @U and @L", "Set and map patterns with associative arrays", "Serialising data with declare -p and restoring it from a trusted file", "Dispatch tables: an associative array mapping names to functions", "compgen -A function and ${var@A}", "printf -v and read -d for safe string building"],
+          "tools": ["Bash", "declare", "compgen", "ShellCheck", "bats-core", "Git"],
+          "lab_task": "Write lib/ds.sh with ds::push, ds::pop and ds::map_get that take array names through declare -n, plus a dispatch table declare -A handlers=([start]=cmd_start [stop]=cmd_stop) run as \"${handlers[$1]}\". Show ${v@Q} quoting a value containing a single quote, serialise an associative array with declare -p, restore it in a fresh shell and trigger the circular name reference warning.",
+          "deliverable": "Data-structure library with dispatcher, unit tests and a serialisation demo",
+          "checks": [["Run v=\"it's\"; echo ${v@Q}", "Prints 'it'\\''s'", "Terminal output"], ["Run ds::push stack a; ds::push stack b; ds::pop stack", "Prints b and the stack array has 1 element left", "Terminal output"], ["Dispatch an unknown command name", "Prints 'unknown command' and exits 64 without running any handler", "Terminal output"]],
+          "objectives": ["Pass and return arrays and maps between functions with namerefs", "Use transform operators and indirection safely", "Build dispatch tables for command-style scripts"]
+        },
+        {
+          "topic": "Signals, Process Groups and Job Control in Scripts",
+          "subtopics": ["Signals HUP, INT, QUIT, TERM, KILL, USR1, CHLD and PIPE and their numbers", "Why a trap waits for a foreground command and how background plus wait fixes it", "Process groups and sessions: setsid, set -m and kill -- -PGID", "Killing a whole tree with pkill -P and pgrep", "nohup, disown and setsid for jobs that must survive logout", "timeout: exit status 124, --foreground and -k", "Zombies, orphans and exec to replace the shell", "Exit codes 128+n and 141 for SIGPIPE"],
+          "tools": ["Bash", "kill", "timeout", "ps", "pgrep", "setsid"],
+          "lab_task": "Write a supervisor that starts three sleep workers with &, traps TERM and INT, forwards TERM to each worker, waits for them and exits 143. Show that a trap on SIGINT waits for a foreground sleep 30 unless it runs as sleep 30 & wait $!. Capture status 124 from timeout -k 2 5 sleep 60 and use ps -o pid,pgid,sid to show which processes share a group.",
+          "deliverable": "Supervisor script plus an evidence sheet of signal experiments with ps output",
+          "checks": [["Run timeout 1 sleep 5; echo $?", "Prints 124", "Terminal output"], ["Send kill -TERM to the supervisor and then run pgrep -c sleep", "Prints 0 and the supervisor exit status is 143", "Terminal output"], ["Send SIGINT to a script waiting on a foreground sleep versus sleep & wait", "The trap runs immediately only with the sleep & wait form", "Terminal output"]],
+          "objectives": ["Handle signals correctly in long-running scripts", "Terminate whole process trees reliably", "Use timeout and process groups to bound runtime"]
+        },
+        {
+          "topic": "Safe Concurrency: Named Pipes, Semaphores and Work Queues",
+          "subtopics": ["mkfifo, blocking semantics and opening with exec 3<>fifo to avoid blocking", "A semaphore built from tokens in a FIFO", "Spool-directory queues with atomic mv to claim work", "flock on a descriptor for mutual exclusion between consumers", "Producer and consumer patterns and a poison-pill shutdown", "Lost updates in counters and flock around read-modify-write", "Backpressure and bounded queues", "Cleaning up FIFOs and spool files with trap"],
+          "tools": ["Bash", "mkfifo", "flock", "mv", "pgrep", "bats-core"],
+          "lab_task": "Build a job pool: create a FIFO with mkfifo, open it read-write with exec 3<>\"$fifo\", preload 4 tokens with printf '\\n' >&3, then run 50 jobs where each takes a token with read -u 3 and returns it. Build a spool queue where 5 workers claim files with mv inbox/x work/x and record ids in done.log. Prove no job ran twice with sort done.log | uniq -d.",
+          "deliverable": "Job pool and spool-queue scripts with concurrency measurements and a duplicate check",
+          "checks": [["Run 50 jobs with 4 tokens and sample the job process count repeatedly", "Never more than 4 job processes run at the same time", "Sampling log"], ["Run sort done.log | uniq -d after the 5-worker run", "No output, so no job ran twice", "Terminal output"], ["Run wc -l < done.log", "Prints 50", "Terminal output"]],
+          "objectives": ["Limit concurrency with FIFO-based semaphores", "Build a queue where each task is claimed exactly once", "Clean up pipes and spool files on exit"]
+        },
+        {
+          "topic": "Building a Command-Line Framework with Subcommands and Completion",
+          "subtopics": ["A dispatcher that loads lib/commands/<name>.sh, discovered with compgen -A function", "Help text generated from ## comment annotations", "Global flags versus subcommand flags", "bash-completion: complete -F, _init_completion, COMPREPLY and compgen -W", "Installing completions under /etc/bash_completion.d or ~/.local/share/bash-completion/completions", "Man pages from Markdown with pandoc or from --help with help2man", "Versioning with --version and git describe", "Plugin directories and configuration under XDG_CONFIG_HOME"],
+          "tools": ["Bash", "bash-completion", "pandoc", "help2man", "Git", "ShellCheck"],
+          "lab_task": "Create opsctl with deploy, status and logs subcommands in lib/commands/*.sh, listed automatically by opsctl help from ## comments, and global flags -v and --config. Add complete -F _opsctl opsctl that completes subcommands and, for deploy, environment names from a file via compgen -W. Generate opsctl.1 with pandoc -s -t man and view it with man ./opsctl.1.",
+          "deliverable": "opsctl framework, completion script and generated man page",
+          "checks": [["Type opsctl followed by two Tab presses", "Lists deploy, logs and status", "Terminal screenshot"], ["Run opsctl help", "Prints one line per command taken from the ## comments (3 lines)", "Terminal output"], ["Run man ./opsctl.1", "The page renders with NAME and SYNOPSIS sections", "Terminal screenshot"]],
+          "objectives": ["Structure a large script as a dispatcher with pluggable commands", "Provide tab completion and a man page", "Generate help from a single source"]
+        },
+        {
+          "topic": "Large-Scale Text Pipelines with sort, join, comm and uniq",
+          "subtopics": ["sort -k, -t, -n, -h, -u, -s, -S, -T and --parallel", "uniq -c, -d and -u and the sorted-input requirement", "join on sorted keys with -a, -v and -t, and comm -12, -23 and -13", "cut, paste, tr, column -t, fold, nl, split -l and csplit", "Streaming compressed data with zcat, pv and zstd -T0", "Locale pitfalls: LC_ALL=C versus UTF-8 collation", "Sampling with shuf -n and awk 'rand()<0.01'", "Data quality checks: duplicates, empty keys and row-count reconciliation"],
+          "tools": ["sort", "join", "comm", "split", "pv", "zstd"],
+          "lab_task": "Generate two 2-million-line keyed files with seq and awk. Compute keys present in both with comm -12, only in A with comm -23 and joined values with join -t,. Show that LC_ALL=C changes both the speed and the order of sort versus en_US.UTF-8, split a stream with split -l 1000000 --filter='gzip > $FILE.gz', and prove row counts match before and after with wc -l.",
+          "deliverable": "Pipeline cookbook with timings and a row-count reconciliation script",
+          "checks": [["Run printf 'b\\nA\\na\\nB\\n' | LC_ALL=C sort", "Prints A, B, a, b in byte order (en_US.UTF-8 would give a, A, b, B)", "Terminal output"], ["Run comm -12 a.sorted b.sorted | wc -l", "Equals the intersection size computed independently with awk", "Terminal output"], ["Sum wc -l over all split parts and compare with the original", "The totals are equal", "Terminal output"]],
+          "objectives": ["Process multi-million-line files with sort-based tools", "Compare datasets by key with comm and join", "Verify data integrity through row-count reconciliation"]
+        },
+        {
+          "topic": "Binary Data, Encoding and Checksums",
+          "subtopics": ["od -An -tx1, xxd, xxd -r -p and hexdump -C", "base64 -w0 and -d, base32 and URL-safe substitutions", "sha256sum, sha512sum and b2sum with -c and --ignore-missing, and why md5 is not for security", "openssl rand -hex 16 and reading /dev/urandom with head -c", "Magic numbers and file --mime-type", "Compression trade-offs: gzip, bzip2, xz and zstd, and tar --zstd", "Binary-safe handling: read -d '', printf '\\x..' and NUL bytes in variables", "dd with bs, count, iflag=fullblock and status=progress, and the danger of of="],
+          "tools": ["xxd", "od", "sha256sum", "base64", "dd", "zstd"],
+          "lab_task": "Create a 1 MiB file with head -c 1048576 /dev/urandom, hash it with sha256sum and b2sum, flip one byte with printf and dd conv=notrunc, and show sha256sum -c fails. Read the PNG signature with head -c 8 file.png | xxd -p, embed a binary in a script with base64 -w0 and restore it, and show a NUL byte is dropped when a command substitution stores it in a Bash variable.",
+          "deliverable": "Binary toolkit script and an evidence sheet for tampering detection and the NUL-byte limit",
+          "checks": [["Run sha256sum -c after flipping one byte; echo $?", "Prints FAILED for the file, warns that 1 computed checksum did NOT match and the status is 1", "Terminal output"], ["Run head -c 8 file.png | xxd -p", "Prints 89504e470d0a1a0a", "Terminal output"], ["Run printf 'a\\0b' | base64", "Prints YQBi", "Terminal output"]],
+          "objectives": ["Inspect and construct binary data from the shell", "Detect tampering with checksums", "Explain the limits of Bash with NUL bytes"]
+        },
+        {
+          "topic": "Container Automation: Shell in Dockerfiles, Entrypoints and Init Signals",
+          "subtopics": ["Exec form versus shell form for CMD and ENTRYPOINT and signals reaching PID 1", "Entrypoint scripts: set -e and exec \"$@\"", "Dropping privileges with gosu or su-exec", "Init processes: tini and docker run --init", "HEALTHCHECK scripts using exit 0 and exit 1", "RUN with set -eux, && chains and BuildKit heredocs (RUN <<EOF)", "Templating configuration with envsubst and build secrets using --mount=type=secret", "SHELL [\"/bin/bash\",\"-o\",\"pipefail\",\"-c\"], Alpine ash, distroless images and hadolint"],
+          "tools": ["Docker", "Bash", "envsubst", "tini", "hadolint", "ShellCheck"],
+          "lab_task": "Write entrypoint.sh that renders /etc/app.conf from a template with envsubst, validates required variables with ${DB_HOST:?DB_HOST is required} and ends with exec \"$@\". Build the image with a RUN <<EOF heredoc under SHELL [\"/bin/bash\",\"-o\",\"pipefail\",\"-c\"]. Show docker stop takes about 10 seconds when the script does not exec, and returns promptly with exec. Lint the Dockerfile with hadolint.",
+          "deliverable": "Dockerfile, entrypoint script and a stop-time comparison table",
+          "checks": [["Run docker stop on a container whose entrypoint does not use exec", "Takes about 10 seconds and docker inspect shows ExitCode 137", "Terminal output"], ["Run docker stop on a container started with exec and an app that handles SIGTERM", "Stops in under 2 seconds with a clean exit code", "Terminal output"], ["Run the container without DB_HOST", "The entrypoint prints 'DB_HOST is required' and the container exits with status 1", "docker logs output"]],
+          "objectives": ["Write entrypoints that handle signals and validate configuration", "Write correct shell in Dockerfile RUN instructions", "Lint and test container scripts"]
+        },
+        {
+          "topic": "Cloud CLI Automation with aws, az and gcloud",
+          "subtopics": ["Authentication in scripts: profiles, SSO, instance roles and workload identity instead of long-lived keys", "Output control: aws --query and --output text, az -o tsv and gcloud --format=value(...)", "Pagination: --no-paginate, --max-items and NextToken, and gcloud --limit", "Waiters: aws ec2 wait, az vm wait and gcloud operations wait", "Errors and throttling: AWS CLI exit codes, AWS_MAX_ATTEMPTS and AWS_RETRY_MODE", "Idempotency: describe before create and --client-token", "Dry runs such as aws ec2 run-instances --dry-run and the DryRunOperation error", "Tagging, cost guardrails and cleanup traps"],
+          "tools": ["aws CLI", "az CLI", "gcloud", "jq", "Bash", "ShellCheck"],
+          "lab_task": "In a sandbox account write cloudctl.sh that launches a t3.micro with aws ec2 run-instances --client-token, waits with aws ec2 wait instance-running, reads the public IP with describe-instances --query 'Reservations[0].Instances[0].PublicIpAddress' --output text, tags the instance and always terminates it from an EXIT trap. Run --dry-run first and capture DryRunOperation, and set AWS_RETRY_MODE=standard AWS_MAX_ATTEMPTS=5.",
+          "deliverable": "cloudctl.sh with the dry-run capture, a cleanup proof and a pagination example",
+          "checks": [["Run aws ec2 run-instances --dry-run with valid parameters", "Fails with DryRunOperation 'Request would have succeeded' and a non-zero exit status", "Terminal output"], ["Interrupt cloudctl.sh with Ctrl-C after the instance launches", "The trap terminates the instance and describe-instances shows shutting-down or terminated", "CLI output"], ["Run the script twice with the same --client-token", "Both runs return the same instance id and only one instance exists", "describe-instances output"]],
+          "objectives": ["Script cloud CLIs with safe authentication and precise output queries", "Handle pagination, waiters, retries and idempotency", "Guarantee cleanup of billable resources"]
+        },
+        {
+          "topic": "Fleet Orchestration and Idempotent Configuration over SSH",
+          "subtopics": ["Inventory formats: host files, groups and dynamic inventory from a cloud CLI", "Desired-state helpers: ensure_package, ensure_file, ensure_line and ensure_service returning changed or ok", "Check mode with unified diffs", "Bounded parallel fan-out with per-host logs", "Rolling batches with health gates between them", "Failure policy: maximum failures and aborting a rollout", "Reporting changed, ok and failed counts as JSON", "When to move to Ansible or another configuration-management tool"],
+          "tools": ["Bash", "ssh", "rsync", "jq", "xargs", "Ansible"],
+          "lab_task": "Write fleet.sh that reads hosts.txt (8 containers) and, for each host, ships a function library with ssh host 'bash -s' to run ensure_package, ensure_file (compare sha256sum before writing) and ensure_service. Support --check printing a unified diff, -j 4 concurrency, logs/HOST.log per host and a final JSON summary built with jq. Run it twice to show changes first and none second.",
+          "deliverable": "fleet.sh with sample inventory, check-mode output and a two-run changed-count comparison",
+          "checks": [["Run fleet.sh --check against a host whose file has drifted", "Prints a unified diff and the file checksum on the host is unchanged", "Terminal output"], ["Run fleet.sh apply twice on the 8 hosts", "The first run reports changed greater than 0 and the second run reports changed=0 for all 8", "JSON summary"], ["Make one host unreachable and run apply", "The summary shows failed=1, the other 7 complete and the exit status is 1", "JSON summary"]],
+          "objectives": ["Implement idempotent configuration helpers and check mode", "Run changes across many hosts with bounded concurrency and rolling batches", "Judge when shell is no longer the right fleet tool"]
+        },
+        {
+          "topic": "Kubernetes Automation with kubectl, JSONPath and Wait Conditions",
+          "subtopics": ["Output shaping with -o jsonpath, custom-columns, go-template and piping -o json into jq", "kubectl wait --for=condition=Available, --for=delete and --for=jsonpath", "kubectl rollout status, rollout undo and --timeout", "kubectl diff and apply --server-side with --dry-run=server", "Contexts, KUBECONFIG and a guard against running on production by accident", "kubectl logs -l, --since and --prefix, and events", "kubectl patch types (merge and json) and label-driven batch operations", "Exit behaviour: 'error: timed out waiting for the condition' returns non-zero"],
+          "tools": ["kubectl", "kind", "jq", "Bash", "ShellCheck", "Helm"],
+          "lab_task": "Write kctl.sh that refuses to run when kubectl config current-context contains prod unless --yes-prod is passed, applies a manifest with kubectl apply --server-side, waits with kubectl wait --for=condition=Available deployment/web --timeout=120s, prints pod name and image with -o jsonpath over .items[*], and runs kubectl rollout undo if rollout status fails. Test on kind with a bad image tag.",
+          "deliverable": "kctl.sh with a guard test, a failed-rollout rollback run and the jsonpath report",
+          "checks": [["Run kctl.sh with a context named prod and no --yes-prod; echo $?", "Refuses with status 64 and runs no kubectl apply", "Terminal output"], ["Deploy a bad image tag", "Rollout status times out, the script runs rollout undo and exits 1, and rollout history shows the previous image restored", "kubectl output"], ["Run the jsonpath report and compare with kubectl get pods --no-headers | wc -l", "One name and image line per pod and the counts match", "Terminal output"]],
+          "objectives": ["Automate kubectl workflows with precise output queries and waits", "Add safety guards for cluster contexts", "Roll back automatically on failed rollouts"]
+        },
+        {
+          "topic": "Resilience Patterns: Retries, Backoff, Timeouts and Circuit Breaking",
+          "subtopics": ["Transient versus permanent errors, curl exit codes 6, 7, 28, 52 and 56, and HTTP 429, 502, 503 and 504", "A retry function with exponential backoff, a cap and jitter using $RANDOM", "Timeouts with timeout and kill escalation, and passing an absolute deadline", "Idempotency keys for retried writes", "A file-based circuit breaker with closed, open and half-open states", "Rate limiting with a token bucket and honouring Retry-After", "Fallbacks, graceful degradation and alerting when retries are exhausted", "Testing failures with a stub server or function stubs"],
+          "tools": ["Bash", "curl", "timeout", "Python http.server", "bats-core", "jq"],
+          "lab_task": "Implement retry --max 5 --base 1 --cap 30 -- cmd with exponential backoff and jitter (sleep $(( RANDOM % delay + 1 ))) that honours a Retry-After header, plus a file-based circuit breaker that opens after 3 consecutive failures for 60 seconds. Test against a local Python server that answers 503 three times and then 200, and record the call count and total delay.",
+          "deliverable": "Resilience library, a stub server and a results table of attempts and delays",
+          "checks": [["Run the client against a server failing 3 times and then answering 200", "Succeeds on attempt 4 with exit 0 and 3 retry log lines", "Terminal output"], ["Run the client against a permanent 404", "No retries happen and it exits 1 after a single request", "Server log"], ["Trigger 3 consecutive failures and call again within 60 seconds", "The breaker is open and the call fails in under 1 second with 'circuit open'", "Terminal output"]],
+          "objectives": ["Retry only what is retryable and bound total time", "Add jitter and honour server back-pressure", "Protect dependencies with a circuit breaker"]
+        },
+        {
+          "topic": "Script Security Hardening: Injection, Privileges and Sandboxing",
+          "subtopics": ["Threat model: untrusted filenames, arguments, environment, PATH, BASH_ENV and IFS", "Safe patterns: arrays, --, printf %q and never eval", "Privileges: sudo -n, narrow sudoers rules, secure_path and no setuid scripts", "Sandboxing with systemd-run properties, unshare, bubblewrap and containers", "File permissions, umask 077, TOCTOU races and /tmp symlink attacks", "Environment hygiene: env -i, unset BASH_ENV and ENV, absolute paths and hash -r", "Auditing with auditd rules and sudo logging", "Static analysis and a review checklist"],
+          "tools": ["Bash", "systemd-run", "bubblewrap", "ShellCheck", "auditd", "sudo"],
+          "lab_task": "Audit a supplied 80-line vulnerable script and find at least eight flaws such as eval of user input, unquoted $@, predictable /tmp/out.$$, curl | sh, relative command names, a secret in argv and no set -u. Exploit three in a lab and fix them. Run the fixed script with sudo systemd-run -t -p ProtectSystem=strict -p PrivateTmp=yes -p ProtectHome=read-only and show writes outside the allowed directory fail.",
+          "deliverable": "Vulnerability audit report with exploits, fixes and the sandboxed run",
+          "checks": [["Pass the argument '$(touch /tmp/pwned)' to the original script and run ls /tmp/pwned", "The marker file exists", "Terminal output"], ["Pass the same argument to the fixed script", "No file is created and the value is treated literally or rejected with status 64", "Terminal output"], ["Run touch /etc/x inside the systemd-run sandbox", "Prints \"touch: cannot touch '/etc/x': Read-only file system\"", "Terminal output"]],
+          "objectives": ["Find and exploit common shell vulnerabilities in a lab", "Apply least-privilege and sandboxing controls", "Review scripts against a security checklist"]
+        },
+        {
+          "topic": "Supply-Chain Trust: Signing, Verification and Safe Installers",
+          "subtopics": ["Risks of curl | bash: truncated downloads, tampering and no integrity check", "Download, verify, then run, with the body wrapped in main() called on the last line", "Checksum files and signature checks with gpg --verify, minisign -V, cosign verify-blob and ssh-keygen -Y verify", "Pinning tool versions and digests in scripts and CI", "Pinning GitHub Actions to commit SHAs", "Signing your own releases: sha256sum, gpg --detach-sign and git tag -s", "SBOMs and build provenance at a conceptual level", "Auditing downloaded scripts with ShellCheck and diff against the last version"],
+          "tools": ["minisign", "gpg", "cosign", "sha256sum", "curl", "Bash"],
+          "lab_task": "Write install.sh that downloads a tarball, SHA256SUMS and SHA256SUMS.minisig over HTTPS into a mktemp -d directory, verifies the signature with minisign -Vm SHA256SUMS -p release.pub, checks the tarball with sha256sum -c --ignore-missing and only then runs install -m 0755. Wrap the body in main() called as the last line, then test a tampered tarball and a truncated script to show both fail closed.",
+          "deliverable": "Signed-release installer, the release signing procedure and the two failure-mode tests",
+          "checks": [["Flip one byte in the tarball and run install.sh; echo $?", "sha256sum reports FAILED, the installer exits 1 and nothing is installed", "Terminal output"], ["Cut install.sh at 70% of its length and run it", "Nothing executes because main is never called", "Terminal output"], ["Sign SHA256SUMS with a different key and run install.sh", "minisign reports that signature verification failed and the installer aborts", "Terminal output"]],
+          "objectives": ["Design installers that verify integrity and authenticity before running", "Sign and publish verifiable releases", "Pin and audit external dependencies in scripts"]
+        },
+        {
+          "topic": "Observability for Scripts: Metrics, Heartbeats and Alerting",
+          "subtopics": ["Exit status as a signal and a wrapper that records duration and status", "Prometheus textfile collector: atomic .prom writes with a temp file and mv", "Useful metrics: last run timestamp, last success timestamp, duration and last exit code", "Pushgateway for batch jobs and when not to use it", "Heartbeats and dead-man's-switch pings with curl -fsS -m 10 --retry 3", "Correlation ids in structured logs", "Span timing with EPOCHREALTIME and OTLP export through a CLI such as otel-cli", "PromQL alert expressions such as time() - metric > 2 * interval"],
+          "tools": ["Prometheus", "node_exporter", "curl", "Bash", "Healthchecks", "Grafana"],
+          "lab_task": "Write instrument.sh -- cmd that runs any command, measures duration with EPOCHREALTIME and writes script_duration_seconds, script_last_run_timestamp_seconds, script_last_exit_code and, on success only, script_last_success_timestamp_seconds into node_exporter's textfile directory using mktemp and mv. Send start and fail pings with curl -fsS -m 10 --retry 3, and write and test the alert expression time() - script_last_success_timestamp_seconds > 7200.",
+          "deliverable": "instrument.sh, a Prometheus alert rule and a dashboard screenshot of a success and a failure",
+          "checks": [["Run curl -s localhost:9100/metrics | grep script_last_exit_code after a successful run", "Shows script_last_exit_code 0 for the job label", "Metrics output"], ["Run the wrapper with a failing command and re-check the metrics", "script_last_exit_code is 1 and the success timestamp is unchanged", "Metrics output"], ["Evaluate the alert expression after setting the success timestamp 3 hours back", "The expression returns a sample and the alert is firing", "Prometheus UI screenshot"]],
+          "objectives": ["Expose script health as Prometheus metrics", "Detect jobs that silently stop running", "Write alert rules based on last-success age"]
+        },
+        {
+          "topic": "Deployment Automation: Zero-Downtime Releases and Rollback Scripts",
+          "subtopics": ["Release layout: releases/<timestamp>, shared/ and a current symlink", "Atomic switch with ln -sfn plus mv -T and reload instead of restart", "Pre-flight checks, smoke tests and health gates with timeouts", "Rollback by repointing the symlink and retaining N releases", "Database changes: expand and contract migrations", "Blue-green with an nginx upstream include and nginx -t && nginx -s reload", "Locking, audit trail and notifications", "Confirmation prompts that show the target context"],
+          "tools": ["Bash", "nginx", "curl", "ln", "systemd", "flock"],
+          "lab_task": "Write deploy.sh that unpacks a build into releases/$(date +%Y%m%d%H%M%S), links shared/config, smoke-tests a candidate instance with curl -fsS http://127.0.0.1:PORT/healthz, switches current atomically with ln -sfn and mv -T, reloads after nginx -t, and keeps the 5 newest releases. Add rollback.sh and prove a failing smoke test leaves current unchanged.",
+          "deliverable": "deploy.sh, rollback.sh and a deployment log showing success, failed-smoke-test and rollback runs",
+          "checks": [["Deploy a release whose /healthz returns 500; echo $?", "The script aborts with status 1 and current still points to the previous release", "Terminal output"], ["Deploy a good release and run rollback.sh and then readlink current", "current points back to the previous timestamped release", "Terminal output"], ["Deploy 8 releases and run ls releases | wc -l", "Prints 5", "Terminal output"]],
+          "objectives": ["Release without downtime using an atomic symlink switch", "Gate releases with smoke tests", "Roll back quickly and keep a bounded release history"]
+        },
+        {
+          "topic": "Troubleshooting Scripts in Production: strace, bash -x and Post-Mortems",
+          "subtopics": ["Reproducing failures: same user, working directory, PATH, locale and TTY state, and env -i comparisons", "bash -x output to a file with BASH_XTRACEFD and PS4", "strace -f -tt -e trace=file,process -o, lsof and /proc/PID/{fd,environ,status}", "Meaning of exit codes 126, 127, 137 (killed, often by the OOM killer), 139 and 141", "Hung scripts: ps -o stat,wchan, pstree -p and blocked FIFO opens", "CRLF, locale, errexit surprises and cron environment differences", "Evidence from dmesg and journalctl", "A blameless post-mortem template and a regression test"],
+          "tools": ["strace", "lsof", "Bash", "journalctl", "pstree", "bats-core"],
+          "lab_task": "Diagnose three supplied broken scripts: one hangs, one exits 141 and one fails only under cron. Use exec {fd}>trace.log with BASH_XTRACEFD=$fd and set -x, strace -f -tt -e trace=file,process -o strace.out, ps -o pid,stat,wchan:20 -p PID and tr '\\0' '\\n' < /proc/PID/environ. Write a one-page post-mortem and a bats regression test for each.",
+          "deliverable": "Three post-mortems with evidence excerpts and three regression tests",
+          "checks": [["Run ps -o stat,wchan:20 on the hung script", "The state is S and wchan shows a pipe wait such as pipe_read", "ps output"], ["Run the 141 script and print ${PIPESTATUS[@]}", "A 141 entry appears, identifying SIGPIPE from a reader that closed early", "Terminal output"], ["Diff the environment printed from cron against the interactive one", "PATH in cron lacks /usr/local/bin", "diff output"]],
+          "objectives": ["Collect hard evidence about failing scripts without guessing", "Map exit codes and signals to root causes", "Turn incidents into post-mortems and regression tests"]
+        },
+        {
+          "topic": "Knowing the Limits: Migrating Shell to Python or Go",
+          "subtopics": ["Signals it is time to move: size, data structures, error handling, concurrency, JSON and testability", "What stays in shell: glue, pipelines, one-liners, bootstrap and CI steps", "Hybrid designs: subprocess.run with check=True and no shell=True", "Python and Go equivalents: pathlib, shutil, subprocess, argparse, logging, os/exec and cobra", "Strangler migration with characterization tests that capture current output and exit codes", "Single-file distribution with zipapp or a static Go binary", "Maintenance: ownership, the Google Shell Style Guide, pre-commit hooks and a ShellCheck baseline", "Writing a decision record with measured costs"],
+          "tools": ["Python", "Go", "bats-core", "ShellCheck", "pre-commit", "Git"],
+          "lab_task": "Take a 250-line shell tool and write 12 bats characterization tests capturing its current output and exit codes. Re-implement its JSON half in Python with argparse and subprocess.run(..., check=True), keep the shell front end and run the same bats suite against both versions. Record lines of code and runtime for 1,000 inputs, and write a one-page decision record on what stays in Bash.",
+          "deliverable": "Characterization test suite, a hybrid implementation and a decision record with measurements",
+          "checks": [["Run the bats suite against the original shell tool", "12 tests, 0 failures, which fixes the baseline", "bats output"], ["Run the same suite against the hybrid tool", "All 12 tests pass with identical exit codes", "bats output"], ["Review the decision record", "It lists at least three criteria and a stated boundary backed by the measured lines of code and runtime", "Decision record"]],
+          "objectives": ["Judge when a shell script should be rewritten", "Migrate incrementally while keeping behaviour identical", "Document the decision with measured evidence"]
+        },
+        {
+          "topic": "Advanced Capstone: Production Automation Platform",
+          "subtopics": ["Requirements and service-level objectives", "Architecture: inventory, runner, lock and queue", "Implementation across modules with tests", "Security review and threat model", "Observability: metrics, alerts and a runbook", "Failure-injection demo and handover"],
+          "tools": ["Bash", "ssh", "bats-core", "Prometheus", "GitHub Actions", "Docker"],
+          "lab_task": "Deliver opsctl, a Bash platform with subcommands to back up a database, rotate logs and deploy a release atomically across 5 hosts with rollback, exporting metrics through the node_exporter textfile directory. Gates: ShellCheck clean, 40 bats tests, hadolint-clean image, SHA256SUMS with a signature, retry with backoff, flock protection and a runbook. Inject a failure on host 3 and show the rollout stop and roll back.",
+          "deliverable": "Repository with source, tests, CI workflow, signed release artifacts, runbook and a recorded failure-injection demo",
+          "checks": [["Inject a failure on host 3 during a 5-host deploy", "The rollout stops at host 3, hosts 1 and 2 are rolled back, hosts 4 and 5 are untouched and the exit status is 1", "Deployment log"], ["Open a pull request against the repository", "ShellCheck, shfmt and 40 bats tests pass and the release artifacts include SHA256SUMS and a signature", "CI run page"], ["Query the metrics endpoint after a normal run", "Each job reports a last-success timestamp inside its scheduled interval", "Metrics output"]],
+          "objectives": ["Design and deliver a production-grade automation platform in Bash", "Apply security, resilience and observability practices together", "Prove behaviour with failure injection and a runbook"]
+        }
+      ]
+    }
+  }
+}

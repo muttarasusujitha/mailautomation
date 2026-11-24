@@ -1,0 +1,573 @@
+{
+  "domain": "Chef",
+  "name": "Chef",
+  "category": "DevOps and CI/CD",
+  "icon": "settings",
+  "aliases": ["Chef Infra", "Chef Configuration Management", "Progress Chef", "Chef Cookbooks", "Chef Infra Client", "Chef Automation", "Opscode Chef", "Chef DevOps"],
+  "certifications": [],
+  "tools": ["Chef Workstation", "Chef Infra Client", "Chef Infra Server", "knife", "chef CLI", "Policyfile", "Test Kitchen", "kitchen-dokken", "ChefSpec", "Cookstyle", "Chef InSpec", "Chef Automate", "Chef Habitat", "Chef Supermarket"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For system administrators, DevOps engineers and developers who manage Linux or Windows servers and are new to Chef. Covers installing Chef Workstation, the Chef Infra Language and core resources, cookbooks, recipes, templates, attributes and Ohai, notifications and guards, local testing with Test Kitchen, Chef InSpec and Cookstyle, Chef Infra Server organizations, knife bootstrapping, run lists, roles and environments, a first Policyfile, data bags, reading failed chef-client runs, and a web server cookbook capstone.",
+      "prerequisites": ["Administers Linux servers from the command line: packages, services, files, permissions and SSH keys", "Reads and edits simple Ruby or another scripting language and uses Git for version control", "Has a laptop with rights to install Chef Workstation, Docker or Vagrant with VirtualBox, and SSH access to at least one disposable Linux VM"],
+      "outcomes": ["Write idempotent recipes with core Chef Infra resources, templates, attributes, notifications and guards", "Generate, lint and test cookbooks locally with chef generate, Cookstyle, Test Kitchen and Chef InSpec", "Bootstrap nodes to a Chef Infra Server with knife and assign configuration through run lists, roles, environments or a Policyfile", "Read a chef-client run log, locate the failing resource and fix the cookbook so the next run converges with zero errors"],
+      "days": [
+        {
+          "topic": "Chef Infra Concepts and Workstation Installation",
+          "subtopics": ["Desired-state configuration and convergence explained", "Chef Infra Client, Chef Infra Server and Chef Workstation roles", "Pull model: nodes request their configuration on a schedule", "Installing Chef Workstation on Windows, macOS and Linux", "Accepting the Chef license with --chef-license accept", "chef --version and the bundled tools it reports", "chef-apply for running a single recipe file", "Idempotency: a second run changes nothing", "Where Chef keeps state: /etc/chef, /var/chef and ~/.chef", "Chef compared with push-based tools at a conceptual level"],
+          "tools": ["Chef Workstation", "chef-apply", "chef CLI", "Visual Studio Code"],
+          "lab_task": "Install Chef Workstation, run chef --version and record the reported tool versions. Write hello.rb with a file resource that creates /tmp/motd-chef containing your name, run sudo chef-apply hello.rb --chef-license accept twice, and compare the two outputs. Then edit the file by hand and run chef-apply a third time to watch Chef restore the desired content.",
+          "deliverable": "Screenshot or log of chef --version, hello.rb and the outputs of all three chef-apply runs",
+          "checks": [["Run chef-apply hello.rb the first time", "Output reports 1/1 resources updated and the file exists", "Terminal output and ls -l /tmp/motd-chef"], ["Run chef-apply hello.rb a second time with no changes", "Output reports 0/1 resources updated", "Terminal output"], ["Edit /tmp/motd-chef by hand and run chef-apply again", "The file content is restored and diff output shows the reverted line", "Terminal output with the content diff"]],
+          "objectives": ["Explain how Chef converges a node to a desired state", "Install Chef Workstation and accept the license non-interactively", "Demonstrate idempotency with repeated runs"]
+        },
+        {
+          "topic": "Resources and the Chef Infra Language",
+          "subtopics": ["Resource anatomy: type, name, properties and actions", "Default actions such as :create, :install and :nothing", "package, service, file, directory and user resources", "The name property and when to set it explicitly", "Common properties: owner, group, mode and sensitive", "Reading resource documentation on docs.chef.io", "Ruby you need: strings, symbols, arrays, hashes and blocks", "Resource ordering: recipes execute top to bottom"],
+          "tools": ["chef-apply", "Chef Workstation", "docs.chef.io resource reference"],
+          "lab_task": "Write users.rb that creates group devs, users alice and bob in that group with home directories, directory /srv/shared owned by devs with mode 2775, and a file README inside it. Run it with sudo chef-apply users.rb, confirm with id alice and stat /srv/shared, then change mode to 0750 and rerun to see only one resource updated.",
+          "deliverable": "users.rb with the run outputs and the id and stat results",
+          "checks": [["Run id alice after the first converge", "Output lists alice as a member of group devs", "id command output"], ["Run stat -c %a /srv/shared", "Output is 2775", "stat output"], ["Change the directory mode to 0750 and rerun", "Exactly 1 resource is reported updated", "chef-apply output"]],
+          "objectives": ["Read and write resource declarations with properties and actions", "Use the Ruby constructs that recipes rely on", "Predict execution order within a recipe"]
+        },
+        {
+          "topic": "Cookbook Anatomy and chef generate",
+          "subtopics": ["chef generate cookbook and the generated layout", "metadata.rb: name, version, chef_version and supports", "recipes/default.rb and additional recipes", "attributes/, templates/, files/ and libraries/ directories", "kitchen.yml, test/integration and spec/ generated folders", "Semantic versioning of cookbooks", "chef generate recipe, template, attribute and file", "Keeping a cookbook in its own Git repository"],
+          "tools": ["chef generate", "Chef Workstation", "Git", "Visual Studio Code"],
+          "lab_task": "Run chef generate cookbook cookbooks/motd and inspect the tree with tree cookbooks/motd. Set version 0.1.0 and chef_version '>= 18' in metadata.rb, then add chef generate recipe cookbooks/motd banner and chef generate template cookbooks/motd motd. Commit the cookbook to Git and count the files it contains.",
+          "deliverable": "motd cookbook repository with an annotated directory tree",
+          "checks": [["Run tree cookbooks/motd after the generators", "recipes/banner.rb and templates/motd.erb are present", "tree output"], ["Open metadata.rb", "It shows version '0.1.0' and chef_version '>= 18'", "metadata.rb content"], ["Run git log --oneline in the cookbook", "One initial commit is listed", "git log output"]],
+          "objectives": ["Describe the purpose of each cookbook directory", "Generate cookbook components with chef generate", "Version cookbooks with metadata.rb"]
+        },
+        {
+          "topic": "Running Recipes with chef-client Local Mode",
+          "subtopics": ["chef-client --local-mode (-z) and the in-memory Chef Infra Zero server", "Run lists given with -o and --runlist", "Recipe naming: recipe[motd] and recipe[motd::banner]", "Chef repository layout with cookbooks/ and nodes/", "Node JSON files written by local mode", "Why-run mode with --why-run to preview changes", "Log levels with -l info and -l debug", "Exit codes: 0 for success and non-zero for a failed run"],
+          "tools": ["chef-client", "Chef Infra Zero", "Chef Workstation"],
+          "lab_task": "In a chef-repo directory run sudo chef-client -z -o 'recipe[motd::banner]' after writing a banner recipe that renders /etc/motd from the template. Run it once with --why-run first and record what would change, then converge for real, check echo $? and inspect nodes/<hostname>.json for the run_list that was saved.",
+          "deliverable": "Run logs for why-run and real converge plus the saved node JSON file",
+          "checks": [["Run chef-client -z --why-run -o 'recipe[motd::banner]'", "Output says 'Would create' for the template and /etc/motd is unchanged", "Terminal output and cat /etc/motd"], ["Run the converge without --why-run and then echo $?", "The exit code is 0", "Terminal output"], ["Open nodes/<hostname>.json", "The automatic attributes include platform and the run_list contains recipe[motd::banner]", "Node JSON file"]],
+          "objectives": ["Run cookbooks locally without a Chef Infra Server", "Preview changes safely with why-run", "Interpret run output and exit codes"]
+        },
+        {
+          "topic": "Managing Packages, Services and Files with Core Resources",
+          "subtopics": ["package with version pinning and action :upgrade", "apt_update and apt_repository on Debian and Ubuntu", "yum_repository and dnf_package on Red Hat family systems", "service actions :enable, :start, :restart and :reload", "systemd_unit for custom unit files", "cookbook_file for static files shipped in files/", "remote_file with checksum verification", "execute and when to avoid it in favour of a resource"],
+          "tools": ["chef-client", "Test Kitchen", "Chef Workstation"],
+          "lab_task": "Create cookbook webbase that runs apt_update, installs nginx, ships files/index.html with cookbook_file, downloads a tarball with remote_file using a SHA-256 checksum, and enables and starts nginx. Converge locally with chef-client -z, curl http://localhost and then corrupt the checksum value to see the run fail safely.",
+          "deliverable": "webbase cookbook and logs of the good and the checksum-failure runs",
+          "checks": [["Run curl -s http://localhost after the converge", "The response body equals files/index.html", "curl output"], ["Run systemctl is-enabled nginx", "Output is enabled", "systemctl output"], ["Set a wrong checksum on remote_file and converge", "The run fails with a Chef::Exceptions::ChecksumMismatch error", "chef-client error output"]],
+          "objectives": ["Install and pin packages across platforms", "Manage services and unit files declaratively", "Deliver files from the cookbook and from URLs safely"]
+        },
+        {
+          "topic": "Templates with ERB",
+          "subtopics": ["template resource and the templates/ directory", "ERB tags <%= %> and <% %>", "Passing values with the variables property", "Reading node attributes inside templates", "Loops and conditionals in ERB", "verify property to validate a file before it is written", "Template rendering diffs in run output", "Escaping and whitespace control with <%- -%>"],
+          "tools": ["template resource", "chef-client", "nginx -t"],
+          "lab_task": "Write templates/site.conf.erb for an nginx server block that loops over a variables hash of three upstream servers and sets the server_name from a variable. Add verify 'nginx -t -c %{path}' (or an equivalent check) and converge. Then introduce a syntax error in the template and confirm Chef refuses to write the broken file.",
+          "deliverable": "site.conf.erb, the recipe and run logs for the good and the rejected render",
+          "checks": [["Converge with three upstream servers in variables", "The rendered file contains exactly three server lines inside the upstream block", "grep -c output on the rendered file"], ["Change one upstream address and converge", "Run output shows a unified diff of the one changed line", "chef-client output"], ["Break the template syntax so verify fails", "The run fails with a verification error and the previous file is left in place", "chef-client output and file checksum"]],
+          "objectives": ["Render configuration files from ERB templates", "Pass data into templates with variables and attributes", "Protect services from invalid files with verify"]
+        },
+        {
+          "topic": "Attributes and Precedence Levels",
+          "subtopics": ["Attribute files in attributes/default.rb", "default, normal, override and force_override levels", "Automatic attributes from Ohai", "Attribute sources: cookbooks, roles, environments, Policyfiles and node", "Reading attributes with node['nginx']['port']", "Why normal attributes persist and are usually avoided", "Inspecting merged values with node.debug_value", "Naming conventions for cookbook attributes"],
+          "tools": ["chef-client", "chef-shell", "Chef Workstation"],
+          "lab_task": "Define default['webbase']['port'] = 80 in attributes/default.rb and use it in the nginx template. Converge, then pass a JSON file with -j that sets the port to 8080 as a normal attribute, and finally add an override in a role JSON in local mode. Use chef-shell -z and node.debug_value('webbase','port') to show which level wins at each step.",
+          "deliverable": "Attribute file, JSON inputs and a table of the winning value at each step",
+          "checks": [["Converge with only the cookbook default", "curl http://localhost:80 returns the site", "curl output"], ["Run node.debug_value('webbase','port') in chef-shell after adding the role override", "The output lists default 80, normal 8080 and the role override, and the merged value equals the override", "chef-shell output"], ["Remove the override and rerun", "The service listens on 8080 because the normal attribute persisted in the node object", "ss -ltnp output"]],
+          "objectives": ["Declare cookbook attributes with sensible defaults", "Predict the merged value from the precedence rules", "Debug attribute values with chef-shell"]
+        },
+        {
+          "topic": "Ohai and Automatic Node Data",
+          "subtopics": ["What Ohai collects on every chef-client run", "Running ohai and ohai <attribute> from the command line", "platform, platform_family and platform_version", "Network, memory, CPU and filesystem attributes", "Using platform_family? and platform? helpers in recipes", "value_for_platform for per-platform values", "Disabling expensive plugins with ohai.disabled_plugins", "Cloud metadata attributes on AWS, Azure and Google Cloud"],
+          "tools": ["Ohai", "chef-client", "chef-shell"],
+          "lab_task": "Run ohai platform_family, ohai memory/total and ohai ipaddress on an Ubuntu and a Rocky Linux VM. Write a recipe that installs nginx on both by using platform_family? to choose apt_update or dnf, and writes /etc/node-facts.txt with the platform, version and CPU count taken from node attributes. Converge on both machines.",
+          "deliverable": "Recipe plus the node-facts.txt output from both platforms",
+          "checks": [["Run ohai platform_family on each VM", "Ubuntu returns \"debian\" and Rocky Linux returns \"rhel\"", "ohai output"], ["Converge the recipe on both VMs", "Both runs finish with 0 errors and nginx is installed", "chef-client output"], ["Compare /etc/node-facts.txt with nproc", "The CPU count in the file matches the nproc output", "File contents and nproc output"]],
+          "objectives": ["Query node data collected by Ohai", "Write platform-aware recipes with helpers", "Use automatic attributes inside templates and files"]
+        },
+        {
+          "topic": "Notifications, Guards and Idempotent Recipes",
+          "subtopics": ["notifies and subscribes", "Timers :delayed, :immediately and :before", "Restart compared with reload actions after config changes", "only_if and not_if guards with strings and Ruby blocks", "creates property on execute", "action :nothing resources triggered only by notification", "Spotting non-idempotent execute resources", "Reading the resource summary at the end of a run"],
+          "tools": ["chef-client", "Test Kitchen", "Chef Workstation"],
+          "lab_task": "Make the nginx template notify service[nginx] to :reload with the :delayed timer, add an execute that builds a cache directory guarded with creates, and an action :nothing execute triggered by subscribes. Converge three times: first run, no-change run, and a run after a template change. Record how many resources update and whether nginx reloads.",
+          "deliverable": "Recipe with notifications and guards plus three annotated run logs",
+          "checks": [["Converge a second time with no changes", "The run reports 0 resources updated and no reload", "chef-client summary line"], ["Change the template and converge", "The log shows service[nginx] action reload triggered once at the end of the run", "chef-client output"], ["Run the execute resource after its creates target exists", "The resource is reported as skipped due to creates", "chef-client output with -l info"]],
+          "objectives": ["Chain resources with notifications and timers", "Make command resources idempotent with guards", "Verify idempotency with repeated converges"]
+        },
+        {
+          "topic": "Test Kitchen with Vagrant and Dokken",
+          "subtopics": ["kitchen.yml: driver, provisioner, verifier, platforms and suites", "kitchen-vagrant for full VMs", "kitchen-dokken for fast container-based tests", "kitchen list, create, converge, verify, destroy and test", "kitchen login for debugging an instance", "The chef_infra provisioner and product_version", "Testing on two platforms from one cookbook", "Cleaning up instances to save resources"],
+          "tools": ["Test Kitchen", "kitchen-dokken", "kitchen-vagrant", "Docker", "Vagrant"],
+          "lab_task": "Configure kitchen.yml for the webbase cookbook with the dokken driver and two platforms, ubuntu-22.04 and rockylinux-9. Run kitchen converge, then kitchen converge again to prove idempotency, kitchen login to curl the site from inside, and finally kitchen destroy. Record the duration of each converge.",
+          "deliverable": "kitchen.yml and kitchen list output at each stage",
+          "checks": [["Run kitchen list after kitchen converge", "Both instances show Last Action Converged", "kitchen list output"], ["Run kitchen converge a second time", "Each instance reports 0 resources updated", "kitchen converge output"], ["Run kitchen destroy and then kitchen list", "Both instances show Last Action <Not Created>", "kitchen list output"]],
+          "objectives": ["Configure Test Kitchen drivers, platforms and suites", "Converge and inspect disposable test instances", "Prove idempotency on more than one platform"]
+        },
+        {
+          "topic": "Writing Chef InSpec Tests for Cookbooks",
+          "subtopics": ["Chef InSpec controls, describe blocks and matchers", "package, service, port, file and http resources", "test/integration/default/default_test.rb layout", "Running tests with kitchen verify", "inspec exec against a local or SSH target", "Reading pass, fail and skip results", "impact, title and desc metadata in controls", "Testing outcomes rather than implementation"],
+          "tools": ["Chef InSpec", "Test Kitchen", "kitchen-inspec"],
+          "lab_task": "Write InSpec tests for webbase that check the nginx package is installed, the service is enabled and running, port 80 is listening, /etc/nginx/conf.d/site.conf has mode 0644 and http('http://localhost').body matches the expected title. Run kitchen verify on both platforms, then break one setting and rerun to see a failure.",
+          "deliverable": "default_test.rb and kitchen verify reports for the passing and failing runs",
+          "checks": [["Run kitchen verify on the converged instances", "Every control passes on both platforms with 0 failures", "kitchen verify summary"], ["Change the site.conf mode to 0600 in the recipe, converge and verify", "Exactly one test fails, naming the mode expectation", "kitchen verify output"], ["Run inspec exec test/integration/default -t ssh://user@vm", "The same controls run against the VM and report a summary line", "inspec output"]],
+          "objectives": ["Write integration tests with Chef InSpec resources", "Run tests through Test Kitchen and directly", "Use test failures to find configuration regressions"]
+        },
+        {
+          "topic": "Cookstyle Linting and Autocorrection",
+          "subtopics": ["What Cookstyle is: RuboCop with Chef-specific cops", "Chef cop departments such as Chef/Correctness, Chef/Deprecations and Chef/Modernize", "Running cookstyle on a cookbook", "Autocorrecting with cookstyle -a", "Disabling a cop with an inline comment and a reason", "Configuring .rubocop.yml in a cookbook", "Reading offense output: file, line, cop name and message", "Running Cookstyle in a pre-commit hook"],
+          "tools": ["Cookstyle", "Chef Workstation", "Git"],
+          "lab_task": "Take the provided legacy cookbook that uses node.set, string-quoted resource names and old-style attributes, run cookstyle and count the offenses by department, then run cookstyle -a and rerun to count what remains. Fix the remaining offenses by hand and add a Git pre-commit hook that blocks commits when cookstyle fails.",
+          "deliverable": "Before and after offense counts plus the clean cookbook and hook script",
+          "checks": [["Run cookstyle on the legacy cookbook", "Offenses are listed, including Chef/Deprecations/NodeSet", "cookstyle output"], ["Run cookstyle -a and then cookstyle", "The remaining offense count is lower than the first run", "Both cookstyle summaries"], ["Commit a file with a new offense", "The pre-commit hook blocks the commit with a non-zero exit", "git commit output"]],
+          "objectives": ["Lint cookbooks with Cookstyle", "Autocorrect and manually fix Chef-specific offenses", "Enforce linting before code is committed"]
+        },
+        {
+          "topic": "Cookbook Dependencies and Chef Supermarket",
+          "subtopics": ["depends in metadata.rb with version constraints", "Pessimistic constraints such as '~> 5.0'", "Chef Supermarket as the public cookbook source", "Evaluating community cookbook quality and maintenance", "include_recipe and resources supplied by dependencies", "Berkshelf as the legacy dependency tool", "Why many teams now resolve dependencies with Policyfiles", "Private Supermarket for internal cookbooks"],
+          "tools": ["Chef Supermarket", "knife supermarket", "Policyfile", "Berkshelf"],
+          "lab_task": "Add depends 'line', '~> 4.0' to metadata.rb for the Sous Chefs line cookbook, use its resource in a recipe, and run knife supermarket show line to read its versions. Resolve the dependency with chef install using a minimal Policyfile.rb and converge in Kitchen.",
+          "deliverable": "metadata.rb with the constraint, Policyfile.lock.json and a converge log",
+          "checks": [["Run knife supermarket show line", "The output lists available versions and the latest version", "knife output"], ["Run chef install", "Policyfile.lock.json is written with line at a version matching ~> 4.0", "Lock file excerpt"], ["Set an impossible constraint such as '~> 99.0' and run chef install", "Dependency resolution fails with an error naming the line cookbook", "chef install output"]],
+          "objectives": ["Declare cookbook dependencies with version constraints", "Assess and consume community cookbooks", "Resolve dependencies reproducibly"]
+        },
+        {
+          "topic": "Chef Infra Server, Organizations and Users",
+          "subtopics": ["Chef Infra Server as the central store of cookbooks, nodes and policies", "Installing the server package and chef-server-ctl reconfigure", "Creating users with chef-server-ctl user-create", "Creating organizations with chef-server-ctl org-create", "Client keys, user keys and the validator key", "chef-server-ctl status and the service list", "Server objects: nodes, clients, cookbooks, roles, environments, data bags and policies", "Firewall ports 443 and 80 for Chef Infra Server"],
+          "tools": ["Chef Infra Server", "chef-server-ctl", "OpenSSL"],
+          "lab_task": "On a dedicated VM with at least 4 GB RAM, install Chef Infra Server, run sudo chef-server-ctl reconfigure --chef-license accept, then create user admin and organization trainorg with chef-server-ctl user-create and org-create, saving both private keys. Run chef-server-ctl status and curl -k https://localhost/_status to confirm the server is healthy.",
+          "deliverable": "Server build notes, the status output and the saved key file names",
+          "checks": [["Run sudo chef-server-ctl status", "Every listed service shows run with a PID", "chef-server-ctl output"], ["Run curl -k https://localhost/_status", "The JSON response contains \"status\":\"pong\"", "curl output"], ["Run sudo chef-server-ctl org-list", "trainorg appears in the list", "chef-server-ctl output"]],
+          "objectives": ["Install and configure a Chef Infra Server", "Create users, organizations and keys", "Check server health from the command line"]
+        },
+        {
+          "topic": "knife Configuration and Node Bootstrapping",
+          "subtopics": ["~/.chef/credentials and config.rb profiles", "knife ssl fetch and knife ssl check", "knife client list and knife user show", "Uploading cookbooks with knife cookbook upload", "knife bootstrap over SSH with -U, --sudo and -i", "Bootstrapping Windows nodes over WinRM", "What bootstrap installs and the files it writes to /etc/chef", "knife node list, knife node show and knife status"],
+          "tools": ["knife", "Chef Workstation", "Chef Infra Server", "Chef Infra Client"],
+          "lab_task": "Create a credentials profile for trainorg, run knife ssl fetch and knife ssl check, upload the webbase cookbook, then knife bootstrap a fresh Linux VM with -U ubuntu --sudo -i key.pem -N web1 -r 'recipe[webbase]'. Confirm the node with knife node show web1 and knife status, and curl the site on the node.",
+          "deliverable": "credentials file (keys redacted), bootstrap log and knife status output",
+          "checks": [["Run knife ssl check", "Output confirms the server certificate is trusted", "knife output"], ["Run knife node show web1 after bootstrap", "The run list shows recipe[webbase] and the platform is reported", "knife output"], ["Run knife status", "web1 reports a last check-in within the last few minutes", "knife status output"]],
+          "objectives": ["Configure knife to talk to a Chef Infra Server", "Bootstrap Linux nodes and assign a run list", "Inspect node objects and check-in status"]
+        },
+        {
+          "topic": "Run Lists, Roles and Environments",
+          "subtopics": ["Node run lists and knife node run_list add", "Roles in JSON or Ruby with run_list and attributes", "knife role from file and knife role show", "Environments with cookbook_versions constraints", "Moving a node with knife node environment set", "Promoting a cookbook version between environments", "Attribute precedence from roles and environments", "Limits of roles: they are not versioned"],
+          "tools": ["knife", "Chef Infra Server", "Chef Infra Client"],
+          "lab_task": "Create role web with run_list recipe[webbase] and a default port attribute, and environments staging and production where production pins webbase = 0.1.0 and staging allows ~> 0.2. Upload webbase 0.1.0 and 0.2.0, place web1 in staging and web2 in production, run chef-client on both and compare which cookbook version each applied.",
+          "deliverable": "Role and environment files plus run logs from both nodes",
+          "checks": [["Run knife role show web", "The run list contains recipe[webbase]", "knife output"], ["Run chef-client on web2 in production", "The log shows webbase 0.1.0 being synchronised", "chef-client output"], ["Run chef-client on web1 in staging", "The log shows webbase 0.2.0 being synchronised", "chef-client output"]],
+          "objectives": ["Assign configuration with roles", "Pin cookbook versions per environment", "Promote changes from staging to production"]
+        },
+        {
+          "topic": "Policyfile Workflow: Install, Push and Apply",
+          "subtopics": ["Policyfile.rb: name, default_source, run_list and cookbook", "chef install and Policyfile.lock.json", "chef update to move to newer cookbook versions", "Policy groups such as dev and prod", "chef push <group> to upload a locked policy", "Setting policy_name and policy_group on a node", "chef show-policy and chef diff", "Why policies replace roles, environments and Berkshelf"],
+          "tools": ["chef CLI", "Policyfile", "Chef Infra Server", "knife"],
+          "lab_task": "Write Policyfile.rb named web with default_source :supermarket and run_list webbase::default, run chef install, then chef push dev. Rebootstrap or reconfigure web1 with --policy-name web --policy-group dev, run chef-client and verify that the lock file revision appears in the run log. Show the result with chef show-policy web.",
+          "deliverable": "Policyfile.rb, Policyfile.lock.json and the policy-based run log",
+          "checks": [["Run chef show-policy web", "The dev group lists one revision ID", "chef output"], ["Run chef-client on web1", "The log names policy web and the same revision ID", "chef-client output"], ["Change the run list, run chef install and chef diff --head", "The diff shows the changed run list compared with the committed lock", "chef diff output"]],
+          "objectives": ["Describe and lock configuration with a Policyfile", "Push a policy to a policy group", "Attach nodes to a policy and verify the revision applied"]
+        },
+        {
+          "topic": "Data Bags for Shared Configuration",
+          "subtopics": ["Data bags and items as JSON documents on the server", "knife data bag create and from file", "data_bag and data_bag_item in recipes", "Searching data bags with search(:users, '*:*')", "Using data bags for user accounts and application settings", "Encrypted data bag items with a shared secret file", "Never committing secrets or secret files to Git", "Data bags in local mode under data_bags/"],
+          "tools": ["knife", "Chef Infra Server", "Chef Infra Client"],
+          "lab_task": "Create data bag admins with three JSON items describing users and SSH keys, upload them with knife data bag from file, and write a recipe that loops over search(:admins, '*:*') to create each user and authorized_keys file. Converge web1, then add a fourth item and confirm the next run creates only that user.",
+          "deliverable": "Data bag JSON files, recipe and the two run logs",
+          "checks": [["Run knife data bag show admins", "Three item names are listed", "knife output"], ["Converge web1 and run getent passwd for each user", "All three users exist with home directories", "getent output"], ["Add a fourth item and converge again", "Only resources for the new user are updated", "chef-client output"]],
+          "objectives": ["Store shared configuration in data bags", "Read and search data bags from recipes", "Distinguish plain from encrypted data bag items"]
+        },
+        {
+          "topic": "Reading and Fixing Failed chef-client Runs",
+          "subtopics": ["Structure of a chef-client run: Ohai, sync, compile and converge", "Reading the error block: resource, recipe file and line number", "The stacktrace file chef-stacktrace.out", "Compile-time errors such as NoMethodError and undefined attributes", "Converge-time errors such as Mixlib::ShellOut::ShellCommandFailed", "Running with -l debug to see more detail", "chef-shell for testing recipe code interactively", "Fixing, uploading and rerunning safely"],
+          "tools": ["chef-client", "chef-shell", "knife", "Test Kitchen"],
+          "lab_task": "Work through three broken cookbooks supplied by the trainer: one with a typo in an attribute key, one with a failing execute command, and one with a missing template file. For each run chef-client, record the error class, file and line from the output and chef-stacktrace.out, fix the cookbook, and rerun until the run ends with 0 errors.",
+          "deliverable": "Fault log with error class, location, fix and confirmation run for each cookbook",
+          "checks": [["Run the cookbook with the attribute typo", "The run fails during compile with NoMethodError undefined method '[]' for nil", "chef-client output"], ["Run the cookbook with the failing command", "The run fails with Mixlib::ShellOut::ShellCommandFailed and shows the exit status", "chef-client output"], ["Rerun each fixed cookbook", "All three runs complete with exit code 0", "Terminal output and echo $?"]],
+          "objectives": ["Locate the failing resource from run output", "Distinguish compile-time from converge-time failures", "Fix and verify cookbooks systematically"]
+        },
+        {
+          "topic": "Beginner Capstone: Web Server Cookbook from Workstation to Node",
+          "subtopics": ["Requirements for a hardened nginx site cookbook", "Templates, attributes, data bag users and notifications", "Cookstyle-clean code and InSpec tests in Test Kitchen", "Policyfile with dev and prod policy groups", "Bootstrap two nodes and promote the policy", "Demonstration and run log review"],
+          "tools": ["Chef Workstation", "Test Kitchen", "Chef InSpec", "Cookstyle", "knife", "Chef Infra Server"],
+          "lab_task": "Build cookbook site with templated nginx config, data bag admin users, firewall rules and a notification-driven reload. Pass cookstyle and at least 8 InSpec controls in Kitchen on two platforms, push a Policyfile to dev, bootstrap web1 into dev, then push the same lock to prod and bootstrap web2. Both nodes must converge twice with 0 updates on the second run.",
+          "deliverable": "site cookbook repository, Policyfile.lock.json, Kitchen reports and node run logs",
+          "checks": [["Run cookstyle and kitchen test", "Cookstyle reports no offenses and all InSpec controls pass on both platforms", "cookstyle and kitchen output"], ["Run chef show-policy site", "dev and prod show the same revision ID", "chef output"], ["Run chef-client a second time on web1 and web2", "Each run reports 0 resources updated", "chef-client summaries"]],
+          "objectives": ["Combine resources, templates, attributes and data bags in one cookbook", "Test and lint a cookbook before release", "Deliver a cookbook to server-managed nodes with a Policyfile"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already write and test basic cookbooks and bootstrap nodes to a Chef Infra Server, and now need to build reusable, well-tested Chef code for teams. Covers custom resources, libraries, the compile and converge phases, ChefSpec unit tests, multi-suite Test Kitchen, search, Chef Vault, encrypted data bags and the secret helper, Policyfile groups and promotion, wrapper cookbooks, Windows nodes, Ohai plugins, handlers, chef-client scheduling, the Compliance Phase with InSpec profiles, a cookbook CI pipeline, and a multi-tier Policyfile capstone.",
+      "prerequisites": ["Has completed the Chef beginner level or writes cookbooks with templates, attributes, notifications and InSpec tests", "Bootstraps nodes with knife and applies configuration through a Policyfile or roles and environments", "Reads Ruby classes, modules and blocks and uses Git with pull requests and a CI service such as GitHub Actions"],
+      "outcomes": ["Build custom resources and libraries that are idempotent, documented and unit-tested with ChefSpec", "Handle secrets with Chef Vault, encrypted data bags or the secret helper without exposing them in logs or Git", "Promote Policyfile revisions through policy groups and run cookbook CI with Cookstyle, ChefSpec and Test Kitchen", "Manage Linux and Windows nodes with scheduled chef-client runs, handlers and Compliance Phase reporting"],
+      "days": [
+        {
+          "topic": "Custom Resources with Properties and Actions",
+          "subtopics": ["Why custom resources replace definitions and copy-pasted recipes", "resources/ directory and resource naming from the file name", "provides and resource_name", "property with type, default, required and name_property", "action blocks and default_action", "Using core resources inside an action", "new_resource for property values", "Documenting a resource with description and examples"],
+          "tools": ["Chef Infra Client", "chef generate resource", "Test Kitchen"],
+          "lab_task": "Generate resource site in the site cookbook with chef generate resource, give it properties domain (name_property), port (Integer, default 80) and docroot, and implement :create and :delete actions with directory, template and service resources. Use it twice in a recipe to create two sites, converge in Kitchen, then call :delete on one site.",
+          "deliverable": "resources/site.rb with a test recipe and Kitchen converge logs",
+          "checks": [["Converge the recipe that declares site 'a.example' and site 'b.example'", "Two server block files exist under /etc/nginx/conf.d", "ls output in kitchen login"], ["Pass port 'abc' to the resource", "The run fails with Chef::Exceptions::ValidationFailed for property port", "chef-client output"], ["Run the :delete action for b.example and converge", "Only a.example.conf remains", "ls output"]],
+          "objectives": ["Model reusable configuration as a custom resource", "Validate inputs with typed properties", "Implement create and delete actions"]
+        },
+        {
+          "topic": "Idempotent Custom Resource Design",
+          "subtopics": ["load_current_value for reading actual state", "current_value_does_not_exist!", "converge_if_changed for property-level change detection", "converge_by for custom Ruby actions", "desired_state: false for properties that should not be compared", "sensitive: true properties hidden from logs", "unified_mode and how it changes compile and converge behaviour", "Why-run support in custom resources"],
+          "tools": ["Chef Infra Client", "Test Kitchen", "chef-shell"],
+          "lab_task": "Write resource app_setting that manages one key in /etc/app/app.ini, implementing load_current_value by parsing the file and converge_if_changed for value. Converge three times with different and identical values, run once with --why-run, and mark a password property sensitive so its value prints as *sensitive value suppressed*.",
+          "deliverable": "resources/app_setting.rb and logs showing change detection and why-run output",
+          "checks": [["Converge twice with the same value", "The second run reports 0 resources updated", "chef-client summary"], ["Change the value and converge", "The log shows a property diff from the old value to the new value", "chef-client output"], ["Converge with a sensitive password property", "The log shows sensitive value suppressed instead of the password", "chef-client output"]],
+          "objectives": ["Read current state inside a custom resource", "Report precise property changes with converge_if_changed", "Protect secrets in resource output"]
+        },
+        {
+          "topic": "Cookbook Libraries and Helper Modules",
+          "subtopics": ["libraries/ directory load order", "Defining helpers in a Ruby module namespace", "Making helpers available to recipes with Chef::DSL::Recipe.include", "action_class for helpers inside custom resources", "Using shell_out to run commands safely from Ruby", "Avoiding monkey patching of Chef classes", "Unit testing plain Ruby helpers with RSpec", "Lazy-loading gems with the gem stanza in metadata.rb"],
+          "tools": ["Chef Infra Client", "RSpec", "ChefSpec"],
+          "lab_task": "Create libraries/helpers.rb with module Site::Helpers containing nginx_version (parsing shell_out('nginx -v').stderr) and site_conf_path(domain). Include it in recipes and in the site resource's action_class, write two plain RSpec tests for site_conf_path, and log the detected nginx version during a Kitchen converge.",
+          "deliverable": "helpers.rb, RSpec tests and a converge log showing the detected version",
+          "checks": [["Run rspec spec/unit/libraries/helpers_spec.rb", "2 examples, 0 failures", "rspec output"], ["Converge in Kitchen with -l info", "The log prints the nginx version string", "kitchen converge output"], ["Call an undefined helper from a recipe", "The run fails with NoMethodError naming the helper", "chef-client output"]],
+          "objectives": ["Organise shared Ruby code in cookbook libraries", "Expose helpers to recipes and custom resources", "Run external commands safely with shell_out"]
+        },
+        {
+          "topic": "Compile and Converge Phases with Lazy Evaluation",
+          "subtopics": ["Two-pass model: resource collection built at compile time, executed at converge time", "Ruby code in recipes runs at compile time", "lazy { } for property values known only at converge time", "ruby_block and node.run_state for passing data between resources", "compile_time true for packages needed during compile", "Common bug: reading a file before the resource that creates it runs", "Unified mode behaviour inside custom resources", "Tracing phases with -l debug"],
+          "tools": ["Chef Infra Client", "chef-shell", "Test Kitchen"],
+          "lab_task": "Reproduce the classic bug: a recipe creates /etc/app/token with execute, then a template reads File.read('/etc/app/token') at compile time and fails on a fresh node. Fix it twice, once with lazy { File.read(...) } and once with node.run_state set in a ruby_block, and prove both fixes on a newly created Kitchen instance.",
+          "deliverable": "Broken and fixed recipes with fresh-instance converge logs",
+          "checks": [["Converge the broken recipe on a new instance", "The run fails with Errno::ENOENT during the compile phase", "kitchen converge output"], ["Converge the lazy fix on a new instance", "The template contains the token and the run succeeds", "kitchen converge output and file contents"], ["Converge the run_state fix on a new instance", "The run succeeds and the template content matches the token", "kitchen converge output"]],
+          "objectives": ["Explain the compile and converge phases", "Defer values with lazy and run_state", "Diagnose phase-ordering bugs"]
+        },
+        {
+          "topic": "ChefSpec Unit Testing with SoloRunner and ServerRunner",
+          "subtopics": ["Where ChefSpec fits compared with Test Kitchen", "spec_helper.rb and require 'chefspec'", "ChefSpec::SoloRunner with platform and version from Fauxhai", "ChefSpec::ServerRunner for search and data bags", "Resource matchers such as install_package and create_template", "with() for property expectations", "Testing notifications with notify and subscribe_to", "Running rspec through chef exec rspec"],
+          "tools": ["ChefSpec", "RSpec", "Fauxhai", "chef exec"],
+          "lab_task": "Write ChefSpec tests for webbase that converge on ubuntu 22.04 and rocky 9 and assert install_package('nginx'), create_template('/etc/nginx/conf.d/site.conf').with(mode: '0644'), and that the template notifies service[nginx] to reload delayed. Run chef exec rspec and record the run time compared with kitchen test.",
+          "deliverable": "spec/unit/recipes/default_spec.rb and the rspec output",
+          "checks": [["Run chef exec rspec", "All examples pass with 0 failures", "rspec output"], ["Change the template mode in the recipe and rerun", "The mode expectation fails and names the expected '0644'", "rspec output"], ["Compare rspec and kitchen test durations", "rspec finishes in seconds while kitchen test takes minutes", "Timing output"]],
+          "objectives": ["Write unit tests for recipes with ChefSpec", "Simulate several platforms with Fauxhai data", "Assert resource properties and notifications"]
+        },
+        {
+          "topic": "ChefSpec Stubs and Custom Resource Testing",
+          "subtopics": ["stub_command for guard commands", "stub_data_bag_item and stub_search", "Setting node attributes in the runner block", "step_into to test resources inside a custom resource", "Testing that an action raises an error", "Shared examples for repeated expectations", "Keeping tests fast with a cached runner using let and cached", "What ChefSpec cannot prove and why Kitchen is still needed"],
+          "tools": ["ChefSpec", "RSpec", "ServerRunner"],
+          "lab_task": "Test the admins recipe with ServerRunner by stubbing search(:admins) to return two users and asserting create_user for each. Test the site custom resource with step_into: ['site'] and assert the template it creates, stub the not_if command in webbase, and add one test that expects an invalid port to raise Chef::Exceptions::ValidationFailed.",
+          "deliverable": "Spec files for the admins recipe and site resource with the rspec output",
+          "checks": [["Run the admins spec with two stubbed users", "Two create_user expectations pass", "rspec output"], ["Remove step_into and rerun the site spec", "The template expectation fails because inner resources are not converged", "rspec output"], ["Run the invalid port example", "The example passes by expecting ValidationFailed", "rspec output"]],
+          "objectives": ["Isolate recipes from servers and commands with stubs", "Unit test custom resources with step_into", "Test error paths as well as success paths"]
+        },
+        {
+          "topic": "Test Kitchen Suites, Platforms and Attributes",
+          "subtopics": ["Multiple suites with different run lists and attributes", "Suite-level attributes and verifier settings", "includes and excludes to limit suite and platform pairs", "Using a Policyfile per suite with named run lists", "Data bags and secrets in Kitchen with data_bags_path", "Running suites in parallel with kitchen test -c", "kitchen exec for ad hoc commands", "Lifecycle hooks in kitchen.yml"],
+          "tools": ["Test Kitchen", "kitchen-dokken", "Chef InSpec", "Docker"],
+          "lab_task": "Extend kitchen.yml for the site cookbook with suites default, tls and multi-site, each with its own attributes, and exclude rockylinux-9 from the tls suite. Provide test data bags through data_bags_path, run kitchen test -c 3, and count instances, passing controls and total wall-clock time.",
+          "deliverable": "kitchen.yml with three suites and the concurrent test summary",
+          "checks": [["Run kitchen list", "Five instances are listed because one suite and platform pair is excluded", "kitchen list output"], ["Run kitchen test -c 3", "All five instances pass and are destroyed", "kitchen test output"], ["Run kitchen exec default-ubuntu-2204 -c 'nginx -T'", "Output prints the rendered nginx configuration", "kitchen exec output"]],
+          "objectives": ["Model several configurations with Kitchen suites", "Feed test data and attributes into suites", "Run integration tests concurrently"]
+        },
+        {
+          "topic": "Searching the Chef Infra Server",
+          "subtopics": ["Search indexes: node, role, client, environment and data bags", "Query syntax: field:value, wildcards, AND, OR and NOT", "knife search node with -a to select attributes", "Partial search with filter_result in recipes", "Searching by policy_name and policy_group", "Building a load balancer config from search results", "Handling empty search results safely", "Index delay after a node checks in"],
+          "tools": ["knife", "Chef Infra Server", "Chef Infra Client"],
+          "lab_task": "Run knife search node 'policy_name:web AND policy_group:dev' -a ipaddress, then write a haproxy recipe that uses search with filter_result to collect ipaddress and hostname for every node in the same policy group and renders backend servers into haproxy.cfg. Bootstrap a third web node and confirm the next load balancer run adds it.",
+          "deliverable": "Search commands, haproxy recipe and before and after config files",
+          "checks": [["Run the knife search command", "Two nodes are returned with their IP addresses", "knife output"], ["Converge the load balancer node", "haproxy.cfg contains two server lines", "grep -c output"], ["Bootstrap web3 and converge the load balancer again", "haproxy.cfg contains three server lines and haproxy reloads once", "chef-client output and grep -c output"]],
+          "objectives": ["Write search queries for nodes and data bags", "Use search results for service discovery in recipes", "Handle changing fleet membership safely"]
+        },
+        {
+          "topic": "Chef Vault and Encrypted Data Bags",
+          "subtopics": ["Encrypted data bag items and shared secret distribution", "knife data bag create --secret-file", "data_bag_item with a secret loaded by Chef::EncryptedDataBagItem.load_secret", "Chef Vault: encrypting items for specific client keys", "knife vault create with -S search and -A admins", "chef_vault_item helper in recipes", "knife vault refresh after new nodes join", "Rotating secrets and removing a client from a vault"],
+          "tools": ["knife vault", "Chef Vault", "knife", "Chef Infra Server"],
+          "lab_task": "Store the database password two ways: as an encrypted data bag item with a secret file, and with knife vault create secrets db -J db.json -S 'policy_name:app' -A admin. Read it in a recipe with chef_vault_item and mark the template sensitive. Then bootstrap a new app node, run knife vault refresh secrets db and show the new node can decrypt.",
+          "deliverable": "Commands used, the recipe and evidence of decryption before and after refresh",
+          "checks": [["Run knife data bag show secrets db without a secret", "The value fields show encrypted_data and iv instead of plain text", "knife output"], ["Converge the new app node before knife vault refresh", "The run fails because the node's client key cannot decrypt the vault item", "chef-client output"], ["Run knife vault refresh secrets db and converge again", "The run succeeds and the log shows sensitive value suppressed", "knife and chef-client output"]],
+          "objectives": ["Encrypt secrets stored on the Chef Infra Server", "Grant node access to secrets with Chef Vault", "Rotate and refresh secrets safely"]
+        },
+        {
+          "topic": "External Secrets with the secret Helper",
+          "subtopics": ["The secret helper in Chef Infra Client recipes", "Supported services such as HashiCorp Vault, AWS Secrets Manager and Azure Key Vault", "Passing service config such as vault_addr and region", "Authenticating nodes with instance roles or managed identities", "Using lazy with secret to fetch at converge time", "Keeping secrets out of node attributes and run logs", "Testing recipes that call secret with ChefSpec stubs", "Choosing between Chef Vault and an external secrets manager"],
+          "tools": ["Chef Infra Client", "HashiCorp Vault", "AWS Secrets Manager", "ChefSpec"],
+          "lab_task": "Store an API key in AWS Secrets Manager or a dev-mode HashiCorp Vault, give the node read access only to that secret, and write a template whose variables use lazy { secret(name: 'app/api_key', service: :aws_secrets_manager, config: { region: 'eu-west-1' }) }. Converge, confirm the file content, and check knife node show -l has no copy of the key.",
+          "deliverable": "Recipe, IAM or Vault policy, and evidence that the secret is not stored on the node object",
+          "checks": [["Converge the node", "The rendered file contains the API key and the log shows sensitive value suppressed", "chef-client output and file checksum"], ["Run knife node show app1 -l and search for the key", "The key value does not appear in any attribute", "knife output piped to grep with no match"], ["Remove the node's read permission and converge", "The run fails with an access denied error from the secrets service", "chef-client output"]],
+          "objectives": ["Fetch secrets from an external manager at converge time", "Grant nodes least-privilege access to secrets", "Keep secrets out of node data and logs"]
+        },
+        {
+          "topic": "Policyfile Groups, Named Run Lists and Promotion",
+          "subtopics": ["Policy groups as deployment stages", "chef push with the same lock across dev, staging and prod", "Named run lists with named_run_list and -n", "Attributes in Policyfile.rb and policy group overrides", "include_policy for composing shared base policies", "chef diff between groups", "chef clean-policy-revisions and chef clean-policy-cookbooks", "Recording the promoted revision in change tickets"],
+          "tools": ["chef CLI", "Policyfile", "Chef Infra Server", "knife"],
+          "lab_task": "Create policy app that include_policy's a base policy, defines named_run_list :deploy and a default run list, and sets per-group attributes. Push the same lock to dev, then staging and prod, run chef diff dev prod before each promotion, and run chef-client -n deploy on one node to apply only the deploy run list.",
+          "deliverable": "Policyfile.rb files, lock files and the promotion log with revision IDs",
+          "checks": [["Run chef show-policy app after promotion", "dev, staging and prod show the same revision ID", "chef output"], ["Run chef diff dev prod after a new push to dev only", "The diff lists the changed cookbook versions", "chef diff output"], ["Run chef-client -n deploy", "The log shows only recipes from the deploy named run list", "chef-client output"]],
+          "objectives": ["Promote identical policy revisions through stages", "Compose policies and use named run lists", "Compare and clean up policy revisions"]
+        },
+        {
+          "topic": "Wrapper and Library Cookbook Patterns",
+          "subtopics": ["Library cookbooks that ship only custom resources", "Wrapper cookbooks that set organisation defaults", "Base or role cookbooks that compose a server type", "Why wrapper attribute overrides are fragile", "Calling community resources instead of including recipes", "Cookbook versioning and changelogs for consumers", "Splitting a monolithic cookbook", "Repository layout: one cookbook per repo or a monorepo"],
+          "tools": ["Chef Workstation", "Policyfile", "Chef Supermarket", "Git"],
+          "lab_task": "Split a provided monolithic cookbook into a library cookbook acme_nginx that exposes only the site resource, and a wrapper cookbook acme_web that sets company defaults and calls the resource. Version both, update the Policyfile to use path sources, run chef install, and prove the converged result is identical with a diff of nginx -T output before and after.",
+          "deliverable": "Two cookbooks, the updated Policyfile and the nginx -T diff",
+          "checks": [["Run diff on the nginx -T output before and after the split", "The diff is empty", "diff output"], ["Run grep -r include_recipe acme_web", "No include_recipe calls to the library cookbook remain", "grep output"], ["Run chef install", "Policyfile.lock.json lists acme_nginx and acme_web with their versions", "Lock file excerpt"]],
+          "objectives": ["Separate reusable resources from organisation policy", "Refactor a monolithic cookbook without changing behaviour", "Version cookbooks for downstream consumers"]
+        },
+        {
+          "topic": "Managing Windows Nodes with Chef Infra",
+          "subtopics": ["Bootstrapping Windows with knife bootstrap -o winrm", "windows_package, windows_feature and windows_service", "registry_key with values and recursive", "powershell_script with guard_interpreter :powershell_script", "windows_task for scheduled tasks", "File paths, ACLs with rights and inherits", "dsc_resource for PowerShell DSC resources", "Kitchen testing Windows with kitchen-vagrant or a cloud driver"],
+          "tools": ["knife", "Chef Infra Client", "PowerShell", "Test Kitchen", "Chef InSpec"],
+          "lab_task": "Bootstrap a Windows Server VM over WinRM, then write cookbook win_web that installs the Web-Server feature with windows_feature, sets a registry_key for TLS settings, creates a site folder with an ACL granting IIS_IUSRS read, and runs a powershell_script guarded with guard_interpreter. Verify with InSpec windows_feature and registry_key tests.",
+          "deliverable": "win_web cookbook, bootstrap log and InSpec report for the Windows node",
+          "checks": [["Run Get-WindowsFeature Web-Server on the node", "Install State is Installed", "PowerShell output"], ["Run the InSpec registry_key control", "The control passes with the expected TLS value", "inspec output"], ["Converge a second time", "The powershell_script is skipped by its guard and 0 resources are updated", "chef-client output"]],
+          "objectives": ["Bootstrap and manage Windows nodes", "Use Windows-specific resources and guards", "Test Windows configuration with InSpec"]
+        },
+        {
+          "topic": "Custom Ohai Plugins",
+          "subtopics": ["Ohai plugin DSL: Ohai.plugin, provides, depends and collect_data", "Platform-specific collect_data blocks", "Plugin paths with ohai.plugin_path in client.rb", "Shipping plugins from a cookbook with cookbook_file and the ohai resource", "ohai_hint resource for cloud hints", "Running a plugin with ohai -d <dir> <attribute>", "Performance cost of plugins on every run", "Optional plugins and ohai.optional_plugins"],
+          "tools": ["Ohai", "Chef Infra Client", "knife"],
+          "lab_task": "Write Ohai plugin AppInfo that provides app/version by reading /opt/app/VERSION and app/healthy by checking a local health URL. Test it with ohai -d plugins app, ship it from a cookbook into the configured plugin path, reload with the ohai resource, and query the fleet with knife search node 'app_version:2*' -a app.version.",
+          "deliverable": "Plugin source, cookbook resources and the knife search output",
+          "checks": [["Run ohai -d plugins app", "JSON output contains version and healthy keys", "ohai output"], ["Converge and run knife node show app1 -a app", "The node object shows the app version", "knife output"], ["Run knife search node 'app_version:2*'", "Only nodes running version 2.x are returned", "knife output"]],
+          "objectives": ["Extend node data with custom Ohai plugins", "Distribute plugins through cookbooks", "Query custom attributes across the fleet"]
+        },
+        {
+          "topic": "Handlers and chef-client Run Reporting",
+          "subtopics": ["Report, exception and start handlers", "The chef_handler resource", "Chef.event_handler blocks in client.rb", "Run status data: updated_resources, elapsed_time and exception", "Sending failure alerts to a webhook", "The data collector and Chef Automate reporting at a high level", "Keeping handlers fast and failure-tolerant", "Testing handlers in Kitchen"],
+          "tools": ["Chef Infra Client", "chef_handler", "Test Kitchen", "curl"],
+          "lab_task": "Write an exception handler that posts the node name, failing resource and exception message as JSON to a local webhook receiver, and a report handler that writes elapsed_time and the number of updated resources to /var/log/chef-run.json. Register both with chef_handler, force one failed run and one successful run, and inspect what each produced.",
+          "deliverable": "Handler code, registration recipe, webhook payload and run summary file",
+          "checks": [["Force a failing run", "The webhook receiver logs one JSON payload with the exception message", "Receiver log"], ["Run a successful converge", "/var/log/chef-run.json shows elapsed_time and updated resource count", "File contents"], ["Make the webhook unreachable and force a failure", "The run still reports the original exception and the handler error is logged without hiding it", "chef-client output"]],
+          "objectives": ["Hook into the chef-client run lifecycle", "Report run results and failures to external systems", "Write handlers that do not mask the real error"]
+        },
+        {
+          "topic": "Scheduling and Configuring chef-client",
+          "subtopics": ["client.rb settings: chef_server_url, node_name, log_location and ssl_verify_mode", "chef_client_config resource for managing client.rb", "chef_client_systemd_timer, chef_client_cron and chef_client_scheduled_task", "interval and splay to spread load", "Running chef-client as a daemon compared with a timer", "client.d directory for drop-in config", "Log rotation and log levels in production", "Run lock behaviour with lockfile"],
+          "tools": ["Chef Infra Client", "systemd", "Windows Task Scheduler"],
+          "lab_task": "Add a base recipe that uses chef_client_config to manage client.rb with log_location and ssl_verify_mode :verify_peer, and chef_client_systemd_timer with interval 1800 and splay 300 on Linux, plus chef_client_scheduled_task on Windows. Converge, list the timer with systemctl list-timers, and show the next run time differs across three nodes.",
+          "deliverable": "Base recipe, rendered client.rb and timer listings from three nodes",
+          "checks": [["Run systemctl list-timers chef-client.timer", "A chef-client timer is listed with a next run time", "systemctl output"], ["Compare next run times on three nodes", "The times differ because of splay", "systemctl output from each node"], ["Open /etc/chef/client.rb", "It contains ssl_verify_mode :verify_peer and the configured log_location", "File contents"]],
+          "objectives": ["Manage chef-client configuration as code", "Schedule runs on Linux and Windows", "Spread run load with interval and splay"]
+        },
+        {
+          "topic": "Chef InSpec Profiles and Compliance Baselines",
+          "subtopics": ["inspec init profile and inspec.yml metadata", "Controls with impact, tags and refs", "Inputs with input() and --input-file", "Profile dependencies from Chef Supermarket, Git or Chef Automate", "inspec check and inspec vendor", "Reporters: cli, json and html2", "Running a profile over SSH and WinRM", "Mapping controls to CIS benchmark sections"],
+          "tools": ["Chef InSpec", "inspec CLI", "SSH", "WinRM"],
+          "lab_task": "Create profile linux-baseline-lite with 10 controls covering SSH settings, password ageing, world-writable files and auditd, each tagged with a CIS-style reference, and an input for the allowed SSH port. Run inspec check, then inspec exec against two nodes with --reporter cli json:report.json and count passed and failed controls per node.",
+          "deliverable": "Profile source, inspec check output and JSON reports for both nodes",
+          "checks": [["Run inspec check linux-baseline-lite", "The output reports the profile is valid with 10 controls", "inspec output"], ["Run inspec exec with --input ssh_port=2222 on a node using port 22", "The SSH port control fails showing expected 2222 and got 22", "inspec output"], ["Parse report.json with jq for each node", "The counts of passed and failed controls are recorded and add up to 10", "jq output"]],
+          "objectives": ["Package compliance checks as an InSpec profile", "Parameterise controls with inputs", "Produce machine-readable compliance reports"]
+        },
+        {
+          "topic": "Compliance Phase in Chef Infra Client",
+          "subtopics": ["Compliance Phase replacing the audit cookbook", "Enabling with node['audit']['compliance_phase']", "node['audit']['profiles'] sources: Supermarket, Git, path and Chef Automate", "Reporters such as cli, json-file and chef-server-automate", "Waivers with node['audit']['waiver_file']", "Inputs passed through node['audit']['inputs']", "Run time cost and interval control", "Setting audit attributes in a Policyfile"],
+          "tools": ["Chef Infra Client", "Chef InSpec", "Policyfile"],
+          "lab_task": "Add audit attributes to the base Policyfile so every node runs linux-baseline-lite during the Compliance Phase with the json-file and cli reporters, inputs for the SSH port, and a waiver file that waives one control until a date. Push to dev, run chef-client and read the compliance summary at the end of the run log and in the JSON file.",
+          "deliverable": "Policyfile attributes, waiver file and compliance output from one node",
+          "checks": [["Run chef-client on a dev node", "The log shows a Compliance Phase section after the converge", "chef-client output"], ["Read the json-file report", "The waived control is reported as skipped with the waiver justification", "JSON report excerpt"], ["Remove compliance_phase from the policy and push", "The next run shows no Compliance Phase section", "chef-client output"]],
+          "objectives": ["Run InSpec profiles as part of every chef-client run", "Configure reporters, inputs and waivers", "Control compliance scanning through policy"]
+        },
+        {
+          "topic": "Cookbook CI Pipeline with Cookstyle, ChefSpec and Kitchen",
+          "subtopics": ["Pipeline stages: lint, unit, integration and publish", "Installing Chef Workstation or using a Chef container image in CI", "Accepting the license non-interactively with CHEF_LICENSE", "Running kitchen-dokken in GitHub Actions with Docker", "Caching gems and Docker images", "Failing fast on Cookstyle offenses", "Running chef install and chef push from CI for policies", "Protecting main with required checks"],
+          "tools": ["GitHub Actions", "Cookstyle", "ChefSpec", "Test Kitchen", "kitchen-dokken", "chef CLI"],
+          "lab_task": "Write .github/workflows/ci.yml for the site cookbook with jobs lint (cookstyle), unit (chef exec rspec) and integration (kitchen test with dokken in a matrix of two platforms), setting CHEF_LICENSE=accept-no-persist. Open a pull request with a Cookstyle offense, then one with a failing InSpec test, and record which job fails each time.",
+          "deliverable": "ci.yml and links or screenshots of the failing and passing pipeline runs",
+          "checks": [["Open a pull request with a Cookstyle offense", "The lint job fails and later jobs do not run", "CI run log"], ["Open a pull request with a failing InSpec control", "lint and unit pass, and the integration job fails on that control", "CI run log"], ["Fix both and push", "All jobs pass on both platforms", "CI run summary"]],
+          "objectives": ["Automate cookbook quality checks in CI", "Run container-based integration tests in a pipeline", "Gate merges on lint, unit and integration results"]
+        },
+        {
+          "topic": "Intermediate Capstone: Policyfile-Driven Multi-Tier Application",
+          "subtopics": ["Design of load balancer, app and database tiers as policies", "Custom resources and libraries with ChefSpec coverage", "Secrets through Chef Vault or the secret helper", "Search-based service discovery between tiers", "Compliance Phase with a baseline profile and waivers", "CI pipeline and promotion from dev to prod"],
+          "tools": ["Chef Workstation", "Chef Infra Server", "ChefSpec", "Test Kitchen", "Chef InSpec", "GitHub Actions"],
+          "lab_task": "Deliver three policies (lb, app, db) built from a library cookbook with custom resources and wrapper cookbooks. Use search for discovery, Chef Vault or the secret helper for the database password and the Compliance Phase for a baseline. CI must pass lint, ChefSpec and Kitchen, and the same revisions are promoted from dev to prod and converge on 4 nodes.",
+          "deliverable": "Cookbook and policy repositories, CI history, promotion log and compliance reports",
+          "checks": [["Run chef show-policy for lb, app and db", "dev and prod show identical revision IDs for each policy", "chef output"], ["curl the load balancer address 20 times", "Responses come from both app nodes", "curl output with node names"], ["Run chef-client on all 4 prod nodes", "Each run ends with 0 failures and a Compliance Phase summary with no unexpected failed controls", "chef-client logs"]],
+          "objectives": ["Design reusable cookbooks for a multi-tier system", "Integrate secrets, search and compliance in one delivery", "Promote tested policies through CI to production"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior infrastructure engineers, Chef platform owners and consultants who run Chef for hundreds or thousands of nodes. Covers Chef Infra Server design, backup and restore, tuning and security hardening, Chef Automate deployment, compliance scanning, infra views and data feeds, custom InSpec resources and waivers, Chef Habitat at awareness level, Target Mode, run performance profiling, release rings with Policyfiles, testing custom resources at scale, Chef Infra Client and Server upgrades, deprecation clean-up with Cookstyle, migration from roles, environments and Berkshelf to Policyfiles, server-to-server migration, fleet compliance remediation, monitoring, and an upgrade-and-migration capstone.",
+      "prerequisites": ["Has completed the Chef intermediate level or builds custom resources, ChefSpec tests and Policyfile promotions for a team", "Administers Linux servers, PostgreSQL basics, TLS certificates and load balancers in production", "Has access to lab VMs or a cloud account able to run a Chef Infra Server, a Chef Automate instance and at least five managed nodes"],
+      "outcomes": ["Operate, back up, tune and harden Chef Infra Server and Chef Automate for a large fleet", "Deliver compliance scanning, waivers and remediation across Linux and Windows nodes with Chef InSpec and Chef Automate", "Plan and execute Chef Infra Client and Chef Infra Server upgrades, removing deprecations with Cookstyle and ChefSpec", "Migrate an estate from roles, environments and Berkshelf to Policyfiles, or between Chef Infra Servers, without configuration drift"],
+      "days": [
+        {
+          "topic": "Chef Infra Server Architecture and Capacity Planning",
+          "subtopics": ["Components: nginx, Erchef, bookshelf, oc_bifrost, PostgreSQL and OpenSearch", "Request flow for a chef-client run: auth, cookbook sync and node save", "Standalone, frontend and backend, and external PostgreSQL and OpenSearch layouts", "High availability options and where Chef Automate HA fits", "Sizing by node count, run interval and cookbook size", "Storage for bookshelf cookbook files", "/etc/opscode/chef-server.rb as the source of truth", "chef-server-ctl reconfigure and drift from manual edits"],
+          "tools": ["Chef Infra Server", "chef-server-ctl", "PostgreSQL", "OpenSearch"],
+          "lab_task": "Draw the component and request-flow diagram of your lab server, then load it with 200 simulated chef-client runs per minute using a provided script that calls knife exec or a client emulator. Record CPU, memory, PostgreSQL connections and Erchef request latency from chef-server-ctl tail logs, and write a sizing estimate for 5,000 nodes on a 30-minute interval.",
+          "deliverable": "Architecture diagram, load test measurements and a sizing note",
+          "checks": [["Run sudo chef-server-ctl status during the load", "All services stay in run state", "chef-server-ctl output"], ["Calculate runs per minute for 5,000 nodes every 30 minutes", "The estimate is about 167 runs per minute", "Sizing note"], ["Count PostgreSQL connections with psql during load", "The count stays below the configured pool limit", "psql output"]],
+          "objectives": ["Explain the Chef Infra Server component architecture", "Measure server load from client runs", "Size a server layout for a target fleet"]
+        },
+        {
+          "topic": "Chef Infra Server Backup, Restore and Maintenance",
+          "subtopics": ["chef-server-ctl backup and restore", "Online compared with offline backups", "knife ec backup and knife ec restore for object-level backups", "Backing up /etc/opscode keys and secrets", "Restore testing on a separate server", "chef-server-ctl cleanup-bifrost and log management", "knife tidy for stale nodes and unused cookbooks", "Recovery time and recovery point targets"],
+          "tools": ["chef-server-ctl", "knife ec backup", "knife tidy", "Chef Infra Server"],
+          "lab_task": "Take a chef-server-ctl backup and a knife ec backup of trainorg, then build a second server and restore with chef-server-ctl restore. Compare node, cookbook, policy and data bag counts on both servers, point one client at the restored server and converge. Run knife tidy server report to list stale nodes and unused cookbook versions.",
+          "deliverable": "Backup and restore runbook with timings, object counts and the tidy report",
+          "checks": [["Compare knife node list | wc -l on both servers", "The counts are equal", "knife output from both servers"], ["Converge one client against the restored server", "The run completes with the same policy revision", "chef-client output"], ["Run knife tidy server report", "JSON reports list stale nodes and unused cookbook versions", "Report file excerpt"]],
+          "objectives": ["Back up a Chef Infra Server at two levels", "Prove restores on a separate server", "Report stale server objects"]
+        },
+        {
+          "topic": "Tuning Chef Infra Server and Client Fleets",
+          "subtopics": ["Erchef settings such as opscode_erchef['depsolver_worker_count'] and db_pool_size", "PostgreSQL max_connections and tuning", "nginx worker and cache settings", "Client-side splay, interval and node save size", "Reducing Ohai collection with disabled plugins", "Cookbook size and files/ bloat", "Thundering herd after a server outage", "Measuring with chef-server-ctl tail and request logs"],
+          "tools": ["chef-server-ctl", "Chef Infra Server", "Chef Infra Client", "Ohai"],
+          "lab_task": "Measure the average chef-client run time and node object size on 5 nodes, then disable three unused Ohai plugins, move large binaries out of a cookbook's files/ directory to remote_file, and raise the Erchef db_pool_size in chef-server.rb followed by reconfigure. Repeat the measurement and the 200-runs-per-minute load and compare.",
+          "deliverable": "Before and after table of run time, node size and server latency",
+          "checks": [["Compare knife node show -l -F json | wc -c before and after", "The node object is smaller after disabling plugins", "Byte counts"], ["Compare average run time over 5 runs", "Average run time decreases", "chef-client summaries"], ["Grep chef-server.rb after reconfigure", "The new db_pool_size value is present and all services are running", "File excerpt and chef-server-ctl status"]],
+          "objectives": ["Tune server components for higher load", "Reduce client run cost", "Verify tuning with before and after measurements"]
+        },
+        {
+          "topic": "Hardening Chef Infra Server and Client Security",
+          "subtopics": ["TLS certificates and nginx['ssl_protocols'] and ssl_ciphers", "ssl_verify_mode :verify_peer and trusted_certs on clients", "Key rotation with knife client key create and delete", "Removing the validator with validatorless bootstrap", "RBAC with server groups and ACLs via knife acl", "Restricting admin users and API access", "Secrets in chef-server-ctl set-secret", "Auditing changes with server logs"],
+          "tools": ["Chef Infra Server", "knife acl", "OpenSSL", "chef-server-ctl"],
+          "lab_task": "Replace the self-signed certificate with one from a lab CA, restrict nginx to TLS 1.2 and 1.3, and enforce verify_peer on all clients. Rotate a client key with knife client key create, remove the old key, and use knife acl to give group readonly read-only access to nodes. Prove a readonly user cannot upload a cookbook.",
+          "deliverable": "Hardening checklist with configuration and evidence of each control",
+          "checks": [["Run openssl s_client -tls1_1 against the server", "The handshake fails", "openssl output"], ["Run chef-client with the old client key", "The run fails with 401 Unauthorized", "chef-client output"], ["Upload a cookbook as the readonly user", "knife returns 403 Forbidden", "knife output"]],
+          "objectives": ["Harden TLS on the server and clients", "Rotate client keys and remove validators", "Apply least privilege with server ACLs"]
+        },
+        {
+          "topic": "Chef Automate Deployment and Data Collection",
+          "subtopics": ["Chef Automate roles: infra visibility, compliance and Habitat applications", "chef-automate init-config and deploy", "config.toml and chef-automate config patch", "API tokens with chef-automate iam token create", "Connecting Chef Infra Server with data_collector settings", "Direct client reporting with data_collector.server_url", "chef-automate status and backup create", "Sizing storage for retained run data"],
+          "tools": ["Chef Automate", "chef-automate CLI", "Chef Infra Server", "Chef Infra Client"],
+          "lab_task": "Deploy a standalone Chef Automate instance with chef-automate init-config and chef-automate deploy config.toml, create an ingest token, and configure the Chef Infra Server data collector with chef-server-ctl set-secret data_collector token and data_collector['root_url'] in chef-server.rb. Converge 5 nodes and confirm they appear in the Infrastructure view.",
+          "deliverable": "config.toml (secrets redacted), server configuration and an Automate screenshot of 5 nodes",
+          "checks": [["Run sudo chef-automate status", "All services report OK", "chef-automate output"], ["Converge 5 nodes and open Infrastructure > Client Runs", "5 nodes are listed with successful runs", "Automate screenshot"], ["Run sudo chef-automate backup create", "A backup ID is returned and listed by backup list", "chef-automate output"]],
+          "objectives": ["Deploy and configure Chef Automate", "Send chef-client run data to Automate", "Back up the Automate instance"]
+        },
+        {
+          "topic": "Chef Automate Compliance Scanning and Reporting",
+          "subtopics": ["Uploading profiles to Automate with inspec compliance or the Automate UI", "Compliance Phase reporting with the chef-server-automate reporter", "Fetching profiles from Automate with the compliance source", "Scan jobs for agentless nodes", "Filtering reports by profile, control, environment and policy", "Waivers reflected in reports", "Exporting reports as JSON or CSV", "Data retention settings for compliance data"],
+          "tools": ["Chef Automate", "Chef InSpec", "Chef Infra Client", "Policyfile"],
+          "lab_task": "Upload linux-baseline-lite and a CIS-based profile to Automate, set node['audit']['profiles'] to fetch them from Automate and node['audit']['reporter'] to chef-server-automate in the base policy, and converge 5 nodes. Filter the compliance view by policy group, export the failed controls as CSV and identify the 3 most-failed controls.",
+          "deliverable": "Policy attributes, the CSV export and a short findings summary",
+          "checks": [["Open Compliance > Reports after converges", "5 nodes report results for both profiles", "Automate screenshot"], ["Filter by policy group prod", "Only prod nodes are shown", "Automate screenshot"], ["Sort the CSV export by failure count", "The 3 most-failed controls are named with node counts", "CSV excerpt"]],
+          "objectives": ["Centralise compliance results in Chef Automate", "Fetch and run profiles stored in Automate", "Prioritise remediation from report data"]
+        },
+        {
+          "topic": "Chef Automate Infra Views, Node Lifecycle and Data Feeds",
+          "subtopics": ["Infrastructure client runs view and run history", "Filtering by policy name, policy group and cookbook", "Node lifecycle settings for missing and deleted nodes", "Event feed of policy and cookbook changes", "Data feeds to send node and compliance data to an external endpoint", "IAM policies, teams and projects in Automate", "Project ingest rules for multi-team visibility", "Automate REST API with api-token headers"],
+          "tools": ["Chef Automate", "Automate REST API", "curl", "jq"],
+          "lab_task": "Create projects web and db with ingest rules based on policy_name, a team per project and an IAM policy granting viewer access. Set node lifecycle to mark nodes missing after 1 hour, stop chef-client on one node, and configure a data feed to a test webhook. Query failed runs with curl -H 'api-token: ...' against the Automate API.",
+          "deliverable": "Project, team and policy definitions, missing-node evidence and API output",
+          "checks": [["Log in as a web team member", "Only nodes from the web project are visible", "Automate screenshot"], ["Wait more than 1 hour after stopping chef-client on one node", "The node shows as missing", "Automate screenshot"], ["Call the nodes API filtered to failed status", "The JSON response lists only nodes with failed runs", "curl and jq output"]],
+          "objectives": ["Segment fleet visibility with Automate projects", "Detect missing nodes automatically", "Export and query Automate data programmatically"]
+        },
+        {
+          "topic": "Custom InSpec Resources and Waiver Management",
+          "subtopics": ["Custom resources in a profile's libraries/ directory", "name, supports, desc and example metadata", "Using inspec.command and inspec.file inside a resource", "FilterTable for tabular resources", "Unit testing custom resources", "Waiver files with expiration_date, justification and run", "Overlay profiles that depend on and adjust a base profile", "Versioning and publishing profiles to Automate"],
+          "tools": ["Chef InSpec", "Chef Automate", "RSpec"],
+          "lab_task": "Write custom InSpec resource app_config that parses /etc/app/app.ini into a FilterTable and use it in 4 controls. Create an overlay profile that depends on the CIS-based profile, skips two controls and changes one input, and a waiver file with one expired and one active waiver. Run both and compare how each waiver appears in the report.",
+          "deliverable": "Profile code with the custom resource, the overlay and the waiver test results",
+          "checks": [["Run inspec exec with the custom resource controls", "4 controls run and report results using app_config", "inspec output"], ["Run the overlay profile", "The two skipped controls do not run and the changed input is used", "inspec output"], ["Run with the waiver file", "The active waiver is skipped and the expired waiver control runs normally", "JSON report excerpt"]],
+          "objectives": ["Extend InSpec with custom resources", "Customise vendor profiles with overlays", "Manage waivers with expiry and justification"]
+        },
+        {
+          "topic": "Chef Habitat Awareness: Plans, Packages and Supervisors",
+          "subtopics": ["Where Chef Habitat fits next to Chef Infra", "Origins, keys and the package identifier origin/name/version/release", "plan.sh basics: pkg_name, pkg_origin, pkg_version and pkg_deps", "hab studio enter and build", "Supervisor with hab sup run and hab svc load", "Service groups, binds and configuration updates with hab config apply", "Habitat Builder and channels for promotion", "Chef Infra Client and InSpec packaged with Habitat at a high level"],
+          "tools": ["Chef Habitat", "hab CLI", "Habitat Builder", "Chef Automate"],
+          "lab_task": "Create an origin key with hab origin key generate, write a minimal plan.sh for a static web app that depends on core/nginx, build it in hab studio, and run it under a local Supervisor with hab svc load. Change a setting with hab config apply and check hab svc status, then note where Habitat would help or not help your fleet.",
+          "deliverable": "plan.sh, build output, service status and a one-page fit assessment",
+          "checks": [["Run build in hab studio", "A .hart artefact is produced in results/", "Studio output and ls results/"], ["Run hab svc status", "The service shows state up", "hab output"], ["Run hab config apply with a new port", "The service restarts and listens on the new port", "hab output and ss -ltnp"]],
+          "objectives": ["Describe Habitat packages, plans and Supervisors", "Build and run a simple Habitat package", "Judge where Habitat fits alongside Chef Infra"]
+        },
+        {
+          "topic": "Target Mode for Agentless Chef Infra Runs",
+          "subtopics": ["Target Mode concepts: chef-client runs on the workstation against a remote host", "Connecting with --target and credentials in ~/.chef/credentials", "Train transports such as SSH", "Resources that support Target Mode", "Limits compared with a full client on the node", "Using Target Mode for appliances and restricted hosts", "Testing Target Mode recipes before use", "Logging and auditing agentless changes"],
+          "tools": ["Chef Infra Client", "Chef Workstation", "Train", "SSH"],
+          "lab_task": "Add a host entry to ~/.chef/credentials for a Linux VM that has no Chef Infra Client installed, write a recipe using only resources that support Target Mode (file, directory and a service change), and run chef-client --target appliance1 -z -o 'recipe[agentless::default]'. Confirm the changes on the host and that no Chef packages were installed.",
+          "deliverable": "credentials entry (secrets redacted), recipe, run log and host evidence",
+          "checks": [["Run the Target Mode converge", "The run completes and reports updated resources", "chef-client output"], ["Check the host for installed Chef packages", "No chef package is installed on the target", "Package manager query output"], ["Add a resource without Target Mode support and run again", "The run fails with an error that the resource does not support Target Mode", "chef-client output"]],
+          "objectives": ["Configure Chef Infra Client in Target Mode", "Apply configuration to hosts without an agent", "Recognise Target Mode limits"]
+        },
+        {
+          "topic": "Profiling and Speeding Up chef-client Runs",
+          "subtopics": ["Reading per-resource timing in run output", "--profile-ruby and the graph profile output", "Expensive compile-time code and search calls", "Excessive execute and powershell_script resources", "Large templates and many small files", "Cookbook sync time and cookbook count", "Package resource batching with arrays", "Setting a performance budget per policy"],
+          "tools": ["Chef Infra Client", "ChefSpec", "Test Kitchen"],
+          "lab_task": "Profile a slow provided base policy that takes over 3 minutes: run chef-client --profile-ruby, list the 5 slowest resources from the run output, and fix them by batching package installs, replacing shell guards with Ruby guards, moving a search out of a loop and removing an unneeded remote_file download. Measure 5 runs before and after.",
+          "deliverable": "Profile findings, code changes and a before and after timing table",
+          "checks": [["Run chef-client --profile-ruby", "A profile output file is written to the Chef cache directory", "ls output of the cache directory"], ["Compare average run time over 5 runs", "The average is at least 30 percent lower after the fixes", "Timing table"], ["Run ChefSpec and kitchen verify after the changes", "All tests still pass", "rspec and kitchen output"]],
+          "objectives": ["Find the slow parts of a chef-client run", "Refactor recipes for faster converges", "Prove speed gains without changing results"]
+        },
+        {
+          "topic": "Release Rings and Canary Rollouts with Policyfiles",
+          "subtopics": ["Policy groups as rings: canary, early, broad and prod", "Assigning nodes to rings by percentage or criticality", "Promotion gates based on run success and compliance results", "Automating chef push from a pipeline", "Rolling back by pushing the previous lock", "Pausing promotion during change freezes", "Querying ring health with knife search and the Automate API", "Documenting revisions in change records"],
+          "tools": ["chef CLI", "Policyfile", "Chef Automate", "GitHub Actions", "knife"],
+          "lab_task": "Create four policy groups for the web policy, assign 2, 3, 5 and 10 nodes, and write a pipeline job that pushes a new lock to canary, waits for two run intervals, checks failed runs in the Automate API, and promotes only if failures are zero. Push a deliberately broken revision and show the pipeline stops and you roll back with the previous lock.",
+          "deliverable": "Pipeline definition, ring layout, and logs of a good promotion and a halted one",
+          "checks": [["Run the pipeline with a good revision", "All four groups show the same new revision ID", "chef show-policy output"], ["Run the pipeline with a broken revision", "Promotion stops after canary with 2 failed runs reported", "Pipeline log"], ["Push the previous lock to canary", "Canary nodes converge successfully on the next run", "chef-client output"]],
+          "objectives": ["Design staged rollouts with policy groups", "Gate promotions on observed run results", "Roll back a policy revision quickly"]
+        },
+        {
+          "topic": "Testing Custom Resource Libraries at Scale",
+          "subtopics": ["Test pyramid for library cookbooks", "ChefSpec with step_into and matchers for custom resources", "Test cookbooks under test/fixtures/cookbooks", "Kitchen platform matrix across supported operating systems", "Testing multiple Chef Infra Client versions with product_version", "Contract tests for resource properties", "Running tests in CI shards", "Release notes and version bumps for breaking changes"],
+          "tools": ["ChefSpec", "Test Kitchen", "kitchen-dokken", "GitHub Actions", "Chef InSpec"],
+          "lab_task": "For the acme_nginx library cookbook, add a fixture cookbook that exercises every action and property combination, ChefSpec tests with step_into for each action, and a Kitchen matrix across 4 platforms and 2 Chef Infra Client versions set with product_version. Shard the matrix in CI and keep total pipeline time under 20 minutes.",
+          "deliverable": "Fixture cookbook, specs, kitchen.yml and the CI run summary",
+          "checks": [["Run kitchen list", "8 instances are listed for 4 platforms and 2 client versions", "kitchen list output"], ["Run the CI pipeline", "All shards pass and total time is under 20 minutes", "CI run summary"], ["Remove a property default and run ChefSpec", "At least one contract test fails naming the property", "rspec output"]],
+          "objectives": ["Build a full test suite for a resource library", "Test across platforms and client versions", "Keep large test matrices fast in CI"]
+        },
+        {
+          "topic": "Planning Chef Infra Client Upgrades",
+          "subtopics": ["Reading release notes and deprecation lists on docs.chef.io", "Deprecation warnings in run output and the deprecation IDs", "treat_deprecation_warnings_as_errors for testing", "chef_version constraints in metadata.rb", "Testing the new client with product_version in Kitchen", "Upgrading clients with the chef_client_updater cookbook or package pipelines", "Licensing changes to check before an upgrade", "Rollback plan for clients"],
+          "tools": ["Chef Infra Client", "Test Kitchen", "chef_client_updater", "Cookstyle"],
+          "lab_task": "Inventory client versions with knife search node '*:*' -a chef_packages.chef.version, collect deprecation warnings from recent run logs, and run Kitchen for every cookbook with the target client version and treat_deprecation_warnings_as_errors enabled. Upgrade the canary ring with chef_client_updater and confirm the reported version changes.",
+          "deliverable": "Version inventory, deprecation list, test results and canary upgrade evidence",
+          "checks": [["Run the knife search for client versions", "Every node is listed with its version and the versions are counted", "knife output summarised by count"], ["Converge in Kitchen with deprecations as errors", "Cookbooks with deprecated code fail and name the deprecation", "kitchen converge output"], ["Run the canary upgrade and the version search again", "All canary nodes report the target client version", "knife output"]],
+          "objectives": ["Inventory and plan a client upgrade", "Surface deprecations before upgrading", "Upgrade a ring of nodes and verify"]
+        },
+        {
+          "topic": "Removing Deprecations with Cookstyle and ChefSpec",
+          "subtopics": ["Cookstyle departments Chef/Deprecations, Chef/Modernize and Chef/RedundantCode", "Running cookstyle --only Chef/Deprecations", "Safe autocorrect and reviewing the diff", "Replacing legacy community cookbooks with built-in resources", "Converting definitions to custom resources", "Removing chef-sugar style helpers in favour of built-in helpers", "Pinning Cookstyle versions in CI", "Tracking clean-up across dozens of cookbooks"],
+          "tools": ["Cookstyle", "ChefSpec", "Test Kitchen", "Git"],
+          "lab_task": "Run cookstyle --only Chef/Deprecations,Chef/Modernize across 10 legacy cookbooks and export the offense counts per cookbook. Autocorrect with cookstyle -a, review each diff, convert one definition to a custom resource and replace one community cookbook dependency with a built-in resource. Prove behaviour is unchanged with ChefSpec and kitchen verify.",
+          "deliverable": "Offense count table before and after, reviewed diffs and passing tests",
+          "checks": [["Run cookstyle --only Chef/Deprecations after the clean-up", "0 offenses are reported across the 10 cookbooks", "cookstyle output"], ["Run grep -r 'define ' in definitions/ directories", "No definitions remain", "grep output"], ["Run ChefSpec and kitchen verify on the changed cookbooks", "All tests pass", "rspec and kitchen output"]],
+          "objectives": ["Find and remove deprecated Chef code at scale", "Modernise cookbooks with built-in resources", "Prove refactors do not change behaviour"]
+        },
+        {
+          "topic": "Migrating Roles, Environments and Berkshelf to Policyfiles",
+          "subtopics": ["Mapping roles and environments to policies and policy groups", "Converting environment cookbook pins to lock files", "Moving role attributes into Policyfile attributes or wrapper cookbooks", "Replacing Berksfile dependencies with Policyfile sources", "Converting nodes with knife node policy set", "Search queries that used roles and environments", "Running both models during a phased migration", "Comparing converged state before and after"],
+          "tools": ["Policyfile", "chef CLI", "knife", "Berkshelf", "Chef InSpec"],
+          "lab_task": "Take a lab estate using roles web and db, environments staging and production and a Berksfile, and write web and db policies that reproduce the same run lists, attributes and cookbook versions. Convert one staging node with knife node policy set, compare node attributes and an InSpec report before and after, and update any role-based searches to policy_name.",
+          "deliverable": "Policyfiles, conversion runbook, attribute diff and InSpec comparison",
+          "checks": [["Compare merged node attributes before and after conversion", "The diff shows no differences in application attributes", "diff output"], ["Run the same InSpec profile before and after", "Both reports have the same pass and fail counts", "Two inspec reports"], ["Run knife search node 'role:web' and 'policy_name:web'", "The converted node appears only under policy_name:web", "knife output"]],
+          "objectives": ["Map classic Chef workflows to Policyfiles", "Convert nodes without configuration drift", "Update searches and tooling for the new model"]
+        },
+        {
+          "topic": "Migrating Between Chef Infra Servers",
+          "subtopics": ["Reasons to migrate: hardware refresh, hosted to self-managed, consolidation", "knife ec backup and restore with --only-org and user mapping", "Re-pointing clients by updating chef_server_url and trusted certificates", "Client keys that move with the backup", "Cutover with DNS compared with client.rb changes", "Migrating Policyfile groups and policy revisions", "Validating object counts and a canary converge", "Decommissioning the old server"],
+          "tools": ["knife ec backup", "knife", "Chef Infra Server", "chef_client_config"],
+          "lab_task": "Back up trainorg from the old server with knife ec backup, restore it into a new server with knife ec restore, and validate counts of nodes, clients, cookbooks, policies and data bags. Use chef_client_config to change chef_server_url and trusted certificates on a canary ring, converge, then cut over the rest and confirm the old server sees no check-ins.",
+          "deliverable": "Migration runbook, object count comparison and check-in evidence from both servers",
+          "checks": [["Compare object counts on old and new servers", "Counts for all five object types match", "Comparison table"], ["Converge the canary ring against the new server", "Runs succeed using the existing client keys", "chef-client output"], ["Check the old server's nginx access log after full cutover", "No new client requests appear", "Log excerpt"]],
+          "objectives": ["Plan a server-to-server migration", "Move organization data and policies", "Cut clients over without re-bootstrapping"]
+        },
+        {
+          "topic": "Fleet Compliance Remediation with Chef Infra and InSpec",
+          "subtopics": ["Linking InSpec controls to remediation resources", "Remediation cookbooks for CIS-style controls on Linux and Windows", "Ordering remediation to avoid lockouts such as SSH changes", "Testing remediation with Kitchen and the same profile", "Rolling remediation out through policy rings", "Tracking compliance score trends in Chef Automate", "Exceptions handled as waivers with owners and expiry", "Evidence packages for auditors"],
+          "tools": ["Chef InSpec", "Chef Automate", "Test Kitchen", "Policyfile", "Chef Infra Client"],
+          "lab_task": "Choose 10 failing controls from the Automate report, write a remediation cookbook that fixes each one on Linux and Windows, and test it in Kitchen with the same InSpec profile as the verifier. Roll it out through the canary and prod rings, waive one control with an owner and expiry date, and compare the Automate compliance pass rate before and after.",
+          "deliverable": "Remediation cookbook, Kitchen results, waiver file and the before and after pass rate",
+          "checks": [["Run kitchen verify with the compliance profile", "All 10 targeted controls pass on both platforms", "kitchen verify output"], ["Compare the Automate pass rate for prod nodes", "The pass rate increases after rollout", "Automate screenshots"], ["Check the waived control in the report", "It shows as waived with the justification and expiry date", "Automate report excerpt"]],
+          "objectives": ["Turn compliance findings into tested remediation", "Roll out remediation safely through rings", "Produce evidence for compliance audits"]
+        },
+        {
+          "topic": "Monitoring Chef Platforms and Run Failures",
+          "subtopics": ["Health endpoints such as /_status on Chef Infra Server", "chef-server-ctl status and service logs in /var/log/opscode", "Chef Automate health with chef-automate status", "Failed-run rates and missing nodes as service indicators", "Alerts from handlers, Automate data feeds or the API", "Disk, PostgreSQL and OpenSearch capacity alerts", "Runbooks for common failures: 401 clock skew, 412 cookbook missing, 500 server errors", "Post-incident review of a failed rollout"],
+          "tools": ["Chef Infra Server", "Chef Automate", "Prometheus", "Grafana", "curl"],
+          "lab_task": "Set up a monitoring check that polls https://chef-server/_status every minute and an Automate API query that calculates the failed-run percentage per policy group every 15 minutes, with alerts at 5 percent. Then trigger three faults: client clock skew, a missing cookbook dependency and a stopped Erchef service, and record the alert and the fix for each.",
+          "deliverable": "Monitoring configuration, alert evidence and three runbook entries",
+          "checks": [["Skew a client clock by 20 minutes and run chef-client", "The run fails with 401 Unauthorized and the runbook fix restores it", "chef-client output"], ["Stop opscode-erchef with chef-server-ctl stop opscode-erchef", "The /_status check fails and an alert fires within 2 minutes", "Alert log"], ["Pin a role-based test node's environment to a cookbook version that is not on the server", "The run fails with 412 Precondition Failed and the failed-run alert fires", "chef-client output and alert log"]],
+          "objectives": ["Define health indicators for a Chef platform", "Alert on server failure and failed-run rates", "Write runbooks for frequent Chef failures"]
+        },
+        {
+          "topic": "Advanced Capstone: Chef Platform Upgrade and Policyfile Migration",
+          "subtopics": ["Assessment of a legacy estate with roles, environments, Berkshelf and an old client", "Deprecation clean-up and test coverage for all cookbooks", "Server migration or upgrade with tested backup and restore", "Policyfile conversion with release rings", "Chef Automate visibility, compliance profiles and alerts", "Final report with risks, rollback plan and measured results"],
+          "tools": ["Chef Infra Server", "Chef Automate", "Cookstyle", "ChefSpec", "Test Kitchen", "Chef InSpec"],
+          "lab_task": "Take the provided legacy estate of 10 nodes and 12 cookbooks and deliver: a tested backup and restore, a new or upgraded Chef Infra Server, cookbooks with 0 Chef/Deprecations offenses and passing ChefSpec and Kitchen, all nodes moved to Policyfiles through rings on the target client version, and Automate showing runs and compliance with alerts.",
+          "deliverable": "Upgrade and migration report, repositories, runbooks and Automate evidence",
+          "checks": [["Run knife search for client versions and policy names", "All 10 nodes report the target client version and a policy_name", "knife output"], ["Run cookstyle --only Chef/Deprecations on all 12 cookbooks", "0 offenses are reported", "cookstyle output"], ["Review Automate after two run intervals", "All 10 nodes have successful runs and compliance reports with no unexpected failures", "Automate screenshots"]],
+          "objectives": ["Plan and lead a full Chef platform modernisation", "Combine upgrade, migration and compliance work safely", "Present measurable results and a rollback plan"]
+        }
+      ]
+    }
+  }
+}

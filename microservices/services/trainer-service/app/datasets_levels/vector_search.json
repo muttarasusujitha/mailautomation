@@ -1,0 +1,573 @@
+{
+  "domain": "Vector Search",
+  "name": "Vector Search",
+  "category": "Generative AI and Agents",
+  "icon": "search",
+  "aliases": ["Semantic Vector Search", "Nearest-Neighbor Search", "Vector Similarity Search", "Approximate Nearest Neighbor Search", "ANN Search", "Embedding Search", "Dense Retrieval", "Hybrid Vector Search"],
+  "certifications": [],
+  "tools": ["NumPy", "sentence-transformers", "hnswlib", "FAISS", "ScaNN", "DiskANN", "pgvector", "OpenSearch k-NN", "Elasticsearch", "Redis Query Engine", "rank_bm25", "ranx", "ann-benchmarks", "BEIR"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For software engineers, data engineers and analysts who can write Python and SQL but have not built vector search before. Covers what embeddings are and how text embedding models are chosen, distance metrics and normalisation, exact k-nearest-neighbour search with NumPy, chunking documents, storing and querying vectors in PostgreSQL with pgvector, retrieval metrics (recall@k, MRR, nDCG), the ideas behind approximate search (LSH, IVF and HNSW), metadata filtering, BM25 keyword search, Reciprocal Rank Fusion, cross-encoder reranking, vector fields in OpenSearch, Elasticsearch and Redis, ingestion with upserts, memory sizing and a small search API, ending with a hybrid FAQ search capstone.",
+      "prerequisites": ["Writes Python 3 scripts using lists, dictionaries, functions and pip-installed packages, and can read NumPy array code", "Writes basic SQL SELECT, INSERT and WHERE statements against PostgreSQL or another relational database", "Has a laptop with 16 GB RAM, Docker, Python 3.11 or later and about 10 GB of free disk for models and datasets"],
+      "outcomes": ["Embed text with an open embedding model and run exact and approximate nearest-neighbour search with the correct distance metric", "Store, index and query vectors with pgvector, OpenSearch, Elasticsearch and Redis, including metadata filters", "Measure retrieval quality with recall@k, MRR and nDCG@10 and measure ANN quality against exact ground truth", "Build a hybrid search service that fuses BM25 and vector results with RRF and reranks them with a cross-encoder"],
+      "days": [
+        {
+          "topic": "Vector Search Orientation: From Keywords to Embeddings",
+          "subtopics": ["Why keyword matching misses synonyms and paraphrases", "What an embedding is: a fixed-length array of floating-point numbers", "Semantic similarity as geometric closeness", "Typical uses: semantic search, RAG retrieval, recommendations, deduplication and anomaly detection", "The ingest path: chunk, embed, store vector with ID and metadata", "The query path: embed the query, search the index, return top-k IDs and scores", "Exact versus approximate nearest-neighbour search", "Vocabulary: corpus, query, top-k, recall, latency and QPS", "Where vectors live: libraries, database extensions and dedicated vector databases", "Lab environment with venv, NumPy and sentence-transformers"],
+          "tools": ["Python 3", "NumPy", "sentence-transformers", "Jupyter"],
+          "lab_task": "Create a venv, pip install numpy sentence-transformers, load all-MiniLM-L6-v2 with SentenceTransformer, encode 20 FAQ sentences with normalize_embeddings=True and print embeddings.shape. For three paraphrased queries compute scores = emb @ q and print the top 3. Repeat with a plain substring keyword match and count how many of the three queries each method answers correctly.",
+          "deliverable": "Notebook with the embedding shape, top-3 results per query and a keyword-versus-vector comparison table",
+          "checks": [["Print embeddings.shape after encoding 20 sentences", "(20, 384)", "Notebook output"], ["Print np.linalg.norm(embeddings, axis=1).round(3)", "Every value is 1.0", "Notebook output"], ["Query 'how do I reset my password' against an FAQ phrased 'Forgot your login credentials?'", "Vector search ranks the credentials FAQ in the top 3 while the substring match finds nothing", "Comparison table"]],
+          "objectives": ["Explain how embeddings turn text into comparable vectors", "Describe the ingest and query paths of a vector search system", "Run a first semantic search and compare it with keyword matching"]
+        },
+        {
+          "topic": "Text Embedding Models and Vector Dimensions",
+          "subtopics": ["Bi-encoder models and mean pooling", "Common dimensions (384, 768, 1024, 1536) and what each costs in storage", "Maximum input length and silent truncation", "Tokenisation into word pieces", "Query and passage prefixes for E5 models and instruction prompts for others", "Hosted embedding APIs versus local open models", "Batch size, CPU or GPU device and encoding throughput", "Model versioning: never mix vectors from two models in one index", "Multilingual embedding models"],
+          "tools": ["sentence-transformers", "Hugging Face Hub", "NumPy", "PyTorch"],
+          "lab_task": "Encode the same 1,000 sentences with sentence-transformers/all-MiniLM-L6-v2 and BAAI/bge-base-en-v1.5. Print get_sentence_embedding_dimension() and max_seq_length for each, time encode(batch_size=64) on CPU, compute float32 storage per million vectors (dims x 4 bytes), and show that a 600-word passage is truncated by counting len(model.tokenizer(text)['input_ids']).",
+          "deliverable": "Model comparison table with dimensions, max sequence length, encode throughput and storage per million vectors",
+          "checks": [["Call get_sentence_embedding_dimension() on both models", "384 for all-MiniLM-L6-v2 and 768 for bge-base-en-v1.5", "Console output"], ["Compute float32 storage for 1,000,000 vectors at 768 dimensions", "3,072,000,000 bytes, about 2.9 GiB before index overhead", "Sizing table"], ["Compute np.dot between a 384-dimension and a 768-dimension vector", "ValueError reporting that shapes (384,) and (768,) are not aligned", "Traceback"]],
+          "objectives": ["Compare embedding models on dimensions, input length and speed", "Estimate raw storage from vector count and dimensions", "Explain why one index must hold vectors from one model only"]
+        },
+        {
+          "topic": "Distance Metrics: Cosine, Dot Product, Euclidean and Normalisation",
+          "subtopics": ["Euclidean (L2) and squared L2 distance", "Inner (dot) product similarity", "Cosine similarity and cosine distance (1 minus cosine)", "L2-normalising vectors so cosine, dot product and L2 give the same ranking", "Manhattan (L1) distance and Hamming distance for binary vectors", "Similarity versus distance: which direction means closer", "Using the metric the embedding model was trained with", "Score ranges and why raw scores are not probabilities"],
+          "tools": ["NumPy", "SciPy", "Jupyter"],
+          "lab_task": "In NumPy, implement l2, squared_l2, dot and cosine for 1,000 random 128-dimension Gaussian vectors and one query, rank all vectors by each metric and compare the top-10 ID lists. Normalise with x / np.linalg.norm(x, axis=1, keepdims=True), repeat the ranking, and confirm that squared L2 equals 2 - 2 * cosine for unit vectors with np.allclose(..., atol=1e-6).",
+          "deliverable": "Notebook with the four metric functions, top-10 lists before and after normalisation and the identity check",
+          "checks": [["Rank un-normalised vectors by dot product and by cosine", "The two top-10 lists differ in at least one position", "Notebook output"], ["Rank normalised vectors by L2, dot product and cosine", "All three top-10 lists are identical", "Notebook output"], ["Evaluate np.allclose(sq_l2, 2 - 2 * cos, atol=1e-6) on unit vectors", "True", "Notebook cell"]],
+          "objectives": ["Compute L2, dot product and cosine scores by hand", "Explain when normalisation makes metrics equivalent", "Choose the metric that matches an embedding model"]
+        },
+        {
+          "topic": "Exact k-Nearest-Neighbour Search with NumPy",
+          "subtopics": ["Brute-force search as a matrix multiplication", "Top-k selection with np.argpartition followed by a small sort", "Batching queries so BLAS uses every core", "Cost of O(N x d) operations per query", "Memory layout: float32 and C-contiguous arrays", "Exact results as ground truth for approximate search", "When brute force is fast enough: small corpora and offline jobs", "Measuring latency with time.perf_counter and percentiles"],
+          "tools": ["NumPy", "Python 3", "Jupyter"],
+          "lab_task": "Generate 200,000 random float32 vectors of 384 dimensions, normalise them and write knn(Q, X, k) using scores = Q @ X.T, np.argpartition(-scores, k)[:, :k] and a final sort of those k. Run 1,000 queries one at a time and in batches of 100, record p50 and p99 per-query latency with time.perf_counter, and save the top-10 IDs as ground_truth.npy.",
+          "deliverable": "knn() function, latency table for single and batched queries and the saved ground_truth.npy file",
+          "checks": [["Compare knn() with a full np.argsort ranking on 10 queries", "Identical top-10 IDs for all 10 queries", "Assertion output"], ["Run 1,000 queries batched and one at a time", "Batched queries per second are higher than single-query queries per second", "Latency table"], ["Load ground_truth.npy", "Integer array of shape (1000, 10)", "Notebook output"]],
+          "objectives": ["Implement exact top-k search efficiently", "Measure query latency with percentiles", "Produce ground truth for later ANN experiments"]
+        },
+        {
+          "topic": "Chunking and Preparing Documents for Embedding",
+          "subtopics": ["Why long documents must be split before embedding", "Fixed-size token chunks with overlap", "Structure-aware splitting on headings, paragraphs and sentences", "Chunk IDs, parent document IDs and character offsets", "Metadata to store with each chunk: source, title, section, date and language", "Cleaning text: HTML, boilerplate, tables and code blocks", "Removing duplicate and near-duplicate chunks", "Effect of chunk size on recall and on result precision"],
+          "tools": ["Python 3", "sentence-transformers", "BeautifulSoup", "NumPy"],
+          "lab_task": "Download 50 Markdown documentation pages, split them into token chunks of 64, 128 and 256 tokens with 32-token overlap using the model tokenizer, and store records {chunk_id, doc_id, section, text}. Embed each variant, run 20 test questions and record, for each chunk size, the number of chunks and how many questions return the correct section in the top 5.",
+          "deliverable": "Chunking script and a table of chunk count and top-5 section hits per chunk size",
+          "checks": [["Count chunks for sizes 64, 128 and 256", "Chunk count falls as chunk size rises", "Chunk statistics table"], ["Measure the longest chunk with the tokenizer", "No chunk exceeds the model max_seq_length of 256 tokens", "Script output"], ["Look up a chunk_id returned by search", "Its doc_id and section resolve to the original page heading", "Search result JSON"]],
+          "objectives": ["Split documents into retrievable chunks", "Attach metadata that supports filtering and citations", "Measure how chunk size changes retrieval results"]
+        },
+        {
+          "topic": "Storing Vectors in PostgreSQL with pgvector",
+          "subtopics": ["CREATE EXTENSION vector and the vector(n) column type", "Inserting vectors as '[0.1,0.2,...]' literals and with the pgvector Python package (register_vector)", "Distance operators <-> (L2), <#> (negative inner product), <=> (cosine) and <+> (L1)", "ORDER BY embedding <=> query LIMIT 10 as exact search", "Combining vector ordering with WHERE clauses and joins", "Converting cosine distance to similarity with 1 - (a <=> b)", "Reading EXPLAIN ANALYZE output for vector queries", "Running PostgreSQL with the pgvector/pgvector Docker image"],
+          "tools": ["PostgreSQL", "pgvector", "psycopg", "Docker", "psql"],
+          "lab_task": "Start docker run -e POSTGRES_PASSWORD=pw -p 5432:5432 pgvector/pgvector:pg17, run CREATE EXTENSION vector, create table chunks(id bigserial primary key, doc_id text, body text, embedding vector(384)), load the Day 5 chunks with psycopg and register_vector, and run SELECT id, 1 - (embedding <=> %s) AS score FROM chunks ORDER BY embedding <=> %s LIMIT 5. Compare the IDs with the NumPy results.",
+          "deliverable": "SQL schema, load script and a comparison of pgvector and NumPy top-5 results",
+          "checks": [["Insert a 383-dimension vector into the vector(384) column", "ERROR: expected 384 dimensions, not 383", "psql output"], ["Run EXPLAIN ANALYZE on the ORDER BY ... LIMIT 5 query with no vector index", "Plan contains a Seq Scan on chunks", "Query plan"], ["Compare pgvector and NumPy cosine top-5 for 10 queries", "All 10 top-5 lists match", "Comparison script output"]],
+          "objectives": ["Store and query vectors in PostgreSQL", "Use the correct pgvector operator for each metric", "Combine vector ranking with relational filters"]
+        },
+        {
+          "topic": "Measuring Retrieval Quality: Recall@k, MRR and nDCG",
+          "subtopics": ["Relevance judgements (qrels) and test queries", "Recall@k against relevance labels", "Recall@k against exact neighbours as a measure of ANN quality", "Precision@k", "Mean Reciprocal Rank (MRR@10)", "nDCG@10 and graded relevance", "Computing metrics with ranx Qrels, Run and evaluate", "Small test sets, variance and per-query analysis"],
+          "tools": ["ranx", "BEIR", "sentence-transformers", "NumPy"],
+          "lab_task": "Download the BEIR SciFact dataset (5,183 documents, 300 test queries), embed the corpus with all-MiniLM-L6-v2, retrieve the top 100 per query with exact search, build a ranx Run and Qrels from the test qrels, and print evaluate(qrels, run, ['ndcg@10', 'mrr@10', 'recall@100']). Then compute nDCG@10 by hand for one query to confirm the library result.",
+          "deliverable": "Evaluation notebook with the metrics table and a hand-worked nDCG@10 example",
+          "checks": [["Load the SciFact corpus and test split", "5,183 documents and 300 test queries", "Loader output"], ["Run ranx evaluate on the exact-search run", "ndcg@10, mrr@10 and recall@100 printed, with recall@100 above ndcg@10", "Metrics table"], ["Compare the hand-computed nDCG@10 for one query with ranx", "Values agree to 4 decimal places", "Notebook cell"]],
+          "objectives": ["Explain recall, MRR and nDCG and when to use each", "Evaluate a retrieval run with ranx", "Distinguish relevance-based recall from ANN recall"]
+        },
+        {
+          "topic": "Approximate Nearest Neighbour Concepts and the Recall Trade-off",
+          "subtopics": ["Why exact search stops scaling with corpus size", "The curse of dimensionality", "ANN families: partitioning, graphs, hashing and quantization", "Recall@10 measured against exact ground truth", "Queries per second and p99 latency", "Build time and index memory as hidden costs", "The recall versus QPS Pareto frontier", "Random-hyperplane locality-sensitive hashing as a first ANN method"],
+          "tools": ["NumPy", "h5py", "ann-benchmarks datasets", "Matplotlib"],
+          "lab_task": "Download glove-100-angular.hdf5 from ann-benchmarks, load 'train', 'test' and 'neighbors' with h5py and normalise the vectors. Implement random-hyperplane LSH in NumPy with 8 hyperplanes per table, query 1,000 test vectors using 1, 4 and 8 tables, and report recall@10 against the first 10 columns of 'neighbors' and the average number of candidates scanned per query.",
+          "deliverable": "LSH notebook with a recall@10 versus candidates-scanned plot for 1, 4 and 8 tables",
+          "checks": [["Inspect the HDF5 datasets", "train has shape (1183514, 100) and test has shape (10000, 100)", "h5py output"], ["Increase hash tables from 1 to 8", "Recall@10 and candidates scanned both increase", "Recall table"], ["Score exact NumPy search against 'neighbors'", "Recall@10 of 1.0 apart from distance ties", "Script output"]],
+          "objectives": ["Explain why approximate search is needed", "Measure recall@10 against ground truth", "Read a recall versus cost trade-off curve"]
+        },
+        {
+          "topic": "Clustering-Based Search: Building an IVF Index by Hand",
+          "subtopics": ["Inverted file idea: partition vectors into nlist cells", "Training centroids with k-means", "Assigning each vector to its nearest centroid", "Probing nprobe cells at query time", "Starting values: pgvector suggests lists = rows / 1000 up to 1M rows and sqrt(rows) above", "Boundary effect: true neighbours in adjacent cells", "Unbalanced cells and their latency impact", "IVFFlat in pgvector: lists and ivfflat.probes"],
+          "tools": ["NumPy", "scikit-learn", "h5py", "pgvector"],
+          "lab_task": "Train scikit-learn MiniBatchKMeans with n_clusters=1024 on a 100,000-vector sample of normalised GloVe-100, assign all 1,183,514 vectors to cells and keep a list of IDs per cell. Search 1,000 test queries with nprobe 1, 8, 32 and 128 by exact scoring inside the probed cells, and report recall@10, average vectors scanned and the smallest and largest cell sizes.",
+          "deliverable": "IVF notebook with a recall versus nprobe table and a cell-size histogram",
+          "checks": [["Raise nprobe from 1 to 128", "Recall@10 rises at every step", "Recall table"], ["Compute average vectors scanned at nprobe 8", "Roughly 8/1024 of the corpus (about 9,000 vectors), varying with cell balance", "Script output"], ["Print the largest cell size", "Largest cell is bigger than the mean of about 1,156 vectors", "Cell histogram"]],
+          "objectives": ["Build an inverted-file index from k-means centroids", "Tune nprobe against recall and work done", "Relate hand-built IVF to pgvector IVFFlat settings"]
+        },
+        {
+          "topic": "Graph-Based Search: HNSW Parameters M, efConstruction and efSearch",
+          "subtopics": ["Navigable small-world graphs and greedy search", "Hierarchical layers and the entry point", "M: maximum links per node, with 2 x M on layer 0", "efConstruction: candidate list size during insertion", "efSearch (ef): candidate list size at query time", "Memory cost of graph links", "Build time versus query speed", "hnswlib API: init_index, add_items, set_ef, knn_query, save_index"],
+          "tools": ["hnswlib", "NumPy", "h5py", "Matplotlib"],
+          "lab_task": "pip install hnswlib, create Index(space='cosine', dim=100) for GloVe-100 with init_index(max_elements=1183514, M=16, ef_construction=200) and add_items(data, num_threads=-1), timing the build. For set_ef values 10, 50, 100 and 400 run knn_query on the 10,000 test vectors with k=10 and record recall@10 and QPS. Save with save_index and note the file size.",
+          "deliverable": "HNSW notebook with build time, index file size and a recall versus QPS table",
+          "checks": [["Raise ef from 10 to 400", "Recall@10 rises while QPS falls", "Recall-QPS table"], ["Rebuild with M=32 and compare saved index files", "The M=32 file is larger than the M=16 file", "File listing"], ["Inspect distances returned with space='cosine'", "Values lie between 0 and 2 and equal 1 minus cosine similarity", "Notebook output"]],
+          "objectives": ["Explain how HNSW finds neighbours", "Tune M, efConstruction and ef for a recall target", "Measure the memory and build cost of a graph index"]
+        },
+        {
+          "topic": "Metadata Filtering: Pre-Filter, Post-Filter and In-Filter",
+          "subtopics": ["Why filters matter: tenant, language, date, category and permissions", "Post-filtering: search top-k then drop non-matching results", "The missing-results problem with selective filters", "Pre-filtering: restrict candidates first, then search exactly", "In-filter (filtered traversal) during ANN search", "Filter selectivity and how it changes the best strategy", "Over-fetching with k multiplied by a factor", "hnswlib filter callables and pgvector WHERE clauses"],
+          "tools": ["hnswlib", "NumPy", "pgvector"],
+          "lab_task": "Add a category field (10 values) and a rare flag (1% of rows) to 200,000 GloVe vectors. Answer top-10 queries with the rare filter three ways: post-filter the hnswlib top 100, pre-filter by exact NumPy search over matching IDs, and hnswlib knn_query(q, k=10, filter=lambda i: rare[i]). Record results returned, recall@10 against the pre-filter answer and latency.",
+          "deliverable": "Filtering comparison table with results returned, recall@10 and latency per strategy",
+          "checks": [["Post-filter the top 100 with the 1% flag", "Most queries return fewer than 10 results (about 1 on average)", "Results table"], ["Pre-filter and search matching IDs exactly", "Exactly 10 results per query with recall@10 of 1.0", "Results table"], ["Use the hnswlib filter callable", "10 results per query with recall@10 measured against the pre-filter answer", "Results table"]],
+          "objectives": ["Compare pre-, post- and in-filter strategies", "Explain how selectivity affects filtered recall", "Apply filters in hnswlib and SQL"]
+        },
+        {
+          "topic": "Keyword Search with BM25",
+          "subtopics": ["Inverted index from terms to postings", "Term frequency, inverse document frequency and length normalisation", "BM25 parameters k1 and b", "Tokenisation, lowercasing, stemming and stop words", "Where BM25 beats embeddings: IDs, codes, rare names and exact phrases", "rank_bm25 BM25Okapi in Python", "PostgreSQL ts_rank is not BM25", "BM25 as the default similarity in Lucene-based engines such as OpenSearch and Elasticsearch"],
+          "tools": ["rank_bm25", "ranx", "NLTK", "BEIR"],
+          "lab_task": "Tokenise the SciFact corpus with lowercasing and an English stop-word list, build rank_bm25.BM25Okapi(tokenized_corpus), retrieve the top 100 for all 300 test queries with get_scores, and evaluate nDCG@10 and recall@100 with ranx. Compare with the Day 7 dense run and list five queries where BM25 wins and five where dense wins, with a reason for each.",
+          "deliverable": "BM25 notebook, metrics table beside the dense run and ten annotated win/loss queries",
+          "checks": [["Inspect BM25Okapi default parameters", "k1 = 1.5 and b = 0.75", "Python output"], ["Score a query made only of a token absent from the corpus", "get_scores returns all zeros", "Python output"], ["Evaluate the BM25 run with ranx", "nDCG@10 and recall@100 shown beside the dense run in one table", "Metrics table"]],
+          "objectives": ["Explain how BM25 scores documents", "Build and evaluate a BM25 baseline", "Identify query types where keyword search beats vectors"]
+        },
+        {
+          "topic": "Combining Keyword and Vector Results with Reciprocal Rank Fusion",
+          "subtopics": ["Why hybrid: lexical precision plus semantic recall", "Running two retrievers in parallel", "Reciprocal Rank Fusion: score = sum of 1 / (k + rank)", "The constant k = 60 and its effect", "Rank-based versus score-based fusion", "Documents found by only one retriever", "Fusing with ranx fuse(method='rrf')", "Choosing the candidate depth for each retriever"],
+          "tools": ["ranx", "rank_bm25", "sentence-transformers", "NumPy"],
+          "lab_task": "Take the Day 7 dense run and the Day 12 BM25 run (top 100 each) on SciFact, implement RRF in about 15 lines of Python with k = 60, and compare it with ranx fuse(runs=[bm25, dense], method='rrf'). Evaluate nDCG@10 for BM25, dense and the fused run, then repeat fusion with k = 1, 10, 60 and 200 and record the effect.",
+          "deliverable": "RRF implementation, comparison with ranx and an nDCG@10 table for each k",
+          "checks": [["Compute RRF for a document ranked 1st by BM25 and 3rd by dense with k = 60", "1/61 + 1/63 = 0.0323", "Worked calculation"], ["Compare your RRF with ranx fuse at k = 60", "Same top-10 documents for every query", "Diff script output"], ["Evaluate the fused run", "Fused nDCG@10 is higher than the weaker of BM25 and dense", "Metrics table"]],
+          "objectives": ["Implement Reciprocal Rank Fusion", "Combine keyword and vector retrieval", "Measure what fusion adds over each retriever"]
+        },
+        {
+          "topic": "Reranking Candidates with Cross-Encoders",
+          "subtopics": ["Bi-encoders versus cross-encoders", "Two-stage retrieve-then-rerank", "CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2').predict(pairs)", "Choosing candidate depth: 20, 50 or 100", "Latency: one model pass per query-document pair", "Rerank scores replace retrieval scores", "Batching and truncating long passages", "Hosted rerank APIs as an alternative"],
+          "tools": ["sentence-transformers", "ranx", "PyTorch"],
+          "lab_task": "Rerank the top 50 fused results from Day 13 for all 300 SciFact queries with sentence-transformers CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2'), calling predict on (query, passage) pairs with batch_size=32. Evaluate nDCG@10 and recall@50 before and after, and time reranking per query at depths 20, 50 and 100.",
+          "deliverable": "Reranking notebook with before/after metrics and a latency-per-depth table",
+          "checks": [["Time reranking at depths 20, 50 and 100", "Per-query latency grows roughly in proportion to depth", "Latency table"], ["Count pairs scored for 300 queries at depth 50", "15,000 query-passage pairs", "Script output"], ["Evaluate before and after reranking", "nDCG@10 changes while recall@50 is identical, because reranking only reorders", "Metrics table"]],
+          "objectives": ["Explain why cross-encoders are more accurate but slower", "Add a reranking stage to a retrieval pipeline", "Choose a rerank depth from latency and quality"]
+        },
+        {
+          "topic": "k-NN Fields in OpenSearch and Elasticsearch",
+          "subtopics": ["OpenSearch: index.knn: true and knn_vector fields with dimension and space_type", "OpenSearch method definition: name hnsw, engine lucene or faiss, parameters m and ef_construction", "OpenSearch knn query with vector and k", "Elasticsearch dense_vector with dims, similarity and index: true", "Elasticsearch top-level knn with k and num_candidates", "Filters inside the knn clause", "Bulk indexing vectors with the _bulk API", "Lucene segments and refresh making new vectors searchable"],
+          "tools": ["OpenSearch", "Elasticsearch", "Docker", "curl", "opensearch-py", "elasticsearch-py"],
+          "lab_task": "Run OpenSearch in Docker, create an index with index.knn true and a knn_vector field (dimension 384, method hnsw, engine lucene, space_type cosinesimil), bulk-load 10,000 SciFact chunk vectors and run a knn query with k 10. Repeat in Elasticsearch with dense_vector (dims 384, similarity cosine) and a knn search with k 10 and num_candidates 100, then compare top-10 IDs for 20 queries.",
+          "deliverable": "Index mappings, bulk-load scripts and a top-10 overlap table between the two engines",
+          "checks": [["Index a document whose vector has 383 values", "HTTP 400 error naming the dimension mismatch", "API response"], ["GET the OpenSearch index _mapping", "Field type knn_vector with dimension 384 and engine lucene", "Mapping JSON"], ["Compare top-10 IDs from both engines for 20 queries", "At least 9 of 10 IDs overlap on average", "Overlap table"]],
+          "objectives": ["Define vector fields in OpenSearch and Elasticsearch", "Run k-NN queries with filters", "Compare results across engines on the same data"]
+        },
+        {
+          "topic": "Vector Queries in Redis",
+          "subtopics": ["Redis Query Engine in Redis 8 (formerly the RediSearch module)", "FT.CREATE with a VECTOR field: FLAT or HNSW, TYPE FLOAT32, DIM and DISTANCE_METRIC", "Storing vectors in hashes as raw float32 bytes and in JSON documents as arrays", "KNN syntax: *=>[KNN 10 @embedding $vec AS score] with DIALECT 2", "Hybrid filters with TAG and NUMERIC fields before =>", "VECTOR_RANGE queries for a distance threshold", "FT.INFO for document counts and indexing failures", "redis-py and the RedisVL library"],
+          "tools": ["Redis", "redis-cli", "redis-py", "RedisVL", "Docker"],
+          "lab_task": "Run docker run -p 6379:6379 redis:8, create FT.CREATE idx ON HASH PREFIX 1 doc: SCHEMA category TAG embedding VECTOR HNSW 6 TYPE FLOAT32 DIM 384 DISTANCE_METRIC COSINE, load 10,000 chunks with redis-py using np.float32 arrays and tobytes(), then run FT.SEARCH idx \"(@category:{bio})=>[KNN 10 @embedding $vec AS score]\" PARAMS 2 vec <bytes> SORTBY score DIALECT 2.",
+          "deliverable": "Redis index definition, load script and filtered KNN query results",
+          "checks": [["Run FT.INFO idx after loading", "num_docs is 10000 and hash_indexing_failures is 0", "redis-cli output"], ["Store one hash whose embedding blob holds 383 float32 values", "hash_indexing_failures rises by 1 and the document never appears in results", "FT.INFO output"], ["Run the KNN query with the category filter", "10 results, all with category bio, ordered by ascending cosine distance", "Query output"]],
+          "objectives": ["Create a Redis vector index", "Run filtered KNN queries in Redis", "Diagnose vectors that fail to index"]
+        },
+        {
+          "topic": "Ingestion Pipelines: Batching, Upserts and Re-Embedding",
+          "subtopics": ["Stable chunk IDs derived from document ID and chunk number", "Batching embedding calls and retrying with backoff", "Upsert semantics: insert or replace by ID", "Content hashes to skip unchanged chunks", "Deleting orphan chunks when a document shrinks", "Storing model name and version with each vector", "Idempotent re-runs and checkpoints", "Back-filling a new embedding column"],
+          "tools": ["pgvector", "psycopg", "sentence-transformers", "hashlib"],
+          "lab_task": "Write an ingest script for pgvector that computes sha256 of each chunk, skips unchanged hashes, embeds new or changed chunks in batches of 64 and writes INSERT ... ON CONFLICT (chunk_id) DO UPDATE SET embedding = EXCLUDED.embedding, content_hash = EXCLUDED.content_hash. Run it twice, edit 3 documents, run again, and log inserted, updated, deleted and skipped counts.",
+          "deliverable": "Idempotent ingest script and run logs for the three runs",
+          "checks": [["Run the script twice with no source changes", "Second run reports 0 inserted, 0 updated and every chunk skipped", "Run log"], ["Edit 3 documents and re-run", "Only chunks belonging to those 3 documents are re-embedded", "Run log"], ["Shorten a document from 10 chunks to 6 and re-run", "4 orphan rows are deleted and SELECT count(*) for that doc_id returns 6", "psql output"]],
+          "objectives": ["Build an idempotent vector ingest pipeline", "Use content hashes to avoid needless re-embedding", "Keep the index consistent when documents change"]
+        },
+        {
+          "topic": "Memory Sizing for Vector Indexes",
+          "subtopics": ["Raw vector bytes: N x d x bytes per value", "float32, float16 and int8 storage", "HNSW link overhead: about 2 x M x 4 bytes per vector on layer 0 plus upper layers", "OpenSearch HNSW estimate: 1.1 x (4 x d + 8 x M) bytes per vector", "IVF overhead: centroids and ID lists", "IDs, metadata and payload storage", "Replicas multiply memory", "Headroom for merges and rebuilds"],
+          "tools": ["Spreadsheet", "hnswlib", "NumPy", "Python 3"],
+          "lab_task": "Build a spreadsheet sizing 10 million 768-dimension vectors as flat float32, HNSW with M 16 and M 32, float16 and int8 variants, each with 1 replica. Check the HNSW M 16 estimate by building an hnswlib index of 500,000 GloVe-100 vectors, calling save_index and comparing the file size with N x (4 x d + 8 x M).",
+          "deliverable": "Sizing spreadsheet and a measured-versus-estimated comparison for hnswlib",
+          "checks": [["Compute raw float32 size for 10 million 768-dimension vectors", "30.72 GB (about 28.6 GiB)", "Spreadsheet"], ["Apply the OpenSearch estimate with M 16 to the same data", "1.1 x (3,072 + 128) x 10,000,000 = 35.2 GB per copy", "Spreadsheet"], ["Compare the saved hnswlib file for 500,000 GloVe-100 vectors with N x (4d + 8M)", "File size is within about 10% of the 264 MB estimate", "File listing"]],
+          "objectives": ["Estimate memory for flat and HNSW indexes", "Account for replicas, metadata and headroom", "Validate a sizing formula against a real index"]
+        },
+        {
+          "topic": "Building a Semantic Search API with FastAPI",
+          "subtopics": ["Loading the embedding model once at startup with a lifespan handler", "POST /search request model: query, k and filters", "Response model with IDs, scores and snippets", "Connection pooling to PostgreSQL with psycopg_pool", "Validating k and filter values with Pydantic", "Timeouts and error responses", "Caching query embeddings", "Measuring end-to-end latency with a small load script"],
+          "tools": ["FastAPI", "Uvicorn", "pgvector", "psycopg_pool", "httpx", "curl"],
+          "lab_task": "Build a FastAPI app whose lifespan handler loads all-MiniLM-L6-v2 and a psycopg_pool ConnectionPool. Expose POST /search taking {query, k, category} with k constrained to 1-50, run the pgvector query with WHERE category = %s, and return IDs, scores and snippets. Test with curl, then send 200 requests with an httpx script and report p50 and p95 latency.",
+          "deliverable": "FastAPI service source, curl examples and a latency report",
+          "checks": [["POST /search with k = 0", "HTTP 422 validation error", "curl output"], ["POST a valid query with category bio and k = 5", "HTTP 200 with exactly 5 results, all in category bio", "curl output"], ["Send 200 requests", "p50 and p95 reported with embedding time and database time logged separately", "Latency report"]],
+          "objectives": ["Wrap vector search in a web API", "Validate search inputs at the API boundary", "Measure where request time is spent"]
+        },
+        {
+          "topic": "Beginner Capstone: Semantic FAQ Search with Hybrid Retrieval",
+          "subtopics": ["Corpus preparation, chunking and metadata", "Dense index in pgvector with HNSW", "BM25 retrieval and RRF fusion", "Cross-encoder reranking of the top 20", "Evaluation on 50 labelled questions with ranx", "Demo, metrics report and known limitations"],
+          "tools": ["pgvector", "sentence-transformers", "rank_bm25", "ranx", "FastAPI"],
+          "lab_task": "Index 300 or more FAQ and help-centre pages into pgvector with an HNSW index using vector_cosine_ops, add rank_bm25 keyword search, fuse with RRF (k = 60), rerank the top 20 with a cross-encoder and serve it through FastAPI POST /search. Label 50 real questions and report nDCG@10 and recall@20 for dense-only, BM25-only, hybrid and hybrid plus rerank, with p95 latency.",
+          "deliverable": "Working hybrid search service, labelled question set and a metrics report",
+          "checks": [["Run the 50-question evaluation", "Table of four configurations with nDCG@10 and recall@20", "Metrics report"], ["Search for an exact product code that appears in one FAQ", "Hybrid search returns that page in the top 3", "API response"], ["Send 200 API requests", "p95 latency is reported against the target agreed at the start", "Latency report"]],
+          "objectives": ["Build an end-to-end hybrid search system", "Evaluate each stage of the pipeline", "Present measured results and limitations"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who have built a basic vector or hybrid search and now need to run it in production. Covers choosing embedding models with MTEB and domain evaluation, building ground-truth judgements, ANN benchmarking methodology, tuning HNSW and IVF, product, scalar and binary quantization with rescoring, Matryoshka truncation, filtered search at low selectivity, production pgvector, OpenSearch and Elasticsearch vector features, learned sparse vectors, score fusion tuning, ColBERT-style multi-vector retrieval, reranking under a latency budget, index freshness, choosing between libraries, database extensions and dedicated vector databases, and observability, ending with a filtered hybrid product-search capstone.",
+      "prerequisites": ["Has built a vector search with an embedding model and an HNSW or IVF index and can explain M, ef and nprobe", "Can compute recall@k and nDCG@10 for a retrieval run and understands BM25 and Reciprocal Rank Fusion", "Runs Docker containers, writes Python services and SQL, and has access to a machine with 32 GB RAM or a cloud VM"],
+      "outcomes": ["Select an embedding model and index configuration from measured recall, latency, memory and cost", "Apply product, scalar, binary and Matryoshka compression with rescoring to cut memory while holding a recall target", "Run filtered, sparse, multi-vector and fused hybrid retrieval in pgvector, OpenSearch and Elasticsearch", "Operate vector search with freshness guarantees, monitoring of latency and sampled recall, and a reasoned engine choice"],
+      "days": [
+        {
+          "topic": "Choosing Embedding Models with MTEB and Domain Evaluation",
+          "subtopics": ["Reading the MTEB leaderboard: retrieval scores versus overall averages", "Why leaderboard rank may not transfer to your domain", "Model size, dimensions, maximum tokens and licence as selection criteria", "Asymmetric retrieval: query and document prompts", "Multilingual and code embedding models", "Running the mteb package on chosen tasks", "Building a domain evaluation set", "Cost per million tokens versus self-hosted throughput"],
+          "tools": ["mteb", "sentence-transformers", "ranx", "Hugging Face Hub"],
+          "lab_task": "pip install mteb and run it on the SciFact and NFCorpus retrieval tasks for all-MiniLM-L6-v2, bge-base-en-v1.5 and e5-base-v2 (with its query: and passage: prefixes). Evaluate the same three models on a 100-query domain set with ranx, then build a table of nDCG@10, dimensions, encode throughput and licence and choose one model with a written reason.",
+          "deliverable": "Model selection table and a one-page recommendation",
+          "checks": [["Run e5-base-v2 on the domain set without its query: and passage: prefixes", "nDCG@10 is lower than with the prefixes", "Metrics table"], ["Look up each model's max_seq_length", "512 for bge-base-en-v1.5 and e5-base-v2, 256 for all-MiniLM-L6-v2", "Console output"], ["Run mteb on SciFact for one model", "A results JSON containing ndcg_at_10 for the test split is written", "Results folder"]],
+          "objectives": ["Read embedding benchmarks critically", "Evaluate candidate models on domain data", "Justify a model choice with measured trade-offs"]
+        },
+        {
+          "topic": "Building Ground Truth: Qrels, Judgement Pools and Synthetic Queries",
+          "subtopics": ["Sourcing real queries from search logs", "Pooling: judging the union of top-k results from several systems", "Graded relevance scales from 0 to 3", "Inter-annotator agreement with Cohen's kappa", "LLM-assisted relevance judgements and their bias", "Synthetic query generation from passages", "Leakage when synthetic queries copy passage wording", "Versioning qrels together with the corpus"],
+          "tools": ["ranx", "scikit-learn", "pandas", "Label Studio"],
+          "lab_task": "Sample 100 queries from a search log, pool the top 10 from BM25, dense and hybrid runs, have two people judge every pooled pair on a 0-3 scale, compute agreement with sklearn.metrics.cohen_kappa_score, resolve disagreements and write a TREC qrels file. Then generate 100 synthetic queries with an LLM and compare system rankings on real versus synthetic queries.",
+          "deliverable": "TREC qrels file, judging guideline, kappa report and a real-versus-synthetic ranking comparison",
+          "checks": [["Count pooled pairs for 100 queries, 3 systems and depth 10", "At most 3,000 pairs, fewer after removing duplicates", "Pool statistics"], ["Compute Cohen's kappa between the two judges", "Kappa of 0.6 or higher, or the guideline is revised and the pairs re-judged", "Agreement report"], ["Load the qrels with ranx Qrels.from_file", "Loads without error and contains 100 queries", "Python output"]],
+          "objectives": ["Build a reusable relevance judgement set", "Measure and improve judge agreement", "Assess when synthetic queries can stand in for real ones"]
+        },
+        {
+          "topic": "Benchmarking ANN Indexes with ann-benchmarks Methodology",
+          "subtopics": ["Standard datasets: sift-128-euclidean, glove-100-angular, gist-960-euclidean and deep-image-96-angular", "Recall@10 against the provided neighbours", "Recall versus QPS plots and Pareto frontiers", "Single-thread versus batch query mode", "Warm-up, repetitions and fixing thread counts", "Reporting build time and index size", "Benchmark traps: cached results, different k and mismatched metrics", "big-ann-benchmarks tracks: filtered, sparse, out-of-distribution and streaming"],
+          "tools": ["ann-benchmarks", "hnswlib", "h5py", "Matplotlib", "Docker"],
+          "lab_task": "Clone erikbern/ann-benchmarks, run python run.py --dataset glove-100-angular --algorithm hnswlib --local, then python plot.py --dataset glove-100-angular. Write your own harness that measures recall@10, single-thread QPS (OMP_NUM_THREADS=1) and build time for hnswlib at M 16 and 32, and check that your points fall on the same curve as the ann-benchmarks plot.",
+          "deliverable": "Benchmark harness, ann-benchmarks plot and an overlay of your own measurements",
+          "checks": [["Open the plot.py output", "Recall on the x-axis and queries per second on the y-axis with one curve per configuration", "Plot image"], ["Run your harness at ef = 100 three times after warm-up", "QPS varies by less than 5% between runs", "Run log"], ["Compute recall@10 using 'distances' with a small tie tolerance", "Recall is equal to or slightly above ID-only matching", "Script output"]],
+          "objectives": ["Benchmark ANN indexes reproducibly", "Read recall versus QPS curves", "Avoid common benchmarking mistakes"]
+        },
+        {
+          "topic": "HNSW Tuning: Build Cost, Memory and Recall Curves",
+          "subtopics": ["Effect of M on recall ceiling, memory and build time", "efConstruction and graph quality", "ef as the main query-time setting", "Insert order and incremental builds", "Parallel builds and thread count", "Dimensionality and intrinsic dimension", "Neighbour selection heuristic and graph connectivity", "Choosing a recall target, then the cheapest configuration that meets it"],
+          "tools": ["hnswlib", "h5py", "NumPy", "Matplotlib"],
+          "lab_task": "Grid-search hnswlib on glove-100-angular with M in {8, 16, 32, 48} and ef_construction in {100, 200, 400}. For each build record time and saved file size, then sweep ef in {10, 20, 40, 80, 160, 320}. Plot recall@10 versus QPS and report the cheapest configuration that reaches recall@10 of at least 0.95, with its p99 single-query latency.",
+          "deliverable": "Tuning grid results, Pareto plot and a recommended HNSW configuration",
+          "checks": [["Compare build time for M 8 and M 48 at ef_construction 200", "The M 48 build takes longer", "Build log"], ["Compare saved index size for M 8 and M 48", "M 48 is about 380 MB larger (320 extra link bytes per vector x 1.18M vectors)", "File listing"], ["Find a configuration with recall@10 of at least 0.95", "One named (M, ef_construction, ef) triple with its QPS and p99", "Tuning report"]],
+          "objectives": ["Tune HNSW systematically", "Relate M to memory and build cost", "Pick the cheapest setting for a recall target"]
+        },
+        {
+          "topic": "IVF Tuning: nlist, nprobe and Training Samples",
+          "subtopics": ["FAISS index_factory strings such as 'IVF4096,Flat'", "Choosing nlist from corpus size (FAISS guidance: 4 x sqrt(N) to 16 x sqrt(N))", "Training sample size and the 39-points-per-centroid warning", "nprobe and the recall versus latency curve", "Coarse quantizer choice for large nlist", "pgvector IVFFlat: lists, ivfflat.probes and building after loading data", "List imbalance and hot lists", "When IVF beats HNSW: build speed and memory"],
+          "tools": ["FAISS", "pgvector", "h5py", "NumPy"],
+          "lab_task": "With FAISS, build index_factory(100, 'IVF1024,Flat', faiss.METRIC_INNER_PRODUCT) and 'IVF4096,Flat' on normalised GloVe-100, training each on 50,000 and 300,000 samples. Sweep index.nprobe over {1, 4, 16, 64, 256}, record train time, recall@10, QPS and invlists.imbalance_factor(), then repeat the best setting in pgvector with ivfflat lists and SET ivfflat.probes.",
+          "deliverable": "IVF tuning table for FAISS and pgvector with a recommended nlist and nprobe",
+          "checks": [["Train IVF4096 on 50,000 samples", "FAISS warns that clustering needs at least 39 x 4096 = 159,744 training points", "Console output"], ["Sweep nprobe from 1 to 256", "Recall@10 rises and QPS falls", "Tuning table"], ["Create the ivfflat index on an empty table, then load the data", "Recall is poor until the index is rebuilt after loading", "Recall comparison"]],
+          "objectives": ["Size nlist and training samples for IVF", "Tune nprobe for a recall target", "Apply IVF settings in pgvector"]
+        },
+        {
+          "topic": "Product Quantization and OPQ",
+          "subtopics": ["Splitting a vector into m sub-vectors", "Codebooks of 256 centroids per sub-vector (8 bits each)", "Code size of m bytes per vector", "Asymmetric distance computation with lookup tables", "IVF-PQ: encoding residuals inside cells", "OPQ rotation to balance variance across sub-vectors", "4-bit fast-scan PQ", "Refining PQ candidates with full vectors"],
+          "tools": ["FAISS", "h5py", "NumPy"],
+          "lab_task": "On sift-128-euclidean (1M vectors) build FAISS indexes 'IVF4096,PQ32', 'OPQ32,IVF4096,PQ32' and 'IVF4096,PQ32,RFlat'. Set nprobe 32 (via faiss.extract_index_ivf for wrapped indexes) and k_factor 4 for RFlat, then report bytes per code, recall@10, QPS and index size after faiss.write_index. Explain why refinement raises recall and what it costs in memory.",
+          "deliverable": "PQ comparison table with code size, recall@10, QPS and index size for the three indexes",
+          "checks": [["Compare PQ32 code size with float32 for 128 dimensions", "32 bytes versus 512 bytes per vector, a 16x reduction", "Calculation"], ["Add OPQ32 in front of IVF4096,PQ32", "Recall@10 at the same nprobe is equal or higher", "Metrics table"], ["Add RFlat refinement with k_factor 4", "Recall@10 rises above plain IVF-PQ and index size grows by the full 512 bytes per vector", "Metrics table"]],
+          "objectives": ["Explain how product quantization compresses vectors", "Build and tune IVF-PQ indexes", "Use refinement to recover recall"]
+        },
+        {
+          "topic": "Scalar and Binary Quantization with Rescoring",
+          "subtopics": ["float16 storage and pgvector halfvec", "int8 scalar quantization with per-dimension min and max or quantiles", "Binary quantization: sign bits and Hamming distance", "32x compression and its recall cost", "Oversampling and rescoring with full-precision vectors", "Which embedding models tolerate binary quantization", "pgvector binary_quantize with bit_hamming_ops", "Elasticsearch int8_hnsw, int4_hnsw and bbq_hnsw index options"],
+          "tools": ["NumPy", "sentence-transformers", "pgvector", "Elasticsearch"],
+          "lab_task": "Embed 100,000 passages at 768 dimensions, quantize to int8 with per-dimension min/max and to binary with np.packbits(x > 0, axis=1). Search 1,000 queries by int8 dot product and by Hamming distance (np.bitwise_count on XOR), then rescore the top 40 binary candidates with float32. Report bytes per vector and recall@10 for float32, int8, binary and binary plus rescore.",
+          "deliverable": "Quantization notebook with a bytes-per-vector and recall@10 table",
+          "checks": [["Compute bytes per vector at 768 dimensions", "3,072 for float32, 768 for int8 and 96 for binary", "Calculation"], ["Measure binary recall@10 without rescoring", "Lower than int8 recall@10", "Metrics table"], ["Rescore the top 40 binary candidates with float32", "Recall@10 higher than binary alone", "Metrics table"]],
+          "objectives": ["Apply scalar and binary quantization", "Recover recall with oversampling and rescoring", "Choose a quantization level from memory and recall"]
+        },
+        {
+          "topic": "Matryoshka Embeddings and Dimension Truncation",
+          "subtopics": ["Matryoshka Representation Learning: most information in the leading dimensions", "Truncating then re-normalising", "sentence-transformers truncate_dim", "Models trained with and without Matryoshka loss", "Funnel search: coarse search at low dimension, rescore at full dimension", "Combining truncation with quantization", "Hosted embedding APIs with a dimensions parameter", "Measuring quality at each dimension"],
+          "tools": ["sentence-transformers", "ranx", "NumPy"],
+          "lab_task": "Encode SciFact with nomic-ai/nomic-embed-text-v1.5 (Matryoshka-trained; use search_query: and search_document: prefixes) and all-mpnet-base-v2 (not Matryoshka-trained) at 768 dimensions. Truncate to 512, 256, 128 and 64, re-normalise, and evaluate nDCG@10 at each size. Then build a funnel: search at 128 dimensions for the top 100 and rescore at 768 for the final top 10.",
+          "deliverable": "nDCG@10 versus dimension plot for both models and funnel search results",
+          "checks": [["Truncate both models to 128 dimensions", "The Matryoshka-trained model loses less nDCG@10 than all-mpnet-base-v2", "Metrics plot"], ["Rank truncated vectors by dot product without re-normalising", "The ranking differs from cosine ranking on the same truncated vectors", "Comparison output"], ["Run the 128-to-768 funnel", "nDCG@10 is closer to the full 768-dimension score than 128-dimension search alone", "Metrics table"]],
+          "objectives": ["Explain Matryoshka embeddings", "Truncate embeddings safely", "Build a coarse-to-fine funnel search"]
+        },
+        {
+          "topic": "Filtered Vector Search at Low Selectivity",
+          "subtopics": ["Selectivity bands: 50%, 10%, 1% and 0.1%", "Why HNSW recall collapses under restrictive filters", "Planner strategies: brute force below a threshold, filtered traversal above", "Iterative and incremental index scans", "Partitioning by a high-cardinality filter field", "Attribute and payload indexes", "Range and date filters versus categorical filters", "Testing with filters correlated and anti-correlated with the query"],
+          "tools": ["pgvector", "PostgreSQL", "psql", "NumPy"],
+          "lab_task": "Load 500,000 GloVe-100 vectors into pgvector with category values at selectivities 50%, 10%, 1% and 0.1% and create an HNSW index. Run WHERE category = X ORDER BY embedding <=> q LIMIT 10 with hnsw.iterative_scan = off and then relaxed_order, recording rows returned, recall@10 and latency per selectivity. Add a B-tree on category and inspect EXPLAIN ANALYZE.",
+          "deliverable": "Filtered search report by selectivity and strategy, with query plans",
+          "checks": [["Query the 0.1% category with iterative_scan off and default ef_search 40", "Most queries return fewer than 10 rows", "Results table"], ["Repeat with SET hnsw.iterative_scan = relaxed_order", "10 rows returned per query", "Results table"], ["EXPLAIN ANALYZE the 0.1% query with a B-tree on category", "The planner uses the B-tree with an exact sort instead of the HNSW index", "Query plan"]],
+          "objectives": ["Measure filtered recall by selectivity", "Use iterative scans and planner choices", "Pick a filtering strategy per workload"]
+        },
+        {
+          "topic": "pgvector in Production: HNSW, Iterative Scans and halfvec",
+          "subtopics": ["CREATE INDEX ... USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 64)", "maintenance_work_mem and max_parallel_maintenance_workers for builds", "CREATE INDEX CONCURRENTLY on live tables", "hnsw.ef_search set per transaction with SET LOCAL", "halfvec columns and expression indexes for more than 2,000 dimensions", "Index size with pg_relation_size and pg_size_pretty", "VACUUM and deleted rows in HNSW indexes", "Query monitoring with pg_stat_statements"],
+          "tools": ["pgvector", "PostgreSQL", "psql", "pg_stat_statements"],
+          "lab_task": "Load 1M 384-dimension vectors into pgvector and build an HNSW index (m 16, ef_construction 64) with maintenance_work_mem = '4GB' and max_parallel_maintenance_workers = 7, timing it. Build a halfvec expression index on (embedding::halfvec(384)) with halfvec_cosine_ops, compare sizes with pg_size_pretty(pg_relation_size(...)), and measure recall@10 at hnsw.ef_search 40, 100 and 200 using SET LOCAL.",
+          "deliverable": "pgvector runbook with build times, index sizes and recall per ef_search",
+          "checks": [["Build HNSW with maintenance_work_mem set to '64MB'", "NOTICE that the hnsw graph no longer fits into maintenance_work_mem, and the build is slower", "psql output"], ["Create an HNSW index on a vector(3072) column", "ERROR: column cannot have more than 2000 dimensions for hnsw index", "psql output"], ["Compare the vector and halfvec index sizes", "The halfvec index is smaller because vector data halves while graph links stay the same", "Size query output"]],
+          "objectives": ["Build HNSW indexes in PostgreSQL efficiently", "Use halfvec for large dimensions and smaller indexes", "Tune ef_search per query"]
+        },
+        {
+          "topic": "OpenSearch k-NN Engines, Hybrid Queries and Normalisation",
+          "subtopics": ["Engines: faiss and lucene, with nmslib deprecated", "space_type values: l2, innerproduct and cosinesimil", "Efficient filtering with the filter clause inside knn", "Byte vectors, disk-based mode (mode on_disk) and compression_level", "Ingest pipelines with the text_embedding processor", "The hybrid query type combining match and knn", "Search pipelines with normalization-processor: min_max or l2 normalisation and arithmetic_mean combination with weights", "k-NN stats API and native memory circuit breaker"],
+          "tools": ["OpenSearch", "OpenSearch Dashboards", "opensearch-py", "ranx"],
+          "lab_task": "In OpenSearch, create a search pipeline named hybrid-pipe with a normalization-processor (normalization min_max, combination arithmetic_mean with weights [0.3, 0.7]). Run a hybrid query with a match clause on text and a knn clause on embedding using ?search_pipeline=hybrid-pipe over SciFact, and compare nDCG@10 for weights 0.3/0.7, 0.5/0.5 and 0.7/0.3 with BM25-only and knn-only.",
+          "deliverable": "Search pipeline definitions, hybrid query and an nDCG@10 comparison table",
+          "checks": [["GET _search/pipeline/hybrid-pipe", "Shows normalization-processor with min_max and arithmetic_mean weights [0.3, 0.7]", "API response"], ["Compare the three weight settings", "Three nDCG@10 values in the table with the best weight pair named", "Metrics table"], ["Call GET _plugins/_knn/stats after running queries", "Per-node k-NN statistics are returned", "API response"]],
+          "objectives": ["Configure OpenSearch k-NN fields and engines", "Run normalised hybrid queries with search pipelines", "Tune hybrid weights on evaluation data"]
+        },
+        {
+          "topic": "Elasticsearch dense_vector, Quantized HNSW and RRF Retrievers",
+          "subtopics": ["dense_vector mapping: dims, similarity (cosine, dot_product, l2_norm, max_inner_product) and index_options", "Quantized index options: int8_hnsw, int4_hnsw, bbq_hnsw and their flat variants", "knn search parameters k and num_candidates", "Pre-filtering with filter inside knn", "Retrievers: standard, knn and rrf", "rrf rank_constant and rank_window_size", "semantic_text fields and inference endpoints", "Rescoring quantized results with oversampling"],
+          "tools": ["Elasticsearch", "Kibana Dev Tools", "elasticsearch-py", "ranx"],
+          "lab_task": "In Elasticsearch, create two indexes for the same 384-dimension SciFact vectors with index_options type hnsw and type int8_hnsw. Compare store.size from GET _cat/indices and recall@10 at num_candidates 50 and 200, then run an rrf retriever combining a standard match retriever and a knn retriever (rank_window_size 100) and evaluate nDCG@10 against BM25 and knn alone.",
+          "deliverable": "Mappings, size and recall comparison, and an rrf retriever evaluation",
+          "checks": [["Compare store.size of the hnsw and int8_hnsw indexes", "int8_hnsw is not smaller on disk because raw float32 vectors are kept beside the int8 copy", "_cat/indices output"], ["Send a knn search with num_candidates lower than k", "HTTP 400 stating that num_candidates cannot be less than k", "API response"], ["Run the rrf retriever", "Fused results returned and nDCG@10 reported beside BM25 and knn", "Metrics table"]],
+          "objectives": ["Map and query dense vectors in Elasticsearch", "Explain where quantized HNSW saves memory", "Fuse lexical and vector retrievers with RRF"]
+        },
+        {
+          "topic": "Sparse Vectors: SPLADE and Learned Sparse Retrieval",
+          "subtopics": ["Sparse vectors: vocabulary-sized with few non-zero weights", "SPLADE: masked-language-model head producing term weights and expansion terms", "Document-side versus query-side expansion", "Serving learned sparse vectors from an inverted index", "pgvector sparsevec and the <#> operator", "OpenSearch neural sparse search and Elasticsearch sparse_vector with ELSER", "Learned sparse versus BM25 on out-of-domain data", "Pruning low weights to control index size"],
+          "tools": ["transformers", "pgvector", "ranx", "PyTorch"],
+          "lab_task": "Encode SciFact with naver/splade-cocondenser-ensembledistil via transformers (log(1 + relu(logits)) max-pooled over tokens), keep the top 128 weights per document and store them in a pgvector sparsevec(30522) column. Search with ORDER BY embedding <#> query LIMIT 100, evaluate nDCG@10 against BM25 and dense, and print the top 10 expansion terms for three documents.",
+          "deliverable": "SPLADE encoding script, sparse index and a three-way metrics table",
+          "checks": [["Count non-zero weights per document before pruning", "Average count far below the 30,522-term vocabulary", "Statistics output"], ["Print the top weighted terms for a document about heart attacks", "Related terms that are absent from the text (such as cardiac) carry non-zero weight", "Term list"], ["Evaluate the SPLADE run with ranx", "nDCG@10 shown beside BM25 and dense in one table", "Metrics table"]],
+          "objectives": ["Explain learned sparse retrieval", "Store and query sparse vectors", "Compare sparse, dense and BM25 retrieval"]
+        },
+        {
+          "topic": "Score Fusion: RRF, Convex Combination and Weight Tuning",
+          "subtopics": ["Score normalisation: min-max, z-score and theoretical bounds", "Convex combination: alpha x dense + (1 - alpha) x sparse", "RRF versus tuned convex combination in published comparisons", "Tuning alpha and k on a validation split, never on the test set", "Per-query fusion failures and score distribution shifts", "Fusing more than two retrievers", "ranx fuse and optimize_fusion", "Query-dependent weighting"],
+          "tools": ["ranx", "NumPy", "pandas"],
+          "lab_task": "Using SciFact train queries as the validation split, run ranx optimize_fusion with method 'wsum' and min-max normalisation and with method 'rrf', pick the best weights and k, then apply them to the test queries with BM25, dense and SPLADE runs. Report test nDCG@10 for each single run, each two-way fusion and the three-way fusion.",
+          "deliverable": "Fusion tuning notebook and a test-set nDCG@10 table",
+          "checks": [["Min-max normalise a raw score of 12 in a list spanning 4 to 20", "(12 - 4) / (20 - 4) = 0.5", "Worked calculation"], ["Run optimize_fusion for wsum on the validation split", "Best weights printed and summing to 1", "Python output"], ["Apply tuned settings to the test split", "Three-way fusion compared with the best two-way fusion in one table", "Metrics table"]],
+          "objectives": ["Normalise and combine retrieval scores", "Tune fusion parameters without test-set leakage", "Decide between RRF and weighted fusion"]
+        },
+        {
+          "topic": "Multi-Vector Retrieval with ColBERT Late Interaction",
+          "subtopics": ["Token-level embeddings and MaxSim scoring", "ColBERTv2 residual compression", "PLAID centroid interaction for fast candidate generation", "Storage cost of one vector per token", "Multi-vector documents built from chunks: max and sum aggregation", "Visual document retrieval with ColPali", "Running late-interaction models with the PyLate library", "Multi-vector field support in general search engines"],
+          "tools": ["PyLate", "PyTorch", "NumPy", "ranx"],
+          "lab_task": "With the PyLate library, encode SciFact with a ColBERTv2 checkpoint, build its PLAID index and retrieve the top 10 for the 300 test queries. Implement MaxSim yourself in NumPy for 5 queries (sum over query tokens of the max dot product with document tokens) to check scores, then compare nDCG@10, index size on disk and per-query latency with the single-vector dense index.",
+          "deliverable": "Late-interaction retrieval notebook with a MaxSim check and a comparison table",
+          "checks": [["Compute MaxSim by hand for one query-document pair", "Matches the library score to 3 decimal places", "Notebook cell"], ["Count stored vectors for a 180-token document", "About 180 token vectors versus 1 vector in the dense index", "Index statistics"], ["Compare index sizes on disk", "The multi-vector index is several times larger than the single-vector index", "File listing"]],
+          "objectives": ["Explain late interaction and MaxSim", "Build a multi-vector index", "Weigh multi-vector accuracy against storage and latency"]
+        },
+        {
+          "topic": "Reranking Pipelines: Latency Budgets and Candidate Depth",
+          "subtopics": ["Budgeting p95 latency across embed, retrieve, fuse and rerank", "Choosing rerank depth from first-stage recall@N", "Reranker size versus accuracy", "LLM-based listwise reranking and its cost", "GPU batching and ONNX or INT8 export for rerankers", "Caching rerank results for frequent queries", "Graceful degradation: skip reranking on timeout", "Measuring rerank gain per query"],
+          "tools": ["sentence-transformers", "ONNX Runtime", "FastAPI", "ranx"],
+          "lab_task": "Measure first-stage recall@N for N in {10, 20, 50, 100, 200} on SciFact hybrid results, then rerank at each depth with cross-encoder/ms-marco-MiniLM-L-6-v2 and BAAI/bge-reranker-base. Record nDCG@10 and p95 rerank latency, choose the depth and model that meet a 300 ms p95 budget, and add a timeout fallback that returns the fused order.",
+          "deliverable": "Depth and model trade-off table and a reranking service with timeout fallback",
+          "checks": [["Plot first-stage recall@N", "Recall@N rises with N and flattens, setting the ceiling for rerank gains", "Recall plot"], ["Add a 1-second sleep inside the reranker", "The API returns fused order within the timeout and logs rerank_skipped", "API log"], ["Compare the two rerankers at depth 50", "bge-reranker-base has higher latency, with nDCG@10 recorded for both", "Trade-off table"]],
+          "objectives": ["Set rerank depth from first-stage recall", "Fit reranking into a latency budget", "Degrade gracefully when reranking is slow"]
+        },
+        {
+          "topic": "Index Freshness: Updates, Deletes and Tombstones",
+          "subtopics": ["Updates as delete plus insert in most ANN indexes", "Tombstones and mark_deleted in hnswlib", "Recall and speed decay as deletes accumulate", "Rebuild, compaction and replace_deleted", "Lucene segments, refresh_interval and merges in OpenSearch and Elasticsearch", "pgvector: VACUUM removing dead HNSW entries", "IVF centroid drift as data changes", "Read-your-writes expectations and eventual visibility"],
+          "tools": ["hnswlib", "Elasticsearch", "pgvector", "NumPy"],
+          "lab_task": "Build an hnswlib index of 500,000 GloVe vectors with allow_replace_deleted=True, mark_deleted 10%, 30% and 50% of IDs, and measure recall@10 (ground truth recomputed on live IDs) and QPS at fixed ef. Insert new vectors with add_items(replace_deleted=True) and compare with a fresh rebuild. In Elasticsearch, time how long a new document takes to become searchable at refresh_interval 1s and 30s.",
+          "deliverable": "Freshness report with recall and QPS versus delete ratio and time-to-searchable measurements",
+          "checks": [["Query with the exact vector of a deleted ID", "The deleted ID never appears in results", "Query output"], ["Compare 50%-deleted index with a fresh rebuild at the same ef", "The fresh rebuild has higher recall@10 or higher QPS", "Metrics table"], ["Index a document with refresh_interval 30s and search at once", "Not found until a refresh runs or POST _refresh is called", "API responses"]],
+          "objectives": ["Explain how deletes and updates affect ANN indexes", "Decide when to compact or rebuild", "Measure time-to-searchable"]
+        },
+        {
+          "topic": "Choosing a Vector Engine: Libraries, Extensions and Dedicated Databases",
+          "subtopics": ["Libraries (FAISS, hnswlib, ScaNN, USearch): no server, persistence or rich filtering by themselves", "Database extensions and search engines (pgvector, OpenSearch, Elasticsearch, Redis): vectors beside existing data", "Dedicated vector databases (Milvus, Qdrant, Weaviate, Chroma) and managed services such as Pinecone", "Feature criteria: index types, filtering, hybrid search, quantization and multi-tenancy", "Operational criteria: backups, replication, upgrades and observability", "Cost models: self-hosted capacity versus serverless usage units", "Licences, hosting options and lock-in", "Writing a weighted decision matrix"],
+          "tools": ["Spreadsheet", "Vendor documentation", "pgvector", "OpenSearch"],
+          "lab_task": "For a workload of 20M 768-dimension vectors, 200 QPS, a tenant filter, hybrid search and a 99.9% availability target, fill a weighted decision matrix for one library, two database extensions and three dedicated vector databases using each project's current documentation. Score index types, filtering, hybrid support, quantization, multi-tenancy, operations and licence, and shortlist two for a bake-off.",
+          "deliverable": "Weighted decision matrix with sources and a two-engine shortlist",
+          "checks": [["Sum the criterion weights", "Weights total 100%", "Spreadsheet"], ["Check each matrix cell", "Every score cites a documentation link checked within the last 12 months", "Spreadsheet"], ["Present the shortlist", "Exactly two engines with the deciding criteria named", "Shortlist slide"]],
+          "objectives": ["Compare libraries, extensions and dedicated vector databases", "Evaluate engines against workload requirements", "Produce a documented shortlist"]
+        },
+        {
+          "topic": "Observability for Vector Search: Latency, Recall Drift and Query Logs",
+          "subtopics": ["Metrics per stage: embed, ANN, filter, fuse and rerank", "p50, p95 and p99 latency histograms in Prometheus", "Online recall sampling with shadow exact search", "Zero-result and low-score query rates", "Query embedding drift measured against a baseline centroid", "Logging queries, filters, returned IDs and model version", "Dashboards and alert rules", "Privacy rules for query logs"],
+          "tools": ["Prometheus", "Grafana", "prometheus_client", "pgvector", "FastAPI"],
+          "lab_task": "Instrument the search service with prometheus_client Histograms per stage, add a background job that re-runs 1% of queries as exact pgvector search (SET enable_indexscan = off) and exports recall@10 as a Gauge, and log query hash, filters, top IDs and model version as JSON. Build a Grafana p95-per-stage panel and an alert when sampled recall@10 stays below 0.9 for 15 minutes.",
+          "deliverable": "Instrumented service, Grafana dashboard JSON and alert rule",
+          "checks": [["Scrape /metrics", "Histogram buckets present for the embed, ann and rerank stages", "/metrics output"], ["Lower hnsw.ef_search to 10 in the service", "Sampled recall gauge falls and the alert fires after 15 minutes", "Grafana alert"], ["Inspect one JSON log line", "Contains query hash, filters, top IDs and model version but no raw user ID", "Log line"]],
+          "objectives": ["Instrument each stage of a search pipeline", "Detect recall regressions with sampled exact search", "Log queries safely for analysis"]
+        },
+        {
+          "topic": "Intermediate Capstone: Hybrid Product Search with Filters and Reranking",
+          "subtopics": ["Embedding model choice backed by a domain evaluation", "HNSW index tuned to a recall target", "Filtered search on category, price and stock", "BM25 and dense fusion tuned on a validation split", "Reranking within a latency budget", "Dashboards, sampled recall and a freshness test"],
+          "tools": ["OpenSearch", "Elasticsearch", "sentence-transformers", "ranx", "Grafana"],
+          "lab_task": "Build product search over a 500,000-product sample (for example the Amazon ESCI shopping queries dataset) in OpenSearch or Elasticsearch: tune HNSW to recall@10 of at least 0.95, add category and price filters, fuse BM25 and dense with weights tuned on a validation split, rerank the top 50 within 300 ms p95, and report nDCG@10 per configuration, filtered recall at 1% selectivity and time-to-searchable.",
+          "deliverable": "Running product search service, evaluation report and monitoring dashboard",
+          "checks": [["Evaluate held-out test queries", "nDCG@10 table for BM25, dense, hybrid and hybrid plus rerank", "Evaluation report"], ["Query with a filter matching 1% of products", "10 results with filtered recall@10 of at least 0.9", "Evaluation report"], ["Index a new product and poll search", "Product is searchable within the configured refresh interval", "Timing log"]],
+          "objectives": ["Deliver a tuned hybrid search system", "Meet recall and latency targets with filters", "Report results with reproducible evaluation"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For search engineers, ML platform engineers and architects who run or design vector search at hundreds of millions to billions of vectors. Covers architecture for billion-scale corpora, SSD-resident DiskANN indexes, ScaNN anisotropic quantization, GPU index build and search, sharding, replication and tail latency, streaming freshness, multi-tenant index design, filtered ANN algorithms, zero-downtime embedding model migration, fine-tuning embedding models for retrieval, out-of-distribution and cross-modal queries, cost modelling, online evaluation, load testing, security threats specific to vector stores, a neutral proof-of-concept across vector engines and incident response, ending with a multi-tenant retrieval platform capstone.",
+      "prerequisites": ["Has tuned HNSW, IVF and quantized indexes against measured recall and latency targets", "Has operated a production hybrid search service with filters, monitoring and an evaluation set", "Is comfortable with distributed systems concepts (sharding, replication, queues) and has cloud access including a GPU instance and NVMe-backed VMs"],
+      "outcomes": ["Design vector search architectures for billions of vectors with explicit memory, latency, freshness and cost budgets", "Select and tune SSD-resident, GPU and quantization-based index algorithms, including for filtered and out-of-distribution queries", "Run multi-tenant, sharded and streaming vector search with tail-latency control, security controls and zero-downtime model changes", "Evaluate systems offline and online, run neutral engine comparisons, and respond to retrieval-quality incidents"],
+      "days": [
+        {
+          "topic": "Vector Search Architecture at Billion Scale",
+          "subtopics": ["Workload profile: corpus size, dimensions, QPS, filters, write rate and recall target", "Memory-resident versus SSD-resident versus object-storage-backed indexes", "Separating ingest, index build and query serving", "Segment-based designs: immutable indexed segments plus a growing buffer", "Compute-storage separation and stateless query nodes", "Compressed in-memory index with full vectors on disk for rescoring", "Consistency and freshness guarantees", "Capacity model and failure domains"],
+          "tools": ["Spreadsheet", "Diagramming tool", "Python 3"],
+          "lab_task": "Write an architecture document for 1 billion 768-dimension vectors at 2,000 QPS with recall@10 of at least 0.95, p99 under 100 ms and 10,000 writes per second. Compute RAM for float32 HNSW, int8 HNSW and binary-codes-plus-SSD-rescore designs, choose one, draw ingest and query paths, and list each component's failure mode, detection signal and recovery time.",
+          "deliverable": "Architecture document with capacity calculations, diagrams and a failure table",
+          "checks": [["Compute raw float32 storage for 1 billion 768-dimension vectors", "3.072 TB (about 2.79 TiB) before graph overhead", "Capacity sheet"], ["Compute 1-bit binary code storage for the same corpus", "96 GB", "Capacity sheet"], ["Review the failure table", "Every component lists a failure mode, detection signal and recovery time", "Architecture document"]],
+          "objectives": ["Profile a vector search workload", "Compare memory, SSD and object-storage designs", "Produce a capacity and failure model"]
+        },
+        {
+          "topic": "DiskANN and the Vamana Graph on SSD",
+          "subtopics": ["Vamana graph construction with the alpha pruning parameter", "Parameters: maximum degree R, build list size L and search list size", "PQ-compressed vectors in RAM, full vectors and neighbour lists on SSD", "Beam search and SSD reads per query", "SSD IOPS and latency requirements", "Fresh-DiskANN for inserts and deletes", "Filtered-DiskANN with label-aware graphs", "DiskANN-style indexes inside databases, such as StreamingDiskANN in pgvectorscale"],
+          "tools": ["diskannpy", "NumPy", "iostat", "NVMe SSD"],
+          "lab_task": "pip install diskannpy and build a disk index on 10M vectors from a big-ann-benchmarks dataset (or 1M SIFT) with graph_degree 64, complexity 100 and a PQ memory budget of a few GB. Search with complexity from 10 to 200 and beam_width 2, 4 and 8, recording recall@10, QPS, SSD reads per query from iostat and the process resident set size.",
+          "deliverable": "DiskANN benchmark report with recall, QPS, SSD reads and RAM usage",
+          "checks": [["Compare process RSS with the raw float32 file size", "RSS is a small fraction of the raw vector size", "ps and ls output"], ["Raise complexity from 10 to 200", "Recall@10 rises and SSD reads per query increase", "Benchmark table"], ["Repeat the search on a network-attached disk instead of local NVMe", "p99 latency rises sharply", "Latency table"]],
+          "objectives": ["Explain how DiskANN keeps most data on SSD", "Tune Vamana build and search parameters", "Size SSD and RAM for a disk-resident index"]
+        },
+        {
+          "topic": "ScaNN and Anisotropic Vector Quantization",
+          "subtopics": ["Partitioning tree: num_leaves and num_leaves_to_search", "Anisotropic quantization: penalising error parallel to the data point", "score_ah asymmetric hashing versus score_brute_force", "Reordering candidates with exact scores", "training_sample_size", "Maximum inner product search and why it differs from cosine", "SIMD 4-bit lookup tables", "ScaNN-based indexes in managed databases such as AlloyDB"],
+          "tools": ["ScaNN", "hnswlib", "h5py", "Matplotlib"],
+          "lab_task": "pip install scann and build on normalised glove-100-angular with scann.scann_ops_pybind.builder(db, 10, 'dot_product').tree(num_leaves=2000, num_leaves_to_search=100, training_sample_size=250000).score_ah(2, anisotropic_quantization_threshold=0.2).reorder(100).build(). Sweep leaves_to_search and pre_reorder_num_neighbors in search_batched and overlay the recall versus QPS curve on your HNSW curve.",
+          "deliverable": "ScaNN tuning notebook and a ScaNN-versus-HNSW Pareto plot",
+          "checks": [["Remove .reorder(100) and rebuild", "Recall@10 drops because results are ranked on quantized scores only", "Metrics table"], ["Raise leaves_to_search from 50 to 400", "Recall@10 rises and QPS falls", "Metrics table"], ["Overlay the ScaNN and HNSW curves", "Plot names which method has higher QPS at recall@10 = 0.9", "Pareto plot"]],
+          "objectives": ["Explain anisotropic quantization", "Tune a partition-and-quantize index", "Compare ScaNN and HNSW on the same data"]
+        },
+        {
+          "topic": "GPU-Accelerated Index Build and Search",
+          "subtopics": ["Where GPUs help: batched queries and index build throughput", "The CAGRA graph index in NVIDIA cuVS", "GPU IVF-Flat and IVF-PQ", "Building on GPU and serving on CPU by converting CAGRA graphs to HNSW", "GPU memory limits and out-of-core builds", "Batch size versus latency", "Cost per million queries on GPU versus CPU", "GPU support inside libraries and search engines"],
+          "tools": ["NVIDIA cuVS", "CUDA", "hnswlib", "nvidia-smi", "CuPy"],
+          "lab_task": "On a GPU instance, build a CAGRA index with the cuVS Python API (cagra.build with IndexParams(graph_degree=32)) and an IVF-PQ index on 10M vectors, and time both against a CPU hnswlib build on the same data. Search with batch sizes 1, 100 and 10,000, and report build time, recall@10, throughput and cost per million queries using your cloud's hourly prices.",
+          "deliverable": "GPU versus CPU benchmark report with a cost-per-million-queries table",
+          "checks": [["Compare GPU and CPU build times", "Both times reported with the speed-up factor", "Benchmark table"], ["Search on GPU at batch size 1 and 10,000", "Queries per second at batch 10,000 are far higher than at batch 1", "Benchmark table"], ["Compute cost per million queries", "One figure per platform showing the hourly price and measured QPS used", "Cost sheet"]],
+          "objectives": ["Explain when GPUs pay off for vector search", "Build and query GPU indexes", "Compare GPU and CPU cost per query"]
+        },
+        {
+          "topic": "Sharding Strategies: Random, Semantic and Tenant Partitioning",
+          "subtopics": ["Random (hash) sharding: every query fans out to every shard", "Semantic (cluster) sharding: route queries to the nearest shards", "Tenant sharding and hot tenants", "Per-shard k and the global merge", "Recall loss from per-shard top-k truncation", "Shard sizing against RAM and rebuild time", "Rebalancing and resharding", "Routing with centroid tables"],
+          "tools": ["hnswlib", "scikit-learn", "NumPy", "Python asyncio"],
+          "lab_task": "Split 1M GloVe vectors into 8 shards by hash and by k-means cluster (8 clusters), build an hnswlib index per shard, and write a router that fans out to all shards for hash and to the nearest 1, 2 and 4 shards by centroid for semantic routing. Merge per-shard top-10 lists and report recall@10, shards touched per query and total distance computations per policy.",
+          "deliverable": "Sharding simulator and a recall versus work table per routing policy",
+          "checks": [["Hash sharding with full fan-out", "8 shards per query and recall@10 at least as high as a single index at the same ef", "Results table"], ["Semantic routing to the nearest shard only", "1 shard per query and recall@10 lower than full fan-out", "Results table"], ["Semantic routing to the nearest 4 shards", "Recall@10 between the 1-shard and full fan-out results", "Results table"]],
+          "objectives": ["Compare hash and semantic sharding", "Measure recall cost of routing", "Choose a sharding strategy for a workload"]
+        },
+        {
+          "topic": "Replication, Tail Latency and Scatter-Gather Query Planning",
+          "subtopics": ["A fan-out query's p99 is driven by its slowest shard", "Replicas for throughput and availability", "Hedged requests and cancellation", "Adaptive replica selection", "Per-shard timeouts and partial results", "Load shedding and admission control", "Query batching and thread pools", "Measuring tail latency with HdrHistogram"],
+          "tools": ["Python asyncio", "HdrHistogram", "NumPy", "Matplotlib"],
+          "lab_task": "Simulate 16 shards in Python asyncio, drawing each shard's latency from a log-normal with 1% outliers at 10 times the median. Measure fan-out p50 and p99 over 1,000 queries, then add one replica per shard with hedged requests sent after the shard p95, and a 50 ms per-shard timeout returning partial results. Report p99, extra load from hedging and the partial-result rate.",
+          "deliverable": "Tail-latency simulator and a before/after p99 report",
+          "checks": [["Compare single-shard p99 with 16-shard fan-out p99", "Fan-out p99 is higher than single-shard p99", "Latency table"], ["Enable hedging at the shard p95", "p99 falls while total shard requests rise by about 5%", "Latency table"], ["Apply the 50 ms per-shard timeout", "Partial-result rate reported and every partial response is flagged", "Simulator output"]],
+          "objectives": ["Explain tail latency amplification in fan-out", "Reduce p99 with hedging and timeouts", "Quantify the load cost of tail-latency controls"]
+        },
+        {
+          "topic": "Streaming Ingestion and Real-Time Index Freshness",
+          "subtopics": ["Change data capture from the source of truth, for example Debezium into Kafka", "Embedding workers, back-pressure and dead-letter queues", "A growing in-memory buffer plus sealed indexed segments", "Searching the brute-force buffer and the ANN index together", "Background compaction and index rebuild", "Ordering and idempotency with versioned upserts", "Freshness SLO: time from write to searchable", "The big-ann-benchmarks streaming track"],
+          "tools": ["Apache Kafka", "Debezium", "hnswlib", "NumPy", "Prometheus"],
+          "lab_task": "Build a pipeline where a Kafka topic of document changes feeds an embedding worker that writes to two tiers: a NumPy brute-force buffer holding the latest 50,000 vectors and an hnswlib main index merged every 10 minutes. Queries search both tiers and merge results. Replay 1M changes at 2,000 per second and measure write-to-searchable p99 and recall@10 during merges.",
+          "deliverable": "Two-tier streaming index, replay harness and a freshness report",
+          "checks": [["Write a document and query for it immediately", "Found in the buffer tier within the 2-second freshness SLO", "Timing log"], ["Replay a change carrying an older version number", "The newer vector is kept and the stale write is rejected", "Worker log"], ["Measure recall@10 during a merge", "Recall@10 stays at or above the target throughout the merge", "Metrics plot"]],
+          "objectives": ["Design a streaming ingest path for vectors", "Serve fresh data from a buffer plus an ANN index", "Measure and meet a freshness SLO"]
+        },
+        {
+          "topic": "Multi-Tenant Index Design: Per-Tenant Indexes, Partitions and Shared Filters",
+          "subtopics": ["Tenant size distribution: many small, a few huge", "One index per tenant: isolation and overhead", "Shared index with a tenant_id filter: efficiency and filtered-recall risk", "Partitions keyed by tenant or tenant group", "Promoting large tenants to dedicated shards", "Per-tenant quotas, rate limits and noisy neighbours", "Tenant deletion and data residency", "PostgreSQL row-level security with pgvector"],
+          "tools": ["pgvector", "PostgreSQL", "psql", "NumPy"],
+          "lab_task": "Generate 2,000 tenants with Zipf-distributed sizes totalling 5M vectors. In pgvector compare a shared table with a tenant_id filter and iterative scans, list partitioning by tenant group with an HNSW index per partition, and dedicated tables for the 10 largest tenants. Measure recall@10, p95 latency for small and large tenants and total index build time.",
+          "deliverable": "Multi-tenant design comparison with recall, latency and build-time results",
+          "checks": [["Query a 50-vector tenant in the shared HNSW index with iterative scans off", "Fewer than 10 rows returned", "psql output"], ["Query the same tenant using a B-tree on tenant_id and an exact sort", "Exact top-10 with recall@10 of 1.0", "psql output"], ["Enable row-level security with a tenant policy and query as another tenant", "Zero rows returned", "psql output"]],
+          "objectives": ["Compare multi-tenant index layouts", "Protect small tenants from filtered-recall loss", "Enforce tenant isolation in the database"]
+        },
+        {
+          "topic": "Filtered ANN Algorithms: ACORN, Filtered-DiskANN and Partitioned Indexes",
+          "subtopics": ["Why filter-agnostic graphs fail: disconnected predicate subgraphs", "ACORN: denser predicate-agnostic graphs with neighbour expansion", "Filtered-DiskANN and Stitched-DiskANN label-aware construction", "Per-label indexes and their memory cost", "Cost-based choice between brute force and graph search", "Range filters and window search", "The big-ann-benchmarks filtered track (YFCC 10M)", "Engine features: OpenSearch efficient filtering, Elasticsearch knn filter, pgvector iterative scans"],
+          "tools": ["hnswlib", "NumPy", "diskannpy", "Matplotlib"],
+          "lab_task": "Using 1M vectors each tagged with 1 to 3 labels at selectivities 10%, 1% and 0.1%, compare post-filter HNSW with 10x over-fetch, the hnswlib filter callable, per-label hnswlib indexes and brute force over matching IDs. Build a cost-model router that picks brute force below a selectivity threshold, and report recall@10 and QPS per strategy and selectivity.",
+          "deliverable": "Filtered ANN comparison and a cost-model router with its threshold",
+          "checks": [["Post-filter with 10x over-fetch at 0.1% selectivity", "Most queries return fewer than 10 results", "Results table"], ["Run the cost-model router across all selectivities", "Recall@10 of at least 0.95 at every selectivity", "Results table"], ["Compare memory of per-label indexes with one shared index", "Per-label indexes use more memory because multi-label vectors are stored more than once", "Size table"]],
+          "objectives": ["Explain filtered ANN algorithms", "Build a selectivity-aware query router", "Weigh memory against filtered recall"]
+        },
+        {
+          "topic": "Embedding Model Migration Without Downtime",
+          "subtopics": ["Why vectors from two models cannot be mixed", "Dual-write to a new column or index beside the old one", "Back-filling at a controlled rate and cost", "Shadow traffic and offline evaluation before cut-over", "Atomic cut-over with an alias, view or configuration flag", "Rollback plan and retention of old vectors", "Linear adapters between embedding spaces as a stopgap", "Versioning model, tokenizer, prompt and normalisation together"],
+          "tools": ["pgvector", "sentence-transformers", "ranx", "FastAPI"],
+          "lab_task": "Migrate the SciFact service from all-MiniLM-L6-v2 to bge-base-en-v1.5: add an embedding_v2 vector(768) column, back-fill at a capped rate, CREATE INDEX CONCURRENTLY an HNSW index on it, shadow all queries to v2 while logging overlap@10 and latency, compare nDCG@10, then switch with a view or config flag and roll back once to prove the procedure.",
+          "deliverable": "Migration runbook, shadow-traffic report and a rehearsed rollback",
+          "checks": [["Compare a 384-dimension v1 query vector with embedding_v2", "ERROR: different vector dimensions 768 and 384", "psql output"], ["Measure shadow overlap@10 between v1 and v2", "Overlap distribution reported across all shadowed queries", "Shadow report"], ["Execute the rollback", "Traffic returns to v1 with one config change and zero failed requests", "Service log"]],
+          "objectives": ["Plan a zero-downtime embedding migration", "Validate a new model with shadow traffic", "Rehearse cut-over and rollback"]
+        },
+        {
+          "topic": "Fine-Tuning Embedding Models for Domain Retrieval",
+          "subtopics": ["When to fine-tune versus switch model or add hybrid retrieval", "Training pairs from click logs, FAQs and synthetic queries", "MultipleNegativesRankingLoss with in-batch negatives", "Hard-negative mining and the false-negative risk", "SentenceTransformerTrainer and training arguments", "Evaluation with InformationRetrievalEvaluator", "MatryoshkaLoss for truncatable output", "Re-indexing cost after fine-tuning"],
+          "tools": ["sentence-transformers", "PyTorch", "Hugging Face Datasets", "ranx"],
+          "lab_task": "Fine-tune BAAI/bge-small-en-v1.5 on 5,000 (query, positive) pairs from your domain with SentenceTransformerTrainer and MultipleNegativesRankingLoss, add hard negatives from sentence_transformers.util.mine_hard_negatives, and evaluate before and after with InformationRetrievalEvaluator on a held-out set. Report nDCG@10 and recall@100 and check SciFact for regression.",
+          "deliverable": "Training script, model card and a before/after evaluation table",
+          "checks": [["Evaluate base and fine-tuned models on the held-out domain set", "nDCG@10 and recall@100 for both, with the difference", "Evaluation table"], ["Check for leakage", "Zero held-out queries appear in the training pairs", "Leakage script output"], ["Evaluate both models on SciFact", "General nDCG@10 for both is reported so any regression is visible", "Evaluation table"]],
+          "objectives": ["Decide when fine-tuning is worth it", "Fine-tune an embedding model with contrastive loss", "Evaluate gains and regressions honestly"]
+        },
+        {
+          "topic": "Out-of-Distribution Queries and Index Robustness",
+          "subtopics": ["OOD queries: query vectors drawn from a different distribution than the data", "Text-to-image search as the classic OOD case", "Why graphs built on base vectors lose recall on OOD queries", "Query-aware graph construction such as RoarGraph", "Using sample queries during index build or tuning", "Detecting OOD queries with distance-to-centroid statistics", "The big-ann-benchmarks OOD track (Yandex Text-to-Image)", "Tuning ef per query class"],
+          "tools": ["open_clip", "hnswlib", "NumPy", "Matplotlib"],
+          "lab_task": "Embed 1M images (for example a LAION subset) with a CLIP image encoder, then prepare two query sets: 10,000 held-out image embeddings and 10,000 caption embeddings from the text encoder. Build HNSW once, sweep ef and plot recall@10 versus ef for both sets. Compute mean distance to the nearest data centroid per set and find the ef that gives text queries recall@10 of at least 0.9.",
+          "deliverable": "OOD analysis notebook with recall curves and per-class ef settings",
+          "checks": [["Compare recall@10 at the same ef", "Text queries have lower recall@10 than image queries", "Recall plot"], ["Compare mean nearest-centroid distance", "Text query vectors sit farther from the data centroids", "Statistics output"], ["Find the ef for text queries", "A named ef value higher than the one image queries need", "Tuning table"]],
+          "objectives": ["Recognise out-of-distribution query workloads", "Measure OOD recall loss", "Tune or rebuild indexes for OOD queries"]
+        },
+        {
+          "topic": "Multimodal and Cross-Modal Vector Search",
+          "subtopics": ["Shared embedding spaces: CLIP and SigLIP", "Text-to-image, image-to-image and image-to-text search", "The modality gap in contrastive models", "Indexing video frames and audio segments", "Document page images with late-interaction models", "Combining image vectors with text metadata filters", "Evaluation with Recall@K on Flickr30k or MS-COCO", "Storage and throughput of image encoders"],
+          "tools": ["open_clip", "PyTorch", "NumPy", "Pillow"],
+          "lab_task": "Encode the Flickr30k 1K test split (1,000 images, 5,000 captions) with open_clip ViT-B-32 and normalise. Compute text-to-image Recall@1, @5 and @10 and image-to-text Recall@1, add a metadata filter on an image attribute, and measure the modality gap as the cosine similarity between the mean image embedding and the mean text embedding.",
+          "deliverable": "Cross-modal retrieval notebook with Recall@K and modality-gap results",
+          "checks": [["Compute text-to-image recall", "Recall@1 below Recall@5 below Recall@10", "Metrics table"], ["Measure the modality gap", "Mean image and mean text embeddings have cosine similarity well below 1", "Notebook output"], ["Search with an indexed image as the query", "The same image ranks first with cosine similarity 1.0", "Query output"]],
+          "objectives": ["Build cross-modal search on a shared embedding space", "Evaluate multimodal retrieval", "Explain the modality gap and its effect on search"]
+        },
+        {
+          "topic": "Cost Modelling per Million Vectors and Tiered Storage",
+          "subtopics": ["Cost drivers: RAM, SSD, object storage, compute, egress and embedding generation", "Cost per million vectors stored per month", "Cost per million queries", "Hot, warm and cold tiers for vector data", "Quantization as a cost lever", "Serverless usage pricing versus provisioned clusters", "Re-embedding cost on model change", "A cost dashboard tied to usage metrics"],
+          "tools": ["Spreadsheet", "Cloud pricing calculator", "Python 3"],
+          "lab_task": "Build a cost model for 100M 1,024-dimension vectors at 500 QPS: price an in-memory float32 HNSW cluster, an int8 HNSW cluster, a disk-based design (PQ codes in RAM, vectors on NVMe) and an object-storage-backed design using your cloud's list prices. Include embedding cost for the initial load and a yearly re-embed, and report monthly cost and cost per million queries.",
+          "deliverable": "Cost model spreadsheet with four designs and a sensitivity analysis",
+          "checks": [["Compute raw float32 size for 100M 1,024-dimension vectors", "409.6 GB", "Cost sheet"], ["Compare int8 and float32 vector RAM", "102.4 GB for int8 versus 409.6 GB for float32 before graph overhead", "Cost sheet"], ["Double the QPS in the model", "The design whose monthly cost changes most is named", "Sensitivity table"]],
+          "objectives": ["Model the full cost of vector search", "Use tiering and quantization to cut cost", "Compare provisioned and usage-based pricing"]
+        },
+        {
+          "topic": "Online Evaluation: A/B Tests, Interleaving and Click Models",
+          "subtopics": ["Offline metrics versus online behaviour", "A/B test design: randomisation unit, metrics and sample size", "Team-draft interleaving for faster ranking comparisons", "Position bias and click models", "Guardrail metrics: latency, zero-result rate and abandonment", "Statistical tests and confidence intervals", "Novelty effects and test duration", "Feeding online signals back into offline qrels"],
+          "tools": ["SciPy", "statsmodels", "NumPy", "FastAPI"],
+          "lab_task": "Implement team-draft interleaving of hybrid versus hybrid-plus-rerank result lists in the search API, simulate users with a position-biased click model (click probability decays with rank and depends on qrels relevance), run 10,000 sessions and compute the win rate with scipy.stats.binomtest. Then compute the A/B sample size needed to detect a 2% relative CTR change at 80% power.",
+          "deliverable": "Interleaving implementation, simulation results and an A/B sample-size calculation",
+          "checks": [["Run 10,000 interleaved sessions", "Win rate reported with a binomtest p-value", "Simulation output"], ["Interleave a system with itself", "Win rate near 50% and not significant", "Simulation output"], ["Compute the A/B sample size", "Per-arm sample size stated with baseline CTR, alpha 0.05 and power 0.8", "Calculation"]],
+          "objectives": ["Design online experiments for search ranking", "Use interleaving and click models", "Size and analyse A/B tests correctly"]
+        },
+        {
+          "topic": "Load Testing Vector Search Clusters",
+          "subtopics": ["Workload model: query mix, k, filters, concurrency and write rate", "Open versus closed load generators and coordinated omission", "Recording recall alongside latency under load", "Mixed read and write tests", "Saturation point and Little's law", "Cache warm-up and cold-start tests", "Tools: k6, Locust, VectorDBBench and custom harnesses", "Watching CPU, memory bandwidth and SSD IOPS during tests"],
+          "tools": ["k6", "Locust", "VectorDBBench", "Prometheus", "Grafana"],
+          "lab_task": "Drive the search API with a k6 constant-arrival-rate scenario stepping from 100 to 2,000 requests per second with 10% writes, recording p50, p95, p99 and error rate per step. Sample 1% of responses for recall@10 against exact search, find the saturation point, then restart the service and measure cold-cache latency for the first 1,000 queries.",
+          "deliverable": "k6 script, load-test report with saturation point and cold-start results",
+          "checks": [["Step load until p99 exceeds the SLO", "Saturation point named in requests per second", "Load-test report"], ["Compare a closed-loop run with the open-loop run at the same average rate", "Closed-loop p99 is lower because it hides queueing delay", "Load-test report"], ["Measure the first 1,000 queries after restart", "Cold-cache p99 is higher than warm p99", "Latency table"]],
+          "objectives": ["Design realistic load tests for vector search", "Avoid coordinated omission", "Find saturation and cold-start behaviour"]
+        },
+        {
+          "topic": "Vector Search Security: Embedding Inversion, Poisoning and Tenant Isolation",
+          "subtopics": ["Embeddings are sensitive data: inversion attacks such as Vec2Text", "Membership inference from similarity scores", "Data poisoning and hub documents that rank for many queries", "Access-control filtering at query time and its failure modes", "Encryption at rest and in transit for vector stores", "Hiding raw scores and capping k in public APIs", "Erasure requests across indexes, replicas and backups", "Audit logging of queries and admin actions"],
+          "tools": ["pgvector", "sentence-transformers", "NumPy", "FastAPI"],
+          "lab_task": "Insert 20 crafted hub documents into the SciFact index (text stuffed with frequent query terms) and count how many of 300 queries return one in the top 10. Add a defence such as a source allow-list or an anomaly score for documents appearing in unusually many results, and re-measure. Then run 1,000 random queries as tenant A and count tenant B IDs returned.",
+          "deliverable": "Security test report with poisoning results, the defence and an isolation test",
+          "checks": [["Count affected queries before the defence", "A non-zero number of the 300 queries return a crafted document", "Test report"], ["Count affected queries after the defence", "Fewer affected queries than before, ideally zero", "Test report"], ["Run 1,000 queries as tenant A", "Zero tenant B IDs returned", "Isolation test output"]],
+          "objectives": ["Identify threats specific to vector stores", "Test and mitigate poisoning", "Verify tenant isolation"]
+        },
+        {
+          "topic": "Proof-of-Concept Bake-off Across Vector Engines",
+          "subtopics": ["Defining workload and pass/fail criteria before testing", "Same data, embeddings and ground truth for every candidate", "Tuning each candidate fairly to the same recall target", "Measuring ingest speed, build time, recall, QPS and p99", "Filtered and hybrid query tests", "Operational tests: node loss, backup and restore, upgrade", "Reading vendor benchmarks critically", "Writing the recommendation"],
+          "tools": ["VectorDBBench", "pgvector", "k6", "Docker", "Kubernetes"],
+          "lab_task": "Take the two engines shortlisted in your decision matrix (for example pgvector and one dedicated vector database such as Milvus, Qdrant or Weaviate), load the same 5M vectors, tune each to recall@10 = 0.95 and measure ingest time, build time, QPS and p99 at that recall, filtered recall at 1% selectivity and recovery time after killing one node. Write a two-page recommendation.",
+          "deliverable": "Bake-off results table and a two-page recommendation",
+          "checks": [["Confirm both engines are tuned to the target", "Recall@10 within 0.005 of 0.95 for both", "Results table"], ["Kill one node during load", "Recovery time and failed-request count recorded per engine", "Load-test log"], ["Review the recommendation", "One engine recommended with the measured criteria that decided it", "Recommendation document"]],
+          "objectives": ["Run a fair comparison of vector engines", "Measure operational behaviour as well as speed", "Write an evidence-based engine recommendation"]
+        },
+        {
+          "topic": "Failure Modes and Incident Response for Vector Search",
+          "subtopics": ["Silent recall loss after parameter, model or data changes", "Wrong metric or un-normalised vectors", "Mixed embedding versions in one index", "Out-of-memory during index build or merge", "Hot shards and noisy tenants", "Filter planner regressions", "Runbooks, canary queries and golden result sets", "Post-incident reviews with measurable actions"],
+          "tools": ["Prometheus", "Grafana", "pgvector", "hnswlib", "PagerDuty or Opsgenie"],
+          "lab_task": "Run a game day: the trainer injects four faults into the capstone stack (un-normalised vectors from one ingest worker, ef_search set to 10, a mix of two model versions and a memory limit that breaks an index build). Detect each with canary queries and dashboards, record time-to-detect and time-to-mitigate, and write a runbook entry for each fault.",
+          "deliverable": "Game-day timeline and four runbook entries",
+          "checks": [["Run golden canary queries after fault injection", "At least one canary fails its overlap@10 threshold", "Canary report"], ["Record incident timings", "Time-to-detect and time-to-mitigate for each of the four faults", "Game-day timeline"], ["Review the runbook", "Four entries, each with symptom, check command and fix", "Runbook"]],
+          "objectives": ["Recognise common vector search failure modes", "Detect quality regressions with canaries", "Write actionable runbooks"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Tenant Retrieval Platform at 100 Million Vectors",
+          "subtopics": ["Architecture and capacity plan", "Index choice with quantization and rescoring", "Sharding, replication and tenant isolation", "Streaming ingest with a freshness SLO", "Hybrid retrieval, reranking and evaluation", "Load test, game day and cost report"],
+          "tools": ["pgvector", "OpenSearch", "Apache Kafka", "k6", "Prometheus", "Grafana"],
+          "lab_task": "Design a 100M-vector multi-tenant retrieval platform and build a 10M-vector version: quantized ANN index with rescoring, 4 shards with replicas, tenant isolation, streaming ingest with a 5-second freshness SLO, hybrid retrieval with reranking, and dashboards. Deliver load-test results at the target QPS with recall@10 of at least 0.95, a game-day report and a cost projection to 100M vectors.",
+          "deliverable": "Architecture document, running 10M-vector platform, load-test and game-day reports and cost projection",
+          "checks": [["Load test at the target QPS", "p99 within SLO and sampled recall@10 of at least 0.95", "Load-test report"], ["Write a document and search for it as its tenant", "Searchable within 5 seconds and invisible to other tenants", "Freshness and isolation test"], ["Project cost to 100M vectors", "Monthly cost and cost per million queries with stated assumptions", "Cost report"]],
+          "objectives": ["Design a large-scale multi-tenant vector platform", "Prove recall, latency, freshness and isolation targets", "Defend design choices with measurements and cost"]
+        }
+      ]
+    }
+  }
+}

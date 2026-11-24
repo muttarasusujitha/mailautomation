@@ -1,0 +1,573 @@
+{
+  "domain": "Milvus",
+  "name": "Milvus",
+  "category": "Generative AI and Agents",
+  "icon": "database",
+  "aliases": ["Milvus Vector Database", "Distributed Vector DB", "Milvus DB", "Milvus Lite", "Milvus Standalone", "Milvus Distributed", "pymilvus", "Zilliz Cloud"],
+  "certifications": [],
+  "tools": ["Milvus", "Milvus Lite", "pymilvus", "Attu", "Milvus WebUI", "Docker Compose", "Milvus Operator", "Helm", "milvus-backup", "Birdwatcher", "VectorDBBench", "Prometheus", "Grafana", "Zilliz Cloud"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, data engineers and ML engineers who can write Python and understand what an embedding is, but have not used Milvus. Covers the Milvus deployment modes (Lite, Standalone, Distributed and Zilliz Cloud), the pymilvus MilvusClient API, collection schemas and field types, embeddings with pymilvus.model, insert, upsert and delete, AUTOINDEX and metric types, loading and searching collections, scalar, JSON and ARRAY filter expressions, query and count, partitions, Attu, the WebUI and the RESTful API v2, ending with a semantic document search capstone on Milvus Standalone.",
+      "prerequisites": ["Writes Python 3.10+ scripts with virtual environments, pip and basic list and dict handling", "Understands at a conceptual level what an embedding vector is and why similar items have nearby vectors", "Has a Linux or macOS machine (or WSL2 on Windows) with Docker and Docker Compose, at least 8 GB RAM and rights to install Python packages"],
+      "outcomes": ["Choose between Milvus Lite, Standalone, Distributed and Zilliz Cloud for a given workload and connect to each with MilvusClient", "Design collection schemas with primary keys, scalar, JSON, ARRAY and vector fields, then insert, upsert and delete entities", "Index, load and search collections with the right metric type and combine vector search with scalar, JSON and ARRAY filters", "Operate a Docker-based Milvus Standalone instance and inspect it with Attu, the WebUI and the RESTful API v2"],
+      "days": [
+        {
+          "topic": "Milvus Orientation: Deployment Modes and Core Concepts",
+          "subtopics": ["What Milvus is: an open-source vector database under the LF AI & Data Foundation", "Milvus Lite: an embedded library for notebooks and prototypes", "Milvus Standalone: a single Docker container with etcd and MinIO", "Milvus Distributed: microservices on Kubernetes for horizontal scale", "Zilliz Cloud: the managed Milvus service (Serverless and Dedicated clusters)", "Core objects: database, collection, schema, field, entity, partition and index", "Primary keys and auto_id", "Why a collection must be indexed and loaded before vector search", "Typical workloads: semantic search, RAG retrieval, recommendations and image similarity", "Where Milvus sits next to libraries such as FAISS and other vector databases"],
+          "tools": ["Milvus Lite", "pymilvus", "Zilliz Cloud", "Milvus documentation (milvus.io/docs)"],
+          "lab_task": "Build a comparison sheet for Milvus Lite, Standalone, Distributed and Zilliz Cloud covering install method, dependencies (etcd, object storage, WAL), supported index types, RBAC support and scale limit. Then map a sample RAG app onto Milvus objects: name the database, collection, fields, primary key and partition you would use, and state which deployment mode you would start with and why.",
+          "deliverable": "Deployment-mode comparison table and an object map for one sample application",
+          "checks": [["Ask which mode runs inside the Python process with no server", "Milvus Lite is identified as the embedded mode installed with pymilvus", "Comparison table"], ["Ask which external services Standalone depends on", "etcd for metadata and MinIO or S3-compatible storage for data are listed", "Comparison table"], ["Ask what must happen before a collection can be searched", "Answer states the vector field needs an index and the collection must be loaded", "Object map notes"]],
+          "objectives": ["Describe the four Milvus deployment modes and when to use each", "Name the core Milvus data objects and how they relate", "Plan a first Milvus collection for a real application"]
+        },
+        {
+          "topic": "Milvus Lite Setup with pymilvus",
+          "subtopics": ["Installing pymilvus with pip install -U pymilvus, which bundles Milvus Lite", "Platform support: Linux and macOS (use WSL2 or Docker on Windows)", "MilvusClient(\"./milvus_demo.db\") and the local database file", "Checking versions with pymilvus.__version__", "list_collections, has_collection and drop_collection", "Lite limitations: FLAT index only, no RBAC, single process", "Using Lite in Jupyter notebooks and pytest fixtures", "Moving the same code to Standalone by changing the URI", "uri and token arguments of MilvusClient", "Closing clients with client.close()"],
+          "tools": ["pymilvus", "Milvus Lite", "Python venv", "Jupyter"],
+          "lab_task": "Create a virtual environment, run pip install -U pymilvus, then open MilvusClient(\"./milvus_demo.db\"). Call create_collection(\"demo\", dimension=8), insert 10 rows of random 8-dimensional vectors with ids 0-9, run search with limit=3, and print the result. Delete the .db file, rerun has_collection(\"demo\") on a fresh client and record that it returns False.",
+          "deliverable": "Notebook or script with the install log, search output and the has_collection results before and after deleting the file",
+          "checks": [["Run list_collections() after create_collection", "Output is ['demo']", "Script output"], ["Run search with limit=3 on the 10 inserted rows", "Exactly 3 hits are returned, each with id and distance keys", "Printed search result"], ["Delete milvus_demo.db and call has_collection(\"demo\") on a new client", "has_collection returns False", "Script output"]],
+          "objectives": ["Install pymilvus and start Milvus Lite", "Create, list and drop collections with MilvusClient", "Explain what changes when moving from Lite to a server"]
+        },
+        {
+          "topic": "First Milvus Collection with the create_collection Shortcut",
+          "subtopics": ["create_collection with collection_name and dimension", "Default fields created by quick setup: id (INT64 primary key) and vector", "Default metric COSINE and AUTOINDEX in quick setup", "enable_dynamic_field and the $meta field", "describe_collection output: fields, auto_id, num_shards and consistency_level", "insert with a list of dicts and the insert_count result", "search result structure: list of hit lists with id, distance and entity", "output_fields to return stored values"],
+          "tools": ["pymilvus", "Milvus Lite", "Jupyter"],
+          "lab_task": "Use quick setup to create collection \"articles\" with dimension=384. Insert 100 dicts containing id, vector and two extra keys (title, year) that land in the dynamic field. Run describe_collection and record the field list, then search with output_fields=[\"title\", \"year\"] and limit=5 and print each hit's title and distance.",
+          "deliverable": "Script plus describe_collection output and a table of the five hits",
+          "checks": [["Inspect insert() return value", "insert_count is 100", "Printed result dict"], ["Inspect describe_collection()['fields']", "Fields id and vector are listed and enable_dynamic_field is True", "describe_collection output"], ["Search with output_fields=[\"title\", \"year\"]", "Each hit's entity contains title and year values from the dynamic field", "Search output"]],
+          "objectives": ["Create a collection with quick setup", "Read describe_collection output", "Return stored fields with search results"]
+        },
+        {
+          "topic": "Running Milvus Standalone with Docker Compose",
+          "subtopics": ["Downloading milvus-standalone-docker-compose.yml from the Milvus GitHub releases", "Containers: milvus-standalone, milvus-etcd and milvus-minio", "Ports 19530 (gRPC and REST) and 9091 (health, metrics and WebUI)", "docker compose up -d and docker compose ps", "Health check with curl http://localhost:9091/healthz", "Volumes under ./volumes for etcd, MinIO and Milvus data", "Connecting with MilvusClient(uri=\"http://localhost:19530\", token=\"root:Milvus\")", "Stopping, restarting and cleaning up data safely"],
+          "tools": ["Docker", "Docker Compose", "Milvus Standalone", "pymilvus", "curl"],
+          "lab_task": "Download the Standalone compose file from the Milvus release page, start it with docker compose up -d and wait until docker compose ps shows all three containers healthy. Run curl http://localhost:9091/healthz, connect with MilvusClient(uri=\"http://localhost:19530\"), create a collection, insert 1,000 rows, then docker compose restart and confirm the row count survives the restart.",
+          "deliverable": "Compose file, docker compose ps output, healthz response and before/after restart row counts",
+          "checks": [["curl http://localhost:9091/healthz", "Response body is OK", "Terminal output"], ["docker compose ps after startup", "milvus-standalone, milvus-etcd and milvus-minio are running", "Terminal output"], ["Query count(*) before and after docker compose restart", "Both counts are 1000", "Script output"]],
+          "objectives": ["Run Milvus Standalone with Docker Compose", "Check Milvus health and ports", "Confirm data persists across restarts"]
+        },
+        {
+          "topic": "Exploring a Milvus Instance with Attu and the WebUI",
+          "subtopics": ["Running Attu with docker run -p 8000:3000 -e MILVUS_URL=<host>:19530 zilliz/attu", "Attu views: databases, collections, schema, partitions and indexes", "Loading and releasing collections from Attu", "Running vector searches and filter queries in Attu", "Milvus WebUI at http://localhost:9091/webui", "WebUI pages for collections, segments, tasks and configuration", "Reading segment states and row counts", "When to use Attu versus code"],
+          "tools": ["Attu", "Milvus WebUI", "Docker", "Milvus Standalone"],
+          "lab_task": "Start Attu with docker run -p 8000:3000 -e MILVUS_URL=host.docker.internal:19530 zilliz/attu (or the host IP on Linux) and connect to your Standalone instance. Use Attu to inspect yesterday's collection schema, release and reload it, run one vector search with a filter, then open http://localhost:9091/webui and record the segment count and state for that collection.",
+          "deliverable": "Screenshots of Attu schema, load state and search result, plus WebUI segment information",
+          "checks": [["Open the collection in Attu after connecting", "Schema shows the primary key, vector field and its dimension", "Attu screenshot"], ["Click Release in Attu, then try a search", "Attu reports the collection is not loaded and the search is blocked", "Attu screenshot"], ["Open the WebUI collections or segments page", "At least one segment is listed with a row count for the collection", "WebUI screenshot"]],
+          "objectives": ["Inspect Milvus objects with Attu", "Load, release and search a collection from a GUI", "Read segment information in the Milvus WebUI"]
+        },
+        {
+          "topic": "Designing Collection Schemas with create_schema and add_field",
+          "subtopics": ["MilvusClient.create_schema(auto_id=..., enable_dynamic_field=...)", "add_field with field_name, datatype and is_primary", "INT64 versus VARCHAR primary keys and max_length", "auto_id=True and ids returned by insert", "Field descriptions and schema description", "Passing schema and index_params to create_collection", "Schema validation errors for missing or extra fields", "Naming rules and limits for collections and fields"],
+          "tools": ["pymilvus", "Milvus Standalone", "Attu"],
+          "lab_task": "Design a schema for a product catalogue: VARCHAR primary key sku (max_length=64), name VARCHAR(512), price FLOAT, in_stock BOOL and embedding FLOAT_VECTOR(dim=768), with enable_dynamic_field=False. Create it with create_collection(schema=...), insert 50 valid rows, then insert one row missing price and one row with an unknown key colour and record both errors.",
+          "deliverable": "Schema code, describe_collection output and the two captured error messages",
+          "checks": [["Insert 50 complete rows", "insert_count is 50", "Script output"], ["Insert a row without the price field", "Insert fails with an error naming the missing field price", "Captured exception"], ["Insert a row with an extra key colour while dynamic field is disabled", "Insert fails with an error about a field not in the schema", "Captured exception"]],
+          "objectives": ["Define an explicit Milvus schema", "Choose primary key type and auto_id setting", "Interpret schema validation errors"]
+        },
+        {
+          "topic": "Milvus Scalar Field Types: VARCHAR, JSON, ARRAY and Nullable Fields",
+          "subtopics": ["Integer types INT8, INT16, INT32 and INT64", "FLOAT, DOUBLE and BOOL", "VARCHAR max_length up to 65,535 bytes", "JSON fields for semi-structured metadata", "ARRAY fields with element_type and max_capacity", "nullable=True and how null values are stored", "default_value for missing scalar values", "Choosing JSON, ARRAY or the dynamic field"],
+          "tools": ["pymilvus", "Milvus Standalone", "Attu"],
+          "lab_task": "Create collection \"events\" with INT64 id, VARCHAR title, JSON attrs, ARRAY tags (element_type=VARCHAR, max_capacity=10, max_length=32), nullable INT32 rating and a FLOAT status_score with default_value=0.0, plus a 128-dimensional vector. Insert rows that omit rating and status_score, then query them and record the returned values. Insert a tags list of 11 items and capture the error.",
+          "deliverable": "Schema code, a table of returned values for omitted fields and the max_capacity error",
+          "checks": [["Query a row inserted without rating", "rating is returned as None", "Query output"], ["Query a row inserted without status_score", "status_score is returned as 0.0 from default_value", "Query output"], ["Insert 11 items into tags with max_capacity=10", "Insert fails with an error about exceeding the array capacity", "Captured exception"]],
+          "objectives": ["Use each Milvus scalar data type correctly", "Apply nullable fields and default values", "Choose between JSON, ARRAY and dynamic fields"]
+        },
+        {
+          "topic": "Milvus Vector Field Types: Float, Float16, Binary and Sparse",
+          "subtopics": ["FLOAT_VECTOR with a fixed dim", "FLOAT16_VECTOR and BFLOAT16_VECTOR for memory savings", "BINARY_VECTOR with dim as a multiple of 8", "SPARSE_FLOAT_VECTOR as dict of index to weight", "INT8_VECTOR in recent Milvus releases", "Multiple vector fields in one collection", "Passing numpy float16 arrays to insert", "Dimension mismatch errors on insert and search"],
+          "tools": ["pymilvus", "NumPy", "Milvus Standalone"],
+          "lab_task": "Create a collection with four vector fields: dense FLOAT_VECTOR(256), half FLOAT16_VECTOR(256), bits BINARY_VECTOR(256) and sparse SPARSE_FLOAT_VECTOR. Insert 200 rows (bits as 32-byte bytes objects, sparse as dicts like {12: 0.4, 900: 0.1}), index each field, then insert one dense vector of length 255 and capture the error. Record the raw size per vector for each type.",
+          "deliverable": "Schema code, per-type byte size table and the dimension mismatch error",
+          "checks": [["Insert a 255-element vector into a dim=256 FLOAT_VECTOR field", "Insert fails with a dimension mismatch error naming the expected dim 256", "Captured exception"], ["Calculate raw bytes for one dense versus one half vector of dim 256", "Dense is 1024 bytes and half is 512 bytes", "Size table"], ["Run describe_collection", "Four vector fields are listed with their data types", "describe_collection output"]],
+          "objectives": ["Choose a vector data type for a workload", "Insert dense, half-precision, binary and sparse vectors", "Diagnose dimension mismatch errors"]
+        },
+        {
+          "topic": "Generating Embeddings with pymilvus.model",
+          "subtopics": ["Installing the extra with pip install \"pymilvus[model]\"", "model.DefaultEmbeddingFunction and its 768-dimensional output", "encode_documents versus encode_queries", "SentenceTransformerEmbeddingFunction with a chosen model", "OpenAIEmbeddingFunction and API keys from environment variables", "Matching collection dim to the model dimension", "Batching document encoding", "Storing source text next to the vector"],
+          "tools": ["pymilvus[model]", "Sentence Transformers", "Milvus Standalone", "Jupyter"],
+          "lab_task": "Install pymilvus[model], create ef = model.DefaultEmbeddingFunction() and encode 300 short text passages with ef.encode_documents. Create a collection with dim=ef.dim, insert vectors with the original text, then encode three queries with ef.encode_queries, search with limit=3 and judge whether the top hit is relevant for each. Record ef.dim and the encode time per 100 passages.",
+          "deliverable": "Notebook with embedding dimension, timing, inserted count and a relevance table for three queries",
+          "checks": [["Print ef.dim for DefaultEmbeddingFunction", "Value is 768", "Notebook output"], ["Insert all 300 encoded passages", "insert_count is 300", "Notebook output"], ["Search three natural-language queries", "At least 2 of 3 top hits are judged relevant", "Relevance table"]],
+          "objectives": ["Generate embeddings with pymilvus.model", "Match collection dimension to the embedding model", "Run semantic search over real text"]
+        },
+        {
+          "topic": "Inserting, Upserting and Deleting Entities in Milvus",
+          "subtopics": ["insert with lists of dicts and batch sizes", "upsert semantics: replace an entity by primary key", "Duplicate primary keys on insert are not rejected", "delete by ids and delete by filter", "Delete results and delete_count", "Deletes are soft until compaction", "flush and when it is needed", "Batching large inserts in chunks of a few thousand rows"],
+          "tools": ["pymilvus", "Milvus Standalone", "Attu"],
+          "lab_task": "Insert 5,000 rows in batches of 1,000 and time each batch. Upsert 100 existing ids with a changed title and confirm with get. Insert the same id twice with insert and show that query returns two entities for it. Then delete 500 rows with filter=\"id < 500\" and confirm count(*) drops accordingly.",
+          "deliverable": "Script with batch timings, upsert proof, duplicate-key demonstration and delete counts",
+          "checks": [["Upsert id 42 with a new title and call get(ids=[42])", "get returns one entity with the new title", "Script output"], ["insert id 7 twice and query filter=\"id == 7\"", "Two entities with id 7 are returned", "Query output"], ["Delete with filter=\"id < 500\" from ids 0-4999 then count with Strong consistency", "count(*) is 4500", "Query output"]],
+          "objectives": ["Load data into Milvus in batches", "Use upsert to update entities by primary key", "Delete entities by id and by filter"]
+        },
+        {
+          "topic": "Building Vector Indexes with prepare_index_params and AUTOINDEX",
+          "subtopics": ["client.prepare_index_params() and add_index", "index_type, metric_type and params", "AUTOINDEX and what Milvus picks for you", "FLAT for exact search on small data", "create_index on an existing collection", "describe_index: indexed_rows, pending_index_rows and state", "list_indexes and drop_index (requires released collection)", "Index build happens on sealed segments"],
+          "tools": ["pymilvus", "Milvus Standalone", "Attu"],
+          "lab_task": "On a 100,000-row collection with a 768-dimensional vector field, create an AUTOINDEX with metric_type=\"COSINE\", poll describe_index until state is Finished and record build time. Release, drop the index and recreate it as FLAT, then compare search latency over 100 queries for both. Try drop_index while loaded and capture the error.",
+          "deliverable": "Index build log, describe_index outputs and a latency comparison table",
+          "checks": [["Poll describe_index after building", "state is Finished and indexed_rows equals 100000", "describe_index output"], ["Call drop_index while the collection is loaded", "Milvus rejects it and asks to release the collection first", "Captured exception"], ["Run 100 searches with FLAT and with AUTOINDEX", "AUTOINDEX median latency is lower than FLAT", "Latency table"]],
+          "objectives": ["Create and describe vector indexes in Milvus", "Compare AUTOINDEX with exact FLAT search", "Manage the index lifecycle safely"]
+        },
+        {
+          "topic": "Choosing Metric Types: L2, IP and COSINE in Milvus",
+          "subtopics": ["L2: smaller distance is more similar", "IP: larger score is more similar", "COSINE: range -1 to 1, larger is more similar", "Normalised vectors make IP and COSINE rank the same", "HAMMING and JACCARD for binary vectors", "IP and BM25 for sparse vectors", "Metric type must match between index and search", "Reading the distance field correctly in results"],
+          "tools": ["pymilvus", "NumPy", "Milvus Standalone"],
+          "lab_task": "Create three collections over the same 10,000 normalised vectors, indexed with L2, IP and COSINE. Run the same 20 queries against each and compare the top-10 ids and distance ranges. Then search the COSINE collection with search_params={\"metric_type\": \"L2\"} and capture the mismatch error.",
+          "deliverable": "Comparison table of top-10 overlap and distance ranges, plus the mismatch error",
+          "checks": [["Compare top-10 ids for IP and COSINE on normalised vectors", "Top-10 id lists are identical for all 20 queries", "Comparison table"], ["Inspect hit order in the L2 collection", "Distances increase from first to last hit", "Search output"], ["Search a COSINE-indexed field with metric_type L2", "Search fails with a metric type mismatch error", "Captured exception"]],
+          "objectives": ["Pick the correct metric for an embedding model", "Interpret distances for L2, IP and COSINE", "Avoid metric mismatches between index and search"]
+        },
+        {
+          "topic": "Loading, Releasing and Load States of Milvus Collections",
+          "subtopics": ["Why search and query need data loaded into query node memory", "load_collection and release_collection", "get_load_state and LoadState values", "Loading individual partitions with load_partitions", "Load progress on large collections", "Memory needed for loaded vectors and indexes", "Errors when searching an unloaded collection", "Releasing idle collections to free memory"],
+          "tools": ["pymilvus", "Milvus Standalone", "Milvus WebUI", "docker stats"],
+          "lab_task": "With two 200,000-row collections, call get_load_state on each, load one, and record docker stats memory for the Milvus container before and after. Search the unloaded collection and capture the error, then release the loaded collection and confirm the memory drops. Record load time for 200,000 rows.",
+          "deliverable": "Load-state log, memory measurements before/after load and release, and the unloaded-search error",
+          "checks": [["get_load_state after load_collection", "state is Loaded", "Script output"], ["Search the collection that was never loaded", "Search fails with a collection not loaded error", "Captured exception"], ["docker stats before and after loading 200,000 vectors", "Container memory rises after load and falls after release", "docker stats output"]],
+          "objectives": ["Control what Milvus keeps in memory", "Diagnose not-loaded errors", "Estimate memory for a loaded collection"]
+        },
+        {
+          "topic": "Top-K Vector Search with MilvusClient.search",
+          "subtopics": ["search with data, anns_field, limit and output_fields", "Batch search with several query vectors", "search_params and index-specific params", "offset for pagination and the 16,384 limit+offset cap", "Searching a specific vector field when there are several", "Result hits: id, distance and entity", "Timing searches and warm-up", "Empty results and why they happen"],
+          "tools": ["pymilvus", "Milvus Standalone", "Python time module"],
+          "lab_task": "Run a batch search with 10 query vectors and limit=5 against a 100,000-row collection, and confirm you get 10 result lists of 5 hits each. Paginate one query with offset=0, 5 and 10, check that pages do not overlap, then call search with limit=16385 and capture the error. Measure p50 and p95 latency over 200 single-vector searches.",
+          "deliverable": "Script, pagination proof, limit error and a latency summary",
+          "checks": [["Batch search with 10 queries and limit=5", "Result has 10 lists, each with 5 hits", "Script output"], ["Search with limit=16385", "Milvus rejects the request because topk exceeds the maximum of 16384", "Captured exception"], ["Compare ids across offset 0, 5 and 10 pages", "The three pages share no ids", "Pagination table"]],
+          "objectives": ["Run single and batch vector searches", "Paginate search results within Milvus limits", "Measure search latency"]
+        },
+        {
+          "topic": "Milvus Filter Expressions on Scalar Fields",
+          "subtopics": ["Comparison operators ==, !=, >, >=, < and <=", "in and not in lists", "and, or and not with parentheses", "like with prefix, suffix and infix patterns", "Arithmetic in expressions such as price * 0.9 < 50", "is null and is not null on nullable fields", "Filter templating with filter_params", "Quoting strings and escaping in expressions"],
+          "tools": ["pymilvus", "Milvus Standalone", "Attu"],
+          "lab_task": "On the product collection, run filtered searches: price < 20 and in_stock == true; category in [\"shoes\", \"bags\"]; name like \"Nike%\"; and a templated filter \"price < {max_price}\" with filter_params={\"max_price\": 50}. For each, verify every hit meets the condition by checking output_fields. Then send a filter with an unknown field name and capture the parse error.",
+          "deliverable": "Table of four filters with hit counts and validation result, plus the parse error",
+          "checks": [["Search with filter \"price < 20 and in_stock == true\"", "Every returned hit has price below 20 and in_stock True", "Output fields table"], ["Run the templated filter with max_price=50", "All hits have price below 50", "Search output"], ["Use a filter on a field that does not exist with dynamic field disabled", "Request fails with an expression or field-not-found error", "Captured exception"]],
+          "objectives": ["Write Milvus boolean filter expressions", "Combine filters with vector search", "Use filter templating for safe parameter passing"]
+        },
+        {
+          "topic": "Query, Get and Counting Entities with count(*)",
+          "subtopics": ["query with filter, output_fields and limit", "get by primary keys", "output_fields=[\"count(*)\"] for row counts", "query without a filter requires a limit", "query_iterator for exporting large result sets", "get_collection_stats row_count versus count(*)", "Strong consistency for exact counts after writes", "Projecting only needed fields"],
+          "tools": ["pymilvus", "Milvus Standalone", "pandas"],
+          "lab_task": "Run query(filter=\"year >= 2020\", output_fields=[\"count(*)\"]) and compare it with a pandas count from your source CSV. Export all rows from 2023 with query_iterator(batch_size=1000) into a DataFrame and check the row count. Call query with filter=\"\" and no limit and capture the error, then compare get_collection_stats with count(*) just after inserting 1,000 rows.",
+          "deliverable": "Script with counts from Milvus and pandas, iterator export and the empty-filter error",
+          "checks": [["count(*) for year >= 2020 versus pandas", "Both counts match exactly", "Script output"], ["query with an empty filter and no limit", "Milvus rejects the query and asks for a limit", "Captured exception"], ["Export 2023 rows with query_iterator", "DataFrame row count equals count(*) for year == 2023", "Script output"]],
+          "objectives": ["Retrieve entities with query and get", "Count entities accurately", "Export large result sets with iterators"]
+        },
+        {
+          "topic": "Filtering JSON and ARRAY Fields in Milvus",
+          "subtopics": ["JSON path access such as attrs[\"brand\"] and nested keys", "json_contains, json_contains_all and json_contains_any", "array_contains, array_contains_all and array_contains_any", "array_length and element access tags[0]", "Filtering dynamic fields by key name", "Type mismatches inside JSON values", "Performance of unindexed JSON filters", "When to promote a JSON key to a typed field"],
+          "tools": ["pymilvus", "Milvus Standalone", "Attu"],
+          "lab_task": "Insert 20,000 events with attrs JSON like {\"brand\": \"acme\", \"specs\": {\"weight\": 1.2}} and tags arrays. Run filters attrs[\"brand\"] == \"acme\", attrs[\"specs\"][\"weight\"] > 1, array_contains(tags, \"sale\"), array_contains_any(tags, [\"new\", \"hot\"]) and array_length(tags) > 3, verify results against Python, and time each against an equivalent typed-field filter.",
+          "deliverable": "Filter-by-filter result table with correctness verification and timing",
+          "checks": [["Count with attrs[\"brand\"] == \"acme\" versus Python", "Milvus count equals the Python count", "Comparison output"], ["Query array_contains(tags, \"sale\")", "Every returned row has \"sale\" in tags", "Query output"], ["Query array_length(tags) > 3", "Every returned row has 4 or more tags", "Query output"]],
+          "objectives": ["Filter on JSON paths in Milvus", "Use array operators on ARRAY fields", "Decide when JSON keys need typed fields"]
+        },
+        {
+          "topic": "Milvus Partitions: create_partition and Partition-Scoped Search",
+          "subtopics": ["The _default partition", "create_partition, list_partitions, has_partition and drop_partition", "Inserting into a named partition with partition_name", "partition_names in search and query", "load_partitions and release_partitions", "Default maximum of 1,024 partitions per collection", "Partitions versus filters for pruning", "Dropping a partition requires releasing it first"],
+          "tools": ["pymilvus", "Milvus Standalone", "Attu"],
+          "lab_task": "Create partitions 2023, 2024 and 2025 on a news collection and insert 10,000 articles into each by year. Search with partition_names=[\"2025\"] and confirm all hits are from 2025, then compare latency with a filter year == 2025 on the whole collection. Drop partition 2023 while loaded, capture the error, release it and drop it.",
+          "deliverable": "Partition list, scoped-search proof, latency comparison and drop sequence log",
+          "checks": [["list_partitions after creation", "Output is ['_default', '2023', '2024', '2025']", "Script output"], ["Search with partition_names=[\"2025\"]", "All hits have year 2025", "Search output"], ["drop_partition(\"2023\") while it is loaded", "Milvus refuses until the partition is released", "Captured exception"]],
+          "objectives": ["Create and manage partitions", "Scope searches to partitions", "Compare partitions with scalar filtering"]
+        },
+        {
+          "topic": "Milvus RESTful API v2 with curl",
+          "subtopics": ["Base path /v2/vectordb on port 19530", "Authorization: Bearer <token> header with root:Milvus or an API key", "collections/create, collections/describe and collections/list", "entities/insert, entities/upsert and entities/delete", "entities/search and entities/query request bodies", "Reading code and data in responses", "Error responses and HTTP status 200 with a non-zero code", "When to use REST versus pymilvus"],
+          "tools": ["curl", "jq", "Milvus Standalone", "Postman"],
+          "lab_task": "Using only curl and jq, create collection rest_demo with dimension 4 via POST /v2/vectordb/collections/create, insert 5 rows via /v2/vectordb/entities/insert, search via /v2/vectordb/entities/search with limit 2, and query with filter \"id > 2\". Then call search on a non-existent collection and record the response code and message.",
+          "deliverable": "Shell script with all curl calls, JSON responses and the error response",
+          "checks": [["Insert 5 rows via entities/insert", "Response code is 0 and insertCount is 5", "JSON response"], ["Search with limit 2 via entities/search", "data array contains 2 hits", "JSON response"], ["Search a collection that does not exist", "Response has a non-zero code and a message saying the collection was not found", "JSON response"]],
+          "objectives": ["Call Milvus with the RESTful API v2", "Authenticate REST requests", "Read REST success and error responses"]
+        },
+        {
+          "topic": "Beginner Capstone: Semantic Document Search on Milvus Standalone",
+          "subtopics": ["Chunk a document set and embed it with pymilvus.model", "Explicit schema with text, source, page and tags fields", "AUTOINDEX with COSINE, load and search", "Filtered search by source and tags", "Partition per document source", "A small CLI or FastAPI endpoint for queries"],
+          "tools": ["Milvus Standalone", "pymilvus", "pymilvus[model]", "Attu", "Docker Compose", "FastAPI"],
+          "lab_task": "Build a search service over at least 50 PDFs or Markdown files: chunk to about 500 characters, embed, insert into Milvus Standalone with an explicit schema and one partition per source, index with AUTOINDEX COSINE and load. Expose search(query, source=None, tag=None) via CLI or FastAPI. Write 20 test queries with expected documents and report hit@5.",
+          "deliverable": "Repository with compose file, ingestion script, search service, 20 labelled queries and a results report",
+          "checks": [["Run the 20 labelled test queries", "hit@5 is at least 0.8", "Evaluation report"], ["Search with source filter set to one document set", "All hits come from that source", "Service output"], ["Restart the Docker Compose stack and rerun count(*)", "Row count is unchanged after restart", "Terminal output"]],
+          "objectives": ["Build an end-to-end search service on Milvus", "Combine schema design, indexing, partitions and filters", "Measure retrieval quality with labelled queries"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already build collections, insert data and run filtered searches in Milvus and now need to tune and extend them. Covers HNSW, IVF and quantized index tuning with recall measurement, scalar indexes, partition keys and multi-tenancy strategies, consistency levels, BM25 full-text search with analyzers, text_match, hybrid dense and sparse search with RRF and weighted rankers, BGE-M3, range and grouping search, iterators, bulk import, schema evolution, aliases for zero-downtime reindexing, milvus.yaml configuration, LangChain integration and Zilliz Cloud, ending with a hybrid product search capstone.",
+      "prerequisites": ["Completed the Milvus beginner level or can create schemas, insert data, build AUTOINDEX and run filtered searches with MilvusClient", "Can compute recall@k against brute-force ground truth with NumPy", "Has a running Milvus Standalone instance via Docker Compose with at least 16 GB RAM and a 1-million-vector public dataset available"],
+      "outcomes": ["Tune HNSW, IVF and quantized indexes in Milvus against measured recall, latency and memory targets", "Design multi-tenant collections with partition keys, scalar indexes and an appropriate consistency level", "Build full-text and hybrid dense plus sparse search with BM25 functions, analyzers and rerankers", "Run production data workflows: bulk import, schema evolution, alias-based reindexing and Zilliz Cloud deployment"],
+      "days": [
+        {
+          "topic": "HNSW Index Tuning in Milvus: M, efConstruction and ef",
+          "subtopics": ["HNSW graph layers and neighbour lists", "M and its effect on memory and recall", "efConstruction and build time", "ef at search time and the requirement ef >= limit", "Building ground truth with a FLAT index", "Recall@10 measurement script", "Plotting recall against queries per second", "Memory estimate for HNSW on float vectors"],
+          "tools": ["pymilvus", "Milvus Standalone", "NumPy", "matplotlib"],
+          "lab_task": "Load 1 million 768-dimensional vectors, compute ground truth for 500 queries with a FLAT index, then build HNSW with M=8, 16 and 32 (efConstruction=200). For each, search with ef=16, 64, 128 and 256 at limit=10 and record recall@10, p95 latency and build time. Pick the cheapest setting reaching recall@10 >= 0.95.",
+          "deliverable": "Recall versus latency chart, build-time table and a recommended HNSW configuration",
+          "checks": [["Measure recall@10 with M=16, ef=128", "recall@10 is at least 0.95", "Benchmark table"], ["Search with ef=5 and limit=10", "Milvus rejects the request because ef must be at least the limit", "Captured exception"], ["Compare build time for M=8 and M=32", "M=32 build takes longer than M=8", "Build-time table"]],
+          "objectives": ["Tune HNSW build and search parameters", "Measure recall against ground truth", "Choose a configuration from a recall target"]
+        },
+        {
+          "topic": "IVF Index Family in Milvus: IVF_FLAT, IVF_SQ8 and IVF_PQ",
+          "subtopics": ["IVF clustering and nlist", "nprobe at search time", "IVF_FLAT for exact distances inside clusters", "IVF_SQ8 scalar quantisation to one byte per dimension", "IVF_PQ with m and nbits", "Rule of thumb nlist about 4 x sqrt(n)", "Memory comparison across IVF types", "When IVF beats HNSW"],
+          "tools": ["pymilvus", "Milvus Standalone", "NumPy", "Milvus WebUI"],
+          "lab_task": "On the same 1-million-vector dataset build IVF_FLAT, IVF_SQ8 and IVF_PQ (m=96, nbits=8) with nlist=4096. Sweep nprobe over 16, 64 and 256 and record recall@10, p95 latency and the query node memory shown in docker stats. Write a recommendation for a 50-million-vector deployment with a 64 GB memory budget.",
+          "deliverable": "Comparison table for three IVF types and a written sizing recommendation",
+          "checks": [["Compare memory of IVF_SQ8 with IVF_FLAT", "IVF_SQ8 uses roughly a quarter of the IVF_FLAT vector memory", "Memory table"], ["Raise nprobe from 16 to 256 on IVF_FLAT", "recall@10 increases and latency increases", "Benchmark table"], ["Build IVF_PQ with m=97 on dim=768", "Index creation fails because dim is not divisible by m", "Captured exception"]],
+          "objectives": ["Configure IVF indexes in Milvus", "Trade recall for memory with quantisation", "Size an index for a memory budget"]
+        },
+        {
+          "topic": "Quantized Graph Indexes: HNSW_SQ, HNSW_PQ and IVF_RABITQ",
+          "subtopics": ["HNSW_SQ with sq_type such as SQ8 or FP16", "HNSW_PQ and HNSW_PRQ parameters", "Refinement with refine and refine_type", "IVF_RABITQ 1-bit quantisation in Milvus 2.6", "rbq_query_bits and refine settings", "Recall loss and refine cost", "Memory per million vectors for each option", "Checking index support in your Milvus version"],
+          "tools": ["pymilvus", "Milvus Standalone", "NumPy", "matplotlib"],
+          "lab_task": "Build HNSW, HNSW_SQ (sq_type=SQ8) with and without refine=True, and IVF_RABITQ with refine enabled, on 1 million vectors. Record build time, loaded memory, recall@10 and p95 latency for each at matched search effort. Produce a chart and choose the option with lowest memory that keeps recall@10 >= 0.93.",
+          "deliverable": "Benchmark chart, memory table and chosen quantized index with justification",
+          "checks": [["Compare loaded memory of HNSW_SQ SQ8 with plain HNSW", "HNSW_SQ uses less memory than HNSW", "Memory table"], ["Enable refine on HNSW_SQ", "recall@10 is higher than without refine", "Benchmark table"], ["Create IVF_RABITQ on your server", "describe_index shows index_type IVF_RABITQ with state Finished, or the version note explains it is unsupported", "describe_index output"]],
+          "objectives": ["Apply quantized graph and IVF indexes", "Use refinement to recover recall", "Choose an index under a memory constraint"]
+        },
+        {
+          "topic": "Scalar Indexes in Milvus: INVERTED, BITMAP and STL_SORT",
+          "subtopics": ["Why filters slow down without scalar indexes", "INVERTED index for VARCHAR, numeric, ARRAY and JSON paths", "BITMAP for low-cardinality fields", "STL_SORT for numeric range filters", "Trie for VARCHAR prefix matching", "Indexing a JSON path with json_path and json_cast_type", "AUTOINDEX for scalar fields", "Measuring filter latency before and after indexing"],
+          "tools": ["pymilvus", "Milvus Standalone", "Attu"],
+          "lab_task": "On 2 million rows, time filtered searches for category == \"shoes\" (20 values), price between 10 and 50, and attrs[\"brand\"] == \"acme\" with no scalar indexes. Add BITMAP on category, STL_SORT on price and an INVERTED JSON path index on attrs[\"brand\"] with json_cast_type=\"varchar\", reload and rerun. Report latency change per filter.",
+          "deliverable": "Before/after latency table for three filters and the index_params code",
+          "checks": [["Rerun the category filter after adding BITMAP", "p95 latency is lower than without the index", "Latency table"], ["list_indexes after creation", "Indexes exist for category, price and the JSON path", "Script output"], ["Create BITMAP on a FLOAT field", "Index creation fails because BITMAP does not support that type", "Captured exception"]],
+          "objectives": ["Choose scalar index types per field", "Index JSON paths in Milvus", "Measure filter performance gains"]
+        },
+        {
+          "topic": "Partition Keys and num_partitions for Multi-Tenant Collections",
+          "subtopics": ["is_partition_key=True on a VARCHAR or INT64 field", "num_partitions default and maximum", "Hash routing of partition key values", "Search pruning with filter on the partition key", "partitionkey.isolation collection property", "Why manual partition APIs are disabled with partition keys", "Hot tenants and skew", "Partition key versus manual partitions"],
+          "tools": ["pymilvus", "Milvus Standalone", "Attu"],
+          "lab_task": "Create a collection with tenant_id VARCHAR is_partition_key=True and num_partitions=64, insert 1 million rows across 500 tenants with a skewed distribution, then search with filter tenant_id == \"t042\" and verify isolation. Call create_partition and capture the error. Enable partitionkey.isolation, rebuild the index and compare latency.",
+          "deliverable": "Schema code, isolation proof, error capture and latency comparison",
+          "checks": [["Search with filter tenant_id == \"t042\"", "Every hit has tenant_id t042", "Search output"], ["Call create_partition on the partition-key collection", "Milvus refuses manual partition creation", "Captured exception"], ["list_partitions on the collection", "64 automatically created partitions are listed", "Script output"]],
+          "objectives": ["Configure partition keys for multi-tenancy", "Verify tenant isolation in search results", "Explain partition key isolation trade-offs"]
+        },
+        {
+          "topic": "Milvus Multi-Tenancy Strategies: Databases, Collections and Partition Keys",
+          "subtopics": ["Database-level tenancy with create_database and using_database", "Collection-per-tenant and its limits", "Partition-per-tenant", "Partition-key-level tenancy for many small tenants", "Default limits such as maximum databases and collections", "RBAC scope per database", "Cost of loaded collections per tenant", "Decision matrix by tenant count and isolation need"],
+          "tools": ["pymilvus", "Milvus Standalone", "Attu"],
+          "lab_task": "Model three tenancy designs for 20, 2,000 and 200,000 tenants. Implement the database-per-tenant design for 3 tenants with create_database and using_database, then implement partition-key tenancy for 2,000 tenants in one collection. Write a decision matrix covering isolation, RBAC scope, limits, memory and onboarding time.",
+          "deliverable": "Decision matrix, code for two implemented designs and onboarding time measurements",
+          "checks": [["list_databases after creating 3 tenant databases", "Output includes default plus the 3 tenant databases", "Script output"], ["Search tenant A's database while using_database is tenant B", "Tenant A's collection is not found", "Captured exception"], ["Review the matrix for 200,000 tenants", "Partition-key tenancy is recommended", "Decision matrix"]],
+          "objectives": ["Compare Milvus multi-tenancy strategies", "Implement database-level and partition-key tenancy", "Choose a strategy by tenant count and isolation level"]
+        },
+        {
+          "topic": "Consistency Levels: Strong, Bounded, Session and Eventually",
+          "subtopics": ["Timestamps from the timestamp oracle", "Guarantee timestamp and service timestamp", "Strong: see every write before the request", "Bounded: default level with a staleness window", "Session: read your own writes", "Eventually: lowest latency", "Setting consistency_level on create_collection and per request", "Latency cost of Strong consistency"],
+          "tools": ["pymilvus", "Milvus Standalone", "Python time module"],
+          "lab_task": "Insert 1 row then immediately query it with consistency_level set to Strong, Session, Bounded and Eventually, repeating 100 times each from a separate client and from the writing client. Record visibility rate and latency per level, then set the collection default with consistency_level=\"Session\" and confirm via describe_collection.",
+          "deliverable": "Visibility and latency table for four consistency levels and a recommendation per use case",
+          "checks": [["Query immediately after insert with Strong", "The new row is visible in 100 of 100 attempts", "Visibility table"], ["Compare p95 latency of Strong and Eventually", "Strong is slower than Eventually", "Latency table"], ["describe_collection after setting Session as default", "consistency_level shows Session", "describe_collection output"]],
+          "objectives": ["Explain Milvus consistency levels and timestamps", "Measure the latency cost of stronger consistency", "Pick a consistency level per workload"]
+        },
+        {
+          "topic": "Full-Text Search with BM25 Functions and Analyzers",
+          "subtopics": ["VARCHAR fields with enable_analyzer=True", "Function with FunctionType.BM25 from text to sparse field", "SPARSE_INVERTED_INDEX with metric_type BM25", "bm25_k1 and bm25_b parameters", "inverted_index_algo choices such as DAAT_MAXSCORE", "Searching with raw text in data", "Inserting text only; Milvus generates sparse vectors", "Comparing BM25 to dense search on keyword queries"],
+          "tools": ["pymilvus", "Milvus Standalone", "Attu"],
+          "lab_task": "Create a collection with text VARCHAR(enable_analyzer=True), sparse SPARSE_FLOAT_VECTOR and a BM25 Function from text to sparse. Index sparse with SPARSE_INVERTED_INDEX and metric BM25, insert 50,000 documents as text only, then search data=[\"error code 504 gateway timeout\"] with anns_field=\"sparse\". Compare top-5 results with dense search for 10 keyword-heavy queries.",
+          "deliverable": "Schema and function code, BM25 versus dense comparison for 10 queries",
+          "checks": [["Insert rows containing only id and text", "Insert succeeds without supplying sparse values", "Script output"], ["Search for an exact product code with BM25", "The document containing that code is the top hit", "Search output"], ["Insert a value into the sparse output field directly", "Insert fails because function output fields are generated by Milvus", "Captured exception"]],
+          "objectives": ["Build BM25 full-text search inside Milvus", "Configure sparse inverted indexes for BM25", "Compare lexical and dense retrieval"]
+        },
+        {
+          "topic": "Milvus Analyzers: Tokenizers, Filters and run_analyzer",
+          "subtopics": ["analyzer_params with built-in types such as standard, english and chinese", "Tokenizers: standard, whitespace, jieba and others", "Filters: lowercase, stop, stemmer and length", "Custom analyzer definitions", "Testing with client.run_analyzer", "Multi-language analyzers per document", "Effect of stemming on recall", "Changing an analyzer requires a new collection"],
+          "tools": ["pymilvus", "Milvus Standalone", "Jupyter"],
+          "lab_task": "Use client.run_analyzer on the sentence \"The Runners were RUNNING quickly\" with the standard analyzer and with a custom analyzer of standard tokenizer plus lowercase, stop and stemmer filters, and record the tokens. Build two BM25 collections with each analyzer and compare recall on 15 queries that use different word forms of indexed terms.",
+          "deliverable": "Token output for both analyzers, two collections and a recall comparison",
+          "checks": [["run_analyzer with standard analyzer", "Tokens are lowercased and include running", "Analyzer output"], ["run_analyzer with the stemmer filter added", "Token run appears in place of running and runners", "Analyzer output"], ["Run the 15 word-form queries on both collections", "The stemmed collection has higher hit@5", "Evaluation table"]],
+          "objectives": ["Configure Milvus text analyzers", "Test tokenisation with run_analyzer", "Measure analyzer impact on retrieval"]
+        },
+        {
+          "topic": "Keyword Matching with text_match and phrase_match",
+          "subtopics": ["enable_match=True on analyzed VARCHAR fields", "text_match(field, 'terms') OR semantics", "Combining text_match with and for all-terms matching", "phrase_match with slop", "Using text_match as a filter on dense search", "text_match in query for exact keyword retrieval", "Index build cost of enable_match", "Text match versus like patterns"],
+          "tools": ["pymilvus", "Milvus Standalone"],
+          "lab_task": "Enable enable_analyzer=True and enable_match=True on a description field. Run query with filter text_match(description, 'wireless charger'), then require both terms with text_match(description, 'wireless') and text_match(description, 'charger'), then phrase_match(description, 'fast charging', 1). Use text_match as a filter on a dense search and compare with like \"%charger%\".",
+          "deliverable": "Query outputs for each filter style and a latency comparison with like",
+          "checks": [["Query text_match(description, 'wireless charger')", "Rows containing either term are returned", "Query output"], ["Query with two text_match conditions joined by and", "Every row contains both wireless and charger", "Query output"], ["Compare latency of text_match with like \"%charger%\" on 1 million rows", "text_match is faster than the infix like filter", "Latency table"]],
+          "objectives": ["Use text_match and phrase_match filters", "Combine keyword filters with vector search", "Choose between text_match and like"]
+        },
+        {
+          "topic": "Hybrid Search with AnnSearchRequest, RRFRanker and WeightedRanker",
+          "subtopics": ["Collections with dense and sparse vector fields", "AnnSearchRequest with data, anns_field, param and limit", "client.hybrid_search with reqs and ranker", "RRFRanker and the k parameter", "WeightedRanker and score normalisation", "Filters inside each AnnSearchRequest", "Up to several sub-requests per hybrid search", "Evaluating fusion with nDCG@10"],
+          "tools": ["pymilvus", "Milvus Standalone", "NumPy", "pandas"],
+          "lab_task": "On a collection with dense and BM25 sparse fields, run hybrid_search with two AnnSearchRequest objects (limit=50 each) and final limit=10 using RRFRanker(60) and WeightedRanker(0.7, 0.3), WeightedRanker(0.3, 0.7). Evaluate dense-only, sparse-only and each hybrid on 50 labelled queries with nDCG@10 and pick a default.",
+          "deliverable": "Evaluation table of five retrieval modes and the chosen ranker configuration",
+          "checks": [["Run hybrid_search with RRFRanker and limit=10", "10 hits are returned per query", "Search output"], ["Compare nDCG@10 of the best hybrid against dense-only", "Best hybrid nDCG@10 is higher than dense-only", "Evaluation table"], ["Pass WeightedRanker with three weights for two requests", "Request fails because weights must match the number of requests", "Captured exception"]],
+          "objectives": ["Run hybrid dense and sparse search in Milvus", "Compare RRF and weighted fusion", "Evaluate fusion with nDCG"]
+        },
+        {
+          "topic": "Dense plus Sparse Retrieval with BGE-M3 in Milvus",
+          "subtopics": ["BGEM3EmbeddingFunction from pymilvus.model.hybrid", "Dense output of 1024 dimensions", "Learned sparse output as a sparse matrix", "Converting sparse rows for insert", "Indexing sparse vectors with metric IP", "GPU versus CPU encoding speed", "Learned sparse versus BM25 sparse", "Multilingual queries"],
+          "tools": ["pymilvus[model]", "FlagEmbedding", "Milvus Standalone", "PyTorch"],
+          "lab_task": "Encode 20,000 passages with BGEM3EmbeddingFunction, insert dense (dim=1024) and sparse vectors, and index dense with HNSW COSINE and sparse with SPARSE_INVERTED_INDEX IP. Run dense-only, sparse-only and RRF hybrid on 30 queries, including 10 non-English ones, and record hit@5. Note encoding throughput on CPU versus GPU if available.",
+          "deliverable": "Ingestion script, hit@5 table for three modes and an encoding throughput note",
+          "checks": [["Print the dense embedding length", "Length is 1024", "Notebook output"], ["Index the sparse field with metric_type BM25", "Index or search is rejected because BM25 metric applies only to function-generated sparse fields", "Captured exception"], ["Compare hybrid hit@5 with dense-only on the 30 queries", "Hybrid hit@5 is equal or higher", "Evaluation table"]],
+          "objectives": ["Use BGE-M3 dense and sparse outputs with Milvus", "Index learned sparse vectors correctly", "Evaluate multilingual hybrid retrieval"]
+        },
+        {
+          "topic": "Range Search, Grouping Search and Search Iterators",
+          "subtopics": ["radius and range_filter in search params", "Direction of the range for L2 versus COSINE", "group_by_field to diversify results", "group_size and strict_group_size", "search_iterator with batch_size", "Iterating beyond the 16,384 top-K limit", "Deduplicating chunks to documents", "Latency cost of grouping"],
+          "tools": ["pymilvus", "Milvus Standalone", "pandas"],
+          "lab_task": "On a chunked document collection, run a COSINE range search with radius=0.6 and range_filter=1.0 and verify all distances fall in range. Run a grouping search with group_by_field=\"doc_id\", group_size=2 and limit=5 and count distinct doc_ids. Then use search_iterator with batch_size=500 to fetch 20,000 nearest neighbours and confirm no duplicate ids.",
+          "deliverable": "Script outputs for range, grouping and iterator searches with verification",
+          "checks": [["Range search with radius=0.6 and range_filter=1.0 on COSINE", "Every distance is greater than 0.6 and at most 1.0", "Search output"], ["Grouping search with limit=5 and group_size=2", "Results cover 5 distinct doc_id values with at most 2 hits each", "Search output"], ["Collect 20,000 hits with search_iterator", "All 20,000 ids are unique", "Script output"]],
+          "objectives": ["Run similarity-threshold searches", "Diversify results with grouping search", "Page through large result sets with iterators"]
+        },
+        {
+          "topic": "Bulk Import with BulkWriter and Parquet Files",
+          "subtopics": ["LocalBulkWriter and RemoteBulkWriter from pymilvus.bulk_writer", "BulkFileType.PARQUET, JSON and NUMPY", "Writing files that match the collection schema", "Uploading to the MinIO bucket used by Milvus", "bulk_import and get_import_progress", "Import job states and failure reasons", "Import versus insert throughput", "Index build after import"],
+          "tools": ["pymilvus", "MinIO Client (mc)", "Milvus Standalone", "PyArrow"],
+          "lab_task": "Use RemoteBulkWriter with the Standalone MinIO bucket to write 5 million rows as Parquet, then start an import with bulk_import and poll get_import_progress until completed. Record import time, compare it with batched insert of 500,000 rows extrapolated to 5 million, and verify count(*) after import. Import a file with a wrong vector dimension and capture the failure reason.",
+          "deliverable": "BulkWriter script, import job log, throughput comparison and failed-job reason",
+          "checks": [["Poll get_import_progress for the 5-million-row job", "Job state reaches Completed", "Progress log"], ["count(*) with Strong consistency after import", "count is 5000000", "Query output"], ["Import a file with vectors of the wrong dimension", "Job state is Failed with a reason mentioning the dimension", "Progress log"]],
+          "objectives": ["Prepare bulk import files with BulkWriter", "Run and monitor import jobs", "Compare bulk import with streaming insert"]
+        },
+        {
+          "topic": "Dynamic Fields, Default Values and Schema Evolution in Milvus",
+          "subtopics": ["Dynamic field $meta and filtering on dynamic keys", "add_collection_field to add a nullable field", "alter_collection_field for properties such as max_length", "alter_collection_properties for TTL and mmap", "collection.ttl.seconds for expiring data", "rename_collection", "What cannot change: primary key, vector dim and metric", "Migrating when a change is unsupported"],
+          "tools": ["pymilvus", "Milvus Standalone", "Attu"],
+          "lab_task": "On a live collection, add a nullable INT32 field priority with add_collection_field, insert new rows that set it and query old rows to see null. Set collection.ttl.seconds=3600 with alter_collection_properties, then try to change the vector dimension and capture the error. Document a migration plan for changing the embedding model.",
+          "deliverable": "Change log with commands, outputs, the captured error and a migration plan",
+          "checks": [["Query an old row after add_collection_field", "priority is returned as None", "Query output"], ["describe_collection after setting TTL", "properties include collection.ttl.seconds = 3600", "describe_collection output"], ["Attempt to alter the vector field dimension", "Milvus rejects the change", "Captured exception"]],
+          "objectives": ["Evolve Milvus schemas safely", "Use collection properties such as TTL", "Plan migrations for unsupported changes"]
+        },
+        {
+          "topic": "Collection Aliases for Zero-Downtime Reindexing",
+          "subtopics": ["create_alias, alter_alias, drop_alias and describe_alias", "Applications that read and write through an alias", "Blue-green collections for new embedding models", "Backfilling the new collection", "Validating recall before switching", "Atomic alter_alias switch", "Rollback by pointing the alias back", "Dropping the old collection after a soak period"],
+          "tools": ["pymilvus", "Milvus Standalone", "Locust"],
+          "lab_task": "Create docs_v1 and alias docs, run a load generator searching docs at 50 requests per second, build docs_v2 with a new embedding model and HNSW, validate recall on 100 queries, then alter_alias(\"docs\", \"docs_v2\"). Record errors during the switch, roll back to docs_v1 and confirm, then switch forward again.",
+          "deliverable": "Runbook, load-test error log across the switch and rollback evidence",
+          "checks": [["describe_alias(\"docs\") after the switch", "collection_name is docs_v2", "Script output"], ["Count failed requests during alter_alias", "Zero failed requests are recorded", "Load-test log"], ["Point the alias back to docs_v1", "Searches return docs_v1 results again", "Search output"]],
+          "objectives": ["Use aliases to decouple apps from collections", "Swap collections without downtime", "Roll back a bad reindex"]
+        },
+        {
+          "topic": "Milvus Configuration with milvus.yaml",
+          "subtopics": ["Where milvus.yaml lives in Standalone and how to mount an override", "common, proxy, queryNode and dataCoord sections", "dataCoord.segment.maxSize and seal behaviour", "proxy limits such as maxFieldNum and maxDimension", "queryNode cache and mmap settings", "log.level and log format", "Dynamic configuration through etcd", "Checking active configuration in the WebUI"],
+          "tools": ["Milvus Standalone", "Docker Compose", "Milvus WebUI", "etcdctl"],
+          "lab_task": "Extract the default milvus.yaml from the Standalone image, mount an override that sets log.level to debug and a smaller dataCoord.segment.maxSize, and restart. Confirm the values in the WebUI configuration page, insert 2 million rows and compare the segment count with the default setting. Revert and document every changed key.",
+          "deliverable": "Override file, WebUI screenshots and a segment-count comparison",
+          "checks": [["Open the WebUI configuration page after restart", "log.level shows debug", "WebUI screenshot"], ["Count sealed segments after inserting 2 million rows with smaller maxSize", "More segments exist than with the default setting", "WebUI segment view"], ["Start Milvus with an invalid YAML indentation", "Container fails to start and logs a configuration parse error", "docker compose logs output"]],
+          "objectives": ["Override Milvus configuration safely", "Relate segment settings to segment counts", "Verify running configuration"]
+        },
+        {
+          "topic": "Building a RAG Retriever on Milvus with LangChain",
+          "subtopics": ["langchain-milvus package and the Milvus vector store", "connection_args with uri and token", "Milvus Lite URIs for local tests", "BM25BuiltInFunction for hybrid retrieval", "Metadata filters through expr", "as_retriever with search_kwargs", "partition_key_field for multi-tenant RAG", "Inspecting the collection LangChain creates"],
+          "tools": ["langchain-milvus", "LangChain", "pymilvus", "Milvus Standalone", "Attu"],
+          "lab_task": "Install langchain-milvus, load 200 documents with metadata, and build a Milvus vector store with builtin_function=BM25BuiltInFunction() and vector_field=[\"dense\", \"sparse\"]. Run similarity_search with expr=\"source == 'handbook'\", then inspect the generated collection schema in Attu and record field names. Answer 10 questions with a retriever-backed chain and log retrieved ids.",
+          "deliverable": "Notebook, generated schema screenshot and a table of 10 questions with retrieved ids",
+          "checks": [["Inspect the LangChain-created collection in Attu", "Schema contains dense and sparse vector fields plus a BM25 function", "Attu screenshot"], ["similarity_search with expr=\"source == 'handbook'\"", "All returned documents have source handbook", "Notebook output"], ["Run the 10 questions", "At least 8 have the supporting document in the top 4 retrieved", "Results table"]],
+          "objectives": ["Connect LangChain to Milvus", "Use built-in BM25 hybrid retrieval from LangChain", "Inspect what the integration creates in Milvus"]
+        },
+        {
+          "topic": "Getting Started with Zilliz Cloud Clusters",
+          "subtopics": ["Serverless versus Dedicated clusters", "Public endpoint URI and API key token", "Connecting MilvusClient to Zilliz Cloud", "Cluster users and roles in the console", "AUTOINDEX and search level in Zilliz Cloud", "Importing data from object storage", "Usage and cost metrics in the console", "Features that differ from self-hosted Milvus"],
+          "tools": ["Zilliz Cloud", "pymilvus", "Zilliz Cloud console"],
+          "lab_task": "Create a free or trial Zilliz Cloud cluster, store the endpoint and API key in environment variables, and connect with MilvusClient(uri=os.environ[\"ZILLIZ_URI\"], token=os.environ[\"ZILLIZ_TOKEN\"]). Reuse your Standalone ingestion code unchanged to load 100,000 rows, run 100 searches and compare p95 latency and recall with Standalone. Connect with a wrong token and record the error.",
+          "deliverable": "Connection script, latency and recall comparison and the authentication error",
+          "checks": [["Run the Standalone ingestion code against Zilliz Cloud", "count(*) returns 100000", "Script output"], ["Connect with an invalid token", "Connection fails with an authentication error", "Captured exception"], ["Search the same 100 queries on both deployments", "Recall@10 on Zilliz Cloud is within 0.02 of Standalone", "Comparison table"]],
+          "objectives": ["Connect applications to Zilliz Cloud", "Port Milvus code to a managed cluster", "Compare managed and self-hosted results"]
+        },
+        {
+          "topic": "Intermediate Capstone: Hybrid Product Search with Partition Keys and Reranking",
+          "subtopics": ["Schema with dense vector, BM25 sparse field and partition key merchant_id", "Scalar indexes on category, price and brand", "hybrid_search with RRFRanker and filters", "Alias-based reindex for a new embedding model"],
+          "tools": ["Milvus Standalone", "pymilvus", "Attu", "FastAPI", "Locust", "pandas"],
+          "lab_task": "Build a multi-merchant product search over at least 1 million products: dense plus BM25 sparse fields, merchant_id partition key, scalar indexes, and a FastAPI endpoint using hybrid_search with filters. Evaluate 100 labelled queries with nDCG@10, load test at 100 requests per second, then reindex to docs_v2 via alias with no failed requests.",
+          "deliverable": "Repository with schema, ingestion, API, evaluation report, load-test results and reindex runbook",
+          "checks": [["Evaluate 100 labelled queries", "Hybrid nDCG@10 beats dense-only", "Evaluation report"], ["Locust test at 100 requests per second for 10 minutes", "p95 latency is under 200 ms with 0 errors", "Locust report"], ["Search with merchant_id filter for one merchant", "All hits belong to that merchant", "API output"]],
+          "objectives": ["Design a multi-tenant hybrid search service", "Tune it against quality and latency targets", "Operate a zero-downtime reindex"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform, SRE and senior backend engineers who run Milvus in production or are about to. Covers the Milvus 2.6 architecture (proxy, coordinator, streaming, query and data nodes, etcd, object storage and the WAL), segment lifecycle and compaction, Kubernetes deployment with the Milvus Operator and Helm, message queue choices, DiskANN, mmap and GPU indexes, replicas and resource groups, clustering compaction, RBAC and security hardening, milvus-backup, Prometheus and Grafana monitoring, quotas, function-based embedding and reranking, benchmarking, upgrades, troubleshooting, Zilliz Cloud migration and CDC, ending with a production cluster capstone.",
+      "prerequisites": ["Completed the Milvus intermediate level or tunes indexes, partition keys, hybrid search and consistency levels in Milvus already", "Operates Kubernetes with kubectl and Helm, including StatefulSets, PersistentVolumes and namespaces", "Has a Kubernetes cluster with at least 3 worker nodes of 16 GB RAM (kind or k3d acceptable for most labs), an S3-compatible bucket and optional NVIDIA GPU node"],
+      "outcomes": ["Explain the Milvus data path from proxy to WAL to segments in object storage and use it to diagnose latency and freshness problems", "Deploy, scale and upgrade Milvus Distributed on Kubernetes with the Milvus Operator or Helm", "Secure, back up, monitor and rate-limit a production Milvus cluster with RBAC, TLS, milvus-backup, Prometheus and Grafana", "Select disk, memory-mapped and GPU index strategies and validate them with VectorDBBench against SLOs"],
+      "days": [
+        {
+          "topic": "Milvus Architecture: Proxy, Coordinator, Streaming, Query and Data Nodes",
+          "subtopics": ["Access layer: stateless proxies and request validation", "Coordinator: metadata, scheduling and load balancing (merged into one coordinator in Milvus 2.6)", "Streaming node: WAL ownership and growing segments in Milvus 2.6", "Query nodes: sealed segment search", "Data nodes: flush, compaction and index build", "etcd for metadata and object storage for segment and index files", "Insert path and search path step by step", "Shards, virtual channels and timestamps"],
+          "tools": ["Milvus Distributed", "kubectl", "Milvus WebUI", "Birdwatcher"],
+          "lab_task": "Deploy a small Milvus Distributed cluster, list its pods with kubectl get pods -l app.kubernetes.io/instance=<release>, and map each pod to its role. Trace one insert and one search by raising log.level to debug and following the request through proxy, streaming node, data node and query node logs. Draw the data path diagram with the files that appear in the object storage bucket.",
+          "deliverable": "Annotated architecture diagram, pod-to-role table and log excerpts for one insert and one search",
+          "checks": [["Map running pods to roles", "Proxy, coordinator, streaming node, query node and data node pods are identified", "Pod-to-role table"], ["List the bucket after flush with mc ls --recursive", "Binlog files for the collection appear under the insert_log prefix", "mc output"], ["Kill the proxy pod during a search loop", "Searches fail briefly and resume once the replacement proxy is Ready", "Client log"]],
+          "objectives": ["Describe every Milvus component and its responsibility", "Trace insert and search paths through the cluster", "Relate storage objects to Milvus segments"]
+        },
+        {
+          "topic": "Segments, Flush, Compaction and the Write-Ahead Log",
+          "subtopics": ["Growing versus sealed segments", "Seal triggers: size, time and flush calls", "Binlogs, deltalogs and statslogs in object storage", "L0 segments for deletes", "Mix compaction and how deletes become physical", "client.compact and get_compaction_state", "WAL replay after node failure", "Small-segment problems and their symptoms"],
+          "tools": ["pymilvus", "Milvus Distributed", "Milvus WebUI", "MinIO Client (mc)"],
+          "lab_task": "Insert 3 million rows, delete 30 percent by filter, and record segment count, row counts and bucket size from the WebUI and mc du. Run client.compact, poll get_compaction_state until Completed, and record the same values again. Then kill the streaming node pod mid-insert and verify count(*) with Strong consistency after recovery matches acknowledged inserts.",
+          "deliverable": "Before/after compaction table and a WAL recovery report",
+          "checks": [["Poll get_compaction_state after compact", "State reaches Completed", "Script output"], ["Compare bucket size of insert logs before and after compaction", "Storage for the collection is smaller after compaction", "mc du output"], ["count(*) after streaming node restart", "Count equals the number of acknowledged inserted rows", "Recovery report"]],
+          "objectives": ["Explain the segment lifecycle", "Trigger and monitor compaction", "Verify durability through WAL replay"]
+        },
+        {
+          "topic": "Deploying Milvus Distributed with the Milvus Operator",
+          "subtopics": ["Installing the operator with Helm from the milvus-operator chart repository", "Milvus custom resource apiVersion milvus.io/v1beta1", "spec.mode: cluster and component replicas", "spec.dependencies for etcd, storage and message stream", "External S3 and etcd instead of in-cluster", "Resource requests and limits per component", "kubectl get milvus and status conditions", "Port-forwarding 19530 and 9091 for access"],
+          "tools": ["Milvus Operator", "Helm", "kubectl", "kind", "pymilvus"],
+          "lab_task": "Install the operator into namespace milvus-operator with Helm, then apply a Milvus custom resource with spec.mode: cluster, 2 proxies, 2 query nodes, 1 data node, external S3 credentials from a Kubernetes Secret and requests/limits per component. Wait until kubectl get milvus shows Healthy, port-forward 19530 and run a smoke test of create, insert, index, load and search.",
+          "deliverable": "Milvus custom resource YAML, kubectl status output and smoke-test log",
+          "checks": [["kubectl get milvus -n milvus", "STATUS column shows Healthy", "kubectl output"], ["kubectl get pods -n milvus -l app.kubernetes.io/component=querynode", "2 query node pods are Running", "kubectl output"], ["Run the smoke test through the port-forward", "Search returns the expected top-1 id", "Smoke-test log"]],
+          "objectives": ["Deploy Milvus Distributed with the operator", "Point Milvus at external dependencies", "Validate a cluster deployment"]
+        },
+        {
+          "topic": "Milvus Helm Chart Values and Dependency Choices",
+          "subtopics": ["milvus-helm chart repository and helm show values", "cluster.enabled and per-component replicaCount", "Bundled etcd, MinIO and message queue subcharts", "externalS3 and externalEtcd settings", "extraConfigFiles to override milvus.yaml", "Pod anti-affinity and topology spread", "helm template for review before apply", "Operator versus Helm: when to pick which"],
+          "tools": ["Helm", "kubectl", "Milvus Helm chart", "yq"],
+          "lab_task": "Run helm show values for the Milvus chart and write a values-prod.yaml with cluster.enabled=true, external S3, three etcd replicas, anti-affinity for query nodes and an extraConfigFiles override for log level. Render with helm template, check that no in-cluster MinIO is produced, install, and compare the resulting resources with your operator deployment.",
+          "deliverable": "values-prod.yaml, rendered manifest review notes and an operator-versus-Helm comparison",
+          "checks": [["grep rendered manifests for minio", "No MinIO StatefulSet or Deployment is rendered", "helm template output"], ["kubectl get pods -o wide for query nodes", "Query node pods run on different worker nodes", "kubectl output"], ["helm status after install", "STATUS is deployed", "helm output"]],
+          "objectives": ["Customise the Milvus Helm chart for production", "Use external dependencies with Helm", "Choose between Helm and the operator"]
+        },
+        {
+          "topic": "Message Queue Options: Woodpecker, Pulsar and Kafka",
+          "subtopics": ["Role of the WAL in Milvus", "Woodpecker: object-storage-backed WAL introduced in Milvus 2.6", "Pulsar topics, retention and BookKeeper storage", "Kafka topics and retention", "mq.type and component configuration", "Operational cost of each option", "Throughput and latency of writes per option", "Switching queue type requires planning and cannot be done in place casually"],
+          "tools": ["Milvus Distributed", "Apache Pulsar", "Apache Kafka", "Woodpecker", "pymilvus"],
+          "lab_task": "Deploy two test clusters, one using the default WAL of your Milvus version and one using Kafka (or Pulsar). Run the same ingest of 5 million rows at fixed batch size and record insert throughput, p95 insert latency and freshness lag (time until a Strong query sees the last row). Add the pod count and storage each queue needs.",
+          "deliverable": "Comparison table covering throughput, latency, freshness lag, pod count and storage",
+          "checks": [["Measure sustained insert throughput on both clusters", "Throughput numbers recorded for each queue option", "Benchmark table"], ["Count pods supporting the WAL in each cluster", "The Kafka or Pulsar cluster runs more dependency pods", "kubectl output"], ["Measure freshness lag for the last inserted row", "Lag recorded in milliseconds for both options", "Benchmark table"]],
+          "objectives": ["Explain Milvus WAL options", "Benchmark queue choices", "Choose a WAL backend for operations and cost"]
+        },
+        {
+          "topic": "Object Storage and etcd Metadata Operations",
+          "subtopics": ["Bucket layout: insert_log, delta_log, stats_log and index_files", "rootPath and bucketName settings", "IAM roles or access keys for S3", "etcd keys under the Milvus root path", "etcd compaction, defragmentation and quotas", "etcd backup with etcdctl snapshot save", "What happens when etcd is unavailable", "Object storage lifecycle rules that must not delete Milvus data"],
+          "tools": ["etcdctl", "MinIO Client (mc)", "AWS CLI", "Birdwatcher"],
+          "lab_task": "List Milvus keys with etcdctl get --prefix --keys-only by-dev/meta | head, take an etcd snapshot with etcdctl snapshot save and verify it with etcdutl snapshot status. Map one collection's segments to object paths with mc ls. Then scale etcd to zero in a test cluster, record client errors for insert and search, restore etcd and confirm recovery.",
+          "deliverable": "Key layout notes, snapshot status, object mapping and an etcd outage report",
+          "checks": [["etcdutl snapshot status on the saved snapshot", "Hash, revision and total key count are printed", "Terminal output"], ["Insert during the etcd outage", "Insert fails or times out", "Client log"], ["Search after etcd is restored", "Search returns results again", "Client log"]],
+          "objectives": ["Understand Milvus metadata and storage layout", "Back up etcd safely", "Assess dependency failure impact"]
+        },
+        {
+          "topic": "DiskANN and Memory-Mapped Storage in Milvus",
+          "subtopics": ["DISKANN index and the Vamana graph on local NVMe", "search_list and its relation to limit", "queryNode local storage requirements", "mmap.enabled at collection and field level", "Memory-mapped raw data, scalar fields and indexes", "Tiered storage and lazy loading in recent releases", "Latency cost of disk-backed search", "Capacity planning: memory versus NVMe"],
+          "tools": ["pymilvus", "Milvus Distributed", "iostat", "Prometheus"],
+          "lab_task": "Build DISKANN on 10 million 768-dimensional vectors on a query node with local NVMe, and compare loaded memory, recall@10 and p95 latency with HNSW for search_list of 50, 100 and 200. Then enable mmap.enabled on an HNSW collection with alter_collection_properties, reload, and record memory and latency. Capture iostat during the DiskANN run.",
+          "deliverable": "Memory, recall and latency comparison for DiskANN, HNSW and HNSW with mmap, plus iostat capture",
+          "checks": [["Compare query node memory for DiskANN and HNSW", "DiskANN uses less memory than HNSW", "Memory table"], ["Raise search_list from 50 to 200", "recall@10 rises and latency rises", "Benchmark table"], ["iostat during DiskANN load test", "Read IOPS on the NVMe device increase during the test", "iostat output"]],
+          "objectives": ["Run disk-based vector search in Milvus", "Use mmap to reduce memory", "Plan capacity across memory and NVMe"]
+        },
+        {
+          "topic": "GPU Indexes in Milvus: GPU_CAGRA and GPU_IVF_PQ",
+          "subtopics": ["Milvus GPU images and NVIDIA device plugin", "GPU_CAGRA with intermediate_graph_degree and graph_degree", "GPU_IVF_FLAT, GPU_IVF_PQ and GPU_BRUTE_FORCE", "itopk_size and search_width", "GPU memory pool configuration", "Batch size and throughput on GPU", "Building on GPU and serving on CPU where supported", "Cost per query compared with CPU HNSW"],
+          "tools": ["Milvus GPU image", "NVIDIA device plugin", "nvidia-smi", "pymilvus", "VectorDBBench"],
+          "lab_task": "On a GPU node, deploy a query node with the Milvus GPU image and nvidia.com/gpu: 1. Build GPU_CAGRA on 5 million vectors and record build time against CPU HNSW. Benchmark throughput at batch sizes 1, 32 and 256 with recall@10 >= 0.95 and watch nvidia-smi. Estimate cost per million queries for GPU and CPU nodes.",
+          "deliverable": "Build time table, throughput by batch size, nvidia-smi capture and a cost estimate",
+          "checks": [["Compare GPU_CAGRA build time with CPU HNSW", "GPU_CAGRA builds faster", "Build-time table"], ["nvidia-smi during the load test", "GPU utilisation is above 0 percent and Milvus is listed as a process", "nvidia-smi output"], ["Throughput at batch size 256 versus 1", "Batch 256 gives higher queries per second", "Benchmark table"]],
+          "objectives": ["Deploy GPU-enabled Milvus query nodes", "Tune GPU indexes", "Decide when GPUs pay off"]
+        },
+        {
+          "topic": "Replicas, Resource Groups and Query Node Scaling",
+          "subtopics": ["load_collection(replica_number=...) for in-memory replicas", "Resource groups with create_resource_group", "transfer_node and transfer_replica", "Isolating tenants or workloads by resource group", "Horizontal scaling of query nodes and rebalance", "queryCoord autoBalance behaviour", "Scaling proxies for connection load", "Measuring throughput gains from replicas"],
+          "tools": ["pymilvus", "Milvus Distributed", "kubectl", "Locust"],
+          "lab_task": "Scale query nodes to 4, create resource groups rg_search and rg_batch with 2 nodes each, and load collection A with replica_number=2 into rg_search. Measure maximum queries per second at p95 under 50 ms with 1 and 2 replicas. Delete one query node pod and record how long until load state and throughput recover.",
+          "deliverable": "Resource group configuration, throughput comparison and failover timing",
+          "checks": [["describe_resource_group(\"rg_search\")", "Shows 2 nodes and the loaded replicas of collection A", "Script output"], ["Load test with 2 replicas versus 1", "Throughput at p95 under 50 ms is higher with 2 replicas", "Locust report"], ["Delete one query node pod during load", "Searches continue to succeed using the other replica", "Client log"]],
+          "objectives": ["Scale read capacity with replicas", "Isolate workloads with resource groups", "Measure failover behaviour"]
+        },
+        {
+          "topic": "Clustering Compaction and Clustering Keys",
+          "subtopics": ["is_clustering_key=True on a scalar field", "How clustering compaction groups data by key", "Segment pruning with clustering keys", "compact(collection_name, is_clustering=True)", "Configuration keys for clustering compaction", "Choosing a clustering key: time, tenant or category", "Interaction with partition keys", "Measuring pruning gains"],
+          "tools": ["pymilvus", "Milvus Distributed", "Milvus WebUI"],
+          "lab_task": "Create a 20-million-row collection with event_date as clustering key, run filtered searches on a one-week date range and record latency. Trigger compact(..., is_clustering=True), wait for completion, rerun the same searches and record latency and segments searched (from debug logs or metrics). Repeat with a high-cardinality random key to show limited benefit.",
+          "deliverable": "Before/after latency table and an explanation of when clustering keys help",
+          "checks": [["Track the clustering compaction job", "Compaction state reaches Completed", "Script output"], ["Rerun one-week date-range searches after compaction", "p95 latency is lower than before compaction", "Latency table"], ["Create a second clustering key field on the same collection", "Schema creation fails because only one clustering key is allowed", "Captured exception"]],
+          "objectives": ["Configure clustering keys", "Run clustering compaction", "Measure pruning benefits"]
+        },
+        {
+          "topic": "Milvus RBAC: Users, Roles and Privilege Groups",
+          "subtopics": ["Enabling common.security.authorizationEnabled", "Changing the default root password", "create_user, create_role and grant_role", "grant_privilege_v2 with collection and database scope", "Built-in privilege groups such as COLL_RO and COLL_RW", "Custom privilege groups", "describe_role and list_users", "Permission denied errors and auditing them"],
+          "tools": ["pymilvus", "Milvus Distributed", "Attu"],
+          "lab_task": "Enable authorization, change the root password, then create roles app_reader (COLL_RO on db prod, collection docs) and ingest_writer (COLL_RW on the same). Create one user per role. Test search, insert and drop_collection with each user and record which calls succeed. Show that the old root:Milvus token is rejected.",
+          "deliverable": "RBAC script, a permission matrix of 3 operations by 2 users and error captures",
+          "checks": [["app_reader user calls insert on docs", "Request is denied with a permission error", "Captured exception"], ["ingest_writer user inserts into docs", "insert_count matches the batch size", "Script output"], ["Connect with root:Milvus after the password change", "Authentication fails", "Captured exception"]],
+          "objectives": ["Enable and configure Milvus RBAC", "Apply least privilege with privilege groups", "Verify permissions with real calls"]
+        },
+        {
+          "topic": "Milvus Security Hardening: TLS, Auth and Network Policies",
+          "subtopics": ["One-way TLS with common.security.tlsMode 1", "Mutual TLS with tlsMode 2 and client certificates", "Certificates from cert-manager", "Secrets for S3 and etcd credentials", "Kubernetes NetworkPolicy for 19530, 9091, etcd and storage", "Encryption at rest in object storage", "Exposing metrics and WebUI only internally", "Security review checklist"],
+          "tools": ["cert-manager", "kubectl", "openssl", "pymilvus", "Milvus Distributed"],
+          "lab_task": "Issue a server certificate with cert-manager, enable tlsMode 1 on the proxy, and connect with MilvusClient(uri=\"https://...:19530\", server_pem_path=...). Add a NetworkPolicy that allows 19530 only from the app namespace and 9091 only from the monitoring namespace. Prove both with openssl s_client and with a curl from a disallowed pod.",
+          "deliverable": "TLS config, NetworkPolicy YAML and test evidence for allowed and blocked paths",
+          "checks": [["openssl s_client -connect proxy:19530", "Certificate chain issued by your cert-manager issuer is shown", "Terminal output"], ["Plain-text client without TLS after enabling tlsMode 1", "Connection fails", "Captured exception"], ["curl port 9091 from a pod outside the monitoring namespace", "Connection times out", "Terminal output"]],
+          "objectives": ["Encrypt client traffic to Milvus", "Restrict network access to Milvus components", "Review a deployment against a security checklist"]
+        },
+        {
+          "topic": "Backup and Restore with milvus-backup",
+          "subtopics": ["milvus-backup binary and backup.yaml", "milvus, minio and backup sections of the config", "milvus-backup create -n <name>", "list, check and delete commands", "restore with -s suffix or rename options", "Cross-bucket and cross-cluster restore", "Backup consistency and in-flight writes", "Scheduling backups and retention"],
+          "tools": ["milvus-backup", "MinIO Client (mc)", "kubectl", "pymilvus"],
+          "lab_task": "Configure backup.yaml for your cluster, run ./milvus-backup create -n nightly_01 for two collections, and confirm with ./milvus-backup list. Restore into the same cluster with -s _restored, rebuild indexes if needed, load, and compare count(*) and 50 search results between source and restored collections. Time both operations.",
+          "deliverable": "backup.yaml, command logs, timings and a source-versus-restored comparison",
+          "checks": [["./milvus-backup list", "nightly_01 is listed", "Terminal output"], ["count(*) on source and restored collections", "Counts are equal", "Script output"], ["Compare top-10 ids for 50 queries", "All 50 top-10 lists match", "Comparison report"]],
+          "objectives": ["Back up Milvus collections", "Restore and verify collections", "Plan backup schedules and retention"]
+        },
+        {
+          "topic": "Monitoring Milvus with Prometheus and Grafana",
+          "subtopics": ["Metrics endpoint on port 9091/metrics", "ServiceMonitor with kube-prometheus-stack", "Official Milvus Grafana dashboard", "Proxy request rate and search latency metrics", "Query node memory, segment counts and load", "Insert rate and flush latency", "Quota and rate-limit settings in quotaAndLimits", "Alert rules for latency, errors and memory"],
+          "tools": ["Prometheus", "Grafana", "kube-prometheus-stack", "Milvus Grafana dashboard", "Locust"],
+          "lab_task": "Install kube-prometheus-stack, add a ServiceMonitor for Milvus on port 9091, and import the Milvus Grafana dashboard. Run a load test and identify the metrics for search request rate and p99 latency. Write Prometheus alert rules for p99 search latency above 200 ms for 5 minutes and error rate above 1 percent, then trigger one with quotaAndLimits limiting search rate.",
+          "deliverable": "ServiceMonitor, dashboard screenshots, alert rules and a fired alert",
+          "checks": [["Query up{job=~\".*milvus.*\"} in Prometheus", "Returns 1 for every Milvus pod", "Prometheus screenshot"], ["Enable a low search rate limit and run the load test", "Clients receive rate-limit errors", "Client log"], ["Check Alertmanager after the error rate exceeds 1 percent", "The error-rate alert is firing", "Alertmanager screenshot"]],
+          "objectives": ["Collect Milvus metrics with Prometheus", "Build dashboards and alerts", "Use quotas to protect a cluster"]
+        },
+        {
+          "topic": "Milvus 2.6 Functions: Text Embedding, Decay and Model Rerankers",
+          "subtopics": ["Function objects in the schema", "FunctionType.TEXTEMBEDDING with external providers", "Provider credentials configured in milvus.yaml", "Inserting and searching with raw text", "Rerank functions with FunctionType.RERANK", "Decay reranking on time or distance fields", "Model-based reranking through an external service", "Latency and cost of server-side functions"],
+          "tools": ["pymilvus", "Milvus Distributed", "OpenAI API", "Milvus documentation (milvus.io/docs)"],
+          "lab_task": "Add a text embedding Function to a new collection so text maps to a dense field through your provider, with the API key set in Milvus configuration rather than code. Insert 10,000 raw-text rows, search with text queries, then add a decay rerank function on publish_time and compare top-10 freshness. Record added latency per request.",
+          "deliverable": "Schema with functions, before/after rerank result comparison and latency measurements",
+          "checks": [["Insert rows that contain only id, text and publish_time", "Insert succeeds and the dense field is populated", "Script output"], ["Compare mean publish_time of top-10 with and without decay rerank", "Decay rerank returns newer documents on average", "Comparison table"], ["Remove the provider credential and restart", "Inserts fail with a provider authentication error", "Captured exception"]],
+          "objectives": ["Use server-side embedding functions", "Apply decay and model reranking", "Weigh latency and cost of server-side functions"]
+        },
+        {
+          "topic": "Benchmarking Milvus with VectorDBBench",
+          "subtopics": ["Installing VectorDBBench with pip install vectordb-bench", "Starting the UI with init_bench", "Built-in datasets and case types", "Performance cases with filters", "Capacity cases", "Concurrency settings and QPS measurement", "Recording recall, p99 latency and load duration", "Reproducible benchmark reports"],
+          "tools": ["VectorDBBench", "pymilvus", "Milvus Distributed", "Grafana"],
+          "lab_task": "Run VectorDBBench against your cluster with a 1-million and a 10-million vector performance case, once with HNSW and once with your best quantized index. Record QPS, recall, p99 latency and load time for each, capture Grafana during the run, and write a one-page report stating whether the cluster meets 1,000 QPS at p99 under 50 ms with recall >= 0.95.",
+          "deliverable": "VectorDBBench results, Grafana captures and a one-page SLO report",
+          "checks": [["Complete the 1-million performance case", "Report lists QPS, recall and p99 latency", "VectorDBBench result page"], ["Compare recall of HNSW and the quantized index", "Quantized index recall is lower than or equal to HNSW", "Results table"], ["Check the SLO statement", "Report gives a clear pass or fail for the 1,000 QPS target", "SLO report"]],
+          "objectives": ["Benchmark Milvus reproducibly", "Compare index choices under load", "Report results against SLOs"]
+        },
+        {
+          "topic": "Milvus Upgrades and Rolling Restarts",
+          "subtopics": ["Reading release notes and compatibility statements", "Backing up before an upgrade", "Rolling upgrade with the operator by changing spec.components.image", "Helm upgrade with a new image tag", "Component upgrade order", "Client compatibility of pymilvus versions", "Smoke tests and rollback criteria", "Measuring client errors during the upgrade"],
+          "tools": ["Milvus Operator", "Helm", "milvus-backup", "kubectl", "Locust"],
+          "lab_task": "On a staging cluster, take a milvus-backup, run a steady load of reads and writes, then upgrade to the next minor release by updating the Milvus custom resource image. Watch kubectl get pods -w, record error count and p95 latency during the rollout, run smoke tests, and write rollback criteria and steps.",
+          "deliverable": "Upgrade runbook, rollout timeline, error and latency log and smoke-test results",
+          "checks": [["kubectl get milvus after the rollout", "STATUS is Healthy with the new image", "kubectl output"], ["Count errors during the rolling upgrade", "Error rate stays below the agreed threshold of 1 percent", "Load-test log"], ["Run smoke tests after the upgrade", "All smoke tests pass", "Test output"]],
+          "objectives": ["Plan Milvus upgrades with backup and rollback", "Execute rolling upgrades", "Measure upgrade impact on clients"]
+        },
+        {
+          "topic": "Troubleshooting Milvus with Birdwatcher and Logs",
+          "subtopics": ["Birdwatcher connect to etcd and show collections", "show segment and show replica", "Reading component logs with kubectl logs", "Common errors: collection not loaded, rate limited, deny to write", "Memory pressure and OOMKilled query nodes", "Slow search: unindexed segments or growing segments", "Stuck index builds and compaction tasks", "Collecting a support bundle"],
+          "tools": ["Birdwatcher", "kubectl", "Milvus WebUI", "Prometheus", "pymilvus"],
+          "lab_task": "Inject three faults in staging: set query node memory limit too low to load a collection, insert without building an index, and set a tiny write quota. For each, capture the client error, the relevant kubectl logs lines, Birdwatcher show segment output or WebUI view, and write the fix. Verify each fix with a passing test.",
+          "deliverable": "Troubleshooting runbook with three faults, evidence and verified fixes",
+          "checks": [["Load a collection with too little query node memory", "Query node pod is OOMKilled or load fails with a memory error", "kubectl describe output"], ["Birdwatcher show segment for the unindexed collection", "Segments are listed without a completed index", "Birdwatcher output"], ["Insert under the tiny write quota", "Client receives a rate-limit or deny-to-write error", "Captured exception"]],
+          "objectives": ["Diagnose common Milvus failures", "Use Birdwatcher, logs and the WebUI together", "Write verified troubleshooting runbooks"]
+        },
+        {
+          "topic": "Migrating to Zilliz Cloud and Cross-Cluster Replication with Milvus CDC",
+          "subtopics": ["Migration paths: backup files, bulk import and Zilliz Cloud migration tools", "Mapping schemas and indexes to Zilliz Cloud", "Milvus CDC for change data capture between clusters", "CDC task creation and status", "Replication lag measurement", "Cut-over with dual reads", "Validating counts and search results after migration", "Rollback planning"],
+          "tools": ["Zilliz Cloud", "Milvus CDC", "milvus-backup", "pymilvus", "Zilliz Cloud console"],
+          "lab_task": "Plan the move of one 5-million-row collection from self-hosted Milvus to Zilliz Cloud: copy existing data with a migration or import job, then keep changes flowing with a CDC or dual-write approach. Measure replication lag, run 100 comparison searches on both sides, and do a cut-over by switching the app's URI and token from environment variables.",
+          "deliverable": "Migration plan, lag measurements, comparison report and cut-over log",
+          "checks": [["count(*) on source and target after initial copy", "Counts match", "Script output"], ["Insert 1,000 rows on the source during replication", "Rows appear in the target within the measured lag", "Lag log"], ["Compare top-10 ids for 100 queries", "Average overlap is at least 0.95", "Comparison report"]],
+          "objectives": ["Plan a Milvus to Zilliz Cloud migration", "Replicate ongoing changes between clusters", "Validate and cut over safely"]
+        },
+        {
+          "topic": "Advanced Capstone: Production Milvus Cluster on Kubernetes with Backup, RBAC and SLOs",
+          "subtopics": ["Operator or Helm deployment with external storage and etcd", "RBAC, TLS and NetworkPolicy", "Backups, restore drill and monitoring with alerts", "Benchmark and failure drills against SLOs"],
+          "tools": ["Milvus Operator", "Helm", "milvus-backup", "Prometheus", "Grafana", "VectorDBBench"],
+          "lab_task": "Deliver a production-ready Milvus Distributed cluster: external S3 and etcd, replicas for a 10-million-vector collection, RBAC with least privilege, TLS, NetworkPolicy, nightly milvus-backup, Grafana dashboards and alerts. Prove a restore drill, a query node failure drill and a VectorDBBench run meeting 500 QPS at p99 under 100 ms with recall >= 0.95.",
+          "deliverable": "Infrastructure repository, runbooks, drill reports, benchmark report and a final architecture review",
+          "checks": [["VectorDBBench run on the final cluster", "500 QPS at p99 under 100 ms with recall at least 0.95", "Benchmark report"], ["Delete a query node pod during load", "No search errors because a second replica serves traffic", "Drill report"], ["Restore last night's backup into a new collection", "count(*) matches the source", "Restore drill report"]],
+          "objectives": ["Design and run a production Milvus cluster", "Prove resilience with drills", "Defend architecture choices with measurements"]
+        }
+      ]
+    }
+  }
+}

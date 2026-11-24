@@ -1,0 +1,573 @@
+{
+  "domain": "Multi-Agent Systems",
+  "name": "Multi-Agent Systems",
+  "category": "Generative AI and Agents",
+  "icon": "workflow",
+  "aliases": ["MAS", "Agentic AI Systems", "LLM Multi-Agent Systems", "Multi-Agent System Design", "Multi-Agent AI", "Agent Teams", "Multi-Agent LLM Systems", "Agent-to-Agent Systems"],
+  "certifications": [],
+  "tools": ["LangGraph", "AutoGen", "CrewAI", "Model Context Protocol (MCP)", "Agent2Agent (A2A) protocol", "OpenAI Agents SDK", "Pydantic", "OpenTelemetry", "Langfuse", "Temporal", "Redis", "pytest", "Docker"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers and data or platform engineers who can write Python and have called an LLM API at least once, and who want to design systems in which several LLM agents cooperate. Covers when a single agent is enough and when to split, agent roles and contracts, message passing, sequential pipelines, supervisor routing, parallel fan-out, shared state and the blackboard idea, memory scopes, handoffs, critic and debate patterns, per-agent tool permissions, stop conditions and budgets, trace reading, first failure modes, human checkpoints and a research-team capstone. Examples stay framework-neutral and are compared with LangGraph, AutoGen and CrewAI.",
+      "prerequisites": ["Writes Python 3 programs with functions, classes, dataclasses and virtual environments", "Has called a chat-completion style LLM API and read the JSON response, including the usage token counts", "Has a laptop with Python 3.11 or later, git, a terminal and either a hosted model API key or a local model server such as Ollama"],
+      "outcomes": ["Decide with evidence whether a task needs one agent or several, using a measured single-agent baseline", "Build supervisor, pipeline, fan-out and critic designs from plain Python and map them to LangGraph, AutoGen and CrewAI concepts", "Define agent roles, message formats, shared state, memory scopes and tool permissions as explicit contracts", "Run, trace and bound a small agent team with turn limits, budgets and a human approval step"],
+      "days": [
+        {
+          "topic": "Single-Agent Baseline and the Case for Multiple Agents",
+          "subtopics": ["What an LLM agent is: model, instructions, tools and a loop", "Single agent, workflow and multi-agent system compared on one task", "Reasons to split: context size, tool count, specialisation and parallelism", "Reasons not to split: cost, latency, error compounding and debugging effort", "Measuring a baseline: success rate, tokens and wall-clock time over 10 runs", "Anthropic's and OpenAI's published guidance on starting simple", "Where LangGraph, AutoGen and CrewAI sit on the single-to-multi spectrum", "A decision checklist for adding a second agent"],
+          "tools": ["Python", "openai SDK", "pytest", "LangGraph", "AutoGen", "CrewAI"],
+          "lab_task": "Write one agent that answers 10 questions about a 3-page policy text in a single prompt. Run each question 5 times with temperature 0.2, log response.usage.prompt_tokens, completion_tokens, latency and a pass/fail score against an answer key in baseline.csv. Compute mean accuracy, mean tokens and p95 latency.",
+          "deliverable": "baseline.csv, a summary table and a one-page split/no-split decision memo",
+          "checks": [["Run python baseline.py on 10 questions with 5 repeats", "baseline.csv contains exactly 50 rows with token and latency columns", "baseline.csv"], ["Inspect the summary printout", "Mean accuracy, mean total tokens and p95 latency are each printed with one decimal place", "Terminal output"], ["Read the decision memo", "It names one measured weakness of the baseline and says whether a second agent is justified", "Memo"]],
+          "objectives": ["Define single agent, workflow and multi-agent system precisely", "Measure a single-agent baseline before adding agents", "Apply a checklist to justify or reject a split"]
+        },
+        {
+          "topic": "Lab Workspace: Python Environment, Model Client and Run Logging",
+          "subtopics": ["Creating a virtual environment with python -m venv and pinning versions in requirements.txt", "Reading API keys from environment variables and keeping them out of git", "A thin model client wrapper with timeout, retry and max_tokens defaults", "Pointing the same client at a hosted API or an Ollama server through base_url", "A run_id and JSON Lines log with one record per model call", "Recording model name, token counts, latency and cost per call", "Seeding, temperature and why runs still differ", "A smoke test that fails fast when the key or endpoint is wrong"],
+          "tools": ["Python", "venv", "openai SDK", "Ollama", "pytest", "git"],
+          "lab_task": "Create a venv, install openai, pydantic and pytest, and write llm.py exposing chat(messages, **kw). It must read OPENAI_API_KEY or OLLAMA_BASE_URL, set timeout=30, retry twice on HTTP 429 and 5xx, and append one JSON line per call to runs/<run_id>.jsonl with tokens and latency. Add a pytest smoke test.",
+          "deliverable": "Working llm.py wrapper, requirements.txt, .gitignore covering .env and runs/, and a passing smoke test",
+          "checks": [["Run pytest -q with a valid key", "1 passed and runs/<run_id>.jsonl contains one line with prompt_tokens and latency_ms", "pytest output and log file"], ["Unset the API key and run the smoke test", "The test fails within 2 seconds with a clear missing-key message instead of a stack trace", "Terminal output"], ["Run git status after creating .env", "Neither .env nor runs/ appears as untracked", "git status output"]],
+          "objectives": ["Build a reusable model client with logging", "Keep credentials out of source control", "Switch between hosted and local models without code changes"]
+        },
+        {
+          "topic": "Agents as Loops: Prompt, Tools, Memory and Stop Condition",
+          "subtopics": ["The observe, decide, act loop and where the model sits in it", "System prompt, task prompt and message history as the agent's inputs", "Tool schemas as JSON Schema and the tool_calls field in the response", "Executing a tool and appending the tool result message", "Short-term memory as the message list and its token cost", "Stop conditions: final answer, max_turns and no-progress detection", "Failure inside the loop: bad arguments, tool exceptions and empty replies", "The same loop in LangGraph, AutoGen AssistantAgent and a CrewAI Agent"],
+          "tools": ["Python", "openai SDK", "pydantic", "LangGraph", "AutoGen", "CrewAI"],
+          "lab_task": "Implement Agent.run(task, max_turns=6) in about 60 lines: send messages with two tools (calculator and read_file), execute each tool call, append role=tool results and stop on a message with no tool_calls. Test with 5 tasks that need 0, 1 and 2 tool calls and print the turn count for each.",
+          "deliverable": "agent.py with a tested loop and a table of turns per task",
+          "checks": [["Ask a question needing no tool", "The agent finishes in 1 turn with zero tool calls", "Run log"], ["Ask a task needing both tools", "Exactly 2 tool results are appended before the final answer", "Message dump"], ["Set max_turns=2 on a task needing 3 tool calls", "The run stops with a max_turns error status and no unhandled exception", "Exit status and log"]],
+          "objectives": ["Explain the agent loop step by step", "Implement a bounded tool-using agent", "Relate the loop to three common frameworks"]
+        },
+        {
+          "topic": "Roles and Responsibilities: Writing Agent Contracts",
+          "subtopics": ["Role, goal, inputs, outputs and tools as the five parts of a contract", "Narrow roles versus general roles and the effect on accuracy", "Writing a system prompt from a contract rather than from a persona", "Explicit non-goals: what the agent must refuse or hand back", "Output schemas so the next agent can parse the result", "Role overlap and the cost of two agents doing the same job", "Naming agents and keeping names stable for logs and routing", "Comparing role, goal and backstory fields in CrewAI with AutoGen system messages"],
+          "tools": ["Python", "pydantic", "YAML", "CrewAI", "AutoGen"],
+          "lab_task": "Write three contracts in agents.yaml for researcher, writer and reviewer, each with role, goal, inputs, output_schema, tools and non_goals. Load them with PyYAML, generate system prompts, and run each agent on one input. Validate every output against its Pydantic model and report the validation pass rate over 10 runs.",
+          "deliverable": "agents.yaml with three contracts, a prompt generator and a validation report",
+          "checks": [["Run python check_contracts.py", "All three contracts load and each lists role, goal, inputs, outputs, tools and non_goals", "Script output"], ["Run each agent 10 times", "Pass rate for schema validation is printed per agent and is at least 8/10 for each", "Validation report"], ["Send the writer a request outside its role", "It returns a handback message naming the correct agent instead of attempting the task", "Output sample"]],
+          "objectives": ["Write a role contract with inputs, outputs and non-goals", "Generate prompts from contracts", "Validate agent outputs against schemas"]
+        },
+        {
+          "topic": "Message Passing Between Agents: Formats and Envelopes",
+          "subtopics": ["Direct calls, queues and shared logs as three ways to pass messages", "An envelope with id, sender, recipient, type, correlation_id and payload", "Natural-language messages versus typed payloads", "Message types: task, result, question, error and status", "Correlation ids that tie a result to its request", "Message size, truncation and what to include as context", "Idempotent handling and duplicate messages", "How AutoGen messages, LangGraph state updates and A2A messages compare"],
+          "tools": ["Python", "pydantic", "asyncio", "AutoGen", "LangGraph"],
+          "lab_task": "Define a Message Pydantic model with id, sender, recipient, type, correlation_id and payload. Build an in-memory asyncio.Queue bus for three agents, send 20 task messages and verify each result carries the matching correlation_id. Inject one duplicate task id and make the receiver ignore it.",
+          "deliverable": "message.py, bus.py and a test showing 20 matched replies and one ignored duplicate",
+          "checks": [["Send 20 task messages through the bus", "20 result messages arrive and each correlation_id matches its task id", "Test output"], ["Send the same task id twice", "The second copy is dropped and a duplicate_ignored log line appears", "Log file"], ["Send a message with an unknown recipient", "A typed error message returns to the sender with code unknown_recipient", "Error message dump"]],
+          "objectives": ["Design a message envelope", "Correlate requests and results", "Handle duplicates and unknown recipients"]
+        },
+        {
+          "topic": "Sequential Pipelines: Planner, Worker and Reviewer",
+          "subtopics": ["Pipeline versus free conversation and when each fits", "Planner output as a list of steps with ids and acceptance tests", "Worker executes one step with only the context it needs", "Reviewer checks output against acceptance tests and returns pass or fail", "Retry on fail with the reviewer's feedback appended", "Limiting retries to 2 and escalating after that", "Passing results forward without passing the whole history", "CrewAI sequential process and LangGraph linear graph as equivalents"],
+          "tools": ["Python", "pydantic", "openai SDK", "CrewAI", "LangGraph"],
+          "lab_task": "Build planner, worker and reviewer agents for the task 'write release notes from 15 commit messages'. The planner emits 3 steps with acceptance tests, the worker runs each, the reviewer returns pass/fail JSON, and a failed step retries at most twice. Run 10 inputs and record the retry count and final pass rate.",
+          "deliverable": "pipeline.py plus a results table of retries and pass rate for 10 inputs",
+          "checks": [["Run the pipeline on 10 commit sets", "Every run ends as passed, or as failed after at most 2 retries per step", "Results table"], ["Force the reviewer to fail a step permanently", "The step is retried exactly 2 times then escalated with status escalated", "Run log"], ["Compare tokens with a single prompt doing the same task", "Total tokens for the pipeline and the single prompt are reported side by side", "Token comparison table"]],
+          "objectives": ["Build a three-stage pipeline", "Bound retries and escalate", "Compare pipeline cost to a single call"]
+        },
+        {
+          "topic": "Task Decomposition: Splitting Goals into Sub-Tasks",
+          "subtopics": ["Decomposing by function, by data partition and by time", "Sub-task size: too coarse loses benefit, too fine multiplies overhead", "Dependencies between sub-tasks and a simple dependency graph", "Acceptance criteria for each sub-task", "Asking an LLM to plan and validating the plan with code", "Detecting cycles and missing dependencies in a generated plan", "Plan quality: coverage, independence and testability", "Static plans versus plans revised during execution"],
+          "tools": ["Python", "networkx", "pydantic", "openai SDK", "pytest"],
+          "lab_task": "Ask a planner agent to split 'prepare a competitor analysis of 4 companies' into sub-tasks as JSON with id, description, depends_on and done_when. Validate the plan with networkx: no cycles, no unknown ids, every task has done_when. Score 10 generated plans and print topological order for the best one.",
+          "deliverable": "plan validator, 10 scored plans and the best plan's execution order",
+          "checks": [["Feed a plan containing a cycle A to B to A", "The validator rejects it with the message cycle detected and lists both ids", "Validator output"], ["Feed a plan whose depends_on names task t9 that does not exist", "The validator reports unknown dependency t9", "Validator output"], ["Validate 10 generated plans", "A count of valid plans out of 10 is printed along with one reason per invalid plan", "Score table"]],
+          "objectives": ["Decompose a goal along useful boundaries", "Validate a generated plan with code", "Judge plan quality by coverage and testability"]
+        },
+        {
+          "topic": "Supervisor Topology: A Router That Delegates",
+          "subtopics": ["Supervisor, worker agents and the delegate-and-collect loop", "Routing by structured output: next_agent, task and reason", "Allowed-worker lists and rejecting unknown route names", "The supervisor's context: summaries of results, not raw transcripts", "Finish action and final answer assembly", "Single point of failure and single bottleneck in supervisor designs", "Routing accuracy as a metric on labelled requests", "LangGraph supervisor, AutoGen SelectorGroupChat and CrewAI hierarchical process compared"],
+          "tools": ["Python", "pydantic", "openai SDK", "LangGraph", "AutoGen", "CrewAI"],
+          "lab_task": "Build a supervisor that routes support requests to billing, technical or account worker agents using a Route schema (next_agent, task, reason) and a finish action. Reject any next_agent outside the allowed set. Label 30 requests by hand and report routing accuracy and mean supervisor tokens per request.",
+          "deliverable": "supervisor.py, a 30-row labelled request file and an accuracy report",
+          "checks": [["Run the 30 labelled requests", "Routing accuracy is printed as a count out of 30 with a confusion table of 3 workers", "Report"], ["Mock the supervisor to return next_agent=legal", "The router rejects it and re-asks once, then fails with invalid_route", "Test output"], ["Check termination on a request already answered", "The supervisor emits finish within 1 turn and no worker is called", "Run log"]],
+          "objectives": ["Implement a supervisor with validated routing", "Measure routing accuracy", "Explain the bottleneck risk of one supervisor"]
+        },
+        {
+          "topic": "Parallel Fan-Out and Fan-In with asyncio",
+          "subtopics": ["When sub-tasks are independent enough to run in parallel", "asyncio.gather and TaskGroup for concurrent agent calls", "Concurrency limits with asyncio.Semaphore and provider rate limits", "Fan-in: merging results by concatenation, ranking and synthesis", "Partial failure: timeouts, return_exceptions and degraded answers", "Latency of the slowest branch and p95 behaviour", "Token cost of parallelism versus sequential calls", "Map-reduce style graphs in LangGraph and group chats in AutoGen"],
+          "tools": ["Python", "asyncio", "openai SDK", "LangGraph", "pytest"],
+          "lab_task": "Summarise 8 documents with 8 worker agents run through asyncio.gather under a Semaphore(4), then have a merger agent synthesise one brief. Add a 20-second per-branch timeout, run sequentially and in parallel, and record wall-clock time and total tokens for both modes. Simulate one failing branch and keep the brief.",
+          "deliverable": "fanout.py with timing and token comparison and a partial-failure test",
+          "checks": [["Run 8 documents sequentially then in parallel", "Parallel wall-clock time is lower and both timings are printed in seconds", "Timing table"], ["Make one branch raise a timeout", "The brief is produced from 7 summaries and notes 1 missing source", "Output brief and log"], ["Set Semaphore(1) and rerun", "Peak concurrent calls logged is 1", "Concurrency log"]],
+          "objectives": ["Run agent calls concurrently with limits", "Merge parallel results", "Handle partial failure without losing the answer"]
+        },
+        {
+          "topic": "Shared State and the Blackboard Idea",
+          "subtopics": ["Blackboard: a shared workspace read and written by specialists", "Shared state object versus message passing: trade-offs", "Typed fields, ownership and who may write which key", "Append-only logs versus overwrite semantics", "Reading only the keys an agent needs", "Race conditions when two agents write the same key", "Persisting state as JSON and resuming a run", "LangGraph state schemas and CrewAI task context as shared-state mechanisms"],
+          "tools": ["Python", "pydantic", "asyncio", "LangGraph", "CrewAI"],
+          "lab_task": "Implement a Blackboard class with typed sections (facts, hypotheses, decisions), a write-permission map by agent name, and version numbers on each entry. Let three agents add entries on a diagnosis task, reject a write from a non-owner, save the state to state.json, then reload it and continue.",
+          "deliverable": "blackboard.py, state.json after a run and a test for rejected writes",
+          "checks": [["Have the writer agent post to the facts section it does not own", "The write is rejected with permission_denied and the version is unchanged", "Test output"], ["Save state then reload it in a new process", "The reloaded blackboard has the same entry count and version numbers", "Diff of state.json"], ["Two agents write the same key at once", "The second write fails with version_conflict instead of overwriting silently", "Test output"]],
+          "objectives": ["Design a blackboard with ownership rules", "Detect write conflicts using versions", "Persist and resume shared state"]
+        },
+        {
+          "topic": "Conversation Memory, Shared Memory and Long-Term Stores",
+          "subtopics": ["Three scopes: per-agent, per-team and long-term across runs", "Message-history windows and trimming by token budget", "Rolling summaries and what they lose", "Key-value facts versus vector search over past notes", "Who may read or write each memory scope", "Memory poisoning: wrong or stale facts that persist", "Expiry, versioning and deletion of stored memories", "Memory features in LangGraph stores, AutoGen Memory and CrewAI memory compared"],
+          "tools": ["Python", "SQLite", "pydantic", "LangGraph", "AutoGen"],
+          "lab_task": "Implement three memory scopes in SQLite: agent_memory, team_memory and long_term with columns key, value, writer, created_at and expires_at. Make two agents use team_memory to avoid repeating a web-search task, add a 7-day expiry on long_term entries, and count duplicate searches with and without shared memory over 10 tasks.",
+          "deliverable": "memory.py with a SQLite schema and a before-and-after duplicate-search count",
+          "checks": [["Run 10 tasks without team memory then with it", "Duplicate searches drop and both counts are printed", "Comparison table"], ["Insert a long_term row with expires_at in the past and query", "The expired row is not returned", "Query output"], ["Have an agent write to a scope it is not allowed to", "The write is refused with scope_denied and logged", "Log line"]],
+          "objectives": ["Separate memory by scope", "Limit stale and wrong memories", "Measure whether shared memory reduces duplicate work"]
+        },
+        {
+          "topic": "Handoffs: Transferring Control and Context",
+          "subtopics": ["Handoff as a tool call that names the next agent", "Delegation (caller waits) versus handoff (control moves)", "What context travels with a handoff: goal, state and history slice", "Handoff loops and ping-pong between two agents", "Triage agents and specialist agents in customer support", "Returning control and the last-owner rule", "Logging handoffs as events for later analysis", "Handoff objects in OpenAI Agents SDK, AutoGen Swarm and LangGraph Command"],
+          "tools": ["Python", "pydantic", "openai SDK", "AutoGen", "LangGraph"],
+          "lab_task": "Build three agents (triage, billing, tech) where each can call a transfer_to(agent, summary) tool. Run 20 scripted support chats, count handoffs per chat, detect any A to B to A to B ping-pong with a visited-pair counter and cap handoffs at 4. Report average handoffs and the number of capped chats.",
+          "deliverable": "handoff.py with a ping-pong guard and a report over 20 chats",
+          "checks": [["Run 20 scripted chats", "Average handoffs per chat and the number of capped chats are printed", "Report"], ["Script a chat that alternates billing and tech", "The guard stops it on the 4th handoff with status handoff_limit", "Run log"], ["Inspect a handoff payload", "It contains a summary of at most 100 words and the goal field", "JSON event"]],
+          "objectives": ["Implement handoffs as tool calls", "Prevent ping-pong loops", "Pass just enough context across a handoff"]
+        },
+        {
+          "topic": "Critic and Reflection Loops: Generator and Reviewer Pairs",
+          "subtopics": ["Generator and critic as two roles with separate prompts", "Rubrics: criteria the critic scores from 1 to 5", "Revision rounds and diminishing returns", "Critic leniency and self-preference when both use one model", "Using a different model for the critic", "Stop rules: score at least 4 on all criteria or 3 rounds", "Cost of each extra round in tokens and seconds", "Reflection patterns in AutoGen RoundRobinGroupChat and LangGraph loops"],
+          "tools": ["Python", "pydantic", "openai SDK", "AutoGen", "LangGraph"],
+          "lab_task": "Write a generator that drafts 120-word product descriptions and a critic that scores clarity, accuracy and tone from 1 to 5 as JSON. Loop until all scores are at least 4 or 3 rounds pass. Run 15 products, record scores per round, total tokens and rounds used, and plot mean score by round.",
+          "deliverable": "reflection.py, a per-round score table and a short note on diminishing returns",
+          "checks": [["Run 15 products", "A table lists rounds used and final scores per product", "Results table"], ["Set the pass threshold to 6 which is unreachable", "Every run stops after exactly 3 rounds", "Run log"], ["Compare round 1 and round 3 mean scores", "The mean improvement is printed and the extra token cost per round is shown", "Chart or table"]],
+          "objectives": ["Build a generator-critic loop", "Bound revision rounds", "Weigh quality gain against cost"]
+        },
+        {
+          "topic": "Debate and Voting: Reducing Single-Model Errors",
+          "subtopics": ["Independent samples with majority vote versus debate rounds", "Debate: agents see each other's answers and revise", "Judge agent versus simple vote counting", "Diversity: different prompts, personas or models", "Conformity pressure and agents converging on a wrong answer", "Cost: n agents times r rounds", "Where debate helps: reasoning with checkable answers", "Where it does not: open-ended taste and weak retrieval"],
+          "tools": ["Python", "asyncio", "openai SDK", "pytest", "pandas"],
+          "lab_task": "Take 30 multiple-choice reasoning questions with an answer key. Compare four methods: one answer, majority vote of 5 independent samples, 3-agent 2-round debate, and debate with a judge. Record accuracy and total tokens per method in results.csv and state which method gives the best accuracy per 1,000 tokens.",
+          "deliverable": "results.csv comparing four methods and a written conclusion",
+          "checks": [["Run all four methods on 30 questions", "results.csv has 4 rows with accuracy and total tokens", "results.csv"], ["Compute accuracy per 1,000 tokens", "The ranking of the four methods is printed and justified in the conclusion", "Terminal output and note"], ["Check one debate transcript where agents changed answers", "The transcript shows whether the change moved toward or away from the key", "Annotated transcript"]],
+          "objectives": ["Implement voting and debate", "Compare methods on accuracy and cost", "Recognise conformity failures"]
+        },
+        {
+          "topic": "Tools and Permissions per Agent",
+          "subtopics": ["Least privilege: each agent gets only the tools its role needs", "Read-only tools versus tools that change state", "Tool allow-lists enforced in code, not in the prompt", "Argument validation before executing any tool", "Tool descriptions and how they steer selection", "Too many tools: selection accuracy drops as the list grows", "Audit log of every tool call with agent name and arguments", "Model Context Protocol tools and how a client lists them with tools/list"],
+          "tools": ["Python", "pydantic", "MCP Python SDK", "openai SDK", "pytest"],
+          "lab_task": "Create a ToolRegistry that maps agent names to allowed tool names and wraps each tool with Pydantic argument validation and an audit line. Give a reader agent 3 read-only tools and a writer agent 1 write tool. Run an adversarial prompt asking the reader to delete a file, and show that the call is blocked in code.",
+          "deliverable": "registry.py with allow-lists, an audit log and a blocked-call test",
+          "checks": [["Ask the reader agent to call delete_file", "The registry returns tool_not_allowed and no file changes", "Audit log and filesystem listing"], ["Pass a string where an integer argument is required", "Validation fails before execution with a field-level error", "Test output"], ["Count audit lines after a 10-task run", "Each tool call appears once with agent, tool and arguments", "audit.jsonl"]],
+          "objectives": ["Enforce least privilege in code", "Validate tool arguments", "Audit every tool call"]
+        },
+        {
+          "topic": "Stop Conditions, Turn Limits and Budgets",
+          "subtopics": ["Max turns, max tokens, max cost and max wall-clock time", "Stop on goal reached, on no progress and on repeated messages", "Detecting repetition with message hashes or similarity", "Budget objects passed through every agent call", "Graceful stop: return the best partial result", "Hard kill: cancelling in-flight asyncio tasks", "Choosing limits from baseline data rather than guesses", "Termination conditions in AutoGen and recursion_limit in LangGraph"],
+          "tools": ["Python", "asyncio", "pydantic", "AutoGen", "LangGraph"],
+          "lab_task": "Add a Budget(max_turns=12, max_tokens=20000, max_seconds=60) object to your team runner and check it before each model call. Add repeat detection that stops after 3 identical messages. Run a deliberately looping pair of agents and prove that each of the four limits can stop the run, with the stop reason saved in the result.",
+          "deliverable": "budget.py, four limit tests and a stop_reason field in results",
+          "checks": [["Run the looping pair with only max_turns active", "The run stops at turn 12 with stop_reason max_turns", "Result JSON"], ["Run the same pair with only repeat detection active", "It stops after 3 identical messages with stop_reason repeated_message", "Result JSON"], ["Set max_tokens to 500", "The run stops with stop_reason max_tokens and returns the partial answer", "Result JSON"]],
+          "objectives": ["Bound a team run with several limits", "Detect repeated messages", "Return partial results on stop"]
+        },
+        {
+          "topic": "Logging and Reading Multi-Agent Traces",
+          "subtopics": ["Run, step, agent and tool-call levels of a trace", "Span ids, parent ids and a correlation id across agents", "Logging prompts and outputs with redaction of secrets", "Reading a trace to find the first wrong step", "Token and latency per agent as a quick profile", "Replaying a run from saved messages", "Viewing traces in Langfuse, LangSmith or a local JSON viewer", "OpenTelemetry GenAI attributes such as gen_ai.agent.name"],
+          "tools": ["Python", "OpenTelemetry", "Langfuse", "pandas", "jq"],
+          "lab_task": "Instrument your team runner to write spans with run_id, span_id, parent_id, agent, tool, input tokens, output tokens and duration to trace.jsonl. Run 5 tasks, load the file with pandas, and print per-agent totals. Pick one wrong final answer and find the first step where the trace departs from the correct path.",
+          "deliverable": "trace.jsonl, a per-agent profile table and a short root-cause note for one wrong answer",
+          "checks": [["Run jq -s length trace.jsonl after 5 tasks", "The span count is printed and each span has a non-null parent_id except the root", "jq output"], ["Print per-agent token totals", "Each agent's input and output tokens appear and sum to the run total", "pandas output"], ["Search the log for the string sk-", "No API key text appears in any logged prompt", "grep output"]],
+          "objectives": ["Emit structured trace spans", "Profile a run per agent", "Locate the first wrong step in a trace"]
+        },
+        {
+          "topic": "First Failure Modes: Loops, Dropped Context and Role Drift",
+          "subtopics": ["Infinite loops and polite agreement loops", "Dropped context after summarising or truncating", "Role drift: an agent starts doing another agent's job", "Hallucinated tool or agent names", "Error compounding across a chain of agents", "Conflicting instructions between system prompts", "A catalogue of failures with symptoms, cause and fix", "Writing a regression test for each failure found"],
+          "tools": ["Python", "pytest", "pydantic", "jq", "openai SDK"],
+          "lab_task": "Reproduce four failures in your team: a loop, a truncated-context error, role drift and a hallucinated agent name. For each, save the trace, write a pytest regression test that fails on the old behaviour, apply a fix (limit, schema, prompt change or validator) and show the test passing. Record all four in failures.md.",
+          "deliverable": "failures.md with four entries and four regression tests",
+          "checks": [["Run pytest -q tests/test_failures.py", "4 passed, each test named after a failure", "pytest output"], ["Revert one fix and rerun that test", "The test fails, proving it detects the failure", "pytest output"], ["Read failures.md", "Every entry has symptom, trace id, cause and fix columns filled", "failures.md"]],
+          "objectives": ["Recognise common first-generation failures", "Fix each with a targeted control", "Lock fixes in with regression tests"]
+        },
+        {
+          "topic": "Human-in-the-Loop Checkpoints",
+          "subtopics": ["Where a human adds value: irreversible actions, low confidence and policy", "Approval gates before writes, payments and external messages", "Pausing a run and resuming with the human's decision", "What the reviewer sees: proposed action, evidence and risk", "Timeouts when no human responds", "Edit, approve and reject outcomes", "Measuring review load and approval rate", "interrupt in LangGraph, UserProxyAgent in AutoGen and human_input in CrewAI"],
+          "tools": ["Python", "pydantic", "SQLite", "LangGraph", "AutoGen"],
+          "lab_task": "Add an approval gate to your team before any action tagged write. Save the pending action in SQLite with status pending, show the evidence in a CLI prompt, and resume on approve, edit or reject. After 10 minutes with no answer mark it expired. Run 10 scripted tasks with 4 write actions and report approvals and rejections.",
+          "deliverable": "approval.py, a SQLite pending-actions table and a 10-task report",
+          "checks": [["Run 10 tasks containing 4 write actions", "Exactly 4 approval requests are created and 6 read actions run without prompts", "SQLite rows"], ["Reject one proposed write", "The write is not executed and the run records rejected with the reviewer's reason", "Run log"], ["Leave one request unanswered past the timeout", "Status becomes expired and the run ends in a safe state", "Database row"]],
+          "objectives": ["Insert approval gates at the right points", "Pause and resume a run", "Handle rejection and timeouts safely"]
+        },
+        {
+          "topic": "Beginner Capstone: Research-and-Report Agent Team",
+          "subtopics": ["Requirements, success metrics and a single-agent baseline for the research task", "Planner, researcher, writer and reviewer roles with contracts and schemas", "Supervisor or pipeline control flow with budgets and a human approval before publishing", "Shared state and memory design for sources and findings", "Tests, regression cases and an evaluation on 10 topics", "Trace review, cost report and a design note on what to change next"],
+          "tools": ["Python", "openai SDK", "pydantic", "pytest", "LangGraph", "AutoGen"],
+          "lab_task": "Build a team that researches a topic from 5 provided documents and produces a 400-word cited brief. Include four roles, a Budget, a blackboard of findings, a human approval gate and a trace file. Run 10 topics against a single-agent baseline and report accuracy of citations, tokens, seconds and cost for both.",
+          "deliverable": "Team repository, 10-topic evaluation table, baseline comparison and a 2-page design note",
+          "checks": [["Run the evaluation on 10 topics", "Both the team and the baseline report citation accuracy, tokens and seconds for each topic", "Evaluation table"], ["Inspect one brief", "Every claim has a citation that points to one of the 5 provided documents", "Brief and source list"], ["Break a source document on purpose", "The reviewer flags the missing support and the team stops within its budget", "Trace and result JSON"]],
+          "objectives": ["Combine roles, state, limits and approval in one system", "Evaluate against a baseline", "Justify design choices with measured data"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who have built a small agent team and now design multi-agent systems for real workloads. Covers choosing among supervisor, hierarchical, swarm, debate and blackboard topologies, typed contracts between agents, MCP servers and per-agent tool scoping, Agent2Agent (A2A) usage with Agent Cards and task states, planning and re-planning, team memory and context engineering, coordination failures and conflict resolution, outcome and trajectory evaluation, replay testing, cost and latency engineering, reliability controls and safety boundaries, finishing with an incident-triage capstone.",
+      "prerequisites": ["Has built a multi-agent prototype with roles, message passing, a budget and a trace log", "Reads Pydantic models and JSON Schema and writes pytest tests", "Can run local services with Docker or uvicorn and call HTTP and JSON-RPC endpoints with curl"],
+      "outcomes": ["Select and justify a topology for a given workload using measured cost, latency and accuracy", "Connect agents to tools and to each other with MCP servers and A2A endpoints, with scoped access", "Diagnose and prevent coordination failures such as deadlock, echo chambers and duplicated work", "Evaluate, test, budget and harden a multi-agent system with replay tests, metrics and approval gates"],
+      "days": [
+        {
+          "topic": "Choosing a Topology: Supervisor, Hierarchical, Swarm, Debate and Blackboard",
+          "subtopics": ["Control flow, data flow and who decides the next step in each topology", "Supervisor: central routing, simple debugging, single bottleneck", "Hierarchical: managers of workers, deeper context isolation", "Swarm: peer handoffs with no central planner", "Debate: parallel proposers and a judge or vote", "Blackboard: opportunistic specialists on shared state", "A scoring matrix: task structure, tool count, latency target and auditability", "Running one benchmark task through three topologies and comparing the results"],
+          "tools": ["Python", "LangGraph", "AutoGen", "CrewAI", "pytest"],
+          "lab_task": "Implement one task (triage 25 support tickets into category, priority and draft reply) as a supervisor, a swarm and a blackboard design behind the same run(ticket) interface. Evaluate all three on the same 25 labelled tickets and record accuracy, tokens, p95 latency and number of model calls in topology.csv.",
+          "deliverable": "Three implementations, topology.csv and a recommendation using the scoring matrix",
+          "checks": [["Run all three designs on 25 tickets", "topology.csv has 3 rows with accuracy, tokens, p95 latency and call count", "topology.csv"], ["Apply the scoring matrix", "A weighted score per topology is printed and the recommendation matches the highest score", "Matrix file and memo"], ["Change the latency target from 10 s to 3 s", "The matrix is re-scored and the memo states whether the recommendation changes", "Updated memo"]],
+          "objectives": ["Compare five topologies on defined criteria", "Run one task through several topologies", "Justify a choice from measured data"]
+        },
+        {
+          "topic": "Hierarchical Teams and Span of Control",
+          "subtopics": ["Manager and worker layers and why add a layer", "Span of control: how many workers one manager can direct reliably", "Context isolation: workers see a brief, not the whole run", "Result compression when passing upward", "Delegation depth limits and runaway recursion", "Cross-team requests and who may talk to whom", "Cost of each additional layer in tokens and latency", "Hierarchical process in CrewAI and nested teams in LangGraph and AutoGen"],
+          "tools": ["Python", "pydantic", "asyncio", "LangGraph", "CrewAI"],
+          "lab_task": "Build a two-level team: one lead agent with three team managers (research, analysis, writing), each managing two workers. Enforce max delegation depth 3 and a compression step that limits upward reports to 150 words. Run a market-sizing task with 6, 9 and 12 workers under one lead and report accuracy and manager tokens.",
+          "deliverable": "hierarchy.py and a table showing how accuracy and manager cost change with span",
+          "checks": [["Try a delegation to depth 4", "The runtime refuses with max_depth_exceeded and logs the chain of agents", "Run log"], ["Measure upward report lengths", "No report exceeds 150 words and the longest length is printed", "Report log"], ["Compare spans of 6, 9 and 12 workers", "A table shows manager tokens and accuracy for each span", "Results table"]],
+          "objectives": ["Design layers with depth and span limits", "Compress information between layers", "Measure the cost of adding hierarchy"]
+        },
+        {
+          "topic": "Swarm and Peer-to-Peer Handoff Design",
+          "subtopics": ["Decentralised control: each agent decides who goes next", "Handoff tools and the active-agent pointer", "Shared context versus private context per agent", "Routing tables: declared allowed handoff edges", "Emergent loops and how to prove termination on a graph", "Observability when no agent owns the plan", "Where swarms fit: support, intake and triage", "Swarm in the OpenAI Agents SDK, AutoGen and langgraph-swarm"],
+          "tools": ["Python", "pydantic", "OpenAI Agents SDK", "AutoGen", "LangGraph"],
+          "lab_task": "Build a 5-agent swarm for travel changes (intake, flights, hotels, refunds, escalation) with a declared handoff graph. Check with a script that every agent can reach escalation and that no cycle lacks an exit. Replay 30 conversations, record handoff counts, and report conversations that reached the 6-handoff cap.",
+          "deliverable": "swarm.py, a handoff graph check and a 30-conversation report",
+          "checks": [["Run the graph checker", "It prints reachable-to-escalation for all 5 agents and lists any cycle without an exit", "Checker output"], ["Replay 30 conversations", "Handoff count distribution and number of capped conversations are reported", "Report"], ["Add a handoff edge not in the graph through a prompt", "The runtime blocks it with edge_not_allowed", "Log line"]],
+          "objectives": ["Declare and verify handoff graphs", "Prove termination of peer-to-peer designs", "Observe a swarm without a central planner"]
+        },
+        {
+          "topic": "Blackboard Systems: Typed Shared State and Write Rules",
+          "subtopics": ["Blackboard architecture from the Hearsay-II tradition applied to LLM agents", "Typed sections, entry schemas and provenance on every entry", "Control component: a scheduler that picks which specialist acts next", "Triggers: specialists activate when their input entries appear", "Conflict handling: competing hypotheses and confidence scores", "Compaction: pruning stale entries to control prompt size", "Testing a blackboard with fixed entry sequences", "Blackboard versus message passing for a fraud investigation example"],
+          "tools": ["Python", "pydantic", "SQLite", "asyncio", "pytest"],
+          "lab_task": "Build a fraud-investigation blackboard with sections evidence, hypotheses and verdicts. Four specialists activate by trigger rules (e.g. new evidence entry). Store provenance (agent, timestamp, source) on each entry, add a scheduler that picks the highest-priority trigger, and replay 15 cases. Report entries per case and the final prompt token size per agent.",
+          "deliverable": "blackboard_fraud.py, a trigger table and a 15-case report",
+          "checks": [["Replay 15 labelled cases", "Verdict accuracy and mean entries per case are printed", "Report"], ["Inspect an entry in SQLite", "It has agent, timestamp and source columns all non-null", "SQL query result"], ["Add 200 stale entries then run compaction", "The prompt context for the next agent shrinks and the pruned count is logged", "Before and after token counts"]],
+          "objectives": ["Implement a blackboard with a scheduler", "Record provenance on shared entries", "Control prompt growth with compaction"]
+        },
+        {
+          "topic": "Structured Contracts: Pydantic Schemas Between Agents",
+          "subtopics": ["Schemas as the interface between agents", "Structured output modes: JSON schema response formats and tool-call schemas", "Versioning a schema and keeping old consumers working", "Validation failures: repair prompts versus reject", "Required fields for provenance, confidence and status", "Enums for routing and status instead of free text", "Contract tests that run against recorded agent outputs", "Free text for humans, structure for machines: dual outputs"],
+          "tools": ["Python", "pydantic", "jsonschema", "pytest", "openai SDK"],
+          "lab_task": "Define a TaskResult model (status enum, summary, evidence list with source ids, confidence 0 to 1, schema_version) and enforce it on three agents. Write a repair loop that sends the validation error back once. Run 50 calls, record first-pass validity, post-repair validity and add a v2 field with a default so v1 consumers still parse.",
+          "deliverable": "schemas.py, a validity report over 50 calls and a v1-to-v2 compatibility test",
+          "checks": [["Run 50 calls and count validity", "First-pass and post-repair valid counts are printed and post-repair is greater or equal", "Report"], ["Parse a v1 payload with the v2 model", "Parsing succeeds and the new field takes its default value", "Test output"], ["Return confidence 1.7 from a mock agent", "Validation rejects it with a less-than-or-equal-1 error on confidence", "Pydantic error"]],
+          "objectives": ["Define typed contracts between agents", "Repair or reject invalid output", "Evolve schemas without breaking consumers"]
+        },
+        {
+          "topic": "MCP in Multi-Agent Systems: Servers, Tools and Per-Agent Scoping",
+          "subtopics": ["Model Context Protocol roles: host, client and server", "Primitives: tools, resources and prompts", "stdio and streamable HTTP transports", "The initialize handshake, tools/list and tools/call JSON-RPC calls", "Writing a server with the Python SDK and FastMCP", "Scoping: which agent sees which server and which tools", "Inspecting a server with the MCP Inspector", "Tool descriptions that stop agents from misusing a tool"],
+          "tools": ["Python", "MCP Python SDK", "MCP Inspector", "pytest", "curl"],
+          "lab_task": "Write an MCP server with FastMCP exposing search_tickets(query: str, limit: int = 5) and get_ticket(id: str). Run it with the streamable HTTP transport, inspect it with npx @modelcontextprotocol/inspector, and connect two agents: one gets both tools and one gets only get_ticket through a client-side filter. Prove the filter with a test.",
+          "deliverable": "server.py, an inspector screenshot of tools/list and a scoping test",
+          "checks": [["Call tools/list from the Inspector", "Both tools appear with the input schema including limit default 5", "Inspector screenshot"], ["Ask the restricted agent to call search_tickets", "The client filter blocks it and the test asserts tool_not_visible", "pytest output"], ["Call get_ticket with id missing", "The server returns a validation error and the agent receives isError true", "Tool result JSON"]],
+          "objectives": ["Build and run an MCP server", "Scope tools per agent", "Inspect and test MCP tools"]
+        },
+        {
+          "topic": "A2A Protocol Usage: Agent Cards, Tasks and Messages",
+          "subtopics": ["What A2A standardises: agent-to-agent calls across vendors and processes", "The Agent Card served at /.well-known/agent-card.json", "Card fields: name, description, url, skills, capabilities and security schemes", "Discovering a remote agent and choosing it by skill", "Sending a message with message/send and reading the Task result", "Streaming with message/stream and Server-Sent Events", "Parts and artifacts: text, file and data", "MCP and A2A compared: agent-to-tool versus agent-to-agent"],
+          "tools": ["Python", "A2A Python SDK", "FastAPI", "curl", "pytest"],
+          "lab_task": "Run a small A2A server exposing one skill, summarise_document, using the A2A Python SDK. Fetch its card with curl http://localhost:9999/.well-known/agent-card.json, then write a client that reads the card, sends a message with message/send and prints the returned task state and artifact. Test discovery by skill id.",
+          "deliverable": "a2a_server.py, a2a_client.py and a captured card and task JSON",
+          "checks": [["curl the well-known agent card URL", "JSON is returned with a skills list containing summarise_document", "curl output"], ["Send a message with message/send", "The reply contains a task with a state and at least one artifact part", "Client output"], ["Request a skill id that does not exist", "The client refuses before sending and reports skill_not_found", "Test output"]],
+          "objectives": ["Publish and read an Agent Card", "Call a remote agent through A2A", "Contrast A2A with MCP"]
+        },
+        {
+          "topic": "Task Lifecycles: Submitted, Working, Input-Required and Completed",
+          "subtopics": ["A2A task states: submitted, working, input-required, completed, canceled, failed, rejected and auth-required", "Long-running work and polling with tasks/get", "Cancelling with tasks/cancel and cleaning up", "input-required: asking the caller for missing information", "Push notifications and webhooks for completion", "Context ids that group related tasks", "Idempotency and retries across process boundaries", "Mapping internal agent runs to externally visible task states"],
+          "tools": ["Python", "A2A Python SDK", "FastAPI", "asyncio", "pytest"],
+          "lab_task": "Extend your A2A server so a 20-second job moves through submitted, working and completed, and a second skill returns input-required when a field is missing. Write a client that polls tasks/get every 2 seconds, answers the input request, then cancels a third job mid-run with tasks/cancel. Log every state transition with timestamps.",
+          "deliverable": "task state machine, client logs and a transition diagram",
+          "checks": [["Run the 20-second job and poll", "Logged states appear in order submitted, working, completed", "Client log"], ["Call the second skill without the required field", "The task enters input-required with a message naming the missing field", "Task JSON"], ["Cancel the third job after 5 seconds", "State becomes canceled and the worker stops, with no further updates in 10 seconds", "Log with timestamps"]],
+          "objectives": ["Model long-running remote tasks", "Handle input-required and cancellation", "Map internal runs to external states"]
+        },
+        {
+          "topic": "Planning Methods: Plan-and-Execute, Re-Planning and Dependency Graphs",
+          "subtopics": ["Plan-and-execute versus step-by-step reasoning", "Plans as DAGs with parallel branches", "Triggers for re-planning: failure, new information and budget change", "Plan repair: replace a failed step, not the whole plan", "Verifying a plan before running it", "Plan execution state and resumption", "Planner model choice: stronger planner, cheaper workers", "Plan quality metrics: step success, wasted steps and plan revisions"],
+          "tools": ["Python", "networkx", "pydantic", "asyncio", "pytest"],
+          "lab_task": "Build a plan executor that runs a DAG with parallel branches, tracks each step's status, and triggers one re-plan when a step fails twice, replacing only that step and its dependents. Run 20 tasks with 3 injected tool failures and report completed tasks, number of re-plans and wasted steps.",
+          "deliverable": "executor.py and a 20-task report with re-plan counts",
+          "checks": [["Inject 3 step failures across 20 tasks", "Exactly 3 re-plans occur and the other 17 tasks run with none", "Report"], ["Inspect a re-plan", "Only the failed step and its dependents change, unchanged step ids stay the same", "Plan diff"], ["Kill the process mid-run and restart", "Completed steps are not re-executed and the run resumes from stored status", "Run log"]],
+          "objectives": ["Execute DAG plans with parallel branches", "Re-plan locally on failure", "Resume plans after interruption"]
+        },
+        {
+          "topic": "Memory Design for Teams: Scoped, Episodic and Semantic Stores",
+          "subtopics": ["Working, episodic, semantic and procedural memory in agent teams", "Namespaces: user, team, agent and task", "Write policies: what to store, when and who decides", "Retrieval: keys, recency and vector similarity with embeddings", "Consolidation: merging duplicate memories and resolving contradictions", "Privacy: user-scoped memories and deletion on request", "Measuring memory value: hit rate and downstream task gain", "Stores in LangGraph, CrewAI memory and third-party memory services"],
+          "tools": ["Python", "SQLite", "ChromaDB", "pydantic", "pytest"],
+          "lab_task": "Build a memory service with namespaces (user, team, agent) over SQLite plus a ChromaDB collection for semantic recall. Define a write policy that stores only facts with source and confidence at least 0.7. Seed 100 memories, query 20 questions, and report hit rate at k=3 and the effect of memory on task accuracy.",
+          "deliverable": "memory_service.py, a policy file and a hit-rate report",
+          "checks": [["Run 20 recall queries at k=3", "Hit rate at 3 is printed as a count out of 20", "Report"], ["Try writing a fact with confidence 0.4", "It is rejected by the write policy and logged as below_threshold", "Log line"], ["Delete a user namespace", "Zero memories for that user remain in both SQLite and Chroma", "Count queries"]],
+          "objectives": ["Design memory namespaces and policies", "Retrieve and consolidate memories", "Support deletion and privacy requirements"]
+        },
+        {
+          "topic": "Context Engineering Across Agents: What to Pass, Summarise and Drop",
+          "subtopics": ["Context window cost and attention dilution as prompts grow", "Briefs: the minimal context a worker needs", "Summarising results upward and preserving key facts", "Pointers instead of payloads: ids and file references", "Ordering and labelling context sections", "Compaction triggers by token threshold", "Measuring information loss with fact-recall checks", "Prompt caching and stable prefixes for shared instructions"],
+          "tools": ["Python", "tiktoken", "openai SDK", "pandas", "pytest"],
+          "lab_task": "Take a 12-step research run and compare three context policies for the final writer: full history, last-3-steps, and structured brief plus pointers. Count tokens with tiktoken, extract 20 key facts from the full run, and measure how many facts each policy preserves in the final answer. Report tokens saved per fact lost.",
+          "deliverable": "context_policies.py and a table of tokens, facts retained and quality scores",
+          "checks": [["Count tokens for the three policies", "Token counts are printed for each and the brief policy is the smallest", "Table"], ["Check fact recall against the 20-fact list", "Recall per policy is reported as a count out of 20", "Table"], ["Use a pointer id for a 5,000-token document", "The prompt holds the id and a 50-word summary, and the worker fetches the document on demand", "Prompt dump and fetch log"]],
+          "objectives": ["Choose what context each agent gets", "Quantify information loss", "Use pointers and caching to cut tokens"]
+        },
+        {
+          "topic": "Coordination Failures: Deadlock, Livelock, Echo Chambers and Duplicated Work",
+          "subtopics": ["Deadlock: agents each waiting for the other", "Livelock: constant activity with no progress", "Echo chambers: agents reinforce an early wrong claim", "Duplicated work and conflicting edits", "Resource contention on tools and rate limits", "The MAST study of multi-agent failure categories and how to read it", "Detectors: progress metrics, wait-for graphs and timeouts", "Mitigation patterns: ownership, leases, tie-breakers and watchdogs"],
+          "tools": ["Python", "networkx", "asyncio", "pytest", "jq"],
+          "lab_task": "Create four reproducible scenarios: two agents awaiting each other, a polite-agreement loop, an echo chamber on a wrong fact, and two agents editing one file. Add detectors: a wait-for graph cycle check, a progress counter that fires after 5 turns without a new state entry, and an edit lease with a 30-second timeout. Show each scenario before and after.",
+          "deliverable": "four scenario scripts, three detectors and a before and after table",
+          "checks": [["Run the deadlock scenario", "The wait-for graph check reports a cycle between the two agent names", "Detector output"], ["Run the polite-agreement loop", "The progress detector fires after 5 turns and stops the run with no_progress", "Run log"], ["Run the two-editor scenario with leases on", "The second editor waits or is refused, and the file has no interleaved edits", "File diff and log"]],
+          "objectives": ["Name and reproduce coordination failures", "Implement detectors for each", "Apply ownership and lease patterns"]
+        },
+        {
+          "topic": "Conflict Resolution: Arbitration, Voting and Verifier Agents",
+          "subtopics": ["Types of conflict: factual, goal and resource", "Arbitration by a judge agent with a rubric", "Weighted voting and confidence calibration", "Verifier agents that check claims against sources", "Executable verification: running tests or queries instead of arguing", "Escalation to a human when confidence is low", "Recording the losing view for audit", "Measuring resolution accuracy on seeded disagreements"],
+          "tools": ["Python", "pydantic", "openai SDK", "SQLite", "pytest"],
+          "lab_task": "Seed 20 disagreements between two analyst agents about figures in a CSV. Resolve each with three methods: judge agent, majority of 3, and a verifier that runs a pandas query to compute the figure. Record accuracy per method, escalate when judge confidence is below 0.6, and store the rejected claim with its reason.",
+          "deliverable": "conflict.py, a 20-case accuracy table and an escalation log",
+          "checks": [["Run three methods on 20 seeded cases", "Accuracy per method is printed and the executable verifier is at least as accurate as the others", "Results table"], ["Set judge confidence to 0.5 for a case", "It is escalated and appears in escalations.jsonl", "Log file"], ["Open the audit record for one conflict", "Both claims, the winner and the reason are present", "Audit row"]],
+          "objectives": ["Resolve disagreements with several methods", "Prefer executable verification where possible", "Keep an audit record of conflicts"]
+        },
+        {
+          "topic": "Evaluating Multi-Agent Systems: Outcome and Trajectory Metrics",
+          "subtopics": ["Outcome metrics: task success, accuracy and groundedness", "Trajectory metrics: steps, tool errors, handoffs and wasted calls", "Per-agent attribution: which agent introduced the error", "Gold datasets with expected outcomes and expected tool use", "LLM judges and their biases; calibrating against human labels", "pass^k reliability: success on all k repeated runs", "Confidence intervals over small test sets", "Benchmarks such as GAIA and tau-bench and their limits"],
+          "tools": ["Python", "pandas", "scipy", "pytest", "promptfoo"],
+          "lab_task": "Create a gold set of 30 tasks with expected outcome and expected tool sequence. Run your team 3 times on each, and compute task success, pass^3, mean steps, tool error rate and wasted-call ratio. Add a Wilson 95% interval on success. Label 10 failures by the responsible agent and show a per-agent error table.",
+          "deliverable": "eval harness, 90-run results file and a failure attribution table",
+          "checks": [["Run 30 tasks times 3 repeats", "results.csv has 90 rows and a summary line shows success and pass^3", "results.csv"], ["Compute the Wilson 95% interval", "Lower and upper bounds are printed and bracket the observed success rate", "Terminal output"], ["Attribute 10 failures", "Each failure names one agent and one error type, and totals per agent sum to 10", "Attribution table"]],
+          "objectives": ["Measure outcomes and trajectories", "Report reliability with intervals", "Attribute failures to specific agents"]
+        },
+        {
+          "topic": "Testing with Replayed Models and Deterministic Fixtures",
+          "subtopics": ["Why live-model tests are slow, costly and flaky", "Recording model responses and replaying them by request hash", "Fake model clients that return scripted tool calls", "Testing routing, handoffs and limits without a model", "Golden traces and approved-diff updates", "Property tests: invariants such as no unknown agent names", "A small live suite on a schedule for drift detection", "CI gates: fast replay on every commit and live runs nightly"],
+          "tools": ["Python", "pytest", "VCR.py", "Hypothesis", "GitHub Actions"],
+          "lab_task": "Add a ReplayClient that stores model responses keyed by a SHA-256 of the request and replays them in tests. Record 10 runs, then run pytest offline with no network and no API key. Add one Hypothesis property test that no routed agent name is outside the allow-list. Add a GitHub Actions job that runs the replay suite on pull requests.",
+          "deliverable": "replay client, 10 recorded runs, property test and a CI workflow file",
+          "checks": [["Run pytest with the network disabled", "All replay tests pass in under 10 seconds with no API key set", "pytest output"], ["Change one prompt string and rerun", "The test fails with replay_miss for that request hash", "pytest output"], ["Run the Hypothesis test", "It checks 100 generated inputs and finds no agent name outside the allow-list", "Hypothesis statistics"]],
+          "objectives": ["Test agent systems without live models", "Record and replay model calls", "Gate pull requests with fast tests"]
+        },
+        {
+          "topic": "Cost Accounting: Tokens per Agent, per Task and per Topology",
+          "subtopics": ["Input and output token pricing and cached-input discounts", "Cost attribution by agent, task and tenant", "Why multi-agent runs cost several times a single call", "Cost per successful task rather than cost per call", "Context growth and quadratic-feeling cost in long chats", "Budget forecasting from trace data", "Dashboards and alerts for cost per task", "Cost comparison of supervisor, swarm and debate on one workload"],
+          "tools": ["Python", "pandas", "OpenTelemetry", "Langfuse", "Grafana"],
+          "lab_task": "Using trace.jsonl from 100 runs, compute cost per agent, per task and per successful task with a price table in prices.yaml. Break down input, cached input and output tokens. Rank the three most expensive agents, forecast monthly cost at 10,000 tasks, and set an alert threshold at 1.5 times median cost per task.",
+          "deliverable": "cost_report.py, a ranked cost table and a forecast with the alert threshold",
+          "checks": [["Run cost_report.py on 100 runs", "Cost per agent, per task and per successful task are printed and the per-agent costs sum to the total", "Report"], ["Forecast for 10,000 tasks", "A monthly figure is printed with the assumptions listed beside it", "Forecast output"], ["Inject a run costing 3 times the median", "The alert rule fires and names the run id", "Alert log"]],
+          "objectives": ["Attribute cost to agents and tasks", "Forecast cost from traces", "Set cost alerts"]
+        },
+        {
+          "topic": "Latency Engineering: Critical Path, Parallelism and Model Tiering",
+          "subtopics": ["Critical path through a multi-agent run", "Time to first token versus total time", "Parallelising independent branches", "Model tiering: small models for routing and extraction, large for synthesis", "Streaming partial results to users", "Speculative work and cancellation of unused branches", "Provider rate limits and queueing delay", "Latency budgets per stage and p95 tracking"],
+          "tools": ["Python", "asyncio", "OpenTelemetry", "pandas", "matplotlib"],
+          "lab_task": "From trace data, compute the critical path of 50 runs and the share of time per agent. Then apply two changes: route intent classification to a smaller model and parallelise two independent research branches. Measure p50 and p95 latency and accuracy before and after, and set a 12-second latency budget per run.",
+          "deliverable": "critical path analysis, before and after latency table and a budget file",
+          "checks": [["Compute critical path for 50 runs", "A per-agent time share table sums to 100% of path time", "Analysis output"], ["Rerun after both changes", "p95 latency drops and both p50 and p95 are shown before and after", "Latency table"], ["Check accuracy after tiering", "Accuracy on the same 30 tasks is within the stated tolerance or the change is rejected in the memo", "Evaluation results and memo"]],
+          "objectives": ["Find the critical path", "Cut latency without losing accuracy", "Set per-stage latency budgets"]
+        },
+        {
+          "topic": "Reliability: Retries, Timeouts, Idempotency and Fallbacks",
+          "subtopics": ["Failure sources: model errors, tool errors, rate limits and bad output", "Retry with exponential backoff and jitter", "Timeouts at call, agent and run level", "Idempotency keys for tools that change state", "Circuit breakers on failing tools or providers", "Fallback models and degraded answers", "Checkpointing so a retry does not repeat finished work", "Chaos tests that inject faults into agents"],
+          "tools": ["Python", "tenacity", "asyncio", "pytest", "Redis"],
+          "lab_task": "Wrap model and tool calls with tenacity retry (3 attempts, exponential backoff with jitter) and an idempotency key stored in Redis for a create_ticket tool. Add a circuit breaker that opens after 5 failures in 60 seconds, and a chaos test that makes 30% of calls fail. Run 100 tasks and report completion rate and duplicate tickets.",
+          "deliverable": "reliability wrappers, a chaos test and a 100-task report",
+          "checks": [["Run 100 tasks with 30% injected faults", "Completion rate is printed and exceeds the no-retry baseline", "Report"], ["Replay the same create_ticket request twice", "Only 1 ticket exists and the second call returns the stored result", "Database count"], ["Force 5 failures within 60 seconds", "The breaker opens and the next call fails fast with circuit_open without calling the provider", "Log line"]],
+          "objectives": ["Add retries and timeouts correctly", "Make state-changing tools idempotent", "Test reliability with injected faults"]
+        },
+        {
+          "topic": "Safety Boundaries: Permissions, Sandboxes and Approval Gates",
+          "subtopics": ["Blast radius: what the worst action by each agent can do", "Permission tiers: read, write, external and irreversible", "Sandboxing code execution with containers and no network", "Approval gates by risk tier and spend", "Separating planning agents from acting agents", "Prompt injection through tool results and documents", "Output filters and PII redaction before messages leave the system", "Kill switch and rate limits per agent"],
+          "tools": ["Python", "Docker", "pydantic", "pytest", "promptfoo"],
+          "lab_task": "Classify 12 tools into read, write, external and irreversible tiers in policy.yaml and enforce them: irreversible needs human approval and external needs a spend cap. Run model-written code in a Docker container with --network none --memory 256m. Run 15 injection prompts from a file and report how many unauthorised calls were blocked.",
+          "deliverable": "policy.yaml, enforcement code, sandbox runner and an injection test report",
+          "checks": [["Run generated code that opens a network socket", "The sandbox fails with a network error and the host has no new connections", "Container log"], ["Request an irreversible action without approval", "The call is blocked with approval_required and nothing executes", "Audit log"], ["Run 15 injection prompts", "A count of blocked unauthorised calls out of 15 is printed with any misses listed", "Test report"]],
+          "objectives": ["Tier tools by blast radius", "Sandbox code execution", "Test defences against injection"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Agent Incident Triage System",
+          "subtopics": ["Requirements, success metrics and topology choice with a recorded rationale", "Agents for intake, log analysis, runbook lookup and responder drafting with typed contracts", "MCP servers for tickets and logs plus one A2A remote specialist agent", "Team memory, context policy, budgets and approval gates for risky actions", "Evaluation on 30 incidents with replay tests, cost and latency reports", "Failure review, design decision record and improvement backlog"],
+          "tools": ["Python", "MCP Python SDK", "A2A Python SDK", "pytest", "OpenTelemetry", "Docker"],
+          "lab_task": "Build an incident-triage team that reads 30 stored incidents, queries a logs MCP server, calls a remote A2A runbook agent and drafts a responder message. Include budgets, an approval gate for restart actions, replay tests and OpenTelemetry traces. Report accuracy, pass^3, p95 latency, cost per incident and failure causes.",
+          "deliverable": "Repository, evaluation report on 30 incidents, traces and a 3-page design decision record",
+          "checks": [["Run the 30-incident evaluation 3 times", "Accuracy, pass^3, p95 latency and cost per incident are reported", "Evaluation report"], ["Ask for a service restart", "The action pauses for approval and executes only after approve is recorded", "Audit log"], ["Stop the A2A runbook agent mid-run", "The team degrades to a no-runbook answer and records the fallback in the trace", "Trace and result JSON"]],
+          "objectives": ["Integrate MCP and A2A in one system", "Evaluate with repeated trials", "Document design decisions and failure analysis"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior engineers and architects who own multi-agent systems in production or review them. Covers classic multi-agent theory (BDI agents, contract net, incentives and consensus) and its LLM counterparts, distributed shared state, durable execution, event-driven coordination, agent identity and delegated authority, trust boundaries and prompt injection between agents, OpenTelemetry tracing, large-scale evaluation and simulation, cost control, dynamic team formation, learning loops, governance and human oversight, cross-framework interoperability over MCP and A2A, design reviews, and a governed platform capstone.",
+      "prerequisites": ["Has built and operated at least one multi-agent system with tracing, tests and a budget", "Understands queues, idempotency, eventual consistency and basic distributed-systems failure modes", "Has used MCP or A2A endpoints and at least one of LangGraph, AutoGen or CrewAI"],
+      "outcomes": ["Apply classic MAS ideas such as BDI, contract net and consensus to the design of LLM agent teams", "Design durable, event-driven and distributed multi-agent systems with controlled shared state and identity", "Defend a system against inter-agent prompt injection, privilege escalation and runaway cost", "Evaluate, govern and review a multi-agent platform with traces, simulations, audit trails and decision records"],
+      "days": [
+        {
+          "topic": "Classic Multi-Agent Theory: Agents, Environments and Autonomy",
+          "subtopics": ["Wooldridge and Jennings definition: autonomy, reactivity, proactivity and social ability", "Environment properties: observable, deterministic, dynamic and discrete", "Reactive, deliberative and hybrid agent architectures", "Agent communication languages: speech acts and FIPA ACL performatives", "Why LLM agents revive old questions on ontology and shared meaning", "Cooperative, competitive and mixed-motive settings", "Mapping classic terms to LLM agent vocabulary", "Reading a classic paper critically against a modern system"],
+          "tools": ["Python", "Mermaid", "pydantic", "LangGraph", "AutoGen"],
+          "lab_task": "Take your incident-triage team and write a one-page analysis that classifies it by environment properties, agent architecture and cooperation type. Then encode five of its messages as FIPA-style performatives (request, inform, propose, accept-proposal, refuse) in a typed Python enum and re-run 20 messages through a validator that checks each reply is a legal response.",
+          "deliverable": "Classification table, a performative enum with validator and a one-page analysis",
+          "checks": [["Run the validator over 20 messages", "Each reply is checked and the count of illegal replies is printed", "Validator output"], ["Read the classification table", "All four environment properties and one architecture type are assigned with a reason", "Table"], ["Send an accept-proposal with no earlier propose", "The validator rejects it with no_matching_proposal", "Test output"]],
+          "objectives": ["Describe agents using classic properties", "Map FIPA performatives to message types", "Assess a modern system against the classics"]
+        },
+        {
+          "topic": "BDI Agents: Beliefs, Desires, Intentions and LLM Analogues",
+          "subtopics": ["The belief-desire-intention model and the practical reasoning cycle", "Beliefs as updatable state with sources, not just prompt text", "Desires, goals and conflicts between them", "Intentions as commitments: when to keep and when to drop a plan", "Commitment strategies: blind, single-minded and open-minded", "Agent programming languages such as Jason and AgentSpeak at a glance", "Building a BDI-style control loop around an LLM", "Strengths and limits compared with prompt-only agents"],
+          "tools": ["Python", "pydantic", "openai SDK", "pytest", "SQLite"],
+          "lab_task": "Implement a BDI loop with a belief store (fact, source, timestamp), a goal list with priorities, and an intention record holding the current plan. Let the LLM propose plans but let code decide commitment: drop an intention when a belief that contradicts its precondition arrives. Run 15 scenarios with changing facts and report plan drops and wasted steps.",
+          "deliverable": "bdi_agent.py, 15 scenario traces and a comparison with a prompt-only agent",
+          "checks": [["Insert a belief that contradicts the current plan's precondition", "The intention is dropped and a new plan is requested within the same cycle", "Trace"], ["Run 15 scenarios with BDI and prompt-only agents", "Wasted steps per scenario are reported for both and BDI is not worse on mean", "Comparison table"], ["Inspect the belief store", "Every belief has a source and timestamp field filled", "SQL output"]],
+          "objectives": ["Explain the BDI cycle", "Add explicit commitments to an LLM agent", "Compare BDI control with prompt-only agents"]
+        },
+        {
+          "topic": "Contract Net Protocol and Market-Based Task Allocation",
+          "subtopics": ["Contract net: announce, bid, award, execute and report", "Managers and contractors and the role of eligibility", "Bids as cost, time and confidence estimates", "Award rules: lowest cost, fastest, best-fit and weighted", "Bid honesty and misreporting by agents", "Timeouts for bids and for contractors", "Auctions and cost-based routing in LLM systems", "When contract net beats a static router and when it only adds calls"],
+          "tools": ["Python", "asyncio", "pydantic", "pytest", "pandas"],
+          "lab_task": "Implement contract net for 6 worker agents with different skills. A manager announces 20 tasks, workers return bids (estimated tokens, seconds and confidence) within 5 seconds, and the manager awards by weighted score. Compare against a static keyword router on accuracy, total tokens and latency, including the extra bidding calls.",
+          "deliverable": "contract_net.py and a comparison of the market and the static router",
+          "checks": [["Announce 20 tasks to 6 workers", "Each task gets bids or a no_bids status and awards are logged with scores", "Award log"], ["Make one worker stop responding", "Its bid is dropped after 5 seconds and the task goes to the next best bidder", "Log"], ["Compare with the static router", "Accuracy, tokens and latency are listed for both, including bidding overhead", "Results table"]],
+          "objectives": ["Implement the contract net protocol", "Handle timeouts and dishonest bids", "Decide when allocation by bidding pays off"]
+        },
+        {
+          "topic": "Game-Theoretic View: Incentives, Equilibria and Collusion",
+          "subtopics": ["Agents with individual rewards versus a team reward", "Prisoner's dilemma and public goods in shared resource use", "Mechanism design: making truthful reporting the best strategy", "Reward hacking by agents that optimise a measured proxy", "Collusion between agents and detection", "Auction rules and second-price truthfulness", "Limits of equilibrium analysis for stochastic LLM agents", "Design rules: align metrics with team outcomes"],
+          "tools": ["Python", "numpy", "pandas", "openai SDK", "pytest"],
+          "lab_task": "Simulate 3 agents sharing a pool of 100 tool-call credits over 10 rounds. Compare self-interested prompts (maximise own task score) with team prompts, in 20 runs each, recording credits used, tasks completed and depletion round. Add one rule that charges for credits used and test whether the depletion round moves.",
+          "deliverable": "simulation script, results for two prompt conditions and a mechanism change test",
+          "checks": [["Run 20 simulations per condition", "Mean credits used and depletion round are printed for each condition", "Results table"], ["Apply the usage charge rule", "Mean depletion round changes and the direction is stated with the numbers", "Before and after table"], ["Read one self-interested transcript", "An annotation notes whether the agent hoarded or misreported need", "Annotated transcript"]],
+          "objectives": ["Frame agent interaction as incentives", "Test a mechanism change in simulation", "Spot proxy gaming and hoarding"]
+        },
+        {
+          "topic": "Consensus, Aggregation and Wisdom-of-Crowds Limits",
+          "subtopics": ["Majority, plurality, weighted and ranked aggregation", "Condorcet jury theorem and why independence matters", "Correlated errors when agents share one base model", "Calibration: weighting by historical accuracy", "Self-consistency and mixture-of-agents as aggregation", "Byzantine view: some agents may be wrong or compromised", "Quorums and thresholds for acting", "Measuring error correlation between agents"],
+          "tools": ["Python", "numpy", "pandas", "scipy", "openai SDK"],
+          "lab_task": "Run 5 agent variants (two models and three prompts) on 100 labelled questions. Compute each agent's accuracy and the pairwise error correlation, then compare plurality, accuracy-weighted vote and a quorum of 4 of 5. Report the gain over the best single agent and explain why correlation limits it.",
+          "deliverable": "100-question run file, correlation matrix and an aggregation comparison table",
+          "checks": [["Compute pairwise error correlation", "A 5 by 5 matrix is printed and its diagonal is 1.0", "Matrix output"], ["Compare three aggregation rules", "Accuracy for plurality, weighted vote and quorum is listed beside the best single agent", "Table"], ["Apply the 4-of-5 quorum", "Questions without quorum are counted and sent to a defer path", "Count and log"]],
+          "objectives": ["Aggregate answers from several agents", "Measure correlated errors", "Use quorums to control action"]
+        },
+        {
+          "topic": "Distributed Shared State: Consistency, Conflicts and Versioning",
+          "subtopics": ["Single store versus replicated state across processes", "Optimistic concurrency with version numbers and compare-and-set", "Event sourcing: state as a log of agent events", "Eventual consistency and stale reads in prompts", "Merging concurrent edits: last-writer-wins and field-level merge", "Locks and leases for exclusive resources", "Snapshots and checkpoints for resume", "Postgres or Redis as the state backend"],
+          "tools": ["Python", "PostgreSQL", "Redis", "asyncio", "pytest"],
+          "lab_task": "Move your blackboard to PostgreSQL with a version column and compare-and-set updates (UPDATE ... WHERE id=$1 AND version=$2). Run 8 concurrent agents writing 500 updates to 20 keys, count version conflicts and retries, and verify the final state equals a serial replay of the event log table.",
+          "deliverable": "state service, an event log and a concurrency test with conflict counts",
+          "checks": [["Run 8 agents making 500 updates", "Conflict and retry counts are printed and no update is lost", "Test output"], ["Replay the event log serially", "The rebuilt state equals the live state for all 20 keys", "Diff output"], ["Hold a lease and let it expire", "Another agent acquires it after expiry and the first agent's late write is rejected", "Log and database row"]],
+          "objectives": ["Use optimistic concurrency for agent state", "Rebuild state from an event log", "Control exclusive access with leases"]
+        },
+        {
+          "topic": "Durable Execution for Long-Running Agent Workflows",
+          "subtopics": ["Why long agent runs fail: restarts, deploys, rate limits and human waits", "Checkpoints versus durable execution engines such as Temporal", "Deterministic workflow code versus non-deterministic model calls", "Activities for model and tool calls with retry policies", "Signals for human decisions and timers for deadlines", "Idempotent activities and replay safety", "Versioning workflows with runs in flight", "LangGraph checkpointers as a lighter durable option"],
+          "tools": ["Python", "Temporal", "PostgreSQL", "LangGraph", "pytest"],
+          "lab_task": "Implement a 3-agent workflow in Temporal Python where each model call is an activity with a retry policy and a human approval is a signal with a 24-hour timer. Start the workflow, kill the worker mid-run, restart it, and confirm the workflow finishes without repeating completed activities. Count activity executions in the event history.",
+          "deliverable": "workflow and worker code, event history export and a kill-and-resume test",
+          "checks": [["Kill the worker after the second activity and restart", "The workflow completes and event history shows each activity completed once", "Event history"], ["Send the approval signal late", "The workflow resumes from the wait and finishes with the approval recorded", "Workflow result"], ["Let the timer expire with no signal", "The workflow ends with status expired and runs no further activities", "Workflow history"]],
+          "objectives": ["Run agent workflows durably", "Separate deterministic orchestration from model calls", "Handle human waits and deadlines"]
+        },
+        {
+          "topic": "Event-Driven Multi-Agent Systems: Queues, Topics and Backpressure",
+          "subtopics": ["Publish-subscribe topics for agent events", "Work queues with competing consumers", "At-least-once delivery and duplicate handling", "Dead-letter queues for poison messages", "Backpressure and rate limiting against model quotas", "Ordering guarantees and partition keys", "Schema registry and event versioning", "Kafka, NATS or Redis Streams as the transport"],
+          "tools": ["Python", "Redis Streams", "NATS", "asyncio", "pytest"],
+          "lab_task": "Run agents as consumers on Redis Streams with a consumer group. Publish 1,000 task events, run 4 consumers, cap each at 5 concurrent model calls, move a message to a dead-letter stream after 3 failed deliveries, and kill one consumer mid-run. Verify that every event is processed at least once and report duplicates handled.",
+          "deliverable": "consumer code, 1,000-event test and a report of processed, duplicate and dead-lettered events",
+          "checks": [["Publish 1,000 events and process them", "Processed count is 1,000 after de-duplication by event id", "Report"], ["Inject a poison message that always fails", "It lands in the dead-letter stream after 3 deliveries and others continue", "Redis stream listing"], ["Kill one consumer mid-run", "Its pending messages are claimed by another consumer and none are lost", "XPENDING output"]],
+          "objectives": ["Run agents as event consumers", "Handle duplicates and poison messages", "Apply backpressure to model quotas"]
+        },
+        {
+          "topic": "Agent Identity, Authentication and Delegated Authority",
+          "subtopics": ["Agents as workloads with their own identities", "Service accounts, short-lived tokens and OAuth 2.0 for MCP and A2A", "Acting on behalf of a user: token exchange and scopes", "Confused deputy: an agent using its authority for the wrong party", "Per-agent credentials and rotation", "Authorisation checks in the tool, not in the prompt", "Audit: who asked, which agent acted and under whose authority", "Declaring authentication schemes in an A2A Agent Card"],
+          "tools": ["Python", "Keycloak", "FastAPI", "PyJWT", "pytest"],
+          "lab_task": "Run a tool API behind Keycloak. Give each agent its own client with scopes tickets:read or tickets:write, and make a tool call carry the end user's token through OAuth token exchange. Show that a reader agent gets 403 on write, that a user cannot read another user's ticket through any agent, and that every call logs agent, user and scope.",
+          "deliverable": "token flow, scope enforcement tests and an audit log sample",
+          "checks": [["Call a write endpoint with the reader agent's token", "The API returns HTTP 403 with insufficient_scope", "HTTP response"], ["Ask the agent for another user's ticket with the first user's token", "The API returns 404 or 403 and no data", "HTTP response and log"], ["Read the audit log", "Each line contains agent id, user id, scope and result", "audit.jsonl"]],
+          "objectives": ["Give agents distinct identities", "Delegate user authority safely", "Enforce authorisation in tools"]
+        },
+        {
+          "topic": "Prompt Injection and Trust Boundaries Between Agents",
+          "subtopics": ["Direct versus indirect prompt injection", "Inter-agent injection: one compromised agent instructing others", "Treating tool output and peer messages as data, not instructions", "Trust zones and privileged versus quarantined agents", "The dual-LLM pattern and planner-executor separation", "Structured outputs as a narrow channel between zones", "The OWASP Top 10 for LLM applications and agentic threats list", "Red-team suites and measuring attack success rate"],
+          "tools": ["Python", "promptfoo", "garak", "pydantic", "pytest"],
+          "lab_task": "Plant 20 injection payloads in web pages and ticket text that a reader agent summarises for an acting agent. Measure attack success rate with a direct message path, then redesign so the quarantined reader returns only a typed schema with no free-text instructions. Rerun and report attack success before and after.",
+          "deliverable": "20-payload test suite, before and after attack success rates and the redesigned data path",
+          "checks": [["Run 20 payloads on the direct path", "Attack success count out of 20 is printed", "Test report"], ["Run the same payloads on the schema-only path", "Success count is lower and any remaining success is analysed", "Test report"], ["Review the acting agent's allowed inputs", "It accepts only typed fields and never raw document text", "Schema and code review"]],
+          "objectives": ["Identify injection paths between agents", "Isolate untrusted content with typed channels", "Measure attack success rate"]
+        },
+        {
+          "topic": "Observability: OpenTelemetry GenAI Spans for Agent Teams",
+          "subtopics": ["Trace, span and attribute basics in OpenTelemetry", "GenAI semantic conventions: gen_ai.operation.name, gen_ai.agent.name and token usage attributes", "Spans for invoke_agent, model call and tool execution", "Propagating trace context across A2A and MCP calls", "Sampling: keep failures and slow runs, sample the rest", "Redaction and opt-in capture of prompt content", "Dashboards: cost, latency, handoffs and error rates per agent", "Exporting to Jaeger, Tempo, Langfuse or Phoenix"],
+          "tools": ["Python", "OpenTelemetry", "Jaeger", "Grafana", "Langfuse"],
+          "lab_task": "Instrument the team with OpenTelemetry using invoke_agent, chat and execute_tool spans carrying gen_ai.agent.name and token usage attributes. Propagate traceparent over A2A HTTP calls so a remote agent's spans join the same trace. Export to Jaeger with docker run, and build a Grafana panel of p95 duration per agent. Add tail sampling that keeps all error traces.",
+          "deliverable": "instrumented code, a Jaeger trace screenshot spanning two processes and a dashboard JSON",
+          "checks": [["Open one run in Jaeger", "A single trace shows spans from both the local team and the remote agent under one trace id", "Jaeger screenshot"], ["Check span attributes", "Each model span has gen_ai.agent.name and input and output token counts", "Span JSON"], ["Force an error then apply tail sampling", "The error trace is kept at 100% while normal traces are sampled at the configured rate", "Collector config and counts"]],
+          "objectives": ["Instrument agents with standard attributes", "Propagate trace context between services", "Sample traces without losing failures"]
+        },
+        {
+          "topic": "Trajectory Evaluation at Scale: Judges, Failure Taxonomies and Regression Gates",
+          "subtopics": ["Scoring whole trajectories: goal progress, efficiency and policy compliance", "LLM judges for trajectories and their agreement with humans", "Building a failure taxonomy from 100 labelled traces", "Inter-annotator agreement with Cohen's kappa", "Sampling production traces for online evaluation", "Regression gates: block a release if pass rate drops beyond a margin", "Paired tests across versions on the same tasks", "Eval cost budgets and judge cascades"],
+          "tools": ["Python", "pandas", "scipy", "Langfuse", "GitHub Actions"],
+          "lab_task": "Label 60 traces with a failure taxonomy of at least 6 categories by two reviewers, compute Cohen's kappa, then calibrate an LLM judge against the agreed labels. Run version A and B on 100 tasks, test with McNemar's test on paired outcomes, and write a CI gate that fails when B's pass rate is more than 3 points lower.",
+          "deliverable": "labelled traces, kappa and judge agreement figures, paired test result and a CI gate",
+          "checks": [["Compute Cohen's kappa for the two reviewers", "A kappa value is printed with the label counts it was computed from", "Notebook output"], ["Compare judge to agreed labels", "Judge agreement percentage is reported per category", "Table"], ["Run the CI gate on a version with a 6 point drop", "The job exits non-zero and prints the pass rates of A and B", "CI log"]],
+          "objectives": ["Evaluate trajectories with calibrated judges", "Build and use a failure taxonomy", "Gate releases on paired results"]
+        },
+        {
+          "topic": "Simulation and Adversarial Testing of Agent Teams",
+          "subtopics": ["Simulated users and simulated environments for repeatable tests", "Scenario generation with seeds and parameter sweeps", "Fault injection: tool outages, slow responses and wrong tool output", "Adversarial agents that lie, stall or flood the team", "Stress tests: load, concurrency and rate-limit behaviour", "Metamorphic tests: paraphrasing or reordering inputs should not change outcomes", "Coverage of failure modes rather than code lines", "Scoring resilience: success under faults relative to success without"],
+          "tools": ["Python", "asyncio", "pytest", "Hypothesis", "Locust"],
+          "lab_task": "Build a simulator with a scripted user agent and a mock tool server that can add latency, errors and wrong outputs. Add one malicious team member that stalls or lies. Run 200 seeded scenarios with and without faults, plus 20 paraphrase pairs, and report success under faults, resilience ratio and metamorphic consistency.",
+          "deliverable": "simulator, 200-scenario result set and a resilience report",
+          "checks": [["Run 200 seeded scenarios without and with faults", "Success rates for both are printed with the resilience ratio", "Report"], ["Run 20 paraphrase pairs", "Consistency is reported as pairs with the same outcome out of 20", "Report"], ["Insert a stalling agent", "The watchdog fires within its timeout and the run completes with a degraded status", "Run log"]],
+          "objectives": ["Simulate users and faults repeatably", "Test with adversarial team members", "Report resilience with a ratio"]
+        },
+        {
+          "topic": "Cost Control at Scale: Budgets, Caching and Routing Policies",
+          "subtopics": ["Per-tenant, per-task and per-agent budgets with hard and soft limits", "Prompt caching for shared prefixes and tool definitions", "Result caching of deterministic tool calls and sub-answers", "Model routing: cascade from small to large with a confidence gate", "Batch APIs for non-urgent work", "Early termination of speculative branches", "Unit economics: cost per resolved task versus human cost", "Detecting runaway spend with anomaly alerts"],
+          "tools": ["Python", "Redis", "pandas", "openai SDK", "Grafana"],
+          "lab_task": "Add four controls to the team: a per-tenant daily budget in Redis, a cache for tool results keyed by arguments with a 1-hour TTL, a two-step model cascade that escalates only below 0.8 confidence, and prompt-prefix reuse. Run 300 tasks, record cost, cache hit rate, escalation rate and accuracy against the uncontrolled run.",
+          "deliverable": "cost controls, a 300-task comparison and a unit-economics summary",
+          "checks": [["Run 300 tasks with and without controls", "Cost per task falls and accuracy change is within the stated tolerance", "Comparison table"], ["Exhaust a tenant budget", "Further tasks for that tenant are refused with budget_exceeded while others run", "Log and response"], ["Read cache metrics", "Hit rate and saved calls are reported as counts", "Metrics output"]],
+          "objectives": ["Apply layered cost controls", "Route by confidence", "Enforce tenant budgets"]
+        },
+        {
+          "topic": "Self-Organising and Dynamic Teams: Agent Spawning and Role Assignment",
+          "subtopics": ["Static teams versus teams composed per task", "A manager that writes agent specs: role, tools and budget", "Spawn limits, depth limits and cost caps", "Role libraries and selecting from a registry by skill", "Reusing agents versus creating new ones", "Dissolving agents and cleaning up state", "Risks: unbounded spawning and untraceable behaviour", "Evidence on when dynamic teams beat fixed teams"],
+          "tools": ["Python", "pydantic", "asyncio", "LangGraph", "AutoGen"],
+          "lab_task": "Let a manager choose agents for each of 20 varied tasks from a registry of 12 role specs, or write one new spec that your validator checks against allowed tools and a budget. Cap spawns at 4 per task. Compare success and cost with a fixed 5-agent team and record how often the manager created a new spec.",
+          "deliverable": "registry, spec validator, manager and a comparison with a fixed team",
+          "checks": [["Request a spec that includes a forbidden tool", "The validator rejects it with tool_not_allowed and the manager retries once", "Validator log"], ["Force a task requiring 6 agents", "Spawning stops at 4 and the run returns spawn_limit_reached", "Run log"], ["Compare dynamic and fixed teams on 20 tasks", "Success and cost per task for both are tabulated", "Results table"]],
+          "objectives": ["Compose teams per task safely", "Limit spawning", "Compare dynamic and fixed teams"]
+        },
+        {
+          "topic": "Learning and Improvement: Prompt Optimisation, Feedback Loops and Skill Libraries",
+          "subtopics": ["Where improvement comes from: prompts, tools, routing and data", "Prompt optimisation with an eval set and a search loop", "Learning from failed traces: reflection notes written to memory", "Skill or procedure libraries that agents reuse", "Human feedback capture and turning it into test cases", "Overfitting to the eval set and holdout discipline", "Rollout of a new prompt version with canary traffic", "Fine-tuning or distillation of a worker model: when it is worth it"],
+          "tools": ["Python", "DSPy", "pandas", "pytest", "Langfuse"],
+          "lab_task": "Split 120 tasks into 80 development and 40 holdout. Run a prompt-optimisation loop with DSPy or a manual search on the router prompt, accept a change only if dev accuracy improves by at least 3 points, then report holdout accuracy. Add a reflection-note store and measure its effect on 20 repeat tasks.",
+          "deliverable": "optimisation log, dev and holdout results and a reflection-note experiment",
+          "checks": [["Report dev and holdout accuracy", "Both are shown and the gap between them is printed", "Results table"], ["Propose a change with a 1 point dev gain", "It is rejected by the 3 point rule and logged", "Optimiser log"], ["Run the 20 repeat tasks with notes on and off", "Accuracy for both conditions is reported", "Comparison table"]],
+          "objectives": ["Improve teams with measured loops", "Avoid overfitting with holdouts", "Roll out prompt changes with canaries"]
+        },
+        {
+          "topic": "Governance and Human Oversight: Escalation Design and Audit Trails",
+          "subtopics": ["Oversight levels: in the loop, on the loop and out of the loop", "Escalation triggers: low confidence, high impact, policy conflict and repeated failure", "Reviewer interfaces and review time as a cost", "Automation bias and rubber-stamping risk", "Audit trails: decisions, evidence, approver and model versions", "Retention, access control and deletion of logs", "Mapping to the EU AI Act human oversight duty and NIST AI RMF at an awareness level", "Incident handling: pause, roll back and notify"],
+          "tools": ["Python", "PostgreSQL", "FastAPI", "pydantic", "pytest"],
+          "lab_task": "Build an escalation service where agents submit actions with risk score, evidence and confidence. Rules send high-impact actions to a review queue, sample 10% of low-risk actions for audit, and record approver, model version and decision in an append-only table. Run 200 actions, report queue size and the approval rate per reviewer, and flag reviewers above 98%.",
+          "deliverable": "escalation service, an audit schema and a 200-action report with rubber-stamp flags",
+          "checks": [["Run 200 actions", "Counts for auto-approved, queued and sampled actions are printed and sum to 200", "Report"], ["Try an UPDATE on the audit table", "The database refuses it by permission or trigger", "SQL error"], ["Seed a reviewer who approves 99%", "The report flags that reviewer for rubber-stamping", "Report"]],
+          "objectives": ["Design escalation and sampling rules", "Keep tamper-resistant audit trails", "Detect weak human oversight"]
+        },
+        {
+          "topic": "Interoperability: Mixing Frameworks over MCP and A2A",
+          "subtopics": ["Why mixed estates appear: acquisitions, teams and best-of-breed tools", "Wrapping a LangGraph, an AutoGen and a CrewAI agent behind one A2A interface", "Shared tools through MCP rather than framework-specific adapters", "Contract tests for remote agents: schema, latency and error codes", "Versioning agent skills and handling deprecation", "Failure semantics across frameworks: retries, timeouts and cancellation", "Registries and discovery of agents inside an organisation", "Avoiding lock-in: keep the contract outside the framework"],
+          "tools": ["Python", "A2A Python SDK", "MCP Python SDK", "LangGraph", "AutoGen", "CrewAI"],
+          "lab_task": "Expose three small agents, one built with LangGraph, one with AutoGen and one with CrewAI, as A2A servers with Agent Cards, all using one shared MCP tool server. Write a coordinator that discovers them by skill and runs 20 tasks. Add contract tests for each card and report latency and success per remote agent.",
+          "deliverable": "three A2A wrappers, one MCP server, a coordinator and contract tests",
+          "checks": [["Fetch the three agent cards", "Each card lists its skill ids and a url, with 3 distinct skills in total", "curl output"], ["Run 20 tasks through the coordinator", "Success and p95 latency per remote agent are printed", "Report"], ["Cancel a running remote task", "All three wrappers move to canceled within 5 seconds", "Task state log"]],
+          "objectives": ["Expose differing frameworks through one protocol", "Share tools over MCP", "Write contract tests for remote agents"]
+        },
+        {
+          "topic": "When Not to Use Multiple Agents: Design Reviews and Simplification",
+          "subtopics": ["A review checklist: purpose, topology, contracts, state, limits and oversight", "Cost of coordination as a share of total cost", "Collapsing agents: merging roles that always run together", "Replacing agents with deterministic code or workflows", "Reading evidence: ablation of each agent", "Writing design decision records with alternatives and reversal criteria", "Postmortem format for multi-agent incidents", "Anti-patterns: agent per noun, chatty agents and unbounded autonomy"],
+          "tools": ["Python", "pandas", "pytest", "Mermaid", "Markdown"],
+          "lab_task": "Take your incident-triage team and run ablations that remove one agent at a time or replace it with code, over 30 incidents. Record accuracy, cost and latency change for each ablation. Propose a simplified design, write a decision record with alternatives considered and reversal criteria, and run a mock review using the checklist.",
+          "deliverable": "ablation table, simplified design and a decision record",
+          "checks": [["Run one ablation per agent", "A table shows accuracy, cost and latency deltas for each removed agent", "Ablation table"], ["Read the decision record", "It lists at least 2 alternatives and one measurable reversal criterion", "Document"], ["Run the simplified design on the 30 incidents", "Accuracy is within the agreed tolerance and cost is lower than the original", "Evaluation output"]],
+          "objectives": ["Run ablations to justify each agent", "Simplify designs on evidence", "Document decisions with reversal criteria"]
+        },
+        {
+          "topic": "Advanced Capstone: Governed Multi-Agent Platform Design and Evaluation",
+          "subtopics": ["Requirements, risk assessment and topology selection with a recorded rationale", "Reference design: durable execution, event bus, MCP tools, A2A edges, shared state and identity", "Controls: budgets, approval gates, sandboxing, trust boundaries and audit trail", "Observability and evaluation with traces, judges, simulations and regression gates", "Pilot run on 100 tasks with fault injection and an injection test suite", "Design review, ablation findings, cost model and a 12-month roadmap"],
+          "tools": ["Python", "Temporal", "OpenTelemetry", "MCP Python SDK", "A2A Python SDK", "PostgreSQL"],
+          "lab_task": "Build and evaluate a platform in which a durable workflow runs a manager and three specialist agents that use MCP tools and one A2A remote agent, with identity, budgets, approvals and audit. Run 100 tasks with fault injection and 20 injection payloads, then report pass^3, resilience ratio, attack success rate, p95 latency and cost per task.",
+          "deliverable": "Platform repository, evaluation report, traces, threat model, decision record and review presentation",
+          "checks": [["Run 100 tasks with fault injection three times", "pass^3, resilience ratio, p95 latency and cost per task are reported", "Evaluation report"], ["Run 20 injection payloads", "Attack success rate is reported and every success has a mitigation entry", "Test report and threat model"], ["Kill the worker during a run", "The workflow resumes without duplicate side effects and the audit trail has one entry per action", "Workflow history and audit log"]],
+          "objectives": ["Design a governed multi-agent platform end to end", "Evaluate resilience, safety and cost with evidence", "Defend the design in a formal review"]
+        }
+      ]
+    }
+  }
+}

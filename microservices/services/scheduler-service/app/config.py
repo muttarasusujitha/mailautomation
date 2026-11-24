@@ -1,0 +1,46 @@
+from pydantic_settings import BaseSettings
+from functools import lru_cache
+from typing import List
+
+
+class Settings(BaseSettings):
+    SERVICE_NAME: str = "scheduler-service"
+    HOST: str = "0.0.0.0"
+    PORT: int = 8007
+    DEBUG: bool = False
+
+    MONGODB_URL: str = "mongodb://127.0.0.1:27017"
+    MONGODB_DB_NAME: str = "trainersync"
+
+    # Redis / Celery broker
+    REDIS_URL: str = "redis://127.0.0.1:6379"
+    CELERY_BROKER_URL: str = "redis://127.0.0.1:6379/0"
+    CELERY_RESULT_BACKEND: str = "redis://127.0.0.1:6379/1"
+
+    # Internal service URLs (for HTTP calls between services)
+    EMAIL_SERVICE_URL: str = "http://email-service:8002"
+    TRAINER_SERVICE_URL: str = "http://trainer-service:8004"
+    NOTIFICATION_SERVICE_URL: str = "http://notification-service:8003"
+    CORE_API_URL: str = "http://core-api:8001"
+    INTERNAL_SERVICE_TOKEN: str = ""
+    # Internal Clahan coordinator who should receive every 10-minute meeting notice.
+    CLAHAN_NOTIFICATION_EMAIL: str = "sujithaofficial784@gmail.com"
+    INTERVIEW_NO_SHOW_MINUTES_AFTER: int = 10
+
+    # Reminder lead-time in hours
+    INTERVIEW_REMINDER_HOURS_BEFORE: int = 1
+
+    ALLOWED_ORIGINS: str = "http://localhost:5174,http://127.0.0.1:5174,https://localhost:3000"
+
+    @property
+    def allowed_origins_list(self) -> List[str]:
+        return [o.strip() for o in self.ALLOWED_ORIGINS.split(",")]
+
+    class Config:
+        env_file = ".env"
+        extra = "allow"
+
+
+@lru_cache()
+def get_settings() -> Settings:
+    return Settings()

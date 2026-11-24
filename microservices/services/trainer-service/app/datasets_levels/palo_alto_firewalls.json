@@ -1,0 +1,573 @@
+{
+  "domain": "Palo Alto Firewalls",
+  "name": "Palo Alto Networks Next-Generation Firewalls",
+  "category": "Networking",
+  "icon": "shield",
+  "aliases": ["Palo Alto", "Palo Alto Networks", "Palo Alto Firewall", "Palo Alto NGFW", "PAN-OS", "Palo Alto Panorama", "Strata Cloud Manager", "GlobalProtect", "Prisma Access", "PCNSE", "PCNSA", "NGFW Engineer", "Palo Alto Firewall Training"],
+  "certifications": ["Palo Alto Networks Certified Network Security Professional", "Palo Alto Networks Certified Next-Generation Firewall Engineer (replaced PCNSE, which retired in July 2025)"],
+  "tools": ["PAN-OS firewalls (PA-Series or VM-Series)", "Panorama", "Strata Cloud Manager", "GlobalProtect", "Prisma Access", "Cloud NGFW", "PAN-OS XML and REST APIs", "Terraform and Ansible for PAN-OS"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For network and security engineers who are starting with Palo Alto Networks next-generation firewalls. Covers single-pass architecture with App-ID, User-ID and Content-ID, a VM-Series lab, initial configuration, interfaces and zones, logical routers, security and NAT policies, App-ID and Policy Optimizer, User-ID with the Cloud Identity Engine, security profiles, Advanced URL Filtering, WildFire and Advanced Threat Prevention, DNS Security, decryption, GlobalProtect, site-to-site VPNs, logging, high availability and traffic troubleshooting.",
+      "prerequisites": ["Understands IP addressing, routing and TCP and UDP ports", "Has configured a router, switch or firewall before", "Comfortable with a command line"],
+      "outcomes": ["Configure interfaces, zones, routing, security and NAT policies on PAN-OS", "Control applications, users and content with App-ID, User-ID and security profiles", "Set up decryption, GlobalProtect and site-to-site VPNs", "Monitor, run high availability and troubleshoot traffic"],
+      "days": [
+        {
+          "topic": "Palo Alto NGFW Overview: Single-Pass Architecture, App-ID, User-ID and Content-ID",
+          "subtopics": ["What makes a next-generation firewall", "Single-pass parallel processing", "App-ID, User-ID, Content-ID and Device-ID", "Hardware, virtual, container and cloud firewalls", "Management with Panorama and Strata Cloud Manager", "Cloud-delivered security services", "Network security platform and SASE", "Packet flow at a high level", "Certifications: Network Security Professional and NGFW Engineer", "Course project overview: a branch office and a head office"],
+          "tools": ["PAN-OS web interface", "Palo Alto Networks documentation", "Course network diagram"],
+          "lab_task": "Tour a PAN-OS firewall's dashboard, monitor tab and policies, trace one session in the traffic log and draw how App-ID, User-ID and Content-ID act on it.",
+          "deliverable": "Annotated packet flow for one session",
+          "checks": [["Find", "One session is found in the traffic log", "Log screenshot"], ["Explain", "Each identification step is shown on the flow", "Annotated diagram"], ["Compare", "Firewall form factors are matched to course sites", "Notes"]],
+          "objectives": ["Describe NGFW architecture", "Navigate PAN-OS", "Explain App-ID, User-ID and Content-ID"]
+        },
+        {
+          "topic": "Lab Setup: VM-Series Firewall, Management Access and Licences",
+          "subtopics": ["Deploying a VM-Series firewall in a lab", "Management interface and first login", "Changing default credentials", "Licences, authorisation codes and subscriptions", "Dynamic updates for content", "Configuration commits and candidate configuration", "Saving and loading configuration snapshots", "Lab topology with inside, outside and DMZ networks", "Admin accounts and roles", "Checking the lab is ready"],
+          "tools": ["VM-Series firewall", "Hypervisor or cloud lab", "PAN-OS web interface and CLI"],
+          "lab_task": "Deploy a VM-Series firewall, secure the admin account, license it, install content updates, build the lab topology and save a named configuration snapshot.",
+          "deliverable": "Licensed lab firewall with a saved snapshot",
+          "checks": [["Access", "The firewall is reachable on its management interface with new credentials", "Login test"], ["License", "Licences and content updates are active", "License and dynamic updates pages"], ["Save", "A named configuration snapshot exists", "Saved configuration list"]],
+          "objectives": ["Deploy a lab firewall", "Manage licences and updates", "Work with commits and snapshots"]
+        },
+        {
+          "topic": "Initial Configuration: Management Settings, DNS, NTP and Updates",
+          "subtopics": ["Hostname and domain settings", "Management interface services and permitted IPs", "DNS and NTP servers", "Service routes", "Scheduled dynamic updates", "Admin roles and password profiles", "Login banners", "Configuration audit and commit descriptions"],
+          "tools": ["PAN-OS web interface", "PAN-OS CLI", "Dynamic updates"],
+          "lab_task": "Configure DNS, NTP, service routes and scheduled updates, restrict management access to an admin subnet and create a read-only admin role.",
+          "deliverable": "Hardened base configuration",
+          "checks": [["Sync", "The firewall keeps correct time and resolves names", "Device status"], ["Restrict", "Management access works only from the admin subnet", "Access test"], ["Limit", "The read-only admin cannot commit", "Role test"]],
+          "objectives": ["Set base configuration", "Restrict management access", "Schedule updates"]
+        },
+        {
+          "topic": "Interfaces and Zones: Layer 3, Layer 2, Virtual Wire and Tap",
+          "subtopics": ["Security zones", "Layer 3 interfaces and subinterfaces", "Layer 2 interfaces and VLANs", "Virtual wire deployments", "Tap mode", "Interface management profiles", "Aggregate interfaces", "Choosing a deployment mode"],
+          "tools": ["PAN-OS network settings", "Lab switches"],
+          "lab_task": "Configure inside, outside and DMZ zones on Layer 3 interfaces, add a VLAN subinterface, place a virtual wire pair in front of a test network and allow ping only where needed.",
+          "deliverable": "Interfaces and zones for the lab",
+          "checks": [["Assign", "Each interface belongs to the right zone", "Interface table"], ["Pass", "Traffic crosses the virtual wire", "Traffic log"], ["Restrict", "Ping works only on interfaces with the profile", "Ping tests"]],
+          "objectives": ["Configure interfaces", "Design zones", "Choose deployment modes"]
+        },
+        {
+          "topic": "Logical Routers: Static Routes, Route Tables and Dynamic Routing",
+          "subtopics": ["Legacy virtual routers and the advanced routing engine", "Logical routers", "Static routes and route monitoring", "Default routes and route preference", "OSPF on the firewall", "BGP on the firewall", "Equal-cost multipath", "Checking the forwarding table"],
+          "tools": ["PAN-OS routing", "PAN-OS CLI", "Lab routers"],
+          "lab_task": "Add static routes with path monitoring, run OSPF with the inside router and BGP with the outside router, and check routes in the forwarding table.",
+          "deliverable": "Routed lab with dynamic routing",
+          "checks": [["Route", "Static routes fail over with path monitoring", "Route table before and after"], ["Peer", "OSPF and BGP neighbours are up", "Routing status"], ["Forward", "The forwarding table shows the expected next hops", "CLI output"]],
+          "objectives": ["Configure routing on PAN-OS", "Use path monitoring", "Run OSPF and BGP"]
+        },
+        {
+          "topic": "Security Policies: Rule Order, Zones, Applications and Services",
+          "subtopics": ["How security rules are matched", "Intrazone and interzone defaults", "Source, destination, user and application", "application-default service", "Allow, deny and drop actions", "Rule usage and hit counts", "Tags and rule descriptions", "Testing policies with the policy match tool"],
+          "tools": ["PAN-OS policies", "Policy match test", "Traffic log"],
+          "lab_task": "Write rules that let inside users browse with application-default, let the DMZ web server receive web traffic and block everything else, then test them with the policy match tool.",
+          "deliverable": "Ordered security rulebase with tests",
+          "checks": [["Allow", "Permitted traffic matches the intended rules", "Traffic log"], ["Block", "Other traffic hits the deny rule", "Traffic log"], ["Test", "Policy match tests return the expected rules", "Test output"]],
+          "objectives": ["Write security policies", "Use application-default", "Test rule matching"]
+        },
+        {
+          "topic": "App-ID in Practice: Application Signatures, Dependencies and Policy Optimizer",
+          "subtopics": ["How App-ID identifies applications", "Application dependencies", "Application groups and filters", "Unknown applications", "Custom applications", "App-ID changes in content updates", "Policy Optimizer for port-based rules", "Moving from port-based to application-based rules"],
+          "tools": ["App-ID", "Policy Optimizer", "Application command center"],
+          "lab_task": "Convert two port-based rules to App-ID rules with Policy Optimizer, add dependencies, write a custom application for an internal app and review unknown traffic.",
+          "deliverable": "Application-based rules and a custom application",
+          "checks": [["Convert", "Port-based rules become application rules with no outage", "Traffic log"], ["Identify", "The internal app is identified by the custom App-ID", "Traffic log"], ["Review", "Unknown traffic is investigated", "Notes"]],
+          "objectives": ["Use App-ID", "Migrate from port-based rules", "Handle unknown traffic"]
+        },
+        {
+          "topic": "NAT Policies: Source NAT, Destination NAT and U-Turn NAT",
+          "subtopics": ["NAT and security policy order", "Dynamic IP and port source NAT", "Static and bidirectional NAT", "Destination NAT with port translation", "U-turn NAT", "NAT pools", "NAT rule testing", "Common NAT mistakes"],
+          "tools": ["PAN-OS NAT policies", "NAT policy match test", "Session browser"],
+          "lab_task": "Configure source NAT for inside users, destination NAT for the DMZ web server and U-turn NAT so inside users can reach it by its public address.",
+          "deliverable": "NAT rules with tests",
+          "checks": [["Translate", "Inside users reach the internet through source NAT", "Session details"], ["Publish", "The web server is reachable from outside", "External test"], ["Turn", "Inside users reach the server by its public address", "Session details"]],
+          "objectives": ["Configure NAT", "Combine NAT and security rules", "Fix NAT problems"]
+        },
+        {
+          "topic": "User-ID: Group Mapping, Cloud Identity Engine and Authentication Policy",
+          "subtopics": ["Why user-based policy matters", "User-ID sources: agents, syslog and APIs", "Group mapping", "Cloud Identity Engine", "Captive portal and authentication policy", "Multi-factor authentication for sensitive apps", "User-ID logs", "Troubleshooting user mapping"],
+          "tools": ["User-ID", "Cloud Identity Engine", "Authentication policy"],
+          "lab_task": "Map users from the directory through the Cloud Identity Engine, write rules for two groups and require MFA for access to the finance app.",
+          "deliverable": "User-based rules with MFA",
+          "checks": [["Map", "Users and groups appear on the firewall", "User-ID mappings"], ["Allow", "Group rules allow only the right users", "Traffic log with users"], ["Challenge", "Finance access asks for MFA", "Authentication log"]],
+          "objectives": ["Use User-ID", "Map groups", "Require MFA for sensitive apps"]
+        },
+        {
+          "topic": "Content-ID: Antivirus, Anti-Spyware, Vulnerability Protection and Security Profiles",
+          "subtopics": ["Security profiles and profile groups", "Antivirus profiles", "Anti-spyware profiles", "Vulnerability protection profiles", "File blocking and data filtering", "Best practice profiles", "Applying profiles to rules", "Threat logs"],
+          "tools": ["Security profiles", "Threat log", "Profile groups"],
+          "lab_task": "Build a best-practice profile group, apply it to internet rules and trigger test threats such as the EICAR file and a test exploit to see them blocked.",
+          "deliverable": "Profile group with threat test results",
+          "checks": [["Apply", "Internet rules use the profile group", "Policy view"], ["Block", "Test threats are blocked", "Threat log"], ["Filter", "A blocked file type cannot be uploaded", "Data filtering log"]],
+          "objectives": ["Use security profiles", "Block threats", "Read threat logs"]
+        },
+        {
+          "topic": "URL Filtering and Advanced URL Filtering",
+          "subtopics": ["URL categories", "URL filtering profiles", "Inline categorisation of new sites", "Custom URL categories", "User credential theft prevention", "Safe search enforcement", "Continue and override pages", "URL logs"],
+          "tools": ["Advanced URL Filtering", "URL filtering profiles", "URL log"],
+          "lab_task": "Block risky categories, add a custom allow list, stop users submitting corporate credentials to unknown sites and check the URL logs.",
+          "deliverable": "URL filtering setup with tests",
+          "checks": [["Block", "Risky categories are blocked", "URL log"], ["Allow", "The custom list overrides a category", "URL log"], ["Protect", "Credential submission to unknown sites is blocked", "Threat log"]],
+          "objectives": ["Filter web access", "Prevent credential theft", "Read URL logs"]
+        },
+        {
+          "topic": "WildFire and Advanced Threat Prevention",
+          "subtopics": ["WildFire analysis of unknown files", "Verdicts and signatures", "Inline machine learning", "Advanced Threat Prevention for command and control", "Zero-day protection", "WildFire submissions logs", "Forwarding settings", "Testing with sample files"],
+          "tools": ["Advanced WildFire", "Advanced Threat Prevention", "WildFire submissions log"],
+          "lab_task": "Turn on WildFire forwarding and inline machine learning, submit a test file, review its verdict and block a simulated command-and-control connection.",
+          "deliverable": "WildFire and threat prevention evidence",
+          "checks": [["Submit", "The test file is analysed with a verdict", "WildFire log"], ["Block", "The simulated command-and-control traffic is blocked", "Threat log"], ["Inline", "Inline machine learning is active on the profiles", "Profile settings"]],
+          "objectives": ["Analyse unknown files", "Block command and control", "Use inline machine learning"]
+        },
+        {
+          "topic": "DNS Security and Sinkholing",
+          "subtopics": ["DNS as an attack channel", "DNS Security categories", "DNS sinkholing", "Finding infected hosts from sinkhole traffic", "DNS tunnelling detection", "DNS over HTTPS handling", "Logs for DNS threats", "Working with internal DNS servers"],
+          "tools": ["Advanced DNS Security", "Anti-spyware profiles", "Threat log"],
+          "lab_task": "Enable DNS Security with sinkholing, resolve a test malicious domain and use the sinkhole traffic to find the infected host.",
+          "deliverable": "DNS security setup with an infected host found",
+          "checks": [["Sinkhole", "The malicious domain resolves to the sinkhole", "DNS log"], ["Find", "The infected host is identified", "Traffic log"], ["Detect", "A tunnelling test is flagged", "Threat log"]],
+          "objectives": ["Protect DNS", "Use sinkholing", "Find infected hosts"]
+        },
+        {
+          "topic": "SSL/TLS Decryption: Forward Proxy, Inbound Inspection and Exclusions",
+          "subtopics": ["Why decryption matters", "SSL forward proxy", "SSL inbound inspection", "Certificates and trust", "Decryption profiles", "Decryption exclusions for privacy and pinned apps", "TLS 1.3 considerations", "Decryption logs"],
+          "tools": ["Decryption policy", "Certificate management", "Decryption log"],
+          "lab_task": "Decrypt outbound web traffic with a trusted forward proxy certificate, exclude banking and health sites, inspect inbound traffic to the DMZ server and review the decryption log.",
+          "deliverable": "Decryption policy with exclusions",
+          "checks": [["Decrypt", "Outbound sessions are decrypted and inspected", "Decryption log"], ["Exclude", "Excluded categories are not decrypted", "Decryption log"], ["Inspect", "Inbound traffic to the server is inspected", "Threat log"]],
+          "objectives": ["Configure decryption", "Respect privacy exclusions", "Inspect inbound traffic"]
+        },
+        {
+          "topic": "GlobalProtect Remote Access VPN",
+          "subtopics": ["GlobalProtect portal and gateways", "Agent and clientless access", "Authentication for GlobalProtect", "Split tunnelling", "Host information profile checks", "Always-on connections", "GlobalProtect logs", "User experience and troubleshooting"],
+          "tools": ["GlobalProtect", "Authentication profiles", "GlobalProtect log"],
+          "lab_task": "Set up a GlobalProtect portal and gateway with MFA, split tunnelling for SaaS and a HIP check that requires disk encryption, then connect a test laptop.",
+          "deliverable": "Working remote access VPN",
+          "checks": [["Connect", "The test laptop connects with MFA", "GlobalProtect log"], ["Split", "SaaS traffic leaves directly while internal traffic uses the tunnel", "Route table on the client"], ["Check", "A device without encryption is restricted", "HIP report"]],
+          "objectives": ["Deploy GlobalProtect", "Use HIP checks", "Configure split tunnelling"]
+        },
+        {
+          "topic": "Site-to-Site IPsec VPNs",
+          "subtopics": ["IKE and IPsec basics", "IKE gateways and crypto profiles", "Tunnel interfaces", "Route-based VPNs", "Proxy IDs for policy-based peers", "Tunnel monitoring", "VPNs to cloud providers", "Troubleshooting tunnels"],
+          "tools": ["IPsec tunnels", "IKE gateways", "System log"],
+          "lab_task": "Build an IPsec tunnel from the branch to the head office firewall, route traffic through it, add tunnel monitoring and fix a seeded crypto mismatch.",
+          "deliverable": "Working site-to-site VPN",
+          "checks": [["Establish", "IKE and IPsec security associations are up", "Tunnel status"], ["Route", "Branch traffic uses the tunnel", "Traffic log"], ["Fix", "The crypto mismatch is found and fixed", "System log before and after"]],
+          "objectives": ["Build IPsec VPNs", "Route through tunnels", "Troubleshoot VPNs"]
+        },
+        {
+          "topic": "Logging, Monitoring and Reports: Traffic, Threat and Unified Logs",
+          "subtopics": ["Log types", "Log filters", "Unified logs", "Application command center", "Reports and custom reports", "Log forwarding profiles", "Log storage", "Alerts by email and syslog"],
+          "tools": ["Monitor tab", "Application command center", "Log forwarding"],
+          "lab_task": "Filter logs to answer three questions about a user, build a weekly custom report and forward threat logs to a syslog server.",
+          "deliverable": "Saved filters, a report and log forwarding",
+          "checks": [["Filter", "Log filters answer the questions", "Saved filters"], ["Report", "The weekly report runs", "Report output"], ["Forward", "Threat logs reach the syslog server", "Syslog entries"]],
+          "objectives": ["Read firewall logs", "Build reports", "Forward logs"]
+        },
+        {
+          "topic": "High Availability: Active/Passive Pairs and Failover",
+          "subtopics": ["HA modes", "HA links: control and data", "Configuration and session sync", "Link and path monitoring", "Preemption", "Failover testing", "Upgrading an HA pair", "HA troubleshooting basics"],
+          "tools": ["High availability settings", "HA dashboard widget", "PAN-OS CLI"],
+          "lab_task": "Build an active/passive pair, sync configuration and sessions, add link monitoring, fail over during a file download and confirm the session survives.",
+          "deliverable": "Working HA pair with a failover test",
+          "checks": [["Sync", "Configuration and sessions sync between peers", "HA status"], ["Fail over", "Link failure triggers failover", "System log"], ["Survive", "The download continues after failover", "Client test"]],
+          "objectives": ["Configure high availability", "Test failover", "Keep sessions alive"]
+        },
+        {
+          "topic": "Troubleshooting Traffic: Packet Captures, Session Browser and CLI",
+          "subtopics": ["A method for traffic problems", "Traffic logs and session end reasons", "The session browser", "Packet captures with filters", "Counters with show counter global", "Policy and NAT match tests", "Flow basic debugging", "Writing up the fix"],
+          "tools": ["Packet capture", "Session browser", "PAN-OS CLI"],
+          "lab_task": "Diagnose four seeded problems, a wrong rule order, a NAT error, a routing gap and an App-ID block, with captures and counters, fix them and record the steps.",
+          "deliverable": "Fixes and troubleshooting notes",
+          "checks": [["Diagnose", "Each problem's cause is confirmed", "Notes"], ["Fix", "Traffic flows after each fix", "Traffic log"], ["Prove", "Captures or counters back each diagnosis", "Capture files and counters"]],
+          "objectives": ["Troubleshoot firewall traffic", "Use captures and counters", "Document fixes"]
+        },
+        {
+          "topic": "Beginner Capstone: Secure Internet Edge for a Branch Office",
+          "subtopics": ["Interfaces, zones, routing and NAT", "Application and user rules with profiles", "Decryption and GlobalProtect", "VPN to head office, HA and logging"],
+          "tools": ["PAN-OS firewall", "GlobalProtect", "IPsec", "Log forwarding"],
+          "lab_task": "Deliver a secure internet edge for the branch with zones, routing, NAT, App-ID and User-ID rules with profiles, decryption, GlobalProtect, a VPN to head office, an HA pair and log forwarding.",
+          "deliverable": "Working branch edge with a demo",
+          "checks": [["Protect", "Test threats are blocked on every path", "Threat log"], ["Connect", "Remote users and the branch reach head office", "VPN logs"], ["Survive", "The edge keeps working after a failover", "HA test record"]],
+          "objectives": ["Combine beginner firewall skills", "Deliver a branch edge", "Prove protection and resilience"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For firewall administrators and engineers who run several Palo Alto firewalls, aligned with the NGFW Engineer certification. Covers Panorama device groups and templates, Strata Cloud Manager, rulebase design at scale, advanced routing and policy-based forwarding, decryption at scale, Zero Trust segmentation, identity at scale, GlobalProtect in depth, Prisma Access, Prisma SD-WAN branches, threat prevention tuning, VM-Series and Cloud NGFW, CN-Series, APIs and Terraform, Ansible, log forwarding and SIEM integration, AIOps and best practice assessments, upgrades and exam preparation.",
+      "prerequisites": ["Has configured PAN-OS interfaces, policies, NAT, profiles and VPNs", "Understands routing protocols and certificates", "Manages or supports production firewalls"],
+      "outcomes": ["Manage many firewalls with Panorama or Strata Cloud Manager", "Design rulebases, segmentation, decryption and identity policy at scale", "Secure remote users, branches, clouds and Kubernetes with Palo Alto products", "Automate, monitor, upgrade and prepare for the NGFW Engineer exam"],
+      "days": [
+        {
+          "topic": "Panorama: Device Groups, Templates and Template Stacks",
+          "subtopics": ["Panorama roles and deployment", "Adding managed firewalls", "Device groups and hierarchy", "Pre-rules, post-rules and local rules", "Templates and template stacks", "Template variables", "Pushing configuration", "Panorama log collectors"],
+          "tools": ["Panorama", "Managed firewalls", "Template stacks"],
+          "lab_task": "Bring two firewalls under Panorama, build a device group hierarchy and template stack with variables, push shared rules and settings and confirm local overrides.",
+          "deliverable": "Panorama-managed firewalls",
+          "checks": [["Manage", "Both firewalls are connected and in sync", "Managed devices page"], ["Push", "Shared rules and settings reach both firewalls", "Push status"], ["Vary", "Template variables give each site its own values", "Firewall configuration"]],
+          "objectives": ["Manage firewalls with Panorama", "Use device groups and templates", "Push configuration safely"]
+        },
+        {
+          "topic": "Strata Cloud Manager: Cloud Management, Folders and Snippets",
+          "subtopics": ["Strata Cloud Manager for NGFWs and Prisma Access", "Folders and configuration scope", "Snippets for reusable configuration", "Onboarding firewalls", "Configuration push and versions", "Command center and dashboards", "Moving from Panorama", "Roles and access"],
+          "tools": ["Strata Cloud Manager", "Snippets", "Managed firewalls"],
+          "lab_task": "Onboard a firewall to Strata Cloud Manager, build folders and a snippet for standard profiles, push it and compare the workflow with Panorama.",
+          "deliverable": "Cloud-managed firewall and a comparison",
+          "checks": [["Onboard", "The firewall reports to Strata Cloud Manager", "Device list"], ["Reuse", "The snippet applies the standard profiles", "Configuration view"], ["Compare", "Panorama and Strata Cloud Manager are compared for the course company", "Comparison notes"]],
+          "objectives": ["Use Strata Cloud Manager", "Reuse configuration with snippets", "Choose a management model"]
+        },
+        {
+          "topic": "Rulebase Design at Scale: Structure, Tags and Policy Optimizer",
+          "subtopics": ["Rulebase sections and ordering", "Tags and naming standards", "Shared objects and address groups", "Dynamic address groups", "External dynamic lists", "Rule usage and unused rules", "Policy Optimizer at scale", "Documenting rule intent"],
+          "tools": ["Panorama", "Policy Optimizer", "External dynamic lists"],
+          "lab_task": "Restructure a messy 150-rule rulebase into tagged sections with dynamic address groups and external dynamic lists, remove unused rules and record the intent of each section.",
+          "deliverable": "Restructured rulebase with clean-up record",
+          "checks": [["Structure", "Rules are grouped and tagged by section", "Policy view"], ["Clean", "Unused rules are removed after review", "Clean-up record"], ["Automate", "Dynamic groups update without rule changes", "Address group membership"]],
+          "objectives": ["Design large rulebases", "Use dynamic objects", "Clean up rules safely"]
+        },
+        {
+          "topic": "Advanced Routing: BGP Policies, Redistribution and Policy-Based Forwarding",
+          "subtopics": ["BGP route maps and filters", "Route redistribution", "BFD for fast failure detection", "Policy-based forwarding", "Symmetric return", "ECMP for multiple uplinks", "Routing with several ISPs", "Routing troubleshooting"],
+          "tools": ["Advanced routing engine", "Policy-based forwarding", "PAN-OS CLI"],
+          "lab_task": "Connect two ISPs with BGP and BFD, prefer one with route maps, send one application out the second ISP with policy-based forwarding and test failover.",
+          "deliverable": "Dual-ISP routing with tests",
+          "checks": [["Prefer", "The preferred ISP carries traffic", "Route table"], ["Steer", "The chosen application uses the second ISP", "Traffic log"], ["Fail over", "BFD triggers fast failover", "Routing logs"]],
+          "objectives": ["Use advanced routing", "Steer traffic by policy", "Fail over quickly"]
+        },
+        {
+          "topic": "Decryption at Scale: Certificates, Hardware Security Modules and Exceptions",
+          "subtopics": ["Certificate chains for decryption", "Hardware security modules", "Decryption exclusions and exceptions", "Decryption broker", "Performance impact of decryption", "Measuring decryption coverage", "Handling decryption failures", "User communication about decryption"],
+          "tools": ["Decryption policy", "Certificate management", "Decryption log"],
+          "lab_task": "Raise decryption coverage across a site with staged rules, handle failing pinned applications with exceptions and report coverage and performance impact.",
+          "deliverable": "Decryption rollout with coverage report",
+          "checks": [["Stage", "Decryption coverage rises without user complaints", "Coverage report"], ["Except", "Pinned applications work through exceptions", "Decryption log"], ["Measure", "Performance impact is recorded", "Resource monitor data"]],
+          "objectives": ["Roll out decryption at scale", "Handle decryption failures", "Measure coverage"]
+        },
+        {
+          "topic": "Zero Trust Segmentation with Zones, App-ID and Device-ID",
+          "subtopics": ["Zero Trust principles for networks", "Protect surfaces and transaction flows", "Segmenting with zones and App-ID", "Device-ID for IoT and unmanaged devices", "Least-privilege rules", "Learning mode with logs", "Stepwise enforcement", "Measuring segmentation"],
+          "tools": ["App-ID", "Device-ID", "Traffic log analysis"],
+          "lab_task": "Map flows to a protect surface from logs, write least-privilege rules with App-ID and Device-ID, enforce them in stages and show blocked lateral movement.",
+          "deliverable": "Segmented protect surface",
+          "checks": [["Map", "Required flows are listed from logs", "Flow map"], ["Enforce", "Only listed flows are allowed", "Traffic log"], ["Block", "A lateral movement test is blocked", "Threat or traffic log"]],
+          "objectives": ["Apply Zero Trust segmentation", "Use Device-ID", "Enforce least privilege"]
+        },
+        {
+          "topic": "Identity-Based Policy at Scale: Cloud Identity Engine and SAML Authentication",
+          "subtopics": ["Cloud Identity Engine at scale", "Several directories and identity providers", "SAML authentication for admins and users", "Redistributing user mappings", "Dynamic user groups", "Identity for remote and cloud users", "Identity logs and troubleshooting", "Identity in Zero Trust rules"],
+          "tools": ["Cloud Identity Engine", "SAML identity provider", "Dynamic user groups"],
+          "lab_task": "Connect two directories through the Cloud Identity Engine, use SAML for admin login, redistribute mappings to all firewalls and quarantine a user with a dynamic user group.",
+          "deliverable": "Identity setup across firewalls",
+          "checks": [["Map", "Users from both directories are mapped everywhere", "User-ID status"], ["Sign in", "Admins log in with SAML", "Admin log"], ["Quarantine", "The tagged user is restricted at once", "Traffic log"]],
+          "objectives": ["Run identity-based policy at scale", "Redistribute mappings", "Quarantine users quickly"]
+        },
+        {
+          "topic": "GlobalProtect in Depth: Gateways, HIP Checks and Always-On Access",
+          "subtopics": ["Several gateways and gateway selection", "Internal host detection", "Always-on and pre-logon", "HIP objects and profiles", "Certificate-based authentication", "GlobalProtect for Linux and mobile devices", "Scaling GlobalProtect", "User experience monitoring"],
+          "tools": ["GlobalProtect", "HIP objects", "Certificate authority"],
+          "lab_task": "Add a second gateway with best-gateway selection, internal host detection, pre-logon with machine certificates and HIP-based rules for unmanaged devices.",
+          "deliverable": "Production-grade GlobalProtect design",
+          "checks": [["Select", "Clients pick the best gateway", "GlobalProtect log"], ["Detect", "Clients inside the office skip the tunnel", "Client status"], ["Restrict", "Unmanaged devices get limited access", "Traffic log"]],
+          "objectives": ["Scale GlobalProtect", "Use HIP-based policy", "Configure always-on access"]
+        },
+        {
+          "topic": "Prisma Access: Mobile Users and Remote Networks",
+          "subtopics": ["Prisma Access as cloud-delivered security", "Mobile user deployments", "Remote network connections", "Service connections to data centres", "Policy in Strata Cloud Manager", "Locations and capacity", "Logging with Strata Logging Service", "Moving from on-premises GlobalProtect"],
+          "tools": ["Prisma Access", "Strata Cloud Manager", "Strata Logging Service"],
+          "lab_task": "Onboard mobile users and one remote network to Prisma Access, connect the data centre through a service connection and apply the same policy as on-premises.",
+          "deliverable": "Working Prisma Access setup",
+          "checks": [["Connect", "Mobile users and the remote network reach the internet through Prisma Access", "Traffic logs"], ["Reach", "Users reach data centre apps through the service connection", "Access test"], ["Match", "Policy matches the on-premises rules", "Policy comparison"]],
+          "objectives": ["Deploy Prisma Access", "Connect sites and users", "Keep policy consistent"]
+        },
+        {
+          "topic": "Branch Security with Prisma SD-WAN and ION Devices",
+          "subtopics": ["Prisma SD-WAN and ION devices", "Application-defined policy", "Branch internet breakout", "Combining SD-WAN with Prisma Access", "Path selection by application", "Branch high availability", "Branch monitoring", "When to use NGFW or ION at a branch"],
+          "tools": ["Prisma SD-WAN", "ION devices", "Prisma Access"],
+          "lab_task": "Connect a branch with an ION device, steer SaaS traffic through Prisma Access and keep voice on the best path, then compare it with an NGFW-based branch.",
+          "deliverable": "SD-WAN branch with a comparison",
+          "checks": [["Connect", "The branch comes up through the ION device", "Device status"], ["Steer", "SaaS and voice take their chosen paths", "Flow records"], ["Compare", "ION and NGFW branches are compared", "Comparison notes"]],
+          "objectives": ["Secure branches with SD-WAN", "Steer traffic by application", "Choose branch designs"]
+        },
+        {
+          "topic": "Threat Prevention Tuning: Profiles, Exceptions and False Positives",
+          "subtopics": ["Reading threat logs at scale", "Severity and action tuning", "Threat exceptions", "Packet captures on threats", "Vulnerability protection for servers", "Testing tuning changes", "Reporting threat trends", "Avoiding over-tuning"],
+          "tools": ["Security profiles", "Threat log", "Packet captures"],
+          "lab_task": "Review a week of seeded threat logs, tune two noisy signatures with exceptions, tighten server protection and report threat trends.",
+          "deliverable": "Tuned profiles and a threat report",
+          "checks": [["Review", "Noisy signatures are identified", "Threat analysis"], ["Tune", "Exceptions remove false positives without opening gaps", "Test results"], ["Report", "Threat trends are reported", "Threat report"]],
+          "objectives": ["Tune threat prevention", "Handle false positives", "Report threats"]
+        },
+        {
+          "topic": "VM-Series and Cloud NGFW in AWS and Azure",
+          "subtopics": ["VM-Series in public clouds", "Cloud NGFW for AWS and Azure", "Inbound, outbound and east-west designs", "Transit gateway and virtual WAN hubs", "Auto scaling", "Licensing in the cloud", "Panorama or Strata Cloud Manager for cloud firewalls", "Cloud tags in policy"],
+          "tools": ["VM-Series", "Cloud NGFW", "AWS or Azure"],
+          "lab_task": "Deploy Cloud NGFW in front of a cloud application, inspect inbound and outbound traffic, use cloud tags in rules and compare it with a VM-Series design.",
+          "deliverable": "Cloud firewall deployment with a comparison",
+          "checks": [["Inspect", "Inbound and outbound traffic is inspected", "Cloud firewall logs"], ["Tag", "Rules use cloud tags", "Policy view"], ["Compare", "Cloud NGFW and VM-Series are compared", "Comparison notes"]],
+          "objectives": ["Secure cloud traffic", "Use Cloud NGFW", "Choose cloud firewall designs"]
+        },
+        {
+          "topic": "CN-Series Firewalls for Kubernetes",
+          "subtopics": ["Container firewall concepts", "CN-Series architecture", "Deploying CN-Series with Helm", "Inspecting pod traffic", "Kubernetes labels in policy", "Management with Panorama", "Performance and scaling", "When to use CN-Series"],
+          "tools": ["CN-Series", "Kubernetes", "Panorama"],
+          "lab_task": "Deploy CN-Series on a cluster, inspect traffic between two namespaces, write rules with Kubernetes labels and block a test exploit between pods.",
+          "deliverable": "Inspected Kubernetes traffic",
+          "checks": [["Deploy", "CN-Series runs and reports to Panorama", "Panorama status"], ["Label", "Rules match pods by label", "Traffic log"], ["Block", "The test exploit between pods is blocked", "Threat log"]],
+          "objectives": ["Secure Kubernetes traffic", "Use labels in policy", "Run CN-Series"]
+        },
+        {
+          "topic": "Automation with the PAN-OS XML API, REST API and Terraform",
+          "subtopics": ["PAN-OS XML API", "PAN-OS REST API", "API keys and roles", "The Terraform provider for PAN-OS", "Panorama and Strata Cloud Manager APIs", "Commit and push from automation", "Testing changes before commit", "Change records for automation"],
+          "tools": ["PAN-OS APIs", "Terraform", "Python"],
+          "lab_task": "Create address objects and a rule through the REST API, manage a rule section with Terraform and commit only after a validation step.",
+          "deliverable": "API scripts and Terraform code",
+          "checks": [["Call", "API calls create the objects", "API responses"], ["Manage", "Terraform plans and applies the rule section", "Plan and apply output"], ["Validate", "Invalid changes are stopped before commit", "Validation log"]],
+          "objectives": ["Automate PAN-OS", "Use Terraform", "Validate before commit"]
+        },
+        {
+          "topic": "Ansible for PAN-OS Operations",
+          "subtopics": ["The Palo Alto Networks Ansible collection", "Inventory of firewalls", "Playbooks for objects and rules", "Software and content upgrades with Ansible", "Backups with Ansible", "Idempotency checks", "Secrets in playbooks", "Scheduling playbooks"],
+          "tools": ["Ansible", "paloaltonetworks.panos collection", "Firewall inventory"],
+          "lab_task": "Write playbooks that back up all firewalls, add a standard rule set and upgrade content, run them twice to show no changes and store secrets safely.",
+          "deliverable": "Ansible playbooks with run evidence",
+          "checks": [["Back up", "Configuration backups are saved", "Backup files"], ["Repeat", "The second run reports no changes", "Playbook output"], ["Secure", "Secrets are stored in a vault", "Vault file"]],
+          "objectives": ["Automate with Ansible", "Keep playbooks idempotent", "Protect secrets"]
+        },
+        {
+          "topic": "Log Forwarding: Syslog, Strata Logging Service and SIEM Integration",
+          "subtopics": ["Log forwarding profiles", "Syslog formats", "Strata Logging Service", "Sending logs to a SIEM", "Log volume planning", "Correlation and automated responses", "Retention requirements", "Monitoring log delivery"],
+          "tools": ["Log forwarding", "Strata Logging Service", "SIEM"],
+          "lab_task": "Forward traffic and threat logs to a SIEM in a parsed format, send logs to Strata Logging Service and build a SIEM alert that tags a host for quarantine.",
+          "deliverable": "Log pipeline with an automated response",
+          "checks": [["Forward", "Logs arrive parsed in the SIEM", "SIEM search"], ["Store", "Logs arrive in Strata Logging Service", "Log viewer"], ["Respond", "The SIEM alert quarantines the host", "Dynamic group membership"]],
+          "objectives": ["Forward firewall logs", "Integrate with a SIEM", "Automate responses"]
+        },
+        {
+          "topic": "AIOps for NGFW and Best Practice Assessments",
+          "subtopics": ["AIOps for NGFW", "Health and capacity predictions", "Best practice assessment reports", "Security posture scores", "Configuration drift", "Feature adoption reports", "Acting on recommendations", "Tracking improvement"],
+          "tools": ["AIOps for NGFW", "Best practice assessment", "Strata Cloud Manager"],
+          "lab_task": "Run a best practice assessment, act on the top five recommendations, review AIOps health alerts and show the score change.",
+          "deliverable": "Assessment results and improvement record",
+          "checks": [["Assess", "The assessment lists gaps", "Assessment report"], ["Act", "Five recommendations are applied", "Change record"], ["Improve", "The score improves", "Before-and-after report"]],
+          "objectives": ["Use AIOps for NGFW", "Run best practice assessments", "Improve posture"]
+        },
+        {
+          "topic": "Upgrades and Content Updates: PAN-OS Upgrade Paths and Maintenance Windows",
+          "subtopics": ["PAN-OS release types and support", "Upgrade paths and base images", "Upgrading HA pairs", "Upgrading through Panorama", "Content update strategy", "Testing before production", "Rollback plans", "Change communication"],
+          "tools": ["PAN-OS software updates", "Panorama", "Maintenance plan template"],
+          "lab_task": "Plan and run an upgrade of an HA pair through Panorama with a rollback plan, and set a content update schedule with a test delay.",
+          "deliverable": "Upgrade record and update schedule",
+          "checks": [["Plan", "The upgrade path and rollback are written", "Upgrade plan"], ["Upgrade", "The HA pair upgrades without an outage", "Upgrade log"], ["Schedule", "Content updates install after a test delay", "Update schedule"]],
+          "objectives": ["Plan PAN-OS upgrades", "Upgrade HA pairs", "Manage content updates"]
+        },
+        {
+          "topic": "NGFW Engineer Certification Preparation",
+          "subtopics": ["The NGFW Engineer exam and its domains", "PAN-OS networking topics", "Device settings topics", "Integration and automation topics", "Objects and policy topics", "Panorama and management topics", "Practice questions", "Review plan for weak areas"],
+          "tools": ["Palo Alto Networks Beacon", "Practice questions", "Course labs"],
+          "lab_task": "Take a timed practice set for the NGFW Engineer exam, map every miss to a course day and repeat the weakest lab tasks.",
+          "deliverable": "Practice results and review plan",
+          "checks": [["Practise", "A timed practice set is completed", "Score sheet"], ["Map", "Each miss is mapped to a course day", "Error log"], ["Repeat", "The weakest lab tasks are repeated", "Lab log"]],
+          "objectives": ["Prepare for the NGFW Engineer exam", "Find weak domains", "Practise weak tasks"]
+        },
+        {
+          "topic": "Intermediate Capstone: Centrally Managed Firewall Estate with Remote Access",
+          "subtopics": ["Panorama or Strata Cloud Manager design", "Rulebase, segmentation and decryption", "Remote access and cloud protection", "Automation, logging and upgrades"],
+          "tools": ["Panorama or Strata Cloud Manager", "GlobalProtect or Prisma Access", "Cloud NGFW", "Terraform"],
+          "lab_task": "Deliver a centrally managed estate for a head office, two branches and a cloud application with shared policy, segmentation, decryption, remote access, automation, SIEM logging and a tested upgrade.",
+          "deliverable": "Managed estate demo with evidence",
+          "checks": [["Manage", "All firewalls get policy from the central manager", "Push status"], ["Protect", "Segmentation and decryption work on every site", "Logs"], ["Operate", "Automation, logging and the upgrade are tested", "Test records"]],
+          "objectives": ["Combine intermediate firewall skills", "Run a managed estate", "Present with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For network security architects and senior engineers. Covers network security architecture, multi-vsys designs, data centre segmentation, high availability at scale, SASE architecture with Prisma Access, cloud network security at scale, decryption strategy, advanced threat protection, firewall migrations, rulebase lifecycle programmes, policy as code pipelines, performance engineering, compliance, incident response with Cortex, OT and IoT security, securing AI traffic, firewall disaster recovery, the operating model and troubleshooting at scale.",
+      "prerequisites": ["Runs Palo Alto firewalls across several sites in production", "Holds the NGFW Engineer certification or has equivalent experience", "Responsible for network security design or operations"],
+      "outcomes": ["Design network security architectures across data centres, branches, clouds and SASE", "Run migrations, rulebase programmes and policy as code", "Engineer performance, compliance and incident response with firewall data", "Secure OT, IoT and AI traffic and lead firewall operations"],
+      "days": [
+        {
+          "topic": "Network Security Architecture: Perimeter, Data Centre, Cloud and SASE Placement",
+          "subtopics": ["Where firewalls belong", "Internet edge designs", "Data centre designs", "Cloud designs", "SASE for users and branches", "Management architecture", "Failure domains", "Architecture decision records"],
+          "tools": ["Architecture diagram tool", "Decision records", "Sizing data"],
+          "lab_task": "Design the network security architecture for a company with two data centres, forty branches, two clouds and remote users, and defend it in a review.",
+          "deliverable": "Network security architecture and review record",
+          "checks": [["Design", "Firewalls and SASE cover every traffic path", "Architecture diagram"], ["Decide", "Decisions are recorded with options", "Decision records"], ["Defend", "The review accepts the design with actions", "Review record"]],
+          "objectives": ["Design network security architecture", "Place firewalls and SASE", "Record decisions"]
+        },
+        {
+          "topic": "Multi-Vsys and Multi-Tenant Firewall Designs",
+          "subtopics": ["Virtual systems", "Shared and dedicated resources", "Inter-vsys routing", "Tenants and administrators", "Logging per tenant", "Limits and licensing", "Multi-tenant designs for service providers", "When to use separate firewalls"],
+          "tools": ["Virtual systems", "Admin roles", "Shared gateways"],
+          "lab_task": "Split a firewall into virtual systems for two business units with their own admins and logs, route between them through a shared gateway and test isolation.",
+          "deliverable": "Multi-vsys design with isolation tests",
+          "checks": [["Split", "Each unit manages only its virtual system", "Admin test"], ["Route", "Traffic between units follows policy", "Traffic log"], ["Isolate", "Units cannot see each other's logs", "Log access test"]],
+          "objectives": ["Design multi-vsys firewalls", "Isolate tenants", "Route between virtual systems"]
+        },
+        {
+          "topic": "Data Centre Segmentation and East-West Inspection",
+          "subtopics": ["East-west traffic in data centres", "Segmentation with VLANs, VRFs and zones", "Firewalls in leaf-spine fabrics", "Service insertion", "Microsegmentation with VM-Series", "Performance planning for east-west traffic", "Change management for segmentation", "Measuring segmentation"],
+          "tools": ["PA-Series or VM-Series", "Data centre fabric", "Traffic log analysis"],
+          "lab_task": "Design east-west inspection for a leaf-spine data centre, insert firewalls for three application tiers and prove that only allowed flows pass.",
+          "deliverable": "Data centre segmentation design and test results",
+          "checks": [["Design", "Firewalls inspect traffic between tiers", "Design diagram"], ["Enforce", "Only allowed flows pass", "Traffic log"], ["Size", "Throughput meets the plan", "Performance test"]],
+          "objectives": ["Segment data centres", "Inspect east-west traffic", "Plan for performance"]
+        },
+        {
+          "topic": "High Availability at Scale: Active/Active, Clusters and HA Troubleshooting",
+          "subtopics": ["Active/active designs", "Floating and ARP load-sharing addresses", "Asymmetric traffic", "HA clustering", "Session sync at scale", "HA failure scenarios", "HA troubleshooting", "Testing HA regularly"],
+          "tools": ["High availability settings", "PAN-OS CLI", "Test plan"],
+          "lab_task": "Build an active/active pair with floating addresses, handle asymmetric traffic, test five failure scenarios and fix a seeded HA sync problem.",
+          "deliverable": "Active/active design with test results",
+          "checks": [["Share", "Both firewalls carry traffic", "Session counts"], ["Test", "All five failure scenarios behave as designed", "Test record"], ["Fix", "The sync problem is resolved", "HA status before and after"]],
+          "objectives": ["Design high availability at scale", "Handle asymmetric traffic", "Troubleshoot HA"]
+        },
+        {
+          "topic": "SASE Architecture with Prisma Access",
+          "subtopics": ["SASE components", "Prisma Access for users, branches and private apps", "ZTNA for private applications", "Cloud SWG and CASB", "Digital experience monitoring", "Integration with SD-WAN", "Migration from on-premises edges", "SASE operations"],
+          "tools": ["Prisma Access", "Strata Cloud Manager", "Prisma Access Browser"],
+          "lab_task": "Design SASE for the company with ZTNA for private apps, cloud SWG for users, branch onboarding and experience monitoring, and plan the migration from on-premises edges.",
+          "deliverable": "SASE architecture and migration plan",
+          "checks": [["Design", "Users, branches and private apps are covered", "Architecture diagram"], ["Monitor", "Experience monitoring covers key apps", "Monitoring plan"], ["Plan", "The migration plan has waves and rollback", "Migration plan"]],
+          "objectives": ["Design SASE", "Plan ZTNA and SWG", "Migrate edges to SASE"]
+        },
+        {
+          "topic": "Cloud Network Security at Scale: Transit Designs and Auto Scaling",
+          "subtopics": ["Centralised and distributed inspection", "Transit gateway and virtual WAN designs", "Gateway load balancer designs", "Auto scaling firewalls", "Multi-account and multi-subscription policy", "Cloud tags and dynamic groups", "Cost of cloud inspection", "Operating cloud firewalls"],
+          "tools": ["VM-Series", "Cloud NGFW", "Infrastructure as code"],
+          "lab_task": "Design centralised inspection for ten cloud accounts with auto scaling, use cloud tags in policy and compare cost with distributed Cloud NGFW.",
+          "deliverable": "Cloud inspection design with cost comparison",
+          "checks": [["Design", "All accounts route through inspection", "Design diagram"], ["Scale", "Firewalls scale with load", "Scaling test"], ["Cost", "Both designs are costed", "Cost model"]],
+          "objectives": ["Secure clouds at scale", "Use auto scaling", "Compare cloud designs"]
+        },
+        {
+          "topic": "Decryption Strategy: Privacy, Legal and Performance Trade-Offs",
+          "subtopics": ["Business case for decryption", "Privacy and legal duties", "Works councils and user notice", "Categories to exclude", "Capacity planning for decryption", "Monitoring decryption health", "Decryption in SASE", "Policy for exceptions"],
+          "tools": ["Decryption policy", "Decryption log", "Legal checklist"],
+          "lab_task": "Write a decryption strategy with privacy rules, exclusions and capacity planning, review it with legal and HR personas and plan its rollout.",
+          "deliverable": "Decryption strategy with approvals",
+          "checks": [["Write", "Privacy and exclusions are defined", "Strategy document"], ["Approve", "Legal and HR approve the approach", "Approval record"], ["Plan", "Capacity and rollout are planned", "Rollout plan"]],
+          "objectives": ["Set decryption strategy", "Balance privacy and security", "Plan decryption capacity"]
+        },
+        {
+          "topic": "Advanced Threat Protection: Inline Machine Learning, Zero-Day Prevention and Threat Hunting",
+          "subtopics": ["Inline machine learning in practice", "Zero-day exploit prevention", "Command-and-control detection", "Threat hunting with firewall logs", "Indicators from threat intelligence", "External dynamic lists from intelligence", "Measuring threat prevention", "Working with the SOC"],
+          "tools": ["Advanced Threat Prevention", "Advanced WildFire", "Log analytics"],
+          "lab_task": "Hunt for a seeded intrusion in firewall logs, block its indicators with external dynamic lists and show inline machine learning stopping a new variant.",
+          "deliverable": "Threat hunt record and blocks",
+          "checks": [["Hunt", "The intrusion is found in logs", "Hunt notes"], ["Block", "Indicators are blocked through lists", "Traffic log"], ["Stop", "The new variant is blocked inline", "Threat log"]],
+          "objectives": ["Hunt threats with firewall data", "Block indicators", "Use inline prevention"]
+        },
+        {
+          "topic": "Firewall Migration: Moving from Check Point, Cisco or Fortinet to PAN-OS",
+          "subtopics": ["Migration drivers and risks", "Exporting the old rulebase", "Converting rules and objects", "Moving to App-ID during migration", "Testing converted policy", "Cutover planning", "Rollback planning", "Post-migration clean-up"],
+          "tools": ["Migration tooling", "Rule comparison worksheet", "Test plan"],
+          "lab_task": "Convert a seeded Check Point or Cisco rulebase, test it in parallel, plan the cutover with rollback and turn ten rules into App-ID rules after migration.",
+          "deliverable": "Converted rulebase and cutover plan",
+          "checks": [["Convert", "Converted rules match the old behaviour", "Comparison tests"], ["Plan", "The cutover plan has rollback steps", "Cutover plan"], ["Improve", "Ten rules use App-ID after migration", "Policy view"]],
+          "objectives": ["Migrate firewalls to PAN-OS", "Test converted policy", "Improve rules after migration"]
+        },
+        {
+          "topic": "Rulebase Lifecycle Programmes: Requests, Reviews and Clean-Up",
+          "subtopics": ["Rule request process", "Rule owners and expiry", "Periodic rule reviews", "Unused and shadowed rules", "Overly permissive rules", "Metrics for rulebase health", "Tools for rule analysis", "Communicating changes"],
+          "tools": ["Rule analysis tool", "Policy Optimizer", "Ticketing system"],
+          "lab_task": "Set up a rule request process with owners and expiry, review a large seeded rulebase for shadowed and permissive rules and report health metrics.",
+          "deliverable": "Rule lifecycle process and health report",
+          "checks": [["Request", "New rules need an owner and expiry", "Request record"], ["Review", "Shadowed and permissive rules are fixed", "Review record"], ["Report", "Rulebase health metrics improve", "Health report"]],
+          "objectives": ["Run rulebase lifecycle", "Remove risky rules", "Measure rulebase health"]
+        },
+        {
+          "topic": "Network Security Automation Pipelines: Policy as Code and Change Validation",
+          "subtopics": ["Policy as code", "Git workflows for firewall changes", "Validation with tests", "Pipelines that push through Panorama or Strata Cloud Manager", "Approvals and change records", "Drift detection", "Rollback from Git", "Measuring change success"],
+          "tools": ["Git", "CI pipeline", "Terraform or Ansible", "PAN-OS APIs"],
+          "lab_task": "Build a pipeline where rule changes come as pull requests, are tested, approved and pushed, detect drift from manual changes and roll back a bad change.",
+          "deliverable": "Policy pipeline with tests and a rollback",
+          "checks": [["Test", "Pull requests run validation tests", "Pipeline run"], ["Detect", "Manual changes are reported as drift", "Drift report"], ["Roll back", "A bad change is reverted from Git", "Rollback record"]],
+          "objectives": ["Manage firewall policy as code", "Validate changes", "Roll back safely"]
+        },
+        {
+          "topic": "Performance Engineering: Sizing, Session Capacity and Throughput Testing",
+          "subtopics": ["Sizing inputs", "Throughput with threat prevention and decryption", "Session and connection rates", "Data sheets compared with real traffic", "Load testing tools", "Resource monitoring", "Bottlenecks and fixes", "Capacity reports"],
+          "tools": ["Load test tool", "Resource monitor", "Sizing sheets"],
+          "lab_task": "Size firewalls for a data centre from traffic data, load-test a lab firewall with threat prevention and decryption, find the bottleneck and write a capacity report.",
+          "deliverable": "Sizing and load test report",
+          "checks": [["Size", "Sizing uses real traffic data", "Sizing sheet"], ["Test", "Throughput under inspection is measured", "Load test results"], ["Report", "The capacity report states headroom", "Capacity report"]],
+          "objectives": ["Size firewalls", "Test performance", "Report capacity"]
+        },
+        {
+          "topic": "Compliance and Audits: PCI DSS, Assessment Reports and Evidence",
+          "subtopics": ["Network security controls in PCI DSS 4.0", "Segmentation testing for card data", "Change records and approvals", "Log retention and review", "Best practice assessments as evidence", "Rule reviews for auditors", "Answering audit requests", "Remediating findings"],
+          "tools": ["Best practice assessment", "Logs", "Evidence store"],
+          "lab_task": "Prove card data segmentation, collect change and log evidence for a PCI DSS audit and remediate two seeded findings.",
+          "deliverable": "Audit evidence pack and remediation",
+          "checks": [["Prove", "Segmentation tests show card data isolation", "Test report"], ["Collect", "Evidence answers the auditor's requests", "Evidence pack"], ["Fix", "Both findings are closed", "Remediation record"]],
+          "objectives": ["Meet compliance needs", "Prove segmentation", "Answer audits"]
+        },
+        {
+          "topic": "Incident Response with Firewall Data and Cortex Integration",
+          "subtopics": ["Firewall data in investigations", "Cortex XDR and XSIAM integration", "Automated containment with dynamic groups", "Playbooks for common incidents", "Evidence preservation", "Working with incident responders", "Post-incident rule changes", "Exercises"],
+          "tools": ["Firewall logs", "Cortex XSIAM or another SOC platform", "Dynamic address groups"],
+          "lab_task": "Investigate a seeded compromise with firewall logs in the SOC platform, contain the host automatically, preserve evidence and update rules after the incident.",
+          "deliverable": "Incident record with containment and rule updates",
+          "checks": [["Investigate", "The attack path is reconstructed from logs", "Investigation notes"], ["Contain", "The host is contained automatically", "Containment log"], ["Improve", "Rules are updated to stop a repeat", "Change record"]],
+          "objectives": ["Support incident response", "Contain threats automatically", "Improve rules after incidents"]
+        },
+        {
+          "topic": "OT and IoT Security with Device-ID and Industrial Protocols",
+          "subtopics": ["OT and IoT risks", "Device-ID and device profiles", "Industrial protocols such as Modbus and DNP3 in App-ID", "Segmentation for OT sites", "Rugged firewalls for industrial sites", "Monitoring OT traffic", "Safe change windows for OT", "Standards such as IEC 62443"],
+          "tools": ["Device-ID", "App-ID for industrial protocols", "Rugged firewalls"],
+          "lab_task": "Profile devices on a seeded OT network, write rules that allow only required industrial commands and alert on an unexpected write command.",
+          "deliverable": "OT segmentation with alerts",
+          "checks": [["Profile", "Devices are identified by type", "Device inventory"], ["Restrict", "Only required commands are allowed", "Traffic log"], ["Alert", "The unexpected write command raises an alert", "Alert record"]],
+          "objectives": ["Secure OT networks", "Use Device-ID", "Control industrial protocols"]
+        },
+        {
+          "topic": "Securing AI Traffic: Controls for Generative AI Apps and AI Runtime Security",
+          "subtopics": ["Risks of AI apps in the enterprise", "Discovering AI application use", "Controlling generative AI apps with App-ID and AI Access Security", "Data loss prevention for prompts", "AI runtime security for internal AI applications", "Prompt injection and model abuse", "Policies for approved AI tools", "Reporting AI use"],
+          "tools": ["App-ID", "AI Access Security", "Prisma AIRS", "Enterprise DLP"],
+          "lab_task": "Discover AI app use from logs, allow approved tools with DLP on prompts, block unapproved tools and protect an internal AI app from a seeded prompt injection.",
+          "deliverable": "AI traffic controls with evidence",
+          "checks": [["Discover", "AI app use is reported by user group", "Usage report"], ["Control", "Unapproved tools are blocked and prompts are scanned", "Logs"], ["Protect", "The prompt injection against the internal app is stopped", "Security log"]],
+          "objectives": ["Control generative AI use", "Protect AI applications", "Report AI use"]
+        },
+        {
+          "topic": "Disaster Recovery and Configuration Management for Firewalls",
+          "subtopics": ["Configuration backups", "Panorama high availability and backups", "Rebuilding a firewall from backup", "Licences and serial numbers in recovery", "Recovery runbooks", "Recovery testing", "Configuration version control", "Recovery of cloud management"],
+          "tools": ["Panorama", "Configuration backups", "Runbooks"],
+          "lab_task": "Back up firewall and Panorama configuration to version control, rebuild a failed firewall from backup and measure recovery time.",
+          "deliverable": "Recovery runbook with test results",
+          "checks": [["Back up", "Backups are versioned and complete", "Repository history"], ["Rebuild", "The firewall is rebuilt from backup", "Rebuild log"], ["Time", "Recovery time is measured against the target", "Test report"]],
+          "objectives": ["Plan firewall recovery", "Rebuild from backup", "Test recovery time"]
+        },
+        {
+          "topic": "Firewall Operating Model: Change Management, Rule Requests and Team Roles",
+          "subtopics": ["Firewall team roles", "Change management for firewalls", "Rule request service levels", "Emergency changes", "Monitoring and on-call", "Vendor and support management", "Skills and training", "Measuring the service"],
+          "tools": ["Ticketing system", "Change calendar", "Service reports"],
+          "lab_task": "Design the firewall operating model with roles, change rules, request service levels and on-call, and report a seeded month of service data.",
+          "deliverable": "Operating model and service report",
+          "checks": [["Design", "Roles and change rules are defined", "Operating model"], ["Serve", "Requests meet service levels", "Service report"], ["Respond", "Emergency changes follow the process", "Change records"]],
+          "objectives": ["Run firewall operations", "Manage changes", "Measure the service"]
+        },
+        {
+          "topic": "Troubleshooting at Scale: Packet Flow, Counters and Support Cases",
+          "subtopics": ["Packet flow sequence in depth", "Global counters and drop reasons", "Data plane and management plane resources", "Debug flow basic at scale", "Panorama push and commit failures", "Log collector problems", "Opening good support cases", "Writing incident reviews"],
+          "tools": ["PAN-OS CLI", "Counters", "Tech support files"],
+          "lab_task": "Diagnose seeded problems on a large estate, a data plane drop, a failed push and a log collector backlog, fix them, open one support case and write a review.",
+          "deliverable": "Diagnoses, support case and review",
+          "checks": [["Diagnose", "Each problem's cause is shown with evidence", "Analysis"], ["Escalate", "The support case has all needed data", "Support case"], ["Review", "The review lists actions", "Review document"]],
+          "objectives": ["Troubleshoot at scale", "Use counters and debug output", "Work with support"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Network Security Design with NGFW and SASE",
+          "subtopics": ["Architecture across sites, clouds and SASE", "Segmentation, decryption and threat strategy", "Automation, compliance and operations", "Migration and recovery plans"],
+          "tools": ["Architecture documents", "Policy pipeline", "Evidence packs"],
+          "lab_task": "Present an enterprise network security design to a review board with the architecture, segmentation and decryption strategy, SASE plan, policy pipeline, compliance evidence, migration plan and operating model.",
+          "deliverable": "Design with evidence and a board decision",
+          "checks": [["Design", "Architecture and strategy pass review", "Review record"], ["Prove", "Segmentation and recovery claims have test evidence", "Evidence pack"], ["Plan", "Migration and operations plans have owners", "Plan documents"]],
+          "objectives": ["Combine advanced firewall skills", "Design enterprise network security", "Back decisions with evidence"]
+        }
+      ]
+    }
+  }
+}

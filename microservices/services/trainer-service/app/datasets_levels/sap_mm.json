@@ -1,0 +1,573 @@
+{
+  "domain": "SAP MM",
+  "name": "SAP MM",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "package",
+  "aliases": ["SAP Materials Management", "SAP MM Consultant", "SAP MM on S/4HANA", "S/4HANA MM", "SAP S/4HANA MM", "SAP S/4HANA Sourcing and Procurement", "S/4HANA Sourcing and Procurement", "SAP Sourcing and Procurement", "SAP Procurement", "SAP Purchasing", "SAP Inventory Management"],
+  "certifications": ["SAP Certified Associate - SAP S/4HANA Cloud Private Edition, Sourcing and Procurement (C_TS452)", "SAP Certified Associate - Implementation Consultant - SAP S/4HANA Cloud Public Edition, Sourcing and Procurement (C_S4CPR)"],
+  "tools": ["SAP S/4HANA 2025 training system", "SAP GUI", "SAP Fiori launchpad", "Excel"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For buyers, warehouse staff and new consultants with no SAP experience. Covers the logistics organisation, material and supplier master data, info records and source lists, purchase requisitions and orders, RFQs and outline agreements, goods receipts and movements, stock types, physical inventory, invoice verification, services, reorder-point planning and procurement reporting in S/4HANA.",
+      "prerequisites": ["Understands basic purchasing and stores work: orders, deliveries and invoices", "Comfortable with business software and spreadsheets", "Access to an SAP S/4HANA training system"],
+      "outcomes": ["Maintain materials, suppliers, info records and source lists", "Run procure to pay from requisition to invoice in S/4HANA", "Post goods movements, count stock and read stock reports", "Handle invoice blocks and GR/IR differences and report on procurement"],
+      "days": [
+        {
+          "topic": "SAP MM Overview and Navigation in S/4HANA",
+          "subtopics": ["Materials management in the procure-to-pay process", "Where MM sits beside FI, CO, SD, PP and QM", "S/4HANA Sourcing and Procurement scope", "SAP Fiori launchpad and SAP GUI side by side", "Finding apps and transaction codes", "Personalising the launchpad: spaces, pages and favourites", "Document flow from requisition to payment", "The model company: company code 1010, plant 1010 and purchasing organisation 1010", "Procurement roles: requester, buyer, warehouse clerk and accounts payable", "Course map and training system rules"],
+          "tools": ["SAP Fiori launchpad", "SAP GUI"],
+          "lab_task": "Log on, add the main purchasing and inventory apps to a personal page, open an existing purchase order and follow its document flow to the goods receipt, supplier invoice and accounting documents.",
+          "deliverable": "Personalised launchpad page and an annotated document-flow screenshot",
+          "checks": [["Open a purchase order in the Manage Purchase Orders app", "Header, items and supplier are shown", "Screenshot"], ["Follow the document flow from the purchase order", "Goods receipt, invoice and accounting documents are listed", "Document flow screenshot"], ["Name the roles in procure to pay", "Requester, buyer, warehouse clerk and accounts payable described correctly", "Written answer"]],
+          "objectives": ["Explain the scope of SAP MM", "Navigate Fiori and SAP GUI", "Trace a procurement document flow"]
+        },
+        {
+          "topic": "Logistics Organisation: Plants, Storage Locations and Purchasing Organisations",
+          "subtopics": ["Client, company code and plant", "Storage locations within a plant", "Purchasing organisation: plant-specific, cross-plant and cross-company", "Purchasing groups as buyer teams", "Valuation area at plant level", "Assigning plants to company codes", "Reference purchasing organisations", "Displaying the structure in configuration"],
+          "tools": ["SAP GUI SPRO (display)", "SAP GUI OX10 and OX09 (display)"],
+          "lab_task": "Map the logistics organisation of the model company: plants, storage locations, purchasing organisations and purchasing groups with their assignments to company codes, and draw it as a diagram.",
+          "deliverable": "Organisation diagram with values taken from the system",
+          "checks": [["Find the company code assigned to plant 1010", "Company code 1010 is shown", "Screenshot of the assignment"], ["List the storage locations of plant 1010", "Every storage location of the plant is listed", "Screenshot"], ["Explain a cross-plant purchasing organisation", "Correct explanation with an example", "Written answer"]],
+          "objectives": ["Explain the logistics organisation", "Read organisation settings", "Relate the structure to purchasing documents"]
+        },
+        {
+          "topic": "Material Master: Views, Material Types and Units of Measure",
+          "subtopics": ["The material master as the product master in S/4HANA", "Views: basic data, purchasing, MRP, storage and accounting", "Organisational levels of the views", "Material types: ROH, HALB, FERT, HAWA and NLAG", "Material groups", "Base unit and order unit of measure", "Valuation class and price control in brief", "Creating materials with MM01 and the Manage Product Master Data app"],
+          "tools": ["SAP GUI MM01, MM02 and MM03", "Manage Product Master Data app"],
+          "lab_task": "Create a raw material and a trading good with basic data, purchasing, MRP, storage and accounting views for plant 1010, including an order unit that differs from the base unit.",
+          "deliverable": "Two material records with a screenshot of each view",
+          "checks": [["Display the raw material's accounting view", "Valuation class, price control and price are shown", "Screenshot"], ["Order the material in its order unit", "Quantity is converted to the base unit", "Purchase order item screenshot"], ["Explain why views are kept per plant and storage location", "Organisational levels explained correctly", "Written answer"]],
+          "objectives": ["Create materials with the right views", "Explain material types", "Use units of measure in purchasing"]
+        },
+        {
+          "topic": "Suppliers as Business Partners",
+          "subtopics": ["The business partner as the single entry point", "Business partner roles FLVN00 and FLVN01", "General data, company code data and purchasing data", "Partner functions: ordering address and invoicing party", "Reconciliation account and payment terms", "Customer-vendor integration in brief", "Blocking suppliers for purchasing and posting", "Searching for and displaying suppliers"],
+          "tools": ["SAP GUI BP", "Manage Business Partner Master Data app"],
+          "lab_task": "Create a supplier as a business partner with general, company code and purchasing data for purchasing organisation 1010, add a different invoicing party and set a purchasing block on a second supplier.",
+          "deliverable": "Two supplier records and the result of the blocked-supplier test",
+          "checks": [["Create a purchase order for the blocked supplier", "System prevents the order", "Error message"], ["Display the purchasing data of the new supplier", "Order currency and payment terms are shown", "Screenshot"], ["Explain the difference between FLVN00 and FLVN01", "Financial and purchasing roles explained correctly", "Written answer"]],
+          "objectives": ["Create suppliers as business partners", "Maintain purchasing data", "Block suppliers"]
+        },
+        {
+          "topic": "Purchasing Info Records and Source Lists",
+          "subtopics": ["Purpose of the purchasing info record", "Info record categories: standard, subcontracting, pipeline and consignment", "Prices and conditions in the info record", "Planned delivery time and tolerances", "Info record update from purchase orders", "Source lists and fixed sources", "Blocking a source of supply", "Displaying conditions and order history"],
+          "tools": ["SAP GUI ME11, ME13 and ME01", "Manage Purchasing Info Records app"],
+          "lab_task": "Create info records for two suppliers of the raw material with different prices, then maintain a source list that fixes one supplier for the next quarter and blocks the other.",
+          "deliverable": "Info records, the source list and a purchase order that proposes the fixed source",
+          "checks": [["Create a requisition and assign a source", "The fixed supplier is proposed", "Screenshot"], ["Create a purchase order for the info record supplier", "Net price defaults from the info record", "Purchase order conditions screenshot"], ["Order from the blocked source", "System issues a message and does not propose it", "Message"]],
+          "objectives": ["Maintain info records", "Control sources with source lists", "Explain price defaults"]
+        },
+        {
+          "topic": "Purchase Requisitions",
+          "subtopics": ["Purpose and structure of a purchase requisition", "Account assignment categories K, F, A and none", "Creating requisitions with ME51N and the Manage Purchase Requisitions app", "Requisitions created by MRP", "Assigning a source of supply", "Desired supplier and fixed supplier", "Approval of requisitions in brief", "Requisition status and follow-on documents"],
+          "tools": ["SAP GUI ME51N, ME52N and ME53N", "Manage Purchase Requisitions app"],
+          "lab_task": "Create a stock requisition, a cost-centre requisition for office supplies and a requisition with an asset account assignment, assign sources and convert one into a purchase order.",
+          "deliverable": "Three requisitions and the purchase order created from one of them",
+          "checks": [["Save a cost-centre requisition without a cost centre", "System requires the cost centre", "Error message"], ["Convert the stock requisition", "Purchase order references the requisition", "Document flow"], ["Display the requisition status", "Ordered quantity is shown", "Screenshot"]],
+          "objectives": ["Create requisitions with account assignments", "Assign sources", "Convert requisitions to orders"]
+        },
+        {
+          "topic": "Purchase Orders: Creation, Changes and Output",
+          "subtopics": ["Purchase order structure: header, items and schedule lines", "Creating orders from requisitions, quotations and contracts", "Item categories: standard, consignment, subcontracting, third party and service", "Delivery dates and schedule lines", "Changing orders and the change history", "Purchase order output in brief", "Purchase order history", "Manage Purchase Orders and Create Purchase Order - Advanced apps"],
+          "tools": ["SAP GUI ME21N, ME22N and ME23N", "Manage Purchase Orders app", "Create Purchase Order - Advanced app"],
+          "lab_task": "Create a purchase order with three items and split schedule lines, change the price of one item, send the output and review the change history.",
+          "deliverable": "Purchase order, output preview and change log",
+          "checks": [["Change an item price", "Change document records the old and new price", "Change history screenshot"], ["Preview the purchase order output", "Form shows items and delivery dates", "PDF preview"], ["Split an item into two schedule lines", "Two delivery dates are shown", "Screenshot"]],
+          "objectives": ["Create and change purchase orders", "Use schedule lines", "Read order history"]
+        },
+        {
+          "topic": "Requests for Quotation and Supplier Quotations",
+          "subtopics": ["Sourcing with requests for quotation in S/4HANA", "Creating an RFQ and inviting bidders", "Publishing RFQs to SAP Business Network in brief", "Entering supplier quotations", "Comparing quotations", "Awarding a quotation", "Creating an order or contract from the award", "Rejecting quotations and updating info records"],
+          "tools": ["Manage RFQs app", "Manage Supplier Quotations app", "Compare Supplier Quotations app"],
+          "lab_task": "Create an RFQ for packaging material to three suppliers, enter their quotations, compare prices including delivery costs, award the best one and create the purchase order from it.",
+          "deliverable": "RFQ, three quotations, the comparison and the resulting purchase order",
+          "checks": [["Compare the quotations", "Quotations are ranked by effective price", "Comparison screenshot"], ["Award the best quotation", "A follow-on purchase order is created with the awarded price", "Purchase order screenshot"], ["Explain why the lowest unit price did not win", "Delivery cost or terms explained", "Written answer"]],
+          "objectives": ["Run an RFQ", "Compare and award quotations", "Create orders from awards"]
+        },
+        {
+          "topic": "Outline Agreements: Contracts and Scheduling Agreements",
+          "subtopics": ["Types of outline agreement", "Quantity contracts and value contracts", "Release orders against contracts", "Release documentation and target values", "Scheduling agreements and delivery schedules", "Forecast and JIT schedule releases", "Central contracts in brief", "Monitoring how much of an agreement is used"],
+          "tools": ["SAP GUI ME31K, ME31L and ME38", "Manage Purchase Contracts app", "Manage Scheduling Agreements app"],
+          "lab_task": "Create a value contract for maintenance supplies and a scheduling agreement for a raw material, then issue release orders against the contract and a delivery schedule for the agreement.",
+          "deliverable": "Contract, release orders, scheduling agreement and schedule lines",
+          "checks": [["Issue release orders above the target value", "System warns that the target value is exceeded", "Message"], ["Display the contract release documentation", "Released value is shown", "Screenshot"], ["Maintain a delivery schedule", "Schedule lines with dates are saved", "Screenshot"]],
+          "objectives": ["Create contracts and scheduling agreements", "Release against agreements", "Monitor agreement use"]
+        },
+        {
+          "topic": "Goods Receipt for Purchase Orders",
+          "subtopics": ["Goods receipt with MIGO", "Movement type 101 and its effects", "Receiving into unrestricted, quality inspection or blocked stock", "Over-delivery and under-delivery tolerances", "The delivery completed indicator", "Material documents and accounting documents", "Reversing a receipt with movement type 102", "Goods receipt slips and labels"],
+          "tools": ["SAP GUI MIGO", "Post Goods Receipt for Purchasing Document app", "Material Documents Overview app"],
+          "lab_task": "Post a partial goods receipt into quality inspection stock and a final receipt with delivery completed, then reverse one receipt and display the material and accounting documents.",
+          "deliverable": "Material documents, accounting documents and the purchase order history",
+          "checks": [["Receive more than the over-delivery tolerance", "System rejects the receipt", "Error message"], ["Display the accounting document of a receipt", "Inventory is debited and GR/IR is credited", "Accounting document"], ["Reverse a receipt", "Movement type 102 is posted", "Material document"]],
+          "objectives": ["Post goods receipts", "Explain the postings", "Reverse receipts"]
+        },
+        {
+          "topic": "Goods Movements: Issues, Transfers and Reservations",
+          "subtopics": ["Goods issue to a cost centre (201)", "Goods issue to an order (261) in brief", "Scrapping (551)", "Transfers between storage locations (311)", "Release from quality inspection stock (321)", "Reservations and how they are used", "Initial stock entry (561)", "Reasons for movement"],
+          "tools": ["SAP GUI MIGO and MB21", "Manage Stock app", "Transfer Stock - In-Plant app"],
+          "lab_task": "Create a reservation for a cost centre and issue against it, transfer stock between storage locations, release quality stock and scrap a damaged quantity with a reason.",
+          "deliverable": "Reservation, material documents and stock before and after",
+          "checks": [["Issue more than the available stock", "System reports a deficit", "Error message"], ["Display stock after the transfer", "Quantity moved between the storage locations", "Stock overview"], ["Post the scrapping", "Scrapping expense account is debited", "Accounting document"]],
+          "objectives": ["Post issues and transfers", "Use reservations", "Explain movement types"]
+        },
+        {
+          "topic": "Stock Types, Special Stocks and Stock Overview",
+          "subtopics": ["Unrestricted, quality inspection and blocked stock", "Stock in transit", "Special stocks: consignment (K), with subcontractor (O), project (Q) and sales order (E)", "Stock overview with MMBE", "Warehouse stock with MB52", "Material document list with MB51", "Stock on a posting date with MB5B", "Stock quantities and values", "Restricted-use stock for batches", "Drilling down by plant, storage location and batch"],
+          "tools": ["SAP GUI MMBE, MB52, MB51 and MB5B", "Stock - Multiple Materials app", "Display Stock Overview app"],
+          "lab_task": "Build a stock picture for three materials across storage locations and stock types, including special stock, and reconcile quantity and value at two dates.",
+          "deliverable": "Stock report and a reconciliation sheet",
+          "checks": [["Run stock on posting date for the end of last month", "Historic quantities and values are shown", "Report"], ["Find consignment stock", "Special stock K is shown by supplier", "Screenshot"], ["Reconcile stock value with the inventory account", "Values agree or the difference is explained", "Reconciliation sheet"]],
+          "objectives": ["Read stock types and special stocks", "Run stock reports", "Reconcile stock"]
+        },
+        {
+          "topic": "Physical Inventory",
+          "subtopics": ["Physical inventory methods: annual, cycle counting and sampling", "Creating physical inventory documents", "Posting block during the count", "Entering counts", "Recounts", "Posting inventory differences", "The difference list and its value impact", "Counting special stocks"],
+          "tools": ["SAP GUI MI01, MI04, MI07 and MI20", "Physical inventory apps in SAP Fiori"],
+          "lab_task": "Run a count for one storage location: create the documents with a posting block, enter counts with one difference, recount, post the difference and review the accounting impact.",
+          "deliverable": "Inventory documents, difference list and difference posting",
+          "checks": [["Post a goods movement for a blocked material during the count", "Posting block prevents the movement", "Error message"], ["Post the inventory difference", "Stock and value are adjusted", "Material and accounting documents"], ["Display the difference list", "Quantity and value differences are listed", "Report"]],
+          "objectives": ["Run a physical inventory", "Post differences", "Explain the value impact"]
+        },
+        {
+          "topic": "Logistics Invoice Verification",
+          "subtopics": ["Three-way match: purchase order, goods receipt and invoice", "Entering invoices with MIRO", "Goods-receipt-based invoice verification", "Taxes and unplanned delivery costs", "Planned delivery costs", "Credit memos and subsequent debits", "Parking and posting invoices", "Create Supplier Invoice and Manage Supplier Invoices apps"],
+          "tools": ["SAP GUI MIRO and MIR4", "Create Supplier Invoice app", "Manage Supplier Invoices app"],
+          "lab_task": "Enter invoices for three purchase orders, one matching, one with freight and one partial, park one for review, post the others and enter a credit memo.",
+          "deliverable": "Invoice documents with their accounting entries",
+          "checks": [["Post the matching invoice", "GR/IR is cleared and the supplier is credited", "Accounting document"], ["Post an invoice with unplanned delivery costs", "Costs are distributed as configured", "Accounting document"], ["Post a credit memo", "Supplier account is debited", "Accounting document"]],
+          "objectives": ["Enter and post supplier invoices", "Handle delivery costs and credit memos", "Explain the three-way match"]
+        },
+        {
+          "topic": "Invoice Blocks, Tolerances and GR/IR Clearing",
+          "subtopics": ["Why invoices are blocked for payment", "Tolerance keys PP, DQ and BR in brief", "Manual payment blocks", "Releasing blocked invoices with MRBR", "Balances on the GR/IR account", "Analysing GR/IR differences", "Clearing GR/IR with MR11", "GR/IR reporting at month end"],
+          "tools": ["SAP GUI MRBR and MR11", "Manage Supplier Invoices app", "GR/IR reconciliation apps"],
+          "lab_task": "Post an invoice with a price variance above tolerance, release the block after confirming the price with the buyer, then analyse GR/IR differences on two old orders and clear them.",
+          "deliverable": "Blocked and released invoice and the GR/IR clearing document",
+          "checks": [["Post an invoice above the price tolerance", "Invoice is posted with payment block R", "Invoice display"], ["Release the invoice in MRBR", "Payment block is removed", "Screenshot"], ["Run MR11 for the old orders", "Differences are cleared to the configured account", "Clearing document"]],
+          "objectives": ["Explain invoice blocks", "Release blocked invoices", "Clear GR/IR differences"]
+        },
+        {
+          "topic": "Services Procurement with Service Entry Sheets",
+          "subtopics": ["Service procurement in S/4HANA", "Service purchase orders with service products", "Account assignment for services", "Value limits for unplanned services", "Recording service entry sheets", "Approving service entry sheets", "Invoice verification for services", "Lean services compared with classic external services"],
+          "tools": ["Manage Purchase Orders app", "Manage Service Entry Sheets - Lean Services app", "SAP GUI ML81N (classic)"],
+          "lab_task": "Order cleaning services for a cost centre with a value limit, record two service entry sheets, approve them and post the invoice.",
+          "deliverable": "Service purchase order, approved entry sheets and the invoice",
+          "checks": [["Record an entry sheet above the value limit", "System blocks the entry", "Message"], ["Approve a service entry sheet", "Status is approved and the cost is posted", "Accounting document"], ["Post the invoice", "Invoice is matched to the approved entry sheets", "Invoice document"]],
+          "objectives": ["Procure services", "Record and approve service entries", "Invoice services"]
+        },
+        {
+          "topic": "Consumption-Based Planning: Reorder Point and MRP",
+          "subtopics": ["MRP types PD, VB, VM and ND", "Reorder point planning", "Safety stock", "Lot-sizing procedures EX, FX and HB", "Planning run with MRP Live (MD01N)", "The stock/requirements list (MD04)", "Converting requisitions into purchase orders", "Monitor Material Coverage app"],
+          "tools": ["SAP GUI MD01N and MD04", "Monitor Material Coverage app"],
+          "lab_task": "Set reorder-point planning for a packaging material, consume stock below the reorder point, run MRP, review the requisition and convert it into a purchase order.",
+          "deliverable": "MRP settings, the planning result and the purchase order",
+          "checks": [["Run MRP with stock below the reorder point", "A purchase requisition is created", "MD04 screenshot"], ["Change the lot size to a fixed quantity and plan again", "Requisition quantity changes to the fixed lot", "Screenshot"], ["Explain safety stock", "Correct explanation of when it is used", "Written answer"]],
+          "objectives": ["Set up consumption-based planning", "Run MRP", "Act on planning results"]
+        },
+        {
+          "topic": "Procurement Reporting: Lists, Analytics and Overview Pages",
+          "subtopics": ["Purchasing lists ME2N, ME2L and ME2M", "Selection parameters and dynamic selections", "The procurement overview page", "Purchasing analytics: spend, order value and off-contract spend", "Inventory analytics: slow-moving and dead stock", "Layouts, variants and exports", "KPIs for buyers", "Analytics roles and access", "Scheduling list reports as background jobs", "Sharing saved views and tiles with the team"],
+          "tools": ["SAP GUI ME2N and ME2M", "Procurement Overview Page", "Purchase Order Value app", "Slow or Non-Moving Materials app"],
+          "lab_task": "Build a buyer's weekly report with open orders by supplier, overdue deliveries, spend by material group and slow-moving stock, saved as variants and exported.",
+          "deliverable": "Saved variants, an export and a one-page summary",
+          "checks": [["Run the open purchase order list", "Only open quantities are shown", "Report"], ["Analyse spend by material group", "Totals match the purchase order values", "Screenshot"], ["List slow-moving stock", "Materials without movements in the period are listed", "Report"]],
+          "objectives": ["Run purchasing lists", "Use procurement analytics", "Report procurement KPIs"]
+        },
+        {
+          "topic": "Integration of MM with Finance and Sales",
+          "subtopics": ["Postings from goods receipts and invoices", "Valuation classes and G/L accounts in brief", "Commitments for cost-centre purchases", "Third-party orders from sales", "Stock availability for sales orders", "Individual purchase orders for sales orders", "Quality inspection on receipt in brief", "Consumption in production in brief"],
+          "tools": ["SAP GUI MIGO, MIRO and VA01", "Manage Journal Entries app"],
+          "lab_task": "Follow a cost-centre purchase from requisition to invoice through commitments and actual costs, and a third-party sales order through the purchase requisition it creates.",
+          "deliverable": "Document trail for both processes with their postings",
+          "checks": [["Display the commitment after the purchase order", "Cost centre commitment is shown", "Report"], ["Create a third-party sales order", "A purchase requisition is created for the supplier", "Document flow"], ["Explain the goods receipt postings", "Inventory and GR/IR accounts named correctly", "Written answer"]],
+          "objectives": ["Explain MM postings in finance", "Trace sales-driven procurement", "Read commitments"]
+        },
+        {
+          "topic": "Beginner Capstone: Procure to Pay for the Model Company",
+          "subtopics": ["Master data for a new supplier and material", "Sourcing with an RFQ and an info record", "Purchase order, goods receipt and invoice", "Physical inventory and a stock report", "Exceptions: invoice block and release", "Process walkthrough and questions"],
+          "tools": ["SAP S/4HANA", "SAP Fiori launchpad", "SAP GUI"],
+          "lab_task": "Run procure to pay end to end for a new packaging material: create the supplier and material, source with an RFQ, order, receive part of it into quality inspection, invoice with a price variance, release the block, count the stock and present the trail.",
+          "deliverable": "Document trail, stock and GR/IR reconciliation and a 10-minute walkthrough",
+          "checks": [["Trace the trail from requisition to the released invoice", "All documents are linked in the document flow", "Document flow"], ["Reconcile GR/IR for the order", "Balance is zero after the final invoice", "Report"], ["Answer questions on the process", "Correct answers on each step", "Walkthrough"]],
+          "objectives": ["Combine the beginner topics in one process", "Handle exceptions", "Explain procure to pay"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For key users and junior consultants who can run procure to pay. Covers configuration of the logistics organisation, material and supplier master data, purchasing documents, pricing, approvals and output, source determination, subcontracting, consignment and stock transport orders, inventory management, valuation and account determination, batches, invoice verification, physical inventory, MRP and supplier evaluation in S/4HANA.",
+      "prerequisites": ["Can run procure to pay in S/4HANA as a user", "Knows materials, suppliers, info records and the main movement types", "Understands the postings of goods receipts and invoices"],
+      "outcomes": ["Configure the logistics organisation and purchasing documents", "Configure pricing, approvals, output and source determination", "Set up subcontracting, consignment and stock transfers", "Configure inventory, valuation, account determination and invoice verification"],
+      "days": [
+        {
+          "topic": "Configuring the Enterprise Structure for Logistics",
+          "subtopics": ["Defining plants by copying a reference plant", "Storage locations and automatic creation", "Purchasing organisations and purchasing groups", "Assigning purchasing organisations to company codes and plants", "Standard purchasing organisation for pipeline and consignment", "Valuation level", "Factory calendars for plants", "Recording configuration in transports"],
+          "tools": ["SAP GUI SPRO", "SAP GUI OX10, OX09, OX08 and OME4", "SAP GUI SE09"],
+          "lab_task": "Configure plant 1020 by copying plant 1010, add two storage locations, a purchasing group and the assignments to the company code and purchasing organisation, all recorded in one transport.",
+          "deliverable": "Configuration in a released transport with a settings document",
+          "checks": [["Create a purchase order for plant 1020", "Order saves with the new plant and purchasing group", "Screenshot"], ["Release the transport", "Transport contains every configuration entry", "Transport log"], ["Explain why the valuation level is the plant", "Plant-level valuation explained correctly", "Written answer"]],
+          "objectives": ["Configure plants and storage locations", "Assign purchasing organisations", "Transport configuration"]
+        },
+        {
+          "topic": "Material Master Configuration: Material Types, Number Ranges and Field Selection",
+          "subtopics": ["Material type attributes", "Quantity and value updating per valuation area", "Number ranges for material types", "Field selection groups and field status", "Material groups and purchasing value keys", "Industry sectors", "Product type groups for services", "Testing a new material type"],
+          "tools": ["SAP GUI OMS2, MMNR, OMS9 and OMSR", "Manage Product Master Data app"],
+          "lab_task": "Create a material type for spare parts with its own number range, value updating in plant 1010 only, a default purchasing value key and a mandatory manufacturer part number.",
+          "deliverable": "Material type configuration and a test material",
+          "checks": [["Create a spare part without the manufacturer part number", "System requires the field", "Error message"], ["Check the material number", "Number comes from the new range", "Screenshot"], ["Receive the spare part in a plant without value updating", "Material document posts without an accounting document", "Material document"]],
+          "objectives": ["Configure material types", "Control fields and numbers", "Test material settings"]
+        },
+        {
+          "topic": "Business Partner Configuration for Suppliers: Roles, Groupings and CVI",
+          "subtopics": ["Business partner roles and role categories", "Groupings and number ranges", "Synchronised supplier account groups", "Customer-vendor integration mapping", "Field attributes per role and grouping", "Partner functions and partner schemas", "Supplier hierarchies in brief", "Consistency checks with the CVI cockpit"],
+          "tools": ["SAP GUI SPRO", "SAP GUI BP", "SAP GUI CVI_COCKPIT"],
+          "lab_task": "Configure a grouping for one-time suppliers with its own number range synchronised to a supplier account group, make the tax number mandatory for it and test it with a new supplier.",
+          "deliverable": "Configuration notes and a test supplier",
+          "checks": [["Create a supplier with the new grouping", "Business partner and supplier have the same number", "Screenshot"], ["Save the supplier without a tax number", "System requires the tax number", "Error message"], ["Run the CVI consistency check", "No inconsistencies for the new grouping", "Report"]],
+          "objectives": ["Configure supplier business partners", "Synchronise numbers", "Check customer-vendor integration"]
+        },
+        {
+          "topic": "Purchasing Document Types, Number Ranges and Screen Layout",
+          "subtopics": ["Document types for requisitions, orders, contracts and RFQs", "Internal and external number ranges", "Allowed item categories and account assignments", "Field selection keys and screen layout", "Linking requisition and order document types", "Default values for buyers", "Text types and copying rules", "Partner determination for purchasing"],
+          "tools": ["SAP GUI SPRO", "SAP GUI ME21N"],
+          "lab_task": "Create order type ZCAP for capital purchases that allows only asset account assignment, uses its own number range, makes the delivery date required and copies the header note from the requisition.",
+          "deliverable": "Document type configuration and three test orders",
+          "checks": [["Create a ZCAP order with cost-centre assignment", "System does not allow the account assignment", "Error message"], ["Create a ZCAP order from a requisition", "Header note is copied", "Screenshot"], ["Save without a delivery date", "System requires the field", "Error message"]],
+          "objectives": ["Configure purchasing document types", "Control screen layout", "Set copying rules"]
+        },
+        {
+          "topic": "Pricing Procedures and Conditions in Purchasing",
+          "subtopics": ["Condition technique: condition types, access sequences and condition tables", "Calculation schema RM0000", "Schema groups and schema determination", "Gross price conditions PB00 and PBXX", "Discounts and surcharges", "Freight conditions with accruals", "Condition records and validity periods", "Effective price and price comparison"],
+          "tools": ["SAP GUI SPRO, MEK1 and M/08", "Manage Purchasing Info Records app"],
+          "lab_task": "Add a freight condition with accrual and a 2% discount to a copy of the calculation schema, assign it to one supplier through a schema group and check the order price and the goods receipt posting to freight clearing.",
+          "deliverable": "Schema configuration, condition records and test postings",
+          "checks": [["Create an order for the supplier", "Freight and discount appear in the conditions", "Conditions tab"], ["Post the goods receipt", "Freight clearing account is credited", "Accounting document"], ["Order from a supplier without the schema group", "Standard schema is used", "Conditions tab"]],
+          "objectives": ["Configure purchasing pricing", "Determine schemas", "Account for freight"]
+        },
+        {
+          "topic": "Release Strategies and Flexible Workflow for Purchasing Documents",
+          "subtopics": ["Approval options in S/4HANA", "Classic release strategies: characteristics, classes, codes and groups", "Overall release and item-level release", "Flexible workflow for requisitions and orders", "Workflow scenarios, preconditions and steps", "Agent determination", "Approving in the My Inbox app", "Choosing classic release or flexible workflow"],
+          "tools": ["Manage Workflows for Purchase Orders app", "My Inbox app", "SAP GUI CL20N and CT04"],
+          "lab_task": "Configure flexible workflow for purchase orders above 10,000 EUR with a two-step approval, then test approval, rejection and an order below the limit.",
+          "deliverable": "Workflow definition and test results",
+          "checks": [["Create an order for 15,000 EUR", "Order waits for approval and output is held", "Status screenshot"], ["Approve both steps in My Inbox", "Order is released and output is sent", "Status and output history"], ["Create an order for 5,000 EUR", "Order is released without approval", "Status screenshot"]],
+          "objectives": ["Configure purchasing approvals", "Test workflows", "Choose an approval method"]
+        },
+        {
+          "topic": "Output Management for Purchasing Documents",
+          "subtopics": ["S/4HANA output management compared with NAST", "Output types and channels: print, email and XML", "Output parameter determination with BRF+", "Form templates: Adobe forms and fragments", "Email settings and supplier email addresses", "Output for scheduling agreements", "Reprocessing and the output history", "Output to SAP Business Network in brief"],
+          "tools": ["Output Parameter Determination app", "Maintain Form Templates app", "SAP GUI SPRO"],
+          "lab_task": "Configure email output for ZCAP orders with a company form template and send orders and order changes to a test mailbox.",
+          "deliverable": "Output configuration, form template and received emails",
+          "checks": [["Save a ZCAP order", "Email output is created and sent", "Output history"], ["Change the order", "Change output is sent", "Output history"], ["Order from a supplier with no email address", "Output fails with an error status", "Output item status"]],
+          "objectives": ["Configure purchasing output", "Use BRF+ determination", "Troubleshoot output"]
+        },
+        {
+          "topic": "Source Determination and Automatic Purchase Order Creation",
+          "subtopics": ["Source determination sequence", "Quota arrangements", "Source list requirement at plant level", "Automatic purchase order indicators in material and supplier", "Automatic conversion with ME59N", "Regular suppliers", "Automatic creation in Fiori apps", "Monitoring conversion errors"],
+          "tools": ["SAP GUI MEQ1, ME59N and MD01N", "Manage Purchase Requisitions app"],
+          "lab_task": "Set a 60/40 quota arrangement for a raw material, run MRP twice, check the source assignment and convert the requisitions automatically into purchase orders.",
+          "deliverable": "Quota arrangement, MRP result and the conversion log",
+          "checks": [["Run MRP twice", "Requisitions are split between suppliers by quota", "Requisition list"], ["Run ME59N", "Purchase orders are created automatically", "Conversion log"], ["Run conversion for a requisition without a source", "Requisition is not converted", "Conversion log"]],
+          "objectives": ["Configure source determination", "Automate order creation", "Monitor automation"]
+        },
+        {
+          "topic": "Subcontracting",
+          "subtopics": ["The subcontracting process", "Subcontracting info records and component BOMs", "Item category L", "Providing components with movement type 541", "Receiving the product and consuming components (101 and 543)", "Subcontracting cockpit ME2ON", "Subsequent adjustment of components", "Costs of subcontracted products"],
+          "tools": ["SAP GUI ME21N, ME2ON, MIGO and CS01"],
+          "lab_task": "Create a subcontracting order for assembled kits, provide the components, receive the kits and check component consumption and costs, then correct an over-consumption.",
+          "deliverable": "Subcontracting order, material documents and cost analysis",
+          "checks": [["Provide components with 541", "Components appear in stock with subcontractor (O)", "Stock overview"], ["Post the goods receipt", "Component consumption 543 is posted automatically", "Material document"], ["Report extra consumption", "Subsequent adjustment adjusts component stock", "Material document"]],
+          "objectives": ["Configure and run subcontracting", "Explain subcontracting postings", "Correct component use"]
+        },
+        {
+          "topic": "Consignment and Pipeline Procurement",
+          "subtopics": ["The supplier consignment process", "Consignment info records", "Receiving into consignment stock", "Withdrawal and the liability to the supplier", "Consignment settlement with MRKO", "Pipeline materials", "Reporting consignment and pipeline liabilities", "Returning consignment stock"],
+          "tools": ["SAP GUI ME11, MIGO and MRKO", "Stock - Multiple Materials app"],
+          "lab_task": "Receive supplier consignment stock, withdraw part of it for consumption and part to own stock, settle the liabilities with MRKO and review the postings.",
+          "deliverable": "Consignment documents, settlement log and postings",
+          "checks": [["Receive consignment stock", "Material document posts with no value", "Material document"], ["Transfer consignment stock to own stock (411 K)", "Liability to the supplier is posted", "Accounting document"], ["Run MRKO", "Settlement document for the supplier is created", "Settlement log"]],
+          "objectives": ["Configure consignment", "Settle consignment liabilities", "Explain pipeline procurement"]
+        },
+        {
+          "topic": "Stock Transport Orders and Cross-Plant Transfers",
+          "subtopics": ["One-step and two-step transfers", "Stock transport orders with and without deliveries", "Configuration: supplying plant, delivery type and checking rule", "Goods issue (351 or 641) and goods receipt (101)", "Stock in transit", "Cross-company stock transport orders with billing", "Shipping data for plants", "Monitoring with ME2N and VL10B"],
+          "tools": ["SAP GUI ME21N, VL10B, VL02N and MIGO"],
+          "lab_task": "Configure and run a stock transport order from plant 1010 to plant 1020 with an outbound delivery, post goods issue and goods receipt and check the stock in transit.",
+          "deliverable": "STO configuration, documents and stock before and after",
+          "checks": [["Post goods issue for the delivery", "Stock in transit appears at the receiving plant", "Stock overview"], ["Post goods receipt at plant 1020", "Stock in transit is cleared", "Material document"], ["Create a delivery without shipping data", "Delivery cannot be created", "Error log"]],
+          "objectives": ["Configure stock transport orders", "Run cross-plant transfers", "Monitor stock in transit"]
+        },
+        {
+          "topic": "Movement Types and Inventory Management Configuration",
+          "subtopics": ["Movement type attributes and copying", "Reasons for movement", "Number assignment for material documents", "Field selection for MIGO", "Goods receipt defaults and tolerances", "Negative stock settings", "Automatic creation of storage location data", "Late block and exclusive block for performance"],
+          "tools": ["SAP GUI OMJJ", "SAP GUI SPRO", "SAP GUI MIGO"],
+          "lab_task": "Create movement type Z51 as a copy of 551 with a mandatory reason, allow negative stock in one storage location and set goods receipt tolerances for one plant.",
+          "deliverable": "Configuration document and test postings",
+          "checks": [["Post Z51 without a reason", "System requires the reason", "Error message"], ["Issue more than the stock in the allowed storage location", "Negative stock is posted", "Stock overview"], ["Receive above tolerance", "System warns or rejects as configured", "Message"]],
+          "objectives": ["Configure movement types", "Control inventory postings", "Set receipt tolerances"]
+        },
+        {
+          "topic": "Valuation and Account Determination for MM",
+          "subtopics": ["Valuation area, valuation class and account category reference", "Transaction keys BSX, WRX, GBB, PRD and KDM", "Account modification and the valuation grouping code", "Simulating account determination", "From movement type to transaction key", "Offsetting entries GBB-VBR and GBB-VNG", "Price differences and PRD", "Testing postings end to end"],
+          "tools": ["SAP GUI OBYC, OMWD, OMSK and OMWB"],
+          "lab_task": "Create a valuation class for spare parts, assign accounts in OBYC for BSX, GBB-VBR and PRD, and test receipt, issue and price-difference postings.",
+          "deliverable": "Account determination settings and three test documents",
+          "checks": [["Receive a spare part", "New inventory account is debited", "Accounting document"], ["Issue a spare part to a cost centre", "Consumption account from GBB-VBR is debited", "Accounting document"], ["Post an invoice with a price difference for a standard-price material", "Difference posts to the PRD account", "Accounting document"]],
+          "objectives": ["Configure account determination", "Simulate postings", "Explain transaction keys"]
+        },
+        {
+          "topic": "Split Valuation and Price Control",
+          "subtopics": ["Standard price (S) and moving average price (V)", "Price changes with MR21", "Price differences on receipt and invoice", "Split valuation: valuation categories and types", "Header material and valuation records", "Use cases: in-house and external, new and refurbished", "Valuation type in purchasing and goods movements", "Effects on the material ledger"],
+          "tools": ["SAP GUI OMWC, MM01, MR21 and MIGO"],
+          "lab_task": "Set up split valuation for a spare part with new and refurbished valuation types, receive both types at different prices and change the standard price of a second material.",
+          "deliverable": "Split valuation configuration, valuation records and price change document",
+          "checks": [["Receive the new and refurbished types", "Each type has its own stock and price", "Stock overview"], ["Issue without a valuation type", "System requires the valuation type", "Error message"], ["Change the standard price with MR21", "Revaluation is posted", "Accounting document"]],
+          "objectives": ["Choose price control", "Configure split valuation", "Change material prices"]
+        },
+        {
+          "topic": "Batch Management and Serial Numbers in Procurement",
+          "subtopics": ["Batch level and batch number assignment", "Batch classification and characteristics", "Shelf-life expiration dates", "Batch determination in brief", "Batch where-used lists", "Serial number profiles", "Serialising at goods receipt", "Reporting on batches and serial numbers"],
+          "tools": ["SAP GUI OMCT, CT04, CL02, MSC1N and IQ01", "Batch Information Cockpit (BMBC)"],
+          "lab_task": "Make a raw material batch-managed with shelf-life data and a supplier lot characteristic, receive two batches, and serialise a tool at goods receipt.",
+          "deliverable": "Batch and serial number settings and test receipts",
+          "checks": [["Receive without a batch", "System requires a batch", "Error message"], ["Receive with a production date", "Expiry date is calculated", "Batch record"], ["Receive a serialised tool", "Serial numbers are assigned", "Serial number list"]],
+          "objectives": ["Configure batches", "Use serial numbers", "Trace batches"]
+        },
+        {
+          "topic": "Invoice Verification Configuration: Tolerances, ERS and Duplicate Checks",
+          "subtopics": ["Tolerance keys and limits", "Default values and tax codes", "Duplicate invoice check criteria", "Evaluated receipt settlement with MRRL", "Invoicing plans", "Stochastic and manual blocking", "Payment block reasons", "Supplier invoice capture with document extraction in brief"],
+          "tools": ["SAP GUI OMR6, OMRDC and MRRL", "Manage Supplier Invoices app"],
+          "lab_task": "Tighten price tolerances for one company code, turn on the duplicate check by reference and date, set up ERS for one supplier and run it.",
+          "deliverable": "Configuration document and test invoices",
+          "checks": [["Enter the same invoice twice", "Duplicate warning is issued", "Message"], ["Run MRRL for the ERS supplier", "Invoices are created from goods receipts", "Settlement log"], ["Post an invoice above the new tolerance", "Invoice is blocked", "Invoice display"]],
+          "objectives": ["Configure invoice verification", "Automate settlement", "Prevent duplicate payments"]
+        },
+        {
+          "topic": "Physical Inventory Configuration and Cycle Counting",
+          "subtopics": ["Physical inventory settings per plant", "Cycle counting indicators and ABC analysis", "Tolerance groups for inventory differences", "Creating documents in bulk with MICN", "Counting with mobile apps", "Freezing book inventory", "Inventory sampling in brief", "Reporting count accuracy"],
+          "tools": ["SAP GUI OMCO, MIBC, MICN and MI20"],
+          "lab_task": "Set cycle counting for a plant with ABC indicators and intervals, create documents with MICN, count, post differences inside the tolerance group and report accuracy.",
+          "deliverable": "Cycle counting configuration, documents and accuracy report",
+          "checks": [["Run MICN", "Documents are created for due materials only", "Document list"], ["Post a difference above the user's tolerance", "System refuses the posting", "Error message"], ["Report accuracy", "Count accuracy by ABC class is shown", "Report"]],
+          "objectives": ["Configure cycle counting", "Control differences", "Measure inventory accuracy"]
+        },
+        {
+          "topic": "MRP Configuration and MRP Live",
+          "subtopics": ["MRP areas and the planning file", "MRP types and lot-sizing procedures", "MRP groups", "Planning time fence and firming", "Creation indicators for requisitions and schedule lines", "MRP Live and classic MRP", "Exception messages", "MRP controllers and material coverage apps"],
+          "tools": ["SAP GUI OMDQ, OPPQ, OPPR and MD01N", "Manage Material Coverage app"],
+          "lab_task": "Configure an MRP group that creates scheduling agreement schedule lines with a two-week firming period, run MRP Live and work the exception messages.",
+          "deliverable": "MRP configuration, planning result and exception handling notes",
+          "checks": [["Run MRP Live for the MRP group", "Schedule lines are created", "MD04 screenshot"], ["Change a requirement inside the firming period", "Firmed lines are not changed", "Screenshot"], ["List exception messages", "Exceptions are grouped with actions", "Report"]],
+          "objectives": ["Configure MRP", "Run MRP Live", "Act on exceptions"]
+        },
+        {
+          "topic": "Supplier Evaluation and Procurement Analytics",
+          "subtopics": ["Supplier evaluation in S/4HANA", "Criteria: price, quality, delivery and questionnaires", "Weighting and scoring", "Operational KPIs: on-time delivery and order cycle time", "Spend and off-contract spend analysis", "Analytical CDS queries for procurement", "Custom analytical queries in brief", "Sharing dashboards with buyers"],
+          "tools": ["Supplier Evaluation apps", "Custom Analytical Queries app", "Procurement Overview Page"],
+          "lab_task": "Set up a supplier scorecard with price, delivery and quality weights, evaluate three suppliers and build a custom query for on-time delivery by purchasing group.",
+          "deliverable": "Scorecard, evaluation results and custom query",
+          "checks": [["Evaluate the three suppliers", "Scores per criterion are shown", "Scorecard"], ["Change the weighting", "Ranking changes as expected", "Screenshot"], ["Run the custom query", "On-time delivery rate by group", "Query output"]],
+          "objectives": ["Evaluate suppliers", "Build procurement KPIs", "Share analytics"]
+        },
+        {
+          "topic": "Intermediate Capstone: MM Configuration for a New Plant",
+          "subtopics": ["Organisation and master data configuration", "Purchasing documents, pricing and approvals", "Subcontracting, consignment and stock transfers", "Valuation, account determination and invoice verification", "Test scripts and evidence", "Design walkthrough"],
+          "tools": ["SAP S/4HANA", "SAP GUI SPRO", "SAP Fiori launchpad"],
+          "lab_task": "Configure MM for new plant 1030: organisation, a material type, an order type with approval, pricing with freight, a stock transport order from 1010, consignment for one supplier, account determination and invoice tolerances, then test and present.",
+          "deliverable": "Configuration workbook, transports, test scripts with evidence and a 15-minute walkthrough",
+          "checks": [["Run the test scripts", "All scripts pass with evidence", "Test log"], ["Run an STO from 1010 to 1030", "Transfer completes with correct postings", "Documents"], ["Answer design questions", "Choices explained with alternatives", "Walkthrough"]],
+          "objectives": ["Combine the intermediate topics", "Test configuration", "Explain design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior MM consultants, procurement solution architects and transformation leads. Covers procurement solution architecture, central procurement, SAP Ariba and SAP Business Network, guided buying and catalogues, embedded EWM, predictive and demand-driven planning, situation handling, Joule and AI, intercompany procurement, supplier risk and sustainability, migration and conversion, extensibility, integration, controls, archiving, testing, troubleshooting and procurement transformation.",
+      "prerequisites": ["Has configured SAP MM in at least one project", "Knows pricing, account determination, special procurement and invoice verification configuration", "Understands S/4HANA deployment options and integration basics"],
+      "outcomes": ["Design procurement architectures across S/4HANA, central procurement and SAP Business Network", "Lead planning, inventory, risk and AI improvements in procurement", "Plan procurement migration, conversion, extensions and integration", "Lead procurement transformation with controls, testing and roadmaps"],
+      "days": [
+        {
+          "topic": "Procurement Solution Architecture in S/4HANA",
+          "subtopics": ["Sourcing and procurement capability map", "Operational, strategic and central procurement", "Differences between S/4HANA Cloud Private Edition and Public Edition", "Fit-to-standard and the clean core", "Where SAP Ariba, SAP Business Network and SAP Fieldglass fit", "Organisation design for shared procurement", "Master data ownership", "Architecture decision records"],
+          "tools": ["SAP Signavio Process Navigator", "SAP Business Accelerator Hub", "Diagramming tool"],
+          "lab_task": "Design the procurement solution for a three-company group: organisation model, the split between operational and central procurement, network and catalogue scope and master data ownership, with three architecture decision records.",
+          "deliverable": "Solution architecture document with diagrams and decision records",
+          "checks": [["Map each group process to a component", "Every process has one owning component", "Capability map"], ["Review a decision record", "Alternatives and consequences are stated", "Decision record"], ["Classify the planned extensions", "Each extension has a clean core level", "Extension list"]],
+          "objectives": ["Design procurement architectures", "Choose deployment and component scope", "Record architecture decisions"]
+        },
+        {
+          "topic": "Central Procurement Across Multiple Back-End Systems",
+          "subtopics": ["The central procurement hub and connected systems", "Central requisitioning", "Central purchase contracts and their distribution", "Central purchasing and central sourcing", "Communication between hub and connected systems", "Connecting SAP ECC and S/4HANA systems", "Monitoring replication", "Organisational mapping for central procurement"],
+          "tools": ["SAP S/4HANA for central procurement", "Manage Central Purchase Contracts app", "Manage Purchase Requisitions Centrally app"],
+          "lab_task": "Create a central contract in the hub, distribute it to two connected systems, create requisitions in both and check that the release orders consume the central contract.",
+          "deliverable": "Central contract, distribution log and consumption report",
+          "checks": [["Distribute the central contract", "Local contracts are created in both systems", "Distribution log"], ["Create release orders in both systems", "Central contract consumption is updated", "Consumption report"], ["Break an organisational mapping and distribute again", "Error appears in the replication monitor", "Monitor screenshot"]],
+          "objectives": ["Design central procurement", "Distribute central contracts", "Monitor hub replication"]
+        },
+        {
+          "topic": "SAP Ariba and SAP Business Network Integration",
+          "subtopics": ["SAP Ariba Sourcing, Contracts, Buying and Supplier Management", "SAP Business Network for supplier collaboration", "Order, confirmation, advance shipping notice and invoice flows", "Integration through the SAP Integration Suite managed gateway", "cXML and document mapping", "Supplier onboarding and enablement", "Error handling and reprocessing", "Choosing S/4HANA sourcing or SAP Ariba"],
+          "tools": ["SAP Business Network", "SAP Integration Suite, managed gateway for spend management and SAP Business Network", "SAP Ariba Sourcing"],
+          "lab_task": "Set up order-to-invoice collaboration with a test supplier on SAP Business Network: send a purchase order, receive an order confirmation and an advance shipping notice, and post the network invoice in S/4HANA.",
+          "deliverable": "Message trace, S/4HANA documents and an integration error playbook",
+          "checks": [["Send a purchase order", "Order appears in the supplier's network inbox", "Network screenshot"], ["Receive the confirmation and shipping notice", "Confirmation and inbound delivery update S/4HANA", "S/4HANA documents"], ["Send an invoice with a wrong order number", "Error is caught and reprocessed after correction", "Message monitor"]],
+          "objectives": ["Integrate S/4HANA with SAP Business Network", "Run supplier collaboration", "Handle network errors"]
+        },
+        {
+          "topic": "Guided Buying, Catalogues and Self-Service Requisitioning",
+          "subtopics": ["Self-service requisitioning in S/4HANA", "Catalogues: punch-out (OCI) and uploaded catalogues", "Free-text requests and handover to buyers", "Guided buying in SAP Ariba", "Policies, approvals and spend limits", "Catalogue governance and content management", "User adoption and channel steering", "Measuring catalogue compliance"],
+          "tools": ["Create Purchase Requisition app", "Manage Catalog Items app", "SAP Ariba Guided Buying"],
+          "lab_task": "Configure a punch-out catalogue and an uploaded catalogue, define a policy that sends free-text requests over 1,000 EUR to buyers and measure catalogue compliance across a month of test orders.",
+          "deliverable": "Catalogue setup, policy, test orders and a compliance report",
+          "checks": [["Order from the punch-out catalogue", "Cart returns into the requisition with prices", "Requisition"], ["Submit a free-text request over the limit", "Request goes to the buyer's queue", "Workflow log"], ["Run the compliance report", "Share of spend through catalogues is shown", "Report"]],
+          "objectives": ["Design self-service buying", "Govern catalogues", "Measure buying channel compliance"]
+        },
+        {
+          "topic": "Embedded EWM and Inventory Management Design",
+          "subtopics": ["Inventory management, stock room management and embedded EWM", "Choosing embedded or decentralised EWM", "Warehouse structure: warehouse number, storage types and bins", "Inbound processing with EWM", "Putaway strategies", "How MM goods movements reach EWM", "Physical inventory in EWM", "Moving from LE-WM to EWM"],
+          "tools": ["SAP S/4HANA embedded EWM", "SAP GUI /SCWM/MON", "SAP GUI /SCWM/PRDI"],
+          "lab_task": "Compare stock room management and embedded EWM for a spare-parts warehouse, then receive a purchase order through EWM with putaway to bins and reconcile the stock with inventory management.",
+          "deliverable": "Decision paper and EWM inbound documents with a stock reconciliation",
+          "checks": [["Receive the order through EWM", "Inbound delivery and putaway tasks are completed", "Warehouse monitor"], ["Compare EWM stock with inventory management stock", "Quantities agree", "Reconciliation"], ["Defend the warehouse choice", "Criteria and costs explained", "Decision paper"]],
+          "objectives": ["Choose a warehouse solution", "Run inbound processing in EWM", "Plan the move from LE-WM"]
+        },
+        {
+          "topic": "Predictive MRP, Demand-Driven Replenishment and Material Coverage",
+          "subtopics": ["Limits of classic MRP", "Predictive MRP simulations", "Demand-driven MRP: buffer positioning and sizing", "Decoupling points", "Buffer zones and net flow position", "Material coverage and shortage handling", "Supplier capacity in planning", "Choosing a planning method per material"],
+          "tools": ["Process pMRP Simulations app", "Schedule Product Classification (DD) app", "Manage Buffer Levels app", "Monitor Material Coverage app"],
+          "lab_task": "Classify 20 materials for demand-driven replenishment, size buffers for five decoupled materials, simulate a demand spike with predictive MRP and present the replenishment plan.",
+          "deliverable": "Classification, buffer settings, simulation and a replenishment plan",
+          "checks": [["Run product classification", "Materials are grouped by value and variability", "Classification result"], ["Size the buffers", "Red, yellow and green zones are calculated", "Buffer levels"], ["Simulate the demand spike", "Shortages and proposed actions are shown", "Simulation result"]],
+          "objectives": ["Apply predictive and demand-driven planning", "Size buffers", "Choose planning methods"]
+        },
+        {
+          "topic": "Situation Handling and Exception Management in Procurement",
+          "subtopics": ["The situation handling framework", "Procurement situations: expiring contracts, delayed deliveries and exceeded quotas", "Situation templates and types", "Conditions and recipients", "Actions and resolutions", "Extended situation handling", "Monitoring situations", "Designing exception work for buyers"],
+          "tools": ["Manage Situation Types app", "My Situations app"],
+          "lab_task": "Activate situations for expiring contracts and overdue deliveries, assign recipients by purchasing group and resolve three situations from the buyers' inbox.",
+          "deliverable": "Situation types, raised situations and a resolution log",
+          "checks": [["Let a contract reach the expiry window", "Situation is raised for the responsible buyer", "My Situations screenshot"], ["Resolve an overdue delivery situation", "Situation closes with the action recorded", "Resolution log"], ["Change the recipients", "The new buyer receives the next situation", "Screenshot"]],
+          "objectives": ["Configure situation handling", "Route exceptions to buyers", "Design exception-based work"]
+        },
+        {
+          "topic": "Generative AI and Joule in Procurement",
+          "subtopics": ["Joule in S/4HANA: informational, navigational and transactional use", "Joule for operational purchasers: requisition and order status", "AI-assisted summaries of quotations and contracts", "Intelligent scenarios: predicted delivery dates and sourcing proposals", "Document extraction for supplier invoices", "AI governance, data privacy and approvals", "Checking AI suggestions", "Building a business case for AI in procurement"],
+          "tools": ["Joule", "SAP AI Core and Generative AI Hub", "Document Information Extraction"],
+          "lab_task": "Use Joule to find delayed purchase orders and their suppliers, check an AI summary of a supplier contract against the original, and write a governance note for AI use in the buying team.",
+          "deliverable": "Prompt log with checked results, contract summary review and a governance note",
+          "checks": [["Ask Joule for the open orders of a supplier", "Answer matches the ME2N list", "Comparison"], ["Check the contract summary", "Each claim is traced to a clause or marked wrong", "Review table"], ["Review the governance note", "Approval, privacy and human review rules are covered", "Governance note"]],
+          "objectives": ["Use Joule in procurement", "Check AI output", "Govern AI use"]
+        },
+        {
+          "topic": "Cross-Company Procurement and Intercompany Stock Transfers",
+          "subtopics": ["Intercompany procurement scenarios", "Cross-company stock transport orders", "Intercompany billing", "Transfer prices in intercompany flows", "Automatic intercompany invoice receipt with IDocs", "Legal and tax considerations", "Intercompany profit elimination in brief", "Monitoring intercompany flows"],
+          "tools": ["SAP GUI ME21N, VL10B, VF01 and MIRO", "SAP GUI WE02"],
+          "lab_task": "Run a cross-company stock transport order from company code 1010 to 1710 with a delivery, intercompany billing and automatic invoice receipt, and reconcile the postings in both company codes.",
+          "deliverable": "Document chain, postings in both company codes and a reconciliation",
+          "checks": [["Post goods issue in the supplying plant", "Cost of sales is posted in the supplying company", "Accounting document"], ["Receive the intercompany invoice through an IDoc", "Supplier invoice is created in the receiving company", "IDoc and invoice"], ["Reconcile both companies", "Intercompany receivable and payable match", "Reconciliation"]],
+          "objectives": ["Design intercompany procurement", "Automate intercompany invoices", "Reconcile intercompany flows"]
+        },
+        {
+          "topic": "Supplier Risk, Sustainability and Compliance in Procurement",
+          "subtopics": ["Supplier qualification and certificates", "Risk sources: financial, delivery and ESG", "Sustainability data in procurement: emissions and responsible sourcing", "Supply chain due diligence regulations", "Supplier blocks and phase-out", "SAP Ariba Supplier Risk and SAP Sustainability Footprint Management in brief", "Audit trails for supplier decisions", "Designing a supplier risk process"],
+          "tools": ["Supplier Evaluation apps", "SAP Ariba Supplier Risk", "SAP Sustainability Footprint Management"],
+          "lab_task": "Design a supplier risk and sustainability process for 30 key suppliers with criteria, data sources, thresholds, blocking rules and reporting, and test the blocking rule in S/4HANA.",
+          "deliverable": "Process design, risk register and a tested supplier block",
+          "checks": [["Score the suppliers", "Each supplier has a risk level", "Risk register"], ["Block a high-risk supplier", "New orders to the supplier are prevented", "Error message"], ["Review the design", "Regulatory requirements are mapped to controls", "Mapping table"]],
+          "objectives": ["Manage supplier risk", "Bring sustainability into sourcing", "Meet due diligence requirements"]
+        },
+        {
+          "topic": "Procurement Data Migration and Master Data Quality",
+          "subtopics": ["Migration objects: suppliers, materials, info records, contracts, open orders and stock", "The Migration Cockpit with staging tables", "Load sequence and dependencies", "Open purchase orders with partial receipts", "Initial stock and its valuation", "Data quality rules and cleansing", "Reconciliation and sign-off", "Master Data Governance in brief"],
+          "tools": ["Migrate Your Data - Migration Cockpit app", "Staging tables", "Excel"],
+          "lab_task": "Plan and run a mock load of 50 suppliers, 100 materials, info records, open purchase orders and initial stock through the Migration Cockpit, then reconcile counts and values.",
+          "deliverable": "Migration plan, load logs and a reconciliation sign-off",
+          "checks": [["Load a supplier with an invalid tax number", "Record is rejected with a message", "Load log"], ["Load initial stock", "Stock value equals the legacy value", "Reconciliation"], ["Load open purchase orders", "Open quantities match the legacy system", "Report"]],
+          "objectives": ["Plan procurement migration", "Run mock loads", "Reconcile migrated data"]
+        },
+        {
+          "topic": "MM in System Conversions: Simplification Items and Supplier Conversion",
+          "subtopics": ["Simplification items for sourcing and procurement", "Converting suppliers to business partners with CVI", "MATDOC and the inventory data model", "Retired transactions such as MB01 and MB1A replaced by MIGO", "The extended material number", "Changes in output management and workflow", "Readiness check findings for MM", "Custom code in procurement"],
+          "tools": ["SAP Readiness Check", "Simplification Item Catalog", "SAP GUI CVI_COCKPIT", "ABAP Test Cockpit"],
+          "lab_task": "Analyse a readiness check for an ECC system, classify every MM simplification item by effort, plan the supplier CVI conversion and find custom code that reads MKPF and MSEG directly.",
+          "deliverable": "Simplification item plan, CVI plan and custom code list",
+          "checks": [["Classify the simplification items", "Each item has an effort and an owner", "Plan"], ["Run the CVI precheck on test data", "Errors are listed with fixes", "Precheck report"], ["Find direct MSEG reads", "Custom objects are listed with their replacement", "ATC result"]],
+          "objectives": ["Plan MM in a conversion", "Convert suppliers to business partners", "Adapt procurement custom code"]
+        },
+        {
+          "topic": "Extending Procurement: Custom Fields, BAdIs and Side-by-Side Apps",
+          "subtopics": ["Extension options and clean core levels", "Custom fields in requisitions and purchase orders", "Custom logic with cloud BAdIs", "Developer extensibility with RAP", "Side-by-side apps on SAP BTP", "Released APIs for purchasing", "Governance of extensions", "Testing extensions"],
+          "tools": ["Custom Fields app", "Custom Logic app", "ABAP Development Tools", "SAP BTP"],
+          "lab_task": "Add a project code field to requisitions and orders that copies across documents, add a cloud BAdI check that requires it for capital orders and design a side-by-side approval app.",
+          "deliverable": "Extension objects, test results and a side-by-side design",
+          "checks": [["Save a capital order without a project code", "Custom logic blocks the save", "Error message"], ["Convert a requisition with a project code", "Project code is copied to the order", "Screenshot"], ["Review the side-by-side design", "Only released APIs are used", "Design document"]],
+          "objectives": ["Extend procurement on a clean core", "Add custom fields and logic", "Design side-by-side apps"]
+        },
+        {
+          "topic": "Procurement Integration Architecture: APIs, IDocs and Events",
+          "subtopics": ["Integration needs in procurement", "Released OData and SOAP APIs for purchasing", "IDocs for orders and invoices: ORDERS and INVOIC", "Business events for purchase orders", "SAP Integration Suite patterns", "Error handling and monitoring", "Securing integrations", "Choosing APIs, IDocs or events"],
+          "tools": ["SAP Business Accelerator Hub", "SAP Integration Suite", "SAP GUI WE02 and WE19", "SAP Integration Suite, advanced event mesh"],
+          "lab_task": "Design and test integration with an external quality system: create purchase orders through the API, publish a business event when an order changes and receive an invoice IDoc with an error-handling path.",
+          "deliverable": "Integration design, API test calls, event trace and IDoc monitor evidence",
+          "checks": [["Create a purchase order through the API", "Order is created with the sent data", "API response"], ["Change the order", "Business event is published", "Event trace"], ["Send a faulty invoice IDoc", "IDoc fails with status 51 and posts after correction", "WE02 screenshot"]],
+          "objectives": ["Design procurement integration", "Use APIs, IDocs and events", "Monitor integration errors"]
+        },
+        {
+          "topic": "Procurement Controls, Authorisations and Audit",
+          "subtopics": ["Segregation of duties in procure to pay", "Authorisation objects for purchasing and inventory", "Business roles and catalogues in S/4HANA", "Critical combinations: supplier maintenance and payment", "Change logs and audit trails", "The three-way match as a control", "Continuous control monitoring", "Preparing for audits"],
+          "tools": ["Maintain Business Roles app", "SAP GUI SU24 and SUIM", "SAP Access Control"],
+          "lab_task": "Design procure-to-pay roles for requester, buyer, receiver and invoice clerk, test them for conflicts and prepare an audit pack with change logs for five sample orders.",
+          "deliverable": "Role design, conflict report and audit pack",
+          "checks": [["Run conflict analysis on the roles", "No critical conflicts remain", "Conflict report"], ["Post an invoice as the buyer", "Buyer is not authorised", "Error message"], ["Pull change logs for the sample orders", "Every change is shown with user and time", "Audit pack"]],
+          "objectives": ["Design procurement roles", "Control segregation of duties", "Support audits"]
+        },
+        {
+          "topic": "Archiving and Data Volume in Procurement and Inventory",
+          "subtopics": ["Data volume growth in procurement and inventory tables", "Archiving objects for orders, requisitions and material documents", "Residence times and retention rules", "Information lifecycle management", "Blocking and deleting personal data of suppliers", "Data aging in brief", "Displaying archived documents", "Planning an archiving programme"],
+          "tools": ["SAP GUI SARA", "SAP Information Lifecycle Management", "SAP GUI DB02"],
+          "lab_task": "Analyse the largest procurement tables, set residence rules for orders and requisitions, run a test archive of closed orders and display one archived order.",
+          "deliverable": "Data volume analysis, archiving plan and archive run logs",
+          "checks": [["Archive closed purchase orders", "Archive file is written and orders are removed from the database", "SARA log"], ["Try to archive an open order", "Order is skipped as not archivable", "Archive log"], ["Display an archived order", "Order is read from the archive", "Screenshot"]],
+          "objectives": ["Manage procurement data volume", "Archive documents", "Apply retention rules"]
+        },
+        {
+          "topic": "Testing Procurement Processes at Scale",
+          "subtopics": ["Test strategy for procurement", "Process-based test scenarios from fit-to-standard", "Test data management", "Automated tests with Tricentis Test Automation for SAP", "Regression after releases and feature packs", "Testing with suppliers and finance", "Defect triage", "Test evidence and sign-off"],
+          "tools": ["SAP Cloud ALM test management", "Tricentis Test Automation for SAP", "Excel"],
+          "lab_task": "Write a regression suite for procure to pay, automate three scenarios and run the suite before and after a simulated configuration change.",
+          "deliverable": "Test strategy, regression suite, automated scenarios and run report",
+          "checks": [["Run the automated scenarios", "All pass before the change", "Run report"], ["Apply the change and run again", "The affected scenario fails with a clear defect", "Defect record"], ["Review traceability", "Each requirement maps to at least one test", "Traceability matrix"]],
+          "objectives": ["Plan procurement testing", "Automate regression tests", "Manage defects and sign-off"]
+        },
+        {
+          "topic": "Troubleshooting Procurement and Inventory Issues",
+          "subtopics": ["A method for analysing incidents", "Account determination errors", "Pricing and condition analysis", "Output and workflow failures", "Stock inconsistencies", "GR/IR and invoice block issues", "Using change logs, application logs and traces", "Writing root cause and prevention notes"],
+          "tools": ["SAP GUI SLG1 and ST22", "SAP for Me", "SAP GUI ME23N"],
+          "lab_task": "Solve five seeded incidents, a missing account determination, a wrong price, a stuck approval, a failed output and a GR/IR difference, and document the root cause and fix of each.",
+          "deliverable": "Five incident reports with root causes, fixes and prevention notes",
+          "checks": [["Fix the account determination incident", "The blocked posting now succeeds", "Accounting document"], ["Explain the wrong price", "The condition record that caused it is identified", "Analysis"], ["Restart the stuck approval", "Workflow completes", "Workflow log"]],
+          "objectives": ["Troubleshoot procurement incidents", "Find root causes", "Prevent repeat incidents"]
+        },
+        {
+          "topic": "Procurement Transformation Roadmaps and Solution Reviews",
+          "subtopics": ["Assessing procurement maturity", "Value drivers: spend under management, cycle time and touchless invoices", "Roadmap from ECC to S/4HANA and network collaboration", "Business case and KPIs", "Change management for buyers and requesters", "Solution review checklists", "Design authority and governance", "Presenting to stakeholders"],
+          "tools": ["SAP Signavio Process Insights", "SAP Signavio Process Intelligence", "Excel"],
+          "lab_task": "Review a procurement solution design against a checklist, propose a three-wave roadmap with KPIs and a business case and present it to a mock steering committee.",
+          "deliverable": "Review findings, roadmap, business case and presentation",
+          "checks": [["Review the design", "Findings are rated by risk", "Review report"], ["Build the KPIs", "Each KPI has a baseline and a target", "KPI sheet"], ["Present to the steering committee", "Questions answered with evidence", "Presentation"]],
+          "objectives": ["Review procurement solutions", "Build roadmaps and business cases", "Lead procurement change"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Plant Procurement Transformation Blueprint",
+          "subtopics": ["Target architecture and organisation", "Central procurement, network and catalogues", "Planning and inventory design", "Controls, risk and compliance", "Migration and conversion plan", "Board presentation and design defence"],
+          "tools": ["SAP S/4HANA", "SAP S/4HANA for central procurement", "SAP Business Network", "SAP Signavio"],
+          "lab_task": "Produce a procurement blueprint for a group with five plants in two countries covering architecture, central procurement, network collaboration, planning and inventory, controls, AI use, migration and the roadmap, prototype two scenarios and present it to a mock board.",
+          "deliverable": "Blueprint, two prototypes, roadmap and a 20-minute presentation",
+          "checks": [["Run the central contract prototype", "Contract is consumed from two systems", "Consumption report"], ["Run the network order-to-invoice prototype", "Invoice posts without manual touch", "S/4HANA documents"], ["Answer board questions", "Blueprint defended with evidence", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one blueprint", "Prove key scenarios", "Lead procurement transformation"]
+        }
+      ]
+    }
+  }
+}

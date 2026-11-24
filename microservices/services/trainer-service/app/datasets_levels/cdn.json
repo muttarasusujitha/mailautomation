@@ -1,0 +1,573 @@
+{
+  "domain": "CDN",
+  "name": "CDN",
+  "category": "Networking",
+  "icon": "globe",
+  "aliases": ["Content Delivery Network", "Edge Delivery", "Content Delivery Networks", "CDN Engineering", "Edge Caching", "CDN Performance and Caching"],
+  "certifications": ["AWS Certified Advanced Networking - Specialty", "Microsoft Certified: Azure Network Engineer Associate"],
+  "tools": ["Amazon CloudFront", "Cloudflare", "Akamai", "Fastly", "Azure Front Door", "AWS WAF", "Wrangler", "Fastly CLI", "AWS CLI", "Terraform", "curl", "OpenSSL", "WebPageTest", "k6"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For web developers, system administrators and junior cloud or network engineers who serve websites or APIs and are new to content delivery networks. Covers how edge locations, PoPs and origins fit together, the HTTP caching model from RFC 9111 (Cache-Control, validators, Age), reading cache status headers on Amazon CloudFront and Cloudflare, building first distributions and zones, cache keys, TTL precedence, purge and invalidation, versioned assets, compression, edge TLS and custom domains, HTTP/2 and HTTP/3 from the viewer side, origin error codes, custom error pages, geo restriction and measuring hit ratio and TTFB, ending with a static website capstone.",
+      "prerequisites": ["Understands HTTP requests, status codes and headers at the level of using browser developer tools", "Uses a terminal confidently, including curl, dig and environment variables", "Has an AWS account and a free Cloudflare account, a domain name they control and rights to create S3 buckets and DNS records"],
+      "outcomes": ["Explain the CDN request path from viewer to edge, through optional tiers, to origin, and predict whether a response will be cached", "Create and configure a CloudFront distribution and a Cloudflare zone with HTTPS, custom domains and cache rules", "Control freshness with Cache-Control, validators, TTL settings and versioned filenames, and remove stale content with purge or invalidation", "Diagnose cache misses and origin errors from response headers and report hit ratio, TTFB and origin offload"],
+      "days": [
+        {
+          "topic": "How a CDN Works: Edges, PoPs, Origins and Request Flow",
+          "subtopics": ["Points of presence, edge servers and regional caches", "Origin types: object storage, load balancers, web servers and APIs", "Anycast versus DNS-based request routing to the nearest edge", "The request flow: viewer, edge, optional tier, origin and back", "Cache hit, cache miss and pass-through requests", "What CDNs cache by default: static file extensions versus HTML and APIs", "Reverse proxy behaviour: connection reuse and TCP/TLS termination near the user", "Vendor map: CloudFront, Cloudflare, Akamai, Fastly and Azure Front Door"],
+          "tools": ["curl", "dig", "traceroute", "Cloudflare", "Amazon CloudFront"],
+          "lab_task": "Run dig +short against www.cloudflare.com and a CloudFront-hosted site such as aws.amazon.com and compare the answers, then fetch each with curl -sI and record server, via, cf-ray and x-amz-cf-pop headers. Request https://www.cloudflare.com/cdn-cgi/trace and note the colo= value. Draw the viewer-to-origin path for each and mark where the response was served.",
+          "deliverable": "Request-flow diagram for two CDN-served sites with the header evidence that identifies the serving edge",
+          "checks": [["Fetch https://www.cloudflare.com/cdn-cgi/trace with curl", "The output contains a colo= line with a three-letter airport code for the serving data centre", "Terminal output"], ["Run curl -sI against a CloudFront-served URL", "An x-amz-cf-pop header such as FRA56-P1 and a via header ending in (CloudFront) are present", "Saved response headers"], ["Repeat the curl -sI request against the CloudFront URL", "The x-cache header changes from Miss from cloudfront to Hit from cloudfront or already shows Hit", "Two header captures"]],
+          "objectives": ["Describe the components of a CDN and the request path", "Distinguish anycast from DNS-based edge selection", "Identify which edge served a response from its headers"]
+        },
+        {
+          "topic": "HTTP Request and Response Anatomy for Edge Delivery",
+          "subtopics": ["Request line, Host header and SNI and why a CDN needs both", "Response status classes that CDNs treat as cacheable by default (200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501)", "Content-Type, Content-Length and Transfer-Encoding: chunked", "Date, Age and Expires headers", "Range requests and 206 Partial Content", "Hop-by-hop headers stripped by proxies: Connection, Keep-Alive, Upgrade", "Via, X-Forwarded-For and X-Forwarded-Proto added by the edge", "Using curl -v, --resolve and -w timing variables"],
+          "tools": ["curl", "Chrome DevTools", "httpbin", "Amazon CloudFront"],
+          "lab_task": "Using curl -v, request https://httpbin.org/response-headers?Cache-Control=max-age=60 and label every request and response header. Send curl -r 0-99 against a large image on a CDN and confirm 206 with Content-Range. Use curl -w '%{http_code} %{size_download} %{time_starttransfer}\\n' -o /dev/null on five URLs and tabulate status, size and time to first byte.",
+          "deliverable": "Annotated header sheet plus a table of status, size and TTFB for five CDN-served URLs",
+          "checks": [["Request bytes 0-99 of a CDN image with curl -r 0-99", "Status 206 with Content-Range: bytes 0-99/<total> and a 100-byte body", "curl -v output"], ["Inspect a response through a CDN for an Age header", "Age is present with a non-negative integer number of seconds", "Header capture"], ["Run the curl -w timing command on five URLs", "A table of five rows with http_code, size_download and time_starttransfer is produced", "Timing table"]],
+          "objectives": ["Read and explain request and response headers relevant to caching", "Use range requests and identify partial responses", "Measure time to first byte from the command line"]
+        },
+        {
+          "topic": "Cache-Control Directives and Freshness Lifetimes",
+          "subtopics": ["max-age versus s-maxage for browser and shared caches", "public, private and what shared caches may store", "no-cache (store but revalidate) versus no-store (never store)", "must-revalidate and proxy-revalidate", "immutable for fingerprinted assets", "Expires and why Cache-Control takes precedence", "Heuristic freshness when no explicit lifetime is given", "Computing freshness lifetime, current age and staleness per RFC 9111"],
+          "tools": ["curl", "httpbin", "Amazon CloudFront", "Cloudflare"],
+          "lab_task": "Put an origin that returns configurable headers (httpbin /response-headers or an S3 object with metadata) behind CloudFront. Test four variants: max-age=60, s-maxage=300 with max-age=0, private and no-store. For each, request three times 10 seconds apart and record x-cache and Age. Summarise which variants the edge cached and for how long.",
+          "deliverable": "Freshness matrix showing edge behaviour and Age progression for four Cache-Control variants",
+          "checks": [["Origin sends Cache-Control: s-maxage=300, max-age=0", "The edge returns Hit from cloudfront on the second request while browsers must revalidate", "x-cache and Age headers"], ["Origin sends Cache-Control: no-store", "Every request shows Miss from cloudfront and Age is absent", "Three header captures"], ["Origin sends max-age=60 and requests are 10 seconds apart", "Age increases by about 10 on each hit and stays below 60", "Age values table"]],
+          "objectives": ["Select Cache-Control directives for browser and shared caches", "Explain the difference between no-cache and no-store", "Calculate freshness and age for a cached response"]
+        },
+        {
+          "topic": "Validators and Conditional Requests: ETag, Last-Modified and 304",
+          "subtopics": ["Strong and weak ETags (W/ prefix)", "Last-Modified and If-Modified-Since", "If-None-Match and 304 Not Modified responses", "How an edge revalidates a stale object with the origin", "RefreshHit and REVALIDATED cache results", "ETag changes caused by compression and multi-server origins", "Headers a 304 must carry: Cache-Control, ETag, Expires, Vary", "Bandwidth saved by revalidation versus full refetch"],
+          "tools": ["curl", "Amazon S3", "Amazon CloudFront", "Cloudflare"],
+          "lab_task": "Upload style.css to S3 with Cache-Control: max-age=30 and serve it through CloudFront. Capture the ETag, then send curl -sI -H 'If-None-Match: \"<etag>\"' to the origin and the edge and confirm 304. Wait 40 seconds, fetch through the edge and record x-cache: RefreshHit from cloudfront. Change the file and show the new ETag reaching viewers after expiry.",
+          "deliverable": "Revalidation walkthrough with captures of 200, 304 and RefreshHit responses",
+          "checks": [["Send If-None-Match with the current ETag to the edge", "Status 304 Not Modified with no response body", "curl -sI output"], ["Fetch the object after its 30-second max-age has passed without changing it", "x-cache shows RefreshHit from cloudfront", "Header capture"], ["Send If-None-Match with an outdated ETag after the file changed", "Status 200 with the new ETag and full body", "Header capture with new ETag"]],
+          "objectives": ["Explain strong and weak validators", "Trigger and read conditional requests and 304 responses", "Describe how edges revalidate stale content"]
+        },
+        {
+          "topic": "Reading Cache Status Headers Across Vendors",
+          "subtopics": ["CloudFront x-cache values: Hit, RefreshHit, Miss, LimitExceeded, Error", "Cloudflare cf-cache-status: HIT, MISS, EXPIRED, STALE, UPDATING, REVALIDATED, BYPASS, DYNAMIC", "Fastly X-Cache, X-Cache-Hits and X-Served-By", "Akamai X-Cache values TCP_HIT, TCP_MISS and TCP_MEM_HIT via Pragma debug headers", "Azure Front Door X-Cache: TCP_HIT, TCP_MISS, CONFIG_NOCACHE, PRIVATE_NOCACHE, UNCACHEABLE", "The standard Cache-Status header from RFC 9211", "Age as a cross-vendor hit indicator", "Why browser cache hits never reach the CDN and how to disable them while testing"],
+          "tools": ["curl", "Chrome DevTools", "Cloudflare", "Fastly", "Amazon CloudFront", "Azure Front Door"],
+          "lab_task": "Write a shell script cachecheck.sh that takes a URL, requests it twice with curl -sI, and prints the vendor detected (cf-ray, x-amz-cf-id, x-served-by, x-azure-ref) and its cache status. Run it on ten public URLs from at least three vendors and record the first and second results.",
+          "deliverable": "cachecheck.sh script and a ten-URL results table with vendor and cache status per request",
+          "checks": [["Run cachecheck.sh on a Cloudflare-served static asset", "Vendor Cloudflare detected and cf-cache-status reported as HIT, MISS or another valid value", "Script output"], ["Run cachecheck.sh on a URL with no CDN", "Script prints vendor unknown and no cache status", "Script output"], ["Run the script on ten URLs", "At least three different vendors appear in the results table", "Results table"]],
+          "objectives": ["Interpret cache status headers from five CDN vendors", "Use Age and Cache-Status as portable signals", "Build a repeatable cache-checking script"]
+        },
+        {
+          "topic": "First CloudFront Distribution with an S3 Origin and Origin Access Control",
+          "subtopics": ["Distributions, origins and the default cache behavior", "Private S3 bucket with Block Public Access enabled", "Origin access control (OAC) and the bucket policy it requires", "Managed cache policy CachingOptimized", "Viewer protocol policy: redirect HTTP to HTTPS", "Default root object and the *.cloudfront.net domain", "Price classes and which edge locations they include", "Deployment status: InProgress versus Deployed"],
+          "tools": ["AWS CLI", "Amazon CloudFront", "Amazon S3", "AWS Management Console"],
+          "lab_task": "Create a private S3 bucket with Block Public Access on, upload index.html and app.js, then create a CloudFront distribution with an OAC, the CachingOptimized policy and redirect-to-https. Apply the generated bucket policy. Confirm the S3 URL returns 403 AccessDenied while https://<id>.cloudfront.net/ returns 200, and that a second request shows Hit from cloudfront.",
+          "deliverable": "Running distribution with OAC, the bucket policy JSON and proof of direct-access denial",
+          "checks": [["Request the S3 object URL directly", "403 with an AccessDenied XML error", "curl output"], ["Request http://<id>.cloudfront.net/", "301 redirect to the https:// URL", "curl -sI output"], ["Run aws cloudfront get-distribution --id <id> --query Distribution.Status", "Output is \"Deployed\"", "CLI output"]],
+          "objectives": ["Create a CloudFront distribution in front of a private bucket", "Restrict origin access with OAC", "Verify HTTPS redirection and caching"]
+        },
+        {
+          "topic": "First Cloudflare Zone: Proxied Records, SSL Modes and Cache Rules",
+          "subtopics": ["Adding a zone and switching nameservers", "Proxied (orange cloud) versus DNS-only records", "SSL/TLS encryption modes: Off, Flexible, Full and Full (strict)", "Why Flexible mode causes redirect loops with HTTPS-only origins", "Default cached file extensions and why HTML is DYNAMIC", "Cache Rules: eligible for cache, edge TTL and browser TTL", "Development Mode and when to use it", "Zone analytics: requests, bandwidth and cached percentage"],
+          "tools": ["Cloudflare dashboard", "curl", "dig", "Cloudflare"],
+          "lab_task": "Add a test domain to Cloudflare, create a proxied A or CNAME record to your origin and set SSL mode to Full (strict). Fetch /index.html and record cf-cache-status: DYNAMIC. Create a Cache Rule matching URI path ends with .html that marks it eligible for cache with an edge TTL of 1 hour, then show MISS followed by HIT. Run dig to show Cloudflare IPs instead of the origin IP.",
+          "deliverable": "Configured zone with a Cache Rule and before-and-after header captures for HTML caching",
+          "checks": [["Run dig +short on the proxied hostname", "Only Cloudflare anycast addresses are returned and the origin IP does not appear", "dig output"], ["Request index.html before adding the Cache Rule", "cf-cache-status: DYNAMIC", "Header capture"], ["Request index.html twice after adding the Cache Rule", "cf-cache-status: MISS then HIT", "Two header captures"]],
+          "objectives": ["Onboard a zone to Cloudflare with proxied records", "Choose the correct SSL/TLS mode", "Make HTML cacheable with a Cache Rule"]
+        },
+        {
+          "topic": "Cache Keys: Query Strings, Headers and Cookies",
+          "subtopics": ["What a cache key is: host, path and selected request attributes", "Query string handling: none, all, allowlist and ignore", "Header and cookie inclusion and their effect on hit ratio", "CloudFront cache policies versus origin request policies", "Cloudflare cache key options in Cache Rules", "Unwanted fragmentation from utm_ and gclid parameters", "Forwarding a value to the origin without adding it to the key", "Testing key behaviour with controlled query strings"],
+          "tools": ["Amazon CloudFront", "Cloudflare", "curl", "AWS CLI"],
+          "lab_task": "Create a CloudFront cache policy that includes only the query string 'v' in the key and an origin request policy that forwards all query strings. Request /app.js?v=1&utm_source=a and /app.js?v=1&utm_source=b and show the second is a Hit. Then request ?v=2 and show a Miss. Repeat the experiment on Cloudflare with a Cache Rule that ignores query strings and record the difference.",
+          "deliverable": "Cache key policy definitions and a request table proving which variations share a cache entry",
+          "checks": [["Request /app.js?v=1&utm_source=a then ?v=1&utm_source=b", "The second request returns Hit from cloudfront", "Two header captures"], ["Request /app.js?v=2 after the above", "Miss from cloudfront because v is part of the key", "Header capture"], ["Check the origin access log for the utm_source parameter", "The origin received utm_source=a in the forwarded query string", "Origin log line"]],
+          "objectives": ["Explain how cache keys determine hits", "Configure cache and origin request policies separately", "Reduce fragmentation by excluding irrelevant query parameters"]
+        },
+        {
+          "topic": "TTL Precedence: Origin Headers vs CDN Defaults, Minimums and Maximums",
+          "subtopics": ["CloudFront minimum, default and maximum TTL in cache policies", "How s-maxage and max-age interact with CloudFront TTL bounds", "Default TTL applied when the origin sends no caching headers", "Cloudflare Edge TTL modes: use origin headers versus override", "Browser TTL settings versus edge TTL", "Caching of 404 and other error responses", "Choosing TTLs for HTML, APIs, images and fingerprinted assets", "Documenting a TTL policy per content type"],
+          "tools": ["Amazon CloudFront", "Cloudflare", "curl", "Amazon S3"],
+          "lab_task": "Create a CloudFront cache policy with MinTTL 60, DefaultTTL 300 and MaxTTL 3600. Serve three S3 objects with no Cache-Control, max-age=10 and max-age=86400. Measure how long each stays a Hit by polling every 30 seconds with curl and recording Age until it resets. Write a TTL table explaining which bound applied for each object.",
+          "deliverable": "TTL precedence table with measured cache lifetimes and the rule that produced each",
+          "checks": [["Object with no Cache-Control under DefaultTTL 300", "It stays cached for about 300 seconds before a Miss or RefreshHit", "Polling log with Age values"], ["Object with max-age=10 under MinTTL 60", "The edge keeps it for about 60 seconds, not 10", "Polling log"], ["Object with max-age=86400 under MaxTTL 3600", "Age never exceeds 3600 seconds at the edge", "Polling log"]],
+          "objectives": ["Predict the effective edge TTL from origin headers and CDN settings", "Separate browser TTL from edge TTL", "Write a TTL policy by content type"]
+        },
+        {
+          "topic": "Invalidation and Purge: Paths, Wildcards and Purge Everything",
+          "subtopics": ["CloudFront create-invalidation with explicit paths and /*", "How CloudFront counts invalidation paths and the free monthly allowance", "Invalidation status: InProgress and Completed", "Cloudflare purge by URL, purge everything and their API calls", "Purge versus waiting for TTL expiry", "Browser caches are not purged by a CDN purge", "Origin load spike after purge everything", "Purge API tokens with least privilege"],
+          "tools": ["AWS CLI", "Cloudflare API", "curl", "jq"],
+          "lab_task": "Change app.js at the origin and confirm the edge still serves the old version. Run aws cloudfront create-invalidation --distribution-id <id> --paths '/app.js' and poll get-invalidation until Completed, then confirm the new content and a Miss. On Cloudflare, POST to /client/v4/zones/<zone_id>/purge_cache with {\"files\":[\"https://<host>/app.js\"]} using a token scoped to Cache Purge and record the response and timing.",
+          "deliverable": "Purge runbook for CloudFront and Cloudflare with commands, timings and verification steps",
+          "checks": [["Run get-invalidation after create-invalidation", "Status changes from InProgress to Completed", "CLI output"], ["Call the Cloudflare purge_cache endpoint with a valid token", "JSON response with \"success\": true", "API response"], ["Call the purge endpoint with a token lacking Cache Purge permission", "Request fails with success false and an authentication error", "API response"]],
+          "objectives": ["Invalidate specific paths on CloudFront and Cloudflare", "Explain purge costs and side effects", "Scope purge credentials to least privilege"]
+        },
+        {
+          "topic": "Cache-Busting with Versioned Asset Filenames",
+          "subtopics": ["Content hashes in filenames, for example app.3f9c2a.js", "Long max-age with immutable for hashed assets", "Short TTL or no-cache for HTML that references assets", "Build tool output: Vite and webpack manifests", "Query-string versioning versus filename versioning", "Deploy order: upload assets first, then HTML", "Keeping old asset versions available during rollout", "Removing the need for most invalidations"],
+          "tools": ["Vite", "AWS CLI", "Amazon S3", "Amazon CloudFront", "curl"],
+          "lab_task": "Build a small Vite app so output files get content hashes. Upload assets with aws s3 sync dist/assets s3://<bucket>/assets --cache-control 'public, max-age=31536000, immutable' and index.html with 'no-cache'. Change a component, rebuild and redeploy without any invalidation, then show the browser loads the new hashed file while the old one is still retrievable.",
+          "deliverable": "Deployment script that sets per-file Cache-Control and a demonstration of a release with zero invalidations",
+          "checks": [["Inspect headers for a hashed asset", "Cache-Control: public, max-age=31536000, immutable", "curl -sI output"], ["Deploy a change without invalidation and reload the page", "index.html references a new hashed filename and the new code runs", "Browser network panel screenshot"], ["Request the previous hashed filename after deploy", "It still returns 200, so cached HTML in old tabs keeps working", "curl output"]],
+          "objectives": ["Apply filename versioning to static assets", "Set Cache-Control per file type during deployment", "Release changes without purges"]
+        },
+        {
+          "topic": "Compression at the Edge: gzip, Brotli and Zstandard",
+          "subtopics": ["Accept-Encoding negotiation and Content-Encoding", "Edge compression versus origin compression", "Brotli and gzip support on CloudFront cache policies", "Zstandard support on Cloudflare and browsers that advertise zstd", "Content types worth compressing and those that are not (JPEG, MP4)", "Minimum and maximum object sizes for edge compression", "Vary: Accept-Encoding and separate cache entries per encoding", "Measuring compression ratio and transfer time"],
+          "tools": ["curl", "Amazon CloudFront", "Cloudflare", "Chrome DevTools"],
+          "lab_task": "Enable compression on a CloudFront cache policy with gzip and Brotli. Request a 300 KB JavaScript file three times with curl -sI -H 'Accept-Encoding: br', 'gzip' and none, and record Content-Encoding and Content-Length. Repeat on a Cloudflare zone, adding 'zstd'. Report the compression ratio for each encoding and confirm a JPEG is not recompressed.",
+          "deliverable": "Compression comparison table by vendor and encoding with sizes and ratios",
+          "checks": [["Request the JavaScript file with Accept-Encoding: br", "Content-Encoding: br and a size well below the 300 KB original", "Header capture"], ["Request without Accept-Encoding", "No Content-Encoding header and the full uncompressed size", "Header capture"], ["Request a JPEG with Accept-Encoding: gzip", "No Content-Encoding is applied to the image", "Header capture"]],
+          "objectives": ["Configure edge compression on two CDNs", "Explain encoding negotiation and its cache impact", "Measure the bandwidth saved by compression"]
+        },
+        {
+          "topic": "Edge TLS: Certificates, SNI and HTTPS Redirects",
+          "subtopics": ["TLS termination at the edge and re-encryption to origin", "SNI and why dedicated-IP certificates are rarely needed", "ACM certificates for CloudFront must be issued in us-east-1", "Cloudflare Universal SSL and edge certificates", "Minimum TLS version and security policies such as TLSv1.2_2021", "HTTP to HTTPS redirects at the edge", "Inspecting certificate chains with openssl s_client", "Common errors: name mismatch and expired certificates"],
+          "tools": ["OpenSSL", "AWS Certificate Manager", "Amazon CloudFront", "Cloudflare", "curl"],
+          "lab_task": "Request an ACM certificate in us-east-1 for cdn.<yourdomain> using DNS validation and attach it to your distribution with security policy TLSv1.2_2021. Run openssl s_client -connect cdn.<yourdomain>:443 -servername cdn.<yourdomain> and record subject, issuer and protocol. Show that curl --tlsv1.1 --tls-max 1.1 fails. Compare with the Cloudflare edge certificate for your zone.",
+          "deliverable": "TLS configuration record with certificate details and protocol test results for both CDNs",
+          "checks": [["Run openssl s_client with the correct -servername", "Verify return code: 0 (ok) and the certificate subject matches the hostname", "openssl output"], ["Connect forcing TLS 1.1 to the CloudFront hostname", "Handshake fails with a protocol version alert", "curl or openssl error"], ["Try attaching an ACM certificate issued in eu-west-1", "The certificate is not offered for selection in the distribution settings", "Console screenshot"]],
+          "objectives": ["Attach and verify an edge certificate", "Set a minimum TLS version policy", "Diagnose certificate name and region problems"]
+        },
+        {
+          "topic": "Custom Domains: CNAMEs, Apex Records and Certificate Validation",
+          "subtopics": ["Alternate domain names (CNAMEs) on a CloudFront distribution", "Pointing a subdomain with a CNAME to the CDN hostname", "Apex domains: Route 53 alias records and Cloudflare CNAME flattening", "Domain ownership proof through certificate validation", "Error 'CNAMEAlreadyExists' and moving a domain between distributions", "Host header behaviour toward the origin", "Testing before cutover with curl --resolve", "Rollback plan for a domain cutover"],
+          "tools": ["Amazon Route 53", "Amazon CloudFront", "Cloudflare", "curl", "dig"],
+          "lab_task": "Add www.<yourdomain> and the apex <yourdomain> as alternate domain names on the distribution. Before changing DNS, test with curl --resolve www.<yourdomain>:443:<edge-ip> https://www.<yourdomain>/. Then create a CNAME for www and a Route 53 alias A/AAAA record for the apex, and confirm both names serve the same object with a valid certificate.",
+          "deliverable": "Domain cutover checklist with pre-cutover test output and final DNS records",
+          "checks": [["Run curl --resolve against an edge IP before the DNS change", "200 response with a valid certificate for www.<yourdomain>", "curl -v output"], ["Run dig +short on the apex after creating the alias record", "Returns CloudFront IPv4 addresses directly without a CNAME", "dig output"], ["Request a hostname not listed as an alternate domain name", "CloudFront returns 403 with a Bad request error page", "curl output"]],
+          "objectives": ["Attach custom domains to a CDN", "Handle apex domains with alias or flattening", "Test a cutover safely before changing DNS"]
+        },
+        {
+          "topic": "HTTP/2 Multiplexing and HTTP/3 over QUIC from the Viewer Side",
+          "subtopics": ["HTTP/1.1 connection limits and head-of-line blocking", "HTTP/2 streams, HPACK header compression and ALPN h2", "HTTP/3 over QUIC on UDP 443 and QPACK", "Alt-Svc: h3=\":443\" advertisement and browser upgrade behaviour", "Enabling HTTP/3 on CloudFront and Cloudflare", "curl --http2 and --http3 tests", "Why some networks block UDP and how fallback works", "Reading the Protocol column in browser DevTools"],
+          "tools": ["curl", "Chrome DevTools", "Amazon CloudFront", "Cloudflare"],
+          "lab_task": "Enable HTTP/2 and HTTP/3 on your CloudFront distribution and Cloudflare zone. Run curl -sI --http2 and curl -sI --http3 (using a curl build with HTTP/3) against each and record the protocol line and Alt-Svc header. Load a page with 40 images in Chrome, show h2 or h3 in the Protocol column, and compare total load time against the same page forced to HTTP/1.1.",
+          "deliverable": "Protocol test report with curl output, DevTools screenshots and a load-time comparison",
+          "checks": [["Run curl -sI --http3 against the CDN hostname", "Response line begins with HTTP/3 200", "curl output"], ["Inspect response headers over HTTP/2", "An Alt-Svc header advertising h3 is present", "Header capture"], ["Load the 40-image page in Chrome with the Protocol column enabled", "Requests show h2 or h3 rather than http/1.1", "DevTools screenshot"]],
+          "objectives": ["Explain the differences between HTTP/1.1, HTTP/2 and HTTP/3", "Enable and verify HTTP/2 and HTTP/3 on a CDN", "Observe protocol negotiation in tools"]
+        },
+        {
+          "topic": "Origin Errors at the Edge: 502, 503, 504 and Cloudflare 52x Codes",
+          "subtopics": ["CloudFront 502 from TLS or certificate mismatch to origin", "CloudFront 504 from origin timeouts and the origin response timeout setting", "Cloudflare 520 unknown error, 521 web server down and 522 connection timed out", "Cloudflare 524 timeout after 100 seconds and 525/526 SSL errors", "Distinguishing edge-generated errors from origin errors", "Using x-amz-cf-id and cf-ray to correlate with logs and support", "Origin connection attempts and connection timeout settings", "Checklist approach to origin error diagnosis"],
+          "tools": ["curl", "OpenSSL", "Amazon CloudFront", "Cloudflare", "Python http.server"],
+          "lab_task": "Reproduce four failures on purpose: stop the origin web server, block the edge with a firewall rule, give the origin a self-signed certificate with Full (strict) on Cloudflare, and add a 120-second sleep in an origin endpoint. Record the status code and error page from each CDN, the correlation ID header, and the fix that restores 200.",
+          "deliverable": "Error catalogue with cause, CDN status code, correlation ID and fix for each failure",
+          "checks": [["Origin web server stopped behind Cloudflare", "Cloudflare returns 521", "Error page screenshot with Ray ID"], ["Self-signed origin certificate with SSL mode Full (strict)", "Cloudflare returns 526 Invalid SSL certificate", "Error page screenshot"], ["Origin endpoint sleeps 120 seconds behind CloudFront with a 30-second response timeout", "CloudFront returns 504 Gateway Timeout", "curl output with x-amz-cf-id"]],
+          "objectives": ["Map CDN error codes to origin causes", "Correlate failures using request IDs", "Apply a checklist to restore service"]
+        },
+        {
+          "topic": "Custom Error Pages and Error Caching TTLs",
+          "subtopics": ["CloudFront custom error responses and error caching minimum TTL", "Returning a branded 404 page from a separate path", "Single-page application routing: mapping 403/404 to /index.html and its risks", "Cloudflare custom error pages and Error Pages rules", "Negative caching and its effect on origin load", "Why caching 5xx errors for too long extends outages", "Preserving the original status code for SEO", "Testing error behaviour with missing objects"],
+          "tools": ["Amazon CloudFront", "Cloudflare", "AWS CLI", "curl"],
+          "lab_task": "Upload /errors/404.html and configure CloudFront to return it with status 404 and an error caching minimum TTL of 30 seconds. Request a missing path and confirm 404 with your page. Upload the missing object and measure how long until it is served. Then set 5xx error caching TTL to 10 seconds and explain the trade-off in one paragraph.",
+          "deliverable": "Error page configuration and measurements showing the effect of error caching TTL",
+          "checks": [["Request a path that does not exist", "Status 404 with the custom 404.html body", "curl output"], ["Upload the missing object and poll every 5 seconds", "200 is returned after about 30 seconds, matching the error caching TTL", "Polling log"], ["Check the status code with the SPA rewrite rule for 404 to /index.html", "Status 200 is returned, showing the original 404 is hidden", "curl output and explanation"]],
+          "objectives": ["Configure custom error responses", "Tune error caching TTLs", "Explain SEO and outage effects of error handling choices"]
+        },
+        {
+          "topic": "Geo Restriction and Simple Access Controls",
+          "subtopics": ["CloudFront geographic restrictions: allowlist and blocklist", "Country detection headers: CloudFront-Viewer-Country and CF-IPCountry", "Cloudflare custom rules matching ip.src.country", "IP allow lists for staging environments", "403 responses from geo blocking and how to recognise them", "Accuracy limits of IP geolocation and VPN traffic", "Licensing and legal reasons for geo restriction", "Logging blocked requests for review"],
+          "tools": ["Amazon CloudFront", "Cloudflare", "curl", "AWS CLI"],
+          "lab_task": "Enable a CloudFront geo restriction blocklist for one country and verify with a VPN or a test proxy that requests from it receive 403. Add CloudFront-Viewer-Country to an origin request policy and echo it from the origin. On Cloudflare, create a custom rule (ip.src.country eq \"XX\") with action Block and confirm it appears in Security Events.",
+          "deliverable": "Geo control configuration for both CDNs with test evidence and a note on geolocation accuracy",
+          "checks": [["Request from a blocked country", "CloudFront returns 403 with a geo restriction error", "curl output via proxy"], ["Origin echoes the CloudFront-Viewer-Country header", "The two-letter ISO country code of the test client is returned", "Response body"], ["Trigger the Cloudflare custom rule", "The request is listed in Security Events with action Block", "Dashboard screenshot"]],
+          "objectives": ["Apply geo restrictions on two CDNs", "Pass viewer country to the origin", "Explain the limits of IP geolocation"]
+        },
+        {
+          "topic": "Measuring CDN Benefit: Hit Ratio, TTFB and Origin Offload",
+          "subtopics": ["Request hit ratio versus byte hit ratio", "Origin offload and why it differs from hit ratio", "CloudFront reports: cache statistics and popular objects", "Cloudflare analytics: cached requests and bandwidth", "TTFB from different regions with curl -w", "Warm versus cold cache measurements", "Sample size and percentiles instead of averages", "Presenting before-and-after results"],
+          "tools": ["curl", "Amazon CloudWatch", "Cloudflare", "WebPageTest", "hey"],
+          "lab_task": "Run 1,000 requests with hey -n 1000 -c 20 against a page served directly from the origin and through the CDN. Record p50 and p95 latency for both. Then read CloudFront cache statistics or Cloudflare analytics for the hour and compute request hit ratio, byte hit ratio and origin offload. Present the numbers in a one-page report.",
+          "deliverable": "One-page CDN benefit report with latency percentiles, hit ratios and origin offload",
+          "checks": [["Compare p95 latency for origin and CDN runs", "CDN p95 is lower than origin p95 for cached content", "hey summaries"], ["Compute request hit ratio from analytics", "A percentage between 0 and 100 with the formula hits / total requests shown", "Calculation sheet"], ["Compute origin offload from bytes served at edge versus origin", "Offload percentage derived from edge bytes and origin bytes", "Calculation sheet"]],
+          "objectives": ["Measure latency percentiles with and without a CDN", "Calculate hit ratio, byte hit ratio and offload", "Report CDN benefit with evidence"]
+        },
+        {
+          "topic": "Beginner Capstone: Static Website on a CDN with HTTPS, Caching Policy and Purge Workflow",
+          "subtopics": ["Requirements: custom domain, HTTPS only, versioned assets and a branded 404", "CloudFront with OAC to a private S3 bucket and a Cloudflare comparison zone", "Per-file Cache-Control and a documented TTL policy", "Deploy script with sync, cache headers and targeted invalidation of HTML only", "Verification of headers, protocols and error behaviour", "Hit ratio and TTFB report and a presentation"],
+          "tools": ["Amazon CloudFront", "Amazon S3", "AWS CLI", "Cloudflare", "curl", "Vite"],
+          "lab_task": "Deliver a static site at https://www.<yourdomain> on CloudFront with OAC, an ACM certificate, HTTP/3, hashed assets cached for one year, HTML with no-cache and a custom 404. Write deploy.sh that builds, syncs with correct headers and invalidates only /index.html. Run hey for 1,000 requests and achieve at least a 90 percent request hit ratio on assets.",
+          "deliverable": "Live site, deploy.sh, TTL policy document and a measured hit ratio and TTFB report",
+          "checks": [["Run deploy.sh after changing one component", "Exactly one invalidation path, /index.html, is created and the change is live", "Script output and invalidation list"], ["Request http://www.<yourdomain>/missing", "Redirect to HTTPS then 404 with the custom page", "curl -L output"], ["Read hit ratio for assets after the load test", "Request hit ratio is 90 percent or higher", "Analytics screenshot"]],
+          "objectives": ["Combine distribution, certificate, caching and purge practices in one deployment", "Automate releases with correct cache headers", "Prove performance with measured hit ratio and TTFB"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already run a site on a CDN and now need to cache dynamic content, protect private assets and operate the edge with evidence. Covers cache key design for APIs, Vary and content negotiation, stale-while-revalidate and stale-if-error, surrogate keys and cache tags, origin shield and tiered caching, multi-origin routing, origin failover, locking down origins, signed URLs and cookies, response header policies, CloudFront Functions and Cloudflare Workers, image optimisation, video on demand with HLS and DASH, WAF and rate limiting rules, log pipelines, real user monitoring, Azure Front Door and Terraform-managed CDN configuration.",
+      "prerequisites": ["Completed the beginner level or can configure a CloudFront distribution or Cloudflare zone with HTTPS, cache rules and purge", "Reads Cache-Control, ETag, Vary and cache status headers and predicts hit or miss behaviour", "Writes small JavaScript functions and shell scripts and can apply a Terraform configuration"],
+      "outcomes": ["Design cache keys, Vary handling, stale policies and tag-based purge that keep hit ratio high for dynamic sites and APIs", "Build resilient origin topologies with shielding, tiered caching, path-based routing and automatic failover", "Protect content and origins with signed URLs and cookies, origin lockdown, WAF managed rules and rate limiting", "Run edge logic, image and video delivery, logging and RUM pipelines, and manage CDN configuration as code"],
+      "days": [
+        {
+          "topic": "Designing Cache Key Policies for Dynamic Sites and APIs",
+          "subtopics": ["Identifying which request attributes actually change the response", "Caching authenticated versus anonymous traffic separately", "Query string normalisation and allowlists for API parameters", "Header-based variants: Accept-Language, device class and CloudFront-Is-Mobile-Viewer", "Cookie allowlists instead of forwarding all cookies", "Cache keys for GET versus POST and why POST is not cached", "Short TTL microcaching for API responses", "Measuring cardinality of the cache key from logs"],
+          "tools": ["Amazon CloudFront", "Cloudflare", "curl", "Amazon Athena", "k6"],
+          "lab_task": "Put a product API with /products?category=&page=&sessionid= behind CloudFront. Create a cache policy keyed on category and page only, with a 10-second TTL, and an origin request policy that forwards sessionid. Run k6 with 50 virtual users for 2 minutes using random sessionid values and report hit ratio. Repeat with all query strings in the key and compare.",
+          "deliverable": "Cache key design note for the API with k6 hit ratio results for both policies",
+          "checks": [["Run k6 with the allowlisted cache key policy", "Hit ratio above 80 percent for repeated category and page combinations", "k6 summary and CloudFront cache statistics"], ["Run k6 with all query strings in the key", "Hit ratio near zero because every sessionid creates a new key", "k6 summary and statistics"], ["Send a POST to /products through the distribution", "x-cache shows Miss from cloudfront on every attempt", "Header captures"]],
+          "objectives": ["Choose cache key components from response variation", "Cache API responses with microcaching", "Quantify the effect of key cardinality on hit ratio"]
+        },
+        {
+          "topic": "Vary, Content Negotiation and Cache Fragmentation",
+          "subtopics": ["How shared caches handle the Vary response header", "Vary: Accept-Encoding as the safe default", "Vary: User-Agent and why it destroys hit ratio", "Vary: Accept for image format negotiation", "Vary: Origin for CORS responses", "CDN-specific handling: Cloudflare Vary for images and CloudFront normalising Accept-Encoding", "Normalising headers at the edge before they reach the key", "Detecting fragmentation from hit ratio by URL"],
+          "tools": ["curl", "Amazon CloudFront", "Cloudflare", "Fastly"],
+          "lab_task": "Return Vary: User-Agent from an origin endpoint behind a CDN and request it with 20 different User-Agent strings, counting misses. Change the origin to Vary: Accept-Encoding and normalise device type into a header (mobile or desktop) at the edge, then repeat. Report miss counts and explain which variants the cache now stores.",
+          "deliverable": "Fragmentation experiment with miss counts before and after Vary normalisation",
+          "checks": [["20 distinct User-Agent values with Vary: User-Agent", "20 misses, one per User-Agent string", "Request log with cache status"], ["Same 20 requests after normalising to a device header", "Two misses in total, one for mobile and one for desktop", "Request log"], ["CORS request from two Origins with Vary: Origin", "Each origin receives its own Access-Control-Allow-Origin value", "Header captures"]],
+          "objectives": ["Explain Vary and its effect on shared caches", "Normalise request headers to limit variants", "Serve correct CORS responses from cache"]
+        },
+        {
+          "topic": "Stale Content Strategies: stale-while-revalidate, stale-if-error and Serve-Stale",
+          "subtopics": ["stale-while-revalidate and stale-if-error from RFC 5861", "Request collapsing so one revalidation serves many viewers", "Cloudflare UPDATING and STALE cache statuses", "CloudFront support for stale-while-revalidate and stale-if-error directives", "Fastly stale serving in vcl_fetch and vcl_error", "Serving stale content during origin outages", "Choosing stale windows for news, catalogues and APIs", "Risks: serving outdated prices or permissions"],
+          "tools": ["Amazon CloudFront", "Cloudflare", "Fastly", "curl", "hey"],
+          "lab_task": "Serve /news with Cache-Control: max-age=30, stale-while-revalidate=60, stale-if-error=600. After 35 seconds, request it and confirm an immediate stale response while the edge revalidates. Then stop the origin and show that viewers still receive content for up to 10 minutes. Record cache status values and origin hit counts during a 200-request burst.",
+          "deliverable": "Stale policy demonstration with cache status timeline and origin request counts",
+          "checks": [["Request /news 35 seconds after caching with origin healthy", "Response is served immediately and the following request shows fresh content", "Timeline of headers"], ["Stop the origin and request /news within 10 minutes", "200 response with stale content instead of a 5xx error", "Header capture"], ["200 concurrent requests just after expiry", "The origin log shows one revalidation request rather than 200", "Origin access log count"]],
+          "objectives": ["Configure stale-while-revalidate and stale-if-error", "Use stale serving to survive origin outages", "Decide where stale content is unsafe"]
+        },
+        {
+          "topic": "Surrogate Keys and Cache Tags for Targeted Purge",
+          "subtopics": ["Fastly Surrogate-Key response header and purge by key", "Cloudflare Cache-Tag header and purge by tag", "Akamai Edge-Cache-Tag and Fast Purge by tag", "Designing tags: product IDs, categories and templates", "Soft purge (mark stale) versus hard purge", "Stripping tag headers before they reach viewers", "Purging from CMS publish webhooks", "Limits on tag length and tags per response"],
+          "tools": ["Fastly", "Fastly API", "Cloudflare API", "curl", "Python"],
+          "lab_task": "Return Surrogate-Key: product-42 category-shoes from an origin behind Fastly. Cache five pages tagged with category-shoes. Run curl -X POST -H \"Fastly-Key: $FASTLY_API_TOKEN\" -H 'Fastly-Soft-Purge: 1' https://api.fastly.com/service/$SID/purge/category-shoes and show all five pages refetch while product pages for other categories remain HIT. Write a webhook handler that purges by tag on publish.",
+          "deliverable": "Tagging scheme, purge webhook code and evidence of targeted purge",
+          "checks": [["Soft purge category-shoes", "API response contains \"status\": \"ok\" and an id", "API response"], ["Request the five tagged pages after purge", "Each returns a MISS or stale-then-refresh on the next request", "Header captures"], ["Request an untagged product page after the purge", "X-Cache remains HIT", "Header capture"]],
+          "objectives": ["Design surrogate keys for a content model", "Purge by tag with soft and hard purge", "Automate purges from publishing events"]
+        },
+        {
+          "topic": "Origin Shield and Tiered Caching Topologies",
+          "subtopics": ["Two-tier caching: edge caches and regional or shield caches", "CloudFront regional edge caches and Origin Shield region choice", "Cloudflare Tiered Cache: Smart Tiered Cache and Regional Tiered Cache", "Fastly shielding and shield POP selection", "Akamai Tiered Distribution", "Request collapsing at the shield", "Latency cost of an extra hop on misses", "Measuring origin request reduction"],
+          "tools": ["Amazon CloudFront", "Cloudflare", "Fastly", "Amazon CloudWatch", "k6"],
+          "lab_task": "Run a k6 test from three regions (for example with k6 Cloud or three VMs) requesting 500 unique objects against CloudFront without Origin Shield and count origin requests in the origin log. Enable Origin Shield in the region closest to the origin, purge, rerun and count again. Report the reduction in origin requests and the change in miss latency.",
+          "deliverable": "Shielding comparison report with origin request counts and miss latency before and after",
+          "checks": [["Count origin requests without Origin Shield", "Origin receives more than 500 requests because each region fetches separately", "Origin log count"], ["Count origin requests with Origin Shield enabled", "Origin receives close to 500 requests, one per object", "Origin log count"], ["Compare miss latency from the farthest region", "Miss latency is reported for both runs with the difference in milliseconds", "k6 metrics"]],
+          "objectives": ["Explain tiered caching and shield placement", "Enable shielding on two CDNs", "Measure origin offload gained from shielding"]
+        },
+        {
+          "topic": "Multiple Origins and Path-Based Behaviors",
+          "subtopics": ["CloudFront cache behaviors and path pattern precedence", "Routing /api/* to a load balancer and /* to S3", "Cloudflare Origin Rules for host and port overrides", "Azure Front Door routes and origin groups", "Per-path cache, origin request and response headers policies", "Rewriting paths before forwarding to origin", "Cookie and header forwarding only on dynamic paths", "Testing route selection with a request matrix"],
+          "tools": ["Amazon CloudFront", "Application Load Balancer", "Amazon S3", "Cloudflare", "curl"],
+          "lab_task": "Configure one distribution with three behaviors: /api/* to an Application Load Balancer with CachingDisabled and AllViewerExceptHostHeader, /images/* to an S3 bucket with a 7-day TTL, and the default to a second S3 bucket for the SPA. Build a 12-request test matrix and verify each request reached the expected origin using an X-Origin header each origin returns.",
+          "deliverable": "Behavior configuration and a 12-request routing matrix with pass or fail per row",
+          "checks": [["Request /api/health", "Response carries X-Origin: alb and x-cache: Miss from cloudfront", "Header capture"], ["Request /images/logo.png twice", "X-Origin: images-bucket and the second response is a Hit", "Header captures"], ["Request /about", "X-Origin: spa-bucket", "Header capture"]],
+          "objectives": ["Route paths to different origins", "Apply per-path caching policies", "Verify routing systematically"]
+        },
+        {
+          "topic": "Origin Failover, Health Probes and Origin Groups",
+          "subtopics": ["CloudFront origin groups with primary and secondary origins", "Failover criteria by status code: 500, 502, 503, 504, 403, 404", "Connection attempts and connection timeout tuning", "Azure Front Door health probes, priority and weight", "Cloudflare Load Balancing pools and monitors", "Failover applies to GET, HEAD and OPTIONS only on CloudFront", "Replicated S3 origins across regions", "Measuring failover time"],
+          "tools": ["Amazon CloudFront", "Amazon S3", "Azure Front Door", "Cloudflare", "curl"],
+          "lab_task": "Create two S3 buckets in different regions with replicated content and an origin group on CloudFront failing over on 500, 502, 503 and 504. Reduce connection attempts to 1 and connection timeout to 2 seconds. Make the primary return 503 (for example by pointing it at a stopped custom origin), then poll every second and record when responses switch to the secondary.",
+          "deliverable": "Failover configuration and a timeline showing the time from primary failure to secondary serving",
+          "checks": [["Primary returns 503 for a GET request", "The viewer receives 200 from the secondary origin", "curl output with an origin identifier header"], ["Send a POST while the primary is failing", "The POST is not retried on the secondary and returns an error", "curl output"], ["Measure time from primary failure to the first secondary response", "Elapsed time recorded in seconds from the polling log", "Polling log"]],
+          "objectives": ["Configure origin groups and failover criteria", "Tune connection timeouts for fast failover", "Explain which methods can fail over"]
+        },
+        {
+          "topic": "Locking Down the Origin: OAC, Authenticated Origin Pulls and Edge IP Allowlists",
+          "subtopics": ["Why a reachable origin lets attackers bypass the CDN", "OAC for S3 and Lambda function URL origins", "CloudFront VPC origins for private load balancers", "AWS managed prefix list com.amazonaws.global.cloudfront.origin-facing", "Cloudflare Authenticated Origin Pulls with client certificates", "Cloudflare Tunnel as an origin without open inbound ports", "Secret custom headers checked at the origin and their rotation", "Testing bypass attempts against the origin"],
+          "tools": ["Amazon CloudFront", "Amazon VPC", "Cloudflare Tunnel", "cloudflared", "curl", "nmap"],
+          "lab_task": "Restrict an ALB security group to the CloudFront origin-facing managed prefix list and add a secret X-Origin-Verify header checked by an ALB listener rule. Show that a direct curl to the ALB DNS name fails while the distribution works. On Cloudflare, expose a second origin only through cloudflared tunnel and confirm nmap finds no open port 443 on the origin host.",
+          "deliverable": "Origin lockdown design with bypass test results for CloudFront and Cloudflare",
+          "checks": [["curl the ALB DNS name directly", "Connection times out because the security group blocks non-CloudFront sources", "curl error output"], ["Request through CloudFront with the secret header configured", "200 from the ALB", "Header capture"], ["Run nmap -p 443 against the tunnel-protected origin host", "Port 443 is reported as filtered or closed", "nmap output"]],
+          "objectives": ["Prevent CDN bypass to origins", "Use managed prefix lists, tunnels and mTLS origin pulls", "Verify lockdown with bypass tests"]
+        },
+        {
+          "topic": "Signed URLs and Signed Cookies for Private Content",
+          "subtopics": ["CloudFront trusted key groups and public key upload", "Canned policy versus custom policy with IP range and start time", "Signed URL parameters: Expires, Signature and Key-Pair-Id", "Signed cookies: CloudFront-Policy, CloudFront-Signature and CloudFront-Key-Pair-Id", "Choosing URLs for single files and cookies for many files", "Clock skew and expiry selection", "Key rotation with two keys in a group", "Akamai token authentication and Cloudflare signed URL patterns with Workers"],
+          "tools": ["Amazon CloudFront", "OpenSSL", "AWS SDK for Python (Boto3)", "Python", "curl"],
+          "lab_task": "Generate an RSA key pair with openssl genrsa -out private_key.pem 2048, upload the public key, create a key group and require it on /premium/*. Use botocore.signers.CloudFrontSigner to create a canned-policy URL valid for 5 minutes and a custom-policy URL limited to your IP. Show unsigned, valid, expired and wrong-IP requests and the status for each.",
+          "deliverable": "Signing script, key group configuration and a four-case access test table",
+          "checks": [["Request /premium/video.mp4 without a signature", "403 with a MissingKey error", "curl output"], ["Request with a valid canned-policy signed URL", "200 and the object is delivered", "curl output"], ["Request the same URL after its Expires time", "403 with an AccessDenied error mentioning expired access", "curl output"]],
+          "objectives": ["Configure trusted key groups for private content", "Generate signed URLs and cookies with canned and custom policies", "Rotate signing keys without downtime"]
+        },
+        {
+          "topic": "Response Headers Policies: HSTS, CORS and Security Headers at the Edge",
+          "subtopics": ["CloudFront response headers policies and managed policies", "Strict-Transport-Security with max-age, includeSubDomains and preload", "Content-Security-Policy, X-Content-Type-Options and Referrer-Policy", "CORS headers set at the edge versus at the origin", "Removing headers such as Server and X-Powered-By", "Cloudflare Response Header Transform Rules", "Server-Timing header for edge timing", "Validating headers with securityheaders-style scanners"],
+          "tools": ["Amazon CloudFront", "Cloudflare", "curl", "Mozilla HTTP Observatory"],
+          "lab_task": "Create a CloudFront response headers policy adding HSTS max-age=31536000; includeSubDomains, a Content-Security-Policy, X-Content-Type-Options: nosniff and CORS for https://app.<yourdomain>, and removing X-Powered-By. Attach it to the default behavior and scan the site with Mozilla HTTP Observatory before and after. Repeat the header removal with a Cloudflare Response Header Transform Rule.",
+          "deliverable": "Headers policy definition and before-and-after HTTP Observatory scores",
+          "checks": [["curl -sI the site after attaching the policy", "strict-transport-security and x-content-type-options: nosniff are present", "Header capture"], ["Check for X-Powered-By from an origin that sends it", "The header is absent at the viewer", "Header capture"], ["Run HTTP Observatory before and after", "The score after is higher than the score before", "Two scan results"]],
+          "objectives": ["Add security and CORS headers at the edge", "Remove information-leaking headers", "Measure header improvements with a scanner"]
+        },
+        {
+          "topic": "CloudFront Functions and Cloudflare Workers for Request Rewrites",
+          "subtopics": ["CloudFront Functions event model: viewer request and viewer response", "cloudfront-js-2.0 runtime limits and sub-millisecond execution", "CloudFront KeyValueStore for redirect tables", "Testing with aws cloudfront test-function", "Cloudflare Workers fetch handler, Request and Response objects", "wrangler dev, wrangler deploy and routes", "Common use cases: redirects, URL normalisation, header injection and A/B cookies", "Choosing between config rules and code"],
+          "tools": ["Amazon CloudFront", "AWS CLI", "Cloudflare Workers", "Wrangler", "curl"],
+          "lab_task": "Write a CloudFront Function on viewer request that lowercases the URI, appends index.html to directory paths and issues 301 redirects from a KeyValueStore table of 50 legacy paths. Test it with aws cloudfront test-function and publish it. Implement the same logic as a Worker, deploy with wrangler deploy, and compare compute utilisation and response times.",
+          "deliverable": "Function and Worker source code with test-function output and a redirect test suite",
+          "checks": [["aws cloudfront test-function with URI /Blog/", "FunctionOutput shows the request URI rewritten to /blog/index.html", "CLI output"], ["Request a legacy path listed in KeyValueStore", "301 with the Location header from the table", "curl -sI output"], ["Run the same legacy path through the Worker", "Identical 301 status and Location header", "curl -sI output"]],
+          "objectives": ["Write viewer-request logic in CloudFront Functions", "Build and deploy an equivalent Cloudflare Worker", "Choose between declarative rules and edge code"]
+        },
+        {
+          "topic": "Image Optimization: Format Negotiation, Resizing and Quality",
+          "subtopics": ["AVIF and WebP support detected from the Accept header", "Responsive images with srcset and sizes", "On-the-fly resizing: Cloudflare Images transformations, Fastly Image Optimizer and Akamai Image and Video Manager", "CloudFront with a Lambda-based image handler and cache key on width and format", "Quality settings and perceptual comparison", "Caching transformed variants and limiting allowed widths", "Preventing abuse of open transformation endpoints", "Measuring bytes saved and LCP impact"],
+          "tools": ["Cloudflare Images", "Fastly Image Optimizer", "Amazon CloudFront", "curl", "Lighthouse", "Squoosh"],
+          "lab_task": "Enable Cloudflare image transformations and request /cdn-cgi/image/width=800,format=auto,quality=75/hero.jpg with Accept headers for AVIF, WebP and JPEG only, recording Content-Type and size. Restrict widths to 400, 800 and 1600 with a rule or Worker. Run Lighthouse on a page before and after switching to srcset with transformed images and report the LCP change.",
+          "deliverable": "Image delivery configuration with format and size table and before-and-after Lighthouse LCP",
+          "checks": [["Request the transformed image with Accept: image/avif", "Content-Type: image/avif and a smaller size than the JPEG", "Header capture"], ["Request with only Accept: image/jpeg", "Content-Type: image/jpeg", "Header capture"], ["Request a disallowed width such as width=1234", "Request is rejected or rounded to an allowed width as configured", "curl output"]],
+          "objectives": ["Serve modern image formats by negotiation", "Resize images at the edge with bounded variants", "Measure image optimisation impact on LCP"]
+        },
+        {
+          "topic": "Video on Demand Delivery: HLS, DASH and CMAF Segment Caching",
+          "subtopics": ["HLS playlists (.m3u8) and media segments (.ts, .m4s)", "MPEG-DASH manifests (.mpd) and CMAF fragmented MP4", "Adaptive bitrate ladders and renditions", "TTLs: long for segments, shorter for manifests", "Byte-range requests and large file delivery", "CORS for browser players and Origin headers", "Packaging with ffmpeg or AWS Elemental MediaConvert", "Player metrics: startup time and rebuffering"],
+          "tools": ["ffmpeg", "Amazon CloudFront", "Amazon S3", "hls.js", "curl"],
+          "lab_task": "Package a 5-minute video into a three-rendition HLS ladder with ffmpeg -f hls -hls_time 6 -hls_playlist_type vod. Upload to S3, serve through CloudFront with segments cached 1 year and playlists 60 seconds, and add CORS for your player origin. Play it with hls.js and log startup time, then count segment hits versus misses for a second viewer.",
+          "deliverable": "VOD package, CloudFront behaviors for manifests and segments, and a player metrics log",
+          "checks": [["Request master.m3u8", "Content-Type: application/vnd.apple.mpegurl and three EXT-X-STREAM-INF entries", "curl output"], ["Second viewer plays the same video", "Segment requests show Hit from cloudfront", "Browser network log"], ["Load the player from an origin not in the CORS allowlist", "Browser blocks the manifest with a CORS error", "Browser console"]],
+          "objectives": ["Package and deliver adaptive bitrate video", "Set different TTLs for manifests and segments", "Measure startup time and cache efficiency for video"]
+        },
+        {
+          "topic": "WAF Managed Rules and Custom Rules at the Edge",
+          "subtopics": ["AWS WAF web ACLs attached to CloudFront (scope CLOUDFRONT in us-east-1)", "AWS managed rule groups: Core rule set, Known bad inputs and SQL database", "Cloudflare WAF Managed Rules and OWASP Core Ruleset paranoia levels", "Azure Front Door WAF policies with the Default Rule Set", "Count or log mode before block mode", "Custom rules on paths, headers, geography and IP sets", "Handling false positives with scope-down statements and exceptions", "Testing rules with safe attack payloads"],
+          "tools": ["AWS WAF", "Amazon CloudFront", "Cloudflare WAF", "Azure Front Door", "curl"],
+          "lab_task": "Create an AWS WAF web ACL in us-east-1 with AWSManagedRulesCommonRuleSet and AWSManagedRulesSQLiRuleSet in Count mode and attach it to your distribution. Send test requests such as /?id=1%27%20OR%20%271%27=%271 and review sampled requests. Switch to Block, add an exception for a legitimate /search parameter that triggered a false positive, and retest.",
+          "deliverable": "Web ACL configuration, sampled request evidence and a false-positive exception record",
+          "checks": [["Send the SQL injection test string in Count mode", "Request succeeds and appears in sampled requests with action COUNT", "WAF console sample"], ["Send the same string in Block mode", "CloudFront returns 403", "curl output"], ["Send the legitimate /search query after adding the exception", "200 response and no block in WAF logs", "curl output and log"]],
+          "objectives": ["Deploy managed WAF rules on edge services", "Tune rules from count mode to block mode", "Handle false positives with exceptions"]
+        },
+        {
+          "topic": "Rate Limiting Rules and Login Abuse Protection",
+          "subtopics": ["AWS WAF rate-based rules and evaluation windows", "Aggregation keys: IP, forwarded IP, header, cookie or query argument", "Cloudflare rate limiting rules with characteristics and mitigation timeout", "Protecting /login, /api/otp and password reset endpoints", "Responses: block, challenge or custom 429 with Retry-After", "Credential stuffing signals and AWS WAF account takeover prevention", "Avoiding blocks on shared NAT addresses", "Load testing the limit"],
+          "tools": ["AWS WAF", "Cloudflare WAF", "k6", "curl"],
+          "lab_task": "Create a Cloudflare rate limiting rule for POST /login that counts per IP, allows 5 requests per minute and blocks for 10 minutes with a custom 429 and Retry-After. Create an AWS WAF rate-based rule on the same path with a 100-request limit over a 1-minute window. Run k6 at 2 requests per second and record when each limit triggers.",
+          "deliverable": "Rate limiting rules for both platforms with k6 timelines showing when blocking starts",
+          "checks": [["Send the sixth POST /login within one minute on Cloudflare", "429 response with a Retry-After header", "curl output"], ["Run k6 against the AWS WAF protected path above the limit", "403 responses begin once the rate-based rule triggers", "k6 status code counts"], ["Send GET /login during the block", "GET requests continue with 200 because the rule matches POST only", "curl output"]],
+          "objectives": ["Configure rate limiting on two edge platforms", "Choose aggregation keys and mitigation actions", "Validate limits with controlled load"]
+        },
+        {
+          "topic": "Edge Log Pipelines: CloudFront Logs to Athena and Cloudflare Logpush",
+          "subtopics": ["CloudFront standard logs to S3 and CloudWatch Logs", "Key fields: x-edge-result-type, x-edge-detailed-result-type, time-taken, sc-status", "Athena table over CloudFront logs with partition projection", "CloudFront real-time logs to Kinesis Data Streams", "Cloudflare Logpush jobs for HTTP requests to R2 or S3", "Logpush fields: CacheCacheStatus, EdgeResponseStatus, OriginResponseStatus", "Sampling, retention and personal data in logs", "Queries for hit ratio, top misses and error rates"],
+          "tools": ["Amazon CloudFront", "Amazon Athena", "Amazon S3", "Cloudflare Logpush", "SQL"],
+          "lab_task": "Enable CloudFront standard logs to S3 and create an Athena table for them. Write queries for hit ratio by hour, top 20 URIs by Miss count and 5xx rate by edge location. Configure a Cloudflare Logpush job for http_requests to an R2 bucket with CacheCacheStatus, EdgeResponseStatus and ClientRequestPath. Compare the two hit ratio results for the same test traffic.",
+          "deliverable": "Athena DDL and queries, Logpush job definition and a hit ratio comparison",
+          "checks": [["Run the hourly hit ratio Athena query", "Rows per hour with hit ratio as a percentage", "Athena results"], ["Run the top-misses query", "20 URIs ordered by Miss count descending", "Athena results"], ["Check the R2 bucket after traffic", "Gzipped NDJSON files containing the CacheCacheStatus field", "Object listing and sample line"]],
+          "objectives": ["Build queryable CDN log pipelines", "Write SQL for hit ratio, misses and errors", "Handle retention and privacy for edge logs"]
+        },
+        {
+          "topic": "Real User Monitoring and Core Web Vitals for CDN-Served Pages",
+          "subtopics": ["Core Web Vitals thresholds: LCP 2.5 s, INP 200 ms, CLS 0.1 at the 75th percentile", "Navigation Timing and Resource Timing APIs", "Timing-Allow-Origin for cross-origin resource timing", "web-vitals JavaScript library and beacon endpoints", "Cloudflare Web Analytics and CloudWatch RUM", "Chrome UX Report (CrUX) field data", "Segmenting by country, device and connection type", "Linking RUM regressions to CDN changes"],
+          "tools": ["web-vitals", "Amazon CloudWatch RUM", "Cloudflare Web Analytics", "Chrome UX Report", "Chrome DevTools"],
+          "lab_task": "Add the web-vitals library to a CDN-served page and send LCP, INP, CLS and TTFB beacons to an endpoint behind the CDN. Add Timing-Allow-Origin: * to asset responses so Resource Timing shows full timings. Collect at least 200 page views from two regions and report p75 for each metric by region, then compare with CrUX data for the origin if available.",
+          "deliverable": "RUM dashboard or report with p75 Core Web Vitals by region",
+          "checks": [["Inspect Resource Timing for a CDN asset without Timing-Allow-Origin", "Detailed fields such as responseStart are reported as 0", "DevTools console output"], ["Inspect the same asset with Timing-Allow-Origin: *", "Non-zero connection and response timings are available", "DevTools console output"], ["Compute p75 LCP from 200 or more beacons", "A p75 value per region with a pass or fail against 2.5 seconds", "Report table"]],
+          "objectives": ["Collect field performance data from real users", "Expose CDN timings to the browser", "Report Core Web Vitals by segment"]
+        },
+        {
+          "topic": "Azure Front Door Standard and Premium: Routes, Rule Sets and Caching",
+          "subtopics": ["Profiles, endpoints, routes, origin groups and origins", "Standard versus Premium tiers and Private Link origins", "Caching options and query string behaviour on routes", "Rule sets: conditions and actions such as URL rewrite and cache expiration", "az afd endpoint purge with content paths", "Custom domains with managed certificates", "X-Azure-Ref for diagnostics and the X-Cache header", "Migration from Front Door classic and retired Azure CDN SKUs"],
+          "tools": ["Azure Front Door", "Azure CLI", "Azure Storage", "curl"],
+          "lab_task": "Create a Front Door Standard profile with az afd profile create, an endpoint, an origin group pointing to a storage static website and a route with caching and query string behaviour IgnoreQueryString. Add a rule set that sets cache duration 1 day for /assets/*. Verify TCP_MISS then TCP_HIT, then run az afd endpoint purge --content-paths '/assets/*' and confirm a new miss.",
+          "deliverable": "Front Door profile definition (CLI commands or Bicep) with cache and purge evidence",
+          "checks": [["Request an asset twice through the endpoint", "X-Cache: TCP_MISS then TCP_HIT", "Header captures"], ["Run az afd endpoint purge for /assets/*", "Command completes and the next request shows TCP_MISS", "CLI output and header capture"], ["Request with different query strings under IgnoreQueryString", "Both return the same cached object with TCP_HIT", "Header captures"]],
+          "objectives": ["Build an Azure Front Door profile with routes and origin groups", "Apply caching with rule sets", "Purge and diagnose Front Door responses"]
+        },
+        {
+          "topic": "CDN Configuration as Code with Terraform",
+          "subtopics": ["aws_cloudfront_distribution, aws_cloudfront_cache_policy and aws_cloudfront_function resources", "cloudflare provider resources for rulesets, DNS records and Workers", "azurerm_cdn_frontdoor_* resources", "State, plan and review of edge changes", "Importing existing distributions and zones", "Long-running applies while distributions deploy", "Modules for repeated behaviors and policies", "Drift detection with terraform plan in CI"],
+          "tools": ["Terraform", "AWS CLI", "Cloudflare", "Amazon CloudFront", "GitHub Actions"],
+          "lab_task": "Import your existing CloudFront distribution and cache policy with terraform import, then refactor them into a module with variables for domain, origin and TTLs. Change the default TTL in code, run terraform plan and confirm only that attribute changes. Add a Cloudflare cloudflare_ruleset for cache settings. Make a manual console change and show terraform plan detects the drift.",
+          "deliverable": "Terraform module for CloudFront and Cloudflare with plan outputs for a change and a drift",
+          "checks": [["Run terraform plan right after import", "Plan reports No changes", "Plan output"], ["Change default_ttl in code and run terraform plan", "Plan shows 1 to change with only the TTL attribute modified", "Plan output"], ["Edit the cache policy in the console then run terraform plan", "Plan shows the console change as drift to be reverted", "Plan output"]],
+          "objectives": ["Manage CDN resources with Terraform", "Import and refactor existing edge configuration", "Detect configuration drift"]
+        },
+        {
+          "topic": "Intermediate Capstone: Cached API and Media Site with Signed Content, WAF and Logs",
+          "subtopics": ["Architecture: S3 media, ALB API and SPA behind one distribution with Origin Shield", "Cache key and stale policy for the API plus tag or path purge on publish", "Signed cookies for premium video and HLS delivery", "WAF managed rules, login rate limiting and a response headers policy", "Athena log queries and a RUM report", "Terraform code, runbook and presentation"],
+          "tools": ["Terraform", "Amazon CloudFront", "AWS WAF", "Amazon Athena", "k6", "ffmpeg"],
+          "lab_task": "Deliver a media site in Terraform: SPA, /api/* with 10-second microcaching and stale-if-error, /premium/* HLS behind signed cookies, Origin Shield, a WAF with managed rules and a login rate limit, and logs in Athena. Run k6 at 100 virtual users for 5 minutes and achieve over 85 percent hit ratio with p95 below 300 ms, then stop the API origin and show cached API responses continue.",
+          "deliverable": "Terraform repository, k6 results, Athena report and an outage demonstration",
+          "checks": [["Run the k6 test against the full site", "Hit ratio above 85 percent and p95 below 300 ms", "k6 summary and Athena query"], ["Play premium video without the signed cookies", "Segment requests return 403", "Browser network log"], ["Stop the API origin and request a cached endpoint", "200 is served from stale content for the configured window", "Header captures"]],
+          "objectives": ["Integrate caching, security and media delivery in one platform", "Manage the full configuration as code", "Prove performance and resilience with measurements"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For CDN, platform and site reliability engineers who run production edge delivery at scale across one or more vendors. Covers Fastly VCL and Akamai Property Manager internals, Lambda@Edge, stateful edge compute with Workers KV, Durable Objects and Fastly Compute, JWT validation at the edge, bot management, DDoS resilience including HTTP/2 Rapid Reset, certificate automation under shrinking lifetimes, HTTP/3 rollout measurement, live and low-latency streaming, hit ratio engineering, edge personalisation, multi-CDN steering, benchmarking, observability and SLOs, cost modelling, safe configuration rollout, incident response and cache poisoning defences, ending with a multi-CDN platform capstone.",
+      "prerequisites": ["Completed the intermediate level or has operated a production CDN with custom cache keys, signed content, WAF and log pipelines", "Writes production JavaScript or Rust and manages infrastructure with Terraform and CI pipelines", "Has access to at least two CDN vendors (for example CloudFront and Cloudflare, or Fastly free trial) and a domain for multi-CDN testing"],
+      "outcomes": ["Implement advanced cache logic and edge applications with VCL, Property Manager, Lambda@Edge, Workers and Fastly Compute", "Defend edge services against bots, layer 7 DDoS, cache poisoning and cache deception while keeping certificates and protocols current", "Design and operate multi-CDN delivery with steering, configuration parity, benchmarking, SLOs and safe rollout", "Model CDN cost and lead incident response for purge storms, origin overload and edge outages"],
+      "days": [
+        {
+          "topic": "Fastly VCL: Request Lifecycle Subroutines and Custom Cache Logic",
+          "subtopics": ["Subroutines: vcl_recv, vcl_hash, vcl_hit, vcl_miss, vcl_pass, vcl_fetch, vcl_deliver, vcl_error, vcl_log", "return(lookup), return(pass) and return(deliver) state transitions", "beresp.ttl, beresp.stale_while_revalidate and beresp.stale_if_error", "Custom VCL snippets versus full custom VCL", "Edge dictionaries for configuration data", "Synthetic responses from vcl_error", "Fastly-Debug header and the fiddle tool for testing", "Service versions, activation and rollback"],
+          "tools": ["Fastly", "Fastly CLI", "Fastly Fiddle", "curl"],
+          "lab_task": "In a Fastly service, add a vcl_recv snippet that normalises Accept-Language to en, de or fr, adds it to the hash in vcl_hash, and passes requests with an Authorization header. In vcl_fetch set beresp.ttl = 300s and beresp.stale_if_error = 86400s for HTML. Add a synthetic 503 page in vcl_error. Activate a new version with fastly service-version activate and test with Fastly-Debug: 1.",
+          "deliverable": "VCL snippets, service version history and a test log for normalisation, pass and stale behaviour",
+          "checks": [["Request with Accept-Language: de-AT,de;q=0.9", "The normalised value de is used and a shared cache entry for de is hit", "Header capture with Fastly-Debug output"], ["Request with an Authorization header", "The request is passed and X-Cache shows MISS on every attempt", "Header captures"], ["Activate a broken version and then run fastly service-version activate on the previous version", "The previous version is active again and responses return to normal", "CLI output"]],
+          "objectives": ["Control cache behaviour through VCL subroutines", "Use snippets, dictionaries and synthetic responses", "Version and roll back Fastly services"]
+        },
+        {
+          "topic": "Akamai Property Manager: Rules, Behaviors and Edge Diagnostics",
+          "subtopics": ["Property, rule tree, match criteria and behaviors", "Caching behavior, Downstream Cacheability and Cache Key Query Parameters", "Property versions, staging and production networks", "Testing on staging by resolving to the edgesuite-staging hostname", "Pragma debug headers: akamai-x-cache-on, akamai-x-get-cache-key, akamai-x-check-cacheable", "Akamai CLI and the Property Manager API (PAPI) with EdgeGrid authentication", "Fast Purge API v3: invalidate versus delete by URL, CP code or cache tag", "Reference IDs for error diagnosis"],
+          "tools": ["Akamai Control Center", "Akamai CLI", "Property Manager API", "curl", "dig"],
+          "lab_task": "Clone a property version, add a rule matching /static/* with a Caching behavior of 7 days and query parameters excluded from the cache key, and activate it on staging. Point your hosts file at the staging edge IP, send requests with Pragma: akamai-x-cache-on, akamai-x-get-cache-key, akamai-x-check-cacheable, and confirm TCP_HIT. Purge one URL with akamai purge invalidate and confirm the next request misses.",
+          "deliverable": "Property rule JSON, staging test captures and a Fast Purge log",
+          "checks": [["Request /static/app.js on staging with Pragma debug headers", "X-Check-Cacheable: YES and X-Cache shows TCP_HIT on the second request", "Header capture"], ["Compare X-Cache-Key for two query strings", "Both requests show the same cache key without the query string", "Header captures"], ["Run akamai purge invalidate for the URL", "Response reports a purge ID and estimated completion in seconds", "CLI output"]],
+          "objectives": ["Build and test Akamai property rules on staging", "Diagnose caching with Pragma headers", "Purge content with Fast Purge"]
+        },
+        {
+          "topic": "Lambda@Edge for Origin-Facing Logic and Authentication",
+          "subtopics": ["Four triggers: viewer request, viewer response, origin request, origin response", "Deploying from us-east-1 and published function versions", "Node.js and Python runtimes and limits compared with CloudFront Functions", "Network access, body access and generated responses", "Origin selection in origin request triggers", "Replica logs in CloudWatch Logs in the region of execution", "Cold starts and cost per request versus CloudFront Functions", "Deletion delay of replicated functions"],
+          "tools": ["AWS Lambda", "Amazon CloudFront", "AWS CLI", "Amazon CloudWatch", "Node.js"],
+          "lab_task": "Write a Node.js Lambda@Edge origin request function that routes requests to an EU or US S3 origin based on CloudFront-Viewer-Country and adds a signed header for the origin. Publish a version in us-east-1 and associate it with the default behavior. Test from two regions, find the replica logs in CloudWatch for each region, and record p95 execution duration.",
+          "deliverable": "Function source, association configuration and per-region log and duration evidence",
+          "checks": [["Request from an EU client", "The response carries the X-Origin value of the EU bucket", "Header capture"], ["Try to associate the $LATEST alias rather than a numbered version", "CloudFront rejects the association because a published version is required", "Console or CLI error"], ["Query CloudWatch Logs for the replica in the region nearest the test client", "Log group /aws/lambda/us-east-1.<function-name> exists in that region with invocation entries", "CloudWatch Logs screenshot"]],
+          "objectives": ["Choose between Lambda@Edge and CloudFront Functions", "Route requests to origins from edge code", "Operate and debug replicated edge functions"]
+        },
+        {
+          "topic": "Stateful Edge Compute: Workers KV, Durable Objects and Fastly Compute",
+          "subtopics": ["Workers KV eventual consistency and read-heavy use", "Durable Objects for strongly consistent per-key state", "R2 object storage bindings", "Fastly Compute on WebAssembly with Rust or JavaScript SDKs", "fastly compute init, serve and publish", "Fastly KV Store and Config Store", "CPU time limits, memory limits and subrequest limits", "Testing locally with wrangler dev and Viceroy"],
+          "tools": ["Cloudflare Workers", "Wrangler", "Fastly Compute", "Fastly CLI", "Rust", "Durable Objects"],
+          "lab_task": "Build a per-user request counter twice. First as a Worker with a Durable Object that increments a counter per user ID and stores feature flags in KV, deployed with wrangler deploy. Then as a Fastly Compute service in Rust using a KV Store, tested locally with fastly compute serve and deployed with fastly compute publish. Fire 1,000 concurrent increments at each and compare final counts.",
+          "deliverable": "Two edge applications with source, deploy logs and a consistency comparison",
+          "checks": [["1,000 concurrent increments for one user on the Durable Object version", "The final count is exactly 1,000", "Counter readout"], ["Update a feature flag in Workers KV and read it from two regions immediately", "One region may return the old value briefly before converging", "Timestamped reads"], ["Run fastly compute serve locally", "The local server listens on 127.0.0.1:7676 and answers test requests", "Terminal output"]],
+          "objectives": ["Select edge storage by consistency needs", "Build and deploy Workers and Fastly Compute applications", "Test edge code locally before publishing"]
+        },
+        {
+          "topic": "Edge Authentication with JWT Validation and Token Rotation",
+          "subtopics": ["JWT structure, RS256 and ES256 signatures", "Fetching and caching JWKS at the edge", "Validating exp, nbf, iss and aud claims", "Key rotation using the kid header", "WebCrypto in Workers and CloudFront Functions crypto support", "Cloudflare Access and Amazon Cognito as identity sources", "Passing verified identity to the origin in signed headers", "Cacheability after authentication"],
+          "tools": ["Cloudflare Workers", "Amazon Cognito", "jose", "curl", "Wrangler"],
+          "lab_task": "Write a Worker that validates RS256 JWTs from a Cognito user pool using its JWKS, caching keys for 10 minutes, checking iss, aud and exp, and forwarding X-User-Id to the origin. Test valid, expired, wrong-audience and tampered tokens. Rotate to a second key pair by kid and show tokens signed with either key validate during the overlap.",
+          "deliverable": "JWT validation Worker with a test matrix of token cases and a rotation log",
+          "checks": [["Request with an expired token", "401 with a WWW-Authenticate header mentioning invalid_token", "curl output"], ["Request with a token whose payload was modified", "401 because signature verification fails", "curl output"], ["Request with a token signed by the new kid during rotation", "200 with X-User-Id received at the origin", "Origin log"]],
+          "objectives": ["Validate JWTs at the edge", "Rotate signing keys without outages", "Keep public content cacheable while authenticating private routes"]
+        },
+        {
+          "topic": "Bot Management: Scores, Verified Bots, Challenges and Turnstile",
+          "subtopics": ["Cloudflare bot score (1 to 99) and cf.bot_management fields", "Super Bot Fight Mode versus Enterprise Bot Management", "Verified bots and the cf.client.bot field", "Managed Challenge, JS Challenge and Turnstile widgets", "AWS WAF Bot Control common and targeted levels", "Akamai Bot Manager and Fastly Next-Gen WAF bot signals", "Scraping, inventory hoarding and credential stuffing patterns", "Measuring false positives on real users"],
+          "tools": ["Cloudflare Bot Management", "Cloudflare Turnstile", "AWS WAF Bot Control", "curl", "Playwright"],
+          "lab_task": "Add Turnstile to a signup form and verify tokens server-side with the siteverify endpoint. Create an AWS WAF Bot Control rule group at the common level in Count mode and run a curl loop and a headless Playwright script against the site. Review the bot labels applied, then block unverified automated traffic on /signup only and confirm a normal browser still succeeds.",
+          "deliverable": "Bot policy with label evidence, Turnstile integration and a false-positive check",
+          "checks": [["Submit the signup form without a Turnstile token", "siteverify returns success false and the server rejects the form", "Server log"], ["Run the curl loop with Bot Control in Count mode", "Requests carry awswaf:managed:aws:bot-control labels in WAF logs", "WAF log entries"], ["Complete signup in a normal browser after enabling block", "Signup succeeds with 200", "Browser network log"]],
+          "objectives": ["Classify bot traffic with scores and labels", "Apply challenges and Turnstile appropriately", "Verify bot controls do not block real users"]
+        },
+        {
+          "topic": "DDoS Resilience: Layer 3/4 vs Layer 7, Shield Advanced and HTTP/2 Rapid Reset",
+          "subtopics": ["Volumetric, protocol and application-layer attacks", "Anycast absorption and always-on edge mitigation", "AWS Shield Standard and Shield Advanced with automatic application layer mitigation", "Cloudflare HTTP DDoS attack protection managed ruleset and sensitivity", "HTTP/2 Rapid Reset (CVE-2023-44487) and stream reset limits", "Cache everything possible and protect uncached endpoints", "Attack runbooks, escalation and vendor response teams", "Testing only with vendor-approved load tests on your own assets"],
+          "tools": ["AWS Shield", "AWS WAF", "Cloudflare", "k6", "Amazon CloudWatch"],
+          "lab_task": "On your own test zone, review the Cloudflare HTTP DDoS managed ruleset and set sensitivity for a test path. Following vendor load-testing policy, run k6 at 300 requests per second against a cached and an uncached endpoint and record origin request rate for each. Write a DDoS runbook listing detection metrics, mitigation steps, contacts and which endpoints need rate-based rules.",
+          "deliverable": "DDoS runbook with origin exposure analysis of cached and uncached endpoints",
+          "checks": [["k6 at 300 requests per second on the cached endpoint", "Origin request rate stays near zero after the first miss", "Origin metrics graph"], ["k6 at 300 requests per second on the uncached endpoint", "Origin receives close to 300 requests per second", "Origin metrics graph"], ["Runbook review against the exposure analysis", "Every uncached endpoint has a named rate-based or challenge rule", "Runbook document"]],
+          "objectives": ["Distinguish DDoS attack layers and mitigations", "Identify origin exposure from uncached endpoints", "Write an attack response runbook"]
+        },
+        {
+          "topic": "Certificate Lifecycle at Scale: Automation, Shortening Lifetimes and mTLS to Origin",
+          "subtopics": ["CA/Browser Forum schedule reducing maximum TLS certificate lifetime toward 47 days", "ACM managed renewal and DNS validation records that must persist", "Cloudflare Advanced Certificate Manager and custom certificate uploads", "Certificate Transparency logs and monitoring with crt.sh", "Wildcard versus SAN certificates across many hostnames", "Origin certificates and full validation from edge to origin", "Mutual TLS for viewers and for origin pulls", "Expiry alerting and inventory across vendors"],
+          "tools": ["AWS Certificate Manager", "Cloudflare", "OpenSSL", "crt.sh", "Amazon CloudWatch"],
+          "lab_task": "Build a certificate inventory script that lists every certificate on your CloudFront distributions (via ACM list-certificates) and Cloudflare zones (via the API), with expiry dates and issuer. Query crt.sh for your domain to find certificates you did not know about. Configure a CloudWatch alarm on ACM DaysToExpiry below 30 and enable Cloudflare Authenticated Origin Pulls with a per-zone certificate.",
+          "deliverable": "Certificate inventory report, CT log findings and expiry alerting configuration",
+          "checks": [["Run the inventory script", "A table listing every edge hostname with issuer and days to expiry", "Script output"], ["Query crt.sh for the domain", "All issued certificates are listed and any unexpected issuer is flagged", "crt.sh results"], ["Remove the ACM DNS validation CNAME in a test account", "ACM marks the certificate as ineligible for automatic renewal", "ACM console status"]],
+          "objectives": ["Automate certificate inventory and alerting", "Monitor certificate issuance with CT logs", "Apply mTLS between edge and origin"]
+        },
+        {
+          "topic": "HTTP/3 Rollout: Alt-Svc, HTTPS Records, 0-RTT and Fallback Measurement",
+          "subtopics": ["QUIC transport features: connection IDs, migration and loss recovery", "Discovery through Alt-Svc versus HTTPS DNS resource records", "0-RTT early data and replay risk for non-idempotent requests", "Early-Data header and 425 Too Early", "UDP blocking, middleboxes and fallback to TCP", "Measuring protocol share and performance by network type", "TLS 1.3 session resumption at the edge", "Rollout plan by percentage and region"],
+          "tools": ["curl", "Chrome DevTools", "Cloudflare", "Amazon CloudFront", "WebPageTest"],
+          "lab_task": "Enable HTTP/3 and 0-RTT on a Cloudflare zone. Use RUM beacons recording nextHopProtocol from Navigation Timing to measure the share of h3 versus h2 over 500 page views. Run WebPageTest on a 3G-like throttled profile with HTTP/3 on and off and compare first byte and LCP. Configure the origin to reject POST with Early-Data: 1 using 425.",
+          "deliverable": "HTTP/3 rollout report with protocol share, throttled-network comparison and 0-RTT safety rule",
+          "checks": [["Aggregate nextHopProtocol from 500 RUM beacons", "Shares of h3 and h2 reported as percentages that sum to about 100", "RUM query output"], ["Send a POST carrying Early-Data: 1 to the origin", "Origin returns 425 Too Early", "curl output"], ["Compare WebPageTest runs with HTTP/3 on and off", "First byte and LCP medians are reported for both runs with the difference", "WebPageTest results"]],
+          "objectives": ["Plan and measure an HTTP/3 rollout", "Protect against 0-RTT replay", "Explain QUIC discovery and fallback"]
+        },
+        {
+          "topic": "Live Streaming and Low-Latency HLS at the Edge",
+          "subtopics": ["Live HLS and DASH playlists and sliding windows", "Low-Latency HLS partial segments and blocking playlist reloads", "Manifest TTL of about half a segment duration", "Request collapsing for live manifests under flash crowds", "Origin protection with shielding for live packagers", "AWS Elemental MediaPackage or a packager as origin", "Glass-to-glass latency measurement", "Rebuffering ratio and startup time at scale"],
+          "tools": ["ffmpeg", "AWS Elemental MediaPackage", "Amazon CloudFront", "hls.js", "k6"],
+          "lab_task": "Stream a test source with ffmpeg to a live packager producing 2-second HLS segments, served through CloudFront with Origin Shield, playlists cached 1 second and segments 1 day. Play it in hls.js with lowLatencyMode and measure glass-to-glass latency with a burned-in clock. Simulate 500 viewers with k6 fetching the playlist and segments and count requests reaching the packager.",
+          "deliverable": "Live delivery configuration with latency measurement and origin request counts under load",
+          "checks": [["Compare the burned-in clock with wall clock in the player", "Glass-to-glass latency measured in seconds and recorded", "Player screenshot"], ["500 simulated viewers polling the playlist", "The packager receives about one playlist request per second rather than 500", "Packager logs"], ["Set playlist TTL to 30 seconds by mistake", "Players stall because they receive outdated playlists", "Player log showing stalls"]],
+          "objectives": ["Configure edge caching for live streaming", "Protect live origins during flash crowds", "Measure live latency and playback quality"]
+        },
+        {
+          "topic": "Cache Hit Ratio Engineering: Normalization, Collapsing and Cache Reserve",
+          "subtopics": ["Finding the long tail of misses from logs", "Normalising query strings, headers and case at the edge", "Request collapsing and lock timeouts", "Eviction, object popularity and cache capacity", "Cloudflare Cache Reserve as a persistent tier", "Byte hit ratio for large objects and range requests", "Prefetch and warm-up strategies and their cost", "Setting hit ratio targets by content class"],
+          "tools": ["Amazon Athena", "Cloudflare", "Amazon CloudFront", "SQL", "k6"],
+          "lab_task": "Using a week of CDN logs, group misses by normalised path and find the top 10 causes (unsorted query strings, tracking parameters, mixed case, uncacheable headers). Fix each with a cache key policy or edge normalisation function. Replay the same traffic with k6 and report request and byte hit ratio before and after. Estimate the effect of Cache Reserve on long-tail objects.",
+          "deliverable": "Miss analysis, list of fixes and a before-and-after hit ratio report",
+          "checks": [["Run the miss analysis query on the log table", "Top 10 miss causes are listed with request counts", "Athena results"], ["Replay traffic after the fixes", "Request hit ratio increases by a stated number of percentage points", "Before-and-after table"], ["Request a.js?b=2&a=1 and a.js?a=1&b=2 after normalisation", "The second request is a hit", "Header captures"]],
+          "objectives": ["Diagnose miss causes from logs", "Raise hit ratio with normalisation", "Set hit ratio targets by content class"]
+        },
+        {
+          "topic": "Personalization and Edge-Side Composition without Destroying Cacheability",
+          "subtopics": ["Separating cacheable page shells from personalised fragments", "Edge Side Includes on Fastly and Akamai", "HTMLRewriter in Cloudflare Workers", "Variant bucketing for A/B tests with cookies and a small key set", "Geo and device personalisation with low-cardinality keys", "Caching per-segment rather than per-user", "Client-side hydration versus edge composition", "Privacy: avoiding caching of personal data"],
+          "tools": ["Cloudflare Workers", "HTMLRewriter", "Fastly", "Wrangler", "curl"],
+          "lab_task": "Build a Worker that serves a cached product page shell and uses HTMLRewriter to insert a greeting and cart count fetched from an uncached /api/me endpoint, plus an A/B variant chosen by a cookie with two values. Confirm the shell stays a cache HIT for all users while the personalised fragment differs per user. Check that no personal data appears in cached responses.",
+          "deliverable": "Edge composition Worker with cache status evidence and a privacy check",
+          "checks": [["Two users with different sessions request the same page", "Shell is a HIT for both and each sees their own greeting", "Header captures and page snippets"], ["Inspect the cached shell directly", "It contains no user name or cart data", "Cached response body"], ["Request with the A/B cookie set to each variant", "Two different variants are served, each from cache", "Header captures"]],
+          "objectives": ["Compose personalised pages at the edge", "Keep personalisation keys low-cardinality", "Prevent personal data from entering shared caches"]
+        },
+        {
+          "topic": "Multi-CDN Architecture: Steering, Config Parity and Failover",
+          "subtopics": ["Reasons for multi-CDN: resilience, performance by region and commercial leverage", "Steering by weighted DNS, latency-based DNS and RUM-driven traffic managers", "Configuration parity: cache keys, TTLs, headers, redirects and WAF", "Certificates for the same hostname on every CDN", "Purge fan-out to all vendors", "Origin capacity when one CDN fails over", "Shared logging schema across vendors", "Health checks that test the CDN path, not only the origin"],
+          "tools": ["Amazon Route 53", "Amazon CloudFront", "Cloudflare", "Fastly", "Terraform", "curl"],
+          "lab_task": "Serve static.<yourdomain> from CloudFront and Fastly with identical cache keys, TTLs and headers defined in Terraform. Use Route 53 weighted records at 50/50 with health checks that fetch a test object through each CDN. Write a purge script that calls both APIs. Disable one CDN's health check target and measure the time until all resolvers in a sample of 10 get the other CDN.",
+          "deliverable": "Multi-CDN Terraform, parity test results, purge fan-out script and a failover timeline",
+          "checks": [["Run the parity test that compares headers from both CDNs for 20 URLs", "Cache-Control, content hash and status match for all 20 URLs", "Parity test report"], ["Run the purge script for one path", "Both vendor APIs return success and both CDNs serve the new version", "Script output and header captures"], ["Fail one CDN's health check", "DNS answers switch to the healthy CDN and the switch time is recorded", "dig samples over time"]],
+          "objectives": ["Design multi-CDN steering and failover", "Keep configuration consistent across vendors", "Fan out purges and verify parity"]
+        },
+        {
+          "topic": "Synthetic and RUM Performance Benchmarking Across CDNs",
+          "subtopics": ["Synthetic tests: WebPageTest, Lighthouse CI and curl probes", "RUM benchmarks with per-CDN tagging", "Metrics: DNS, connect, TLS, TTFB, throughput and error rate", "Cold versus warm cache benchmark design", "Statistical comparison with percentiles and confidence intervals", "Avoiding biased tests from cloud-only vantage points", "Regional league tables", "Feeding results into steering decisions"],
+          "tools": ["WebPageTest", "Lighthouse CI", "curl", "Python", "pandas"],
+          "lab_task": "Run curl -w probes for DNS, connect, TLS and TTFB every minute for 24 hours from at least five regions against the same 1 MB object on each of your two CDNs. Collect RUM samples tagged with the CDN that served them. In pandas compute p50, p90 and p99 per region and CDN, with bootstrap confidence intervals, and recommend steering weights per region.",
+          "deliverable": "Benchmark dataset, analysis notebook and a regional recommendation table",
+          "checks": [["Probes run for 24 hours from five regions", "At least 7,000 samples per CDN are collected", "Dataset row counts"], ["Compute p90 TTFB per region and CDN", "A table with p90 and its confidence interval for each pair", "Notebook output"], ["Compare synthetic and RUM rankings for one region", "Any disagreement between the two rankings is identified and explained", "Analysis note"]],
+          "objectives": ["Design fair CDN benchmarks", "Analyse performance data with percentiles and confidence intervals", "Turn benchmarks into steering decisions"]
+        },
+        {
+          "topic": "Edge Observability: Real-Time Logs, Metrics, Alerting and SLOs",
+          "subtopics": ["Service level indicators: availability, TTFB and hit ratio at the edge", "SLOs and error budgets for delivery", "CloudFront real-time logs and additional CloudWatch metrics", "Cloudflare GraphQL Analytics API and Logpush to a SIEM", "Fastly real-time log streaming endpoints", "Correlating edge, shield and origin logs with request IDs", "Burn-rate alerting", "Dashboards that separate edge errors from origin errors"],
+          "tools": ["Amazon CloudWatch", "Cloudflare GraphQL Analytics API", "Grafana", "Prometheus", "Amazon Kinesis Data Streams"],
+          "lab_task": "Define two SLOs: 99.9 percent of edge requests without 5xx and 95 percent of cached responses with TTFB under 100 ms. Query the Cloudflare GraphQL Analytics API for httpRequestsAdaptiveGroups by edgeResponseStatus and CloudFront 5xxErrorRate in CloudWatch. Build a Grafana dashboard and a multi-window burn-rate alert, then inject origin errors to trigger it.",
+          "deliverable": "SLO definitions, Grafana dashboard JSON and an alert firing record",
+          "checks": [["Run the GraphQL query for the last hour", "Response groups requests by edgeResponseStatus with counts", "Query response"], ["Inject 5 percent origin 5xx errors for 10 minutes", "The fast-burn alert fires within the configured window", "Alert notification"], ["View the dashboard during the injection", "Origin-originated and edge-originated errors appear as separate series", "Dashboard screenshot"]],
+          "objectives": ["Define SLIs and SLOs for edge delivery", "Build multi-vendor dashboards and burn-rate alerts", "Correlate edge and origin signals"]
+        },
+        {
+          "topic": "CDN Cost Modeling: Egress, Requests, Edge Compute and Commit Contracts",
+          "subtopics": ["Data transfer out pricing by region and volume tier", "Request charges for HTTP and HTTPS", "Edge compute charges: CloudFront Functions, Lambda@Edge, Workers and Compute", "Invalidation, logging and WAF request fees", "Origin egress savings from higher hit ratio and shielding", "Free tiers and flat-rate plans versus pay-as-you-go", "Committed spend discounts and overage clauses", "Unit cost per GB and per thousand requests"],
+          "tools": ["AWS Pricing Calculator", "AWS Cost Explorer", "Python", "Amazon Athena", "spreadsheet"],
+          "lab_task": "From a month of logs, compute GB delivered and requests by region and edge compute invocations. Build a cost model in Python that prices this traffic on CloudFront and one other vendor using current published prices, including origin egress for misses. Show how raising hit ratio from 85 to 95 percent and moving image resizing to the edge change the monthly total.",
+          "deliverable": "Cost model script with inputs, outputs and a sensitivity table",
+          "checks": [["Feed the monthly traffic into the model", "A monthly total for each vendor broken down by transfer, requests and compute", "Model output"], ["Raise hit ratio from 85 to 95 percent in the model", "Origin egress cost falls and the change is stated in currency", "Sensitivity table"], ["Compare the model with Cost Explorer for the same month", "The CloudFront estimate is within 10 percent of the billed amount", "Cost Explorer export"]],
+          "objectives": ["Model CDN cost from traffic data", "Quantify savings from hit ratio and architecture changes", "Compare vendor pricing models"]
+        },
+        {
+          "topic": "Safe Configuration Change: Staging Distributions, Canary and Rollback",
+          "subtopics": ["CloudFront continuous deployment with a staging distribution", "Header-based and weight-based staging traffic policies", "Cloudflare Workers gradual deployments and versions", "Fastly service versions and staged activation", "Akamai staging network validation", "Automated test suites for headers, redirects and cache keys", "Rollback triggers from error rate and hit ratio", "Change records and peer review for edge configuration"],
+          "tools": ["Amazon CloudFront", "Cloudflare Workers", "Wrangler", "Fastly", "GitHub Actions", "curl"],
+          "lab_task": "Create a CloudFront staging distribution with a continuous deployment policy that sends requests carrying aws-cf-cd-staging: true to staging. Change the cache key there, run a 40-case header test suite against staging, then promote with update-distribution-with-staging-config. For a Worker, deploy a new version to 10 percent with wrangler versions deploy and roll back.",
+          "deliverable": "Pipeline definition, test suite results and promotion and rollback logs",
+          "checks": [["Request with aws-cf-cd-staging: true", "Response reflects the staging configuration change", "Header capture"], ["Run the 40-case test suite against staging", "All 40 cases pass before promotion", "Test report"], ["Roll back the Worker version after a failing canary", "100 percent of traffic returns to the previous version", "wrangler versions output"]],
+          "objectives": ["Test CDN configuration changes on a subset of traffic", "Promote and roll back edge changes safely", "Automate edge configuration testing in CI"]
+        },
+        {
+          "topic": "Incident Response: Purge Storms, Origin Overload and Edge Outages",
+          "subtopics": ["Recognising a purge storm from origin request spikes", "Thundering herd after purge everything or cache flush", "Using soft purge, stale-if-error and shielding to protect origins", "Origin autoscaling limits and connection caps", "Single-vendor edge outages and status page signals", "Emergency steering to a second CDN or origin", "Communication, timelines and blameless reviews", "Game days to rehearse edge incidents"],
+          "tools": ["Amazon CloudWatch", "Grafana", "Fastly", "Cloudflare", "k6", "PagerDuty"],
+          "lab_task": "Run a game day: with k6 generating 200 requests per second at 95 percent hit ratio, trigger purge everything and graph origin requests and errors. Repeat using soft purge plus stale-while-revalidate and shielding. Then simulate a CDN outage by failing its health check and steer traffic to the second CDN. Write a timeline and a review with three improvements.",
+          "deliverable": "Game day timeline, graphs and post-incident review",
+          "checks": [["Purge everything during load", "Origin request rate spikes toward the full 200 per second", "Origin graph"], ["Soft purge with stale-while-revalidate and shielding during load", "Origin request peak is a fraction of the hard purge peak with the ratio stated", "Origin graph comparison"], ["Fail the primary CDN health check", "Traffic moves to the second CDN and the time to recover is recorded", "Steering logs and timeline"]],
+          "objectives": ["Recognise and contain purge storms", "Execute vendor failover during an edge outage", "Run and document edge incident game days"]
+        },
+        {
+          "topic": "Web Cache Poisoning and Cache Deception Defences",
+          "subtopics": ["Unkeyed inputs: X-Forwarded-Host, X-Original-URL and similar headers", "Cache poisoning through unkeyed headers reflected in responses", "Web cache deception with paths like /account/profile.css", "Path normalisation differences between CDN and origin", "Fat GET and parameter cloaking", "Cloudflare Cache Deception Armor and content-type checks", "Stripping or keying risky headers at the edge", "Testing with Param Miner style probes on your own assets"],
+          "tools": ["Burp Suite", "curl", "Cloudflare", "Amazon CloudFront", "Fastly"],
+          "lab_task": "In a lab you own, build an origin that reflects X-Forwarded-Host into script URLs and caches /account/* responses for paths ending in .css. Demonstrate poisoning with a unique cache buster and deception with /account/profile.css. Fix both: strip X-Forwarded-Host at the edge, require the response Content-Type to match the extension, and set Cache-Control: private on account pages. Retest.",
+          "deliverable": "Vulnerability demonstration, fixes and retest evidence",
+          "checks": [["Send X-Forwarded-Host: evil.example with a cache buster before the fix", "A later normal request receives the poisoned script URL from cache", "Two captures"], ["Request /account/profile.css after the fixes", "Response is not cached and cache status shows MISS or BYPASS", "Header capture"], ["Resend the poisoning request after stripping the header", "The cached response contains the legitimate host only", "Response body"]],
+          "objectives": ["Identify unkeyed inputs and deception risks", "Apply edge and origin fixes for poisoning and deception", "Verify fixes with controlled tests"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-CDN Global Delivery Platform with Edge Compute, Bot Defence and Cost Report",
+          "subtopics": ["Architecture across two CDNs with steering, shielding and parity tests", "Edge compute for JWT validation, normalisation and personalisation", "Bot, WAF, DDoS and cache poisoning controls", "Staged rollout, SLO dashboards and burn-rate alerts", "Game day with vendor failover", "Cost model, benchmark report and executive presentation"],
+          "tools": ["Terraform", "Amazon CloudFront", "Cloudflare Workers", "Fastly", "Amazon Route 53", "Grafana"],
+          "lab_task": "Deliver a two-CDN platform in Terraform with RUM or DNS steering, parity tests, purge fan-out, JWT checks at the edge, bot and WAF rules, SLO dashboards and staged rollout. Prove it with k6 at 500 requests per second for 15 minutes: over 92 percent hit ratio, p95 TTFB under 150 ms for cached objects and failover of one CDN within 5 minutes. Include a monthly cost model.",
+          "deliverable": "Terraform repository, benchmark and game day reports, cost model and presentation",
+          "checks": [["Run k6 at 500 requests per second for 15 minutes", "Hit ratio above 92 percent and cached p95 TTFB below 150 ms", "k6 summary and dashboards"], ["Fail one CDN during the load test", "Traffic shifts to the other CDN within 5 minutes with error rate under 1 percent", "Steering logs and dashboard"], ["Run the cache poisoning and bot test suites", "No poisoned entry is served and automated traffic is challenged or blocked on protected paths", "Test reports"]],
+          "objectives": ["Architect and operate a multi-CDN delivery platform", "Combine edge compute and security controls with measured performance", "Justify the design with cost and SLO evidence"]
+        }
+      ]
+    }
+  }
+}
