@@ -109,6 +109,25 @@ def test_mail1_attaches_labeled_draft_for_review_required_toc(monkeypatch):
     assert "draft ToC/course agenda is attached for your review" in mail["body"]
 
 
+def test_mail1_sends_regeneration_required_toc_as_trainer_review_draft(monkeypatch):
+    toc = {
+        "title": "DevOps",
+        "quality": {
+            "status": "requires_regeneration",
+            "validation_errors": ["Missing requested scope"],
+            "review_warnings": ["Verify technical fit"],
+        },
+        "days": [{"day": 1, "focus_area": "DevOps foundations"}],
+    }
+    result, calls, _ = setup_delivery(monkeypatch, requirement(), document_status=[422, 200], toc=toc)
+
+    assert result["sent"] == 1
+    assert [payload.get("draft", False) for url, payload in calls if "/documents/" in url] == [False, True]
+    mail = calls[-1][1]
+    assert "DRAFT FOR REVIEW" in mail["attachments"][0]["filename"]
+    assert "draft ToC/course agenda is attached for your review" in mail["body"]
+
+
 def test_mail1_regenerates_toc_with_quality_warnings_before_delivery(monkeypatch):
     rejected_toc = {
         "title": "DevOps",
@@ -154,7 +173,9 @@ def test_mail1_blocks_when_review_gate_422_has_missing_quality_metadata(monkeypa
 
     assert result["sent"] == 0
     assert result["failed"] == 1
-    assert [payload for url, payload in calls if "/documents/" in url] == [{"toc": toc}]
+    assert [payload for url, payload in calls if "/documents/" in url] == [
+        {"toc": toc}, {"toc": toc, "draft": True},
+    ]
     assert not any("/email/send" in url for url, _ in calls)
 
 
@@ -165,7 +186,9 @@ def test_mail1_blocks_regeneration_required_toc_after_review_gate_422(monkeypatc
 
     assert result["sent"] == 0
     assert result["failed"] == 1
-    assert [payload for url, payload in calls if "/documents/" in url] == [{"toc": toc}]
+    assert [payload for url, payload in calls if "/documents/" in url] == [
+        {"toc": toc}, {"toc": toc, "draft": True},
+    ]
     assert not any("/email/send" in url for url, _ in calls)
 
 
@@ -190,9 +213,9 @@ def test_ai_off_confirmed_mail1_keeps_the_client_commercial_body(monkeypatch):
     assert "Client commercial: INR 130,000 total-course commercial" in mail["body"]
     assert "Offered trainer commercial" not in mail["body"]
     assert "70%" not in mail["body"]
-    assert "[Your available date 1]" in mail["body"]
-    assert "[Your available date 3]" in mail["body"]
-    assert "These are not the client's dates" in mail["body"]
+    assert "Example format only; these sample dates and times are illustrative, not booked appointments." in mail["body"]
+    assert "[Your available date 1]" not in mail["body"]
+    assert "illustrative, not booked appointments" in mail["body"]
     assert "01 November 2026" not in mail["body"]
     assert "Please confirm the offered commercials" not in mail["body"]
 

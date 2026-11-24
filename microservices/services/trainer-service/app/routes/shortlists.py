@@ -4339,23 +4339,7 @@ async def send_shortlist_mail(
                                     toc_url,
                                     json={"toc": generated_toc},
                                 )
-                                toc_quality = generated_toc.get("quality") or {}
-                                reviewable_draft = (
-                                    toc_quality.get("status") == "requires_review"
-                                    and not toc_quality.get("validation_errors")
-                                    and (toc_quality.get("content_evaluation") or {}).get("status") != "fail"
-                                )
                                 is_draft_toc = False
-                                if toc_response.status_code == 422 and reviewable_draft:
-                                    # Mail 1 goes to the trainer for feasibility review.
-                                    # Export a clearly labeled draft for that review;
-                                    # never turn regeneration failures into delivery.
-                                    toc_response = await _post_with_local_fallback(
-                                        client,
-                                        f"{DOC_SVC}/api/v1/documents/excel/toc",
-                                        json={"toc": generated_toc, "draft": True},
-                                    )
-                                    is_draft_toc = True
                                 quality_review_rejected = False
                                 if toc_response.status_code == 422:
                                     try:
@@ -4365,9 +4349,25 @@ async def send_shortlist_mail(
                                     quality_review_rejected = (
                                         "TOC requires review before export or delivery" in str(export_detail)
                                     )
+                                    if (
+                                        toc_response.status_code == 422
+                                        and quality_review_rejected
+                                        and generated_toc.get("days")
+                                    ):
+                                        # Mail 1 goes to the trainer, not the client. After bounded
+                                        # repairs, attach a clearly labeled review draft so the trainer
+                                        # can resolve the findings. Client delivery still uses the
+                                        # normal approved-TOC gate.
+                                        toc_response = await _post_with_local_fallback(
+                                            client,
+                                            f"{DOC_SVC}/api/v1/documents/excel/toc",
+                                            json={"toc": generated_toc, "draft": True},
+                                        )
+                                        is_draft_toc = toc_response.status_code == 200
                                 if toc_response.status_code == 422 and quality_review_rejected:
                                     logger.warning(
-                                        "Blocking Mail 1 to %s because its ToC requires regeneration: %s",
+                                            "Blocking Mail 1 to %s because its ToC could not be exported, "
+                                            "including as a review draft: %s",
                                         trainer_email, export_detail,
                                     )
                                     raise RuntimeError(
