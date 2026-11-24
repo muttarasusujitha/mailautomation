@@ -324,9 +324,9 @@ def test_mail1_three_interview_slots_do_not_enter_question_side_flow():
         "trainer_id": "TR-001",
         "source_outbound_mail_type": "mail1",
     }
-    reply = """- 10 September 2026, 10:30 AM IST
-- 10 September 2026, 2:00 PM IST
-- 10 September 2026, 4:00 PM IST
+    reply = """- 10 September 2027, 10:30 AM IST
+- 10 September 2027, 2:00 PM IST
+- 10 September 2027, 4:00 PM IST
 
 On Thu, Sep 10, 2026 at 10:16 AM Clahan Technologies wrote:
 > Please confirm the offered commercials in your reply, or share your proposed rate.

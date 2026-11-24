@@ -1,8 +1,12 @@
-import { useState } from 'react'
-import { User, Mail, Phone, MapPin, Building2, Edit2, Save, X, Camera } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { User, Mail, Phone, MapPin, Building2, Edit2, Save, X, Camera, CheckCircle2, Link2, RefreshCw, Send, Unlink } from 'lucide-react'
 import toast from 'react-hot-toast'
+import api from '../utils/api'
+import { normalizeGmailStatus, saveGmailOAuthPkce } from '../utils/gmailOAuth'
 
 export default function Profile() {
+  const [gmailStatus, setGmailStatus] = useState({ connected: false, email: '' })
+  const [gmailBusy, setGmailBusy] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [profile, setProfile] = useState({
     name: 'Recruiter Name',
@@ -14,6 +18,66 @@ export default function Profile() {
     bio: 'Experienced recruiter focused on technical talent acquisition'
   })
   const [editData, setEditData] = useState(profile)
+
+  const loadGmailStatus = useCallback(async () => {
+    try {
+      const response = await api.get('/gmail/me/auth-status')
+      setGmailStatus(normalizeGmailStatus(response.data || {}))
+    } catch (error) {
+      setGmailStatus(normalizeGmailStatus({ connected: false }))
+      if (error?.status && error.status !== 401) toast.error(error.message || 'Could not load your Gmail connection')
+    }
+  }, [])
+
+  useEffect(() => {
+    loadGmailStatus()
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('gmail_connected') === '1') toast.success('Your Gmail account is connected.')
+    if (params.get('gmail_error')) toast.error(`Google rejected the connection: ${params.get('gmail_error')}`)
+    if (params.has('gmail_connected') || params.has('gmail_error')) {
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [loadGmailStatus])
+
+  const connectGmail = async () => {
+    setGmailBusy(true)
+    try {
+      const response = await api.get('/gmail/me/oauth-url')
+      const data = response.data || {}
+      const authUrl = data.auth_url || data.url
+      if (!authUrl) throw new Error('Google did not return an authorization link')
+      saveGmailOAuthPkce(data)
+      window.location.assign(authUrl)
+    } catch (error) {
+      toast.error(error.message || 'Could not start Google sign-in')
+      setGmailBusy(false)
+    }
+  }
+
+  const sendGmailTest = async () => {
+    setGmailBusy(true)
+    try {
+      const response = await api.post('/gmail/me/test-send')
+      toast.success(`Test email sent to ${response.data?.sent_to || gmailStatus.email}`)
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || 'Test email failed')
+    } finally {
+      setGmailBusy(false)
+    }
+  }
+
+  const disconnectGmail = async () => {
+    setGmailBusy(true)
+    try {
+      await api.post('/gmail/me/disconnect')
+      setGmailStatus({ connected: false, email: '' })
+      toast.success('Your Gmail connection was removed.')
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || 'Could not disconnect Gmail')
+    } finally {
+      setGmailBusy(false)
+    }
+  }
 
   const handleEdit = () => {
     setIsEditing(true)
@@ -56,6 +120,46 @@ export default function Profile() {
           </button>
         )}
       </div>
+
+      <section className="card p-6" aria-labelledby="personal-gmail-title">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="rounded-xl bg-blue-50 p-3 text-blue-700"><Mail className="h-5 w-5" /></span>
+            <div>
+              <h2 id="personal-gmail-title" className="text-lg font-bold text-slate-900">My Gmail connection</h2>
+              <p className="mt-1 max-w-2xl text-sm text-slate-600">
+                Connect your own Google account to test TrainerSync email delivery. This connection is private to your login and only grants permission to send mail from your account; it does not connect you to the company inbox.
+              </p>
+            </div>
+          </div>
+          <span className={`inline-flex w-fit items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold ${gmailStatus.connected ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
+            {gmailStatus.connected ? <CheckCircle2 className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
+            {gmailStatus.connected ? 'Connected' : 'Not connected'}
+          </span>
+        </div>
+        {gmailStatus.connected && (
+          <p className="mt-4 text-sm font-semibold text-slate-800">Connected account: {gmailStatus.email || 'Google account'}</p>
+        )}
+        <div className="mt-4 flex flex-wrap gap-2">
+          {!gmailStatus.connected ? (
+            <button type="button" onClick={connectGmail} disabled={gmailBusy} className="btn-primary text-sm disabled:opacity-50">
+              <Link2 className="h-4 w-4" /> Connect my Gmail
+            </button>
+          ) : (
+            <>
+              <button type="button" onClick={sendGmailTest} disabled={gmailBusy} className="btn-primary text-sm disabled:opacity-50">
+                <Send className="h-4 w-4" /> Send test email to myself
+              </button>
+              <button type="button" onClick={loadGmailStatus} disabled={gmailBusy} className="btn-secondary text-sm disabled:opacity-50">
+                <RefreshCw className="h-4 w-4" /> Refresh status
+              </button>
+              <button type="button" onClick={disconnectGmail} disabled={gmailBusy} className="btn-secondary text-sm text-red-700 disabled:opacity-50">
+                <Unlink className="h-4 w-4" /> Disconnect my Gmail
+              </button>
+            </>
+          )}
+        </div>
+      </section>
 
       {/* Profile Card */}
       <div className="card p-8">

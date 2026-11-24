@@ -16,9 +16,15 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: str = ""
     ANTHROPIC_MODEL: str = "z-ai/glm-5.2[im]"
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_MODEL: str = "gemini-3.5-flash-lite"
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-5.5"
+
+    # "ollama" makes the assistant use only the local Ollama API, with no cloud fallback.
+    AI_PROVIDER: str = "openai"
+    # Optional Ollama HTTP API used by the assistant chat route.
+    OLLAMA_URL: str = ""
+    OLLAMA_MODEL: str = "qwen3:8b"
 
     # Local Ollama Sonnet model settings
     OLLAMA_BINARY: str = "ollama"
@@ -30,6 +36,8 @@ class Settings(BaseSettings):
     TAVILY_API_KEY: str = ""
     TAVILY_API_URL: str = "https://api.tavily.dev"
     TAVILY_SEARCH_DEPTH: str = "basic"
+    LINKEDIN_BOT_ENABLED: bool = False
+    LINKEDIN_BOT_PROFILE_PATH: str = ""
 
     ALLOWED_ORIGINS: str = "http://localhost:5174,http://127.0.0.1:5174,http://0.0.0.0:5174,http://*:5174,https://localhost:3000"
 

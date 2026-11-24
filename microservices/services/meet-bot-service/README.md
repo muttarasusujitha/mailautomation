@@ -6,7 +6,12 @@ end plus a grace period.
 
 ## Opening voice and reminders
 
-The Clahan opening instruction uses offline `espeak-ng` speech synthesis. Each
+The Clahan opening instruction uses Microsoft Edge online neural speech through
+`edge-tts`. The default is `en-IN-NeerjaNeural`, a female Indian-English voice,
+with rate `-8%` and volume `-10%`. Configure `MEET_BOT_VOICE`,
+`MEET_BOT_VOICE_RATE`, and `MEET_BOT_VOICE_VOLUME` to adjust it.
+Only the opening instruction text is sent for synthesis. If synthesis fails,
+the meeting chat instruction remains available; there is no robotic voice fallback. Each
 meeting tab feeds its own audio into a WebRTC microphone stream; browser speaker
 text-to-speech is not used. The instruction is also posted in Meet chat. It starts
 after both the trainer and client are observed in the participant list.

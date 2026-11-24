@@ -30,15 +30,25 @@ async def _log_inbound(db, payload: Dict[str, Any]) -> None:
 
 
 def _verify_twilio_signature(cfg: Dict[str, Any], request_url: str, params: dict, signature: str) -> bool:
-    auth_token = cfg.get("authToken", "")
-    if not auth_token:
-        return True  # skip verification if not configured
+    auth_token = cfg.get("authToken") or settings.TWILIO_AUTH_TOKEN
+    if not auth_token or not signature:
+        return False
     try:
         from twilio.request_validator import RequestValidator
         v = RequestValidator(auth_token)
         return v.validate(request_url, params, signature)
     except Exception:
-        return True
+        return False
+
+
+async def _require_twilio(request, db, data):
+    cfg = await _get_cfg(db)
+    base = settings.TWILIO_WEBHOOK_BASE_URL.rstrip("/")
+    url = base + request.url.path if base else str(request.url)
+    if base and request.url.query:
+        url += "?" + request.url.query
+    if not _verify_twilio_signature(cfg, url, data, request.headers.get("X-Twilio-Signature", "")):
+        raise HTTPException(403, "Invalid webhook signature")
 
 
 # ── Twilio inbound callback ───────────────────────────────────────────────────
@@ -52,10 +62,7 @@ async def twilio_inbound(request: Request, db: AsyncIOMotorDatabase = Depends(ge
     except Exception:
         data = await request.json()
 
-    cfg = await _get_cfg(db)
-    sig = request.headers.get("X-Twilio-Signature", "")
-    if sig and not _verify_twilio_signature(cfg, str(request.url), data, sig):
-        logger.warning("Twilio signature mismatch for inbound webhook")
+    await _require_twilio(request, db, data)
 
     await _log_inbound(db, {
         "provider": "twilio",
@@ -85,6 +92,7 @@ async def twilio_status(request: Request, db: AsyncIOMotorDatabase = Depends(get
     except Exception:
         data = await request.json()
 
+    await _require_twilio(request, db, data)
     sid = data.get("MessageSid", "")
     status = data.get("MessageStatus", "")
     now = datetime.utcnow()
@@ -106,7 +114,7 @@ async def meta_webhook_verify(request: Request):
     token = params.get("hub.verify_token", "")
     challenge = params.get("hub.challenge", "")
     expected = settings.META_WEBHOOK_VERIFY_TOKEN if hasattr(settings, "META_WEBHOOK_VERIFY_TOKEN") else ""
-    if mode == "subscribe" and (not expected or token == expected):
+    if mode == "subscribe" and expected and hmac.compare_digest(token, expected):
         return Response(content=challenge, media_type="text/plain")
     raise HTTPException(403, "Webhook verification failed")
 
@@ -114,6 +122,12 @@ async def meta_webhook_verify(request: Request):
 @router.post("/meta/webhook")
 async def meta_webhook_receive(request: Request, db: AsyncIOMotorDatabase = Depends(get_db)):
     """Receive inbound messages and status updates from Meta Cloud API."""
+    raw_body = await request.body()
+    secret = settings.META_APP_SECRET
+    signature = request.headers.get("X-Hub-Signature-256", "")
+    expected = "sha256=" + hmac.new(secret.encode(), raw_body, hashlib.sha256).hexdigest()
+    if not secret or not hmac.compare_digest(signature, expected):
+        raise HTTPException(403, "Invalid webhook signature")
     try:
         body = await request.json()
     except Exception:
@@ -123,6 +137,44 @@ async def meta_webhook_receive(request: Request, db: AsyncIOMotorDatabase = Depe
         for entry in body.get("entry", []):
             for change in entry.get("changes", []):
                 value = change.get("value", {})
+                # Group creation is asynchronous; Meta returns the invite link
+                # in a group_lifecycle_update webhook rather than in the
+                # create request response.
+                if change.get("field") == "group_lifecycle_update":
+                    for group in value.get("groups", []):
+                        group_id = str(group.get("group_id") or "")
+                        request_id = str(group.get("request_id") or "")
+                        subject = str(group.get("subject") or "")
+                        query = {"whatsapp_group_requested": True}
+                        correlate = []
+                        if group_id:
+                            correlate.append({"whatsapp_group_id": group_id})
+                        if request_id:
+                            correlate.append({"whatsapp_group_request_id": request_id})
+                        if subject:
+                            correlate.append({"whatsapp_group_subject": subject})
+                        if correlate:
+                            query["$or"] = correlate
+                            task = await db["offline_coordination_tasks"].find_one(query, {"_id": 0})
+                            if task:
+                                invite_link = str(group.get("invite_link") or "")
+                                created = group.get("type") == "group_create" and bool(invite_link)
+                                update = {
+                                    "whatsapp_group_id": group_id or task.get("whatsapp_group_id", ""),
+                                    "whatsapp_group_status": "invite_link_ready" if created else "staff_action_required",
+                                    "whatsapp_group_webhook_at": datetime.utcnow(),
+                                    "updated_at": datetime.utcnow(),
+                                }
+                                if invite_link:
+                                    update["whatsapp_group_invite_link"] = invite_link
+                                if group.get("errors"):
+                                    update["whatsapp_group_error"] = str(group["errors"])[:500]
+                                await db["offline_coordination_tasks"].update_one({"_id": task.get("task_id")}, {"$set": update})
+                                if invite_link:
+                                    await db["requirements"].update_one(
+                                        {"requirement_id": task.get("requirement_id")},
+                                        {"$set": {"offline_logistics.whatsapp_group_invite_link": invite_link, "offline_logistics.whatsapp_group_status": "invite_link_ready", "updated_at": datetime.utcnow()}},
+                                    )
                 # Inbound messages
                 for msg in value.get("messages", []):
                     await _log_inbound(db, {

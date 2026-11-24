@@ -1,0 +1,303 @@
+{
+  "domain": "Cloud",
+  "name": "Cloud Computing",
+  "category": "Cloud",
+  "icon": "cloud",
+  "aliases": ["Cloud Computing", "Multi-Cloud", "Multi Cloud", "Cloud Fundamentals", "Cloud Engineering", "Cloud Technologies", "Cloud Platforms"],
+  "certifications": ["AWS Certified Cloud Practitioner", "Microsoft Azure Fundamentals (AZ-900)", "Google Cloud Digital Leader", "AWS Certified Solutions Architect - Associate", "Microsoft Azure Administrator (AZ-104)", "Google Cloud Associate Cloud Engineer"],
+  "tools": ["AWS Management Console", "Azure portal", "Google Cloud console", "Terraform", "kubectl"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For participants new to cloud computing. Covers service models, identity, compute, storage, networking, managed databases, serverless, monitoring and cost on the major providers, ending with a deployed web application.",
+      "prerequisites": ["Comfortable with basic computer use and web browsers", "Basic command-line use is helpful", "A payment card or sponsored account for cloud free tiers"],
+      "outcomes": ["Explain cloud models and shared responsibility", "Deploy and secure compute, storage, network and database services", "Monitor resources and control cost", "Deploy a simple two-tier application"],
+      "days": [
+        {
+          "topic": "Cloud Computing Concepts and Service Models",
+          "subtopics": ["What cloud computing is", "On-demand self-service and elasticity", "IaaS, PaaS and SaaS", "Public, private and hybrid cloud", "Shared responsibility model", "Regions and availability zones", "Pay-as-you-go pricing", "Major providers: AWS, Azure and Google Cloud"],
+          "tools": ["AWS Management Console", "Azure portal", "Google Cloud console"],
+          "lab_task": "Create free-tier accounts on two providers, set a budget alert on each, and classify ten common services as IaaS, PaaS or SaaS with a reason for each.",
+          "deliverable": "Two cost-controlled accounts and a service classification sheet",
+          "checks": [["Classify ten services as IaaS, PaaS or SaaS", "At least nine classified correctly, each with a reason", "Classification sheet"], ["Set a budget alert on one provider", "Alert configured at the stated amount", "Budget screenshot"], ["Say who patches a VM's operating system and a managed database engine", "Customer for the VM; provider for the managed engine", "Written answer"]],
+          "objectives": ["Explain cloud service and deployment models", "Explain the shared responsibility model", "Set up a cost-controlled cloud account"]
+        },
+        {
+          "topic": "Identity and Access in the Cloud",
+          "subtopics": ["Root and owner accounts with MFA", "Users, groups and roles", "Least privilege", "AWS IAM, Microsoft Entra ID and Google Cloud IAM", "Role assignment scopes", "Access keys versus short-lived credentials", "Audit logs of sign-ins and changes", "Common mistakes that expose accounts"],
+          "tools": ["AWS IAM", "Microsoft Entra ID", "Google Cloud IAM"],
+          "lab_task": "Protect the root or owner account with MFA, create a read-only developers group on one provider and an equivalent role on a second, and find both sign-ins in the audit logs.",
+          "deliverable": "MFA settings, group and role assignments, and audit log entries",
+          "checks": [["Sign in as the read-only user and try to delete a resource", "Denied", "Error message"], ["Sign in to the root or owner account", "MFA prompt appears", "Screenshot"], ["Search the audit log for the user's sign-in", "Event found with time and source IP", "Audit log entry"]],
+          "objectives": ["Secure the top-level account", "Grant least-privilege access with groups and roles", "Find sign-in and change events in audit logs"]
+        },
+        {
+          "topic": "Virtual Machines and Compute Choices",
+          "subtopics": ["VM sizes and families", "Machine images", "SSH and RDP access", "Security groups and firewall rules", "Start, stop and resize", "Spot and preemptible capacity", "Containers and serverless as alternatives", "Choosing compute for a workload"],
+          "tools": ["Amazon EC2", "Azure Virtual Machines", "Compute Engine"],
+          "lab_task": "Launch a Linux VM, install a web server, allow port 80 from anywhere and SSH only from your IP, then stop the VM and compare on-demand and spot prices for the same size.",
+          "deliverable": "Running web server, firewall rules and a price comparison",
+          "checks": [["Browse to the VM's public IP", "Web page loads", "Browser screenshot"], ["Connect with SSH from a different IP address", "Connection refused or times out", "Terminal output"], ["Explain which charges continue after the VM is stopped", "Disk storage is still charged; compute is not", "Written answer"]],
+          "objectives": ["Launch and secure a virtual machine", "Control access with firewall rules", "Compare compute pricing options"]
+        },
+        {
+          "topic": "Cloud Storage: Object, Block and File",
+          "subtopics": ["Object storage buckets", "Block volumes", "File shares", "Storage classes and tiers", "Lifecycle rules", "Versioning", "Public access settings", "Time-limited share links"],
+          "tools": ["Amazon S3", "Azure Blob Storage", "Google Cloud Storage"],
+          "lab_task": "Create a bucket, upload files, block public access, share one file with a link that expires in ten minutes, enable versioning and add a lifecycle rule that moves files older than 30 days to a cheaper tier.",
+          "deliverable": "Configured bucket, share link test and lifecycle rule",
+          "checks": [["Open an object URL without signing in", "Access denied", "Browser response"], ["Open the share link after it expires", "Access denied after expiry", "Browser response"], ["Overwrite a versioned file and restore the old version", "Old content restored", "Version listing"]],
+          "objectives": ["Choose object, block or file storage for a need", "Control access to stored data", "Reduce storage cost with tiers and lifecycle rules"]
+        },
+        {
+          "topic": "Cloud Networking: Networks, Subnets and Firewalls",
+          "subtopics": ["Virtual networks: VPC and VNet", "Subnets and CIDR ranges", "Public and private subnets", "Route tables and internet gateways", "NAT for outbound access", "Firewall rules", "DNS in the cloud", "Load balancer overview"],
+          "tools": ["Amazon VPC", "Azure Virtual Network", "Google Cloud VPC"],
+          "lab_task": "Build a network with a public and a private subnet, place a web VM in the public subnet and a database VM in the private one, and allow the database port only from the web subnet.",
+          "deliverable": "Network diagram, firewall rules and connectivity results",
+          "checks": [["Reach the web VM from the internet", "Succeeds", "curl output"], ["Reach the database VM from the internet", "Fails", "Terminal output"], ["Connect from the web VM to the database port", "Connection accepted from the web subnet", "Terminal output"]],
+          "objectives": ["Design a network with public and private subnets", "Restrict traffic with firewall rules", "Explain routing to the internet and between subnets"]
+        },
+        {
+          "topic": "Managed Databases in the Cloud",
+          "subtopics": ["Managed relational databases", "NoSQL database options", "Automated backups and point-in-time restore", "High availability options", "Read replicas", "Connection security", "Self-managed versus managed databases", "Database cost drivers"],
+          "tools": ["Amazon RDS", "Azure Database for PostgreSQL", "Cloud SQL"],
+          "lab_task": "Create a small managed PostgreSQL instance, connect from the web VM, load sample data, then restore the database to a new instance from a backup.",
+          "deliverable": "Managed database, sample data and restore evidence",
+          "checks": [["Query the restored instance", "Sample rows are present", "Query output"], ["Connect from an address outside the allowed range", "Connection refused", "Error message"], ["Check the automated backup settings", "Backups enabled with a retention period", "Settings screenshot"]],
+          "objectives": ["Create and connect to a managed database", "Back up and restore a database", "Choose between managed and self-managed databases"]
+        },
+        {
+          "topic": "Serverless Functions and Event Triggers",
+          "subtopics": ["Functions as a service", "Triggers: HTTP, storage events and schedules", "Cold starts", "Timeouts and memory", "Environment variables and secrets", "Function logs", "Pricing per request", "When not to use serverless"],
+          "tools": ["AWS Lambda", "Azure Functions", "Cloud Run functions"],
+          "lab_task": "Write a function that runs when a file is uploaded to the bucket and logs the file name and size, then upload three files and check the logs.",
+          "deliverable": "Deployed function and log evidence",
+          "checks": [["Upload three files", "Three log entries with names and sizes", "Function logs"], ["Upload a file to a different bucket", "Function is not triggered", "Function logs"], ["Set a 3-second timeout and add a 5-second wait", "Function times out and the error is logged", "Function logs"]],
+          "objectives": ["Build an event-driven function", "Read function logs", "Decide when serverless fits a workload"]
+        },
+        {
+          "topic": "Monitoring, Logging and Alerts",
+          "subtopics": ["Metrics and dashboards", "Logs and log queries", "Alarms and notifications", "Health checks", "Activity and audit logs", "Cost monitoring", "Tagging for visibility", "First steps in incident handling"],
+          "tools": ["Amazon CloudWatch", "Azure Monitor", "Google Cloud Monitoring"],
+          "lab_task": "Build a dashboard for the web VM with CPU and network metrics, create a CPU alarm that sends an email, and generate load to trigger it.",
+          "deliverable": "Dashboard, alarm and alarm history",
+          "checks": [["Run a CPU stress command on the VM", "Alarm fires and an email arrives", "Alarm history and email"], ["Query the logs for web server errors", "Matching log lines returned", "Query result"], ["Filter costs by a project tag", "Cost shown for the tagged resources", "Cost report"]],
+          "objectives": ["Monitor resources with metrics and dashboards", "Alert on problems", "Search logs to find errors"]
+        },
+        {
+          "topic": "Cloud Costs, Budgets and Tagging",
+          "subtopics": ["Pricing models", "Budgets and alerts", "Tagging standards", "Reservations and savings plans overview", "Right-sizing", "Deleting idle resources", "Pricing calculators", "Free tier limits"],
+          "tools": ["AWS Pricing Calculator", "Azure Pricing Calculator", "Google Cloud Pricing Calculator"],
+          "lab_task": "Estimate the monthly cost of the application built this week with a pricing calculator, tag every resource, and find and delete two idle resources.",
+          "deliverable": "Cost estimate, tagged resource list and clean-up record",
+          "checks": [["Compare the estimate with charges so far", "Difference explained", "Comparison note"], ["List untagged resources", "None remain", "Resource list"], ["Find idle resources", "Two idle resources identified and deleted", "Before and after resource list"]],
+          "objectives": ["Estimate cloud costs", "Keep resources tagged and accountable", "Remove waste"]
+        },
+        {
+          "topic": "Beginner Capstone: Deploy a Web Application on the Cloud",
+          "subtopics": ["Requirements and architecture", "Network, compute and database", "Storage and an upload function", "Monitoring and cost review", "Demo"],
+          "tools": ["Cloud console", "Managed database", "Object storage", "Serverless functions", "Monitoring"],
+          "lab_task": "Deploy a two-tier web application with a public web tier, a private managed database, file storage, an upload function, a dashboard with an alarm and a cost estimate, then present it.",
+          "deliverable": "Working application, architecture diagram, dashboard, cost estimate and a 10-minute demo",
+          "checks": [["Use the application end to end", "Data is saved and uploaded files are processed", "Demo"], ["Try to reach the database from the internet", "Connection fails", "Terminal output"], ["Show the cost estimate", "Within the agreed budget", "Cost estimate"]],
+          "objectives": ["Combine the beginner topics in one deployment", "Secure and monitor a simple application", "Explain design and cost choices"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For participants who already use one cloud. Covers comparing providers, infrastructure as code, managed Kubernetes, identity federation, hybrid networking, analytics, CI/CD, security posture and disaster recovery.",
+      "prerequisites": ["Has deployed resources on at least one cloud provider", "Comfortable with Linux, Git and the command line", "Knows basic networking: IP addresses, subnets and DNS"],
+      "outcomes": ["Choose and map services across providers", "Automate infrastructure and deployments", "Secure identities and posture across clouds", "Plan and test disaster recovery"],
+      "days": [
+        {
+          "topic": "Multi-Cloud Service Mapping and Selection",
+          "subtopics": ["Mapping services across AWS, Azure and Google Cloud", "Compute, storage, database and network equivalents", "Managed Kubernetes options", "Identity models compared", "Regions and data residency", "Pricing differences", "Lock-in versus native managed services", "Decision records"],
+          "tools": ["AWS", "Microsoft Azure", "Google Cloud"],
+          "lab_task": "Map a reference e-commerce architecture to all three providers, then write a decision record choosing one provider for a stated data-residency requirement.",
+          "deliverable": "Service mapping table and decision record",
+          "checks": [["Review the mapping table", "Every component has an equivalent on each provider or a noted gap", "Mapping table"], ["Apply the data-residency requirement", "Only regions that meet it are chosen", "Decision record"], ["A peer challenges one choice", "A reason is given with its trade-off", "Review notes"]],
+          "objectives": ["Compare services across providers", "Choose a provider against requirements", "Record architecture decisions"]
+        },
+        {
+          "topic": "Infrastructure as Code with Terraform Across Providers",
+          "subtopics": ["Terraform workflow: init, plan and apply", "Providers for AWS, Azure and Google Cloud", "Variables and modules", "Remote state and locking", "Plans in pull requests", "Drift detection", "Keeping secrets out of code", "Destroying and recreating environments"],
+          "tools": ["Terraform", "Git", "Cloud CLIs"],
+          "lab_task": "Write a Terraform module that creates a network and a VM, deploy it to two providers, and store state remotely with locking.",
+          "deliverable": "Module code, two deployments and lock test output",
+          "checks": [["Run terraform plan after apply", "Plan shows no changes", "Plan output"], ["Run apply from two terminals at once", "Second run waits or fails on the state lock", "Terminal output"], ["Destroy and re-apply", "Environment rebuilt with no manual steps", "Apply log"]],
+          "objectives": ["Manage infrastructure on several providers as code", "Share infrastructure through modules", "Keep state safe and consistent"]
+        },
+        {
+          "topic": "Containers and Managed Kubernetes in the Cloud",
+          "subtopics": ["Container registries", "Amazon EKS, AKS and GKE", "Node pools and autoscaling", "Load balancer services and ingress", "Workload identity", "Cluster upgrades", "Cluster cost", "Serverless containers as an alternative"],
+          "tools": ["Docker", "kubectl", "Amazon EKS", "Azure Kubernetes Service", "Google Kubernetes Engine"],
+          "lab_task": "Push an image to a cloud registry, deploy it to a managed Kubernetes cluster with two replicas behind a load balancer, and scale until the autoscaler adds a node.",
+          "deliverable": "Deployed application, manifests and scaling evidence",
+          "checks": [["Browse to the load balancer address", "Application responds", "Browser output"], ["Delete one pod", "A replacement pod starts", "kubectl output"], ["Scale replicas beyond node capacity", "The autoscaler adds a node", "Node list"]],
+          "objectives": ["Run containers on managed Kubernetes", "Expose and scale workloads", "Choose between Kubernetes and serverless containers"]
+        },
+        {
+          "topic": "Identity Federation and Single Sign-On",
+          "subtopics": ["Federation and single sign-on", "SAML and OpenID Connect", "Workforce identity for cloud consoles", "Workload identity federation for pipelines", "Conditional access and MFA policies", "Break-glass accounts", "Access reviews", "Cross-cloud identity patterns"],
+          "tools": ["Microsoft Entra ID", "AWS IAM Identity Center", "Google Cloud Workload Identity Federation", "GitHub Actions"],
+          "lab_task": "Configure single sign-on so users from one identity provider sign in to a second cloud's console, and let a pipeline deploy with workload identity federation instead of stored keys.",
+          "deliverable": "SSO configuration, role mapping and pipeline evidence",
+          "checks": [["Sign in through single sign-on", "Access granted with the mapped role", "Sign-in log"], ["Run the pipeline with no stored keys", "Deployment succeeds with short-lived credentials", "Pipeline log"], ["Disable the user in the identity provider", "Console access ends", "Sign-in failure"]],
+          "objectives": ["Federate identities across providers", "Remove long-lived keys from pipelines", "Control and review privileged access"]
+        },
+        {
+          "topic": "Hybrid and Multi-Cloud Networking",
+          "subtopics": ["Site-to-site VPN", "Dedicated connections: Direct Connect, ExpressRoute and Cloud Interconnect", "Private access to managed services", "Overlapping IP ranges", "DNS across environments", "Hub-and-spoke designs", "Bandwidth and egress costs", "Network monitoring"],
+          "tools": ["VPN gateways", "Private DNS", "Flow logs"],
+          "lab_task": "Connect two cloud networks with a site-to-site VPN, resolve private DNS names across them, and calculate the egress cost of moving 1 GB between them.",
+          "deliverable": "Network diagram, VPN configuration, DNS tests and cost calculation",
+          "checks": [["Ping a private IP across the VPN", "Succeeds", "Terminal output"], ["Resolve a private name from the other network", "Returns the private IP", "nslookup output"], ["Calculate the egress cost for 1 GB", "Cost calculated from the published prices", "Calculation sheet"]],
+          "objectives": ["Connect clouds and on-premises networks", "Resolve names across environments", "Account for data transfer costs"]
+        },
+        {
+          "topic": "Data Services and Analytics Across Clouds",
+          "subtopics": ["Data lakes on object storage", "Managed warehouses: Redshift, Azure Synapse and BigQuery", "Batch and streaming ingestion", "Columnar formats such as Parquet", "Access control on data", "Query cost models", "Moving data between clouds", "Choosing a warehouse"],
+          "tools": ["Amazon Redshift", "Azure Synapse Analytics", "BigQuery"],
+          "lab_task": "Load the same Parquet dataset into two managed warehouses, run three identical queries, and compare results, run time, data scanned and cost.",
+          "deliverable": "Load scripts, query results and a comparison sheet",
+          "checks": [["Run the three queries on both warehouses", "Results match", "Query outputs"], ["Compare cost per query", "Difference explained by each pricing model", "Cost sheet"], ["Query a table without permission", "Access denied", "Error message"]],
+          "objectives": ["Load and query data in managed warehouses", "Compare analytics services on cost and speed", "Control access to data"]
+        },
+        {
+          "topic": "CI/CD for Cloud Deployments",
+          "subtopics": ["Pipelines with GitHub Actions", "Build, test and deploy stages", "Environments and approvals", "Deploying infrastructure and applications together", "Blue-green and canary releases", "Rollback", "Secrets in pipelines", "Pipeline security"],
+          "tools": ["GitHub Actions", "Terraform", "Container registry"],
+          "lab_task": "Build a pipeline that runs tests, applies Terraform after approval, deploys the application with a canary release, and rolls back a faulty version.",
+          "deliverable": "Pipeline definition and deployment history",
+          "checks": [["Push a commit that fails tests", "Pipeline stops before deploying", "Pipeline log"], ["Release a faulty version", "Canary detects the errors and rolls back", "Deployment history"], ["Deploy to production without approval", "Pipeline waits for approval", "Pipeline view"]],
+          "objectives": ["Automate cloud deployments", "Release safely with canaries and rollback", "Protect secrets and environments in pipelines"]
+        },
+        {
+          "topic": "Cloud Security Posture and Compliance",
+          "subtopics": ["Security baselines such as CIS benchmarks", "Posture tools: Security Hub, Defender for Cloud and Security Command Center", "Encryption at rest and in transit", "Key management services", "Public exposure checks", "Logging for compliance", "Policy as code", "Remediation workflow"],
+          "tools": ["AWS Security Hub", "Microsoft Defender for Cloud", "Security Command Center"],
+          "lab_task": "Enable the posture tool on one provider, fix the three highest-severity findings in the lab account, and add a policy that blocks public storage.",
+          "deliverable": "Findings before and after, and the policy definition",
+          "checks": [["Re-run the assessment", "The three findings are resolved", "Findings report"], ["Create a public bucket", "Blocked by the policy", "Error message"], ["Check encryption on storage and the database", "Encryption enabled", "Settings screenshot"]],
+          "objectives": ["Assess cloud security posture", "Fix common misconfigurations", "Prevent risky changes with policy"]
+        },
+        {
+          "topic": "Reliability, Backup and Disaster Recovery",
+          "subtopics": ["Availability zones and regions", "RTO and RPO", "Backup services", "Cross-region replication", "Pilot light, warm standby and active-active", "Disaster recovery testing", "Chaos experiments", "Runbooks"],
+          "tools": ["AWS Backup", "Azure Backup", "Backup and DR Service"],
+          "lab_task": "Set an RTO and RPO for the sample application, configure cross-region database backups, and run a failover drill to the second region with a runbook.",
+          "deliverable": "RTO and RPO targets, backup configuration, drill timeline and runbook",
+          "checks": [["Lose the primary database in the drill", "Service restored in the second region within the RTO", "Drill timeline"], ["Check the age of the restored data", "Within the RPO", "Restore log"], ["A second person follows the runbook", "Completed without help", "Runbook notes"]],
+          "objectives": ["Set recovery objectives", "Back up and replicate across regions", "Test recovery with drills and runbooks"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Cloud Application Platform",
+          "subtopics": ["Requirements and provider choice", "Infrastructure as code on two providers", "Kubernetes deployment and pipeline", "Identity, security and disaster recovery", "Demo and design defence"],
+          "tools": ["Terraform", "Kubernetes", "GitHub Actions", "Posture tools"],
+          "lab_task": "Deploy the application with Terraform on a primary provider, keep backups and a standby on a second, use single sign-on and workload identity, pass posture checks, and present it with a cost estimate.",
+          "deliverable": "Repository, pipeline, drill results, findings report and a 15-minute demo",
+          "checks": [["Run the pipeline end to end", "Application deployed with a canary release", "Pipeline log"], ["Run the failover drill", "Service restored on the second provider within the RTO", "Drill timeline"], ["Show the posture findings", "No high-severity findings open", "Findings report"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Prove recovery and security", "Defend design and cost decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For architects and senior engineers running production cloud estates. Covers architecture reviews, landing zones, FinOps, zero trust, platform engineering, multi-region resilience, data and AI platforms, migration and regulated cloud.",
+      "prerequisites": ["Has run production workloads on the cloud", "Writes infrastructure as code and pipelines", "Understands security, networking and cost basics on at least one provider"],
+      "outcomes": ["Review and govern enterprise cloud architectures", "Engineer cost, security and resilience at scale", "Plan migrations and regulated workloads", "Defend platform designs to decision makers"],
+      "days": [
+        {
+          "topic": "Cloud Architecture Frameworks and Reviews",
+          "subtopics": ["Well-Architected frameworks of AWS, Azure and Google Cloud", "Reliability, security, cost, performance, operations and sustainability", "Architecture decision records", "Trade-off analysis", "Review workshops", "Risk registers", "Fitness functions", "Presenting to stakeholders"],
+          "tools": ["AWS Well-Architected Tool", "Azure Well-Architected Review", "Google Cloud Architecture Framework"],
+          "lab_task": "Run a well-architected review of a provided production design, record the five highest risks with remediation and owners, and write two decision records.",
+          "deliverable": "Risk register and two decision records",
+          "checks": [["Present the top risks", "Each has impact, likelihood and an owner", "Risk register"], ["A peer reviews a decision record", "Alternatives and consequences are stated", "Review notes"], ["Map each risk to a framework pillar", "Every risk is mapped", "Review sheet"]],
+          "objectives": ["Review designs against cloud frameworks", "Weigh architecture trade-offs", "Communicate risk to stakeholders"]
+        },
+        {
+          "topic": "Landing Zones and Multi-Account Governance at Scale",
+          "subtopics": ["Landing zone concepts", "AWS Organizations, Azure management groups and Google Cloud resource hierarchy", "Account, subscription and project vending", "Guardrails and policies", "Central logging and security accounts", "Network hub design", "Identity at scale", "Exception process"],
+          "tools": ["AWS Organizations", "Azure Policy", "Google Cloud Organization Policy", "Terraform"],
+          "lab_task": "Design a landing zone for 30 teams across two providers, implement guardrails that stop admins disabling audit logs, and create a new team environment from code.",
+          "deliverable": "Landing zone design, guardrail code and vending evidence",
+          "checks": [["Disable audit logging as an administrator", "Blocked by the guardrail", "Error message"], ["Create a new team environment", "Created with baseline policies and tags", "Deployment log"], ["Request a policy exception", "Time-limited exception recorded", "Exception record"]],
+          "objectives": ["Design governance for many teams", "Enforce guardrails across providers", "Automate environment creation"]
+        },
+        {
+          "topic": "FinOps and Cost Engineering",
+          "subtopics": ["FinOps lifecycle: inform, optimise and operate", "Cost allocation and showback", "Reservations and savings plans", "Spot and preemptible strategies", "Unit economics", "Cost anomaly detection", "Kubernetes cost allocation", "Forecasting"],
+          "tools": ["Billing exports", "Cost management tools", "Spreadsheet or BI tool"],
+          "lab_task": "Build a cost-allocation report by team from a provided billing export, find the three largest savings, and model a one-year commitment with its break-even month.",
+          "deliverable": "Allocation report, savings list and commitment model",
+          "checks": [["Allocate costs by tag", "At least 95 percent of spend allocated", "Report"], ["Model a one-year commitment", "Break-even month calculated", "Model"], ["Add a cost spike to the data", "The anomaly is detected", "Alert or report"]],
+          "objectives": ["Allocate and report cloud costs", "Plan commitments and spot use", "Detect and explain cost anomalies"]
+        },
+        {
+          "topic": "Zero Trust Security Architecture in the Cloud",
+          "subtopics": ["Zero trust principles", "Identity-aware access proxies", "Private access to applications", "Micro-segmentation", "Secret rotation", "Workload identity across clouds", "Threat detection services", "Automated incident response"],
+          "tools": ["Identity-aware proxy", "Secrets manager", "Threat detection service", "Serverless functions"],
+          "lab_task": "Replace VPN access to an internal application with an identity-aware proxy, rotate a database secret automatically, and automate the response to a leaked-key finding.",
+          "deliverable": "Access configuration, rotation evidence and automation logs",
+          "checks": [["Open the application without a valid identity", "Denied by the proxy", "Access log"], ["Rotate the secret", "Application keeps working with the new secret", "Application log"], ["Simulate a leaked-key finding", "The key is disabled automatically", "Automation log"]],
+          "objectives": ["Apply zero trust to cloud applications", "Automate secret rotation", "Respond to threats automatically"]
+        },
+        {
+          "topic": "Platform Engineering and Internal Developer Platforms",
+          "subtopics": ["Golden paths and templates", "Self-service portals such as Backstage", "Paved-road CI/CD", "Policy guardrails in the platform", "Platform APIs", "Measuring platform adoption", "DORA metrics", "Running the platform as a product"],
+          "tools": ["Backstage", "Terraform", "GitHub Actions"],
+          "lab_task": "Build a template that creates a repository, pipeline and cloud environment for a new service, then ship one change through it and record the lead time.",
+          "deliverable": "Service template, created service and metrics",
+          "checks": [["Create a service from the template", "Repository, pipeline and environment created", "Portal and logs"], ["Break a policy in the template input", "Creation blocked with a clear message", "Error message"], ["Ship one change", "Lead time recorded", "Metrics view"]],
+          "objectives": ["Build self-service paths for developers", "Embed guardrails in the platform", "Measure delivery performance"]
+        },
+        {
+          "topic": "Advanced Multi-Region and Resilience Engineering",
+          "subtopics": ["Active-active design", "Global load balancing and DNS failover", "Data consistency across regions", "Conflict resolution", "Cell-based architecture", "Chaos engineering at scale", "Game days", "SLOs and error budgets"],
+          "tools": ["Global load balancer", "Multi-region database", "Chaos tools", "Monitoring"],
+          "lab_task": "Run the sample service active-active in two regions behind global load balancing, inject a regional failure, and measure the effect on the SLO.",
+          "deliverable": "Architecture, failure test results and SLO report",
+          "checks": [["Fail one region", "Traffic moves to the other region within the target time", "Monitoring graph"], ["Write the same record in both regions", "Conflict resolved by the stated rule", "Data check"], ["Compare the error budget before and after", "Budget burn reported", "SLO report"]],
+          "objectives": ["Design active-active services", "Test resilience with chaos experiments", "Manage reliability with SLOs"]
+        },
+        {
+          "topic": "Cloud-Native Data and AI Platforms",
+          "subtopics": ["Lakehouse architecture", "Streaming at scale", "Data mesh and domain ownership", "Feature stores", "Managed ML platforms: SageMaker, Azure Machine Learning and Vertex AI", "Governance and lineage", "Cost controls for data and AI", "Build or buy decisions"],
+          "tools": ["Object storage", "Streaming service", "Managed ML platform", "Data catalog"],
+          "lab_task": "Design a governed lakehouse for two business domains, stream events into it, and serve one model through a managed ML platform with lineage recorded.",
+          "deliverable": "Platform design, streaming evidence, model endpoint and lineage view",
+          "checks": [["Trace a report back to its source", "Lineage shown end to end", "Lineage view"], ["Stream 10,000 events", "All events land in the lakehouse table", "Row count"], ["Query another domain's data without access", "Access denied", "Error message"]],
+          "objectives": ["Design data and AI platforms on the cloud", "Govern data with ownership and lineage", "Control data and AI costs"]
+        },
+        {
+          "topic": "Cloud Migration Strategy and Execution",
+          "subtopics": ["The 7 Rs of migration", "Discovery and assessment", "Dependency mapping", "Migration waves", "Database migration services", "Cutover planning", "Rollback plans", "Post-migration optimisation"],
+          "tools": ["Migration assessment tools", "Database migration service", "Spreadsheet"],
+          "lab_task": "Assess a provided inventory of 20 applications, assign a strategy and wave to each, migrate one database with minimal downtime, and write the cutover and rollback plan.",
+          "deliverable": "Assessment, wave plan, migration log and cutover plan",
+          "checks": [["Review the wave plan", "Dependencies respected in every wave", "Wave plan"], ["Migrate the database", "Downtime within the agreed window", "Migration log"], ["Run the rollback step", "Service back on the source system", "Rollback log"]],
+          "objectives": ["Plan a migration portfolio", "Migrate data with minimal downtime", "Prepare cutover and rollback"]
+        },
+        {
+          "topic": "Sovereign, Regulated and Hybrid Cloud",
+          "subtopics": ["Data residency and sovereignty", "Regulated workloads in finance, health and government", "Sovereign cloud offerings", "Hybrid platforms: Azure Arc, Google Distributed Cloud and AWS Outposts", "Customer-managed and external keys", "Audit evidence", "Contracts and shared responsibility", "Exit planning"],
+          "tools": ["Key management service", "Policy tools", "Hybrid management tools"],
+          "lab_task": "For a regulated workload, choose regions and controls that meet a provided residency rule, use a key the provider does not hold, and produce an audit evidence pack.",
+          "deliverable": "Control design, key configuration and evidence pack",
+          "checks": [["Check every resource's region", "All resources in allowed regions", "Inventory"], ["Revoke the external key", "Encrypted data can no longer be read", "Test output"], ["An auditor asks for access evidence", "The evidence pack answers the question", "Evidence pack"]],
+          "objectives": ["Meet residency and regulatory needs", "Control encryption keys", "Produce audit evidence"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Cloud Platform Design",
+          "subtopics": ["Architecture review", "Landing zone and governance", "Security and resilience", "FinOps model", "Review board presentation"],
+          "tools": ["Terraform", "Policy tools", "Monitoring", "Cost management tools"],
+          "lab_task": "Design and partly build an enterprise cloud platform for a provided company: landing zone, guardrails, zero-trust access, a multi-region service, a cost model and a migration plan, then defend it to a review board.",
+          "deliverable": "Design pack, working guardrails and service, cost model and a 20-minute presentation",
+          "checks": [["The board asks for the three biggest risks", "Each has a mitigation and an owner", "Presentation"], ["Run the guardrail tests", "All guardrails block the test changes", "Test output"], ["Show the cost model", "Within budget with stated assumptions", "Cost model"]],
+          "objectives": ["Design an enterprise cloud platform", "Integrate governance, security, resilience and cost", "Defend a design to a review board"]
+        }
+      ]
+    }
+  }
+}

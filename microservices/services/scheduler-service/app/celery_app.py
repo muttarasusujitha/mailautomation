@@ -16,6 +16,7 @@ celery_app = Celery(
         "app.tasks.interview_reminders",
         "app.tasks.meet_start_notices",
         "app.tasks.no_show_notices",
+        "app.tasks.agent_orchestrator",
     ],
 )
 
@@ -32,6 +33,13 @@ celery_app.conf.update(
 
 # ── Beat schedule ──────────────────────────────────────────────────────────────
 celery_app.conf.beat_schedule = {
+    # Reconcile agent recommendations and execute only validated allowlisted
+    # actions (currently due interview notices); decision records deduplicate runs.
+    "agent-orchestrator-every-five-minutes": {
+        "task": "app.tasks.agent_orchestrator.run_agent_orchestrator",
+        "schedule": crontab(minute="*/5"),
+        "args": [],
+    },
     # Poll Gmail on a sustainable cadence. Each run is bounded in inbox_poll
     # so Gmail's per-user API quota is not exhausted during a backlog.
     "poll-inbox-every-three-minutes": {
@@ -45,7 +53,7 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(minute="*/10"),
         "args": [],
     },
-    # Send Google Meet join notices 10 minutes before each interview.
+    # Send Google Meet join notices about 5 minutes before each interview.
     "meet-start-notices-every-minute": {
         "task": "app.tasks.meet_start_notices.send_due_start_notices",
         "schedule": crontab(minute="*"),
@@ -76,6 +84,18 @@ celery_app.conf.beat_schedule = {
     "trainer-followup-2-hourly": {
         "task": "app.tasks.reminders.send_followup2_reminders",
         "schedule": crontab(minute=0),
+        "args": [],
+    },
+    # Retry failed first trainer outreach without requiring the AI Pipeline page to be open.
+    "trainer-mail1-retry-every-five-minutes": {
+        "task": "app.tasks.reminders.retry_failed_mail1",
+        "schedule": crontab(minute="*/5"),
+        "args": [],
+    },
+    # Deliver a corrected ToC to trainers whose Mail 1 succeeded without a workbook.
+    "trainer-toc-correction-hourly": {
+        "task": "app.tasks.reminders.send_missing_toc_followups",
+        "schedule": crontab(minute=15),
         "args": [],
     },
 }

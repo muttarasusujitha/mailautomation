@@ -1,4 +1,5 @@
 // Shared wording for both shortlist screens. Only confirmed facts enter messages.
+import { linkedinProfileUrl } from './trainerIdentity.js'
 const text = value => value == null ? '' : String(value).trim()
 const known = value => !!text(value) && !/^(to be confirmed|tbc|tbd|unknown|n\/a)(\b|$)/i.test(text(value))
 const number = value => Number.isFinite(Number(value)) && Number(value) > 0 ? Number(value) : 0
@@ -9,12 +10,23 @@ const compose = (trainer, subject, sections) => ({ subject, body: [greeting(trai
 const rows = entries => entries.filter(([, value]) => text(value)).map(([label, value]) => `- ${label}: ${value}`).join('\n')
 export function proposal(req = {}) {
   const page = req.pipeline_target || req.pipeline_page
+  // Page assignment is authoritative: Shortlist is proposal, Shortlist1 is confirmed.
   if (page === 'shortlist' || page === 'shortlist1') return page === 'shortlist'
   return /proposal/i.test(req.batch_flow || req.batch_type || req.requirement_type || '')
 }
 export function trainingDays(req = {}) {
   return number(req.duration_days || req.commercial_working_days)
     || number(text(req.duration_text || req.duration).match(/\b(\d+(?:\.\d+)?)\s*(?:(?:training|working|business)\s+)?days?\b/i)?.[1])
+}
+export function clientCommercial(req = {}) {
+  const total = number(req.budget_total || req.client_commercial_total || req.training_commercial_amount || req.commercial_amount)
+  const daily = number(req.client_budget_per_day || req.budget_per_day)
+  if (daily && daily < 10000) {
+    return `INR ${Math.round(total || daily).toLocaleString('en-IN')} total-course commercial`
+  }
+  if (daily) return `INR ${Math.round(daily).toLocaleString('en-IN')} per day/session`
+  if (total) return `INR ${Math.round(total).toLocaleString('en-IN')} total-course commercial`
+  return text(req.budget_range)
 }
 export function trainerOffer(req = {}, trainer = {}) {
   const days = trainingDays(req)
@@ -39,7 +51,7 @@ export function trainerOffer(req = {}, trainer = {}) {
 function missingProfile(trainer) {
   const items = []
   if (![trainer.resume, trainer.resume_text, trainer.resume_url, trainer.cv_url, trainer.upload_id].some(Boolean)) items.push('Updated trainer profile/CV')
-  if (!(trainer.linkedin || trainer.linkedin_url)) items.push('LinkedIn profile')
+  if (![trainer.linkedin, trainer.linkedin_url, trainer.linkedin_profile].some(value => linkedinProfileUrl(value))) items.push('LinkedIn profile')
   if (!(trainer.experience_years || trainer.experience || trainer.summary)) items.push('Relevant implementation and training experience')
   return items
 }
@@ -49,6 +61,10 @@ export function mail1Template(trainer, req, hasDetails, details = {}, isReminder
   const dates = req.training_dates || req.preferred_dates || [req.timeline_start, req.timeline_end].filter(Boolean).join(' to ')
   const requested = hasDetails ? [] : missingProfile(trainer)
   const offer = trainerOffer(req, trainer)
+  const statedCommercial = clientCommercial(req)
+  const commercialBlock = isProposal
+    ? (offer ? `Offered trainer commercial:\n${offer}\nPlease confirm whether this offer works for you.` : 'Clahan will confirm the engagement amount once the commercial inputs are available.')
+    : (statedCommercial ? `Client commercial:\n${statedCommercial}` : '')
   return compose(trainer, `${isReminder ? `[Reminder ${reminderNum}] ` : ''}${isProposal ? 'Proposed' : 'Confirmed'} Training Requirement - ${course}`, [
     isReminder ? 'Following up on our earlier training enquiry.' : `We are contacting you about ${isProposal ? 'a proposed corporate training engagement' : 'a confirmed client training requirement'}.`,
     'Training scope:\n' + rows([
@@ -60,7 +76,7 @@ export function mail1Template(trainer, req, hasDetails, details = {}, isReminder
       ['Mode', req.mode || 'To be confirmed'], ['Location', req.preferred_location || req.location || 'To be confirmed'],
       ['Experience required', req.experience_required || (req.min_experience_years ? `${req.min_experience_years}+ years` : '')],
     ]),
-    offer ? `Offered trainer commercial:\n${offer}\nPlease confirm whether this offer works for you.` : 'Clahan will confirm the engagement amount once the commercial inputs are available.',
+    commercialBlock,
     `Please confirm your interest, delivery feasibility, and ${known(dates) ? 'availability for the stated training dates' : 'tentative availability; calendar dates remain to be confirmed'}.`,
     requested.length ? 'Please share the following outstanding details:\n' + requested.map(item => `- ${item}`).join('\n') : '',
     'Please share three convenient interview/discussion slots, each with a date, start time, and time zone. These are discussion options, not confirmed training dates.',
@@ -68,8 +84,9 @@ export function mail1Template(trainer, req, hasDetails, details = {}, isReminder
     'Please identify any scope changes or lab prerequisites needed for delivery. Clahan will coordinate the ToC and any requested lab estimate for review.',
   ])
 }
-export function mail2FollowupTemplate(trainer, req, missingItems = []) {
-  const items = Array.isArray(missingItems) ? missingItems : []
+export function mail2FollowupTemplate(trainer, req, missingItems = null) {
+  const items = (Array.isArray(missingItems) ? missingItems : missingProfile(trainer))
+    .filter(item => !/\b(toc|agenda|commercials?|lab cost|lab support)\b/i.test(item))
   return compose(trainer, `Re: Training Requirement - ${domain(req)} | Outstanding Details`, [
     'Thank you for your response.',
     items.length ? 'Please share only these outstanding details:\n' + items.map(item => `- ${item}`).join('\n') : 'Please confirm your current availability so we can coordinate the next discussion.',
@@ -121,7 +138,7 @@ export function mailTrainingConfirmedTemplate(trainer, req, contactName, contact
     'Please acknowledge the arrangements and report any outstanding prerequisites before delivery.',
   ])
 }
-export function trainerCommercialNegotiationTemplate(trainer, req, quote, target) {
+export function trainerCommercialNegotiationTemplate(trainer, req, _quote, _target) {
   return compose(trainer, `Commercial Discussion - ${domain(req)}`, [
     'Thank you for your response. Clahan would like to offer the following engagement amount:',
     trainerOffer(req, trainer) || 'Commercial amount awaiting confirmation.',

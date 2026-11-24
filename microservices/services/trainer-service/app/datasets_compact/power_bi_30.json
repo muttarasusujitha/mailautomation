@@ -25,7 +25,132 @@
         "Power BI"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Power BI basics"
+      "lab_task": "Load a supplied ten-row sales table into Power BI, create revenue and order-count measures, then build a page with a monthly trend and regional breakdown. Reconcile visuals to a supporting table.",
+      "deliverable": "Power BI report, measure definitions and reconciliation note",
+      "assessment": "The revenue card equals the sum of the ten supplied sales rows\nA region filter changes both the trend and supporting table consistently\nOrder count remains distinct from revenue and both visuals have labeled units",
+      "learning_objectives": [
+        "Create explicit measures rather than relying on implicit aggregation",
+        "Explain how report filters affect a visual"
+      ],
+      "scenario": "A sales manager needs a report whose totals can be traced to the source rows.",
+      "preparation_requirements": [
+        "Prepare the stated lab fixture or training environment",
+        "Verify expected results: The revenue card equals the sum of the ten supplied sales rows; A region filter changes both the trend and supporting table consistently; Order count remains distinct from revenue and both visuals have labeled units"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Demonstration",
+          "minutes": null,
+          "activity": "A sales manager needs a report whose totals can be traced to the source rows.",
+          "evidence": "Baseline example and first expected result"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": null,
+          "activity": "Load a supplied ten-row sales table into Power BI, create revenue and order-count measures, then build a page with a monthly trend and regional breakdown. Reconcile visuals to a supporting table.",
+          "evidence": "Power BI report, measure definitions and reconciliation note"
+        },
+        {
+          "method": "Independent validation",
+          "minutes": null,
+          "activity": "A region filter changes both the trend and supporting table consistently",
+          "evidence": "Recorded result"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Order count remains distinct from revenue and both visuals have labeled units",
+          "evidence": "Participant explanation and evidence"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "scenario",
+        "lab",
+        "deliverable",
+        "learning_objectives",
+        "assessment",
+        "acceptance_checks",
+        "prerequisites",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "manual-priority-v1",
+      "review_status": "unreviewed",
+      "content_before_manual_rewrite": {
+        "day": 1,
+        "topic": "Power BI Fundamentals",
+        "subtopics": [
+          "Workspace",
+          "Apps",
+          "Navigation",
+          "Licensing"
+        ],
+        "tools": [
+          "Power BI"
+        ],
+        "jira_focus": "Update sprint board",
+        "lab_task": "Power BI basics",
+        "deliverable": "Participant submission for 'Power BI Fundamentals': Power BI basics. Include the resulting artefact, reproducible steps and observed results.",
+        "assessment": "Reproduce the source lab: Power BI basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Workspace; Apps; Navigation; Licensing). Require one changed-input or exception case and an explanation of its result.",
+        "learning_objectives": [
+          "Complete and demonstrate: Power BI basics.",
+          "Explain how the lab applies Power BI Fundamentals and justify the observed result."
+        ],
+        "scenario": "Demonstrate 'Power BI Fundamentals' on a prepared training sample through this task: Power BI basics.",
+        "preparation_requirements": [
+          "Prepare sample assets, expected results and an exception case for: Power BI basics",
+          "Confirm participant prerequisites, tool access and activity durations before delivery"
+        ],
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (Workspace; Apps; Navigation; Licensing) and demonstrate the starting sample for: Power BI basics",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Power BI basics",
+            "evidence": "Participant submission for 'Power BI Fundamentals': Power BI basics. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Power BI basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Power BI basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Workspace; Apps; Navigation; Licensing). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ],
+        "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+        "proposed_fields": [
+          "deliverable",
+          "assessment",
+          "learning_objectives",
+          "scenario",
+          "preparation_requirements",
+          "delivery_steps"
+        ],
+        "content_enrichment_version": "catalog-delivery-v1",
+        "review_status": "unreviewed"
+      },
+      "lab": "Load a supplied ten-row sales table into Power BI, create revenue and order-count measures, then build a page with a monthly trend and regional breakdown. Reconcile visuals to a supporting table.",
+      "prerequisites": [
+        "Spreadsheet tables and basic business metrics"
+      ],
+      "acceptance_checks": [
+        "The revenue card equals the sum of the ten supplied sales rows",
+        "A region filter changes both the trend and supporting table consistently",
+        "Order count remains distinct from revenue and both visuals have labeled units"
+      ],
+      "content_quality_stage": "manually_authored_pending_lab_validation",
+      "source_verification": "Exercise is manually authored; technical and lab validation remain pending"
     },
     {
       "day": 2,
@@ -40,7 +165,132 @@
         "Power BI"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Power BI basics"
+      "lab_task": "Extend the supplied report with a date table and monthly visual. Preserve the missing month as missing data, add a report-level date filter and document the selected missing-data treatment.",
+      "deliverable": "Updated report page and missing-data decision note",
+      "assessment": "The missing month is not silently displayed as zero revenue\nChanging the date filter updates all specified visuals consistently\nThe note explains the data-quality limitation and identifies the source owner to contact",
+      "learning_objectives": [
+        "Distinguish a missing observation from a zero-value observation",
+        "Validate filter context using a supporting table"
+      ],
+      "scenario": "A dashboard shows a missing month as zero and leads stakeholders to infer a sales collapse.",
+      "preparation_requirements": [
+        "Prepare the stated lab fixture or training environment",
+        "Verify expected results: The missing month is not silently displayed as zero revenue; Changing the date filter updates all specified visuals consistently; The note explains the data-quality limitation and identifies the source owner to contact"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Demonstration",
+          "minutes": null,
+          "activity": "A dashboard shows a missing month as zero and leads stakeholders to infer a sales collapse.",
+          "evidence": "Baseline example and first expected result"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": null,
+          "activity": "Extend the supplied report with a date table and monthly visual. Preserve the missing month as missing data, add a report-level date filter and document the selected missing-data treatment.",
+          "evidence": "Updated report page and missing-data decision note"
+        },
+        {
+          "method": "Independent validation",
+          "minutes": null,
+          "activity": "Changing the date filter updates all specified visuals consistently",
+          "evidence": "Recorded result"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "The note explains the data-quality limitation and identifies the source owner to contact",
+          "evidence": "Participant explanation and evidence"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "scenario",
+        "lab",
+        "deliverable",
+        "learning_objectives",
+        "assessment",
+        "acceptance_checks",
+        "prerequisites",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "manual-priority-v1",
+      "review_status": "unreviewed",
+      "content_before_manual_rewrite": {
+        "day": 2,
+        "topic": "Power BI Fundamentals - Part 2",
+        "subtopics": [
+          "Part 2: Workspace",
+          "Part 2: Apps",
+          "Part 2: Navigation",
+          "Part 2: Licensing"
+        ],
+        "tools": [
+          "Power BI"
+        ],
+        "jira_focus": "Log time on stories",
+        "lab_task": "Part 2 hands-on: Power BI basics",
+        "deliverable": "Participant submission for 'Power BI Fundamentals - Part 2': Part 2 hands-on: Power BI basics. Include the resulting artefact, reproducible steps and observed results.",
+        "assessment": "Reproduce the source lab: Part 2 hands-on: Power BI basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Workspace; Part 2: Apps; Part 2: Navigation; Part 2: Licensing). Require one changed-input or exception case and an explanation of its result.",
+        "learning_objectives": [
+          "Complete and demonstrate: Part 2 hands-on: Power BI basics.",
+          "Explain how the lab applies Power BI Fundamentals - Part 2 and justify the observed result."
+        ],
+        "scenario": "Demonstrate 'Power BI Fundamentals - Part 2' on a prepared training sample through this task: Part 2 hands-on: Power BI basics.",
+        "preparation_requirements": [
+          "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Power BI basics",
+          "Confirm participant prerequisites, tool access and activity durations before delivery"
+        ],
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (Part 2: Workspace; Part 2: Apps; Part 2: Navigation; Part 2: Licensing) and demonstrate the starting sample for: Part 2 hands-on: Power BI basics",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Part 2 hands-on: Power BI basics",
+            "evidence": "Participant submission for 'Power BI Fundamentals - Part 2': Part 2 hands-on: Power BI basics. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Part 2 hands-on: Power BI basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Part 2 hands-on: Power BI basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Workspace; Part 2: Apps; Part 2: Navigation; Part 2: Licensing). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ],
+        "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+        "proposed_fields": [
+          "deliverable",
+          "assessment",
+          "learning_objectives",
+          "scenario",
+          "preparation_requirements",
+          "delivery_steps"
+        ],
+        "content_enrichment_version": "catalog-delivery-v1",
+        "review_status": "unreviewed"
+      },
+      "lab": "Extend the supplied report with a date table and monthly visual. Preserve the missing month as missing data, add a report-level date filter and document the selected missing-data treatment.",
+      "prerequisites": [
+        "Power BI report creation and basic date fields"
+      ],
+      "acceptance_checks": [
+        "The missing month is not silently displayed as zero revenue",
+        "Changing the date filter updates all specified visuals consistently",
+        "The note explains the data-quality limitation and identifies the source owner to contact"
+      ],
+      "content_quality_stage": "manually_authored_pending_lab_validation",
+      "source_verification": "Exercise is manually authored; technical and lab validation remain pending"
     },
     {
       "day": 3,
@@ -55,7 +305,55 @@
         "Power Query"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Data connections"
+      "lab_task": "Data connections",
+      "deliverable": "Participant submission for 'Data Sources & Connections': Data connections. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Data connections. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Excel; SQL; APIs; Data Gateway). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Data connections.",
+        "Explain how the lab applies Data Sources & Connections and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Sources & Connections' on a prepared training sample through this task: Data connections.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Data connections",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Excel; SQL; APIs; Data Gateway) and demonstrate the starting sample for: Data connections",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Data connections",
+          "evidence": "Participant submission for 'Data Sources & Connections': Data connections. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Data connections' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Data connections. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Excel; SQL; APIs; Data Gateway). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 4,
@@ -70,7 +368,55 @@
         "Power Query"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Data connections"
+      "lab_task": "Part 2 hands-on: Data connections",
+      "deliverable": "Participant submission for 'Data Sources & Connections - Part 2': Part 2 hands-on: Data connections. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Data connections. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Excel; Part 2: SQL; Part 2: APIs; Part 2: Data Gateway). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Data connections.",
+        "Explain how the lab applies Data Sources & Connections - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Sources & Connections - Part 2' on a prepared training sample through this task: Part 2 hands-on: Data connections.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Data connections",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Excel; Part 2: SQL; Part 2: APIs; Part 2: Data Gateway) and demonstrate the starting sample for: Part 2 hands-on: Data connections",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Data connections",
+          "evidence": "Participant submission for 'Data Sources & Connections - Part 2': Part 2 hands-on: Data connections. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Data connections' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Data connections. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Excel; Part 2: SQL; Part 2: APIs; Part 2: Data Gateway). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 5,
@@ -85,7 +431,55 @@
         "Power BI"
       ],
       "jira_focus": "Sprint planning; review progress for Data Modeling",
-      "lab_task": "Data modeling"
+      "lab_task": "Data modeling",
+      "deliverable": "Participant submission for 'Data Modeling': Data modeling. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Data modeling. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Tables; Relationships; Cardinality; Star Schema). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Data modeling.",
+        "Explain how the lab applies Data Modeling and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Modeling' on a prepared training sample through this task: Data modeling.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Data modeling",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Tables; Relationships; Cardinality; Star Schema) and demonstrate the starting sample for: Data modeling",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Data modeling",
+          "evidence": "Participant submission for 'Data Modeling': Data modeling. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Data modeling' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Data modeling. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Tables; Relationships; Cardinality; Star Schema). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 6,
@@ -100,7 +494,55 @@
         "Power BI"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Data modeling"
+      "lab_task": "Part 2 hands-on: Data modeling",
+      "deliverable": "Participant submission for 'Data Modeling - Part 2': Part 2 hands-on: Data modeling. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Data modeling. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Tables; Part 2: Relationships; Part 2: Cardinality; Part 2: Star Schema). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Data modeling.",
+        "Explain how the lab applies Data Modeling - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Modeling - Part 2' on a prepared training sample through this task: Part 2 hands-on: Data modeling.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Data modeling",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Tables; Part 2: Relationships; Part 2: Cardinality; Part 2: Star Schema) and demonstrate the starting sample for: Part 2 hands-on: Data modeling",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Data modeling",
+          "evidence": "Participant submission for 'Data Modeling - Part 2': Part 2 hands-on: Data modeling. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Data modeling' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Data modeling. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Tables; Part 2: Relationships; Part 2: Cardinality; Part 2: Star Schema). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 7,
@@ -115,7 +557,55 @@
         "Power Query"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Power Query editor"
+      "lab_task": "Power Query editor",
+      "deliverable": "Participant submission for 'Power Query': Power Query editor. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Power Query editor. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Queries; Transformations; M Language; Merge/Append). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Power Query editor.",
+        "Explain how the lab applies Power Query and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Power Query' on a prepared training sample through this task: Power Query editor.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Power Query editor",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Queries; Transformations; M Language; Merge/Append) and demonstrate the starting sample for: Power Query editor",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Power Query editor",
+          "evidence": "Participant submission for 'Power Query': Power Query editor. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Power Query editor' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Power Query editor. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Queries; Transformations; M Language; Merge/Append). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 8,
@@ -130,7 +620,55 @@
         "Power Query"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Power Query editor"
+      "lab_task": "Part 2 hands-on: Power Query editor",
+      "deliverable": "Participant submission for 'Power Query - Part 2': Part 2 hands-on: Power Query editor. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Power Query editor. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Queries; Part 2: Transformations; Part 2: M Language; Part 2: Merge/Append). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Power Query editor.",
+        "Explain how the lab applies Power Query - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Power Query - Part 2' on a prepared training sample through this task: Part 2 hands-on: Power Query editor.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Power Query editor",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Queries; Part 2: Transformations; Part 2: M Language; Part 2: Merge/Append) and demonstrate the starting sample for: Part 2 hands-on: Power Query editor",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Power Query editor",
+          "evidence": "Participant submission for 'Power Query - Part 2': Part 2 hands-on: Power Query editor. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Power Query editor' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Power Query editor. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Queries; Part 2: Transformations; Part 2: M Language; Part 2: Merge/Append). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 9,
@@ -144,7 +682,55 @@
         "DAX"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "DAX basics"
+      "lab_task": "DAX basics",
+      "deliverable": "Participant submission for 'DAX Fundamentals': DAX basics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: DAX basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Syntax; Functions; Context). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: DAX basics.",
+        "Explain how the lab applies DAX Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'DAX Fundamentals' on a prepared training sample through this task: DAX basics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: DAX basics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Syntax; Functions; Context) and demonstrate the starting sample for: DAX basics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "DAX basics",
+          "evidence": "Participant submission for 'DAX Fundamentals': DAX basics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'DAX basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: DAX basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Syntax; Functions; Context). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 10,
@@ -158,7 +744,55 @@
         "DAX"
       ],
       "jira_focus": "Sprint planning; review progress for DAX Fundamentals",
-      "lab_task": "Part 2 hands-on: DAX basics"
+      "lab_task": "Part 2 hands-on: DAX basics",
+      "deliverable": "Participant submission for 'DAX Fundamentals - Part 2': Part 2 hands-on: DAX basics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: DAX basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Syntax; Part 2: Functions; Part 2: Context). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: DAX basics.",
+        "Explain how the lab applies DAX Fundamentals - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'DAX Fundamentals - Part 2' on a prepared training sample through this task: Part 2 hands-on: DAX basics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: DAX basics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Syntax; Part 2: Functions; Part 2: Context) and demonstrate the starting sample for: Part 2 hands-on: DAX basics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: DAX basics",
+          "evidence": "Participant submission for 'DAX Fundamentals - Part 2': Part 2 hands-on: DAX basics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: DAX basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: DAX basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Syntax; Part 2: Functions; Part 2: Context). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 11,
@@ -173,7 +807,55 @@
         "DAX"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Advanced DAX"
+      "lab_task": "Advanced DAX",
+      "deliverable": "Participant submission for 'DAX Advanced': Advanced DAX. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Advanced DAX. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CALCULATE; FILTER; SUMX; Complex Formulas). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Advanced DAX.",
+        "Explain how the lab applies DAX Advanced and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'DAX Advanced' on a prepared training sample through this task: Advanced DAX.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Advanced DAX",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (CALCULATE; FILTER; SUMX; Complex Formulas) and demonstrate the starting sample for: Advanced DAX",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Advanced DAX",
+          "evidence": "Participant submission for 'DAX Advanced': Advanced DAX. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Advanced DAX' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Advanced DAX. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CALCULATE; FILTER; SUMX; Complex Formulas). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 12,
@@ -188,7 +870,55 @@
         "DAX"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Advanced DAX"
+      "lab_task": "Part 2 hands-on: Advanced DAX",
+      "deliverable": "Participant submission for 'DAX Advanced - Part 2': Part 2 hands-on: Advanced DAX. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Advanced DAX. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: CALCULATE; Part 2: FILTER; Part 2: SUMX; Part 2: Complex Formulas). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Advanced DAX.",
+        "Explain how the lab applies DAX Advanced - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'DAX Advanced - Part 2' on a prepared training sample through this task: Part 2 hands-on: Advanced DAX.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Advanced DAX",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: CALCULATE; Part 2: FILTER; Part 2: SUMX; Part 2: Complex Formulas) and demonstrate the starting sample for: Part 2 hands-on: Advanced DAX",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Advanced DAX",
+          "evidence": "Participant submission for 'DAX Advanced - Part 2': Part 2 hands-on: Advanced DAX. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Advanced DAX' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Advanced DAX. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: CALCULATE; Part 2: FILTER; Part 2: SUMX; Part 2: Complex Formulas). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 13,
@@ -203,7 +933,55 @@
         "Power BI"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Creating visualizations"
+      "lab_task": "Creating visualizations",
+      "deliverable": "Participant submission for 'Visualizations': Creating visualizations. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Creating visualizations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Charts; Tables; Maps; Custom Visuals). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Creating visualizations.",
+        "Explain how the lab applies Visualizations and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Visualizations' on a prepared training sample through this task: Creating visualizations.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Creating visualizations",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Charts; Tables; Maps; Custom Visuals) and demonstrate the starting sample for: Creating visualizations",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Creating visualizations",
+          "evidence": "Participant submission for 'Visualizations': Creating visualizations. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Creating visualizations' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Creating visualizations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Charts; Tables; Maps; Custom Visuals). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 14,
@@ -218,7 +996,55 @@
         "Power BI"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Creating visualizations"
+      "lab_task": "Part 2 hands-on: Creating visualizations",
+      "deliverable": "Participant submission for 'Visualizations - Part 2': Part 2 hands-on: Creating visualizations. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Creating visualizations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Charts; Part 2: Tables; Part 2: Maps; Part 2: Custom Visuals). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Creating visualizations.",
+        "Explain how the lab applies Visualizations - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Visualizations - Part 2' on a prepared training sample through this task: Part 2 hands-on: Creating visualizations.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Creating visualizations",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Charts; Part 2: Tables; Part 2: Maps; Part 2: Custom Visuals) and demonstrate the starting sample for: Part 2 hands-on: Creating visualizations",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Creating visualizations",
+          "evidence": "Participant submission for 'Visualizations - Part 2': Part 2 hands-on: Creating visualizations. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Creating visualizations' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Creating visualizations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Charts; Part 2: Tables; Part 2: Maps; Part 2: Custom Visuals). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 15,
@@ -233,7 +1059,55 @@
         "Power BI"
       ],
       "jira_focus": "Sprint planning; review progress for Dashboards",
-      "lab_task": "Dashboard creation"
+      "lab_task": "Dashboard creation",
+      "deliverable": "Participant submission for 'Dashboards': Dashboard creation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Dashboard creation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dashboard Design; Interactivity; Filters; Sync). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Dashboard creation.",
+        "Explain how the lab applies Dashboards and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Dashboards' on a prepared training sample through this task: Dashboard creation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Dashboard creation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Dashboard Design; Interactivity; Filters; Sync) and demonstrate the starting sample for: Dashboard creation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Dashboard creation",
+          "evidence": "Participant submission for 'Dashboards': Dashboard creation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Dashboard creation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Dashboard creation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dashboard Design; Interactivity; Filters; Sync). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 16,
@@ -248,7 +1122,55 @@
         "Power BI"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Dashboard creation"
+      "lab_task": "Part 2 hands-on: Dashboard creation",
+      "deliverable": "Participant submission for 'Dashboards - Part 2': Part 2 hands-on: Dashboard creation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Dashboard creation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Dashboard Design; Part 2: Interactivity; Part 2: Filters; Part 2: Sync). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Dashboard creation.",
+        "Explain how the lab applies Dashboards - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Dashboards - Part 2' on a prepared training sample through this task: Part 2 hands-on: Dashboard creation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Dashboard creation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Dashboard Design; Part 2: Interactivity; Part 2: Filters; Part 2: Sync) and demonstrate the starting sample for: Part 2 hands-on: Dashboard creation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Dashboard creation",
+          "evidence": "Participant submission for 'Dashboards - Part 2': Part 2 hands-on: Dashboard creation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Dashboard creation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Dashboard creation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Dashboard Design; Part 2: Interactivity; Part 2: Filters; Part 2: Sync). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 17,
@@ -263,7 +1185,55 @@
         "Power BI"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Report development"
+      "lab_task": "Report development",
+      "deliverable": "Participant submission for 'Reports': Report development. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Report development. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Report Pages; Drillthrough; Bookmarks; Themes). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Report development.",
+        "Explain how the lab applies Reports and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Reports' on a prepared training sample through this task: Report development.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Report development",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Report Pages; Drillthrough; Bookmarks; Themes) and demonstrate the starting sample for: Report development",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Report development",
+          "evidence": "Participant submission for 'Reports': Report development. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Report development' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Report development. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Report Pages; Drillthrough; Bookmarks; Themes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 18,
@@ -278,7 +1248,55 @@
         "Power BI"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Report development"
+      "lab_task": "Part 2 hands-on: Report development",
+      "deliverable": "Participant submission for 'Reports - Part 2': Part 2 hands-on: Report development. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Report development. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Report Pages; Part 2: Drillthrough; Part 2: Bookmarks; Part 2: Themes). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Report development.",
+        "Explain how the lab applies Reports - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Reports - Part 2' on a prepared training sample through this task: Part 2 hands-on: Report development.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Report development",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Report Pages; Part 2: Drillthrough; Part 2: Bookmarks; Part 2: Themes) and demonstrate the starting sample for: Part 2 hands-on: Report development",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Report development",
+          "evidence": "Participant submission for 'Reports - Part 2': Part 2 hands-on: Report development. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Report development' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Report development. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Report Pages; Part 2: Drillthrough; Part 2: Bookmarks; Part 2: Themes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 19,
@@ -292,7 +1310,55 @@
         "Power BI"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Performance tuning"
+      "lab_task": "Performance tuning",
+      "deliverable": "Participant submission for 'Performance Optimization': Performance tuning. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Performance tuning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Query Optimization; Compression; Aggregations). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Performance tuning.",
+        "Explain how the lab applies Performance Optimization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Performance Optimization' on a prepared training sample through this task: Performance tuning.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Performance tuning",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Query Optimization; Compression; Aggregations) and demonstrate the starting sample for: Performance tuning",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Performance tuning",
+          "evidence": "Participant submission for 'Performance Optimization': Performance tuning. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Performance tuning' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Performance tuning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Query Optimization; Compression; Aggregations). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 20,
@@ -306,7 +1372,55 @@
         "Power BI"
       ],
       "jira_focus": "Sprint planning; review progress for Performance Optimization",
-      "lab_task": "Part 2 hands-on: Performance tuning"
+      "lab_task": "Part 2 hands-on: Performance tuning",
+      "deliverable": "Participant submission for 'Performance Optimization - Part 2': Part 2 hands-on: Performance tuning. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Performance tuning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Query Optimization; Part 2: Compression; Part 2: Aggregations). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Performance tuning.",
+        "Explain how the lab applies Performance Optimization - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Performance Optimization - Part 2' on a prepared training sample through this task: Part 2 hands-on: Performance tuning.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Performance tuning",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Query Optimization; Part 2: Compression; Part 2: Aggregations) and demonstrate the starting sample for: Part 2 hands-on: Performance tuning",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Performance tuning",
+          "evidence": "Participant submission for 'Performance Optimization - Part 2': Part 2 hands-on: Performance tuning. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Performance tuning' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Performance tuning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Query Optimization; Part 2: Compression; Part 2: Aggregations). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 21,
@@ -320,7 +1434,55 @@
         "Power BI"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Security implementation"
+      "lab_task": "Security implementation",
+      "deliverable": "Participant submission for 'Row-Level Security': Security implementation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Security implementation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (RLS; Dynamic Security; Configuration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Security implementation.",
+        "Explain how the lab applies Row-Level Security and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Row-Level Security' on a prepared training sample through this task: Security implementation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Security implementation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (RLS; Dynamic Security; Configuration) and demonstrate the starting sample for: Security implementation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Security implementation",
+          "evidence": "Participant submission for 'Row-Level Security': Security implementation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Security implementation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Security implementation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (RLS; Dynamic Security; Configuration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 22,
@@ -334,7 +1496,55 @@
         "Power BI"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Security implementation"
+      "lab_task": "Part 2 hands-on: Security implementation",
+      "deliverable": "Participant submission for 'Row-Level Security - Part 2': Part 2 hands-on: Security implementation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Security implementation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: RLS; Part 2: Dynamic Security; Part 2: Configuration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Security implementation.",
+        "Explain how the lab applies Row-Level Security - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Row-Level Security - Part 2' on a prepared training sample through this task: Part 2 hands-on: Security implementation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Security implementation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: RLS; Part 2: Dynamic Security; Part 2: Configuration) and demonstrate the starting sample for: Part 2 hands-on: Security implementation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Security implementation",
+          "evidence": "Participant submission for 'Row-Level Security - Part 2': Part 2 hands-on: Security implementation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Security implementation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Security implementation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: RLS; Part 2: Dynamic Security; Part 2: Configuration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 23,
@@ -348,7 +1558,55 @@
         "Power BI"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Advanced analytics"
+      "lab_task": "Advanced analytics",
+      "deliverable": "Participant submission for 'Advanced Analytics': Advanced analytics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Advanced analytics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (R/Python Visuals; ML Models; Forecasting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Advanced analytics.",
+        "Explain how the lab applies Advanced Analytics and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Analytics' on a prepared training sample through this task: Advanced analytics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Advanced analytics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (R/Python Visuals; ML Models; Forecasting) and demonstrate the starting sample for: Advanced analytics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Advanced analytics",
+          "evidence": "Participant submission for 'Advanced Analytics': Advanced analytics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Advanced analytics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Advanced analytics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (R/Python Visuals; ML Models; Forecasting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 24,
@@ -362,7 +1620,55 @@
         "Power BI"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Advanced analytics"
+      "lab_task": "Part 2 hands-on: Advanced analytics",
+      "deliverable": "Participant submission for 'Advanced Analytics - Part 2': Part 2 hands-on: Advanced analytics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Advanced analytics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: R/Python Visuals; Part 2: ML Models; Part 2: Forecasting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Advanced analytics.",
+        "Explain how the lab applies Advanced Analytics - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Analytics - Part 2' on a prepared training sample through this task: Part 2 hands-on: Advanced analytics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Advanced analytics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: R/Python Visuals; Part 2: ML Models; Part 2: Forecasting) and demonstrate the starting sample for: Part 2 hands-on: Advanced analytics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Advanced analytics",
+          "evidence": "Participant submission for 'Advanced Analytics - Part 2': Part 2 hands-on: Advanced analytics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Advanced analytics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Advanced analytics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: R/Python Visuals; Part 2: ML Models; Part 2: Forecasting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 25,
@@ -376,7 +1682,55 @@
         "Power BI"
       ],
       "jira_focus": "Sprint planning; review progress for Sharing & Collaboration",
-      "lab_task": "Sharing and collaboration"
+      "lab_task": "Sharing and collaboration",
+      "deliverable": "Participant submission for 'Sharing & Collaboration': Sharing and collaboration. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Sharing and collaboration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Sharing Reports; Apps; Workspaces). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Sharing and collaboration.",
+        "Explain how the lab applies Sharing & Collaboration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Sharing & Collaboration' on a prepared training sample through this task: Sharing and collaboration.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Sharing and collaboration",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Sharing Reports; Apps; Workspaces) and demonstrate the starting sample for: Sharing and collaboration",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Sharing and collaboration",
+          "evidence": "Participant submission for 'Sharing & Collaboration': Sharing and collaboration. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Sharing and collaboration' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Sharing and collaboration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Sharing Reports; Apps; Workspaces). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 26,
@@ -390,7 +1744,55 @@
         "Power BI"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Sharing and collaboration"
+      "lab_task": "Part 2 hands-on: Sharing and collaboration",
+      "deliverable": "Participant submission for 'Sharing & Collaboration - Part 2': Part 2 hands-on: Sharing and collaboration. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Sharing and collaboration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Sharing Reports; Part 2: Apps; Part 2: Workspaces). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Sharing and collaboration.",
+        "Explain how the lab applies Sharing & Collaboration - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Sharing & Collaboration - Part 2' on a prepared training sample through this task: Part 2 hands-on: Sharing and collaboration.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Sharing and collaboration",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Sharing Reports; Part 2: Apps; Part 2: Workspaces) and demonstrate the starting sample for: Part 2 hands-on: Sharing and collaboration",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Sharing and collaboration",
+          "evidence": "Participant submission for 'Sharing & Collaboration - Part 2': Part 2 hands-on: Sharing and collaboration. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Sharing and collaboration' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Sharing and collaboration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Sharing Reports; Part 2: Apps; Part 2: Workspaces). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 27,
@@ -404,7 +1806,55 @@
         "Power BI"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Deployment strategies"
+      "lab_task": "Deployment strategies",
+      "deliverable": "Participant submission for 'Deployment': Deployment strategies. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deployment strategies. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Premium Capacity; Refresh Schedules; Monitoring). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deployment strategies.",
+        "Explain how the lab applies Deployment and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Deployment' on a prepared training sample through this task: Deployment strategies.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deployment strategies",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Premium Capacity; Refresh Schedules; Monitoring) and demonstrate the starting sample for: Deployment strategies",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deployment strategies",
+          "evidence": "Participant submission for 'Deployment': Deployment strategies. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deployment strategies' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deployment strategies. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Premium Capacity; Refresh Schedules; Monitoring). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 28,
@@ -418,7 +1868,55 @@
         "Power BI"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Deployment strategies"
+      "lab_task": "Part 2 hands-on: Deployment strategies",
+      "deliverable": "Participant submission for 'Deployment - Part 2': Part 2 hands-on: Deployment strategies. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Deployment strategies. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Premium Capacity; Part 2: Refresh Schedules; Part 2: Monitoring). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Deployment strategies.",
+        "Explain how the lab applies Deployment - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Deployment - Part 2' on a prepared training sample through this task: Part 2 hands-on: Deployment strategies.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Deployment strategies",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Premium Capacity; Part 2: Refresh Schedules; Part 2: Monitoring) and demonstrate the starting sample for: Part 2 hands-on: Deployment strategies",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Deployment strategies",
+          "evidence": "Participant submission for 'Deployment - Part 2': Part 2 hands-on: Deployment strategies. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Deployment strategies' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Deployment strategies. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Premium Capacity; Part 2: Refresh Schedules; Part 2: Monitoring). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 29,
@@ -432,7 +1930,55 @@
         "Power BI"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Real-world projects"
+      "lab_task": "Real-world projects",
+      "deliverable": "Participant submission for 'Real-World Projects': Real-world projects. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Real-world projects. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (End-to-end Analysis; Best Practices; Optimization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Real-world projects.",
+        "Explain how the lab applies Real-World Projects and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Real-World Projects' on a prepared training sample through this task: Real-world projects.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Real-world projects",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (End-to-end Analysis; Best Practices; Optimization) and demonstrate the starting sample for: Real-world projects",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Real-world projects",
+          "evidence": "Participant submission for 'Real-World Projects': Real-world projects. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Real-world projects' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Real-world projects. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (End-to-end Analysis; Best Practices; Optimization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 30,
@@ -446,7 +1992,55 @@
         "Power BI"
       ],
       "jira_focus": "Sprint planning; review progress for Real-World Projects",
-      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review",
+      "deliverable": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (End-to-end Analysis; Best Practices; Optimization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Final project implementation, demo, retrospective, and certification roadmap review.",
+        "Explain how the lab applies Capstone Project - Part 2 + Certification Roadmap and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Capstone Project - Part 2 + Certification Roadmap' on a prepared training sample through this task: Final project implementation, demo, retrospective, and certification roadmap review.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Final project implementation, demo, retrospective, and certification roadmap review",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (End-to-end Analysis; Best Practices; Optimization) and demonstrate the starting sample for: Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Final project implementation, demo, retrospective, and certification roadmap review' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (End-to-end Analysis; Best Practices; Optimization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     }
   ],
   "aliases": [
@@ -462,5 +2056,10 @@
   "official_sources": [
     "https://learn.microsoft.com/en-us/power-bi/transform-model/"
   ],
-  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits.",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

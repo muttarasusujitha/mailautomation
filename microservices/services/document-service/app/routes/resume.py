@@ -13,6 +13,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from bson.binary import Binary
 
 from shared.database.service import get_db
+from shared.trainer_experience import extract_domain_experience, extract_experience_years
 from app.config import get_settings
 
 router = APIRouter()
@@ -86,7 +87,26 @@ def _extract_pdf_text(file_bytes: bytes) -> str:
         with fitz.open(stream=file_bytes, filetype="pdf") as doc:
             if doc.needs_pass:
                 raise HTTPException(400, "PDF is password-protected. Remove the password and re-upload.")
-            return "\n".join(page.get_text("text") for page in doc).strip()
+            if len(doc) > 50:
+                raise HTTPException(400, "Resume PDF exceeds the 50-page processing limit.")
+            page_text = []
+            ocr_unavailable = False
+            for page in doc:
+                text = page.get_text("text").strip()
+                # Scanned resumes have no embedded text. OCR only those pages
+                # to keep ordinary PDFs quick and avoid duplicating extracted text.
+                if len(text) < 50 and page.get_images(full=True):
+                    try:
+                        ocr_page = page.get_textpage_ocr(language="eng", dpi=180, full=True)
+                        text = page.get_text("text", textpage=ocr_page).strip() or text
+                    except Exception as exc:
+                        logger.warning("Resume PDF OCR unavailable: %s", exc)
+                        ocr_unavailable = True
+                page_text.append(text)
+            extracted = "\n".join(page_text).strip()
+            if len(extracted) < 50 and ocr_unavailable:
+                raise HTTPException(422, "This appears to be a scanned PDF, but OCR could not read it. Upload a searchable PDF or DOCX.")
+            return extracted
     except HTTPException:
         raise
     except Exception as exc:
@@ -298,6 +318,13 @@ def _profile_score(profile: Dict[str, Any]) -> int:
 
 def _normalise_profile(profile: Dict[str, Any], raw_text: str) -> Dict[str, Any]:
     result = dict(profile or {})
+    from shared.trainer_identity import linkedin_profile_url
+    # Identity URLs are extracted from source evidence, never accepted from AI.
+    source_text = re.sub(r"(?<![\w/.-])((?:www\.)?linkedin\.com/(?:in|pub)/)", r"https://\1", raw_text, flags=re.I)
+    result["linkedin"] = linkedin_profile_url(source_text)
+    for key in ("linkedin_url", "linkedin_profile"):
+        if key in result:
+            result[key] = result["linkedin"]
     name, title = _split_name_title(result.get("name"))
     if name:
         result["name"] = name
@@ -315,6 +342,15 @@ def _normalise_profile(profile: Dict[str, Any], raw_text: str) -> Dict[str, Any]
         ]))
     )
     result["skills"] = skills
+
+    source_text = " ".join([
+        raw_text[:50000],
+        _clean_text(result.get("summary")),
+        _clean_text(result.get("technologies")),
+    ])
+    domain_experience = extract_domain_experience(source_text)
+    result["domain_experience"] = domain_experience
+    result["experience_by_domain"] = domain_experience
 
     category = _infer_category(
         skills,
@@ -338,9 +374,15 @@ def _normalise_profile(profile: Dict[str, Any], raw_text: str) -> Dict[str, Any]
         result["technologies"] = ", ".join(skills)
 
     years = _safe_float(result.get("experience_years"))
+    experience_evidence = extract_experience_years(raw_text)
+    if experience_evidence is not None:
+        years = experience_evidence
     result["experience_years"] = years
-    if years and not _clean_text(result.get("experience_raw")):
-        result["experience_raw"] = f"{years:g} years"
+    if not _clean_text(result.get("experience_raw")):
+        if experience_evidence is not None:
+            result["experience_raw"] = f"{experience_evidence:g} years (resume text)"
+        elif years > 0:
+            result["experience_raw"] = f"{years:g} years"
 
     if _clean_text(result.get("summary")).lower() == _clean_text(result.get("name")).lower():
         result["summary"] = ""
@@ -351,7 +393,8 @@ def _normalise_profile(profile: Dict[str, Any], raw_text: str) -> Dict[str, Any]
         if summary:
             result["summary"] = summary
 
-    score = max(_profile_score(result), round(_safe_float(result.get("profile_score"))))
+    # Ranking is computed locally; a provider cannot promote its own output.
+    score = max(0, min(100, _profile_score(result)))
     result["score_breakdown"] = _profile_breakdown(result)
     result["profile_score"] = score
     result["resume_rank_score"] = score
@@ -363,7 +406,7 @@ def _regex_profile(text: str, filename: str) -> Dict[str, Any]:
     email_m = re.search(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", text[:12000])
     phone_m = re.search(r"\+?\d[\d ().-]{8,20}\d", text[:12000])
     li_m = re.search(r"(?:https?://)?(?:www\.)?linkedin\.com/in/[^\s,;)>]{1,120}", text[:12000], re.IGNORECASE)
-    exp_vals = [float(m.group(1)) for m in re.finditer(r"(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)", text, re.IGNORECASE)]
+    parsed_experience = extract_experience_years(text)
     skills = _detected_skills_from_text(text)
 
     # Derive name: first non-empty line that looks like a name
@@ -404,12 +447,43 @@ def _regex_profile(text: str, filename: str) -> Dict[str, Any]:
             phone_m.group(0).strip() if phone_m else "",
         ),
         "linkedin": li_m.group(0) if li_m else "",
-        "experience_years": max(exp_vals) if exp_vals else 0,
+        "experience_years": parsed_experience or 0,
+        "experience_raw": f"{parsed_experience:g} years (resume text)" if parsed_experience is not None else "",
         "role_designation": title,
         "skills": skills,
         "extraction_method": "regex_fallback",
         "needs_review": True,
     }
+
+
+def _profile_prompt(text: str) -> str:
+    return (
+        "Extract from this resume. Return ONLY valid JSON with keys: "
+        "name, email, phone, location, experience_years (number), domain_experience (object mapping each domain to explicit years), role_designation, linkedin, "
+        "education, skills (list), certifications (list), past_clients (list), "
+        "training_count (int or null), day_rate (number or null), "
+        "technology_category, secondary_categories (list), summary. "
+        "Extract only facts explicitly present in the resume. For domain_experience, report years only when the text explicitly connects a duration to that domain (for example, '5 years AWS experience'); never infer domain years from merely listing a skill or tool. Leave missing fields empty; "
+        "never invent identity links, clients, qualifications or experience.\n\n"
+        f"Resume:\n{text[:50000]}"
+    )
+
+
+async def _openai_profile(text: str) -> Dict[str, Any]:
+    key = settings.OPENAI_API_KEY.strip()
+    if not key:
+        return {}
+    try:
+        from openai import AsyncOpenAI
+        response = await AsyncOpenAI(api_key=key).responses.create(
+            model=settings.OPENAI_MODEL or "gpt-5.5",
+            input=_profile_prompt(text),
+            text={"format": {"type": "json_object"}},
+        )
+        return json.loads((response.output_text or "").strip())
+    except Exception as exc:
+        logger.warning("OpenAI resume extraction failed: %s", exc)
+        return {}
 
 
 async def _gemini_profile(text: str) -> Dict[str, Any]:
@@ -423,14 +497,7 @@ async def _gemini_profile(text: str) -> Dict[str, Any]:
             settings.GEMINI_MODEL,
             generation_config={"temperature": 0, "max_output_tokens": 1600, "response_mime_type": "application/json"},
         )
-        prompt = (
-            "Extract from this resume. Return ONLY valid JSON with keys: "
-            "name, email, phone, location, experience_years (number), role_designation, linkedin, "
-            "education, skills (list), certifications (list), past_clients (list), "
-            "training_count (int or null), day_rate (number or null), "
-            "technology_category, secondary_categories (list), summary.\n\n"
-            f"Resume:\n{text[:50000]}"
-        )
+        prompt = _profile_prompt(text)
         loop = asyncio.get_event_loop()
         resp = await loop.run_in_executor(None, model.generate_content, prompt)
         raw = getattr(resp, "text", "") or ""
@@ -454,12 +521,16 @@ async def upload_resume(
         raise HTTPException(413, "File too large (max 10 MB)")
 
     raw_text = extract_text(file_bytes, file.filename or "resume")
-    profile = await _gemini_profile(raw_text)
+    profile = await _openai_profile(raw_text)
+    extraction_method = "openai" if profile.get("name") else ""
+    if not profile.get("name"):
+        profile = await _gemini_profile(raw_text)
+        extraction_method = "gemini" if profile.get("name") else ""
     if not profile.get("name"):
         profile = _regex_profile(raw_text, file.filename or "resume")
     else:
-        profile["extraction_method"] = "gemini"
-        profile["needs_review"] = False
+        profile["extraction_method"] = extraction_method
+        profile["needs_review"] = True
     profile = _normalise_profile(profile, raw_text)
 
     trainer_id = f"TR-{uuid.uuid4().hex[:8].upper()}"
@@ -477,22 +548,8 @@ async def upload_resume(
     if existing:
         trainer_id = existing["trainer_id"]
         action = "updated"
-        await db.trainers.update_one(
-            {"trainer_id": trainer_id},
-            {"$set": {**profile, "updated_at": now}},
-        )
     else:
         action = "inserted"
-        trainer_doc = {
-            **profile,
-            "trainer_id": trainer_id,
-            "source": "resume_upload",
-            "status": "new",
-            "resume": raw_text[:50000],
-            "created_at": now,
-            "updated_at": now,
-        }
-        await db.trainers.insert_one(trainer_doc)
 
     await db.resume_uploads.insert_one({
         "upload_id": upload_id,
@@ -502,7 +559,9 @@ async def upload_resume(
         "original_file": Binary(file_bytes),
         "original_file_size": len(file_bytes),
         "original_file_preserved": True,
-        "processing_status": "completed",
+        "processing_status": "extracted",
+        "needs_review": True,
+        "matched_existing_trainer": existing is not None,
         "extracted_data": profile,
         "extracted_text": raw_text[:50000],
         "created_at": now,
@@ -514,6 +573,7 @@ async def upload_resume(
         "trainer_id": trainer_id,
         "upload_id": upload_id,
         "duplicate": existing is not None,
+        "processing_status": "extracted",
         "profile": {k: v for k, v in profile.items() if k not in {"resume", "combined_text"}},
     }
 

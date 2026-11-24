@@ -170,11 +170,17 @@ function PreviewCard({ item }) {
           <span>AI extraction was unavailable, so a local preview was generated. Please review before saving.</span>
         </div>
       )}
-      <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-3">
-        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100">
-          <div className="h-full rounded-full bg-emerald-500" style={{ width: `${Math.round((item.confidence_score || 0) * 100)}%` }} />
-        </div>
-        <span className="text-xs font-semibold text-slate-500">{Math.round((item.confidence_score || 0) * 100)}%</span>
+      <div className="mt-4 border-t border-slate-100 pt-3">
+        {Number.isFinite(item.confidence_score) ? (
+          <div className="flex items-center gap-2">
+            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+              <div className="h-full rounded-full bg-emerald-500" style={{ width: `${Math.round(item.confidence_score * 100)}%` }} />
+            </div>
+            <span className="text-xs font-semibold text-slate-500">{Math.round(item.confidence_score * 100)}%</span>
+          </div>
+        ) : (
+          <span className="text-xs font-medium text-amber-700">Extraction score unavailable · review fields before saving</span>
+        )}
       </div>
     </div>
   )

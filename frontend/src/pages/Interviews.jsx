@@ -1,111 +1,18 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { getRequirements, getShortlist } from '../utils/api'
 import toast from 'react-hot-toast'
 import {
-  Calendar, Mail, X, Loader2, ExternalLink,
+  Calendar, Mail, Loader2,
   Clock, MapPin, RefreshCw, Users,
   Star, ChevronRight, AlertCircle, Phone
 } from 'lucide-react'
 import clsx from 'clsx'
 
 const MEET_PLATFORMS = [
-  { id: 'zoom',   label: 'Zoom',        icon: '📹', placeholder: 'https://zoom.us/j/...',               color: 'bg-blue-50 border-blue-200 text-blue-700' },
-  { id: 'teams',  label: 'MS Teams',    icon: '💼', placeholder: 'https://teams.microsoft.com/...',      color: 'bg-violet-50 border-violet-200 text-violet-700' },
-  { id: 'google', label: 'Google Meet', icon: '🎥', placeholder: 'https://meet.google.com/xxx-xxxx-xxx', color: 'bg-emerald-50 border-emerald-200 text-emerald-700' },
+  { id: 'zoom', label: 'Zoom', icon: '📹', color: 'bg-blue-50 border-blue-200 text-blue-700' },
+  { id: 'teams', label: 'MS Teams', icon: '💼', color: 'bg-violet-50 border-violet-200 text-violet-700' },
+  { id: 'google', label: 'Google Meet', icon: '🎥', color: 'bg-emerald-50 border-emerald-200 text-emerald-700' },
 ]
-
-function ScheduleModal({ trainer, req, onClose, onSuccess }) {
-  const [date, setDate]         = useState('')
-  const [link, setLink]         = useState('')
-  const [platform, setPlatform] = useState('zoom')
-  const [loading, setLoading]   = useState(false)
-
-  const selectedPlatform = MEET_PLATFORMS.find(p => p.id === platform)
-
-  const handleSubmit = () => {
-    // The current pipeline creates the Meet link only after the client selects
-    // one of the three sent slots. This retired screen must not create a
-    // parallel invitation with a manually entered link.
-    toast('Meeting invitations are created only from the client slot-selection workflow.')
-    onClose()
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-card-lg w-full max-w-md p-6 animate-slide-up">
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h3 className="font-jakarta font-bold text-slate-900">Schedule Interview</h3>
-            <p className="text-sm text-slate-500 mt-0.5">For <strong>{trainer.name || trainer.trainer_name}</strong></p>
-          </div>
-          <button onClick={onClose} className="p-1.5 hover:bg-slate-100 rounded-lg">
-            <X className="w-4 h-4 text-slate-500" />
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <label className="label">Interview Date & Time</label>
-            <input type="datetime-local" className="input" value={date} onChange={e => setDate(e.target.value)} />
-          </div>
-
-          <div>
-            <label className="label">Meeting Platform</label>
-            <div className="grid grid-cols-3 gap-2">
-              {MEET_PLATFORMS.map(p => (
-                <button key={p.id} type="button"
-                  onClick={() => { setPlatform(p.id); setLink('') }}
-                  className={clsx(
-                    'flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 text-xs font-semibold transition-all',
-                    platform === p.id
-                      ? `${p.color} border-current scale-105 shadow-sm`
-                      : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
-                  )}>
-                  <span className="text-xl">{p.icon}</span>
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="label">
-              {selectedPlatform?.label} Link
-              <span className="text-slate-400 font-normal ml-1">(included in email)</span>
-            </label>
-            <input className="input" placeholder={selectedPlatform?.placeholder}
-                   value={link} onChange={e => setLink(e.target.value)} />
-            {link && (
-              <a href={link} target="_blank" rel="noreferrer"
-                 className="flex items-center gap-1 text-xs text-blue-500 hover:underline mt-1.5">
-                <ExternalLink className="w-3 h-3" /> Test link
-              </a>
-            )}
-          </div>
-
-          {link && (
-            <div className={clsx('flex items-center gap-2 p-3 rounded-xl border text-sm font-medium', selectedPlatform?.color)}>
-              <span className="text-lg">{selectedPlatform?.icon}</span>
-              <div className="min-w-0">
-                <p className="font-semibold text-xs opacity-70">Meeting via {selectedPlatform?.label}</p>
-                <p className="truncate text-xs">{link}</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="flex gap-3 mt-6">
-          <button onClick={handleSubmit} disabled={loading} className="btn-primary flex-1 justify-center">
-            {loading
-              ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>
-              : <><Calendar className="w-4 h-4" /> Send Interview Email</>}
-          </button>
-          <button onClick={onClose} className="btn-secondary">Cancel</button>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function TrainerCard({ trainer }) {
   const name  = trainer.name || trainer.trainer_name
@@ -198,9 +105,9 @@ export default function Interviews() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: 'Requirements', value: reqs.length,     color: 'bg-blue-50 text-blue-600',    icon: '📋' },
-          { label: 'Shortlisted',  value: trainers.length, color: 'bg-emerald-50 text-emerald-600', icon: '👥' },
-          { label: 'Platforms',    value: 3,               color: 'bg-purple-50 text-purple-600', icon: '📹' },
+          { label: 'Requirements', value: reqs.length,     color: 'bg-blue-50 text-blue-600',    icon: 'ðŸ“‹' },
+          { label: 'Shortlisted',  value: trainers.length, color: 'bg-emerald-50 text-emerald-600', icon: 'ðŸ‘¥' },
+          { label: 'Platforms',    value: 3,               color: 'bg-purple-50 text-purple-600', icon: 'ðŸ“¹' },
         ].map(s => (
           <div key={s.label} className={clsx('card p-4 flex items-center gap-3 hover:shadow-card-hover transition-all', s.color)}>
             <span className="text-2xl">{s.icon}</span>
@@ -251,7 +158,7 @@ export default function Interviews() {
                 </div>
                 <div className="min-w-0">
                   <p className="font-semibold text-sm truncate">{r.technology_needed}</p>
-                  <p className="text-xs text-slate-400 truncate">{r.requirement_id} · Top {r.top_n}</p>
+                  <p className="text-xs text-slate-400 truncate">{r.requirement_id} Â· Top {r.top_n}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 ml-auto opacity-40 flex-shrink-0" />
               </button>

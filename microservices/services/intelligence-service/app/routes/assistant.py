@@ -46,13 +46,19 @@ def _clean_messages(messages: List[ChatMessage]) -> List[Dict[str, str]]:
 async def _call_anthropic(messages: List[Dict], system: str, settings, max_tokens: int, temperature: float) -> str:
     import anthropic
     client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY.strip())
-    resp = await client.messages.create(
+    request = dict(
         model=settings.ANTHROPIC_MODEL,
         max_tokens=max_tokens,
-        temperature=temperature,
         system=system or "You are TrainerSync AI — a helpful training coordination assistant.",
         messages=messages,
     )
+    try:
+        resp = await client.messages.create(temperature=temperature, **request)
+    except TypeError as exc:
+        # Some SDK builds and proxy-backed models reject sampling parameters.
+        if "temperature" not in str(exc):
+            raise
+        resp = await client.messages.create(**request)
     return "".join(b.text for b in resp.content if getattr(b, "type", "") == "text").strip()
 
 
@@ -86,6 +92,47 @@ async def _call_openai(messages: List[Dict], system: str, settings, max_tokens: 
     return (response.output_text or "").strip()
 
 
+async def _call_ollama(
+    messages: List[Dict], system: str, settings, max_tokens: int, temperature: float, url: str = ""
+) -> str:
+    import httpx
+
+    prompt = "\n\n".join(
+        f"{message['role'].capitalize()}: {message['content']}" for message in messages
+    ) + "\n\nAssistant:"
+    async with httpx.AsyncClient(timeout=300.0) as client:
+        response = await client.post(
+            (url or settings.OLLAMA_URL).strip(),
+            json={
+                "model": settings.OLLAMA_MODEL,
+                "system": system,
+                "prompt": prompt,
+                "stream": False,
+                "options": {
+                    "temperature": temperature,
+                    "num_predict": max_tokens,
+                },
+            },
+        )
+    response.raise_for_status()
+    result = response.json().get("response")
+    if not isinstance(result, str) or not result.strip():
+        raise ValueError("Ollama returned an empty or invalid response")
+    return result.strip()
+
+
+DEFAULT_OLLAMA_URL = "http://host.docker.internal:11434/api/generate"
+
+
+def ollama_only_mode(settings) -> bool:
+    return str(getattr(settings, "AI_PROVIDER", "openai") or "").strip().lower() == "ollama"
+
+
+def ollama_endpoint(settings) -> str:
+    url = str(getattr(settings, "OLLAMA_URL", "") or "").strip()
+    return url or (DEFAULT_OLLAMA_URL if ollama_only_mode(settings) else "")
+
+
 @router.post("/chat")
 async def assistant_chat(payload: ChatRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     settings = get_settings()
@@ -103,23 +150,43 @@ async def assistant_chat(payload: ChatRequest, db: AsyncIOMotorDatabase = Depend
 
     reply = ""
     error = ""
-    # Prefer the configured OpenAI provider used by the email services, then
-    # retain Anthropic/Gemini as compatible fallbacks.
-    if settings.OPENAI_API_KEY.strip():
+    # Prefer Ollama when configured, followed by the cloud providers.
+    ollama_only = ollama_only_mode(settings)
+    ollama_url = ollama_endpoint(settings)
+    if ollama_url:
+        try:
+            reply = await _call_ollama(
+                messages, system, settings, payload.max_tokens, payload.temperature, ollama_url
+            )
+        except Exception as exc:
+            logger.warning("Ollama failed%s: %s: %s", "" if ollama_only else ", trying cloud providers", type(exc).__name__, exc)
+            error = str(exc)
+
+    # Gemini can be selected explicitly for production drafting. Other
+    # providers stay available as fallbacks if it is temporarily unavailable.
+    if not reply and not ollama_only and str(getattr(settings, "AI_PROVIDER", "") or "").strip().lower() == "gemini" and settings.GEMINI_API_KEY.strip():
+        try:
+            reply = await _call_gemini(messages, system, settings, payload.max_tokens, payload.temperature)
+            error = ""
+        except Exception as exc:
+            logger.warning("Gemini failed, trying configured fallbacks: %s", exc)
+            error = str(exc)
+
+    if not reply and not ollama_only and settings.OPENAI_API_KEY.strip():
         try:
             reply = await _call_openai(messages, system, settings, payload.max_tokens)
         except Exception as exc:
             logger.warning("OpenAI failed, trying Anthropic/Gemini: %s", exc)
             error = str(exc)
 
-    if not reply and settings.ANTHROPIC_API_KEY.strip():
+    if not reply and not ollama_only and settings.ANTHROPIC_API_KEY.strip():
         try:
             reply = await _call_anthropic(messages, system, settings, payload.max_tokens, payload.temperature)
         except Exception as exc:
             logger.warning("Anthropic failed, trying Gemini: %s", exc)
             error = str(exc)
 
-    if not reply and settings.GEMINI_API_KEY.strip():
+    if not reply and not ollama_only and settings.GEMINI_API_KEY.strip():
         try:
             reply = await _call_gemini(messages, system, settings, payload.max_tokens, payload.temperature)
             error = ""
@@ -128,14 +195,20 @@ async def assistant_chat(payload: ChatRequest, db: AsyncIOMotorDatabase = Depend
             error = str(exc)
 
     if not reply:
-        reply = (
-            "I'm sorry, I couldn't process your request right now. "
-            "Please check that ANTHROPIC_API_KEY or GEMINI_API_KEY is configured."
-        )
+        return {
+            "success": False,
+            "reply": (
+                "AI is unavailable. Check that Ollama is running, reachable at OLLAMA_URL, and has the OLLAMA_MODEL pulled."
+                if ollama_only else
+                "AI is unavailable. Check the configured Ollama, OpenAI, Anthropic or Gemini provider and try again."
+            ),
+            "error": "ai_provider_unavailable",
+            "messages": messages,
+        }
 
     return {
         "success": True,
         "reply": reply,
-        "error": error or None,
+        "error": None,
         "messages": messages + [{"role": "assistant", "content": reply}],
     }

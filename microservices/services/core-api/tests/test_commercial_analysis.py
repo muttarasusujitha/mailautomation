@@ -1,7 +1,7 @@
 import pytest
 from app.routes.requirements import _commercial_options_for_trainer, _recommend_option
 
-@pytest.mark.parametrize('budget,days,model', [(800000,40,'TOTAL_70_30'), (90000,10,'TOTAL_70_30'), (100000,10,'TOTAL_70_30')])
+@pytest.mark.parametrize('budget,days,model', [(800000,40,'DAYWISE_70_30'), (90000,10,'TOTAL_70_30'), (100000,10,'TOTAL_70_30')])
 def test_authoritative_split(budget, days, model):
     selected = _recommend_option(_commercial_options_for_trainer({'budget':budget,'duration_days':days}, {'day_rate':999999}),20)
     assert selected['model'] == model

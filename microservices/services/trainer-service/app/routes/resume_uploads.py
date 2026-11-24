@@ -1,5 +1,6 @@
 """Resume uploads — list, get status, delete, confirm previews."""
 import logging
+import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -24,6 +25,60 @@ class BulkConfirmRequest(BaseModel):
     corrections: Optional[Dict[str, Dict[str, Any]]] = None
 
 
+PROFILE_FIELDS = {
+    "name", "email", "phone", "location", "linkedin", "role_designation",
+    "experience_years", "experience_raw", "skills", "technologies",
+    "technology_category", "primary_category", "domain", "summary",
+    "certifications", "training_count", "past_clients", "day_rate", "hourly_rate",
+}
+
+
+async def _confirm_extracted_profile(db, upload: Dict[str, Any], corrections: Optional[Dict[str, Any]] = None) -> str:
+    """Apply only reviewed profile fields, then make the trainer match-eligible."""
+    trainer_id = upload.get("trainer_id")
+    if not trainer_id:
+        raise HTTPException(422, "Resume upload has no trainer identity")
+    profile = dict(upload.get("extracted_data") or {})
+    profile.update(corrections or {})
+    safe_profile = {
+        key: value for key, value in profile.items()
+        if key in PROFILE_FIELDS and value not in (None, "", [])
+    }
+    if not safe_profile.get("name") and not safe_profile.get("email"):
+        raise HTTPException(422, "Add a trainer name or email before confirming this resume")
+
+    existing = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0, "trainer_id": 1, "created_at": 1})
+    if not existing and safe_profile.get("email"):
+        existing = await db["trainers"].find_one(
+            {"email": {"$regex": f"^{re.escape(str(safe_profile['email']))}$", "$options": "i"}},
+            {"_id": 0, "trainer_id": 1, "created_at": 1},
+        )
+        if existing:
+            trainer_id = existing["trainer_id"]
+            upload["trainer_id"] = trainer_id
+            await db["resume_uploads"].update_one(
+                {"upload_id": upload.get("upload_id")},
+                {"$set": {"trainer_id": trainer_id, "matched_existing_trainer": True}},
+            )
+    now = datetime.utcnow()
+    fields = {**safe_profile, "needs_review": False, "updated_at": now}
+    if upload.get("extracted_text"):
+        fields["resume"] = upload["extracted_text"][:50000]
+    if not existing:
+        fields.update({
+            "trainer_id": trainer_id,
+            "source": "resume_upload",
+            "status": "new",
+            "created_at": now,
+        })
+    await db["trainers"].update_one(
+        {"trainer_id": trainer_id},
+        {"$set": fields},
+        upsert=not bool(existing),
+    )
+    return "updated" if existing else "inserted"
+
+
 def _json_safe(value: Any) -> Any:
     if isinstance(value, ObjectId):
         return str(value)
@@ -43,7 +98,8 @@ async def list_resume_uploads(
     status: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    query: Dict[str, Any] = {}
+    # Trainer self-service resumes have their own directory and review workflow.
+    query: Dict[str, Any] = {"source_category": {"$ne": "trainer_registration"}}
     if status:
         query["processing_status"] = status
     total = await db["resume_uploads"].count_documents(query)
@@ -68,7 +124,7 @@ async def list_resume_uploads(
 
 @router.get("/by-upload/{upload_id}")
 async def get_trainer_by_upload(upload_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
-    upload = await db["resume_uploads"].find_one({"upload_id": upload_id}, {"_id": 0, "extracted_text": 0})
+    upload = await db["resume_uploads"].find_one({"upload_id": upload_id, "source_category": {"$ne": "trainer_registration"}}, {"_id": 0, "extracted_text": 0})
     if not upload:
         raise HTTPException(404, "Upload not found")
     trainer_id = upload.get("trainer_id")
@@ -80,7 +136,7 @@ async def get_trainer_by_upload(upload_id: str, db: AsyncIOMotorDatabase = Depen
 
 @router.get("/{upload_id}")
 async def get_resume_upload(upload_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
-    doc = await db["resume_uploads"].find_one({"upload_id": upload_id}, {"_id": 0, "extracted_text": 0})
+    doc = await db["resume_uploads"].find_one({"upload_id": upload_id, "source_category": {"$ne": "trainer_registration"}}, {"_id": 0, "extracted_text": 0})
     if not doc:
         raise HTTPException(404, "Upload not found")
     return {"success": True, "upload": _json_safe(doc)}
@@ -107,10 +163,22 @@ async def confirm_resume(
     upload = await db["resume_uploads"].find_one({"upload_id": upload_id}, {"_id": 0})
     if not upload:
         raise HTTPException(404, "Upload not found")
+    if upload.get("source_category") == "trainer_registration":
+        raise HTTPException(409, "Trainer registration resumes are reviewed from Trainer Applications")
 
     trainer_id = upload.get("trainer_id")
     now = datetime.utcnow()
     corrections = payload.corrections or {}
+
+    action = "already_confirmed"
+    trainer_state = await db["trainers"].find_one(
+        {"trainer_id": trainer_id}, {"_id": 0, "needs_review": 1},
+    ) if trainer_id else None
+    if upload.get("processing_status") != "confirmed" or not trainer_state or trainer_state.get("needs_review"):
+        action = await _confirm_extracted_profile(
+            db, upload, corrections or upload.get("corrections_applied") or {},
+        )
+    trainer_id = upload.get("trainer_id")
 
     update_fields: Dict[str, Any] = {"processing_status": "confirmed", "confirmed_at": now, "updated_at": now}
     if corrections:
@@ -118,13 +186,7 @@ async def confirm_resume(
 
     await db["resume_uploads"].update_one({"upload_id": upload_id}, {"$set": update_fields})
 
-    if trainer_id and corrections:
-        await db["trainers"].update_one(
-            {"trainer_id": trainer_id},
-            {"$set": {**corrections, "updated_at": now}},
-        )
-
-    return {"success": True, "upload_id": upload_id, "trainer_id": trainer_id, "status": "confirmed"}
+    return {"success": True, "upload_id": upload_id, "trainer_id": trainer_id, "status": "confirmed", "action": action}
 
 
 @router.post("/confirm-resumes")

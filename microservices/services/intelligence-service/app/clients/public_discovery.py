@@ -1,0 +1,84 @@
+"""Search multiple public queries until the qualified per-domain target is met."""
+import asyncio
+from app.clients.public_search import search_public
+
+PUBLIC_SEARCH_BLOCKED = (
+    'Public web search (DuckDuckGo/Bing) blocked or did not answer requests from this server, '
+    'so no fallback profiles could be fetched.'
+)
+
+
+async def discover_public(domain, mode, target=20, location=''):
+    from app.clients.lead_discovery import public_queries
+    from app.clients.public_search import search_public_many
+    from app.clients.search_accuracy import (
+        canonical_public_url,
+        has_trainer_language,
+        matches_requested_skill,
+        select_accurate_profiles,
+    )
+    from app.routes.linkedin_leads import _normalize_result
+    target = min(100, max(50 if mode == 'trainer' else 20, target))
+    queries = public_queries(domain, mode, location)
+    if mode != 'trainer':
+        queries += [f'{domain} {location} {phrase}'.strip()
+                    for phrase in ('need a trainer', 'freelance trainer required', 'corporate training requirement', 'seeking training partner')]
+    if mode == 'trainer':
+        try:
+            candidate_limit = min(120, target * 2)
+            searched = await search_public_many(
+                queries, candidate_limit, supplement_with_bing=True)
+            batch, attempts = searched
+        except Exception as exc:
+            batch, attempts = [], 1
+            warnings = [str(exc) or type(exc).__name__]
+        else:
+            # A refused or challenged search engine is "blocked", not "no profiles exist".
+            warnings = [PUBLIC_SEARCH_BLOCKED] if getattr(searched, 'blocked', False) else []
+        batch = select_accurate_profiles(batch, domain, require_current=False)
+        rows, seen = [], set()
+        for item in batch:
+            url = canonical_public_url(item.get('url', ''))
+            query_qualified = (
+                matches_requested_skill(item, domain)
+                and has_trainer_language(item)
+            )
+            item = {**item, 'url': url, 'keyword_qualified': query_qualified}
+            if url and url not in seen and _normalize_result(item, domain, mode):
+                seen.add(url)
+                rows.append(item)
+            if len(rows) >= target:
+                break
+        return rows, {'domain': domain, 'target': target, 'matched': len(rows),
+                      'target_met': len(rows) >= target, 'attempts': attempts,
+                      'status': 'target_met' if len(rows) >= target else 'partial' if rows else 'blocked' if warnings else 'no_results',
+                      'warnings': warnings,
+                      'reason': '' if len(rows) >= target else 'Accessible public queries exhausted or unavailable; no unrelated profiles added.'}
+    rows, seen, warnings = [], set(), []
+    attempts = 0
+    for query in queries:
+        attempts += 1
+        try:
+            batch = await asyncio.wait_for(search_public(query, min(60, max(1, target - len(rows)))), timeout=20)
+        except Exception as exc:
+            warnings.append(str(exc) or type(exc).__name__)
+            if len(warnings) >= 3:
+                break
+            continue
+        if mode == 'trainer':
+            batch = select_accurate_profiles(batch, domain)
+        for item in batch:
+            url = canonical_public_url(item.get('url', ''))
+            item = {**item, 'url': url}
+            if url and url not in seen and _normalize_result(item, domain, mode):
+                seen.add(url)
+                rows.append(item)
+            if len(rows) >= target:
+                break
+        if len(rows) >= target:
+            break
+    return rows, {'domain': domain, 'target': target, 'matched': len(rows),
+                  'target_met': len(rows) >= target, 'attempts': attempts,
+                  'status': 'target_met' if len(rows) >= target else 'partial' if rows else 'blocked' if warnings else 'no_results',
+                  'warnings': warnings,
+                  'reason': '' if len(rows) >= target else 'Accessible public queries exhausted or unavailable; no unrelated profiles added.'}

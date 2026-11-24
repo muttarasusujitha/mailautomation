@@ -1,4 +1,5 @@
 import asyncio
+import re
 import sys
 from pathlib import Path
 
@@ -34,7 +35,7 @@ def test_shortlist_first_uses_structured_snapshot_not_raw_client_text():
     ))
 
     assert "Training Details:" in reply["body"]
-    assert "We have received a training requirement for DevOps" in reply["body"]
+    assert re.search(r"We(?: have|'ve) received a training requirement for DevOps", reply["body"])
     assert "- Domain/Technology: DevOps" in reply["body"]
     assert "- Training dates: 15 September 2026 to 19 September 2026" in reply["body"]
     assert "- Duration: 5 Days" in reply["body"]
@@ -43,7 +44,8 @@ def test_shortlist_first_uses_structured_snapshot_not_raw_client_text():
     assert "- Commercials/Budget: INR 35,000 per day/session, inclusive of TDS" in reply["body"]
     assert "- Updated CV / Trainer Profile" in reply["body"]
     assert "- LinkedIn Profile" in reply["body"]
-    assert "Kindly share the details below" in reply["body"]
+    assert "Please share the details below" in reply["body"]
+    assert "Annapurna U." in reply["body"]
     assert "Requirement Snapshot" not in reply["body"]
     assert "Client Requirement Details:" not in reply["body"]
     assert "Hi Team" not in reply["body"]
@@ -88,7 +90,13 @@ def test_mail1_requests_real_slots_for_both_flows_even_for_profile_only_request(
             client_request="Please share an updated CV.", request_interview_slots=False,
         )))
         body = reply["body"]
-        assert "three convenient interview/discussion slots" in body
-        assert "[Your available date 1]" in body
-        assert "[Your available date 3]" in body
+        assert "three convenient interview/discussion slots that you are actually available for" in body
+        assert "[Your available date" not in body
+        assert "illustrative, not booked appointments" in body
+        sample_lines = re.findall(
+            r"^- \d{2} [A-Za-z]{3} \d{4}, \d{1,2}:\d{2} [AP]M to \d{1,2}:\d{2} [AP]M IST$",
+            body,
+            flags=re.MULTILINE,
+        )
+        assert len(sample_lines) == 3
         assert _slot_options_from_text(body) == []

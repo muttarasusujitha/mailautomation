@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api, { getDashboardStats, clearDatabase } from '../utils/api'
+import api, { getDashboardStats, getDashboardAnalytics } from '../utils/api'
 import {
   Users, Mail, TrendingUp, RefreshCw, BarChart2, Activity,
-  Trash2, AlertTriangle, Star, ArrowUpRight, Database, Send,
-  BriefcaseBusiness, Inbox, MessageSquare, Loader2, Settings,
+  Star, ArrowUpRight, Send,
+  BriefcaseBusiness, Inbox, MessageSquare, Loader2, Settings, Sparkles, Search,
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -13,6 +13,7 @@ import {
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import { normalizeGmailStatus } from '../utils/gmailOAuth'
+import { syncGmailInbox } from '../utils/gmailSync'
 
 /* ─── Helpers ──────────────────────────────────────────────── */
 function AnimatedNumber({ value, duration = 1100 }) {
@@ -37,7 +38,11 @@ function AnimatedNumber({ value, duration = 1100 }) {
 }
 
 function normaliseRate(v) { const n = Number(v || 0); return n > 0 && n <= 1 ? n * 100 : n }
-function formatPercent(v) { const n = Math.max(0, Math.min(100, Number(v || 0))); return `${n.toFixed(n % 1 ? 1 : 0)}%` }
+function formatPercent(v) {
+  if (v == null || !Number.isFinite(Number(v))) return '—'
+  const n = Math.max(0, Math.min(100, Number(v)))
+  return `${n.toFixed(n % 1 ? 1 : 0)}%`
+}
 function formatDateTime(v) { if (!v) return ''; try { return new Date(v).toLocaleString() } catch { return String(v) } }
 
 function clientStatusLabel(s = '') {
@@ -71,14 +76,14 @@ function TooltipBox({ active, payload, label }) {
 
 /* ─── Stat Card ────────────────────────────────────────────── */
 const TONE_MAP = {
-  blue:    { bg: 'bg-blue-50',    icon: 'text-blue-600',    border: 'border-blue-100' },
-  purple:  { bg: 'bg-purple-50',  icon: 'text-purple-600',  border: 'border-purple-100' },
-  emerald: { bg: 'bg-emerald-50', icon: 'text-emerald-600', border: 'border-emerald-100' },
-  green:   { bg: 'bg-green-50',   icon: 'text-green-600',   border: 'border-green-100' },
-  orange:  { bg: 'bg-orange-50',  icon: 'text-orange-500',  border: 'border-orange-100' },
-  sky:     { bg: 'bg-sky-50',     icon: 'text-sky-600',     border: 'border-sky-100' },
-  amber:   { bg: 'bg-amber-50',   icon: 'text-amber-600',   border: 'border-amber-100' },
-  red:     { bg: 'bg-red-50',     icon: 'text-red-500',     border: 'border-red-100' },
+  blue:    { bg: 'bg-blue-50',    icon: 'text-blue-600',    border: 'border-blue-100', accent: '#2563eb' },
+  purple:  { bg: 'bg-purple-50',  icon: 'text-purple-600',  border: 'border-purple-100', accent: '#7c3aed' },
+  emerald: { bg: 'bg-emerald-50', icon: 'text-emerald-600', border: 'border-emerald-100', accent: '#059669' },
+  green:   { bg: 'bg-green-50',   icon: 'text-green-600',   border: 'border-green-100', accent: '#16a34a' },
+  orange:  { bg: 'bg-orange-50',  icon: 'text-orange-500',  border: 'border-orange-100', accent: '#ea580c' },
+  sky:     { bg: 'bg-sky-50',     icon: 'text-sky-600',     border: 'border-sky-100', accent: '#0284c7' },
+  amber:   { bg: 'bg-amber-50',   icon: 'text-amber-600',   border: 'border-amber-100', accent: '#d97706' },
+  red:     { bg: 'bg-red-50',     icon: 'text-red-500',     border: 'border-red-100', accent: '#dc2626' },
 }
 
 function StatCard({ icon: Icon, label, value, sub, tone = 'blue', loading, linkTo, delay = 0 }) {
@@ -120,7 +125,8 @@ function StatCard({ icon: Icon, label, value, sub, tone = 'blue', loading, linkT
 
 /* ─── Progress metric ──────────────────────────────────────── */
 function PulseMetric({ label, value, sub, color = 'bg-blue-500' }) {
-  const safe = Math.max(0, Math.min(100, Number(value || 0)))
+  const hasValue = value != null && Number.isFinite(Number(value))
+  const safe = hasValue ? Math.max(0, Math.min(100, Number(value))) : 0
   return (
     <div>
       <div className="flex items-end justify-between gap-3 mb-2">
@@ -129,7 +135,7 @@ function PulseMetric({ label, value, sub, color = 'bg-blue-500' }) {
           {sub && <p className="text-xs text-slate-400">{sub}</p>}
         </div>
         <span className="text-lg font-bold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
-          {formatPercent(safe)}
+          {hasValue ? formatPercent(safe) : 'No data'}
         </span>
       </div>
       <div className="progress-bar">
@@ -159,13 +165,17 @@ function Panel({ title, eyebrow, badge, children, className }) {
 /* ─── Main Dashboard ───────────────────────────────────────── */
 export default function Dashboard() {
   const [stats, setStats]           = useState(null)
+  const [dashboardAnalytics, setDashboardAnalytics] = useState(null)
+  const [statsUnavailable, setStatsUnavailable] = useState(false)
   const [clientInbox, setClientInbox] = useState({ emails: [], stats: {}, whatsapp_logs: [] })
   const [gmailStatus, setGmailStatus] = useState(null)
   const [loading, setLoading]       = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [syncingInbox, setSyncingInbox] = useState(false)
-  const [showClear, setShowClear]   = useState(false)
-  const [clearing, setClearing]     = useState(false)
+  const [generationMode, setGenerationMode] = useState('template')
+  const [savingGenerationMode, setSavingGenerationMode] = useState(false)
+  const [fetchingLinkedIn, setFetchingLinkedIn] = useState(false)
+  const [linkedinMessage, setLinkedinMessage] = useState('')
   const navigate = useNavigate()
 
   const load = async (isRefresh = false) => {
@@ -173,13 +183,20 @@ export default function Dashboard() {
     try {
       // BUG-009: Promise.allSettled already handles rejections per-request;
       // each settled result is checked individually so no rejection goes unhandled.
-      const [statsRes, inboxRes, gmailRes] = await Promise.allSettled([
+      const [statsRes, inboxRes, gmailRes, analyticsRes, generationModeRes] = await Promise.allSettled([
         getDashboardStats(),
-        api.get('/inbox', { params: { limit: 5 } }),
+        api.get('/inbox', { params: { limit: 5, include_stats: false, include_total: false } }),
         api.get('/gmail/auth-status'),
+        getDashboardAnalytics({ preset: 'week' }),
+        api.get('/requirements/generation-mode'),
       ])
-      if (statsRes.status === 'fulfilled') setStats(statsRes.value.data)
-      else toast.error(statsRes.reason?.message || 'Could not load stats')
+      if (statsRes.status === 'fulfilled') {
+        setStats(statsRes.value.data)
+        setStatsUnavailable(false)
+      } else {
+        setStatsUnavailable(true)
+        toast.error(statsRes.reason?.message || 'Could not load stats')
+      }
       setClientInbox(
         inboxRes.status === 'fulfilled'
           ? inboxRes.value.data || { emails: [], stats: {}, whatsapp_logs: [] }
@@ -191,6 +208,10 @@ export default function Dashboard() {
       setGmailStatus(
         gmailRes.status === 'fulfilled' ? normalizeGmailStatus(gmailRes.value.data) : normalizeGmailStatus({ connected: false })
       )
+      setDashboardAnalytics(analyticsRes.status === 'fulfilled' ? analyticsRes.value.data : null)
+      if (generationModeRes.status === 'fulfilled') {
+        setGenerationMode(generationModeRes.value.data?.generation_mode === 'ai' ? 'ai' : 'template')
+      }
     } catch (err) {
       toast.error(err?.message || 'Failed to load dashboard data')
     } finally {
@@ -202,26 +223,58 @@ export default function Dashboard() {
   // BUG-008: empty dependency array [] is intentional — load once on mount only
   useEffect(() => { load() }, [])
 
-  const handleClear = async () => {
-    setClearing(true)
-    try { await clearDatabase(); toast.success('Database cleared'); setShowClear(false); load() }
-    catch (e) { toast.error(e.message) }
-    finally { setClearing(false) }
+  const updateGenerationMode = async mode => {
+    if (savingGenerationMode) return
+    setSavingGenerationMode(true)
+    try {
+      const res = await api.put('/requirements/generation-mode', { generation_mode: mode })
+      const savedMode = res.data?.generation_mode === 'ai' ? 'ai' : 'template'
+      setGenerationMode(savedMode)
+      toast.success(savedMode === 'ai' ? 'Agentic AI enabled for the entire application' : 'Approved templates enabled for the entire application')
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || 'Could not update AI generation mode')
+    } finally {
+      setSavingGenerationMode(false)
+    }
+  }
+
+  const fetchLinkedIn = async () => {
+    if (fetchingLinkedIn) return
+    setFetchingLinkedIn(true)
+    setLinkedinMessage('Fetching Python trainer profiles…')
+    try {
+      const body = { domains: ['Python'], search_provider: 'auto', save: true, max_results: 20, max_queries: 2 }
+      const trainerRes = await api.post('/linkedin-leads/search', { ...body, mode: 'trainer' })
+      const trainerSaved = Number(trainerRes.data?.saved_count || 0)
+      const trainerFound = Number(trainerRes.data?.found || 0)
+      const error = trainerRes.data?.search_error || ''
+      const reason = trainerRes.data?.domain_outcomes?.[0]?.reason || ''
+      const message = error
+        ? error
+        : `Saved ${trainerSaved} trainer${trainerSaved === 1 ? '' : 's'}. Found ${trainerFound} trainer profiles.${reason ? ` ${reason}` : ''}`
+      setLinkedinMessage(message)
+      if (trainerSaved) toast.success(message)
+      else toast.error(message)
+      await load(true)
+    } catch (error) {
+      const message = error?.response?.data?.detail || error.message || 'LinkedIn fetch failed'
+      setLinkedinMessage(message)
+      toast.error(message)
+    } finally {
+      setFetchingLinkedIn(false)
+    }
   }
 
   const syncClientInbox = async () => {
     if (syncingInbox) return
     setSyncingInbox(true)
     try {
-      const res = await api.post('/gmail/sync-now?limit=50')
-      if (res.data?.queued) {
-        toast.success(res.data?.message || 'Inbox sync started. Refreshing shortly.')
-        window.setTimeout(() => load(true), 6000)
-        return
-      }
-      const processed = Number(res.data?.processed_count || 0)
-      const skipped   = Number(res.data?.skipped || 0)
-      toast.success(`Inbox checked: ${processed} processed, ${skipped} skipped`)
+      const res = await syncGmailInbox({ limit: 50, process: false })
+      const processed = Number(res.stored ?? res.processed_count ?? 0)
+      toast.success(processed
+        ? 'Inbox checked: ' + processed + ' message(s) refreshed for review'
+        : 'Inbox checked. No matching messages were found.'
+      )
       await load(true)
     } catch (e) { toast.error(e.message || 'Inbox sync failed') }
     finally { setSyncingInbox(false) }
@@ -249,14 +302,16 @@ export default function Dashboard() {
   const clientTotal    = Number(clientRequests.total ?? clientStats.total ?? 0)
   const clientToday    = Number(clientRequests.today ?? clientStats.today ?? 0)
   const clientPending  = Number(clientRequests.pending_approval ?? clientStats.pending_approval ?? 0)
+  const confirmedTrainers = Number(stats?.trainers?.confirmed || 0)
+  const linkedinTrainerTotal = Number(stats?.trainers?.leads || 0)
+  const linkedinTrainers = stats?.trainers?.recent_linkedin || []
   const gmailConnected = !!gmailStatus?.connected
   const gmailUser      = gmailStatus?.gmail_user || gmailStatus?.configured_user || gmailStatus?.email || ''
-  const replyRate      = normaliseRate(stats?.reply_rate || (totalEmails ? (totalReplies / totalEmails) * 100 : 0))
-  const interestRate   = normaliseRate(stats?.interest_rate || (totalTrainers ? (interested / totalTrainers) * 100 : 0))
-  const deliveryRate   = totalEmails + failedEmails ? (totalEmails / (totalEmails + failedEmails)) * 100 : 100
-  const reviewLoad     = totalTrainers ? (pendingReview / totalTrainers) * 100 : 0
-  const automationScore = Math.round((deliveryRate + replyRate + interestRate + Math.max(0, 100 - reviewLoad)) / 4)
-
+  const replyRate      = totalEmails ? normaliseRate(stats?.reply_rate ?? (totalReplies / totalEmails) * 100) : null
+  const interestRate   = totalTrainers ? normaliseRate(stats?.interest_rate ?? (interested / totalTrainers) * 100) : null
+  const emailAttempts  = totalEmails + failedEmails
+  const deliveryRate   = emailAttempts ? (totalEmails / emailAttempts) * 100 : null
+  const reviewLoad     = totalTrainers ? (pendingReview / totalTrainers) * 100 : null
   const statusData = stats ? [
     { name: 'Interested', value: stats.interested_count, color: '#10b981' },
     { name: 'Contacted',  value: stats.contacted_count,  color: '#2563eb' },
@@ -270,123 +325,99 @@ export default function Dashboard() {
     count: b.count,
   }))
 
-  const activityData = [
-    { day: 'Mon', emails: 12, replies: 4 },
-    { day: 'Tue', emails: 8,  replies: 3 },
-    { day: 'Wed', emails: 15, replies: 7 },
-    { day: 'Thu', emails: 10, replies: 5 },
-    { day: 'Fri', emails: 18, replies: 9 },
-    { day: 'Sat', emails: 6,  replies: 2 },
-    { day: 'Sun', emails: 3,  replies: 1 },
-  ]
+  const sentByDate = new Map((dashboardAnalytics?.emails_over_time || []).map(row => [row.date, Number(row.emails_sent || 0)]))
+  const repliesByDate = new Map((dashboardAnalytics?.email_replies_over_time || []).map(row => [row.date, Number(row.replies || 0)]))
+  const monday = new Date()
+  monday.setHours(0, 0, 0, 0)
+  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7))
+  const activityData = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(monday)
+    date.setDate(monday.getDate() + index)
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    return {
+      day: date.toLocaleDateString(undefined, { weekday: 'short' }),
+      emails: sentByDate.get(key) || 0,
+      replies: repliesByDate.get(key) || 0,
+    }
+  })
 
   const statCards = [
     { icon: BriefcaseBusiness, label: 'Client Requests', value: clientTotal, sub: `${clientToday} received today`, tone: 'blue', linkTo: '/client-requests' },
     { icon: Inbox,             label: 'Client Pending',  value: clientPending, sub: 'Needs approval', tone: 'amber',  linkTo: '/client-requests' },
-    { icon: Users,             label: 'Total Trainers',  value: totalTrainers, sub: 'In database', tone: 'blue', linkTo: '/trainers' },
+    { icon: Users,             label: 'Total Trainers',  value: totalTrainers, sub: `${confirmedTrainers} confirmed · ${linkedinTrainerTotal} LinkedIn`, tone: 'blue', linkTo: '/trainers' },
     { icon: Mail,              label: 'Emails Sent',     value: totalEmails, sub: 'Outreach emails', tone: 'purple', linkTo: '/emails' },
     { icon: TrendingUp,        label: 'Replies',         value: totalReplies, sub: 'Trainer replies', tone: 'emerald', linkTo: '/emails' },
     { icon: BarChart2,         label: 'Requirements',    value: stats?.total_requirements ?? stats?.requirements?.total ?? 0, sub: 'Active searches', tone: 'orange', linkTo: '/requirements' },
-    { icon: Activity,          label: 'Confirmed',       value: stats?.confirmed_count ?? stats?.shortlists?.trainers_selected ?? 0, sub: 'Ready to close', tone: 'sky', linkTo: '/shortlist1' },
+    { icon: Activity,          label: 'Confirmed',       value: stats?.confirmed_count ?? stats?.shortlists?.trainers_selected ?? 0, sub: 'Ready to close', tone: 'sky', linkTo: '/shortlist' },
     { icon: Send,              label: 'WhatsApp Activity', value: whatsappAttempted, sub: `${whatsappSent} sent, ${whatsappFailed} failed, ${whatsappSkipped} skipped`, tone: whatsappFailed ? 'red' : 'green' },
   ]
+  const primaryCards = [statCards[1], statCards[0], statCards[4], statCards[2]]
+  const secondaryCards = [statCards[3], statCards[5], statCards[6], statCards[7]]
+  const queueSummary = loading
+    ? 'Loading the latest pipeline.'
+    : statsUnavailable
+      ? 'Trainer data is temporarily unavailable.'
+      : clientPending
+        ? `${clientPending.toLocaleString('en-IN')} client request${clientPending === 1 ? '' : 's'} need review.`
+        : 'The client queue is clear.'
 
 
   return (
-    <div className="dashboard-shell space-y-6 animate-fade-in">
-
-      {/* ── Hero strip ─────────────────────────────────────── */}
-      <div className="dashboard-hero overflow-hidden">
-        <div className="p-5 md:p-7">
-          <div className="grid gap-6 lg:grid-cols-[1fr_280px] lg:items-start">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="h-2 w-2 rounded-full bg-blue-600 shadow-[0_0_16px_rgba(37,99,235,.45)] animate-pulse-soft" />
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Live command view</span>
-              </div>
-              <h1 className="text-4xl font-extrabold tracking-normal text-slate-950 md:text-5xl">Dashboard</h1>
-              <p className="mt-3 max-w-3xl text-sm font-medium leading-6 text-slate-600 md:text-base">Track trainer inventory, outreach movement, reply quality, and recruiter action in one clean view.</p>
-              <div className="flex flex-wrap gap-2.5 mt-5">
-                {['Trainer intelligence','Client inbox','Mail automation','PO to invoice'].map(item => (
-                  <span key={item} className="dashboard-hero-chip px-3 py-1.5 text-xs font-bold">{item}</span>
-                ))}
-              </div>
-            </div>
-
-            {/* Ops signals */}
-            <div className="grid gap-2.5">
-              {[
-                ['AI matching', 'Live', 'badge-blue'],
-                ['Mail automation', gmailConnected ? 'Ready' : 'Setup needed', gmailConnected ? 'badge-green' : 'badge-amber'],
-                ['Pipeline sync', refreshing ? 'Refreshing…' : 'Normal', refreshing ? 'badge-blue' : 'badge-slate'],
-              ].map(([label, val, cls]) => (
-                <div key={label} className="dashboard-signal px-4 py-3 flex items-center justify-between gap-4">
-                  <span className="text-xs font-bold text-blue-700 uppercase tracking-wide">{label}</span>
-                  <span className={clsx('badge text-[11px]', cls)}>{val}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+    <div className="dashboard-shell space-y-5 animate-fade-in">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0 max-w-2xl">
+          <h1 className="page-title">Dashboard</h1>
+          <p className="page-sub">{queueSummary} {generationMode === 'ai' ? 'AI drafts the approved coordination and finance replies.' : 'Approved templates write the coordination and finance replies.'}</p>
         </div>
-
-        {/* Action bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white/80 px-5 py-4 md:px-7">
-          <div className="dashboard-hero-chip flex items-center gap-2 px-3 py-2 text-xs font-bold">
-            <Database className="h-4 w-4 text-blue-600" />
-            {loading ? 'Loading…' : `${totalTrainers.toLocaleString('en-IN')} trainer profiles synced`}
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => setShowClear(true)} className="inline-flex items-center gap-2 rounded-md border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50">
-              <Trash2 className="h-4 w-4" /> Clear DB
-            </button>
-            <button onClick={() => load(true)} disabled={refreshing} className="dashboard-hero-action inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-blue-700 transition disabled:opacity-60">
-              <RefreshCw className={clsx('h-4 w-4', refreshing && 'animate-spin')} /> Refresh
-            </button>
-          </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            role="switch"
+            aria-label="Reply writing"
+            aria-checked={generationMode === 'ai'}
+            onClick={() => updateGenerationMode(generationMode === 'ai' ? 'template' : 'ai')}
+            disabled={savingGenerationMode}
+            className="btn-secondary text-sm disabled:opacity-60"
+          >
+            <Sparkles className="h-4 w-4" />
+            {generationMode === 'ai' ? 'AI replies' : 'Template replies'}
+          </button>
+          <button onClick={() => load(true)} disabled={refreshing} className="btn-secondary text-sm disabled:opacity-60">
+            <RefreshCw className={clsx('h-4 w-4', refreshing && 'animate-spin')} /> Refresh
+          </button>
         </div>
       </div>
 
-      {/* ── Clear DB warning ───────────────────────────────── */}
-      <div className="grid gap-3 md:grid-cols-4">
-        {[
-          ['Automation score', `${automationScore}%`, automationScore >= 80 ? 'Strong' : automationScore >= 55 ? 'Watch' : 'Needs action', automationScore >= 80 ? 'badge-green' : automationScore >= 55 ? 'badge-amber' : 'badge-red'],
-          ['Client queue', clientPending.toLocaleString('en-IN'), clientPending ? 'Pending review' : 'Clear', clientPending ? 'badge-amber' : 'badge-green'],
-          ['Reply engine', formatPercent(replyRate), `${totalReplies.toLocaleString('en-IN')} replies`, 'badge-blue'],
-          ['Delivery', formatPercent(deliveryRate), failedEmails ? `${failedEmails} failed` : 'Clean', failedEmails ? 'badge-red' : 'badge-green'],
-        ].map(([label, value, status, badge]) => (
-          <div key={label} className="dashboard-mini-card flex items-center justify-between gap-3 p-3">
-            <div className="min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">{label}</p>
-              <p className="mt-1 truncate text-xl font-extrabold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans',sans-serif" }}>{value}</p>
-            </div>
-            <span className={clsx('badge text-[11px]', badge)}>{status}</span>
-          </div>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {primaryCards.map((card, i) => (
+          <StatCard key={card.label} {...card} loading={loading} delay={i * 40} />
         ))}
       </div>
 
-      {showClear && (
-        <div className="panel border-red-200 bg-red-50 animate-slide-up">
-          <div className="panel-body flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="font-semibold text-red-800">Clear entire database?</p>
-              <p className="text-sm text-red-600 mt-1">This will permanently delete all trainers, requirements, shortlists and email logs.</p>
-              <div className="flex gap-3 mt-3">
-                <button onClick={handleClear} disabled={clearing} className="btn-danger text-sm">
-                  {clearing ? <><RefreshCw className="h-4 w-4 animate-spin" />Clearing…</> : 'Yes, clear all'}
-                </button>
-                <button onClick={() => setShowClear(false)} className="btn-secondary text-sm">Cancel</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Stat cards ─────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {statCards.map((card, i) => (
-          <StatCard key={card.label} {...card} loading={loading} delay={i * 50} />
-        ))}
+      <div className="grid grid-cols-2 overflow-hidden rounded-2xl border border-slate-200 bg-white md:grid-cols-4">
+        {secondaryCards.map((card, index) => {
+          const Tag = card.linkTo ? 'button' : 'div'
+          return (
+            <Tag
+              key={card.label}
+              type={card.linkTo ? 'button' : undefined}
+              onClick={card.linkTo ? () => navigate(card.linkTo) : undefined}
+              className={clsx(
+                'min-w-0 px-4 py-3 text-left',
+                card.linkTo && 'transition hover:bg-slate-50',
+                index % 2 === 1 && 'border-l border-slate-100',
+                index > 1 && 'border-t border-slate-100 md:border-t-0',
+                index > 0 && 'md:border-l md:border-slate-100'
+              )}
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{card.label}</p>
+              <p className="mt-1 text-lg font-bold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
+                {loading ? '—' : Number(card.value || 0).toLocaleString('en-IN')}
+              </p>
+              <p className="truncate text-xs text-slate-500">{card.sub}</p>
+            </Tag>
+          )
+        })}
       </div>
 
       {/* ── Client flow + shortcuts ─────────────────────────── */}
@@ -428,7 +459,7 @@ export default function Dashboard() {
             </div>
             <div className="flex flex-wrap gap-2">
               <button onClick={syncClientInbox} disabled={!gmailConnected || syncingInbox} className="btn-primary text-sm disabled:opacity-50">
-                {syncingInbox ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Check Inbox Now
+                {syncingInbox ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} {syncingInbox ? 'Checking inbox...' : 'Check Inbox Now'}
               </button>
               <button onClick={() => navigate('/client-requests')} className="btn-secondary text-sm">
                 <BriefcaseBusiness className="h-4 w-4" /> Client Requests
@@ -506,6 +537,49 @@ export default function Dashboard() {
         </Panel>
       </div>
 
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-slate-900">LinkedIn collection</p>
+            <p className="mt-1 text-xs text-slate-500">
+              {linkedinMessage || 'Fetch trainer profiles from LinkedIn. Saved leads stay on this dashboard.'}
+            </p>
+          </div>
+          <button type="button" onClick={fetchLinkedIn} disabled={fetchingLinkedIn} className="btn-primary text-sm disabled:opacity-50">
+            {fetchingLinkedIn ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+            Fetch LinkedIn
+          </button>
+        </div>
+        <div className="mt-4 grid grid-cols-1 gap-4">
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-sm font-semibold text-slate-800">Trainers</p>
+              <button type="button" onClick={() => navigate('/linkedin-pipeline')} className="text-xs font-bold text-blue-600">View all</button>
+            </div>
+            {loading ? (
+              <div className="skeleton h-16 w-full" />
+            ) : linkedinTrainers.length ? (
+              <div className="space-y-2">
+                {linkedinTrainers.slice(0, 4).map(item => (
+                  <button key={item.lead_id || item.source_url} type="button" onClick={() => navigate('/linkedin-pipeline')} className="dashboard-list-row w-full px-3 py-2.5 text-left">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate text-sm font-semibold text-slate-800">{item.name || item.trainer_name || 'Trainer profile'}</p>
+                      <span className="badge badge-slate text-[11px]">{item.domain || 'LinkedIn'}</span>
+                    </div>
+                    <p className="mt-1 truncate text-xs text-slate-400">
+                      {item.headline || item.summary || 'Trainer lead'}
+                      {item.created_at ? ` · ${formatDateTime(item.created_at)}` : ''}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-xl border border-dashed border-slate-200 px-3 py-6 text-center text-xs text-slate-400">No LinkedIn trainers yet.</p>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* ── Metrics row ────────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Panel title="Pipeline Pulse" eyebrow="Health metrics" badge="Current">
@@ -516,19 +590,18 @@ export default function Dashboard() {
             <PulseMetric label="Review load" value={reviewLoad} sub="Pending review share" color="bg-amber-500" />
           </div>
         </Panel>
-        <Panel title="Channel Health" eyebrow="Email + WhatsApp">
+        <Panel title="WhatsApp Health" eyebrow="Messaging">
           <div className="space-y-5">
-            <PulseMetric label="Email delivery" value={deliveryRate} sub={`${failedEmails.toLocaleString('en-IN')} failed emails`} />
             <PulseMetric label="WhatsApp health"
-              value={whatsappSent + whatsappFailed ? (whatsappSent / (whatsappSent + whatsappFailed)) * 100 : 100}
-              sub={`${whatsappFailed} failed, ${whatsappSkipped} skipped, ${whatsappReplies} replies`} color="bg-emerald-500" />
+              value={whatsappSent + whatsappFailed ? (whatsappSent / (whatsappSent + whatsappFailed)) * 100 : null}
+              sub={whatsappSent + whatsappFailed ? `${whatsappFailed} failed, ${whatsappSkipped} skipped, ${whatsappReplies} replies` : 'No delivery attempts yet'} color="bg-emerald-500" />
           </div>
         </Panel>
       </div>
 
       {/* ── Charts row ─────────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Panel title="Email Activity" badge="Last 7 days" className="lg:col-span-2">
+        <Panel title="Email Activity" badge="This week" className="lg:col-span-2">
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={activityData}>
               <defs>

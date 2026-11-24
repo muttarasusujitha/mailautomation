@@ -1,0 +1,159 @@
+{
+  "manual_toc_scenarios": [
+    {
+      "scenario": {
+        "domain": "Python",
+        "days": 5,
+        "level": "beginner",
+        "required_topics": [
+          "Python"
+        ]
+      },
+      "evaluation": {
+        "status": "pass",
+        "score": 100,
+        "issues": [],
+        "strengths": [
+          "Every module has a delivery sequence with participant activity and evidence",
+          "Every module has assessment evidence",
+          "Every module has a timed delivery plan"
+        ],
+        "module_count": 5,
+        "detailed_modules": 5,
+        "assessable_modules": 5,
+        "timed_modules": 5,
+        "ready_modules": 5,
+        "blocking_issues": [],
+        "technical_accuracy_verified": false,
+        "score_meaning": "Completeness of assessable delivery evidence, not technical accuracy"
+      }
+    },
+    {
+      "scenario": {
+        "domain": "DevOps",
+        "days": 5,
+        "level": "intermediate",
+        "required_topics": [
+          "DevOps"
+        ]
+      },
+      "evaluation": {
+        "status": "pass",
+        "score": 100,
+        "issues": [],
+        "strengths": [
+          "Every module has a delivery sequence with participant activity and evidence",
+          "Every module has assessment evidence",
+          "Every module has a timed delivery plan"
+        ],
+        "module_count": 5,
+        "detailed_modules": 5,
+        "assessable_modules": 5,
+        "timed_modules": 5,
+        "ready_modules": 5,
+        "blocking_issues": [],
+        "technical_accuracy_verified": false,
+        "score_meaning": "Completeness of assessable delivery evidence, not technical accuracy"
+      }
+    },
+    {
+      "scenario": {
+        "domain": "Power BI",
+        "days": 5,
+        "level": "beginner",
+        "required_topics": [
+          "Power BI"
+        ]
+      },
+      "evaluation": {
+        "status": "pass",
+        "score": 100,
+        "issues": [],
+        "strengths": [
+          "Every module has a delivery sequence with participant activity and evidence",
+          "Every module has assessment evidence",
+          "Every module has a timed delivery plan"
+        ],
+        "module_count": 5,
+        "detailed_modules": 5,
+        "assessable_modules": 5,
+        "timed_modules": 5,
+        "ready_modules": 5,
+        "blocking_issues": [],
+        "technical_accuracy_verified": false,
+        "score_meaning": "Completeness of assessable delivery evidence, not technical accuracy"
+      }
+    },
+    {
+      "scenario": {
+        "domain": "Agentic AI",
+        "days": 5,
+        "level": "intermediate",
+        "required_topics": [
+          "Agentic"
+        ]
+      },
+      "evaluation": {
+        "status": "pass",
+        "score": 100,
+        "issues": [],
+        "strengths": [
+          "Every module has a delivery sequence with participant activity and evidence",
+          "Every module has assessment evidence",
+          "Every module has a timed delivery plan"
+        ],
+        "module_count": 5,
+        "detailed_modules": 5,
+        "assessable_modules": 5,
+        "timed_modules": 5,
+        "ready_modules": 5,
+        "blocking_issues": [],
+        "technical_accuracy_verified": false,
+        "score_meaning": "Completeness of assessable delivery evidence, not technical accuracy"
+      }
+    },
+    {
+      "scenario": {
+        "domain": "Java",
+        "days": 5,
+        "level": "beginner",
+        "required_topics": [
+          "Java"
+        ]
+      },
+      "evaluation": {
+        "status": "pass",
+        "score": 100,
+        "issues": [],
+        "strengths": [
+          "Every module has a delivery sequence with participant activity and evidence",
+          "Every module has assessment evidence",
+          "Every module has a timed delivery plan"
+        ],
+        "module_count": 5,
+        "detailed_modules": 5,
+        "assessable_modules": 5,
+        "timed_modules": 5,
+        "ready_modules": 5,
+        "blocking_issues": [],
+        "technical_accuracy_verified": false,
+        "score_meaning": "Completeness of assessable delivery evidence, not technical accuracy"
+      }
+    }
+  ],
+  "dataset": {
+    "records": 3014,
+    "stages": {
+      "manually_authored_pending_lab_validation": 69,
+      "source_or_template": 2940,
+      "authored_pilot_pending_lab_validation": 5
+    },
+    "manually_authored_records": 74,
+    "technical_review_complete": false
+  },
+  "limitations": [
+    "This checks structure and evidence fields, not technical correctness of every claim.",
+    "Run generated labs with a subject-matter trainer before client delivery.",
+    "LLM evaluation requires a funded API and separate prompt/output tests."
+  ]
+}

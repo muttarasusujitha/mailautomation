@@ -34,7 +34,7 @@ def _relocate_formula(formula, source_sheet, offsets):
 
 
 def combine_lab_estimates(estimates):
-    """One worksheet: cloud totals and line items first, expandable evidence below.
+    """One worksheet: concise cloud plans first, expandable evidence below.
 
     Each input retains its own assumptions and rate card. AWS and Azure are
     shown separately, never silently added as though both clouds are required.
@@ -60,13 +60,21 @@ def combine_lab_estimates(estimates):
     sheet.merge_cells('A2:K2')
     blocks = []
     offsets = {provider: {} for provider, _ in loaded}
-    row = 4
-    # Keep only the quote and resource costs expanded. All supporting inputs
-    # remain editable on this same worksheet, with no cross-sheet references.
+    row = 5
+    # Show the concise plan when present; older workbooks retain their quote
+    # and resource-cost view. Supporting inputs remain editable below, with
+    # no cross-sheet references.
+    preferred_order = ('Lab Plan', 'Client Estimate', 'Resource Cost Breakdown', 'TOC Mapping',
+                       'Assumptions', 'Rate Card')
     for detail in (False, True):
         for provider, book in loaded:
-            for source in book:
-                is_detail = source.title not in {'Client Estimate', 'Resource Cost Breakdown'}
+            source_order = tuple(name for name in preferred_order if name in book.sheetnames) + tuple(
+                name for name in book.sheetnames if name not in preferred_order
+            )
+            for source_name in source_order:
+                source = book[source_name]
+                visible_sheets = {'Lab Plan'} if 'Lab Plan' in book.sheetnames else {'Client Estimate', 'Resource Cost Breakdown'}
+                is_detail = source.title not in visible_sheets
                 if is_detail != detail:
                     continue
                 offsets[provider][source.title] = row
@@ -85,6 +93,8 @@ def combine_lab_estimates(estimates):
                 if cell.data_type == 'f':
                     value = _relocate_formula(value, source.title, offsets[provider])
                 target = sheet.cell(cell.row + offset, cell.column, value)
+                if cell.data_type != 'f':
+                    target.data_type = cell.data_type
                 target.font = copy(cell.font)
                 target.fill = copy(cell.fill)
                 target.border = copy(cell.border)
@@ -99,15 +109,28 @@ def combine_lab_estimates(estimates):
             sheet.merge_cells(start_row=merged.min_row + offset, start_column=merged.min_col,
                               end_row=merged.max_row + offset, end_column=merged.max_col)
         for number in range(1, source.max_row + 1):
-            sheet.row_dimensions[number + offset].height = max(source.row_dimensions[number].height or 20, 30)
+            source_height = source.row_dimensions[number].height or 20
+            sheet.row_dimensions[number + offset].height = max(source_height, 20)
         if detail:
+            # The title must collapse with its technical section; a visible
+            # title above hidden rows reads as a large blank band to clients.
+            sheet.row_dimensions[offset].hidden = True
             sheet.row_dimensions.group(offset + 1, offset + source.max_row, hidden=True)
-    for column in 'ABCDEFGHIJK':
-        sheet.column_dimensions[column].width = 24
-    sheet.column_dimensions['A'].width = 45
-    sheet.column_dimensions['G'].width = 45
-    sheet.row_dimensions[2].height = 32
-    sheet.freeze_panes = 'B4'
+    widths = {'A': 34, 'B': 18, 'C': 16, 'D': 16, 'E': 18,
+              'F': 14, 'G': 38, 'H': 18, 'I': 14, 'J': 18, 'K': 12}
+    if any('Lab Plan' in book.sheetnames for _, book in loaded):
+        widths.update({'A': 19, 'B': 30, 'C': 46, 'D': 30, 'E': 22, 'F': 12, 'G': 25})
+    for column, width in widths.items():
+        sheet.column_dimensions[column].width = width
+    sheet.row_dimensions[1].height = 30
+    sheet.row_dimensions[2].height = 28
+    sheet.freeze_panes = 'A5'
+    sheet['A1'].font = Font(bold=True, color='FFFFFF', size=16)
+    sheet['A1'].fill = PatternFill('solid', fgColor='0F766E')
+    sheet['A1'].alignment = Alignment(vertical='center')
+    sheet['A2'].font = Font(italic=True, color='475569', size=10)
+    sheet['A2'].alignment = Alignment(vertical='center', wrap_text=True)
+    sheet.sheet_view.showGridLines = False
     sheet.sheet_properties.outlinePr.summaryBelow = False
     sheet.sheet_properties.pageSetUpPr.fitToPage = True
     sheet.page_setup.orientation = 'landscape'

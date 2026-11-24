@@ -1,0 +1,573 @@
+{
+  "domain": "CouchDB",
+  "name": "CouchDB",
+  "category": "Databases",
+  "icon": "database",
+  "aliases": ["Apache CouchDB", "CouchDB NoSQL", "CouchDB Database", "CouchDB Development", "CouchDB Administration", "Apache CouchDB 3", "CouchDB Replication"],
+  "certifications": [],
+  "tools": ["Apache CouchDB 3.x", "Fauxton", "curl", "jq", "Docker", "Docker Compose", "PouchDB", "couchbackup", "nginx", "HAProxy", "Prometheus", "Grafana", "Helm", "k6"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers and testers who know JSON and basic HTTP and are new to CouchDB. Covers running Apache CouchDB 3.x in Docker, the HTTP API with curl, databases and documents, revisions and 409 conflicts, bulk operations, key range queries, attachments, Mango queries and indexes, map and reduce views, document modelling, users and database security, configuration, backups, and a small registration data store capstone.",
+      "prerequisites": ["Reads and writes JSON and understands HTTP methods and status codes", "Uses a terminal and can run commands in a shell on Windows, macOS or Linux", "Has Docker Desktop or Docker Engine installed and can pull images"],
+      "outcomes": ["Run CouchDB 3.x and perform every CRUD operation with curl, handling revisions and 409 errors", "Query data with _all_docs ranges, Mango selectors with indexes and map-reduce views", "Model documents, secure users and databases and tune settings through ini files and the _config API", "Back up, restore and verify a small CouchDB application"],
+      "days": [
+        {
+          "topic": "Orientation: CouchDB, Docker Install and the Fauxton Tour",
+          "subtopics": ["What CouchDB is: a document database with an HTTP and JSON API", "Where CouchDB fits against MongoDB, PostgreSQL JSONB and Redis", "Apache CouchDB 3.x release line and the Apache 2.0 licence", "Running the couchdb:3 Docker image with COUCHDB_USER and COUCHDB_PASSWORD", "Why 3.x refuses anonymous admin access and needs an administrator account", "Ports: 5984 for the HTTP API and 4369 and 9100-9200 for Erlang clustering", "The welcome message from GET / and the version and vendor fields", "Touring Fauxton at /_utils: databases, documents, setup and configuration", "System databases _users, _replicator and _global_changes", "Reading container logs with docker logs and stopping cleanly"],
+          "tools": ["Docker", "curl", "Fauxton", "Apache CouchDB"],
+          "lab_task": "Run docker run -d --name couch -p 5984:5984 -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=password -v couchdata:/opt/couchdb/data couchdb:3. Call curl http://localhost:5984/ and record the version, then curl -u admin:password http://localhost:5984/_up. Open http://localhost:5984/_utils, log in and list the databases.",
+          "deliverable": "Environment note with the docker run command, the welcome JSON and a Fauxton screenshot of the database list",
+          "checks": [["Run curl http://localhost:5984/", "JSON containing \"couchdb\":\"Welcome\" and a 3.x version string", "Terminal output"], ["Run curl -u admin:password http://localhost:5984/_up", "Returns {\"status\":\"ok\"} with HTTP 200", "Terminal output"], ["Run curl http://localhost:5984/_all_dbs without credentials", "HTTP 401 with error unauthorized because admin_only_all_dbs is true by default in 3.x", "curl -i output"]],
+          "objectives": ["Start a CouchDB 3.x container with an administrator account", "Call the root endpoint and the _up endpoint", "Navigate Fauxton to find databases and configuration"]
+        },
+        {
+          "topic": "HTTP and JSON Conventions of the CouchDB API",
+          "subtopics": ["REST mapping: PUT creates at a known URL, POST creates with a server id, DELETE removes", "Request headers Accept and Content-Type: application/json", "Response headers: ETag, Server, X-Couch-Request-ID and Cache-Control", "Status codes 200, 201, 202, 304, 400, 401, 403, 404, 409, 412 and 415", "The error and reason envelope in every failed response", "Pretty printing with ?pretty and jq in a shell pipeline", "Basic authentication with -u and the URL userinfo form", "Using curl -i, -v and -w to see status lines and timing", "Query-string values that must be JSON: key, startkey and keys", "Saving reusable shell variables for COUCH_URL and credentials"],
+          "tools": ["curl", "jq", "Fauxton", "Postman"],
+          "lab_task": "Using curl -i, send three requests: GET /_all_dbs, POST /_all_dbs and POST /testdb with -H 'Content-Type: text/plain' and a JSON body. Record each status code and the error and reason fields. Set COUCH_URL=http://admin:password@localhost:5984 and pipe responses through jq to build a table of status, error and reason.",
+          "deliverable": "Table of at least six requests with status code, error, reason and the curl command that produced each",
+          "checks": [["POST a JSON body to /testdb with Content-Type: text/plain", "HTTP 415 with error bad_content_type", "curl -i output"], ["Send POST /_all_dbs", "HTTP 405 with error method_not_allowed and an Allow header", "curl -i output"], ["GET /nodb", "HTTP 404 with error not_found and reason Database does not exist.", "Response body"]],
+          "objectives": ["Map CouchDB resources to HTTP verbs and status codes", "Read the error and reason envelope to diagnose a failed call", "Script repeatable calls with curl and jq"]
+        },
+        {
+          "topic": "Creating, Listing and Deleting Databases",
+          "subtopics": ["PUT /{db} and the 201 {\"ok\":true} response", "Database naming rules: lowercase letters, digits and _ $ ( ) + - /", "412 file_exists when creating a database that already exists", "400 illegal_database_name for invalid names", "GET /{db} fields: doc_count, doc_del_count, update_seq and sizes", "GET /_all_dbs with startkey, endkey, limit and descending", "POST /_dbs_info with a keys array for several databases at once", "Creating with ?q= and ?n= and what shards mean on one node", "DELETE /{db} and the irreversible loss of data", "HEAD /{db} as a cheap existence check"],
+          "tools": ["curl", "jq", "Fauxton", "Apache CouchDB"],
+          "lab_task": "Create databases library, library_test and Library with PUT, noting which succeeds. Repeat PUT /library to see the 412. Run GET /library, POST /_dbs_info with {\"keys\":[\"library\",\"library_test\"]} and PUT /shardtest?q=4. Delete library_test and confirm with HEAD that it returns 404. Save every response.",
+          "deliverable": "Log of database lifecycle calls with the status code and key response fields for each",
+          "checks": [["PUT /Library (uppercase L)", "HTTP 400 with error illegal_database_name", "curl -i output"], ["PUT /library a second time", "HTTP 412 with error file_exists", "Response body"], ["PUT /shardtest?q=4 then GET /shardtest/_shards", "The shard map lists 4 ranges such as 00000000-3fffffff", "JSON output"]],
+          "objectives": ["Create, inspect and delete databases over HTTP", "Explain naming rules and the 400 and 412 errors", "Read database info fields and the shard range count"]
+        },
+        {
+          "topic": "Creating Documents with PUT, POST and Server UUIDs",
+          "subtopics": ["Document anatomy: _id, _rev and user fields", "PUT /{db}/{docid} when the client chooses the id", "POST /{db} when CouchDB generates the id", "GET /_uuids?count=5 and the [uuids] algorithm setting", "Sequential, utc_random, random and utc_id algorithms", "Response fields: ok, id and rev, and the Location header", "Reserved ids: names starting with an underscore are rejected", "_design/ and _local/ prefixes and what they mean", "Supported JSON types and the 8 MB max_document_size default", "Unicode, dates as ISO 8601 strings and numeric precision in JSON"],
+          "tools": ["curl", "jq", "Fauxton", "Apache CouchDB"],
+          "lab_task": "In the library database, PUT /library/book:9780441172719 with title, author, year and tags fields. POST two more books and note the generated ids. Run GET /_uuids?count=3. Then PUT /library/_mydoc to trigger the reserved-id error. Record the rev prefix of each new document, which must start with 1-.",
+          "deliverable": "Three book documents with their ids and revisions, plus the captured reserved-id error",
+          "checks": [["PUT /library/book:9780441172719 with a JSON body", "HTTP 201 and a rev beginning 1-", "curl -i output"], ["PUT /library/_mydoc", "HTTP 400 with reason Only reserved document ids may start with underscore", "Response body"], ["GET /_uuids?count=3", "Exactly 3 uuid strings of 32 hex characters", "jq output"]],
+          "objectives": ["Create documents using PUT and POST", "Explain how ids and uuids are generated", "Recognise reserved id errors"]
+        },
+        {
+          "topic": "Reading Documents and Query Parameters",
+          "subtopics": ["GET /{db}/{docid} and the document body", "?rev= to fetch a specific revision", "?revs_info=true and ?revs=true for revision history", "?conflicts=true and the _conflicts array", "?attachments=true and ?att_encoding_info=true", "ETag and If-None-Match returning 304 Not Modified", "404 with reason missing versus deleted", "?open_revs=all and ?latest=true", "Fetching only a field with jq because CouchDB has no field projection on GET", "Cost of reads: single document lookups versus view queries"],
+          "tools": ["curl", "jq", "Fauxton", "Apache CouchDB"],
+          "lab_task": "GET /library/book:9780441172719 and save the ETag header with curl -i. Repeat with -H 'If-None-Match: \"<rev>\"' and record the status. Fetch with ?revs_info=true and ?revs=true, then request a missing id and a revision that does not exist. Compare the reason strings for each of the failures.",
+          "deliverable": "Annotated transcript of six GET variants with status codes and the meaning of each response field",
+          "checks": [["GET the document with If-None-Match set to the current ETag", "HTTP 304 with no body", "curl -i output"], ["GET /library/nosuchbook", "HTTP 404 with reason missing", "Response body"], ["GET ?revs_info=true after one update", "_revs_info lists 2 revisions with status available", "JSON output"]],
+          "objectives": ["Read documents by id with revision parameters", "Use ETag and conditional requests", "Interpret 404 reasons"]
+        },
+        {
+          "topic": "Updating Documents and MVCC Revisions",
+          "subtopics": ["Update means PUT with the latest _rev", "Revision format: generation number and hash such as 2-9a8f...", "409 conflict when the supplied _rev is stale or missing", "Multi-version concurrency control versus locks", "Read-modify-write loops with retry on 409", "Why revisions are for replication and not a history feature", "If-Match header as an alternative to _rev in the body", "Partial updates are not supported: the whole document is replaced", "Update handlers are deprecated, so do the update in the client", "Counting revisions with GET /{db}/{id}?revs=true"],
+          "tools": ["curl", "jq", "Fauxton", "Python"],
+          "lab_task": "Update book:9780441172719 by adding a stock field using its current _rev, then run the same PUT again to trigger a 409. Write a short script that reads, changes and retries on 409 up to 5 times. Start two copies in parallel against one document and show the final revision generation equals the number of successful writes.",
+          "deliverable": "Update script with retry logic and a run log showing the 409 and the final revision number",
+          "checks": [["PUT with an outdated _rev", "HTTP 409 with reason Document update conflict.", "curl -i output"], ["PUT without _rev on an existing id", "HTTP 409 with error conflict", "Response body"], ["Run 2 parallel scripts of 10 increments each", "The final counter equals 20 and the rev generation is at least 21", "Script log and GET output"]],
+          "objectives": ["Update documents safely using revisions", "Explain MVCC and the cause of 409 errors", "Implement a retry loop"]
+        },
+        {
+          "topic": "Deleting Documents, Tombstones and Revision Limits",
+          "subtopics": ["DELETE /{db}/{id}?rev= and the resulting _deleted revision", "A tombstone is a small document with _deleted true", "Recreating a deleted id: needs the tombstone rev or none", "Deleting by PUT with _deleted true and extra fields kept for replication", "404 reason deleted when reading a tombstone", "Tombstones appear in _changes and replicate to other nodes", "_revs_limit default of 1000 and PUT /{db}/_revs_limit", "Compaction removes old revision bodies but keeps tombstones", "When to purge: /_purge is for compliance, not routine deletion", "Counting with doc_count and doc_del_count"],
+          "tools": ["curl", "jq", "Fauxton", "Apache CouchDB"],
+          "lab_task": "Delete a book with DELETE ?rev= and record GET /library doc_count and doc_del_count before and after. GET the id and capture the 404 reason. Write the deleted document back with PUT using a new body, then see its rev generation. Read /library/_changes?since=0 and find the entry with deleted true.",
+          "deliverable": "Notes with before-and-after database counts, the 404 reason and the _changes entry for the tombstone",
+          "checks": [["DELETE with the correct rev", "HTTP 200 and doc_del_count increases by 1", "GET /library output"], ["GET the deleted id", "HTTP 404 with reason deleted", "Response body"], ["GET /library/_changes?since=0", "An entry for the id shows \"deleted\":true", "JSON output"]],
+          "objectives": ["Delete documents correctly and explain tombstones", "Recreate a deleted document", "Distinguish deletion from purge"]
+        },
+        {
+          "topic": "Bulk Reads and Writes with _all_docs and _bulk_docs",
+          "subtopics": ["POST /{db}/_bulk_docs with a docs array", "Per-document results: ok, id, rev or error and reason", "Mixed success: a bulk call can return 201 with some conflicts", "Updating and deleting inside _bulk_docs with _rev and _deleted", "new_edits false as used by replication", "POST /{db}/_bulk_get for many ids and revisions", "GET /{db}/_all_docs with include_docs=true", "POST /{db}/_all_docs with a keys array", "Batch sizing: hundreds to a few thousand documents per request", "Measuring bulk versus single-write throughput"],
+          "tools": ["curl", "jq", "Python", "Apache CouchDB"],
+          "lab_task": "Generate 5,000 book documents with a script and load them first with 5,000 single PUTs, then into a fresh database with _bulk_docs in batches of 500. Time both with the time command. Include one document with a stale _rev in a batch and show its conflict result.",
+          "deliverable": "Load script, timing comparison and the per-document result of a conflicting bulk write",
+          "checks": [["POST 500 new documents to _bulk_docs", "Response has 500 entries each with ok true", "jq length output"], ["Include one document with a stale _rev", "Its entry has error conflict while the others succeed", "Response JSON"], ["Time 5,000 single PUTs versus 10 bulk calls", "Bulk loading finishes in a fraction of the single-write time", "time output"]],
+          "objectives": ["Load data with _bulk_docs", "Interpret per-document bulk results", "Measure batching gains"]
+        },
+        {
+          "topic": "Range Queries on _all_docs and Key Design",
+          "subtopics": ["Ids are sorted by CouchDB collation, not insertion order", "startkey and endkey with JSON-encoded strings", "Prefix queries using endkey of prefix plus \\ufff0", "inclusive_end=false and descending=true swapping start and end", "limit, skip and why large skip values are slow", "Pagination with startkey_docid or the last key plus one", "Designing ids such as book:isbn or order:2026-03-14:0042", "Time-ordered ids and the sequential uuid algorithm", "Hot spots from monotonic ids in a cluster", "Counting rows with total_rows and offset"],
+          "tools": ["curl", "jq", "Fauxton", "Python"],
+          "lab_task": "In the 5,000-book database use ids like book:0001 to book:5000. Query all ids with prefix book:01 using startkey=\"book:01\" and endkey=\"book:01\\ufff0\", then page through the whole database 100 rows at a time with a startkey approach and confirm all 5,000 ids were seen exactly once. Compare a skip=4900 call to a startkey call.",
+          "deliverable": "Pagination script with proof that 5,000 ids were visited once, plus a prefix query example",
+          "checks": [["Prefix query for ids starting book:01", "Exactly 100 rows (book:0100 to book:0199) are returned", "jq length output"], ["Page 100 rows at a time with startkey", "50 pages visit 5,000 unique ids with no duplicates", "Script output"], ["Query with descending=true and limit=3", "The 3 highest ids are returned in reverse order", "Response JSON"]],
+          "objectives": ["Run range and prefix queries on ids", "Paginate without skip", "Design ids for range access"]
+        },
+        {
+          "topic": "Attachments: Inline and Standalone Binary Data",
+          "subtopics": ["PUT /{db}/{id}/{name}?rev= with a Content-Type", "Inline base64 attachments in _attachments", "Attachment stubs: content_type, length, digest and revpos", "GET /{db}/{id}/{name} and HTTP range requests", "Each attachment change creates a new document revision", "Compression of text attachments with gzip encoding info", "max_attachment_size and max_http_request_size limits", "When to store files outside CouchDB, such as S3, with a URL field", "Multipart/related retrieval with ?attachments=true", "Deleting an attachment with DELETE ?rev="],
+          "tools": ["curl", "Fauxton", "jq", "Apache CouchDB"],
+          "lab_task": "Attach cover.png to book:0001 with curl -X PUT --data-binary @cover.png -H 'Content-Type: image/png' \"$COUCH_URL/library/book:0001/cover.png?rev=...\". Fetch it back, compare sha256sum with the original, read the _attachments stub, then delete the attachment and note how many revisions the document has.",
+          "deliverable": "Attachment round-trip log with matching checksums and the document revision count",
+          "checks": [["Download the stored cover.png and run sha256sum", "The checksum equals the original file checksum", "Terminal output"], ["GET the document without attachments=true", "_attachments shows a stub with \"stub\":true and the correct length", "JSON output"], ["Delete the attachment with the latest rev", "A new rev is returned and _attachments no longer contains cover.png", "Response JSON"]],
+          "objectives": ["Store and retrieve attachments", "Read attachment stubs and digests", "Decide when files belong outside the database"]
+        },
+        {
+          "topic": "Mango Selectors: Querying with _find",
+          "subtopics": ["POST /{db}/_find with a selector object", "Implicit $eq and field equality such as {\"year\":1965}", "Comparison operators $gt, $gte, $lt, $lte and $ne", "Combining conditions with $and, $or and $not", "Nested fields with dot notation such as author.name", "The default limit of 25 and how to raise it", "The docs array in the response and the warning field", "Warning: No matching index found, create an index to optimize query time", "Why Mango without an index scans _all_docs", "Comparing Mango to SQL WHERE clauses"],
+          "tools": ["curl", "Fauxton", "jq", "Apache CouchDB"],
+          "lab_task": "In the 5,000-book database, POST to /library/_find with selector {\"year\":{\"$gte\":1990,\"$lt\":2000},\"genre\":\"scifi\"} and limit 10. Record the number of documents and the warning text. Repeat with an $or over two genres and with a nested author.country condition. Count results with jq and compare to a count made locally from the source data.",
+          "deliverable": "Three saved _find requests with result counts that match local counts and the index warning",
+          "checks": [["_find with year between 1990 and 1999 and genre scifi", "Count equals the locally computed count for the same data set", "jq count and local script output"], ["_find with no limit on a database with 5,000 matches", "Only 25 documents are returned", "jq length output"], ["_find before any index exists", "Response includes a warning saying no matching index was found", "Response JSON"]],
+          "objectives": ["Write Mango selectors with comparison and logical operators", "Explain the default limit", "Recognise the missing-index warning"]
+        },
+        {
+          "topic": "Mango Operators, Projection, Sorting and Bookmarks",
+          "subtopics": ["$in and $nin for membership tests", "$exists and $type for schema checks", "$regex and why it cannot use an index range", "$all, $elemMatch and $size for arrays", "fields to project only needed properties", "sort with an index that covers the sort fields", "no_usable_index error for sorts without an index", "limit and skip versus bookmark pagination", "The bookmark string returned with each page", "Selector type mistakes: string 1990 versus number 1990"],
+          "tools": ["curl", "jq", "Fauxton", "Python"],
+          "lab_task": "Run _find queries using $in on genre, $elemMatch on a reviews array, $regex on title and fields [\"title\",\"year\"]. Add sort [{\"year\":\"desc\"}] without an index to capture the error. Then page through all scifi books 50 at a time using the bookmark from each response and check the total equals the count from a single large query.",
+          "deliverable": "Query cookbook with five operator examples, the sort error and a bookmark paging script with its total count",
+          "checks": [["_find with sort on year and no index", "HTTP 400 with error no_usable_index", "Response body"], ["Request fields [\"title\",\"year\"]", "Every returned document has only title and year keys plus nothing else", "jq keys output"], ["Page 50 at a time using bookmark", "The sum of all pages equals the total from one query with a large limit", "Script output"]],
+          "objectives": ["Use richer Mango operators", "Project and sort results", "Paginate with bookmarks"]
+        },
+        {
+          "topic": "Mango JSON Indexes and execution_stats",
+          "subtopics": ["POST /{db}/_index with index.fields, name and ddoc", "Response result created or exists and the index id", "Index fields order and compound indexes", "Index documents are design documents of type json", "GET /{db}/_index to list indexes", "execution_stats: true and total_docs_examined", "total_keys_examined, results_returned and execution_time_ms", "use_index to pin an index", "POST /{db}/_explain to see the chosen index and range", "DELETE /{db}/_index/{ddoc}/json/{name}"],
+          "tools": ["curl", "jq", "Fauxton", "Apache CouchDB"],
+          "lab_task": "Run the genre and year _find with execution_stats true and record total_docs_examined. Create an index with POST /library/_index {\"index\":{\"fields\":[\"genre\",\"year\"]},\"name\":\"genre-year\",\"type\":\"json\"}. Re-run the query and call _explain. Record the drop in docs examined and the removal of the warning.",
+          "deliverable": "Before-and-after execution_stats table and the _explain output naming the index",
+          "checks": [["Run the query before indexing with execution_stats", "total_docs_examined is 5000", "Response JSON"], ["Create the genre-year index and re-run", "total_docs_examined equals results_returned and the warning is gone", "Response JSON"], ["POST _explain for the same selector", "The index name is genre-year and its ddoc matches", "Explain output"]],
+          "objectives": ["Create Mango indexes", "Measure query cost with execution_stats", "Read _explain output"]
+        },
+        {
+          "topic": "Map Functions and Your First Views",
+          "subtopics": ["Design documents: _design/{name} with a views object", "Writing a map function with emit(key, value)", "JavaScript query server and the 3.x runtime", "Querying GET /_design/{d}/_view/{v}", "Row structure: id, key and value", "key, keys, startkey, endkey, limit and include_docs", "Views are built on first query and updated incrementally", "View collation order: null, booleans, numbers, strings, arrays, objects", "Errors in a map function and the reason in the logs", "Emitting arrays as compound keys"],
+          "tools": ["Fauxton", "curl", "jq", "Apache CouchDB"],
+          "lab_task": "Create _design/books with a view by_author whose map is function(doc){ if(doc.type==='book' && doc.author){ emit(doc.author, doc.title); } }. Query it with key=\"Frank Herbert\" and with startkey/endkey. Add a by_year view that emits [doc.genre, doc.year] and query genre scifi years 1980 to 1989 using array keys.",
+          "deliverable": "Design document JSON and four saved view queries with row counts",
+          "checks": [["Query by_author with key=\"Frank Herbert\"", "Rows are returned for that author only and row count matches the source data", "jq length output"], ["Query by_year with startkey [\"scifi\",1980] and endkey [\"scifi\",1989]", "Only scifi books from 1980 to 1989 are listed in key order", "Response JSON"], ["Query with include_docs=true and limit=2", "Each of 2 rows contains a doc object with _id and _rev", "Response JSON"]],
+          "objectives": ["Write map functions and design documents", "Query views with key ranges", "Explain collation and incremental indexing"]
+        },
+        {
+          "topic": "Reduce Functions, Grouping and Built-in Reducers",
+          "subtopics": ["Adding a reduce function to a view", "Built-in _count, _sum and _stats for speed", "_approx_count_distinct for large key sets", "group=true and group_level for array keys", "reduce=false to see the underlying rows", "Reduce on the full range with no key", "Rereduce concept: reduce of reduce output", "Why custom JavaScript reduces are slower than built-ins", "reduce_overflow_error when reduce output grows too fast", "Using group_level with date keys like [year,month,day]"],
+          "tools": ["Fauxton", "curl", "jq", "Apache CouchDB"],
+          "lab_task": "Add a view sales_by_day to _design/reports emitting [y, m, d] with doc.total from 2,000 order documents and reduce _stats. Query group_level=1, 2 and 3 and reduce=false. Verify the grand total from group=false equals the sum computed with jq over all rows, and record the sum, count, min and max.",
+          "deliverable": "View definition and three grouped queries with reconciled totals",
+          "checks": [["Query sales_by_day with group_level=1", "One row per year with sum matching the manual total for that year", "jq output"], ["Query with no group parameters", "A single row with sum, count, min, max and sumsqr", "Response JSON"], ["Query with reduce=false and limit=5", "5 map rows with ids and individual totals", "Response JSON"]],
+          "objectives": ["Write views with built-in reduces", "Use group and group_level", "Reconcile reduce output with source data"]
+        },
+        {
+          "topic": "Document Modelling Patterns: Embedding versus Referencing",
+          "subtopics": ["Document per entity versus one big document", "Embedding addresses and line items that change together", "Referencing with ids when data is shared or grows without bound", "A type field and id prefixes to separate entity kinds", "Denormalising names for read speed and the cost of updates", "Join-like views using emit([order_id, 0]) and emit([order_id, 1])", "include_docs and linked documents with {\"_id\": other_id}", "Avoiding unbounded arrays and 8 MB document limits", "Immutable event documents versus mutable state", "Schema evolution with a schema_version field"],
+          "tools": ["Fauxton", "curl", "jq", "Apache CouchDB"],
+          "lab_task": "Model customers, orders and order lines in the shop database. Store order lines embedded in the order and customers as separate documents referenced by customer_id. Create a view that emits [doc.customer_id, 0] for customers and [doc.customer_id, 1] for orders, then query one customer with startkey [id] and endkey [id, {}] to get the customer and all orders in one call.",
+          "deliverable": "Model diagram, sample documents and the join view with a single-call query result",
+          "checks": [["Query the join view for customer c100 with 12 orders", "13 rows: 1 customer row followed by 12 order rows", "jq length output"], ["PUT an order document of about 9 MB with a huge items array", "HTTP 413 with error document_too_large because max_document_size is 8000000 bytes", "curl -i output"], ["Query by type prefix with startkey order: and endkey order:\\ufff0", "Only order documents are returned", "Response JSON"]],
+          "objectives": ["Choose between embedding and referencing", "Build join-like views", "Plan for document size limits"]
+        },
+        {
+          "topic": "Users, Administrators and Database Permissions",
+          "subtopics": ["Server administrators in the [admins] section and hashed passwords", "Creating users in _users with org.couchdb.user:name ids", "User document fields: name, type user, roles and password", "PBKDF2 hashing of the password on write", "Per-database _security with admins and members", "names and roles lists and what an empty members list means", "Roles such as _admin and custom roles for applications", "POST /_session for cookie login and GET /_session for the current user", "admin_only_all_dbs and require_valid_user", "Testing access as admin, member and anonymous"],
+          "tools": ["curl", "Fauxton", "jq", "Apache CouchDB"],
+          "lab_task": "Create users alice and bob in _users with PUT /_users/org.couchdb.user:alice. Set /library/_security to make alice a member and leave bob out. Log in with POST /_session as alice and read /library/_all_docs with the cookie. Try bob and anonymous reads and a write by alice to a design document, noting each status code.",
+          "deliverable": "Access matrix showing admin, alice, bob and anonymous results for read, write and design document writes",
+          "checks": [["alice reads /library/_all_docs with her cookie", "HTTP 200 with rows", "curl -i output"], ["bob reads the same database", "HTTP 403 with error forbidden and reason You are not allowed to access this db.", "curl -i output"], ["alice PUTs a design document", "HTTP 403 because only admins may write design documents", "curl -i output"]],
+          "objectives": ["Create users and set database security", "Use cookie authentication", "Explain the difference between server and database admins"]
+        },
+        {
+          "topic": "Configuration with local.ini and the _config API",
+          "subtopics": ["Config layers: default.ini, local.ini and local.d/*.ini", "Where files live in Docker: /opt/couchdb/etc/local.d", "GET /_node/_local/_config to read live settings", "PUT /_node/_local/_config/{section}/{key} with a JSON string value", "Persisting changes: the API writes to the last ini file", "Key sections: chttpd, couchdb, httpd, log, couch_httpd_auth and cluster", "bind_address, port and max_document_size", "single_node = true and the [cluster] q and n values", "Log level changes without restart", "Mounting a custom ini file into the container"],
+          "tools": ["curl", "Docker", "Fauxton", "jq"],
+          "lab_task": "Mount a local file ./local.d/10-custom.ini with [chttpd] max_http_request_size and [log] level = debug into the container. Read /_node/_local/_config/log/level with curl. Change it to info using PUT with the body \"info\". Check the container ini file, restart the container and confirm the value persisted. Capture the previous value from the PUT response.",
+          "deliverable": "Custom ini file, config API transcript and proof the value survived a restart",
+          "checks": [["GET /_node/_local/_config/log/level after mounting the ini", "Returns \"debug\"", "curl output"], ["PUT the body \"info\" to the same URL", "Returns the old value \"debug\" with HTTP 200", "curl output"], ["Restart the container and read the key again", "Returns \"info\" showing the change persisted", "curl output"]],
+          "objectives": ["Read and change configuration safely", "Use ini files in containers", "Describe how config layers combine"]
+        },
+        {
+          "topic": "Exporting, Importing and Simple Backups",
+          "subtopics": ["What the .couch files in data/ are and why copying a live file is risky", "Backup through the API with _all_docs and include_docs", "couchbackup and couchrestore from the Cloudant tools", "Backup of design documents, _security and _local documents", "Restoring to a new database and verifying counts", "Snapshots of a Docker volume with the container stopped", "Replication as a copy to a second CouchDB", "Backup schedules, retention and encryption at rest", "Verifying restores with doc_count and a checksum of ids", "Documenting RPO and RTO for the library database"],
+          "tools": ["couchbackup", "curl", "Docker", "jq"],
+          "lab_task": "Back up the library database with npx @cloudant/couchbackup --db library --url $COUCH_URL > library.txt. Restore into library_restored using couchrestore. Compare doc_count of both databases, the sorted list of ids with sha256sum, and copy _security across by hand. Delete one document in the source first and show the restored copy is a point-in-time image.",
+          "deliverable": "Backup file, restore transcript and a comparison of document counts and id checksums",
+          "checks": [["Compare GET /library and GET /library_restored", "doc_count values are equal", "jq output"], ["Hash the sorted id lists of both databases", "Both sha256sum values are identical", "Terminal output"], ["GET /library_restored/_security", "Returns {} until the library security object is copied across", "Response JSON"]],
+          "objectives": ["Take and restore a logical backup", "Verify a restore objectively", "State what backup tools do not copy automatically"]
+        },
+        {
+          "topic": "Beginner Capstone: Event Registration Data Store",
+          "subtopics": ["Requirements and entity list for events, attendees and registrations", "Document model and id scheme with type prefixes", "Mango indexes and views for attendees by event and daily totals", "Users and _security for organisers and attendees", "Scripted load of 2,000 registrations with _bulk_docs", "Backup, restore test and a short runbook"],
+          "tools": ["curl", "Docker", "couchbackup", "jq", "Fauxton"],
+          "lab_task": "Build the registrations database in Docker. Load 50 events and 2,000 registrations with _bulk_docs, create a Mango index on [event_id, status] and a view of confirmed counts per event with _count. Secure it with an organisers role, back it up with couchbackup and prove a restore returns 2,000 registrations plus 50 events.",
+          "deliverable": "Docker command, data loader script, design documents, security document, backup file and a one-page runbook",
+          "checks": [["Query confirmed registrations for one event with execution_stats", "total_docs_examined equals results_returned using the index", "Response JSON"], ["Query the confirmed count view for all events", "Total of all per-event counts equals the number of confirmed registrations in the source data", "jq sum output"], ["Restore the backup into a new database", "Document count equals 2,050 and an anonymous read returns 401", "jq and curl output"]],
+          "objectives": ["Design and secure a small CouchDB application", "Combine queries, views and bulk loading", "Back up and restore with verification"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built basic CouchDB applications and now need synchronisation and production-ready design. Covers the changes feed and its filters, one-shot and continuous replication, the replicator scheduler, revision trees and conflict handling, view lifecycle and tuning, partitioned databases, index selection, validation functions, JWT and other authentication, TLS and CORS, client libraries, PouchDB offline sync, compaction, and an offline-first capstone.",
+      "prerequisites": ["Completes the beginner level or can create documents, Mango indexes and views with curl", "Reads Python or JavaScript well enough to write short scripts", "Can run several Docker containers with a compose file"],
+      "outcomes": ["Build reliable replication and changes-feed consumers that resume after failure", "Detect, resolve and design away document conflicts", "Tune views, Mango indexes and partitions, and protect data with validation, JWT, TLS and CORS", "Deliver an offline-first application synchronised with CouchDB through PouchDB"],
+      "days": [
+        {
+          "topic": "The Changes Feed: Normal, Longpoll and Continuous Modes",
+          "subtopics": ["GET /{db}/_changes and the results and last_seq fields", "Sequence values as opaque strings in a cluster", "feed=normal, longpoll, continuous and eventsource", "since=0, since=now and resuming from a stored last_seq", "include_docs, limit, descending and style=all_docs", "heartbeat and timeout parameters for idle connections", "Reverse proxies that buffer long-lived responses", "Changes order guarantees: at-least-once, not strict global order", "seq_interval to reduce sequence computation cost", "Writing a consumer that checkpoints last_seq"],
+          "tools": ["curl", "Python", "jq", "Apache CouchDB"],
+          "lab_task": "Open curl -N \"$COUCH_URL/orders/_changes?feed=continuous&include_docs=true&heartbeat=10000&since=now\" in one terminal. In a second terminal insert 5 documents, update one and delete one. Count the lines received. Then write a Python consumer that stores last_seq in a file, is killed after 3 events and resumes without missing or duplicating a change.",
+          "deliverable": "Terminal capture of the continuous feed and a resumable consumer script with its test log",
+          "checks": [["Insert 5 documents, update 1 and delete 1 while following continuous", "7 change lines arrive and the delete line has \"deleted\":true", "Terminal capture"], ["Run with heartbeat=10000 and no writes for 30 seconds", "Blank heartbeat lines arrive about every 10 seconds", "Terminal capture"], ["Kill the consumer after 3 events and restart it", "It resumes from stored last_seq and the final processed count matches the total changes", "Consumer log"]],
+          "objectives": ["Consume the changes feed in each mode", "Checkpoint and resume from a sequence", "Handle idle connections and proxies"]
+        },
+        {
+          "topic": "Filtering the Changes Feed: doc_ids, Selectors and Views",
+          "subtopics": ["filter=_doc_ids with a doc_ids body", "filter=_selector with a Mango selector in the POST body", "filter=_design to see only design document changes", "filter=_view with view=ddoc/viewname", "Custom JavaScript filter functions and their cost", "Why filters run on every change and what that costs", "Combining include_docs with filters", "Per-user feeds using a selector on an owner field", "Comparing the feed filtered by selector with a view query", "Feeding a message queue from filtered changes"],
+          "tools": ["curl", "jq", "Fauxton", "Python"],
+          "lab_task": "Insert 1,000 orders with status new, paid or shipped. Follow _changes with POST filter=_selector and body {\"selector\":{\"status\":\"paid\"}} from since=0 and count the rows. Compare to _doc_ids with 3 ids, _design and a filter=_view call. Time the _selector feed against an unfiltered feed using time on 1,000 changes.",
+          "deliverable": "Four filtered feed calls with row counts and a timing comparison table",
+          "checks": [["_changes?filter=_selector with status paid", "Row count equals the number of paid orders in the source data", "jq length output"], ["_changes?filter=_doc_ids with 3 ids", "Exactly 3 results with those ids", "Response JSON"], ["_changes?filter=_design", "Only ids beginning _design/ appear", "jq output"]],
+          "objectives": ["Apply built-in changes filters", "Choose between filters and views", "Build a selector-driven feed"]
+        },
+        {
+          "topic": "Replication: One-Shot and Continuous with _replicate",
+          "subtopics": ["POST /_replicate with source and target", "Pull, push and bi-directional replication", "create_target and why it is for tests", "continuous true and cancel true", "The response: history, session_id, missing_checked and docs_written", "Replication as a read of _changes and writes with _bulk_docs", "Checkpoints stored in _local documents", "Remote sources with URL credentials or an auth object", "Running two containers on a Docker network for replication", "Replicating design documents and security separately"],
+          "tools": ["curl", "Docker", "jq", "Fauxton"],
+          "lab_task": "Start couch1 and couch2 on one Docker network. Load 2,000 documents into library on couch1. POST /_replicate on couch1 with source library and target http://admin:password@couch2:5984/library_copy with create_target true. Verify doc_count on couch2, update 10 documents, replicate again and read docs_written from the response.",
+          "deliverable": "Two-container compose file, replication request and a comparison of both databases",
+          "checks": [["Run the first replication", "Response ok true and target doc_count is 2000", "curl and jq output"], ["Update 10 documents and replicate again", "docs_written is 10", "Replication response"], ["Compare design documents on both sides", "Design documents are present on target because they replicate as documents but _security is not copied", "GET _security output on both"]],
+          "objectives": ["Run one-shot and continuous replication", "Read replication results and history", "Explain what replication copies"]
+        },
+        {
+          "topic": "The _replicator Database and the Replication Scheduler",
+          "subtopics": ["Replication documents in _replicator with source, target and continuous", "Why persistent replications survive restarts", "_replication_state fields: triggered, completed, error and failed", "GET /_scheduler/jobs and /_scheduler/docs", "Fields: state, info, error_count and last_updated", "Scheduler settings: max_jobs, interval and max_churn", "Retries with exponential backoff and crashing state", "worker_processes, worker_batch_size and http_connections", "Authentication in source and target: auth.basic and headers", "Deleting a replication document to cancel the job"],
+          "tools": ["curl", "jq", "Fauxton", "Docker"],
+          "lab_task": "PUT /_replicator/lib-sync with continuous true from library on couch1 to library_copy on couch2. Check GET /_scheduler/docs/_replicator/lib-sync. Stop couch2, write 5 documents on couch1, read the state and error_count, start couch2 again and confirm the 5 documents arrive without any manual action.",
+          "deliverable": "Replication document, scheduler outputs during outage and recovery, and a timeline",
+          "checks": [["GET /_scheduler/docs/_replicator/lib-sync while running", "state is running", "jq output"], ["Stop couch2 and read the scheduler document after 2 minutes", "state is crashing or pending with error_count above 0", "jq output"], ["Start couch2 again and wait", "The 5 new documents appear and state returns to running", "doc_count on couch2"]],
+          "objectives": ["Create persistent replications", "Monitor jobs through the scheduler API", "Tune scheduler settings for many jobs"]
+        },
+        {
+          "topic": "Filtered and Selective Replication",
+          "subtopics": ["Replicating with a selector in the replication document", "doc_ids for a fixed list", "Custom filter functions and why selectors are preferred", "Per-user databases and replicating only a user's documents", "Replicating deletions so the target sees tombstones", "Checkpoint IDs change when the selector changes", "use_checkpoints and checkpoint_interval", "Comparing a filtered replication result with a Mango query", "Why filtered replication still reads the whole changes feed", "Using winning_revs_only to skip conflicts"],
+          "tools": ["curl", "jq", "Fauxton", "Docker"],
+          "lab_task": "Create a replication from orders to eu_orders with selector {\"region\":\"eu\"}. Verify that the target holds only EU documents, count them against _find on the source, then delete one EU order on the source and confirm the tombstone reaches the target. Change the selector to {\"region\":\"us\"} and see that a new checkpoint is used.",
+          "deliverable": "Replication documents for two selectors and counts proving selective copies on the target",
+          "checks": [["Replicate with region eu selector", "Target doc_count equals the _find count of EU orders on the source", "jq output"], ["Delete one EU order on the source", "The target returns 404 reason deleted for that id", "curl -i output"], ["Inspect _local docs on the source after changing the selector", "A different replication id and checkpoint document appear", "_local_docs output"]],
+          "objectives": ["Replicate only the documents needed", "Explain checkpoint behaviour", "Verify selective replicas"]
+        },
+        {
+          "topic": "Revision Trees and How Conflicts Arise",
+          "subtopics": ["The revision tree as a DAG of document versions", "Leaves, branches and winning revisions", "Concurrent edits on two replicas create two leaves", "The deterministic winner: longest branch, then highest rev hash, ignoring deleted", "?conflicts=true and ?open_revs=all", "_revs_info and _revisions to inspect the tree", "Writes with new_edits=false to create a conflict on purpose", "Conflicts from offline clients and from bad client retries", "Why 409 only stops conflicts on one node", "Conflicts do not block reads, queries or replication"],
+          "tools": ["curl", "jq", "Docker", "Fauxton"],
+          "lab_task": "On couch1 and couch2 create doc contact:1 from replication. Stop replication, edit the document differently on each (phone on couch1, email on couch2), restart replication and run GET contact:1?conflicts=true on both nodes. Record the winning _rev, the _conflicts list and confirm both nodes pick the same winner. Use open_revs=all to see both bodies.",
+          "deliverable": "Conflict reproduction transcript with both revision bodies and the winner on each node",
+          "checks": [["GET contact:1?conflicts=true after replication", "_conflicts contains exactly 1 losing revision", "jq output"], ["Compare the winning _rev on both nodes", "Both nodes return the same winner", "Output of both GETs"], ["GET contact:1?open_revs=all", "Two revision bodies, one with phone and one with email", "Response JSON"]],
+          "objectives": ["Explain the revision tree", "Create and observe a conflict", "Predict the winning revision"]
+        },
+        {
+          "topic": "Detecting and Resolving Conflicts",
+          "subtopics": ["A view that emits docs with _conflicts for monitoring", "Mango with conflicts true to list conflicted documents", "Resolution workflow: fetch leaves, merge, write, delete losers", "DELETE /{db}/{id}?rev={losing_rev} to prune a branch", "Automatic merge rules per field: last write, max, union", "Resolver as a changes-feed consumer", "Resolvers on several nodes racing each other", "Keeping the resolution idempotent", "Auditing which revision was discarded", "Alerting on conflict count above a threshold"],
+          "tools": ["curl", "Python", "jq", "Fauxton"],
+          "lab_task": "Create a view conflicts/by_doc with map function(doc){ if(doc._conflicts){ emit(doc._id, doc._conflicts.length); } }. Write a Python resolver that reads the view, loads all open revisions, merges phone and email into one body, PUTs it on the winner and DELETEs the losers. Run it on 25 conflicted contacts and show the view is empty afterwards.",
+          "deliverable": "Conflict view, resolver script and before-and-after counts for 25 conflicts",
+          "checks": [["Query conflicts/by_doc with 25 conflicted contacts", "25 rows", "jq length output"], ["Run the resolver", "Each document now has both phone and email in the winning revision", "Sample GET output"], ["Query the view after the resolver", "0 rows and _conflicts is absent in every document", "jq output"]],
+          "objectives": ["Find conflicted documents", "Merge and prune revisions", "Make resolution idempotent"]
+        },
+        {
+          "topic": "Designing Data That Avoids Conflicts",
+          "subtopics": ["One writer per document patterns", "Append-only event documents with unique ids", "Per-device or per-user documents to separate editors", "Counters as many small documents summed in a view", "Sets as add and remove records merged in a view", "Last-writer-wins fields with timestamps", "Idempotent ids using a hash of the business key", "Clock skew risks for timestamps", "Trade-offs of event sourcing storage", "Testing concurrency with two replicas and a script"],
+          "tools": ["curl", "Python", "jq", "Fauxton"],
+          "lab_task": "Model a stock counter two ways: one document edited by two replicas, and one document per adjustment with id adj:{device}:{uuid} and a view with _sum. Apply 100 adjustments from each of two replicas with replication paused, then replicate. Count conflicts in each model and verify the summed value equals the total of all adjustments.",
+          "deliverable": "Both models, the load script and a table of conflicts and final totals",
+          "checks": [["Single-document counter with 100 edits per replica", "Conflicts are created and one side's edits are lost", "conflicts view output"], ["Event document model with 100 adjustments per replica", "0 conflicts after replication", "conflicts view output"], ["Query the _sum view in the event model", "The value equals the sum of all 200 adjustments", "Response JSON and script total"]],
+          "objectives": ["Choose conflict-free data structures", "Implement counters with events", "Test with two replicas"]
+        },
+        {
+          "topic": "View Index Lifecycle: Builds, Updates and Cleanup",
+          "subtopics": ["Index files per design document, keyed by a signature", "First query blocks while the index builds", "update=true, update=false and update=lazy", "stable=true for consistent shard copies", "Changing one view invalidates every view in the design document", "Blue-green design documents and swapping names", "POST /{db}/_view_cleanup to remove orphan index files", "GET /{db}/_design/{ddoc}/_info with sizes and signature", "Warming up an index with a scripted query", "Active task type indexer in /_active_tasks"],
+          "tools": ["curl", "jq", "Fauxton", "Docker"],
+          "lab_task": "On a database of 200,000 documents, create _design/v1 and query it while watching GET /_active_tasks. Record the build time. Then create _design/v2 with the changed map function, warm it with limit=0, switch the app to v2, delete v1 and call POST /library/_view_cleanup. Check the index file in data/.shards disappears.",
+          "deliverable": "Build timings, _active_tasks capture and a documented blue-green swap",
+          "checks": [["Query a new view on 200,000 documents", "_active_tasks shows type indexer with a progress percentage", "jq output"], ["Query v2 with limit=0 before the switch", "Responds quickly later because the index is already built", "Timing comparison"], ["Delete v1 and run _view_cleanup", "Returns {\"ok\":true} and v1 index files are removed from disk", "ls output of the shard directory"]],
+          "objectives": ["Explain how view indexes are built and refreshed", "Deploy view changes without downtime", "Clean up unused indexes"]
+        },
+        {
+          "topic": "View Collation, Compound Keys and Multi-Query Calls",
+          "subtopics": ["ICU collation and why uppercase and lowercase interleave", "Type ordering for null, false, true, numbers, strings, arrays and objects", "Compound keys for hierarchies like [country, city, name]", "The {} high sentinel for endkey ranges", "POST /_view/{name}/queries with several queries in one call", "keys array lookup versus key ranges", "sorting by value using an inverted key", "Date keys as arrays versus ISO strings", "Emitting multiple rows per document", "Testing views with a small fixture set"],
+          "tools": ["curl", "jq", "Fauxton", "Python"],
+          "lab_task": "Build a view people/by_location emitting [country, city, name] for 5,000 people. Query all people in country DE with startkey [\"DE\"] and endkey [\"DE\",{}], then DE and Berlin only. Send three queries in one POST to _view/by_location/queries and verify the result array has three entries. Show the order of keys beginning with a, B and 1.",
+          "deliverable": "View and query set with row counts and the collation order observed",
+          "checks": [["Query startkey [\"DE\"] endkey [\"DE\",{}]", "Count equals the number of people in DE in the source data", "jq count and source count"], ["POST three queries to /queries", "Response has a results array with 3 entries", "jq output"], ["Sort keys a, B and 1 from a view", "Numbers sort before strings and a sorts before B in ICU order", "Response JSON"]],
+          "objectives": ["Design compound view keys", "Use multi-query requests", "Predict collation order"]
+        },
+        {
+          "topic": "Custom Reduce, Rereduce and Reduce Limits",
+          "subtopics": ["Reduce function arguments: keys, values and rereduce", "Writing a correct reduce that is associative", "Testing the rereduce branch with large data", "Why reduce output must be small", "[query_server_config] reduce_limit and the error it raises", "Computing averages by returning sum and count", "Min and max with a custom reduce versus _stats", "Reduce on partitioned and sharded data", "Replacing a custom reduce with built-ins where possible", "Debugging with log() in a query function"],
+          "tools": ["Fauxton", "curl", "jq", "Python"],
+          "lab_task": "Create a view avg_rating with a custom reduce that returns {sum, count} for 50,000 reviews and rereduce merging them. Query with group_level=1 and compute the average in the client. Then write a reduce that builds an array of all values to trigger the reduce_overflow_error and record the message. Compare timing to _stats on the same data.",
+          "deliverable": "Custom reduce source, tested results and the overflow error captured",
+          "checks": [["Query avg_rating with group=false", "sum divided by count equals the average computed with Python on the source data", "Script output"], ["Use a reduce that appends every value to an array", "HTTP 500 with error reduce_overflow_error", "Response body"], ["Query _stats on the same emitted values", "Faster than the custom reduce, timing recorded", "time output"]],
+          "objectives": ["Write correct custom reduces", "Recognise reduce limits", "Choose built-ins when possible"]
+        },
+        {
+          "topic": "Partitioned Databases",
+          "subtopics": ["Creating with PUT /{db}?partitioned=true", "Document ids must be {partition}:{docid}", "GET /{db}/_partition/{partition} with doc_count and sizes", "_all_docs, _find and views inside a partition", "Partitioned design documents with options.partitioned", "Global queries via partitioned false design documents", "Choosing partition keys: tenant, user, device", "Partition size and hot partition trade-offs", "How a partition lives on one shard range", "Limits: partitioning cannot be turned on after creation"],
+          "tools": ["curl", "jq", "Fauxton", "Python"],
+          "lab_task": "Create tenants?partitioned=true and load 10,000 documents with ids tenantA:..., tenantB:... and so on. Call GET /tenants/_partition/tenantA, run _find in /_partition/tenantA/_find, and query a partitioned view. Create a global index with options partitioned false. Compare execution_stats and time for a partition query and a global query.",
+          "deliverable": "Partitioned database, queries and a timing and stats comparison",
+          "checks": [["GET /tenants/_partition/tenantA", "doc_count equals the number of tenantA documents loaded", "Response JSON"], ["POST /tenants/_partition/tenantA/_find", "Only ids beginning tenantA: are returned", "jq output"], ["PUT a document with id lacking a colon to the partitioned database", "HTTP 400 with reason Doc id must be of form partition:id", "curl -i output"]],
+          "objectives": ["Create partitioned databases", "Query within one partition efficiently", "Pick partition keys"]
+        },
+        {
+          "topic": "Index Selection: Partial Indexes, use_index and _explain",
+          "subtopics": ["How the planner picks among several indexes", "Index field order and the leftmost rule", "partial_filter_selector to index a subset", "use_index as [ddoc, name] and the warning on mismatch", "_explain output: index, selector, opts, range and fields", "Sorting needs the sort fields in the index and in the selector", "Operators that scan: $regex, $ne, $nin and $or without indexes", "Index-only reads and fields coverage", "Dropping unused indexes to save write cost and disk", "Reading total_keys_examined against total_docs_examined"],
+          "tools": ["curl", "jq", "Fauxton", "Python"],
+          "lab_task": "On 100,000 orders create three indexes: [status], [customer_id,created] and a partial index on [created] where status is open. Run six queries with execution_stats, pin one with use_index, and call _explain for each. Record which index each chose and the keys and docs examined. Delete the least useful index and show writes get faster.",
+          "deliverable": "Table of six queries with chosen index, keys and docs examined, and write time before and after dropping an index",
+          "checks": [["Query status open and sort by created", "_explain shows the partial index used and total_docs_examined equals results_returned", "Explain output"], ["Query with $or across two fields", "total_docs_examined is greater than results_returned showing a scan", "execution_stats"], ["Load 10,000 documents with 3 indexes then with 2 indexes", "Load time is lower with fewer indexes", "Timing output"]],
+          "objectives": ["Control index choice", "Create partial indexes", "Balance read gains against write cost"]
+        },
+        {
+          "topic": "Validation Functions with validate_doc_update",
+          "subtopics": ["The function signature: newDoc, oldDoc, userCtx, secObj", "Throwing {forbidden} for 403 and {unauthorized} for 401", "Required fields and type checks", "Immutable fields such as owner or created_at", "Role-based checks using userCtx.roles", "Validation runs on every write including replication", "Design documents in a replicated database and who may write them", "Deleted documents and oldDoc handling", "Keeping validation fast and deterministic", "Testing with positive and negative documents"],
+          "tools": ["curl", "Fauxton", "jq", "Python"],
+          "lab_task": "Add _design/auth with validate_doc_update that requires a title string, forbids changing owner after creation and allows only role editor to set status published. Write 8 test documents covering allowed and rejected cases, run them with curl and record each status code and reason. Replicate a bad document into the database to see rejection.",
+          "deliverable": "Validation function and a test matrix of 8 cases with expected and observed status codes",
+          "checks": [["PUT a document without a title", "HTTP 403 with error forbidden and your custom reason", "curl -i output"], ["Change owner on an existing document", "HTTP 403 with reason owner cannot be changed", "curl -i output"], ["Set status published as a user without the editor role", "HTTP 403 forbidden", "curl -i output"]],
+          "objectives": ["Write validation functions", "Test allowed and rejected writes", "Understand how replication interacts with validation"]
+        },
+        {
+          "topic": "Authentication Options: Cookie, Basic, JWT and Proxy",
+          "subtopics": ["authentication_handlers list in [chttpd]", "Cookie sessions: POST /_session, AuthSession and timeout", "Basic auth over TLS only", "JWT: jwt_authentication_handler, [jwt_auth] required_claims", "Signing keys in [jwt_keys] such as hmac:_default and rsa:kid", "Role claim mapping with roles_claim_path", "Proxy authentication with X-Auth-CouchDB headers and a token", "Session secret [chttpd_auth] secret must match on all nodes", "Logout with DELETE /_session", "Choosing a method per client type"],
+          "tools": ["curl", "jq", "Python", "Apache CouchDB"],
+          "lab_task": "Enable JWT by adding {chttpd_auth, jwt_authentication_handler} to authentication_handlers, set [jwt_auth] required_claims = exp and an hmac:_default key. Create a signed HS256 token with a Python script, call GET /_session with Authorization: Bearer, and test an expired token and a token signed with the wrong key.",
+          "deliverable": "Config changes, token generator and results for valid, expired and wrongly signed tokens",
+          "checks": [["GET /_session with a valid Bearer token", "userCtx.name matches the token subject and info.authenticated is jwt", "Response JSON"], ["Use a token whose exp is in the past", "HTTP 401 with error unauthorized", "curl -i output"], ["GET /_session with no Authorization header", "HTTP 200 with userCtx.name null", "Response JSON"]],
+          "objectives": ["Configure several auth handlers", "Use JWT with CouchDB", "Compare session, basic and proxy auth"]
+        },
+        {
+          "topic": "TLS, CORS and Reverse Proxy Hardening",
+          "subtopics": ["Built-in TLS: [ssl] enable, cert_file, key_file and port 6984", "Terminating TLS in nginx or HAProxy instead", "proxy_buffering off for _changes feeds", "[chttpd] enable_cors and the [cors] section", "origins, credentials, headers and methods settings", "Preflight OPTIONS requests from browsers", "Never expose Fauxton and admin endpoints publicly", "Blocking _utils and _node paths at the proxy", "Forwarded headers and logging the client address", "Rate limits and request size limits at the proxy"],
+          "tools": ["nginx", "curl", "Docker", "openssl"],
+          "lab_task": "Put nginx in front of CouchDB with a self-signed certificate from openssl. Proxy / to couch:5984 with proxy_buffering off, block /_utils and /_node with return 403, and enable CORS for https://app.example.com in CouchDB. Test with curl -k, a preflight OPTIONS using -H 'Origin' and a continuous changes feed through the proxy.",
+          "deliverable": "nginx.conf, CouchDB CORS config and curl evidence for TLS, CORS and blocked paths",
+          "checks": [["curl -k https://localhost/_utils/", "HTTP 403 from nginx", "curl -i output"], ["OPTIONS with Origin https://app.example.com", "Response includes Access-Control-Allow-Origin with that origin", "curl -i output"], ["Follow a continuous feed through nginx with proxy_buffering off", "Change lines arrive immediately rather than in delayed bursts", "Terminal capture"]],
+          "objectives": ["Terminate TLS in front of CouchDB", "Configure CORS correctly", "Restrict sensitive paths"]
+        },
+        {
+          "topic": "Building Clients with Node.js and Python",
+          "subtopics": ["nano for Node.js and requests or couchdb-python style helpers for Python", "Connection reuse and keep-alive", "Authentication with cookies and refreshing sessions", "Retry on 409 and 503 with backoff", "Streaming large results instead of loading all in memory", "Pagination with bookmarks and startkey", "Error mapping: not_found, conflict, unauthorized", "Timeouts and cancellation", "Unit tests with a throwaway database per test", "Secrets from environment variables, not source code"],
+          "tools": ["Node.js", "nano", "Python", "requests"],
+          "lab_task": "Write a small client module in Node.js with nano or Python with requests offering get, put with retry on 409, find with bookmark paging and a changes follower. Test it against a database created per test run with a unique name and deleted afterwards. Show tests for a 404, a 409 retry and a 401 handled without exposing the password.",
+          "deliverable": "Client module, test suite and a run showing the passing tests",
+          "checks": [["Run the suite against the container", "All tests pass and the test database is deleted afterwards", "Test runner output"], ["Force a conflict during the retry test", "The client retries and the final write succeeds on attempt 2", "Log output"], ["Search source and logs for the admin password", "No occurrences are found", "grep output"]],
+          "objectives": ["Write a reusable CouchDB client", "Handle retries and errors", "Test against throwaway databases"]
+        },
+        {
+          "topic": "Offline-First Sync with PouchDB",
+          "subtopics": ["PouchDB in the browser and in Node.js", "new PouchDB('local') and the IndexedDB adapter", "db.sync(remote, {live: true, retry: true})", "Events: change, paused, active, denied and error", "Per-user databases and _security for sync", "Handling conflicts on the client", "Filtered sync with selector", "Auth through cookies and CORS", "Storage limits in browsers and eviction", "Testing offline and online transitions"],
+          "tools": ["PouchDB", "Node.js", "Chrome DevTools", "Apache CouchDB"],
+          "lab_task": "Build a small page using PouchDB that stores notes in IndexedDB and syncs live with a CouchDB database. Set CORS correctly. In DevTools set the network to Offline, add 5 notes, return Online and watch the paused and active events. Verify with curl that exactly 5 new documents are on the server and that edits made on the server arrive in the browser.",
+          "deliverable": "Sample page, CORS config and a log of sync events with server counts",
+          "checks": [["Add 5 notes while offline", "The remote database does not receive them until the browser is online", "curl doc_count"], ["Go online", "Exactly 5 new documents appear on the server", "curl doc_count"], ["Edit a note with curl on the server", "The change appears in the browser local database within 10 seconds", "Browser console output"]],
+          "objectives": ["Build an offline-first app", "Sync PouchDB with CouchDB", "Handle events and errors"]
+        },
+        {
+          "topic": "Compaction, Disk Space and Purging",
+          "subtopics": ["Append-only files and why they grow", "POST /{db}/_compact and POST /{db}/_compact/{ddoc}", "Reading GET /{db} sizes: file, active and external", "Fragmentation and the smoosh daemon", "Auto compaction channels and thresholds in [smoosh]", "Compaction needs free disk of roughly the live data size", "_revs_limit and old revision bodies", "POST /{db}/_purge for compliance deletion", "purged_infos_limit and purge in replication", "Monitoring disk usage and alerting at 80 percent"],
+          "tools": ["curl", "jq", "Docker", "du"],
+          "lab_task": "Load 100,000 documents, update each one 5 times and record sizes.file and sizes.active from GET /library. Run POST /library/_compact, watch /_active_tasks until finished and record sizes again. Then purge one document with POST /library/_purge and show it no longer appears in _all_docs or _changes tombstones.",
+          "deliverable": "Size table before and after compaction and a purge transcript",
+          "checks": [["Compare sizes.file before and after compaction", "File size drops while sizes.active stays about the same", "GET database output"], ["Watch /_active_tasks during compaction", "A task of type database_compaction shows progress up to 100", "jq output"], ["POST _purge for one id and rev", "Response lists the purged rev and the document is gone from _all_docs", "Response JSON"]],
+          "objectives": ["Reclaim disk space with compaction", "Explain smoosh and thresholds", "Use purge only where required"]
+        },
+        {
+          "topic": "Intermediate Capstone: Synchronised Field Inspection Store",
+          "subtopics": ["Requirements: inspectors work offline and sync when online", "Per-inspector partitions or databases with _security", "Conflict-free modelling with one document per inspection event", "Views and Mango indexes for supervisor dashboards", "Replication to a central database through nginx with TLS", "Test plan covering offline, conflict and recovery"],
+          "tools": ["CouchDB", "PouchDB", "nginx", "Docker Compose", "curl"],
+          "lab_task": "Deliver a Docker Compose stack with CouchDB, nginx TLS and a PouchDB page. Two inspectors create inspections offline, sync, and edit one shared record to produce a conflict that a resolver clears. Provide a supervisor view with _count by site. Prove 200 inspections replicate with matching counts.",
+          "deliverable": "Compose stack, client code, design documents, resolver and a test report",
+          "checks": [["Load 200 inspections from two offline clients and sync", "Central doc_count equals 200 for inspections", "jq output"], ["Create a conflict on one shared record and run the resolver", "conflicts view returns 0 rows afterwards", "View output"], ["Query the supervisor view with group=true", "Per-site counts add up to 200", "jq sum output"]],
+          "objectives": ["Combine sync, security and conflict handling", "Deliver a tested offline-first system", "Document operations for supervisors"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers who run or design CouchDB clusters in production. Covers shards, replicas and quorums, cluster bootstrap with Docker Compose, choosing q and n, resharding, 202 responses and consistency, node failure and maintenance mode, HAProxy, write and view performance, Mango at scale, search with Nouveau or Clouseau, metrics and logs, compaction tuning, disaster recovery, hardening, Kubernetes with Helm, rolling upgrades, troubleshooting, and a multi-region capstone.",
+      "prerequisites": ["Completes the intermediate level or has run CouchDB replication and views in a project", "Understands Linux administration, networking basics and containers", "Can read logs and write shell or Python scripts for tests and automation"],
+      "outcomes": ["Build, size, reshard and operate a multi-node CouchDB cluster with a load balancer", "Measure and tune writes, views and Mango queries with evidence", "Monitor, secure, back up and upgrade a cluster with tested runbooks", "Design and prove a multi-region replicated deployment with measured recovery"],
+      "days": [
+        {
+          "topic": "Cluster Internals: Nodes, Shards, Replicas and Quorums",
+          "subtopics": ["Erlang/OTP node, cookie and epmd roles", "chttpd on any node coordinating requests with rexi", "Shard ranges split the 32-bit hash space", "q shards per database and n replicas per shard", "Default cluster q=2 and n=3", "Read quorum r and write quorum w as majorities", "Shard files under data/shards and the _dbs and nodes databases", "GET /_membership: all_nodes versus cluster_nodes", "Internal replication (mem3) keeping replicas in sync", "What a node can and cannot do while its peers are down"],
+          "tools": ["curl", "jq", "Docker", "Fauxton"],
+          "lab_task": "On a running three-node cluster call GET /_membership, create a database with ?q=4&n=3, then GET /{db}/_shards and map each of the 4 ranges to its 3 nodes. Store a document, call GET /{db}/_shards/{docid} to see which range and nodes hold it, and find the corresponding .couch files in data/shards on each node with find.",
+          "deliverable": "Shard map diagram for one database with the files located on disk on three nodes",
+          "checks": [["GET /{db}/_shards for a q=4 n=3 database", "4 ranges and each range lists 3 nodes", "jq output"], ["GET /{db}/_shards/{docid}", "Returns the range and 3 nodes that hold that id", "Response JSON"], ["find data/shards -name '{db}*.couch' on each node", "Each node holds one file for every range it hosts and the total across nodes is 12", "Terminal output"]],
+          "objectives": ["Describe shards, replicas and quorums", "Locate a document's shard on disk", "Read the membership and shard map APIs"]
+        },
+        {
+          "topic": "Building a Three-Node Cluster with Docker Compose",
+          "subtopics": ["Compose file with three couchdb:3 services and a shared network", "NODENAME and the -setcookie argument through ERL_FLAGS", "COUCHDB_SECRET and COUCHDB_USER and COUCHDB_PASSWORD identical on all nodes", "POST /_cluster_setup action enable_cluster on each node", "action add_node from the coordinator", "action finish_cluster and creating system databases", "GET /_cluster_setup to read state", "Persistent volumes per node", "Verifying with /_membership and a replicated write", "Scripted bootstrapping and idempotency"],
+          "tools": ["Docker Compose", "curl", "jq", "Apache CouchDB"],
+          "lab_task": "Write a compose file for couch1, couch2 and couch3 with shared COUCHDB_SECRET and Erlang cookie. Script the _cluster_setup calls: enable_cluster for each node, add_node from couch1 for the other two, then finish_cluster. Confirm GET /_membership lists three cluster_nodes, write a document via couch1 and read it via couch3.",
+          "deliverable": "Compose file, bootstrap script and verification transcript",
+          "checks": [["GET /_membership after finish_cluster", "cluster_nodes lists 3 nodes", "jq output"], ["PUT a document via couch1 then GET via couch3", "The same document and rev are returned", "curl output"], ["GET /_cluster_setup", "state is cluster_finished", "Response JSON"]],
+          "objectives": ["Bootstrap a CouchDB cluster", "Use cluster setup APIs", "Validate with a cross-node read"]
+        },
+        {
+          "topic": "Choosing q and n: Shard Counts and Replica Counts",
+          "subtopics": ["Effect of q on parallelism and view build time", "Cost of many shards: file handles, memory, compaction jobs", "Choosing n for durability versus disk cost", "Sizing guidance: target shard size and document counts", "Per-database ?q= and ?n= at creation", "Cluster defaults in [cluster] q and n", "Partitioned databases and shard placement", "Sort and range queries that touch all shards", "Benchmarking q=2 versus q=8 on the same data", "Documenting the decision in a capacity note"],
+          "tools": ["curl", "jq", "Python", "Docker"],
+          "lab_task": "Create two databases, bench_q2 and bench_q8, with the same 500,000 documents. Time a full view build and a range query on each, compare compact time and record number of open files with lsof for one node. Produce a short capacity note recommending q for a database of 50 GB with a justification from the measurements.",
+          "deliverable": "Benchmark results table and capacity recommendation",
+          "checks": [["GET _shards for each database", "bench_q2 has 2 ranges and bench_q8 has 8 ranges", "jq output"], ["Build the same view on both", "Build times for each database are recorded and the difference is stated", "Timing table"], ["Count open .couch files with lsof on one node", "bench_q8 holds roughly four times as many open shard files as bench_q2", "lsof output"]],
+          "objectives": ["Select q and n with evidence", "Benchmark shard counts", "Write a capacity note"]
+        },
+        {
+          "topic": "Resharding: Splitting and Moving Shards",
+          "subtopics": ["The /_reshard API and its state", "POST /_reshard/jobs with type split and the db name", "Job states: new, running, completed and failed", "GET /_reshard/state and PUT to stop or resume", "Splitting a shard range into two", "Moving a shard copy by editing the shard map in _dbs", "Adding a node and rebalancing", "Disk space needed during a split", "Why q cannot be changed directly on an existing database", "Validating counts and data after resharding"],
+          "tools": ["curl", "jq", "Docker", "Fauxton"],
+          "lab_task": "On a q=2 database holding 100,000 documents, record doc_count and a checksum of ids, then POST /_reshard/jobs {\"type\":\"split\",\"db\":\"orders\"}. Poll GET /_reshard/jobs until completed. Check GET /orders/_shards now shows 4 ranges and the document count and id checksum are unchanged. Run reads during the split.",
+          "deliverable": "Resharding transcript with before-and-after shard maps and integrity checks",
+          "checks": [["GET /orders/_shards after the split", "4 ranges instead of 2", "jq output"], ["Compare doc_count and sorted id checksum", "Identical to the values recorded before the split", "Terminal output"], ["Run a read loop during the split", "Zero failed reads over 1,000 requests", "Loop output"]],
+          "objectives": ["Split shards online", "Verify integrity after a split", "Plan rebalancing"]
+        },
+        {
+          "topic": "Write and Read Quorums, 202 Responses and Consistency",
+          "subtopics": ["w and r query parameters on writes and reads", "201 Created versus 202 Accepted when quorum is not met", "Eventual consistency between replicas", "Reading your own writes through different nodes", "Why views and _find are updated asynchronously", "stable=true and update=false effects on consistency", "Partition with one node down: reads and writes continue", "Duplicate ids written on both sides of a split", "No multi-document transactions: designing around it", "Testing with node stops and a write loop"],
+          "tools": ["curl", "Docker", "jq", "Python"],
+          "lab_task": "With 3 nodes and n=3, run a loop that writes 1,000 documents via couch1. Midway stop couch2 and couch3 and count 201 versus 202 responses, then restart them. Verify all 1,000 documents are readable from all nodes and that GET with r=3 and r=1 behave as expected when nodes are down.",
+          "deliverable": "Loop script, counts of status codes and a consistency report",
+          "checks": [["Write with two replicas down", "Responses are 202 Accepted not 201", "Status code tally"], ["Restart the nodes and wait for internal replication", "All 1,000 documents are readable on each node", "doc_count on three nodes"], ["Read with r=3 while two nodes are down", "The read fails or times out while r=1 succeeds", "curl output"]],
+          "objectives": ["Explain quorum behaviour", "Interpret 202 responses", "Design around eventual consistency"]
+        },
+        {
+          "topic": "Node Failure, Maintenance Mode and Recovery",
+          "subtopics": ["Detecting a down node via /_membership and logs", "Maintenance mode: PUT _config/couchdb/maintenance_mode true", "nolb value to signal load balancers", "Rolling restarts one node at a time", "Internal replication catching up after restarts", "Replacing a failed node: new node, update shard map, sync", "Removing a node with DELETE /_nodes/{node}", "Disk full behaviour and recovery", "Corrupted shard file: restore from replica", "Runbook and game-day drill"],
+          "tools": ["curl", "Docker", "HAProxy", "jq"],
+          "lab_task": "Set maintenance_mode true on couch2 and confirm GET /_up on couch2 returns 404 or 503 while others return ok. Stop it, write 2,000 documents, start it again and measure how long until its shard copies match using doc_count per node. Then wipe couch3 data volume, rejoin it and verify the replicas are rebuilt.",
+          "deliverable": "Failure drill log with timings for catch-up and rebuild",
+          "checks": [["GET /_up on a node in maintenance mode", "HTTP 404 with status maintenance_mode", "curl -i output"], ["Restart couch2 after 2,000 writes", "Its doc_count reaches 2000 on the local node within a recorded catch-up time", "Per-node doc_count"], ["Wipe couch3 data and rejoin it", "After rebuild each shard range again shows 3 copies", "GET _shards output"]],
+          "objectives": ["Run rolling maintenance", "Recover failed nodes", "Write a failure runbook"]
+        },
+        {
+          "topic": "Load Balancing with HAProxy and Health Checks",
+          "subtopics": ["Why every node can serve any request", "HAProxy backend with option httpchk GET /_up", "Expected status for health: 200 and maintenance 404", "Round robin versus least connections for CouchDB", "Sticky sessions are unnecessary for stateless cookie sessions", "Long-lived changes connections and timeout tunnel", "Rate limiting and header forwarding", "TLS termination and health checks over TLS", "Observing distribution with HAProxy stats", "Failover test with a stopped node"],
+          "tools": ["HAProxy", "curl", "Docker Compose", "jq"],
+          "lab_task": "Add HAProxy to the compose stack with health checks on /_up for three backends. Send 300 requests through it and show per-backend counts from the stats page. Stop one node, keep sending requests and show zero errors after the check interval. Set maintenance_mode on another node and show it is removed from rotation.",
+          "deliverable": "haproxy.cfg and test results with per-backend request counts and failover evidence",
+          "checks": [["Send 300 requests through HAProxy", "Each backend receives close to 100 requests", "HAProxy stats"], ["Stop one node during traffic", "No client errors after the health check marks it down", "Test loop output"], ["Enable maintenance mode on a node", "HAProxy marks it down and traffic goes to the other 2", "HAProxy stats"]],
+          "objectives": ["Front a cluster with a load balancer", "Configure health checks", "Test failover"]
+        },
+        {
+          "topic": "Write Throughput: Batching, Concurrency and Disk",
+          "subtopics": ["_bulk_docs batch size sweep", "Concurrency level versus latency", "Document size effect on throughput", "Id choice and B-tree write patterns", "Delayed commits are gone, durability is per write", "fsync cost and SSD or NVMe storage", "Index count and view updates on write path", "file_compression snappy versus none", "Benchmark tooling: k6 or a Python asyncio loader", "Reporting p50, p95 and p99 latency"],
+          "tools": ["k6", "Python", "curl", "Docker"],
+          "lab_task": "Using a k6 script or Python asyncio loader, write 200,000 documents with batch sizes 1, 100, 500, 2000 and concurrency 4 and 16. Record documents per second and p95 latency for each run. Compare random UUIDs against sequential ids and state which combination you would use in production and why.",
+          "deliverable": "Throughput matrix with latency percentiles and a recommendation",
+          "checks": [["Run batch size 1 versus 500 at concurrency 4", "Batch 500 achieves a higher docs per second figure, ratio recorded", "Result table"], ["Compare random and sequential ids", "Both results recorded with the difference in docs per second and file size", "Result table"], ["Increase concurrency from 4 to 16", "The point where p95 latency rises faster than throughput is identified", "Chart or table"]],
+          "objectives": ["Benchmark writes scientifically", "Tune batching and concurrency", "Report latency percentiles"]
+        },
+        {
+          "topic": "View Build Speed and Query Performance Tuning",
+          "subtopics": ["Map function cost: avoid heavy loops and large emits", "Emit small values and fetch documents only if needed", "include_docs cost per row", "Query server processes and os_process_limit", "Parallel builds per shard and q", "QuickJS or SpiderMonkey query server choice in newer 3.x", "Use of stable and update=lazy for read paths", "Index size and compaction of views", "Replacing views with Mango for simple filters", "Profiling with timing and _active_tasks"],
+          "tools": ["curl", "jq", "Python", "Fauxton"],
+          "lab_task": "On 1,000,000 documents compare three versions of a view: emitting doc as value, emitting a small field, and emitting null with include_docs. Record build time, index size from _design/{d}/_info and the time for a 1,000-row query. Pick the best design for a dashboard query and justify it.",
+          "deliverable": "Three view designs with build time, index size and query time",
+          "checks": [["Build all three views on 1,000,000 documents", "Build times and disk_size values are recorded for each", "_info output"], ["Query 1,000 rows with include_docs and without", "The version using include_docs is slower per request, ratio recorded", "Timing output"], ["Compare the index file sizes", "The view emitting the whole document has the largest disk_size", "_info output"]],
+          "objectives": ["Reduce view build time", "Control index size", "Choose emit patterns for performance"]
+        },
+        {
+          "topic": "Mango at Scale: Index Strategy and Query Planning",
+          "subtopics": ["Equality fields before range fields in compound indexes", "Covering sort order and the descending sort rule", "Pagination cost with bookmarks across shards", "Why each query is fanned out to all shards", "Indexes per query pattern and the write amplification", "Index build progress and index readiness warnings", "Avoiding $or, $regex and negations on large sets", "execution_time_ms trends in logs", "Mango versus views for aggregations", "Query review checklist for a team"],
+          "tools": ["curl", "jq", "Python", "Fauxton"],
+          "lab_task": "On 2,000,000 documents write 8 production-style queries, create the minimum set of indexes, and show with execution_stats that every query has total_docs_examined within 2 times results_returned. Report index count, disk size and the effect on bulk load time. Remove redundant indexes and recheck the 8 queries.",
+          "deliverable": "Query catalogue, index set, execution_stats results and load time effect",
+          "checks": [["Run all 8 queries with execution_stats", "total_docs_examined is no more than 2 times results_returned for each", "Results table"], ["Remove an index that is a prefix of another", "Queries still use the longer index and results do not change", "_explain output"], ["Bulk load 100,000 documents with and without extra indexes", "Fewer indexes give faster load time, difference recorded", "Timing output"]],
+          "objectives": ["Plan indexes for real query patterns", "Prove efficiency with statistics", "Control write amplification"]
+        },
+        {
+          "topic": "Full-Text Search with Nouveau and Clouseau",
+          "subtopics": ["Mango $text needs a search backend and is separate from JSON indexes", "Clouseau: the Lucene service used by dreyfus in earlier 3.x", "Nouveau: the newer Lucene-based search added in newer 3.x releases", "Enabling Nouveau with [nouveau] enable and running its server", "Defining a search index function in a design document", "Indexing text, string and numeric fields", "Querying with q, limit, sort and bookmark", "Facets, counts and ranges where supported", "Index rebuilds and disk use", "Checking the release notes for the exact version you run"],
+          "tools": ["Docker", "curl", "jq", "Apache CouchDB"],
+          "lab_task": "Following the official docs for your installed 3.x release, start the search service, enable it in configuration and create a search index on title and description for 50,000 documents. Run five queries with q, sort and limit, compare hit counts with a grep of the source data and record how long the first index build took.",
+          "deliverable": "Search configuration, index definition and five query results",
+          "checks": [["Query for a word present in 120 documents", "total_hits is 120", "Response JSON"], ["Query with limit=5 and a bookmark", "Next call returns the following 5 hits without duplicates", "Response JSON"], ["Check GET /_active_tasks while building", "A search indexing task appears with a progress value", "jq output"]],
+          "objectives": ["Add full-text search to CouchDB", "Write and query search indexes", "Identify version-specific differences"]
+        },
+        {
+          "topic": "Monitoring: _stats, _system and Prometheus Metrics",
+          "subtopics": ["GET /_node/_local/_stats for counters and histograms", "httpd_status_codes, request_time and open_databases", "GET /_node/_local/_system: run_queue, process_count and memory", "GET /_node/_local/_prometheus in newer 3.x releases", "Scraping with Prometheus and visualising in Grafana", "GET /_active_tasks for compaction, indexing and replication", "Cluster-wide view: scrape every node, never only one", "Alert rules: 5xx rate, p99 latency, disk free, replication errors", "Using the couchdb-prometheus-exporter where Prometheus endpoint is unavailable", "Dashboards for operators and developers"],
+          "tools": ["Prometheus", "Grafana", "curl", "Docker Compose"],
+          "lab_task": "Add Prometheus and Grafana to the cluster compose stack. Scrape each node's /_node/_local/_prometheus endpoint with credentials, build a dashboard for request rate, 5xx count, p95 request time, open databases and disk free. Generate a load for 5 minutes and add two alert rules, one for 5xx rate and one for disk below 20 percent.",
+          "deliverable": "Prometheus config, Grafana dashboard JSON and alert rules with a screenshot under load",
+          "checks": [["Query Prometheus for the request rate during the load test", "Rate rises above baseline and returns after the test", "Graph screenshot"], ["Produce 50 requests for a missing document", "The 404 counter increases by 50", "Metric before and after"], ["Fill a test volume above 80 percent", "The disk alert moves to firing", "Prometheus alerts page"]],
+          "objectives": ["Collect CouchDB metrics", "Build operator dashboards", "Define useful alerts"]
+        },
+        {
+          "topic": "Log Analysis and Diagnosing Slow Requests",
+          "subtopics": ["[log] level and writer: file, stderr, journald and syslog", "Request log lines with method, path, status and time", "Request IDs in X-Couch-Request-ID", "Common error log patterns: timeouts, rexi and database_does_not_exist", "Slow request detection with request_time metrics", "Following one request across nodes", "Log shipping with Loki or Elasticsearch", "Temporary debug level and restoring afterwards", "Sampling and redaction of credentials in logs", "Building a triage checklist from patterns"],
+          "tools": ["grep", "jq", "Docker", "Loki"],
+          "lab_task": "Generate 20,000 requests including 200 slow view queries and 100 invalid requests. Parse the log with grep and awk to list the top 10 slowest paths, count status codes and find one request by its X-Couch-Request-ID across all three nodes. Set log level to debug for 2 minutes then back to info, noting the change in log volume.",
+          "deliverable": "Log analysis script with top-10 slow paths, status code counts and request-ID trace",
+          "checks": [["Count 4xx and 5xx lines in the log", "Counts match the 100 invalid requests generated plus any expected 404s", "Script output"], ["Search for a specific request id on all nodes", "Entries appear on the coordinator node and at least one other node", "grep output"], ["Switch to debug for 2 minutes and back", "Log size growth is higher during debug and returns to normal after", "File size measurements"]],
+          "objectives": ["Read CouchDB logs efficiently", "Trace requests across nodes", "Change log levels safely"]
+        },
+        {
+          "topic": "Disk Layout, Compaction Tuning and the Smoosh Daemon",
+          "subtopics": ["Directories: database_dir, view_index_dir and the .shards tree", "Files per database shard and per view signature", "[smoosh] channels: ratio_dbs, slack_dbs, ratio_views and slack_views", "db_fragmentation and min_priority thresholds", "Compaction concurrency and IO impact", "Scheduling compaction outside peak hours", "Compacting views and cleaning orphan indexes", "Disk growth projection: documents, revisions and indexes", "Separating data and view volumes", "Checking progress through _active_tasks and smoosh status"],
+          "tools": ["curl", "jq", "du", "Docker"],
+          "lab_task": "On a cluster node generate heavy updates until fragmentation is high, then tune [smoosh] thresholds so compaction starts automatically. Watch GET /_active_tasks, measure sizes.file before and after, and compare I/O latency for requests during compaction with iostat or request time metrics. Record the chosen settings and a growth projection for 6 months.",
+          "deliverable": "Smoosh configuration, before-and-after sizes and a 6-month growth projection",
+          "checks": [["Update 500,000 documents three times each", "sizes.file is more than 2 times sizes.active", "GET database output"], ["Let smoosh run with the tuned settings", "Compaction starts without a manual call and file size drops", "_active_tasks and sizes"], ["Run a read test during compaction", "p95 latency during compaction stays within the limit you define", "Latency table"]],
+          "objectives": ["Tune automatic compaction", "Project disk growth", "Measure compaction impact"]
+        },
+        {
+          "topic": "Backup and Disaster Recovery for Clusters",
+          "subtopics": ["Defining RPO and RTO for each database", "Continuous replication to a second cluster in another region", "Snapshots: coordinating volume snapshots across nodes", "Logical backups with couchbackup at cluster scale", "Backing up _users, _replicator, _dbs and node configuration", "Restoring a database and its design documents", "Restoring a node from replicas instead of backups", "Testing restores on a schedule", "Protecting backups with encryption and access control", "Deleting data: purge versus replicated tombstones in backups"],
+          "tools": ["couchbackup", "curl", "Docker Compose", "jq"],
+          "lab_task": "Build two clusters, primary and dr. Replicate orders continuously from primary to dr via the _replicator database, take a couchbackup of orders, then delete the primary database. Restore from dr into a new primary and compare doc_count and id checksum. Measure the actual RPO as the time of the last write missing and RTO as total elapsed time.",
+          "deliverable": "Replication documents, restore transcript and measured RPO and RTO",
+          "checks": [["Compare doc_count of orders on primary and dr before the failure", "Both show the same count within the replication lag", "jq output"], ["Restore from dr to a new primary", "doc_count and id checksum match dr", "Terminal output"], ["Calculate RPO and RTO", "RPO is below 60 seconds and RTO is recorded with timestamps", "Timeline table"]],
+          "objectives": ["Design a disaster recovery plan", "Restore from replicas and backups", "Measure RPO and RTO"]
+        },
+        {
+          "topic": "Hardening Nodes: Erlang Cookie, Ports and Least Privilege",
+          "subtopics": ["Distribution ports: 4369 for epmd and 9100-9200 range", "Setting a unique secret cookie and why the default is dangerous", "Binding chttpd to private interfaces", "Firewall rules between nodes and from clients", "Running as the couchdb user with owned data directories", "Non-admin application users and per-database roles", "require_valid_user and admin_only_all_dbs", "Rotating admin passwords and the cluster secret", "Dependencies and image scanning with Trivy", "Auditing configuration against a checklist"],
+          "tools": ["nmap", "iptables", "Trivy", "curl"],
+          "lab_task": "Audit a three-node cluster: scan with nmap -p 4369,5984,9100-9200 from outside and inside the network, show the Erlang cookie differs from the default, set require_valid_user true, restrict epmd to the cluster subnet and scan the image with trivy image couchdb:3. Produce a findings table with severity and the fix applied for each issue.",
+          "deliverable": "Findings report with before-and-after nmap scans and the Trivy output",
+          "checks": [["nmap from outside the cluster network after hardening", "4369 and 9100-9200 are filtered or closed", "nmap output"], ["Unauthenticated GET / after require_valid_user true", "HTTP 401", "curl -i output"], ["Run trivy image couchdb:3", "A list of vulnerabilities by severity with the numbers recorded", "Trivy report"]],
+          "objectives": ["Harden a cluster", "Restrict network exposure", "Scan and track vulnerabilities"]
+        },
+        {
+          "topic": "Running CouchDB on Kubernetes with Helm",
+          "subtopics": ["The Apache CouchDB Helm chart and its values", "clusterSize, adminUsername, adminPassword and couchdbConfig", "StatefulSet with persistentVolume.enabled and storage class", "erlangCookie and cookieAuthSecret as Kubernetes Secrets", "Headless service for node discovery", "Readiness and liveness probes on /_up", "Pod disruption budgets and rolling updates", "Resource requests and limits for the Erlang VM", "Backup of PVC snapshots", "Ingress with TLS and blocked admin paths"],
+          "tools": ["kubectl", "Helm", "kind", "curl"],
+          "lab_task": "Install the CouchDB chart on a kind cluster with 3 replicas, secrets for admin password, cookie and secret, and persistent volumes. Verify GET /_membership shows 3 nodes, delete one pod and watch it return with data, then run helm upgrade changing a couchdbConfig value and confirm the new value via the _config API.",
+          "deliverable": "values.yaml, install transcript and pod-restart evidence",
+          "checks": [["kubectl get pods after install", "3 CouchDB pods are Running and Ready", "kubectl output"], ["Delete pod couchdb-1", "The pod returns and cluster_nodes lists 3 nodes with its data intact", "membership and doc_count"], ["helm upgrade with a changed config value", "GET _config shows the new value on every pod", "curl output per pod"]],
+          "objectives": ["Deploy CouchDB on Kubernetes", "Manage secrets and persistence", "Run safe upgrades"]
+        },
+        {
+          "topic": "Upgrades, Rolling Restarts and Version Changes",
+          "subtopics": ["Reading release notes and the upgrade notes for 3.x minor versions", "Pre-upgrade backup and compatibility check", "Rolling upgrade one node at a time with maintenance mode", "Index rebuilds that follow some upgrades", "Configuration changes and deprecated settings", "Downgrade limits and why a backup matters", "Upgrading from 2.x to 3.x: admin party removal and cluster setup", "Client and library compatibility", "Smoke tests after each node", "Change record and rollback plan"],
+          "tools": ["Docker Compose", "curl", "jq", "Apache CouchDB"],
+          "lab_task": "On the three-node cluster, perform a rolling upgrade from one 3.x image tag to a newer 3.x tag. For each node set maintenance mode, stop, replace the image, start and run a smoke test of write, read, view query and _find. Keep a write loop running and show zero failed requests through the load balancer. Write the rollback plan.",
+          "deliverable": "Upgrade runbook, smoke test script and a log of the write loop during the upgrade",
+          "checks": [["Run a write loop through the load balancer during the upgrade", "0 failed requests across the whole upgrade", "Loop summary"], ["GET / on each node after the upgrade", "All nodes report the new version", "curl output"], ["Run the smoke test on the upgraded node", "Write, read, view and _find all succeed", "Script output"]],
+          "objectives": ["Plan a rolling upgrade", "Verify each upgraded node", "Prepare a rollback"]
+        },
+        {
+          "topic": "Troubleshooting Playbook for Production Incidents",
+          "subtopics": ["Symptom to cause map: 401, 403, 404, 409, 412, 413, 500, 503", "Timeouts on views while indexes build", "Replication stuck in crashing state: cause and fix", "Conflicts growing: finding the writer", "Out of file handles and ulimit settings", "Erlang node not connecting: cookie, DNS, ports", "Slow requests: shard fan-out and missing indexes", "Disk full and recovering space safely", "Collecting diagnostics: logs, _active_tasks, _system and _stats", "Post-incident review template"],
+          "tools": ["curl", "jq", "Docker", "Prometheus"],
+          "lab_task": "Run six fault-injection drills on a test cluster: wrong cookie, stopped node, missing index with heavy query, replication target down, disk nearly full and low file limit. For each drill capture the symptom, diagnostics commands and API outputs, the root cause and the fix. Resolve every drill within 15 minutes by following your own runbook.",
+          "deliverable": "Runbook with six drills, each with symptom, diagnostics, root cause and fix with timestamps",
+          "checks": [["Start a node with a different Erlang cookie", "The node does not appear in cluster_nodes and logs show a distribution handshake error", "membership output and log"], ["Stop the replication target", "Scheduler shows crashing with error_count above 0", "_scheduler/docs output"], ["Run the heavy query with no index", "Response carries the no matching index warning and execution time is high", "Response JSON"]],
+          "objectives": ["Diagnose common incidents", "Collect evidence quickly", "Write a reusable runbook"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Region Replicated Cluster",
+          "subtopics": ["Requirements, SLOs and data model for a two-region orders system", "Three-node clusters per region with q and n chosen from measurements", "Bi-directional replication with conflict-free event documents", "Monitoring, alerting and backup in each region", "Failure drills: node loss, region loss and replication lag", "Final report with capacity, security and runbook"],
+          "tools": ["Docker Compose", "HAProxy", "Prometheus", "k6", "couchbackup"],
+          "lab_task": "Build two three-node clusters, EU and US, with HAProxy, TLS and Prometheus. Replicate orders both ways, run k6 at 200 writes per second for 10 minutes split across regions, stop the EU region, show the US keeps serving, restore EU and prove both regions converge to the same doc_count and id checksum with zero unresolved conflicts.",
+          "deliverable": "Compose stacks, replication configs, dashboards, k6 results, drill log and final report",
+          "checks": [["Run 10 minutes of k6 load across both regions", "p95 write latency below 200 ms and error rate below 0.1 percent", "k6 summary"], ["Stop the EU region then restore it", "US writes continue during the outage and EU catches up afterwards", "Replication state and doc_count"], ["Compare both regions after convergence", "doc_count and id checksum are identical and the conflicts view returns 0 rows", "jq and view output"]],
+          "objectives": ["Deliver a replicated multi-region system", "Demonstrate failure tolerance", "Document capacity, security and operations"]
+        }
+      ]
+    }
+  }
+}

@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     # Twilio
     TWILIO_ACCOUNT_SID: str = ""
     TWILIO_AUTH_TOKEN: str = ""
+    TWILIO_WEBHOOK_BASE_URL: str = ""
     TWILIO_WHATSAPP_FROM: str = ""
 
     # AiSensy
@@ -31,6 +32,8 @@ class Settings(BaseSettings):
     META_WHATSAPP_TEMPLATE_NAME: str = ""
     META_WHATSAPP_LANGUAGE_CODE: str = "en_US"
     META_GRAPH_API_VERSION: str = "v23.0"
+    META_WEBHOOK_VERIFY_TOKEN: str = ""
+    META_APP_SECRET: str = ""
 
     # Teams
     TEAMS_WEBHOOK_URL: str = ""

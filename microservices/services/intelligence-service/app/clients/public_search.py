@@ -1,0 +1,512 @@
+"""Bounded public web search. No API key, and result links are never fetched."""
+import base64
+import re
+from xml.etree import ElementTree
+from html.parser import HTMLParser
+from urllib.parse import parse_qs, unquote, urlsplit, urlunsplit
+
+import httpx
+
+_BROWSER = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+
+
+class _BingLinks(HTMLParser):
+    """Read the heading link and the caption under it. Result links are not opened."""
+
+    def __init__(self):
+        super().__init__()
+        self.links = []
+        self._href = ''
+        self._capture = None
+        self._block = None
+        self._depth = 0
+        self._in_h2 = False
+
+    def _close_block(self):
+        if not self._block:
+            return
+        title = ' '.join(self._block['title']).strip()
+        snippet = ' '.join(self._block['snippet']).strip()
+        if self._block['href'] and title:
+            self.links.append((self._block['href'], title, snippet))
+        self._block = None
+        self._href = ''
+        self._capture = None
+        self._depth = 0
+        self._in_h2 = False
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        classes = (attrs.get('class') or '').split()
+        if tag == 'li' and 'b_algo' in classes:
+            self._close_block()
+            self._block = {'href': '', 'title': [], 'snippet': []}
+            self._depth = 1
+            self._in_h2 = False
+            return
+        if self._block is not None and tag == 'li':
+            self._depth += 1
+        if self._block is not None and tag == 'h2':
+            self._in_h2 = True
+        if tag == 'a':
+            href = attrs.get('href', '')
+            if self._block is None:
+                self._href = href
+            elif self._in_h2 and not self._block['href']:
+                self._block['href'] = href
+                self._capture = 'title'
+        if self._block is not None and self._block['href'] and (
+            tag == 'p' or 'b_caption' in classes or any(name.startswith('b_lineclamp') for name in classes)
+        ):
+            self._capture = 'snippet'
+
+    def handle_endtag(self, tag):
+        if tag == 'a' and self._block is None:
+            self._href = ''
+        elif tag == 'a' and self._capture == 'title':
+            self._capture = None
+        elif tag == 'h2':
+            self._in_h2 = False
+        elif tag == 'p' and self._capture == 'snippet':
+            self._capture = None
+        elif tag == 'li' and self._block is not None:
+            self._depth -= 1
+            if self._depth <= 0:
+                self._close_block()
+
+    def handle_data(self, data):
+        text = ' '.join(data.split())
+        if not text:
+            return
+        if self._block is not None:
+            if self._capture == 'title':
+                self._block['title'].append(text)
+            elif self._capture == 'snippet':
+                self._block['snippet'].append(text)
+            return
+        if self._href:
+            self.links.append((self._href, text, ''))
+
+
+def unwrap_result_url(url):
+    """Read a result target locally. Wrapper and redirect URLs are not requested."""
+    if url.startswith('//'):
+        url = 'https:' + url
+    parts = urlsplit(url)
+    query = parse_qs(parts.query)
+    embedded = (query.get('uddg') or [''])[0]
+    if embedded:
+        target = unquote(embedded)
+        return target if target.startswith(('http://', 'https://')) else ''
+    if parts.path.rstrip('/') != '/ck/a':
+        return url
+    encoded = (query.get('u') or [''])[0]
+    if encoded.startswith('a1'):
+        encoded = encoded[2:]
+    encoded = encoded.replace('-', '+').replace('_', '/')
+    encoded += '=' * ((4 - len(encoded) % 4) % 4)
+    try:
+        decoded = base64.b64decode(encoded).decode('utf-8', 'ignore')
+    except (ValueError, UnicodeError):
+        return ''
+    return decoded if decoded.startswith(('http://', 'https://')) else ''
+
+
+class _DdgLinks(HTMLParser):
+    """Read a public results page. The redirect URL around each result is not opened."""
+
+    def __init__(self):
+        super().__init__()
+        self.rows = []
+        self._href = ''
+        self._kind = ''
+        self._buf = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag != 'a':
+            return
+        attrs = dict(attrs)
+        classes = (attrs.get('class') or '').split()
+        if 'result__a' in classes:
+            self._kind = 'title'
+            self._href = attrs.get('href', '')
+            self._buf = []
+        elif 'result__snippet' in classes:
+            self._kind = 'snippet'
+            self._buf = []
+        else:
+            self._kind = ''
+
+    def handle_endtag(self, tag):
+        if tag != 'a' or not self._kind:
+            return
+        text = ' '.join(''.join(self._buf).split())
+        if self._kind == 'title' and self._href and text:
+            self.rows.append({'href': self._href, 'title': text, 'snippet': ''})
+        elif self._kind == 'snippet' and self.rows:
+            self.rows[-1]['snippet'] = text
+        self._kind = ''
+        self._buf = []
+
+    def handle_data(self, data):
+        if self._kind:
+            self._buf.append(data)
+
+
+def parse_ddg(content, limit, allowed_domains=None):
+    parser = _DdgLinks()
+    parser.feed(content.decode('utf-8', 'ignore'))
+    results, seen = [], set()
+    for row in parser.rows:
+        if _keep_result(row['href'], row['title'], limit, results, seen, row['snippet'] or row['title'], allowed_domains):
+            break
+    return results
+
+
+def _ddg_next_fields(content):
+    text = content.decode('utf-8', 'ignore')
+    for match in re.finditer(r'<form action="/html/" method="post">([\s\S]*?)</form>', text):
+        form = match.group(1)
+        if 'name="vqd"' not in form:
+            continue
+        fields = {}
+        for tag in re.findall(r'<input\b[^>]*>', form, re.I):
+            name = re.search(r'\bname="([^"]*)"', tag)
+            value = re.search(r'\bvalue="([^"]*)"', tag)
+            if name:
+                fields[name.group(1)] = value.group(1) if value else ''
+        if fields.get('q') and fields.get('vqd'):
+            return fields
+    return None
+
+
+def _ddg_challenged(response):
+    return response.status_code == 202 or b'anomaly-modal' in response.content
+
+
+def _keep_result(url, title, limit, results, seen, content=None, allowed_domains=None):
+    url = unwrap_result_url(url)
+    parts = urlsplit(url)
+    host = (parts.hostname or '').lower()
+    domains = allowed_domains or ('linkedin.com', 'naukri.com')
+    if parts.scheme not in ('http', 'https') or not any(host == domain or host.endswith('.' + domain) for domain in domains):
+        return False
+    if host.endswith('linkedin.com') and not parts.path.startswith(('/in/', '/posts/', '/feed/update/')):
+        return False
+    if host.endswith('naukri.com') and not parts.path.strip('/'):
+        return False
+    clean = urlunsplit(('https', 'www.linkedin.com' if host.endswith('linkedin.com') else parts.netloc, parts.path.rstrip('/'), '', ''))
+    if clean in seen:
+        return False
+    seen.add(clean)
+    results.append({'url': clean, 'title': title, 'content': content or title})
+    return len(results) >= limit
+
+
+def parse_html(content, limit, allowed_domains=None):
+    parser = _BingLinks()
+    parser.feed(content.decode('utf-8', 'ignore'))
+    parser._close_block()
+    results, seen = [], set()
+    for url, title, snippet in parser.links:
+        if _keep_result(url, title, limit, results, seen, snippet or title, allowed_domains):
+            break
+    return results
+
+
+def parse_results(content, limit):
+    if b'<!DOCTYPE' in content.upper() or b'<!ENTITY' in content.upper():
+        raise ValueError('Unsupported search feed')
+    try:
+        root = ElementTree.fromstring(content)
+    except ElementTree.ParseError as exc:
+        raise ValueError('Public search is unavailable; please try again later') from exc
+    if root.tag != 'rss':
+        raise ValueError('Public search did not return a search feed')
+    results, seen = [], set()
+    for item in root.findall('./channel/item'):
+        title = item.findtext('title') or ''
+        description = item.findtext('description') or title
+        if _keep_result((item.findtext('link') or '').strip(), title, limit, results, seen, description):
+            break
+    return results
+
+
+_PAGE_TIMEOUT = httpx.Timeout(connect=5.0, read=10.0, write=5.0, pool=5.0)
+_HEADERS = {'User-Agent': _BROWSER, 'Accept-Language': 'en-US,en;q=0.9'}
+
+
+async def _fetch(method, url, retries=1, **kwargs):
+    """One short request, then one retry. A timeout returns no response and does not raise."""
+    timed_out = False
+    for _ in range(retries + 1):
+        try:
+            async with httpx.AsyncClient(timeout=_PAGE_TIMEOUT, follow_redirects=False, headers=_HEADERS) as client:
+                return await client.request(method, url, **kwargs), False
+        except httpx.TimeoutException:
+            timed_out = True
+        except httpx.HTTPError:
+            return None, False
+    return None, timed_out
+
+
+class PublicSearchUnavailable(ValueError):
+    """A results page did not arrive. timed_out tells a slow network apart from a refusal."""
+
+    def __init__(self, message, timed_out=False):
+        super().__init__(message)
+        self.timed_out = timed_out
+
+
+# Text of a bot-check page. Checked only on a page without results, and only reported: it is not solved.
+_BOT_CHECK_MARKERS = (b'captcha', b'unusual traffic', b'are you a robot', b'not a robot', b'verify you are human',
+                      b'challenge-platform', b'cf-chl', b'detected unusual')
+
+
+async def _search_page(query, limit, first, allowed_domains=None):
+    response, timed_out = await _fetch(
+        'GET', 'https://www.bing.com/search', params={'q': query, 'count': min(limit, 20), 'first': first})
+    if timed_out or response is None or response.status_code != 200:
+        raise PublicSearchUnavailable('Public search is temporarily unavailable or rate limited', timed_out=timed_out)
+    if len(response.content) > 1_000_000:
+        raise ValueError('Public search response is too large')
+    rows = parse_html(response.content, limit, allowed_domains)
+    if not rows and any(marker in response.content.lower() for marker in _BOT_CHECK_MARKERS):
+        raise PublicSearchUnavailable('Bing showed a bot check instead of results')
+    return rows
+
+
+async def _read_ddg_pages(response, limit, found, seen, allowed_domains=None, query=''):
+    """Page a results response until no new profile links appear. A challenge is not solved."""
+    challenged = False
+    timed_out = False
+    pages = 0
+    while pages < 6 and response is not None and len(found) < limit:
+        pages += 1
+        if _ddg_challenged(response):
+            challenged = True
+            break
+        if response.status_code != 200 or len(response.content) > 1_000_000:
+            break
+        page = parse_ddg(response.content, limit - len(found), allowed_domains)
+        added = [row for row in page if row['url'] not in seen]
+        if not added:
+            break
+        for row in added:
+            row['search_query'] = query
+        seen.update(row['url'] for row in added)
+        found.extend(added)
+        fields = _ddg_next_fields(response.content)
+        if not fields or len(found) >= limit:
+            break
+        response, timed_out = await _fetch('POST', 'https://html.duckduckgo.com/html/', data=fields)
+        if timed_out or response is None:
+            break
+    return challenged, timed_out
+
+
+async def _search_ddg(query, limit, found=None, seen=None, warm=True):
+    """Read profile links from a public results page. A challenge page is not solved."""
+    found = found if found is not None else []
+    seen = seen if seen is not None else set()
+    if warm:
+        await _fetch('GET', 'https://duckduckgo.com/', retries=0)
+    response, timed_out = await _fetch('GET', 'https://html.duckduckgo.com/html/', params={'q': query, 'kl': 'in-en'})
+    if timed_out or response is None:
+        return found, False
+    challenged, _timed_out = await _read_ddg_pages(response, limit, found, seen)
+    return found, challenged
+
+
+async def _search_bing(query, limit, allowed_domains=None, report=None):
+    found, seen = [], set()
+    first = 1
+    while len(found) < limit and first <= 41:
+        try:
+            page = await _search_page(query, limit - len(found), first, allowed_domains)
+        except ValueError as exc:
+            if report is not None and first == 1:
+                # The first page was refused or did not answer, so nothing was searched.
+                report['blocked'] = report.get('blocked', 0) + 1
+                kind = 'timeouts' if getattr(exc, 'timed_out', False) else 'refused'
+                report[kind] = report.get(kind, 0) + 1
+            break
+        added = [row for row in page if row['url'] not in seen]
+        if not added:
+            break
+        seen.update(row['url'] for row in added)
+        found.extend(added)
+        first += 20
+    return found
+
+
+async def search_public(query, limit=10):
+    """Read a public results page, then the next page only while new profile links appear."""
+    limit = min(max(int(limit or 1), 1), 60)
+    found, challenged = await _search_ddg(query, limit)
+    if found or challenged:
+        return found[:limit]
+    return (await _search_bing(query, limit))[:limit]
+
+
+class SearchBatch(tuple):
+    """Matched rows and attempt count.
+
+    timed_out is set when nothing was kept. blocked is set when nothing was kept
+    and DuckDuckGo or Bing refused a request (challenge page or error status).
+    """
+
+    def __new__(cls, found, attempts, timed_out=False, blocked=False):
+        batch = super().__new__(cls, (list(found), attempts))
+        batch.timed_out = bool(timed_out)
+        batch.blocked = bool(blocked)
+        return batch
+
+
+def _engine_tally():
+    return {'attempts': 0, 'found': 0, 'challenged': 0, 'refused': 0, 'timeouts': 0, 'urls': [], 'skipped': ''}
+
+
+async def search_public_many(queries, limit=50, allowed_domains=None, supplement_with_bing=False, report=None):
+    """Keep reading result pages until the route minimum is filled or the connection stops answering.
+
+    When report is a dict it receives one tally per engine ('duckduckgo', 'bing').
+    engine_sources() turns the tallies into the per-source status shown to users.
+    """
+    limit = min(max(int(limit or 1), 1), 120)
+    domains = tuple(allowed_domains or ('linkedin.com', 'naukri.com'))
+    found, seen = [], set()
+    challenges = 0
+    refused = 0
+    timeouts = 0
+    attempts = 0
+    bing_report = {}
+    ddg, bing = _engine_tally(), _engine_tally()
+    await _fetch('GET', 'https://duckduckgo.com/', retries=0)
+    for query in queries:
+        if len(found) >= limit or challenges >= 8 or timeouts >= 2:
+            break
+        attempts += 1
+        ddg['attempts'] += 1
+        before = len(found)
+        response, timed_out = await _fetch('GET', 'https://html.duckduckgo.com/html/', params={'q': query, 'kl': 'in-en'})
+        if timed_out or response is None:
+            if timed_out:
+                timeouts += 1
+                ddg['timeouts'] += 1
+            else:
+                challenges += 1
+                refused += 1
+                ddg['refused'] += 1
+                timeouts = 0
+            continue
+        if response.status_code not in (200, 202):
+            refused += 1
+            ddg['refused'] += 1
+        challenged, page_timeout = await _read_ddg_pages(
+            response, limit, found, seen, domains, query)
+        ddg['found'] += len(found) - before
+        ddg['urls'].extend(row['url'] for row in found[before:])
+        if challenged:
+            ddg['challenged'] += 1
+        if page_timeout:
+            timeouts += 1
+            ddg['timeouts'] += 1
+        elif challenged and len(found) == before:
+            challenges += 1
+            refused += 1
+            timeouts = 0
+        elif len(found) > before:
+            challenges = 0
+            timeouts = 0
+        else:
+            timeouts = 0
+    # Search Bing for additional candidates even when DuckDuckGo returned some:
+    # the later trainer relevance filters may discard much of that first batch.
+    wants_bing = (not found or supplement_with_bing) and len(found) < limit
+    if wants_bing and timeouts < 2 and queries:
+        for query in queries:
+            if len(found) >= limit:
+                break
+            bing['attempts'] += 1
+            bing_rows = await _search_bing(query, limit - len(found), domains, report=bing_report)
+            for row in bing_rows:
+                if row['url'] in seen:
+                    continue
+                row['search_query'] = query
+                seen.add(row['url'])
+                found.append(row)
+                bing['found'] += 1
+                bing['urls'].append(row['url'])
+                if len(found) >= limit:
+                    break
+    elif not queries:
+        ddg['skipped'] = bing['skipped'] = 'no_queries'
+    else:
+        bing['skipped'] = 'timeouts' if wants_bing else 'enough'
+    bing['refused'] = bing_report.get('refused', 0)
+    bing['timeouts'] = bing_report.get('timeouts', 0)
+    kept = found[:limit]
+    if report is not None:
+        report['duckduckgo'] = ddg
+        report['bing'] = bing
+    return SearchBatch(kept, attempts, timed_out=not kept and timeouts > 0,
+                       blocked=not kept and bool(refused or bing_report.get('blocked')))
+
+
+def merge_engine_reports(reports):
+    """Add up the engine tallies of several search_public_many calls."""
+    merged = {}
+    for report in reports:
+        for name, tally in (report or {}).items():
+            target = merged.setdefault(name, _engine_tally())
+            for key in ('attempts', 'found', 'challenged', 'refused', 'timeouts'):
+                target[key] += int(tally.get(key) or 0)
+            target['urls'].extend(tally.get('urls') or ())
+            target['skipped'] = target['skipped'] or tally.get('skipped') or ''
+    return merged
+
+
+_ENGINE_LABELS = (('duckduckgo', 'DuckDuckGo'), ('bing', 'Bing'))
+
+
+def _engine_status(label, tally, found, qualified, noun):
+    attempts = int(tally.get('attempts') or 0)
+    refused = int(tally.get('refused') or 0) + int(tally.get('challenged') or 0)
+    timeouts = int(tally.get('timeouts') or 0)
+    if not attempts:
+        if tally.get('skipped') == 'enough':
+            return 'not_needed', f'Not searched: {label} was not needed because another engine already returned results.'
+        if tally.get('skipped') == 'timeouts':
+            return 'not_run', f'Not searched: the network stopped answering before {label} was tried.'
+        return 'not_run', f'{label} was not searched.'
+    if found:
+        if qualified:
+            return 'ok', ''
+        return 'filtered', f'{label} returned {found} link(s), but none passed the profile and skill checks.'
+    if refused:
+        return 'blocked', (f'{label} refused the request or showed a bot check on {min(refused, attempts)} of '
+                           f'{attempts} search(es). Blocks are reported, not bypassed.')
+    if timeouts:
+        return 'error', f'{label} did not answer in time on {min(timeouts, attempts)} of {attempts} search(es).'
+    return 'no_results', f'{label} returned no {noun} for these searches.'
+
+
+def engine_sources(report, kept_urls=None, noun='profiles'):
+    """One status entry per engine that a search_public_many report covers.
+
+    kept_urls are the result URLs (as search_public_many returned them) that passed the caller's
+    own checks; they become each engine's qualified count. Without them every result counts.
+    """
+    kept = None if kept_urls is None else set(kept_urls)
+    entries = []
+    for name, label in _ENGINE_LABELS:
+        tally = (report or {}).get(name)
+        if not tally:
+            continue
+        found = int(tally.get('found') or 0)
+        qualified = found if kept is None else len(set(tally.get('urls') or ()) & kept)
+        status, reason = _engine_status(label, tally, found, qualified, noun)
+        entries.append({'source': name, 'label': label, 'status': status, 'found': found,
+                        'qualified': qualified, 'reason': reason})
+    return entries

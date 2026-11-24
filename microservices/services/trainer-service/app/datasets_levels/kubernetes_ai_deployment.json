@@ -1,0 +1,573 @@
+{
+  "domain": "Kubernetes AI Deployment",
+  "name": "Kubernetes AI Deployment",
+  "category": "Generative AI and Agents",
+  "icon": "server-cog",
+  "aliases": ["AI/ML on Kubernetes", "Kubernetes Model Serving", "LLM Serving on Kubernetes", "GPU Workloads on Kubernetes", "Kubernetes for AI", "AI Infrastructure on Kubernetes", "Cloud Native AI", "LLM Inference on Kubernetes"],
+  "certifications": ["NVIDIA-Certified Associate: AI Infrastructure and Operations (NCA-AIIO)", "NVIDIA-Certified Professional: AI Operations (NCP-AIO)", "NVIDIA-Certified Professional: AI Infrastructure (NCP-AII)", "Certified Kubernetes Administrator (CKA)", "Certified Kubernetes Security Specialist (CKS)"],
+  "tools": ["Kubernetes", "Helm", "NVIDIA GPU Operator", "Dynamic Resource Allocation", "vLLM", "KServe", "llm-d", "Gateway API Inference Extension", "KubeRay", "Kubeflow Trainer", "Kueue", "KEDA", "Karpenter", "DCGM Exporter"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For engineers who already deploy ordinary applications on Kubernetes and now have to run GPU-backed AI workloads. Covers how a GPU node is assembled (driver, NVIDIA Container Toolkit, CDI), installing the NVIDIA GPU Operator, requesting GPUs, building model-server images, getting model weights into pods, serving an LLM with vLLM and with KServe, sizing GPU memory for weights and KV cache, probes for slow-loading models, batch inference and a single-GPU fine-tuning Job, GPU and token-level metrics, autoscaling with HPA and KEDA, GPU time-slicing, and fault diagnosis, ending with a production-ready single-node LLM endpoint.",
+      "prerequisites": ["Deploys and debugs Deployments, Services, Jobs, PersistentVolumeClaims and Secrets with kubectl, and installs charts with Helm", "Knows what a large language model, model weights and an inference API are, and can call an HTTP API with curl or Python", "Has access to a Kubernetes 1.33 or later cluster with at least one NVIDIA GPU node (for example an L4, L40S or A100), either a managed cluster on EKS, GKE or AKS or a lab cluster provided by the trainer"],
+      "outcomes": ["Prepare GPU nodes with the NVIDIA GPU Operator and schedule pods that request whole or time-sliced GPUs", "Serve an open-weight LLM through vLLM and KServe with correct probes, memory settings and an OpenAI-compatible endpoint", "Run batch inference and a single-GPU fine-tuning Job that store results and checkpoints on persistent storage", "Monitor GPU and token metrics with DCGM Exporter and Prometheus, autoscale on serving metrics, and diagnose the common GPU pod failures"],
+      "days": [
+        {
+          "topic": "GPU Node Anatomy: Drivers, CUDA and the Container Toolkit",
+          "subtopics": ["Kernel driver on the host versus CUDA user-space libraries inside the image", "Reading nvidia-smi: driver version, maximum supported CUDA version, memory and processes", "CUDA minor-version and forward compatibility between driver and toolkit", "NVIDIA Container Toolkit and how nvidia-container-runtime injects devices and libraries", "Container Device Interface (CDI) specifications and nvidia-ctk cdi list", "containerd runtime handlers and the nvidia RuntimeClass", "Data centre GPUs compared by memory: L4 24 GB, L40S 48 GB, A100 40/80 GB, H100 80 GB, H200 141 GB", "PCIe versus NVLink and reading nvidia-smi topo -m", "GPU-optimised node images on EKS, GKE and AKS and what they preinstall"],
+          "tools": ["nvidia-smi", "NVIDIA Container Toolkit", "nvidia-ctk", "containerd", "crictl", "kubectl"],
+          "lab_task": "Open a shell on a GPU node with kubectl debug node/<gpu-node> -it --image=ubuntu and chroot /host. Run nvidia-smi, nvidia-smi -L and nvidia-smi topo -m, then nvidia-ctk cdi list and grep -n nvidia /etc/containerd/config.toml (or the config.d drop-in). Record per GPU: model, UUID, total memory, driver version, CUDA version and interconnect, and note whether the node image or the operator owns the driver.",
+          "deliverable": "Node inventory sheet with one row per GPU and the containerd runtime handler configuration",
+          "checks": [["Run nvidia-smi on the GPU node", "Header shows the driver version and CUDA version, with one row per GPU listing total memory in MiB", "Terminal output"], ["Run nvidia-ctk cdi list", "Lists CDI device names such as nvidia.com/gpu=0 and nvidia.com/gpu=all", "Command output"], ["Run nvidia-smi topo -m on a node with two or more GPUs", "Matrix shows NV# for NVLink pairs or PIX, PHB, NODE or SYS for PCIe paths", "Topology matrix"]],
+          "objectives": ["Explain which GPU software lives on the host and which lives in the container", "Read driver, CUDA and topology information from a GPU node", "Identify how containerd hands GPUs to containers through the toolkit or CDI"]
+        },
+        {
+          "topic": "Installing the NVIDIA GPU Operator with Helm",
+          "subtopics": ["helm repo add nvidia https://helm.ngc.nvidia.com/nvidia and chart values", "The ClusterPolicy custom resource and its status", "Operands: driver, container toolkit, device plugin, GPU Feature Discovery, DCGM Exporter, MIG Manager and validator", "Node Feature Discovery and the feature.node.kubernetes.io/pci-10de.present label", "driver.enabled=false and toolkit.enabled=false on node images that ship them", "GPU Feature Discovery labels: nvidia.com/gpu.product, gpu.count, gpu.memory, cuda.driver-version", "nvidia-operator-validator and the order operands become ready", "Pod Security Admission: why the gpu-operator namespace runs privileged pods"],
+          "tools": ["Helm", "NVIDIA GPU Operator", "Node Feature Discovery", "kubectl"],
+          "lab_task": "Run helm install --wait gpu-operator nvidia/gpu-operator -n gpu-operator --create-namespace, adding --set driver.enabled=false if the node image already has a driver. Wait until kubectl get pods -n gpu-operator shows every pod Running or Completed, then run kubectl get nodes -L nvidia.com/gpu.product,nvidia.com/gpu.count,nvidia.com/gpu.memory and kubectl describe node <gpu-node>. Record how long each operand took to become ready.",
+          "deliverable": "Install log with the Helm values used, operand timings and the node label table",
+          "checks": [["Run kubectl get clusterpolicies.nvidia.com", "cluster-policy shows STATUS ready", "Command output"], ["Run kubectl get nodes -L nvidia.com/gpu.product", "GPU nodes show a product such as NVIDIA-L4 and CPU-only nodes show an empty column", "Command output"], ["Run kubectl describe node <gpu-node> and read Capacity and Allocatable", "nvidia.com/gpu equals the physical GPU count reported by nvidia-smi -L", "describe output"]],
+          "objectives": ["Install and verify the GPU Operator on an existing cluster", "Explain what each operand does and how they depend on each other", "Use GPU Feature Discovery labels to identify GPU types"]
+        },
+        {
+          "topic": "Requesting GPUs: Extended Resources, Taints and Node Selection",
+          "subtopics": ["nvidia.com/gpu as an extended resource set in resources.limits", "Requests default to limits; no overcommit and no fractional values", "GPU node taints such as nvidia.com/gpu=present:NoSchedule and matching tolerations", "nodeSelector and nodeAffinity on nvidia.com/gpu.product", "NVIDIA_VISIBLE_DEVICES and what the device plugin injects at Allocate time", "Scheduler events: Insufficient nvidia.com/gpu and untolerated taint", "Keeping CPU-only pods off expensive GPU nodes", "runtimeClassName: nvidia when the NVIDIA runtime is not the containerd default"],
+          "tools": ["kubectl", "NVIDIA device plugin", "CUDA sample images (nvcr.io/nvidia/k8s/cuda-sample)"],
+          "lab_task": "Create a pod from the nvcr.io/nvidia/k8s/cuda-sample vectoradd image with resources.limits nvidia.com/gpu: 1, a toleration for the GPU taint and a nodeSelector on nvidia.com/gpu.product. Read its logs. Then apply a copy requesting one more GPU than the largest node has, and a copy requesting nvidia.com/gpu: 500m. Record the event or API error for each and remove the toleration to see a fourth result.",
+          "deliverable": "Four pod manifests with the observed outcome of each",
+          "checks": [["Read logs of the vectoradd pod requesting one GPU", "Output ends with Test PASSED", "kubectl logs output"], ["Apply a pod requesting more GPUs than any node has", "Pod stays Pending with a FailedScheduling event containing Insufficient nvidia.com/gpu", "kubectl describe pod events"], ["Apply a pod requesting nvidia.com/gpu: 500m", "API server rejects it with Invalid value \"500m\": must be an integer", "kubectl apply error"]],
+          "objectives": ["Write pod specs that request GPUs correctly", "Steer GPU pods to the right GPU type with selectors and tolerations", "Interpret scheduler events for GPU requests"]
+        },
+        {
+          "topic": "Building GPU Container Images for Model Servers",
+          "subtopics": ["nvcr.io/nvidia/cuda base, runtime and devel image variants", "PyTorch wheels that bundle their own CUDA libraries", "Multi-stage builds that drop compilers and build caches", "Keeping model weights out of the image", "Image size, pull time and node disk pressure with multi-gigabyte images", "Image streaming and lazy pulling: GKE image streaming and SOCI on EKS", "Pinning by digest and non-root users in AI images", "Checking torch.cuda.is_available() and the CUDA version inside the container"],
+          "tools": ["Docker or Podman", "NVIDIA CUDA images", "PyTorch", "kubectl", "crictl"],
+          "lab_task": "Build two images for the same small PyTorch inference script: one FROM a CUDA devel image and one multi-stage build FROM a CUDA runtime image (or python:3.12-slim with PyTorch wheels). Push both, compare docker image ls sizes, then start each on a node without a cached copy and read Pulling and Pulled events. Inside each pod run python -c \"import torch; print(torch.cuda.is_available(), torch.version.cuda)\".",
+          "deliverable": "Two Dockerfiles with a table of image size, pull time and CUDA check result",
+          "checks": [["Run the CUDA check inside each pod", "Both print True and a CUDA version such as 12.x", "kubectl exec output"], ["Compare docker image ls sizes", "The runtime-based image is several gigabytes smaller than the devel-based image", "Size table"], ["Read the Pulled event for each image on an uncached node", "The event reports a longer pull duration for the larger image", "kubectl describe pod events"]],
+          "objectives": ["Choose a base image for a GPU model server", "Reduce image size and pull time", "Verify GPU access from inside a container"]
+        },
+        {
+          "topic": "Getting Model Weights into Pods: Download Jobs, PVCs and Tokens",
+          "subtopics": ["Hugging Face Hub repositories, revisions and gated models", "HF_TOKEN stored in a Kubernetes Secret and passed as an environment variable", "hf download with --local-dir, --include and --revision", "A download Job that pre-populates a PersistentVolumeClaim", "ReadWriteOnce versus ReadWriteMany storage classes for shared weights", "HF_HOME, the hub cache layout and HF_HUB_OFFLINE=1", "safetensors versus pickle-based .bin checkpoints", "Sizing storage: parameters times bytes per parameter (an 8B model in bf16 is about 16 GB)"],
+          "tools": ["Hugging Face Hub", "hf CLI", "kubectl", "PersistentVolumeClaim", "Kubernetes Secret"],
+          "lab_task": "Create Secret hf-token, a 50Gi PVC and a Job that runs hf download Qwen/Qwen2.5-1.5B-Instruct --local-dir /models/qwen2.5-1.5b --include \"*.json\" \"*.safetensors\" \"tokenizer*\". Record the Job duration and du -sh of the directory. Run a second Job for the gated meta-llama/Llama-3.1-8B-Instruct without the token, then with it. Finally mount the PVC read-only in a pod and list the files.",
+          "deliverable": "Download Job manifests, the file listing and a note on download time and size",
+          "checks": [["Run kubectl get job download-qwen after completion", "COMPLETIONS shows 1/1", "Command output"], ["Download the gated Llama model without HF_TOKEN", "Job pod fails with a GatedRepoError and an HTTP 401 or 403 from the Hub", "Pod logs"], ["List /models/qwen2.5-1.5b in the read-only consumer pod", "Shows config.json, tokenizer files and a model.safetensors of about 3 GB", "ls -lh output"]],
+          "objectives": ["Store Hub credentials safely and download weights in-cluster", "Choose PVC access modes for model storage", "Estimate disk needed for a model"]
+        },
+        {
+          "topic": "Serving an LLM with vLLM as a Kubernetes Deployment",
+          "subtopics": ["The vllm/vllm-openai image and the vllm serve command", "--model pointing at a PVC path and --served-model-name", "--dtype, --max-model-len and --gpu-memory-utilization (default 0.9)", "An emptyDir with medium: Memory mounted at /dev/shm", "Port 8000, a ClusterIP Service and kubectl port-forward", "OpenAI-compatible routes: /v1/models, /v1/chat/completions, /v1/completions, /health", "Startup log lines: model load time, KV cache size and maximum concurrency", "Rollout strategy on scarce GPUs: Recreate or maxSurge: 0", "--api-key and the VLLM_API_KEY variable"],
+          "tools": ["vLLM", "kubectl", "curl", "OpenAI Python SDK"],
+          "lab_task": "Deploy vllm/vllm-openai with args --model /models/qwen2.5-1.5b --served-model-name qwen --max-model-len 8192, one GPU, the PVC from Day 5 and a 2Gi /dev/shm. Expose port 8000 with a Service, port-forward it and call /v1/models and /v1/chat/completions. Record time to Ready and the KV cache line from the logs. Then set maxSurge: 1 on a one-GPU cluster, change an arg and watch the rollout.",
+          "deliverable": "vLLM Deployment and Service manifests with curl transcripts and startup timings",
+          "checks": [["curl localhost:8000/v1/models", "JSON data[0].id equals qwen", "curl output"], ["POST a chat completion with max_tokens 50", "Response contains choices[0].message.content and usage.completion_tokens of 50 or fewer", "curl output"], ["Roll out a change with maxSurge: 1 when only one GPU exists", "New pod stays Pending with Insufficient nvidia.com/gpu while the old pod keeps serving", "kubectl get pods and events"]],
+          "objectives": ["Deploy vLLM with storage, shared memory and a Service", "Call the OpenAI-compatible API", "Pick a rollout strategy that works when GPUs are scarce"]
+        },
+        {
+          "topic": "Probes, Startup Time and Graceful Shutdown for Model Servers",
+          "subtopics": ["Phases of a cold start: image pull, weight load, CUDA graph capture, server start", "startupProbe budgets: failureThreshold times periodSeconds", "readinessProbe on /health and keeping unready pods out of EndpointSlices", "Why an aggressive livenessProbe restarts a model that is still loading", "--enforce-eager: faster start against lower throughput", "terminationGracePeriodSeconds and preStop for in-flight streamed responses", "PodDisruptionBudgets for inference Deployments", "Measuring start time from pod events and server logs"],
+          "tools": ["vLLM", "kubectl", "EndpointSlice"],
+          "lab_task": "Give the vLLM Deployment only a livenessProbe on /health with initialDelaySeconds: 20 and failureThreshold: 1, and watch RESTARTS. Replace it with a startupProbe (periodSeconds 10, failureThreshold 60), a readinessProbe and a gentle livenessProbe. While a new pod starts, run kubectl get endpointslices -l kubernetes.io/service-name=vllm -w. Compare start time with and without --enforce-eager.",
+          "deliverable": "Probe configuration with a start-time breakdown and before and after restart counts",
+          "checks": [["Run with the aggressive livenessProbe only", "Pod RESTARTS increases and events show Liveness probe failed before the model finishes loading", "kubectl get pods and events"], ["Watch EndpointSlices while the pod with a startupProbe starts", "Endpoint is listed with ready: false until /health returns 200, then ready: true", "EndpointSlice watch output"], ["Compare cold start with and without --enforce-eager", "Eager mode starts faster because the CUDA graph capture step is skipped", "Timing table from logs"]],
+          "objectives": ["Configure probes for slow-loading models", "Break down where cold-start time goes", "Protect in-flight requests during rollouts and disruptions"]
+        },
+        {
+          "topic": "Exposing LLM Endpoints: Gateway Routes, Timeouts and Streaming",
+          "subtopics": ["In-cluster DNS names for model Services", "Gateway and HTTPRoute pointing at the vLLM Service", "Request timeouts for long generations with HTTPRoute timeouts.request", "Server-sent events with stream: true and proxy buffering", "OpenAI Python SDK with base_url and api_key", "Request body size limits for long prompts", "TLS termination at the Gateway", "Separating internal and external listeners"],
+          "tools": ["Gateway API", "Envoy Gateway", "OpenAI Python SDK", "curl"],
+          "lab_task": "Install a Gateway API implementation such as Envoy Gateway, create a Gateway and an HTTPRoute to the vLLM Service with timeouts.request: 10s. Call it with the OpenAI SDK using base_url and stream=True and print tokens as they arrive. Send a request with max_tokens 2000 and record the result, then raise the timeout to 300s and repeat. Measure time to first streamed chunk.",
+          "deliverable": "HTTPRoute manifest, streaming client script and a timeout before and after comparison",
+          "checks": [["Run kubectl get httproute vllm -o yaml", "status.parents shows Accepted True and ResolvedRefs True", "Route status"], ["Send a 2000-token generation through the 10s timeout", "Gateway returns HTTP 504 after about 10 seconds", "Client output with timing"], ["Stream the same request after raising the timeout to 300s", "Chunks arrive incrementally and the stream ends with finish_reason stop or length", "Client output"]],
+          "objectives": ["Route external traffic to a model server with Gateway API", "Set timeouts that suit long generations", "Consume streamed responses through a gateway"]
+        },
+        {
+          "topic": "GPU Memory Budgeting: Weights, KV Cache and Context Length",
+          "subtopics": ["Weight memory: parameters times bytes (bf16 2, fp8 1, int4 0.5)", "KV cache per token: 2 x layers x KV heads x head dimension x bytes", "Grouped-query attention and why it shrinks the KV cache", "--gpu-memory-utilization and what the remaining memory is used for", "--max-model-len and the startup error when the KV cache cannot hold one sequence", "--max-num-seqs and the reported maximum concurrency", "Matching models to GPUs: 8B on L4 against 70B on H100", "Pre-quantized checkpoints (FP8, AWQ, GPTQ) to fit smaller GPUs"],
+          "tools": ["vLLM", "nvidia-smi", "Model config.json", "Spreadsheet or Python"],
+          "lab_task": "From config.json of Llama-3.1-8B-Instruct compute weight memory in bf16 and KV cache per token (32 layers, 8 KV heads, head_dim 128). Predict whether 131072 tokens fit on a 24 GB L4. Start vLLM there with default max-model-len and record the error, then use --max-model-len 16384 and record the Maximum concurrency log line. Repeat with an FP8 checkpoint.",
+          "deliverable": "Memory worksheet comparing predictions with vLLM log values",
+          "checks": [["Compute KV cache per token for Llama-3.1-8B in bf16", "Result is 131072 bytes (128 KiB) per token", "Worksheet"], ["Start the model on an L4 with the default 131072 context", "vLLM fails at startup with a ValueError that the KV cache needed exceeds available KV cache memory and suggests lowering max_model_len", "Pod logs"], ["Start with --max-model-len 16384", "Server becomes Ready and logs a Maximum concurrency for 16,384 tokens per request value above 1", "Pod logs"]],
+          "objectives": ["Estimate GPU memory for weights and KV cache", "Choose context length and concurrency settings for a GPU", "Use quantized checkpoints to fit a model on smaller GPUs"]
+        },
+        {
+          "topic": "KServe InferenceService for Predictive Models",
+          "subtopics": ["KServe control plane, cert-manager dependency and installation options", "Serverless mode with Knative against RawDeployment (standard) mode", "InferenceService spec.predictor.model with modelFormat and storageUri", "ClusterServingRuntime selection by model format", "The storage-initializer init container and supported URI schemes", "V1 protocol: POST /v1/models/<name>:predict", "Open Inference Protocol: POST /v2/models/<name>/infer", "kubectl get inferenceservices: READY and URL columns"],
+          "tools": ["KServe", "cert-manager", "kubectl", "curl"],
+          "lab_task": "Install KServe in RawDeployment mode following the project quick start. Apply an InferenceService sklearn-iris with modelFormat sklearn and storageUri gs://kfserving-examples/models/sklearn/1.0/model. When READY is True, port-forward the predictor Service and POST {\"instances\": [[6.8, 2.8, 4.8, 1.4], [6.0, 3.4, 4.5, 1.6]]} to /v1/models/sklearn-iris:predict. Then break storageUri and observe the pod.",
+          "deliverable": "InferenceService manifest, prediction transcript and the failure analysis",
+          "checks": [["Run kubectl get isvc sklearn-iris", "READY shows True and a URL is set", "Command output"], ["POST the two iris instances to :predict", "Response is {\"predictions\": [1, 1]}", "curl output"], ["Set storageUri to a path that does not exist", "Predictor pod stays in Init:Error or Init:CrashLoopBackOff and storage-initializer logs show the download failure", "kubectl get pods and logs"]],
+          "objectives": ["Install KServe and deploy a model with an InferenceService", "Call V1 and V2 inference protocols", "Debug model download failures in the storage initializer"]
+        },
+        {
+          "topic": "Serving LLMs with the KServe Hugging Face Runtime",
+          "subtopics": ["modelFormat: huggingface and the kserve-huggingfaceserver runtime", "--model_name and --model_id arguments", "vLLM backend for generative models and the Hugging Face backend fallback", "OpenAI-compatible routes under /openai/v1", "Passing HF_TOKEN from a Secret to the predictor", "GPU resources on the predictor container", "Encoder tasks: text embedding and sequence classification", "Comparing a KServe LLM with a hand-written vLLM Deployment"],
+          "tools": ["KServe", "Hugging Face runtime", "vLLM", "curl"],
+          "lab_task": "Create an InferenceService qwen-llm with modelFormat huggingface, args --model_name=qwen and --model_id=Qwen/Qwen2.5-1.5B-Instruct and one GPU. POST a chat completion to /openai/v1/chat/completions with model qwen. Deploy a second service with --backend=huggingface, --task=text_embedding and sentence-transformers/all-MiniLM-L6-v2, then call /openai/v1/embeddings. List what KServe added compared with Day 6.",
+          "deliverable": "Two InferenceService manifests, API transcripts and a comparison table",
+          "checks": [["POST a chat completion to the qwen-llm service", "Response has object chat.completion and a non-empty message", "curl output"], ["POST an embedding request to the MiniLM service", "data[0].embedding has 384 values", "curl output piped to jq length"], ["Inspect the predictor pod of qwen-llm", "kserve-container requests nvidia.com/gpu: 1 and logs show the vLLM engine starting", "kubectl describe and logs"]],
+          "objectives": ["Serve generative and embedding models through KServe", "Call the OpenAI-compatible routes exposed by KServe", "Compare KServe with a plain vLLM Deployment"]
+        },
+        {
+          "topic": "Offline Batch Inference with Indexed Jobs",
+          "subtopics": ["Throughput-first batch inference against latency-first online serving", "Job completionMode: Indexed and the JOB_COMPLETION_INDEX variable", "Sharding a prompt file by index", "vLLM offline inference with the LLM class and SamplingParams", "parallelism bounded by available GPUs", "backoffLimitPerIndex and podFailurePolicy rules on exit codes", "Writing JSONL results to a PVC or object storage", "ttlSecondsAfterFinished for cleanup"],
+          "tools": ["Kubernetes Job", "vLLM", "Python", "kubectl"],
+          "lab_task": "Write a script that reads prompts.jsonl (4,000 prompts), keeps rows where row % 4 == JOB_COMPLETION_INDEX and generates with vllm.LLM, writing out-<index>.jsonl to a PVC and exiting 42 on a malformed input file. Run it as an Indexed Job with completions: 4, parallelism: 2 and a podFailurePolicy that fails the Job on exit code 42. Record tokens per second per pod, then inject a bad file.",
+          "deliverable": "Job manifest, batch script, four output files and a throughput table",
+          "checks": [["Run kubectl get job batch-infer after completion", "COMPLETIONS shows 4/4", "Command output"], ["Count lines in the output files", "Each out-<index>.jsonl has 1000 lines", "wc -l output"], ["Run with the malformed input that exits 42", "Job gets condition Failed with reason PodFailurePolicy and no retries", "kubectl describe job"]],
+          "objectives": ["Shard batch inference with Indexed Jobs", "Use vLLM offline inference for throughput", "Control retries with pod failure policies"]
+        },
+        {
+          "topic": "Single-GPU Fine-Tuning in a Kubernetes Job",
+          "subtopics": ["Job semantics for training: restartPolicy, backoffLimit, activeDeadlineSeconds", "LoRA fine-tuning with Hugging Face TRL SFTTrainer and PEFT", "bf16 mixed precision and gradient checkpointing", "Checkpoints on a PVC with save_steps and resume_from_checkpoint", "DataLoader workers and the /dev/shm requirement", "Logging loss to stdout and TensorBoard", "GPU memory during training versus inference", "Exporting the adapter for serving"],
+          "tools": ["PyTorch", "Hugging Face TRL", "PEFT", "TensorBoard", "Kubernetes Job"],
+          "lab_task": "Run a Job that fine-tunes Qwen/Qwen2.5-0.5B-Instruct with LoRA using TRL SFTTrainer on 1,000 samples, bf16, save_steps 100 and output_dir on a PVC. Delete the pod near step 150 and let the Job recreate it with resume_from_checkpoint=True. Before that, run once with dataloader_num_workers=4 and no /dev/shm volume. Record final loss and wall time.",
+          "deliverable": "Training Job manifest, logs showing the resume, and the saved adapter files",
+          "checks": [["Read logs of the recreated pod", "Trainer reports resuming from checkpoint-100 and global_step continues past 100", "Pod logs"], ["List the output directory after completion", "adapter_model.safetensors and adapter_config.json exist", "ls output"], ["Run with four DataLoader workers and the default 64 MB /dev/shm", "Training fails with a bus error message that mentions insufficient shared memory (shm)", "Pod logs"]],
+          "objectives": ["Run a fine-tuning workload as a Kubernetes Job", "Make training resumable with checkpoints on persistent storage", "Size shared memory and GPU memory for training"]
+        },
+        {
+          "topic": "GPU Telemetry with DCGM Exporter and Prometheus",
+          "subtopics": ["DCGM Exporter as a GPU Operator operand and its metrics port 9400", "Enabling dcgmExporter.serviceMonitor for kube-prometheus-stack", "DCGM_FI_DEV_GPU_UTIL against DCGM_FI_PROF_GR_ENGINE_ACTIVE", "DCGM_FI_DEV_FB_USED and DCGM_FI_DEV_FB_FREE", "Power, temperature and clocks: DCGM_FI_DEV_POWER_USAGE, DCGM_FI_DEV_GPU_TEMP", "DCGM_FI_DEV_XID_ERRORS for hardware and driver faults", "pod, namespace and container labels that map GPUs to workloads", "The NVIDIA DCGM Exporter Grafana dashboard and custom metric CSV files"],
+          "tools": ["DCGM Exporter", "Prometheus", "kube-prometheus-stack", "Grafana", "PromQL"],
+          "lab_task": "Install kube-prometheus-stack, upgrade the GPU Operator with dcgmExporter.serviceMonitor.enabled=true and confirm the target is up. With vLLM idle, query DCGM_FI_DEV_GPU_UTIL and DCGM_FI_DEV_FB_USED for its pod; then send load and query again. Write PromQL for GPU memory used per namespace and for GPUs idle below 5 percent over 30 minutes, and import the DCGM dashboard into Grafana.",
+          "deliverable": "PromQL query file, idle and loaded readings and a dashboard screenshot",
+          "checks": [["Open Prometheus Status > Targets", "dcgm-exporter targets are UP, one per GPU node", "Targets page screenshot"], ["Query DCGM metrics for the idle vLLM pod", "DCGM_FI_DEV_FB_USED is near 90 percent of GPU memory while DCGM_FI_DEV_GPU_UTIL is near 0", "Prometheus query result"], ["Run avg_over_time(DCGM_FI_DEV_GPU_UTIL[30m]) < 5", "Returns only GPUs with no active workload", "Query result"]],
+          "objectives": ["Collect GPU metrics into Prometheus", "Interpret utilisation and memory metrics for model servers", "Find idle GPUs with PromQL"]
+        },
+        {
+          "topic": "LLM Serving Metrics: Tokens, Queues and Latency",
+          "subtopics": ["The vLLM /metrics endpoint and a PodMonitor to scrape it", "vllm:num_requests_running and vllm:num_requests_waiting", "KV cache usage gauge (vllm:gpu_cache_usage_perc, renamed vllm:kv_cache_usage_perc in newer releases)", "Time to first token: vllm:time_to_first_token_seconds", "Inter-token latency and end-to-end request latency histograms", "Token counters vllm:prompt_tokens_total and vllm:generation_tokens_total", "histogram_quantile for p50 and p95", "Preemptions when the KV cache runs out"],
+          "tools": ["vLLM", "Prometheus", "Grafana", "vllm bench serve"],
+          "lab_task": "Add a PodMonitor for port 8000 /metrics. Restart vLLM with --max-num-seqs 4, then run vllm bench serve --dataset-name random --random-input-len 512 --random-output-len 128 at --max-concurrency 1, 8 and 16. For each run record p50 and p95 TTFT from PromQL, rate(vllm:generation_tokens_total[1m]) and peak vllm:num_requests_waiting. Build a Grafana panel for each metric.",
+          "deliverable": "Metrics dashboard JSON and a table of latency and throughput per concurrency level",
+          "checks": [["curl the pod's /metrics", "Output contains vllm:num_requests_running and vllm:time_to_first_token_seconds_bucket", "curl output"], ["Run concurrency 16 with --max-num-seqs 4", "vllm:num_requests_waiting peaks near 12 while running stays at 4", "Grafana panel"], ["Compare p95 TTFT at concurrency 1 and 16", "p95 TTFT at 16 is several times higher because requests queue", "Results table"]],
+          "objectives": ["Scrape and query vLLM serving metrics", "Relate queueing to latency", "Report TTFT, inter-token latency and throughput"]
+        },
+        {
+          "topic": "Autoscaling Model Servers with HPA on Custom Metrics",
+          "subtopics": ["Why CPU utilisation is a poor signal for GPU model servers", "Prometheus Adapter rules that rename vllm: metrics for custom.metrics.k8s.io", "kubectl get --raw /apis/custom.metrics.k8s.io/v1beta1 to verify", "HPA autoscaling/v2 with a Pods metric and AverageValue target", "behavior.scaleDown.stabilizationWindowSeconds and policies", "maxReplicas bounded by available GPUs", "Cold-start cost when scaling up a model server", "Pairing pod autoscaling with GPU node autoscaling"],
+          "tools": ["Horizontal Pod Autoscaler", "Prometheus Adapter", "Prometheus", "vLLM"],
+          "lab_task": "Install Prometheus Adapter with a rule matching ^vllm:(.*)$ as vllm_${1} for pod metrics. Verify with kubectl get --raw \"/apis/custom.metrics.k8s.io/v1beta1/namespaces/llm/pods/*/vllm_num_requests_waiting\". Create an HPA for the vLLM Deployment with minReplicas 1, maxReplicas 3 and averageValue 5 on that metric. Drive load with vllm bench serve, record when replicas change and when they scale back down.",
+          "deliverable": "Adapter rule, HPA manifest and a scaling timeline",
+          "checks": [["Query the custom metrics API for vllm_num_requests_waiting", "Returns a MetricValueList with one item per vLLM pod", "kubectl get --raw output"], ["Run kubectl get hpa during heavy load", "TARGETS shows a value above 5 and REPLICAS increases toward 3", "Command output"], ["Stop load and watch the HPA", "Replicas stay up until the 300-second scale-down stabilization window passes", "Timeline"]],
+          "objectives": ["Expose serving metrics to the HPA", "Autoscale model servers on queue depth", "Tune scale-down behaviour for expensive replicas"]
+        },
+        {
+          "topic": "Scale-to-Zero Inference with KEDA",
+          "subtopics": ["KEDA ScaledObject, triggers and the HPA it manages", "minReplicaCount: 0, activation thresholds and cooldownPeriod", "The KEDA HTTP add-on interceptor and HTTPScaledObject", "Why scale-from-zero needs a buffer that holds requests", "Cold-start cost: node, image, weights and engine start", "ScaledJob for queue-driven batch inference", "KServe serverless scale-to-zero as an alternative", "Which models should never scale to zero"],
+          "tools": ["KEDA", "KEDA HTTP add-on", "vLLM", "kubectl"],
+          "lab_task": "Install KEDA and the KEDA HTTP add-on. Create an HTTPScaledObject for the small vLLM Deployment with replicas min 0 and max 2, a host for the model and a short scaledownPeriod. Route requests through the interceptor Service. Wait for scale-down, send one chat completion and record its latency, then send ten more and record theirs. Check the ScaledObject the add-on creates.",
+          "deliverable": "HTTPScaledObject manifest and a cold versus warm latency table",
+          "checks": [["Run kubectl get deploy vllm-small after the idle period", "READY shows 0/0", "Command output"], ["Send the first request while scaled to zero", "Request succeeds after a delay equal to the full cold start, held by the interceptor", "Client timing"], ["Run kubectl get scaledobject while at zero", "READY True and ACTIVE False", "Command output"]],
+          "objectives": ["Configure scale-to-zero for an LLM endpoint", "Measure and explain cold-start latency", "Decide which workloads may scale to zero"]
+        },
+        {
+          "topic": "Sharing GPUs with Time-Slicing and MPS",
+          "subtopics": ["Time-slicing configuration: sharing.timeSlicing.resources with replicas", "devicePlugin.config in the ClusterPolicy and per-node nvidia.com/device-plugin.config labels", "Advertised count: physical GPUs times replicas", "Node labels nvidia.com/gpu.replicas and the -SHARED product suffix", "renameByDefault and the nvidia.com/gpu.shared resource name", "No memory or fault isolation between time-sliced pods", "MPS sharing in the device plugin and its limits", "Good fits: notebooks, CI, small embedding and rerank models"],
+          "tools": ["NVIDIA GPU Operator", "NVIDIA device plugin", "nvidia-smi", "vLLM"],
+          "lab_task": "Create a ConfigMap time-slicing-config with replicas: 4 for nvidia.com/gpu, point the ClusterPolicy devicePlugin.config at it and label one node with nvidia.com/device-plugin.config. Check Allocatable, then run four vLLM pods each serving a small model with --gpu-memory-utilization 0.2. Run nvidia-smi on the node, then add a fifth pod with --gpu-memory-utilization 0.5.",
+          "deliverable": "Time-slicing ConfigMap, node description and an isolation findings note",
+          "checks": [["Run kubectl describe node on a one-GPU node after the change", "Allocatable shows nvidia.com/gpu: 4", "describe output"], ["Run nvidia-smi with four pods running", "Four processes share the one physical GPU", "nvidia-smi output"], ["Start the fifth pod asking for 0.5 of GPU memory", "It is scheduled but fails at startup with a not-enough-free-memory error from vLLM", "Pod logs"]],
+          "objectives": ["Configure GPU time-slicing with the GPU Operator", "Explain the isolation limits of shared GPUs", "Choose workloads that suit time-slicing"]
+        },
+        {
+          "topic": "Troubleshooting GPU Pods: Pending, OOM and Xid Errors",
+          "subtopics": ["FailedScheduling: Insufficient nvidia.com/gpu and untolerated taint messages", "Allocatable nvidia.com/gpu of 0: device plugin not registered or driver not loaded", "OOMKilled with exit code 137 (host memory) against CUDA out of memory (GPU memory)", "ImagePullBackOff and disk pressure from very large images", "Wrong or missing runtimeClassName and NVML initialisation errors", "Xid messages in dmesg and DCGM_FI_DEV_XID_ERRORS", "Triage order: events, describe node, operator pods, logs, nvidia-smi", "Writing a GPU incident runbook entry"],
+          "tools": ["kubectl", "nvidia-smi", "dmesg", "DCGM Exporter", "GPU Operator"],
+          "lab_task": "The trainer breaks four workloads: a missing GPU toleration, a vLLM pod with memory limit 4Gi, a training pod with a batch size too large for GPU memory, and a pod using a non-existent runtimeClassName. For each, find the cause using only kubectl describe, events, logs and node checks, write the evidence and the fix, then apply the fix and confirm the pod runs.",
+          "deliverable": "Runbook with symptom, evidence, cause and fix for each fault",
+          "checks": [["Describe the pod with the missing toleration", "Event says node(s) had untolerated taint {nvidia.com/gpu: present}", "kubectl describe output"], ["Describe the vLLM pod with a 4Gi memory limit", "Last State shows Terminated, Reason OOMKilled, Exit Code 137", "kubectl describe output"], ["Read logs of the oversized training pod", "torch.OutOfMemoryError: CUDA out of memory is raised", "Pod logs"]],
+          "objectives": ["Diagnose scheduling, memory and runtime failures of GPU pods", "Tell host memory exhaustion apart from GPU memory exhaustion", "Write runbook entries for GPU incidents"]
+        },
+        {
+          "topic": "Beginner Capstone: Production-Ready LLM Endpoint on a Single GPU Node",
+          "subtopics": ["Requirements: model choice, context length, concurrency and latency target", "Weights on a PVC, vLLM Deployment, probes, Service and HTTPRoute with authentication by API key", "DCGM and vLLM metrics with a dashboard and two alerts", "Autoscaling on queue depth and a documented load test", "Runbook covering start failures, OOM and GPU faults", "Demo and peer review against a checklist"],
+          "tools": ["NVIDIA GPU Operator", "vLLM", "Gateway API", "Prometheus", "Grafana", "Helm"],
+          "lab_task": "Package an open-weight model endpoint as a Helm chart: download Job, vLLM Deployment with startup and readiness probes, API key from a Secret, HTTPRoute with a 300s timeout, PodMonitor, HPA on vllm_num_requests_waiting and alerts for p95 TTFT above 2s and GPU memory above 95 percent. Load test at three concurrency levels with vllm bench serve, then show a fresh install working in under 15 minutes.",
+          "deliverable": "Helm chart, load-test report, dashboard and runbook",
+          "checks": [["helm install the chart into a new namespace", "Endpoint answers /v1/chat/completions with a valid key within 15 minutes", "Recorded demo"], ["Call the endpoint without an API key", "Response is HTTP 401", "curl output"], ["Run the load test at the highest concurrency", "p95 TTFT alert fires in Prometheus and HPA adds a replica if a GPU is free", "Alert and HPA screenshots"]],
+          "objectives": ["Combine serving, storage, routing and monitoring into one deployable unit", "Validate an endpoint against latency and security requirements", "Hand over a documented, repeatable deployment"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For platform and MLOps engineers who can already serve a model on one GPU and now run shared GPU clusters for several teams. Covers MIG partitioning, Dynamic Resource Allocation, tensor-parallel and multi-node serving with LeaderWorkerSet, advanced KServe rollouts, node-level model caching and weight streaming from object storage, the Gateway API Inference Extension, multi-LoRA serving, Ray and Ray Serve on KubeRay, distributed training with Kubeflow Trainer, batch admission with Kueue, GPU node autoscaling, quotas and endpoint security for multiple teams, load testing and capacity planning, and the GPU options of EKS, GKE and AKS, ending with a multi-team inference and training platform.",
+      "prerequisites": ["Completed the beginner level or can deploy vLLM on a GPU node with probes, metrics and autoscaling", "Administers Kubernetes clusters: CRDs and operators, RBAC, ResourceQuota, NetworkPolicy and node pools", "Has a cluster with at least two GPU nodes, one with two or more GPUs and ideally one MIG-capable A100, H100 or H200, plus permission to create node pools on one managed cloud"],
+      "outcomes": ["Partition and allocate GPUs with MIG, time-slicing and Dynamic Resource Allocation to match workload sizes", "Serve large and adapter-based models with tensor parallelism, LeaderWorkerSet, KServe, Ray Serve and inference-aware routing", "Run distributed training and batch work fairly across teams with Kubeflow Trainer, Kueue quotas, borrowing and preemption", "Operate GPU capacity with node autoscaling, quotas, security controls and load-test-based capacity plans on a managed cloud"],
+      "days": [
+        {
+          "topic": "MIG Partitioning with the GPU Operator MIG Manager",
+          "subtopics": ["Multi-Instance GPU slices: compute and memory isolated in hardware", "Profiles on 80 GB A100 and H100: 1g.10gb, 2g.20gb, 3g.40gb, 4g.40gb, 7g.80gb", "mig.strategy single against mixed and the resource names each exposes", "The nvidia.com/mig.config label and the default mig-parted profiles such as all-1g.10gb and all-balanced", "nvidia.com/mig.config.state: pending, rebooting, success, failed", "Custom MIG layouts in a ConfigMap", "Reconfiguration evicts GPU pods on the node", "MIG compared with time-slicing for isolation and utilisation"],
+          "tools": ["NVIDIA GPU Operator", "MIG Manager", "nvidia-smi", "kubectl"],
+          "lab_task": "On an 80 GB A100 or H100 node with mig.strategy=mixed, run kubectl label node <n> nvidia.com/mig.config=all-1g.10gb --overwrite and wait for nvidia.com/mig.config.state=success. Check Allocatable and run nvidia-smi -L. Start seven pods each requesting nvidia.com/mig-1g.10gb: 1 and serving a small model. Then relabel to all-balanced and record the new resources and what happened to the running pods.",
+          "deliverable": "MIG layout table per profile with Allocatable output and pod placement",
+          "checks": [["Read node labels after applying all-1g.10gb", "nvidia.com/mig.config.state is success", "kubectl get node --show-labels"], ["Run kubectl describe node in mixed strategy", "Allocatable lists nvidia.com/mig-1g.10gb: 7", "describe output"], ["Run nvidia-smi -L inside one of the seven pods", "Only one MIG device with its own MIG UUID is visible", "kubectl exec output"]],
+          "objectives": ["Partition GPUs with MIG profiles through labels", "Request MIG slices from pods", "Choose between MIG and time-slicing for a workload"]
+        },
+        {
+          "topic": "Dynamic Resource Allocation for GPUs with ResourceClaims",
+          "subtopics": ["DRA objects in resource.k8s.io/v1: DeviceClass, ResourceSlice, ResourceClaim, ResourceClaimTemplate", "DRA reaching general availability in Kubernetes 1.34", "The NVIDIA DRA driver for GPUs and its gpu.nvidia.com device class", "Pod spec.resourceClaims and container resources.claims", "CEL selectors on device attributes and capacity", "Sharing one claim between containers of a pod", "Prioritised alternatives in a request (firstAvailable)", "Running DRA and the classic device plugin side by side", "Inspecting allocations with kubectl get resourceslices and resourceclaims"],
+          "tools": ["Dynamic Resource Allocation", "NVIDIA DRA driver for GPUs", "kubectl", "CEL"],
+          "lab_task": "Install the NVIDIA DRA driver for GPUs on one node pool per its documentation. Run kubectl get deviceclasses and kubectl get resourceslices -o yaml to see the published GPUs. Create a ResourceClaimTemplate requesting one gpu.nvidia.com device with a CEL selector of memory at least 40Gi, used by a pod with two containers sharing the claim. Compare nvidia-smi -L in both, then change the selector to 500Gi.",
+          "deliverable": "DRA manifests, ResourceSlice excerpt and the allocation result for each selector",
+          "checks": [["Run kubectl get resourceclaims after the pod starts", "Claim STATE shows allocated,reserved", "Command output"], ["Run nvidia-smi -L in both containers", "Both show the same GPU UUID", "kubectl exec output"], ["Apply the selector requiring 500Gi of memory", "Pod stays Pending and the scheduler event says the claim cannot be allocated", "kubectl describe pod"]],
+          "objectives": ["Explain the DRA object model and how it differs from device plugins", "Request GPUs by attributes with CEL selectors", "Share an allocated device between containers"]
+        },
+        {
+          "topic": "Tensor-Parallel Serving on Multi-GPU Nodes",
+          "subtopics": ["--tensor-parallel-size and when a model needs more than one GPU", "NCCL communication over NVLink against PCIe", "Attention heads must divide evenly by the tensor-parallel size", "/dev/shm sizing for multi-process workers", "--data-parallel-size and separate replicas as alternatives", "Reading nvidia-smi topo -m to pick GPU sets", "NCCL_DEBUG=INFO and common NCCL start-up failures", "Throughput and latency effects of TP 1, 2 and 4"],
+          "tools": ["vLLM", "NCCL", "nvidia-smi", "vllm bench serve"],
+          "lab_task": "On a node with at least two GPUs, serve Llama-3.1-8B-Instruct three ways: TP 1 on one GPU, TP 2 on two GPUs, and two TP 1 replicas. Benchmark each with vllm bench serve at --max-concurrency 32 and record output tokens/s and p95 TTFT. Then start a pod with --tensor-parallel-size 3 and one with TP 2 but no /dev/shm volume, and record both failures with NCCL_DEBUG=INFO.",
+          "deliverable": "Benchmark table for the three layouts and two failure transcripts",
+          "checks": [["Start with --tensor-parallel-size 3 for a 32-head model", "vLLM refuses to start because 32 attention heads are not divisible by 3", "Pod logs"], ["Run TP 2 with NCCL_DEBUG=INFO on an NVLink node", "Logs show NCCL channels using P2P or NVLS transport", "Pod logs"], ["Compare TP 2 with two TP 1 replicas at concurrency 32", "Two replicas give higher total tokens/s while TP 2 gives lower TTFT per request", "Benchmark table"]],
+          "objectives": ["Configure tensor parallelism for models that span GPUs", "Choose between tensor parallelism and replicas", "Debug NCCL and shared-memory start-up failures"]
+        },
+        {
+          "topic": "Multi-Node Inference with LeaderWorkerSet",
+          "subtopics": ["When a model does not fit one node: 405B in bf16 and large MoE models", "LeaderWorkerSet API: size, leaderTemplate and workerTemplate", "LWS_LEADER_ADDRESS, LWS_GROUP_SIZE and LWS_WORKER_INDEX", "vLLM across pods: tensor parallel inside a node, pipeline parallel across nodes", "Ray as the vLLM multi-node executor", "RecreateGroupOnPodRestart and all-or-nothing group restarts", "Exclusive topology placement with the leaderworkerset.sigs.k8s.io/exclusive-topology annotation", "Rolling updates group by group and the Service in front of the leaders"],
+          "tools": ["LeaderWorkerSet", "vLLM", "Ray", "kubectl"],
+          "lab_task": "Install LeaderWorkerSet. Using the vLLM LWS example, deploy a group of size 2 across two single-GPU nodes serving an 8B model with --tensor-parallel-size 1 --pipeline-parallel-size 2. Check pod names and env vars, run ray status in the leader and send a chat completion to the leader Service. Delete the worker pod and watch what happens to the leader. Record end-to-end start time.",
+          "deliverable": "LWS manifest, ray status output and a restart behaviour note",
+          "checks": [["Run kubectl get pods -l leaderworkerset.sigs.k8s.io/name=vllm", "Shows leader vllm-0 and worker vllm-0-1", "Command output"], ["Run ray status in the leader pod", "Cluster resources show 2.0 GPU across two nodes", "kubectl exec output"], ["Delete the worker pod", "Leader and worker are both recreated as a group", "kubectl get pods -w output"]],
+          "objectives": ["Deploy multi-node inference groups with LeaderWorkerSet", "Combine tensor and pipeline parallelism across pods", "Explain group restart and placement behaviour"]
+        },
+        {
+          "topic": "Advanced KServe: Deployment Modes, Canary Rollouts and InferenceGraph",
+          "subtopics": ["Serverless (Knative) against RawDeployment trade-offs for GPU models", "The serving.kserve.io/deploymentMode annotation", "canaryTrafficPercent, revisions and rollback in serverless mode", "minReplicas: 0 and the Knative activator for scale-to-zero", "Autoscaling settings: scaleMetric and scaleTarget", "Transformers in front of predictors for pre- and post-processing", "InferenceGraph nodes: Sequence, Switch, Ensemble and Splitter", "LLMInferenceService in recent KServe releases for llm-d-style deployments"],
+          "tools": ["KServe", "Knative Serving", "kubectl", "curl"],
+          "lab_task": "In serverless mode deploy an InferenceService with model v1. Update storageUri to v2 with canaryTrafficPercent: 10, send 200 requests and count responses per revision from headers or logs. Promote by removing canaryTrafficPercent, then roll back by restoring v1. Finally build an InferenceGraph of type Sequence that sends each request through a classifier and then a second model, and record its latency.",
+          "deliverable": "Canary rollout log with traffic counts and an InferenceGraph manifest",
+          "checks": [["Run kubectl get isvc during the canary", "PREV shows 90 and LATEST shows 10", "Command output"], ["Send 200 requests during the canary", "About 20 are served by the new revision", "Request count table"], ["Remove canaryTrafficPercent", "LATEST shows 100 and the old revision receives no traffic", "Command output"]],
+          "objectives": ["Choose a KServe deployment mode for a workload", "Run and reverse canary rollouts of models", "Compose models with InferenceGraph"]
+        },
+        {
+          "topic": "Node-Level Model Caching: LocalModelCache, Modelcars and Image Volumes",
+          "subtopics": ["The cost of downloading 100 GB or more of weights per replica", "KServe LocalModelCache and LocalModelNodeGroup for pre-cached weights", "Modelcars: storageUri oci:// and the extra modelcar container", "Kubernetes image volumes (volumes.image) and their feature-gate status on your version", "Pre-warming caches with DaemonSets", "Node-local NVMe and hostPath risks", "NIMCache in the NVIDIA NIM Operator", "Cache invalidation by digest or revision"],
+          "tools": ["KServe", "OCI registry", "Docker or Podman", "kubectl"],
+          "lab_task": "Package Qwen2.5-1.5B-Instruct as an OCI image (FROM busybox, COPY the model to /models) and push it. Enable modelcars and deploy an InferenceService with storageUri oci://<registry>/qwen:1.5b. Measure time to Ready for a first pod on a fresh node and for a second pod on the same node. Then create a LocalModelCache for the same model and compare with a storage-initializer download.",
+          "deliverable": "Model image Dockerfile, InferenceService and a start-time comparison table",
+          "checks": [["Describe the predictor pod using oci://", "Pod contains a modelcar container alongside kserve-container", "kubectl describe output"], ["Start a second pod on the same node", "Time to Ready is shorter because the image layers are already on the node", "Timing table"], ["Run kubectl get localmodelcache", "Status shows the model downloaded on the selected nodes", "Command output"]],
+          "objectives": ["Cache model weights on nodes to reduce start time", "Distribute models as OCI artefacts", "Pick a caching method for a model size and update rate"]
+        },
+        {
+          "topic": "Streaming Model Weights from Object Storage",
+          "subtopics": ["Mountpoint for Amazon S3 CSI driver", "Cloud Storage FUSE CSI driver on GKE and the gke-gcsfuse/volumes annotation", "Azure Blob CSI driver with blobfuse2", "FUSE file caches and parallel reads", "Run:ai Model Streamer with vllm --load-format runai_streamer", "Workload identity for buckets: EKS Pod Identity or IRSA, GKE Workload Identity Federation, AKS Workload Identity", "Read-only mounts and least-privilege bucket policies", "Benchmarking load paths: PVC, FUSE and streamer"],
+          "tools": ["Mountpoint for Amazon S3", "Cloud Storage FUSE", "Run:ai Model Streamer", "vLLM", "kubectl"],
+          "lab_task": "Upload an 8B model in safetensors to a bucket on your cloud. Load it into vLLM three ways: from a pre-filled PVC, from a CSI FUSE mount and with --load-format runai_streamer reading the bucket URI directly. Use a service account bound to read-only bucket access. Record model load time from the vLLM log for each, then remove the identity binding and retry.",
+          "deliverable": "Storage manifests, IAM policy and a load-time comparison table",
+          "checks": [["Load from the bucket without the workload identity binding", "Load fails with an access denied (HTTP 403) error from the storage API", "Pod logs"], ["Load with runai_streamer", "vLLM logs show the streamer reading the safetensors files and the model loads", "Pod logs"], ["Compare load times across the three paths", "Table lists measured seconds for each path from the same log line", "Results table"]],
+          "objectives": ["Mount or stream weights from object storage", "Grant pods least-privilege bucket access", "Measure and choose a weight-loading path"]
+        },
+        {
+          "topic": "Inference Routing with the Gateway API Inference Extension",
+          "subtopics": ["InferencePool in inference.networking.k8s.io/v1: selector and targetPorts", "The Endpoint Picker (EPP) as an Envoy external processor", "HTTPRoute backendRefs of kind InferencePool", "InferenceObjective (formerly InferenceModel) and request priority", "Scoring on queue depth, KV cache utilisation and LoRA affinity", "Supporting gateways: GKE Gateway, Istio, kgateway, Envoy Gateway, NGINX Gateway Fabric", "Body-based routing on the model name", "Endpoint picker failure modes: FailOpen and FailClose"],
+          "tools": ["Gateway API Inference Extension", "Endpoint Picker", "Envoy Gateway or Istio", "vLLM", "Helm"],
+          "lab_task": "Run three vLLM replicas of the same model. Install the Inference Extension CRDs, a supported gateway and the inferencepool Helm chart with an EPP. Point an HTTPRoute at the InferencePool. Run vllm bench serve at --max-concurrency 48 against the gateway and against a plain round-robin Service, and record p95 TTFT for both. Then scale the EPP Deployment to 0 and send a request.",
+          "deliverable": "InferencePool and HTTPRoute manifests, EPP config and a routing comparison",
+          "checks": [["Run kubectl get inferencepool -o yaml", "status shows the pool Accepted by the parent Gateway", "Pool status"], ["Compare p95 TTFT with EPP routing and round-robin at concurrency 48", "EPP routing gives the lower p95 TTFT in the results table", "Benchmark table"], ["Scale the EPP to 0 with failureMode FailClose", "Requests through the gateway return HTTP 5xx", "curl output"]],
+          "objectives": ["Route LLM traffic with InferencePool and the Endpoint Picker", "Explain the scoring signals the picker uses", "Plan for endpoint picker failure"]
+        },
+        {
+          "topic": "Multi-LoRA Serving at Scale",
+          "subtopics": ["LoRA adapters served on one base model", "vLLM --enable-lora, --lora-modules, --max-loras and --max-lora-rank", "Runtime adapter loading with VLLM_ALLOW_RUNTIME_LORA_UPDATING and /v1/load_lora_adapter", "Adapter names as model names in the OpenAI API", "Storing adapters on PVCs or object storage", "LoRA affinity routing in the Inference Extension", "GPU memory and throughput cost of active adapters", "Per-tenant adapters and naming rules"],
+          "tools": ["vLLM", "PEFT adapters", "Gateway API Inference Extension", "curl"],
+          "lab_task": "Start vLLM with --enable-lora --max-loras 4 --max-lora-rank 16 and two adapters in --lora-modules, including the adapter trained in the beginner level. Call each adapter by name and compare outputs with the base model. Enable runtime updates, POST {\"lora_name\": \"support\", \"lora_path\": \"/adapters/support\"} to /v1/load_lora_adapter, then request an unloaded adapter name.",
+          "deliverable": "vLLM configuration, adapter call transcripts and throughput with 0, 2 and 4 adapters",
+          "checks": [["GET /v1/models after loading the third adapter", "List contains the base model and three adapter ids", "curl output"], ["Request an adapter name that is not loaded", "HTTP 404 with an error that the model does not exist", "curl output"], ["Load an adapter with rank 64 when --max-lora-rank is 16", "Load request fails with an error about the rank exceeding the maximum", "curl output and logs"]],
+          "objectives": ["Serve many adapters on one base model", "Load and unload adapters at runtime", "Account for the memory and throughput cost of adapters"]
+        },
+        {
+          "topic": "Ray Clusters on Kubernetes with KubeRay",
+          "subtopics": ["KubeRay operator installation from the kuberay Helm repository", "RayCluster headGroupSpec and workerGroupSpecs", "GPU workers: rayStartParams num-gpus and container GPU limits", "In-tree autoscaler: enableInTreeAutoscaling and idleTimeoutSeconds", "Ray dashboard on port 8265 and ray job submit", "RayJob with shutdownAfterJobFinishes and ttlSecondsAfterFinished", "Ray Data batch inference with map_batches on GPUs", "GCS fault tolerance with an external Redis"],
+          "tools": ["KubeRay", "Ray", "Ray Data", "Helm", "kubectl"],
+          "lab_task": "Install the KubeRay operator. Create a RayCluster with a CPU head and a GPU worker group with minReplicas 0, maxReplicas 2 and the in-tree autoscaler. Port-forward 8265 and ray job submit a Ray Data job that runs an embedding model with map_batches(num_gpus=1, concurrency=2) over 10,000 rows. Watch worker pods scale 0 to 2 and back to 0 after idleTimeoutSeconds.",
+          "deliverable": "RayCluster manifest, job script and an autoscaling timeline",
+          "checks": [["Run kubectl get raycluster", "STATUS shows ready with the head pod Running", "Command output"], ["Run ray status during the job", "Resources show 2.0/2.0 GPU in use", "ray status output"], ["Wait past idleTimeoutSeconds after the job ends", "GPU worker pods are removed and the worker group returns to 0", "kubectl get pods output"]],
+          "objectives": ["Run Ray clusters with GPU workers on Kubernetes", "Submit and observe Ray jobs", "Use the Ray autoscaler with Kubernetes"]
+        },
+        {
+          "topic": "Ray Serve LLM Applications with RayService",
+          "subtopics": ["RayService CRD and serveConfigV2", "Ray Serve LLM: LLMConfig and build_openai_app with the vLLM engine", "Deployment autoscaling_config: min_replicas, max_replicas, target_ongoing_requests", "Zero-downtime upgrades by switching to a new RayCluster", "Serve application status and the serve Service", "Multi-model applications in one RayService", "Head node fault tolerance considerations", "When to choose Ray Serve over a plain vLLM Deployment"],
+          "tools": ["KubeRay", "Ray Serve", "vLLM", "kubectl", "curl"],
+          "lab_task": "Deploy a RayService whose serveConfigV2 builds an OpenAI-compatible app with LLMConfig for Qwen2.5-1.5B-Instruct, autoscaling min 1 and max 2 replicas with 1 GPU each. Call /v1/chat/completions on the serve Service. Drive load to trigger the second replica, then change the model config and watch the upgrade while a client sends a request every second.",
+          "deliverable": "RayService manifest, scaling observations and an upgrade availability log",
+          "checks": [["Run kubectl get rayservice", "Service status is Running and the serve app is RUNNING", "Command output"], ["Drive load above target_ongoing_requests", "A second LLM replica starts on another GPU", "Ray dashboard screenshot"], ["Change the config while the client runs", "All client requests succeed during the switch to the new cluster", "Client log"]],
+          "objectives": ["Serve LLMs with Ray Serve on KubeRay", "Configure Ray Serve autoscaling", "Run zero-downtime upgrades of a RayService"]
+        },
+        {
+          "topic": "Distributed Training with Kubeflow Trainer TrainJob",
+          "subtopics": ["Kubeflow Trainer v2 compared with the legacy Training Operator PyTorchJob", "TrainJob and ClusterTrainingRuntime objects", "JobSet as the underlying workload", "trainer.numNodes and resourcesPerNode", "torchrun environment: PET_NNODES, PET_NPROC_PER_NODE, PET_NODE_RANK, PET_MASTER_ADDR", "The Kubeflow Python SDK TrainerClient", "Dataset and model initializers", "DDP, FSDP and DeepSpeed runtimes"],
+          "tools": ["Kubeflow Trainer", "JobSet", "PyTorch", "Kubeflow Python SDK", "kubectl"],
+          "lab_task": "Install Kubeflow Trainer and list runtimes with kubectl get clustertrainingruntimes. Submit a TrainJob using the torch-distributed runtime with numNodes 2 and one GPU per node that fine-tunes a small model with DDP. Print world size and rank in the script. Then submit the same job from Python with TrainerClient, and compare step time with a single-node run.",
+          "deliverable": "TrainJob manifest, SDK script, logs and a scaling comparison",
+          "checks": [["Run kubectl get trainjob after completion", "Job shows a Complete condition", "Command output"], ["Read rank 0 logs", "Script prints world_size=2", "Pod logs"], ["Run kubectl get jobsets", "A JobSet with the TrainJob name exists", "Command output"]],
+          "objectives": ["Run multi-node training with Kubeflow Trainer", "Use training runtimes and the Python SDK", "Measure distributed training scaling"]
+        },
+        {
+          "topic": "Admitting GPU Jobs with Kueue Queues and Quotas",
+          "subtopics": ["Why GPU clusters need queueing as well as ResourceQuota", "ResourceFlavor per GPU type with nodeLabels", "ClusterQueue resourceGroups and nominalQuota for nvidia.com/gpu", "LocalQueue per namespace and the kueue.x-k8s.io/queue-name label", "Jobs created suspended and unsuspended on admission", "Workload objects and their conditions", "Supported integrations: Job, JobSet, RayJob, TrainJob, LeaderWorkerSet, pods and Deployments", "kueuectl and Kueue metrics such as kueue_pending_workloads"],
+          "tools": ["Kueue", "kubectl", "Kubernetes Job", "Prometheus"],
+          "lab_task": "Install Kueue. Create ResourceFlavor gpu-l4 with a node label, ClusterQueue research with nominalQuota 4 for nvidia.com/gpu, and LocalQueue team-a. Submit three Jobs each needing 2 GPUs with the queue-name label. Check which run, inspect Workloads and the ClusterQueue status, then delete one running Job and watch the third get admitted.",
+          "deliverable": "Kueue manifests and an admission timeline",
+          "checks": [["Run kubectl get workloads -n team-a", "Two workloads show ADMITTED True and one is pending", "Command output"], ["Run kubectl get clusterqueue research", "ADMITTED WORKLOADS 2 and PENDING WORKLOADS 1", "Command output"], ["Delete one running Job", "Pending Job is unsuspended and its pod starts", "kubectl get jobs and pods"]],
+          "objectives": ["Model GPU capacity with flavors and ClusterQueues", "Submit work through LocalQueues", "Read admission state from Workloads"]
+        },
+        {
+          "topic": "Fair Sharing, Borrowing and Preemption in Kueue",
+          "subtopics": ["Cohorts of ClusterQueues", "borrowingLimit and lendingLimit", "Preemption: reclaimWithinCohort, borrowWithinCohort and withinClusterQueue", "WorkloadPriorityClass for training against inference", "Fair sharing weights across queues", "waitForPodsReady for all-or-nothing starts", "BestEffortFIFO against StrictFIFO", "Explaining preemption events to users"],
+          "tools": ["Kueue", "kubectl", "Kubernetes Job"],
+          "lab_task": "Create ClusterQueues team-a and team-b in one cohort with nominalQuota 4 GPUs each, reclaimWithinCohort: Any and no borrowing limit. Fill team-a with 8 GPUs of low-priority jobs. Submit a 4-GPU job to team-b and record the preemption events. Then add WorkloadPriorityClasses and show a high-priority team-a job preempting a low-priority team-a job inside its own quota.",
+          "deliverable": "Cohort configuration, preemption event log and a policy write-up",
+          "checks": [["Check team-a usage before team-b submits", "team-a has admitted 8 GPUs by borrowing 4 from the cohort", "ClusterQueue status"], ["Submit the 4-GPU team-b job", "Borrowing team-a workloads are evicted with reason Preempted and the team-b job is admitted", "Workload events"], ["Submit a high-priority job to a full team-a", "A lower-priority team-a workload is preempted within the ClusterQueue", "Workload events"]],
+          "objectives": ["Share idle GPUs between teams with cohorts", "Configure preemption and priorities", "Explain why a workload was preempted"]
+        },
+        {
+          "topic": "Autoscaling GPU Nodes with Karpenter and Cluster Autoscaler",
+          "subtopics": ["Karpenter NodePool requirements on GPU instance families and karpenter.k8s.aws/instance-gpu-name", "EC2NodeClass and GPU-enabled AMIs", "Taints and limits on GPU NodePools", "Consolidation, disruption budgets and the karpenter.sh/do-not-disrupt annotation", "Cluster Autoscaler scale-from-zero for GPU node groups", "GKE node auto-provisioning and custom compute classes", "AKS cluster autoscaler on GPU node pools", "Measuring time from Pending to GPU Ready, including driver and device plugin start"],
+          "tools": ["Karpenter", "Cluster Autoscaler", "NVIDIA GPU Operator", "kubectl"],
+          "lab_task": "On EKS create a Karpenter NodePool for g6 instances with a GPU taint, limits nvidia.com/gpu: 4 and consolidateAfter: 5m (on GKE or AKS use the equivalent autoscaler). Submit a pod requesting one GPU and time each phase: NodeClaim created, node Ready, device plugin advertising the GPU, pod Running. Then request more GPUs than the limit allows, and finally remove all GPU pods.",
+          "deliverable": "NodePool manifest, phase timing table and limit and consolidation observations",
+          "checks": [["Run kubectl get nodeclaims after the pod goes Pending", "A NodeClaim for a g6 instance type is created", "Command output"], ["Request GPUs beyond the NodePool limit", "No new NodeClaim is created and Karpenter logs report the limit is exceeded", "Karpenter logs"], ["Remove all GPU pods and wait", "The empty GPU node is removed after the consolidation delay", "kubectl get nodes timeline"]],
+          "objectives": ["Provision GPU nodes on demand", "Protect long-running GPU jobs from disruption", "Measure and reduce GPU node start time"]
+        },
+        {
+          "topic": "GPU Quotas and Isolation for Multiple Teams",
+          "subtopics": ["Namespace per team and labels for ownership", "ResourceQuota on requests.nvidia.com/gpu and MIG resource names", "Dedicated GPU node pools with taints and admission rules", "PriorityClasses for production inference, training and experiments", "RBAC for InferenceService, RayCluster and Kueue objects", "NetworkPolicy between tenant model servers", "Showback using DCGM pod and namespace labels", "When to use Kueue quotas and when ResourceQuota is enough"],
+          "tools": ["ResourceQuota", "RBAC", "NetworkPolicy", "DCGM Exporter", "Kueue"],
+          "lab_task": "Create namespaces team-a and team-b, a ResourceQuota of requests.nvidia.com/gpu: 2 in team-a and a Role letting team-a manage InferenceServices only in its namespace. Deploy a vLLM Deployment with 3 replicas of 1 GPU in team-a. Then write a PromQL query of GPU-hours per namespace for the last 24 hours using DCGM labels.",
+          "deliverable": "Quota and RBAC manifests and a GPU-hours report per namespace",
+          "checks": [["Scale the team-a Deployment to 3 replicas", "ReplicaSet event FailedCreate says exceeded quota with requests.nvidia.com/gpu limited to 2", "kubectl describe rs"], ["As a team-a user create an InferenceService in team-b", "Request is forbidden by RBAC", "kubectl auth can-i or error output"], ["Run the GPU-hours PromQL query", "Returns one value per namespace that matches the pods that ran", "Query result"]],
+          "objectives": ["Limit GPU consumption per team", "Restrict who can deploy model servers where", "Report GPU usage by team"]
+        },
+        {
+          "topic": "Securing Model Endpoints and Credentials",
+          "subtopics": ["API keys with vLLM --api-key against gateway-level authentication", "JWT or OIDC authentication at the gateway, for example an Envoy Gateway SecurityPolicy", "Default-deny NetworkPolicy with an allow rule from the gateway namespace", "Per-tenant rate limits on tokens or requests", "Workload identity instead of static cloud keys", "HF_TOKEN and registry secret hygiene", "Pod Security Standards restricted profile for model servers", "Prompt and response logging, retention and privacy"],
+          "tools": ["Envoy Gateway", "NetworkPolicy", "Pod Security Admission", "vLLM", "curl"],
+          "lab_task": "Put JWT authentication on the model HTTPRoute with a gateway security policy and a test identity provider, and keep vLLM --api-key for in-cluster callers. Apply default-deny ingress in the model namespace with an allow rule from the gateway namespace. Label the namespace pod-security.kubernetes.io/enforce=restricted and fix the vLLM pod until it is admitted. Test each control from inside and outside.",
+          "deliverable": "Security policy manifests and a control test matrix",
+          "checks": [["Call the route without a token", "Gateway returns HTTP 401", "curl output"], ["curl the vLLM Service from a pod in another namespace", "Connection times out because of the NetworkPolicy", "curl output"], ["Apply the original root vLLM pod in the restricted namespace", "Admission rejects it with a violates PodSecurity restricted message", "kubectl apply error"]],
+          "objectives": ["Authenticate and authorise callers of model endpoints", "Isolate model servers on the network", "Run model servers under the restricted Pod Security profile"]
+        },
+        {
+          "topic": "Load Testing and Capacity Planning for LLM Endpoints",
+          "subtopics": ["TTFT, inter-token latency, end-to-end latency and output tokens/s", "Goodput: requests per second that meet the SLO", "vllm bench serve options: --dataset-name, --random-input-len, --random-output-len, --request-rate, --max-concurrency", "GuideLLM sweeps to find maximum sustainable rate", "Realistic prompt and output length distributions", "Prefix cache effects on benchmark results", "Finding the knee of the latency curve", "Replica count from peak demand, goodput per replica and failure headroom"],
+          "tools": ["vllm bench serve", "GuideLLM", "Prometheus", "Grafana", "Python"],
+          "lab_task": "Define an SLO of p95 TTFT under 1 s and p95 inter-token latency under 50 ms. Sweep one vLLM replica with --request-rate 1, 2, 4, 8 and 16 using input 1024 and output 256 tokens. Plot latency against rate, find the highest rate meeting the SLO, and size replicas for a peak of 40 requests per second with one spare replica. Repeat one point with GuideLLM.",
+          "deliverable": "Load-test report with plots, the goodput figure and a sizing calculation",
+          "checks": [["Run the sweep", "A results file per rate lists p95 TTFT and p95 ITL", "Benchmark output files"], ["Read the plot", "Latency rises sharply past one rate, and that rate is reported as goodput", "Plot"], ["Compute replicas for 40 requests per second", "Replica count equals ceil(40 / goodput) + 1 with the arithmetic shown", "Sizing sheet"]],
+          "objectives": ["Benchmark LLM endpoints against an SLO", "Measure goodput per replica", "Turn benchmark data into a capacity plan"]
+        },
+        {
+          "topic": "GPU Platforms on EKS, GKE and AKS Compared",
+          "subtopics": ["EKS: accelerated AL2023 and Bottlerocket AMIs, EKS Auto Mode and the NVIDIA device plugin", "EKS networking for training: EFA and Capacity Blocks for ML", "GKE: --accelerator with gpu-driver-version, GPU time-sharing and MIG settings on node pools", "GKE Inference Gateway and Inference Quickstart profiles", "AKS: NC and ND series node pools and installing the GPU Operator instead of the managed driver", "AKS KAITO add-on and its Workspace resource", "Regional GPU quotas and quota requests", "Pricing: on-demand, spot, reservations and committed use"],
+          "tools": ["Amazon EKS", "Google Kubernetes Engine", "Azure Kubernetes Service", "eksctl", "gcloud", "az CLI"],
+          "lab_task": "On one cloud create a GPU node pool from the CLI, for example gcloud container node-pools create l4 --accelerator type=nvidia-l4,count=1,gpu-driver-version=latest --machine-type g2-standard-8, or eksctl with a g6.xlarge node group, or az aks nodepool add with an NC-series VM. Deploy the beginner capstone chart there unchanged, note every change needed, and fill a comparison matrix for all three clouds.",
+          "deliverable": "Node pool commands, change list for the chart and a three-cloud comparison matrix",
+          "checks": [["Run kubectl get nodes -L nvidia.com/gpu.present or the cloud accelerator label", "New GPU nodes carry the accelerator label and advertise nvidia.com/gpu", "Command output"], ["Install the beginner capstone chart on the new pool", "Endpoint serves requests after the documented changes", "Recorded demo"], ["Review the comparison matrix", "Each cloud has driver management, GPU sharing, autoscaling and quota entries filled", "Matrix document"]],
+          "objectives": ["Create GPU node pools on a managed Kubernetes service", "Port a GPU workload between clouds", "Compare managed GPU offerings on driver, sharing and capacity features"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Team Inference and Training Platform",
+          "subtopics": ["Design: GPU node pools, MIG or time-slicing layout and DRA or device plugin choice", "Shared inference: InferencePool with multi-LoRA vLLM and authenticated routes", "Training and batch: Kueue cohorts for two teams running TrainJobs and RayJobs", "Node autoscaling, quotas, NetworkPolicy and Pod Security for each team", "Load-test-based capacity plan and GPU-hours showback", "Demo, failure drill and design review"],
+          "tools": ["Kueue", "Kubeflow Trainer", "KubeRay", "vLLM", "Gateway API Inference Extension", "Karpenter or cloud autoscaler"],
+          "lab_task": "Build a platform for two teams: one shared InferencePool serving a base model with per-team LoRA adapters behind JWT auth, Kueue cohorts that let team-a borrow team-b GPUs for TrainJobs, a RayJob batch pipeline, autoscaled GPU node pools and per-team quotas. Run a load test and a training job at the same time, then drain one GPU node and show what recovers.",
+          "deliverable": "Architecture document, manifests repository, load-test and drain reports",
+          "checks": [["Run the load test and a borrowing TrainJob together", "Inference p95 TTFT stays within the SLO stated in the design", "Grafana screenshot"], ["team-b submits work while team-a is borrowing", "team-a borrowed workloads are preempted and team-b is admitted", "Workload events"], ["Drain one GPU node", "Inference keeps serving from remaining replicas and the node autoscaler adds capacity", "Timeline and request log"]],
+          "objectives": ["Design a shared GPU platform for several teams", "Integrate serving, training and queueing components", "Prove behaviour under load and node failure"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform architects, ML infrastructure leads and SREs who run large GPU fleets for LLM inference and distributed training. Covers llm-d and disaggregated prefill/decode serving, KV-cache-aware routing, wide expert parallelism for mixture-of-experts models, RDMA fabrics, topology-aware placement, gang scheduling and elastic training, fault tolerance and GPU health, SLO-driven autoscaling, MultiKueue, obtaining scarce GPU capacity, cost per token, engine tuning, end-to-end observability, model supply chain and runtime security, hard multi-tenancy, self-service model platforms, resilient rollouts and regional failover, and GPU stack upgrades, ending with a disaggregated multi-cluster LLM platform.",
+      "prerequisites": ["Completed the intermediate level or operates multi-team GPU clusters with Kueue, KServe or Ray and inference-aware routing", "Understands transformer inference phases (prefill and decode), distributed training with NCCL, and SLO-based operations", "Has access to multi-GPU nodes with NVLink, ideally an RDMA-capable network, two clusters for multi-cluster labs, and budget approval for short H100-class runs"],
+      "outcomes": ["Architect disaggregated, cache-aware and expert-parallel LLM serving with llm-d, vLLM and the Gateway API Inference Extension", "Run large distributed training with RDMA networking, topology-aware gang scheduling, checkpointing and automatic fault recovery", "Scale, secure and isolate GPU platforms across clusters with SLO-driven autoscaling, MultiKueue, supply chain controls and hard tenancy", "Engineer cost, performance and reliability with cost-per-token analysis, engine tuning, safe rollouts, failover and stack upgrades"],
+      "days": [
+        {
+          "topic": "llm-d Architecture: Inference Scheduler and Disaggregated Serving",
+          "subtopics": ["llm-d building blocks: vLLM, the Inference Extension, the llm-d inference scheduler and LeaderWorkerSet", "Scheduler filters and scorers and how they plug into the Endpoint Picker", "Prefill/decode disaggregation and the workloads where it pays off", "KV cache transfer between pods with NIXL over RDMA or TCP", "The llm-d well-lit paths: intelligent inference scheduling, P/D disaggregation, wide expert parallelism", "Helm-based installation from the llm-d guides", "Sizing the prefill-to-decode ratio from prompt and output lengths", "llm-d compared with KServe LLMInferenceService and plain vLLM"],
+          "tools": ["llm-d", "vLLM", "Gateway API Inference Extension", "NIXL", "Helm", "vllm bench serve"],
+          "lab_task": "Deploy the llm-d intelligent inference scheduling guide with two decode-capable vLLM pods, then the P/D disaggregation guide with one prefill and one decode pod on the same model. Benchmark both with prompts of 4,000 tokens and outputs of 200 tokens, recording p95 TTFT and p95 inter-token latency. Repeat with prompts of 200 and outputs of 1,000 tokens and explain when disaggregation helps.",
+          "deliverable": "Architecture diagram, deployment values and a benchmark table for both workloads",
+          "checks": [["List pods of the P/D deployment with their role labels", "One pod carries the prefill role and one the decode role", "kubectl get pods --show-labels"], ["Read decode pod logs during a request", "Logs show KV cache blocks received through the NIXL connector", "Pod logs"], ["Compare inter-token latency for the long-prompt workload", "P/D has lower p95 inter-token latency than the aggregated setup", "Benchmark table"]],
+          "objectives": ["Explain the llm-d component architecture", "Deploy disaggregated prefill and decode serving", "Decide from workload shape whether disaggregation is worth it"]
+        },
+        {
+          "topic": "KV-Cache-Aware and Prefix-Aware Request Routing",
+          "subtopics": ["Automatic prefix caching in vLLM and block hashing", "Prefix cache hit metrics: vllm:prefix_cache_queries and vllm:prefix_cache_hits", "Approximate prefix scoring in the Endpoint Picker against precise scoring from KV events", "Session affinity compared with content-aware routing", "Workloads with shared prefixes: RAG templates, agents, long system prompts", "Weighting prefix, queue and KV utilisation scorers", "Hot-spot risk when one replica holds a popular prefix", "Benchmarking with shared-prefix datasets"],
+          "tools": ["llm-d inference scheduler", "Gateway API Inference Extension", "vLLM", "Prometheus", "vllm bench serve"],
+          "lab_task": "Run four vLLM replicas behind an InferencePool. Generate a workload where 20 system prompts of 2,000 tokens are shared across 5,000 requests. Benchmark with round-robin routing, then with prefix-cache scoring enabled in the scheduler. Record cluster prefix hit rate from rate(vllm:prefix_cache_hits[5m]) / rate(vllm:prefix_cache_queries[5m]), p95 TTFT and per-replica request share.",
+          "deliverable": "Scheduler configuration, hit-rate dashboard and a routing comparison table",
+          "checks": [["Compute hit rate with round-robin routing", "Hit rate is lower than with prefix-aware routing on the same workload", "PromQL results"], ["Compare p95 TTFT", "Prefix-aware routing gives the lower p95 TTFT", "Benchmark table"], ["Inspect per-replica request share with prefix scoring only", "One or more replicas receive a clearly larger share, showing hot-spot risk", "Grafana panel"]],
+          "objectives": ["Route requests to replicas that already hold their prefix", "Measure prefix cache effectiveness", "Balance cache affinity against load"]
+        },
+        {
+          "topic": "Wide Expert Parallelism for Mixture-of-Experts Models",
+          "subtopics": ["Mixture-of-experts structure: router, experts, total against active parameters", "vLLM --enable-expert-parallel with data-parallel attention", "All-to-all communication kernels such as DeepEP and pplx", "Multi-node expert parallelism with LeaderWorkerSet and RDMA", "Expert load balancing (EPLB) and redundant experts", "Memory per GPU for experts, attention and KV cache", "Failure domains: one lost GPU stops the whole group", "When tensor parallelism is still the better choice"],
+          "tools": ["vLLM", "LeaderWorkerSet", "NCCL", "llm-d", "vllm bench serve"],
+          "lab_task": "Serve Qwen3-30B-A3B on a node with at least two GPUs twice: --tensor-parallel-size 2, then --data-parallel-size 2 --enable-expert-parallel. Benchmark both at --max-concurrency 64 and record output tokens/s and p95 inter-token latency. Read the per-GPU memory split from logs. Write a plan for running a 600B-class MoE model across nodes with LeaderWorkerSet, including GPU count and fabric needs.",
+          "deliverable": "Benchmark comparison, memory notes and a multi-node MoE deployment plan",
+          "checks": [["Start with --enable-expert-parallel", "Logs show expert parallel enabled with experts sharded across ranks", "Pod logs"], ["Compare throughput at concurrency 64", "Table reports measured tokens/s for TP 2 and DP 2 with EP for the same prompts", "Benchmark table"], ["Kill one rank of the expert-parallel deployment", "The whole serving group stops and restarts rather than degrading", "Pod events"]],
+          "objectives": ["Explain how expert parallelism distributes MoE models", "Benchmark expert parallelism against tensor parallelism", "Plan multi-node MoE serving"]
+        },
+        {
+          "topic": "RDMA Fabrics and GPUDirect for AI Clusters",
+          "subtopics": ["Why collective operations need RDMA: all-reduce, all-gather, all-to-all", "NVIDIA Network Operator, SR-IOV and Multus secondary networks", "RDMA shared device plugin resources", "EFA on EKS and the vpc.amazonaws.com/efa resource", "GPUDirect-TCPXO and RDMA networking on GKE A3 and A4 machines", "InfiniBand on AKS ND-series", "nccl-tests all_reduce_perf and bus bandwidth", "NCCL_DEBUG, NCCL_IB_HCA and NCCL_SOCKET_IFNAME", "PCIe and NUMA alignment of GPUs and NICs"],
+          "tools": ["NVIDIA Network Operator", "Multus", "nccl-tests", "NCCL", "EFA device plugin"],
+          "lab_task": "On two multi-GPU nodes with an RDMA-capable fabric, run nccl-tests all_reduce_perf -b 8 -e 8G -f 2 -g <gpus per node> across both nodes as an MPIJob or two pods. Run once with the RDMA network and once forced to TCP sockets with NCCL_IB_DISABLE=1 (or without EFA). Record bus bandwidth at 8 GB message size and the transport line from NCCL_DEBUG=INFO.",
+          "deliverable": "Network configuration, two nccl-tests outputs and a bandwidth comparison",
+          "checks": [["Read NCCL_DEBUG=INFO on the RDMA run", "Logs show NET/IB or the OFI EFA provider instead of NET/Socket", "Pod logs"], ["Compare busbw at 8 GB between runs", "RDMA busbw is several times the socket busbw", "nccl-tests output"], ["Describe a worker pod", "Requests include the RDMA or EFA resource and the secondary network annotation", "kubectl describe output"]],
+          "objectives": ["Attach high-speed fabrics to GPU pods", "Benchmark collective bandwidth with nccl-tests", "Diagnose NCCL transport selection"]
+        },
+        {
+          "topic": "Topology-Aware Placement for Training and Inference",
+          "subtopics": ["Kueue Topology objects with block, rack and hostname levels", "kueue.x-k8s.io/podset-required-topology and podset-preferred-topology annotations", "Cloud topology labels for blocks and racks on GKE, EKS and AKS", "NVLink domains on rack-scale systems and DRA ComputeDomains", "LeaderWorkerSet exclusive topology", "kubelet Topology Manager single-numa-node for GPU and NIC alignment", "Measuring step time against placement", "Fragmentation cost of strict placement"],
+          "tools": ["Kueue", "Topology Aware Scheduling", "LeaderWorkerSet", "kubectl", "PyTorch"],
+          "lab_task": "Label nodes with rack and block labels that match the fabric (or use the cloud labels). Create a Kueue Topology and a ResourceFlavor that references it. Submit a 4-pod distributed training JobSet with podset-required-topology at rack level, then one with only preferred placement on a partly full cluster. Record the pods' rack labels and mean step time for each.",
+          "deliverable": "Topology configuration, placement evidence and a step-time comparison",
+          "checks": [["List the pods of the required-topology job with their nodes' rack labels", "All four pods are on nodes with the same rack label", "kubectl output"], ["Submit the required-topology job when no rack has four free GPUs", "Workload stays pending instead of being split across racks", "Workload status"], ["Compare step time between same-rack and split placement", "Same-rack placement has the lower mean step time", "Training logs table"]],
+          "objectives": ["Express network topology to the scheduler", "Place distributed workloads for bandwidth", "Weigh placement quality against queueing delay"]
+        },
+        {
+          "topic": "Gang Scheduling and Elastic Distributed Training",
+          "subtopics": ["Partial starts and deadlocks when pods of a job start one by one", "Kueue waitForPodsReady with timeout and requeuing backoff", "JobSet failurePolicy maxRestarts and successPolicy", "Volcano PodGroup minMember and scheduler-plugins coscheduling as alternatives", "torchrun elastic ranges such as --nnodes=2:4 and rendezvous", "Spot interruptions and restarting from the last checkpoint", "Startup barriers and NCCL init timeouts", "Picking one gang mechanism per cluster"],
+          "tools": ["Kueue", "JobSet", "PyTorch torchrun", "Volcano", "kubectl"],
+          "lab_task": "With 8 free GPUs, submit two 6-GPU jobs of 3 pods each without gang control and record what starts. Enable Kueue waitForPodsReady with a 5-minute timeout and submit again. Then run an elastic torchrun job with --nnodes=2:4 as a JobSet, delete one worker during training and record whether training continues and from which step.",
+          "deliverable": "Deadlock demonstration, Kueue configuration and an elastic training log",
+          "checks": [["Submit both jobs without gang control", "Both jobs have some pods Running and some Pending, and neither progresses", "kubectl get pods"], ["Submit with waitForPodsReady enabled", "One job runs fully and the other waits for admission", "Workload status"], ["Delete one worker of the elastic job", "Rendezvous re-forms with fewer nodes and training resumes from the last checkpoint", "Training logs"]],
+          "objectives": ["Prevent partial-start deadlocks", "Configure gang admission with Kueue", "Run elastic training that survives node loss"]
+        },
+        {
+          "topic": "Fault Tolerance for Long Training Runs: Checkpoints and GPU Health",
+          "subtopics": ["Checkpoint interval from mean time between failures and checkpoint cost", "Asynchronous and distributed checkpointing with torch.distributed.checkpoint", "Xid errors that need attention: 13, 31, 48, 63, 64, 74, 79, 94, 95", "DCGM diagnostics: dcgmi diag -r 1, 2 and 3", "ECC errors and row remapping", "Node conditions from node-problem-detector and automatic taints", "Cloud node auto-repair on GKE and EKS", "JobSet restarts and lost work accounting"],
+          "tools": ["DCGM", "dcgmi", "node-problem-detector", "PyTorch", "JobSet"],
+          "lab_task": "Run dcgmi diag -r 2 from the DCGM pod on one GPU node and save the report. Configure a JobSet training run with maxRestarts 3 and checkpoints every N steps, where N comes from your MTBF calculation. Kill a worker pod at a random step and record lost steps and time to resume. Write an alert on increase(DCGM_FI_DEV_XID_ERRORS[10m]) > 0 and a runbook mapping each Xid to an action.",
+          "deliverable": "MTBF worksheet, diag report, recovery timeline, alert rule and Xid runbook",
+          "checks": [["Run dcgmi diag -r 2", "Each test reports Pass, or a named failure for a faulty GPU", "Diagnostic output"], ["Kill a worker mid-run", "JobSet restarts the job and training resumes from the last checkpoint step", "Training logs"], ["Load the Xid alert rule into Prometheus", "The rule loads with no errors and shows as inactive on healthy nodes", "Prometheus rules page"]],
+          "objectives": ["Size checkpoint intervals for long runs", "Detect and act on GPU hardware faults", "Recover training automatically with bounded lost work"]
+        },
+        {
+          "topic": "SLO-Driven Autoscaling for LLM Inference",
+          "subtopics": ["Signals compared: queue depth, KV cache utilisation, p95 TTFT and GPU utilisation", "KEDA Prometheus triggers with histogram_quantile", "Multiple triggers and how KEDA combines them", "Scale-up latency against cold-start time", "Placeholder pods with negative-priority PriorityClasses as warm GPU capacity", "Scaling prefill and decode pools separately", "The llm-d workload variant autoscaler approach", "Scale-down without cutting in-flight streams"],
+          "tools": ["KEDA", "Prometheus", "vLLM", "Kubernetes PriorityClass", "vllm bench serve"],
+          "lab_task": "Create a KEDA ScaledObject for vLLM with two Prometheus triggers: average vllm:num_requests_waiting above 4 per pod and p95 TTFT above 1 s. Add two placeholder pods with a negative-priority PriorityClass that each hold one GPU. Replay a load ramp from 2 to 30 requests per second and record SLO violation minutes and time for each new replica to serve traffic, with and without placeholders.",
+          "deliverable": "ScaledObject, placeholder manifests and an SLO violation comparison",
+          "checks": [["Run the ramp with placeholders", "Placeholder pods are preempted and new vLLM pods schedule without a new node", "kubectl events"], ["Compare time to serve for new replicas", "With placeholders the time is the model load time only and no node provisioning delay", "Timeline table"], ["Read SLO violation minutes", "The placeholder run has fewer violation minutes than the run without", "Grafana panel"]],
+          "objectives": ["Choose autoscaling signals tied to the SLO", "Keep warm GPU capacity for fast scale-up", "Measure autoscaling quality by SLO violations"]
+        },
+        {
+          "topic": "Multi-Cluster GPU Capacity with MultiKueue",
+          "subtopics": ["Manager and worker cluster roles", "MultiKueueCluster, MultiKueueConfig and kubeconfig Secrets", "AdmissionCheck with controllerName kueue.x-k8s.io/multikueue", "Supported workload types and how status flows back", "Choosing clusters: GPU type, region, price and data locality", "Egress cost of moving data and checkpoints", "Behaviour when a worker cluster disconnects", "Matching quotas between manager and workers"],
+          "tools": ["Kueue", "MultiKueue", "kubectl", "kind or managed clusters"],
+          "lab_task": "Create a manager cluster and two worker clusters (CPU-only Jobs are enough to learn the mechanics). Install Kueue on all three, add kubeconfig Secrets, MultiKueueClusters, a MultiKueueConfig and an AdmissionCheck on the manager ClusterQueue. Submit 10 Jobs on the manager and record where each runs. Then cut access to one worker and submit 5 more.",
+          "deliverable": "MultiKueue configuration and a dispatch log per Job",
+          "checks": [["Run kubectl get multikueuecluster on the manager", "Both workers show CONNECTED True", "Command output"], ["Submit a Job on the manager", "The Job runs in a worker cluster and the manager copy shows the remote status", "kubectl output from manager and worker"], ["Disconnect one worker and submit more Jobs", "That worker shows CONNECTED False and new Jobs go only to the other worker", "Command output"]],
+          "objectives": ["Dispatch jobs across clusters with MultiKueue", "Configure manager and worker clusters", "Plan for worker cluster failures and data locality"]
+        },
+        {
+          "topic": "Securing Scarce GPU Capacity: Reservations, Capacity Blocks and ProvisioningRequest",
+          "subtopics": ["The ProvisioningRequest API in autoscaling.x-k8s.io", "Kueue ProvisioningRequestConfig admission checks", "GKE Dynamic Workload Scheduler: flex-start and queued provisioning", "EC2 Capacity Blocks for ML and On-Demand Capacity Reservations with Karpenter", "Azure capacity reservations for GPU VMs", "Spot GPUs and interruption handling", "Ordering reserved, on-demand and spot capacity", "Regional quota planning"],
+          "tools": ["Kueue", "ProvisioningRequest", "Cluster Autoscaler", "Karpenter", "gcloud or aws CLI"],
+          "lab_task": "On GKE configure a node pool for queued provisioning and a Kueue ProvisioningRequestConfig and AdmissionCheck, then submit a 4-GPU Job; on EKS instead target a Capacity Block or capacity reservation from a Karpenter NodePool. Record how long each job waits, which capacity type it lands on and the ProvisioningRequest conditions. Write a capacity policy that ranks reserved, on-demand and spot use.",
+          "deliverable": "Capacity configuration, wait-time log and a capacity policy",
+          "checks": [["Run kubectl get provisioningrequests during the wait", "Request shows Accepted, then Provisioned True when nodes are ready", "Command output"], ["Check the workload before capacity is ready", "Admission check is Pending and no pods are created", "Workload status"], ["Check the node the job ran on", "Node labels show the reserved or queued capacity type", "kubectl get node --show-labels"]],
+          "objectives": ["Obtain GPUs through queued and reserved capacity", "Gate job admission on capacity being provisioned", "Write a policy for capacity type selection"]
+        },
+        {
+          "topic": "GPU Cost Engineering: Utilisation, Cost per Million Tokens and Spot",
+          "subtopics": ["Cost allocation of GPU-hours with OpenCost or Kubecost", "Finding idle and underused GPUs with DCGM metrics", "Cost per million tokens from hourly price and measured tokens/s", "Right-sizing GPU type per model: L4, L40S, H100", "Quantisation and its effect on cost per token", "Consolidation with MIG and time-slicing", "Scale-to-zero for development endpoints", "Spot GPUs for batch work with checkpointing"],
+          "tools": ["OpenCost", "DCGM Exporter", "Prometheus", "vllm bench serve", "Spreadsheet"],
+          "lab_task": "Install OpenCost and report GPU cost per namespace for a week of lab usage. Benchmark the same 8B model on two GPU types and in bf16 and FP8 at a fixed SLO, then compute cost per million output tokens with hourly price / (tokens per second x 3600) x 1,000,000. List GPUs with average utilisation below 10 percent and estimate monthly savings from fixing them.",
+          "deliverable": "Cost report with per-namespace spend, cost-per-token table and a savings plan",
+          "checks": [["Compute cost for a $4.00 per hour GPU producing 2,000 output tokens/s", "Result is about $0.56 per million output tokens", "Worksheet"], ["Open the OpenCost allocation view by namespace", "GPU cost appears as a separate column for GPU namespaces", "Screenshot"], ["Run the idle-GPU PromQL query", "Returns the GPUs listed in the savings plan", "Query result"]],
+          "objectives": ["Allocate GPU cost to teams", "Calculate and compare cost per token", "Find and remove GPU waste"]
+        },
+        {
+          "topic": "Inference Engine Tuning: Batching, Chunked Prefill and Speculative Decoding",
+          "subtopics": ["Continuous batching with --max-num-seqs and --max-num-batched-tokens", "Chunked prefill and its effect on TTFT and inter-token latency", "CUDA graphs against --enforce-eager", "FP8 weights and --kv-cache-dtype fp8", "Speculative decoding with --speculative-config: n-gram, draft model and EAGLE", "Prefix caching interactions", "Parameter sweeps with vllm bench serve", "Recording tuned settings with the benchmark that justifies them"],
+          "tools": ["vLLM", "vllm bench serve", "Prometheus", "Python"],
+          "lab_task": "Take the intermediate SLO and one model. Sweep --max-num-batched-tokens 2048, 8192 and 16384, then try --kv-cache-dtype fp8 and an n-gram speculative config, one change at a time, at a fixed request rate. Record goodput, p95 TTFT and p95 inter-token latency for each run and keep only changes that improve goodput without breaking the SLO.",
+          "deliverable": "Tuning log with one row per change and the final engine arguments",
+          "checks": [["Compare --max-num-batched-tokens 2048 and 16384", "The larger value changes p95 TTFT and inter-token latency in opposite directions in the results", "Tuning table"], ["Enable --kv-cache-dtype fp8", "Startup logs report a larger KV cache capacity in tokens", "Pod logs"], ["Run the n-gram speculative config", "Metrics or logs report a non-zero draft acceptance rate", "Logs or metrics"]],
+          "objectives": ["Tune batching for a latency SLO", "Apply KV cache quantisation and speculative decoding", "Justify every engine setting with a measurement"]
+        },
+        {
+          "topic": "End-to-End Observability for LLM Serving: Traces, Token Metrics and GPU Profiling",
+          "subtopics": ["OpenTelemetry traces from gateway through the Endpoint Picker to vLLM with --otlp-traces-endpoint", "Linking request IDs across gateway logs, traces and engine logs", "DCGM profiling metrics: DCGM_FI_PROF_SM_ACTIVE, DCGM_FI_PROF_PIPE_TENSOR_ACTIVE, DCGM_FI_PROF_DRAM_ACTIVE", "Correlating TTFT spikes with queue depth and KV cache usage", "Nsight Systems profiles of a model server pod", "SLO dashboards and multi-window burn-rate alerts", "Label cardinality control for per-model and per-tenant metrics", "Retention of prompts and responses in logs"],
+          "tools": ["OpenTelemetry Collector", "Grafana Tempo or Jaeger", "DCGM Exporter", "Prometheus", "Nsight Systems"],
+          "lab_task": "Deploy an OpenTelemetry Collector and a trace backend, start vLLM with --otlp-traces-endpoint and enable tracing on the gateway. Send a slow and a fast request and find both traces. Build a dashboard with TTFT, queue depth, KV cache usage and SM activity on one time axis, then cause a TTFT spike with a burst and explain it from the panels. Add a burn-rate alert for the TTFT SLO.",
+          "deliverable": "Trace screenshots, combined dashboard JSON, burn-rate alert and spike analysis",
+          "checks": [["Search traces for the slow request", "Trace shows spans from the gateway and from vLLM with the same trace ID", "Trace view screenshot"], ["Cause a burst and view the dashboard", "TTFT spike lines up with a rise in vllm:num_requests_waiting", "Dashboard screenshot"], ["Load the burn-rate alert rules", "Rules for fast and slow windows load and fire during a sustained burst", "Prometheus alerts page"]],
+          "objectives": ["Trace LLM requests across components", "Correlate serving and GPU metrics to explain latency", "Alert on SLO burn rather than raw thresholds"]
+        },
+        {
+          "topic": "Model Supply Chain Security: Signing, Scanning and Provenance",
+          "subtopics": ["Pickle deserialisation risk and preferring safetensors", "Scanning model files with ModelScan or picklescan", "Model signing with the OpenSSF model-signing project and Sigstore", "Signing and verifying images with cosign", "Admission policies for signed images and allowed model sources (Kyverno or Sigstore policy-controller)", "Pinning Hugging Face revisions to commit hashes", "trust_remote_code and executing repository code", "SBOMs and AI bills of materials for model servers"],
+          "tools": ["cosign", "Sigstore", "ModelScan", "Kyverno", "Hugging Face Hub"],
+          "lab_task": "Scan a safetensors model and a deliberately malicious pickle test file with ModelScan and record findings. Sign the model directory with the model-signing tool and the vLLM image with cosign. Write an admission policy that only allows images from your registry with a valid signature and InferenceService storageUri values from an approved bucket. Try to deploy an unsigned image and an unapproved storageUri.",
+          "deliverable": "Scan reports, signing commands, admission policy and test results",
+          "checks": [["Scan the malicious pickle file", "Scanner reports an unsafe operator finding", "Scan report"], ["Deploy a pod with an unsigned image", "Admission denies it with a signature verification failure", "kubectl apply error"], ["Create an InferenceService with an unapproved storageUri", "Admission denies it with the policy message", "kubectl apply error"]],
+          "objectives": ["Detect unsafe model files before they reach the cluster", "Sign and verify models and images", "Enforce approved sources at admission"]
+        },
+        {
+          "topic": "Runtime Isolation for Untrusted AI Workloads",
+          "subtopics": ["Shared-kernel risk and the GPU driver as attack surface", "NVIDIA Container Toolkit container escape advisories CVE-2024-0132 and CVE-2025-23266 and patched versions", "Sandboxed runtimes: gVisor GPU support on GKE Sandbox and Kata Containers with GPU passthrough", "Confidential computing on H100-class GPUs with confidential VMs", "MIG against time-slicing as isolation boundaries", "Notebooks and agent code execution as untrusted code", "seccomp RuntimeDefault, no privilege escalation and read-only root filesystems", "Egress control for workloads that run user code"],
+          "tools": ["NVIDIA Container Toolkit", "gVisor", "Kata Containers", "NetworkPolicy", "kubectl"],
+          "lab_task": "Inventory the NVIDIA Container Toolkit version on every GPU node with nvidia-ctk --version and compare it with the fixed versions in the NVIDIA security bulletins. Run a CUDA vectoradd pod under a sandboxed RuntimeClass (gVisor on GKE Sandbox or Kata where available). Build a notebook namespace with restricted Pod Security, default-deny egress and MIG-only GPUs, and test from a notebook pod.",
+          "deliverable": "Toolkit version inventory, sandbox test results and a notebook isolation design",
+          "checks": [["Run nvidia-ctk --version on each GPU node", "Every node reports a version at or above the fixed version in the bulletin", "Inventory table"], ["Run vectoradd under the sandboxed RuntimeClass", "Logs end with Test PASSED and the pod spec shows the sandbox runtimeClassName", "kubectl logs and pod spec"], ["curl an external URL from a notebook pod", "Request fails because egress is denied", "curl output"]],
+          "objectives": ["Assess container escape risk on GPU nodes", "Run GPU workloads in sandboxed runtimes", "Isolate user code that runs on shared GPUs"]
+        },
+        {
+          "topic": "Hard Multi-Tenancy for Shared GPU Clusters",
+          "subtopics": ["Soft and hard tenancy and which threats each covers", "Virtual clusters with vCluster for tenant control planes", "Dedicated GPU node pools per tenant enforced with ValidatingAdmissionPolicy", "MIG slices assigned per tenant", "Kueue cohorts per business unit", "Network and DNS isolation between tenants", "Isolating model weights and datasets per tenant", "Chargeback and audit evidence per tenant"],
+          "tools": ["vCluster", "ValidatingAdmissionPolicy", "Kueue", "NetworkPolicy", "MIG Manager"],
+          "lab_task": "Create two tenants. Give tenant-a a vCluster and tenant-b a namespace. Write a ValidatingAdmissionPolicy with a binding that rejects any pod in a tenant namespace that requests GPUs without that tenant's nodeSelector and toleration. Assign MIG-sliced nodes to tenant-b only. Run a red-team list: reach the other tenant's model Service, schedule onto its nodes and read its weight PVC.",
+          "deliverable": "Tenancy design, admission policy and the red-team results table",
+          "checks": [["Create a GPU pod in tenant-b without the tenant nodeSelector", "Admission denies it with the policy's message", "kubectl apply error"], ["List nodes from inside tenant-a's vCluster", "Only synced or virtual nodes appear, not the host cluster's full node list", "kubectl output inside vCluster"], ["Mount tenant-a's weight PVC from tenant-b", "Pod fails because the PVC does not exist in tenant-b's namespace", "Pod events"]],
+          "objectives": ["Choose a tenancy model for GPU clusters", "Enforce tenant placement with admission policy", "Test isolation with a red-team checklist"]
+        },
+        {
+          "topic": "Self-Service Model Deployment Platforms for AI Teams",
+          "subtopics": ["Golden-path templates for model endpoints", "Argo CD ApplicationSets generating one Application per model release", "Model registry integration with MLflow or the Kubeflow Model Registry", "Guardrail policies: allowed GPU types, maximum replicas, required probes", "Promotion from dev to staging to prod gated on evaluation and load-test results", "Shadow traffic and canaries for new models", "Developer portal templates such as Backstage", "Ownership, documentation and support boundaries"],
+          "tools": ["Argo CD", "Helm", "MLflow", "Kyverno or ValidatingAdmissionPolicy", "KServe"],
+          "lab_task": "Build a template repo where a team adds models/<name>.yaml (model URI, GPU type, replicas, SLO). An ApplicationSet generates an InferenceService or vLLM release per file. Add a policy that rejects H100 requests from dev and a CI step that runs a short benchmark and blocks promotion if p95 TTFT exceeds the declared SLO. Onboard two models, one meant to fail the gate.",
+          "deliverable": "Template repository, ApplicationSet, policy and a promotion log",
+          "checks": [["Merge a new models/<name>.yaml", "Argo CD creates a new Application that reaches Synced and Healthy", "Argo CD UI screenshot"], ["Request an H100 in the dev environment", "Policy rejects the resource with its message", "Sync error"], ["Promote the model that misses its SLO", "CI gate fails and production is not changed", "CI log"]],
+          "objectives": ["Give teams a self-service path to deploy models", "Enforce GPU and quality guardrails automatically", "Gate promotion on evaluation and performance"]
+        },
+        {
+          "topic": "Resilient Model Rollouts and Regional Failover",
+          "subtopics": ["Blue/green for LLMs and its double GPU cost", "Weighted HTTPRoute backendRefs across InferencePools for canaries", "Automated rollback on latency, error or evaluation regressions", "Active-active and active-passive regions and warm GPU capacity", "Replicating model weights across regions", "Global load balancing and DNS failover for model endpoints", "Client retries for streamed responses and idempotency", "Failover drills and recovery time measurement"],
+          "tools": ["Gateway API", "Gateway API Inference Extension", "Argo Rollouts or Flagger", "Prometheus", "Global load balancer"],
+          "lab_task": "Run a model version v1 and v2 in separate InferencePools and shift traffic 95/5 with weighted backendRefs, with an automated analysis that rolls back if p95 TTFT rises 20 percent. Make v2 slower and confirm rollback. Then deploy the endpoint in two regions behind a global load balancer, stop the primary region's model pods and measure failover time and failed requests.",
+          "deliverable": "Rollout configuration, rollback evidence and a failover drill report",
+          "checks": [["Start the canary with the slowed v2", "Analysis fails and traffic returns to 100 percent v1", "Rollout status"], ["Stop model pods in the primary region", "Health checks fail and traffic moves to the second region", "Load balancer logs"], ["Count failed requests during failover", "Report gives the number of failed requests and the measured recovery time", "Drill report"]],
+          "objectives": ["Roll out new model versions with automatic rollback", "Design regional redundancy for model endpoints", "Measure recovery time with a drill"]
+        },
+        {
+          "topic": "Upgrading GPU Software Stacks Without Downtime",
+          "subtopics": ["Compatibility chain: kernel, driver, CUDA, PyTorch and inference engine", "GPU Operator chart upgrades and ClusterPolicy changes", "Driver upgrade controller: driver.upgradePolicy autoUpgrade, maxParallelUpgrades and drain settings", "Upgrade state in the nvidia.com/gpu-driver-upgrade-state node label", "Precompiled and signed driver containers", "Kubernetes minor upgrades and DRA API version changes", "Canary node pools and validation with vectoradd, nccl-tests and benchmarks", "Rollback plan for drivers and operator"],
+          "tools": ["NVIDIA GPU Operator", "Helm", "nccl-tests", "vllm bench serve", "kubectl"],
+          "lab_task": "Write the current compatibility matrix for your GPU nodes. On a canary node pool, upgrade the GPU Operator chart and driver version with upgradePolicy maxParallelUpgrades: 1 and drain enabled while vLLM serves behind a PodDisruptionBudget. Watch the upgrade state labels, then run vectoradd, nccl-tests and a short benchmark and compare with the baseline before rolling out further.",
+          "deliverable": "Compatibility matrix, upgrade runbook, validation results and a rollback plan",
+          "checks": [["Watch node labels during the upgrade", "nvidia.com/gpu-driver-upgrade-state moves through states to upgrade-done on one node at a time", "kubectl get nodes -L output"], ["Run a client against vLLM during the upgrade", "Requests keep succeeding because the PDB keeps at least one replica", "Client log"], ["Compare the post-upgrade benchmark with the baseline", "Throughput is within the tolerance set in the runbook", "Comparison table"]],
+          "objectives": ["Plan GPU stack upgrades with a compatibility matrix", "Upgrade drivers one node at a time without downtime", "Validate GPU nodes after an upgrade"]
+        },
+        {
+          "topic": "Advanced Capstone: Disaggregated Multi-Cluster LLM Platform",
+          "subtopics": ["Architecture: llm-d with prefill/decode pools, cache-aware routing and SLO-driven autoscaling", "Training side: topology-aware gang-scheduled TrainJobs with checkpoints and MultiKueue dispatch", "Security and tenancy: signed models and images, admission policy, sandboxed notebooks", "Operations: cost per token, tracing, failover drill and GPU stack upgrade plan", "Architecture review against reliability, cost and security trade-offs", "Live demo with injected failures"],
+          "tools": ["llm-d", "vLLM", "Kueue", "Kubeflow Trainer", "OpenTelemetry", "Argo CD"],
+          "lab_task": "Deliver a two-cluster platform: llm-d disaggregated serving with prefix-aware routing and KEDA scaling in each cluster behind a global load balancer, MultiKueue dispatching topology-aware TrainJobs, admission policies for signed artefacts, and dashboards for cost per token and SLO burn. During the demo the trainer kills a decode pod, a training worker and one region's endpoint.",
+          "deliverable": "Architecture decision records, GitOps repository, dashboards and incident reports for each injected failure",
+          "checks": [["Kill a decode pod under load", "Requests continue and the burn-rate alert does not fire", "Grafana and alert screenshots"], ["Kill a training worker", "TrainJob resumes from its last checkpoint with lost steps reported", "Training logs"], ["Stop one region's endpoint", "Traffic fails over and the measured recovery time is within the stated target", "Drill report"]],
+          "objectives": ["Architect a production LLM platform across clusters", "Defend design trade-offs in a review", "Operate the platform through injected failures"]
+        }
+      ]
+    }
+  }
+}

@@ -46,8 +46,6 @@ services:
       - trainersync
     volumes:
       - redis_data:/data
-    ports:
-      - "6379:6379"
     command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -77,6 +75,9 @@ services:
   core-api:
     container_name: ts-core-api
     image: ghcr.io/muttarasusujitha/trainersync/core-api:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/core-api/Dockerfile
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -94,19 +95,22 @@ services:
 
   email-service:
     container_name: ts-email-service
-    image: ghcr.io/muttarasusujitha/trainersync/email-service:latest
+    image: trainersync-email-slot-validation-fix:local
+    build:
+      context: ..
+      dockerfile: microservices/services/email-service/Dockerfile
     <<: *service-defaults
     environment:
       <<: *common-env
       SERVICE_NAME: email-service
       PORT: "8002"
     env_file: .env
-    ports:
-      - "8002:8002"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     expose:
       - "8002"
     volumes:
-      - ./gmail_config:/app/config
+      - gmail_oauth_data:/app/config
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
       interval: 30s
@@ -135,14 +139,17 @@ services:
   trainer-service:
     container_name: ts-trainer-service
     image: ghcr.io/muttarasusujitha/trainersync/trainer-service:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/trainer-service/Dockerfile
     <<: *service-defaults
     environment:
       <<: *common-env
       SERVICE_NAME: trainer-service
       PORT: "8004"
     env_file: .env
-    ports:
-      - "8004:8004"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     expose:
       - "8004"
     healthcheck:
@@ -154,15 +161,24 @@ services:
 
   intelligence-service:
     container_name: ts-intelligence-service
-    image: ghcr.io/muttarasusujitha/trainersync/intelligence-service:latest
+    image: ${INTELLIGENCE_IMAGE:-ghcr.io/muttarasusujitha/trainersync/intelligence-service:latest}
     <<: *service-defaults
     environment:
       <<: *common-env
       SERVICE_NAME: intelligence-service
       PORT: "8005"
+      LINKEDIN_BOT_PROFILE_PATH: /data/linkedin-bot-profile
     env_file: .env
-    ports:
-      - "8005:8005"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - linkedin_bot_profile:/data/linkedin-bot-profile
+      - ./services/intelligence-service/app/routes/trainer_profile_leads.py:/app/app/routes/trainer_profile_leads.py:ro
+      - ./services/intelligence-service/app/routes/free_search.py:/app/app/routes/free_search.py:ro
+      - ./services/intelligence-service/app/clients/public_search.py:/app/app/clients/public_search.py:ro
+      - ./services/intelligence-service/app/clients/naukri_public_search.py:/app/app/clients/naukri_public_search.py:ro
+      - ./services/intelligence-service/app/config.py:/app/app/config.py:ro
+    shm_size: "1gb"
     expose:
       - "8005"
     healthcheck:
@@ -174,15 +190,13 @@ services:
 
   document-service:
     container_name: ts-document-service
-    image: ghcr.io/muttarasusujitha/trainersync/document-service:latest
+    image: trainersync-document-autohandoff-fix:local
     <<: *service-defaults
     environment:
       <<: *common-env
       SERVICE_NAME: document-service
       PORT: "8006"
     env_file: .env
-    ports:
-      - "8006:8006"
     expose:
       - "8006"
     healthcheck:
@@ -194,7 +208,10 @@ services:
 
   scheduler-service:
     container_name: ts-scheduler-api
-    image: ghcr.io/muttarasusujitha/trainersync/scheduler-service:latest
+    image: trainersync-scheduler-service:local
+    build:
+      context: ..
+      dockerfile: microservices/services/scheduler-service/Dockerfile
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -203,6 +220,7 @@ services:
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
       EMAIL_SERVICE_URL: http://email-service:8002
+      TRAINER_SERVICE_URL: http://trainer-service:8004
       NOTIFICATION_SERVICE_URL: http://notification-service:8003
     env_file: .env
     expose:
@@ -216,7 +234,7 @@ services:
 
   celery-worker:
     container_name: ts-celery-worker
-    image: ghcr.io/muttarasusujitha/trainersync/celery-service:latest
+    image: trainersync-scheduler-service:local
     command: celery -A app.celery_app worker --loglevel=info --concurrency=4
     <<: *service-defaults
     environment:
@@ -224,10 +242,15 @@ services:
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
       EMAIL_SERVICE_URL: http://email-service:8002
+      TRAINER_SERVICE_URL: http://trainer-service:8004
       NOTIFICATION_SERVICE_URL: http://notification-service:8003
     env_file: .env
     healthcheck:
-      disable: true
+      test: ["CMD-SHELL", "python -c \"import sys; sys.exit(0 if b'celery' in open('/proc/1/cmdline','rb').read() and b'worker' in open('/proc/1/cmdline','rb').read() else 1)\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
     depends_on:
       redis:
         condition: service_healthy
@@ -235,12 +258,14 @@ services:
         condition: service_healthy
       email-service:
         condition: service_healthy
+      trainer-service:
+        condition: service_healthy
       notification-service:
         condition: service_healthy
 
   celery-beat:
     container_name: ts-celery-beat
-    image: ghcr.io/muttarasusujitha/trainersync/celery-beat-service:latest
+    image: trainersync-scheduler-service:local
     command: celery -A app.celery_app beat --loglevel=info --scheduler celery.beat.PersistentScheduler --schedule=/app/celerybeat-schedule/celerybeat-schedule
     <<: *service-defaults
     environment:
@@ -251,7 +276,11 @@ services:
     volumes:
       - celery_beat_data:/app/celerybeat-schedule
     healthcheck:
-      disable: true
+      test: ["CMD-SHELL", "python -c \"import sys; sys.exit(0 if b'celery' in open('/proc/1/cmdline','rb').read() and b'beat' in open('/proc/1/cmdline','rb').read() else 1)\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
     depends_on:
       redis:
         condition: service_healthy
@@ -279,11 +308,19 @@ services:
   gateway:
     container_name: ts-gateway
     image: ghcr.io/muttarasusujitha/trainersync/gateway-service:latest
+    build:
+      context: ..
+      dockerfile: microservices/gateway/Dockerfile
     restart: unless-stopped
+    volumes:
+      - ./gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
     networks:
       - trainersync
     ports:
       - "80:80"
+      - "443:443"
       - "8000:80"
     depends_on:
       auth-service:
@@ -312,6 +349,9 @@ volumes:
   redis_data:
   celery_beat_data:
   meet_bot_profile:
+  linkedin_bot_profile:
+  gmail_oauth_data:
+    name: trainersync_gmail_oauth
 
 networks:
   trainersync:

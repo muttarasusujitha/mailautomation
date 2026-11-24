@@ -1,0 +1,573 @@
+{
+  "domain": "Loki",
+  "name": "Loki",
+  "category": "Observability and SRE",
+  "icon": "activity",
+  "aliases": ["Grafana Loki", "Log Aggregation", "LogQL", "Loki Logging", "Grafana Loki Training", "Loki Administration", "Grafana Cloud Logs", "Loki Log Management"],
+  "certifications": [],
+  "tools": ["Grafana Loki", "Grafana Alloy", "Grafana", "logcli", "Helm", "Loki Helm chart", "MinIO", "Amazon S3", "memcached", "lokitool", "loki-canary", "k6 with xk6-loki", "Docker Compose", "Grafana Cloud Logs"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, system administrators and SRE or DevOps engineers who are new to Grafana Loki and need to collect, search and alert on logs. Covers how Loki indexes only labels and stores compressed chunks, a local Loki, Grafana Alloy and Grafana lab, log streams and labels, the push API and logcli, file, Docker, journal and Kubernetes collection with Alloy, moving from the deprecated Promtail to Alloy, LogQL log and metric queries, Grafana Explore, Logs Drilldown and dashboards, the Loki configuration file, label cardinality, first log-based alerts and a centralised logging capstone.",
+      "prerequisites": ["Uses a Linux shell confidently: files, pipes, curl, environment variables and reading application log files", "Has run containers with Docker and Docker Compose and can read YAML configuration", "Has a laptop with Docker Desktop or Docker Engine, 8 GB of RAM free for the lab and rights to open ports 3000, 3100 and 12345 locally"],
+      "outcomes": ["Run Loki, Grafana Alloy and Grafana locally and explain how Loki stores logs as labelled streams of compressed chunks", "Collect logs from files, Docker containers, the systemd journal and Kubernetes pods with Alloy pipelines that set a small, stable label set", "Write LogQL log queries with selectors, line filters, parsers and label filters, and metric queries with range aggregations", "Build Grafana dashboards and Grafana-managed alert rules on the Loki data source for a working application"],
+      "days": [
+        {
+          "topic": "Loki Overview: Log Aggregation by Labels Instead of Full-Text Indexing",
+          "subtopics": ["Why logs need central aggregation: many hosts, short-lived containers and incident search", "Loki's design: index only the label set and store log lines in compressed chunks", "Comparing Loki with full-text indexing systems on cost, ingest speed and query style", "Streams: one unique combination of label names and values", "Chunks, the index and object storage as the three storage ideas", "Agents that send logs: Grafana Alloy, OpenTelemetry Collector, Fluent Bit and the deprecated Promtail", "Grafana as the main query and visualisation front end", "LogQL at a glance: log queries return lines, metric queries return numbers", "Self-managed Loki versus Grafana Cloud Logs", "Typical use cases: incident search, audit trails, error-rate alerts and Kubernetes logging"],
+          "tools": ["Grafana Loki", "Grafana", "Grafana Alloy", "Grafana Cloud Logs"],
+          "lab_task": "Pick three log sources you run today (for example nginx access logs, a Java service and the systemd journal). For each, list the labels you would attach (job, environment, host, service_name), estimate daily volume in GB and the number of streams it creates, and decide which fields belong in the line rather than in labels. Present the estimate as a table and calculate the total stream count.",
+          "deliverable": "Log source inventory with proposed labels, stream counts and daily volume per source",
+          "checks": [["Ask the learner to name what Loki indexes", "The answer is the label set only, with log content stored unindexed in chunks", "Written answer"], ["Multiply 3 environments by 40 hosts by 2 jobs in the stream estimate", "The table shows 240 streams for that source", "Inventory table"], ["Propose request_id as a label", "The design is rejected and request_id is kept in the log line or structured metadata", "Review comment in the inventory"]],
+          "objectives": ["Explain how Loki differs from full-text log indexing", "Define streams, labels, chunks and the index", "Estimate stream counts and volume for real log sources"]
+        },
+        {
+          "topic": "Lab Setup: Running Loki, Alloy and Grafana with Docker Compose",
+          "subtopics": ["The grafana/loki, grafana/alloy and grafana/grafana container images", "A docker-compose.yml with three services and a shared network", "Loki in single-binary mode with -config.file=/etc/loki/local-config.yaml", "Loki ports: 3100 for HTTP and 9095 for gRPC", "Health endpoints: /ready, /metrics, /config and /services", "Alloy's config.alloy file and the Alloy UI on port 12345", "Grafana on port 3000 and adding Loki as a data source at http://loki:3100", "Data source provisioning with a datasources YAML file", "Filesystem storage for the lab and why production uses object storage", "Reading container logs with docker compose logs loki when start-up fails"],
+          "tools": ["Docker Compose", "Grafana Loki", "Grafana Alloy", "Grafana", "curl"],
+          "lab_task": "Write a docker-compose.yml that starts grafana/loki, grafana/alloy and grafana/grafana. Run docker compose up -d, wait until curl -s localhost:3100/ready prints ready, open the Alloy UI on localhost:12345 and confirm the component graph loads, then provision a Loki data source in Grafana from a YAML file and run Save & test. Record the running image tags with docker compose images.",
+          "deliverable": "Compose file, data source provisioning file and screenshots of /ready, the Alloy UI and a successful data source test",
+          "checks": [["curl -s http://localhost:3100/ready after start-up", "The response body is the word ready", "Terminal output"], ["Save & test on the provisioned Loki data source", "Grafana reports that the data source is connected and labels were found", "Grafana screenshot"], ["curl -s localhost:3100/services", "Every listed module, including ingester and querier, shows Running", "Services output"]],
+          "objectives": ["Start a working Loki, Alloy and Grafana lab", "Use Loki's health and configuration endpoints", "Provision a Loki data source in Grafana"]
+        },
+        {
+          "topic": "Log Streams, Labels and Chunks",
+          "subtopics": ["Label names, label values and the stream selector {job=\"api\"}", "How each distinct label set creates a new stream", "Static labels versus labels discovered from targets", "Reserved and internal labels such as __path__ and those starting with __", "service_name and how Loki discovers it when it is missing", "Chunks: compressed blocks of one stream's lines in time order", "Timestamp ordering and the out-of-order window per stream", "Inspecting streams with the /loki/api/v1/series and /loki/api/v1/labels endpoints", "Why label values with many variants slow down ingestion and queries"],
+          "tools": ["Grafana Loki", "logcli", "curl", "Grafana"],
+          "lab_task": "Push one log line for each of six label sets that differ only in a level label, then call curl -G localhost:3100/loki/api/v1/series --data-urlencode 'match[]={job=\"demo\"}' and count the returned series. Run logcli series '{job=\"demo\"}' --analyze-labels and record how many unique values each label has. Explain why changing level from a label to line content cuts the stream count.",
+          "deliverable": "Stream analysis note with the series output and the logcli label analysis table",
+          "checks": [["Query /loki/api/v1/series for {job=\"demo\"}", "Six series are returned, one per label set", "JSON response"], ["Run logcli series --analyze-labels", "The level label is listed with 6 unique values", "logcli output"], ["Push a line with a label name containing a hyphen", "The push is rejected with HTTP 400 and an invalid label name error", "curl response"]],
+          "objectives": ["Explain how label sets map to streams", "Inspect streams and label values with the API and logcli", "Recognise label choices that multiply streams"]
+        },
+        {
+          "topic": "Pushing Logs with the Loki HTTP API and logcli",
+          "subtopics": ["POST /loki/api/v1/push with a JSON body of streams and values", "Timestamps as nanosecond Unix epoch strings", "Content-Type application/json versus snappy-compressed protobuf", "HTTP 204 on success and HTTP 400 for bad payloads", "GET /loki/api/v1/query_range with query, start, end, limit and direction", "GET /loki/api/v1/query for instant queries", "Installing logcli and setting LOKI_ADDR", "logcli query, --since, --limit, --output=jsonl and --tail", "logcli labels and logcli series"],
+          "tools": ["curl", "logcli", "Grafana Loki", "jq"],
+          "lab_task": "Write a shell script that pushes 100 log lines to /loki/api/v1/push with curl, using date +%s%N for timestamps and the labels job=\"pushdemo\", env=\"lab\". Check that each request returns HTTP 204. Then run logcli query '{job=\"pushdemo\"}' --since=10m --limit=1000 --output=jsonl | wc -l and confirm 100 lines. Finally send one line with a timestamp in seconds instead of nanoseconds and record what happens.",
+          "deliverable": "Push script, logcli output and a note on the timestamp-unit mistake",
+          "checks": [["Push a valid JSON payload", "curl -w '%{http_code}' prints 204", "Script output"], ["logcli query --since=10m --output=jsonl piped to wc -l", "The count is 100", "Terminal output"], ["Push a line with a timestamp in seconds", "Loki returns HTTP 400 saying the entry timestamp is too old, because the value is read as nanoseconds near 1970", "curl response and query result"]],
+          "objectives": ["Send logs to Loki with the push API", "Query Loki from the command line with logcli", "Diagnose timestamp format errors"]
+        },
+        {
+          "topic": "Collecting Files with Grafana Alloy: local.file_match, loki.source.file and loki.write",
+          "subtopics": ["Alloy configuration syntax: blocks, attributes and component labels", "local.file_match with path_targets and the __path__ label", "loki.source.file reading targets and forwarding to receivers", "loki.write with an endpoint url pointing at /loki/api/v1/push", "Wiring components with .receiver and .targets exports", "Positions tracking so restarts do not resend or skip lines", "Log rotation handling and file globbing", "Debugging in the Alloy UI: component health and live debugging", "alloy fmt and alloy run for validation"],
+          "tools": ["Grafana Alloy", "Grafana Loki", "Grafana", "logcli"],
+          "lab_task": "Write a config.alloy that uses local.file_match with path_targets = [{__path__ = \"/var/log/app/*.log\", job = \"app\"}], feeds loki.source.file and sends to loki.write at http://loki:3100/loki/api/v1/push. Mount a log directory, append 50 lines with a loop, then confirm in Grafana Explore that 50 lines arrive. Restart Alloy and append 10 more lines; verify the total is 60, not 110.",
+          "deliverable": "config.alloy, Alloy UI screenshot showing healthy components and the line counts before and after restart",
+          "checks": [["Open the Alloy UI on port 12345", "loki.source.file and loki.write show Healthy", "UI screenshot"], ["count_over_time({job=\"app\"}[1h]) after the first batch", "The result is 50", "Explore screenshot"], ["Restart Alloy and append 10 lines", "The count becomes 60, showing positions prevented duplicates", "Explore screenshot"]],
+          "objectives": ["Build an Alloy pipeline that tails files into Loki", "Validate component health in the Alloy UI", "Explain how positions prevent duplicate or missing lines"]
+        },
+        {
+          "topic": "Processing Pipelines in Alloy with loki.process Stages",
+          "subtopics": ["loki.process with forward_to and ordered stage blocks", "stage.json and stage.logfmt for extracting fields", "stage.regex with named capture groups", "stage.labels to promote a small number of extracted values", "stage.timestamp with format and location", "stage.multiline for Java stack traces", "stage.drop to discard health-check and debug lines", "stage.static_labels and stage.label_drop", "stage.structured_metadata for high-cardinality fields"],
+          "tools": ["Grafana Alloy", "Grafana Loki", "Grafana"],
+          "lab_task": "Extend the file pipeline with loki.process: parse JSON with stage.json, set the entry time from the ts field using stage.timestamp, promote level to a label, store trace_id with stage.structured_metadata, merge stack traces with stage.multiline firstline = \"^\\\\d{4}-\", and drop lines whose path is /healthz with stage.drop. Feed 200 sample lines that include 40 health checks and 5 five-line stack traces and record how many entries Loki stores.",
+          "deliverable": "Annotated config.alloy and a before-and-after count of entries and streams",
+          "checks": [["Count entries after sending the 200-line sample", "140 entries are stored (200 minus 40 health checks minus 20 merged continuation lines) and no /healthz line is found", "LogQL count query"], ["Query {job=\"app\", level=\"error\"}", "Only error lines are returned and their timestamps match the ts field", "Explore screenshot"], ["Inspect a returned line in Explore", "trace_id appears as structured metadata, not as a stream label", "Log details screenshot"]],
+          "objectives": ["Parse and enrich logs before they reach Loki", "Choose between labels and structured metadata for extracted fields", "Reduce volume by dropping noise at the agent"]
+        },
+        {
+          "topic": "Migrating from Promtail to Grafana Alloy",
+          "subtopics": ["Promtail's deprecation and end of support, and why Alloy replaces it", "Mapping scrape_configs to discovery, relabel and loki.source components", "Mapping pipeline_stages to loki.process stage blocks", "alloy convert --source-format=promtail and its report output", "Running alloy run with --config.format=promtail as a short bridge", "Positions file migration so files are not re-read", "Differences in relabelling between Promtail and discovery.relabel", "Testing the converted pipeline side by side", "Rolling out Alloy as a DaemonSet or system service"],
+          "tools": ["Grafana Alloy", "Promtail", "Grafana Loki", "diff"],
+          "lab_task": "Take a Promtail config with two scrape_configs (a static file job and a journal job) and five pipeline_stages. Run alloy convert --source-format=promtail --output=config.alloy promtail.yaml --report=report.txt, read the report, fix any unsupported items by hand, then run both agents against separate tenants for 15 minutes and compare count_over_time per job. The counts must match within 1%.",
+          "deliverable": "Converted config.alloy, the conversion report and a comparison table of line counts per job",
+          "checks": [["Run alloy convert with --report", "The report lists every converted block and any warnings, and the command exits 0", "report.txt"], ["Compare sum by (job) (count_over_time({job=~\".+\"}[15m])) for the two tenants", "Counts per job differ by less than 1%", "Comparison table"], ["Start Alloy with the old Promtail positions file path", "Already-shipped lines are not sent again", "Line count after restart"]],
+          "objectives": ["Explain the status of Promtail and the move to Alloy", "Convert Promtail configuration with alloy convert", "Verify a migration by comparing ingested volumes"]
+        },
+        {
+          "topic": "LogQL Log Queries: Stream Selectors and Line Filters",
+          "subtopics": ["Stream selector matchers: =, !=, =~ and !~", "At least one matcher must not match the empty string", "Line filters: |=, !=, |~ and !~", "Chaining filters and putting the most selective filter first", "Case-insensitive regex with (?i)", "The pattern match filter |> and !> with <_> placeholders", "Query direction, limit and time range in Explore", "Backtick strings to avoid escaping in regular expressions", "Why selectors narrow streams and filters scan chunks"],
+          "tools": ["Grafana", "logcli", "Grafana Loki"],
+          "lab_task": "Load the sample nginx access log into Loki and write queries that return: all 5xx responses from {job=\"nginx\"}, lines containing timeout case-insensitively, requests to /api/ that are not from 10.0.0.0/8 using a regex filter, and lines matched with |> \"<_> POST <_> 404 <_>\". For each query record the result count and the bytes processed shown in the Explore query inspector.",
+          "deliverable": "Query sheet with four LogQL queries, result counts and bytes processed",
+          "checks": [["Run {job=~\".*\"} in Explore", "Loki rejects it with an error that the query must contain at least one matcher that does not match the empty string", "Error message"], ["Run {job=\"nginx\"} |~ \"(?i)timeout\"", "Lines with Timeout and TIMEOUT are both returned", "Explore screenshot"], ["Compare bytes processed for {job=\"nginx\"} with and without a line filter", "Both scan the same bytes because filters run after chunks are read", "Query inspector stats"]],
+          "objectives": ["Select streams with label matchers", "Filter log lines with string, regex and pattern filters", "Explain where query cost comes from"]
+        },
+        {
+          "topic": "LogQL Parsers: json, logfmt, pattern and regexp",
+          "subtopics": ["| json with and without parameters such as | json status=\"response.status\"", "| logfmt and the --strict and --keep-empty flags", "| pattern \"<ip> - - [<_>] \\\"<method> <path> <_>\\\" <status> <size>\"", "| regexp with named capture groups", "| unpack for lines packed by the pack stage", "Extracted labels versus stream labels", "The __error__ label and filtering parse failures with __error__=\"\"", "Parser cost and why pattern is faster than regexp", "| decolorize for ANSI-coloured lines"],
+          "tools": ["Grafana", "logcli", "Grafana Loki"],
+          "lab_task": "Using nginx access logs, a logfmt Go service and a JSON Node.js service, write one query per source that extracts status or level with the right parser and filters to errors. Then send 10 malformed JSON lines and show the difference between {job=\"node\"} | json and {job=\"node\"} | json | __error__=\"\". Record the count of JSONParserErr lines.",
+          "deliverable": "Parser cookbook with three working queries and the parse-error analysis",
+          "checks": [["{job=\"nginx\"} | pattern ... | status >= 500", "Only lines with status 500 or higher are returned", "Explore screenshot"], ["count_over_time({job=\"node\"} | json | __error__=\"JSONParserErr\" [1h])", "The result is 10", "Query result"], ["Inspect an extracted field in log details", "The field shows as a parsed label, not an indexed stream label", "Log details screenshot"]],
+          "objectives": ["Choose the right LogQL parser for a log format", "Handle parse errors with the __error__ label", "Distinguish parsed labels from stream labels"]
+        },
+        {
+          "topic": "LogQL Label Filters, line_format and label_format",
+          "subtopics": ["Label filter expressions: ==, !=, >, >=, <, <= and regex matchers", "Typed comparisons on duration and bytes values such as duration > 2s", "Combining filters with and, or and parentheses", "The ip() function in label filters", "| line_format with Go templates and functions such as ToUpper and printf", "| label_format to rename and template labels", "| keep and | drop to trim labels in results", "Order of stages in a pipeline and its effect on cost"],
+          "tools": ["Grafana", "logcli", "Grafana Loki"],
+          "lab_task": "On the JSON service logs, write a query that keeps only requests slower than 500ms with status >= 400, rewrites each line with line_format to \"{{.method}} {{.path}} {{.status}} {{.duration}}\", renames path to route with label_format and drops all other parsed labels with keep. Add a filter using ip(\"10.0.0.0/8\") on client_ip. Record the result count before and after each stage.",
+          "deliverable": "Stage-by-stage query notebook with counts after each step",
+          "checks": [["Apply | duration > 500ms on a field holding values like 730ms", "Only entries above 500 milliseconds remain", "Result count and sample lines"], ["Apply | line_format with the template", "Each returned line reads like GET /api/orders 503 730ms", "Explore screenshot"], ["Apply | client_ip = ip(\"10.0.0.0/8\")", "Only private 10.x addresses remain in the results", "Explore screenshot"]],
+          "objectives": ["Filter on parsed values with typed comparisons", "Reformat lines and labels for readability", "Order pipeline stages to keep queries cheap"]
+        },
+        {
+          "topic": "LogQL Metric Queries: rate, count_over_time and bytes_over_time",
+          "subtopics": ["Range vectors such as [5m] applied to log queries", "count_over_time and rate", "bytes_over_time and bytes_rate", "absent_over_time for detecting missing logs", "Instant queries versus range queries and the step parameter", "The $__auto and $__interval variables in Grafana", "offset to compare with an earlier period", "Choosing a range that is at least the scrape or step interval"],
+          "tools": ["Grafana", "logcli", "Grafana Loki"],
+          "lab_task": "Build four time-series queries over the nginx logs: requests per second per status class with sum by (status) (rate({job=\"nginx\"} | pattern ... [5m])), error ratio of 5xx to all requests, log bytes per job per hour with bytes_over_time, and an absent_over_time({job=\"cron\"}[15m]) query. Plot them in Explore and check one value by hand with logcli query --stats.",
+          "deliverable": "Metric query sheet with four queries, graphs and one manual cross-check",
+          "checks": [["Run the error-ratio query while injecting 50 5xx in 1000 requests", "The ratio is about 0.05", "Graph screenshot"], ["Stop the cron job for 20 minutes and run absent_over_time({job=\"cron\"}[15m])", "The query returns 1", "Query result"], ["Compare count_over_time over 1h with a logcli count for the same hour", "Both give the same number", "Terminal and Explore output"]],
+          "objectives": ["Turn log lines into metrics with range aggregations", "Detect missing logs with absent_over_time", "Cross-check metric results against raw lines"]
+        },
+        {
+          "topic": "Aggregation Operators and Unwrapped Ranges in LogQL",
+          "subtopics": ["sum, avg, min, max, count and stddev with by and without", "topk and bottomk for top talkers", "| unwrap to use a parsed value as a sample", "unwrap duration() and bytes() conversions", "sum_over_time, avg_over_time, max_over_time and quantile_over_time", "Using __error__=\"\" after unwrap to skip bad samples", "Binary operators between two metric queries", "Limits on series returned and the max_query_series error"],
+          "tools": ["Grafana", "Grafana Loki", "logcli"],
+          "lab_task": "From the JSON service logs, compute p95 latency per route with quantile_over_time(0.95, {job=\"api\"} | json | unwrap duration(duration) | __error__=\"\" [5m]) by (route), the top 5 client IPs by request count with topk, and average response size per status with avg_over_time and unwrap bytes(size). Compare the p95 with the value printed by the load generator.",
+          "deliverable": "Latency and traffic report with three queries and a comparison against load-generator figures",
+          "checks": [["Run the p95 query during a load test that reports p95 of 300ms", "Loki's p95 is within 10% of 300ms", "Graph and load-test output"], ["Run topk(5, sum by (client_ip) (count_over_time(...[1h])))", "Exactly 5 series are returned", "Query result"], ["Run sum by (request_id) over a large range", "The query fails with the maximum of series (500) reached error", "Error message"]],
+          "objectives": ["Aggregate log metrics by label", "Compute latency percentiles from unwrapped values", "Recognise series-limit errors and fix them"]
+        },
+        {
+          "topic": "Exploring Loki Data in Grafana Explore and Logs Drilldown",
+          "subtopics": ["Explore: query builder versus code mode", "Label browser, live tail and log context", "Log details: parsed fields, structured metadata and ad hoc filters", "Logs volume histogram and level colouring", "Logs Drilldown (formerly Explore Logs): queryless browsing by service", "Patterns and detected fields tabs", "Split view and comparing time ranges", "Sharing a query link and adding it to a dashboard"],
+          "tools": ["Grafana", "Grafana Logs Drilldown", "Grafana Loki"],
+          "lab_task": "Inject a fault into the sample app that raises error logs for 5 minutes. Without writing LogQL, use Logs Drilldown to find the affected service, open its patterns tab to find the most frequent new error pattern, then switch to Explore, use live tail and show context for one error line. Record the time to find the cause and the generated LogQL.",
+          "deliverable": "Investigation timeline with screenshots from Logs Drilldown and Explore and the generated query",
+          "checks": [["Open Logs Drilldown for the lab", "The faulty service shows a visible error spike in its volume graph", "Screenshot"], ["Open the Patterns tab for that service", "The injected error message appears as a pattern with a rising count", "Screenshot"], ["Use Show context on an error line", "Surrounding lines from the same stream are shown in order", "Screenshot"]],
+          "objectives": ["Navigate logs in Explore efficiently", "Use Logs Drilldown patterns to find new errors", "Move from exploration to a reusable query"]
+        },
+        {
+          "topic": "Building Log Panels and Dashboards on the Loki Data Source",
+          "subtopics": ["Logs panel options: time, unique labels, wrap lines and order", "Time series panels from metric queries", "Stat and table panels with reduce and transformations", "Dashboard variables from label_values(job) and label_values({job=\"$job\"}, instance)", "Ad hoc filter variables for Loki", "Text box variables for free-text search", "Linking a metric panel to a logs panel with data links", "Query caching and reasonable refresh intervals for log panels"],
+          "tools": ["Grafana", "Grafana Loki"],
+          "lab_task": "Build a dashboard for the sample app with variables job and instance from label_values, a time series of request rate by status, a stat panel for error ratio, a table of top 10 paths by error count and a logs panel filtered by a search text box variable. Set refresh to 1m. Export the JSON model and confirm changing the job variable updates all panels.",
+          "deliverable": "Dashboard JSON model and screenshots with two different variable selections",
+          "checks": [["Change the job variable from api to nginx", "Every panel re-queries with the new job and shows data", "Two screenshots"], ["Type timeout in the search text box", "The logs panel shows only lines containing timeout", "Screenshot"], ["Open the query inspector on the top 10 paths table", "Exactly 10 rows are returned", "Inspector screenshot"]],
+          "objectives": ["Build dashboards from Loki log and metric queries", "Use template variables based on Loki labels", "Link metric panels to the related log lines"]
+        },
+        {
+          "topic": "Collecting Docker and systemd Journal Logs with Alloy",
+          "subtopics": ["discovery.docker and the Docker socket", "loki.source.docker and container metadata labels", "discovery.relabel to keep only container name and compose service", "loki.source.journal with matches and max_age", "Journal fields such as _SYSTEMD_UNIT and PRIORITY", "Relabelling __journal__systemd_unit to a unit label", "Permissions: docker group and systemd-journal group", "Avoiding container ID as a label"],
+          "tools": ["Grafana Alloy", "Docker", "systemd-journald", "Grafana Loki"],
+          "lab_task": "Add discovery.docker and loki.source.docker to config.alloy, relabel __meta_docker_container_name to container and drop the container ID, then add loki.source.journal with relabel_rules that map __journal__systemd_unit to unit. Restart nginx with systemctl and recreate one container, then query both sources and confirm the stream count did not grow after the container was recreated.",
+          "deliverable": "config.alloy for Docker and journal sources and a stream-count before-and-after table",
+          "checks": [["Query {unit=\"nginx.service\"} after systemctl restart nginx", "The stop and start messages appear", "Explore screenshot"], ["Recreate a container with docker compose up --force-recreate", "The stream count for that container stays the same", "logcli series output"], ["Run Alloy without access to the Docker socket", "The Alloy UI shows loki.source.docker unhealthy with a permission denied error", "UI screenshot"]],
+          "objectives": ["Collect container and journal logs with Alloy", "Relabel discovery metadata into stable labels", "Troubleshoot agent permissions"]
+        },
+        {
+          "topic": "Collecting Kubernetes Pod Logs with Alloy",
+          "subtopics": ["discovery.kubernetes with role pod", "discovery.relabel for namespace, pod, container and app labels", "loki.source.kubernetes reading through the API server", "File-based collection from /var/log/pods with a DaemonSet", "Installing Alloy with the grafana/alloy Helm chart", "RBAC needed to list pods and read logs", "Kubernetes events with loki.source.kubernetes_events", "Labels to avoid: pod UID, IP and replica-set hash"],
+          "tools": ["Grafana Alloy", "Helm", "kind", "kubectl", "Grafana Loki"],
+          "lab_task": "Create a kind cluster, install Alloy with helm install alloy grafana/alloy -f values.yaml using a config that discovers pods, relabels namespace, pod and container, and writes to Loki. Deploy a sample app with 3 replicas and scale it to 6. Query sum by (namespace) (count_over_time({namespace=~\".+\"}[5m])) and check that Kubernetes events also arrive from loki.source.kubernetes_events.",
+          "deliverable": "Helm values, config.alloy and screenshots of pod logs and events in Grafana",
+          "checks": [["Scale the sample deployment from 3 to 6 replicas", "Logs appear from all 6 pods within 2 minutes", "Explore screenshot"], ["kubectl logs from one pod compared with Loki for the same pod", "The last 20 lines match", "Side-by-side output"], ["Remove the RBAC rule for pods/log", "Alloy logs forbidden errors and no new lines arrive", "Alloy log output"]],
+          "objectives": ["Collect Kubernetes pod logs and events with Alloy", "Set Kubernetes labels that stay low in cardinality", "Diagnose RBAC problems in log collection"]
+        },
+        {
+          "topic": "Loki Configuration File: server, common, schema_config and storage_config",
+          "subtopics": ["auth_enabled and the fake tenant in single-tenant mode", "server: http_listen_port, grpc_listen_port and log_level", "common: path_prefix, replication_factor, ring kvstore and storage", "schema_config: from, store: tsdb, object_store, schema: v13 and index period 24h", "storage_config: tsdb_shipper and the filesystem or s3 block", "limits_config basics: reject_old_samples and ingestion_rate_mb", "-config.expand-env=true and ${VAR} substitution", "-print-config-stderr and the /config endpoint", "-verify-config to validate before restarting"],
+          "tools": ["Grafana Loki", "MinIO", "Docker Compose", "curl"],
+          "lab_task": "Replace the lab's default config with your own file that uses schema v13, the tsdb store, MinIO as an S3-compatible object store and credentials from environment variables with -config.expand-env=true. Run loki -config.file=loki.yaml -verify-config first, then restart, push logs and list the bucket with mc ls to show index and chunk objects. Diff /config against the defaults to list what you changed.",
+          "deliverable": "Loki configuration file, verify-config output and the bucket listing",
+          "checks": [["Run loki -verify-config on a file with a misspelled key", "Loki exits non-zero and names the unknown field", "Terminal output"], ["mc ls --recursive on the bucket after 15 minutes of ingest", "Objects appear under the index_ prefix and a chunk path for the tenant", "Bucket listing"], ["curl localhost:3100/config | grep schema", "The running config shows schema: v13 and store: tsdb", "Terminal output"]],
+          "objectives": ["Read and write a Loki configuration file", "Configure TSDB with S3-compatible object storage", "Validate configuration before applying it"]
+        },
+        {
+          "topic": "Choosing Good Labels and Controlling Cardinality",
+          "subtopics": ["Cardinality: number of unique label value combinations", "Good labels: environment, cluster, namespace, service_name and job", "Bad labels: user IDs, request IDs, IP addresses and full URLs", "Small streams and many chunks: effects on ingesters and object storage", "max_label_names_per_series and max_label_value_length limits", "logcli series --analyze-labels to find bad labels", "/loki/api/v1/index/stats and /loki/api/v1/index/volume", "Fixing cardinality at the agent with stage.label_drop or relabelling", "Using structured metadata or the line for high-cardinality fields"],
+          "tools": ["logcli", "Grafana Alloy", "Grafana Loki", "curl"],
+          "lab_task": "Push logs that wrongly include user_id as a label for 2000 users. Measure the damage with logcli series '{job=\"shop\"}' --analyze-labels and curl /loki/api/v1/index/stats. Then fix the Alloy pipeline to move user_id into structured metadata, resend the same data under job=\"shop_fixed\" and compare streams, chunks and query time for a 1-hour error search.",
+          "deliverable": "Cardinality report comparing the bad and fixed label designs",
+          "checks": [["logcli series --analyze-labels for job shop", "user_id shows about 2000 unique values and dominates the stream count", "logcli output"], ["index/stats for job shop_fixed", "Streams drop from about 2000 to a single-digit number", "API responses"], ["Query {job=\"shop_fixed\"} | user_id=\"u-1042\"", "The user's lines are still found through structured metadata", "Explore screenshot"]],
+          "objectives": ["Explain how label cardinality affects Loki", "Measure stream counts and volume per label", "Redesign labels and keep high-cardinality fields searchable"]
+        },
+        {
+          "topic": "First Alerts from Logs with Grafana-Managed Alert Rules",
+          "subtopics": ["Grafana-managed alert rules on a Loki metric query", "Reduce and threshold expressions", "Pending period and keep firing for", "Labels and annotations with {{ $values }} and {{ $labels }}", "Contact points: email, Slack and webhook", "Notification policies and grouping", "Silences and mute timings", "Testing a rule with Preview before saving"],
+          "tools": ["Grafana Alerting", "Grafana Loki", "Grafana"],
+          "lab_task": "Create a Grafana-managed alert rule on sum(rate({job=\"api\"} | json | level=\"error\" [5m])) with a threshold of 1 error per second and a 2-minute pending period, route it to a webhook contact point pointing at a request-catcher container, then inject errors for 5 minutes. Record the time from first error to notification and stop injection to see the resolved message.",
+          "deliverable": "Alert rule export, contact point config and the received firing and resolved payloads",
+          "checks": [["Preview the rule before errors are injected", "The rule state shows Normal", "Preview screenshot"], ["Inject 3 errors per second for 5 minutes", "The webhook receives a firing payload within about 3 minutes", "Webhook request log"], ["Stop injection", "A resolved payload arrives after the condition clears", "Webhook request log"]],
+          "objectives": ["Create alert rules from LogQL metric queries", "Route notifications to contact points", "Test alert behaviour end to end"]
+        },
+        {
+          "topic": "Beginner Capstone: Centralised Logging for a Web Application",
+          "subtopics": ["Collection design with Alloy for files, containers and journal", "Label plan with an expected stream count", "LogQL queries for errors, latency and traffic", "Dashboard and alert rules for the application"],
+          "tools": ["Grafana Loki", "Grafana Alloy", "Grafana", "Docker Compose", "logcli"],
+          "lab_task": "Deploy a three-service web shop (nginx, an API and a worker) with Loki, Alloy and Grafana in Docker Compose. Collect all logs with a label plan of no more than 50 streams, parse access and JSON logs, build a dashboard with request rate, error ratio and p95 latency, add two alert rules, then run a 10-minute fault drill and present how you found the cause.",
+          "deliverable": "Running stack, config.alloy, label plan, dashboard JSON, alert rules and a short incident report",
+          "checks": [["logcli series '{job=~\".+\"}' | wc -l", "No more than 50 streams exist", "Terminal output"], ["Run the fault drill that breaks the worker's database connection", "An alert fires and the dashboard shows the error spike", "Screenshots and webhook log"], ["Ask the learner to find the root cause from Grafana only", "The connection-refused error line is found within 10 minutes", "Incident report with query links"]],
+          "objectives": ["Design and run a complete Loki logging setup", "Apply label, query and alerting skills to one application", "Investigate an incident using only Loki data in Grafana"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who run Loki for a team or platform and can already collect logs and write LogQL. Covers the write and read path components (distributor, ingester, querier, query frontend, query scheduler, compactor and index gateway), the hash ring and replication, TSDB with schema v13 on object storage, Helm deployments in monolithic, simple scalable and microservices modes, structured metadata and native OTLP ingestion, multi-tenancy and per-tenant limits, the ruler for recording and alerting rules, retention and deletion with the compactor, caching, monitoring Loki itself, other shippers such as Fluent Bit, the OpenTelemetry Collector and Vector, ingestion troubleshooting and a multi-tenant Kubernetes capstone.",
+      "prerequisites": ["Completed the beginner level or can collect logs with Grafana Alloy and write LogQL log and metric queries", "Deploys applications to Kubernetes with kubectl and Helm and reads Helm values files", "Has access to a Kubernetes cluster with at least 3 worker nodes (kind, k3d or a cloud cluster) and an S3-compatible bucket such as MinIO, Amazon S3, Google Cloud Storage or Azure Blob Storage"],
+      "outcomes": ["Explain each Loki component on the write and read paths and trace a log line and a query through them", "Deploy Loki with the Helm chart in monolithic, simple scalable and microservices modes on TSDB and object storage", "Run Loki for several tenants with per-tenant limits, retention, deletion, recording rules and alerting rules", "Monitor Loki with its own metrics and dashboards and fix common ingestion and query errors such as HTTP 429 and out-of-order rejects"],
+      "days": [
+        {
+          "topic": "Loki Architecture: Write Path and Read Path Components",
+          "subtopics": ["Distributor: validation, rate limiting and hashing streams to ingesters", "Ingester: in-memory chunks, the write-ahead log and flushing to object storage", "Querier: reading recent data from ingesters and older data from storage", "Query frontend: splitting, sharding, queuing and results caching", "Query scheduler: a separate queue for scaling query frontends", "Compactor: index compaction, retention and deletion", "Index gateway: serving TSDB index lookups to queriers and rulers", "Ruler: evaluating LogQL rules on a schedule", "The -target flag and modules such as all, write, read and backend"],
+          "tools": ["Grafana Loki", "curl", "Grafana"],
+          "lab_task": "Run Loki with -target=all and call /services and /config to list the modules that start. Then run three processes from one config with -target=distributor,ingester, -target=querier and -target=query-frontend on different ports and memberlist join addresses. Push logs to the distributor and query through the frontend, and record which process logs each request.",
+          "deliverable": "Component map of the write and read paths with the logs that prove each hop",
+          "checks": [["curl :3100/services on a -target=all instance", "distributor, ingester, querier, query-frontend, compactor and ruler are listed as Running", "Services output"], ["Push a line to the distributor process", "The ingester process log or loki_ingester_streams_created_total shows the new stream", "Metric or log extract"], ["Query through the query-frontend port", "The querier process records the request in loki_request_duration_seconds_count", "Metric before and after"]],
+          "objectives": ["Describe what each Loki component does", "Run Loki components as separate targets", "Trace a write and a query through the components"]
+        },
+        {
+          "topic": "Distributors, Ingesters, Replication and the Hash Ring",
+          "subtopics": ["The ring: tokens, ownership and the key-value store", "memberlist as the default ring kvstore", "replication_factor and quorum writes", "Stream hashing from tenant ID and label set", "Ingester lifecycle: JOINING, ACTIVE, LEAVING and unhealthy", "Ring status pages at /ring and /distributor/ring", "Forgetting unhealthy instances and autoforget_unhealthy", "The ingester WAL and replay after a crash", "/flush and /ingester/shutdown before scaling down"],
+          "tools": ["Grafana Loki", "kubectl", "curl", "Grafana"],
+          "lab_task": "Run Loki with three ingesters and replication_factor: 3. Open /ring and record token ownership, then kill one ingester with kubectl delete pod --grace-period=0 --force during a steady push. Confirm writes keep succeeding with quorum, watch the pod replay its WAL on restart and compare total ingested lines with what the generator sent.",
+          "deliverable": "Ring screenshots before and after the failure and a line-count reconciliation",
+          "checks": [["Open /ring with three ingesters running", "Three instances are ACTIVE with roughly equal token ownership", "Ring page screenshot"], ["Kill one ingester during a 100 lines per second push", "Push requests keep returning 204 because 2 of 3 replicas still accept writes", "Generator output"], ["Count lines after the ingester restarts", "The total matches what the generator sent, with no gap", "LogQL count and generator total"]],
+          "objectives": ["Explain the ring and replication in Loki", "Observe ingester failure and WAL replay", "Scale ingesters safely"]
+        },
+        {
+          "topic": "Queriers, Query Frontend and Query Scheduler",
+          "subtopics": ["Querier: querying ingesters for data newer than query_ingesters_within", "Query frontend splitting by split_queries_by_interval", "Query sharding for TSDB and tsdb_max_query_parallelism", "max_query_parallelism and max_outstanding_requests_per_tenant", "Query scheduler and frontend worker connections", "Per-tenant fair queuing", "Query statistics: bytes processed, chunks fetched and time in queue", "Timeouts: query_timeout and HTTP server timeouts", "logcli --stats and the Grafana query inspector"],
+          "tools": ["Grafana Loki", "logcli", "Grafana", "kubectl"],
+          "lab_task": "Run a 24-hour metric query sum by (status) (rate({job=\"nginx\"}[5m])) with logcli query --stats against a microservices deployment, once with split_queries_by_interval: 24h and once with 1h. Record total time, number of subqueries in the query-frontend logs and bytes processed per second. Then add a query scheduler and show the frontend queue metrics move to it.",
+          "deliverable": "Query performance table for both split settings and the scheduler change",
+          "checks": [["Run the query with 24h splitting and then with 1h splitting", "The 1h run creates about 24 subqueries and finishes faster", "logcli --stats output and frontend logs"], ["Check loki_query_scheduler_queue_length after enabling the scheduler", "The metric appears on the scheduler and reflects waiting queries", "Metrics screenshot"], ["Set query_timeout to 5s and run a 30-day regex query", "The query fails with a context deadline exceeded or timeout error", "Error output"]],
+          "objectives": ["Explain how a query is split and sharded", "Tune splitting and parallelism with measurements", "Place the query scheduler correctly"]
+        },
+        {
+          "topic": "TSDB Index, Schema v13 and Object Storage Configuration",
+          "subtopics": ["The TSDB index format and the tsdb_shipper", "Why BoltDB shipper is legacy and how to move off it", "schema_config periods and adding a new period with a future from date", "Schema v13 and why structured metadata needs it", "Object stores: S3, GCS, Azure Blob Storage, Swift and filesystem", "Bucket layout: index tables per period and chunk objects per tenant", "Credentials: IAM roles for service accounts, workload identity and keys", "Server-side encryption and bucket policies", "Storage request metrics and costs"],
+          "tools": ["Grafana Loki", "Amazon S3", "MinIO", "AWS CLI"],
+          "lab_task": "Configure Loki to write to an S3 bucket with an IAM role instead of static keys. Start with a schema period on v12 with boltdb-shipper in a lab, then add a new period with from set to tomorrow's date on tsdb and v13. After the switch date, list the bucket with aws s3 ls --recursive and show the two index layouts. Query a range that spans both periods.",
+          "deliverable": "Schema migration plan, configuration and bucket listings for both periods",
+          "checks": [["aws s3 ls on the bucket after the new period starts", "New index objects appear under the TSDB index prefix for the new table", "Bucket listing"], ["Query a time range covering both schema periods", "Lines from before and after the switch are returned together", "Explore screenshot"], ["Review a proposed period whose from date is in the past", "The plan rejects it because data already written in that window would be read with the wrong schema", "Plan review note"]],
+          "objectives": ["Configure TSDB and schema v13 on object storage", "Add a schema period safely", "Secure object storage access for Loki"]
+        },
+        {
+          "topic": "Deploying Loki on Kubernetes with the Helm Chart in Monolithic Mode",
+          "subtopics": ["The grafana/loki Helm chart and deploymentMode: SingleBinary", "singleBinary.replicas and persistence", "loki.schemaConfig, loki.storage and loki.commonConfig in values", "Using MinIO from the chart only for labs", "The gateway (nginx) and its basic auth option", "helm template to review rendered manifests", "Upgrading with helm upgrade and checking release notes", "When monolithic mode is enough"],
+          "tools": ["Helm", "Grafana Loki", "kubectl", "kind", "MinIO"],
+          "lab_task": "Install Loki with helm install loki grafana/loki -n loki --create-namespace -f values.yaml where deploymentMode is SingleBinary, singleBinary.replicas is 1, schema is v13 on tsdb and storage points to a MinIO bucket. Render first with helm template and count the objects created. Port-forward the gateway, push logs with Alloy and run helm upgrade after changing a limit to show a rolling restart.",
+          "deliverable": "Helm values file, rendered manifest summary and proof of ingest through the gateway",
+          "checks": [["kubectl get pods -n loki after install", "The loki-0 pod and the gateway pod are Running and Ready", "kubectl output"], ["curl the gateway /loki/api/v1/labels through a port-forward", "A JSON list of label names including job is returned", "curl output"], ["Change ingestion_rate_mb in values and run helm upgrade", "The pod restarts and /config shows the new value", "Config output"]],
+          "objectives": ["Deploy Loki on Kubernetes with Helm", "Configure schema and storage through chart values", "Upgrade a Helm release and confirm the change"]
+        },
+        {
+          "topic": "Simple Scalable Mode: Read, Write and Backend Targets",
+          "subtopics": ["deploymentMode: SimpleScalable and the read, write and backend StatefulSets or Deployments", "What runs in each target: write (distributor, ingester), read (querier, query frontend), backend (compactor, index gateway, ruler, scheduler)", "Scaling write and read independently", "Gateway routing of push and query paths", "Persistent volumes for write and backend", "The project's stated direction for simple scalable mode and when to choose microservices instead", "Autoscaling the read path with HPA", "Load balancing gRPC between components"],
+          "tools": ["Helm", "Grafana Loki", "kubectl", "Grafana"],
+          "lab_task": "Redeploy Loki in SimpleScalable mode with write.replicas 3, read.replicas 2 and backend.replicas 2 on object storage. Push logs at 2 MB/s and run dashboards that issue queries every 10s. Scale read to 4 with kubectl scale or values and measure query p95 from loki_request_duration_seconds before and after. Confirm through /services which modules each target runs.",
+          "deliverable": "Simple scalable values, a component-to-target table and the read scaling measurement",
+          "checks": [["curl /services on a backend pod", "compactor, index-gateway, ruler and query-scheduler are listed", "Services output"], ["Scale read from 2 to 4 replicas under steady query load", "Query p95 latency drops and new pods take queries within minutes", "Grafana panel before and after"], ["Delete one write pod during ingest", "Pushes still succeed and the pod rejoins the ring as ACTIVE", "Generator output and ring page"]],
+          "objectives": ["Deploy Loki in simple scalable mode", "Explain which components run in each target", "Scale read and write paths independently"]
+        },
+        {
+          "topic": "Microservices Mode with the Distributed Helm Values",
+          "subtopics": ["deploymentMode: Distributed and per-component replicas", "Components to size first: distributor, ingester, querier and query frontend", "Index gateway, compactor, ruler and query scheduler as separate workloads", "Pod anti-affinity and PodDisruptionBudgets", "Resource requests and limits per component", "Memcached for chunks and results caches", "Migrating from simple scalable to distributed", "Operational cost: more workloads and more dashboards"],
+          "tools": ["Helm", "Grafana Loki", "kubectl", "memcached"],
+          "lab_task": "Deploy Loki with deploymentMode: Distributed, setting replicas for distributor 3, ingester 3, querier 3, queryFrontend 2, queryScheduler 2, indexGateway 2 and compactor 1, with PodDisruptionBudgets enabled. Run kubectl get pods -n loki and map each pod to its component. Drain one node with kubectl drain and confirm the PDBs keep ingest and queries working throughout.",
+          "deliverable": "Distributed values file, pod-to-component map and a node-drain report",
+          "checks": [["kubectl get pods -n loki -l app.kubernetes.io/component=ingester", "Exactly 3 ingester pods are Running", "kubectl output"], ["kubectl drain one node during ingest and queries", "No more than one ingester is evicted at a time and pushes keep returning 204", "Drain output and generator log"], ["Check kubectl get pdb -n loki", "Each stateful component has a PDB with allowed disruptions of 1 or less", "kubectl output"]],
+          "objectives": ["Deploy Loki in microservices mode", "Protect components with PDBs and anti-affinity", "Compare operational cost of the three deployment modes"]
+        },
+        {
+          "topic": "Structured Metadata: When to Use It Instead of Labels",
+          "subtopics": ["What structured metadata is: key-value pairs attached to each line, not indexed", "Requirements: schema v13, TSDB and allow_structured_metadata", "Good candidates: trace_id, span_id, pod UID and request_id", "Sending structured metadata with the push API and with Alloy", "Querying with label filter expressions after the selector", "max_structured_metadata_size and max_structured_metadata_entries_count", "How OTLP resource and log attributes map to structured metadata", "Cost and performance compared with parsing the line at query time"],
+          "tools": ["Grafana Loki", "Grafana Alloy", "curl", "Grafana"],
+          "lab_task": "Push lines with a third element in each values entry holding {\"trace_id\":\"...\"} through the JSON push API, then send the same data from Alloy with stage.structured_metadata. Query {service_name=\"checkout\"} | trace_id=\"abc123\" and compare its bytes processed with a | json | trace_id=\"abc123\" query on the line. Finally push metadata over the size limit and record the error.",
+          "deliverable": "Structured metadata guide with push examples, query comparison and the limit error",
+          "checks": [["Query {service_name=\"checkout\"} | trace_id=\"abc123\"", "Only lines with that trace ID are returned", "Explore screenshot"], ["Run /loki/api/v1/series for the service", "trace_id does not appear as a stream label", "API response"], ["Push metadata larger than max_structured_metadata_size", "The push is rejected with an HTTP 400 structured metadata size error", "curl output"]],
+          "objectives": ["Decide when a field belongs in structured metadata", "Send and query structured metadata", "Apply structured metadata limits"]
+        },
+        {
+          "topic": "OTLP Ingestion: Sending OpenTelemetry Logs to Loki",
+          "subtopics": ["Loki's native OTLP endpoint at /otlp/v1/logs", "Default mapping of resource attributes to index labels", "otlp_config in limits_config: index_label, structured_metadata and drop actions", "service.name becoming service_name", "otelcol.exporter.otlphttp in Alloy and the otlphttp exporter in the OpenTelemetry Collector", "Why otelcol.exporter.loki is a legacy path", "Severity text and severity number mapped to detected levels", "Body, attributes and trace context in queries"],
+          "tools": ["Grafana Loki", "Grafana Alloy", "OpenTelemetry Collector", "OpenTelemetry SDK"],
+          "lab_task": "Instrument a small Python or Java service with the OpenTelemetry SDK logs exporter, send to Alloy with otelcol.receiver.otlp and forward with otelcol.exporter.otlphttp to Loki's /otlp endpoint. Add otlp_config so k8s.namespace.name becomes an index label and k8s.pod.uid is dropped. Query by service_name and trace_id and show which attributes became labels and which became structured metadata.",
+          "deliverable": "Alloy OTLP pipeline, otlp_config block and an attribute-mapping table",
+          "checks": [["Query {service_name=\"orders\"}", "Log records from the instrumented service are returned", "Explore screenshot"], ["Check /loki/api/v1/labels after ingest", "k8s_namespace_name is a label and k8s_pod_uid is not", "API response"], ["Open log details on one record", "trace_id and span_id appear as structured metadata", "Log details screenshot"]],
+          "objectives": ["Ingest OpenTelemetry logs through Loki's OTLP endpoint", "Control which attributes become labels", "Correlate OTLP logs with trace IDs"]
+        },
+        {
+          "topic": "Multi-Tenancy with X-Scope-OrgID and an Auth Gateway",
+          "subtopics": ["auth_enabled: true and tenant IDs", "The X-Scope-OrgID header on push and query", "Missing header error: no org id", "Loki does not authenticate: putting an authenticating proxy in front", "Mapping users or tokens to tenants in nginx or a gateway", "Multi-tenant queries with tenant1|tenant2 and multi_tenant_queries_enabled", "tenant_id in Alloy's loki.write endpoint", "One Grafana data source per tenant versus a shared one", "Tenant naming rules"],
+          "tools": ["Grafana Loki", "nginx", "Grafana Alloy", "Grafana"],
+          "lab_task": "Enable auth_enabled: true, then configure an nginx gateway that checks basic auth and sets X-Scope-OrgID to team-a or team-b depending on the user. Point two Alloy instances at it with different credentials. Create two Grafana data sources and show that team-a cannot see team-b logs. Then enable multi_tenant_queries_enabled and run one query with X-Scope-OrgID: team-a|team-b.",
+          "deliverable": "Gateway configuration, data sources and an isolation test report",
+          "checks": [["Query Loki directly without X-Scope-OrgID", "The response is HTTP 401 with no org id", "curl output"], ["Query team-b data through the team-a data source", "No team-b streams are returned", "Explore screenshot"], ["Run a multi-tenant query with team-a|team-b", "Results include a __tenant_id__ label with both values", "Query result"]],
+          "objectives": ["Enable and use multi-tenancy in Loki", "Enforce tenant identity with an authenticating gateway", "Query across tenants when allowed"]
+        },
+        {
+          "topic": "Per-Tenant Limits and the Runtime Overrides File",
+          "subtopics": ["limits_config defaults and per-tenant overrides", "runtime_config.file and reload period", "Ingestion limits: ingestion_rate_mb, ingestion_burst_size_mb and per_stream_rate_limit", "Stream limits: max_global_streams_per_user", "Line limits: max_line_size and max_line_size_truncate", "Query limits: max_query_length, max_query_series, max_entries_limit_per_query and max_query_parallelism", "The /runtime_config endpoint and diffs from defaults", "loki_discarded_samples_total and its reason label", "Agreeing limits with tenants"],
+          "tools": ["Grafana Loki", "Grafana", "curl", "Helm"],
+          "lab_task": "Write a runtime overrides file that gives team-a ingestion_rate_mb: 10 and max_global_streams_per_user: 10000 and gives team-b ingestion_rate_mb: 2. Load it with runtime_config and confirm via curl /runtime_config?mode=diff. Push 5 MB/s to each tenant and show sum by (tenant, reason) (rate(loki_discarded_samples_total[5m])) in Grafana. Change team-b to 6 without restarting Loki.",
+          "deliverable": "Runtime overrides file, diff output and a discarded-samples dashboard panel",
+          "checks": [["curl /runtime_config?mode=diff", "Only the team-a and team-b overrides are shown", "curl output"], ["Push 5 MB/s to team-b with a 2 MB/s limit", "Loki returns 429 and loki_discarded_samples_total grows with reason rate_limited", "Generator log and metric graph"], ["Raise team-b to 6 MB/s in the file and wait for the reload period", "429s stop without a restart", "Generator log"]],
+          "objectives": ["Set and change per-tenant limits at runtime", "Read discard metrics to see which limit is hit", "Agree limits that protect the cluster"]
+        },
+        {
+          "topic": "The Loki Ruler: Recording Rules and Alerting Rules in LogQL",
+          "subtopics": ["Ruler configuration: storage, rule_path and evaluation_interval", "Prometheus-style rule groups with LogQL expressions", "Alerting rules with for, labels and annotations", "alertmanager_url and sending alerts to Alertmanager", "Recording rules with remote_write to Prometheus or Mimir", "The ruler WAL", "Rule storage per tenant in local files or object storage", "Ruler API: /loki/api/v1/rules and /prometheus/api/v1/rules", "Grafana-managed rules versus data-source-managed Loki rules"],
+          "tools": ["Grafana Loki", "Prometheus", "Alertmanager", "Grafana"],
+          "lab_task": "Create a rule group for tenant team-a with a recording rule job:loki_errors:rate5m = sum by (job) (rate({job=~\".+\"} |= \"error\" [5m])) and an alert HighErrorRate when it is above 1 for 5m. Configure remote_write to Prometheus and alertmanager_url to Alertmanager. Inject errors and confirm the series appears in Prometheus and the alert reaches Alertmanager.",
+          "deliverable": "Rule file, ruler configuration and screenshots from Prometheus and Alertmanager",
+          "checks": [["curl -H 'X-Scope-OrgID: team-a' /prometheus/api/v1/rules", "The group with one recording rule and one alerting rule is listed with health ok", "API response"], ["Query job:loki_errors:rate5m in Prometheus", "Series exist per job with current values", "Prometheus screenshot"], ["Inject 2 errors per second for 6 minutes", "HighErrorRate shows as firing in Alertmanager", "Alertmanager screenshot"]],
+          "objectives": ["Write recording and alerting rules in LogQL", "Connect the Loki ruler to Prometheus and Alertmanager", "Choose between ruler rules and Grafana-managed rules"]
+        },
+        {
+          "topic": "Managing Loki Rules as Code with lokitool and CI",
+          "subtopics": ["lokitool rules sync, diff, lint and check", "Namespaces and rule groups in YAML files", "Using --address, --id and authentication flags", "Running rule checks in a CI pipeline", "Testing rule expressions before merge", "Grafana-managed rule provisioning as an alternative", "Rule ownership by team and review rules", "Rolling back a bad rule change"],
+          "tools": ["lokitool", "Grafana Loki", "GitHub Actions", "Alertmanager"],
+          "lab_task": "Store team-a rule files in a Git repository. Run lokitool rules lint and lokitool rules check locally, then lokitool rules diff --address=$LOKI --id=team-a to show the pending change and lokitool rules sync to apply it. Add a CI job that runs lint and diff on pull requests. Push a rule with a LogQL syntax error and show CI fail before it reaches Loki.",
+          "deliverable": "Rules repository layout, CI workflow and the failed and passing pipeline runs",
+          "checks": [["lokitool rules diff after editing a threshold", "The diff shows exactly one changed rule", "Command output"], ["Open a pull request with a LogQL syntax error", "The CI lint or check step fails with a parse error", "CI log"], ["lokitool rules sync after merge", "/prometheus/api/v1/rules for team-a shows the new threshold", "API response"]],
+          "objectives": ["Manage Loki rules as code", "Validate rules automatically before deployment", "Roll back rule changes safely"]
+        },
+        {
+          "topic": "Retention with the Compactor: Global, Per-Tenant and Per-Stream",
+          "subtopics": ["compactor.retention_enabled and delete_request_store", "compaction_interval, retention_delete_delay and retention_delete_worker_count", "retention_period in limits_config", "Per-tenant retention in runtime overrides", "retention_stream with selectors and priority", "Why only one compactor should run", "Object storage lifecycle rules as a backstop, not a replacement", "Metrics: loki_compactor_apply_retention_last_successful_run_timestamp_seconds"],
+          "tools": ["Grafana Loki", "MinIO", "Grafana", "curl"],
+          "lab_task": "Enable retention on the compactor with compaction_interval: 10m and retention_delete_delay: 2h. Set a global retention_period of 744h, team-b to 168h and a retention_stream rule that keeps {namespace=\"audit\"} for 8760h. Backfill test data older than 7 days for both tenants in a lab with a shortened period, wait for compaction and show which data was removed and which audit data stayed.",
+          "deliverable": "Retention configuration, overrides and a before-and-after data inventory",
+          "checks": [["Check the compactor last successful retention run metric", "The timestamp updates at least every compaction interval", "Metric graph"], ["Query team-b data older than its retention after the delete delay", "No lines are returned", "Explore screenshot"], ["Query {namespace=\"audit\"} data of the same age", "Lines are still returned because the stream rule keeps them", "Explore screenshot"]],
+          "objectives": ["Configure retention with the compactor", "Apply different retention per tenant and stream", "Verify that retention removed the expected data"]
+        },
+        {
+          "topic": "Log Deletion Requests and the Delete API",
+          "subtopics": ["deletion_mode: disabled, filter-only and filter-and-delete", "POST /loki/api/v1/delete with query, start and end", "GET /loki/api/v1/delete to list requests and their status", "DELETE to cancel a request within the cancel period", "Line filters in delete queries", "How queries hide deleted data before the compactor removes it", "delete_request_cancel_period and processing time", "Recording deletion requests for privacy compliance"],
+          "tools": ["Grafana Loki", "curl", "Grafana"],
+          "lab_task": "A customer asks for removal of logs that contain their email address. Enable deletion_mode: filter-and-delete, then send curl -X POST -H 'X-Scope-OrgID: team-a' '/loki/api/v1/delete?query={job=\"shop\"} |= \"jane@example.com\"&start=...&end=...'. List requests with GET, confirm the lines disappear from queries, wait for processing and record the final status. Write the steps as a runbook.",
+          "deliverable": "Deletion runbook with API calls, status output and proof that the lines are gone",
+          "checks": [["POST a delete request", "Loki returns HTTP 204", "curl output"], ["GET /loki/api/v1/delete after the cancel period", "The request status is processed", "API response"], ["Query {job=\"shop\"} |= \"jane@example.com\" for the range", "No lines are returned", "Explore screenshot"]],
+          "objectives": ["Delete log lines on request with the delete API", "Choose a deletion mode", "Document deletion as an auditable process"]
+        },
+        {
+          "topic": "Caching in Loki: Results Cache, Chunks Cache and Memcached",
+          "subtopics": ["Results cache in the query frontend for metric queries", "Chunks cache to avoid repeated object storage reads", "Index stats, volume and series result caches", "Memcached as the recommended cache backend", "chunksCache and resultsCache settings in the Helm chart", "Sizing memcached memory and connection limits", "Cache hit ratio metrics such as loki_cache_hits and loki_cache_fetched_keys", "max_cache_freshness_per_query and why recent data is not cached"],
+          "tools": ["Grafana Loki", "memcached", "Helm", "Grafana"],
+          "lab_task": "Enable chunksCache and resultsCache in the Helm values with memcached, then run the same 24-hour dashboard three times. Record query time and object storage GET requests for each run, and plot cache hit ratio from the loki_cache metrics. Finally reduce chunks cache memory to 64 MB and show the hit ratio fall.",
+          "deliverable": "Cache configuration, a timing table for three runs and cache hit ratio graphs",
+          "checks": [["Run the same dashboard a second time", "Query time drops compared with the first run", "Timing table"], ["Plot cache hit ratio for the chunks cache", "The ratio rises above 50% on repeated runs", "Grafana panel"], ["Shrink the chunks cache to 64 MB", "Hit ratio falls and object storage GETs rise", "Graphs before and after"]],
+          "objectives": ["Configure Loki caches with memcached", "Measure cache effectiveness", "Size caches for a query workload"]
+        },
+        {
+          "topic": "Monitoring Loki Itself: Metrics, Mixin Dashboards and loki-canary",
+          "subtopics": ["Scraping /metrics from every component", "Key metrics: loki_distributor_bytes_received_total, loki_ingester_memory_streams and loki_request_duration_seconds", "The Loki mixin dashboards and alerts", "Meta-monitoring with the Helm chart's monitoring options", "loki-canary: writing and reading back lines to measure loss and latency", "loki_canary_missing_entries_total and loki_canary_response_latency", "Shipping Loki's own logs to a separate Loki", "Alerting on request errors and ingester flush failures"],
+          "tools": ["Grafana Loki", "loki-canary", "Prometheus", "Grafana"],
+          "lab_task": "Scrape all Loki components with Prometheus or Alloy, import the Loki mixin dashboards and alerts, and deploy loki-canary in each zone. Break the object storage credentials for 10 minutes and show which dashboard panels and alerts reveal the problem. Restore the credentials and confirm the canary reports no missing entries afterwards.",
+          "deliverable": "Meta-monitoring setup, dashboard screenshots and the failure-drill timeline",
+          "checks": [["Open the Loki / Writes mixin dashboard", "Distributor and ingester request rates and latencies show data", "Dashboard screenshot"], ["Break object storage credentials", "Ingester flush failures appear in metrics and logs within the drill", "Metric graph and log line"], ["Check loki_canary_missing_entries_total after recovery", "The counter does not increase after the credentials are restored", "Metric graph"]],
+          "objectives": ["Monitor Loki components with their own metrics", "Use loki-canary to measure end-to-end loss", "Detect storage failures with dashboards and alerts"]
+        },
+        {
+          "topic": "Shipping Logs with Fluent Bit, the OpenTelemetry Collector and Vector",
+          "subtopics": ["Fluent Bit's loki output plugin: labels, label_keys and line_format", "Fluent Bit OpenTelemetry output to Loki's OTLP endpoint", "OpenTelemetry Collector otlphttp exporter to Loki", "Vector's loki sink with labels and encoding", "Batching, compression and retry behaviour", "Setting tenant IDs from each shipper", "Avoiding duplicate labels and timestamp mistakes", "Choosing a shipper when Alloy is not an option"],
+          "tools": ["Fluent Bit", "OpenTelemetry Collector", "Vector", "Grafana Loki"],
+          "lab_task": "Send the same application log file to Loki from Fluent Bit, the OpenTelemetry Collector and Vector, each with tenant ID set and labels job and shipper. Generate 10000 lines and compare received counts, labels and structured metadata per shipper. Stop Loki for 2 minutes during the run and record which shippers retry and deliver all lines.",
+          "deliverable": "Three shipper configurations and a comparison table of counts, labels and retry behaviour",
+          "checks": [["sum by (shipper) (count_over_time({job=\"app\"}[1h]))", "Each shipper reports 10000 lines when Loki stays up", "Query result"], ["Stop Loki for 2 minutes during a run", "Shippers with retries enabled still deliver all 10000 lines", "Comparison table"], ["Inspect labels from each shipper", "Each stream has job and shipper labels and no unexpected high-cardinality labels", "Series output"]],
+          "objectives": ["Configure non-Alloy shippers for Loki", "Compare delivery and retry behaviour", "Choose a shipper for a given environment"]
+        },
+        {
+          "topic": "Troubleshooting Ingestion: 429s, Out-of-Order Entries and Dropped Streams",
+          "subtopics": ["429 Ingestion rate limit exceeded and per-stream rate limit errors", "Maximum active stream limit exceeded", "Entry too far behind and the out-of-order window", "Entry timestamp too old or too new: reject_old_samples and creation_grace_period", "Line too long and max_line_size_truncate", "Reading loki_discarded_samples_total by reason", "Agent-side symptoms in Alloy: retries, backoff and dropped batches", "A triage order: agent, gateway, distributor, ingester"],
+          "tools": ["Grafana Loki", "Grafana Alloy", "Grafana", "curl"],
+          "lab_task": "Reproduce four failures in the lab: exceed a tenant's ingestion rate, exceed its stream limit, push a line for a stream older than the out-of-order window, and push a 1 MB line with max_line_size: 256KB. For each, capture the HTTP response, the discard reason in loki_discarded_samples_total and the Alloy log message, and write a one-line fix.",
+          "deliverable": "Ingestion troubleshooting guide with one section per failure",
+          "checks": [["Exceed max_global_streams_per_user", "The push returns 429 with a maximum active stream limit exceeded message", "curl output"], ["Push a line older than the out-of-order window for an active stream", "The entry is rejected as too far behind", "curl output and discard metric"], ["Push a 1 MB line", "The entry is discarded with reason line_too_long", "Discard metric"]],
+          "objectives": ["Recognise Loki ingestion errors from responses and metrics", "Fix rate, stream and timestamp problems", "Follow a triage order from agent to ingester"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Tenant Loki on Kubernetes for Three Teams",
+          "subtopics": ["Helm deployment in simple scalable or distributed mode on object storage", "Tenant gateway, limits and retention per team", "Recording and alerting rules managed as code", "Meta-monitoring, canary and a failure drill"],
+          "tools": ["Helm", "Grafana Loki", "Grafana Alloy", "lokitool", "Grafana", "memcached"],
+          "lab_task": "Deploy Loki on Kubernetes for three teams with an authenticating gateway, per-team limits and retention (30, 90 and 365 days), Alloy collection per namespace, caches, mixin dashboards and loki-canary. Manage each team's rules with lokitool from Git. Run a drill that pushes one team over its limit and kills an ingester, then present how you detected and fixed both issues.",
+          "deliverable": "Helm values, gateway config, overrides, rule repositories, dashboards and a drill report",
+          "checks": [["Query team-a's data with team-b credentials", "No team-a data is returned", "Explore screenshot"], ["Push team-c over its ingestion limit", "Only team-c receives 429s and the other teams' ingest is unaffected", "Discard metrics by tenant"], ["Kill one ingester during the drill", "loki-canary shows no missing entries after recovery", "Canary metric graph"]],
+          "objectives": ["Design and run a multi-tenant Loki platform", "Apply limits, retention and rules per tenant", "Prove resilience with a failure drill"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform engineers, SREs and architects who run or design Loki at large scale, for many tenants or alongside Grafana Cloud Logs. Covers sizing and capacity planning, query performance tuning through splitting, sharding and parallelism, ingester chunk and WAL tuning, index gateway and compactor operations, zone-aware replication and upgrades, stream sharding for hot streams, bloom-based query acceleration, the pattern ingester and volume APIs, LogQL query optimisation, securing Loki, cost reduction, load testing with k6, schema and version upgrades, Grafana Cloud Logs with Adaptive Logs, correlating logs with traces and metrics, the Loki Operator, disaster recovery, logging governance, troubleshooting at scale and an enterprise platform capstone.",
+      "prerequisites": ["Completed the intermediate level or has operated a multi-tenant Loki deployment on Kubernetes with Helm", "Reads Prometheus metrics and Grafana dashboards fluently and can write PromQL for latency and error ratios", "Has access to a Kubernetes cluster that can run a distributed Loki with at least 3 zones or node groups, an object storage bucket and a Grafana Cloud stack (free tier is enough for the cloud days)"],
+      "outcomes": ["Size, tune and load test a Loki cluster for a stated ingest rate, retention and query load", "Run Loki with high availability across zones and upgrade schemas and versions without data loss", "Reduce logging cost through label design, stream sharding, log reduction and Grafana Cloud Logs controls such as Adaptive Logs", "Design a governed, secure, multi-tenant logging platform and diagnose performance problems at scale"],
+      "days": [
+        {
+          "topic": "Capacity Planning and Sizing a Loki Cluster",
+          "subtopics": ["Inputs: daily ingest volume, peak rate, stream count, retention and query load", "Distributor and ingester sizing from bytes per second and active streams", "Ingester memory: streams, chunks in memory and the WAL", "Querier sizing from expected bytes processed per second", "Object storage capacity from compressed volume and retention", "Grafana's published sizing guidance for Loki as a starting point", "Headroom for peaks, failures and rolling restarts", "Revisiting the plan with real metrics after go-live"],
+          "tools": ["Grafana Loki", "Grafana", "Prometheus", "spreadsheet"],
+          "lab_task": "Plan a cluster for 2 TB of logs per day, a peak of 3 times the average rate, 150000 active streams, 30-day retention and 50 concurrent dashboard users. Calculate average and peak MB/s, compressed object storage at an assumed 10:1 ratio, ingester count at replication factor 3 and querier count. Compare your numbers with Grafana's sizing guidance and write down the assumptions you would measure first.",
+          "deliverable": "Sizing workbook with calculations, component counts and a list of assumptions to verify",
+          "checks": [["Convert 2 TB per day to an average rate", "The workbook shows about 23 MB/s average and about 70 MB/s peak", "Workbook"], ["Calculate 30 days of storage at a 10:1 ratio", "The result is about 6 TB in object storage before replication of chunks is considered", "Workbook"], ["Remove one zone's ingesters in the plan", "The remaining ingesters still carry peak load with stated headroom", "Workbook failure scenario"]],
+          "objectives": ["Size Loki components from workload inputs", "State and test sizing assumptions", "Plan headroom for peaks and failures"]
+        },
+        {
+          "topic": "Query Performance Tuning: Splitting, Sharding and Parallelism",
+          "subtopics": ["split_queries_by_interval and split_metadata_queries_by_interval", "Query sharding with TSDB and shard size targets", "tsdb_max_query_parallelism, max_query_parallelism and querier max_concurrent", "Frontend queue limits and per-tenant fairness", "Bytes processed per second as the key read-path measure", "Query stats: totalBytesProcessed, chunks downloaded and queue time", "Instant query splitting and sharding for metric queries", "Limiting expensive queries with max_query_bytes_read and max_querier_bytes_read"],
+          "tools": ["Grafana Loki", "logcli", "Grafana", "kubectl"],
+          "lab_task": "Pick five slow queries from the query-frontend logs (metrics.go lines with a duration above 10s). For each, record bytes processed, shards and queue time with logcli --stats, then change one setting at a time: split interval, shard parallelism and querier max_concurrent. Keep the change that gives the best p95 without raising querier OOMs, and set max_query_bytes_read to stop the worst query.",
+          "deliverable": "Query tuning log with one row per experiment and the final settings",
+          "checks": [["Rerun the slowest query after raising tsdb_max_query_parallelism", "The query runs more shards and its duration drops", "logcli --stats output"], ["Run a query larger than max_query_bytes_read", "Loki rejects it with an error that the query would read too many bytes", "Error output"], ["Compare querier memory before and after raising max_concurrent", "No querier is OOMKilled during the test", "kubectl get pods and memory graph"]],
+          "objectives": ["Measure query cost with Loki statistics", "Tune splitting, sharding and concurrency one change at a time", "Protect the read path from expensive queries"]
+        },
+        {
+          "topic": "Ingester Tuning: Chunks, WAL and Flush Behaviour",
+          "subtopics": ["chunk_target_size, chunk_block_size and chunk_encoding", "chunk_idle_period and max_chunk_age", "Flush queues, concurrent_flushes and flush_op_timeout", "The WAL: dir, replay_memory_ceiling and disk sizing", "Chunk utilisation metrics and why small chunks cost money", "loki_ingester_chunks_flushed_total by reason", "Ingester memory pressure and OOM symptoms", "Graceful shutdown with flush on shutdown"],
+          "tools": ["Grafana Loki", "Grafana", "Prometheus", "kubectl"],
+          "lab_task": "Plot sum by (reason) (rate(loki_ingester_chunks_flushed_total[5m])) and the chunk size and utilisation histograms on a running cluster. If most chunks flush for idle reasons while small, raise chunk_idle_period, then measure average chunk size, object count per hour and ingester memory over a day. Restart one ingester and record WAL replay time against replay_memory_ceiling.",
+          "deliverable": "Ingester tuning report with flush-reason graphs, chunk sizes and WAL replay timings",
+          "checks": [["Plot chunks flushed by reason before tuning", "The graph shows the share of idle, max_age and full flushes", "Grafana panel"], ["Raise chunk_idle_period and compare objects written per hour", "Fewer, larger chunks are written", "Bucket metrics or object count"], ["Restart one ingester", "WAL replay finishes and the ingester returns to ACTIVE within the measured time", "Ingester logs and ring page"]],
+          "objectives": ["Tune chunk creation and flushing", "Size and test the ingester WAL", "Read ingester metrics to find waste"]
+        },
+        {
+          "topic": "Index Gateway and Compactor Operations at Scale",
+          "subtopics": ["Index gateway in simple and ring modes", "Index caching on the gateway and its disk", "Pointing queriers and rulers at the gateway with index_gateway_client", "Per-tenant index sharding across gateways", "Compactor singleton, leader behaviour and working directory", "Compaction lag and the TSDB tables per period", "Compactor memory and runtime with many tenants", "Alerting on a compactor that has stopped"],
+          "tools": ["Grafana Loki", "Grafana", "kubectl", "Prometheus"],
+          "lab_task": "Switch the index gateway from simple mode to ring mode with 3 replicas and confirm through /indexgateway/ring that tenants are spread. Measure querier index lookup latency before and after. Then stop the compactor for 2 hours, watch compaction lag and retention metrics grow, restart it and record how long it takes to catch up. Write an alert for a compactor that has not run for 3 hours.",
+          "deliverable": "Index gateway ring configuration, latency comparison, compactor catch-up timeline and alert rule",
+          "checks": [["Open the index gateway ring page", "Three ACTIVE gateways share tokens", "Ring page screenshot"], ["Stop the compactor for 2 hours", "The last successful compaction timestamp stops advancing", "Metric graph"], ["Evaluate the compactor alert during the outage", "The alert fires after the 3-hour threshold", "Alert state screenshot"]],
+          "objectives": ["Operate index gateways in ring mode", "Monitor and recover the compactor", "Alert on stalled background work"]
+        },
+        {
+          "topic": "High Availability: Zone-Aware Replication and Rolling Upgrades",
+          "subtopics": ["zone_awareness_enabled and instance_availability_zone", "The Helm chart's zoneAwareReplication for ingesters", "Rollout groups and the rollout-operator", "Quorum with one zone down", "Ingester rollouts: one zone at a time", "Query and write behaviour during a zone failure", "PodDisruptionBudgets and topology spread constraints", "Testing a zone loss safely"],
+          "tools": ["Helm", "Grafana Loki", "kubectl", "Grafana"],
+          "lab_task": "Enable zoneAwareReplication with ingesters in zones a, b and c. Check on /ring that each stream's replicas are in three different zones. Cordon and delete every pod in zone a while pushing 5 MB/s and running dashboards, and record write errors and query errors. Then do a helm upgrade that rolls one zone at a time and measure total rollout time.",
+          "deliverable": "Zone-aware configuration, zone-failure test report and rollout timing",
+          "checks": [["Inspect the ring with zone awareness", "Each ingester shows its zone and replicas span three zones", "Ring page"], ["Remove all ingesters in zone a under load", "Pushes keep returning 204 and queries succeed", "Generator log and dashboard"], ["Run a helm upgrade with zone-aware rollouts", "Only one zone's ingesters restart at a time", "kubectl get pods -w output"]],
+          "objectives": ["Run Loki ingesters across zones", "Survive a full zone loss", "Upgrade ingesters one zone at a time"]
+        },
+        {
+          "topic": "Stream Sharding and Hot Streams Management",
+          "subtopics": ["Hot streams: one label set receiving most of the volume", "per_stream_rate_limit and per_stream_rate_limit_burst", "shard_streams.enabled and desired_rate", "The __stream_shard__ label added by automatic sharding", "Finding hot streams with index volume queries and ingester metrics", "Splitting at the agent with an extra low-cardinality label", "Effects of sharding on queries and chunk counts", "Choosing between raising limits and sharding"],
+          "tools": ["Grafana Loki", "Grafana", "logcli", "curl"],
+          "lab_task": "Send 20 MB/s into one stream {job=\"firehose\"} with a per-stream limit of 3 MB/s and record the 429s. Enable shard_streams with desired_rate: 3MB and repeat. Show how many __stream_shard__ values appear with logcli series, compare discarded bytes before and after, and check that a query on {job=\"firehose\"} still returns lines from all shards.",
+          "deliverable": "Hot-stream test report with discard metrics, shard counts and query checks",
+          "checks": [["Push 20 MB/s into one stream without sharding", "Pushes fail with a per stream rate limit exceeded error", "Generator log"], ["Enable shard_streams and repeat", "Discards stop and several __stream_shard__ values appear", "logcli series output"], ["Query {job=\"firehose\"} after sharding", "Lines from all shards are returned in one result", "Explore screenshot"]],
+          "objectives": ["Find hot streams", "Use automatic stream sharding", "Choose between limits, sharding and label changes"]
+        },
+        {
+          "topic": "Query Acceleration with Bloom Filters",
+          "subtopics": ["Why needle-in-a-haystack queries on structured metadata are slow", "Bloom filters built per chunk set for structured metadata keys and values", "Bloom planner, bloom builder and bloom gateway components", "Enabling blooms per tenant with limits", "Which queries benefit: label filters on structured metadata after the selector", "Storage and compute cost of building blooms", "The feature's status in the current release and its caveats", "Measuring chunks skipped"],
+          "tools": ["Grafana Loki", "Grafana", "logcli", "Helm"],
+          "lab_task": "On a lab tenant with a week of data and trace_id in structured metadata, run {cluster=\"prod\"} | trace_id=\"<id>\" over 24h with logcli --stats and record chunks fetched. Enable the bloom components and per-tenant bloom settings following the current docs, wait for blooms to build, repeat the query and compare chunks fetched and time. Record the extra CPU and storage the builders used.",
+          "deliverable": "Bloom evaluation report with before-and-after query stats and the cost of building blooms",
+          "checks": [["Run the trace_id query before blooms exist", "logcli --stats shows the chunk count fetched across the whole range", "Stats output"], ["Repeat after blooms are built", "Fewer chunks are fetched for the same result", "Stats output"], ["Query blooms for a value that does not exist", "The query returns no lines and fetches far fewer chunks than without blooms", "Stats output"]],
+          "objectives": ["Explain when bloom filters help Loki queries", "Enable and measure bloom-based acceleration", "Weigh the cost of a feature still evolving"]
+        },
+        {
+          "topic": "Pattern Ingester, Detected Fields and Log Volume APIs",
+          "subtopics": ["pattern_ingester.enabled and how patterns are extracted", "GET /loki/api/v1/patterns", "/loki/api/v1/detected_fields and /loki/api/v1/detected_labels", "/loki/api/v1/index/volume and volume_range with aggregate_by", "volume_enabled and discover_log_levels in limits", "How Logs Drilldown uses these APIs", "Pattern-based queries with the pattern parser and |> filter", "Using volume data for chargeback"],
+          "tools": ["Grafana Loki", "Grafana Logs Drilldown", "curl", "jq"],
+          "lab_task": "Enable the pattern ingester and volume endpoints. Call /loki/api/v1/patterns for {service_name=\"checkout\"} over 1h and list the top 5 patterns by count with jq. Call /loki/api/v1/index/volume?query={cluster=\"prod\"}&aggregate_by=labels with targetLabels=namespace to get bytes per namespace. Build a chargeback table and turn one noisy pattern into a drop rule in Alloy.",
+          "deliverable": "Pattern analysis, per-namespace volume table and the resulting Alloy drop rule",
+          "checks": [["Call /loki/api/v1/patterns for checkout", "A JSON list of patterns with sample counts is returned", "API response"], ["Call index/volume aggregated by namespace", "One volume value per namespace is returned and the values sum to the cluster total", "API response and table"], ["Deploy the drop rule for the noisy pattern", "The pattern's count falls to zero in the next hour", "Pattern API output"]],
+          "objectives": ["Use pattern and volume APIs to understand log content", "Attribute log volume to owners", "Turn findings into log reduction rules"]
+        },
+        {
+          "topic": "Advanced LogQL: Vector Matching, Binary Operations and Query Optimisation",
+          "subtopics": ["Binary operators between vectors with on, ignoring, group_left and group_right", "Comparison operators with bool", "label_replace in LogQL metric queries", "approx_topk and sharding-friendly aggregations", "Avoiding wide regex selectors and leading .* filters", "Putting line filters before parsers", "Choosing pattern or logfmt over regexp and json for speed", "Using recording rules for heavy dashboard queries", "The /loki/api/v1/format_query endpoint and query linting"],
+          "tools": ["Grafana Loki", "Grafana", "logcli", "lokitool"],
+          "lab_task": "Write an error-ratio query per service that divides 5xx rate by total rate using on(service_name), then a query that joins error counts with deploy events using group_left. Take three slow dashboard queries, rewrite them by narrowing selectors, moving line filters before parsers and replacing regexp with pattern, and record bytes processed and duration before and after with logcli --stats.",
+          "deliverable": "LogQL optimisation notebook with original and rewritten queries and their statistics",
+          "checks": [["Run the error-ratio query", "One ratio between 0 and 1 is returned per service_name", "Query result"], ["Rewrite a regexp parser query to use pattern", "Duration falls while result counts stay the same", "logcli --stats comparison"], ["Move |= \"error\" before | json", "Bytes processed stays similar but parsing time and duration drop", "logcli --stats comparison"]],
+          "objectives": ["Combine LogQL metric queries with vector matching", "Rewrite queries for lower cost", "Move heavy queries to recording rules"]
+        },
+        {
+          "topic": "Securing Loki: TLS, Authentication Proxies and Label-Based Access",
+          "subtopics": ["TLS for HTTP and gRPC with server.http_tls_config and grpc_tls_config", "mTLS between Loki components", "Authenticating gateways: nginx, OAuth2 proxy and API gateways", "Grafana Enterprise Logs and Grafana Cloud access policies", "Label-based access control for Loki data sources in Grafana", "Kubernetes NetworkPolicies around Loki components", "Secrets for object storage and least-privilege bucket policies", "Redacting secrets and personal data at the agent", "Audit logging of queries"],
+          "tools": ["Grafana Loki", "cert-manager", "nginx", "Grafana Alloy", "Grafana"],
+          "lab_task": "Issue certificates with cert-manager and enable TLS on the Loki gateway and gRPC between components. Add NetworkPolicies so only the gateway accepts traffic from outside the namespace. Add an Alloy stage.replace that masks credit card numbers and bearer tokens. Prove that plain HTTP to a querier fails, gateway HTTPS works, and no masked value appears in a query for card patterns.",
+          "deliverable": "Security configuration (TLS, NetworkPolicies, redaction) and a test report with pass and fail evidence",
+          "checks": [["curl http://querier:3100/ready from another namespace", "The connection times out because of the NetworkPolicy", "curl output"], ["curl https through the gateway with a valid client", "The request succeeds with a valid certificate chain", "curl -v output"], ["Query |~ \"\\\\d{4}-\\\\d{4}-\\\\d{4}-\\\\d{4}\" after redaction", "No unmasked card numbers are returned", "Explore screenshot"]],
+          "objectives": ["Encrypt Loki traffic and restrict network access", "Put authentication and access control in front of Loki", "Remove sensitive data before it is stored"]
+        },
+        {
+          "topic": "Cost Optimisation for Loki: Storage, Compression and Log Reduction",
+          "subtopics": ["Cost drivers: ingest volume, object storage, requests and compute", "Chunk encoding choices such as snappy and zstd", "Object storage classes and lifecycle rules", "Dropping debug and health-check lines at the agent", "Sampling noisy logs with stage.sampling", "Shorter retention for low-value streams with retention_stream", "Reducing request costs with caches and larger chunks", "Per-tenant volume reports for chargeback"],
+          "tools": ["Grafana Loki", "Grafana Alloy", "Amazon S3", "Grafana"],
+          "lab_task": "Measure one week's cost baseline: GB ingested per tenant from loki_distributor_bytes_received_total, bucket size and request counts. Apply three changes: drop health checks and debug lines in Alloy, sample a noisy stream at 10% with stage.sampling and set 7-day retention for {env=\"dev\"}. Measure again after a week and present the savings per change.",
+          "deliverable": "Cost baseline, change log and a savings table per change",
+          "checks": [["Compare GB ingested per day before and after the Alloy drops", "Daily ingest falls by the share the health and debug lines made up", "Grafana panel"], ["Count lines of the sampled stream", "The count is about 10% of the original", "LogQL count"], ["Query dev data older than 7 days after compaction", "No lines are returned", "Explore screenshot"]],
+          "objectives": ["Find the main cost drivers in a Loki deployment", "Reduce volume and storage without losing important logs", "Report savings per change"]
+        },
+        {
+          "topic": "Load Testing Loki with k6 and xk6-loki",
+          "subtopics": ["Building k6 with the xk6-loki extension", "Push scenarios: streams, labels cardinality and line sizes", "Query scenarios: instant, range and label queries", "Ramping rates and holding at target load", "Thresholds on push and query latency", "Watching Loki dashboards during the test", "Finding the first bottleneck: distributor, ingester, querier or storage", "Writing a repeatable test report"],
+          "tools": ["k6", "xk6-loki", "Grafana Loki", "Grafana"],
+          "lab_task": "Build k6 with xk6 build --with github.com/grafana/xk6-loki and write a script that pushes with 1000 streams and ramps from 5 to 50 MB/s over 30 minutes while another scenario runs range queries. Set thresholds for push p99 under 1s and query p95 under 5s. Run against the cluster, find the rate at which a threshold first fails and name the component that saturated.",
+          "deliverable": "k6 script, test results and a bottleneck analysis with dashboard screenshots",
+          "checks": [["Run k6 at 5 MB/s", "All thresholds pass", "k6 summary"], ["Ramp until a threshold fails", "k6 reports a failed threshold at a recorded MB/s", "k6 summary"], ["Inspect Loki dashboards at that point", "One component shows saturation such as CPU limits or queue growth", "Dashboard screenshots"]],
+          "objectives": ["Load test Loki writes and reads", "Set and check performance thresholds", "Identify the first bottleneck"]
+        },
+        {
+          "topic": "Upgrading Loki: Schema Migrations and Breaking Changes Between Major Versions",
+          "subtopics": ["Reading release notes and upgrade guides for each version", "Changed defaults and removed flags between major versions", "Moving from BoltDB shipper to TSDB with a new schema period", "Helm chart major version changes and values renames", "Upgrade order: backend, ingesters, then read path", "Testing an upgrade in staging with production config", "Rollback limits once a new schema or format is written", "Checking /config differences before and after"],
+          "tools": ["Helm", "Grafana Loki", "kubectl", "diff"],
+          "lab_task": "In staging, run the current production Loki chart and version with production values, push data for a day, then upgrade to the next major chart and Loki version. Diff the /config output before and after, record every changed default, fix any removed values keys, and confirm data written before the upgrade can still be queried. Write the production upgrade runbook with a rollback point.",
+          "deliverable": "Upgrade runbook, config diff and staging test results",
+          "checks": [["Diff /config before and after the upgrade", "Every changed default is listed and reviewed in the runbook", "Diff output"], ["Query data written before the upgrade", "The same line counts are returned as before", "Count comparison"], ["helm upgrade with a removed values key", "The chart fails rendering or warns, and the runbook records the replacement key", "Helm output"]],
+          "objectives": ["Plan Loki upgrades from release notes", "Migrate schema safely", "Test upgrades and define rollback points"]
+        },
+        {
+          "topic": "Grafana Cloud Logs: Onboarding, Adaptive Logs and Usage Controls",
+          "subtopics": ["Grafana Cloud stack, Loki endpoint and user ID", "Access policies and tokens with logs:write and logs:read scopes", "Sending from Alloy with basic_auth to the Cloud Logs endpoint", "Usage and billing dashboards for logs", "Adaptive Logs: pattern recommendations and drop rates", "Retention and the plan's included limits", "Label-based access control for teams", "Comparing self-managed Loki and Grafana Cloud Logs costs"],
+          "tools": ["Grafana Cloud Logs", "Grafana Alloy", "Grafana", "Adaptive Logs"],
+          "lab_task": "Create an access policy with logs:write only, configure Alloy's loki.write with the Cloud Logs URL and basic_auth using the stack user and token, and send the lab application's logs for a day. Open the usage dashboards, then review Adaptive Logs recommendations and apply one with a 50% drop rate. Compare ingested GB per day before and after.",
+          "deliverable": "Cloud onboarding notes, access policy settings, usage screenshots and an Adaptive Logs before-and-after table",
+          "checks": [["Send logs with a token that only has logs:read", "The push fails with HTTP 401 or 403", "Alloy log output"], ["Query the application logs in the Cloud stack", "Lines appear within a minute of sending", "Explore screenshot"], ["Apply one Adaptive Logs recommendation", "Ingested volume for that pattern falls by about half", "Usage dashboard"]],
+          "objectives": ["Onboard logs to Grafana Cloud Logs securely", "Use Adaptive Logs to reduce volume", "Compare cloud and self-managed costs"]
+        },
+        {
+          "topic": "Correlating Loki Logs with Traces and Metrics: Derived Fields and Data Links",
+          "subtopics": ["Derived fields on the Loki data source with a regex or structured metadata", "Linking trace_id to a Tempo data source", "Trace to logs from Tempo back to Loki", "Exemplars and metric-to-logs links", "Using service_name consistently across signals", "Data links in dashboard panels", "Correlations in Grafana", "Common causes of broken links: label mismatches and time shifts"],
+          "tools": ["Grafana", "Grafana Loki", "Grafana Tempo", "Prometheus"],
+          "lab_task": "Configure a derived field on the Loki data source that reads trace_id from structured metadata and links to Tempo. Configure trace-to-logs on the Tempo data source using service_name and a time shift of 1 minute. From a slow trace, jump to its logs and back, then add a dashboard data link from an error-rate panel to the matching logs. Record each link's generated query.",
+          "deliverable": "Data source configurations and a click-through walkthrough with generated queries",
+          "checks": [["Click a trace_id link in a log line", "Tempo opens the matching trace", "Screenshot"], ["Use Logs for this span in Tempo", "Loki returns lines with the same trace_id", "Screenshot"], ["Use the dashboard data link from a 5xx spike", "Explore opens with the service and time range already set", "Screenshot"]],
+          "objectives": ["Link Loki logs to traces and metrics", "Keep labels consistent across signals", "Fix broken correlation links"]
+        },
+        {
+          "topic": "Running LokiStack with the Loki Operator",
+          "subtopics": ["The Loki Operator and the LokiStack custom resource", "Size presets such as 1x.demo, 1x.small and 1x.medium", "Object storage secrets for the operator", "Tenancy modes such as static and openshift-logging", "Per-tenant limits and retention in the LokiStack spec", "Rules with AlertingRule and RecordingRule resources", "Upgrades through the operator", "Helm chart versus operator: trade-offs"],
+          "tools": ["Loki Operator", "kubectl", "Grafana Loki", "MinIO"],
+          "lab_task": "Install the Loki Operator, create an object storage secret and apply a LokiStack with size 1x.demo, schema v13 and tenancy mode static with two tenants. Add an AlertingRule resource for one tenant. Check kubectl get lokistack and the generated pods, push logs through the gateway with each tenant and compare the effort with your Helm deployment.",
+          "deliverable": "LokiStack and rule manifests, status output and a Helm versus operator comparison",
+          "checks": [["kubectl get lokistack -o wide", "The LokiStack reports Ready", "kubectl output"], ["Apply an AlertingRule with a LogQL syntax error", "The resource is rejected by the operator's validation", "kubectl output"], ["Push and query through the operator gateway for tenant 1", "Logs for tenant 1 are returned and tenant 2's are not", "curl output"]],
+          "objectives": ["Deploy Loki with the Loki Operator", "Manage tenants and rules through custom resources", "Choose between the operator and the Helm chart"]
+        },
+        {
+          "topic": "Disaster Recovery and Backup for Loki Data and Configuration",
+          "subtopics": ["What must be protected: object storage, rules, overrides and Helm values", "Bucket versioning and cross-region replication", "Ingester WAL and data not yet flushed", "Recovery point and recovery time targets for logs", "Rebuilding a cluster against an existing bucket", "Dual writing from agents to two clusters", "Rule and dashboard backups from Git", "Running a restore drill"],
+          "tools": ["Grafana Loki", "Amazon S3", "Helm", "Grafana Alloy"],
+          "lab_task": "Enable versioning and cross-region replication on the Loki bucket. Delete the Loki namespace in a staging cluster, then rebuild it from Git-stored Helm values, rules and overrides in a second region against the replicated bucket. Measure time to first successful query and compare line counts for the last 24 hours with the source. Report the data lost between last flush and failure.",
+          "deliverable": "DR design, restore runbook and drill results with RPO and RTO measurements",
+          "checks": [["Rebuild Loki in the second region", "Queries for data older than the last flush succeed", "Explore screenshot"], ["Compare 24-hour line counts with the source cluster", "Counts match except for the unflushed window", "Count comparison"], ["Time the drill from namespace deletion to first query", "The time is recorded and compared with the RTO target", "Drill timeline"]],
+          "objectives": ["Design disaster recovery for Loki", "Rebuild Loki against existing object storage", "Measure recovery point and time"]
+        },
+        {
+          "topic": "Logging Governance: Label Standards, Tenancy Models and Self-Service Onboarding",
+          "subtopics": ["A label standard: required, optional and forbidden labels", "Tenant per team, per environment or per business unit", "Onboarding requests: volume, retention and owners", "Default limits and an exception process", "Policy checks in Alloy configs and CI", "Chargeback and showback reports from volume APIs", "Ownership of rules and dashboards", "Reviewing cardinality and volume each month"],
+          "tools": ["Grafana Loki", "Grafana Alloy", "GitHub Actions", "Grafana"],
+          "lab_task": "Write a label standard and a tenancy model for an organisation with 40 teams. Build an onboarding template that sets the tenant's limits and retention through a pull request to the overrides file, and a CI check that rejects Alloy configs adding forbidden labels such as user_id. Onboard one team through the process and produce its first monthly volume report.",
+          "deliverable": "Label standard, tenancy model, onboarding template, CI check and a sample monthly report",
+          "checks": [["Open a pull request that adds a user_id label in Alloy", "The CI check fails and names the forbidden label", "CI log"], ["Merge an onboarding pull request", "The new tenant's limits appear in /runtime_config", "API output"], ["Generate the monthly report from index/volume", "Bytes per tenant and per namespace are listed with owners", "Report"]],
+          "objectives": ["Define label and tenancy standards for Loki", "Automate tenant onboarding", "Run regular volume and cardinality reviews"]
+        },
+        {
+          "topic": "Troubleshooting Loki Clusters at Scale",
+          "subtopics": ["A method: symptom, path (write or read), component, cause", "Slow queries: queue time versus execution time", "Querier OOMs and too many outstanding requests", "Ingester ring problems: unhealthy instances and stuck LEAVING", "Object storage throttling such as S3 503 SlowDown", "Memcached evictions and timeouts", "Compactor and retention failures", "Reading Loki's own logs for the request ID and tenant", "Building a runbook per alert"],
+          "tools": ["Grafana Loki", "Grafana", "kubectl", "logcli"],
+          "lab_task": "The trainer breaks a staging cluster in four ways: a stuck LEAVING ingester, querier memory limits too low, memcached at 16 MB and an object storage rate limit. For each, find the symptom on dashboards, locate the component, confirm the cause from Loki's logs or metrics and apply a fix. Record time to diagnosis per fault and write a runbook entry for each.",
+          "deliverable": "Four troubleshooting write-ups and runbook entries with evidence",
+          "checks": [["Diagnose the stuck LEAVING ingester", "The ring page shows it and Forget clears it", "Ring page before and after"], ["Diagnose low querier memory", "kubectl shows OOMKilled restarts and raising limits stops them", "kubectl describe output"], ["Diagnose the object storage rate limit", "Loki logs show 503 SlowDown or throttling errors from the store", "Log lines"]],
+          "objectives": ["Diagnose Loki problems with a repeatable method", "Use dashboards, logs and ring pages together", "Write runbooks for recurring faults"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Loki Platform Design and Migration",
+          "subtopics": ["Architecture, sizing and deployment mode decision", "Tenancy, security, label standards and governance", "Migration plan from an existing logging system or Promtail estate", "Load test, DR drill and cost model results"],
+          "tools": ["Grafana Loki", "Grafana Alloy", "Helm", "k6", "Grafana", "Grafana Cloud Logs"],
+          "lab_task": "Design a logging platform for 5 TB per day across 3 regions and 60 teams, deciding between self-managed Loki, Grafana Cloud Logs or a mix. Deliver an architecture, sizing workbook, tenancy and label standard, security design and a migration plan from Promtail. Prove a scaled-down version with a k6 load test, a zone failure and a DR restore, and present costs per team.",
+          "deliverable": "Architecture document, sizing workbook, migration plan, test evidence and a cost model",
+          "checks": [["Review the sizing workbook against the load test", "Measured capacity meets the planned peak in the scaled-down test", "Workbook and k6 summary"], ["Run the zone failure on the scaled-down cluster", "Writes and queries keep working", "Test report"], ["Review the migration plan", "Every Promtail job has an Alloy equivalent and a cut-over check", "Migration plan"]],
+          "objectives": ["Design a Loki platform for a large organisation", "Back design decisions with test evidence", "Plan a migration and cost model leaders can approve"]
+        }
+      ]
+    }
+  }
+}

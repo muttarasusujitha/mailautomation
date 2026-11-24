@@ -8,6 +8,7 @@ from bson import ObjectId
 from datetime import datetime
 
 from shared.database.service import get_db
+from shared.generation_mode import application_ai_enabled
 
 router = APIRouter()
 
@@ -44,6 +45,23 @@ def _requirement_query(req_id: str) -> dict:
 
 def _clean(value: Any) -> str:
     return str(value or "").strip()
+
+
+def _has_confirmed_requirement_value(value: Any) -> bool:
+    """Ignore inbox placeholders when deciding whether a batch is confirmed."""
+    text = _clean(value).lower().strip(" .,:;-")
+    if not text:
+        return False
+    placeholders = {
+        "tbd", "to be decided", "to be confirmed", "not confirmed", "pending",
+        "pending confirmation", "awaiting confirmation", "not finalized", "not finalised",
+        "to be finalized", "to be finalised", "flexible", "not shared", "not provided",
+        "not available", "n/a", "na", "-",
+    }
+    return text not in placeholders and not bool(re.fullmatch(
+        r"(?:to be|awaiting|pending)\s+(?:confirmed|confirmation|finali[sz]ed|decided|shared|provided)",
+        text,
+    ))
 
 
 def _amounts_from_text(value: Any) -> List[int]:
@@ -86,14 +104,16 @@ async def _latest_client_commercial(
     ) or {}
     for key in ("training_commercial_amount", "training_commercial", "client_budget", "budget_total", "budget_per_day", "commercials", "commercial"):
         value = requirement_doc.get(key)
-        if isinstance(value, (int, float)) and value > 0:
+        if isinstance(value, (int, float)) and value >= 1000:
             return value
         amounts = _amounts_from_text(value)
-        if amounts:
-            return max(amounts)
+        valid_amounts = [amount for amount in amounts if amount >= 1000]
+        if valid_amounts:
+            return max(valid_amounts)
     source_amounts = _amounts_from_text(requirement_doc.get("requirement_source_text"))
-    if source_amounts:
-        return max(source_amounts)
+    valid_source_amounts = [amount for amount in source_amounts if amount >= 1000]
+    if valid_source_amounts:
+        return max(valid_source_amounts)
     shortlist = await db["shortlists"].find_one({"requirement_id": req_id}, {"_id": 0, "top_trainers": 1})
     selected_trainer: Dict[str, Any] = {}
     for trainer in (shortlist or {}).get("top_trainers", []):
@@ -119,11 +139,12 @@ async def _latest_client_commercial(
         "commercial_text",
     ):
         value = selected_trainer.get(key)
-        if isinstance(value, (int, float)) and value > 0:
+        if isinstance(value, (int, float)) and value >= 1000:
             return value
         amounts = _amounts_from_text(value)
-        if amounts:
-            return max(amounts)
+        valid_amounts = [amount for amount in amounts if amount >= 1000]
+        if valid_amounts:
+            return max(valid_amounts)
 
     query: Dict[str, Any] = {
         "requirement_id": req_id,
@@ -147,8 +168,9 @@ async def _latest_client_commercial(
         amounts = _amounts_from_text(
             "\n".join(str(log.get(key) or "") for key in ("subject", "body", "body_snippet"))
         )
-        if amounts:
-            return max(amounts)
+        valid_amounts = [amount for amount in amounts if amount >= 1000]
+        if valid_amounts:
+            return max(valid_amounts)
     return None
 
 
@@ -331,9 +353,8 @@ def _commercial_options_for_trainer(requirement: Dict[str, Any], trainer: Dict[s
     other_costs = _money_from_fields(requirement, ["other_costs", "applicable_costs", "travel_cost", "hospitality_cost"])
     # Client commercial is authoritative. Trainers do not quote a separate
     # rate: the platform allocates 70% to the trainer and 30% to Clahan.
-    # Below INR 10,000/day is shown and sent as one total engagement amount.
+    # Use totals for at least five days only below INR 12,000 per trainer day.
     margin = margin_percent(requirement)
-    use_total = package_basis(requirement) or bool(client_day_rate and client_day_rate < 10000)
     trainer_share = budget * (1 - margin / 100)
     is_proposal = "proposal" in str(requirement.get("batch_flow") or requirement.get("batch_type") or "").lower()
     if is_proposal:
@@ -343,6 +364,7 @@ def _commercial_options_for_trainer(requirement: Dict[str, Any], trainer: Dict[s
         days = offer["days"]
         trainer_share = offer["trainer_daily_rate"] * days
         budget = round(trainer_share / (1 - margin / 100), 2)
+    use_total = package_basis(requirement, trainer_share / days if days else None)
     candidates = [_build_commercial_option(
         ("TOTAL" if use_total else "DAYWISE") + f"_{100-int(margin)}_{int(margin)}",
         budget,
@@ -495,16 +517,8 @@ def _category_text(trainer: Dict[str, Any]) -> str:
 
 
 def _trainer_experience(trainer: Dict[str, Any]) -> float:
-    direct = _safe_float(trainer.get("experience_years"), -1)
-    if direct >= 0:
-        return direct
-    raw = " ".join([
-        _clean(trainer.get("experience_raw")),
-        _clean(trainer.get("summary")),
-        _clean(trainer.get("resume")),
-    ])
-    match = re.search(r"(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?)", raw, flags=re.IGNORECASE)
-    return _safe_float(match.group(1), 0.0) if match else 0.0
+    from shared.trainer_experience import profile_experience_years
+    return profile_experience_years(trainer) or 0.0
 
 
 def _has_resume(trainer: Dict[str, Any]) -> bool:
@@ -536,6 +550,10 @@ def _term_matches(terms: List[str], text: str) -> List[str]:
 
 
 def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    # A pending profile review must remain visible to the administrator; it is
+    # not evidence that the trainer is unsuitable for a new requirement.
+    # Keep the flag on the matched profile so the shortlist can show it.
+    profile_review_required = bool(trainer.get("profile_review_required", False))
     if requirement.get("must_have_linkedin") and not trainer.get("linkedin"):
         return None
     if requirement.get("must_have_resume") and not _has_resume(trainer):
@@ -551,6 +569,8 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
         _as_list(requirement.get("required_skills"))
         + _as_list(requirement.get("skills"))
         + _as_list(requirement.get("requested_topics"))
+        + _as_list(requirement.get("topics"))
+        + _as_list(requirement.get("custom_topics"))
     ))
     preferred_skills = _as_list(requirement.get("preferred_skills"))
     required_terms = [term for term in [technology, *required_skills] if term]
@@ -575,7 +595,8 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
         score += tech_score
         breakdown["technology"] = round(tech_score, 2)
 
-    required_matches = _term_matches(required_skills, profile)
+    from shared.toc_quality import topic_is_covered
+    required_matches = [skill for skill in required_skills if topic_is_covered(skill, profile)]
     if required_skills:
         skill_score = 25.0 * (len(required_matches) / max(len(required_skills), 1))
     elif not technology:
@@ -592,6 +613,13 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     min_exp = _safe_float(requirement.get("min_experience_years"), 0.0)
     exp = _trainer_experience(trainer)
     if min_exp > 0 and exp < min_exp:
+        return None
+    # Treat the requested domain and every explicit required skill/topic as
+    # eligibility gates. Rank only candidates who meet the stated experience
+    # and scope; return fewer than five when fewer than five qualify.
+    if technology and not topic_is_covered(technology, profile):
+        return None
+    if len(required_matches) != len(required_skills):
         return None
     if min_exp > 0:
         exp_score = 15.0 if exp >= min_exp else 10.0 * (exp / max(min_exp, 1.0))
@@ -621,10 +649,6 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     score += credibility_score
     breakdown["credibility"] = round(credibility_score, 2)
 
-    scope_tokens = technology_tokens - {"advanced", "intermediate", "beginner", "training", "trainer", "with", "and", "including", "course"}
-    if required_terms and not required_matches and not (scope_tokens & profile_tokens):
-        return None
-
     public = {k: v for k, v in trainer.items() if k not in {"_id", "combined_text"}}
     public["trainer_id"] = _clean(public.get("trainer_id")) or f"TR-{uuid.uuid4().hex[:8].upper()}"
     public["name"] = _clean(public.get("name") or public.get("trainer_name") or "Trainer")
@@ -636,6 +660,9 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     public["score_breakdown"] = breakdown
     public["match_quality"] = _quality(public["match_score"])
     public["recommended_next_action"] = "Contact trainer and confirm availability"
+    public["profile_review_required"] = profile_review_required
+    if profile_review_required:
+        public["recommended_next_action"] = "Review the uploaded profile before contacting this trainer"
     return public
 
 
@@ -667,10 +694,8 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
     data["timeline_end"] = _clean(data.get("timeline_end"))
     data["timing"] = _clean(data.get("timing"))
     data["preferred_location"] = _clean(data.get("preferred_location") or data.get("location"))
-    # The workflow deliberately contacts the single best matched trainer.
-    # Ignore caller-provided shortlist sizes so every creation path follows
-    # the same one-trainer policy.
-    data["top_n"] = 1
+    # Shortlist and Shortlist1 use the five highest ranked candidates.
+    data["top_n"] = 5
     data["min_experience_years"] = _safe_int(data.get("min_experience_years"), 0)
     data["send_emails"] = bool(data.get("send_emails", False))
     source_text = " ".join(
@@ -681,6 +706,21 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
             data.get("pipeline_target"),
             data.get("requirement_source"),
             (data.get("metadata") or {}).get("source") if isinstance(data.get("metadata"), dict) else "",
+        )
+    ).lower()
+    # The original client wording is the authoritative signal when an email
+    # asks for a proposal but also happens to state a tentative duration or
+    # participant count.  Those details must not turn a proposal into a
+    # confirmed engagement.
+    intent_text = " ".join(
+        _clean(value)
+        for value in (
+            data.get("client_requirement_text"),
+            data.get("client_request"),
+            data.get("original_body"),
+            data.get("subject"),
+            (data.get("metadata") or {}).get("original_body") if isinstance(data.get("metadata"), dict) else "",
+            (data.get("metadata") or {}).get("original_subject") if isinstance(data.get("metadata"), dict) else "",
         )
     ).lower()
     type_raw = _clean(data.get("requirement_type") or data.get("batch_type") or data.get("batch_flow")).lower()
@@ -702,11 +742,11 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
             if _clean(data.get(field))
         )
         has_training_dates = any(
-            _clean(data.get(field))
+            _has_confirmed_requirement_value(data.get(field))
             for field in ("training_dates", "preferred_dates", "timeline_start", "timeline_end")
         )
         has_commercials = any(
-            _clean(data.get(field))
+            _has_confirmed_requirement_value(data.get(field))
             for field in (
                 "budget", "budget_total", "budget_per_day", "client_budget_per_day",
                 "budget_min", "budget_max", "budget_range", "commercial", "commercials",
@@ -716,6 +756,10 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
             batch_flow = "proposal"
         elif "confirmed" in batch_raw:
             batch_flow = "confirmed"
+        elif "proposal" in intent_text and not any(signal in intent_text for signal in (
+            "confirmed training", "program confirmation", "purchase order", "po no",
+        )):
+            batch_flow = "proposal"
         elif "shortlist1" in pipeline_raw:
             batch_flow = "confirmed"
         elif "shortlist" in pipeline_raw:
@@ -802,6 +846,9 @@ async def _build_shortlist_for_requirement(
         ]
     scored.sort(
         key=lambda trainer: (
+            _safe_float(trainer.get("match_score"), 0)
+            + (5.0 if trainer.get("trainer_priority") is True else 0.0),
+            1 if trainer.get("trainer_priority") is True else 0,
             _safe_float(trainer.get("match_score"), 0),
             _safe_float(trainer.get("experience_years"), 0),
             1 if trainer.get("email") else 0,
@@ -809,7 +856,8 @@ async def _build_shortlist_for_requirement(
         reverse=True,
     )
 
-    top_trainers = scored[:1]
+    # Store the five highest ranked candidates in Shortlist/Shortlist1.
+    top_trainers = scored[:5]
     existing = await db["shortlists"].find_one({"requirement_id": req_id}, {"_id": 0}) or {}
     old_by_id = {
         _clean(trainer.get("trainer_id")): trainer
@@ -818,10 +866,15 @@ async def _build_shortlist_for_requirement(
     }
     for index, trainer in enumerate(top_trainers, start=1):
         trainer["rank"] = index
-        trainer["pipeline_status"] = trainer.get("pipeline_status") or "shortlisted"
         old = old_by_id.get(_clean(trainer.get("trainer_id")))
         if old:
             trainer.update(_merge_pipeline_state(trainer, old))
+        if trainer.get("profile_review_required"):
+            trainer["pipeline_status"] = "profile_review"
+        elif _clean(trainer.get("pipeline_status")).lower() == "profile_review":
+            trainer["pipeline_status"] = "shortlisted"
+        else:
+            trainer["pipeline_status"] = trainer.get("pipeline_status") or "shortlisted"
 
     now = datetime.utcnow()
     warnings = [] if all_trainers else ["No trainers available in database."]
@@ -888,6 +941,7 @@ async def _build_shortlist_for_requirement(
         {"$set": {
             "total_matched": len(scored),
             "top_count": len(top_trainers),
+            "top_n": len(top_trainers),
             "updated_at": now,
         }},
     )
@@ -994,6 +1048,64 @@ async def set_generation_mode(payload: Dict[str, Any], db: AsyncIOMotorDatabase 
     return {"generation_mode": mode}
 
 
+@router.get("/analysis/commercial")
+async def list_commercial_analyses(
+    limit: int = Query(50, ge=1, le=100),
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Commercial comparison for requirements managed by the administrator."""
+    items = []
+    cursor = db.requirements.find({}).sort("updated_at", -1).limit(limit)
+    async for doc in cursor:
+        items.append(await _requirement_analysis(db, doc))
+    return {"items": items, "total": len(items)}
+
+
+@router.post("/{req_id}/refresh-shortlist")
+async def refresh_shortlist(
+    req_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Re-rank this requirement after trainer records are added or updated."""
+    requirement = await db.requirements.find_one(_requirement_query(req_id), {"_id": 0})
+    if not requirement:
+        raise HTTPException(404, "Requirement not found")
+    shortlist = await _build_shortlist_for_requirement(db, requirement)
+    return {
+        "requirement_id": requirement.get("requirement_id") or req_id,
+        "total_trainers_scanned": shortlist.get("total_trainers_scanned", 0),
+        "total_available": shortlist.get("total_available", 0),
+        "total_matched": shortlist.get("total_matched", 0),
+        "top_trainers": shortlist.get("top_trainers", []),
+        "pipeline_summary": shortlist.get("pipeline_summary", {}),
+    }
+
+
+@router.post("/{req_id}/trainers/{trainer_id}/approve-profile")
+async def approve_shortlisted_trainer_profile(
+    req_id: str,
+    trainer_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Approve an extracted profile before any trainer outreach can begin."""
+    requirement = await db.requirements.find_one(_requirement_query(req_id), {"_id": 0, "requirement_id": 1})
+    if not requirement:
+        raise HTTPException(404, "Requirement not found")
+    trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0, "trainer_id": 1})
+    if not trainer:
+        raise HTTPException(404, "Trainer not found")
+    await db["trainers"].update_one(
+        {"trainer_id": trainer_id},
+        {"$set": {"needs_review": False, "profile_reviewed_at": datetime.utcnow(), "updated_at": datetime.utcnow()}},
+    )
+    shortlist = await _build_shortlist_for_requirement(db, requirement)
+    return {
+        "success": True,
+        "requirement_id": requirement.get("requirement_id") or req_id,
+        "top_trainers": shortlist.get("top_trainers", []),
+    }
+
+
 @router.get("/{req_id}")
 async def get_requirement(
     req_id: str,
@@ -1064,7 +1176,12 @@ async def _requirement_analysis(db: AsyncIOMotorDatabase, requirement: Dict[str,
             best_summary = qtr
 
     selected = best_summary.get("recommended_option", {})
-    explanation = "Requirement is pending confirmation. Complete the missing fields before commercial selection."
+    if not trainers:
+        explanation = "No shortlisted trainer is on this requirement yet, so a commercial recommendation is not available."
+    elif not confirmed:
+        explanation = "Requirement is pending confirmation. Complete the missing fields before commercial selection."
+    else:
+        explanation = "Complete the missing commercial inputs before selecting a trainer rate."
     if selected:
         trainer_name = best_summary.get("trainer_name", "the recommended trainer")
         explanation = (
@@ -1104,26 +1221,12 @@ async def _requirement_analysis(db: AsyncIOMotorDatabase, requirement: Dict[str,
     }
 
 
-@router.get("/analysis/commercial")
-async def list_commercial_analysis(
-    status: Optional[str] = None,
-    limit: int = Query(50, ge=1, le=200),
-    db: AsyncIOMotorDatabase = Depends(get_db),
-):
-    query: dict = {}
-    if status and status != "all":
-        query["status"] = status
-    cursor = db.requirements.find(query, {"_id": 0}).sort("created_at", -1).limit(limit)
-    items = [await _requirement_analysis(db, requirement) async for requirement in cursor]
-    return {"items": items, "total": len(items)}
-
-
 @router.get("/{req_id}/commercial-analysis")
 async def get_commercial_analysis(
     req_id: str,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    doc = await db.requirements.find_one(_requirement_query(req_id), {"_id": 0})
+    doc = await db.requirements.find_one(_requirement_query(req_id))
     if not doc:
         raise HTTPException(404, "Requirement not found")
     return await _requirement_analysis(db, doc)
@@ -1149,9 +1252,7 @@ async def update_requirement(
             raise HTTPException(422, "generation_mode must be 'ai' or 'template'")
         data["generation_mode"] = generation_mode
     if "top_n" in data:
-        # Preserve the system-wide single-trainer policy on partial updates
-        # too, not just during requirement creation.
-        data["top_n"] = 1
+        data["top_n"] = 5
     if any(key in data for key in ("technology_needed", "domain", "title", "job_title")):
         data = _normalise_requirement_payload(data, current)
     data.pop("_id", None)
@@ -1301,7 +1402,7 @@ class InvoiceFromPORequest(_BaseModel):
     client_gstin: str = ""
     client_pan: str = ""
     training_dates: str = ""
-    duration_days: int = 0
+    duration_days: float = 0
     mode: str = ""
     day_rate: float = 0.0
     total_amount: float = 0.0
@@ -1319,6 +1420,16 @@ class InvoiceFromPORequest(_BaseModel):
     hsn_sac: str = ""
     quantity: float = 0.0
     additional_notes: str = ""
+    company_name: str = ""
+    company_address: str = ""
+    company_email: str = ""
+    company_contact: str = ""
+    company_pan: str = ""
+    company_gst: str = ""
+    bank_account_no: str = ""
+    bank_ifsc: str = ""
+    place_of_supply: str = ""
+    signatory_name: str = ""
 
 
 @router.post("/{req_id}/request-client-po")
@@ -1340,10 +1451,21 @@ async def request_client_po(
     training_dates = payload.training_dates or doc.get('training_dates') or doc.get('timeline_start') or ''
     tech = doc.get('technology_needed') or doc.get('technology') or 'DevOps'
     day_rate = 'To be confirmed'
+    lab_line = ''
+    commercial_lines = ''
 
     if payload.body:
         body = payload.body
     else:
+        from shared.commercial_policy import commercial_breakdown
+        commercials = commercial_breakdown(doc)
+        if commercials["needs_lab_price"]:
+            raise HTTPException(
+                400,
+                "The client budget covers training and lab work. Send or approve the lab workbook before requesting the client PO.",
+            )
+        if commercials["invalid"]:
+            raise HTTPException(400, "The client combined budget is lower than the lab commercial amount.")
         duration = str(
             doc.get('duration_text')
             or doc.get('training_duration')
@@ -1359,20 +1481,31 @@ async def request_client_po(
         participant_count = doc.get('participant_count') or doc.get('participants')
         participant_line = f"- **Participants:** {participant_count}\n" if participant_count else ''
         latest_commercial_value = await _latest_client_commercial(db, req_id, payload.trainer_id)
-        commercial_value = latest_commercial_value
+        commercial_value = commercials["training_client_amount"] or latest_commercial_value
         if commercial_value:
             try:
                 amount = float(commercial_value)
-                day_rate = f"INR {amount:,.0f} per day/session"
+                day_rate = f"INR {amount:,.0f}" + (" total" if commercials["training_client_amount"] else " per day/session")
             except (TypeError, ValueError):
                 day_rate = f"{commercial_value} per day/session"
         else:
-            day_rate = 'To be confirmed'
-        if not latest_commercial_value and day_rate == 'To be confirmed':
             raise HTTPException(
                 400,
-                "Latest approved commercial is missing. PO request was not sent.",
+                "Client commercial amount is required before the PO request can be sent.",
             )
+        lab_line = ""
+        po_instruction = "Kindly share the Purchase Order (PO) at your earliest convenience so that we can proceed with trainer confirmation and the remaining training arrangements."
+        if commercials["lab_client_amount"]:
+            lab_line = (
+                f"- **Training services:** INR {commercials['training_client_amount']:,.0f}\n"
+                f"- **Lab services:** INR {commercials['lab_client_amount']:,.0f}\n"
+                f"- **Total client commercial:** INR {commercials['total_client_amount']:,.0f}\n"
+            )
+            po_instruction = (
+                "Kindly issue one PO with separate Training Services and Lab Services line items using the above amounts. "
+                "Clahan will issue the training and lab invoices separately."
+            )
+        commercial_lines = lab_line or f"- **Training Commercials:** {day_rate}\n"
         body = (
             f"Dear {payload.client_name or doc.get('client_name') or doc.get('client_company') or 'Client'},\n\n"
             f"Thank you for confirming the **{tech}** training requirement.\n\n"
@@ -1383,8 +1516,8 @@ async def request_client_po(
             f"{dates_line}"
             f"{mode_line}"
             f"{participant_line}"
-            f"- **Commercials:** {day_rate}\n\n"
-            f"Kindly share the Purchase Order (PO) at your earliest convenience so that we can proceed with trainer confirmation and the remaining training arrangements.\n\n"
+            f"{commercial_lines}\n"
+            f"{po_instruction}\n\n"
             f"Please let us know if you require any additional information.\n\n"
             f"Regards,\nRecruitment Team\nClahan Technologies"
         )
@@ -1404,9 +1537,9 @@ async def request_client_po(
                     # A network retry after the mail service accepted the
                     # request must not send a second PO request to the client.
                     "idempotency_key": f"client-po-request:{req_id}",
-                    # The email service checks the global wording switch. The
-                    # verified PO facts above remain the safe fallback.
-                    "ai_generate": True,
+                    # The verified body stays in the request. When Dashboard AI
+                    # is on, email-service rewrites the wording and keeps the facts.
+                    "ai_generate": await application_ai_enabled(db),
                     "ai_context": {
                         "workflow": "client_po_request",
                         "batch_type": "proposal" if "proposal" in str(doc.get("batch_flow") or doc.get("batch_type") or doc.get("requirement_type") or "").lower() else "confirmed",
@@ -1415,7 +1548,7 @@ async def request_client_po(
                         "trainer_name": payload.trainer_name or "",
                         "technology": doc.get("technology_needed") or doc.get("technology") or "",
                         "training_dates": training_dates,
-                        "commercial": day_rate,
+                        "commercial": commercial_lines.strip() or day_rate,
                         "requested_action": "share the purchase order",
                     },
                 },
@@ -1427,7 +1560,13 @@ async def request_client_po(
     now = datetime.utcnow()
     await db.requirements.update_one(
         {"requirement_id": req_id},
-        {"$set": {"client_po_requested": True, "client_po_requested_at": now, "updated_at": now}},
+        {"$set": {
+            "client_po_requested": True,
+            "client_po_requested_at": now,
+            "po_request_status": "requested",
+            "po_requested_at": now,
+            "updated_at": now,
+        }},
     )
     return {"success": True, "requirement_id": req_id, "sent_to": client_email}
 
@@ -1463,8 +1602,21 @@ async def request_client_budget_increase(
         async with _httpx.AsyncClient(timeout=30) as client:
             await client.post(
                 "http://email-service:8002/api/v1/email/send",
-                json={"to": client_email, "subject": subject, "body": body,
-                      "requirement_id": req_id, "mail_type": "budget_increase_request"},
+                json={
+                    "to": client_email,
+                    "subject": subject,
+                    "body": body,
+                    "requirement_id": req_id,
+                    "mail_type": "budget_increase_request",
+                    "ai_generate": await application_ai_enabled(db),
+                    "ai_context": {
+                        "workflow": "budget_increase_request",
+                        "requirement_id": req_id,
+                        "current_budget": payload.current_budget,
+                        "requested_budget": payload.requested_budget,
+                        "reason": payload.reason,
+                    },
+                },
             )
     except Exception as exc:
         raise HTTPException(502, str(exc)) from exc
@@ -1495,22 +1647,27 @@ async def generate_invoice_from_requirement_po(
         raise HTTPException(404, "Requirement not found")
 
     # Find linked PO
-    po = await db["purchase_orders"].find_one({"requirement_id": req_id}, {"_id": 0})
+    po = await db["purchase_orders"].find_one({"requirement_id": req_id, "po_id": {"$not": {"$regex": "^TPO-"}}}, {"_id": 0})
     if not po:
         trainer_id = payload.trainer_id or doc.get("selected_trainer_id") or f"MANUAL-{req_id}"
 
         items = payload.items or []
         if not items:
             amount = float(payload.total_amount or 0.0)
-            duration = payload.duration_days or doc.get("duration_days") or 1
+            try:
+                duration = float(payload.duration_days or doc.get("duration_days") or 1)
+            except (TypeError, ValueError):
+                duration = 1
+            if duration <= 0:
+                duration = 1
             if amount <= 0:
                 raise HTTPException(400, "Invoice items or total_amount are required when no linked purchase order exists")
 
             items = [{
                 "description": f"{payload.course_name or payload.technology or doc.get('technology_needed') or 'Training'} Training",
                 "hsn_sac": "999293",
-                "quantity": int(duration) if duration else 1,
-                "rate": round(amount / (int(duration) if duration else 1)) if duration else amount,
+                "quantity": 1,
+                "rate": amount,
                 "amount": amount,
             }]
 
@@ -1535,6 +1692,16 @@ async def generate_invoice_from_requirement_po(
             "payment_terms": payload.payment_terms,
             "items": items,
             "notes": payload.client_po_notes or payload.additional_notes or "",
+            "company_name": payload.company_name,
+            "company_address": payload.company_address,
+            "company_email": payload.company_email,
+            "company_contact": payload.company_contact,
+            "company_pan": payload.company_pan,
+            "company_gst": payload.company_gst or payload.gst_number,
+            "bank_account_no": payload.bank_account_no,
+            "bank_ifsc": payload.bank_ifsc,
+            "place_of_supply": payload.place_of_supply,
+            "signatory_name": payload.signatory_name,
         }
 
         try:
@@ -1573,6 +1740,16 @@ async def generate_invoice_from_requirement_po(
         "payment_terms": payload.payment_terms or po.get("payment_terms", ""),
         "items": payload.items or po.get("items", []),
         "notes": payload.client_po_notes or payload.additional_notes or po.get("notes", ""),
+        "company_name": payload.company_name or po.get("company_name", ""),
+        "company_address": payload.company_address or po.get("company_address", ""),
+        "company_email": payload.company_email or po.get("company_email", ""),
+        "company_contact": payload.company_contact or po.get("company_contact", ""),
+        "company_pan": payload.company_pan or po.get("company_pan", ""),
+        "company_gst": payload.company_gst or payload.gst_number or po.get("company_gst", ""),
+        "bank_account_no": payload.bank_account_no or po.get("bank_account_no", ""),
+        "bank_ifsc": payload.bank_ifsc or po.get("bank_ifsc", ""),
+        "place_of_supply": payload.place_of_supply or po.get("place_of_supply", ""),
+        "signatory_name": payload.signatory_name or po.get("signatory_name", ""),
         "updated_at": datetime.utcnow(),
     }
     await db["purchase_orders"].update_one({"po_id": po_id}, {"$set": po_update})
@@ -1589,6 +1766,17 @@ async def generate_invoice_from_requirement_po(
                     "tax_type": payload.tax_type,
                     "gst_rate": payload.gst_rate,
                     "additional_notes": payload.additional_notes,
+                    "company_name": payload.company_name,
+                    "company_address": payload.company_address,
+                    "company_email": payload.company_email,
+                    "company_contact": payload.company_contact,
+                    "company_pan": payload.company_pan,
+                    "company_gst": payload.company_gst or payload.gst_number,
+                    "bank_account_no": payload.bank_account_no,
+                    "bank_ifsc": payload.bank_ifsc,
+                    "place_of_supply": payload.place_of_supply,
+                    "signatory_name": payload.signatory_name,
+                    "gst_number": payload.company_gst or payload.gst_number,
                 },
             )
         if r.status_code < 400:

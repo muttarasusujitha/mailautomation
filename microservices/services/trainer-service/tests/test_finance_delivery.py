@@ -23,6 +23,97 @@ def database():
     return db
 
 
+class ListCursor:
+    def __init__(self, rows):
+        self.rows = rows
+
+    def sort(self, *args, **kwargs):
+        return self
+
+    async def to_list(self, _limit):
+        return self.rows
+
+
+class ListCollection:
+    def __init__(self, rows):
+        self.rows = rows
+
+    def find(self, *args, **kwargs):
+        return ListCursor(self.rows)
+
+
+def test_finance_queue_includes_client_authorized_travel_booking_tasks():
+    db = {
+        "finance_approvals": ListCollection([]),
+        "offline_coordination_tasks": ListCollection([]),
+        "travel_booking_tasks": ListCollection([{
+            "booking_task_id": "TB-1", "status": "awaiting_finance_approval",
+            "requirement_id": "REQ-1", "trainer_id": "TR-1",
+        }]),
+    }
+
+    result = asyncio.run(finance.list_finance_approvals(db))
+
+    assert result["pending"] == 1
+    assert result["approvals"][0]["finance_id"] == "TB-1"
+    assert result["approvals"][0]["request_type"] == "travel_booking"
+
+
+def test_travel_booking_operations_view_includes_client_trainer_route_and_live_search_state():
+    db = {
+        "travel_booking_tasks": ListCollection([{
+            "booking_task_id": "TB-1", "status": "ready_to_book", "requirement_id": "REQ-1",
+            "trainer_id": "TR-1", "trainer_name": "Asha", "trainer_origin": "Chennai",
+            "venue_address": "Bengaluru", "training_dates": "10 Dec 2026",
+        }]),
+        "requirements": SimpleNamespace(find_one=AsyncMock(return_value={
+            "client_name": "Acme", "client_email": "client@example.com",
+        })),
+    }
+
+    result = asyncio.run(finance.list_travel_bookings(db))
+
+    item = result["bookings"][0]
+    assert item["client_name"] == "Acme"
+    assert item["trainer_name"] == "Asha"
+    assert item["trainer_origin"] == "Chennai"
+    assert item["live_supplier_search"] is False
+
+
+def test_live_flight_quotes_are_saved_without_exposing_supplier_credentials(monkeypatch):
+    task = {
+        "booking_task_id": "TB-1", "ticket_required": True,
+        "status": "ready_to_book", "requirement_id": "REQ-1",
+    }
+    collection = SimpleNamespace(
+        find_one=AsyncMock(return_value=task),
+        update_one=AsyncMock(return_value=SimpleNamespace(modified_count=1)),
+    )
+    db = {"travel_booking_tasks": collection}
+
+    async def supplier(**kwargs):
+        assert kwargs["origin_iata"] == "MAA"
+        assert kwargs["destination_iata"] == "BLR"
+        return [{
+            "supplier_offer_id": "1", "total": "5500.00", "currency": "INR",
+            "legs": [{"from": "MAA", "to": "BLR", "stops": 0}],
+            "raw_offer": {"id": "1", "price": {"grandTotal": "5500.00"}},
+        }]
+
+    monkeypatch.setattr(finance, "search_amadeus_flights", supplier)
+    result = asyncio.run(finance.live_flight_quotes(
+        "TB-1", finance.LiveFlightQuoteRequest(
+            origin_iata="maa", destination_iata="blr", departure_date="2026-12-10",
+        ), db,
+    ))
+
+    assert result["success"] is True
+    assert result["quotes"][0]["total"] == "5500.00"
+    saved = collection.update_one.await_args.args[1]["$set"]
+    assert saved["live_flight_search"]["quotes"][0]["supplier_offer_id"] == "1"
+    assert saved["live_supplier_raw_offers"][0]["id"] == "1"
+
+
 def transport(monkeypatch, pdf_status=200, mail_status=200):
     requests = []
     def handle(request):
@@ -46,6 +137,60 @@ def test_finance_approval_serializes_dates_and_excludes_database_id(monkeypatch)
     assert '_id' not in requests[0][1]
     assert isinstance(requests[0][1]['created_at'], str)
     assert requests[1][1]['attachments']
+
+
+def test_combined_client_po_creates_and_sends_separate_training_and_lab_invoices(monkeypatch):
+    requests = transport(monkeypatch)
+    db = database()
+    db['requirements'].find_one = AsyncMock(return_value={
+        'requirement_id': 'REQ-1', 'technology_needed': 'DevOps',
+        'budget_total': 100000, 'lab_client_price': 30000,
+        'client_budget_includes_lab': True,
+    })
+    db['finance_approvals'].find_one = AsyncMock(return_value={'requirement_id': 'REQ-1'})
+
+    result = asyncio.run(finance.approve_and_send_invoice(
+        'FIN-COMBINED',
+        finance.FinanceApproveRequest(client_name='Acme', client_email='client@example.com', po_number='PO-100', total_amount=100000),
+        db,
+    ))
+
+    assert result['status'] == 'invoice_sent'
+    assert result['lab_invoice_id'].startswith('LINV-')
+    # Two separate PDFs are delivered in the same approved finance action.
+    assert len(requests) == 3
+    assert len(requests[-1][1]['attachments']) == 2
+    po = db['purchase_orders'].update_one.await_args.args[1]['$set']
+    assert po['total_amount'] == 100000
+    assert [item['description'] for item in po['items']] == ['Training services', 'Lab services']
+    created = [call.args[1]['$set'] for call in db['invoices'].update_one.await_args_list if 'invoice_kind' in call.args[1].get('$set', {})]
+    assert {invoice['invoice_kind'] for invoice in created} == {'lab'}
+    assert created[0]['total_amount'] == 30000
+
+
+def test_invoice_approval_confirms_the_batch_and_completes_the_pipeline(monkeypatch):
+    transport(monkeypatch)
+    db = database()
+    db['finance_approvals'].find_one = AsyncMock(return_value={
+        'requirement_id': 'REQ-1',
+        'trainer_id': 'T-1',
+        'client_email': 'client@example.com',
+    })
+    db['shortlists'] = SimpleNamespace(
+        find_one=AsyncMock(return_value={'top_trainers': [{'trainer_id': 'T-1', 'pipeline_status': 'selected'}]}),
+        update_one=AsyncMock(),
+    )
+    payload = finance.FinanceApproveRequest(client_name='Test', client_email='client@example.com', po_number='PO-9', total_amount=1000)
+    result = asyncio.run(finance.approve_and_send_invoice('FIN-1', payload, db))
+    assert result['status'] == 'invoice_sent'
+    requirement_update = db['requirements'].update_one.await_args.args[1]['$set']
+    assert requirement_update['batch_confirmed'] is True
+    assert requirement_update['status'] == 'batch_confirmed'
+    assert requirement_update['pipeline_status'] == 'completed'
+    shortlist_update = db['shortlists'].update_one.await_args.args[1]['$set']
+    assert shortlist_update['pipeline_summary.status'] == 'completed'
+    assert shortlist_update['pipeline_summary.current_stage'] == 'batch_confirmed'
+    assert shortlist_update['top_trainers.$.pipeline_status'] == 'training_confirmed'
 
 
 def test_invalid_amount_does_not_claim_approval():

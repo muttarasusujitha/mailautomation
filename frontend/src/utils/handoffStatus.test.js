@@ -28,3 +28,10 @@ test('confirmed delivery completes handoff even while awaiting client selection'
 test('client slot confirmation preserves the completed handoff', () => {
   assert.equal(isClientHandoffDelivered({ ...delivered, slot_status: 'confirmed_by_client' }), true)
 })
+
+test('later selection and interview delivery do not reopen a delivered package', () => {
+  for (const slot_status of ['selected_by_client', 'interview_link_sent', 'client_interview_send_failed']) {
+    assert.equal(isClientHandoffDelivered({ ...delivered, slot_status }), true)
+    assert.equal(isClientHandoffDelivered({ slot_status }), false)
+  }
+})

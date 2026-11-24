@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
-import { Download, Loader2, Plus, ReceiptText, RefreshCw, Search, Send, Trash2 } from 'lucide-react'
+import { ArrowLeft, Download, Loader2, Plus, ReceiptText, RefreshCw, Search, Send, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import api from '../utils/api'
+import { usePipelineRecords } from '../utils/usePipelineRecords'
 
 const TAX_OPTIONS = [
   { value: 'cgst_sgst', label: 'CGST + SGST (Intra-State)', gstRate: 18 },
@@ -45,6 +47,12 @@ function nextDueDate() {
   return date.toISOString().slice(0, 10)
 }
 
+function financeClientName(item = {}) {
+  const extractedName = String(item.extracted_po_fields?.client_name || '').trim()
+  if (extractedName && !/^\/?\s*bill\s*to\s*$/i.test(extractedName) && !/^(client|customer|unknown)$/i.test(extractedName)) return extractedName
+  return item.client_name || item.client_email || 'Client'
+}
+
 function defaultItem(item = {}) {
   const req = item.requirement || {}
   const po = item.client_po || {}
@@ -53,8 +61,8 @@ function defaultItem(item = {}) {
   return {
     description: `${item.domain || req.technology || req.technology_needed || 'Training'} Training`,
     hsn_sac: po.hsn_sac || '999293',
-    quantity: qty,
-    rate: amount && qty ? Math.round(amount / qty) : '',
+    quantity: amount ? 1 : qty,
+    rate: amount || '',
   }
 }
 
@@ -72,8 +80,8 @@ function initialForm(item = {}) {
     client_po_number: po.client_po_number || req.client_po_number || '',
     client_pan: po.client_pan || req.client_pan || '',
     client_gstin: po.client_gstin || '',
-    tax_type: Number(po.gst_rate || 18) ? 'cgst_sgst' : 'none',
-    items: [defaultItem(item)],
+    tax_type: item.invoice?.tax_type || (Number(po.gst_rate ?? 18) ? 'cgst_sgst' : 'none'),
+    items: (item.invoice?.items?.length ? item.invoice.items : po.items?.length ? po.items : [defaultItem(item)]).map(row => ({ ...row })),
     notes: '',
   }
 }
@@ -84,7 +92,7 @@ function lineTotal(row) {
 
 function InvoiceRow({ item, active, onClick, onAutoGenerate, busy }) {
   const status = invoiceStatus(item)
-  const isPending = status === 'Pending'
+  const canAutoGenerate = status === 'Ready' && Number(item.requirement?.budget_total || 0) > 0
   return (
     <div className={clsx('w-full border-b border-slate-100 px-4 py-3 text-left transition hover:bg-slate-50', active && 'bg-blue-50')}>
       <div className="flex items-start justify-between gap-3">
@@ -94,7 +102,7 @@ function InvoiceRow({ item, active, onClick, onAutoGenerate, busy }) {
         </button>
         <div className="flex items-center gap-2">
           <span className={clsx('shrink-0 rounded-full px-2 py-1 text-[11px] font-bold ring-1', statusClass(status))}>{status}</span>
-          {isPending && (
+          {canAutoGenerate && (
             <button
               onClick={(e) => { e.stopPropagation(); onAutoGenerate?.(item) }}
               disabled={!!busy}
@@ -114,15 +122,18 @@ function InvoiceRow({ item, active, onClick, onAutoGenerate, busy }) {
 }
 
 export default function Invoices() {
-  const [items, setItems] = useState([])
+  const navigate = useNavigate()
   const [selectedId, setSelectedId] = useState('')
   const [q, setQ] = useState('')
-  const [loading, setLoading] = useState(true)
+  const { items, loading, refreshing, error, load } = usePipelineRecords(q)
+  const [mobileShowDetails, setMobileShowDetails] = useState(false)
   const [busy, setBusy] = useState('')
   const [autogenBusy, setAutogenBusy] = useState('')
   const [form, setForm] = useState(initialForm())
   const [invoiceType, setInvoiceType] = useState('beulix')
   const [financeApprovals, setFinanceApprovals] = useState([])
+  const [financeVersion, setFinanceVersion] = useState(0)
+  const [financeError, setFinanceError] = useState('')
 
   const selected = useMemo(
     () => items.find(item => item.requirement_id === selectedId) || items[0] || null,
@@ -134,49 +145,41 @@ export default function Invoices() {
   const gstAmount = Math.round(subtotal * (gstRate / 100))
   const grandTotal = subtotal + gstAmount
 
-  const load = async (silent = false) => {
-    if (!silent) setLoading(true)
-    try {
-      const res = await api.get('/client-pipeline', { params: { q: q || undefined, limit: 150 } })
-      const next = (res.data.pipeline || []).map(item => ({
-        ...item,
-        domain: item.domain || item.technology_needed || item.technology_key || 'Training',
-        client: item.client || {
-          name: item.client_name || item.client_company || '',
-          company: item.client_company || item.client_name || '',
-          email: item.client_email || item.email || '',
-        },
-      }))
-      setItems(next)
-      if (!next.some(item => item.requirement_id === selectedId)) setSelectedId(next[0]?.requirement_id || '')
-      const finance = await api.get('/finance/approvals')
-      setFinanceApprovals(finance.data.approvals || [])
-    } catch (e) {
-      toast.error(e.message || 'Could not load invoices')
-    } finally {
-      setLoading(false)
-    }
+  useEffect(() => {
+    setSelectedId(previous => items.some(item => item.requirement_id === previous) ? previous : items[0]?.requirement_id || '')
+  }, [items])
+
+  // Finance availability must not block browsing or editing invoices.
+  useEffect(() => {
+    const controller = new AbortController()
+    setFinanceError('')
+    api.get('/finance/approvals', { signal: controller.signal }).then(response => {
+      if (!controller.signal.aborted) setFinanceApprovals(response.data.approvals || [])
+    }).catch(err => {
+      if (!controller.signal.aborted) setFinanceError(err.message || 'Finance requests could not be loaded.')
+    })
+    return () => controller.abort()
+  }, [financeVersion])
+
+  const refreshAll = () => {
+    load(true)
+    setFinanceVersion(version => version + 1)
   }
 
-  const approveFinance = async (item) => {
-    const amount = Number(window.prompt('Approved PO amount (before GST):', '') || 0)
-    const poNumber = window.prompt('PO number:', '') || ''
-    if (!amount || !poNumber) return toast.error('PO number and approved amount are required')
-    try {
-      await api.post(`/finance/approvals/${item.finance_id}/approve-send`, { client_name: item.client_name || 'Client', client_email: item.client_email, po_number: poNumber, total_amount: amount })
-      toast.success('Invoice generated and sent')
-      load(true)
-    } catch (e) { toast.error(e.message || 'Could not approve invoice') }
+  const reviewFinance = (item) => {
+    navigate(`/finance-approvals?finance_id=${encodeURIComponent(item.finance_id)}`)
   }
   const rejectFinance = async (item) => {
     const reason = window.prompt('Reason for rejection / clarification:')
     if (!reason) return
-    try { await api.post(`/finance/approvals/${item.finance_id}/reject`, { reason }); toast.success('Finance request rejected'); load(true) }
+    try { await api.post(`/finance/approvals/${item.finance_id}/reject`, { reason }); toast.success('Finance request rejected'); refreshAll() }
     catch (e) { toast.error(e.message || 'Could not reject request') }
   }
 
   const autoGenerateInvoice = async (item) => {
     if (!item) return
+    if (!item.selected_trainer?.trainer_id) return toast.error('Select a trainer before generating a PO and invoice')
+    if (!(Number(item.client_po?.total_amount || item.requirement?.budget_total || 0) > 0)) return toast.error('Add the agreed amount first')
     const reqId = item.requirement_id
     setAutogenBusy(reqId)
     try {
@@ -187,7 +190,7 @@ export default function Invoices() {
         client_name: item.client?.company || item.client?.name || item.requirement?.client_company || '',
         client_email: item.client?.email || item.requirement?.client_email || '',
         training_dates: item.requirement?.training_dates || '',
-        duration_days: item.client_po?.quantity || item.requirement?.duration_days || 1,
+        duration: String(item.client_po?.quantity || item.requirement?.duration_days || 1),
         total_amount: item.client_po?.total_amount || item.requirement?.budget_total || 0,
       }
       // Create a purchase order
@@ -203,16 +206,11 @@ export default function Invoices() {
       toast.success('PO and invoice generated')
       await load(true)
     } catch (e) {
-      toast.error(e.response?.data?.detail || e.message || 'Auto-generation failed')
+      toast.error(e.message || 'Auto-generation failed')
     } finally {
       setAutogenBusy('')
     }
   }
-
-  useEffect(() => {
-    const timer = setTimeout(() => load(false), 250)
-    return () => clearTimeout(timer)
-  }, [q])
 
   useEffect(() => {
     setForm(initialForm(selected || {}))
@@ -281,7 +279,7 @@ export default function Invoices() {
     if (!selected?.invoice?.invoice_id) return toast.error('Generate invoice first')
     setBusy('download')
     try {
-      const res = await api.get(`/invoices/${selected.invoice.invoice_id}/download`, { responseType: 'blob' })
+      const res = await api.get(`/invoices/${selected.invoice.invoice_id}/download`, { responseType: 'blob', timeout: 60000 })
       const blob = new Blob([res.data], { type: 'application/pdf' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -303,8 +301,13 @@ export default function Invoices() {
     setBusy('send')
     try {
       const toEmail = form.client_email || selected.client?.email || selected.invoice?.client_email || ''
-      await api.post(`/invoices/${selected.invoice.invoice_id}/send`, { to_email: toEmail })
-      toast.success(`Invoice sent to ${toEmail}`)
+      const { data } = await api.post(`/invoices/${selected.invoice.invoice_id}/send`, { to_email: toEmail })
+      if (data?.success !== true) throw new Error('Invoice send was not confirmed')
+      if (data.already_sent) {
+        toast(data.sent_to ? `Invoice was already marked sent to ${data.sent_to}. No new email was sent.` : 'Invoice was already marked sent. No new email was sent.')
+      } else {
+        toast.success(`Invoice sent to ${data.sent_to}`)
+      }
       await load(true)
     } catch (e) {
       toast.error(e.message || 'Invoice send failed')
@@ -320,31 +323,33 @@ export default function Invoices() {
         <div className="relative flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-700 ring-1 ring-blue-100">
-              <ReceiptText className="h-3.5 w-3.5" /> Manual Billing
+              <ReceiptText className="h-3.5 w-3.5" /> Client finance
             </div>
-            <h1 className="mt-2 page-title">Generate Invoice</h1>
-            <p className="mt-1 text-sm text-slate-500">Choose Beulix or Self Invoice format, then generate PDF.</p>
+            <h1 className="mt-2 page-title">Invoices</h1>
+            <p className="mt-1 text-sm text-slate-500">Client PO and invoice processing are handled here. Complete, final POs with clear INR and GST details are invoiced and emailed automatically. Draft, incomplete, or ambiguous POs stay in the review list.</p>
           </div>
-          <button onClick={() => load(true)} className="btn-secondary text-sm" disabled={loading}>
-            <RefreshCw className={clsx('h-4 w-4', loading && 'animate-spin')} /> Refresh
+          <button onClick={refreshAll} className="btn-secondary text-sm" disabled={refreshing}>
+            <RefreshCw className={clsx('h-4 w-4', refreshing && 'animate-spin')} /> Refresh
           </button>
         </div>
       </div>
 
       {financeApprovals.filter(item => item.status === 'pending_human_approval').length > 0 && (
         <section className="mx-auto mb-4 w-full max-w-[1600px] rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <h2 className="font-bold text-amber-950">PO / Invoice Approval Required</h2>
+          <h2 className="font-bold text-amber-950">PO / Invoice Processing</h2>
+          <p className="mt-1 text-xs text-amber-900">Eligible final POs are processed automatically. Review is needed when required details are missing or unclear.</p>
           <div className="mt-3 space-y-2">
             {financeApprovals.filter(item => item.status === 'pending_human_approval').map(item => <div key={item.finance_id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-white p-3 text-sm">
-              <span><b>{item.client_name || item.client_email}</b> — {item.request_type === 'po_to_invoice' ? 'PO to invoice' : 'Invoice request'}{item.attachment_names?.length ? ` (${item.attachment_names.join(', ')})` : ''}</span>
-              <span className="flex gap-2"><button onClick={() => approveFinance(item)} className="btn-primary text-xs">Approve & Send Invoice</button><button onClick={() => rejectFinance(item)} className="btn-secondary text-xs">Reject</button></span>
+              <span className="min-w-0"><b>{financeClientName(item)}</b> - {item.request_type === 'po_to_invoice' ? `PO ${item.extracted_po_fields?.po_number || 'details pending'}` : 'Invoice request'}{item.attachment_names?.length ? ` (${item.attachment_names.join(', ')})` : ''}<span className="mt-1 block text-xs text-slate-600">{item.auto_processing_error || item.auto_processing_blockers?.join(' · ') || 'Open PO review to verify the source document and invoice details.'}</span></span>
+              <span className="flex gap-2"><button onClick={() => reviewFinance(item)} className="btn-primary text-xs">Review PO</button><button onClick={() => rejectFinance(item)} className="btn-secondary text-xs">Reject</button></span>
             </div>)}
           </div>
         </section>
       )}
 
-      <div className="grid min-w-0 gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
-        <aside className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      {(error || financeError) && <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"><div>{error && <p>{error} {items.length > 0 && 'Showing the last loaded records.'}</p>}{financeError && <p>Finance requests: {financeError}</p>}</div><button type="button" onClick={refreshAll} disabled={refreshing} className="btn-secondary">Try again</button></div>}
+      <div className="grid min-w-0 items-start gap-4 xl:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className={clsx('min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm', mobileShowDetails && 'hidden xl:block')}>
           <div className="border-b border-slate-200 p-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -357,7 +362,7 @@ export default function Invoices() {
             </div>
             <p className="mt-3 text-sm font-bold text-slate-950">{items.length} shown</p>
           </div>
-          <div className="max-h-[72vh] overflow-y-auto [scrollbar-gutter:stable]">
+          <div className="xl:max-h-[72dvh] xl:overflow-y-auto [scrollbar-gutter:stable]" aria-busy={loading}>
             {loading ? (
               Array.from({ length: 6 }).map((_, index) => <div key={index} className="mx-4 my-3 h-16 animate-pulse rounded-lg bg-slate-100" />)
             ) : items.length ? (
@@ -366,22 +371,23 @@ export default function Invoices() {
                   key={item.requirement_id}
                   item={item}
                   active={selected?.requirement_id === item.requirement_id}
-                  onClick={() => setSelectedId(item.requirement_id)}
+                  onClick={() => { setSelectedId(item.requirement_id); setMobileShowDetails(true) }}
                   onAutoGenerate={(it) => autoGenerateInvoice(it)}
                   busy={autogenBusy === item.requirement_id}
                 />
               ))
             ) : (
-              <div className="p-8 text-center text-sm text-slate-500">No invoice records found.</div>
+              <div className="p-8 text-center text-sm text-slate-500">{error ? 'Records could not be loaded.' : 'No invoice records found.'}</div>
             )}
           </div>
         </aside>
 
-        <section className="min-w-0 overflow-hidden rounded-xl border border-blue-100 bg-white shadow-[0_18px_45px_rgba(37,99,235,0.08)]">
+        <section className={clsx('min-w-0 overflow-hidden rounded-xl border border-blue-100 bg-white shadow-[0_18px_45px_rgba(37,99,235,0.08)]', !mobileShowDetails && 'hidden xl:block')}>
+          <button type="button" onClick={() => setMobileShowDetails(false)} className="btn-secondary m-3 xl:hidden"><ArrowLeft className="h-4 w-4" /> All requirements</button>
           {!selected ? (
             <div className="flex min-h-[620px] items-center justify-center text-sm text-slate-500">Select an invoice record.</div>
           ) : (
-            <div className="flex max-h-[calc(100vh-285px)] min-w-0 flex-col">
+            <div className="flex min-w-0 flex-col">
               <div className="shrink-0 border-b border-blue-100 bg-blue-50/60 px-5 py-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
@@ -401,8 +407,8 @@ export default function Invoices() {
               </div>
               </div>
 
-              <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 [scrollbar-gutter:stable]">
-              <div className="mb-4 inline-flex rounded-xl border border-blue-100 bg-white p-1 shadow-sm">
+              <div className="min-w-0 px-3 py-4 sm:px-5">
+              <div className="mb-4 inline-flex flex-wrap rounded-xl border border-blue-100 bg-white p-1 shadow-sm">
                 {[
                   ['beulix', 'Beulix Invoice'],
                   ['murali', 'Self Invoice'],

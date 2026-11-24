@@ -1,0 +1,573 @@
+{
+  "domain": "DSA & Algorithms",
+  "name": "DSA & Algorithms",
+  "category": "Programming Languages",
+  "icon": "code",
+  "aliases": ["DSA", "Data Structures and Algorithms", "Algorithms", "DSA and Algorithms", "Coding Interview Preparation", "Problem Solving", "Algorithms and Data Structures", "DSA Interview Preparation"],
+  "certifications": [],
+  "tools": ["Python 3", "JDK (Java 21 or later)", "pytest", "JUnit 5", "Visual Studio Code", "IntelliJ IDEA", "Git", "LeetCode", "VisuAlgo", "Graphviz", "JMH", "matplotlib"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For learners who can write loops, functions and conditionals in Python or Java and want a language-neutral foundation in data structures, algorithms and interview problem solving. Covers Big-O reasoning, arrays and strings, two pointers and sliding window, prefix sums, searching and sorting, hash maps, linked lists, stacks and queues, recursion, binary trees and binary search trees, a repeatable interview method, and a capstone that packages a tested mini algorithm library with a mock interview.",
+      "prerequisites": ["Writes small programs with loops, functions, lists or arrays and conditionals in Python 3 or Java 17 or later", "Runs commands in a terminal, for example python3 file.py, javac and java, or git status", "Has a laptop with Python 3.12 or later or a JDK 21 or later, plus an editor such as Visual Studio Code or IntelliJ IDEA"],
+      "outcomes": ["Estimate time and space complexity of loops, recursion and library calls, and confirm the estimate with timing experiments", "Implement arrays, hash maps, linked lists, stacks, queues, sorting and binary search from scratch and test them with pytest or JUnit 5", "Solve entry-level interview problems on strings, arrays, lists and trees using two pointers, sliding window, hashing and recursion", "Explain a solution out loud in the order clarify, example, brute force, optimize, code, test and state its complexity"],
+      "days": [
+        {
+          "topic": "Complexity Analysis and Big-O Reasoning",
+          "subtopics": ["What an algorithm is and how correctness differs from efficiency", "Counting basic operations in a loop", "Big-O, Big-Omega and Big-Theta in plain terms", "Common classes: O(1), O(log n), O(n), O(n log n), O(n^2), O(2^n)", "Dropping constants and lower-order terms", "Best, average and worst case", "Space complexity and auxiliary space", "Estimating run time from input limits such as n = 10^5"],
+          "tools": ["Python 3", "timeit", "JDK", "Visual Studio Code"],
+          "lab_task": "Write two Python functions that detect a duplicate in a list: one with nested loops and one with a set. Time both with python3 -m timeit for n = 1000, 2000 and 4000 distinct values, tabulate the results, and compute the ratio between each size and the next to show roughly 4x growth for the nested version and 2x for the set version.",
+          "deliverable": "Complexity worksheet with the timing table, growth ratios and a one-line Big-O justification for each function",
+          "checks": [["Nested-loop duplicate check run with n doubled from 2000 to 4000", "Run time grows by roughly 3.5x to 4.5x", "timeit output table"], ["Set-based duplicate check run with n doubled from 2000 to 4000", "Run time grows by roughly 1.5x to 2.5x", "timeit output table"], ["A loop with i doubling from 1 until i >= n for n = 1,048,576", "The loop body runs exactly 21 times, so the loop is O(log n)", "Counter value printed by the script"]],
+          "objectives": ["Classify a function as O(1), O(log n), O(n), O(n log n) or O(n^2) by counting operations", "Distinguish time complexity from space complexity", "Validate a Big-O estimate with a timing experiment"]
+        },
+        {
+          "topic": "Practice Environment: Python, Java, Tests and Timing",
+          "subtopics": ["Checking python3 --version and java -version", "Project layout with src and tests folders", "Writing a pytest test with assert and parametrize", "Writing a JUnit 5 test with @Test and assertEquals", "Running pytest -q and the Maven or Gradle test task", "Reading a failing assertion and the shown diff", "Timing with time.perf_counter and System.nanoTime", "Git commit per solved problem with a clear message"],
+          "tools": ["Python 3", "pytest", "JDK", "JUnit 5", "Git", "Visual Studio Code"],
+          "lab_task": "Create a repository dsa-practice with solutions/ and tests/ folders. Implement is_palindrome(s) in Python and isPalindrome(String s) in Java, add five parametrized pytest cases and five JUnit 5 cases including the empty string, run pytest -q and the Java test task, then make one test fail on purpose, read the diff and fix it.",
+          "deliverable": "Git repository with passing Python and Java test suites and a commit history of at least three commits",
+          "checks": [["Run pytest -q in the repository", "5 passed is reported with exit code 0", "Terminal output"], ["Change one expected value so it is wrong and rerun pytest", "1 failed, 4 passed with an AssertionError that shows both values", "Terminal output"], ["Run git log --oneline", "At least three commits with messages that name the problem solved", "Git log output"]],
+          "objectives": ["Run automated tests for Python and Java solutions", "Read a failing assertion and locate the defect", "Keep a clean Git history of practice solutions"]
+        },
+        {
+          "topic": "Arrays and Dynamic Arrays in Memory",
+          "subtopics": ["Contiguous memory and O(1) index access", "Static arrays in Java and lists in Python", "Insert and delete at the end, middle and front", "How a dynamic array grows by a growth factor", "Amortized O(1) append", "In-place reverse and rotate", "Remove duplicates from a sorted array in place", "Off-by-one errors and index bounds exceptions"],
+          "tools": ["Python 3", "JDK", "pytest", "JUnit 5"],
+          "lab_task": "Implement a DynamicArray class in Python with append, insert, pop and get that doubles capacity when full and counts element copies. Append 1,000,000 items, print total copies and the copies-per-append average, then compare time for list.insert(0, x) against list.append(x) for 100,000 items using timeit.",
+          "deliverable": "DynamicArray source with tests and a short note explaining the measured copy count and amortized cost",
+          "checks": [["Append 1,000,000 items starting from capacity 1 with doubling", "Total copies stay below 2,000,000, so the average is under 2 per append", "Printed copy counter"], ["Call get(5) on an array that holds 3 items", "IndexError is raised with a clear message", "pytest output"], ["Insert 100,000 items at index 0 and then append 100,000 items", "Front insertion is at least 20 times slower than append", "timeit comparison table"]],
+          "objectives": ["Explain contiguous storage and amortized append cost", "Implement insert and delete and state their complexity", "Avoid off-by-one and bounds errors in array code"]
+        },
+        {
+          "topic": "Strings and Character Manipulation",
+          "subtopics": ["Immutable strings in Python and Java", "Why repeated + concatenation is O(n^2) and what StringBuilder or join does", "Characters, ASCII, Unicode code points and ord and chr", "Palindrome check with two indexes", "Reverse words in a sentence", "Count vowels, digits and letters", "Compare strings with and without case", "Parsing numbers and handling signs and whitespace"],
+          "tools": ["Python 3", "JDK", "StringBuilder", "pytest"],
+          "lab_task": "Implement reverse_words, is_palindrome_alnum (ignore case and punctuation) and my_atoi (LeetCode 8 rules) in Python. Test reverse_words(\"  the sky  is blue \") and my_atoi(\"   -42abc\"). Then time building a 200,000 character string with += against ''.join and record both timings.",
+          "deliverable": "Three string functions with 12 passing tests and a timing table for concatenation versus join",
+          "checks": [["reverse_words('  the sky  is blue ')", "Returns 'blue is sky the' with single spaces", "pytest output"], ["my_atoi('   -42abc')", "Returns -42", "pytest output"], ["is_palindrome_alnum('A man, a plan, a canal: Panama')", "Returns True", "pytest output"]],
+          "objectives": ["Manipulate strings without quadratic copying", "Use two indexes to scan a string from both ends", "Parse and validate input text with edge cases"]
+        },
+        {
+          "topic": "Two Pointers and Sliding Window",
+          "subtopics": ["Opposite-end pointers on sorted arrays", "Fast and slow pointers on arrays", "Two Sum on a sorted array", "Remove duplicates and move zeroes in place", "Fixed-size sliding window", "Variable-size window with a shrink condition", "Longest substring without repeating characters", "Choosing between two pointers and a window"],
+          "tools": ["Python 3", "JDK", "pytest", "VisuAlgo"],
+          "lab_task": "Solve four problems in Python and Java: two_sum_sorted, move_zeroes, max_sum_subarray_k, and longest_unique_substring. Run each on at least five hand-made cases and one random array of 10^6 numbers, and confirm every solution finishes in under 2 seconds and uses O(1) or O(k) extra space.",
+          "deliverable": "Four tested solutions with a table of input size, runtime and space for each",
+          "checks": [["max_sum_subarray_k([2, 1, 5, 1, 3, 2], 3)", "Returns 9", "pytest output"], ["longest_unique_substring('abcabcbb')", "Returns 3", "pytest output"], ["two_sum_sorted([2, 7, 11, 15], 9)", "Returns the index pair (0, 1)", "pytest output"]],
+          "objectives": ["Recognise when a problem fits two pointers or a sliding window", "Maintain a window invariant while moving both ends", "Reduce brute-force O(n^2) scans to O(n)"]
+        },
+        {
+          "topic": "Prefix Sums and Difference Arrays",
+          "subtopics": ["Building a prefix sum array of length n + 1", "Range sum query in O(1)", "Subarray sum equals k with a running sum and hash map", "Difference array for range updates", "Applying many range increments then one pass", "2D prefix sums for rectangle sums", "Overflow in Java int and long", "Zero-based and one-based index conventions"],
+          "tools": ["Python 3", "JDK", "pytest", "JUnit 5"],
+          "lab_task": "Implement RangeSum with a prefix array and answer 100,000 random queries on an array of 100,000 numbers, comparing it against a naive sum() version. Then implement apply_updates with a difference array for 50,000 range increments and verify it matches a brute-force version on 1,000 random small cases.",
+          "deliverable": "RangeSum and difference-array code with a randomised test comparing against brute force",
+          "checks": [["RangeSum for nums [-2, 0, 3, -5, 2, -1] and query (0, 2)", "Returns 1", "pytest output"], ["1,000 random small cases comparing difference array to brute force", "All 1,000 results match", "Test summary"], ["100,000 queries on 100,000 numbers with prefix sums versus naive sum", "Prefix version is more than 100 times faster", "Timing table"]],
+          "objectives": ["Answer range queries in O(1) after O(n) preprocessing", "Apply many range updates with a difference array", "Pick the right pre-computation technique for a query problem"]
+        },
+        {
+          "topic": "Linear and Binary Search",
+          "subtopics": ["Linear search and early exit", "Binary search preconditions: sorted data", "Loop invariant lo <= hi and the mid calculation", "Why (lo + hi) / 2 can overflow in Java and how lo + (hi - lo) / 2 fixes it", "Iterative and recursive versions", "bisect_left and bisect_right in Python", "Arrays.binarySearch return value for missing keys", "Counting comparisons: log2(n) steps"],
+          "tools": ["Python 3", "JDK", "bisect", "pytest"],
+          "lab_task": "Write binary_search(nums, target) in Python and Java, add a comparison counter, and run it on a sorted array of 1,000,000 integers for 1,000 random targets. Print the maximum comparisons seen, compare with Python's bisect.bisect_left, and test the Java overflow case with lo = 2,000,000,000 and hi = 2,100,000,000.",
+          "deliverable": "Binary search implementations with a comparison-count report and an overflow demonstration",
+          "checks": [["Search 1,000 random targets in 1,000,000 sorted integers", "Maximum comparisons is at most 20", "Counter output"], ["Java (lo + hi) / 2 with lo = 2,000,000,000 and hi = 2,100,000,000", "Result is negative because int overflows, while lo + (hi - lo) / 2 gives 2,050,000,000", "Console output"], ["bisect_left([1, 3, 3, 5], 3) and binary_search([1, 3, 5], 4)", "Returns 1 for the first and -1 for the missing value", "pytest output"]],
+          "objectives": ["Implement binary search without off-by-one errors", "Explain why the midpoint formula matters", "Use library search functions and interpret their results"]
+        },
+        {
+          "topic": "Elementary Sorts and Stability",
+          "subtopics": ["Bubble sort with the swapped flag", "Selection sort and the number of swaps", "Insertion sort and why it is fast on nearly sorted data", "Stable and unstable sorting", "In-place versus extra-memory sorts", "Comparators and key functions", "Sorting objects by multiple fields", "Counting comparisons and swaps"],
+          "tools": ["Python 3", "JDK", "pytest", "VisuAlgo"],
+          "lab_task": "Implement bubble, selection and insertion sort in Python with counters for comparisons and swaps. Run each on 1,000 random numbers, on a sorted array and on a reverse-sorted array, and tabulate the counts. Then sort records of (name, grade) by grade with Python sorted and show that equal grades keep their original order.",
+          "deliverable": "Three sorting implementations with a counts table and a stability demonstration",
+          "checks": [["Insertion sort on an already sorted array of 1,000 numbers", "Exactly 999 comparisons and 0 swaps", "Counter output"], ["Selection sort on 1,000 random numbers", "At most 999 swaps, one per pass", "Counter output"], ["sorted([('A', 90), ('B', 85), ('C', 90)], key=lambda r: r[1], reverse=True)", "A stays before C because the sort is stable", "Printed list"]],
+          "objectives": ["Implement three elementary sorts and measure their work", "Explain stability and when it matters", "Sort objects by one or more keys"]
+        },
+        {
+          "topic": "Merge Sort and Quick Sort",
+          "subtopics": ["Divide and conquer: split, solve, combine", "Merge step with two pointers", "Merge sort recurrence T(n) = 2T(n/2) + n", "Quick sort with Lomuto and Hoare partition", "Pivot choice: first, last, median of three, random", "Worst case O(n^2) on sorted input with a fixed pivot", "Counting inversions with merge sort", "Recursion depth and the Java StackOverflowError"],
+          "tools": ["Python 3", "JDK", "pytest", "timeit"],
+          "lab_task": "Implement merge_sort and quick_sort (Lomuto, last-element pivot) in Python. Count comparisons for quick sort on a sorted array of 1,000 numbers and on a shuffled one, then switch to a random pivot and repeat. Extend merge sort to count inversions and test it on [2, 4, 1, 3, 5].",
+          "deliverable": "Sorting code with comparison counts for each pivot strategy and an inversion counter",
+          "checks": [["Quick sort with last-element pivot on sorted array of 1,000", "Exactly 499,500 comparisons", "Counter output"], ["Quick sort with random pivot on the same sorted array", "Fewer than 20,000 comparisons", "Counter output"], ["count_inversions([2, 4, 1, 3, 5])", "Returns 3", "pytest output"]],
+          "objectives": ["Derive and apply the divide and conquer recurrence for merge sort", "Explain why pivot choice affects quick sort", "Use merge sort to count inversions"]
+        },
+        {
+          "topic": "Counting, Radix and Library Sorting",
+          "subtopics": ["Counting sort for small integer ranges", "Radix sort least significant digit first", "Bucket sort for uniform data", "Comparison sort lower bound of n log n", "Python Timsort and list.sort", "Java Arrays.sort for primitives versus objects", "Collections.sort and Comparator.comparing", "Choosing a sort from constraints"],
+          "tools": ["Python 3", "JDK", "pytest", "timeit"],
+          "lab_task": "Implement counting_sort for values 0 to 100 and radix_sort for 32-bit non-negative integers in Python. Sort 1,000,000 random integers with each and with list.sort, and tabulate the time. Then in Java sort 100,000 Person objects by age then name with Comparator.comparing(...).thenComparing(...).",
+          "deliverable": "Sorting benchmark report with a table and a decision guide for which sort to choose",
+          "checks": [["counting_sort([4, 2, 2, 8, 3, 3, 1])", "Returns [1, 2, 2, 3, 3, 4, 8]", "pytest output"], ["radix_sort([170, 45, 75, 90, 802, 24, 2, 66])", "Returns [2, 24, 45, 66, 75, 90, 170, 802]", "pytest output"], ["Java sort of Person objects by age then name", "Equal ages are ordered alphabetically by name", "Printed first 10 records"]],
+          "objectives": ["Choose a non-comparison sort when the key range is small", "Explain the n log n lower bound for comparison sorts", "Use library sorts with custom comparators"]
+        },
+        {
+          "topic": "Hash Maps and Hash Sets",
+          "subtopics": ["Hash function, bucket and collision", "Separate chaining versus open addressing", "Load factor and resizing", "Average O(1) and worst case O(n) lookup", "Python dict and set, Java HashMap and HashSet", "Hashable keys and mutable keys", "Two Sum with a hash map", "Insertion order in dict and LinkedHashMap"],
+          "tools": ["Python 3", "JDK", "pytest", "JUnit 5"],
+          "lab_task": "Implement a HashMap class in Python with separate chaining, 8 initial buckets, and resize at load factor 0.75. Insert 100,000 string keys, record the number of resizes and the longest chain, then solve Two Sum on [3, 2, 4] with target 6 using a dict and compare time to a nested loop for 20,000 numbers.",
+          "deliverable": "HashMap implementation with a statistics report on resizes and chain lengths",
+          "checks": [["Insert 100,000 keys into a map that starts with 8 buckets and doubles at load 0.75", "The table ends with 262,144 buckets after 15 resizes", "Printed statistics"], ["two_sum([3, 2, 4], 6)", "Returns indexes [1, 2]", "pytest output"], ["Use a list as a key in a Python dict", "TypeError: unhashable type: 'list'", "Python traceback"]],
+          "objectives": ["Explain how hashing gives average O(1) lookup", "Implement chaining and resizing", "Use maps and sets to remove nested loops"]
+        },
+        {
+          "topic": "Frequency Counting and Anagram Patterns",
+          "subtopics": ["Counting with dict, Counter and int[26]", "Valid anagram check", "Grouping anagrams by sorted key or count tuple", "First non-repeating character", "Majority element and Boyer-Moore voting", "Sets for membership and duplicates", "Intersection and union of two arrays", "Time and space trade-offs of each approach"],
+          "tools": ["Python 3", "collections.Counter", "JDK", "pytest"],
+          "lab_task": "Implement is_anagram, group_anagrams, first_unique_char and majority_element in Python, plus group_anagrams in Java with HashMap<String, List<String>>. Run group_anagrams on ['eat','tea','tan','ate','nat','bat'] and measure sorted-key against count-tuple-key on 100,000 random 10 letter words.",
+          "deliverable": "Four frequency-counting solutions in Python, one in Java, and a timing comparison of the two grouping keys",
+          "checks": [["group_anagrams(['eat','tea','tan','ate','nat','bat'])", "Returns 3 groups: eat/tea/ate, tan/nat and bat", "pytest output"], ["majority_element([2, 2, 1, 1, 1, 2, 2])", "Returns 2 using O(1) extra space", "pytest output"], ["first_unique_char('loveleetcode')", "Returns index 2", "pytest output"]],
+          "objectives": ["Count frequencies with maps and fixed-size arrays", "Group items by a canonical key", "Reason about space cost of each counting strategy"]
+        },
+        {
+          "topic": "Linked Lists and Pointer Manipulation",
+          "subtopics": ["Node, head and next reference", "Insert and delete at head, tail and middle", "Reverse a singly linked list iteratively", "Dummy head node to remove special cases", "Find the middle with slow and fast pointers", "Detect a cycle with Floyd's algorithm", "Merge two sorted lists", "Linked list versus array trade-offs"],
+          "tools": ["Python 3", "JDK", "pytest", "VisuAlgo"],
+          "lab_task": "Implement ListNode and these functions in Python: reverse_list, middle_node, has_cycle and merge_two_sorted. Build 1->2->3->4->5 and 1->2->3->4->5->6 helpers, test each function, create a cycle by pointing the tail to node 2, and port reverse_list to Java.",
+          "deliverable": "Linked list module with helper builders, 10 tests and the Java port of reverse_list",
+          "checks": [["reverse_list on 1->2->3->4->5", "Returns 5->4->3->2->1", "pytest output"], ["middle_node on 1->2->3->4->5->6", "Returns the second middle node with value 4", "pytest output"], ["has_cycle on a list whose tail points back to node 2", "Returns True, and False on the acyclic copy", "pytest output"]],
+          "objectives": ["Manipulate next pointers without losing nodes", "Use slow and fast pointers to find a middle or a cycle", "Compare linked lists with arrays for common operations"]
+        },
+        {
+          "topic": "Stacks and Valid Parentheses Patterns",
+          "subtopics": ["LIFO behaviour and push, pop and peek", "Stack with list or ArrayDeque", "Valid parentheses with a stack", "Evaluating postfix expressions", "Min stack with O(1) minimum", "Undo and backtracking use cases", "Stack from two queues", "Empty-stack edge cases"],
+          "tools": ["Python 3", "JDK", "pytest", "JUnit 5"],
+          "lab_task": "Implement a Stack class, then solve is_valid_parentheses, eval_rpn and MinStack in Python. Test '([)]' and '{[]}', evaluate ['2','1','+','3','*'], then in Java use ArrayDeque<Integer> as a stack and explain why java.util.Stack is discouraged in new code.",
+          "deliverable": "Stack-based solutions with tests and a note on Stack versus ArrayDeque in Java",
+          "checks": [["is_valid_parentheses('([)]')", "Returns False", "pytest output"], ["eval_rpn(['2', '1', '+', '3', '*'])", "Returns 9", "pytest output"], ["MinStack push 5, 3, 7 then pop once and call get_min", "Returns 3 in O(1) time", "pytest output"]],
+          "objectives": ["Recognise problems with nested or reversed structure as stack problems", "Implement a stack with constant-time operations", "Handle empty-stack and mismatched input safely"]
+        },
+        {
+          "topic": "Queues, Deques and Circular Buffers",
+          "subtopics": ["FIFO behaviour and enqueue and dequeue", "Why list.pop(0) is O(n) and deque.popleft is O(1)", "Circular buffer with head and tail indexes", "Deque operations on both ends", "Queue with two stacks", "Level-by-level processing", "Java Queue, Deque and ArrayDeque", "Recent counter and moving average examples"],
+          "tools": ["Python 3", "collections.deque", "JDK", "pytest"],
+          "lab_task": "Implement a fixed-capacity CircularQueue in Python with enqueue, dequeue, is_full and is_empty, then a MovingAverage(size=3) class with deque. Compare 100,000 pops from the front of a list versus a deque using timeit, and implement a queue with two stacks.",
+          "deliverable": "CircularQueue and MovingAverage code with a list-versus-deque timing table",
+          "checks": [["MovingAverage(3) receives 1, 10, 3, 5", "Returns 1.0, 5.5, 4.666..., 6.0", "pytest output"], ["Enqueue into a CircularQueue with capacity 3 holding 3 items", "Returns False or raises a clear full error without overwriting", "pytest output"], ["100,000 front removals from a list versus a deque", "deque.popleft is at least 20 times faster", "timeit table"]],
+          "objectives": ["Choose the right queue structure for FIFO work", "Implement a circular buffer with wrap-around indexes", "Explain the cost of front removal in arrays"]
+        },
+        {
+          "topic": "Recursion and the Call Stack",
+          "subtopics": ["Base case and recursive case", "How the call stack stores frames", "Factorial, power and sum of digits", "Naive Fibonacci and the call tree", "Tail recursion and why Python and Java do not optimise it", "Python recursion limit and RecursionError", "Java StackOverflowError and -Xss", "Converting recursion to iteration with an explicit stack"],
+          "tools": ["Python 3", "JDK", "pytest", "sys.getrecursionlimit"],
+          "lab_task": "Write recursive factorial, power(x, n) by repeated squaring and fib in Python, and count calls for fib(20), fib(30) and fib(35). Print sys.getrecursionlimit(), trigger a RecursionError with sum_to(5000), then rewrite sum_to with a loop and with an explicit stack.",
+          "deliverable": "Recursion exercises with a call-count table and iterative rewrites",
+          "checks": [["Count calls of naive fib(35)", "29,860,703 calls", "Counter output"], ["sum_to(5000) recursively in default CPython", "RecursionError: maximum recursion depth exceeded", "Python traceback"], ["power(2, 30) with repeated squaring", "Returns 1073741824 using about 30 recursive calls or fewer", "pytest output and call counter"]],
+          "objectives": ["Write recursive functions with a correct base case", "Predict stack depth and call counts", "Convert recursion into iteration when depth is a risk"]
+        },
+        {
+          "topic": "Binary Trees and Traversals",
+          "subtopics": ["Node, root, leaf, height and depth", "Preorder, inorder and postorder recursively", "Level-order traversal with a queue", "Iterative inorder with a stack", "Height and size of a tree", "Maximum depth and balanced check", "Serialising a tree to a list", "Complete, full and perfect trees"],
+          "tools": ["Python 3", "JDK", "pytest", "Graphviz"],
+          "lab_task": "Build the tree with root 1, left child 2 (children 4 and 5) and right child 3. Implement preorder, inorder, postorder, level_order, max_depth and is_balanced in Python, add an iterative inorder, and render the tree with Graphviz dot -Tpng for the report.",
+          "deliverable": "Tree module with all traversals, tests and a Graphviz diagram of the sample tree",
+          "checks": [["inorder traversal of the sample tree", "Returns [4, 2, 5, 1, 3]", "pytest output"], ["level_order of the sample tree", "Returns [[1], [2, 3], [4, 5]]", "pytest output"], ["max_depth of the sample tree", "Returns 3", "pytest output"]],
+          "objectives": ["Traverse a tree in all four standard orders", "Compute tree height and balance recursively", "Replace recursion with an explicit stack or queue"]
+        },
+        {
+          "topic": "Binary Search Trees",
+          "subtopics": ["BST ordering property", "Search, insert and delete cases", "Inorder traversal yields sorted order", "Validate a BST with bounds", "Minimum, maximum, successor and predecessor", "Height and the degenerate case", "Kth smallest element", "Why self-balancing trees exist"],
+          "tools": ["Python 3", "JDK", "pytest", "VisuAlgo"],
+          "lab_task": "Implement a BST class in Python with insert, search, delete, min, max and inorder. Insert 5, 3, 8, 1, 4, 7, 9, then delete 3 and 5. Insert 1 to 1000 in sorted order and record the height. Write is_valid_bst with min and max bounds and test it on a tree with a wrongly placed node.",
+          "deliverable": "BST implementation with tests and a height comparison for random versus sorted insertion",
+          "checks": [["Inorder of a BST built from 5, 3, 8, 1, 4, 7, 9", "Returns [1, 3, 4, 5, 7, 8, 9]", "pytest output"], ["Insert 1 to 1000 in ascending order into an unbalanced BST", "Height is 1000 nodes, which is a linked list", "Printed height"], ["is_valid_bst on root 5 with left child 1 and right child 4 that has children 3 and 6", "Returns False", "pytest output"]],
+          "objectives": ["Use the BST property to search, insert and delete", "Explain how insertion order affects height", "Validate a BST with value bounds instead of parent checks only"]
+        },
+        {
+          "topic": "Interview Method: Clarify, Example, Brute Force, Optimize",
+          "subtopics": ["Restating the problem and asking about constraints", "Input size to complexity target", "Hand-working an example and an edge case", "Stating the brute-force solution first", "Finding the bottleneck and the pattern to remove it", "Thinking aloud while coding", "Dry-running with a test case", "Stating final time and space complexity"],
+          "tools": ["Python 3", "JDK", "LeetCode", "Whiteboard or paper"],
+          "lab_task": "Pick three easy problems: Two Sum, Valid Anagram and Merge Two Sorted Lists. For each, write the brute-force approach with complexity, the optimised approach, two edge cases and the final tests. Then record a 10 minute voice or video explanation of one problem following the order clarify, example, brute force, optimize, code, test.",
+          "deliverable": "Interview notes for three problems and one recorded explanation of up to 10 minutes",
+          "checks": [["Notes for Two Sum", "Brute force O(n^2) time and optimised hash map O(n) time with O(n) space are both stated", "Written notes"], ["Recorded explanation", "Contains clarifying questions, an example, brute force, an optimisation and a complexity statement in that order", "Recording and checklist"], ["Edge cases for Merge Two Sorted Lists", "At least an empty list, one empty list and equal values are listed and tested", "Test file"]],
+          "objectives": ["Follow a repeatable problem-solving method", "Translate constraints into a target complexity", "Communicate reasoning clearly during coding"]
+        },
+        {
+          "topic": "Capstone: Mini Algorithm Library and Mock Interview",
+          "subtopics": ["Library layout with packages for arrays, strings, hashing, lists, trees and sorting", "Test suite with at least 40 cases and edge cases", "Complexity table in the README for every function", "Benchmark script with timeit or JMH", "Java port of five functions", "Mock interview with two unseen easy problems"],
+          "tools": ["Python 3", "pytest", "JDK", "JUnit 5", "Git", "LeetCode"],
+          "lab_task": "Build a package algolib with at least 20 functions from this level, 40 pytest cases and a README complexity table. Port five functions to Java with JUnit 5 tests, run python3 -m pytest --cov=algolib, then complete a timed 45 minute mock with two unseen easy problems, explaining aloud and submitting both.",
+          "deliverable": "Tagged Git repository with the library, benchmark script, README and mock interview self-review",
+          "checks": [["Run python3 -m pytest --cov=algolib", "At least 40 tests pass and line coverage is 85% or higher", "Coverage report"], ["Read the README complexity table", "Every public function lists time and space complexity", "README review"], ["Timed mock with two easy problems", "Both are solved with tests inside 45 minutes and the explanation follows the method", "Mock review sheet"]],
+          "objectives": ["Assemble tested, documented algorithm implementations", "Benchmark and compare algorithm choices", "Perform a short mock interview using the method"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For learners who have finished core data structures and can solve easy problems, and now need the pattern toolkit behind medium interview questions. Covers binary search on answers, monotonic stacks and queues, heaps and top-K problems, tries, intervals and sweep line, greedy proofs, backtracking, bit manipulation, graph traversal, topological sort, union-find, Dijkstra, dynamic programming from memoization to tabulation, tree recursion, and timed mock rounds that end in a pattern playbook capstone.",
+      "prerequisites": ["Implements arrays, hash maps, linked lists, stacks, queues, binary trees and basic sorts in Python 3 or Java 21 and states their Big-O costs", "Solves easy interview problems with two pointers, sliding window or hashing and writes pytest or JUnit 5 tests", "Reads recursive code and draws a call tree for a small input"],
+      "outcomes": ["Choose among binary search, heaps, monotonic stacks, greedy, backtracking, graph search and dynamic programming from a problem statement and its constraints", "Implement BFS, DFS, topological sort, union-find and Dijkstra with correct complexity and verify them against brute-force checkers", "Convert a recursive solution to memoization and then to bottom-up tabulation, and reduce its space where possible", "Solve medium problems in 25 to 30 minutes under mock interview conditions while explaining trade-offs"],
+      "days": [
+        {
+          "topic": "Binary Search Variants and Search on the Answer",
+          "subtopics": ["Lower bound and upper bound templates", "First true in a monotonic predicate", "Search in a rotated sorted array", "Find peak element", "Search on the answer: define feasible(x)", "Koko eating bananas", "Capacity to ship packages within D days", "Floating-point binary search and iteration count"],
+          "tools": ["Python 3", "JDK", "bisect", "pytest"],
+          "lab_task": "Implement first_true(lo, hi, predicate) in Python and use it for first_bad_version, search_rotated, koko_eating_bananas and ship_within_days. Verify each against a linear brute force on 1,000 random inputs, and print the number of predicate calls for a search space of 10^9 to show it stays near 30.",
+          "deliverable": "Binary search template with five solved problems and a brute-force comparison test",
+          "checks": [["koko_eating_bananas([3, 6, 7, 11], h=8)", "Returns 4", "pytest output"], ["search_rotated([4, 5, 6, 7, 0, 1, 2], 0)", "Returns index 4", "pytest output"], ["first_true on a search space of 10^9 values", "Uses at most 30 predicate calls", "Call counter output"]],
+          "objectives": ["Turn an optimisation question into a monotonic yes or no predicate", "Write a binary search template that avoids infinite loops", "Verify search code against a brute-force oracle"]
+        },
+        {
+          "topic": "Monotonic Stack and Monotonic Queue",
+          "subtopics": ["Next greater element with a decreasing stack", "Daily temperatures", "Previous smaller element and boundaries", "Largest rectangle in a histogram", "Sliding window maximum with a deque", "Amortised O(n) argument for pushes and pops", "Stack of indexes versus stack of values", "Spotting the pattern in a problem statement"],
+          "tools": ["Python 3", "collections.deque", "JDK", "pytest"],
+          "lab_task": "Implement daily_temperatures, next_greater, largest_rectangle and sliding_window_max in Python. Run each on the standard examples and on 10^6 random numbers, counting stack operations to show they stay at or below 2n, and compare with an O(n*k) brute-force sliding window for k = 1,000.",
+          "deliverable": "Four monotonic solutions with operation counters and a timing comparison against brute force",
+          "checks": [["daily_temperatures([73, 74, 75, 71, 69, 72, 76, 73])", "Returns [1, 1, 4, 2, 1, 1, 0, 0]", "pytest output"], ["largest_rectangle([2, 1, 5, 6, 2, 3])", "Returns 10", "pytest output"], ["sliding_window_max([1, 3, -1, -3, 5, 3, 6, 7], 3)", "Returns [3, 3, 5, 5, 6, 7]", "pytest output"]],
+          "objectives": ["Recognise next-greater and boundary problems", "Prove amortised linear time for monotonic structures", "Use a deque to maintain a window extreme"]
+        },
+        {
+          "topic": "Heaps and Priority Queues",
+          "subtopics": ["Complete binary tree stored in an array", "Parent and child index formulas", "Sift up and sift down", "Heapify in O(n) versus n inserts", "heapq in Python is a min-heap", "Java PriorityQueue and Comparator.reverseOrder()", "Heap sort and its complexity", "Max-heap tricks with negated keys"],
+          "tools": ["Python 3", "heapq", "JDK", "pytest"],
+          "lab_task": "Implement MinHeap in Python with push, pop and heapify, and verify it against heapq on 1,000 random arrays. Compare building a heap of 1,000,000 numbers with n pushes versus heapify using timeit, implement heap_sort, and in Java build a max-heap PriorityQueue<Integer> with Comparator.reverseOrder().",
+          "deliverable": "MinHeap with heap sort, tests against heapq and a build-time comparison",
+          "checks": [["MinHeap versus heapq on 1,000 random arrays", "All 1,000 pop sequences are identical", "Test summary"], ["Index of the children of node i = 4 in a zero-based heap array", "Children are at 9 and 10 and the parent is at 1", "Printed values"], ["Build a heap of 1,000,000 numbers using heapify versus pushes", "heapify is faster and takes O(n) time", "timeit table"]],
+          "objectives": ["Implement a binary heap in an array", "State the cost of push, pop and heapify", "Use the standard library heap in Python and Java"]
+        },
+        {
+          "topic": "Top-K, Merge-K and Median Streams",
+          "subtopics": ["Kth largest element with a size-k min-heap", "Top K frequent elements", "Merge K sorted lists with a heap", "Find median from a data stream with two heaps", "Task scheduler with a max-heap", "Quickselect as an alternative", "Heap versus sort trade-offs", "Complexity O(n log k)"],
+          "tools": ["Python 3", "heapq", "JDK", "pytest"],
+          "lab_task": "Implement kth_largest, top_k_frequent, merge_k_lists and MedianFinder in Python. Test on [3, 2, 1, 5, 6, 4] with k = 2, then merge 100 sorted lists of 10,000 numbers, compare heap and sort-all timings, and feed 1,000,000 stream values to MedianFinder verifying the median against statistics.median on a sample.",
+          "deliverable": "Top-K toolkit with correctness tests and a timing table for heap, sort and quickselect",
+          "checks": [["kth_largest([3, 2, 1, 5, 6, 4], 2)", "Returns 5", "pytest output"], ["MedianFinder after adding 1, 2 and 3", "Median is 1.5 after two values and 2 after three", "pytest output"], ["top_k_frequent([1, 1, 1, 2, 2, 3], 2)", "Returns [1, 2]", "pytest output"]],
+          "objectives": ["Select the top K items in O(n log k)", "Maintain a running median with two heaps", "Merge sorted streams efficiently"]
+        },
+        {
+          "topic": "Tries and Prefix Search",
+          "subtopics": ["Trie node with children and an end flag", "Insert, search and startsWith", "Dict-based versus array-of-26 children", "Autocomplete with top three suggestions", "Word dictionary with wildcard dot", "Word search II with a trie and DFS", "Memory cost and compressed tries", "Trie versus hash set for prefix queries"],
+          "tools": ["Python 3", "JDK", "pytest", "Graphviz"],
+          "lab_task": "Implement Trie in Python with insert, search and starts_with, then add autocomplete(prefix, limit=3). Load 100,000 words from /usr/share/dict/words or a generated list, compare prefix lookup time with a list scan, and report node count and approximate memory with tracemalloc.",
+          "deliverable": "Trie implementation with autocomplete, tests and a memory and speed report",
+          "checks": [["Insert 'apple' then search 'app' and starts_with 'app'", "search returns False and starts_with returns True", "pytest output"], ["autocomplete('ca', 3) on a small dictionary", "Returns at most three words, all starting with 'ca'", "pytest output"], ["Prefix lookup on 100,000 words against a linear scan", "Trie lookup is at least 100 times faster per query", "timeit table"]],
+          "objectives": ["Build and query a trie", "Choose a trie over a hash set for prefix problems", "Estimate the memory cost of a trie"]
+        },
+        {
+          "topic": "Intervals and Sweep Line",
+          "subtopics": ["Sort by start and merge overlaps", "Insert interval into a sorted list", "Meeting rooms and minimum rooms with a heap", "Sweep line with start and end events", "Non-overlapping intervals and greedy by end time", "Interval intersection of two lists", "Closed versus half-open interval conventions", "Calendar booking checks"],
+          "tools": ["Python 3", "heapq", "JDK", "pytest"],
+          "lab_task": "Implement merge_intervals, insert_interval, min_meeting_rooms (heap and sweep versions) and erase_overlap_intervals in Python. Test each against a brute-force checker on 1,000 random small interval sets, and run min_meeting_rooms on 200,000 intervals.",
+          "deliverable": "Interval solutions with a brute-force checker and a performance run on 200,000 intervals",
+          "checks": [["merge_intervals([[1,3],[2,6],[8,10],[15,18]])", "Returns [[1,6],[8,10],[15,18]]", "pytest output"], ["min_meeting_rooms([[0,30],[5,10],[15,20]])", "Returns 2", "pytest output"], ["erase_overlap_intervals([[1,2],[2,3],[3,4],[1,3]])", "Returns 1", "pytest output"]],
+          "objectives": ["Sort and sweep intervals to detect overlaps", "Count concurrent events with a heap or event list", "Handle boundary conventions explicitly"]
+        },
+        {
+          "topic": "Greedy Algorithms and Exchange Arguments",
+          "subtopics": ["Greedy choice property and optimal substructure", "Exchange argument proof outline", "Jump game and jump game II", "Gas station", "Activity selection", "Huffman coding with a heap", "When greedy fails: coin change with coins 1, 3, 4", "Counterexamples and brute-force checking"],
+          "tools": ["Python 3", "heapq", "JDK", "pytest"],
+          "lab_task": "Implement can_jump, gas_station, activity_selection and huffman_codes in Python. Write a brute-force coin change and show greedy fails for coins [1, 3, 4] and amount 6. Verify can_jump and gas_station against exhaustive search on 1,000 random cases each.",
+          "deliverable": "Greedy solutions with a counterexample report and randomised verification against brute force",
+          "checks": [["Greedy coin change for [1, 3, 4] and amount 6", "Greedy uses 3 coins (4+1+1) while the optimum is 2 coins (3+3)", "Printed comparison"], ["gas_station([1,2,3,4,5], [3,4,5,1,2])", "Returns start index 3", "pytest output"], ["can_jump([3,2,1,0,4]) and can_jump([2,3,1,1,4])", "Returns False and True respectively", "pytest output"]],
+          "objectives": ["Justify a greedy choice with an exchange argument", "Find counterexamples to unsafe greedy ideas", "Use brute force to test a greedy algorithm"]
+        },
+        {
+          "topic": "Backtracking and Pruning",
+          "subtopics": ["Decision tree: choose, explore, unchoose", "Subsets and permutations", "Combination sum with duplicates allowed", "Handling duplicate inputs by sorting and skipping", "N-Queens with column and diagonal sets", "Sudoku solver constraints", "Pruning to cut the search tree", "Counting nodes visited"],
+          "tools": ["Python 3", "JDK", "pytest", "cProfile"],
+          "lab_task": "Implement subsets, permutations, combination_sum and n_queens in Python. Count solutions for n = 4 to 9, count recursive calls with and without pruning for combination_sum on candidates [2, 3, 6, 7] and target 7, and profile n_queens(10) with cProfile.",
+          "deliverable": "Backtracking solutions with a table of solution counts and pruning effects",
+          "checks": [["n_queens count for n = 4 and n = 8", "2 solutions for n = 4 and 92 solutions for n = 8", "Printed table"], ["combination_sum([2, 3, 6, 7], 7)", "Returns [[2, 2, 3], [7]]", "pytest output"], ["subsets([1, 2, 3])", "Returns 8 subsets including the empty set", "pytest output"]],
+          "objectives": ["Apply the choose, explore, unchoose template", "Avoid duplicate results with sorted skipping", "Measure the benefit of pruning"]
+        },
+        {
+          "topic": "Bit Manipulation Tricks",
+          "subtopics": ["AND, OR, XOR, NOT and shifts", "Two's complement and negative numbers", "Python unbounded integers versus Java 32-bit int", "Java >> versus >>>", "x & (x - 1) clears the lowest set bit", "Power of two and count set bits", "Single number with XOR", "Subsets with bitmasks"],
+          "tools": ["Python 3", "JDK", "pytest", "bin()"],
+          "lab_task": "Implement is_power_of_two, count_bits (Kernighan), single_number and subsets_by_mask in Python and Java. Print Integer.toBinaryString(-8), -8 >> 1 and -8 >>> 1 in Java, mask Python results with & 0xFFFFFFFF to match, and compare count_bits with int.bit_count() on 10^6 numbers.",
+          "deliverable": "Bit manipulation functions in two languages with a note on signed shift differences",
+          "checks": [["single_number([4, 1, 2, 1, 2])", "Returns 4", "pytest output"], ["Java -8 >>> 1 compared with -8 >> 1", "-8 >>> 1 prints 2147483644 and -8 >> 1 prints -4", "Console output"], ["count_bits agreement with int.bit_count() on 10^6 random numbers", "All 1,000,000 results match", "Test summary"]],
+          "objectives": ["Use bitwise operators to solve counting and uniqueness problems", "Explain two's complement and signed shifts", "Enumerate subsets with a bitmask"]
+        },
+        {
+          "topic": "Graph Representation and BFS",
+          "subtopics": ["Vertices, edges, directed and undirected, weighted and unweighted", "Adjacency list versus adjacency matrix", "Building a graph from an edge list", "BFS with a queue and a visited set", "Shortest path in an unweighted graph", "Number of islands on a grid", "Word ladder as an implicit graph", "Multi-source BFS and rotting oranges"],
+          "tools": ["Python 3", "collections.deque", "JDK", "Graphviz"],
+          "lab_task": "Build an adjacency-list Graph class in Python, implement bfs_shortest_path, num_islands and word_ladder, and run word_ladder('hit', 'cog', ['hot','dot','dog','lot','log','cog']). Generate a 1,000 by 1,000 grid and show that BFS visits each cell at most once by counting visits.",
+          "deliverable": "Graph class and BFS solutions with visit counters on a 10^6 cell grid",
+          "checks": [["word_ladder('hit', 'cog', ['hot','dot','dog','lot','log','cog'])", "Returns 5", "pytest output"], ["num_islands on [['1','1','0'],['0','1','0'],['0','0','1']]", "Returns 2", "pytest output"], ["BFS on a 1,000 by 1,000 grid", "Visited counter equals 1,000,000 or fewer and each cell is enqueued once", "Counter output"]],
+          "objectives": ["Represent a graph with the right structure", "Use BFS for shortest paths on unweighted graphs", "Model grids and word puzzles as graphs"]
+        },
+        {
+          "topic": "DFS, Connected Components and Cycle Detection",
+          "subtopics": ["Recursive and iterative DFS", "Connected components count", "Cycle detection in an undirected graph with parent tracking", "Cycle detection in a directed graph with three colours", "Clone graph with a hash map", "Flood fill and island area", "Recursion depth limits on a 10^5 chain", "Pre and post visit times"],
+          "tools": ["Python 3", "JDK", "sys.setrecursionlimit", "pytest"],
+          "lab_task": "Implement dfs_recursive, dfs_iterative, count_components, has_cycle_undirected and has_cycle_directed in Python. Run DFS on a chain of 50,000 nodes, observe the recursive RecursionError at the default limit, and confirm the iterative version finishes. Test components on 6 nodes and edges [(0,1),(1,2),(3,4)].",
+          "deliverable": "DFS toolkit with recursive and iterative variants and a depth-limit experiment",
+          "checks": [["count_components(6, [(0,1),(1,2),(3,4)])", "Returns 3", "pytest output"], ["Recursive DFS on a 50,000 node chain with the default recursion limit", "RecursionError is raised while the iterative DFS visits all 50,000 nodes", "Terminal output"], ["has_cycle_directed for edges 0->1, 1->2, 2->0", "Returns True and returns False after removing 2->0", "pytest output"]],
+          "objectives": ["Choose between recursive and iterative DFS", "Detect cycles in directed and undirected graphs", "Count connected components"]
+        },
+        {
+          "topic": "Topological Sort and Dependency Graphs",
+          "subtopics": ["Directed acyclic graphs and dependency order", "Kahn's algorithm with indegree counts", "DFS-based topological order", "Detecting a cycle when the order is shorter than n", "Course schedule I and II", "Build order and task scheduling", "Alien dictionary ordering", "Multiple valid orders and tie-breaking"],
+          "tools": ["Python 3", "collections.deque", "JDK", "Graphviz"],
+          "lab_task": "Implement topo_sort_kahn and topo_sort_dfs in Python and use them for can_finish and find_order. Run find_order(4, [[1,0],[2,0],[3,1],[3,2]]), build a 3-node cycle to prove the cycle case, and validate your orders on 1,000 random DAGs with a checker that confirms every edge goes forward.",
+          "deliverable": "Topological sort implementations with a randomised order validator",
+          "checks": [["find_order(4, [[1,0],[2,0],[3,1],[3,2]])", "Returns [0, 1, 2, 3] or [0, 2, 1, 3]", "pytest output"], ["can_finish(2, [[1,0],[0,1]])", "Returns False because of a cycle", "pytest output"], ["1,000 random DAGs checked for forward edges", "All 1,000 orders satisfy every edge", "Validator summary"]],
+          "objectives": ["Order tasks that depend on one another", "Detect impossible dependency cycles", "Validate an ordering with a checker"]
+        },
+        {
+          "topic": "Union-Find (Disjoint Set Union)",
+          "subtopics": ["Parent array and find", "Union by rank or size", "Path compression and path halving", "Inverse Ackermann amortised cost", "Number of provinces", "Redundant connection", "Accounts merge with string keys", "Offline connectivity queries"],
+          "tools": ["Python 3", "JDK", "pytest", "timeit"],
+          "lab_task": "Implement DisjointSet with find, union, connected and count in Python with union by size and path compression. Test redundant_connection([[1,2],[1,3],[2,3]]), run 1,000,000 unions and finds, then disable compression and union by size to compare the maximum tree height and the run time.",
+          "deliverable": "DisjointSet class with problem solutions and an optimisation ablation table",
+          "checks": [["redundant_connection([[1,2],[1,3],[2,3]])", "Returns [2, 3]", "pytest output"], ["Components after union(0,1), union(2,3), union(1,3) on 5 nodes", "count is 2", "pytest output"], ["1,000,000 operations with and without the optimisations", "Optimised version has maximum tree height 20 or less and is faster", "Ablation table"]],
+          "objectives": ["Implement union-find with both optimisations", "Detect redundant edges and merge groups", "Quantify the effect of path compression"]
+        },
+        {
+          "topic": "Dijkstra and Weighted Shortest Paths",
+          "subtopics": ["Weighted graphs and non-negative edge weights", "Dijkstra with a min-heap of (distance, node)", "Lazy deletion of stale heap entries", "Reconstructing the path with a parent map", "Complexity O((V + E) log V)", "Network delay time", "Cheapest flights within K stops idea", "Why negative edges break Dijkstra"],
+          "tools": ["Python 3", "heapq", "JDK", "Graphviz"],
+          "lab_task": "Implement dijkstra(graph, source) in Python returning distances and parents. Test network_delay_time([[2,1,1],[2,3,1],[3,4,1]], 4, 2), generate a random graph with 100,000 nodes and 500,000 edges, time it, then add an edge of weight -5 and show an incorrect result compared with a brute-force Bellman-Ford style relaxation.",
+          "deliverable": "Dijkstra implementation with path reconstruction and a negative-edge failure demonstration",
+          "checks": [["network_delay_time([[2,1,1],[2,3,1],[3,4,1]], 4, 2)", "Returns 2", "pytest output"], ["Dijkstra on a graph with 100,000 nodes and 500,000 edges", "Finishes in under 10 seconds in CPython", "Timing output"], ["Dijkstra after adding a negative edge to a small graph", "Distance differs from the Bellman-Ford result for at least one node", "Printed comparison"]],
+          "objectives": ["Implement Dijkstra with a heap", "Reconstruct shortest paths", "Explain why non-negative weights are required"]
+        },
+        {
+          "topic": "Dynamic Programming: Memoization to Tabulation",
+          "subtopics": ["Overlapping subproblems and optimal substructure", "Top-down with functools.lru_cache", "Bottom-up tabulation", "Climbing stairs and Fibonacci", "House robber", "State, transition and base case", "Space optimisation with rolling variables", "Reading cache_info() hits and misses"],
+          "tools": ["Python 3", "functools.lru_cache", "JDK", "pytest"],
+          "lab_task": "Solve climbing_stairs and house_robber four ways in Python: brute-force recursion, lru_cache memoization, tabulation and O(1) space. Print cache_info() for fib(50) with memoization, and time brute force for n = 35 against the other versions.",
+          "deliverable": "DP exercises with four implementations each and a write-up of state, transition and base case",
+          "checks": [["climbing_stairs(45)", "Returns 1836311903", "pytest output"], ["house_robber([2, 7, 9, 3, 1])", "Returns 12", "pytest output"], ["fib(50) with lru_cache(maxsize=None)", "cache_info shows misses=51", "Printed cache_info"]],
+          "objectives": ["Define state, transition and base case for a DP problem", "Convert recursion to memoization and tabulation", "Reduce DP space to O(1) or O(n)"]
+        },
+        {
+          "topic": "Knapsack and Coin Change DP",
+          "subtopics": ["0/1 knapsack table and iteration order", "Unbounded knapsack and coin change", "Minimum coins versus number of ways", "Partition equal subset sum", "Longest increasing subsequence in O(n^2) and O(n log n)", "Using bisect for patience sorting", "Space reduction to a one-dimensional array", "Reconstructing the chosen items"],
+          "tools": ["Python 3", "bisect", "JDK", "pytest"],
+          "lab_task": "Implement knapsack_01, coin_change_min, coin_change_ways, can_partition and lis (both versions) in Python. Test knapsack weights [1,3,4,5], values [1,4,5,7], capacity 7, verify the O(n log n) LIS against the O(n^2) version on 1,000 random arrays, and reconstruct the chosen items for the knapsack.",
+          "deliverable": "Knapsack-family solutions with reconstruction and randomised verification of LIS",
+          "checks": [["knapsack_01(weights=[1,3,4,5], values=[1,4,5,7], capacity=7)", "Returns 9", "pytest output"], ["coin_change_min([1,2,5], 11) and coin_change_min([2], 3)", "Returns 3 and -1", "pytest output"], ["lis([10,9,2,5,3,7,101,18])", "Returns 4 from both implementations", "pytest output"]],
+          "objectives": ["Recognise knapsack-style DP problems", "Choose iteration direction for 0/1 versus unbounded items", "Reconstruct an optimal answer from a DP table"]
+        },
+        {
+          "topic": "Grid and String DP: Edit Distance and LCS",
+          "subtopics": ["Two-dimensional DP table", "Unique paths and minimum path sum", "Longest common subsequence", "Edit distance with insert, delete and replace", "Longest palindromic substring by expanding centres", "Palindromic subsequence DP", "Rolling rows for space reduction", "Printing the alignment from the table"],
+          "tools": ["Python 3", "JDK", "pytest", "numpy"],
+          "lab_task": "Implement unique_paths, min_path_sum, lcs and edit_distance in Python with a full table and a two-row version. Print the edit distance table for 'horse' and 'ros', then trace back the operations, and test that table and rolling versions agree on 500 random string pairs.",
+          "deliverable": "Grid and string DP solutions with a printed table and traceback for edit distance",
+          "checks": [["edit_distance('horse', 'ros')", "Returns 3", "pytest output"], ["lcs('abcde', 'ace')", "Returns a length of 3 for the subsequence 'ace'", "pytest output"], ["unique_paths(3, 7) and min_path_sum([[1,3,1],[1,5,1],[4,2,1]])", "Returns 28 and 7", "pytest output"]],
+          "objectives": ["Build a two-dimensional DP table", "Trace back edit operations from the table", "Reduce a 2D table to two rows"]
+        },
+        {
+          "topic": "Tree Recursion and Lowest Common Ancestor",
+          "subtopics": ["Returning values up the recursion", "Diameter of a binary tree", "Maximum path sum", "Path sum and root-to-leaf paths", "Lowest common ancestor in a BST", "Lowest common ancestor in a binary tree", "Serialize and deserialize a tree", "Global variable versus return tuple"],
+          "tools": ["Python 3", "JDK", "pytest", "Graphviz"],
+          "lab_task": "Implement diameter, max_path_sum, lca_bst, lca_binary_tree and serialize/deserialize in Python. Build the tree [3,5,1,6,2,0,8,null,null,7,4], test lca for (5,1) and (5,4), and confirm that deserialize(serialize(t)) equals t on 500 random trees.",
+          "deliverable": "Tree recursion solutions with a round-trip serialisation test",
+          "checks": [["lca_binary_tree on [3,5,1,6,2,0,8,null,null,7,4] for nodes 5 and 1", "Returns node 3", "pytest output"], ["lca_binary_tree for nodes 5 and 4 in the same tree", "Returns node 5", "pytest output"], ["deserialize(serialize(t)) on 500 random trees", "All 500 trees are equal to the originals", "Test summary"]],
+          "objectives": ["Return structured results from recursive tree calls", "Find lowest common ancestors in BSTs and general trees", "Serialise and rebuild trees"]
+        },
+        {
+          "topic": "Interview Mock Rounds: Timed Medium Problems",
+          "subtopics": ["25 minute time boxes", "Choosing a pattern from constraints", "Talking through trade-offs", "Writing tests before submitting", "Handling a hint gracefully", "Reviewing a mistake log", "Peer mock interview roles", "Scoring with a rubric"],
+          "tools": ["LeetCode", "Python 3", "JDK", "Google Meet or Zoom"],
+          "lab_task": "Complete three timed 25 minute rounds with a partner or a timer: one graph problem, one heap or interval problem and one DP problem, all unseen medium level. Score each against a rubric of clarification, approach, code, tests and complexity, and write a mistake log with the pattern you missed.",
+          "deliverable": "Three scored mock rounds, a mistake log and a plan for the next five practice problems",
+          "checks": [["Round scoring sheet", "Each round has five rubric scores and a written complexity statement", "Completed rubric"], ["Submitted solutions", "At least two of three pass all visible tests within the time box", "Judge submission history"], ["Mistake log", "Every missed pattern is named and paired with one new practice problem", "Mistake log file"]],
+          "objectives": ["Solve medium problems within a time limit", "Explain trade-offs while coding", "Learn systematically from mistakes"]
+        },
+        {
+          "topic": "Capstone: Pattern Playbook and Timed Mock Set",
+          "subtopics": ["Playbook entry template: signal, pattern, template, complexity, pitfalls", "Entries for 12 patterns from this level", "Template code in Python and Java", "30 solved problems tagged by pattern", "Timed mock set of four mediums in 100 minutes", "Retrospective with gaps and next steps"],
+          "tools": ["Python 3", "pytest", "JDK", "Git", "LeetCode", "Markdown"],
+          "lab_task": "Create a Git repository pattern-playbook with 12 pattern entries, a tested template for each in Python, five Java ports, and 30 solved problems tagged by pattern. Complete a timed set of four unseen mediums in 100 minutes, run pytest, and write a retrospective that lists three weak patterns and a two-week plan.",
+          "deliverable": "Pattern playbook repository, scored timed set and a retrospective with a two-week practice plan",
+          "checks": [["Run pytest in the playbook repository", "At least 60 tests pass for 12 templates", "Terminal output"], ["Timed set of four mediums in 100 minutes", "At least three are solved with all tests passing", "Judge submission history"], ["Review of the retrospective", "Three weak patterns each have a named problem list and a date", "Retrospective document"]],
+          "objectives": ["Build a reusable playbook of algorithm patterns", "Solve a timed set of medium problems", "Plan targeted practice from measured gaps"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers who solve most medium problems and want depth for hard interviews, competitive programming and performance-critical code. Covers amortised analysis, AVL, red-black and B-trees, segment and Fenwick trees, sparse tables, Bellman-Ford and Floyd-Warshall, minimum spanning trees, strongly connected components and bridges, network flow and matching, A* search, KMP, Z, rolling hash, suffix arrays and Aho-Corasick, bitmask and tree DP, randomised and probabilistic structures, geometry, NP-hardness and approximation, external-memory and streaming algorithms, and custom data structure design, ending in an algorithm engineering portfolio.",
+      "prerequisites": ["Solves medium problems on graphs, heaps, intervals and dynamic programming in Python 3 or Java 21 within 30 minutes", "Implements BFS, DFS, Dijkstra, union-find and tabulated DP from memory and verifies them with randomised tests against brute force", "Reads a recurrence and states the time complexity of recursive algorithms, including the divide and conquer case"],
+      "outcomes": ["Prove amortised and worst-case bounds and match them with measurements, such as AVL height, flip counts and Bloom filter false-positive rates", "Implement range-query structures, flow algorithms, string matching automata and advanced graph algorithms with randomised verification against brute force", "Reason about hardness, choose approximation, heuristic or exact bitmask methods, and measure the approximation ratio", "Design interview-grade custom data structures such as LRU and LFU caches with O(1) operations and perform staff-level mock interviews"],
+      "days": [
+        {
+          "topic": "Amortized Analysis and the Potential Method",
+          "subtopics": ["Aggregate, accounting and potential methods", "Binary counter increment and the 2n flip bound", "Dynamic array growth factor 2 versus 1.5", "Queue from two stacks with amortised O(1)", "Splay and union-find as amortised examples", "Amortised versus average case", "Resizing a hash table", "Worst-case spikes and latency-sensitive systems"],
+          "tools": ["Python 3", "JDK", "JMH", "matplotlib"],
+          "lab_task": "Implement a BinaryCounter that counts bit flips and increment it 1,000,000 times, a TwoStackQueue that counts element moves, and a DynamicArray with growth factors 1.5 and 2. Plot cost per operation as a spike graph with matplotlib, then write the potential function proof for the counter with the number of ones as the potential.",
+          "deliverable": "Amortised analysis report with measured counts, a spike plot and a written potential-method proof",
+          "checks": [["Increment a binary counter 1,000,000 times", "Total bit flips is 1,999,993, which is below 2n", "Printed counter"], ["Dequeue 1,000,000 items from TwoStackQueue after enqueuing them", "Total element moves is at most 2 per item, so 2,000,000 or fewer", "Move counter output"], ["Dynamic array growth factor 1.5 versus 2 for 10^6 appends", "Both give total copies under 4n and factor 1.5 copies more often", "Comparison table"]],
+          "objectives": ["Prove an amortised bound with the potential method", "Measure amortised cost experimentally", "Explain when worst-case spikes matter despite a good amortised bound"]
+        },
+        {
+          "topic": "Balanced Trees: AVL, Red-Black and B-Trees",
+          "subtopics": ["Height balance factor and the four AVL rotations", "AVL height bound of about 1.44 log2 n", "Red-black rules and recolouring", "Java TreeMap and the red-black tree", "B-tree node with minimum degree t", "Why databases and file systems use B-trees and B+ trees", "Insert with split and delete with merge", "Order statistics with subtree size"],
+          "tools": ["Python 3", "JDK", "pytest", "Graphviz"],
+          "lab_task": "Implement an AVL tree in Python with insert, delete and a rotation counter. Insert 100,000 keys sorted and 100,000 random keys, report height and rotations, check the balance factor invariant in every node, and compute the height bound for a B-tree with t = 50 holding 1,000,000 keys.",
+          "deliverable": "AVL tree with an invariant checker, height statistics and a B-tree height calculation",
+          "checks": [["Insert 100,000 sorted keys into the AVL tree", "Height is at most 23 and every node balance factor is -1, 0 or 1", "Invariant checker output"], ["Insert 100,000 sorted keys into an unbalanced BST", "Height is 100,000, so the AVL tree improves it by more than 4,000 times", "Printed heights"], ["B-tree with t = 50 and 1,000,000 keys", "Height is at most 3 edges (log base 50 of 500,000 is about 3.35)", "Calculation in the report"]],
+          "objectives": ["Maintain a balanced tree with rotations", "Compare AVL, red-black and B-tree trade-offs", "Verify tree invariants with a checker"]
+        },
+        {
+          "topic": "Segment Trees and Lazy Propagation",
+          "subtopics": ["Tree over array ranges with O(n) build", "Point update and range query in O(log n)", "Range sum, minimum and maximum", "Array size 4n and iterative bottom-up variant", "Lazy propagation for range add", "Push-down and combine functions", "Range assignment lazy tags", "Brute-force comparison for correctness"],
+          "tools": ["Python 3", "JDK", "pytest", "cProfile"],
+          "lab_task": "Implement SegmentTree with build, update, query_sum and query_min, then LazySegmentTree with range_add and range_sum. Verify both against brute force on 1,000 random operation sequences of 200 operations each and time 200,000 queries on an array of 200,000 numbers against naive loops.",
+          "deliverable": "Segment tree and lazy tree with randomised verification and a speed comparison",
+          "checks": [["SegmentTree sum of [1, 3, 5, 7, 9, 11] over indices 1 to 3, then update index 1 to 10", "Returns 15 before the update and 22 after", "pytest output"], ["1,000 random sequences of 200 mixed operations against brute force", "All results match", "Test summary"], ["200,000 range queries on 200,000 elements, tree versus naive", "Tree is at least 50 times faster", "Timing table"]],
+          "objectives": ["Build and query a segment tree", "Implement lazy propagation correctly", "Select a segment tree for range update problems"]
+        },
+        {
+          "topic": "Fenwick Trees and Order Statistics",
+          "subtopics": ["Binary indexed tree and the i & -i operation", "Prefix sum query and point update", "Range update with point query using differences", "Coordinate compression", "Counting inversions and smaller numbers after self", "Finding the kth element by binary lifting", "Fenwick tree versus segment tree", "2D Fenwick tree"],
+          "tools": ["Python 3", "JDK", "pytest", "timeit"],
+          "lab_task": "Implement FenwickTree with update, prefix_sum and kth, then use it for count_smaller([5,2,6,1]) and count_inversions on 200,000 random numbers with coordinate compression. Compare results and speed with the merge-sort inversion counter from the beginner level and a naive O(n^2) check on 2,000 numbers.",
+          "deliverable": "Fenwick tree with inversion and smaller-count solutions and a comparison with merge sort",
+          "checks": [["count_smaller([5, 2, 6, 1])", "Returns [2, 1, 1, 0]", "pytest output"], ["Fenwick inversion count versus naive O(n^2) on 2,000 random numbers", "Both counts are equal", "Test output"], ["Index 12 in binary 1100 and 12 & -12", "Lowest set bit is 4, so update at 12 next visits 16", "Printed values"]],
+          "objectives": ["Implement a Fenwick tree with bit tricks", "Count inversions with compressed coordinates", "Choose between Fenwick and segment trees"]
+        },
+        {
+          "topic": "Sparse Tables, Binary Lifting and LCA",
+          "subtopics": ["Sparse table build O(n log n)", "Range minimum query in O(1) with overlapping blocks", "Idempotent versus non-idempotent operations", "Binary lifting ancestor table", "Lowest common ancestor with depth and jumps", "Euler tour plus RMQ for LCA", "Kth ancestor query", "Memory cost of table layouts"],
+          "tools": ["Python 3", "JDK", "pytest", "tracemalloc"],
+          "lab_task": "Implement SparseTable for range minimum and BinaryLiftingLCA for a rooted tree of 100,000 nodes. Test range_min([1,3,2,7,9,11], 1, 3), compare 100,000 random RMQ queries and 100,000 LCA queries against naive solutions, and report table sizes with tracemalloc.",
+          "deliverable": "Sparse table and LCA implementations with verification and a memory report",
+          "checks": [["range_min on [1, 3, 2, 7, 9, 11] for indices 1 to 3", "Returns 2", "pytest output"], ["Sparse table over 100,000 elements", "It has 17 levels, built in O(n log n) time", "Printed table shape"], ["100,000 random LCA queries against a naive parent-walk", "All 100,000 answers match", "Test summary"]],
+          "objectives": ["Answer static range queries in O(1)", "Compute LCA with binary lifting", "State the memory cost of a precomputed table"]
+        },
+        {
+          "topic": "Bellman-Ford, Floyd-Warshall and Negative Weights",
+          "subtopics": ["Edge relaxation and the V - 1 passes", "Detecting negative cycles", "Bellman-Ford with early exit", "SPFA and its worst case", "Floyd-Warshall triple loop and its order", "Path reconstruction with next matrix", "Johnson's algorithm idea", "Currency arbitrage as a negative cycle"],
+          "tools": ["Python 3", "JDK", "pytest", "Graphviz"],
+          "lab_task": "Implement bellman_ford and floyd_warshall in Python with path reconstruction. Test edges (0,1,4), (0,2,5), (1,2,-3), add a cycle with total weight -1 to detect it, and convert exchange rates to -log weights to find an arbitrage on a three-currency example.",
+          "deliverable": "Shortest-path algorithms with negative cycle detection and an arbitrage demonstration",
+          "checks": [["bellman_ford on edges (0,1,4), (0,2,5), (1,2,-3) from node 0", "Distance to node 2 is 1", "pytest output"], ["Graph with edges (1,2,1) and (2,1,-2)", "Negative cycle is reported", "pytest output"], ["Floyd-Warshall versus Dijkstra from every node on a non-negative graph of 100 nodes", "All 10,000 distances match", "Test summary"]],
+          "objectives": ["Handle negative edges and detect negative cycles", "Compute all-pairs shortest paths", "Choose the right shortest-path algorithm from constraints"]
+        },
+        {
+          "topic": "Minimum Spanning Trees: Kruskal and Prim",
+          "subtopics": ["Cut property and cycle property", "Kruskal with sorted edges and union-find", "Prim with a heap", "Dense versus sparse graph choice", "Unique and multiple MSTs", "Minimum cost to connect points", "Second-best MST idea", "Borůvka as a parallel option"],
+          "tools": ["Python 3", "heapq", "JDK", "Graphviz"],
+          "lab_task": "Implement kruskal and prim in Python, test on 4 nodes with edges (0,1,10), (0,2,6), (0,3,5), (1,3,15), (2,3,4), then compare both on 500 random connected graphs. Solve min_cost_connect_points for 1,000 random points with Prim in O(n^2) and time Kruskal on all 499,500 edges.",
+          "deliverable": "MST implementations with a randomised agreement test and a dense graph timing note",
+          "checks": [["Kruskal on the 4 node graph with edges 10, 6, 5, 15 and 4", "MST weight is 19", "pytest output"], ["Kruskal versus Prim on 500 random connected graphs", "Both give equal total weights in all 500 cases", "Test summary"], ["Edges used by an MST on V nodes", "Exactly V - 1 edges are selected", "Printed edge count"]],
+          "objectives": ["Apply the cut and cycle properties", "Implement Kruskal and Prim", "Pick an MST algorithm by graph density"]
+        },
+        {
+          "topic": "Strongly Connected Components and Bridges",
+          "subtopics": ["Strongly connected components and condensation DAG", "Kosaraju with two passes", "Tarjan low-link values", "Bridges and articulation points", "Iterative DFS to avoid stack overflow", "2-SAT using SCC", "Critical connections in a network", "Complexity O(V + E)"],
+          "tools": ["Python 3", "JDK", "pytest", "Graphviz"],
+          "lab_task": "Implement tarjan_scc, kosaraju_scc, find_bridges and articulation_points with iterative DFS in Python. Test directed edges (0,1), (1,2), (2,0), (1,3), (3,4), (4,5), (5,3), then run the iterative versions on a path of 200,000 nodes and compare Tarjan with Kosaraju on 500 random digraphs.",
+          "deliverable": "SCC and bridge toolkit with iterative implementations and randomised cross-checking",
+          "checks": [["tarjan_scc on edges (0,1), (1,2), (2,0), (1,3), (3,4), (4,5), (5,3)", "Returns 2 components: {0,1,2} and {3,4,5}", "pytest output"], ["find_bridges on undirected edges 0-1, 1-2, 2-0, 1-3, 3-4, 4-5, 5-3", "Returns the single bridge (1, 3)", "pytest output"], ["Tarjan versus Kosaraju on 500 random digraphs", "The two component partitions are identical in all 500 cases", "Test summary"]],
+          "objectives": ["Compute SCCs and bridges in linear time", "Explain low-link values", "Avoid recursion limits with iterative DFS"]
+        },
+        {
+          "topic": "Network Flow and Bipartite Matching",
+          "subtopics": ["Flow network, capacity and conservation", "Residual graph and augmenting paths", "Ford-Fulkerson and Edmonds-Karp O(V E^2)", "Dinic with level graph and blocking flow", "Max-flow min-cut theorem", "Bipartite matching as a flow problem", "Hopcroft-Karp idea", "Modelling assignment and project selection problems"],
+          "tools": ["Python 3", "JDK", "pytest", "networkx"],
+          "lab_task": "Implement Edmonds-Karp in Python and test a network with edges s-a 10, s-b 10, a-b 2, a-t 8, b-t 10. Implement bipartite matching with augmenting paths, compare the max flow value with networkx.maximum_flow on 200 random networks, and extract a minimum cut from the residual graph.",
+          "deliverable": "Max-flow and matching solutions with a minimum cut extraction and networkx cross-check",
+          "checks": [["Edmonds-Karp on s-a 10, s-b 10, a-b 2, a-t 8, b-t 10", "Max flow is 18 and the minimum cut is the two edges into t", "pytest output"], ["Matching with L0 to R0 and R1, L1 to R0, L2 to R1 and R2", "Maximum matching has size 3", "pytest output"], ["200 random networks compared with networkx.maximum_flow", "All 200 flow values are equal", "Test summary"]],
+          "objectives": ["Compute maximum flow and extract a minimum cut", "Reduce matching and assignment problems to flow", "Verify flow code against a trusted library"]
+        },
+        {
+          "topic": "A* Search and Heuristics",
+          "subtopics": ["Cost so far g and heuristic h", "Admissible and consistent heuristics", "Manhattan, Euclidean and octile distance", "Open set with a heap and closed set", "Comparison of nodes expanded with Dijkstra", "Grid pathfinding with obstacles", "8-puzzle with misplaced tiles and Manhattan heuristics", "Inversion parity for solvability"],
+          "tools": ["Python 3", "heapq", "JDK", "matplotlib"],
+          "lab_task": "Implement astar on a 500 by 500 grid with 25 percent random obstacles using Manhattan distance, compare path cost and expanded nodes to Dijkstra, and implement an 8-puzzle solver with two heuristics. Check solvability of [1,2,3,4,5,6,8,7,0] using inversion parity and plot the expanded cells.",
+          "deliverable": "A* and 8-puzzle solvers with a table of path cost and nodes expanded for each heuristic",
+          "checks": [["A* versus Dijkstra on a 500 by 500 grid", "Both paths have equal cost and A* expands fewer nodes", "Comparison table"], ["Solvability of [1,2,3,4,5,6,8,7,0]", "Unsolvable because the inversion count is 1, which is odd", "Printed parity result"], ["8-puzzle state space size", "181,440 reachable states, which equals 9!/2", "Printed count from BFS"]],
+          "objectives": ["Design admissible heuristics", "Compare informed and uninformed search by nodes expanded", "Check solvability before searching"]
+        },
+        {
+          "topic": "String Algorithms: KMP, Z-Function and Rolling Hash",
+          "subtopics": ["Prefix function and the failure table", "KMP search in O(n + m)", "Z-function and pattern matching", "Rabin-Karp rolling hash with a modulus", "Collision handling and double hashing", "Shortest palindrome and repeated substring patterns", "Comparison with the standard library find", "Manacher's algorithm for palindromes"],
+          "tools": ["Python 3", "JDK", "pytest", "timeit"],
+          "lab_task": "Implement prefix_function, kmp_search, z_function and rabin_karp in Python. Test prefix_function('ababaca') and z_function('aabxaab'), verify all three searchers against str.find on 1,000 random binary strings, then time them on a 1,000,000 character text with pattern 'a' * 999 + 'b'.",
+          "deliverable": "String matching implementations with a randomised comparison and a worst-case timing run",
+          "checks": [["prefix_function('ababaca')", "Returns [0, 0, 1, 2, 3, 0, 1]", "pytest output"], ["z_function('aabxaab')", "Returns [7, 1, 0, 0, 3, 1, 0]", "pytest output"], ["KMP, Z and Rabin-Karp against str.find on 1,000 random strings", "All match positions are identical", "Test summary"]],
+          "objectives": ["Compute failure and Z arrays", "Use rolling hashes safely", "Explain why naive matching is O(n m) in the worst case"]
+        },
+        {
+          "topic": "Suffix Arrays and Aho-Corasick",
+          "subtopics": ["Suffix array by sorting suffixes", "Prefix doubling in O(n log n) or O(n log^2 n)", "LCP array with Kasai's algorithm", "Counting distinct substrings", "Longest repeated substring", "Aho-Corasick trie with failure links", "Matching many patterns in one pass", "Choosing between suffix structures and automata"],
+          "tools": ["Python 3", "JDK", "pytest", "Graphviz"],
+          "lab_task": "Implement suffix_array, kasai_lcp and aho_corasick in Python. Verify banana gives suffix array [5, 3, 1, 0, 4, 2] and LCP [1, 3, 0, 0, 2], count distinct substrings, and run Aho-Corasick with patterns he, she, his, hers on 'ushers'. Stress test against a naive search on 500 random texts.",
+          "deliverable": "Suffix array and Aho-Corasick implementations with a worked banana example",
+          "checks": [["suffix_array('banana')", "Returns [5, 3, 1, 0, 4, 2]", "pytest output"], ["Distinct substrings of 'banana' using n(n+1)/2 minus the LCP sum", "Returns 15", "pytest output"], ["Aho-Corasick on 'ushers' with he, she, his and hers", "Reports 3 matches: she at 1, he at 2 and hers at 2", "pytest output"]],
+          "objectives": ["Build suffix arrays and LCP arrays", "Search many patterns at once with Aho-Corasick", "Choose a string structure from query types"]
+        },
+        {
+          "topic": "Bitmask and Digit Dynamic Programming",
+          "subtopics": ["State compression with bitmasks", "Held-Karp travelling salesman O(n^2 2^n)", "Assignment problems over subsets", "Iterating submasks", "Digit DP with tight, started and mask states", "Counting numbers with repeated digits", "Memory limits for 2^n states", "Pruning impossible masks"],
+          "tools": ["Python 3", "JDK", "functools.lru_cache", "pytest"],
+          "lab_task": "Implement held_karp in Python and test it on [[0,10,15,20],[10,0,35,25],[15,35,0,30],[20,25,30,0]]. Time n = 12 to 15 and plot growth, then implement digit DP for counting numbers up to N that have at least one repeated digit and check N = 100 and N = 1000 against brute force.",
+          "deliverable": "Bitmask TSP and digit DP solutions with a timing plot",
+          "checks": [["held_karp on the 4 city distance matrix", "Returns 80", "pytest output"], ["Count of numbers from 1 to 100 with a repeated digit", "Returns 10, and 262 for N = 1000", "pytest output"], ["Held-Karp run time for n from 12 to 15", "Time grows by roughly 2x to 3x per added city, matching n^2 times 2^n", "Timing table"]],
+          "objectives": ["Encode subsets as DP states", "Count numbers with a digit-by-digit DP", "Estimate the memory and time of 2^n state spaces"]
+        },
+        {
+          "topic": "Tree DP, Rerooting and DP Optimisation",
+          "subtopics": ["DP over children in a rooted tree", "House robber III", "Rerooting to compute an answer for every root", "Sum of distances in a tree", "Monotonic deque optimisation of DP", "Divide and conquer optimisation condition", "Convex hull trick idea", "Verifying optimisations against plain DP"],
+          "tools": ["Python 3", "collections.deque", "JDK", "pytest"],
+          "lab_task": "Implement house_robber_tree, sum_of_distances (rerooting) and constrained_subsequence_sum (deque optimised DP) in Python. Test sum_of_distances on 6 nodes with edges [[0,1],[0,2],[2,3],[2,4],[2,5]], and verify the optimised DP against its O(nk) version on 1,000 random arrays.",
+          "deliverable": "Tree DP and optimised DP solutions with a verification against the plain version",
+          "checks": [["sum_of_distances(6, [[0,1],[0,2],[2,3],[2,4],[2,5]])", "Returns [8, 12, 6, 10, 10, 10]", "pytest output"], ["constrained_subsequence_sum([10, 2, -10, 5, 20], 2)", "Returns 37", "pytest output"], ["house_robber_tree on [3, 2, 3, null, 3, null, 1]", "Returns 7", "pytest output"]],
+          "objectives": ["Define DP states on trees", "Reroot a DP to answer for all nodes", "Speed up a DP with a monotonic deque"]
+        },
+        {
+          "topic": "Randomized Algorithms and Probabilistic Structures",
+          "subtopics": ["Las Vegas and Monte Carlo algorithms", "Randomised quickselect", "Reservoir sampling", "Skip list with expected O(log n)", "Bloom filter and false-positive rate", "Count-Min sketch", "HyperLogLog and its standard error", "Seeding and reproducible randomness in tests"],
+          "tools": ["Python 3", "JDK", "numpy", "pytest"],
+          "lab_task": "Implement reservoir_sample, a Bloom filter with m = 10,000,000 bits and k = 7 hash functions, and a Count-Min sketch. Insert 1,000,000 keys, query 1,000,000 absent keys, report the false-positive rate, and run reservoir_sample(range(100), 1) 100,000 times to test uniformity with a chi-square test.",
+          "deliverable": "Probabilistic structures with measured error rates and a uniformity test",
+          "checks": [["Bloom filter with 10 bits per key and k = 7, 1,000,000 absent keys queried", "Observed false-positive rate is between 0.5% and 1.2%", "Printed rate"], ["reservoir_sample of one item from 100 values, 100,000 runs", "Each value appears about 1,000 times and chi-square p-value is above 0.01", "Test output"], ["Count-Min estimates for inserted keys", "No estimate is lower than the true count", "Assertion output"]],
+          "objectives": ["Use randomisation to simplify or speed up algorithms", "Predict and measure false-positive rates", "Test randomised code reproducibly"]
+        },
+        {
+          "topic": "Computational Geometry Essentials",
+          "subtopics": ["Cross product and orientation test", "Integer coordinates to avoid floating-point errors", "Convex hull with Andrew's monotone chain", "Segment intersection", "Polygon area with the shoelace formula", "Point in polygon by ray casting", "Closest pair of points by divide and conquer", "Sweep line for intersections"],
+          "tools": ["Python 3", "JDK", "matplotlib", "pytest"],
+          "lab_task": "Implement orientation, convex_hull, segments_intersect, polygon_area and closest_pair in Python with integer arithmetic. Test the hull of [[1,1],[2,2],[2,0],[2,4],[3,3],[4,2]], compare closest_pair with a brute-force O(n^2) version on 1,000 random point sets, and plot the hull.",
+          "deliverable": "Geometry toolkit with plots and brute-force cross-checking",
+          "checks": [["convex_hull([[1,1],[2,2],[2,0],[2,4],[3,3],[4,2]])", "Returns 5 points and excludes [2,2]", "pytest output"], ["polygon_area for triangle (0,0), (4,0), (0,3)", "Returns 6", "pytest output"], ["closest_pair versus brute force on 1,000 random point sets", "Minimum distances match in all 1,000 sets", "Test summary"]],
+          "objectives": ["Use orientation tests with exact arithmetic", "Compute convex hulls and polygon areas", "Apply divide and conquer to geometry"]
+        },
+        {
+          "topic": "NP-Hardness, Approximation and Heuristics",
+          "subtopics": ["P, NP, NP-complete and NP-hard", "Reductions and 3-SAT", "Vertex cover 2-approximation", "TSP with metric 2-approximation", "Greedy set cover and the ln n bound", "Knapsack FPTAS idea", "Local search and simulated annealing", "Measuring the approximation ratio against an exact solver"],
+          "tools": ["Python 3", "JDK", "networkx", "pytest"],
+          "lab_task": "Implement vertex_cover_2approx, greedy_set_cover and simulated annealing for TSP in Python. Compare vertex cover with brute force on 500 random graphs of 10 nodes and record the maximum ratio, run annealing on 50 random cities, and compare its tour length with a nearest-neighbour tour.",
+          "deliverable": "Approximation and heuristic experiments with measured ratios and a hardness summary",
+          "checks": [["vertex_cover_2approx versus brute force on 500 random 10-node graphs", "The maximum observed ratio is at most 2.0", "Printed ratio"], ["vertex_cover_2approx on a path with edges 0-1, 1-2, 2-3, 3-4", "Returns a cover of size 4 while the optimum is 2", "pytest output"], ["Simulated annealing versus nearest neighbour on 50 random cities", "Annealing tour is shorter in at least 8 of 10 seeded runs", "Run table"]],
+          "objectives": ["Recognise NP-hard problems from reductions", "Apply approximation algorithms with a proven ratio", "Evaluate heuristics against an exact baseline"]
+        },
+        {
+          "topic": "External Memory, Parallel and Streaming Algorithms",
+          "subtopics": ["I/O model and block transfers", "External merge sort with sorted runs", "k-way merge with heapq.merge", "Streaming algorithms and one-pass limits", "Misra-Gries heavy hitters", "Parallel prefix sum idea", "Fork-join and Java parallel streams", "Python multiprocessing versus the GIL"],
+          "tools": ["Python 3", "JDK", "multiprocessing", "heapq"],
+          "lab_task": "Generate a file with 10,000,000 random integers, sort it with an external merge sort that holds 1,000,000 numbers in memory, and compare with sort -n. Then implement Misra-Gries with k = 10 on a skewed stream and a parallel chunked sum with multiprocessing.Pool(4), recording peak memory with /usr/bin/time -v.",
+          "deliverable": "External sort and streaming implementations with memory and speedup measurements",
+          "checks": [["External merge sort of 10,000,000 integers using 1,000,000 per chunk", "10 sorted run files are produced and the output matches sort -n", "diff output and run listing"], ["Peak resident memory during the external sort", "Stays below 500 MB while the full data would need more", "/usr/bin/time -v output"], ["Misra-Gries with k = 10 on a stream with one item at 30% frequency", "The 30% item is reported in the candidate set", "Printed candidates"]],
+          "objectives": ["Sort data larger than memory", "Process streams with bounded memory", "Measure parallel speedup realistically"]
+        },
+        {
+          "topic": "Designing Custom Data Structures: LRU, LFU and Iterators",
+          "subtopics": ["Combining a hash map with a doubly linked list", "LRU cache with O(1) get and put", "LFU cache with frequency buckets", "Randomized set with O(1) insert, delete and getRandom", "Time-based key-value store with bisect", "Iterator and peeking iterator design", "Thread safety considerations", "LinkedHashMap with accessOrder in Java"],
+          "tools": ["Python 3", "JDK", "pytest", "JUnit 5"],
+          "lab_task": "Implement LRUCache, LFUCache, RandomizedSet and TimeMap in Python and an LRU in Java with LinkedHashMap and removeEldestEntry. Test LRU capacity 2: put 1, put 2, get 1, put 3, get 2. Then run 1,000,000 mixed operations and confirm every operation takes constant time.",
+          "deliverable": "Four custom data structures with tests, a Java LRU and an operation-throughput report",
+          "checks": [["LRU capacity 2 with put(1,1), put(2,2), get(1), put(3,3), get(2)", "get(1) returns 1 and get(2) returns -1", "pytest output"], ["LFU capacity 2 with put 1, put 2, get 1, put 3, get 2, get 3, put 4, get 1, get 3, get 4", "Outputs are 1, -1, 3, -1, 3 and 4", "pytest output"], ["1,000,000 mixed LRU operations at capacity 10,000", "Throughput does not fall by more than 2x between the first and last 100,000 operations", "Throughput table"]],
+          "objectives": ["Combine primitives to hit O(1) bounds", "Implement LRU and LFU caches", "Design iterators and constant-time randomised sets"]
+        },
+        {
+          "topic": "Capstone: Algorithm Engineering Portfolio and Staff-Level Mock Interview",
+          "subtopics": ["Portfolio repository with 8 hard problems and written proofs", "Benchmark suite with JMH or timeit and plots", "Randomised verification harness for every solution", "Complexity and trade-off write-ups", "Two 60 minute mock interviews on unseen hard problems", "Retrospective and a sustainable practice schedule"],
+          "tools": ["Python 3", "JDK", "JMH", "pytest", "Git", "matplotlib"],
+          "lab_task": "Create a repository with eight hard problems from this level, each with a README proof, a brute-force oracle, a randomised verifier running 1,000 cases and a benchmark chart. Port two solutions to Java with JMH benchmarks, then complete two 60 minute mock interviews on unseen hard problems and write a retrospective.",
+          "deliverable": "Tagged portfolio repository with proofs, verifiers and benchmarks, plus two scored mock interview reports",
+          "checks": [["Run the verification harness", "All eight solutions pass 1,000 randomised cases against their oracles", "Harness output"], ["Review the benchmark charts", "Each chart shows measured growth matching the stated complexity within a factor of 2", "PNG charts"], ["Two 60 minute mock interviews", "Each report scores approach, correctness, complexity and communication with a written improvement item", "Mock review sheets"]],
+          "objectives": ["Package advanced algorithms with proofs, tests and benchmarks", "Verify solutions with oracles and randomised tests", "Perform hard interview rounds with clear communication"]
+        }
+      ]
+    }
+  }
+}

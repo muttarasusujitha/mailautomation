@@ -125,7 +125,7 @@ function Message({ msg }) {
   )
 }
 
-export default function ChatAssistant() {
+export default function ChatAssistant({ headerTrigger = false }) {
   const [open, setOpen] = useState(false)
   const [minimized, setMinimized] = useState(false)
   const [messages, setMessages] = useState(initialMessages)
@@ -168,7 +168,7 @@ export default function ChatAssistant() {
 
     try {
       const response = await api.post('/assistant/chat', {
-        system: SYSTEM_PROMPT,
+        system_prompt: SYSTEM_PROMPT,
         feature: 'assistant_chat',
         messages: nextMessages.map(item => ({ role: item.role, content: item.content })),
       })
@@ -177,8 +177,7 @@ export default function ChatAssistant() {
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
       if (!open) setUnread(count => count + 1)
     } catch (error) {
-      const detail = error.response?.data?.detail
-      const message = detail || 'Connection error. Check backend, Gemini API key, and network.'
+      const message = error.message || 'The assistant could not connect. Please try again.'
       setMessages(prev => [...prev, { role: 'assistant', content: message }])
     } finally {
       setLoading(false)
@@ -202,11 +201,13 @@ export default function ChatAssistant() {
         title="Open TrainerSync Copilot"
         aria-label="Open TrainerSync Copilot"
         className={clsx(
-          'fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-xl shadow-blue-600/35 transition-all duration-300 hover:scale-105 hover:bg-blue-500',
+          headerTrigger
+            ? 'relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700 transition hover:border-blue-300 hover:bg-blue-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600'
+            : 'fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-xl shadow-blue-600/35 transition-all duration-300 hover:scale-105 hover:bg-blue-500',
           open ? 'pointer-events-none scale-90 opacity-0' : 'scale-100 opacity-100'
         )}
       >
-        <MessageCircle className="h-6 w-6" />
+        <MessageCircle className={headerTrigger ? 'h-5 w-5' : 'h-6 w-6'} />
         {unread > 0 && (
           <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white">
             {unread}
@@ -215,10 +216,12 @@ export default function ChatAssistant() {
       </button>
 
       <div
+        inert={!open ? '' : undefined}
+        aria-hidden={!open}
         className={clsx(
-          'fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-24px)] origin-bottom-right transition-all duration-300',
+          'fixed bottom-3 right-3 sm:bottom-6 sm:right-6 z-50 w-[380px] max-w-[calc(100vw-24px)] origin-bottom-right transition-all duration-300',
           open ? 'scale-100 opacity-100' : 'pointer-events-none scale-95 opacity-0',
-          minimized ? 'h-[64px]' : 'h-[560px] max-h-[calc(100vh-48px)]'
+          minimized ? 'h-[64px]' : 'h-[560px] max-h-[calc(100dvh-48px)]'
         )}
       >
         <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-2xl">

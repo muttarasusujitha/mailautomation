@@ -1,5 +1,6 @@
 """AI analysis routes — analyze-reply, log-usage, assistant/chat."""
 import logging
+import re
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -16,6 +17,24 @@ logger = logging.getLogger(__name__)
 
 NEGATIVE = ["not interested","not available","unable","cannot","busy","decline","withdraw"]
 POSITIVE = ["available","interested","confirm","accept","happy to","yes","proceed"]
+
+
+def reply_decision(body: str):
+    # Quoted correspondence must not override the sender's current reply.
+    text = re.split(r"(?im)^\s*(?:On .+wrote:|From:|-----Original Message-----|>)", body)[0].lower()
+    clauses = re.split(r"[.!?;\n]+|\b(?:but|however|although)\b", text)
+    negative = positive = False
+    for clause in clauses:
+        has_negative = any(re.search(r"\b" + re.escape(s) + r"\b", clause) for s in NEGATIVE)
+        negative |= has_negative
+        positive |= not has_negative and any(re.search(r"\b" + re.escape(s) + r"\b", clause) for s in POSITIVE)
+    if negative and positive:
+        return "mixed", "requires_review"
+    if negative:
+        return "negative", "mark_declined"
+    if positive:
+        return "positive", "mark_interested"
+    return "neutral", "requires_review"
 
 
 class AnalyzeReplyRequest(BaseModel):
@@ -40,13 +59,7 @@ class LogUsageRequest(BaseModel):
 
 @router.post("/analyze-reply")
 async def analyze_reply(payload: AnalyzeReplyRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
-    text = payload.body.lower()
-    if any(s in text for s in NEGATIVE):
-        sentiment, action = "negative", "mark_declined"
-    elif any(s in text for s in POSITIVE):
-        sentiment, action = "positive", "mark_interested"
-    else:
-        sentiment, action = "neutral", "requires_review"
+    sentiment, action = reply_decision(payload.body)
 
     result = {"sentiment": sentiment, "action": action, "email_id": payload.email_id,
               "trainer_id": payload.trainer_id, "from_email": payload.from_email}

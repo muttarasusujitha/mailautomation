@@ -45,6 +45,19 @@ function pickExtracted(item = {}) {
   return item.extracted || item.client_email_doc?.extracted || {}
 }
 
+function shortlistPath(item = {}) {
+  const extracted = pickExtracted(item)
+  const raw = String(
+    item.pipeline_target || item.pipeline_page || item.batch_flow || item.batch_type || item.requirement_type ||
+    extracted.pipeline_target || extracted.pipeline_page || extracted.batch_flow || extracted.batch_type || extracted.requirement_type || ''
+  ).toLowerCase()
+  return raw.includes('confirmed') || raw.includes('shortlist1') ? '/shortlist1' : '/shortlist'
+}
+
+function shortlistName(item = {}) {
+  return shortlistPath(item) === '/shortlist' ? 'Shortlist' : 'Shortlist1'
+}
+
 function pickTechnology(item = {}) {
   const extracted = pickExtracted(item)
   return clean(
@@ -77,18 +90,6 @@ function trainerMailStats(item = {}) {
     total: Number(trainerMail.total || automation.total || 0),
     error: isHandoff ? '' : trainerMail.error || automation.error || item.trainer_automation_error || '',
     handoff: isHandoff,
-  }
-}
-
-function clientReplyStats(item = {}) {
-  const automation = item.mail_automation || item.client_email_doc?.mail_automation || {}
-  const reply = automation.client_reply || {}
-  return {
-    sent: Boolean(reply.sent || item.reply_sent || item.client_email_doc?.reply_sent || item.reply_status === 'auto_sent'),
-    to: reply.to || item.from_email || item.client_email || item.client_email_doc?.from_email || '',
-    subject: reply.subject || item.subject || '',
-    error: reply.error || item.reply_error || item.auto_send_error || '',
-    at: item.reply_sent_at || item.auto_sent_at || item.client_email_doc?.reply_sent_at || item.client_email_doc?.auto_sent_at || '',
   }
 }
 
@@ -429,7 +430,7 @@ function RequestCard({ item, active, onClick }) {
           'shrink-0 rounded-full border px-2 py-1 text-[11px] font-bold',
           trainers.length > 0 ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : hasDomain(item) ? 'border-blue-200 bg-blue-50 text-blue-700' : 'border-amber-200 bg-amber-50 text-amber-700'
         )}>
-          {trainers.length > 0 ? 'Shortlist1 ready' : hasDomain(item) ? 'Ready' : 'Missing'}
+          {trainers.length > 0 ? 'Shortlist ready' : hasDomain(item) ? 'Ready' : 'Missing'}
         </span>
       </div>
       <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-500">{item.subject || item.body_snippet || item.clean_body || 'Client request'}</p>
@@ -441,7 +442,7 @@ function RequestCard({ item, active, onClick }) {
           Top {trainers.length || 0}
         </span>
         <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-600">
-          Shortlist1
+          Trainer shortlist
         </span>
       </div>
     </button>
@@ -582,7 +583,7 @@ export default function ClientPipeline() {
     setProcessing(true)
     try {
       const res = await api.post(`/inbox/${selected.email_id}/create-requirement`)
-      toast.success(res.data?.requirement_id ? 'Requirement and shortlist created. Continue trainer outreach from Shortlist1.' : 'Client request processed.')
+      toast.success(res.data?.requirement_id ? 'Requirement and shortlist created. Continue trainer outreach from the assigned batch pipeline.' : 'Client request processed.')
       await load(true)
     } catch (e) {
       toast.error(e.message || 'Could not create requirement')
@@ -600,7 +601,7 @@ export default function ClientPipeline() {
           </div>
           <h1 className="mt-3 page-title">Client Request Auto-Finding Pipeline</h1>
           <p className="mt-1 max-w-3xl text-sm text-slate-500">
-            One place to verify that every client request is captured, details are filled, missing fields are visible, trainer auto-finding starts, and top 5 shortlist is ready for Shortlist1.
+            One place to verify that every client request is captured, details are filled, missing fields are visible, trainer auto-finding starts, and the top 5 shortlist is ready in its assigned batch pipeline.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -632,7 +633,7 @@ export default function ClientPipeline() {
           <p className="mt-1 text-xl font-black text-blue-900">{stats.autofind}</p>
         </div>
         <div className="rounded-lg border border-violet-200 bg-violet-50 p-3">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-violet-700">Shortlist1 ready</p>
+          <p className="text-[11px] font-bold uppercase tracking-wide text-violet-700">Trainer shortlists ready</p>
           <p className="mt-1 text-xl font-black text-violet-900">{stats.handoff}</p>
         </div>
       </div>
@@ -702,11 +703,11 @@ export default function ClientPipeline() {
                 {selected.requirement_id && (
                   <button
                     type="button"
-                    onClick={() => navigate(`/shortlist1?requirement_id=${encodeURIComponent(selected.requirement_id)}`)}
+                    onClick={() => navigate(`${shortlistPath(selected)}?requirement_id=${encodeURIComponent(selected.requirement_id)}`)}
                     className="btn-secondary text-sm"
                   >
                     <UsersRound className="h-4 w-4" />
-                    Open in Shortlist1
+                    {shortlistPath(selected) === '/shortlist' ? 'Review Shortlist' : 'Review Confirmed Batch'}
                   </button>
                 )}
               </div>
@@ -738,7 +739,7 @@ export default function ClientPipeline() {
                       <p className="flex justify-between gap-3"><span className="text-slate-500">Domain available</span><strong>{hasDomain(selected) ? 'Yes' : 'No'}</strong></p>
                       <p className="flex justify-between gap-3"><span className="text-slate-500">Pending automation</span><strong>{selected.pending_trainer_automation ? 'Yes' : 'No'}</strong></p>
                       <p className="flex justify-between gap-3"><span className="text-slate-500">Handoff status</span><strong className="capitalize">{clean(selected.trainer_automation_status || selected.client_email_doc?.trainer_automation_status, 'shortlist1')}</strong></p>
-                      <p className="flex justify-between gap-3"><span className="text-slate-500">Mail sender</span><strong>Shortlist1</strong></p>
+                      <p className="flex justify-between gap-3"><span className="text-slate-500">Batch pipeline</span><strong>{shortlistName(selected)}</strong></p>
                     </div>
                     {trainerMailStats(selected).error && (
                       <p className="mt-3 rounded-lg bg-red-50 p-2 text-xs font-semibold text-red-700">{trainerMailStats(selected).error}</p>

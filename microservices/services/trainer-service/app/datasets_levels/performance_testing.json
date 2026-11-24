@@ -1,0 +1,573 @@
+{
+  "domain": "Performance Testing",
+  "name": "Performance Testing and Engineering",
+  "category": "Testing and QA",
+  "icon": "activity",
+  "aliases": ["Load Testing", "Load and Performance Testing", "Performance and Load Testing", "Stress Testing", "Performance Engineering", "Performance Test Engineering", "Performance Testing Training", "Non-Functional Testing", "Load Testing Training", "Performance Testing with k6", "Performance Testing with Gatling", "Performance Testing with Locust"],
+  "certifications": ["ISTQB Performance Testing (CT-PT)", "No tool certification required; assessed by a test plan, scripts and a results report", "Optional: tool vendor courses for JMeter, k6, Gatling or LoadRunner"],
+  "tools": ["k6", "Apache JMeter", "Gatling", "Locust", "Grafana", "Prometheus", "APM tool such as Dynatrace, New Relic or Datadog"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For testers, developers and operations staff starting performance testing, independent of one tool. Covers why performance matters, test types, performance requirements, key metrics and percentiles, how load tools work, writing first scripts in k6 and JMeter, think time and pacing, test data, correlation, workload basics, running tests, monitoring the system, reading results, simple bottleneck patterns, front-end performance, test environments, reporting and the performance testing process.",
+      "prerequisites": ["Understands how web applications and APIs work", "Has done functional testing or development", "Comfortable with a terminal and basic scripting"],
+      "outcomes": ["Explain performance test types, requirements and metrics to a team", "Write and run simple load tests in k6 and JMeter with realistic data and think time", "Monitor the system during a test and recognise common bottlenecks", "Plan a small performance test and report its results clearly"],
+      "days": [
+        {
+          "topic": "Performance Testing Overview: Why It Matters and Lab Setup",
+          "subtopics": ["What performance means to users and businesses", "Real incidents caused by slow or failing systems", "Performance testing compared with functional testing", "Who does performance work in a team", "Tools in common use: JMeter, k6, Gatling, Locust and LoadRunner", "Installing k6 and JMeter", "The course application and its monitoring", "A first five-user test", "Reading the first result", "Course project overview"],
+          "tools": ["k6", "Apache JMeter", "Course application"],
+          "lab_task": "Install k6 and JMeter, run a five-user test against the course application with each tool and compare the response times and throughput they report.",
+          "deliverable": "Working tools and a first comparison",
+          "checks": [["Install", "Both tools run a test against the course application", "Terminal output"], ["Compare", "Response times from both tools are compared", "Comparison table"], ["Explain", "The value of performance testing is explained with an example", "Notes"]],
+          "objectives": ["Explain why performance testing matters", "Install load tools", "Run a first test"]
+        },
+        {
+          "topic": "Types of Performance Tests: Load, Stress, Spike, Soak and Capacity",
+          "subtopics": ["Load tests at expected peak", "Stress tests beyond expected peak", "Spike tests for sudden surges", "Soak tests over long periods", "Capacity and scalability tests", "Baseline and benchmark tests", "Choosing test types for a release", "Risks each type uncovers"],
+          "tools": ["k6", "Load profile diagrams"],
+          "lab_task": "Write load, stress, spike and soak profiles for the course application in k6, run short versions of each and record what each one shows.",
+          "deliverable": "Four load profiles with short-run results",
+          "checks": [["Write profiles", "Each test type has a matching load profile", "k6 scripts"], ["Run", "Short versions of all four run", "Results"], ["Explain", "Notes state the risk each type uncovers", "Notes"]],
+          "objectives": ["Distinguish performance test types", "Design load profiles", "Choose tests for risks"]
+        },
+        {
+          "topic": "Performance Requirements and Service Level Objectives",
+          "subtopics": ["Vague and measurable requirements", "Response time targets by percentile", "Throughput and concurrency targets", "Error rate targets", "Service level objectives and indicators", "Requirements from business and analytics", "Requirements for APIs, pages and batch jobs", "Reviewing requirements with stakeholders"],
+          "tools": ["Requirements template", "Analytics data", "Spreadsheet"],
+          "lab_task": "Rewrite five vague performance requirements into measurable objectives using sample analytics, and review them with a role-played product owner.",
+          "deliverable": "Measurable performance objectives",
+          "checks": [["Make measurable", "Each objective has a metric, percentile and target", "Objectives list"], ["Use data", "Targets are based on analytics or business needs", "Data notes"], ["Agree", "The product owner accepts the objectives", "Review notes"]],
+          "objectives": ["Write performance requirements", "Define service level objectives", "Agree targets with stakeholders"]
+        },
+        {
+          "topic": "Key Metrics: Response Time, Throughput, Errors and Percentiles",
+          "subtopics": ["Response time and its parts", "Latency and time to first byte", "Throughput and requests per second", "Concurrency and active users", "Error rates and error types", "Averages, medians and percentiles", "Why averages mislead", "Reading histograms"],
+          "tools": ["k6 output", "Spreadsheet", "Grafana"],
+          "lab_task": "Run a test with mixed fast and slow responses, calculate average, median, 95th and 99th percentiles by hand and explain why the average hides the slow users.",
+          "deliverable": "Metric calculations and explanation",
+          "checks": [["Calculate", "Percentiles match the tool's output", "Calculation sheet"], ["Explain", "The explanation shows how averages mislead", "Notes"], ["Read histograms", "The slow tail is identified in the histogram", "Chart"]],
+          "objectives": ["Use performance metrics", "Read percentiles", "Avoid misleading averages"]
+        },
+        {
+          "topic": "How Load Tools Work: Virtual Users, Protocols and Load Generators",
+          "subtopics": ["Virtual users and what they simulate", "Protocol-level compared with browser-level load", "Open and closed load models", "Load generators and their limits", "Coordinated omission in brief", "Client-side resource use", "Network effects on results", "Choosing a tool"],
+          "tools": ["k6", "Apache JMeter", "Browser developer tools"],
+          "lab_task": "Run the same test in closed and open models, watch the load generator's CPU and network, and show when the generator itself becomes the bottleneck.",
+          "deliverable": "Model comparison and generator limits note",
+          "checks": [["Compare models", "Open and closed model results are compared", "Results"], ["Watch generators", "Generator resource use is recorded", "Monitoring data"], ["Find limits", "The point where the generator limits the test is shown", "Notes"]],
+          "objectives": ["Explain how load tools work", "Compare load models", "Recognise generator limits"]
+        },
+        {
+          "topic": "First Scripts in k6: HTTP Requests, Checks and Thresholds",
+          "subtopics": ["k6 scripts in JavaScript", "HTTP requests and responses", "Checks for correctness", "Thresholds for pass and fail", "Stages and scenarios", "Tags and groups", "Command-line options", "Reading the k6 summary"],
+          "tools": ["k6", "VS Code", "Course API"],
+          "lab_task": "Write a k6 script for login, search and product view with checks and thresholds on the 95th percentile and error rate, and run it with stages.",
+          "deliverable": "k6 script with checks and thresholds",
+          "checks": [["Check", "Responses are checked for status and content", "Script"], ["Threshold", "Thresholds fail the run when targets are missed", "Run output"], ["Stage", "Load ramps through the planned stages", "Run output"]],
+          "objectives": ["Write k6 scripts", "Use checks and thresholds", "Shape load with stages"]
+        },
+        {
+          "topic": "First Scripts in JMeter: Thread Groups, Samplers and Assertions",
+          "subtopics": ["Test plans and thread groups", "HTTP samplers and defaults", "Assertions", "Listeners for debugging", "Saving results", "Running from the command line", "The HTML report", "Differences from k6 scripting"],
+          "tools": ["Apache JMeter", "Course API"],
+          "lab_task": "Build the same journey in JMeter with samplers, assertions and a thread group, run it from the command line and compare results and effort with the k6 version.",
+          "deliverable": "JMeter test plan and tool comparison",
+          "checks": [["Build", "The JMeter plan runs the same journey", "Results"], ["Run headless", "The test runs from the command line with a report", "Report folder"], ["Compare", "Effort and results are compared with k6", "Comparison"]],
+          "objectives": ["Script in JMeter", "Run tests headless", "Compare tools"]
+        },
+        {
+          "topic": "Think Time, Pacing and Realistic User Behaviour",
+          "subtopics": ["Why users pause", "Think time between steps", "Pacing between iterations", "Random variation", "Arrival rates", "Effects on throughput and concurrency", "Modelling different user types", "Checking that the load is realistic"],
+          "tools": ["k6", "Apache JMeter", "Analytics data"],
+          "lab_task": "Add think time and pacing to the journey in both tools, compare throughput with and without them and check the resulting load against analytics.",
+          "deliverable": "Realistic scripts and comparison",
+          "checks": [["Add think time", "Steps have realistic pauses", "Scripts"], ["Compare", "Throughput with and without pauses is compared", "Results"], ["Validate", "The load matches analytics within agreed limits", "Comparison"]],
+          "objectives": ["Model user behaviour", "Use think time and pacing", "Check load realism"]
+        },
+        {
+          "topic": "Test Data for Load Tests",
+          "subtopics": ["Why data must vary", "Data files and parameterisation", "Unique data per virtual user", "Data that runs out during tests", "Generating data", "Data and caching effects", "Cleaning up after tests", "Privacy in test data"],
+          "tools": ["k6 SharedArray", "JMeter CSV Data Set Config", "Data generation scripts"],
+          "lab_task": "Parameterise logins and searches in both tools with generated data, make sure each virtual user uses different data and show the cache effect of reusing the same search.",
+          "deliverable": "Data files, parameterised scripts and cache comparison",
+          "checks": [["Vary data", "Each virtual user uses different data", "Logs"], ["Generate", "Data is generated in the needed volume", "Data files"], ["Show caching", "Reused data gives faster, misleading results", "Comparison"]],
+          "objectives": ["Prepare load test data", "Parameterise scripts", "Avoid cache distortion"]
+        },
+        {
+          "topic": "Correlation: Handling Tokens, Sessions and Dynamic Values",
+          "subtopics": ["Dynamic values in web traffic", "Session cookies", "CSRF tokens", "IDs returned by the server", "Extracting values in k6 and JMeter", "Detecting correlation failures", "Correlation in recorded scripts", "Keeping scripts maintainable"],
+          "tools": ["k6", "Apache JMeter extractors", "Browser developer tools"],
+          "lab_task": "Find the dynamic values in a recorded checkout, correlate the token and order ID in both tools and prove the script works for twenty users.",
+          "deliverable": "Correlated scripts for both tools",
+          "checks": [["Find values", "All dynamic values are listed", "Notes"], ["Correlate", "Extracted values are used in later requests", "Scripts"], ["Prove", "Twenty users complete checkout without errors", "Results"]],
+          "objectives": ["Correlate dynamic values", "Use extractors", "Make scripts replayable"]
+        },
+        {
+          "topic": "Workload Models: User Mixes and Arrival Rates",
+          "subtopics": ["Journeys and their share of traffic", "Peak hour and peak minute", "Converting analytics into load", "Little's law", "Closed and open workload models", "Scenarios for different user types", "Documenting workload assumptions", "Reviewing workload with stakeholders"],
+          "tools": ["Analytics data", "Spreadsheet", "k6 scenarios"],
+          "lab_task": "Build a workload model from sample analytics with a journey mix and peak arrival rate, check it with Little's law and implement it as k6 scenarios.",
+          "deliverable": "Workload model and k6 scenarios",
+          "checks": [["Model", "The mix and peak rate come from analytics", "Workload model"], ["Check", "Little's law confirms the expected concurrency", "Calculation"], ["Implement", "k6 scenarios produce the modelled rates", "Run output"]],
+          "objectives": ["Build workload models", "Use Little's law", "Implement realistic scenarios"]
+        },
+        {
+          "topic": "Running Tests and Watching the System",
+          "subtopics": ["Pre-test checklist", "Warm-up periods", "Watching live results", "Stopping tests safely", "Recording test conditions", "Repeating runs", "Coordinating with operations teams", "Post-test clean-up"],
+          "tools": ["k6", "Grafana", "Run log template"],
+          "lab_task": "Run a planned load test with a pre-test checklist, warm-up and live monitoring, stop it safely when an agreed limit is reached and record the run conditions.",
+          "deliverable": "Run log with conditions and results",
+          "checks": [["Prepare", "The checklist is completed before the run", "Checklist"], ["Watch", "Live results are monitored during the run", "Dashboard screenshot"], ["Record", "Run conditions and events are logged", "Run log"]],
+          "objectives": ["Run tests safely", "Monitor live results", "Record test conditions"]
+        },
+        {
+          "topic": "Monitoring Servers, Databases and Applications During Tests",
+          "subtopics": ["What to monitor and why", "CPU, memory, disk and network", "Application metrics", "Database metrics", "Logs during tests", "Prometheus and Grafana", "APM tools", "Lining up monitoring with test time"],
+          "tools": ["Prometheus", "Grafana", "APM tool"],
+          "lab_task": "Set up Prometheus and Grafana for the course application, run a load test, and line up server, database and application metrics with response times.",
+          "deliverable": "Monitoring dashboard with test results",
+          "checks": [["Monitor", "Server, database and application metrics are captured", "Dashboard"], ["Align", "Metrics share a time axis with test results", "Dashboard"], ["Interpret", "The relationship between load and resource use is described", "Notes"]],
+          "objectives": ["Monitor systems under test", "Use Prometheus and Grafana", "Relate metrics to response times"]
+        },
+        {
+          "topic": "Reading Results and Spotting Common Bottlenecks",
+          "subtopics": ["Saturation curves", "CPU-bound and memory-bound patterns", "Database and connection pool limits", "Thread pool exhaustion", "Slow external dependencies", "Garbage collection pauses", "Lock contention in brief", "Forming a first hypothesis"],
+          "tools": ["Grafana", "APM tool", "Test results"],
+          "lab_task": "Analyse three result sets with known bottlenecks, match each to its pattern and write a first hypothesis with the evidence that supports it.",
+          "deliverable": "Three bottleneck analyses",
+          "checks": [["Match patterns", "Each result set is matched to a bottleneck type", "Analyses"], ["Use evidence", "Each hypothesis cites metrics", "Analyses"], ["Suggest next steps", "Each analysis proposes what to check next", "Analyses"]],
+          "objectives": ["Read performance results", "Recognise bottleneck patterns", "Form hypotheses with evidence"]
+        },
+        {
+          "topic": "Front-End Performance: Core Web Vitals and Browser Testing",
+          "subtopics": ["Back-end compared with front-end time", "Core Web Vitals: LCP, INP and CLS", "Lighthouse and WebPageTest", "Browser-based load with k6 browser", "Caching and content delivery networks", "Images, scripts and fonts", "Real user monitoring", "Reporting user-facing performance"],
+          "tools": ["Lighthouse", "WebPageTest", "k6 browser module"],
+          "lab_task": "Measure Core Web Vitals for three pages, run a small browser-based load with k6 alongside protocol load and report where user-facing time is spent.",
+          "deliverable": "Front-end measurements and report",
+          "checks": [["Measure", "Vitals are recorded for three pages", "Lighthouse reports"], ["Combine", "Browser and protocol load run together", "Run output"], ["Report", "User-facing time is broken down by cause", "Report"]],
+          "objectives": ["Measure front-end performance", "Use Core Web Vitals", "Combine browser and protocol tests"]
+        },
+        {
+          "topic": "API and Microservice Performance Testing",
+          "subtopics": ["API-only load tests", "Service dependencies", "Testing one service with stubs", "Rate limits and gateways", "Asynchronous APIs", "Payload size and serialisation", "Tracing across services", "Reporting per service"],
+          "tools": ["k6", "WireMock", "Tracing tool"],
+          "lab_task": "Load test an API that calls two downstream services, stub one dependency to isolate the API and compare results with and without the real dependency.",
+          "deliverable": "API load results with isolation comparison",
+          "checks": [["Test the API", "The API is load tested end to end", "Results"], ["Isolate", "The stubbed run isolates the API's own limits", "Results"], ["Compare", "The dependency's effect is quantified", "Comparison"]],
+          "objectives": ["Test API performance", "Isolate services", "Measure dependency effects"]
+        },
+        {
+          "topic": "Test Environments and Their Effect on Results",
+          "subtopics": ["Production-like environments", "Scaled-down environments", "Shared environments and noise", "Third-party services in tests", "Data volume differences", "Infrastructure as code for environments", "Stating environment limits in reports", "When to test in production"],
+          "tools": ["Environment comparison sheet", "Infrastructure as code", "Monitoring tools"],
+          "lab_task": "Compare the test environment with production on five factors, estimate how each affects results and write the limits statement for the test report.",
+          "deliverable": "Environment comparison and limits statement",
+          "checks": [["Compare", "Five factors are compared with production", "Comparison sheet"], ["Estimate", "Each factor's likely effect is stated", "Comparison sheet"], ["State limits", "The report states what results can predict", "Limits statement"]],
+          "objectives": ["Assess test environments", "Account for environment differences", "State result limits"]
+        },
+        {
+          "topic": "The Performance Testing Process: Plan, Script, Execute, Analyse and Report",
+          "subtopics": ["Gathering requirements", "Planning tests and environments", "Scripting and validating", "Executing in rounds", "Analysing and tuning with developers", "Retesting after fixes", "Reporting and sign-off", "Fitting the process into agile delivery"],
+          "tools": ["Test plan template", "Run log", "Report template"],
+          "lab_task": "Map the full performance testing process for a release in a two-week sprint, assign owners for each step and identify where the process usually slips.",
+          "deliverable": "Process map with owners and risks",
+          "checks": [["Map", "Every process step has inputs and outputs", "Process map"], ["Assign", "Each step has an owner", "Process map"], ["Find risks", "Common slips are identified with mitigations", "Risk list"]],
+          "objectives": ["Follow the performance testing process", "Fit it into agile delivery", "Manage process risks"]
+        },
+        {
+          "topic": "Reporting Performance Results Clearly",
+          "subtopics": ["Audiences and what they need", "Executive summary in plain words", "Results against objectives", "Charts that show the point", "Bottlenecks and recommendations", "Risks and limits", "Go or no-go advice", "Report templates"],
+          "tools": ["Report template", "Grafana", "Spreadsheet"],
+          "lab_task": "Write a performance report from a test run with an executive summary, results against objectives, two bottlenecks, recommendations and a go or no-go statement.",
+          "deliverable": "Performance test report",
+          "checks": [["Summarise", "The summary states the outcome in plain words", "Report"], ["Compare", "Results are shown against each objective", "Report"], ["Advise", "Recommendations and go or no-go advice are justified", "Report"]],
+          "objectives": ["Report performance results", "Show results against objectives", "Give clear advice"]
+        },
+        {
+          "topic": "Beginner Capstone: Performance Test of a Web Shop from Plan to Report",
+          "subtopics": ["Requirements and workload", "Scripts with data and correlation", "Load and stress runs", "Monitoring", "Analysis", "Report"],
+          "tools": ["k6 or Apache JMeter", "Prometheus and Grafana", "Report template"],
+          "lab_task": "Plan and run a performance test of a web shop: agree objectives, build the workload model, script with data and correlation, run load and stress tests with monitoring, analyse results and present the report.",
+          "deliverable": "Plan, scripts, results and report",
+          "checks": [["Plan", "Objectives and workload are documented", "Test plan"], ["Run", "Load and stress tests complete with monitoring", "Run logs"], ["Report", "The report states results, bottlenecks and advice", "Report"]],
+          "objectives": ["Combine beginner performance skills", "Run a complete small test", "Report results clearly"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For performance testers who run tests and now need to find causes and work at scale. Covers deeper analysis with APM and tracing, profiling, database performance, caching, JVM and runtime tuning partners, Gatling, Locust, distributed load, cloud load testing, performance testing in CI, baselines and regression detection, mobile back ends, messaging systems, batch jobs, resilience under load, capacity tests, autoscaling, results statistics, test data at scale, security and performance, and performance in agile teams.",
+      "prerequisites": ["Has planned and run performance tests with at least one tool", "Reads percentiles, throughput and server metrics", "Has reported results to a team"],
+      "outcomes": ["Find root causes of performance problems with APM, tracing and profiling", "Run distributed and cloud load tests and automate checks in CI", "Test databases, caches, messaging, batch and mobile back ends", "Detect regressions against baselines and advise on capacity and autoscaling"],
+      "days": [
+        {
+          "topic": "Analysis with APM and Distributed Tracing",
+          "subtopics": ["What APM tools show", "Transaction traces", "Distributed tracing across services", "Service maps", "Finding slow spans", "Correlating traces with load test requests", "Sampling and its effects", "Sharing traces with developers"],
+          "tools": ["APM tool", "OpenTelemetry", "k6 or Apache JMeter"],
+          "lab_task": "Tag load test requests so they can be found in traces, find the slowest spans for a slow journey and present the trace evidence to a role-played developer.",
+          "deliverable": "Trace-based analysis and developer briefing",
+          "checks": [["Tag", "Load test requests are identifiable in traces", "Trace screenshot"], ["Find", "The slowest spans are identified", "Analysis"], ["Brief", "The developer agrees the next step", "Briefing notes"]],
+          "objectives": ["Use APM in analysis", "Trace slow requests", "Share evidence with developers"]
+        },
+        {
+          "topic": "Profiling Applications Under Load",
+          "subtopics": ["CPU profiling", "Memory and allocation profiling", "Flame graphs", "Thread dumps", "Continuous profiling tools", "Profiling overhead", "Reading results with developers", "Confirming fixes"],
+          "tools": ["Async-profiler or language profilers", "Flame graph tools", "Load tool"],
+          "lab_task": "Profile the application under load, read a flame graph to find the hottest code path, take thread dumps at peak and confirm a fix with a retest.",
+          "deliverable": "Profiling evidence and retest result",
+          "checks": [["Profile", "A flame graph is captured under load", "Flame graph"], ["Find hot paths", "The hottest path is identified", "Analysis"], ["Confirm", "The retest shows the fix effect", "Comparison"]],
+          "objectives": ["Profile under load", "Read flame graphs", "Confirm fixes"]
+        },
+        {
+          "topic": "Database Performance Under Load",
+          "subtopics": ["Slow query logs", "Query plans and indexes", "Connection pools", "Locks and waits", "N plus one query patterns", "Data volume effects", "Read replicas and caching", "Working with DBAs"],
+          "tools": ["Database monitoring", "Query plan tools", "Load tool"],
+          "lab_task": "Find the three slowest queries during a load test, read their plans, add one index with a DBA and measure the effect on response time and database load.",
+          "deliverable": "Query analysis and index effect",
+          "checks": [["Find", "The three slowest queries are listed with timings", "Analysis"], ["Explain", "Query plans show the cause", "Plan screenshots"], ["Measure", "The index change effect is measured", "Comparison"]],
+          "objectives": ["Analyse database performance", "Read query plans", "Measure tuning effects"]
+        },
+        {
+          "topic": "Caching and Content Delivery Effects",
+          "subtopics": ["Application caches", "Distributed caches such as Redis", "HTTP caching and CDNs", "Cache hit ratios", "Cold start and warm-up", "Cache invalidation under load", "Testing with and without caches", "Reporting cache effects"],
+          "tools": ["Redis monitoring", "CDN analytics", "Load tool"],
+          "lab_task": "Measure response times and hit ratios with cold and warm caches, run a test during cache invalidation and report how much caching hides back-end limits.",
+          "deliverable": "Cache effect analysis",
+          "checks": [["Compare", "Cold and warm results are recorded", "Results table"], ["Test invalidation", "Behaviour during invalidation is measured", "Results"], ["Report", "The hidden back-end limit is stated", "Findings"]],
+          "objectives": ["Account for caching", "Measure hit ratios", "Test cache invalidation"]
+        },
+        {
+          "topic": "Runtime Tuning Partnerships: JVM, .NET and Node.js",
+          "subtopics": ["Garbage collection and its pauses", "Heap sizing", "Thread and worker pools", "Event loop blocking in Node.js", "Runtime metrics to watch", "Changing one setting at a time", "Recording tuning decisions", "When tuning is not the answer"],
+          "tools": ["Runtime monitoring tools", "Load tool", "Tuning log"],
+          "lab_task": "With a role-played developer, test two garbage collection settings and two thread pool sizes one at a time and record the measured effect of each change.",
+          "deliverable": "Tuning log with measured changes",
+          "checks": [["Change one thing", "Each change is tested separately", "Tuning log"], ["Measure", "Effects on percentiles and errors are recorded", "Results"], ["Decide", "The chosen settings are justified", "Tuning log"]],
+          "objectives": ["Tune runtimes with evidence", "Work with developers", "Record tuning decisions"]
+        },
+        {
+          "topic": "Gatling for Code-Based Load Tests",
+          "subtopics": ["Gatling simulations in Java or Scala", "Scenarios, feeders and checks", "Injection profiles", "Assertions", "Reports", "Gatling in CI", "Comparing Gatling with k6 and JMeter", "When Gatling fits"],
+          "tools": ["Gatling", "Java", "Maven or Gradle"],
+          "lab_task": "Write a Gatling simulation for the shop journey with feeders, checks and an open injection profile, add assertions and compare its report with k6 results.",
+          "deliverable": "Gatling simulation and comparison",
+          "checks": [["Simulate", "The simulation runs the planned profile", "Gatling report"], ["Assert", "Assertions fail when targets are missed", "Run output"], ["Compare", "Results are compared with k6", "Comparison"]],
+          "objectives": ["Write Gatling simulations", "Use feeders and assertions", "Compare load tools"]
+        },
+        {
+          "topic": "Locust for Python Teams",
+          "subtopics": ["Locust user classes and tasks", "Wait times and task weights", "Running headless and with the web UI", "Distributed Locust", "Custom clients", "Events and hooks", "Reporting", "When Locust fits"],
+          "tools": ["Locust", "Python", "Course API"],
+          "lab_task": "Write a Locust test with weighted tasks for the shop, run it distributed with two workers and compare effort and results with k6.",
+          "deliverable": "Locust test and comparison",
+          "checks": [["Write", "Tasks and weights match the workload", "Locust file"], ["Distribute", "Two workers generate load together", "Run output"], ["Compare", "Effort and results are compared with k6", "Comparison"]],
+          "objectives": ["Write Locust tests", "Run distributed Locust", "Choose tools for Python teams"]
+        },
+        {
+          "topic": "Distributed Load Generation",
+          "subtopics": ["When one generator is not enough", "Distributed modes in k6, JMeter, Gatling and Locust", "Generator sizing", "Synchronising and collecting results", "Network capacity", "Generators in different regions", "Monitoring generators", "Common distributed problems"],
+          "tools": ["k6 or Apache JMeter", "Several generator machines", "Monitoring tools"],
+          "lab_task": "Run a distributed test from three generators, monitor them, collect one set of results and show the generators are not the bottleneck.",
+          "deliverable": "Distributed run with generator evidence",
+          "checks": [["Distribute", "Three generators produce the load", "Run log"], ["Collect", "Results are combined correctly", "Results"], ["Prove generators", "Generator resources stay within limits", "Monitoring data"]],
+          "objectives": ["Generate load at scale", "Monitor generators", "Combine distributed results"]
+        },
+        {
+          "topic": "Managed Load Testing Platforms in the Cloud",
+          "subtopics": ["Managed load testing services", "Grafana Cloud k6, Azure Load Testing and similar", "Reaching private systems", "Geographic distribution", "Cost and quotas", "Integrations with CI and monitoring", "Data protection with cloud services", "Self-hosted or managed"],
+          "tools": ["Cloud load testing service", "k6 or JMeter scripts", "Monitoring tools"],
+          "lab_task": "Run the shop test from a managed service in two regions, reach a private environment through its network options and compare cost and effort with self-hosted generators.",
+          "deliverable": "Cloud run and comparison",
+          "checks": [["Run", "The test runs from two regions", "Service report"], ["Reach", "The private environment is reached", "Network configuration"], ["Compare", "Cost and effort are compared", "Comparison"]],
+          "objectives": ["Use cloud load testing", "Test from several regions", "Choose hosting options"]
+        },
+        {
+          "topic": "Performance Checks in CI Pipelines",
+          "subtopics": ["Fast performance checks on every change", "Larger scheduled tests", "Thresholds as gates", "Stable environments for pipeline tests", "Publishing results and trends", "Handling noisy results", "Developer feedback", "Pipeline costs"],
+          "tools": ["CI pipeline", "k6 thresholds", "Grafana"],
+          "lab_task": "Add a short k6 check with thresholds to the pipeline, schedule a nightly larger test, publish trends and show a deliberate slowdown failing the build.",
+          "deliverable": "Pipeline with performance checks",
+          "checks": [["Gate", "The short check fails on a deliberate slowdown", "Pipeline run"], ["Schedule", "The nightly test runs and publishes trends", "Pipeline runs"], ["Feed back", "Developers receive the result on their change", "Notification"]],
+          "objectives": ["Automate performance checks", "Gate changes on thresholds", "Publish performance trends"]
+        },
+        {
+          "topic": "Baselines and Regression Detection",
+          "subtopics": ["Creating baselines from repeat runs", "Noise and variation", "Thresholds for regressions", "Automated comparisons", "Trends across releases", "Investigating regressions", "Updating baselines", "Communicating regressions"],
+          "tools": ["Results store", "Comparison scripts", "Grafana"],
+          "lab_task": "Create a baseline from three repeat runs, compare a new build automatically, flag a regression beyond the noise and record its cause.",
+          "deliverable": "Baseline, comparison and regression record",
+          "checks": [["Baseline", "Variation between repeat runs is measured", "Baseline data"], ["Detect", "The regression is flagged beyond the noise", "Comparison output"], ["Investigate", "The cause is recorded", "Regression record"]],
+          "objectives": ["Build baselines", "Detect regressions", "Handle noise"]
+        },
+        {
+          "topic": "Mobile Back-End and Network Conditions",
+          "subtopics": ["Mobile traffic patterns", "Payload size and number of calls", "Network latency and bandwidth limits", "Simulating mobile networks", "API gateways for mobile apps", "Push and polling load", "Measuring mobile user impact", "Reporting for mobile teams"],
+          "tools": ["Load tool", "Network shaping tool", "API gateway metrics"],
+          "lab_task": "Model mobile traffic for the shop API, run tests with simulated 4G and slow networks and report how payload size and call count affect mobile users.",
+          "deliverable": "Mobile back-end test results",
+          "checks": [["Model", "The workload reflects mobile traffic", "Workload model"], ["Simulate networks", "Results are recorded for two network conditions", "Results"], ["Report", "Payload and call count effects are explained", "Report"]],
+          "objectives": ["Test mobile back ends", "Simulate mobile networks", "Report mobile impact"]
+        },
+        {
+          "topic": "Messaging Systems and Event Streams Under Load",
+          "subtopics": ["Queues and topics under load", "Producer and consumer throughput", "Consumer lag", "Back-pressure", "Message size effects", "Ordering and duplicates under load", "Testing Kafka and RabbitMQ", "Monitoring brokers"],
+          "tools": ["Kafka or RabbitMQ", "k6 or a messaging load tool", "Broker monitoring"],
+          "lab_task": "Load a message broker with producers at rising rates, measure consumer lag and throughput, find the point where lag grows without recovering and report it.",
+          "deliverable": "Messaging load results",
+          "checks": [["Load", "Producer rates rise through planned steps", "Results"], ["Measure lag", "Consumer lag is recorded at each step", "Monitoring data"], ["Report", "The sustainable rate is stated", "Findings"]],
+          "objectives": ["Test messaging performance", "Measure consumer lag", "Find sustainable rates"]
+        },
+        {
+          "topic": "Batch Jobs and Data Pipeline Performance",
+          "subtopics": ["Batch windows", "Data volumes and growth", "Parallelism in jobs", "Database load from batch jobs", "Measuring job duration and throughput", "Interference with online traffic", "Testing data pipelines", "Reporting batch risks"],
+          "tools": ["Batch job scheduler", "Monitoring tools", "Data generation scripts"],
+          "lab_task": "Run a nightly batch job with current and doubled data volumes alongside light online traffic and report whether it still fits its window.",
+          "deliverable": "Batch test results and risk report",
+          "checks": [["Measure", "Durations are recorded for both volumes", "Results"], ["Check interference", "Online response times during the job are recorded", "Results"], ["Report", "The batch window risk is stated", "Report"]],
+          "objectives": ["Test batch performance", "Account for data growth", "Check interference with online use"]
+        },
+        {
+          "topic": "Resilience Under Load: Failures, Timeouts and Retries",
+          "subtopics": ["Failures behave differently under load", "Timeouts and retries", "Retry storms", "Circuit breakers", "Instance failures during load", "Recovery time", "Running experiments safely", "Reporting resilience"],
+          "tools": ["Fault injection tool", "Load tool", "Monitoring tools"],
+          "lab_task": "Stop an instance and slow a dependency during a load test, measure errors and recovery time and report whether timeouts and retries behaved as designed.",
+          "deliverable": "Resilience test results",
+          "checks": [["Inject", "Faults are injected at planned times", "Experiment log"], ["Measure", "Errors and recovery time are recorded", "Results"], ["Report", "Behaviour is compared with the design", "Report"]],
+          "objectives": ["Test resilience under load", "Measure recovery", "Check timeouts and retries"]
+        },
+        {
+          "topic": "Capacity Tests and Autoscaling Behaviour",
+          "subtopics": ["Capacity per instance", "Scaling out and scaling up", "Autoscaling triggers and delays", "Warm-up of new instances", "Scaling limits and quotas", "Cost per transaction", "Capacity headroom", "Reporting capacity"],
+          "tools": ["Cloud autoscaling", "Load tool", "Monitoring tools"],
+          "lab_task": "Measure throughput per instance, test autoscaling under a steady ramp and a spike, record scale-out delays and calculate cost per transaction.",
+          "deliverable": "Capacity and autoscaling report",
+          "checks": [["Measure capacity", "Throughput per instance is recorded", "Results"], ["Test scaling", "Scale-out delays are recorded for ramp and spike", "Monitoring data"], ["Calculate cost", "Cost per transaction is calculated", "Cost table"]],
+          "objectives": ["Test capacity", "Check autoscaling", "Relate capacity to cost"]
+        },
+        {
+          "topic": "Statistics for Performance Results",
+          "subtopics": ["Variation between runs", "Confidence in percentiles", "Sample size and test duration", "Outliers and what to do with them", "Comparing two runs properly", "Visualising distributions", "Avoiding false conclusions", "Reporting uncertainty"],
+          "tools": ["Spreadsheet or Python", "Results data", "Charting tool"],
+          "lab_task": "Analyse five repeat runs, calculate variation and confidence in the 95th percentile, compare two builds properly and write the conclusion with its uncertainty.",
+          "deliverable": "Statistical analysis and conclusion",
+          "checks": [["Measure variation", "Run-to-run variation is calculated", "Analysis"], ["Compare", "The build comparison accounts for variation", "Analysis"], ["Report uncertainty", "The conclusion states its confidence", "Conclusion"]],
+          "objectives": ["Apply statistics to results", "Compare runs properly", "Report uncertainty"]
+        },
+        {
+          "topic": "Test Data at Scale and Production-Like Volumes",
+          "subtopics": ["Data volumes that match production", "Generating large data sets", "Masking production data", "Data distribution and hot keys", "Data consumed during tests", "Resetting large data", "Data effects on caches and indexes", "Data plans for long tests"],
+          "tools": ["Data generation tools", "Masking tools", "Database tools"],
+          "lab_task": "Generate production-like data volumes with realistic distribution, run the same test on small and large data and report the difference.",
+          "deliverable": "Data plan and volume comparison",
+          "checks": [["Generate", "Volumes and distribution match the target", "Data report"], ["Compare", "Results on small and large data are compared", "Comparison"], ["Plan resets", "The reset procedure is documented", "Data plan"]],
+          "objectives": ["Prepare data at scale", "Use realistic distributions", "Measure volume effects"]
+        },
+        {
+          "topic": "Performance Work in Agile Teams",
+          "subtopics": ["Performance in the definition of done", "Performance stories and acceptance criteria", "Small tests during sprints", "Shared ownership with developers", "Performance in sprint reviews", "Release-level tests", "Performance champions", "Measuring team practice"],
+          "tools": ["Backlog tool", "CI pipeline", "Team dashboard"],
+          "lab_task": "Add performance acceptance criteria to three stories, run small tests within the sprint and present performance status in a role-played sprint review.",
+          "deliverable": "Stories, sprint tests and review notes",
+          "checks": [["Specify", "Stories have measurable performance criteria", "Stories"], ["Test in sprint", "Small tests run before the stories close", "Pipeline runs"], ["Review", "Performance status is shown in the review", "Review notes"]],
+          "objectives": ["Fit performance into agile work", "Write performance acceptance criteria", "Share ownership with developers"]
+        },
+        {
+          "topic": "Intermediate Capstone: Root Cause Investigation and Regression Gate",
+          "subtopics": ["Workload and distributed test", "APM, tracing and profiling evidence", "Database and cache analysis", "Fix and retest", "Baseline and CI gate", "Report"],
+          "tools": ["Load tool", "APM tool", "Profiler", "CI pipeline"],
+          "lab_task": "Investigate a slow release: run a distributed test, trace and profile the slow journey, find the database or cache cause, verify the fix with a retest and add a baseline gate to CI.",
+          "deliverable": "Investigation evidence, retest results and CI gate",
+          "checks": [["Find cause", "The root cause is supported by traces and profiles", "Investigation report"], ["Verify fix", "The retest meets the objectives", "Results"], ["Prevent", "The CI gate catches the same regression", "Pipeline run"]],
+          "objectives": ["Combine intermediate performance skills", "Find and fix root causes", "Prevent regressions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For performance engineers, SREs and architects who own performance across systems. Covers performance engineering as a discipline, SLOs and error budgets, architecture reviews, performance modelling and queueing, capacity planning, cost and performance, observability-led engineering, testing in production, chaos engineering, large-scale events, performance of AI and LLM services, data platforms, mainframe and legacy systems, enterprise protocols, tool strategy, governance, team building and troubleshooting.",
+      "prerequisites": ["Has led performance testing for releases and found root causes with developers", "Understands architecture, monitoring and cloud infrastructure", "Works with operations and product leaders"],
+      "outcomes": ["Lead performance engineering with SLOs, models and capacity plans", "Test and improve performance in production safely with observability and chaos experiments", "Prepare systems for major events and new workloads such as AI services", "Set tool strategy, governance and team practices for performance"],
+      "days": [
+        {
+          "topic": "Performance Engineering as a Discipline",
+          "subtopics": ["From testing to engineering", "Performance across the lifecycle", "Design, build, test, release and operate", "Shared responsibility with development and operations", "Performance budgets", "Maturity models", "Roadmaps for improvement", "Communicating value"],
+          "tools": ["Maturity model", "Roadmap template", "Presentation template"],
+          "lab_task": "Assess an organisation's performance maturity across the lifecycle, set performance budgets for two products and present an improvement roadmap.",
+          "deliverable": "Maturity assessment, budgets and roadmap",
+          "checks": [["Assess", "Each lifecycle stage has a maturity rating", "Assessment"], ["Budget", "Two products have performance budgets", "Budgets"], ["Present", "Leaders approve or set conditions", "Presentation notes"]],
+          "objectives": ["Lead performance engineering", "Set performance budgets", "Plan maturity improvements"]
+        },
+        {
+          "topic": "SLOs, Error Budgets and Release Decisions",
+          "subtopics": ["Choosing service level indicators", "Setting objectives with the business", "Error budgets and burn rates", "Linking tests to SLOs", "Release decisions using budgets", "Alerting on burn rate", "Reviewing SLOs", "SLOs for internal platforms"],
+          "tools": ["SLO tooling", "Monitoring tools", "Release process"],
+          "lab_task": "Define SLOs and an error budget policy for two services, connect pre-release test results to them and make a release decision for a build that uses half the budget.",
+          "deliverable": "SLOs, budget policy and release decision",
+          "checks": [["Define", "SLIs and SLOs are measurable", "SLO set"], ["Connect", "Test results report against SLOs", "Test report"], ["Decide", "The release decision follows the policy", "Decision record"]],
+          "objectives": ["Use SLOs in performance work", "Apply error budgets", "Make release decisions"]
+        },
+        {
+          "topic": "Architecture Reviews for Performance and Scalability",
+          "subtopics": ["Reviewing designs before code", "Synchronous chains and fan-out", "Data access patterns", "Caching strategy", "Partitioning and sharding", "Asynchronous designs", "Load estimates per component", "Turning review findings into tests"],
+          "tools": ["Architecture diagrams", "Review checklist", "Load model"],
+          "lab_task": "Review a proposed architecture, estimate peak load per component, identify the top five scalability risks and design tests that target them.",
+          "deliverable": "Review findings and targeted test plan",
+          "checks": [["Estimate", "Component load estimates are calculated", "Load model"], ["Find risks", "Five risks are identified with reasons", "Review findings"], ["Plan", "Each risk has a targeted test", "Test plan"]],
+          "objectives": ["Review architecture for performance", "Estimate component load", "Target tests at design risks"]
+        },
+        {
+          "topic": "Performance Modelling with Queueing Theory",
+          "subtopics": ["Why models help before tests", "Utilisation, service time and queues", "Little's law and the utilisation law", "Simple queueing models", "Modelling a multi-tier system", "Validating models with tests", "Using models for what-if questions", "Limits of models"],
+          "tools": ["Spreadsheet or Python", "Test results", "Monitoring data"],
+          "lab_task": "Build a simple queueing model of a three-tier service from test data, validate it against a new test and use it to answer two what-if questions.",
+          "deliverable": "Validated model and what-if answers",
+          "checks": [["Build", "The model uses measured service times", "Model"], ["Validate", "Predictions match a new test within limits", "Comparison"], ["Answer", "Two what-if questions are answered with the model", "Notes"]],
+          "objectives": ["Model system performance", "Validate models with tests", "Answer what-if questions"]
+        },
+        {
+          "topic": "Capacity Planning for Growth",
+          "subtopics": ["Inputs: forecasts, tests and production data", "Headroom policies", "Scaling triggers and lead times", "Seasonal and event peaks", "Capacity for dependencies", "Reviewing plans with operations and finance", "Tracking actual against plan", "Communicating risk"],
+          "tools": ["Capacity model", "Production metrics", "Forecasts"],
+          "lab_task": "Build a twelve-month capacity plan with headroom and triggers for a service and its database, review it with role-played operations and finance and agree tracking.",
+          "deliverable": "Capacity plan and review notes",
+          "checks": [["Plan", "The plan covers the service and its dependencies", "Capacity plan"], ["Agree", "Operations and finance agree triggers and costs", "Review notes"], ["Track", "Tracking against the plan is set up", "Tracking sheet"]],
+          "objectives": ["Plan capacity", "Include dependencies", "Track plans against reality"]
+        },
+        {
+          "topic": "Cost and Performance Trade-Offs in the Cloud",
+          "subtopics": ["Cost per transaction", "Rightsizing", "Autoscaling policies", "Serverless and containers compared", "Reserved and spot capacity", "Performance cost of savings", "FinOps partnerships", "Reporting savings and risks"],
+          "tools": ["Cloud cost tools", "Load tool", "Monitoring tools"],
+          "lab_task": "Test three deployment options for a service, calculate cost per transaction and SLO compliance for each and recommend the best trade-off to role-played FinOps and product owners.",
+          "deliverable": "Option comparison and recommendation",
+          "checks": [["Test", "Three options are tested under the same load", "Results"], ["Calculate", "Cost and SLO compliance are calculated", "Comparison table"], ["Recommend", "The recommendation explains the trade-off", "Recommendation"]],
+          "objectives": ["Balance cost and performance", "Test deployment options", "Advise with evidence"]
+        },
+        {
+          "topic": "Observability-Led Performance Engineering",
+          "subtopics": ["Metrics, logs, traces and profiles together", "High-cardinality data for investigations", "Exemplars from metrics to traces", "Continuous profiling in production", "Hypothesis-driven investigations", "Investigating without a load test", "Sharing findings across teams", "Building investigation playbooks"],
+          "tools": ["OpenTelemetry", "Tracing and profiling tools", "Grafana"],
+          "lab_task": "Investigate a production-style slowdown from telemetry alone, form and test two hypotheses and write an investigation playbook for the team.",
+          "deliverable": "Investigation record and playbook",
+          "checks": [["Investigate", "Telemetry evidence is gathered across signals", "Investigation record"], ["Test hypotheses", "Each hypothesis is confirmed or rejected", "Investigation record"], ["Share", "The playbook covers the steps used", "Playbook"]],
+          "objectives": ["Engineer performance with observability", "Investigate from telemetry", "Share investigation practice"]
+        },
+        {
+          "topic": "Testing in Production Safely",
+          "subtopics": ["Reasons to test in production", "Synthetic transactions", "Shadow traffic", "Controlled load windows", "Approvals and kill switches", "Data hygiene", "Communication plans", "Learning from production tests"],
+          "tools": ["Synthetic monitoring", "Traffic shadowing tool", "Feature flags"],
+          "lab_task": "Design a production performance test with shadow traffic or a controlled load window, approvals, a kill switch and a communication plan, and run a small version.",
+          "deliverable": "Production test plan and small run results",
+          "checks": [["Make safe", "Approvals and kill switch are in place", "Test plan"], ["Communicate", "Stakeholders are informed as planned", "Communication log"], ["Learn", "Results and lessons are recorded", "Results"]],
+          "objectives": ["Test in production safely", "Use shadow traffic", "Control risk"]
+        },
+        {
+          "topic": "Chaos Engineering for Performance and Resilience",
+          "subtopics": ["Principles of chaos engineering", "Steady state hypotheses", "Experiments under load", "Blast radius control", "Game days", "Automating experiments", "Learning from experiments", "Building a chaos practice"],
+          "tools": ["Chaos engineering tool", "Load tool", "Monitoring tools"],
+          "lab_task": "Run a game day with three chaos experiments under load, measure steady state deviation and recovery and turn the findings into fixes and automated experiments.",
+          "deliverable": "Game day record, findings and automated experiment",
+          "checks": [["Hypothesise", "Each experiment has a steady state hypothesis", "Experiment plans"], ["Measure", "Deviation and recovery are measured", "Results"], ["Automate", "One experiment is automated", "Pipeline or schedule"]],
+          "objectives": ["Run chaos experiments", "Control blast radius", "Build a chaos practice"]
+        },
+        {
+          "topic": "Preparing for Major Events and Peak Traffic",
+          "subtopics": ["Sales, launches and exam results days", "Peak forecasts", "Readiness reviews", "Pre-scaling and warm-up", "Dependency and third-party readiness", "Load tests at peak and beyond", "War rooms and runbooks", "Post-event reviews"],
+          "tools": ["Forecast model", "Readiness checklist", "Load tool"],
+          "lab_task": "Prepare a system for a sales event: forecast the peak, run a readiness review, test at peak and beyond, write the runbook and run a role-played war room.",
+          "deliverable": "Forecast, readiness review, test results and runbook",
+          "checks": [["Forecast", "The peak forecast uses past data", "Forecast"], ["Test", "Peak and beyond-peak tests pass or have mitigations", "Results"], ["Prepare", "The runbook and war room roles are ready", "Runbook"]],
+          "objectives": ["Prepare for peak events", "Run readiness reviews", "Plan event operations"]
+        },
+        {
+          "topic": "Performance of AI and LLM-Based Services",
+          "subtopics": ["How LLM services differ: tokens, latency and streaming", "Time to first token and tokens per second", "Concurrency and rate limits of model providers", "GPU-backed inference services", "Caching and batching for LLM calls", "Cost per request", "Load testing AI features safely", "Reporting AI service performance"],
+          "tools": ["k6 or Locust", "LLM API sandbox", "Monitoring tools"],
+          "lab_task": "Load test an LLM-backed feature in a sandbox, measure time to first token, tokens per second, errors and cost at three concurrency levels and report limits and costs.",
+          "deliverable": "AI service performance report",
+          "checks": [["Measure", "Time to first token and throughput are recorded", "Results"], ["Find limits", "Rate limit and error behaviour is recorded", "Results"], ["Cost", "Cost per request is calculated", "Cost table"]],
+          "objectives": ["Test AI service performance", "Measure token metrics", "Report cost and limits"]
+        },
+        {
+          "topic": "Data Platform and Analytics Performance",
+          "subtopics": ["Warehouse and lakehouse query performance", "Concurrency of BI users", "Data loading and pipeline throughput", "Partitioning and clustering effects", "Caching in BI tools", "Cost of analytics queries", "Testing dashboards under load", "Reporting for data teams"],
+          "tools": ["Data warehouse", "BI tool", "Query load scripts"],
+          "lab_task": "Test a set of BI dashboards with concurrent users against a warehouse, measure query times and cost, change partitioning for one table and measure the effect.",
+          "deliverable": "Analytics performance results and change effect",
+          "checks": [["Test", "Dashboard query times are measured under concurrency", "Results"], ["Cost", "Query cost is recorded", "Cost table"], ["Improve", "The partitioning change effect is measured", "Comparison"]],
+          "objectives": ["Test analytics performance", "Measure query cost", "Tune data layouts"]
+        },
+        {
+          "topic": "Legacy, Mainframe and Enterprise Application Performance",
+          "subtopics": ["Mainframe transactions and batch", "ERP systems such as SAP", "Citrix and remote desktop applications", "Protocol choices for legacy systems", "Licences and tool constraints", "Working with legacy teams", "Monitoring legacy systems", "Reporting for enterprise owners"],
+          "tools": ["LoadRunner or protocol-specific tools", "Legacy monitoring", "Report template"],
+          "lab_task": "Plan a performance test for an ERP transaction path that includes a legacy back end, choose protocols and tools, and identify the monitoring needed from legacy teams.",
+          "deliverable": "Legacy performance test plan",
+          "checks": [["Choose protocols", "Protocol and tool choices are justified", "Test plan"], ["Plan monitoring", "Legacy monitoring needs are agreed", "Test plan"], ["Address constraints", "Licence and access constraints are handled", "Risk list"]],
+          "objectives": ["Plan legacy performance tests", "Choose protocols", "Work with enterprise teams"]
+        },
+        {
+          "topic": "Tool Strategy for Performance Testing",
+          "subtopics": ["Open-source and commercial tools", "Protocol coverage needs", "Developer-friendly tools", "Cloud and self-hosted options", "Reporting and integration needs", "Total cost of ownership", "Standardising without blocking teams", "Reviewing tool choices"],
+          "tools": ["Tool comparison matrix", "Cost model", "Strategy template"],
+          "lab_task": "Compare four performance tools for an organisation's needs, calculate three-year cost and write a tool strategy that allows team choice within standards.",
+          "deliverable": "Tool comparison and strategy",
+          "checks": [["Compare", "Tools are compared on agreed criteria", "Comparison matrix"], ["Cost", "Three-year costs are calculated", "Cost model"], ["Decide", "The strategy balances standards and team choice", "Strategy"]],
+          "objectives": ["Set performance tool strategy", "Compare total cost", "Standardise sensibly"]
+        },
+        {
+          "topic": "Governance and Standards for Performance Work",
+          "subtopics": ["Standards for scripts, data and reports", "Review processes", "Approvals for large and production tests", "Performance gates in release processes", "Exceptions", "Asset management", "Compliance reporting", "Keeping governance light"],
+          "tools": ["Standards template", "Review checklist", "Release process"],
+          "lab_task": "Write standards and approval rules for performance work, review three existing tests against them and define release gates.",
+          "deliverable": "Standards, review results and gates",
+          "checks": [["Set standards", "Standards cover scripts, data, runs and reports", "Standards document"], ["Review", "Three tests are reviewed and fixed", "Review records"], ["Gate", "Release gates have measurable criteria", "Release process"]],
+          "objectives": ["Govern performance work", "Review tests", "Gate releases"]
+        },
+        {
+          "topic": "Building a Performance Engineering Team",
+          "subtopics": ["Roles and skills", "Hiring and interviewing", "Career paths", "Engagement models with product teams", "Training developers and testers", "Communities of practice", "Measuring the team's impact", "Funding and prioritising work"],
+          "tools": ["Skills matrix", "Engagement model", "Training plan"],
+          "lab_task": "Design a performance engineering team with roles, an engagement model, a hiring exercise and a training plan, and present how its impact will be measured.",
+          "deliverable": "Team design, hiring exercise and training plan",
+          "checks": [["Define roles", "Roles and skills are described", "Team design"], ["Engage", "The engagement model explains how teams get help", "Engagement model"], ["Measure", "Impact measures have targets", "Team design"]],
+          "objectives": ["Build performance teams", "Engage product teams", "Measure impact"]
+        },
+        {
+          "topic": "Performance Engineering for Platform Teams",
+          "subtopics": ["Internal platforms and their users", "Platform SLOs", "Noisy neighbours and multi-tenancy", "Shared databases and clusters", "Quotas and fair use", "Testing platform upgrades", "Communicating platform performance", "Self-service performance tools for teams"],
+          "tools": ["Kubernetes or shared platform", "Load tool", "Platform dashboards"],
+          "lab_task": "Test a shared platform with two tenants where one creates heavy load, measure the noisy neighbour effect, propose quotas and test them.",
+          "deliverable": "Multi-tenant test results and quota proposal",
+          "checks": [["Measure", "The noisy neighbour effect is quantified", "Results"], ["Propose", "Quotas are proposed with reasons", "Proposal"], ["Test", "Quotas reduce the effect in a retest", "Comparison"]],
+          "objectives": ["Engineer platform performance", "Handle noisy neighbours", "Offer self-service tools"]
+        },
+        {
+          "topic": "Sustainability and Energy Efficiency in Performance",
+          "subtopics": ["Energy use of software", "Carbon intensity and regions", "Efficiency as a performance goal", "Measuring resource use per transaction", "Scheduling flexible workloads", "Reducing waste in tests themselves", "Reporting sustainability measures", "Balancing efficiency with SLOs"],
+          "tools": ["Cloud carbon footprint tools", "Monitoring tools", "Load tool"],
+          "lab_task": "Measure resource use per transaction for two versions of a service, estimate their energy and carbon impact and recommend changes that keep SLOs.",
+          "deliverable": "Efficiency comparison and recommendations",
+          "checks": [["Measure", "Resource use per transaction is measured", "Results"], ["Estimate", "Energy and carbon estimates are calculated", "Estimates"], ["Recommend", "Changes keep SLOs while reducing use", "Recommendation"]],
+          "objectives": ["Include efficiency in performance goals", "Estimate energy impact", "Balance efficiency and SLOs"]
+        },
+        {
+          "topic": "Troubleshooting Hard Performance Problems",
+          "subtopics": ["Intermittent slowdowns", "Problems that only appear at scale", "Tail latency", "Noisy environments", "Problems in third-party services", "Systematic elimination"],
+          "tools": ["Observability tools", "Load tool", "Investigation log"],
+          "lab_task": "Work through two hard performance cases (an intermittent tail latency spike and a scale-only failure), eliminate causes systematically and document the investigation.",
+          "deliverable": "Investigation logs and conclusions",
+          "checks": [["Eliminate", "Causes are ruled out with evidence", "Investigation logs"], ["Conclude", "The confirmed causes are supported by data", "Conclusions"], ["Share", "Lessons are written for the team", "Lessons note"]],
+          "objectives": ["Troubleshoot hard problems", "Eliminate causes systematically", "Share investigation lessons"]
+        },
+        {
+          "topic": "Advanced Capstone: Performance Engineering Plan for a Critical Platform",
+          "subtopics": ["SLOs and budgets", "Architecture review", "Capacity and cost plan", "Production testing and chaos plan", "Governance and team model", "Leadership presentation"],
+          "tools": ["SLO tooling", "Load tools", "Observability tools", "Cloud cost tools"],
+          "lab_task": "Write and present a performance engineering plan for a critical platform with SLOs, architecture review findings, capacity and cost plans, production testing and chaos plans and a team and governance model.",
+          "deliverable": "Performance engineering plan and presentation",
+          "checks": [["Set objectives", "SLOs and budgets exist for critical services", "Plan"], ["Plan capacity", "Capacity and cost plans are evidence-based", "Plan"], ["Win support", "Leadership approves the plan", "Presentation notes"]],
+          "objectives": ["Combine advanced performance skills", "Plan performance for a critical platform", "Lead performance engineering"]
+        }
+      ]
+    }
+  }
+}

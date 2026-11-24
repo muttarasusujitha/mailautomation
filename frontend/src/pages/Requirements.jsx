@@ -412,7 +412,7 @@ export default function Requirements() {
     technology_needed: '',
     job_title: '',
     job_description: '',
-    min_experience_years: 2,
+    min_experience_years: 5,
     required_skills: [],
     preferred_skills: [],
     required_certifications: [],
@@ -434,7 +434,7 @@ export default function Requirements() {
   })
 
   useEffect(() => {
-    getRequirements().then(r => setReqs((r.data.requirements || []).filter(req => !isLinkedInRequirement(req)))).catch(() => {})
+    getRequirements().then(r => setReqs((r.data.items || r.data.requirements || []).filter(req => !isLinkedInRequirement(req)))).catch(() => {})
   }, [])
 
   // Generate skill suggestions based on input
@@ -497,7 +497,7 @@ export default function Requirements() {
       setResult(res.data)
       setShowForm(false)
       toast.success(`✅ Shortlisted ${res.data.top_trainers} trainers!`)
-      getRequirements().then(r => setReqs((r.data.requirements || []).filter(req => !isLinkedInRequirement(req))))
+      getRequirements().then(r => setReqs((r.data.items || r.data.requirements || []).filter(req => !isLinkedInRequirement(req))))
     } catch (e) { toast.error(e.message) }
     finally { setLoading(false); setLoadingMode('') }
   }
@@ -529,8 +529,8 @@ export default function Requirements() {
 
   return (
     <div className="-m-4 min-h-full space-y-6 bg-gradient-to-br from-blue-500 via-blue-400 to-blue-300 p-4 animate-fade-in sm:-m-6 sm:p-6">
-      <div className="panel border-white/50 bg-white/90 shadow-lg">
-        <div className="pointer-events-none absolute right-[-3rem] top-0 hidden h-full w-80 skew-x-[-18deg] bg-[linear-gradient(180deg,rgba(6,182,212,0.18),rgba(16,185,129,0.10),transparent)] md:block" />
+      <div className="panel relative border-white/50 bg-white/90 shadow-lg">
+        <div className="pointer-events-none absolute right-0 top-0 hidden h-full w-80 skew-x-[-18deg] bg-[linear-gradient(180deg,rgba(6,182,212,0.18),rgba(16,185,129,0.10),transparent)] md:block" />
         <div className="pointer-events-none absolute right-20 top-0 hidden h-full w-px bg-cyan-200/80 md:block" />
         <div className="relative grid gap-5 border-b border-blue-100 px-5 py-5 lg:grid-cols-[1fr_360px]">
           <div className="min-w-0 max-w-3xl">
@@ -765,6 +765,7 @@ export default function Requirements() {
                   <option key={y} value={y}>{y}+ year{y > 1 ? 's' : ''}</option>
                 ))}
               </select>
+              <p className="mt-1 text-xs text-slate-500">Candidates below this experience are excluded.</p>
             </div>
             <div className="field-module">
               <label className="label">Preferred Location <span className="text-slate-400 font-normal">(optional)</span></label>
@@ -776,7 +777,7 @@ export default function Requirements() {
               <label className="label">Shortlist Top</label>
               <select className="input" value={form.top_n}
                 onChange={e => setForm(f => ({ ...f, top_n: parseInt(e.target.value) }))}>
-                {[1,3,5,8,10].map(n => <option key={n} value={n}>Top {n} Trainer{n > 1 ? 's' : ''}</option>)}
+                {[1,3,5].map(n => <option key={n} value={n}>Top {n} Trainer{n > 1 ? 's' : ''}</option>)}
               </select>
             </div>
             <div className="field-module">
@@ -800,7 +801,7 @@ export default function Requirements() {
 
           {/* Required Skills with autocomplete suggestions */}
           <div className="mt-4 px-6">
-            <label className="label">Required Skills</label>
+            <label className="label">Required Skills <span className="text-slate-400 font-normal">(all must match)</span></label>
             <div className="flex gap-2 mb-2">
               <div className="relative flex-1">
                 <input className="input w-full" placeholder="Type skill + Enter or click suggestion"
@@ -960,6 +961,8 @@ export default function Requirements() {
                     {r.client_email ? `Client: ${r.client_email}` : 'Client email missing'}
                   </p>
                   <p className="text-xs text-slate-400">{r.requirement_id} • {r.min_experience_years}+ yrs exp • Top {r.top_n}</p>
+                  {r.client_portal_source && <p className="mt-1 text-xs font-semibold text-blue-700">Client portal · Premium {r.premium_priority_paid ? 'paid' : r.premium_choice === 'skipped' ? 'skipped' : 'not selected'}</p>}
+                  {r.client_selected_trainer_name && <p className="mt-1 text-xs font-semibold text-emerald-700">Client first choice: {r.client_selected_trainer_name} · awaiting staff confirmation</p>}
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="badge-blue">{r.total_matched || 0} matched</span>

@@ -20,11 +20,22 @@ class Settings(BaseSettings):
     CORE_API_URL: str = "http://core-api:8001"
     INTERNAL_SERVICE_TOKEN: str = ""
 
+    # Live travel supplier. Keep these only in the service environment; never
+    # expose them to the browser or store them in a booking task.
+    AMADEUS_CLIENT_ID: str = ""
+    AMADEUS_CLIENT_SECRET: str = ""
+    AMADEUS_API_BASE_URL: str = "https://test.api.amadeus.com"
+
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_MODEL: str = "gemini-3.5-flash-lite"
     ANTHROPIC_API_KEY: str = ""
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-5.5"
+    TOC_EMBEDDING_MODEL: str = "text-embedding-3-small"
+    AI_PROVIDER: str = "openai"
+    OLLAMA_URL: str = "http://localhost:11434/api/generate"
+    OLLAMA_MODEL: str = "qwen3:8b"
+    OLLAMA_TOC_TIMEOUT_SECONDS: int = 300
 
     ALLOWED_ORIGINS: str = "http://localhost:5174,http://127.0.0.1:5174,https://localhost:3000"
 

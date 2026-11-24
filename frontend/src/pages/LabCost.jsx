@@ -19,6 +19,8 @@ function requirementLabel(req) {
 
 function labDeliveryStatus(req = {}) {
   const status = String(req.lab_cost_status || '').toLowerCase()
+  if (status === 'toc_and_lab_sent') return { label: 'Sent with ToC', detail: 'One reply carried the day-wise ToC and the lab-cost workbook.', tone: 'success' }
+  if (status === 'included_with_interview') return { label: 'Sent with interview mail', detail: 'The workbook went in the same client mail as the interview confirmation.', tone: 'success' }
   if (status === 'revised_estimate_sent') return { label: 'Revised estimate sent', detail: 'The latest client participant and access inputs were used.', tone: 'success' }
   if (status === 'revised_estimate_failed') return { label: 'Delivery failed', detail: 'The calculation or email delivery failed. Review inputs and generate/send again.', tone: 'error' }
   if (status === 'inputs_received') return { label: 'Inputs received', detail: 'The client inputs are saved. A revised estimate is being prepared.', tone: 'pending' }
@@ -37,9 +39,15 @@ export default function LabCost() {
   const [labMode, setLabMode] = useState('ai')
   const [manualMapping, setManualMapping] = useState('[]')
   const [deliveries, setDeliveries] = useState([])
+  const [labRequests, setLabRequests] = useState([])
+  const [selectedLabRequestId, setSelectedLabRequestId] = useState('')
+  const [selectedLabRequest, setSelectedLabRequest] = useState(null)
+  const [requestsLoading, setRequestsLoading] = useState(false)
+  const [requestActionBusy, setRequestActionBusy] = useState(false)
   const [deliveryLoading, setDeliveryLoading] = useState(true)
   const [clientKey, setClientKey] = useState('')
   const [deliveryEmailId, setDeliveryEmailId] = useState('')
+  const [tocPreview, setTocPreview] = useState(null)
   const [pricingProfile, setPricingProfile] = useState({ status: 'idle', detail: '' })
   const [form, setForm] = useState({
     cloud_provider: '',
@@ -54,7 +62,7 @@ export default function LabCost() {
     monitoring_gb: '',
     k8s_worker_nodes: '',
     contingency_percent: 10,
-    tax_percent: 0,
+    tax_percent: '',
     lab_package: 'standard',
     quote_validity_days: 7,
   })
@@ -109,8 +117,62 @@ export default function LabCost() {
 
   useEffect(() => { loadDeliveries() }, [])
 
+  const loadLabRequests = async () => {
+    setRequestsLoading(true)
+    try {
+      const { data } = await api.get('/toc/lab-cost/requests')
+      const items = data.items || []
+      setLabRequests(items)
+      if (!selectedLabRequestId && items[0]) setSelectedLabRequestId(items[0].requirement_id)
+    } catch (error) {
+      toast.error(error.message || 'Could not load lab-cost requests')
+    } finally {
+      setRequestsLoading(false)
+    }
+  }
+
+  const loadLabRequest = async (id) => {
+    if (!id) return
+    setSelectedLabRequestId(id)
+    setSelectedLabRequest(null)
+    try {
+      const { data } = await api.get(`/toc/lab-cost/requests/${encodeURIComponent(id)}`)
+      setSelectedLabRequest(data)
+    } catch (error) {
+      toast.error(error.message || 'Could not load request details')
+    }
+  }
+
+  useEffect(() => { loadLabRequests() }, [])
+  useEffect(() => { if (selectedLabRequestId) loadLabRequest(selectedLabRequestId) }, [selectedLabRequestId])
+
+  const downloadPendingWorkbook = async () => {
+    if (!selectedLabRequestId) return
+    try {
+      const response = await api.get(`/toc/lab-cost/requests/${encodeURIComponent(selectedLabRequestId)}/workbook`, { responseType: 'blob' })
+      const url = URL.createObjectURL(response.data)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = selectedLabRequest?.request?.workbook_filename || 'Lab Cost Estimate.xlsx'
+      document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url)
+    } catch (error) { toast.error(error.message || 'Could not download pending workbook') }
+  }
+
+  const approveLabRequest = async () => {
+    if (!selectedLabRequestId) return
+    setRequestActionBusy(true)
+    try {
+      await api.post(`/inbox/lab-cost-requests/${encodeURIComponent(selectedLabRequestId)}/approve`)
+      toast.success('Approved estimate sent to the client')
+      await Promise.all([loadLabRequests(), loadDeliveries()])
+      await loadLabRequest(selectedLabRequestId)
+    } catch (error) { toast.error(error.message || 'Could not send approved estimate') }
+    finally { setRequestActionBusy(false) }
+  }
+
   useEffect(() => {
     if (!selected) return
+    setTocPreview(null)
     setForm(previous => ({
       ...previous,
       participant_count: selected.participant_count || selected.participants || selected.batch_size || '',
@@ -130,12 +192,17 @@ export default function LabCost() {
     setPricingProfile({ status: 'checking', detail: 'Checking live-pricing profile…' })
     api.get(`/toc/lab-cost/pricing-catalog/${form.cloud_provider}/${encodeURIComponent(form.cloud_region)}`)
       .then(({ data }) => {
-        if (active) setPricingProfile({ status: 'ready', detail: `Verified profile configured ${data.validated_at ? `on ${new Date(data.validated_at).toLocaleString()}` : ''}. Rates will refresh when the workbook is generated.` })
+        if (active) setPricingProfile({ status: 'ready', detail: `Saved catalog will override the automatic selectors${data.validated_at ? ` (saved ${new Date(data.validated_at).toLocaleString()})` : ''}. Public prices and USD/INR are fetched again when the workbook is generated, and the totals are calculated before download.` })
       })
       .catch(error => {
         if (!active) return
+        const automatic = error?.response?.status === 404 && ['aws', 'azure'].includes(form.cloud_provider)
+        if (automatic) {
+          setPricingProfile({ status: 'ready', detail: 'Public retail prices for this provider and region, plus the current USD/INR rate, are fetched when the workbook is generated. The spreadsheet totals are calculated before the file downloads.' })
+          return
+        }
         const message = error?.response?.status === 404
-          ? 'No verified pricing profile is configured for this provider and region. Configure the lab resource architecture before generating a client quote.'
+          ? 'GCP needs a saved catalog with exact service and SKU selections before a live price can be fetched.'
           : (error.message || 'Could not check the live-pricing profile')
         setPricingProfile({ status: 'missing', detail: message })
       })
@@ -185,30 +252,44 @@ export default function LabCost() {
   const downloadLabCost = async () => {
     if (!selected) return toast.error('Select a requirement first')
     const technology = selected.technology_needed || selected.domain || selected.job_title
-    const durationDays = Number(selected.duration_days || Math.ceil(Number(selected.duration_hours || 0) / 8) || 3)
+    const durationDays = Number(selected.duration_days || Math.ceil(Number(selected.duration_hours || 0) / 8) || 1)
     if (!technology) return toast.error('The selected requirement needs a technology')
-    if ([form.hours_per_day, form.participant_count, form.fx_rate, form.quote_validity_days].some(value => Number(value) <= 0)) {
-      return toast.error('Hours, participants, FX rate, and validity must be positive')
+    if (Number(form.quote_validity_days) <= 0 || [form.hours_per_day, form.participant_count].some(value => value !== '' && Number(value) <= 0)) {
+      return toast.error('Hours, participants, and validity must be positive')
     }
 
+    if (form.tax_percent === '' || !Number.isFinite(Number(form.tax_percent)) || Number(form.tax_percent) < 0 || Number(form.tax_percent) > 100) {
+      return toast.error('Confirm the tax percentage; enter 0 if no tax applies')
+    }
     setGenerating(true)
     try {
-      const usage = Object.fromEntries(['disk_gb_per_node', 'storage_gb', 'egress_gb', 'build_minutes', 'monitoring_gb', 'k8s_worker_nodes'].map(key => {
-        if (form[key] === '' || !Number.isFinite(Number(form[key])) || Number(form[key]) < 0) throw new Error(`Confirm ${key.replaceAll('_', ' ')}; enter 0 when unused`)
-        return [key, Number(form[key])]
+      const usageDefaults = { disk_gb_per_node: form.cloud_provider === 'azure' ? 32 : 20, storage_gb: 0, egress_gb: 0, build_minutes: 0, monitoring_gb: 0, k8s_worker_nodes: 0 }
+      const usage = Object.fromEntries(Object.entries(usageDefaults).map(([key, fallback]) => {
+        if (form[key] === '' || form[key] == null) return [key, fallback]
+        const number = Number(form[key])
+        if (!Number.isFinite(number) || number < 0) throw new Error(`Confirm ${key.replaceAll('_', ' ')}; enter 0 when unused`)
+        return [key, number]
       }))
       const mapping = labMode === 'manual' ? JSON.parse(manualMapping) : undefined
-      const tocResponse = await api.post('/toc/generate', {
+      const { data: saved } = await api.get(`/toc/lab-cost/agenda/${encodeURIComponent(requirementId)}`).catch(error => {
+        if (error.response?.status === 404) return { data: {} }
+        throw error
+      })
+      const tocResponse = saved.toc ? { data: saved } : await api.post('/toc/generate', {
         generation_mode: labMode === 'manual' ? 'template' : 'ai',
         allow_ai_enrichment: labMode !== 'manual',
         requirement_id: selected.requirement_id || selected.id,
-        technology,
+        domain: technology,
         duration_days: durationDays,
+        level: selected.level || selected.audience_level || 'intermediate',
         audience_level: selected.audience_level || selected.level || 'intermediate',
         mode: selected.mode || selected.training_mode || 'Online',
         training_dates: selected.training_dates || selected.preferred_dates || '',
         timing: selected.timing || selected.schedule || '',
       })
+      const toc = tocResponse.data?.toc_data || tocResponse.data?.toc
+      if (!toc || !Array.isArray(toc.days)) throw new Error('The ToC service returned no day-wise curriculum to review')
+      setTocPreview(toc)
       const response = await api.post('/toc/generate-lab-cost', {
         ...usage,
         lab_generation_mode: labMode,
@@ -216,9 +297,8 @@ export default function LabCost() {
         toc_id: tocResponse.data.toc_id,
         cloud_provider: form.cloud_provider,
         cloud_region: form.cloud_region,
-        hours_per_day: Number(form.hours_per_day),
-        participant_count: Number(form.participant_count),
-        fx_rate: Number(form.fx_rate),
+        hours_per_day: form.hours_per_day === '' ? null : Number(form.hours_per_day),
+        participant_count: form.participant_count === '' ? null : Number(form.participant_count),
         contingency_percent: Number(form.contingency_percent),
         tax_percent: Number(form.tax_percent),
         lab_package: form.lab_package,
@@ -234,7 +314,10 @@ export default function LabCost() {
       link.click()
       link.remove()
       URL.revokeObjectURL(url)
-      toast.success('Lab cost workbook generated. Review it before sending to the client.')
+      const pricingStatus = response.headers['x-lab-cost-pricing-status']
+      const finalInr = response.headers['x-lab-cost-final-inr']
+      const total = finalInr ? ` Calculated total INR ${Number(finalInr).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.` : ''
+      toast.success(`Lab cost workbook generated from live public prices.${total} ${pricingStatus || 'Review the rate sheet before sending.'}`)
     } catch (error) {
       let detail = error.message || 'Lab cost generation failed'
       if (error.response?.data instanceof Blob) {
@@ -251,16 +334,45 @@ export default function LabCost() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Lab Cost</h1>
-          <p className="mt-1 text-sm text-slate-600">Prepare the approved Lab Cost workbook only when the client explicitly asks for a lab cost or estimate.</p>
+          <p className="mt-1 text-sm text-slate-600">Prepare the approved Lab Cost workbook only when the client explicitly asks for a lab cost or estimate. A ToC in the same mail stays in that one reply.</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => setView('requests')} className={`rounded-lg px-3 py-2 text-sm font-semibold ${view === 'requests' ? 'bg-amber-700 text-white' : 'border border-slate-200 bg-white text-slate-700'}`}>Requests {labRequests.some(item => item.status === 'awaiting_review') && `(${labRequests.filter(item => item.status === 'awaiting_review').length})`}</button>
           <button type="button" onClick={() => setView('deliveries')} className={`rounded-lg px-3 py-2 text-sm font-semibold ${view === 'deliveries' ? 'bg-slate-900 text-white' : 'border border-slate-200 bg-white text-slate-700'}`}>Client lab-costs</button>
           <button type="button" onClick={() => setView('create')} className={`rounded-lg px-3 py-2 text-sm font-semibold ${view === 'create' ? 'bg-emerald-700 text-white' : 'border border-slate-200 bg-white text-slate-700'}`}>Create workbook</button>
-          <button type="button" onClick={view === 'deliveries' ? loadDeliveries : loadRequirements} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-            <RefreshCw className={`h-4 w-4 ${(view === 'deliveries' ? deliveryLoading : loading) ? 'animate-spin' : ''}`} /> Refresh
+          <button type="button" onClick={view === 'deliveries' ? loadDeliveries : view === 'requests' ? loadLabRequests : loadRequirements} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+            <RefreshCw className={`h-4 w-4 ${(view === 'deliveries' ? deliveryLoading : view === 'requests' ? requestsLoading : loading) ? 'animate-spin' : ''}`} /> Refresh
           </button>
         </div>
       </div>
+
+      {view === 'requests' && <section className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="rounded-lg border border-slate-200 bg-white p-5">
+          <div className="flex items-center gap-2"><FileSpreadsheet className="h-4 w-4 text-amber-700" /><h2 className="font-bold text-slate-900">Standalone lab requests</h2></div>
+          <p className="mt-1 text-sm text-slate-500">Original requests, missing quote inputs, and estimates that need a pricing review.</p>
+          <div className="mt-4 space-y-2">
+            {labRequests.map(item => <button key={item.requirement_id} type="button" onClick={() => setSelectedLabRequestId(item.requirement_id)} className={`w-full rounded-lg border p-3 text-left ${selectedLabRequestId === item.requirement_id ? 'border-amber-500 bg-amber-50' : 'border-slate-200 hover:bg-slate-50'}`}>
+              <p className="font-bold text-slate-800">{item.client_name || item.client_email || 'Client'} · {item.technology}</p>
+              <p className="mt-1 text-xs text-slate-500">{item.requirement_id} · {String(item.status || 'received').replaceAll('_', ' ')}</p>
+              {item.status === 'awaiting_review' && <p className="mt-1 text-xs font-semibold text-amber-800">Live pricing changed beyond the review threshold</p>}
+              {!!item.missing_inputs?.length && <p className="mt-1 text-xs text-slate-600">Needs: {item.missing_inputs.join(', ')}</p>}
+            </button>)}
+            {!requestsLoading && !labRequests.length && <p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-600">No standalone lab-cost requests yet.</p>}
+          </div>
+        </div>
+        <div className="rounded-lg border border-slate-200 bg-white p-5">
+          {selectedLabRequest && <>
+            <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="font-bold text-slate-900">{selectedLabRequest.request?.client_name || selectedLabRequest.original_message?.from_name || 'Client request'}</h2><p className="mt-1 text-sm text-slate-500">{selectedLabRequest.request?.requirement_id} · {selectedLabRequest.request?.status?.replaceAll('_', ' ')}</p></div>{selectedLabRequest.request?.status === 'awaiting_review' && <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900">Approval required</span>}</div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 text-sm"><Info label="Sender" value={`${selectedLabRequest.original_message?.from_name || ''} ${selectedLabRequest.original_message?.from_email || selectedLabRequest.request?.client_email || ''}`} /><Info label="Training / scope" value={selectedLabRequest.request?.technology_needed || selectedLabRequest.request?.domain} /><Info label="Participants / duration" value={`${selectedLabRequest.request?.participant_count || '—'} participants · ${selectedLabRequest.request?.duration_days || '—'} days`} /><Info label="Cloud / region" value={[selectedLabRequest.request?.cloud_provider, selectedLabRequest.request?.cloud_region].filter(Boolean).join(' · ')} /></div>
+            <LabClientInvoice requirementId={selectedLabRequest.request.requirement_id} request={selectedLabRequest.request} />
+            {selectedLabRequest.request?.rate_change_summary?.length > 0 && <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><p className="font-bold">Why this needs review</p><ul className="mt-1 list-inside list-disc">{selectedLabRequest.request.rate_change_summary.map((reason, index) => <li key={index}>{reason}</li>)}</ul></div>}
+            {!!selectedLabRequest.request?.missing_inputs?.length && <div className="mt-4 rounded-md border border-blue-100 bg-blue-50 p-3 text-sm text-blue-900"><p className="font-bold">Missing quote inputs</p><p className="mt-1">{selectedLabRequest.request.missing_inputs.join(', ')}</p></div>}
+            <div className="mt-4 rounded-md border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Original email · {selectedLabRequest.original_message?.subject || 'No subject'}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">{selectedLabRequest.original_message?.body || 'Original message body unavailable.'}</p></div>
+            {selectedLabRequest.request?.status === 'awaiting_review' && <div className="mt-4 flex flex-wrap gap-2"><button type="button" onClick={downloadPendingWorkbook} className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700"><Download className="h-4 w-4" /> Review workbook</button><button type="button" disabled={requestActionBusy} onClick={approveLabRequest} className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50"><CheckCircle2 className="h-4 w-4" />{requestActionBusy ? 'Sending…' : 'Approve and send'}</button></div>}
+          </>}
+          {!selectedLabRequest && <p className="text-sm text-slate-500">{requestsLoading ? 'Loading request…' : 'Select a request to inspect its original message and quote status.'}</p>}
+        </div>
+      </section>}
 
       {view === 'deliveries' && <section className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
         <div className="rounded-lg border border-slate-200 bg-white p-5">
@@ -286,6 +398,7 @@ export default function LabCost() {
             <option value="">Select a requirement</option>
             {requirements.map(requirement => <option key={requirement.requirement_id || requirement.id} value={requirement.requirement_id || requirement.id}>{requirementLabel(requirement)}</option>)}
           </select>
+          {selected && <LabClientInvoice requirementId={requirementId} request={selected} />}
           {selected && <div className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4 text-sm">
             <div><p className="text-slate-500">Technology</p><p className="font-semibold text-slate-800">{selected.technology_needed || selected.domain || selected.job_title}</p></div>
             <div><p className="text-slate-500">Duration</p><p className="font-semibold text-slate-800">{selected.duration_days || Math.ceil(Number(selected.duration_hours || 0) / 8) || 3} days</p></div>
@@ -298,7 +411,7 @@ export default function LabCost() {
 
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
           <p className="font-bold">Send rule</p>
-          <p className="mt-1 leading-6">When a client later gives participant count, lab hours, dates, or other lab inputs, the automated workflow recalculates from the TOC and sends a revised workbook. If delivery fails, the status panel above shows it for manual retry.</p>
+          <p className="mt-1 leading-6">One coordination reply covers a table of contents, a lab cost, or both. A ToC-only request goes out with the generated outline. A lab-cost request goes out with the workbook when the inputs are complete. If the cloud tool is missing, that same reply asks which tool to cost: AWS, Azure, or GCP. A request that only asks for a ToC, a lab cost, or both stays in that reply and does not enter the trainer shortlist or confirmed pipeline. A second mail is not sent. Invoice and purchase-order notes stay on the finance reply and go out only when billing is the request.</p>
         </div>
       </section>
 
@@ -307,7 +420,7 @@ export default function LabCost() {
         <div className="my-4 grid gap-4 sm:grid-cols-2">
           {Object.entries({ disk_gb_per_node: 'Disk GB per VM / worker', storage_gb: 'Object storage GB', egress_gb: 'Outbound transfer GB', build_minutes: 'Build runner minutes', monitoring_gb: 'Monitoring GB', k8s_worker_nodes: 'Shared Kubernetes workers' }).map(([key, label]) => <Field key={key} label={label}><input type="number" min="0" step={key === 'k8s_worker_nodes' ? '1' : 'any'} value={form[key]} onChange={event => update(key, event.target.value)} /></Field>)}
         </div>
-        <p className="text-sm text-slate-600">Enter confirmed usage; use 0 for unused resources. Compute is charged for access hours. Disk and object storage remain billable while retained. Resource quantities are totals for the group.</p>
+        <p className="text-sm text-slate-600">Blank optional usage stays at the pricing baseline: 20 GB disk on AWS, 32 GiB on Azure, and zero for unused egress, builds, monitoring, and extra workers. VM, disk, and storage rates are fetched from the public price list. The workbook total is calculated before download.</p>
         <button type="button" disabled={saving || !selected} onClick={() => saveSetup()} className="my-3 rounded border px-4 py-2 disabled:opacity-50">Save confirmed inputs for Shortlist</button>
         <details className="my-3 rounded border p-3">
           <summary>Configure provider pricing catalog</summary>
@@ -321,11 +434,11 @@ export default function LabCost() {
           <Field label="Cloud provider"><select value={form.cloud_provider} onChange={event => setForm(previous => ({ ...previous, cloud_provider: event.target.value, cloud_region: '' }))}><option value="">Confirm provider</option><option value="aws">AWS</option><option value="azure">Azure</option><option value="gcp">GCP</option></select></Field>
           <Field label="Cloud region"><select value={form.cloud_region} onChange={event => update('cloud_region', event.target.value)}><option value="">Confirm region</option>{form.cloud_provider === 'aws' && <option value="ap-south-1">Mumbai</option>}{form.cloud_provider === 'azure' && <option value="central-india">Central India</option>}{form.cloud_provider === 'gcp' && <option value="asia-south1">Mumbai</option>}</select></Field>
           <Field label="Lab package"><select value={form.lab_package} onChange={event => update('lab_package', event.target.value)}>{packages.map(item => <option key={item.value} value={item.value}>{item.label} - {item.note}</option>)}</select></Field>
-          <Field label="Lab hours per day"><input type="number" min="0.5" step="0.5" value={form.hours_per_day} onChange={event => update('hours_per_day', event.target.value)} /></Field>
-          <Field label="Participants"><input type="number" min="1" value={form.participant_count} onChange={event => update('participant_count', event.target.value)} /></Field>
-          <Field label="USD to INR"><input type="number" min="1" step="0.01" value={form.fx_rate} onChange={event => update('fx_rate', event.target.value)} /></Field>
+          <Field label="Lab hours per day"><input placeholder="Use agenda hours" type="number" min="0.5" step="0.5" value={form.hours_per_day} onChange={event => update('hours_per_day', event.target.value)} /></Field>
+          <Field label="Participants"><input placeholder="Blank for one-day sample" type="number" min="1" value={form.participant_count} onChange={event => update('participant_count', event.target.value)} /></Field>
+          <Field label="USD to INR"><p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">Fetched from the published USD/INR rate when the workbook is generated.</p></Field>
           <Field label="Contingency %"><input type="number" min="0" max="100" value={form.contingency_percent} onChange={event => update('contingency_percent', event.target.value)} /></Field>
-          <Field label="Tax / GST %"><input type="number" min="0" max="100" value={form.tax_percent} onChange={event => update('tax_percent', event.target.value)} /></Field>
+          <Field label="Tax / GST % (confirm, or enter 0)"><input type="number" min="0" max="100" value={form.tax_percent} onChange={event => update('tax_percent', event.target.value)} /></Field>
           <Field label="Quote validity (days)"><input type="number" min="1" value={form.quote_validity_days} onChange={event => update('quote_validity_days', event.target.value)} /></Field>
         </div>
         {pricingProfile.status !== 'idle' && <div className={`mt-4 flex gap-3 rounded-lg border p-3 text-sm ${pricingProfile.status === 'ready' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : pricingProfile.status === 'missing' ? 'border-amber-200 bg-amber-50 text-amber-900' : 'border-slate-200 bg-slate-50 text-slate-700'}`}>
@@ -333,6 +446,18 @@ export default function LabCost() {
           <div><p className="font-bold">Live pricing profile {pricingProfile.status === 'ready' ? 'ready' : pricingProfile.status === 'checking' ? 'checking' : 'needs setup'}</p><p className="mt-0.5 leading-5">{pricingProfile.detail}</p></div>
         </div>}
       </section>
+
+      {tocPreview && <section aria-live="polite" className="rounded-lg border border-blue-200 bg-white p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div><h2 className="text-lg font-bold text-slate-900">ToC used for this lab estimate</h2><p className="mt-1 text-sm text-slate-600">{tocPreview.domain || selected?.technology_needed || 'Training'} · {tocPreview.days.length} days · {tocPreview.generation_mode || 'draft'}{tocPreview.quality?.status ? ` · ${tocPreview.quality.status.replaceAll('_', ' ')}` : ''}</p></div>
+          {(tocPreview.client_application_context?.industry || tocPreview.client_context?.industry || tocPreview.client_application_context?.business_context || tocPreview.client_context?.business_context) && <span className="max-w-md rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">Client context: {tocPreview.client_application_context?.industry || tocPreview.client_context?.industry || tocPreview.client_application_context?.business_context || tocPreview.client_context?.business_context}</span>}
+        </div>
+        {tocPreview.overview && <p className="mt-3 text-sm leading-6 text-slate-700">{tocPreview.overview}</p>}
+        {tocPreview.quality?.review_warnings?.length > 0 && <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><p className="font-semibold">Review notes</p><ul className="mt-1 list-inside list-disc">{tocPreview.quality.review_warnings.slice(0, 4).map((warning, index) => <li key={`${index}-${warning}`}>{warning}</li>)}</ul></div>}
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          {tocPreview.days.map((day, index) => <article key={day.day || index} className="rounded-lg border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-blue-700">Day {day.day || index + 1}</p><h3 className="mt-1 font-semibold text-slate-900">{day.focus_area || day.title || day.category || `Training module ${index + 1}`}</h3><p className="mt-2 text-sm text-slate-700">{day.lab || day.lab_task || day.scenario || (day.modules || []).map(module => module.lab || module.title).filter(Boolean).join(' · ') || (day.subtopics || []).join(' · ')}</p></article>)}
+        </div>
+      </section>}
 
       <button type="button" onClick={downloadLabCost} disabled={!selected || generating || pricingProfile.status !== 'ready'} className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50">
         {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSpreadsheet className="h-4 w-4" />}
@@ -342,6 +467,58 @@ export default function LabCost() {
       </>}
     </div>
   )
+}
+
+function LabClientInvoice({ requirementId, request }) {
+  const [invoice, setInvoice] = useState(null)
+  const [busy, setBusy] = useState(true)
+  const [error, setError] = useState('')
+  const defaultAmount = request.lab_client_price || request.lab_quote_amount || ''
+
+  useEffect(() => {
+    let active = true
+    api.get(`/invoices/lab/${encodeURIComponent(requirementId)}`).then(({ data }) => {
+      if (active) setInvoice(data.invoice || null)
+    }).catch(err => { if (active) setError(err.message || 'Could not load lab invoice') })
+      .finally(() => { if (active) setBusy(false) })
+    return () => { active = false }
+  }, [requirementId])
+
+  const create = async event => {
+    event.preventDefault()
+    setBusy(true)
+    setError('')
+    try {
+      const values = Object.fromEntries(new FormData(event.currentTarget))
+      const { data } = await api.post(`/invoices/lab/${encodeURIComponent(requirementId)}`, values)
+      setInvoice(data.invoice)
+    } catch (err) { setError(err.message || 'Could not generate the lab invoice') }
+    finally { setBusy(false) }
+  }
+
+  const send = async () => {
+    setBusy(true)
+    setError('')
+    try {
+      const { data } = await api.post(`/invoices/${invoice.invoice_id}/send`, { to_email: invoice.client_email })
+      setInvoice(data.invoice)
+    } catch (err) { setError(err.message || 'Could not send the lab invoice') }
+    finally { setBusy(false) }
+  }
+
+  return <form onSubmit={create} className="mt-4 space-y-3 rounded-lg border border-blue-200 bg-blue-50/40 p-4">
+    <h3 className="font-bold text-slate-900">Separate client lab invoice</h3>
+    {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
+    {invoice ? <div className="flex flex-wrap items-center gap-3 text-sm"><span>{invoice.invoice_number} · ₹{Number(invoice.total_amount).toLocaleString('en-IN')} · {invoice.status}</span>{invoice.status !== 'sent' && <button type="button" disabled={busy} onClick={send} className="btn-secondary text-sm">Send lab invoice</button>}</div> : <>
+      <p className="text-sm text-slate-600">Create this only after the client accepts the lab-cost workbook.</p>
+      <div className="grid gap-2 sm:grid-cols-3">
+        <label className="text-sm">Lab amount (INR)<input name="lab_amount" type="number" required min="0.01" step="0.01" defaultValue={defaultAmount} className="mt-1 w-full rounded border border-slate-300 p-2" /></label>
+        <label className="text-sm">GST %<input name="gst_rate" type="number" min="0" max="100" step="0.01" defaultValue="18" className="mt-1 w-full rounded border border-slate-300 p-2" /></label>
+        <label className="text-sm">Due date<input name="due_date" type="date" className="mt-1 w-full rounded border border-slate-300 p-2" /></label>
+      </div>
+      <button disabled={busy} className="btn-secondary text-sm">Generate lab invoice</button>
+    </>}
+  </form>
 }
 
 function Info({ label, value }) {

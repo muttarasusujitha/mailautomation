@@ -1,0 +1,14 @@
+[
+  {
+    "case": "simple_acknowledgement",
+    "body": "You're welcome, Mira. Let me know if you need anything else.",
+    "words": 11,
+    "needs_human_review": false
+  },
+  {
+    "case": "missing_azure_syllabus",
+    "body": "We\u2019re currently verifying the availability of the Azure syllabus. Once confirmed, we\u2019ll provide it to you promptly.",
+    "words": 17,
+    "needs_human_review": true
+  }
+]

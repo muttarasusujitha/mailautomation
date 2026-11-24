@@ -7,7 +7,9 @@ RUN apt-get update \
 COPY microservices/shared /app/shared
 COPY microservices/services/intelligence-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m playwright install --with-deps chromium
 COPY microservices/services/intelligence-service/app ./app
+COPY microservices/services/trainer-service/app/datasets_compact /app/it-course-datasets
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 EXPOSE 8005

@@ -13,6 +13,7 @@ from app.routes import (
     interview_reminders, purchase_orders, invoices, finance_approvals,
     toc_extended, trainer_automation, voice_ai, profile_enhancements,
 )
+from app.routes import trainer_portal
 
 settings = get_settings()
 logger = logging.getLogger(__name__)
@@ -32,6 +33,13 @@ async def _ensure_indexes(db) -> None:
         ("trainers", [("domain", 1), ("status", 1)], {}),
         ("trainers", [("category", 1), ("status", 1)], {}),
         ("trainers", [("created_at", -1)], {}),
+        ("trainer_profiles", [("owner_user_id", 1)], {"unique": True}),
+        ("trainer_profiles", [("domains", 1), ("status", 1)], {}),
+        ("trainer_profiles", [("updated_at", -1)], {}),
+        ("partner_opportunities", [("opportunity_id", 1)], {"unique": True}),
+        ("partner_opportunities", [("status", 1), ("created_at", -1)], {}),
+        ("trainer_opportunity_interests", [("user_id", 1), ("opportunity_id", 1)], {"unique": True}),
+        ("trainer_opportunity_interests", [("opportunity_id", 1), ("created_at", -1)], {}),
         ("requirements", [("requirement_id", 1)], {}),
         ("requirements", [("technology_needed", 1), ("status", 1)], {}),
         ("requirements", [("domain", 1), ("status", 1)], {}),
@@ -47,6 +55,10 @@ async def _ensure_indexes(db) -> None:
         ("interview_meeting_notes", [("schedule_key", 1), ("created_at", -1)], {}),
         ("purchase_orders", [("requirement_id", 1), ("created_at", -1)], {}),
         ("invoices", [("requirement_id", 1), ("created_at", -1)], {}),
+        # Supports the finance queue and the Travel Bookings operations view.
+        ("travel_booking_tasks", [("booking_task_id", 1)], {"unique": True}),
+        ("travel_booking_tasks", [("status", 1), ("updated_at", -1)], {}),
+        ("travel_booking_tasks", [("requirement_id", 1), ("trainer_id", 1), ("status", 1)], {}),
     ]
     for collection, keys, options in indexes:
         await _create_index(db, collection, keys, **options)
@@ -80,10 +92,18 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=[
+        "Content-Disposition",
+        "X-Lab-Cost-Quote-ID",
+        "X-Lab-Cost-Quote-Valid-Until",
+        "X-Lab-Cost-Pricing-Status",
+        "X-Lab-Cost-Final-INR",
+    ],
 )
 
 # Core trainer CRUD + matching
 app.include_router(trainers.router,           prefix="/api/v1/trainers",             tags=["trainers"])
+app.include_router(trainer_portal.router,      prefix="/api/v1/trainers",             tags=["trainer-portal"])
 app.include_router(matching.router,           prefix="/api/v1/trainers",             tags=["matching"])
 app.include_router(trainer_automation.router, prefix="/api/v1/trainers",             tags=["trainer-automation"])
 

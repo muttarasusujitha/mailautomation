@@ -29,7 +29,134 @@
         "Chrome DevTools"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Build semantic portfolio and registration pages"
+      "lab_task": "Build a semantic registration form with associated labels, required fields, error messages and a confirmation region. Test it using keyboard-only navigation and submitted invalid and valid sample values.",
+      "deliverable": "HTML page, accessibility checklist and form test evidence",
+      "assessment": "Every input has an associated visible label\nTab order reaches all interactive controls in the expected sequence\nInvalid email is reported clearly and valid input reaches the confirmation region without claiming server-side validation",
+      "learning_objectives": [
+        "Use semantic form controls and associated labels",
+        "Describe client-side validation limits"
+      ],
+      "scenario": "A registration page is unusable with a keyboard and submits incomplete profile data.",
+      "preparation_requirements": [
+        "Prepare the stated lab fixture or training environment",
+        "Verify expected results: Every input has an associated visible label; Tab order reaches all interactive controls in the expected sequence; Invalid email is reported clearly and valid input reaches the confirmation region without claiming server-side validation"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Demonstration",
+          "minutes": null,
+          "activity": "A registration page is unusable with a keyboard and submits incomplete profile data.",
+          "evidence": "Baseline example and first expected result"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": null,
+          "activity": "Build a semantic registration form with associated labels, required fields, error messages and a confirmation region. Test it using keyboard-only navigation and submitted invalid and valid sample values.",
+          "evidence": "HTML page, accessibility checklist and form test evidence"
+        },
+        {
+          "method": "Independent validation",
+          "minutes": null,
+          "activity": "Tab order reaches all interactive controls in the expected sequence",
+          "evidence": "Recorded result"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Invalid email is reported clearly and valid input reaches the confirmation region without claiming server-side validation",
+          "evidence": "Participant explanation and evidence"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "scenario",
+        "lab",
+        "deliverable",
+        "learning_objectives",
+        "assessment",
+        "acceptance_checks",
+        "prerequisites",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "manual-priority-v1",
+      "review_status": "unreviewed",
+      "content_before_manual_rewrite": {
+        "day": 1,
+        "topic": "Web Foundations - HTML5",
+        "subtopics": [
+          "Semantic HTML",
+          "Forms",
+          "Accessibility",
+          "Media Elements",
+          "SEO"
+        ],
+        "tools": [
+          "VS Code",
+          "Chrome DevTools"
+        ],
+        "jira_focus": "Update sprint board",
+        "lab_task": "Build semantic portfolio and registration pages",
+        "deliverable": "Participant submission for 'Web Foundations - HTML5': Build semantic portfolio and registration pages. Include the resulting artefact, reproducible steps and observed results.",
+        "assessment": "Reproduce the source lab: Build semantic portfolio and registration pages. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Semantic HTML; Forms; Accessibility; Media Elements; SEO). Require one changed-input or exception case and an explanation of its result.",
+        "learning_objectives": [
+          "Complete and demonstrate: Build semantic portfolio and registration pages.",
+          "Explain how the lab applies Web Foundations - HTML5 and justify the observed result."
+        ],
+        "scenario": "Demonstrate 'Web Foundations - HTML5' on a prepared training sample through this task: Build semantic portfolio and registration pages.",
+        "preparation_requirements": [
+          "Prepare sample assets, expected results and an exception case for: Build semantic portfolio and registration pages",
+          "Confirm participant prerequisites, tool access and activity durations before delivery"
+        ],
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (Semantic HTML; Forms; Accessibility; Media Elements; SEO) and demonstrate the starting sample for: Build semantic portfolio and registration pages",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Build semantic portfolio and registration pages",
+            "evidence": "Participant submission for 'Web Foundations - HTML5': Build semantic portfolio and registration pages. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Build semantic portfolio and registration pages' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Build semantic portfolio and registration pages. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Semantic HTML; Forms; Accessibility; Media Elements; SEO). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ],
+        "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+        "proposed_fields": [
+          "deliverable",
+          "assessment",
+          "learning_objectives",
+          "scenario",
+          "preparation_requirements",
+          "delivery_steps"
+        ],
+        "content_enrichment_version": "catalog-delivery-v1",
+        "review_status": "unreviewed"
+      },
+      "lab": "Build a semantic registration form with associated labels, required fields, error messages and a confirmation region. Test it using keyboard-only navigation and submitted invalid and valid sample values.",
+      "prerequisites": [
+        "Files, browsers and basic markup"
+      ],
+      "acceptance_checks": [
+        "Every input has an associated visible label",
+        "Tab order reaches all interactive controls in the expected sequence",
+        "Invalid email is reported clearly and valid input reaches the confirmation region without claiming server-side validation"
+      ],
+      "content_quality_stage": "manually_authored_pending_lab_validation",
+      "source_verification": "Exercise is manually authored; technical and lab validation remain pending"
     },
     {
       "day": 2,
@@ -46,7 +173,134 @@
         "Chrome DevTools"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Create responsive landing page with Flexbox/Grid"
+      "lab_task": "Style a supplied product-card page using responsive layout rules. Test at 320px, 768px and 1440px widths; preserve readable text, visible controls and the declared card order.",
+      "deliverable": "CSS stylesheet, three viewport screenshots and layout decision note",
+      "assessment": "At 320px no horizontal overflow hides card content or the action button\nAt 768px and 1440px cards follow the documented layout rule\nText, focus indication and controls remain visible at all three widths",
+      "learning_objectives": [
+        "Use responsive layout rules instead of device-specific hard-coded positions",
+        "Verify a layout at defined viewport widths"
+      ],
+      "scenario": "A product card layout overflows on a narrow viewport and hides the action button.",
+      "preparation_requirements": [
+        "Prepare the stated lab fixture or training environment",
+        "Verify expected results: At 320px no horizontal overflow hides card content or the action button; At 768px and 1440px cards follow the documented layout rule; Text, focus indication and controls remain visible at all three widths"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Demonstration",
+          "minutes": null,
+          "activity": "A product card layout overflows on a narrow viewport and hides the action button.",
+          "evidence": "Baseline example and first expected result"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": null,
+          "activity": "Style a supplied product-card page using responsive layout rules. Test at 320px, 768px and 1440px widths; preserve readable text, visible controls and the declared card order.",
+          "evidence": "CSS stylesheet, three viewport screenshots and layout decision note"
+        },
+        {
+          "method": "Independent validation",
+          "minutes": null,
+          "activity": "At 768px and 1440px cards follow the documented layout rule",
+          "evidence": "Recorded result"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Text, focus indication and controls remain visible at all three widths",
+          "evidence": "Participant explanation and evidence"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "scenario",
+        "lab",
+        "deliverable",
+        "learning_objectives",
+        "assessment",
+        "acceptance_checks",
+        "prerequisites",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "manual-priority-v1",
+      "review_status": "unreviewed",
+      "content_before_manual_rewrite": {
+        "day": 2,
+        "topic": "Styling - CSS3 & Responsive Design",
+        "subtopics": [
+          "Selectors",
+          "Box Model",
+          "Flexbox",
+          "CSS Grid",
+          "Media Queries"
+        ],
+        "tools": [
+          "CSS3",
+          "Chrome DevTools"
+        ],
+        "jira_focus": "Log time on stories",
+        "lab_task": "Create responsive landing page with Flexbox/Grid",
+        "deliverable": "Participant submission for 'Styling - CSS3 & Responsive Design': Create responsive landing page with Flexbox/Grid. Include the resulting artefact, reproducible steps and observed results.",
+        "assessment": "Reproduce the source lab: Create responsive landing page with Flexbox/Grid. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Selectors; Box Model; Flexbox; CSS Grid; Media Queries). Require one changed-input or exception case and an explanation of its result.",
+        "learning_objectives": [
+          "Complete and demonstrate: Create responsive landing page with Flexbox/Grid.",
+          "Explain how the lab applies Styling - CSS3 & Responsive Design and justify the observed result."
+        ],
+        "scenario": "Demonstrate 'Styling - CSS3 & Responsive Design' on a prepared training sample through this task: Create responsive landing page with Flexbox/Grid.",
+        "preparation_requirements": [
+          "Prepare sample assets, expected results and an exception case for: Create responsive landing page with Flexbox/Grid",
+          "Confirm participant prerequisites, tool access and activity durations before delivery"
+        ],
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (Selectors; Box Model; Flexbox; CSS Grid; Media Queries) and demonstrate the starting sample for: Create responsive landing page with Flexbox/Grid",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Create responsive landing page with Flexbox/Grid",
+            "evidence": "Participant submission for 'Styling - CSS3 & Responsive Design': Create responsive landing page with Flexbox/Grid. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Create responsive landing page with Flexbox/Grid' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Create responsive landing page with Flexbox/Grid. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Selectors; Box Model; Flexbox; CSS Grid; Media Queries). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ],
+        "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+        "proposed_fields": [
+          "deliverable",
+          "assessment",
+          "learning_objectives",
+          "scenario",
+          "preparation_requirements",
+          "delivery_steps"
+        ],
+        "content_enrichment_version": "catalog-delivery-v1",
+        "review_status": "unreviewed"
+      },
+      "lab": "Style a supplied product-card page using responsive layout rules. Test at 320px, 768px and 1440px widths; preserve readable text, visible controls and the declared card order.",
+      "prerequisites": [
+        "HTML elements, CSS selectors and browser developer tools"
+      ],
+      "acceptance_checks": [
+        "At 320px no horizontal overflow hides card content or the action button",
+        "At 768px and 1440px cards follow the documented layout rule",
+        "Text, focus indication and controls remain visible at all three widths"
+      ],
+      "content_quality_stage": "manually_authored_pending_lab_validation",
+      "source_verification": "Exercise is manually authored; technical and lab validation remain pending"
     },
     {
       "day": 3,
@@ -63,7 +317,55 @@
         "Node.js"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Build calculator and API data fetching"
+      "lab_task": "Build calculator and API data fetching",
+      "deliverable": "Participant submission for 'JavaScript ES6+ Fundamentals': Build calculator and API data fetching. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build calculator and API data fetching. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Syntax; Functions; Async/Await; Destructuring; Modules). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build calculator and API data fetching.",
+        "Explain how the lab applies JavaScript ES6+ Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'JavaScript ES6+ Fundamentals' on a prepared training sample through this task: Build calculator and API data fetching.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build calculator and API data fetching",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Syntax; Functions; Async/Await; Destructuring; Modules) and demonstrate the starting sample for: Build calculator and API data fetching",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build calculator and API data fetching",
+          "evidence": "Participant submission for 'JavaScript ES6+ Fundamentals': Build calculator and API data fetching. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build calculator and API data fetching' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build calculator and API data fetching. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Syntax; Functions; Async/Await; Destructuring; Modules). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 4,
@@ -80,7 +382,55 @@
         "Vite"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Build reusable component library"
+      "lab_task": "Build reusable component library",
+      "deliverable": "Participant submission for 'Frontend - React Fundamentals': Build reusable component library. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build reusable component library. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Components; JSX; Props; State; Hooks). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build reusable component library.",
+        "Explain how the lab applies Frontend - React Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Frontend - React Fundamentals' on a prepared training sample through this task: Build reusable component library.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build reusable component library",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Components; JSX; Props; State; Hooks) and demonstrate the starting sample for: Build reusable component library",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build reusable component library",
+          "evidence": "Participant submission for 'Frontend - React Fundamentals': Build reusable component library. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build reusable component library' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build reusable component library. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Components; JSX; Props; State; Hooks). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 5,
@@ -97,7 +447,55 @@
         "Redux"
       ],
       "jira_focus": "Sprint planning; review progress for Advanced React",
-      "lab_task": "Build full-featured React app with state management"
+      "lab_task": "Build full-featured React app with state management",
+      "deliverable": "Participant submission for 'Frontend - Advanced React': Build full-featured React app with state management. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build full-featured React app with state management. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Custom Hooks; Context API; Redux Toolkit; Router; Performance). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build full-featured React app with state management.",
+        "Explain how the lab applies Frontend - Advanced React and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Frontend - Advanced React' on a prepared training sample through this task: Build full-featured React app with state management.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build full-featured React app with state management",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Custom Hooks; Context API; Redux Toolkit; Router; Performance) and demonstrate the starting sample for: Build full-featured React app with state management",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build full-featured React app with state management",
+          "evidence": "Participant submission for 'Frontend - Advanced React': Build full-featured React app with state management. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build full-featured React app with state management' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build full-featured React app with state management. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Custom Hooks; Context API; Redux Toolkit; Router; Performance). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 6,
@@ -114,7 +512,55 @@
         "Framer Motion"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Build polished UI with Tailwind and animations"
+      "lab_task": "Build polished UI with Tailwind and animations",
+      "deliverable": "Participant submission for 'Frontend - Styling & UI': Build polished UI with Tailwind and animations. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build polished UI with Tailwind and animations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Tailwind CSS; shadcn/ui; Theming; Animation; Accessibility). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build polished UI with Tailwind and animations.",
+        "Explain how the lab applies Frontend - Styling & UI and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Frontend - Styling & UI' on a prepared training sample through this task: Build polished UI with Tailwind and animations.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build polished UI with Tailwind and animations",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Tailwind CSS; shadcn/ui; Theming; Animation; Accessibility) and demonstrate the starting sample for: Build polished UI with Tailwind and animations",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build polished UI with Tailwind and animations",
+          "evidence": "Participant submission for 'Frontend - Styling & UI': Build polished UI with Tailwind and animations. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build polished UI with Tailwind and animations' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build polished UI with Tailwind and animations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Tailwind CSS; shadcn/ui; Theming; Animation; Accessibility). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 7,
@@ -131,7 +577,55 @@
         "Cypress"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Write test suite and optimize performance"
+      "lab_task": "Write test suite and optimize performance",
+      "deliverable": "Participant submission for 'Frontend - Testing & Performance': Write test suite and optimize performance. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Write test suite and optimize performance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Jest; React Testing Library; E2E Testing; Optimization; Lighthouse). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Write test suite and optimize performance.",
+        "Explain how the lab applies Frontend - Testing & Performance and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Frontend - Testing & Performance' on a prepared training sample through this task: Write test suite and optimize performance.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Write test suite and optimize performance",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Jest; React Testing Library; E2E Testing; Optimization; Lighthouse) and demonstrate the starting sample for: Write test suite and optimize performance",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Write test suite and optimize performance",
+          "evidence": "Participant submission for 'Frontend - Testing & Performance': Write test suite and optimize performance. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Write test suite and optimize performance' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Write test suite and optimize performance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Jest; React Testing Library; E2E Testing; Optimization; Lighthouse). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 8,
@@ -148,7 +642,55 @@
         "npm"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Create Node scripts and basic server"
+      "lab_task": "Create Node scripts and basic server",
+      "deliverable": "Participant submission for 'Backend - Node.js Fundamentals': Create Node scripts and basic server. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create Node scripts and basic server. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Event Loop; Callbacks; npm; Core Modules; File System). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create Node scripts and basic server.",
+        "Explain how the lab applies Backend - Node.js Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Backend - Node.js Fundamentals' on a prepared training sample through this task: Create Node scripts and basic server.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create Node scripts and basic server",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Event Loop; Callbacks; npm; Core Modules; File System) and demonstrate the starting sample for: Create Node scripts and basic server",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create Node scripts and basic server",
+          "evidence": "Participant submission for 'Backend - Node.js Fundamentals': Create Node scripts and basic server. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create Node scripts and basic server' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create Node scripts and basic server. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Event Loop; Callbacks; npm; Core Modules; File System). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 9,
@@ -164,7 +706,55 @@
         "Express.js"
       ],
       "jira_focus": "Sprint planning; review progress for Express.js Basics",
-      "lab_task": "Build CRUD REST API with validation"
+      "lab_task": "Build CRUD REST API with validation",
+      "deliverable": "Participant submission for 'Backend - Express.js Basics': Build CRUD REST API with validation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build CRUD REST API with validation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Routing; Middleware; Controllers; Error Handling; Validation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build CRUD REST API with validation.",
+        "Explain how the lab applies Backend - Express.js Basics and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Backend - Express.js Basics' on a prepared training sample through this task: Build CRUD REST API with validation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build CRUD REST API with validation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Routing; Middleware; Controllers; Error Handling; Validation) and demonstrate the starting sample for: Build CRUD REST API with validation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build CRUD REST API with validation",
+          "evidence": "Participant submission for 'Backend - Express.js Basics': Build CRUD REST API with validation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build CRUD REST API with validation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build CRUD REST API with validation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Routing; Middleware; Controllers; Error Handling; Validation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 10,
@@ -181,7 +771,55 @@
         "Redis"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Implement production-ready API patterns"
+      "lab_task": "Implement production-ready API patterns",
+      "deliverable": "Participant submission for 'Backend - Advanced Express Patterns': Implement production-ready API patterns. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement production-ready API patterns. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Decorators; Service Layer; Dependency Injection; Rate Limiting; Caching). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement production-ready API patterns.",
+        "Explain how the lab applies Backend - Advanced Express Patterns and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Backend - Advanced Express Patterns' on a prepared training sample through this task: Implement production-ready API patterns.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement production-ready API patterns",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Decorators; Service Layer; Dependency Injection; Rate Limiting; Caching) and demonstrate the starting sample for: Implement production-ready API patterns",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement production-ready API patterns",
+          "evidence": "Participant submission for 'Backend - Advanced Express Patterns': Implement production-ready API patterns. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement production-ready API patterns' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement production-ready API patterns. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Decorators; Service Layer; Dependency Injection; Rate Limiting; Caching). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 11,
@@ -198,7 +836,55 @@
         "psql"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Design database schema and write queries"
+      "lab_task": "Design database schema and write queries",
+      "deliverable": "Participant submission for 'Database - SQL & PostgreSQL': Design database schema and write queries. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design database schema and write queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Relational Design; Queries; Indexes; Transactions; Normalization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Design database schema and write queries.",
+        "Explain how the lab applies Database - SQL & PostgreSQL and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Database - SQL & PostgreSQL' on a prepared training sample through this task: Design database schema and write queries.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design database schema and write queries",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Relational Design; Queries; Indexes; Transactions; Normalization) and demonstrate the starting sample for: Design database schema and write queries",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design database schema and write queries",
+          "evidence": "Participant submission for 'Database - SQL & PostgreSQL': Design database schema and write queries. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design database schema and write queries' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design database schema and write queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Relational Design; Queries; Indexes; Transactions; Normalization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 12,
@@ -215,7 +901,55 @@
         "Mongoose"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Build MongoDB collections with relationships"
+      "lab_task": "Build MongoDB collections with relationships",
+      "deliverable": "Participant submission for 'Database - NoSQL & MongoDB': Build MongoDB collections with relationships. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build MongoDB collections with relationships. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Document Model; Mongoose; Aggregation; Indexing; Relationships). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build MongoDB collections with relationships.",
+        "Explain how the lab applies Database - NoSQL & MongoDB and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Database - NoSQL & MongoDB' on a prepared training sample through this task: Build MongoDB collections with relationships.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build MongoDB collections with relationships",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Document Model; Mongoose; Aggregation; Indexing; Relationships) and demonstrate the starting sample for: Build MongoDB collections with relationships",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build MongoDB collections with relationships",
+          "evidence": "Participant submission for 'Database - NoSQL & MongoDB': Build MongoDB collections with relationships. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build MongoDB collections with relationships' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build MongoDB collections with relationships. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Document Model; Mongoose; Aggregation; Indexing; Relationships). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 13,
@@ -232,7 +966,55 @@
         "JWT"
       ],
       "jira_focus": "Sprint planning; review progress for Authentication & Authorization",
-      "lab_task": "Implement login, JWT, and role-based access"
+      "lab_task": "Implement login, JWT, and role-based access",
+      "deliverable": "Participant submission for 'Backend - Authentication & Authorization': Implement login, JWT, and role-based access. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement login, JWT, and role-based access. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JWT; Password Hashing; OAuth2; RBAC; Protected Routes). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement login, JWT, and role-based access.",
+        "Explain how the lab applies Backend - Authentication & Authorization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Backend - Authentication & Authorization' on a prepared training sample through this task: Implement login, JWT, and role-based access.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement login, JWT, and role-based access",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (JWT; Password Hashing; OAuth2; RBAC; Protected Routes) and demonstrate the starting sample for: Implement login, JWT, and role-based access",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement login, JWT, and role-based access",
+          "evidence": "Participant submission for 'Backend - Authentication & Authorization': Implement login, JWT, and role-based access. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement login, JWT, and role-based access' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement login, JWT, and role-based access. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JWT; Password Hashing; OAuth2; RBAC; Protected Routes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 14,
@@ -250,7 +1032,55 @@
         "Nodemailer"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Integrate email service and file uploads"
+      "lab_task": "Integrate email service and file uploads",
+      "deliverable": "Participant submission for 'Backend - API Integration & External Services': Integrate email service and file uploads. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Integrate email service and file uploads. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (REST Clients; Webhooks; Email Service; File Uploads; Payment Gateway). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Integrate email service and file uploads.",
+        "Explain how the lab applies Backend - API Integration & External Services and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Backend - API Integration & External Services' on a prepared training sample through this task: Integrate email service and file uploads.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Integrate email service and file uploads",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (REST Clients; Webhooks; Email Service; File Uploads; Payment Gateway) and demonstrate the starting sample for: Integrate email service and file uploads",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Integrate email service and file uploads",
+          "evidence": "Participant submission for 'Backend - API Integration & External Services': Integrate email service and file uploads. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Integrate email service and file uploads' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Integrate email service and file uploads. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (REST Clients; Webhooks; Email Service; File Uploads; Payment Gateway). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 15,
@@ -268,7 +1098,55 @@
         "Bull"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Build real-time notification system"
+      "lab_task": "Build real-time notification system",
+      "deliverable": "Participant submission for 'Backend - Real-Time Features': Build real-time notification system. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build real-time notification system. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (WebSockets; Socket.IO; Background Jobs; Message Queues; Pub/Sub). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build real-time notification system.",
+        "Explain how the lab applies Backend - Real-Time Features and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Backend - Real-Time Features' on a prepared training sample through this task: Build real-time notification system.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build real-time notification system",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (WebSockets; Socket.IO; Background Jobs; Message Queues; Pub/Sub) and demonstrate the starting sample for: Build real-time notification system",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build real-time notification system",
+          "evidence": "Participant submission for 'Backend - Real-Time Features': Build real-time notification system. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build real-time notification system' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build real-time notification system. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (WebSockets; Socket.IO; Background Jobs; Message Queues; Pub/Sub). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 16,
@@ -286,7 +1164,55 @@
         "Express"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Connect React UI to Express backend API"
+      "lab_task": "Connect React UI to Express backend API",
+      "deliverable": "Participant submission for 'Full Stack Integration - Frontend to Backend': Connect React UI to Express backend API. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Connect React UI to Express backend API. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (API Service Layer; Error Handling; Loading States; Data Flow; Validation Sync). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Connect React UI to Express backend API.",
+        "Explain how the lab applies Full Stack Integration - Frontend to Backend and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Full Stack Integration - Frontend to Backend' on a prepared training sample through this task: Connect React UI to Express backend API.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Connect React UI to Express backend API",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (API Service Layer; Error Handling; Loading States; Data Flow; Validation Sync) and demonstrate the starting sample for: Connect React UI to Express backend API",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Connect React UI to Express backend API",
+          "evidence": "Participant submission for 'Full Stack Integration - Frontend to Backend': Connect React UI to Express backend API. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Connect React UI to Express backend API' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Connect React UI to Express backend API. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (API Service Layer; Error Handling; Loading States; Data Flow; Validation Sync). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 17,
@@ -303,7 +1229,55 @@
         "Zod"
       ],
       "jira_focus": "Sprint planning; review progress for Forms & Data Validation",
-      "lab_task": "Build multi-step form with validation"
+      "lab_task": "Build multi-step form with validation",
+      "deliverable": "Participant submission for 'Full Stack - Forms & Data Validation': Build multi-step form with validation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build multi-step form with validation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Form State; Validation Libraries; Error Messages; Submission Flow; Optimistic Updates). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build multi-step form with validation.",
+        "Explain how the lab applies Full Stack - Forms & Data Validation and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Full Stack - Forms & Data Validation' on a prepared training sample through this task: Build multi-step form with validation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build multi-step form with validation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Form State; Validation Libraries; Error Messages; Submission Flow; Optimistic Updates) and demonstrate the starting sample for: Build multi-step form with validation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build multi-step form with validation",
+          "evidence": "Participant submission for 'Full Stack - Forms & Data Validation': Build multi-step form with validation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build multi-step form with validation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build multi-step form with validation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Form State; Validation Libraries; Error Messages; Submission Flow; Optimistic Updates). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 18,
@@ -320,7 +1294,55 @@
         "Apollo"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Build app consuming GraphQL API"
+      "lab_task": "Build app consuming GraphQL API",
+      "deliverable": "Participant submission for 'GraphQL - Basics & Apollo': Build app consuming GraphQL API. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build app consuming GraphQL API. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Query Language; Apollo Client; Apollo Server; Mutations; Subscriptions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build app consuming GraphQL API.",
+        "Explain how the lab applies GraphQL - Basics & Apollo and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'GraphQL - Basics & Apollo' on a prepared training sample through this task: Build app consuming GraphQL API.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build app consuming GraphQL API",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Query Language; Apollo Client; Apollo Server; Mutations; Subscriptions) and demonstrate the starting sample for: Build app consuming GraphQL API",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build app consuming GraphQL API",
+          "evidence": "Participant submission for 'GraphQL - Basics & Apollo': Build app consuming GraphQL API. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build app consuming GraphQL API' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build app consuming GraphQL API. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Query Language; Apollo Client; Apollo Server; Mutations; Subscriptions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 19,
@@ -337,7 +1359,55 @@
         "React"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Build full-stack feature with Next.js"
+      "lab_task": "Build full-stack feature with Next.js",
+      "deliverable": "Participant submission for 'Next.js - Full Stack Framework': Build full-stack feature with Next.js. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build full-stack feature with Next.js. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (App Router; Server Components; API Routes; Data Fetching; Deployment). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build full-stack feature with Next.js.",
+        "Explain how the lab applies Next.js - Full Stack Framework and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Next.js - Full Stack Framework' on a prepared training sample through this task: Build full-stack feature with Next.js.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build full-stack feature with Next.js",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (App Router; Server Components; API Routes; Data Fetching; Deployment) and demonstrate the starting sample for: Build full-stack feature with Next.js",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build full-stack feature with Next.js",
+          "evidence": "Participant submission for 'Next.js - Full Stack Framework': Build full-stack feature with Next.js. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build full-stack feature with Next.js' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build full-stack feature with Next.js. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (App Router; Server Components; API Routes; Data Fetching; Deployment). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 20,
@@ -354,7 +1424,55 @@
         "Docker Compose"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Containerize full-stack application"
+      "lab_task": "Containerize full-stack application",
+      "deliverable": "Participant submission for 'DevOps Basics - Docker & Containerization': Containerize full-stack application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Containerize full-stack application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dockerfile; Images; Containers; Docker Compose; Networking). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Containerize full-stack application.",
+        "Explain how the lab applies DevOps Basics - Docker & Containerization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'DevOps Basics - Docker & Containerization' on a prepared training sample through this task: Containerize full-stack application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Containerize full-stack application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Dockerfile; Images; Containers; Docker Compose; Networking) and demonstrate the starting sample for: Containerize full-stack application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Containerize full-stack application",
+          "evidence": "Participant submission for 'DevOps Basics - Docker & Containerization': Containerize full-stack application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Containerize full-stack application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Containerize full-stack application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dockerfile; Images; Containers; Docker Compose; Networking). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 21,
@@ -371,7 +1489,55 @@
         "Jest"
       ],
       "jira_focus": "Sprint planning; review progress for CI/CD Pipelines",
-      "lab_task": "Set up automated build and deploy pipeline"
+      "lab_task": "Set up automated build and deploy pipeline",
+      "deliverable": "Participant submission for 'DevOps - CI/CD Pipelines': Set up automated build and deploy pipeline. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up automated build and deploy pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (GitHub Actions; Testing Pipeline; Build Automation; Deployment; Monitoring). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Set up automated build and deploy pipeline.",
+        "Explain how the lab applies DevOps - CI/CD Pipelines and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'DevOps - CI/CD Pipelines' on a prepared training sample through this task: Set up automated build and deploy pipeline.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up automated build and deploy pipeline",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (GitHub Actions; Testing Pipeline; Build Automation; Deployment; Monitoring) and demonstrate the starting sample for: Set up automated build and deploy pipeline",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up automated build and deploy pipeline",
+          "evidence": "Participant submission for 'DevOps - CI/CD Pipelines': Set up automated build and deploy pipeline. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up automated build and deploy pipeline' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up automated build and deploy pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (GitHub Actions; Testing Pipeline; Build Automation; Deployment; Monitoring). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 22,
@@ -388,7 +1554,55 @@
         "Netlify"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Deploy frontend to Vercel/Netlify"
+      "lab_task": "Deploy frontend to Vercel/Netlify",
+      "deliverable": "Participant submission for 'Cloud Deployment - Vercel & Netlify': Deploy frontend to Vercel/Netlify. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deploy frontend to Vercel/Netlify. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Deployment Basics; Environment Variables; Serverless; Edge Functions; CDN). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deploy frontend to Vercel/Netlify.",
+        "Explain how the lab applies Cloud Deployment - Vercel & Netlify and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cloud Deployment - Vercel & Netlify' on a prepared training sample through this task: Deploy frontend to Vercel/Netlify.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deploy frontend to Vercel/Netlify",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Deployment Basics; Environment Variables; Serverless; Edge Functions; CDN) and demonstrate the starting sample for: Deploy frontend to Vercel/Netlify",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deploy frontend to Vercel/Netlify",
+          "evidence": "Participant submission for 'Cloud Deployment - Vercel & Netlify': Deploy frontend to Vercel/Netlify. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deploy frontend to Vercel/Netlify' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deploy frontend to Vercel/Netlify. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Deployment Basics; Environment Variables; Serverless; Edge Functions; CDN). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 23,
@@ -405,7 +1619,55 @@
         "Heroku"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Deploy backend to AWS/Heroku"
+      "lab_task": "Deploy backend to AWS/Heroku",
+      "deliverable": "Participant submission for 'Cloud Deployment - AWS & Heroku': Deploy backend to AWS/Heroku. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deploy backend to AWS/Heroku. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (EC2; RDS; S3; Lambda; API Gateway). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deploy backend to AWS/Heroku.",
+        "Explain how the lab applies Cloud Deployment - AWS & Heroku and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cloud Deployment - AWS & Heroku' on a prepared training sample through this task: Deploy backend to AWS/Heroku.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deploy backend to AWS/Heroku",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (EC2; RDS; S3; Lambda; API Gateway) and demonstrate the starting sample for: Deploy backend to AWS/Heroku",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deploy backend to AWS/Heroku",
+          "evidence": "Participant submission for 'Cloud Deployment - AWS & Heroku': Deploy backend to AWS/Heroku. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deploy backend to AWS/Heroku' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deploy backend to AWS/Heroku. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (EC2; RDS; S3; Lambda; API Gateway). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 24,
@@ -422,7 +1684,55 @@
         "db-migrate"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Write migrations and backup strategy"
+      "lab_task": "Write migrations and backup strategy",
+      "deliverable": "Participant submission for 'Databases in Production - Migrations & Backups': Write migrations and backup strategy. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Write migrations and backup strategy. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Schema Migrations; Seeding; Backups; Replication; Scaling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Write migrations and backup strategy.",
+        "Explain how the lab applies Databases in Production - Migrations & Backups and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Databases in Production - Migrations & Backups' on a prepared training sample through this task: Write migrations and backup strategy.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Write migrations and backup strategy",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Schema Migrations; Seeding; Backups; Replication; Scaling) and demonstrate the starting sample for: Write migrations and backup strategy",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Write migrations and backup strategy",
+          "evidence": "Participant submission for 'Databases in Production - Migrations & Backups': Write migrations and backup strategy. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Write migrations and backup strategy' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Write migrations and backup strategy. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Schema Migrations; Seeding; Backups; Replication; Scaling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 25,
@@ -440,7 +1750,55 @@
         "Prometheus"
       ],
       "jira_focus": "Sprint planning; review progress for Monitoring & Logging",
-      "lab_task": "Set up centralized logging and monitoring"
+      "lab_task": "Set up centralized logging and monitoring",
+      "deliverable": "Participant submission for 'Monitoring & Logging': Set up centralized logging and monitoring. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up centralized logging and monitoring. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Application Logging; Error Tracking; Performance Monitoring; ELK Stack; Alerting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Set up centralized logging and monitoring.",
+        "Explain how the lab applies Monitoring & Logging and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Monitoring & Logging' on a prepared training sample through this task: Set up centralized logging and monitoring.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up centralized logging and monitoring",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Application Logging; Error Tracking; Performance Monitoring; ELK Stack; Alerting) and demonstrate the starting sample for: Set up centralized logging and monitoring",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up centralized logging and monitoring",
+          "evidence": "Participant submission for 'Monitoring & Logging': Set up centralized logging and monitoring. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up centralized logging and monitoring' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up centralized logging and monitoring. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Application Logging; Error Tracking; Performance Monitoring; ELK Stack; Alerting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 26,
@@ -457,7 +1815,55 @@
         "OWASP"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Audit and secure full-stack app"
+      "lab_task": "Audit and secure full-stack app",
+      "deliverable": "Participant submission for 'Security - Best Practices': Audit and secure full-stack app. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Audit and secure full-stack app. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CORS; CSRF; SQL Injection Prevention; XSS Prevention; Secrets Management). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Audit and secure full-stack app.",
+        "Explain how the lab applies Security - Best Practices and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Security - Best Practices' on a prepared training sample through this task: Audit and secure full-stack app.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Audit and secure full-stack app",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (CORS; CSRF; SQL Injection Prevention; XSS Prevention; Secrets Management) and demonstrate the starting sample for: Audit and secure full-stack app",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Audit and secure full-stack app",
+          "evidence": "Participant submission for 'Security - Best Practices': Audit and secure full-stack app. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Audit and secure full-stack app' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Audit and secure full-stack app. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CORS; CSRF; SQL Injection Prevention; XSS Prevention; Secrets Management). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 27,
@@ -474,7 +1880,55 @@
         "Chrome DevTools"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Profile and optimize app performance"
+      "lab_task": "Profile and optimize app performance",
+      "deliverable": "Participant submission for 'Performance Optimization': Profile and optimize app performance. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Profile and optimize app performance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (API Optimization; Frontend Optimization; Database Optimization; Caching Strategies; CDN). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Profile and optimize app performance.",
+        "Explain how the lab applies Performance Optimization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Performance Optimization' on a prepared training sample through this task: Profile and optimize app performance.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Profile and optimize app performance",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (API Optimization; Frontend Optimization; Database Optimization; Caching Strategies; CDN) and demonstrate the starting sample for: Profile and optimize app performance",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Profile and optimize app performance",
+          "evidence": "Participant submission for 'Performance Optimization': Profile and optimize app performance. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Profile and optimize app performance' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Profile and optimize app performance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (API Optimization; Frontend Optimization; Database Optimization; Caching Strategies; CDN). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 28,
@@ -491,7 +1945,55 @@
         "Docker"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Design scalable architecture"
+      "lab_task": "Design scalable architecture",
+      "deliverable": "Participant submission for 'Scalability & Advanced Patterns': Design scalable architecture. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design scalable architecture. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Microservices; Load Balancing; Database Sharding; Module Federation; Kubernetes Basics). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Design scalable architecture.",
+        "Explain how the lab applies Scalability & Advanced Patterns and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Scalability & Advanced Patterns' on a prepared training sample through this task: Design scalable architecture.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design scalable architecture",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Microservices; Load Balancing; Database Sharding; Module Federation; Kubernetes Basics) and demonstrate the starting sample for: Design scalable architecture",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design scalable architecture",
+          "evidence": "Participant submission for 'Scalability & Advanced Patterns': Design scalable architecture. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design scalable architecture' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design scalable architecture. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Microservices; Load Balancing; Database Sharding; Module Federation; Kubernetes Basics). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 29,
@@ -509,7 +2011,55 @@
         "PostgreSQL/MongoDB"
       ],
       "jira_focus": "Sprint planning; review progress for Capstone Part 1",
-      "lab_task": "Design and prototype full-stack application"
+      "lab_task": "Design and prototype full-stack application",
+      "deliverable": "Participant submission for 'Capstone Project - Part 1': Design and prototype full-stack application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design and prototype full-stack application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Requirements Analysis; Architecture Design; Tech Stack Selection; Database Modeling; Setup). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Design and prototype full-stack application.",
+        "Explain how the lab applies Capstone Project - Part 1 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Capstone Project - Part 1' on a prepared training sample through this task: Design and prototype full-stack application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design and prototype full-stack application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Requirements Analysis; Architecture Design; Tech Stack Selection; Database Modeling; Setup) and demonstrate the starting sample for: Design and prototype full-stack application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design and prototype full-stack application",
+          "evidence": "Participant submission for 'Capstone Project - Part 1': Design and prototype full-stack application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design and prototype full-stack application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design and prototype full-stack application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Requirements Analysis; Architecture Design; Tech Stack Selection; Database Modeling; Setup). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 30,
@@ -525,7 +2075,55 @@
         "All Full Stack Tools"
       ],
       "jira_focus": "Final sprint review, retrospective, release notes, and stakeholder demo",
-      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review",
+      "deliverable": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Implementation; Testing; Deployment; Documentation; Final Demo). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Final project implementation, demo, retrospective, and certification roadmap review.",
+        "Explain how the lab applies Capstone Project - Part 2 + Certification Roadmap and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Capstone Project - Part 2 + Certification Roadmap' on a prepared training sample through this task: Final project implementation, demo, retrospective, and certification roadmap review.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Final project implementation, demo, retrospective, and certification roadmap review",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Implementation; Testing; Deployment; Documentation; Final Demo) and demonstrate the starting sample for: Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Final project implementation, demo, retrospective, and certification roadmap review' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Implementation; Testing; Deployment; Documentation; Final Demo). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     }
   ],
   "aliases": [
@@ -548,5 +2146,10 @@
     "https://docs.spring.io/spring-boot/reference/using/build-systems.html",
     "https://docs.docker.com/get-started/"
   ],
-  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits.",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

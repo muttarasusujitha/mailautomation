@@ -1,7 +1,10 @@
 import asyncio
+from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 import pytest
 
+from app.routes import agent_orchestrator
 from app.routes.agent_orchestrator import _client_decision, agent_summary
 from app.routes.agent_orchestrator import _matching_decision, _outreach_decision, _exception_decision, _log_decision
 from pymongo.errors import DuplicateKeyError
@@ -127,3 +130,98 @@ def test_client_agent_accepts_duration_text():
     }, confidence=0.9))
     assert "missing_fields" not in decision.metadata
     assert "Proceed" in decision.decision
+
+
+def test_template_mode_does_not_call_the_agent_llm(monkeypatch):
+    called = {}
+
+    async def wording(decisions):
+        called["yes"] = True
+        return {}
+
+    monkeypatch.setattr(agent_orchestrator, "_fetch_agentic_wording", wording)
+    db = {"automation_settings": SimpleNamespace(find_one=AsyncMock(return_value={"value": "template"}))}
+    decisions = [{"agent_role": "client_requirement_agent", "entity_id": "E1", "metadata": {}}]
+    asyncio.run(agent_orchestrator._attach_agentic_wording(db, decisions, True))
+    assert "yes" not in called
+    assert "llm" not in decisions[0]["metadata"]
+
+
+def test_ai_mode_stores_client_shortlist_and_toc_notes(monkeypatch):
+    async def wording(decisions):
+        return {("client_requirement_agent", "E1"): {
+            "client_text": "Please confirm the Python dates.",
+            "shortlist_note": "Two trainers match the Python scope.",
+            "toc_note": "Draft a Python TOC from the known scope.",
+            "provider": "llm",
+        }}
+
+    monkeypatch.setattr(agent_orchestrator, "_fetch_agentic_wording", wording)
+    updates = []
+
+    class Decisions:
+        async def update_one(self, query, update):
+            updates.append((query, update))
+
+        def find(self, *args, **kwargs):
+            return self
+
+        def sort(self, *args, **kwargs):
+            return self
+
+        def limit(self, *args, **kwargs):
+            return self
+
+        async def to_list(self, *args, **kwargs):
+            return []
+
+    db = {
+        "automation_settings": SimpleNamespace(find_one=AsyncMock(return_value={"value": "ai"})),
+        "agent_decisions": Decisions(),
+    }
+    decisions = [{
+        "agent_role": "client_requirement_agent",
+        "entity_id": "E1",
+        "decision_id": "AGD-1",
+        "metadata": {},
+    }]
+    asyncio.run(agent_orchestrator._attach_agentic_wording(db, decisions, False))
+    note = decisions[0]["metadata"]["llm"]
+    assert note["client_text"] == "Please confirm the Python dates."
+    assert note["shortlist_note"].startswith("Two trainers")
+    assert "TOC" in note["toc_note"]
+    assert updates[0][0] == {"decision_id": "AGD-1"}
+
+
+def test_ai_mode_includes_every_application_agent(monkeypatch):
+    seen = {}
+
+    async def wording(decisions):
+        seen["roles"] = [item["agent_role"] for item in decisions]
+        return {}
+
+    monkeypatch.setattr(agent_orchestrator, "_fetch_agentic_wording", wording)
+
+    class Decisions:
+        def find(self, *args, **kwargs):
+            return self
+
+        def sort(self, *args, **kwargs):
+            return self
+
+        def limit(self, *args, **kwargs):
+            return self
+
+        async def to_list(self, *args, **kwargs):
+            return []
+
+    db = {
+        "automation_settings": SimpleNamespace(find_one=AsyncMock(return_value={"value": "ai"})),
+        "agent_decisions": Decisions(),
+    }
+    decisions = [
+        {"agent_role": role, "entity_id": role, "metadata": {}}
+        for role in agent_orchestrator.AGENT_ROLES
+    ]
+    asyncio.run(agent_orchestrator._attach_agentic_wording(db, decisions, True))
+    assert set(seen["roles"]) == set(agent_orchestrator.AGENT_ROLES)

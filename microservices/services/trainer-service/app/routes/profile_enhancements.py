@@ -73,8 +73,9 @@ def _keywords(value: str) -> List[str]:
 def _fallback_analysis(requirement: Dict[str, Any], trainer: Dict[str, Any]) -> Dict[str, Any]:
     required = _keywords(_requirement_text(requirement))
     resume_lower = _resume_text(trainer).lower()
-    confirmed = [skill for skill in required if skill in resume_lower]
-    missing = [skill for skill in required if skill not in resume_lower]
+    from shared.toc_quality import topic_is_covered
+    confirmed = [skill for skill in required if topic_is_covered(skill, resume_lower)]
+    missing = [skill for skill in required if skill not in confirmed]
     suggestions = []
     for skill in confirmed[:12]:
         suggestions.append({
@@ -85,8 +86,8 @@ def _fallback_analysis(requirement: Dict[str, Any], trainer: Dict[str, Any]) -> 
             "source_section": "Original trainer profile",
             "match_strength": "strong",
             "experience_depth": "keyword evidence; reviewer should verify practical depth",
-            "suggested_bullet": f"Applied {skill} in relevant delivery, implementation, or training assignments.",
-            "requires_trainer_confirmation": False,
+            "suggested_bullet": f"The supplied profile mentions {skill}; practical experience needs confirmation.",
+            "requires_trainer_confirmation": True,
         })
     for skill in missing[:12]:
         suggestions.append({

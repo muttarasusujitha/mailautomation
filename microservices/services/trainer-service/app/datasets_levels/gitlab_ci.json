@@ -1,0 +1,573 @@
+{
+  "domain": "GitLab CI",
+  "name": "GitLab CI/CD",
+  "category": "DevOps and CI/CD",
+  "icon": "git-branch",
+  "aliases": ["GitLab", "GitLab CI/CD", "GitLab Pipelines", "GitLab CI Pipelines", "GitLab Runner", "GitLab Runners", "GitLab Administration", "GitLab Admin", "GitLab Duo", "GitLab Security Scanning", "GitLab CI Training"],
+  "certifications": ["GitLab Certified CI/CD Associate", "GitLab Certified Associate", "GitLab Certified Security Specialist"],
+  "tools": ["GitLab.com or self-managed GitLab", "GitLab Runner", "Docker", "Kubernetes", "GitLab agent for Kubernetes", "Terraform or OpenTofu"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, testers and operations engineers starting with GitLab CI/CD. Covers projects, groups, issues and merge requests, writing .gitlab-ci.yml with stages and jobs, running and reading pipelines, runners and executors, Docker images and services, CI/CD variables and secrets, artifacts and caching, rules, building and testing applications, test and coverage reports, container images and the registry, environments and deployments, merge request pipelines, security scanning, packages and releases, GitLab Pages and debugging failed pipelines.",
+      "prerequisites": ["Uses Git for commits, branches and merges", "Basic command-line and scripting skills", "Knows what an automated build and test does"],
+      "outcomes": ["Write .gitlab-ci.yml pipelines with stages, jobs, rules, artifacts and caching", "Build, test, scan and package applications and container images in GitLab", "Deploy to environments from merge request and main branch pipelines", "Use runners, variables and secrets safely and debug failed pipelines"],
+      "days": [
+        {
+          "topic": "GitLab CI/CD Overview: Projects, Pipelines and Runners",
+          "subtopics": ["What GitLab CI/CD does in the software delivery flow", "GitLab.com, Dedicated and self-managed GitLab", "Projects, groups and namespaces", "Pipelines, stages and jobs", "Runners and how jobs reach them", "The .gitlab-ci.yml file", "Pipeline editor and pipeline views", "Pipeline triggers: pushes, merge requests and schedules", "GitLab compared with Jenkins and GitHub Actions", "Course project overview: a web application with an API"],
+          "tools": ["GitLab.com", "Git", "Web browser"],
+          "lab_task": "Create a group and a project for the course application, push the code, add a two-job pipeline from the pipeline editor and watch it run.",
+          "deliverable": "Project with a first running pipeline",
+          "checks": [["Organise", "The project sits in a group with members", "Project settings"], ["Run", "The two-job pipeline completes", "Pipeline view"], ["Explain", "Pipeline, stage, job and runner are explained correctly", "Notes"]],
+          "objectives": ["Explain GitLab CI/CD", "Create projects and groups", "Run a first pipeline"]
+        },
+        {
+          "topic": "GitLab Projects, Groups, Merge Requests and Issues",
+          "subtopics": ["Repository and branch settings", "Protected branches", "Issues, labels and boards", "Merge requests and reviews", "Approval rules in brief", "Linking issues and merge requests", "Code owners", "Working agreements for teams"],
+          "tools": ["GitLab", "Git", "Issue boards"],
+          "lab_task": "Set up protected branches, labels and an issue board, open an issue, fix it on a branch, review the merge request with a partner and merge it after approval.",
+          "deliverable": "Configured project with a reviewed and merged change",
+          "checks": [["Protect", "The main branch only accepts merge requests", "Branch settings"], ["Review", "The merge request has comments and an approval", "Merge request"], ["Link", "The issue closes when the merge request merges", "Issue history"]],
+          "objectives": ["Use GitLab for collaboration", "Protect branches", "Review merge requests"]
+        },
+        {
+          "topic": "Writing .gitlab-ci.yml: Stages, Jobs and Scripts",
+          "subtopics": ["YAML structure and common mistakes", "Stages and their order", "Jobs and scripts", "before_script and after_script", "Default settings", "Job images", "Comments and readable configuration", "Validating with the pipeline editor"],
+          "tools": ["GitLab pipeline editor", "YAML linter", "GitLab"],
+          "lab_task": "Write a pipeline with build, test and package stages, use defaults for the image and before_script, validate it in the editor and fix three planted YAML mistakes.",
+          "deliverable": "Three-stage pipeline and fixed mistakes",
+          "checks": [["Structure", "Jobs run in the planned stages", "Pipeline view"], ["Reuse defaults", "Shared settings live in default", "Configuration file"], ["Validate", "All planted mistakes are found and fixed", "Editor validation"]],
+          "objectives": ["Write pipeline configuration", "Use stages and defaults", "Validate YAML"]
+        },
+        {
+          "topic": "Running Pipelines and Reading Job Logs",
+          "subtopics": ["Pipeline and job statuses", "Reading job logs", "Collapsible log sections", "Retrying and cancelling jobs", "Manual jobs", "Scheduled pipelines", "Running pipelines with variables", "Pipeline notifications"],
+          "tools": ["GitLab pipelines", "Job logs", "Pipeline schedules"],
+          "lab_task": "Add a manual job and a nightly schedule, run a pipeline with a custom variable, use log sections in a long job and set up failure notifications.",
+          "deliverable": "Pipeline with manual, scheduled and logged jobs",
+          "checks": [["Run manually", "The manual job waits until started", "Pipeline view"], ["Schedule", "The nightly pipeline runs on schedule", "Schedule history"], ["Read logs", "Log sections make the long job readable", "Job log"]],
+          "objectives": ["Run and monitor pipelines", "Use manual and scheduled jobs", "Read job logs"]
+        },
+        {
+          "topic": "Runners: Shared, Group and Project Runners and Executors",
+          "subtopics": ["What a runner is", "Instance, group and project runners", "Registering a runner", "Executors: shell, Docker and Kubernetes", "Tags for choosing runners", "Concurrency settings", "Runner security basics in practice", "Choosing hosted or self-managed runners"],
+          "tools": ["GitLab Runner", "Docker", "GitLab"],
+          "lab_task": "Install and register a project runner with the Docker executor, tag it, route one job to it with tags and compare it with a hosted runner.",
+          "deliverable": "Registered runner with tagged jobs",
+          "checks": [["Register", "The runner appears online for the project", "Runner settings"], ["Route", "The tagged job runs on the new runner", "Job log"], ["Compare", "Hosted and self-managed runners are compared", "Notes"]],
+          "objectives": ["Use GitLab runners", "Register and tag runners", "Choose executors"]
+        },
+        {
+          "topic": "Docker Images, Services and the Docker Executor",
+          "subtopics": ["Choosing job images", "Pinning image versions", "Services such as databases in jobs", "Service aliases and networking", "Docker-in-Docker", "Building images without privileged mode", "Private images from registries", "Image size and job speed"],
+          "tools": ["Docker", "GitLab Runner Docker executor", "PostgreSQL image"],
+          "lab_task": "Run integration tests against a PostgreSQL service in a job, pin all image versions and build an image with a rootless builder instead of privileged Docker-in-Docker.",
+          "deliverable": "Jobs using services and a rootless image build",
+          "checks": [["Use services", "Tests reach the database service", "Job log"], ["Pin", "All images use fixed versions", "Configuration file"], ["Build safely", "The image build runs without privileged mode", "Job log"]],
+          "objectives": ["Use images and services", "Pin versions", "Build images safely"]
+        },
+        {
+          "topic": "Variables, Secrets and Protected Branches",
+          "subtopics": ["Predefined CI/CD variables", "Project and group variables", "Protected and masked variables", "File-type variables", "Variable precedence", "Variables in rules and scripts", "Secrets that must never be printed", "Environment-scoped variables", "Variables from pipeline runs and schedules", "Auditing variable use"],
+          "tools": ["GitLab CI/CD settings", "GitLab pipelines", "Secret detection"],
+          "lab_task": "Add project and group variables with masking, protection and environment scopes, use a file variable for a credential, prove that protected variables are absent on feature branches and fix a script that would print a secret.",
+          "deliverable": "Configured variables and secure scripts",
+          "checks": [["Protect", "Protected variables are only available on protected branches", "Job logs"], ["Mask", "Masked values do not appear in logs", "Job log"], ["Scope", "Environment-scoped variables apply to the right deployments", "Job logs"]],
+          "objectives": ["Use CI/CD variables", "Protect and mask secrets", "Understand variable precedence"]
+        },
+        {
+          "topic": "Artifacts, Caching and Job Dependencies",
+          "subtopics": ["Artifacts and their expiry", "Passing build output between jobs", "dependencies and needs for artifacts", "Caches and cache keys", "Cache compared with artifacts", "Cache policies", "Artifact reports", "Storage limits"],
+          "tools": ["GitLab pipelines", "Package manager caches", "GitLab"],
+          "lab_task": "Pass build output to test and package jobs with artifacts, cache dependencies with a lock-file key and measure pipeline time before and after caching.",
+          "deliverable": "Pipeline with artifacts and caching",
+          "checks": [["Pass output", "Later jobs use the build artifacts", "Job logs"], ["Cache", "The cache hits on the second run", "Job log"], ["Measure", "Pipeline time drops with caching", "Timing comparison"]],
+          "objectives": ["Use artifacts", "Cache dependencies", "Control job inputs"]
+        },
+        {
+          "topic": "Rules and Workflow Control: When Jobs Run",
+          "subtopics": ["rules compared with only and except", "Conditions on branches, tags and variables", "rules:changes for file changes", "rules:exists", "when: manual, delayed and never", "workflow:rules for whole pipelines", "Avoiding duplicate pipelines", "Testing rules"],
+          "tools": ["GitLab pipeline editor", "GitLab pipelines"],
+          "lab_task": "Add rules so tests run on every push, deployment runs only on main, documentation jobs run only when docs change, and duplicate branch and merge request pipelines are avoided.",
+          "deliverable": "Rule-controlled pipeline with test evidence",
+          "checks": [["Control", "Jobs appear only under their conditions", "Pipeline views"], ["Detect changes", "Docs jobs run only when docs change", "Pipeline views"], ["Avoid duplicates", "Only one pipeline runs per change", "Pipeline list"]],
+          "objectives": ["Control jobs with rules", "Use workflow rules", "Avoid duplicate pipelines"]
+        },
+        {
+          "topic": "Building and Testing Applications in Pipelines",
+          "subtopics": ["Build jobs for common languages", "Unit and integration test jobs", "Linting and formatting checks", "Parallel test jobs", "Matrix jobs with parallel:matrix", "Failing fast", "Allowing known failures carefully", "Build once, deploy many times"],
+          "tools": ["GitLab pipelines", "Language build tools", "Test frameworks"],
+          "lab_task": "Build the course application once, run lint, unit and integration tests in parallel and test two runtime versions with a matrix job.",
+          "deliverable": "Build and test pipeline with a matrix",
+          "checks": [["Build once", "Later stages reuse one build", "Pipeline view"], ["Parallelise", "Tests run in parallel", "Pipeline view"], ["Matrix", "Both runtime versions are tested", "Pipeline view"]],
+          "objectives": ["Build and test in GitLab", "Use parallel and matrix jobs", "Build once"]
+        },
+        {
+          "topic": "Test Reports, Code Coverage and Merge Request Widgets",
+          "subtopics": ["JUnit test reports", "Coverage reports and badges", "Code quality reports", "Test results in merge requests", "Coverage visualisation in diffs", "Failed test history", "Report formats", "Using reports in reviews"],
+          "tools": ["GitLab test reports", "Coverage tools", "GitLab merge requests"],
+          "lab_task": "Publish JUnit and coverage reports, show coverage in merge request diffs, add a code quality report and review a merge request using the widgets.",
+          "deliverable": "Pipeline publishing reports to merge requests",
+          "checks": [["Report tests", "Test results appear in the merge request", "Merge request widget"], ["Show coverage", "Coverage appears in the diff", "Merge request diff"], ["Review", "The review uses the widgets", "Review comments"]],
+          "objectives": ["Publish test reports", "Show coverage", "Use reports in reviews"]
+        },
+        {
+          "topic": "Building and Pushing Container Images to the GitLab Registry",
+          "subtopics": ["The GitLab container registry", "Authenticating with CI job tokens", "Building with Docker or Kaniko-style builders", "Tagging with commit SHA and versions", "Multi-stage Dockerfiles", "Cleanup policies", "Pulling images in later jobs", "Image naming conventions"],
+          "tools": ["GitLab container registry", "Docker", "GitLab pipelines"],
+          "lab_task": "Build the application image, push it with commit and version tags using the job token, set a cleanup policy and pull the image in a later test job.",
+          "deliverable": "Image build and push pipeline",
+          "checks": [["Push", "Images appear in the registry with both tags", "Registry view"], ["Authenticate", "Jobs use the job token, not personal tokens", "Configuration file"], ["Clean up", "The cleanup policy is set", "Registry settings"]],
+          "objectives": ["Build container images in pipelines", "Use the GitLab registry", "Tag images well"]
+        },
+        {
+          "topic": "Environments and Deployments",
+          "subtopics": ["Environments in GitLab", "Deployment jobs", "Dynamic environment names", "Environment URLs", "Stopping environments", "Deployment history and rollback", "Protected environments", "Deployment approvals"],
+          "tools": ["GitLab environments", "GitLab pipelines", "Deployment target"],
+          "lab_task": "Create staging and production environments, deploy to staging automatically and production after approval, then roll back production to the previous deployment.",
+          "deliverable": "Environment setup with rollback evidence",
+          "checks": [["Deploy", "Staging deploys automatically from main", "Environment page"], ["Protect", "Production needs approval", "Deployment approvals"], ["Roll back", "The rollback restores the previous version", "Deployment history"]],
+          "objectives": ["Use environments", "Protect production", "Roll back deployments"]
+        },
+        {
+          "topic": "Deploying to a Server or Cloud Service",
+          "subtopics": ["Deployment targets", "SSH deployments", "Deploying to a cloud platform service", "Short-lived credentials", "Health checks after deployment", "Release scripts", "Zero-downtime switches for simple services", "Recording what was deployed and when"],
+          "tools": ["GitLab pipelines", "Cloud CLI", "SSH"],
+          "lab_task": "Deploy the application to a cloud platform service with short-lived credentials, run a health check after deployment and fail the job when the check fails.",
+          "deliverable": "Cloud deployment job with health check",
+          "checks": [["Deploy", "The application runs on the target", "Environment URL"], ["Secure", "No long-lived cloud keys are stored", "CI/CD settings"], ["Verify", "A failed health check fails the job", "Job log"]],
+          "objectives": ["Deploy from GitLab", "Use short-lived credentials", "Verify deployments"]
+        },
+        {
+          "topic": "Merge Request Pipelines and Approvals",
+          "subtopics": ["Merge request pipelines", "Merged results pipelines in brief", "Pipelines must succeed before merge", "Approval rules", "Code owners approvals", "Resolving threads before merge", "Squash and merge settings", "Fast feedback for reviewers"],
+          "tools": ["GitLab merge requests", "GitLab pipelines", "CODEOWNERS"],
+          "lab_task": "Configure merge request pipelines, require a successful pipeline and code owner approval, block merges with unresolved threads and test the rules with a sample change.",
+          "deliverable": "Merge request rules with a tested change",
+          "checks": [["Require pipelines", "Merge is blocked until the pipeline passes", "Merge request"], ["Require approvals", "Code owner approval is required", "Merge request"], ["Resolve threads", "Unresolved threads block merge", "Merge request"]],
+          "objectives": ["Use merge request pipelines", "Set approval rules", "Protect the main branch"]
+        },
+        {
+          "topic": "Security Scanning: SAST, Secret Detection and Dependency Scanning",
+          "subtopics": ["Security scanning in GitLab", "Including scanning templates", "SAST results", "Secret detection", "Dependency scanning", "Security results in merge requests"],
+          "tools": ["GitLab security scanners", "GitLab merge requests", "Vulnerability report"],
+          "lab_task": "Add SAST, secret detection and dependency scanning, plant a secret and a vulnerable dependency, see them in the merge request and fix both.",
+          "deliverable": "Scanning pipeline with fixed findings",
+          "checks": [["Scan", "All three scanners run", "Pipeline view"], ["Find", "The planted secret and vulnerable dependency are reported", "Merge request widget"], ["Fix", "Both findings are resolved", "Vulnerability report"]],
+          "objectives": ["Add security scanning", "Read findings in merge requests", "Fix common findings"]
+        },
+        {
+          "topic": "Package Registry and Releases",
+          "subtopics": ["Package registry formats", "Publishing packages from pipelines", "Semantic versioning", "Tags and releases", "Release notes and changelogs", "Release assets", "Consuming packages in other projects", "Release automation"],
+          "tools": ["GitLab package registry", "GitLab releases", "release-cli or glab"],
+          "lab_task": "Publish a library package from a tag pipeline, create a release with notes and assets, and consume the package from a second project.",
+          "deliverable": "Published package and release",
+          "checks": [["Publish", "The package appears in the registry", "Package registry"], ["Release", "The release has notes and assets", "Release page"], ["Consume", "The second project installs the package", "Job log"]],
+          "objectives": ["Publish packages", "Create releases", "Reuse packages across projects"]
+        },
+        {
+          "topic": "GitLab Pages for Documentation Sites",
+          "subtopics": ["What GitLab Pages provides", "The pages job", "Static site generators", "Custom domains in brief", "Access control for Pages", "Review apps for documentation", "Publishing on merge to main", "Keeping docs next to code"],
+          "tools": ["GitLab Pages", "Static site generator such as MkDocs", "GitLab pipelines"],
+          "lab_task": "Publish the project's documentation with GitLab Pages from a pages job, restrict access to project members and rebuild it automatically on merge.",
+          "deliverable": "Published documentation site",
+          "checks": [["Publish", "The site is served by GitLab Pages", "Site URL"], ["Restrict", "Only members can view the site", "Access test"], ["Automate", "Docs rebuild on merge to main", "Pipeline history"]],
+          "objectives": ["Publish docs with GitLab Pages", "Control access", "Automate publishing"]
+        },
+        {
+          "topic": "Debugging Failed Pipelines",
+          "subtopics": ["Reading failure messages", "YAML and configuration errors", "Missing variables and permissions", "Runner and image problems", "Flaky jobs", "Debug logging with CI_DEBUG_TRACE and its risks", "Reproducing jobs locally", "A debugging checklist"],
+          "tools": ["GitLab job logs", "Pipeline editor", "Local Docker"],
+          "lab_task": "Diagnose five broken pipelines (a YAML error, a missing variable, a wrong image, a runner tag mismatch and a flaky test), fix them and write a debugging checklist.",
+          "deliverable": "Diagnoses, fixes and checklist",
+          "checks": [["Diagnose", "Each failure has a recorded cause", "Diagnosis notes"], ["Fix", "All five pipelines pass", "Pipeline views"], ["Share", "The checklist covers the steps used", "Checklist"]],
+          "objectives": ["Debug GitLab pipelines", "Fix common failures", "Share debugging practice"]
+        },
+        {
+          "topic": "Beginner Capstone: CI/CD Pipeline for a Web Application",
+          "subtopics": ["Build, test and scan", "Container image", "Environments and approvals", "Merge request rules"],
+          "tools": ["GitLab", "GitLab Runner", "Docker", "Cloud deployment target"],
+          "lab_task": "Build a complete pipeline for the course application with build, tests, reports, security scanning, image publishing, staging and approved production deployments and merge request rules.",
+          "deliverable": "Complete GitLab CI/CD pipeline",
+          "checks": [["Deliver", "A change flows from merge request to production", "Pipeline and environment history"], ["Protect", "Approvals, protected variables and rules are in place", "Settings review"], ["Report", "Tests, coverage and security results show in merge requests", "Merge request"]],
+          "objectives": ["Combine beginner GitLab skills", "Build a full pipeline", "Deliver changes safely"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who maintain GitLab pipelines for teams. Covers pipeline architecture with needs, parent-child and multi-project pipelines, reusable configuration, CI/CD components and the catalog, inputs, merge trains, runners at scale, OIDC ID tokens, external secrets, Kubernetes deployments with the GitLab agent, GitOps, infrastructure as code pipelines, review apps, release strategies, security and pipeline execution policies, DAST and container scanning, pipeline performance, monorepos, CI analytics and DORA metrics and AI help with GitLab Duo.",
+      "prerequisites": ["Writes .gitlab-ci.yml pipelines with rules, artifacts and environments", "Has deployed an application from GitLab", "Comfortable with Docker and basic Kubernetes"],
+      "outcomes": ["Design fast, reusable pipelines with components, inputs and parent-child pipelines", "Deploy to Kubernetes and clouds with OIDC, external secrets and GitOps", "Enforce security with scanners and policies across projects", "Measure and improve pipeline speed and delivery performance"],
+      "days": [
+        {
+          "topic": "Pipeline Architecture: DAG with needs, Parent-Child and Multi-Project Pipelines",
+          "subtopics": ["Directed acyclic graphs with needs", "Stageless pipelines", "Parent-child pipelines", "Dynamic child pipelines", "Multi-project pipelines and triggers", "Passing variables and artifacts across pipelines"],
+          "tools": ["GitLab pipelines", "Pipeline graph", "GitLab"],
+          "lab_task": "Restructure a slow stage-based pipeline into a needs-based graph, split a component into a child pipeline and trigger a downstream deployment project with variables.",
+          "deliverable": "Restructured pipeline with downstream trigger",
+          "checks": [["Use needs", "Jobs start as soon as their needs finish", "Pipeline graph"], ["Split", "The child pipeline runs from the parent", "Pipeline view"], ["Trigger", "The downstream project receives variables", "Downstream pipeline"]],
+          "objectives": ["Design pipeline graphs", "Use parent-child pipelines", "Trigger multi-project pipelines"]
+        },
+        {
+          "topic": "Reusable Configuration: include, extends, Anchors and !reference",
+          "subtopics": ["include: local, project, remote and template", "extends for job templates", "YAML anchors", "!reference tags", "Hidden jobs", "Overriding included settings", "Organising shared configuration", "Avoiding hard-to-read configuration"],
+          "tools": ["GitLab pipeline editor", "Shared configuration project", "GitLab"],
+          "lab_task": "Move repeated job settings into a shared configuration project, reuse them with include and extends, use !reference for scripts and show the merged configuration in the editor.",
+          "deliverable": "Shared configuration used by two projects",
+          "checks": [["Share", "Two projects include the shared configuration", "Configuration files"], ["Reuse", "Jobs use extends and !reference", "Configuration files"], ["Inspect", "The merged configuration is correct in the editor", "Editor view"]],
+          "objectives": ["Reuse pipeline configuration", "Use include and extends", "Keep configuration readable"]
+        },
+        {
+          "topic": "CI/CD Components and the CI/CD Catalog",
+          "subtopics": ["What CI/CD components are", "Component project structure", "Versioning components with tags", "Publishing to the CI/CD Catalog", "Using components from the catalog", "Testing components", "Documentation for component users", "Choosing components over templates"],
+          "tools": ["GitLab CI/CD components", "CI/CD Catalog", "GitLab"],
+          "lab_task": "Build a component for building and scanning container images, version and publish it to the catalog, and use it from two projects with different settings.",
+          "deliverable": "Published component used by two projects",
+          "checks": [["Build", "The component runs in its own test pipeline", "Pipeline view"], ["Publish", "A tagged version appears in the catalog", "Catalog entry"], ["Reuse", "Two projects use the component", "Configuration files"]],
+          "objectives": ["Build CI/CD components", "Publish to the catalog", "Reuse components"]
+        },
+        {
+          "topic": "Inputs with spec:inputs for Configurable Pipelines",
+          "subtopics": ["Why inputs beat variables for configuration", "Declaring inputs with spec", "Types, defaults and options", "Validating inputs", "Interpolation in configuration", "Inputs for components and included files", "Inputs for manual pipeline runs", "Documenting inputs"],
+          "tools": ["GitLab spec:inputs", "CI/CD components", "GitLab"],
+          "lab_task": "Add typed inputs with defaults and allowed options to the image component, reject an invalid value, and expose inputs for a manual release pipeline.",
+          "deliverable": "Component and pipeline with validated inputs",
+          "checks": [["Declare", "Inputs have types, defaults and options", "Component file"], ["Validate", "An invalid value is rejected before the pipeline starts", "Pipeline error"], ["Run manually", "Manual runs offer the inputs", "Run pipeline form"]],
+          "objectives": ["Use spec:inputs", "Validate pipeline configuration", "Configure manual runs"]
+        },
+        {
+          "topic": "Merge Trains and Merged Results Pipelines",
+          "subtopics": ["Why main breaks after green merge requests", "Merged results pipelines", "Merge trains", "Train behaviour on failure", "Pipeline duration and trains", "Skipping trains in emergencies", "Monitoring trains", "When trains are not worth it"],
+          "tools": ["GitLab merge trains", "GitLab merge requests", "GitLab"],
+          "lab_task": "Enable merged results pipelines and merge trains, queue four merge requests where one conflicts logically with another and show the train catching the break before main.",
+          "deliverable": "Merge train setup with break evidence",
+          "checks": [["Enable", "Merged results pipelines run for merge requests", "Pipeline list"], ["Catch", "The train stops the breaking merge request", "Merge train view"], ["Protect main", "Main stays green throughout", "Pipeline history"]],
+          "objectives": ["Keep main green", "Use merge trains", "Understand merged results pipelines"]
+        },
+        {
+          "topic": "Self-Managed Runners at Scale: Autoscaling and the Kubernetes Executor",
+          "subtopics": ["Runner fleets for many teams", "The Kubernetes executor", "Autoscaling runners on cloud instances", "Runner manager configuration", "Resource requests for jobs", "Isolation between projects", "Monitoring runners", "Upgrading runners"],
+          "tools": ["GitLab Runner", "Kubernetes", "Helm", "Prometheus"],
+          "lab_task": "Deploy a runner with the Kubernetes executor using Helm, set resource requests per job, run parallel jobs from two projects and monitor queue and job metrics.",
+          "deliverable": "Kubernetes runner with monitoring",
+          "checks": [["Deploy", "The runner registers from the cluster", "Runner settings"], ["Scale", "Parallel jobs run in separate pods", "Cluster view"], ["Monitor", "Queue and job metrics appear in dashboards", "Dashboard"]],
+          "objectives": ["Run runners on Kubernetes", "Scale runner capacity", "Monitor runners"]
+        },
+        {
+          "topic": "OIDC ID Tokens for Cloud Authentication",
+          "subtopics": ["Why long-lived cloud keys are risky", "id_tokens in jobs", "Trust relationships in AWS, Azure and Google Cloud", "Restricting by project, branch and environment", "Short-lived credentials in jobs", "Auditing token use", "Migrating away from stored keys", "Troubleshooting trust rules"],
+          "tools": ["GitLab id_tokens", "AWS IAM or Azure Entra ID or Google Cloud IAM", "Cloud CLI"],
+          "lab_task": "Replace stored cloud keys with OIDC in a deployment job, restrict trust to the main branch and production environment, and prove a feature branch cannot assume the role.",
+          "deliverable": "OIDC-based deployment with restriction tests",
+          "checks": [["Authenticate", "The job gets short-lived cloud credentials", "Job log"], ["Restrict", "Feature branches cannot assume the role", "Job log"], ["Remove keys", "No long-lived keys remain in CI/CD settings", "Settings review"]],
+          "objectives": ["Use OIDC from GitLab", "Restrict cloud trust", "Remove stored keys"]
+        },
+        {
+          "topic": "External Secrets: HashiCorp Vault and Cloud Secret Managers",
+          "subtopics": ["Secrets outside GitLab", "Vault integration with ID tokens", "The secrets keyword", "Cloud secret managers", "Secret rotation", "Least privilege for pipeline secrets", "Auditing secret access", "Choosing a secrets approach"],
+          "tools": ["HashiCorp Vault", "GitLab secrets keyword", "Cloud secret manager"],
+          "lab_task": "Read deployment secrets from Vault in a job using ID token authentication, scope access to one path per environment and rotate a secret without changing the pipeline.",
+          "deliverable": "Vault-backed pipeline secrets",
+          "checks": [["Read", "Jobs read secrets from Vault", "Job log"], ["Scope", "Each environment reads only its path", "Vault policy"], ["Rotate", "Rotation works without pipeline changes", "Rotation log"]],
+          "objectives": ["Use external secret managers", "Scope pipeline secrets", "Rotate secrets safely"]
+        },
+        {
+          "topic": "Deploying to Kubernetes with the GitLab Agent",
+          "subtopics": ["The GitLab agent for Kubernetes", "Installing and registering the agent", "CI/CD access to clusters through the agent", "Environments for Kubernetes", "Deploying with kubectl or Helm from jobs", "Dashboard views of cluster resources", "Restricting access by project", "Security of the agent connection"],
+          "tools": ["GitLab agent for Kubernetes", "Kubernetes", "Helm"],
+          "lab_task": "Install the agent in a cluster, give one project CI/CD access, deploy the application with Helm from a job and view the environment's resources in GitLab.",
+          "deliverable": "Agent-based Kubernetes deployment",
+          "checks": [["Install", "The agent connects to GitLab", "Agent status"], ["Deploy", "The application deploys through the agent", "Job log"], ["Restrict", "Other projects cannot use the agent", "Access test"]],
+          "objectives": ["Deploy to Kubernetes from GitLab", "Use the GitLab agent", "Restrict cluster access"]
+        },
+        {
+          "topic": "GitOps with GitLab and Flux or Argo CD",
+          "subtopics": ["Push and pull deployment models", "GitOps repositories", "Flux with GitLab", "Argo CD with GitLab", "Updating image tags through merge requests", "Promotion between environments", "Drift detection", "Rollback through Git"],
+          "tools": ["Flux or Argo CD", "GitLab", "Kubernetes"],
+          "lab_task": "Set up GitOps with Flux or Argo CD reading a GitLab repository, promote a new image from staging to production with merge requests and roll back with a revert.",
+          "deliverable": "GitOps flow with promotion and rollback",
+          "checks": [["Sync", "The cluster matches the GitOps repository", "Sync status"], ["Promote", "Promotion happens through a merge request", "Merge request"], ["Roll back", "A revert restores the previous version", "Sync history"]],
+          "objectives": ["Run GitOps with GitLab", "Promote with merge requests", "Roll back through Git"]
+        },
+        {
+          "topic": "Infrastructure as Code Pipelines with Terraform and OpenTofu",
+          "subtopics": ["Plan and apply stages", "Plans in merge requests", "GitLab-managed Terraform state", "Locking and concurrency", "Approvals for apply", "Drift detection jobs", "Module registry", "Secrets for infrastructure pipelines"],
+          "tools": ["Terraform or OpenTofu", "GitLab Terraform state", "GitLab"],
+          "lab_task": "Build an infrastructure pipeline that shows plans in merge requests, stores state in GitLab, requires approval for apply and runs a nightly drift check.",
+          "deliverable": "Infrastructure pipeline with drift check",
+          "checks": [["Plan", "Plans appear in merge requests", "Merge request widget"], ["Apply safely", "Apply runs only after approval", "Pipeline view"], ["Detect drift", "The nightly job reports drift", "Job log"]],
+          "objectives": ["Run infrastructure as code in GitLab", "Review plans in merge requests", "Detect drift"]
+        },
+        {
+          "topic": "Review Apps for Merge Requests",
+          "subtopics": ["What review apps are", "Dynamic environments per merge request", "Deploying review apps to Kubernetes", "Test data for review apps", "Stopping environments automatically", "Linking review apps in merge requests", "Costs of review apps", "Testing in review apps"],
+          "tools": ["GitLab environments", "Kubernetes", "GitLab agent"],
+          "lab_task": "Deploy a review app for every merge request with seeded data, link it in the merge request, run smoke tests against it and stop it automatically after merge.",
+          "deliverable": "Review app setup with tests",
+          "checks": [["Deploy", "Each merge request gets its own app", "Environment list"], ["Test", "Smoke tests run against the review app", "Job log"], ["Stop", "The environment stops after merge", "Environment history"]],
+          "objectives": ["Use review apps", "Test changes before merge", "Control review app costs"]
+        },
+        {
+          "topic": "Release Strategies: Canary, Blue-Green and Feature Flags",
+          "subtopics": ["Deployment strategies compared", "Canary deployments from pipelines", "Blue-green switches", "GitLab feature flags", "Incremental rollouts", "Automatic rollback triggers", "Measuring release health", "Choosing a strategy"],
+          "tools": ["GitLab environments", "GitLab feature flags", "Kubernetes"],
+          "lab_task": "Release a change as a canary to ten percent of traffic, then behind a feature flag to a user list, and roll back automatically when an error-rate check fails.",
+          "deliverable": "Canary and feature flag releases with rollback",
+          "checks": [["Canary", "Traffic is split as planned", "Monitoring data"], ["Flag", "The feature reaches only the user list", "Feature flag settings"], ["Roll back", "The failing check triggers rollback", "Pipeline log"]],
+          "objectives": ["Use progressive delivery", "Use feature flags", "Roll back automatically"]
+        },
+        {
+          "topic": "Security Policies and Pipeline Execution Policies",
+          "subtopics": ["Security policy projects", "Scan execution policies", "Merge request approval policies", "Pipeline execution policies", "Applying policies to groups", "Exceptions and scopes", "Testing policies", "Communicating policy changes to teams"],
+          "tools": ["GitLab security policies", "Security policy project", "GitLab groups"],
+          "lab_task": "Create a security policy project, enforce scans on all projects in a group, require security approval for critical findings and inject a compliance job with a pipeline execution policy.",
+          "deliverable": "Group-wide security policies",
+          "checks": [["Enforce scans", "Scans run in every group project", "Pipeline views"], ["Require approval", "Critical findings need security approval", "Merge request"], ["Inject", "The compliance job runs in all pipelines", "Pipeline views"]],
+          "objectives": ["Enforce security with policies", "Use pipeline execution policies", "Apply policies across groups"]
+        },
+        {
+          "topic": "DAST, Container Scanning and Vulnerability Management",
+          "subtopics": ["Dynamic application security testing", "Running DAST against review apps", "Container scanning", "Vulnerability report and triage", "Severity, status and dismissal reasons", "Linking vulnerabilities to issues", "Service levels for fixing", "Reporting security posture"],
+          "tools": ["GitLab DAST", "GitLab container scanning", "Vulnerability report"],
+          "lab_task": "Run DAST against a review app and container scanning on the image, triage findings in the vulnerability report, create issues with due dates and report posture for the project.",
+          "deliverable": "Triaged vulnerabilities and posture report",
+          "checks": [["Scan", "DAST and container scanning both run", "Pipeline view"], ["Triage", "Findings have status and reasons", "Vulnerability report"], ["Track", "Issues with due dates exist for real findings", "Issue list"]],
+          "objectives": ["Run DAST and container scanning", "Triage vulnerabilities", "Report security posture"]
+        },
+        {
+          "topic": "Pipeline Performance: Caching, Parallel Jobs and Faster Feedback",
+          "subtopics": ["Measuring pipeline duration", "Critical path in a pipeline", "Better caching strategies", "Splitting tests across parallel jobs", "Interruptible jobs", "Smaller images", "Running only what changed", "Duration targets"],
+          "tools": ["GitLab CI analytics", "GitLab pipelines", "Profiling notes"],
+          "lab_task": "Find the critical path of a slow pipeline, apply caching, test splitting, interruptible jobs and smaller images, and cut the merge request feedback time by an agreed target.",
+          "deliverable": "Faster pipeline with before-and-after times",
+          "checks": [["Analyse", "The critical path is identified", "Pipeline graph"], ["Optimise", "Each change is measured", "Timing table"], ["Meet target", "Feedback time meets the target", "Timing comparison"]],
+          "objectives": ["Speed up pipelines", "Find the critical path", "Measure improvements"]
+        },
+        {
+          "topic": "Monorepo Pipelines with rules:changes and Child Pipelines",
+          "subtopics": ["Monorepo challenges in CI", "rules:changes with compare_to", "Child pipelines per component", "Shared jobs across components", "Dependencies between components", "Caching in monorepos", "Code owners per component", "Measuring monorepo pipelines"],
+          "tools": ["GitLab child pipelines", "rules:changes", "GitLab"],
+          "lab_task": "Build monorepo pipelines that start child pipelines only for changed components, handle a shared library change that affects two components and compare duration with running everything.",
+          "deliverable": "Monorepo pipeline with change detection",
+          "checks": [["Detect changes", "Only changed components run", "Pipeline views"], ["Handle shared code", "Shared changes trigger dependent components", "Pipeline view"], ["Compare", "Duration is compared with full runs", "Timing comparison"]],
+          "objectives": ["Build monorepo pipelines", "Run only what changed", "Handle shared dependencies"]
+        },
+        {
+          "topic": "Observability for Pipelines: CI Analytics and DORA Metrics",
+          "subtopics": ["CI/CD analytics", "Pipeline success rates and durations", "DORA metrics in GitLab", "Deployment frequency and lead time", "Change failure rate and time to restore", "Value stream views", "Dashboards for teams", "Using metrics to improve"],
+          "tools": ["GitLab CI/CD analytics", "DORA metrics", "Value stream analytics"],
+          "lab_task": "Set up DORA metrics for the project's production environment, review CI analytics for flaky and slow jobs and agree two improvements with the team.",
+          "deliverable": "Metrics review and improvement plan",
+          "checks": [["Measure", "DORA metrics are shown for production", "Analytics view"], ["Find problems", "Flaky and slow jobs are identified", "Analysis notes"], ["Improve", "Two improvements have owners", "Improvement plan"]],
+          "objectives": ["Measure delivery performance", "Use CI analytics", "Improve with data"]
+        },
+        {
+          "topic": "GitLab Duo for CI/CD: Root Cause Analysis and Pipeline Help",
+          "subtopics": ["GitLab Duo features for CI/CD", "Root cause analysis of failed jobs", "Explaining configuration", "Generating pipeline configuration", "Reviewing AI suggestions", "Data and privacy settings", "Team rules for AI help", "Measuring time saved"],
+          "tools": ["GitLab Duo", "GitLab pipelines", "Pipeline editor"],
+          "lab_task": "Use GitLab Duo to explain three failed jobs and suggest fixes, check each suggestion before applying it and record which were correct.",
+          "deliverable": "AI-assisted fixes with a review record",
+          "checks": [["Explain", "Duo explanations are recorded for three failures", "Notes"], ["Review", "Each suggestion is checked before use", "Review record"], ["Record", "Correct and incorrect suggestions are counted", "Review record"]],
+          "objectives": ["Use AI help for pipelines", "Review AI suggestions", "Follow data settings"]
+        },
+        {
+          "topic": "Intermediate Capstone: Reusable Pipeline Components for a Product Team",
+          "subtopics": ["Components with inputs", "OIDC and external secrets", "Kubernetes or GitOps deployment", "Security policies", "Faster pipelines and metrics"],
+          "tools": ["GitLab CI/CD components", "GitLab agent or Flux", "HashiCorp Vault", "GitLab security policies"],
+          "lab_task": "Build a component library with inputs for a product team, deploy through OIDC, Vault and the Kubernetes agent or GitOps, enforce security policies and show pipeline time and DORA metrics.",
+          "deliverable": "Component library, deployments and metrics",
+          "checks": [["Reuse", "Three projects use the components", "Configuration files"], ["Secure", "No long-lived secrets remain and policies are enforced", "Settings review"], ["Measure", "Pipeline time and DORA metrics are reported", "Analytics"]],
+          "objectives": ["Combine intermediate GitLab skills", "Build reusable delivery for a team", "Measure delivery performance"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform engineers and DevOps leads who run GitLab CI/CD for an organisation. Covers CI/CD platform design, governance and compliance frameworks, supply chain security with provenance, signing and SBOMs, runner fleet operations, self-managed GitLab administration, high availability and Geo, migrations from Jenkins and GitHub Actions, monorepo and polyrepo strategy, progressive delivery at scale, policy as code, value stream analytics, multi-cloud pipelines, secrets strategy, cost optimisation, testing pipeline configuration, a company CI/CD catalog, AI agents, regulated delivery and troubleshooting at scale.",
+      "prerequisites": ["Maintains GitLab pipelines and runners for several teams", "Comfortable with Kubernetes, cloud IAM and security scanning", "Responsible for delivery tooling decisions"],
+      "outcomes": ["Design and govern a GitLab CI/CD platform for many teams", "Secure the software supply chain from commit to deployment", "Operate GitLab, runners and pipelines reliably and at sensible cost", "Lead migrations and measure delivery performance across the organisation"],
+      "days": [
+        {
+          "topic": "CI/CD Platform Design for Many Teams on GitLab",
+          "subtopics": ["Platform goals and users", "Group structure and inheritance", "Shared components and templates", "Runner strategy", "Security and compliance layers", "Self-service for teams", "Documentation and support", "Platform roadmap"],
+          "tools": ["GitLab groups", "CI/CD Catalog", "Architecture diagram tool"],
+          "lab_task": "Design the GitLab platform for an organisation with five product groups, covering group structure, shared components, runners, policies and self-service, and present it to role-played engineering leads.",
+          "deliverable": "Platform design and presentation notes",
+          "checks": [["Design", "Structure, components, runners and policies are defined", "Design document"], ["Enable teams", "Self-service paths are described", "Design document"], ["Present", "Leads accept or request changes", "Presentation notes"]],
+          "objectives": ["Design a CI/CD platform", "Balance control and self-service", "Plan the platform roadmap"]
+        },
+        {
+          "topic": "Governance: Compliance Frameworks, Audit Events and Approval Rules",
+          "subtopics": ["Compliance frameworks in GitLab", "Applying frameworks to projects", "Audit events and streaming", "Separation of duties in approvals", "Protected branches and environments across groups", "Compliance reports", "Exceptions and their records", "Preparing for audits"],
+          "tools": ["GitLab compliance center", "Audit event streaming", "GitLab groups"],
+          "lab_task": "Define a compliance framework, apply it to regulated projects, stream audit events to a log store and produce a compliance report for a role-played auditor.",
+          "deliverable": "Compliance setup and audit report",
+          "checks": [["Apply", "Regulated projects carry the framework", "Compliance center"], ["Stream", "Audit events reach the log store", "Log query"], ["Report", "The auditor's questions are answered from the report", "Audit notes"]],
+          "objectives": ["Govern GitLab projects", "Stream audit events", "Prepare for audits"]
+        },
+        {
+          "topic": "Supply Chain Security: SLSA Provenance, Signing and SBOMs",
+          "subtopics": ["Software supply chain threats", "SLSA levels", "Provenance for build artefacts", "Signing images with Sigstore", "SBOM generation", "Verifying signatures before deployment"],
+          "tools": ["Sigstore cosign", "SBOM tools such as Syft", "GitLab pipelines", "Admission controller"],
+          "lab_task": "Generate provenance and an SBOM for the application image, sign it with keyless signing, and block unsigned images from deploying with an admission policy.",
+          "deliverable": "Signed images, SBOMs and a deployment gate",
+          "checks": [["Sign", "Images are signed in the pipeline", "Signature verification"], ["Describe", "SBOMs and provenance are published", "Artefacts"], ["Block", "Unsigned images are rejected by the cluster", "Admission log"]],
+          "objectives": ["Secure the supply chain", "Sign and verify artefacts", "Publish SBOMs"]
+        },
+        {
+          "topic": "Runner Fleet Operations: Capacity, Cost and Isolation",
+          "subtopics": ["Fleet sizing from usage data", "Autoscaling policies", "Spot and preemptible instances", "Isolation for sensitive projects", "Runner images and hardening", "Upgrades without disruption", "Monitoring fleet health", "Chargeback to teams"],
+          "tools": ["GitLab Runner", "Cloud autoscaling", "Monitoring tools"],
+          "lab_task": "Size a runner fleet from a month of job data, configure autoscaling with spot capacity, isolate a sensitive project's runners and report cost per team.",
+          "deliverable": "Fleet design, configuration and cost report",
+          "checks": [["Size", "Capacity matches peak demand with headroom", "Capacity analysis"], ["Isolate", "Sensitive jobs run only on isolated runners", "Job logs"], ["Charge", "Cost per team is reported", "Cost report"]],
+          "objectives": ["Operate runner fleets", "Control runner cost", "Isolate sensitive workloads"]
+        },
+        {
+          "topic": "Self-Managed GitLab Administration: Architecture, Upgrades and Backups",
+          "subtopics": ["Reference architectures", "Linux package and Helm chart installs", "Upgrade paths", "Backups and restores", "Gitaly and storage", "Monitoring GitLab itself"],
+          "tools": ["Self-managed GitLab", "GitLab Helm chart or Linux package", "Monitoring tools"],
+          "lab_task": "Install a test self-managed GitLab, plan an upgrade path across two versions, back up and restore to a new server and monitor key services.",
+          "deliverable": "Upgrade plan, restore evidence and monitoring",
+          "checks": [["Plan", "The upgrade path follows the required stops", "Upgrade plan"], ["Restore", "The restore brings back projects and pipelines", "Restore log"], ["Monitor", "Key service health is visible", "Dashboard"]],
+          "objectives": ["Administer self-managed GitLab", "Upgrade safely", "Back up and restore"]
+        },
+        {
+          "topic": "GitLab High Availability and Geo for Disaster Recovery",
+          "subtopics": ["Availability requirements", "High availability components", "Geo primary and secondary sites", "Replication and verification", "Failover procedures", "Recovery time and recovery point objectives", "Testing disaster recovery", "Runbooks"],
+          "tools": ["GitLab Geo", "Self-managed GitLab", "Runbook template"],
+          "lab_task": "Design an HA and Geo setup for stated recovery objectives, run a failover drill in a test environment and update the runbook from what happened.",
+          "deliverable": "DR design, drill results and runbook",
+          "checks": [["Design", "The design meets recovery objectives", "Design document"], ["Drill", "The failover drill completes", "Drill log"], ["Improve", "The runbook is updated from the drill", "Runbook"]],
+          "objectives": ["Plan GitLab availability", "Use Geo for recovery", "Test disaster recovery"]
+        },
+        {
+          "topic": "Migrating from Jenkins and GitHub Actions to GitLab CI",
+          "subtopics": ["Reasons and risks of migration", "Inventory of existing pipelines", "Mapping Jenkins and Actions concepts to GitLab", "Migration tools and converters", "Running old and new pipelines in parallel", "Wave planning", "Training teams", "Retiring old systems"],
+          "tools": ["Jenkins", "GitHub Actions", "GitLab", "Migration tracker"],
+          "lab_task": "Inventory ten pipelines, convert a Jenkinsfile and an Actions workflow to GitLab CI, run both versions in parallel for a week and plan the remaining waves.",
+          "deliverable": "Inventory, converted pipelines and migration plan",
+          "checks": [["Inventory", "Pipelines are listed with complexity ratings", "Inventory"], ["Convert", "Both converted pipelines produce the same results", "Comparison"], ["Plan", "Waves, training and retirement are planned", "Migration plan"]],
+          "objectives": ["Migrate to GitLab CI", "Map CI concepts", "Plan migration waves"]
+        },
+        {
+          "topic": "Large Monorepo and Polyrepo Strategies",
+          "subtopics": ["Repository strategies compared", "Monorepo tooling with GitLab", "Polyrepo coordination with multi-project pipelines", "Dependency updates across repositories", "Code ownership at scale", "Build caching across projects", "Release coordination", "Choosing a strategy"],
+          "tools": ["GitLab", "Renovate", "Build cache tools"],
+          "lab_task": "Compare monorepo and polyrepo designs for a product family, implement automated dependency updates across five repositories and coordinate a multi-repo release.",
+          "deliverable": "Strategy comparison and coordinated release",
+          "checks": [["Compare", "Both strategies are compared on agreed criteria", "Comparison"], ["Update", "Dependency updates open merge requests across repositories", "Merge request list"], ["Release", "The multi-repo release completes in order", "Pipeline history"]],
+          "objectives": ["Choose repository strategies", "Coordinate many repositories", "Automate dependency updates"]
+        },
+        {
+          "topic": "Progressive Delivery at Scale with Feature Flags and Canary Analysis",
+          "subtopics": ["Progressive delivery across many services", "Automated canary analysis", "Metrics for release health", "Feature flag lifecycle and cleanup", "Kill switches", "Ownership of flags", "Release dashboards", "Policies for risky changes"],
+          "tools": ["GitLab feature flags or a flag service", "Argo Rollouts or Flagger", "Monitoring tools"],
+          "lab_task": "Add automated canary analysis for two services with release health metrics, set feature flag cleanup rules and run a release that rolls back on a failed analysis.",
+          "deliverable": "Canary analysis setup and rollback evidence",
+          "checks": [["Analyse", "Canary analysis uses agreed health metrics", "Analysis configuration"], ["Roll back", "The failed analysis triggers rollback", "Release log"], ["Clean up", "Stale flags are found by the cleanup rule", "Flag report"]],
+          "objectives": ["Run progressive delivery at scale", "Automate canary analysis", "Manage feature flag lifecycles"]
+        },
+        {
+          "topic": "Policy as Code and Security Gates Across Groups",
+          "subtopics": ["Policy layers: GitLab policies, OPA and admission control", "Writing policies as code", "Testing policies", "Rolling out policies gradually", "Exceptions with expiry", "Measuring policy impact", "Developer experience with gates", "Reporting compliance"],
+          "tools": ["GitLab security policies", "Open Policy Agent", "Kubernetes admission control"],
+          "lab_task": "Write policies for required scans, approved base images and production approvals, roll them out in warn mode then enforce mode and report the impact on teams.",
+          "deliverable": "Policies with rollout and impact report",
+          "checks": [["Write", "Policies are versioned and tested", "Policy repository"], ["Roll out", "Warn mode precedes enforcement", "Rollout log"], ["Report", "Blocked changes and exceptions are reported", "Impact report"]],
+          "objectives": ["Apply policy as code", "Roll out gates safely", "Measure policy impact"]
+        },
+        {
+          "topic": "Value Stream Analytics and Engineering Metrics",
+          "subtopics": ["Value stream stages", "Lead time and cycle time", "Flow metrics", "DORA metrics across groups", "Avoiding metric misuse", "Dashboards for leaders", "Linking metrics to improvement work", "Reviewing metrics with teams"],
+          "tools": ["GitLab value stream analytics", "DORA metrics", "Dashboard tool"],
+          "lab_task": "Configure value stream analytics for three groups, compare their flow and DORA metrics, find one bottleneck per group and agree improvements without ranking teams.",
+          "deliverable": "Metrics review and improvement agreements",
+          "checks": [["Configure", "Value streams show stage times", "Analytics view"], ["Diagnose", "One bottleneck per group is identified", "Analysis"], ["Improve", "Improvements are agreed with each team", "Agreements"]],
+          "objectives": ["Measure value streams", "Use metrics responsibly", "Drive improvement with teams"]
+        },
+        {
+          "topic": "Multi-Cloud Deployment Pipelines",
+          "subtopics": ["Reasons for multi-cloud delivery", "Shared pipeline logic across clouds", "OIDC to several providers", "Environment and region matrices", "Promotion across clouds", "Cloud-specific checks", "Cost and complexity", "Testing failover between clouds"],
+          "tools": ["GitLab pipelines", "AWS, Azure and Google Cloud CLIs", "Terraform or OpenTofu"],
+          "lab_task": "Build a pipeline that deploys the same service to two clouds with OIDC, promotes across regions with a matrix and tests switching traffic to the second cloud.",
+          "deliverable": "Multi-cloud pipeline with failover test",
+          "checks": [["Deploy", "The service deploys to both clouds", "Environment pages"], ["Authenticate", "Each cloud uses OIDC", "Job logs"], ["Fail over", "Traffic switches to the second cloud", "Test log"]],
+          "objectives": ["Deploy to several clouds", "Share pipeline logic", "Test cloud failover"]
+        },
+        {
+          "topic": "Secrets Management Strategy for an Organisation",
+          "subtopics": ["Where secrets live today", "Central secret managers", "Short-lived credentials everywhere", "Secret detection and push protection", "Rotation policies", "Incident response for leaked secrets", "Ownership and audit", "Measuring progress"],
+          "tools": ["HashiCorp Vault or cloud secret managers", "GitLab secret detection", "Audit logs"],
+          "lab_task": "Audit secrets across projects, design a central strategy with short-lived credentials and rotation, enable push protection and run a leaked-secret incident drill.",
+          "deliverable": "Secrets audit, strategy and drill record",
+          "checks": [["Audit", "Stored secrets are inventoried by risk", "Audit report"], ["Design", "The strategy covers storage, rotation and access", "Strategy"], ["Drill", "The leaked-secret drill completes with lessons", "Drill record"]],
+          "objectives": ["Set secrets strategy", "Prevent secret leaks", "Respond to incidents"]
+        },
+        {
+          "topic": "Pipeline Cost Optimisation",
+          "subtopics": ["Where CI/CD money goes", "Compute minutes and runner costs", "Storage for artifacts, caches and registries", "Expiry and cleanup policies", "Right-sizing jobs", "Scheduling heavy work", "Showback and chargeback", "Cost targets"],
+          "tools": ["GitLab usage quotas", "Cloud billing", "Cleanup policies"],
+          "lab_task": "Analyse a month of CI/CD cost, set artifact and registry cleanup, right-size job resources and show cost per team before and after.",
+          "deliverable": "Cost analysis and savings report",
+          "checks": [["Analyse", "Cost is broken down by compute and storage", "Cost analysis"], ["Save", "Cleanup and right-sizing savings are measured", "Savings report"], ["Show", "Cost per team is reported", "Showback report"]],
+          "objectives": ["Reduce CI/CD cost", "Clean up storage", "Report cost by team"]
+        },
+        {
+          "topic": "Testing Pipeline Configuration: Linting, Simulation and Component Tests",
+          "subtopics": ["Why pipeline code needs tests", "CI lint and merged configuration checks", "Simulating pipelines for branches", "Testing components in their own projects", "Golden configuration tests", "Breaking-change checks for components", "Reviews for pipeline changes", "Release process for shared configuration"],
+          "tools": ["GitLab CI lint API", "Component test pipelines", "glab CLI"],
+          "lab_task": "Add lint, simulation and golden configuration tests for the shared components, catch a breaking change before release and publish a fixed version.",
+          "deliverable": "Tested components with a caught breaking change",
+          "checks": [["Lint", "Configuration is validated in CI", "Pipeline view"], ["Catch", "The breaking change fails the test", "Pipeline view"], ["Release", "The fixed version is published", "Catalog entry"]],
+          "objectives": ["Test pipeline configuration", "Protect component users", "Release shared configuration safely"]
+        },
+        {
+          "topic": "Building and Publishing a Company CI/CD Catalog",
+          "subtopics": ["Catalog strategy and ownership", "Component standards", "Versioning and deprecation", "Documentation and examples", "Adoption tracking", "Support and contribution model", "Security review of components", "Measuring catalog value"],
+          "tools": ["GitLab CI/CD Catalog", "Component projects", "Usage reports"],
+          "lab_task": "Publish five company components with standards, documentation and deprecation rules, track adoption across projects and accept a contribution from another team.",
+          "deliverable": "Company catalog with adoption data",
+          "checks": [["Publish", "Five components meet the standards", "Catalog entries"], ["Track", "Adoption is measured", "Usage report"], ["Contribute", "An external contribution is reviewed and merged", "Merge request"]],
+          "objectives": ["Run a company CI/CD catalog", "Set component standards", "Grow adoption"]
+        },
+        {
+          "topic": "AI-Assisted Delivery with GitLab Duo Agents",
+          "subtopics": ["AI agents in the delivery workflow", "Agents for fixing failed pipelines", "Agents for merge request reviews", "Security of agent actions", "Approvals for agent changes", "Measuring quality of agent work", "Data and privacy settings", "Team policies for agents"],
+          "tools": ["GitLab Duo", "GitLab merge requests", "Policy settings"],
+          "lab_task": "Pilot Duo agents for failed pipeline fixes and merge request reviews on one project, require human approval for every change and measure accepted and rejected suggestions.",
+          "deliverable": "Agent pilot results and policy",
+          "checks": [["Pilot", "Agents propose fixes and reviews", "Merge requests"], ["Approve", "All agent changes need human approval", "Settings"], ["Measure", "Accepted and rejected suggestions are counted", "Pilot report"]],
+          "objectives": ["Use AI agents in delivery", "Keep humans in control", "Measure agent value"]
+        },
+        {
+          "topic": "Regulated Delivery: Separation of Duties and Evidence",
+          "subtopics": ["Regulations affecting software delivery", "Separation of duties in pipelines", "Change records from merge requests", "Evidence collection for audits", "Deployment approvals with records", "Emergency changes", "Retention of evidence", "Audit walkthroughs"],
+          "tools": ["GitLab compliance frameworks", "Audit events", "Evidence store"],
+          "lab_task": "Configure separation of duties for a regulated service, generate change evidence automatically from merge requests and deployments and walk a role-played auditor through one release.",
+          "deliverable": "Regulated delivery setup and audit walkthrough",
+          "checks": [["Separate", "Authors cannot approve or deploy their own changes", "Approval rules"], ["Evidence", "Change records are produced automatically", "Evidence store"], ["Walk through", "The auditor accepts the release evidence", "Audit notes"]],
+          "objectives": ["Deliver software under regulation", "Separate duties", "Produce audit evidence"]
+        },
+        {
+          "topic": "Troubleshooting Pipelines and Runners at Scale",
+          "subtopics": ["Patterns in failures across projects", "Runner capacity and queue problems", "Network and registry issues", "Configuration inheritance surprises", "GitLab service problems", "Reading logs across layers"],
+          "tools": ["GitLab admin area", "Runner logs", "Monitoring tools"],
+          "lab_task": "Diagnose four platform incidents (queued jobs, registry rate limits, an inherited variable surprise and a Gitaly slowdown), fix them and write a platform troubleshooting guide.",
+          "deliverable": "Diagnoses, fixes and troubleshooting guide",
+          "checks": [["Diagnose", "Each incident has a confirmed cause", "Diagnosis notes"], ["Fix", "Pipelines recover after fixes", "Pipeline metrics"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot at platform scale", "Read logs across layers", "Share troubleshooting practice"]
+        },
+        {
+          "topic": "Advanced Capstone: GitLab CI/CD Platform for an Engineering Organisation",
+          "subtopics": ["Platform design", "Catalog and policies", "Supply chain security", "Runner fleet and cost", "Metrics and governance", "Leadership presentation"],
+          "tools": ["GitLab", "CI/CD Catalog", "Sigstore", "GitLab Runner fleet", "Value stream analytics"],
+          "lab_task": "Build a GitLab CI/CD platform for three teams with a component catalog, security policies, signed artefacts, an autoscaling runner fleet, cost reports and delivery metrics, and present it to engineering leadership.",
+          "deliverable": "Platform, reports and leadership presentation",
+          "checks": [["Enable", "Teams deliver through the catalog and policies", "Pipeline evidence"], ["Secure", "Signed artefacts and policy gates are enforced", "Security review"], ["Win support", "Leadership approves the platform", "Presentation notes"]],
+          "objectives": ["Combine advanced GitLab skills", "Build a CI/CD platform", "Present to leadership"]
+        }
+      ]
+    }
+  }
+}

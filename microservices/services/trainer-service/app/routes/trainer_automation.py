@@ -115,32 +115,22 @@ def _clean_duration_text(value: Any) -> str:
 
 
 def _trainer_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
-    daily_client_amount = 0.0
-    total_client_amount = 0.0
-    days = _safe_int(requirement.get("duration_days"), 0) or _safe_int(requirement.get("commercial_working_days"), 0)
-    if requirement.get("budget_total") not in (None, "", []):
-        total_client_amount = _safe_float(requirement.get("budget_total"))
-        if total_client_amount:
-            return f"INR {_round_commercial_amount(total_client_amount * DEFAULT_TRAINER_SHARE):,} total commercial, inclusive of applicable TDS"
-    if not daily_client_amount:
-        daily_client_amount = _safe_float(requirement.get("client_budget_per_day") or requirement.get("budget_per_day"))
-        total_client_amount = daily_client_amount * days if daily_client_amount and days else total_client_amount
-    if not daily_client_amount and not total_client_amount:
-        return ""
-    if daily_client_amount and daily_client_amount < MIN_TRAINER_DAY_RATE_VISIBLE and total_client_amount:
-        return f"INR {_round_commercial_amount(total_client_amount * DEFAULT_TRAINER_SHARE):,} total commercial, inclusive of applicable TDS"
-    if daily_client_amount:
-        return f"INR {_round_commercial_amount(daily_client_amount * DEFAULT_TRAINER_SHARE):,} per day/session, inclusive of applicable TDS"
-    return f"INR {_round_commercial_amount(total_client_amount * DEFAULT_TRAINER_SHARE):,} total commercial, inclusive of applicable TDS"
+    from shared.commercial_policy import trainer_commercial_text
+    return trainer_commercial_text(requirement)
+
+
+def _client_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
+    from shared.commercial_policy import client_stated_commercial_text
+    return client_stated_commercial_text(requirement)
 
 
 def _replace_trainer_mail1_commercial(body: str, requirement: Dict[str, Any]) -> str:
-    commercial_text = _trainer_mail1_commercial_text(requirement)
+    commercial_text = _client_mail1_commercial_text(requirement)
     if not commercial_text:
         return body
-    line = f"Offered trainer commercial: {commercial_text}"
-    if re.search(r"(?im)^(?:Commercials/Budget|Offered trainer commercial):\s*.*$", body or ""):
-        return re.sub(r"(?im)^(?:Commercials/Budget|Offered trainer commercial):\s*.*$", line, body or "")
+    line = f"Client commercial: {commercial_text}"
+    if re.search(r"(?im)^(?:Commercials/Budget|Offered trainer commercial|Client commercial):\s*.*$", body or ""):
+        return re.sub(r"(?im)^(?:Commercials/Budget|Offered trainer commercial|Client commercial):\s*.*$", line, body or "")
     return body
 
 
@@ -218,7 +208,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     participants = _clean_text(requirement.get("participant_count") or requirement.get("participants") or requirement.get("audience_level"))
     training_time = _clean_text(requirement.get("training_time") or requirement.get("session_timing") or _mail1_source_value(requirement, r"training\s+time|timings?"))
     hands_on_lab = _clean_text(requirement.get("hands_on_lab") or _mail1_source_value(requirement, r"hands[-\s]?on\s+lab|lab\s+duration"))
-    commercial = _trainer_mail1_commercial_text(requirement)
+    commercial = _client_mail1_commercial_text(requirement)
     details = [f"Domain/Technology: {technology}"]
     if dates:
         details.append(f"Training dates: {dates}")
@@ -233,20 +223,19 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     if participants:
         details.append(f"Participants: {participants}")
     if commercial:
-        details.append(f"Offered trainer commercial: {commercial}")
+        details.append(f"Client commercial: {commercial}")
     requested_items = _mail1_requested_items(requirement)
     selected = []
     for label, needle in [
         ("availability", "availability"),
         ("updated profile", "profile"),
-        ("commercials", "commercial"),
         (f"relevant {technology} experience", "experience"),
         ("day-wise TOC", "toc"),
     ]:
         if any(needle in item.lower() for item in requested_items):
             selected.append(label)
     if not selected:
-        selected = ["availability", "updated profile", "commercials", f"relevant {technology} experience"]
+        selected = ["availability", "updated profile", f"relevant {technology} experience"]
     ask = ", ".join(dict.fromkeys(selected))
     return (
         f"Hi {trainer_name or 'Trainer'},\n\n"
@@ -255,6 +244,11 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         "Training Details:\n"
         f"{chr(10).join(details)}\n\n"
         f"Please confirm your availability for the above requirement. Also share your {ask}.\n\n"
+        "Please also share three convenient interview/discussion slots, with the date, time, and time zone.\n"
+        "Example:\n"
+        "- 01 November 2026, 10:00 AM IST\n"
+        "- 03 November 2026, 2:00 PM IST\n"
+        "- 05 November 2026, 4:00 PM IST\n\n"
         "Regards,\n"
         "Clahan Technologies"
     )

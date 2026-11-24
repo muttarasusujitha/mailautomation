@@ -1,0 +1,573 @@
+{
+  "domain": "ELK Stack",
+  "name": "Elasticsearch and the Elastic Stack",
+  "category": "Observability and SRE",
+  "icon": "search",
+  "aliases": ["ELK", "Elastic Stack", "Elasticsearch", "Elastic Search", "Kibana", "Logstash", "Filebeat", "Metricbeat", "Elastic Agent", "Elastic Observability", "Elastic APM", "Elastic Cloud", "EFK Stack", "Elasticsearch Administration", "Elasticsearch Developer", "Elastic Certified Engineer", "Elastic Certified Analyst", "Elastic Certified Observability Engineer"],
+  "certifications": ["Elastic Certified Engineer", "Elastic Certified Analyst", "Elastic Certified Observability Engineer", "Elastic Certified SIEM Analyst"],
+  "tools": ["Elasticsearch 9", "Kibana", "Elastic Agent and Fleet", "Logstash", "Beats", "Elastic APM and EDOT", "Docker or Elastic Cloud"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, operations engineers and analysts who are starting with Elasticsearch and the Elastic Stack (ELK). Covers the stack and its deployment options, a secured lab, documents, indices and mappings, Query DSL search, text analysis, aggregations, ES|QL, Kibana Discover and dashboards, Elastic Agent and Fleet, Beats and Logstash, ingest pipelines, data streams and lifecycle, cluster architecture, security, Kibana alerting, Elastic Observability, Elastic APM with OpenTelemetry, snapshots and troubleshooting. Written for Elastic Stack 9.x.",
+      "prerequisites": ["Comfortable with JSON and the command line", "Knows what logs and HTTP APIs are", "Has used Docker or a cloud console"],
+      "outcomes": ["Index, search and aggregate data with mappings, analyzers, Query DSL and the Elasticsearch Query Language", "Collect and parse logs and metrics with Elastic Agent, Beats, Logstash and ingest pipelines", "Build Kibana dashboards, alerts and observability views", "Run a secure cluster with lifecycle policies, snapshots and basic troubleshooting"],
+      "days": [
+        {
+          "topic": "Elastic Stack Overview: Elasticsearch, Kibana, Logstash, Beats and Elastic Agent",
+          "subtopics": ["How the ELK Stack became the Elastic Stack", "Elasticsearch as a distributed search and analytics engine", "Kibana for exploring and visualising data", "Logstash and ingest pipelines for processing", "Beats, Elastic Agent and Fleet for collection", "Search, observability and security solutions", "Self-managed, Elastic Cloud Hosted and Serverless deployments", "Licences: AGPL, SSPL, Elastic License and subscription tiers", "OpenSearch and how it differs", "Course project overview: logs, metrics and product search for a web shop"],
+          "tools": ["Elastic Stack 9", "Kibana", "Elastic Cloud trial"],
+          "lab_task": "Tour a running Elastic deployment, find the web shop logs in Discover, open a dashboard and draw a diagram that shows the job of each component.",
+          "deliverable": "Stack diagram with component roles",
+          "checks": [["Find", "Web shop logs are found in Discover", "Screenshot"], ["Map", "Each component's role is correct on the diagram", "Diagram"], ["Compare", "Deployment options are compared for the course scenario", "Notes"]],
+          "objectives": ["Describe the Elastic Stack", "Navigate Kibana", "Choose a deployment option"]
+        },
+        {
+          "topic": "Lab Setup: Elasticsearch and Kibana with Docker or Elastic Cloud",
+          "subtopics": ["Single-node Elasticsearch with Docker", "Security on by default: TLS and the elastic user", "Enrolling Kibana with an enrollment token", "Elastic Cloud trial as an alternative", "The Dev Tools console", "Cluster health and cat APIs", "Loading sample data", "API keys for clients", "Lab layout for the course", "Checking versions and licences"],
+          "tools": ["Docker", "Elasticsearch 9", "Kibana", "Dev Tools"],
+          "lab_task": "Start Elasticsearch and Kibana with security enabled, enroll Kibana, load sample data, create an API key and check cluster health from Dev Tools and curl.",
+          "deliverable": "Secured lab cluster with sample data and an API key",
+          "checks": [["Start", "Cluster health is green or yellow with security on", "_cluster/health output"], ["Enroll", "Kibana connects with an enrollment token", "Kibana login"], ["Access", "curl works with the API key", "curl output"]],
+          "objectives": ["Run Elasticsearch and Kibana", "Use security from the start", "Work in Dev Tools"]
+        },
+        {
+          "topic": "Documents, Indices and Mappings",
+          "subtopics": ["Documents as JSON", "Indices, shards and replicas", "Dynamic and explicit mappings", "Field types: text, keyword, numeric, date, boolean and geo", "Multi-fields", "Index templates and component templates", "Reindexing when a mapping must change", "The _source field"],
+          "tools": ["Kibana Dev Tools", "Elasticsearch APIs"],
+          "lab_task": "Index web shop products with dynamic mapping, find the mapping problems, fix them with an explicit mapping and an index template, and reindex.",
+          "deliverable": "Product index with an explicit mapping and template",
+          "checks": [["Index", "Products are searchable after indexing", "Search response"], ["Fix", "Fields have the intended types", "Mapping output"], ["Reindex", "Data moves to the new index without loss", "Document counts"]],
+          "objectives": ["Model data as documents", "Design mappings", "Use index templates"]
+        },
+        {
+          "topic": "Search with Query DSL: Full-Text, Term and Bool Queries",
+          "subtopics": ["match and multi_match", "term, terms and range", "bool: must, should, filter and must_not", "Query and filter context", "Relevance scoring with BM25", "Pagination with from, size and search_after", "Sorting, highlighting and fuzzy matching", "The explain API"],
+          "tools": ["Kibana Dev Tools", "Query DSL"],
+          "lab_task": "Build product searches that combine full-text matching with fuzziness, filters for price and category, sorting and highlighting, and explain why the top result ranks first.",
+          "deliverable": "Search queries with explanations",
+          "checks": [["Search", "Full-text queries return relevant products, even with typos", "Search results"], ["Filter", "Filters narrow results without changing scores", "Score comparison"], ["Explain", "The top result's score is explained", "explain output"]],
+          "objectives": ["Write Query DSL searches", "Combine queries and filters", "Understand relevance"]
+        },
+        {
+          "topic": "Text Analysis: Analyzers, Tokenizers and Synonyms",
+          "subtopics": ["The analysis process", "Standard and language analyzers", "Tokenizers and token filters", "Custom analyzers", "The analyze API", "Synonyms and synonym sets", "Search-as-you-type and edge n-grams", "Normalizers for keyword fields"],
+          "tools": ["Kibana Dev Tools", "Analyze API", "Synonyms API"],
+          "lab_task": "Create a custom analyzer with a synonym set for product search, add search-as-you-type for product names and test both with the analyze API.",
+          "deliverable": "Product index with custom analysis",
+          "checks": [["Analyse", "The analyze API shows the expected tokens", "Analyze output"], ["Synonyms", "A synonym search finds the product", "Search results"], ["Autocomplete", "Partial names return suggestions", "Suggestion results"]],
+          "objectives": ["Configure text analysis", "Use synonyms", "Build autocomplete"]
+        },
+        {
+          "topic": "Aggregations: Metrics, Buckets and Pipelines",
+          "subtopics": ["Metric aggregations", "Terms, histogram and date histogram buckets", "Nested aggregations", "Pipeline aggregations", "Cardinality and percentiles", "Aggregations with queries and filters", "Composite aggregations for paging", "Aggregation performance"],
+          "tools": ["Kibana Dev Tools", "Aggregations"],
+          "lab_task": "Answer five business questions about web shop orders with aggregations, including sales per day, top categories and the 95th percentile order value.",
+          "deliverable": "Aggregation queries that answer five questions",
+          "checks": [["Answer", "Each question has a working aggregation", "Query results"], ["Nest", "A nested aggregation shows categories per day", "Nested results"], ["Verify", "Totals match a known count", "Comparison"]],
+          "objectives": ["Summarise data with aggregations", "Nest aggregations", "Check results"]
+        },
+        {
+          "topic": "ES|QL: Piped Queries for Analysis",
+          "subtopics": ["Why ES|QL exists", "FROM, WHERE, EVAL, STATS and SORT", "KEEP, DROP and RENAME", "Date and string functions", "LOOKUP JOIN for enrichment", "ES|QL in Discover and dashboards", "ES|QL compared with Query DSL and KQL", "Performance and limits"],
+          "tools": ["Kibana Discover", "Kibana Dev Tools", "Lookup index"],
+          "lab_task": "Use ES|QL to find the busiest hours, error rates per service and slow requests in the web shop logs, enrich the results with a lookup index of service owners and save the queries.",
+          "deliverable": "Saved ES|QL queries with lookup enrichment",
+          "checks": [["Query", "Error rates per service are calculated", "Query result"], ["Join", "Each row includes the owning team", "Enriched result"], ["Save", "Queries are saved and reusable in Discover", "Saved query list"]],
+          "objectives": ["Analyse data with piped queries", "Enrich results at query time", "Reuse saved queries"]
+        },
+        {
+          "topic": "Kibana Discover, Visualisations and Dashboards",
+          "subtopics": ["Data views", "Discover: KQL, filters and field statistics", "Lens visualisations", "Dashboards and controls", "Maps", "Saved searches and sharing", "Spaces for teams", "Exporting and importing saved objects"],
+          "tools": ["Kibana", "Lens", "Dashboards"],
+          "lab_task": "Build a web shop operations dashboard with Lens charts, a map of orders and controls for service and region, and share it in a team space.",
+          "deliverable": "Operations dashboard in a team space",
+          "checks": [["Build", "The dashboard shows traffic, errors and orders", "Dashboard"], ["Filter", "Controls filter every panel", "Screenshot"], ["Share", "Team members open it in their space", "Space permissions"]],
+          "objectives": ["Explore data in Discover", "Build dashboards", "Organise work in spaces"]
+        },
+        {
+          "topic": "Collecting Logs with Elastic Agent, Fleet and Integrations",
+          "subtopics": ["Elastic Agent and Fleet Server", "Agent policies", "Integrations for system, nginx and databases", "Standalone and Fleet-managed agents", "Data stream naming: type, dataset and namespace", "Elastic Common Schema", "Agent upgrades", "Troubleshooting agents"],
+          "tools": ["Elastic Agent", "Fleet", "Integrations"],
+          "lab_task": "Enroll agents on the web shop hosts with a policy that collects system, nginx and PostgreSQL logs and metrics, and confirm the data streams in Discover.",
+          "deliverable": "Agent policy and incoming data streams",
+          "checks": [["Enroll", "Agents are healthy in Fleet", "Fleet screenshot"], ["Collect", "Logs and metrics arrive in the expected data streams", "Data stream list"], ["Map", "Fields follow ECS", "Field list"]],
+          "objectives": ["Collect data with Elastic Agent", "Manage agents with Fleet", "Use ECS"]
+        },
+        {
+          "topic": "Beats and Logstash Pipelines",
+          "subtopics": ["Filebeat and Metricbeat", "Logstash inputs, filters and outputs", "grok, dissect and date filters", "Mutate and enrichment", "Persistent queues and dead letter queues", "Pipeline-to-pipeline communication", "When to use Logstash, ingest pipelines or Elastic Agent", "Monitoring Logstash"],
+          "tools": ["Filebeat", "Logstash", "Kibana"],
+          "lab_task": "Ship legacy application logs with Filebeat to Logstash, parse them with grok and date filters, enrich them and send them to Elasticsearch with a dead letter queue for failures.",
+          "deliverable": "Logstash pipeline with parsed logs",
+          "checks": [["Parse", "Log fields are extracted correctly", "Document sample"], ["Enrich", "Records gain the added fields", "Enriched document sample"], ["Recover", "Failed events land in the dead letter queue", "Dead letter queue contents"]],
+          "objectives": ["Ship logs with Beats", "Parse logs with Logstash", "Handle failed events"]
+        },
+        {
+          "topic": "Ingest Pipelines and Processors in Elasticsearch",
+          "subtopics": ["Ingest pipelines and processors", "grok, dissect, date and rename processors", "The script processor with Painless", "The enrich processor and enrich policies", "Pipeline failures and on_failure", "Simulating pipelines", "Default and final pipelines", "Ingest pipeline performance"],
+          "tools": ["Ingest pipelines", "Kibana Dev Tools", "Painless"],
+          "lab_task": "Write an ingest pipeline that parses web server logs, adds GeoIP data and customer data from an enrich policy, and simulate it before setting it as the default pipeline.",
+          "deliverable": "Tested ingest pipeline set as a default pipeline",
+          "checks": [["Simulate", "Simulation returns the expected fields", "Simulate output"], ["Enrich", "Documents gain location and customer fields", "Document sample"], ["Handle", "Bad lines are tagged instead of dropped", "Failure field values"]],
+          "objectives": ["Process data at ingest", "Enrich documents", "Handle pipeline errors"]
+        },
+        {
+          "topic": "Data Streams, Lifecycle and Storage Tiers",
+          "subtopics": ["Data streams and backing indices", "Rollover", "Index lifecycle management", "Data stream lifecycle", "Hot, warm, cold and frozen tiers", "Searchable snapshots", "Logsdb index mode", "Retention and deletion"],
+          "tools": ["Data streams", "Index lifecycle management", "Snapshots"],
+          "lab_task": "Apply a lifecycle that rolls over web shop logs daily, moves them to warm after 7 days and to frozen after 30 days, deletes them after 90 days, and turn on logsdb mode.",
+          "deliverable": "Lifecycle policy with storage measurements",
+          "checks": [["Roll over", "New backing indices are created on schedule", "Data stream info"], ["Move", "Older indices move to the right tier", "ILM explain output"], ["Save", "Logsdb mode reduces storage for the same data", "Storage comparison"]],
+          "objectives": ["Manage time series data", "Use storage tiers", "Reduce storage cost"]
+        },
+        {
+          "topic": "Cluster Architecture: Nodes, Shards and Replicas",
+          "subtopics": ["Node roles", "Master election and quorum", "Shard sizing guidelines", "Replica placement and allocation awareness", "Cluster health and the allocation explain API", "Scaling out and in", "Hot spots and uneven shards", "Cluster settings"],
+          "tools": ["Elasticsearch APIs", "Kibana Stack Monitoring"],
+          "lab_task": "Grow the lab to three nodes with roles, set zone awareness, fix an unassigned shard with the allocation explain API and rebalance an uneven index.",
+          "deliverable": "Three-node cluster with healthy allocation",
+          "checks": [["Scale", "The cluster runs three nodes with roles", "_cat/nodes output"], ["Fix", "The unassigned shard is allocated", "Allocation explain output"], ["Balance", "Shards spread evenly", "_cat/shards output"]],
+          "objectives": ["Design clusters", "Size shards", "Fix allocation problems"]
+        },
+        {
+          "topic": "Security: Users, Roles, API Keys and Field-Level Security",
+          "subtopics": ["Built-in users and roles", "Custom roles with index privileges", "Document-level and field-level security", "API keys for services", "Spaces and Kibana feature privileges", "Single sign-on with SAML or OIDC", "Audit logging", "TLS between nodes and clients"],
+          "tools": ["Elasticsearch security", "Kibana", "API keys"],
+          "lab_task": "Create a role for support staff who see orders for their region without card fields, give a service an API key with least privilege and turn on audit logging.",
+          "deliverable": "Roles, API keys and audit log",
+          "checks": [["Restrict", "Support staff cannot see card fields", "Search response"], ["Limit", "The service key can only write to its data stream", "Denied request"], ["Audit", "Access attempts appear in the audit log", "Audit entries"]],
+          "objectives": ["Secure data access", "Use API keys", "Audit access"]
+        },
+        {
+          "topic": "Alerting and Cases in Kibana",
+          "subtopics": ["Kibana alerting rules", "Threshold, log and ES|QL rules", "Connectors: email, Slack and webhook", "Action frequency and summaries", "Maintenance windows", "Cases", "Watcher for older alerts", "Testing alerts"],
+          "tools": ["Kibana alerting", "Connectors", "Cases"],
+          "lab_task": "Create rules that alert on error spikes and missing data, send them to Slack and email with summaries, mute them during a maintenance window and open a case.",
+          "deliverable": "Alert rules with connectors and a case",
+          "checks": [["Alert", "An error spike triggers a notification", "Notification"], ["Mute", "No alerts fire during the maintenance window", "Rule history"], ["Track", "A case records the investigation", "Case page"]],
+          "objectives": ["Alert on log and metric data", "Route notifications", "Track investigations"]
+        },
+        {
+          "topic": "Elastic Observability: Logs, Infrastructure and Service Views",
+          "subtopics": ["The Observability solution in Kibana", "Log exploration and log patterns", "Infrastructure inventory and hosts", "Kubernetes monitoring", "Uptime and synthetic monitors", "SLOs in Elastic Observability", "Log rate analysis", "Anomaly detection jobs for logs"],
+          "tools": ["Elastic Observability", "Synthetics", "Machine learning"],
+          "lab_task": "Monitor the web shop hosts and containers, add a synthetic check for checkout, define an SLO and use log rate analysis to explain an error spike.",
+          "deliverable": "Observability setup with an SLO and a spike analysis",
+          "checks": [["Monitor", "Hosts and containers appear with metrics", "Inventory screenshot"], ["Probe", "The synthetic check fails when checkout breaks", "Monitor history"], ["Explain", "Log rate analysis finds the field behind the spike", "Analysis result"]],
+          "objectives": ["Use Elastic Observability", "Monitor user journeys", "Explain anomalies"]
+        },
+        {
+          "topic": "Elastic APM and OpenTelemetry",
+          "subtopics": ["APM concepts: transactions, spans and errors", "Elastic APM agents", "Elastic Distributions of OpenTelemetry (EDOT)", "Sending OpenTelemetry data to Elastic", "Service maps", "Correlations and latency distribution", "Linking traces to logs", "Sampling"],
+          "tools": ["Elastic APM", "EDOT", "OpenTelemetry SDK"],
+          "lab_task": "Instrument two web shop services with EDOT, view the service map, find the slow span behind a latency problem and jump from the trace to its logs.",
+          "deliverable": "Instrumented services with an investigation",
+          "checks": [["Instrument", "Both services report traces", "Service list"], ["Map", "The service map shows the dependency", "Service map"], ["Investigate", "The slow span is found and linked to its logs", "Trace and log view"]],
+          "objectives": ["Instrument services for Elastic with OpenTelemetry", "Use APM views", "Link traces and logs"]
+        },
+        {
+          "topic": "Snapshots, Backup and Restore",
+          "subtopics": ["Snapshot repositories", "Snapshot lifecycle management", "Restoring indices and data streams", "Restoring to another cluster", "Snapshots of feature states", "Cross-cluster replication compared with snapshots", "Testing restores", "Snapshot retention"],
+          "tools": ["Snapshot and restore", "Snapshot lifecycle management", "Object storage"],
+          "lab_task": "Register an object storage repository, schedule daily snapshots with retention, delete an index by mistake and restore it to the original cluster and to a new one.",
+          "deliverable": "Snapshot policy and tested restores",
+          "checks": [["Schedule", "Snapshots run daily with retention", "SLM history"], ["Restore", "The deleted index is restored", "Document count"], ["Move", "The snapshot restores into a new cluster", "Restore output"]],
+          "objectives": ["Back up clusters", "Restore data", "Test recovery"]
+        },
+        {
+          "topic": "Troubleshooting Elasticsearch: Slow Queries, Heap and Red Clusters",
+          "subtopics": ["Reading cluster health and allocation", "Slow logs for search and indexing", "The profile API", "Heap pressure and circuit breakers", "Disk watermarks", "Hot threads", "Mapping explosions", "Support diagnostics"],
+          "tools": ["Elasticsearch APIs", "Slow logs", "Profile API", "Stack Monitoring"],
+          "lab_task": "Diagnose four seeded problems, a red cluster, a slow query, a disk watermark block and a mapping explosion, fix each one and record the steps.",
+          "deliverable": "Fixes and troubleshooting notes",
+          "checks": [["Diagnose", "Each problem's cause is confirmed", "Notes"], ["Fix", "Cluster health and query times return to normal", "API outputs"], ["Prevent", "Each fix has a preventive setting or alert", "Change list"]],
+          "objectives": ["Troubleshoot clusters", "Tune slow queries", "Prevent repeat problems"]
+        },
+        {
+          "topic": "Beginner Capstone: Log Analytics and Search for the Web Shop",
+          "subtopics": ["Ingest and parsing", "Search and analysis", "Dashboards and alerts", "Lifecycle and security"],
+          "tools": ["Elasticsearch", "Kibana", "Elastic Agent", "Logstash"],
+          "lab_task": "Deliver log analytics and product search for the web shop with agents and pipelines, a product index with custom analysis, dashboards, alerts, a lifecycle policy and least-privilege roles.",
+          "deliverable": "Working web shop analytics and search with a demo",
+          "checks": [["Ingest", "Logs from every service are parsed and searchable", "Discover screenshot"], ["Search", "Product search handles synonyms and typos", "Search tests"], ["Operate", "Alerts, lifecycle and roles work as designed", "Evidence screenshots"]],
+          "objectives": ["Combine beginner Elastic skills", "Deliver log analytics", "Deliver product search"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who build search and observability on Elastic for several teams, at Elastic Certified Engineer level. Covers data modelling with nested, join and flattened fields, relevance tuning, semantic search with semantic_text and ELSER, hybrid search with retrievers and RRF, vector search with quantisation, search applications and query rules, sizing and performance, cross-cluster search and replication, Fleet and Logstash at scale, Kubernetes and cloud observability, machine learning jobs, Elastic Security as a SIEM, Workflows, the AI Assistant and Agent Builder, stack monitoring and AutoOps, upgrades from 8.x to 9.x and exam preparation.",
+      "prerequisites": ["Indexes, searches and aggregates data with Query DSL and the Elasticsearch Query Language", "Runs agents, pipelines and lifecycle policies", "Has administered a small cluster"],
+      "outcomes": ["Model data and tune relevance for lexical, semantic and hybrid search", "Size, tune and connect clusters with cross-cluster search and replication", "Run Fleet, Logstash, observability, machine learning and SIEM use cases for teams", "Automate with Workflows and agents, upgrade safely and prepare for the Elastic Certified Engineer exam"],
+      "days": [
+        {
+          "topic": "Data Modelling for Search: Nested, Join and Flattened Fields",
+          "subtopics": ["Denormalising for search", "Object and nested fields", "Nested queries and aggregations", "The join field for parent-child data", "Flattened fields for unknown keys", "Runtime fields", "Choosing a model by query pattern", "Cost of each model"],
+          "tools": ["Kibana Dev Tools", "Elasticsearch APIs"],
+          "lab_task": "Model orders with line items three ways, as objects, nested fields and a join field, run the same five queries on each and choose a model with evidence.",
+          "deliverable": "Three data models compared with a decision",
+          "checks": [["Model", "All three models index the same orders", "Index listing"], ["Query", "Nested and join queries return correct line items", "Query results"], ["Decide", "The chosen model is justified by query results and cost", "Decision record"]],
+          "objectives": ["Model relational data for search", "Use nested and join fields", "Choose models by query pattern"]
+        },
+        {
+          "topic": "Relevance Tuning: Function Score, Boosting and Rank Evaluation",
+          "subtopics": ["Field boosts", "function_score with recency and popularity", "Rank feature fields", "Pinned results", "Judgement lists", "The rank evaluation API", "Measuring with NDCG and precision", "Avoiding over-tuning"],
+          "tools": ["Kibana Dev Tools", "Rank evaluation API", "Judgement list"],
+          "lab_task": "Build a judgement list for twenty product queries, measure relevance with the rank evaluation API, tune boosts and recency, and show the score change.",
+          "deliverable": "Judgement list, tuning changes and relevance scores",
+          "checks": [["Measure", "The baseline NDCG is recorded", "Rank evaluation output"], ["Tune", "Boosts and functions change the ranking as intended", "Query comparison"], ["Improve", "The tuned NDCG beats the baseline", "Rank evaluation output after tuning"]],
+          "objectives": ["Tune relevance", "Measure search quality", "Avoid over-tuning"]
+        },
+        {
+          "topic": "Semantic Search: Embeddings, semantic_text and ELSER",
+          "subtopics": ["Lexical and semantic search", "Dense and sparse embeddings", "ELSER and multilingual E5 models", "The semantic_text field type", "Inference endpoints and the Elastic Inference Service", "Chunking long text", "Semantic queries", "Cost and latency of inference"],
+          "tools": ["semantic_text", "ELSER", "Inference API"],
+          "lab_task": "Add a semantic_text field backed by ELSER to the product catalogue, compare semantic and lexical results for ten natural-language queries and measure latency.",
+          "deliverable": "Semantic product search with a comparison",
+          "checks": [["Index", "Products are indexed with embeddings", "Mapping and document sample"], ["Compare", "Semantic results win for natural-language queries", "Comparison table"], ["Measure", "Query latency is recorded for both approaches", "Latency figures"]],
+          "objectives": ["Build semantic search", "Use inference endpoints", "Compare semantic and lexical search"]
+        },
+        {
+          "topic": "Hybrid Search with Retrievers and Reciprocal Rank Fusion",
+          "subtopics": ["The retriever framework", "Standard, kNN and semantic retrievers", "Reciprocal rank fusion", "Linear combination of scores", "Semantic reranking", "Filters in hybrid search", "Evaluating hybrid results", "Tuning rank windows"],
+          "tools": ["Retrievers", "RRF", "Rank evaluation API"],
+          "lab_task": "Combine lexical and semantic retrievers with RRF, add a reranking step, and compare lexical, semantic and hybrid relevance on the judgement list.",
+          "deliverable": "Hybrid search with evaluation results",
+          "checks": [["Combine", "The hybrid query returns fused results", "Search response"], ["Rerank", "Reranking changes the top results as expected", "Comparison"], ["Evaluate", "Hybrid relevance is measured against both single methods", "Evaluation table"]],
+          "objectives": ["Build hybrid search", "Use reranking", "Evaluate search methods"]
+        },
+        {
+          "topic": "Vector Search at Scale: Dense Vectors, Quantisation and BBQ",
+          "subtopics": ["dense_vector fields and similarity", "HNSW graphs", "Scalar and Better Binary Quantisation (BBQ)", "DiskBBQ for large indices", "Filtered kNN search", "Memory sizing for vectors", "GPU-accelerated indexing", "Recall and latency trade-offs"],
+          "tools": ["dense_vector", "kNN search", "Elasticsearch APIs"],
+          "lab_task": "Index a million vectors with HNSW and with BBQ, measure memory, recall and latency for filtered kNN queries and recommend settings.",
+          "deliverable": "Vector benchmark and settings recommendation",
+          "checks": [["Index", "Both index types hold the same vectors", "Index stats"], ["Measure", "Memory, recall and latency are compared", "Benchmark table"], ["Recommend", "Settings are chosen from the measurements", "Recommendation"]],
+          "objectives": ["Run vector search at scale", "Use quantisation", "Balance recall and cost"]
+        },
+        {
+          "topic": "Search Applications: Search UI, Query Rules and Synonyms Management",
+          "subtopics": ["Search templates", "Query rules for pinned and excluded results", "Synonyms sets managed through the API", "Search UI libraries", "Analytics on search behaviour", "Zero-result queries", "Safe changes to live search", "Search API keys for front ends"],
+          "tools": ["Search templates", "Query rules", "Synonyms API", "Search UI"],
+          "lab_task": "Build a product search front end with Search UI and a search template, add query rules for promotions, manage synonyms through the API and fix the top zero-result queries.",
+          "deliverable": "Search front end with rules and synonym management",
+          "checks": [["Build", "The front end searches through a template with a restricted key", "Front-end demo"], ["Promote", "Query rules pin promoted products", "Search response"], ["Fix", "Top zero-result queries now return results", "Query report"]],
+          "objectives": ["Build search applications", "Manage rules and synonyms", "Improve search from analytics"]
+        },
+        {
+          "topic": "Sizing Elasticsearch Clusters: Ingest, Retention and Search Load",
+          "subtopics": ["Sizing by ingest rate and retention", "Shard count and size targets", "Memory, heap and disk ratios", "Tier sizing for hot, warm, cold and frozen", "Search load and concurrency", "Benchmarking with Rally", "Growth forecasts", "Cost of each design"],
+          "tools": ["Rally", "Spreadsheet", "Stack Monitoring"],
+          "lab_task": "Size a cluster for 2 TB a day of logs with 30 days hot and one year frozen, benchmark a reduced version with Rally and adjust the plan.",
+          "deliverable": "Sizing plan with benchmark evidence",
+          "checks": [["Size", "The plan covers ingest, retention and search load", "Sizing sheet"], ["Benchmark", "Rally results confirm or change the assumptions", "Rally report"], ["Cost", "Each tier has a cost estimate", "Cost table"]],
+          "objectives": ["Size clusters", "Benchmark with Rally", "Plan capacity and cost"]
+        },
+        {
+          "topic": "Performance Tuning: Indexing Throughput and Search Latency",
+          "subtopics": ["Bulk request sizing", "Refresh interval and replicas during loads", "Index sorting", "Query caching and request caching", "Expensive queries and how to avoid them", "Profiling searches", "Thread pools and rejections", "Monitoring performance over time"],
+          "tools": ["Rally", "Profile API", "Stack Monitoring"],
+          "lab_task": "Double indexing throughput for a bulk load and halve the latency of the three slowest dashboard queries, proving each change with measurements.",
+          "deliverable": "Tuning changes with before-and-after results",
+          "checks": [["Index", "Indexing throughput doubles", "Rally results"], ["Search", "Slow query latency halves", "Profile and latency results"], ["Prove", "Each change is measured separately", "Change log"]],
+          "objectives": ["Tune indexing", "Tune searches", "Measure every change"]
+        },
+        {
+          "topic": "Cross-Cluster Search and Cross-Cluster Replication",
+          "subtopics": ["Remote clusters and connection modes", "Cross-cluster search with Query DSL and ES|QL", "Security for remote clusters with API keys", "Cross-cluster replication with follower indices", "Auto-follow patterns", "Failover with replicated indices", "Latency and bandwidth", "When to centralise instead"],
+          "tools": ["Remote clusters", "Cross-cluster search", "Cross-cluster replication"],
+          "lab_task": "Connect two regional clusters, search both from one Kibana, replicate a critical index to the second region and promote the follower during a simulated outage.",
+          "deliverable": "Connected clusters with replication and failover test",
+          "checks": [["Search", "One query returns results from both clusters", "Search response"], ["Replicate", "The follower index stays current", "Follower stats"], ["Fail over", "The promoted follower serves writes", "Failover log"]],
+          "objectives": ["Search across clusters", "Replicate data between regions", "Fail over with replicated indices"]
+        },
+        {
+          "topic": "Fleet at Scale: Agent Policies, Output Routing and Upgrades",
+          "subtopics": ["Policy design for many host groups", "Output routing per integration", "Fleet Server scaling", "Agent tamper protection", "Staged agent upgrades", "Custom integrations", "Monitoring agent health", "Air-gapped Fleet"],
+          "tools": ["Fleet", "Elastic Agent", "Fleet Server"],
+          "lab_task": "Design policies for three host groups with different outputs, upgrade a fleet in stages with a rollback plan and alert on unhealthy agents.",
+          "deliverable": "Fleet design with staged upgrade",
+          "checks": [["Design", "Each host group sends data to its output", "Fleet policies"], ["Upgrade", "Agents upgrade in stages without data gaps", "Upgrade report"], ["Alert", "Unhealthy agents trigger an alert", "Alert record"]],
+          "objectives": ["Run Fleet at scale", "Route data by policy", "Upgrade agents safely"]
+        },
+        {
+          "topic": "Logstash at Scale: Pipelines, Queues and Central Management",
+          "subtopics": ["Pipeline design patterns", "Persistent queues and sizing", "Distributor and collector patterns", "Centralised pipeline management in Kibana", "Logstash on Kubernetes", "Performance tuning with workers and batches", "Monitoring with the Logstash API", "Replacing Logstash with ingest pipelines or agents"],
+          "tools": ["Logstash", "Kibana pipeline management", "Logstash monitoring API"],
+          "lab_task": "Split a monolithic Logstash pipeline into distributor and per-source pipelines with persistent queues, manage them centrally and tune throughput.",
+          "deliverable": "Pipeline design with throughput results",
+          "checks": [["Split", "Each source has its own pipeline", "Pipeline list"], ["Queue", "Events survive a Logstash restart", "Event counts"], ["Tune", "Throughput improves after tuning", "Monitoring metrics"]],
+          "objectives": ["Design Logstash pipelines", "Use persistent queues", "Tune Logstash"]
+        },
+        {
+          "topic": "Elastic Observability for Kubernetes and Cloud Services",
+          "subtopics": ["The Kubernetes integration and kube-state-metrics", "Elastic Agent as a DaemonSet", "Container logs and metadata", "Cloud integrations for AWS, Azure and Google Cloud", "OpenTelemetry Collector for Kubernetes", "Infrastructure views for clusters", "Alerting on pod and node health", "Cost of Kubernetes telemetry"],
+          "tools": ["Elastic Agent", "Kubernetes integration", "Cloud integrations", "EDOT Collector"],
+          "lab_task": "Monitor a Kubernetes cluster and one cloud account with Elastic, alert on crash-looping pods and estimate the monthly telemetry volume.",
+          "deliverable": "Kubernetes and cloud observability with alerts",
+          "checks": [["Monitor", "Cluster and cloud metrics and logs arrive", "Infrastructure views"], ["Alert", "A crash-looping pod triggers an alert", "Alert record"], ["Estimate", "Monthly telemetry volume is estimated", "Volume estimate"]],
+          "objectives": ["Observe Kubernetes with Elastic", "Monitor cloud services", "Control telemetry volume"]
+        },
+        {
+          "topic": "Machine Learning in Elastic: Anomaly Detection and Forecasting",
+          "subtopics": ["Anomaly detection jobs", "Single and multi-metric jobs", "Population analysis", "Datafeeds and bucket spans", "Forecasts", "Alerts on anomaly scores", "Data frame analytics", "Explaining anomalies"],
+          "tools": ["Machine learning", "Anomaly Explorer", "Alerting"],
+          "lab_task": "Create anomaly detection jobs for web shop traffic and errors, forecast next week's traffic and alert when the anomaly score passes 75.",
+          "deliverable": "Anomaly jobs, forecast and alert",
+          "checks": [["Detect", "Seeded anomalies are found", "Anomaly Explorer"], ["Forecast", "The forecast covers next week with bounds", "Forecast chart"], ["Alert", "High anomaly scores trigger an alert", "Alert record"]],
+          "objectives": ["Detect anomalies", "Forecast metrics", "Alert on anomalies"]
+        },
+        {
+          "topic": "Elastic Security as a SIEM: Detection Rules and Investigations",
+          "subtopics": ["Security data sources and integrations", "Prebuilt detection rules", "Custom rules with KQL, EQL and ES|QL", "Alert triage", "Timelines and investigations", "Cases for incidents", "Rule tuning and exceptions", "MITRE ATT&CK coverage"],
+          "tools": ["Elastic Security", "Detection rules", "Timeline"],
+          "lab_task": "Enable prebuilt rules for the web shop hosts, write an ES|QL rule for brute-force logins, investigate a seeded attack in Timeline and record it in a case.",
+          "deliverable": "Detection rules and investigation case",
+          "checks": [["Detect", "The seeded attack raises alerts", "Alerts table"], ["Investigate", "The attack path is reconstructed in Timeline", "Timeline"], ["Tune", "False positives are reduced with exceptions", "Rule exceptions"]],
+          "objectives": ["Use Elastic as a SIEM", "Write detection rules", "Investigate alerts"]
+        },
+        {
+          "topic": "Workflows and Automation in Kibana",
+          "subtopics": ["What Kibana Workflows do", "Triggers from alerts, schedules and manual runs", "Steps that query Elasticsearch and call connectors", "Conditions and loops", "Workflows with AI agents", "Testing and versioning workflows", "Permissions for workflows", "Workflows compared with external automation"],
+          "tools": ["Kibana Workflows", "Connectors", "Alerting"],
+          "lab_task": "Build a workflow that runs when an error alert fires, gathers recent logs and deployments, posts a summary to Slack and opens a case with the findings.",
+          "deliverable": "Alert-driven workflow with a test run",
+          "checks": [["Trigger", "The alert starts the workflow", "Workflow run history"], ["Gather", "The summary includes logs and deployments", "Slack message"], ["Record", "A case opens with the findings", "Case page"]],
+          "objectives": ["Automate responses in Kibana", "Use triggers and steps", "Test workflows"]
+        },
+        {
+          "topic": "Elastic AI Assistant and Agent Builder",
+          "subtopics": ["The AI Assistant for Observability and Security", "Connecting large language model providers", "Knowledge bases for the assistant", "Agent Builder: agents, tools and skills", "Tools that run ES|QL queries", "Connectors and MCP for agents", "Permissions and data access", "Evaluating agent answers"],
+          "tools": ["Elastic AI Assistant", "Agent Builder", "LLM connector"],
+          "lab_task": "Build an agent with Agent Builder that answers questions about web shop errors with ES|QL tools, add a knowledge base of runbooks and test it on ten questions.",
+          "deliverable": "Working agent with an evaluation",
+          "checks": [["Build", "The agent answers with data from its query tools", "Conversation log"], ["Ground", "Answers cite runbooks from the knowledge base", "Conversation log with citations"], ["Evaluate", "At least eight of ten answers are correct", "Evaluation sheet"]],
+          "objectives": ["Use the AI Assistant", "Build agents on Elasticsearch data", "Evaluate agent answers"]
+        },
+        {
+          "topic": "Monitoring the Stack: Stack Monitoring, AutoOps and Metrics",
+          "subtopics": ["Stack Monitoring with Elastic Agent", "A separate monitoring cluster", "AutoOps for clusters", "Key cluster health metrics", "Alerting on cluster issues", "Kibana and Logstash monitoring", "Capacity trends", "Health reports"],
+          "tools": ["Stack Monitoring", "AutoOps", "Health report API"],
+          "lab_task": "Send monitoring data to a separate cluster, connect AutoOps where available, alert on heap pressure and disk watermarks and read the health report.",
+          "deliverable": "Monitoring setup with cluster alerts",
+          "checks": [["Collect", "Monitoring data reaches the monitoring cluster", "Stack Monitoring view"], ["Alert", "Heap and disk alerts fire on seeded conditions", "Alert records"], ["Report", "The health report explains the cluster state", "Health report output"]],
+          "objectives": ["Monitor the Elastic Stack", "Alert on cluster health", "Use AutoOps"]
+        },
+        {
+          "topic": "Upgrades and Migrations: Rolling Upgrades from 8.x to 9.x",
+          "subtopics": ["Upgrade paths through the last 8.x minor", "The Upgrade Assistant and deprecation logs", "Breaking changes in 9.x", "Rolling upgrades node by node", "Upgrading Kibana, agents and Logstash", "Reindexing old indices", "Testing upgrades in staging", "Rollback with snapshots"],
+          "tools": ["Upgrade Assistant", "Deprecation logs", "Snapshots"],
+          "lab_task": "Upgrade a three-node 8.x cluster to 9.x with the Upgrade Assistant, fix deprecations, roll nodes one by one and upgrade Kibana and agents without data loss.",
+          "deliverable": "Upgraded cluster with an upgrade record",
+          "checks": [["Prepare", "All critical deprecations are fixed", "Upgrade Assistant"], ["Upgrade", "Nodes upgrade one at a time with the cluster serving", "Upgrade log"], ["Verify", "Data and dashboards work after the upgrade", "Verification checklist"]],
+          "objectives": ["Plan Elastic upgrades", "Run rolling upgrades", "Verify after upgrade"]
+        },
+        {
+          "topic": "Elastic Certified Engineer Exam Preparation",
+          "subtopics": ["Exam format: hands-on, performance-based tasks on a live cluster", "The exam version: Elastic 9.3 from 1 September 2026", "Data management tasks: indices, templates and lifecycle", "Search tasks: Query DSL, aggregations and ES|QL", "Cluster management tasks: allocation, snapshots and security", "Using the documentation during the exam", "Timed practice", "Review plan for weak areas"],
+          "tools": ["Practice cluster", "Elastic documentation", "Course labs"],
+          "lab_task": "Complete a timed set of exam-style tasks on a practice cluster, record time and correctness per task and repeat the weakest area.",
+          "deliverable": "Practice results and a second attempt",
+          "checks": [["Practise", "All task areas are attempted under time limits", "Task log"], ["Score", "Time and correctness per task are recorded", "Score sheet"], ["Repeat", "The second attempt on the weakest area is faster", "Comparison"]],
+          "objectives": ["Prepare for the Elastic Certified Engineer exam", "Practise hands-on tasks", "Manage exam time"]
+        },
+        {
+          "topic": "Intermediate Capstone: Search and Observability Platform for Several Teams",
+          "subtopics": ["Semantic and hybrid product search", "Fleet, Logstash and observability for teams", "Machine learning, SIEM and Workflows", "Sizing, monitoring and upgrades"],
+          "tools": ["Elasticsearch", "Kibana", "Fleet", "Agent Builder"],
+          "lab_task": "Deliver an Elastic platform for three teams with hybrid product search, Fleet-managed collection, Kubernetes observability, anomaly jobs, SIEM rules, an alert workflow, stack monitoring and a tested upgrade plan.",
+          "deliverable": "Platform demo with evidence",
+          "checks": [["Search", "Hybrid search beats lexical search on the judgement list", "Evaluation table"], ["Observe", "Teams see their data, alerts and anomalies", "Team dashboards"], ["Operate", "Monitoring and the upgrade plan are tested", "Test records"]],
+          "objectives": ["Combine intermediate Elastic skills", "Serve several teams", "Operate the platform with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For architects and platform owners who run Elastic across an organisation. Covers enterprise architecture, deployment models including Serverless and ECK, ECK operations, multi-tenancy, petabyte-scale logging, log processing with Streams and OpenTelemetry, metrics with time series data streams and PromQL, OpenTelemetry-native observability, SIEM architecture, search platform operations, RAG and agents, cross-region disaster recovery, hardening and compliance, performance engineering, cost management, application development with clients, migrations from Splunk and OpenSearch, governance and troubleshooting at scale.",
+      "prerequisites": ["Runs Elastic clusters for several teams in production", "Comfortable with Kubernetes, infrastructure as code and security controls", "Responsible for platform design, cost or compliance"],
+      "outcomes": ["Design Elastic architectures and deployment models for an organisation", "Run logging, metrics, tracing and security analytics at petabyte scale with controlled cost", "Build search, RAG and agent platforms on Elasticsearch", "Govern, secure, migrate to and troubleshoot Elastic at scale"],
+      "days": [
+        {
+          "topic": "Elastic Architecture for Large Organisations",
+          "subtopics": ["Centralised and federated cluster designs", "Clusters by use case, region and tenant", "Shared services: monitoring, security and snapshots", "Cross-cluster search as the glue", "Capacity and failure domains", "Network design and private connectivity", "Platform team responsibilities", "Reference architecture reviews"],
+          "tools": ["Architecture diagram tool", "Sizing sheet", "Elastic reference architectures"],
+          "lab_task": "Design the Elastic estate for a company with search, observability and security teams in three regions, and defend the cluster layout in a design review.",
+          "deliverable": "Enterprise architecture and review record",
+          "checks": [["Design", "Clusters, regions and shared services are defined", "Architecture diagram"], ["Isolate", "Failure domains limit the impact of one cluster failing", "Failure analysis"], ["Defend", "The review records decisions and open risks", "Review record"]],
+          "objectives": ["Design Elastic estates", "Plan failure domains", "Defend architecture decisions"]
+        },
+        {
+          "topic": "Deployment Models: Serverless, Elastic Cloud Hosted, ECK and Self-Managed",
+          "subtopics": ["Elastic Cloud Serverless projects", "Elastic Cloud Hosted deployments", "Elastic Cloud on Kubernetes", "Self-managed clusters on virtual machines", "Feature and control differences", "Pricing models", "Data residency and compliance", "Choosing per workload"],
+          "tools": ["Elastic Cloud", "ECK", "Pricing calculator"],
+          "lab_task": "Compare the four deployment models for the course estate on control, features, cost and compliance, and choose a model for each workload.",
+          "deliverable": "Deployment model decision per workload",
+          "checks": [["Compare", "Each model is compared on four criteria", "Comparison matrix"], ["Cost", "Costs are estimated for each choice", "Cost sheet"], ["Decide", "Each workload has a model with reasons", "Decision table"]],
+          "objectives": ["Compare Elastic deployment models", "Estimate cost", "Choose per workload"]
+        },
+        {
+          "topic": "Elastic Cloud on Kubernetes Operations",
+          "subtopics": ["The ECK operator and custom resources", "Node sets and storage", "Rolling changes and upgrades", "Autoscaling with ECK", "Snapshots and secure settings", "Fleet and agents on ECK", "Monitoring ECK clusters", "Troubleshooting the operator"],
+          "tools": ["ECK", "Kubernetes", "kubectl", "Helm"],
+          "lab_task": "Deploy Elasticsearch, Kibana and Fleet with ECK, change a node set, upgrade the stack, enable autoscaling and recover from a lost pod.",
+          "deliverable": "ECK-managed stack with operation records",
+          "checks": [["Deploy", "The stack runs from ECK resources", "kubectl output"], ["Change", "A node set change rolls out safely", "Operator events"], ["Recover", "The cluster heals after losing a pod", "Health output"]],
+          "objectives": ["Run Elastic on Kubernetes", "Operate with ECK", "Recover ECK clusters"]
+        },
+        {
+          "topic": "Multi-Tenancy: Spaces, Index Naming and Tenant Isolation",
+          "subtopics": ["Tenancy models: shared, index-per-tenant and cluster-per-tenant", "Kibana spaces and roles per tenant", "Document-level security for shared indices", "Naming and data stream namespaces per tenant", "Noisy tenants and resource limits", "Tenant onboarding automation", "Chargeback per tenant", "Testing tenant isolation"],
+          "tools": ["Kibana spaces", "Document-level security", "Terraform Elastic Stack provider"],
+          "lab_task": "Onboard three tenants with automation, isolate their data with namespaces, roles and spaces, test isolation and report usage per tenant.",
+          "deliverable": "Automated tenant onboarding and isolation tests",
+          "checks": [["Onboard", "Each tenant is created by automation", "Automation run"], ["Isolate", "Tenants cannot see each other's data", "Isolation tests"], ["Charge", "Usage per tenant is reported", "Usage report"]],
+          "objectives": ["Design multi-tenancy", "Isolate tenants", "Charge back usage"]
+        },
+        {
+          "topic": "Petabyte-Scale Logging: Frozen Tier, Logsdb and Cost Control",
+          "subtopics": ["Ingest at hundreds of terabytes a day", "Logsdb index mode at scale", "Frozen tier and searchable snapshots", "Partial and full mounts", "Retention by data value", "Sampling and dropping low-value logs", "Search performance on frozen data", "Cost per gigabyte stored and searched"],
+          "tools": ["Logsdb index mode", "Frozen tier", "Searchable snapshots"],
+          "lab_task": "Design retention tiers for 200 TB a day of logs, measure storage savings from logsdb and the latency of frozen-tier searches, and report cost per gigabyte.",
+          "deliverable": "Logging design with storage and cost measurements",
+          "checks": [["Design", "Each log type has a retention tier", "Retention table"], ["Measure", "Logsdb savings and frozen search latency are measured", "Measurement report"], ["Cost", "Cost per gigabyte is reported per tier", "Cost report"]],
+          "objectives": ["Run logging at petabyte scale", "Use frozen data", "Control logging cost"]
+        },
+        {
+          "topic": "Log Processing with Streams, Ingest Pipelines and OpenTelemetry Processors",
+          "subtopics": ["Where to process logs: edge, collector or cluster", "Streams in Elastic Observability for routing and parsing", "Ingest pipelines at scale", "OpenTelemetry Collector processors", "Schema decisions: ECS and OpenTelemetry semantic conventions", "Handling unparsed and failed data", "Changing parsing without reindexing", "Testing processing changes"],
+          "tools": ["Streams", "Ingest pipelines", "EDOT Collector"],
+          "lab_task": "Route and parse three log sources with Streams or ingest pipelines and the EDOT Collector, keep failed documents for repair and change one parser safely.",
+          "deliverable": "Log processing design with a tested change",
+          "checks": [["Route", "Each source lands in its own stream", "Stream listing"], ["Repair", "Failed documents are kept and fixed", "Failure store contents"], ["Change", "A parser change goes live without data loss", "Change record"]],
+          "objectives": ["Design log processing", "Handle failed data", "Change parsing safely"]
+        },
+        {
+          "topic": "Metrics at Scale: Time Series Data Streams, Downsampling and PromQL",
+          "subtopics": ["Time series data streams", "Dimensions and metric fields", "Downsampling for long retention", "Prometheus remote write and PromQL support in Elastic", "Metrics from OpenTelemetry", "Cardinality limits", "Querying metrics with ES|QL", "Retention by resolution"],
+          "tools": ["Time series data streams", "Downsampling", "PromQL in Elastic"],
+          "lab_task": "Store service metrics in a time series data stream, downsample older data, query it with PromQL and ES|QL and compare storage with a plain data stream.",
+          "deliverable": "Metrics design with storage comparison",
+          "checks": [["Store", "Metrics land in a time series data stream", "Data stream info"], ["Downsample", "Old data is downsampled on schedule", "Index list"], ["Query", "PromQL and Elasticsearch Query Language results match", "Query comparison"]],
+          "objectives": ["Store metrics efficiently", "Downsample old data", "Query metrics with PromQL and the Elasticsearch Query Language"]
+        },
+        {
+          "topic": "OpenTelemetry-Native Observability with the EDOT Collector",
+          "subtopics": ["OpenTelemetry-native data in Elastic", "EDOT Collector modes: agent and gateway", "EDOT SDKs for applications", "Moving from Elastic APM agents", "Semantic conventions and ECS", "Sampling strategies", "Collector fleet management", "Vendor neutrality and lock-in"],
+          "tools": ["EDOT Collector", "EDOT SDKs", "OpenTelemetry"],
+          "lab_task": "Move two services from Elastic APM agents to EDOT SDKs, run EDOT Collectors as agents and a gateway, and confirm traces, metrics and logs still correlate.",
+          "deliverable": "OpenTelemetry-native pipeline with migrated services",
+          "checks": [["Migrate", "Both services send OpenTelemetry data", "Service list"], ["Correlate", "Traces, metrics and logs still link", "APM views"], ["Manage", "Collectors are managed centrally", "Collector configuration repository"]],
+          "objectives": ["Use OpenTelemetry natively with Elastic", "Migrate from APM agents", "Run collector fleets"]
+        },
+        {
+          "topic": "Security Analytics at Scale: SIEM Architecture and Detection Engineering",
+          "subtopics": ["SIEM data architecture", "Data sources and normalisation", "Detection engineering lifecycle", "Detections as code", "Rule performance at scale", "Entity analytics and risk scoring", "Attack discovery with AI", "Retention for investigations and compliance"],
+          "tools": ["Elastic Security", "Detection rules as code", "Entity analytics"],
+          "lab_task": "Build a detection engineering pipeline that tests and deploys rules from Git, measure rule performance on a large dataset and review attack discovery results.",
+          "deliverable": "Detections-as-code pipeline and review",
+          "checks": [["Deploy", "Rules deploy from Git after tests", "Pipeline run"], ["Measure", "Rule run times stay within limits", "Rule monitoring"], ["Review", "Attack discovery findings are triaged", "Triage notes"]],
+          "objectives": ["Design SIEM data architecture", "Run detection engineering", "Use risk and AI features"]
+        },
+        {
+          "topic": "Search Platform Architecture: Relevance Operations and A/B Tests",
+          "subtopics": ["Search as a product", "Relevance operations and judgement collection", "Click analytics", "Online A/B tests for ranking", "Index versioning and aliases", "Zero-downtime reindexing", "Latency budgets", "Search platform ownership"],
+          "tools": ["Aliases", "Rank evaluation API", "Analytics events"],
+          "lab_task": "Run an A/B test of two ranking configurations behind aliases, collect click data, decide the winner and reindex with zero downtime.",
+          "deliverable": "A/B test result and zero-downtime release",
+          "checks": [["Test", "Both configurations receive traffic", "Analytics data"], ["Decide", "The winner is chosen with significance", "Test report"], ["Release", "Reindexing completes without downtime", "Release log"]],
+          "objectives": ["Run search as a platform", "Test ranking changes", "Release without downtime"]
+        },
+        {
+          "topic": "RAG and Agents on Elasticsearch",
+          "subtopics": ["Retrieval-augmented generation patterns", "Chunking and metadata", "Hybrid retrieval for RAG", "Document-level security in retrieval", "Agent Builder skills and connectors", "MCP access to Elasticsearch", "Evaluating retrieval and answers", "Cost of inference at scale"],
+          "tools": ["Agent Builder", "semantic_text", "Inference API", "MCP"],
+          "lab_task": "Build a RAG assistant over company documents with hybrid retrieval and document-level security, expose it through Agent Builder and MCP, and evaluate retrieval and answers.",
+          "deliverable": "Secured RAG assistant with an evaluation",
+          "checks": [["Retrieve", "Retrieval respects document-level security", "Access tests"], ["Answer", "Answers cite the right documents", "Evaluation sheet"], ["Expose", "The assistant works through MCP", "MCP client transcript"]],
+          "objectives": ["Build RAG on Elasticsearch", "Secure retrieval", "Evaluate assistants"]
+        },
+        {
+          "topic": "Disaster Recovery Across Regions: Replication, Snapshots and Failover",
+          "subtopics": ["Recovery objectives for search and logs", "Cross-cluster replication for hot data", "Snapshots to another region", "Fleet and agent failover", "Kibana saved objects and configuration", "Failover runbooks", "Failback", "Regular recovery tests"],
+          "tools": ["Cross-cluster replication", "Snapshots", "Infrastructure as code"],
+          "lab_task": "Fail the primary region in a test, promote replicated indices, restore Kibana objects, point agents at the standby and measure achieved RPO and RTO.",
+          "deliverable": "Recovery test with achieved RPO and RTO",
+          "checks": [["Promote", "Replicated indices serve traffic in the standby region", "Failover log"], ["Restore", "Dashboards and rules work in the standby region", "Verification checklist"], ["Measure", "Achieved RPO and RTO are recorded", "Test report"]],
+          "objectives": ["Plan Elastic disaster recovery", "Fail over between regions", "Measure recovery"]
+        },
+        {
+          "topic": "Security Hardening and Compliance: Encryption, Audit and Retention",
+          "subtopics": ["Encryption in transit and at rest", "Secrets and keystores", "Hardening nodes and Kibana", "Audit logging at scale", "Data retention and deletion duties", "Personal data in logs", "Compliance evidence", "Security reviews of clusters"],
+          "tools": ["Elasticsearch security", "Audit logs", "Ingest pipelines for redaction"],
+          "lab_task": "Harden a cluster against a checklist, redact personal data at ingest, set retention that meets a deletion duty and produce compliance evidence.",
+          "deliverable": "Hardened cluster and compliance evidence",
+          "checks": [["Harden", "The cluster passes the hardening checklist", "Checklist"], ["Redact", "Personal data is removed before indexing", "Document sample"], ["Prove", "Evidence shows retention and audit controls", "Evidence pack"]],
+          "objectives": ["Harden Elastic", "Protect personal data", "Prove compliance"]
+        },
+        {
+          "topic": "Performance Engineering at Scale: Shard Strategy and Query Optimisation",
+          "subtopics": ["Shard strategy for large estates", "Time-based and size-based rollover", "Index sorting and early termination", "Query patterns that scale", "ES|QL performance", "Caching layers", "Load testing with Rally at scale", "Performance budgets for dashboards"],
+          "tools": ["Rally", "Profile API", "Stack Monitoring"],
+          "lab_task": "Re-plan shards for the largest data streams, rewrite the five slowest dashboard queries and prove the gains with Rally at production scale.",
+          "deliverable": "Shard plan and query rewrites with benchmarks",
+          "checks": [["Plan", "Shard sizes meet the targets", "Shard report"], ["Rewrite", "Slow queries meet the dashboard budget", "Latency results"], ["Prove", "Rally confirms the gains at scale", "Rally report"]],
+          "objectives": ["Engineer performance at scale", "Optimise queries", "Prove gains"]
+        },
+        {
+          "topic": "Cost Management: Tiering, Compression and Licence Planning",
+          "subtopics": ["Cost drivers: compute, storage and licences", "Tiering and frozen data", "Compression and logsdb", "Dropping and sampling data", "Serverless and hosted pricing", "Subscription levels and features", "Showback per team", "Cost reviews"],
+          "tools": ["Cost reports", "Usage APIs", "Pricing calculator"],
+          "lab_task": "Cut the estate's annual cost by 25% with tiering, logsdb and data reduction while keeping required features, and present showback per team.",
+          "deliverable": "Cost plan with showback",
+          "checks": [["Reduce", "The plan reaches a 25% saving", "Cost model"], ["Keep", "Required features stay available", "Feature checklist"], ["Show", "Each team sees its share", "Showback report"]],
+          "objectives": ["Control Elastic cost", "Plan licences", "Run showback"]
+        },
+        {
+          "topic": "Building Applications with Elasticsearch Clients",
+          "subtopics": ["Official clients for Python, Java, JavaScript, Go and .NET", "Connection handling and retries", "Bulk helpers", "Search templates from applications", "API keys and security for applications", "Testing with containers", "Observability for client calls", "Version compatibility"],
+          "tools": ["Elasticsearch clients", "Testcontainers", "API keys"],
+          "lab_task": "Build a small service with an official client that bulk-loads data, searches through a template with an API key, retries safely and is tested against a container.",
+          "deliverable": "Client application with tests",
+          "checks": [["Load", "Bulk loading handles failures and retries", "Test output"], ["Search", "Templates are called with the restricted key", "Request log"], ["Test", "Integration tests run against a container", "CI run"]],
+          "objectives": ["Build applications on Elasticsearch", "Handle errors and retries", "Test with containers"]
+        },
+        {
+          "topic": "Migrating to Elastic from Splunk or OpenSearch",
+          "subtopics": ["Migration drivers and risks", "Mapping Splunk searches to ES|QL", "Automatic migration of Splunk rules and dashboards in Elastic Security", "OpenSearch differences after the fork", "Data migration options", "Running both systems in parallel", "User training and adoption", "Decommissioning the old system"],
+          "tools": ["Elasticsearch Query Language", "Elastic Security automatic migration", "Reindex and snapshot tools"],
+          "lab_task": "Migrate a set of Splunk searches and detection rules to Elastic, move sample data from OpenSearch, run both in parallel and compare results.",
+          "deliverable": "Migration plan with parallel-run results",
+          "checks": [["Translate", "Searches and rules produce matching results", "Comparison"], ["Move", "Data arrives complete from OpenSearch", "Document counts"], ["Plan", "Decommissioning has dates and owners", "Migration plan"]],
+          "objectives": ["Migrate to Elastic", "Translate searches and rules", "Run systems in parallel"]
+        },
+        {
+          "topic": "Governance: Data Ownership, Naming Standards and Self-Service Onboarding",
+          "subtopics": ["Data ownership and stewards", "Naming standards for data streams", "Field standards with ECS", "Self-service onboarding", "Quotas and approvals", "Infrastructure as code with the Terraform provider", "Reviews of new data sources", "Retiring unused data"],
+          "tools": ["Terraform Elastic Stack provider", "Developer portal", "Naming standard"],
+          "lab_task": "Write naming and field standards, build self-service onboarding for a new data source with Terraform and quotas, and retire three unused data streams.",
+          "deliverable": "Standards, onboarding automation and clean-up",
+          "checks": [["Standardise", "New data streams follow the naming standard", "Validation output"], ["Onboard", "A team onboards a source without a ticket", "Onboarding run"], ["Retire", "Unused data streams are removed with owner approval", "Approval records"]],
+          "objectives": ["Govern Elastic data", "Offer self-service onboarding", "Retire unused data"]
+        },
+        {
+          "topic": "Troubleshooting at Scale: Cluster Instability, Memory and Network Partitions",
+          "subtopics": ["Master instability and elections", "Long garbage collection pauses", "Circuit breaker trips at scale", "Network partitions and discovery", "Hot spotting and uneven load", "Ingest back pressure", "Diagnostics bundles and analysis", "Writing incident reviews for clusters"],
+          "tools": ["Support diagnostics", "Hot threads", "Stack Monitoring"],
+          "lab_task": "Diagnose seeded master instability, heap pressure and a network partition on a large test cluster with diagnostics bundles, fix them and write an incident review.",
+          "deliverable": "Diagnoses, fixes and an incident review",
+          "checks": [["Diagnose", "Each failure's cause is shown with evidence", "Diagnostic analysis"], ["Fix", "The cluster stays stable under load after the fixes", "Monitoring graphs"], ["Review", "The incident review lists actions", "Review document"]],
+          "objectives": ["Troubleshoot large clusters", "Use diagnostics", "Learn from cluster incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Company-Wide Elastic Platform Design",
+          "subtopics": ["Architecture and deployment models", "Logging, metrics and security at scale", "Search, RAG and agents", "Recovery, cost and governance"],
+          "tools": ["Architecture documents", "Elastic Cloud or ECK", "Cost model", "Evidence packs"],
+          "lab_task": "Present a company-wide Elastic platform to a review board with the architecture and deployment models, petabyte-scale logging and metrics design, SIEM and search platforms, recovery test results, cost plan and governance model.",
+          "deliverable": "Platform design with evidence and a board decision",
+          "checks": [["Design", "Architecture and deployment choices pass review", "Review record"], ["Prove", "Recovery and performance claims have test evidence", "Evidence pack"], ["Govern", "Cost and governance plans have owners", "Plan documents"]],
+          "objectives": ["Combine advanced Elastic skills", "Design a company-wide platform", "Back decisions with evidence"]
+        }
+      ]
+    }
+  }
+}

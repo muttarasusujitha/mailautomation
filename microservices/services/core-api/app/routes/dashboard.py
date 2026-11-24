@@ -37,6 +37,49 @@ PIPELINE_TRAINER_STAGES = [
 
 # ─── helpers ──────────────────────────────────────────────────────────────────
 
+CLIENT_LEAD_FIELDS = (
+    "lead_id",
+    "company_name",
+    "contact_name",
+    "domain",
+    "status",
+    "created_at",
+    "source",
+    "source_url",
+)
+TRAINER_LEAD_FIELDS = (
+    "lead_id",
+    "name",
+    "trainer_name",
+    "domain",
+    "headline",
+    "status",
+    "created_at",
+    "source",
+    "source_url",
+)
+
+
+def _iso(value: Any) -> Any:
+    return value.isoformat() if isinstance(value, datetime) else value
+
+
+def lead_card(doc: Dict[str, Any], fields: tuple) -> Dict[str, Any]:
+    """Compact LinkedIn lead for the dashboard. Full post text stays in the lead record."""
+    card = {field: _iso(doc.get(field)) for field in fields if doc.get(field) not in (None, "")}
+    summary = doc.get("post_text") or doc.get("snippet") or doc.get("headline") or doc.get("notes") or ""
+    if summary:
+        card["summary"] = str(summary).replace("\n", " ").strip()[:180]
+    return card
+
+
+async def recent_lead_cards(db: AsyncIOMotorDatabase, collection: str, fields: tuple, limit: int = 5) -> List[Dict[str, Any]]:
+    cursor = db[collection].find({}, {"_id": 0})
+    cursor = cursor.sort("created_at", -1).limit(limit)
+    docs = await cursor.to_list(length=limit)
+    return [lead_card(doc, fields) for doc in docs]
+
+
 def _safe_pct(a: int, b: int) -> float:
     return round(a * 100 / b, 1) if b else 0.0
 
@@ -107,6 +150,27 @@ def _outbound_email_query(extra: Optional[Dict[str, Any]] = None) -> Dict[str, A
     return {"direction": {"$ne": "inbound"}, **(extra or {})}
 
 
+async def _reply_thread_count(
+    db: AsyncIOMotorDatabase,
+    inbound_query: Dict[str, Any],
+    outbound_query: Dict[str, Any],
+) -> int:
+    email_logs = db["email_logs"]
+    if not hasattr(email_logs, "distinct"):
+        inbound_count = await email_logs.count_documents(inbound_query)
+        outbound_count = await email_logs.count_documents(outbound_query)
+        return max(inbound_count, outbound_count)
+    inbound_source_ids = await db["email_logs"].distinct(
+        "source_outbound_email_id", inbound_query
+    )
+    replied_outbound_ids = await db["email_logs"].distinct("email_id", outbound_query)
+    return len({
+        str(email_id).strip()
+        for email_id in [*inbound_source_ids, *replied_outbound_ids]
+        if email_id
+    })
+
+
 def _date_recent_query(field: str, since: datetime) -> Dict[str, Any]:
     return {
         "$or": [
@@ -171,14 +235,14 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
     new_req_week = await db["requirements"].count_documents({"created_at": {"$gte": week_ago}})
 
     # Trainers
-    # Resume uploads create rows in both `trainers` and `resume_uploads` in the
-    # normal path, but older/imported data can exist only as upload records or
-    # discovered trainer leads. Keep the headline inventory from dropping to 0
-    # when profile data exists outside the confirmed trainers collection.
+    # The headline must represent actual TrainerSync trainer records. Resume
+    # uploads can be reprocessed and LinkedIn profile leads are unverified
+    # discoveries, so neither is a reliable count of real trainers.
     confirmed_trainers = await db["trainers"].count_documents({})
     uploaded_resume_records = await db["resume_uploads"].count_documents({})
     trainer_leads = await db["trainer_profile_leads"].count_documents({})
-    total_trainers = max(confirmed_trainers, uploaded_resume_records, trainer_leads)
+    recent_trainer_leads = await recent_lead_cards(db, "trainer_profile_leads", TRAINER_LEAD_FIELDS)
+    total_trainers = confirmed_trainers
     new_confirmed_trainers_week = await db["trainers"].count_documents({"created_at": {"$gte": week_ago}})
     new_uploaded_resumes_week = await db["resume_uploads"].count_documents({"created_at": {"$gte": week_ago}})
     new_trainer_leads_week = await db["trainer_profile_leads"].count_documents({"created_at": {"$gte": week_ago}})
@@ -195,11 +259,25 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
     failed_emails = await db["email_logs"].count_documents(
         _outbound_email_query({"status": "failed"})
     )
-    total_replies = await db["email_logs"].count_documents(
-        _outbound_email_query({"reply_received": True})
+    inbound_reply_query = {
+        "direction": "inbound",
+        "source_outbound_email_id": {"$exists": True, "$nin": ["", None]},
+    }
+    # The inbox poller stores received messages as inbound rows. Count unique
+    # linked outreach threads so existing replies appear even when older
+    # outbound rows were never stamped with reply_received.
+    total_replies = await _reply_thread_count(
+        db,
+        inbound_reply_query,
+        _outbound_email_query({"reply_received": True}),
     )
-    replies_this_week = await db["email_logs"].count_documents(
-        _outbound_email_query({"reply_received": True, **_date_recent_query("reply_received_at", week_ago)})
+    replies_this_week = await _reply_thread_count(
+        db,
+        {**inbound_reply_query, **_date_recent_query("received_at", week_ago)},
+        _outbound_email_query({
+            "reply_received": True,
+            **_date_recent_query("reply_received_at", week_ago),
+        }),
     )
 
     # Client inbox
@@ -216,6 +294,9 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
     inbox_pending = await db["client_emails"].count_documents(
         _visible_client_request_query({"processed": {"$ne": True}})
     )
+    linkedin_client_requests = await db["client_leads"].count_documents({})
+    linkedin_client_today = await db["client_leads"].count_documents({"created_at": {"$gte": today_start}})
+    recent_client_leads = await recent_lead_cards(db, "client_leads", CLIENT_LEAD_FIELDS)
 
     # Shortlists
     total_shortlists = await db["shortlists"].count_documents({})
@@ -266,6 +347,7 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
             "uploaded_resumes": uploaded_resume_records,
             "leads": trainer_leads,
             "new_this_week": new_trainers_week,
+            "recent_linkedin": recent_trainer_leads,
         },
         "emails": {
             "total_sent": total_emails_sent,
@@ -277,10 +359,14 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
         },
         "total_replies": total_replies,
         "client_requests": {
-            "total": total_client_requests,
-            "today": client_requests_today,
+            "total": total_client_requests + linkedin_client_requests,
+            "inbox": total_client_requests,
+            "today": client_requests_today + linkedin_client_today,
             "pending_approval": client_pending,
             "requirements_created": client_requirements_created,
+            "linkedin_total": linkedin_client_requests,
+            "linkedin_today": linkedin_client_today,
+            "recent_linkedin": recent_client_leads,
         },
         "shortlists": {
             "total": total_shortlists,
@@ -310,6 +396,10 @@ async def dashboard_analytics(
     now = datetime.utcnow()
     start, end = _range_from_params(preset, start_date, end_date)
     since = start
+    inbound_reply_query = {
+        "direction": "inbound",
+        "source_outbound_email_id": {"$exists": True, "$nin": ["", None]},
+    }
 
     # Requirements over time — daily bucket
     pipeline_req: List[Dict[str, Any]] = [
@@ -352,6 +442,51 @@ async def dashboard_analytics(
             "emails_sent": r["count"],
         }
         async for r in db["email_logs"].aggregate(pipeline_email)
+    ]
+
+    inbound_replies_in_range = {
+        **inbound_reply_query,
+        **_event_date_query("received_at", start, end),
+    }
+    flagged_replies_in_range = _outbound_email_query({
+        "reply_received": True,
+        **_event_date_query("reply_received_at", start, end),
+    })
+    pipeline_replies: List[Dict[str, Any]] = [
+        {"$match": {"$or": [inbound_replies_in_range, flagged_replies_in_range]}},
+        {"$addFields": {
+            "reply_thread_id": {
+                "$cond": [
+                    {"$eq": ["$direction", "inbound"]},
+                    "$source_outbound_email_id",
+                    "$email_id",
+                ]
+            },
+            "bucket_date": {
+                "$cond": [
+                    {"$eq": ["$direction", "inbound"]},
+                    {"$ifNull": ["$received_at", "$created_at"]},
+                    {"$ifNull": ["$reply_received_at", "$created_at"]},
+                ]
+            },
+        }},
+        {"$group": {"_id": "$reply_thread_id", "bucket_date": {"$min": "$bucket_date"}}},
+        {"$group": {
+            "_id": {
+                "year": {"$year": "$bucket_date"},
+                "month": {"$month": "$bucket_date"},
+                "day": {"$dayOfMonth": "$bucket_date"},
+            },
+            "count": {"$sum": 1},
+        }},
+        {"$sort": {"_id.year": 1, "_id.month": 1, "_id.day": 1}},
+    ]
+    reply_series = [
+        {
+            "date": f"{r['_id']['year']}-{r['_id']['month']:02d}-{r['_id']['day']:02d}",
+            "replies": r["count"],
+        }
+        async for r in db["email_logs"].aggregate(pipeline_replies)
     ]
 
     # Requirements by status
@@ -475,9 +610,13 @@ async def dashboard_analytics(
         wk_end = end - timedelta(days=offset * 7)
         wk_start = wk_end - timedelta(days=6)
         sent_q = _outbound_email_query({"status": "sent", **_event_date_query("sent_at", wk_start, wk_end)})
-        reply_q = _outbound_email_query({"reply_received": True, **_event_date_query("reply_received_at", wk_start, wk_end)})
+        reply_inbound_q = {**inbound_reply_query, **_event_date_query("received_at", wk_start, wk_end)}
+        reply_outbound_q = _outbound_email_query({
+            "reply_received": True,
+            **_event_date_query("reply_received_at", wk_start, wk_end),
+        })
         sent = await db["email_logs"].count_documents(sent_q)
-        replies = await db["email_logs"].count_documents(reply_q)
+        replies = await _reply_thread_count(db, reply_inbound_q, reply_outbound_q)
         reply_rate_trend.append({"week": wk_start.strftime("%d %b"), "sent": sent, "reply_rate": _safe_pct(replies, sent)})
 
     expense_logs = await db["expense_logs"].find(_date_range_query("created_at", start, end), {"_id": 0}).to_list(10000)
@@ -549,6 +688,7 @@ async def dashboard_analytics(
         "expenses": expenses,
         "requirements_over_time": req_series,
         "emails_over_time": email_series,
+        "email_replies_over_time": reply_series,
         "requirements_by_status": req_by_status,
         "trainer_pipeline_stages": trainer_stages,
     }

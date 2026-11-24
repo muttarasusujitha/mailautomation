@@ -480,17 +480,30 @@ def classify_email(subject: str = "", body: str = "", sender_email: str = "", se
     urgency = _urgency(text)
     sentiment = _sentiment(text)
 
+    ambiguous_pairs = (
+        {"trainer_interested", "trainer_not_interested"},
+        {"trainer_interested", "trainer_unavailable"},
+        {"trainer_commercial_acceptance", "trainer_commercial_rejection"},
+        {"client_confirms_trainer", "client_rejects_trainer"},
+        {"client_confirms_trainer", "cancellation"},
+        {"client_confirms_interview_slot", "client_requests_interview_slots"},
+        {"client_budget_negotiation", "trainer_commercial_acceptance"},
+    )
+    matched_set = set(matched)
+    classifier_ambiguous = any(pair <= matched_set for pair in ambiguous_pairs)
     requires_human = (
         scenario in SAFETY_SCENARIOS
         or urgency == "critical"
         or sentiment in {"angry", "frustrated"}
+        or scenario == "trainer_partial_availability"
+        or classifier_ambiguous
     )
     auto_reply_allowed = not requires_human and person_type not in {"bounce", "system", "ooo"}
     confidence = 0.25
     if scenario != "general_enquiry":
-        confidence = 0.72 + min(0.18, max(0, len(matched) - 1) * 0.03)
-    if requires_human:
-        confidence = max(confidence, 0.95)
+        # This is a rule-coverage indicator, not a statistically calibrated
+        # probability. Do not inflate it just because several keywords fire.
+        confidence = 0.72 + min(0.08, max(0, len(matched) - 1) * 0.02)
 
     return {
         "person_type": person_type,
@@ -499,6 +512,8 @@ def classify_email(subject: str = "", body: str = "", sender_email: str = "", se
         "sentiment": sentiment,
         "requires_human": requires_human,
         "auto_reply_allowed": auto_reply_allowed,
+        "classifier_ambiguous": classifier_ambiguous,
+        "confidence_basis": "keyword_rule_coverage",
         "safety_reasons": [
             reason for reason in (scenario if scenario in SAFETY_SCENARIOS else "", urgency if urgency == "critical" else "", sentiment if sentiment in {"angry", "frustrated"} else "")
             if reason
