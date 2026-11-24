@@ -260,6 +260,36 @@ def test_blank_people_page_is_reread_before_the_search_stops():
     assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/ada']
 
 
+def test_search_markup_collects_profiles_when_cards_are_not_visible():
+    from app.clients.linkedin_browser import collect_trainer_profiles
+    markup = '''
+      {"title":{"text":"Ada Lovelace"},"primarySubtitle":{"text":"Soft Skills Trainer"},
+       "navigationUrl":"https://www.linkedin.com/in/ada-lovelace"}
+      {"title":{"text":"Ben"},"primarySubtitle":{"text":"DevOps Trainer"},
+       "navigationUrl":"https:\\/\\/www.linkedin.com\\/in\\/ben-devops"}
+    '''
+    page = MagicMock()
+    page.goto = AsyncMock(return_value=MagicMock(status=200))
+    page.wait_for_timeout = AsyncMock()
+    page.mouse.wheel = AsyncMock()
+    page.url = 'https://www.linkedin.com/search/results/people/'
+    page.content = AsyncMock(return_value=markup)
+    people = MagicMock()
+    people.first.wait_for = AsyncMock()
+    people.evaluate_all = AsyncMock(return_value=[])
+    page.locator.return_value = people
+    with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
+        rows = asyncio.run(collect_trainer_profiles(page, 'soft skills', '', 5))
+    assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/ada-lovelace']
+    assert _normalize_result(rows[0], 'soft skills', 'trainer')['lead_type'] == 'trainer_profile'
+
+
+def test_result_payload_ignores_profile_urls_without_a_headline():
+    from app.clients.linkedin_people import profiles_from_text
+    payload = '{"navigationUrl":"https://www.linkedin.com/in/viewer"}'
+    assert profiles_from_text(payload) == []
+
+
 def test_joined_domain_words_still_match_trainer_profiles():
     item = {'url': 'https://www.linkedin.com/in/ada', 'title': 'Ada', 'content': 'SoftSkills corporate trainer'}
     lead = _normalize_result(item, 'soft skills', 'trainer')
