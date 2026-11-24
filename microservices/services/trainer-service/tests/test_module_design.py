@@ -38,7 +38,8 @@ def test_design_rules_reject_incomplete_modules():
 
 def test_docker_design_is_applied_and_reaches_the_generated_toc():
     assert all(count == 0 for count in apply_authored(APP, write=False).values())  # committed and idempotent
-    toc = validate_toc(generate_toc_from_dataset("DevOps", 10), 10)
+    dataset = json.loads((APP / "datasets_compact" / "devops_30.json").read_text(encoding="utf-8-sig"))
+    toc = validate_toc(generate_toc_from_dataset("DevOps", 10, domain_override=dataset), 10)
     docker = next(day for day in toc["days"] if day.get("focus_area") == "Docker Fundamentals")
     design = (docker.get("outline") or {}).get("design") or {}
     assert design.get("seeded_failure", {}).get("symptom")
