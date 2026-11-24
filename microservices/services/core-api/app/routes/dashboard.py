@@ -37,6 +37,49 @@ PIPELINE_TRAINER_STAGES = [
 
 # ─── helpers ──────────────────────────────────────────────────────────────────
 
+CLIENT_LEAD_FIELDS = (
+    "lead_id",
+    "company_name",
+    "contact_name",
+    "domain",
+    "status",
+    "created_at",
+    "source",
+    "source_url",
+)
+TRAINER_LEAD_FIELDS = (
+    "lead_id",
+    "name",
+    "trainer_name",
+    "domain",
+    "headline",
+    "status",
+    "created_at",
+    "source",
+    "source_url",
+)
+
+
+def _iso(value: Any) -> Any:
+    return value.isoformat() if isinstance(value, datetime) else value
+
+
+def lead_card(doc: Dict[str, Any], fields: tuple) -> Dict[str, Any]:
+    """Compact LinkedIn lead for the dashboard. Full post text stays in the lead record."""
+    card = {field: _iso(doc.get(field)) for field in fields if doc.get(field) not in (None, "")}
+    summary = doc.get("post_text") or doc.get("snippet") or doc.get("headline") or doc.get("notes") or ""
+    if summary:
+        card["summary"] = str(summary).replace("\n", " ").strip()[:180]
+    return card
+
+
+async def recent_lead_cards(db: AsyncIOMotorDatabase, collection: str, fields: tuple, limit: int = 5) -> List[Dict[str, Any]]:
+    cursor = db[collection].find({}, {"_id": 0})
+    cursor = cursor.sort("created_at", -1).limit(limit)
+    docs = await cursor.to_list(length=limit)
+    return [lead_card(doc, fields) for doc in docs]
+
+
 def _safe_pct(a: int, b: int) -> float:
     return round(a * 100 / b, 1) if b else 0.0
 
@@ -178,6 +221,7 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
     confirmed_trainers = await db["trainers"].count_documents({})
     uploaded_resume_records = await db["resume_uploads"].count_documents({})
     trainer_leads = await db["trainer_profile_leads"].count_documents({})
+    recent_trainer_leads = await recent_lead_cards(db, "trainer_profile_leads", TRAINER_LEAD_FIELDS)
     total_trainers = max(confirmed_trainers, uploaded_resume_records, trainer_leads)
     new_confirmed_trainers_week = await db["trainers"].count_documents({"created_at": {"$gte": week_ago}})
     new_uploaded_resumes_week = await db["resume_uploads"].count_documents({"created_at": {"$gte": week_ago}})
@@ -216,6 +260,9 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
     inbox_pending = await db["client_emails"].count_documents(
         _visible_client_request_query({"processed": {"$ne": True}})
     )
+    linkedin_client_requests = await db["client_leads"].count_documents({})
+    linkedin_client_today = await db["client_leads"].count_documents({"created_at": {"$gte": today_start}})
+    recent_client_leads = await recent_lead_cards(db, "client_leads", CLIENT_LEAD_FIELDS)
 
     # Shortlists
     total_shortlists = await db["shortlists"].count_documents({})
@@ -266,6 +313,7 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
             "uploaded_resumes": uploaded_resume_records,
             "leads": trainer_leads,
             "new_this_week": new_trainers_week,
+            "recent_linkedin": recent_trainer_leads,
         },
         "emails": {
             "total_sent": total_emails_sent,
@@ -277,10 +325,14 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
         },
         "total_replies": total_replies,
         "client_requests": {
-            "total": total_client_requests,
-            "today": client_requests_today,
+            "total": total_client_requests + linkedin_client_requests,
+            "inbox": total_client_requests,
+            "today": client_requests_today + linkedin_client_today,
             "pending_approval": client_pending,
             "requirements_created": client_requirements_created,
+            "linkedin_total": linkedin_client_requests,
+            "linkedin_today": linkedin_client_today,
+            "recent_linkedin": recent_client_leads,
         },
         "shortlists": {
             "total": total_shortlists,

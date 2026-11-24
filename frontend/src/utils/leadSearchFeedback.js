@@ -20,15 +20,16 @@ export function leadSearchWarnings(data) {
   return messages
 }
 
-function canonicalLeadUrl(value) {
+export function canonicalLeadUrl(value) {
   const text = String(value || '').trim()
   if (!text) return ''
   try {
     const url = new URL(text)
-    const host = url.hostname.replace(/^www\./, '').toLowerCase()
-    return `${host}${url.pathname.replace(/\/$/, '')}`
+    const host = url.hostname.toLowerCase().replace(/^www\./, '')
+    if (host !== 'linkedin.com' && !host.endsWith('.linkedin.com')) return text
+    return `https://www.linkedin.com${url.pathname.replace(/\/$/, '')}`
   } catch {
-    return text.toLowerCase()
+    return text
   }
 }
 
@@ -41,7 +42,5 @@ export function matchingSavedLeads(leads, results) {
     }
   }
   if (!urls.size) return []
-  return (leads || []).filter(lead => (
-    urls.has(canonicalLeadUrl(lead?.source_url)) || urls.has(canonicalLeadUrl(lead?.linkedin_url))
-  ))
+  return (leads || []).filter(lead => urls.has(canonicalLeadUrl(lead?.source_url)) || urls.has(canonicalLeadUrl(lead?.linkedin_url)))
 }

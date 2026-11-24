@@ -1,4 +1,4 @@
-"""LinkedIn account, public search and optional Tavily lead discovery."""
+"""LinkedIn account lead discovery, with optional public and Tavily providers."""
 import logging
 import re
 import uuid
@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 from app.config import get_settings
 from shared.database.service import get_db
+from shared.trainer_targets import TRAINER_RESULT_TARGET, trainer_keep_limit
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ BAD_EMAIL_LOCALS = {"noreply", "no-reply", "donotreply", "support", "admin", "in
 
 
 class LinkedInLeadSearchRequest(BaseModel):
-    search_provider: Literal['public', 'tavily', 'linkedin_account', 'auto'] = 'public'
+    search_provider: Literal['public', 'tavily', 'linkedin_account', 'auto'] = 'auto'
     query: Optional[str] = ""
     domain: Optional[str] = ""
     domains: Optional[List[str]] = None
@@ -269,7 +270,7 @@ async def _auto_send_client_mail(lead: Dict[str, Any], db: AsyncIOMotorDatabase,
     return success
 
 
-def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[Dict[str, Any]]:
+def _normalize_result(item: Dict[str, Any], domain: str, mode: str, require_domain: bool = True) -> Optional[Dict[str, Any]]:
     url = item.get("url") or item.get("source_url") or item.get("link") or ""
     from urllib.parse import urlsplit
     host = (urlsplit(url).hostname or '').lower()
@@ -292,7 +293,9 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[
     snippet = raw_text or title
     combined_text = raw_text.lower()
     terms = _domain_terms(domain)
-    if terms and not _text_has_domain(combined_text, terms):
+    # Profile URLs such as /in/soft-skills-trainer count toward the skill check.
+    domain_text = f"{combined_text}\n{url.replace('-', ' ')}" if mode == "trainer" else combined_text
+    if require_domain and terms and not _text_has_domain(domain_text, terms):
         return None
     if mode == 'trainer' and _looks_like_client_requirement_post(combined_text):
         # People cards mention "requirements" in the About text and still name a trainer.
@@ -308,16 +311,15 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[
     email = _best_email(raw_text)
     phone = (_extract_phones(raw_text) or [""])[0]
     if mode == "trainer":
-        # "Open to work" is LinkedIn's photo frame. It still appears on trainer profiles.
+        searchable = f"{combined_text}\n{url.replace('-', ' ')}"
+        if re.search(r"\b(actively seeking|job seeker|looking for job|open to work|full-time role)\b", searchable):
+            return None
         is_profile = bool(re.search(r"linkedin\.com/in/", url, re.IGNORECASE))
         is_post = bool(re.search(r"linkedin\.com/(posts|feed/update|pulse)/", url, re.IGNORECASE))
-        is_resume_post = is_post and _looks_like_resume_trainer_post(combined_text)
+        is_resume_post = is_post and _looks_like_resume_trainer_post(searchable)
         if source == "linkedin" and not (is_profile or is_resume_post):
             return None
-        if source == "linkedin" and not re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", combined_text):
-            return None
-        terms = _domain_terms(domain)
-        if terms and not any(term in combined_text for term in terms):
+        if source == "linkedin" and not re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", searchable):
             return None
     slug = _slug_from_url(url)
     if mode == "client":
@@ -525,23 +527,28 @@ async def search_linkedin_leads(
     mode = "client" if payload.mode == "client" else "trainer"
 
     target_results = max(1, min(payload.max_results, 100))
-    if payload.search_provider == 'public':
+    if mode == "trainer":
+        target_results = trainer_keep_limit(target_results)
+    elif payload.search_provider == 'public':
         target_results = max(20, target_results)
     query_budget = max(1, min(payload.max_queries or 2, 2 if payload.search_provider == 'public' else 8))
     domains = list(dict.fromkeys(domains))[:4]
 
     for domain in domains:
+        if mode == "trainer" and len(all_results) >= target_results:
+            break
+        domain_goal = target_results - len(all_results) if mode == "trainer" else target_results
         domain_start = len(all_results)
         raw_results: List[Dict[str, Any]] = []
         if payload.search_provider == 'public':
             from app.clients.public_discovery import discover_public
-            raw_results, outcome = await discover_public(domain, mode, target_results, payload.location or '')
+            raw_results, outcome = await discover_public(domain, mode, domain_goal, payload.location or '')
             domain_outcomes.append(outcome)
             if outcome['status'] == 'blocked':
                 search_errors.append({'domain': domain, 'error': outcome['warnings'][-1]})
         if payload.search_provider == "auto":
             from app.clients.lead_discovery import discover
-            raw_results, outcome = await discover(domain, mode, min(50, max(20, target_results)), payload.location or "")
+            raw_results, outcome = await discover(domain, mode, domain_goal, payload.location or "", db=db)
             domain_outcomes.append(outcome)
             if outcome['status'] == 'blocked':
                 search_errors.append({'domain': domain, 'error': outcome.get('primary_error') or outcome['warnings'][0]['error']})
@@ -555,14 +562,13 @@ async def search_linkedin_leads(
                        [f'{scope} "trainer required" site:linkedin.com/posts/',
                         f'{scope} "training requirement" site:linkedin.com/posts/'])
         for query in ([] if payload.search_provider in ('auto', 'public') else queries[:query_budget]):
-            if len(all_results) - domain_start >= (min(50, max(20, target_results)) if payload.search_provider == "auto" else target_results):
+            if len(all_results) - domain_start >= domain_goal:
                 break
             try:
                 if payload.search_provider == 'linkedin_account':
-                    from shared.trainer_targets import TRAINER_RESULT_TARGET
                     from app.clients.linkedin_browser import search_linkedin_account
-                    # Trainer fetches keep 50 matches from a 200-person scan.
-                    fetch_limit = min(TRAINER_RESULT_TARGET, target_results)
+                    # Trainer fetches keep 60 matches, then stop paging.
+                    fetch_limit = domain_goal if mode == "trainer" else min(TRAINER_RESULT_TARGET, target_results)
                     raw_results.extend(await search_linkedin_account(domain, mode, fetch_limit, payload.location or ''))
                 elif payload.search_provider == 'public':
                     from app.clients.public_search import search_public
@@ -582,7 +588,7 @@ async def search_linkedin_leads(
                 break
 
         for item in raw_results:
-            if len(all_results) - domain_start >= (min(50, max(20, target_results)) if payload.search_provider == "auto" else target_results):
+            if len(all_results) - domain_start >= domain_goal:
                 break
             if not isinstance(item, dict):
                 continue
