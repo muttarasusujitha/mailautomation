@@ -556,12 +556,6 @@ const CSS = `
     line-height: 1.4;
     color: ${T.textSecondary};
     margin: 0;
-    flex: 1;
-    word-break: break-word;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
   }
   .workflow-message-action {
     margin-top: auto;
@@ -1927,8 +1921,8 @@ export default function Home() {
           PIPELINE SECTION
       ══════════════════════════════════════════════ */}
       <section id="pipeline" style={{ padding: '72px 28px', maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'start' }} className="cols-mobile-1">
-          <div style={{ minWidth: 0 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'start' }} className="cols-mobile-1">
+          <div>
             <SectionHeader
               label="7-Stage Pipeline"
               labelIcon={SquareKanban}
@@ -1937,7 +1931,7 @@ export default function Home() {
             />
             <PipelineSection />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <ConversationThread />
             <ClientInboxPreview />
           </div>
@@ -1997,9 +1991,9 @@ export default function Home() {
           CLIENT OPS: Inbox + Smart Reply
       ══════════════════════════════════════════════ */}
       <section style={{ padding: '72px 28px', maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'start' }} className="cols-mobile-1">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'start' }} className="cols-mobile-1">
           {/* Smart Reply Detection */}
-          <div style={{ minWidth: 0 }}>
+          <div>
             <SectionHeader
               label="Smart Reply Handling"
               labelIcon={BotMessageSquare}
@@ -2036,7 +2030,7 @@ export default function Home() {
           </div>
 
           {/* Outreach channels */}
-          <div style={{ minWidth: 0 }}>
+          <div>
             <SectionHeader
               label="Outreach Automation"
               labelIcon={Send}
@@ -2282,7 +2276,7 @@ export default function Home() {
       ══════════════════════════════════════════════ */}
       <footer style={{ background: T.textPrimary, padding: '44px 28px 28px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr 1fr', gap: 32, marginBottom: 36 }} className="cols-mobile-2 footer-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr 1fr 1fr', gap: 40, marginBottom: 36 }} className="cols-mobile-2">
             {/* Brand */}
             <div>
               <BrandMark size="sm" theme="dark" className="mb-3" onClick={() => navigate('/home')} />

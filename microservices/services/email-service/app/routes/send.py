@@ -211,13 +211,8 @@ async def send_single_email(
         }
         setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
         if str(setting.get("value") or "").strip().lower() == "ai":
-            openai_key = str(getattr(get_settings(), "OPENAI_API_KEY", "") or "").strip()
-            if not openai_key:
-                # A missing key fails only this wording call. The confirmed body still sends.
-                logger.warning("AI email wording skipped; OPENAI_API_KEY is not configured")
-            else:
-                try:
-                    from app.routes.inbox_actions import _ai_draft_reply
+            try:
+                from app.routes.inbox_actions import _ai_draft_reply
 
                 generated = await _ai_draft_reply(
                     subject=payload.subject,

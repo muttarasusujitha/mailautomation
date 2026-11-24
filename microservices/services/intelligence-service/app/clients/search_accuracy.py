@@ -98,12 +98,10 @@ def is_current_year_result(profile) -> bool:
 
 
 def has_trainer_language(profile) -> bool:
-    url = str(profile.get("source_url") or profile.get("url") or "")
     haystack = " ".join([
         str(profile.get("title") or ""),
         str(profile.get("snippet") or ""),
         str(profile.get("content") or ""),
-        url.replace("-", " "),
     ])
     return bool(_TRAINER_LANGUAGE.search(haystack))
 

@@ -17,7 +17,6 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
 from shared.database.service import get_db
-from shared.generation_mode import application_ai_enabled
 from shared.trainer_identity import linkedin_profile_url
 from shared.trainer_documents import document_request_text, requested_documents, matching_document, requires_issuer_check
 from app.config import get_settings
@@ -74,11 +73,9 @@ PROPOSAL_SHORTLIST_COMMERCIAL = "INR 12,000-16,000 per day/session, based on ver
 # The client-facing quote uses the trainer rate plus the exact 30% uplift.
 PROPOSAL_CLIENT_QUOTE_RANGE = (18200, 19500, 20800)
 # A client that explicitly asks for lab costing receives the generated
-# workbook during the profile/slot handoff.  Lab tools, setup, access, or a
-# local/cloud lab mention do not attach that workbook and must not block the
-# handoff.  The workbook uses the client ToC where one was provided, otherwise
-# the system-generated ToC; it never mixes trainer commercial margin into the
-# lab-cost calculation.
+# workbook during the profile/slot handoff.  The workbook uses the client ToC
+# where one was provided, otherwise the system-generated ToC; it never mixes
+# trainer commercial margin into the lab-cost calculation.
 AUTO_ATTACH_LAB_COST_WORKBOOK = True
 ACTIVE_PIPELINE_STAGES = {
     "mail1",
@@ -485,10 +482,8 @@ def _ensure_trainer_mail1_commercial_section(body: str, requirement: Dict[str, A
     marker = "Please confirm your interest" if "Please confirm your interest" in text else "Please let us know whether you are available"
     insert = "\n".join(section) + "\n\n"
     if marker in text:
-        text = text.replace(marker, insert + marker, 1)
-    else:
-        text = f"{text.rstrip()}\n\n{insert.rstrip()}"
-    return _strip_confirmed_trainer_offer_confirmation(text, requirement)
+        return text.replace(marker, insert + marker, 1)
+    return f"{text.rstrip()}\n\n{insert.rstrip()}"
 
 
 def _replace_trainer_mail1_commercial(body: str, requirement: Dict[str, Any]) -> str:
@@ -642,7 +637,6 @@ def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict
         or trainer.get("slots")
     )
 
-    commercial_only_reply = _stored_commercial_only_reply(trainer)
     for item in requested:
         label = item.lower()
         if "availability" in label or "slot" in label:
@@ -752,12 +746,9 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     for label, key, source_label in (
         ("Total sessions", "total_sessions", r"total\s+sessions"),
         ("Duration per session", "duration_per_session", r"duration\s+per\s+session"),
-        ("Total training hours", "total_training_hours", r"total\s+training\s+hours"),
+        ("Total training hours", "duration_hours", r"total\s+training\s+hours"),
     ):
         value = _clean(requirement.get(key) or _mail1_source_value(requirement, source_label))
-        if label == "Total training hours" and not value:
-            hours = requirement.get("duration_hours")
-            value = _clean(hours) if hours not in (None, "", 0) else ""
         if value:
             details.append(f"- {label}: {value}")
     details.extend(_trainer_mail1_commercial_section(requirement, trainer))
@@ -974,19 +965,15 @@ def _client_email_from_requirement(requirement: Dict[str, Any], shortlist: Dict[
 
 def _is_proposal_requirement(requirement: Dict[str, Any]) -> bool:
     target = _clean(requirement.get("pipeline_target") or requirement.get("pipeline_page")).lower().strip("/")
+    if target in {"shortlist", "shortlist1"}:
+        return target == "shortlist"
     flow_value = _clean(
         requirement.get("batch_flow")
         or requirement.get("batch_type")
         or requirement.get("requirement_type")
     ).lower()
-    # An explicit page target takes precedence over a stale batch_flow value.
-    # The legacy shortlist1 page is the confirmed workflow, not the proposal page.
-    if target in {"shortlist", "shortlist1"}:
-        return target == "shortlist"
     if "proposal" in flow_value:
         return True
-    if "confirmed" in flow_value:
-        return False
     # Explicit workflow classification is authoritative.  Client prose such
     # as "upcoming corporate training" must not downgrade a confirmed batch
     # and suppress the mandatory Mail 1 ToC attachment.
@@ -1176,31 +1163,29 @@ def _requested_client_attachments(requirement: Dict[str, Any]) -> tuple[bool, bo
             "cost for lab", "price for lab", "lab price",
         )
     )
-    # Tools, setup, access, or a local/cloud lab are delivery notes. They do
-    # not require the lab-cost workbook and must not stop the handoff when
-    # that workbook cannot be built.
-    broader_lab_mention = bool(re.search(
+    # In a confirmed batch, a request for lab requirements/tools, lab access,
+    # setup, or a local/cloud lab choice is also a request for the associated
+    # lab estimate. That is the business rule used by the automatic handoff;
+    # clients do not always write the phrase "lab cost".
+    lab_delivery_request = bool(re.search(
         r"\blab(?:oratory)?\s+(?:requirements?|required\s+tools?|setup|access|support|availability|preference|environment)\b"
         r"|\b(?:local|cloud)\s+lab(?:oratory)?\b"
         r"|\blab(?:oratory)?\b.{0,80}\b(?:required\s+tools?|local|cloud|access)\b",
         request_text,
         flags=re.IGNORECASE | re.DOTALL,
-    )) or any(
+    ))
+    managed_lab_request = any(
         "lab" in _clean(item).lower() and any(
-            word in _clean(item).lower() for word in ("availability", "setup", "tool")
-        ) and "cost" not in _clean(item).lower()
+            word in _clean(item).lower() for word in ("cost", "availability", "setup", "tool")
+        )
         for item in (requirement.get("clahan_managed_details") or [])
-    ) or any(
+    )
+    structured_lab_request = any(
         _clean(item.get("category")) in {"lab_requirements", "lab_delivery_preference"}
         for item in (requirement.get("requirement_items") or [])
         if isinstance(item, dict)
     )
-    if explicit_lab_cost_request:
-        wants_lab_cost = True
-    elif broader_lab_mention:
-        wants_lab_cost = False
-    else:
-        wants_lab_cost = bool(requirement.get("lab_cost_requested"))
+    wants_lab_cost = bool(requirement.get("lab_cost_requested")) or explicit_lab_cost_request or lab_delivery_request or managed_lab_request or structured_lab_request
     return wants_profile, wants_toc, wants_lab_cost
 
 
@@ -2404,12 +2389,7 @@ async def _ai_trainer_mail1(
     try:
         text = await _invoke_mail_model(instructions, prompt)
         return _subject_body_from_model(text, fallback_subject)
-    except HTTPException as exc:
-        detail = str(exc.detail).lower()
-        if "not configured" in detail:
-            # A missing key fails this call only. Mail 1 still sends the confirmed body.
-            logger.warning("Mail 1 AI call skipped because the model key is not configured")
-            return None
+    except HTTPException:
         raise
     except Exception as exc:
         failure = _gemini_failure_context(exc)
@@ -3894,7 +3874,7 @@ async def send_shortlist_mail(
         )
     if (
         not _clean(payload.body)
-        and mail_type not in {"mail1", "first", "mail2_followup"}
+        and mail_type not in {"mail1", "first"}
         and mail_type not in CLIENT_COMMERCIAL_MAIL_TYPES
     ):
         # Do not let an empty request select an old email-service template.
@@ -3938,7 +3918,6 @@ async def send_shortlist_mail(
     results = []
     attempted_recipients = set()
     quota_blocked = False
-    ai_wording = await application_ai_enabled(db)
     for t in targets:
         auto_toc_sent = False
         trainer_email = t.get("email") or t.get("trainer_email") or ""
@@ -4324,38 +4303,20 @@ async def send_shortlist_mail(
                         body = _strip_trainer_offer_confirmation(body)
                         body = _ensure_trainer_mail1_commercial_section(body, requirement, t)
                 send_payload["body"] = body
-                if mail_type in {"mail1", "first"}:
-                    # Mail 1 is already written by _ai_trainer_mail1 when AI is
-                    # on. Leaving this flag off avoids a second rewrite. A
-                    # missing model key returns no draft and this confirmed
-                    # body is what gets sent.
-                    send_payload["ai_generate"] = False
-                    send_payload["ai_context"] = {
-                        "workflow": "trainer_mail1",
-                        "stage": mail_type,
-                        "generation": "ai" if ai_mail1_used else "confirmed_body",
-                        "batch_type": "proposal" if is_proposal_flow else "confirmed",
-                        "requirement_id": payload.requirement_id,
-                        "batch_email_rules": _all_mail_batch_rules(requirement),
-                        "trainer_name": trainer_name,
-                        "technology": domain,
-                    }
-                elif ai_wording:
-                    # Later workflow mail, including the one follow-up, is
-                    # rewritten from this confirmed body only when AI is on.
+                if mail_type not in {"mail1", "first"}:
+                    # All later workflow emails may use the enabled LLM for
+                    # natural wording. The body above remains the controlled
+                    # fallback and all operational facts stay fixed.
                     send_payload["ai_generate"] = True
                     send_payload["ai_context"] = {
-                        "workflow": "trainer_pipeline",
-                        "stage": mail_type,
-                        "requirement_id": payload.requirement_id,
-                        "batch_type": "proposal" if is_proposal_flow else "confirmed",
-                        "batch_email_rules": _all_mail_batch_rules(requirement),
-                        "trainer_name": trainer_name,
+                "workflow": "trainer_pipeline",
+                "stage": mail_type,
+                "requirement_id": payload.requirement_id,
+                "batch_email_rules": _all_mail_batch_rules(requirement),
+                "trainer_name": trainer_name,
                         "technology": domain,
                         "missing_items": missing_followup_details,
                     }
-                else:
-                    send_payload["ai_generate"] = False
                 if mail_type == "mail4_reschedule_request" and payload.requirement_id:
                     # The same client-requested date must reach the trainer
                     # once only. A different date deliberately creates a new
@@ -5088,21 +5049,17 @@ async def send_client_slots(
     else:
         raise HTTPException(502, "Could not generate the required trainer profile for the client handoff")
 
-    # Mail 1 already sent the ToC to the trainer. A confirmed client handoff
-    # does not attach it again. The client-supplied ToC, when present, or the
-    # generated ToC otherwise, is only the input to the lab-cost workbook.
-    # Proposal handoffs keep the existing ToC attachment.
+    # Client handoff always includes the training ToC together with the
+    # trainer profile and exactly three slots.  Where the client supplied a
+    # ToC, send that exact safe source document.  Otherwise attach the
+    # approved system-generated ToC workbook.
     client_toc_topics = _client_supplied_toc_topics(req)
     client_toc_attachments = _client_toc_scope_attachments(req) if client_toc_supplied else []
     provisional_scope = _is_proposal_requirement(req) and _confirmed_training_duration_days(req) is None
     quote_requirement = {**req, "duration_days": 1} if provisional_scope else req
     toc_data = await _build_toc(quote_requirement, trainer, db)
     toc_attachment: Optional[bytes] = None
-    if confirmed_handoff:
-        # The ToC stays off the client email. A missing workbook input is
-        # recorded later; it does not drop the profile and the three slots.
-        pass
-    elif client_toc_attachments:
+    if client_toc_attachments:
         attachments.extend(client_toc_attachments)
     elif toc_data:
         try:
@@ -5270,8 +5227,6 @@ async def send_client_slots(
             participant_count = checked_provider_inputs[0]["participant_count"]
             lab_hours_per_day = checked_provider_inputs[0]["hours_per_day"]
         try:
-            if not checked_provider_inputs:
-                raise RuntimeError(lab_error or "lab-cost inputs are not usable")
             # The standard corporate-training baseline uses self-managed
             # Minikube/Kind on learner environments. Managed Kubernetes and
             # related cloud charges are included only when explicitly asked
@@ -5372,9 +5327,6 @@ async def send_client_slots(
     # coordination flow remains fully automated.
     elif explicit_lab_workbook:
         raise HTTPException(502, "Could not prepare the required lab workbook; client handoff was not sent")
-    elif confirmed_handoff and wants_lab_cost:
-        lab_cost_attachments = []
-        lab_error = lab_error or "lab-cost workbook unavailable"
 
     trainer_details = _requested_trainer_details_for_client(
         req,
@@ -5390,19 +5342,7 @@ async def send_client_slots(
     training_summary_section = f"Training details:\n{training_summary}\n\n" if training_summary else ""
     proposal_commercial_section = _proposal_client_commercial_section(req, trainer)
     lab_cost_note = ""
-    lab_workbook_unavailable = bool(confirmed_handoff and wants_lab_cost and not lab_cost_attachments)
-    if lab_workbook_unavailable:
-        lab_error = lab_error or "lab-cost workbook unavailable"
-        logger.warning("Confirmed client handoff continuing without the lab-cost workbook: %s", lab_error)
-    toc_note = "" if confirmed_handoff else (
-        "The training ToC is attached for your review together with the trainer profile and interview slots.\n\n"
-    )
-    availability_text = _clean(
-        trainer.get("availability")
-        or trainer.get("available_dates")
-        or trainer.get("availability_text")
-    )
-    availability_note = f"Trainer availability:\n{availability_text}\n\n" if confirmed_handoff and availability_text else ""
+    toc_note = "The training ToC is attached for your review together with the trainer profile and interview slots.\n\n"
     if wants_lab_cost and lab_cost_attachments:
         participant_label = "participant" if participant_count == 1 else "participants"
         assumption_note = (
@@ -5426,7 +5366,6 @@ async def send_client_slots(
         f"We have received the requested trainer details for the shortlisted {technology} trainer.\n\n"
         f"{training_summary_section}"
         f"{trainer_details_section}"
-        f"{availability_note}"
         f"{proposal_commercial_section}"
         f"{toc_note}"
         "Available slots:\n"
@@ -5479,11 +5418,8 @@ async def send_client_slots(
                 "Do not change slot details, prices, assumptions, attachment claims, or any workflow status."
             ),
             "available_slots": slots_text,
-            "trainer_availability": availability_text,
             "toc_attached": bool(toc_attachment or client_toc_attachments),
             "lab_cost_attached": bool(lab_cost_attachments),
-            "lab_cost_unavailable": lab_workbook_unavailable,
-            "lab_cost_unavailable_reason": lab_error if lab_workbook_unavailable else "",
             "lab_hours_per_day": lab_hours_per_day,
             "participant_count": participant_count,
             "lab_defaults_used": lab_defaults_used,

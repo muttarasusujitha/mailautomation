@@ -40,13 +40,6 @@ from pymongo.errors import ExecutionTimeout
 from database import get_db
 from config import get_settings
 from agents.pipeline import run_pipeline
-from agents.apollo_agent import (
-    find_contacts,
-    apollo_contact_to_lead,
-    credit_tracker,
-    TRAINER_TITLES,
-    CLIENT_TITLES,
-)
 from agents.document_agent import (
     build_purchase_order_doc,
     public_purchase_order,
@@ -16864,12 +16857,8 @@ async def search_public_client_leads(payload: dict = {}):
     query_domain_map = {}
 
     # ── CREDIT-SAFE phrase list ───────────────────────────────────────────────
-    # Only IT/corporate training requirement phrases.
-    # Removed: "Guest Faculty Required", "Campus Trainer Required",
-    #          "College Trainer Required", "Need Soft Skills Trainer",
-    #          "Need Communication Skills Trainer", "Behavioral Skills Trainer Required",
-    #          "Leadership Trainer Required"
-    # These attract school/college/non-IT posts — wrong audience for Clahan.
+    # Use only the most effective high-signal phrases.
+    # Fewer phrases × fewer domains = fewer credits used.
     HIGH_SIGNAL_PHRASES = [
         "Corporate Trainer Required",
         "Technical Training Requirement",
@@ -16877,12 +16866,9 @@ async def search_public_client_leads(payload: dict = {}):
         "Trainer Required",
         "Subject Matter Expert Trainer Required",
         "Looking for Corporate Trainer",
-        "Need IT Trainer",
-        "Corporate Training Requirement",
     ]
 
-    # Full phrase list — only used when caller requests deep_search=true
-    # All phrases here are IT / corporate context only — no academic phrases.
+    # Full phrase list — only used when caller requests deep search
     ALL_PHRASES = [
         "Need Trainer",
         "Seeking Trainer",
@@ -16898,23 +16884,22 @@ async def search_public_client_leads(payload: dict = {}):
         "Corporate Training Requirement",
         "Looking for Corporate Trainer",
         "Need Technical Trainer",
-        "Need IT Trainer",
+        "Need Soft Skills Trainer",
         "Need Python Trainer",
         "Need AI Trainer",
         "Need Data Analytics Trainer",
         "Need Power BI Trainer",
-        "Need DevOps Trainer",
-        "Need Cloud Trainer",
-        "Need SAP Trainer",
-        "Need Java Trainer",
-        "Need AWS Trainer",
-        "Need Azure Trainer",
+        "Need Excel Trainer",
+        "Need Communication Skills Trainer",
         "Freelance Trainer Required",
         "Contract Trainer Required",
         "Part-Time Trainer Required",
         "Online Trainer Required",
         "Offline Trainer Required",
+        "Guest Faculty Required",
+        "Resource Person Required",
         "Workshop Trainer Required",
+        "Faculty Required for Training",
         "Learning and Development Trainer Required",
         "L&D Trainer Hiring",
         "Training Consultant Required",
@@ -16926,10 +16911,14 @@ async def search_public_client_leads(payload: dict = {}):
         "Instructor Required",
         "Subject Matter Expert Trainer Required",
         "Training Program Facilitator Required",
+        "Campus Trainer Required",
+        "College Trainer Required",
         "Industrial Trainer Required",
         "Professional Trainer Required",
+        "Leadership Trainer Required",
+        "Behavioral Skills Trainer Required",
         "Corporate Coach Required",
-        "SME Trainer Required",
+        "Business Trainer Required",
     ]
 
     # Use high-signal phrases by default (saves credits)
@@ -17186,12 +17175,6 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
         "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura",
         "Uttar Pradesh", "Uttarakhand", "West Bengal",
     ]
-    # ── CORPORATE IT trainer roles only ──────────────────────────────────────
-    # Removed: "guest faculty", "visiting faculty", "academic trainer",
-    #          "college trainer", "apprenticeship trainer", "education consultant",
-    #          "seminar speaker", "keynote trainer"
-    # These leak school/college/non-corporate profiles.
-    # Added: stronger corporate batch-training signals used by Clahan clients.
     TRAINER_SEARCH_ROLES = [
         "trainer",
         CORPORATE_TRAINER,
@@ -17216,31 +17199,34 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
         SUBJECT_MATTER_EXPERT,
         "coach",
         "industry trainer",
+        "visiting faculty",
         "online trainer",
         "offline trainer",
         "virtual trainer",
         "contract trainer",
+        "part-time trainer",
         "L&D trainer",
-        "learning and development trainer",
+        "learning and development specialist",
+        "curriculum trainer",
+        "education consultant",
+        "instructional trainer",
         "corporate coach",
+        "professional coach",
+        "skills trainer",
         "technical instructor",
-        "workshop trainer",
+        "faculty trainer",
         "bootcamp instructor",
+        "workshop trainer",
+        "seminar speaker",
+        "keynote trainer",
         "training provider",
+        "training partner",
         "industry expert",
         "practitioner trainer",
         "certification trainer",
-        # High-signal corporate batch-training phrases
-        "batch training",
-        "corporate batch",
-        "delivered corporate training",
-        "trained professionals",
-        "trained employees",
-        "trained at TCS",
-        "trained at Infosys",
-        "trained at Wipro",
-        "trained at Accenture",
-        "corporate training experience",
+        "apprenticeship trainer",
+        "academic trainer",
+        "college trainer",
     ]
     for item in (payload.get("queries") or []):
         if isinstance(item, dict):

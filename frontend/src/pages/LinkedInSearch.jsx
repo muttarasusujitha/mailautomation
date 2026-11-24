@@ -7,11 +7,8 @@ import {
   Search, Send, ShieldCheck, Target, Trash2, Users,
 } from 'lucide-react'
 import api from '../utils/api'
-import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, leadSourceLabel, linkedInSearchPayload, newSearchRef, visibleSearchLeads } from '../utils/leadSearchFeedback'
-import { LEAD_PAGE_SIZE, domainChips, leadListParams, listPage, pageToReload, statusCountInView } from '../utils/leadPaging'
+import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, leadSourceLabel, linkedInSearchPayload, mergeSearchLeads, outcomeLine, sourceReportLines, visibleSearchLeads } from '../utils/leadSearchFeedback'
 import LeadBot from '../components/LeadBot'
-import Pager from '../components/Pager'
-import SearchSourceReport from '../components/SearchSourceReport'
 import { LinkedInLeadVerifyButton, TrustLegend, VerificationBadge } from '../components/VerificationBadge'
 
 const STATUS = ['all', 'new', 'reviewed', 'contacted', 'converted', 'rejected']
@@ -50,6 +47,68 @@ function initials(value) {
   return (words[0]?.[0] || 'L') + (words[1]?.[0] || '')
 }
 
+function leadDomain(lead) {
+  return String(lead?.domain || '').trim() || 'Other'
+}
+
+function leadSearchText(lead) {
+  return [
+    lead?.domain,
+    lead?.trainer_name,
+    lead?.headline,
+    lead?.profile_text,
+    lead?.company_name,
+    lead?.contact_name,
+    lead?.post_text,
+    lead?.notes,
+  ].join(' ').toLowerCase()
+}
+
+function trainerProfileText(lead) {
+  return [
+    lead?.trainer_name,
+    lead?.name,
+    lead?.headline,
+    lead?.profile_text,
+    lead?.snippet,
+    lead?.notes,
+    lead?.domain,
+  ].join(' ').toLowerCase()
+}
+
+function domainTerms(domain) {
+  const generic = new Set([
+    'trainer',
+    'training',
+    'corporate',
+    'freelance',
+    'technical',
+    'online',
+    'instructor',
+    'consultant',
+    'developer',
+    'india',
+    'indian',
+  ])
+  const terms = String(domain || '').toLowerCase().match(/[a-z0-9+#.]+/g) || []
+  return terms.filter(term => term.length > 1 && !generic.has(term))
+}
+
+function isTrainerProviderProfile(lead) {
+  const text = trainerProfileText(lead)
+  const terms = domainTerms(lead?.domain)
+  const hasSkillMatch = !terms.length || terms.some(term => text.includes(term))
+  const hasTrainerUrl = lead?.source_url?.includes('linkedin.com/in/')
+    || lead?.source_url?.includes('linkedin.com/posts/')
+    || lead?.source_url?.includes('linkedin.com/feed/update')
+    || lead?.lead_type === 'resume_trainer_post'
+  const hasName = Boolean(String(lead?.trainer_name || lead?.name || lead?.headline || '').trim())
+  const saysTrainer = /trainer|instructor|corporate training|training consultant|facilitator|coach/i.test(text)
+  // People search often returns a trainer whose visible card does not repeat the skill.
+  const skillShown = !terms.length || terms.some(term => text.includes(term)) || saysTrainer || lead?.lead_type === 'trainer_profile'
+  return Boolean(hasTrainerUrl && (hasSkillMatch || skillShown) && (saysTrainer || hasName || lead?.lead_type === 'trainer_profile'))
+}
+
 function leadEmail(lead) {
   return String(lead?.email || lead?.contact_email || '').trim()
 }
@@ -73,26 +132,14 @@ export default function LinkedInSearch() {
   const [showSearchMatches, setShowSearchMatches] = useState(false)
   const [deletingDomain, setDeletingDomain] = useState('')
   const [verifyingLead, setVerifyingLead] = useState('')
-  const [page, setPage] = useState(1)
-  const [list, setList] = useState(listPage())
   const listToken = useRef(0)
-  const loadSeq = useRef(0)
-  // Set when search text is submitted, before its response arrives, so a tab or chip clicked
-  // meanwhile keeps that text.
-  const appliedQuery = useRef('')
   const searchingRef = useRef(false)
+  const skipFilterLoad = useRef(true)
 
   const isTrainer = mode === 'trainer'
 
-  // selectedDomain is 'all' or a domain chip value (domain_exact). The server applies the trainer
-  // profile rules (kind=linkedin_profile), so each page is full and the totals cover every saved lead.
-  // query defaults to the last submitted search text, so typing without Enter does not filter.
-  const load = async ({ query = appliedQuery.current, statusFilter = filter, searchMode = mode, pageNumber = page, domainValue = selectedDomain } = {}) => {
+  const load = async ({ query = q, statusFilter = filter, searchMode = mode } = {}) => {
     const token = listToken.current
-    appliedQuery.current = String(query || '').trim()
-    // Only the latest list request updates the page, whatever order the responses arrive in.
-    const seq = ++loadSeq.current
-    const current = () => token === listToken.current && seq === loadSeq.current
     setLoading(true)
     try {
       const trainerList = searchMode === 'trainer'
@@ -109,21 +156,20 @@ export default function LinkedInSearch() {
       setStoredTotal(Number(res.data.total || rows.length))
       return visible
     } catch (e) {
-      if (current()) toast.error(e.message)
+      if (token === listToken.current) toast.error(e.message)
+      return []
     } finally {
-      if (current()) setLoading(false)
+      if (token === listToken.current) setLoading(false)
     }
   }
 
   const runSearch = async ({ domainText = searchDomains, automatic = false, searchMode = mode } = {}) => {
     const token = ++listToken.current
     const trainerSearch = searchMode === 'trainer'
-    const searchRef = newSearchRef()
     searchingRef.current = true
     setSearching(true)
     setSearchReport(null)
     setSelectedDomain('all')
-    setPage(1)
     try {
       const savedListEndpoint = trainerSearch ? '/trainer-profile-leads' : '/client-leads'
       try {
@@ -167,6 +213,7 @@ export default function LinkedInSearch() {
       } else if (!automatic) {
         toast.success('No new LinkedIn results saved')
       }
+      if (filter !== 'all') skipFilterLoad.current = true
       setFilter('all')
       setSelectedDomain('all')
       setQ('')
@@ -182,10 +229,9 @@ export default function LinkedInSearch() {
       if (token !== listToken.current) return
       setSearchReport(current => current
         ? { ...current, warnings: [...current.warnings, e.message || 'Unable to refresh saved results.'] }
-        : { found: 0, saved_count: 0, warnings: [e.message || 'Unable to complete the search.'], requestFailed: true, searchRef })
+        : { found: 0, saved_count: 0, warnings: [e.message || 'Unable to complete the search.'], requestFailed: true })
       setShowSearchMatches(false)
       toast.error(e.message)
-      await load({ query: '', statusFilter: 'all', searchMode: trainerSearch ? 'trainer' : 'client' })
     } finally {
       if (token === listToken.current) {
         searchingRef.current = false
@@ -194,32 +240,14 @@ export default function LinkedInSearch() {
     }
   }
 
-  // Status tabs, domain chips, the search box and paging reload the saved list from the server.
-  const changeFilter = (statusFilter) => {
-    setFilter(statusFilter)
-    setPage(1)
-    // A running search resets the filters and reloads the list when it finishes.
-    if (!searchingRef.current) load({ statusFilter, pageNumber: 1 })
-  }
-
-  const chooseDomain = (domainValue) => {
-    setShowSearchMatches(false)
-    setSelectedDomain(domainValue)
-    setPage(1)
-    load({ domainValue, pageNumber: 1 })
-  }
-
-  const changePage = (pageNumber) => {
-    setPage(pageNumber)
-    load({ pageNumber })
-  }
-
-  const filterSaved = (query = q) => {
-    setShowSearchMatches(false)
-    setPage(1)
-    load({ query, pageNumber: 1 })
-  }
-
+  useEffect(() => {
+    if (skipFilterLoad.current) {
+      skipFilterLoad.current = false
+      return
+    }
+    if (searchingRef.current) return
+    load()
+  }, [filter])
   useEffect(() => {
     const domains = AUTOMATIC_LINKEDIN_DOMAINS.join(', ')
     setSelectedDomain('all')
@@ -233,18 +261,10 @@ export default function LinkedInSearch() {
 
 
 
-  // Keeps the latest search matches in step with the saved leads they show.
-  const updateSearchMatches = (leadId, change) => {
-    setSearchReport(current => (current?.results
-      ? { ...current, results: change ? current.results.map(item => (item.lead_id === leadId ? { ...item, ...change } : item)) : current.results.filter(item => item.lead_id !== leadId) }
-      : current))
-  }
-
   const patchLead = async (lead, payload) => {
     try {
       const endpoint = isTrainer ? `/trainer-profile-leads/${lead.lead_id}` : `/client-leads/${lead.lead_id}`
       await api.patch(endpoint, payload)
-      updateSearchMatches(lead.lead_id, payload)
       await load()
     } catch (e) {
       toast.error(e.message)
@@ -256,29 +276,22 @@ export default function LinkedInSearch() {
       const endpoint = isTrainer ? `/trainer-profile-leads/${lead.lead_id}` : `/client-leads/${lead.lead_id}`
       await api.delete(endpoint)
       toast.success('Lead removed')
-      updateSearchMatches(lead.lead_id, null)
       await load()
     } catch (e) {
       toast.error(e.message)
     }
   }
 
-  const removeDomain = async (chip) => {
-    if (!window.confirm(`Delete all ${chip.count} saved result(s) for "${chip.label}" from this LinkedIn Search mode?`)) return
-    setDeletingDomain(chip.value)
+  const removeDomain = async (domain, count) => {
+    if (!window.confirm(`Delete all ${count} saved result(s) for "${domain}" from this LinkedIn Search mode?`)) return
+    setDeletingDomain(domain)
     try {
       const endpoint = isTrainer ? '/trainer-profile-leads/by-domain' : '/client-leads/by-domain'
-      // The same filters as the chip's count, so exactly the results it counted are deleted.
-      const params = { domain: chip.value }
-      if (isTrainer) params.kind = 'linkedin_profile'
-      if (list.status && list.status !== 'all') params.status = list.status
-      if (list.query) params.q = list.query
-      const res = await api.delete(endpoint, { params })
+      const res = await api.delete(endpoint, { params: { domain } })
       const deletedCount = res.data.deleted_count || 0
-      toast.success(`Deleted ${deletedCount} result${deletedCount === 1 ? '' : 's'} for ${chip.label}`)
-      const domainValue = selectedDomain === chip.value ? 'all' : selectedDomain
-      setSelectedDomain(domainValue)
-      await load({ domainValue })
+      toast.success(`Deleted ${deletedCount} result${deletedCount === 1 ? '' : 's'} for ${domain}`)
+      if (selectedDomain === domain) setSelectedDomain('all')
+      await load()
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -316,7 +329,14 @@ export default function LinkedInSearch() {
     navigate(`/linkedin-pipeline?domain=${encodeURIComponent(targetDomain)}&from=linkedin-search`)
   }
 
-  const domainOptions = useMemo(() => domainChips(list.counts), [list])
+  const domainOptions = useMemo(() => {
+    const counts = new Map()
+    leads.forEach(lead => {
+      const domain = leadDomain(lead)
+      counts.set(domain, (counts.get(domain) || 0) + 1)
+    })
+    return Array.from(counts.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+  }, [leads])
 
   const visibleLeads = useMemo(() => {
     const searchHits = (searchReport?.results || []).filter(lead => lead?.source_url || lead?.linkedin_url || lead?.lead_id)
@@ -330,22 +350,12 @@ export default function LinkedInSearch() {
     return source.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
   }, [leads, selectedDomain, showSearchMatches, searchReport])
 
-  const visibleLeads = useMemo(() => (
-    showingMatches ? visibleSearchLeads([], searchReport.results, true) : leads
-  ), [leads, showingMatches, searchReport])
-
-  // The saved list's cards count every page of the open status tab and domain, from the server.
-  const visibleStats = useMemo(() => (showingMatches ? {
+  const visibleStats = useMemo(() => ({
     total: visibleLeads.length,
     new: visibleLeads.filter(item => item.status === 'new').length,
     contacted: visibleLeads.filter(item => item.status === 'contacted').length,
     converted: visibleLeads.filter(item => item.status === 'converted').length,
-  } : {
-    total: list.total,
-    new: statusCountInView(list.counts, filter, 'new'),
-    contacted: statusCountInView(list.counts, filter, 'contacted'),
-    converted: statusCountInView(list.counts, filter, 'converted'),
-  }), [showingMatches, visibleLeads, list, filter])
+  }), [visibleLeads])
 
   const cards = useMemo(() => [
     [isTrainer ? 'Trainer Profiles' : 'Client Posts', visibleStats.total, isTrainer ? Users : BriefcaseBusiness, 'text-slate-700'],
@@ -365,8 +375,7 @@ export default function LinkedInSearch() {
           setQ('')
           setFilter('all')
           setSelectedDomain('all')
-          setPage(1)
-          load({ query: '', statusFilter: 'all', pageNumber: 1, domainValue: 'all' })
+          load({ query: '', statusFilter: 'all' })
         }}
       />
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -379,10 +388,10 @@ export default function LinkedInSearch() {
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative min-w-[260px]">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') filterSaved() }} placeholder="Search saved results" className="input bg-[#eaf6ff] pl-9" />
+            <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { setShowSearchMatches(false); load() } }} placeholder="Search saved results" className="input bg-[#eaf6ff] pl-9" />
           </div>
-          <button onClick={() => { setQ(q.trim()); filterSaved(q.trim()) }} className="btn-secondary text-sm"><RefreshCw className="h-4 w-4" /> Filter saved results</button>
-          {q && <button onClick={() => { setQ(''); filterSaved('') }} className="btn-secondary text-sm">Clear filter</button>}
+          <button onClick={() => { setShowSearchMatches(false); setQ(q.trim()); load() }} className="btn-secondary text-sm"><RefreshCw className="h-4 w-4" /> Filter saved results</button>
+          {q && <button onClick={() => { setQ(''); load({ query: '' }) }} className="btn-secondary text-sm">Clear filter</button>}
         </div>
       </div>
 
@@ -422,11 +431,19 @@ export default function LinkedInSearch() {
         </div>
       </section>
 
-      <SearchSourceReport report={searchReport} noun="results">
-        {(searchReport?.skipped || []).some(item => item.reason === 'already_saved_updated' || item.reason === 'already_saved') && <p className="text-sm text-slate-600">Some matches were already saved. They are included in the search matches below, as the saved leads.</p>}
-        {searchReport && !searchReport.requestFailed && <button className="btn-secondary text-sm" onClick={() => { setShowSearchMatches(!showSearchMatches) }}>{showSearchMatches ? 'Show all saved results' : 'Show latest search matches'}</button>}
-        {(searchReport?.warnings || []).length > 0 && <p className="text-xs text-slate-600">Any results already saved remain available below.</p>}
-      </SearchSourceReport>
+      {searchReport && <section role="status" aria-live="polite" className="rounded-lg border border-slate-200 bg-white p-4 space-y-2">
+        <p className="text-sm font-semibold text-slate-800">{searchReport.requestFailed ? 'Search request did not complete.' : `Last search: ${searchReport.found || 0} matches; ${searchReport.saved_count || 0} new results saved.`}</p>
+        {(searchReport.skipped || []).some(item => item.reason === 'already_saved_updated' || item.reason === 'already_saved') && <p className="text-sm text-slate-600">Some matches were already saved. They are included in the search matches below.</p>}
+        {!searchReport.requestFailed && <button className="btn-secondary text-sm" onClick={() => { setShowSearchMatches(!showSearchMatches); setSelectedDomain('all') }}>{showSearchMatches ? 'Show all saved results' : 'Show latest search matches'}</button>}
+        {(searchReport.domain_outcomes || []).map(outcome => <div key={outcome.domain} className="space-y-1">
+          <p className="text-sm text-slate-600">{outcomeLine(outcome)}</p>
+          {sourceReportLines(outcome).length > 0 && <ul className="ml-4 list-disc text-xs text-slate-500">
+            {sourceReportLines(outcome).map(line => <li key={line.key} className={line.ok ? 'text-emerald-700' : undefined}>{line.text}</li>)}
+          </ul>}
+        </div>)}
+        {searchReport.warnings.map(message => <p key={message} className="text-sm text-amber-800">{message}</p>)}
+        {searchReport.warnings.length > 0 && <p className="text-xs text-slate-600">Any results already saved remain available below.</p>}
+      </section>}
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map(([label, value, Icon, tone]) => (
@@ -447,50 +464,47 @@ export default function LinkedInSearch() {
         </div>
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={() => chooseDomain('all')}
+            onClick={() => { setShowSearchMatches(false); setSelectedDomain('all') }}
             className={clsx('rounded-lg px-3 py-2 text-xs font-bold transition', selectedDomain === 'all' ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100')}
           >
-            All Domains ({list.counts?.all_domains_total ?? list.total})
+            All Domains ({leads.length})
           </button>
-          {domainOptions.map(chip => (
+          {domainOptions.map(([domain, count]) => (
             <div
-              key={chip.value}
-              className={clsx('inline-flex overflow-hidden rounded-lg text-xs font-bold transition', selectedDomain === chip.value ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100')}
+              key={domain}
+              className={clsx('inline-flex overflow-hidden rounded-lg text-xs font-bold transition', selectedDomain === domain ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100')}
             >
               <button
-                onClick={() => chooseDomain(chip.value)}
+                onClick={() => { setShowSearchMatches(false); setSelectedDomain(domain) }}
                 className="px-3 py-2"
               >
-                {chip.label} ({chip.count})
+                {domain} ({count})
               </button>
               {isTrainer && (
                 <button
-                  onClick={() => openLinkedInPipeline(chip.label)}
-                  title={`Open ${chip.label} LinkedIn pipeline`}
-                  className={clsx('border-l px-2 transition', selectedDomain === chip.value ? 'border-blue-500 hover:bg-blue-700' : 'border-slate-200 text-blue-600 hover:bg-blue-50')}
+                  onClick={() => openLinkedInPipeline(domain)}
+                  title={`Open ${domain} LinkedIn pipeline`}
+                  className={clsx('border-l px-2 transition', selectedDomain === domain ? 'border-blue-500 hover:bg-blue-700' : 'border-slate-200 text-blue-600 hover:bg-blue-50')}
                 >
                   <ChevronRight className="h-3.5 w-3.5" />
                 </button>
               )}
               <button
-                onClick={() => removeDomain(chip)}
-                disabled={deletingDomain === chip.value}
-                title={`Delete ${chip.label} results`}
-                className={clsx('border-l px-2 transition disabled:opacity-50', selectedDomain === chip.value ? 'border-blue-500 hover:bg-blue-700' : 'border-slate-200 text-red-500 hover:bg-red-50 hover:text-red-600')}
+                onClick={() => removeDomain(domain, count)}
+                disabled={deletingDomain === domain}
+                title={`Delete ${domain} results`}
+                className={clsx('border-l px-2 transition disabled:opacity-50', selectedDomain === domain ? 'border-blue-500 hover:bg-blue-700' : 'border-slate-200 text-red-500 hover:bg-red-50 hover:text-red-600')}
               >
-                {deletingDomain === chip.value ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                {deletingDomain === domain ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
               </button>
             </div>
           ))}
-          {(list.counts?.domains_total || 0) > domainOptions.length && (
-            <span className="self-center text-xs text-slate-400">and {list.counts.domains_total - domainOptions.length} smaller domains: search saved results to see them</span>
-          )}
         </div>
       </div>
 
       <div className="linkedin-glow-panel flex flex-wrap gap-2 rounded-lg border border-[#d8e6f5] bg-[#edf5ff] p-2">
         {STATUS.map(item => (
-          <button key={item} onClick={() => changeFilter(item)} className={clsx('rounded-lg px-3 py-2 text-sm font-semibold transition', filter === item ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}>
+          <button key={item} onClick={() => setFilter(item)} className={clsx('rounded-lg px-3 py-2 text-sm font-semibold transition', filter === item ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}>
             {STATUS_LABELS[item]}
           </button>
         ))}
@@ -598,8 +612,6 @@ export default function LinkedInSearch() {
           <p>No {isTrainer ? 'trainer profiles' : 'client posts'} in this domain/status view.</p>
         </div>
       )}
-
-      {!showingMatches && <Pager page={list.page} pages={list.pages} total={list.total} pageSize={LEAD_PAGE_SIZE} loading={loading} onPage={changePage} noun={isTrainer ? 'saved profiles' : 'saved posts'} />}
     </div>
   )
 }

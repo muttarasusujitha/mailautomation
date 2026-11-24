@@ -343,10 +343,9 @@ async def _search_bing(query, limit, allowed_domains=None, report=None):
 async def search_public(query, limit=10):
     """Read a public results page, then the next page only while new profile links appear."""
     limit = min(max(int(limit or 1), 1), 60)
-    found, _challenged = await _search_ddg(query, limit)
-    if found:
+    found, challenged = await _search_ddg(query, limit)
+    if found or challenged:
         return found[:limit]
-    # A challenge page is not solved. The other public results page can still be read.
     return (await _search_bing(query, limit))[:limit]
 
 

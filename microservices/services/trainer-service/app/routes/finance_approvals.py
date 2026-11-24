@@ -24,7 +24,6 @@ from shared.commercial_policy import commercial_breakdown
 
 router = APIRouter()
 settings = get_settings()
-logger = logging.getLogger(__name__)
 
 
 class FinanceApproveRequest(BaseModel):
