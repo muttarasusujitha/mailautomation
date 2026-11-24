@@ -14,6 +14,7 @@ import PageLoader from './PageLoader'
 import ErrorBoundary from './ErrorBoundary'
 import FloatingIntegrations from './FloatingIntegrations'
 import ChatAssistant from './ChatAssistant'
+import GlobalVoiceControl from './GlobalVoiceControl'
 import { resolveNavigationRoute } from '../utils/navigation'
 
 const NAV_GROUPS = [
@@ -370,6 +371,7 @@ export default function Layout({ onLogout, isAdmin = false }) {
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
+            <GlobalVoiceControl groups={NAV_GROUPS} />
             <FloatingIntegrations />
             <ErrorBoundary resetKey={`copilot:${location.pathname}`}>
               <ChatAssistant headerTrigger />
