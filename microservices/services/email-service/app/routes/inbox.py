@@ -15,6 +15,7 @@ from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from email.utils import parseaddr
 from typing import Annotated, Any, Dict, List, Optional, Tuple
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import httpx
 from fastapi import APIRouter, BackgroundTasks, Depends, Query
@@ -7434,12 +7435,31 @@ _SLOT_MONTH_PATTERN = (
 )
 
 
-def _slot_date_value(day: Any, month: Any, year: Any) -> Optional[datetime]:
+def _slot_date_value(day: Any, month: Any, year: Any = None) -> Optional[datetime]:
     try:
-        parsed_year = int(year)
-        if parsed_year < 100:
-            parsed_year += 2000
-        return datetime(parsed_year, int(month), int(day))
+        parsed_day = int(day)
+        parsed_month = int(month)
+        if year is not None:
+            parsed_year = int(year)
+            if parsed_year < 100:
+                parsed_year += 2000
+            return datetime(parsed_year, parsed_month, parsed_day)
+
+        # Yearless dates use their next plausible occurrence. Keep dates just
+        # passed this month in the current year so stale replies are rejected
+        # instead of silently becoming appointments next year.
+        today = datetime.now(LOCAL_TZ).date()
+        candidate_year = today.year
+        for _ in range(9):
+            try:
+                candidate = datetime(candidate_year, parsed_month, parsed_day)
+            except ValueError:
+                candidate_year += 1
+                continue
+            if candidate.date() >= today - timedelta(days=30):
+                return candidate
+            candidate_year += 1
+        return None
     except (TypeError, ValueError):
         return None
 
@@ -7461,22 +7481,90 @@ def _slot_date_matches(text: Any) -> List[Dict[str, Any]]:
     # using the Indian DD/MM order used for the other numeric format.
     for match in re.finditer(r"\b(20\d{2})\s*[-/.]\s*(\d{1,2})\s*[-/.]\s*(\d{1,2})\b", clean):
         add(match, match.group(3), match.group(2), match.group(1))
-    # Do not allow spaces inside this compact date pattern: otherwise a slot
-    # label such as "Slot 1 - 08/09/2026" can be misread as 1-Aug-2009.
-    for match in re.finditer(r"\b(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})\b", clean):
-        add(match, match.group(1), match.group(2), match.group(3))
+    # Do not allow spaces inside numeric dates: otherwise a slot label such as
+    # "Slot 1 - 08/09/2026" can be misread as 1-Aug-2009. Slash dates use
+    # day/month order; ISO dates above are handled separately.
+    def numeric_date_parts(first: str, second: str) -> Tuple[int, int]:
+        first_value, second_value = int(first), int(second)
+        # Prefer India-style DD/MM. If only the second component can be a day,
+        # accept the common US MM/DD order as well.
+        if first_value <= 12 < second_value:
+            return second_value, first_value
+        return first_value, second_value
+
+    for match in re.finditer(r"\b(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})\b", clean):
+        day, month = numeric_date_parts(match.group(1), match.group(2))
+        add(match, day, month, match.group(3))
+    # A yearless dotted number such as 4.30 is a common time format; only
+    # accept compact slash dates without a year to avoid reading it as Apr 30.
+    for match in re.finditer(r"\b(\d{1,2})/(\d{1,2})\b(?!\s*[/.-]\s*\d{2,4}\b)", clean):
+        day, month = numeric_date_parts(match.group(1), match.group(2))
+        add(match, day, month, None)
     for match in re.finditer(
-        rf"\b(\d{{1,2}})(?:st|nd|rd|th)?(?:\s+of)?\s+({_SLOT_MONTH_PATTERN})\s*,?\s+(\d{{2,4}})\b",
+        rf"\b(\d{{1,2}})(?:st|nd|rd|th)?(?:\s+of)?\s+({_SLOT_MONTH_PATTERN})(?:\s*,?\s+(\d{{2,4}}))?\b",
         clean,
         flags=re.IGNORECASE,
     ):
         add(match, match.group(1), _SLOT_MONTHS.get(match.group(2).lower()), match.group(3))
     for match in re.finditer(
-        rf"\b({_SLOT_MONTH_PATTERN})\s+(\d{{1,2}})(?:st|nd|rd|th)?\s*,?\s+(\d{{2,4}})\b",
+        rf"\b({_SLOT_MONTH_PATTERN})\s+(\d{{1,2}})(?:st|nd|rd|th)?(?:\s*,?\s+(\d{{2,4}}))?\b",
         clean,
         flags=re.IGNORECASE,
     ):
         add(match, match.group(2), _SLOT_MONTHS.get(match.group(1).lower()), match.group(3))
+
+    today = datetime.now(LOCAL_TZ).date()
+    relative_dates = (
+        (r"\b(?:the\s+)?day[\s-]+after[\s-]+tomorrow\b", 2),
+        (r"\b(?:the\s+)?day[\s-]+before[\s-]+yesterday\b", -2),
+        (r"\btomorrow\b", 1),
+        (r"\byesterday\b", -1),
+        (r"\btoday\b", 0),
+    )
+    relative_spans: List[Tuple[int, int]] = []
+    for pattern, offset in relative_dates:
+        for match in re.finditer(pattern, clean, flags=re.IGNORECASE):
+            if any(start <= match.start() and match.end() <= end for start, end in relative_spans):
+                continue
+            value = datetime.combine(today + timedelta(days=offset), datetime.min.time())
+            if match.span() not in seen:
+                matches.append({"start": match.start(), "end": match.end(), "value": value})
+                seen.add(match.span())
+                relative_spans.append(match.span())
+
+    weekday_numbers = {
+        "monday": 0, "tuesday": 1, "wednesday": 2, "thursday": 3,
+        "friday": 4, "saturday": 5, "sunday": 6,
+    }
+    weekday_pattern = (
+        r"\b(?:(next|this(?:\s+coming)?|coming)\s+)?"
+        r"(monday|mon|tuesday|tues|tue|wednesday|weds|wed|thursday|thurs|thur|thu|"
+        r"friday|fri|saturday|satur|sat|sunday|sun)\b"
+    )
+    weekday_aliases = {
+        "mon": "monday", "tue": "tuesday", "tues": "tuesday",
+        "wed": "wednesday", "weds": "wednesday", "thu": "thursday",
+        "thur": "thursday", "thurs": "thursday", "fri": "friday",
+        "sat": "saturday", "satur": "saturday", "sun": "sunday",
+    }
+    for match in re.finditer(weekday_pattern, clean, flags=re.IGNORECASE):
+        modifier = re.sub(r"\s+coming$", "", (match.group(1) or "").lower())
+        weekday_text = match.group(2).lower()
+        weekday_name = weekday_aliases.get(weekday_text, weekday_text)
+        target_weekday = weekday_numbers.get(weekday_name)
+        if target_weekday is None:
+            continue
+        delta = target_weekday - today.weekday()
+        if modifier in {"next", "coming"}:
+            delta %= 7
+            if delta == 0:
+                delta = 7
+        elif modifier != "this":
+            delta %= 7
+        value = datetime.combine(today + timedelta(days=delta), datetime.min.time())
+        if match.span() not in seen:
+            matches.append({"start": match.start(), "end": match.end(), "value": value})
+            seen.add(match.span())
     return sorted(matches, key=lambda item: item["start"])
 
 
@@ -7508,7 +7596,17 @@ def _slot_time_candidates(text: Any) -> List[Dict[str, Any]]:
     """Extract every time or time range without relying on email line breaks."""
     clean = _normalise_slot_text(text)
     candidates: List[Dict[str, Any]] = []
-    occupied: List[Tuple[int, int]] = []
+    # Do not mistake the numeric part of a timezone offset (UTC+05:30) for
+    # another appointment time.
+    occupied: List[Tuple[int, int]] = [
+        match.span()
+        for match in re.finditer(
+            r"\b(?:UTC|GMT)\s*[+-]\s*\d{1,2}(?::?\d{2})?\b",
+            clean,
+            flags=re.IGNORECASE,
+        )
+    ]
+    occupied.extend((item["start"], item["end"]) for item in _slot_date_matches(clean))
     meridiem = r"a\.?m\.?|p\.?m\.?"
 
     def add(
@@ -7551,6 +7649,9 @@ def _slot_time_candidates(text: Any) -> List[Dict[str, Any]]:
         })
         occupied.append(match.span())
 
+    def overlaps(span: Tuple[int, int]) -> bool:
+        return any(span[0] < end and start < span[1] for start, end in occupied)
+
     # Accept both full ranges (10 AM - 10:30 AM) and abbreviated ranges
     # (10 - 11 AM). The end meridiem is propagated to the start when omitted.
     for match in re.finditer(
@@ -7561,24 +7662,23 @@ def _slot_time_candidates(text: Any) -> List[Dict[str, Any]]:
         clean,
         flags=re.IGNORECASE,
     ):
-        add(
-            match, match.group("start_hour"), match.group("start_minute"),
-            match.group("start_meridiem") or match.group("end_meridiem"),
-            match.group("end_hour"), match.group("end_minute"), match.group("end_meridiem"),
-        )
+        if not overlaps(match.span()):
+            add(
+                match, match.group("start_hour"), match.group("start_minute"),
+                match.group("start_meridiem") or match.group("end_meridiem"),
+                match.group("end_hour"), match.group("end_minute"), match.group("end_meridiem"),
+            )
     for match in re.finditer(
-        r"(?<![\w:])(?P<start_hour>[01]?\d|2[0-3]):(?P<start_minute>[0-5]\d)\s*"
-        r"(?:-|to|until)\s*(?P<end_hour>[01]?\d|2[0-3]):(?P<end_minute>[0-5]\d)(?!\d)",
+        r"(?<![\w:])(?P<start_hour>[01]?\d|2[0-3])(?::|\.)(?P<start_minute>[0-5]\d)\s*"
+        r"(?:-|to|until)\s*(?P<end_hour>[01]?\d|2[0-3])(?::|\.)(?P<end_minute>[0-5]\d)(?!\d)",
         clean,
         flags=re.IGNORECASE,
     ):
-        add(
-            match, match.group("start_hour"), match.group("start_minute"), "",
-            match.group("end_hour"), match.group("end_minute"), "",
-        )
-
-    def overlaps(span: Tuple[int, int]) -> bool:
-        return any(span[0] < end and start < span[1] for start, end in occupied)
+        if not overlaps(match.span()):
+            add(
+                match, match.group("start_hour"), match.group("start_minute"), "",
+                match.group("end_hour"), match.group("end_minute"), "",
+            )
 
     for match in re.finditer(
         rf"(?<![\w:])(?P<hour>0?[1-9]|1[0-2])(?:(?::|\.)(?P<minute>[0-5]\d))?\s*"
@@ -7589,7 +7689,7 @@ def _slot_time_candidates(text: Any) -> List[Dict[str, Any]]:
         if not overlaps(match.span()):
             add(match, match.group("hour"), match.group("minute"), match.group("meridiem"))
     for match in re.finditer(
-        r"(?<![\w:])(?P<hour>[01]?\d|2[0-3]):(?P<minute>[0-5]\d)(?!\d)",
+        r"(?<![\w:])(?P<hour>[01]?\d|2[0-3])(?::|\.)(?P<minute>[0-5]\d)(?!\d)",
         clean,
     ):
         if not overlaps(match.span()):
@@ -7597,13 +7697,136 @@ def _slot_time_candidates(text: Any) -> List[Dict[str, Any]]:
     return sorted(candidates, key=lambda item: item["start"])
 
 
-def _slot_time_options(text: Any, date_value: datetime) -> List[Dict[str, Any]]:
+_SLOT_TIMEZONE_ABBREVIATIONS = {
+    "UTC": timezone.utc, "GMT": timezone.utc, "Z": timezone.utc,
+    "IST": timezone(timedelta(hours=5, minutes=30)),
+    "EST": timezone(timedelta(hours=-5)), "EDT": timezone(timedelta(hours=-4)),
+    "CST": timezone(timedelta(hours=-6)), "CDT": timezone(timedelta(hours=-5)),
+    "MST": timezone(timedelta(hours=-7)), "MDT": timezone(timedelta(hours=-6)),
+    "PST": timezone(timedelta(hours=-8)), "PDT": timezone(timedelta(hours=-7)),
+    "WET": timezone.utc, "WEST": timezone(timedelta(hours=1)),
+    "CET": timezone(timedelta(hours=1)), "CEST": timezone(timedelta(hours=2)),
+    "EET": timezone(timedelta(hours=2)), "EEST": timezone(timedelta(hours=3)),
+    "JST": timezone(timedelta(hours=9)), "KST": timezone(timedelta(hours=9)),
+    "SGT": timezone(timedelta(hours=8)), "HKT": timezone(timedelta(hours=8)),
+    "AEST": timezone(timedelta(hours=10)), "AEDT": timezone(timedelta(hours=11)),
+    "NZST": timezone(timedelta(hours=12)), "NZDT": timezone(timedelta(hours=13)),
+}
+_SLOT_TIMEZONE_NAMES = {
+    "india standard time": _SLOT_TIMEZONE_ABBREVIATIONS["IST"],
+    "eastern standard time": _SLOT_TIMEZONE_ABBREVIATIONS["EST"],
+    "eastern daylight time": _SLOT_TIMEZONE_ABBREVIATIONS["EDT"],
+    "central standard time": _SLOT_TIMEZONE_ABBREVIATIONS["CST"],
+    "central daylight time": _SLOT_TIMEZONE_ABBREVIATIONS["CDT"],
+    "mountain standard time": _SLOT_TIMEZONE_ABBREVIATIONS["MST"],
+    "mountain daylight time": _SLOT_TIMEZONE_ABBREVIATIONS["MDT"],
+    "pacific standard time": _SLOT_TIMEZONE_ABBREVIATIONS["PST"],
+    "pacific daylight time": _SLOT_TIMEZONE_ABBREVIATIONS["PDT"],
+    "central european time": _SLOT_TIMEZONE_ABBREVIATIONS["CET"],
+    "central european summer time": _SLOT_TIMEZONE_ABBREVIATIONS["CEST"],
+}
+
+
+def _slot_timezone_from_text(text: Any):
+    clean = _normalise_slot_text(text)
+    offset_match = re.search(
+        r"\b(?:UTC|GMT)\s*([+-])\s*(\d{1,2})(?::?(\d{2}))?\b",
+        clean,
+        flags=re.IGNORECASE,
+    )
+    if offset_match:
+        hours = int(offset_match.group(2))
+        minutes = int(offset_match.group(3) or 0)
+        if hours <= 14 and minutes < 60 and not (hours == 14 and minutes):
+            delta = timedelta(hours=hours, minutes=minutes)
+            return timezone(delta if offset_match.group(1) == "+" else -delta)
+
+    iana_match = re.search(
+        r"\b(?:Africa|America|Antarctica|Asia|Atlantic|Australia|Europe|Indian|Pacific)/[A-Za-z0-9_+.-]+(?:/[A-Za-z0-9_+.-]+)?\b",
+        clean,
+    )
+    if iana_match:
+        try:
+            return ZoneInfo(iana_match.group(0))
+        except ZoneInfoNotFoundError:
+            return None
+
+    lowered = clean.lower()
+    for label, zone in _SLOT_TIMEZONE_NAMES.items():
+        if re.search(rf"\b{re.escape(label)}\b", lowered):
+            return zone
+
+    abbreviation_match = re.search(
+        r"\b(UTC|GMT|Z|IST|EST|EDT|CST|CDT|MST|MDT|PST|PDT|WET|WEST|CET|CEST|EET|EEST|JST|KST|SGT|HKT|AEST|AEDT|NZST|NZDT)\b",
+        clean,
+        flags=re.IGNORECASE,
+    )
+    if abbreviation_match:
+        return _SLOT_TIMEZONE_ABBREVIATIONS[abbreviation_match.group(1).upper()]
+    return None
+
+
+def _slot_timezone_for_candidate(text: str, candidate: Dict[str, Any]):
+    line_start = text.rfind("\n", 0, candidate["start"]) + 1
+    line_end = text.find("\n", candidate["end"])
+    if line_end < 0:
+        line_end = len(text)
+    time_candidates = _slot_time_candidates(text)
+    prior_times = [item for item in time_candidates if item["end"] <= candidate["start"]]
+    next_times = [item for item in time_candidates if item["start"] >= candidate["end"]]
+    after_end = min(line_end, next_times[0]["start"] if next_times else line_end)
+    after_zone = _slot_timezone_from_text(text[candidate["end"]:after_end])
+    if after_zone:
+        return after_zone
+    before_start = max(line_start, prior_times[-1]["end"] if prior_times else line_start)
+    before_zone = _slot_timezone_from_text(text[before_start:candidate["start"]])
+    if before_zone:
+        return before_zone
+
+    line_zone = _slot_timezone_from_text(text[line_start:line_end])
+    if line_zone:
+        return line_zone
+
+    prior_lines = text[:line_start].splitlines()
+    for line in reversed(prior_lines):
+        if not line.strip():
+            continue
+        if not re.search(r"\b(?:all\s+times?|times?\s+are|time\s*zone|timezone|local\s+time)\b", line, re.IGNORECASE):
+            continue
+        shared_zone = _slot_timezone_from_text(line)
+        if shared_zone:
+            return shared_zone
+
+    zones = [
+        _slot_timezone_from_text(line)
+        for line in text.splitlines()
+        if _slot_timezone_from_text(line) is not None
+    ]
+    if zones and all(str(zone) == str(zones[0]) for zone in zones):
+        return zones[0]
+    return LOCAL_TZ
+
+
+def _slot_time_options(
+    text: Any,
+    date_value: datetime,
+    timezone_context: Optional[str] = None,
+    candidate_offset: int = 0,
+) -> List[Dict[str, Any]]:
+    clean = _normalise_slot_text(text)
+    context = _normalise_slot_text(timezone_context) if timezone_context is not None else clean
     options: List[Dict[str, Any]] = []
-    for candidate in _slot_time_candidates(text):
+    for candidate in _slot_time_candidates(clean):
         start_hour = candidate["start_hour"]
         start_minute = candidate["start_minute"]
         if candidate["start_meridiem"]:
             start_hour, start_minute = _time_to_24h(start_hour, start_minute, candidate["start_meridiem"])
+        timezone_candidate = {
+            **candidate,
+            "start": candidate["start"] + candidate_offset,
+            "end": candidate["end"] + candidate_offset,
+        }
+        source_timezone = _slot_timezone_for_candidate(context, timezone_candidate)
         start = date_value.replace(hour=start_hour, minute=start_minute, second=0, microsecond=0)
         if candidate["end_hour"] is None:
             end = start + timedelta(minutes=30)
@@ -7615,6 +7838,8 @@ def _slot_time_options(text: Any, date_value: datetime) -> List[Dict[str, Any]]:
             end = date_value.replace(hour=end_hour, minute=end_minute, second=0, microsecond=0)
             if end <= start:
                 end += timedelta(days=1)
+        start = start.replace(tzinfo=source_timezone).astimezone(LOCAL_TZ).replace(tzinfo=None)
+        end = end.replace(tzinfo=source_timezone).astimezone(LOCAL_TZ).replace(tzinfo=None)
         options.append({
             **candidate,
             "start_datetime": start,
@@ -7677,7 +7902,16 @@ def _slot_options_from_text(source_text: Any) -> List[Dict[str, Any]]:
             if "\n" in between or len(between) > 60:
                 continue
             date_value = following["value"]
-        candidate_options = _slot_time_options(clean[time_candidate["start"]:time_candidate["end"]], date_value)
+        line_start = clean.rfind("\n", 0, time_candidate["start"]) + 1
+        line_end = clean.find("\n", time_candidate["end"])
+        if line_end < 0:
+            line_end = len(clean)
+        candidate_options = _slot_time_options(
+            clean[time_candidate["start"]:time_candidate["end"]],
+            date_value,
+            timezone_context=clean,
+            candidate_offset=time_candidate["start"],
+        )
         if not candidate_options:
             continue
         parsed = candidate_options[0]
