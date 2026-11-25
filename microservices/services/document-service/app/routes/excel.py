@@ -36,7 +36,11 @@ def _add_lab_cost_quote_cover(workbook, toc: Dict[str, Any], values: Dict[str, A
         for cell in row:
             target = quote.cell(cell.row, cell.column, cell.value)
             if cell.has_style:
-                target._style = copy(cell._style)
+                target.font = copy(cell.font)
+                target.fill = copy(cell.fill)
+                target.border = copy(cell.border)
+                target.alignment = copy(cell.alignment)
+                target.protection = copy(cell.protection)
             if cell.number_format:
                 target.number_format = cell.number_format
             if cell.hyperlink:
