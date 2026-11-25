@@ -1405,7 +1405,7 @@ def _client_toc_scope_attachments(requirement: Dict[str, Any]) -> List[Dict[str,
         ".xls": "vnd.ms-excel", ".xlsx": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         ".csv": "csv", ".txt": "plain",
     }
-    attachments: List[Dict[str, str]] = []
+    attachments: List[Tuple[int, Dict[str, str]]] = []
     for item in requirement.get("source_attachments") or []:
         if not isinstance(item, dict) or not item.get("safe_client_scope"):
             continue
@@ -1419,13 +1419,19 @@ def _client_toc_scope_attachments(requirement: Dict[str, Any]) -> List[Dict[str,
         size_bytes = int(item.get("size_bytes") or 0)
         if not is_toc or not filename or not content_base64 or not extension or size_bytes <= 0 or size_bytes > 4 * 1024 * 1024:
             continue
-        attachments.append({
+        # When a client supplies the same ToC as both a PDF and an Excel
+        # workbook, send the editable Excel copy at handoff and avoid a
+        # duplicate PDF. Keep a source PDF as a fallback when no workbook
+        # was supplied.
+        priority = 0 if extension in {".xlsx", ".xls"} else 1
+        attachments.append((priority, {
             "filename": filename,
             "content_base64": content_base64,
             "subtype": subtype_by_extension[extension],
-        })
-        break
-    return attachments
+        }))
+    if not attachments:
+        return []
+    return [min(attachments, key=lambda item: item[0])[1]]
 
 
 def _requested_toc_output_format(requirement: Dict[str, Any]) -> str:
