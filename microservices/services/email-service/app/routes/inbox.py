@@ -10144,7 +10144,8 @@ def _initial_offline_logistics_fields(extracted: Dict[str, Any], *, first_client
     """Identify logistics to request in the first client reply only."""
     if not first_client_mail or not _is_offline_requirement(extracted):
         return []
-    return [label for label, _ in _offline_logistics_gaps(extracted)]
+    logistics_fields = {"travel", "accommodation", "food"}
+    return [label for label, _ in _offline_logistics_gaps(extracted) if label in logistics_fields]
 
 
 def _append_initial_offline_logistics_request(body: str, fields: List[str]) -> str:
@@ -10152,16 +10153,15 @@ def _append_initial_offline_logistics_request(body: str, fields: List[str]) -> s
     if not fields:
         return body
     labels = {
-        "travel": "Travel terms: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
-        "accommodation": "Accommodation: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
-        "food": "Food: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
-        "venue": "Confirmed training address: [details]",
+        "travel": "Travel terms: [details]",
+        "accommodation": "Accommodation: [details]",
+        "food": "Food: [details]",
     }
     request_lines = "\n".join(labels[field] for field in fields)
     addition = (
         "As this is an offline training request, please also confirm the following in this reply:\n\n"
         f"{request_lines}\n\n"
-        "For each item, please state whether the Client or Clahan will arrange and pay, any approved cap, and receipt rules."
+        "Please share any planned arrangements or preferences for the trainer's travel, accommodation, and meals."
     )
     paragraphs = str(body or "").strip().split("\n\n")
     if len(paragraphs) > 1 and re.search(r"\b(?:regards|thanks|sincerely|cheers)\b", paragraphs[-1], re.IGNORECASE):
