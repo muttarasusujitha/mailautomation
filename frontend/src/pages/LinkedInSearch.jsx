@@ -191,11 +191,7 @@ export default function LinkedInSearch() {
       const skippedCount = res.data.skipped_count || 0
       const autoSentCount = res.data.auto_sent_count || 0
       const warnings = leadSearchWarnings(res.data)
-      const queuedRetries = res.data.queued_retries || []
-      const retryMessage = queuedRetries.length
-        ? `${queuedRetries.map(item => item.domain).join(', ')} search is queued for automatic retry when a source becomes available.`
-        : ''
-      setSearchReport({ ...res.data, warnings: retryMessage ? [...warnings, retryMessage] : warnings })
+      setSearchReport({ ...res.data, warnings })
       setShowSearchMatches((res.data.results || []).length > 0)
       if (!automatic && savedCount) {
         const savedText = `Saved ${savedCount} LinkedIn result${savedCount === 1 ? '' : 's'}`

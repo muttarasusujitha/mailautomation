@@ -1,0 +1,573 @@
+{
+  "domain": "Model Monitoring",
+  "name": "Model Monitoring",
+  "category": "Data Science and Machine Learning",
+  "icon": "activity",
+  "aliases": ["ML Model Monitoring", "Production Model Observability", "Model Drift Monitoring", "ML Observability", "Data Drift Detection", "LLM Monitoring", "Machine Learning Monitoring", "Model Performance Monitoring"],
+  "certifications": ["AWS Certified Machine Learning Engineer - Associate (MLA-C01)", "Google Cloud Professional Machine Learning Engineer"],
+  "tools": ["Evidently", "whylogs", "NannyML", "Alibi Detect", "Arize Phoenix", "Prometheus", "Grafana", "Amazon SageMaker Model Monitor", "Vertex AI Model Monitoring", "Great Expectations", "Fairlearn", "SHAP", "OpenTelemetry"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For analysts, data scientists and ML or DevOps engineers who have trained a model but have not yet run one in production. Covers why models fail silently, monitoring layers, prediction logging, service metrics with Prometheus, data quality checks, reference windows, drift tests (KS, chi-square, PSI), Evidently and whylogs reports, delayed labels and performance tracking, Grafana dashboards, basic alerting, batch jobs, false alarms, runbooks and a credit-scoring capstone.",
+      "prerequisites": ["Can train and score a model in Python with pandas and scikit-learn", "Knows basic statistics: mean, standard deviation, distributions and p-values", "Has Docker and Docker Compose installed and can run containers locally"],
+      "outcomes": ["Instrument a model service and log predictions so that data, drift and performance can be monitored", "Detect data quality faults and input drift with Pandera, Evidently, whylogs and statistical tests", "Track performance when labels arrive late and show it on Grafana dashboards", "Write tested alert rules and runbooks that turn a monitoring signal into a decision"],
+      "days": [
+        {
+          "topic": "Why Models Fail Silently: Failure Modes After Release",
+          "subtopics": ["Software failure versus model failure: no exception, wrong answer", "Data drift, concept drift and label shift in one-sentence definitions", "Upstream schema and unit changes that break features without errors", "Training-serving skew as a release-day failure", "Feedback loops where predictions change the data", "Performance decay curves and typical half-lives by domain", "Public incident case studies and what signal would have caught them", "Monitoring versus testing versus evaluation", "Who owns a model after release"],
+          "tools": ["Python", "pandas", "scikit-learn", "Jupyter"],
+          "lab_task": "Train a scikit-learn LogisticRegression on 20,000 synthetic loan rows (seed 7), score a held-out month, then shift the income column by +30 percent and a categorical code mapping, rescore, and print accuracy and mean predicted probability before and after. Record the accuracy drop in a table with no exception raised.",
+          "deliverable": "One-page failure-mode catalogue with the before/after accuracy table from the lab",
+          "checks": [["Score the unshifted held-out set", "Accuracy is within 1 point of the training validation accuracy", "Printed metric table"], ["Score the set with income shifted +30 percent", "Mean predicted default probability changes by more than 0.03 and no exception is raised", "Notebook output cell"], ["Review the catalogue", "Each of the 6 failure modes lists one early signal and the metric that would reveal it", "Catalogue document"]],
+          "objectives": ["Explain why a model can degrade while every health check stays green", "Distinguish data drift, concept drift, label shift and skew with examples", "Map each failure mode to a first signal that can be monitored"]
+        },
+        {
+          "topic": "Metric Layers for ML Systems: Operations, Data, Model and Business",
+          "subtopics": ["Four layers: service health, data health, model health, business impact", "Golden signals applied to inference: latency, traffic, errors, saturation", "Input metrics: missing rate, range violations, cardinality", "Output metrics: score distribution, class balance, confidence", "Outcome metrics: accuracy, precision, recall, RMSE once labels arrive", "Business metrics: approval rate, revenue per decision, complaint rate", "Leading versus lagging indicators", "Cost of a metric: compute, storage and review time", "Writing a monitoring plan table per model"],
+          "tools": ["Markdown", "Google Sheets", "Mermaid", "draw.io"],
+          "lab_task": "For a churn model, write a monitoring plan table with at least 16 metrics across the four layers. For each give name, definition, data source, frequency, owner, warning threshold and critical threshold. Mark which metrics are available at prediction time and which only after labels arrive, and draw the data flow in Mermaid.",
+          "deliverable": "Monitoring plan spreadsheet and Mermaid data-flow diagram for the churn model",
+          "checks": [["Count rows in the plan", "At least 16 metrics, with at least 3 in each of the four layers", "Plan spreadsheet"], ["Filter the plan by availability", "Label-dependent metrics are flagged as delayed and have a proxy metric listed", "Plan column check"], ["Review thresholds", "Every metric has distinct warning and critical values or a stated reason for none", "Peer review sign-off"]],
+          "objectives": ["Organise monitoring signals into operations, data, model and business layers", "Separate real-time signals from label-dependent ones", "Write a monitoring plan a reviewer can approve"]
+        },
+        {
+          "topic": "Capturing Inputs and Predictions for Monitoring",
+          "subtopics": ["What to log: features, prediction, score, model version, request id, timestamp", "Structured JSON logging versus Parquet batches", "Logging at the serving layer versus a sidecar or gateway", "Sampling strategies and their bias", "Joining predictions to labels with a stable prediction id", "Schema for a prediction log table", "Retention, partitioning by day and storage cost", "Excluding PII and hashing identifiers", "Idempotent writes and late arrivals"],
+          "tools": ["FastAPI", "pandas", "Parquet", "DuckDB", "Docker"],
+          "lab_task": "Add a FastAPI /predict endpoint that appends each request as a JSON line with prediction_id (uuid4), model_version, features, score and UTC timestamp, then send 1,000 requests with curl or httpx. Load the log in DuckDB with SELECT count(*), min(ts), max(ts) and confirm no duplicated prediction_id.",
+          "deliverable": "Prediction logging service and a documented log schema",
+          "checks": [["Send 1,000 POST requests to /predict", "The log contains exactly 1,000 rows", "DuckDB count output"], ["Query for duplicate prediction_id", "Zero duplicates are returned", "SQL result"], ["Inspect a sample row", "Fields model_version and ts are present and no raw email or name field appears", "Sample row screenshot"]],
+          "objectives": ["Design a prediction log that supports later monitoring and label joins", "Implement logging without storing sensitive identifiers", "Query logs with SQL to verify completeness"]
+        },
+        {
+          "topic": "Service Health Metrics with prometheus_client",
+          "subtopics": ["Counter, Gauge and Histogram types for inference", "Instrumenting predictions_total with labels model and version", "Latency histograms and bucket choice for a 50 ms model", "start_http_server and the /metrics endpoint", "Avoiding high-cardinality labels such as user id", "Scrape configuration in prometheus.yml", "rate() and histogram_quantile() queries", "Exposing model-version info as a gauge", "Error counters by exception class"],
+          "tools": ["prometheus_client", "Prometheus", "FastAPI", "Docker Compose", "curl"],
+          "lab_task": "Instrument the FastAPI model service with Counter predictions_total{model_version}, Histogram inference_seconds with buckets 0.005 to 1, and Counter prediction_errors_total. Scrape it from Prometheus every 15 seconds, generate 500 requests, and run rate(predictions_total[1m]) and histogram_quantile(0.95, rate(inference_seconds_bucket[5m])).",
+          "deliverable": "Instrumented service, prometheus.yml and a screenshot of the p95 latency query",
+          "checks": [["curl localhost:8000/metrics after 500 requests", "predictions_total shows 500 for the active model_version", "curl output"], ["Open Prometheus Status > Targets", "The model target is shown as UP", "Targets page screenshot"], ["Run the histogram_quantile query", "A p95 value in seconds is returned and is below 0.1 for the lab model", "Query result"]],
+          "objectives": ["Expose request, latency and error metrics from a model service", "Query rates and quantiles with PromQL", "Keep label cardinality bounded"]
+        },
+        {
+          "topic": "Data Quality Checks on Incoming Features",
+          "subtopics": ["Schema checks: names, dtypes and nullability", "Missing-value rate and its change over time", "Range and domain checks for numeric and categorical features", "Unseen categories and encoder fallbacks", "Duplicates and stale timestamps", "Unit changes such as dollars versus cents", "Row-count anomalies and empty batches", "Severity: block, warn or log", "Reporting check results as metrics"],
+          "tools": ["pandas", "Pandera", "Great Expectations", "Python", "pytest"],
+          "lab_task": "Write a Pandera DataFrameSchema for 12 loan features with dtype, nullable, Check.in_range and Check.isin rules. Run it on a clean batch and on a corrupted batch with 8 percent nulls in income, age = -3 and a new employment_type value, using lazy=True, and print the failure_cases table.",
+          "deliverable": "Pandera schema, a pytest file and the failure_cases output for the corrupted batch",
+          "checks": [["Validate the clean batch", "No SchemaErrors are raised", "pytest output"], ["Validate the corrupted batch with lazy=True", "failure_cases lists the null income rows, the age = -3 row and the unseen employment_type value", "failure_cases table"], ["Compute null rate for income on the corrupted batch", "Reported null rate is 0.08 plus or minus 0.005", "Printed metric"]],
+          "objectives": ["Define explicit data quality rules for model inputs", "Differentiate blocking from warning checks", "Turn validation results into countable metrics"]
+        },
+        {
+          "topic": "Reference Windows and Baselines for Monitoring",
+          "subtopics": ["Training data as reference and its limits", "Validation or first-week production data as reference", "Rolling reference windows versus fixed ones", "Window size and minimum sample size for tests", "Seasonality-aware references such as same weekday last month", "Reference refresh policy after retraining", "Storing reference profiles with the model artifact", "Bias from filtered or sampled training data", "Documenting baseline choice"],
+          "tools": ["pandas", "MLflow", "DuckDB", "Parquet"],
+          "lab_task": "From a 12-week prediction log, build three references: training split, week 1 and a rolling 4-week window. Compute the mean and 5th/95th percentiles of two features and the score for week 10 against each reference, then log all three reference summaries as artifacts in an MLflow run named baselines.",
+          "deliverable": "Baseline comparison table and an MLflow run holding the reference summaries",
+          "checks": [["Compare week 10 to the training reference", "The table shows the largest feature mean gap among the three references", "Comparison table"], ["Compare week 10 to the rolling window", "The gap is smaller than against the training reference for the trending feature", "Comparison table"], ["Open the MLflow run baselines", "Three reference artifacts are attached", "MLflow UI screenshot"]],
+          "objectives": ["Choose a reference window with a written justification", "Explain how window size affects test power", "Persist reference data alongside the model version"]
+        },
+        {
+          "topic": "Describing Distributions: Histograms, Quantiles and Shift",
+          "subtopics": ["Mean and standard deviation versus quantiles and robustness", "Histogram binning rules: fixed, quantile and Freedman-Diaconis", "Empirical CDF plots for comparing two samples", "Skew, tails and heavy-tailed features", "Categorical frequency tables and rare categories", "Mean shift versus variance shift versus shape shift", "Overlaid plots for reference and current data", "Sample size effects on visible noise", "Reading a shift report"],
+          "tools": ["matplotlib", "NumPy", "pandas", "SciPy"],
+          "lab_task": "Generate a reference sample of 10,000 N(0,1) values and four current samples: mean +0.5, std x1.5, bimodal mixture, and unchanged. Plot overlaid histograms and ECDFs, print mean, std, p5, p50 and p95 for each, and write one sentence per sample naming the type of shift observed.",
+          "deliverable": "Plot panel and a four-row shift description table",
+          "checks": [["Compute summary statistics for the unchanged sample", "Mean is within 0.03 of 0 and std within 0.03 of 1", "Printed table"], ["Compute summary for the mean-shifted sample", "Mean is about 0.5 and std remains about 1", "Printed table"], ["Plot the bimodal sample", "The histogram shows two peaks while the mean and std alone look near normal", "Plot image"]],
+          "objectives": ["Compare two samples visually and numerically", "Recognise mean, variance and shape shifts", "Choose bins appropriately for drift plots"]
+        },
+        {
+          "topic": "Statistical Drift Tests: KS, Chi-Square, PSI and Divergences",
+          "subtopics": ["Two-sample Kolmogorov-Smirnov test with scipy.stats.ks_2samp", "Chi-square test for categorical frequencies", "Population Stability Index formula and bins", "PSI rule-of-thumb bands 0.1 and 0.25", "Jensen-Shannon distance and Wasserstein distance", "p-values versus effect size on large samples", "Why large n makes everything significant", "Choosing a test by feature type and sample size", "Implementing PSI by hand"],
+          "tools": ["SciPy", "NumPy", "pandas", "Python"],
+          "lab_task": "Implement psi(ref, cur, bins=10) with quantile bins from the reference, then run it with ks_2samp and scipy.stats.wasserstein_distance on N(0,1) versus N(0.1,1), N(0.5,1) and N(1,1) samples of 50,000 values. Print PSI, KS statistic, p-value and Wasserstein for each case in one table.",
+          "deliverable": "drift_tests.py module and a comparison table of PSI, KS and Wasserstein",
+          "checks": [["Run PSI on N(0,1) versus N(0.1,1)", "PSI is below 0.1", "Printed table"], ["Run PSI on N(0,1) versus N(1,1)", "PSI is above 0.25", "Printed table"], ["Run ks_2samp on N(0,1) versus N(0.1,1) with 50,000 rows", "p-value is below 0.05 although PSI is small, showing significance without large effect", "Printed p-value"]],
+          "objectives": ["Compute common drift statistics and explain their units", "Interpret PSI bands and KS p-values correctly", "Pick a test appropriate to feature type and sample size"]
+        },
+        {
+          "topic": "Drift Reports with Evidently",
+          "subtopics": ["Installing Evidently and the Report class", "DataDriftPreset and per-column drift methods", "DataSummaryPreset for column statistics", "Reference and current Dataset objects with DataDefinition", "Dataset drift share threshold", "Saving HTML and JSON snapshots", "Customising per-column methods and thresholds", "Reading a drift table: stat test, score, drifted flag", "Embedding a report in a notebook or CI artifact"],
+          "tools": ["Evidently", "pandas", "Jupyter", "scikit-learn"],
+          "lab_task": "pip install evidently, load the California housing data, split it into reference and a current set where MedInc is multiplied by 1.4. Build a Report([DataDriftPreset()]), run it on current versus reference, save drift.html and drift.json, and list which columns are flagged drifted and the share of drifted columns.",
+          "deliverable": "drift.html, drift.json and a written list of flagged columns",
+          "checks": [["Run the report on an unmodified current split", "Zero or at most one column is flagged and the share of drifted columns is below 0.5", "drift.json"], ["Run it with MedInc multiplied by 1.4", "MedInc is flagged as drifted", "HTML report"], ["Open the saved JSON", "Each column entry contains a drift score and the name of the statistical test used", "JSON excerpt"]],
+          "objectives": ["Generate and save an Evidently data drift report", "Read per-column drift results", "Adjust the drift method for a column"]
+        },
+        {
+          "topic": "Prediction and Target Drift",
+          "subtopics": ["Prediction (score) distribution as a label-free signal", "Prediction drift versus input drift: when each fires", "Class prior and positive-rate tracking", "Score histogram and threshold-crossing rate", "Target drift when labels are available", "Calibration drift: predicted probability versus observed rate", "Alert on approval rate change", "Interpreting drift in outputs only", "Segment-level prediction drift"],
+          "tools": ["Evidently", "scikit-learn", "pandas", "matplotlib"],
+          "lab_task": "Using a trained binary classifier, compute daily positive-prediction rate and mean score for 30 days of simulated traffic where a feature shifts from day 15. Plot both series, add a 3-sigma band from days 1-14, and use Evidently ColumnDriftMetric or a DataDriftPreset on the score column to find the first flagged day.",
+          "deliverable": "Time-series plot, the first-flagged day and a short interpretation note",
+          "checks": [["Plot positive rate for days 1-14", "The series stays inside the 3-sigma band", "Plot image"], ["Check the days after the shift at day 15", "The positive rate leaves the band within 3 days", "Plot and table"], ["Run score-column drift between days 1-14 and 16-30", "Score column is flagged drifted", "Evidently output"]],
+          "objectives": ["Use prediction distributions as a label-free monitor", "Track positive rate and score drift over time", "Explain what prediction drift can and cannot prove"]
+        },
+        {
+          "topic": "Ground Truth, Labels and Feedback Loops",
+          "subtopics": ["Label sources: user action, manual review, downstream system", "Label delay: minutes, days and months", "Label coverage and selection bias", "Censored outcomes such as loans not granted", "Feedback loops that contaminate training data", "Weak labels and proxies", "Joining labels to prediction logs by id", "Maturity windows for credit and churn", "Label quality and annotator disagreement"],
+          "tools": ["pandas", "DuckDB", "SQL", "scikit-learn"],
+          "lab_task": "Given a prediction log and a labels table that arrives with 1 to 45 days delay, write a DuckDB SQL join on prediction_id and compute label coverage per prediction week and median label delay. Then compute accuracy only on rows whose 30-day maturity window has closed and compare to accuracy on all labelled rows.",
+          "deliverable": "SQL file, coverage table and a note explaining the bias in naive accuracy",
+          "checks": [["Compute label coverage for the newest week", "Coverage is below 50 percent for the newest week and near 100 percent for weeks older than 45 days", "Coverage table"], ["Compute median label delay", "A delay in days is reported per week", "SQL result"], ["Compare mature-only accuracy and all-labelled accuracy", "The two values differ and the note states which is unbiased", "Comparison table"]],
+          "objectives": ["Join predictions to delayed labels correctly", "Apply maturity windows to avoid biased metrics", "Identify feedback loops and selection bias in labels"]
+        },
+        {
+          "topic": "Tracking Model Performance Over Time",
+          "subtopics": ["Classification metrics: accuracy, precision, recall, F1, ROC AUC", "Regression metrics: MAE, RMSE, MAPE and bias", "Time-bucketed evaluation by week", "Confidence intervals with bootstrap", "Minimum sample size per bucket", "Comparing to the validation baseline", "Calibration curves and Brier score", "Cost-weighted metrics for imbalanced problems", "Publishing metrics to a table or Prometheus"],
+          "tools": ["scikit-learn", "pandas", "Evidently", "NumPy"],
+          "lab_task": "Using 26 weeks of labelled predictions, compute weekly ROC AUC, precision at the 0.5 threshold and Brier score with sklearn.metrics, plus a 95 percent bootstrap interval (1,000 resamples) for AUC. Flag weeks where the interval upper bound is below the validation AUC minus 0.03 and output a CSV.",
+          "deliverable": "weekly_metrics.csv and a chart with confidence bands",
+          "checks": [["Compute weekly AUC with 1,000 bootstrap resamples", "Each week shows a lower and upper bound with lower < AUC < upper", "CSV"], ["Apply the flag rule", "Only the weeks after the simulated degradation are flagged", "Flag column"], ["Check weeks with fewer than 200 labelled rows", "They are marked insufficient data rather than scored", "CSV column"]],
+          "objectives": ["Compute performance metrics per time bucket", "Quantify uncertainty with bootstrap intervals", "Flag degradation against a validation baseline"]
+        },
+        {
+          "topic": "Model Health Dashboards in Grafana",
+          "subtopics": ["Grafana data sources: Prometheus and PostgreSQL", "Panels for traffic, latency, drift score and accuracy", "Stat, time series, heatmap and table panels", "Heatmap of score distribution over time", "Threshold colours and units", "Variables for model and version", "Provisioning a dashboard from JSON", "Annotations for deployments and retrains", "Dashboard layout: top-down from health to model quality"],
+          "tools": ["Grafana", "Prometheus", "PostgreSQL", "Docker Compose"],
+          "lab_task": "Start Grafana with Docker Compose and provision Prometheus and PostgreSQL data sources from YAML. Build a dashboard with six panels: request rate, p95 latency, error ratio, score heatmap, daily PSI per top feature from a Postgres table, and weekly AUC. Add a model_version variable and export the dashboard JSON.",
+          "deliverable": "Exported dashboard JSON and provisioning files in a Git folder",
+          "checks": [["Run docker compose up and open Grafana on port 3000", "Both data sources show 'Data source is working' on Save & test", "Screenshot"], ["Change the model_version variable", "All six panels refresh and filter to that version", "Dashboard recording"], ["Restart the stack with provisioning files only", "The dashboard reappears without manual import", "Screenshot after restart"]],
+          "objectives": ["Build a layered model health dashboard", "Provision dashboards and data sources as code", "Use variables and annotations for model versions"]
+        },
+        {
+          "topic": "Alert Rules for Models: Thresholds, Severity and Alert Fatigue",
+          "subtopics": ["Alert rule anatomy: expression, for duration, labels, annotations", "Warning versus critical thresholds", "Static thresholds versus baseline-relative thresholds", "The for clause and flapping", "Routing with Alertmanager receivers", "Alert fatigue and actionable alerts", "Runbook links in annotations", "Testing rules with promtool test rules", "Silencing and maintenance windows"],
+          "tools": ["Prometheus", "Alertmanager", "promtool", "Slack", "Grafana"],
+          "lab_task": "Write a Prometheus rule file with ModelHighErrorRate (error ratio over 5 percent for 10m, critical) and FeatureNullRateHigh (null ratio over 0.05 for 15m, warning) including runbook_url annotations. Validate with promtool check rules, write a promtool test rules unit test, and route critical alerts to a Slack webhook in Alertmanager.",
+          "deliverable": "rules.yml, rules_test.yml and alertmanager.yml",
+          "checks": [["Run promtool check rules rules.yml", "Output reports SUCCESS with 2 rules found", "Terminal output"], ["Run promtool test rules rules_test.yml", "The unit test passes and the alert fires only after the 10 minute for window", "promtool output"], ["Trigger the critical alert in the lab", "One Slack message is delivered with the runbook_url", "Slack screenshot"]],
+          "objectives": ["Write and test alert rules for model signals", "Separate warning and critical severities", "Reduce noise with for durations and routing"]
+        },
+        {
+          "topic": "Profiling Data with whylogs",
+          "subtopics": ["Statistical profiles instead of raw data", "why.log() on a DataFrame and the results view", "Profile contents: counts, distribution sketches, cardinality, types", "Mergeable profiles across batches and days", "Writing profiles to local disk and S3", "Visualising drift between two profile views", "Constraints with whylogs factories", "Privacy benefit of profile-only retention", "Profile size versus data size"],
+          "tools": ["whylogs", "pandas", "Python", "Jupyter"],
+          "lab_task": "Install whylogs, call why.log(df) on seven daily batches of 50,000 rows, write each profile with results.writer('local').write(), merge them with view.merge(), and inspect view.to_pandas() for counts, null counts and distribution. Then use NotebookProfileVisualizer to compare day 7 against day 1 and report drifted columns.",
+          "deliverable": "Seven profile files, a merged profile summary and a drift summary report",
+          "checks": [["Run view.to_pandas() on the merged profile", "counts/n equals 350,000 for each complete column", "Printed summary"], ["Compare profile file size to a raw batch CSV", "Each profile is at least 100 times smaller", "ls -l output"], ["Open the drift summary for day 7 versus day 1", "The column shifted in the lab data is listed with a drift category above none", "Report screenshot"]],
+          "objectives": ["Create and merge whylogs profiles", "Compare profiles to find drift without raw data", "Explain the storage and privacy advantages of profiling"]
+        },
+        {
+          "topic": "Monitoring Batch Scoring Jobs",
+          "subtopics": ["Batch versus online monitoring differences", "Job-level metrics: rows in, rows scored, rows dropped, runtime", "Output file checks: row count, nulls, score range", "Run-over-run comparison of score distributions", "Scheduling with cron or Airflow", "Failing loudly: empty output and partial writes", "Idempotent reruns and run ids", "Publishing job metrics through Pushgateway", "Backfill monitoring"],
+          "tools": ["Apache Airflow", "Prometheus Pushgateway", "pandas", "Evidently", "Docker"],
+          "lab_task": "Wrap a nightly scoring script so it pushes batch_rows_in, batch_rows_scored and batch_runtime_seconds to a Prometheus Pushgateway with job and run_id labels, and runs an Evidently drift report on today's scores versus the last 7 runs. Make the job exit with code 2 if rows_scored/rows_in is under 0.99.",
+          "deliverable": "Instrumented batch script and a Pushgateway screenshot of three runs",
+          "checks": [["Run the job on a normal batch", "Exit code is 0 and rows_scored/rows_in is at least 0.99", "Shell echo $? output"], ["Run the job with 3 percent of rows corrupted", "Exit code is 2 and the failure is logged with the run_id", "Job log"], ["Open the Pushgateway page", "Metrics for the three runs appear grouped by job and run_id", "Pushgateway screenshot"]],
+          "objectives": ["Add monitoring to scheduled batch inference", "Fail jobs on coverage and quality violations", "Compare each run with recent runs"]
+        },
+        {
+          "topic": "Seasonality, Outliers and False Alarms",
+          "subtopics": ["Weekly and yearly seasonality in features", "Holiday and campaign effects", "Comparing like with like: same weekday references", "Outliers versus genuine drift", "Robust statistics: median and MAD", "Multiple testing across many features", "Tuning sensitivity: drift share and per-feature thresholds", "Alert precision measured on history", "Suppressing known events with annotations"],
+          "tools": ["pandas", "statsmodels", "Evidently", "SciPy"],
+          "lab_task": "Take 2 years of daily transaction counts, decompose with statsmodels seasonal_decompose (period=7), and run ks_2samp between each Monday and the previous 8 Mondays versus against the previous 8 calendar days. Count false drift alerts at p < 0.01 for each approach and report the reduction.",
+          "deliverable": "Notebook with decomposition plots and a false-alert count comparison",
+          "checks": [["Run drift tests against the previous 8 calendar days", "Large number of alerts, at least 20 percent of Mondays flagged", "Alert count"], ["Run drift tests against the previous 8 Mondays", "The alert count is at least 50 percent lower", "Alert count"], ["Apply Bonferroni correction across 40 features", "Per-feature threshold equals 0.01/40 = 0.00025", "Printed threshold"]],
+          "objectives": ["Separate seasonal patterns from real drift", "Reduce false alarms with matched references and corrected thresholds", "Measure alert precision on historical data"]
+        },
+        {
+          "topic": "Monitoring Text and Image Inputs",
+          "subtopics": ["Why raw pixels and tokens are hard to compare", "Simple descriptors: text length, language, token count, vocabulary rate", "Image descriptors: size, brightness, blur score, channel statistics", "Out-of-vocabulary rate and new-token monitoring", "Embedding-based drift with a pretrained encoder", "Dimensionality reduction for drift checks with PCA", "Evidently TextEvals and descriptors", "Label distribution of predicted classes", "Storage of sampled examples for review"],
+          "tools": ["Evidently", "sentence-transformers", "scikit-learn", "Pillow", "pandas"],
+          "lab_task": "For a support-ticket classifier, compute text length, word count and out-of-vocabulary rate descriptors on 5,000 reference tickets and 5,000 tickets containing a new product name and 30 percent longer text. Embed with all-MiniLM-L6-v2, fit PCA to 10 components on the reference, and run per-component KS tests.",
+          "deliverable": "Descriptor drift table and PCA component drift table",
+          "checks": [["Compare text length reference versus current", "Mean length is about 30 percent higher and the descriptor is flagged drifted", "Descriptor table"], ["Compute out-of-vocabulary rate", "The rate rises for the current set because of the new product name", "Printed rates"], ["Run KS on the 10 PCA components", "At least one component has p-value below 0.001 for the shifted set and none for an unshifted control", "Component table"]],
+          "objectives": ["Turn unstructured inputs into monitorable descriptors", "Detect drift in embedding space", "Select samples for human review"]
+        },
+        {
+          "topic": "From Alert to Decision: Triage and Runbooks",
+          "subtopics": ["Triage order: service, data pipeline, input drift, model quality", "Checking upstream changes and release calendars", "Is it drift or data quality: a decision tree", "Impact estimation: affected segment and volume", "Actions: ignore, watch, rollback, retrain, fallback rule", "Escalation paths and ownership", "Runbook template with queries and screenshots", "Incident ticket and communication", "Closing the loop with a post-alert note"],
+          "tools": ["Markdown", "Grafana", "Jira", "Evidently"],
+          "lab_task": "Write a runbook for the alert FeatureDriftHigh that contains a numbered triage procedure, the exact PromQL and SQL queries to run, a decision tree in Mermaid for data-quality fault versus real drift, and the action matrix. Then dry-run it on three provided incident scenarios and record the decision and time taken for each.",
+          "deliverable": "Runbook document and a dry-run log for three scenarios",
+          "checks": [["Follow the runbook on the null-spike scenario", "The decision is data-quality fault with an upstream owner named", "Dry-run log"], ["Follow the runbook on the genuine population shift scenario", "The decision is watch or retrain with the segment impact quantified", "Dry-run log"], ["Review runbook completeness", "It contains owner, severity, queries, rollback step and escalation contact", "Review checklist"]],
+          "objectives": ["Triage a model alert systematically", "Distinguish data faults from genuine drift", "Document decisions and ownership"]
+        },
+        {
+          "topic": "Beginner Capstone: Monitoring a Credit-Default Scoring Service",
+          "subtopics": ["Service with prediction logging and Prometheus metrics", "Data quality schema and null-rate alerts", "Evidently drift reports on a daily schedule", "Delayed-label join and weekly AUC with intervals", "Grafana dashboard with six or more panels", "Alert rules, runbook and an incident drill"],
+          "tools": ["FastAPI", "Prometheus", "Grafana", "Evidently", "Pandera", "Docker Compose"],
+          "lab_task": "Deliver a Docker Compose stack: FastAPI scoring service, Prometheus, Grafana, a Postgres log store and a daily Evidently job. Replay 8 weeks of traffic containing a null spike in week 5 and covariate drift in week 7, join labels with 30-day delay, and show alerts for both events with a runbook entry for each.",
+          "deliverable": "Git repository with Compose stack, dashboard JSON, alert rules, runbook and a 2-page monitoring report",
+          "checks": [["Replay the 8 weeks of traffic", "A data-quality alert fires in week 5 and a drift alert fires in week 7, and no alert fires in weeks 1-4", "Alertmanager history"], ["Open the dashboard", "Panels for traffic, latency, null rate, drift, score distribution and AUC all display data", "Dashboard screenshot"], ["Review the report", "It states baseline choice, thresholds, label delay and an action decision for each alert", "Report PDF"]],
+          "objectives": ["Assemble a complete monitoring stack for one model", "Detect and explain two injected incidents", "Present monitoring results with decisions"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For ML engineers and data scientists who already monitor a model with basic drift reports and want production-grade coverage. Covers concept drift detectors, multivariate drift, Alibi Detect, label-free performance estimation with NannyML, label pipelines, data contracts, slice and fairness monitoring, SHAP attribution tracking, scheduled monitoring at scale, alert engineering, SageMaker Model Monitor, Vertex AI, Azure ML and Databricks monitoring, challenger rollouts, skew detection and retraining triggers.",
+      "prerequisites": ["Completes the beginner path or runs at least one model with logged predictions and a drift report", "Writes SQL and Python pipelines and has used Airflow or a similar scheduler", "Knows Prometheus and Grafana basics and has access to one cloud ML platform"],
+      "outcomes": ["Choose and combine univariate, multivariate and streaming detectors for covariate and concept drift", "Estimate and track model performance despite delayed or partial labels", "Monitor fairness, slices and attributions and operate managed monitors on SageMaker, Vertex AI, Azure ML or Databricks", "Design alerts and retraining triggers that are tested, rate-limited and gated by evaluation"],
+      "days": [
+        {
+          "topic": "Concept Drift Types and Streaming Detectors",
+          "subtopics": ["Sudden, gradual, incremental and recurring concept drift", "Real drift P(y|x) versus virtual drift P(x)", "Error-rate detectors: DDM and EDDM", "ADWIN adaptive windowing", "Page-Hinkley test", "river.drift API: update() and drift_detected", "Detection delay versus false positive trade-off", "Synthetic drift generators with river.datasets.synth", "Choosing detectors for labelled streams"],
+          "tools": ["river", "NumPy", "pandas", "matplotlib"],
+          "lab_task": "Stream 20,000 samples from river.datasets.synth.ConceptDriftStream with a sudden drift at position 10,000. Feed the 0/1 error of a river HoeffdingTreeClassifier to ADWIN and PageHinkley, record each detection index, and report detection delay and number of false detections before 10,000 for both detectors.",
+          "deliverable": "Notebook with detector comparison table of delay and false detections",
+          "checks": [["Run ADWIN on the error stream", "At least one detection occurs after index 10,000 and the delay is reported in samples", "Printed detection list"], ["Run both detectors on a no-drift control stream", "False detections are counted and reported for each detector", "Comparison table"], ["Change the PageHinkley threshold from 50 to 10", "Detection occurs earlier but false detections increase or stay equal", "Sensitivity table"]],
+          "objectives": ["Classify drift patterns by speed and type", "Run streaming drift detectors on error signals", "Quantify the delay and false alarm trade-off"]
+        },
+        {
+          "topic": "Multivariate Drift: Classifier-Based and Reconstruction Methods",
+          "subtopics": ["Why univariate tests miss correlation changes", "Domain classifier: train reference-versus-current and read ROC AUC", "Feature importance from the domain classifier", "PCA reconstruction error drift", "Mahalanobis distance monitoring", "Maximum mean discrepancy intuition", "Sample size and cross-validation of the classifier", "Interpreting an AUC of 0.5 versus 0.9", "Cost of running multivariate checks"],
+          "tools": ["scikit-learn", "NannyML", "NumPy", "pandas"],
+          "lab_task": "Create two 4-feature Gaussian samples with identical marginals but correlation 0.0 versus 0.8. Run univariate KS on each feature, then train a RandomForest domain classifier with 5-fold cross-validated ROC AUC and use nannyml.DataReconstructionDriftCalculator with chunk_size=2000. Report which method detects the change.",
+          "deliverable": "Notebook comparing univariate, domain-classifier and reconstruction results",
+          "checks": [["Run per-feature KS tests", "No feature has p-value below 0.01 because marginals are identical", "KS table"], ["Compute the domain classifier cross-validated AUC", "AUC is above 0.7, showing the joint distribution changed", "Printed AUC"], ["Run the reconstruction drift calculator", "Reconstruction error leaves the alert thresholds on the analysis chunks", "NannyML plot"]],
+          "objectives": ["Explain why marginal tests can miss joint changes", "Train and read a domain classifier for drift", "Apply PCA reconstruction error as a monitor"]
+        },
+        {
+          "topic": "Drift Detection with Alibi Detect",
+          "subtopics": ["KSDrift with Bonferroni and FDR correction", "ChiSquareDrift and TabularDrift for mixed data", "MMDDrift with a Gaussian kernel and permutations", "LSDDDrift and ClassifierDrift", "Preprocessing with an embedding encoder (preprocess_fn)", "p_val and the predict() result dictionary", "Saving and loading detectors with save_detector", "Online detectors for streams", "Runtime and memory for large reference sets"],
+          "tools": ["Alibi Detect", "PyTorch", "scikit-learn", "NumPy"],
+          "lab_task": "Fit alibi_detect.cd.KSDrift(x_ref, p_val=0.05, correction='bonferroni') and MMDDrift(x_ref, backend='pytorch', n_permutations=100) on 5,000 reference rows of 20 features. Call predict() on a clean batch and a batch with 3 features shifted by 0.5 sigma, record is_drift, p_val and runtime, then save one detector with save_detector.",
+          "deliverable": "Detector scripts, a result table and a saved detector directory",
+          "checks": [["Call predict() on the clean batch with KSDrift", "is_drift is 0 and no feature p-value is below the corrected threshold", "Printed dict"], ["Call predict() on the shifted batch with MMDDrift", "is_drift is 1 with a p_val below 0.05", "Printed dict"], ["Reload the saved detector with load_detector", "predict() on the shifted batch gives the same is_drift decision", "Reload test output"]],
+          "objectives": ["Configure feature-wise and kernel-based drift detectors", "Apply multiple-testing correction", "Persist and reuse detectors"]
+        },
+        {
+          "topic": "Estimating Performance Without Labels with NannyML",
+          "subtopics": ["Why delayed labels need estimators", "CBPE for classification: calibrated probabilities to estimated ROC AUC", "DLE for regression: direct loss estimation", "Chunking by size or period", "Fit on reference, estimate on analysis data", "Confidence bounds and alert thresholds", "Assumption: no concept drift and covariate shift only", "Comparing estimated to realised performance later", "Reading the result plot"],
+          "tools": ["NannyML", "pandas", "scikit-learn", "Jupyter"],
+          "lab_task": "Use nannyml.load_synthetic_car_loan_dataset or the binary classification example data. Fit nannyml.CBPE(problem_type='classification_binary', y_pred_proba='y_pred_proba', y_pred='y_pred', y_true='repaid', metrics=['roc_auc'], chunk_size=5000) on reference, estimate on analysis, then calculate realised roc_auc from true labels and compare per chunk.",
+          "deliverable": "Notebook showing estimated versus realised ROC AUC per chunk",
+          "checks": [["Call cbpe.fit(reference) then cbpe.estimate(analysis)", "A per-chunk estimated roc_auc with upper and lower thresholds is returned", "Result dataframe"], ["Compare estimate to realised AUC", "Mean absolute difference per chunk is below 0.03 on the covariate-shift dataset", "Comparison table"], ["Check chunks flagged as alert", "At least one chunk is outside the thresholds where realised AUC also falls", "Plot"]],
+          "objectives": ["Estimate performance before labels arrive", "State the assumptions of CBPE and DLE", "Validate estimates against realised metrics"]
+        },
+        {
+          "topic": "Delayed and Partial Labels: Label Pipelines and Backfill",
+          "subtopics": ["Late-arriving label tables and event time versus processing time", "Point-in-time correct joins", "Idempotent backfill of performance metrics", "Handling label updates and corrections", "Label coverage metrics as monitored signals", "Proxy labels and surrogate outcomes", "Cohort-based performance tables by prediction week", "Sampling for manual labelling when labels are expensive", "Stratified labelling budgets"],
+          "tools": ["Apache Airflow", "dbt", "DuckDB", "PostgreSQL", "pandas"],
+          "lab_task": "Build an Airflow DAG that runs daily, joins the prediction log to a labels table on prediction_id for predictions older than 7 days, and upserts weekly cohort metrics (n_labelled, coverage, AUC) into Postgres with ON CONFLICT DO UPDATE. Backfill 12 weeks with airflow dags backfill and rerun one day to prove idempotence.",
+          "deliverable": "DAG file, metrics table DDL and a rerun comparison",
+          "checks": [["Run airflow dags backfill for 12 weeks", "The cohort table contains one row per prediction week, 12 rows in total", "SELECT count(*)"], ["Rerun one day twice", "Row count and metric values are unchanged", "Before and after query"], ["Inject 100 corrected labels and rerun", "The affected cohort AUC updates and coverage stays consistent", "Query diff"]],
+          "objectives": ["Build a point-in-time correct label join", "Make performance backfills idempotent", "Plan labelling effort when labels are scarce"]
+        },
+        {
+          "topic": "Data Contracts and Validation with Great Expectations",
+          "subtopics": ["Expectation suites and checkpoints", "Common expectations: expect_column_values_to_not_be_null, between, in_set", "Distribution expectations: mean and quantile ranges", "Validating batches with a Checkpoint", "Data Docs as an HTML report", "Contracts agreed with upstream producers", "Mostly parameter for tolerated violations", "Running validation inside a pipeline task", "Failure handling and quarantine tables"],
+          "tools": ["Great Expectations", "pandas", "Apache Airflow", "Python"],
+          "lab_task": "Create a Great Expectations suite for a 15-column feature table using expect_column_values_to_not_be_null, expect_column_values_to_be_between with mostly=0.99, and expect_column_distinct_values_to_be_in_set. Run a Checkpoint on a good batch and on a batch with a negative age and 6 percent null income, then open Data Docs and list failed expectations.",
+          "deliverable": "Expectation suite, checkpoint config and Data Docs output for both batches",
+          "checks": [["Run the checkpoint on the good batch", "success is true and all expectations pass", "Checkpoint result"], ["Run it on the faulty batch", "success is false and the age and income expectations are listed as failed", "Data Docs screenshot"], ["Lower mostly to 0.9 for income on the faulty batch", "The income expectation now passes while age still fails", "Rerun result"]],
+          "objectives": ["Express data contracts as expectation suites", "Run validation in a pipeline and review Data Docs", "Tune tolerance without hiding real faults"]
+        },
+        {
+          "topic": "Slice-Based and Cohort Monitoring",
+          "subtopics": ["Why aggregate metrics hide segment failures", "Choosing slices: geography, device, customer tier, language", "Slice discovery with decision trees", "Minimum sample sizes per slice", "Confidence intervals and multiple comparisons across slices", "Cohort tables over time", "Weighted impact of a failing slice", "Evidently metrics with segment columns", "Dashboards for top-N worst slices"],
+          "tools": ["pandas", "Evidently", "scikit-learn", "Grafana"],
+          "lab_task": "On 300,000 labelled predictions, compute accuracy per region and device_type (24 slices) with Wilson 95 percent intervals, and train a depth-3 DecisionTreeClassifier on the error indicator to find hidden failing slices. Report slices whose upper interval bound is below overall accuracy minus 0.05 and have at least 500 rows.",
+          "deliverable": "Slice table with intervals and a list of failing slices with row counts",
+          "checks": [["Compute overall accuracy", "A single overall accuracy is reported and is within 0.01 of the validation value", "Printed value"], ["Compute per-slice accuracy with Wilson intervals", "24 slices are listed, each with n, accuracy, lower and upper bound", "Slice table"], ["Apply the failing-slice rule", "The injected region=APAC, device=mobile slice is flagged and no healthy slice is flagged", "Flag list"]],
+          "objectives": ["Monitor performance by segment, not only in aggregate", "Use intervals and minimum sizes to avoid noise", "Surface hidden failing slices automatically"]
+        },
+        {
+          "topic": "Fairness Monitoring with Fairlearn",
+          "subtopics": ["Protected attributes and proxies", "Demographic parity difference and ratio", "Equalized odds and equal opportunity differences", "MetricFrame with by_group results", "Four-fifths rule as a screening heuristic", "Fairness metrics under delayed labels", "Collecting sensitive attributes lawfully or inferring cautiously", "Intervals for small groups", "Fairness dashboards and thresholds"],
+          "tools": ["Fairlearn", "scikit-learn", "pandas", "Evidently"],
+          "lab_task": "Using the Adult income dataset, train a classifier and build fairlearn.metrics.MetricFrame with accuracy, selection_rate and true_positive_rate by sex. Compute demographic_parity_difference, equalized_odds_difference and the selection-rate ratio, repeat for 6 monthly slices of simulated data, and flag months where the ratio falls below 0.8.",
+          "deliverable": "MetricFrame notebook and a monthly fairness trend chart",
+          "checks": [["Print MetricFrame.by_group", "Selection rate and true positive rate are shown for each group", "Printed frame"], ["Compute demographic_parity_difference", "A value between 0 and 1 is returned and matches the selection-rate gap in by_group", "Printed value"], ["Apply the 0.8 ratio rule to 6 months", "Only months with the injected group bias are flagged", "Trend chart"]],
+          "objectives": ["Compute group fairness metrics on production predictions", "Track fairness metrics over time with intervals", "State the limits of single-threshold fairness rules"]
+        },
+        {
+          "topic": "Explainability Monitoring with SHAP",
+          "subtopics": ["Global feature importance as mean absolute SHAP value", "TreeExplainer versus KernelExplainer cost", "Attribution drift: change in importance ranking", "Per-prediction explanations logged for audits", "Sampling predictions for explanation", "Explanation stability and background data choice", "Explanations for adverse action reasons", "Comparing attribution drift to input drift", "Storing top-k reason codes"],
+          "tools": ["SHAP", "XGBoost", "pandas", "matplotlib"],
+          "lab_task": "Train an XGBoost classifier, compute shap.TreeExplainer values on weekly samples of 2,000 rows for 8 weeks, and track mean absolute SHAP per feature. Compute Spearman rank correlation of importance ranking between week 1 and each later week, and flag weeks below 0.9 while also running KS drift on inputs.",
+          "deliverable": "Attribution drift chart, rank correlation table and a comparison with input drift",
+          "checks": [["Compute mean absolute SHAP for week 1", "A ranked importance table for all features is produced", "Printed table"], ["Compute rank correlation of week 8 versus week 1", "Correlation is below 0.9 for the week where a feature relation was altered", "Correlation table"], ["Compare to input KS drift", "The note identifies one case where attribution drifted without input drift in that feature", "Analysis note"]],
+          "objectives": ["Monitor feature attributions over time", "Compare attribution drift with input drift", "Log reason codes for audit use"]
+        },
+        {
+          "topic": "Evidently Test Suites, Workspaces and CI Gates",
+          "subtopics": ["Tests versus reports: pass or fail conditions", "Test presets and custom tests with thresholds", "Running tests in a CI job and failing the build", "Evidently workspace and project for snapshots", "Adding snapshots to a project each run", "Evidently UI service and dashboards panels", "Storing snapshots in local or remote storage", "Tagging runs with model version and batch id", "Regression test sets for monitoring logic"],
+          "tools": ["Evidently", "GitHub Actions", "pytest", "Docker"],
+          "lab_task": "Create an Evidently workspace at ./workspace, add a project, and run a daily job that builds a Report with DataDriftPreset and a classification quality metric, adds the snapshot with workspace.add_run(project.id, snapshot). Run 14 daily snapshots, start the UI with evidently ui --workspace ./workspace, and add a pytest gate that fails when drift share exceeds 0.5.",
+          "deliverable": "Workspace folder, a daily job script and a CI gate script",
+          "checks": [["Run the daily job for 14 simulated days", "The project shows 14 snapshots in the UI", "UI screenshot"], ["Run the pytest gate on a drifted day", "The test fails with drift share above 0.5", "pytest output"], ["Run the gate on a clean day", "The test passes with exit code 0", "pytest output"]],
+          "objectives": ["Persist monitoring snapshots in an Evidently workspace", "Turn drift and quality conditions into tests", "Use monitoring tests as CI or pipeline gates"]
+        },
+        {
+          "topic": "Scheduled Monitoring Pipelines with Airflow and Spark",
+          "subtopics": ["Daily monitoring DAG structure: extract, validate, compute, publish", "Pushing metrics to a metrics table or Prometheus", "Spark jobs for large reference and current windows", "Approximate quantiles with approxQuantile", "Task retries and SLAs", "Parameterising by model and date", "Idempotent writes with partition overwrite", "Handling late data", "Cost of computing drift on every column"],
+          "tools": ["Apache Airflow", "Apache Spark", "PySpark", "Parquet", "Delta Lake"],
+          "lab_task": "Write a PySpark job that reads a day partition of 20 million prediction rows, computes null rate, mean, approxQuantile at 0.05, 0.5 and 0.95, and PSI per numeric feature versus a stored reference, and writes results to a Delta table partitioned by date. Run it from an Airflow DAG with retries=2 and record runtime.",
+          "deliverable": "PySpark job, Airflow DAG and a metrics table with one day of results",
+          "checks": [["Run the Spark job for one day", "The metrics table has one row per feature per metric for that date", "Delta table query"], ["Rerun the same day", "Row count is unchanged because the partition is overwritten", "Count before and after"], ["Kill the first task attempt", "Airflow retries and the DAG run ends in success", "Airflow task log"]],
+          "objectives": ["Compute monitoring metrics at scale", "Schedule and parameterise monitoring DAGs", "Write idempotent metric tables"]
+        },
+        {
+          "topic": "Model Metrics in Prometheus and Grafana at Scale",
+          "subtopics": ["Exporting drift scores and quality metrics as gauges", "Label design for model, version, feature and slice", "Cardinality budgets for per-feature metrics", "A custom exporter reading from the metrics table", "Recording rules for rolling aggregates", "Grafana heatmaps and state timelines for drift", "Grafana alert rules versus Prometheus rules", "Backfilling history with remote write caution", "Dashboard drill-down links"],
+          "tools": ["Prometheus", "Grafana", "prometheus_client", "PostgreSQL", "PromQL"],
+          "lab_task": "Write a Python exporter that reads latest PSI per feature and weekly AUC from Postgres and exposes model_feature_psi{model,version,feature} and model_auc{model,version}. Add a recording rule for max by (model) of PSI, build a state-timeline panel from it, and count active series with count({__name__=~'model_.*'}).",
+          "deliverable": "Exporter code, rules file and Grafana panels exported as JSON",
+          "checks": [["curl the exporter /metrics", "One model_feature_psi series appears per feature and model_auc appears once", "curl output"], ["Evaluate the recording rule", "It returns one series per model equal to the largest feature PSI", "Prometheus query result"], ["Run the active series count query", "Series count stays below the stated budget of 500 for 40 features and 3 versions", "Query result"]],
+          "objectives": ["Expose model quality metrics to Prometheus safely", "Control label cardinality", "Visualise drift state over time"]
+        },
+        {
+          "topic": "Alert Engineering for Model Monitors",
+          "subtopics": ["Multiple testing across features and alert thresholds", "Hysteresis and for durations", "Drift share thresholds instead of per-feature alerts", "Severity from impact: slice size and business value", "Alertmanager grouping, inhibition and routing trees", "Linking alerts to runbooks and dashboards", "Alert quality metrics: precision, recall, time to acknowledge", "Dead-man's switch for silent monitors", "Testing alerts with injected faults"],
+          "tools": ["Alertmanager", "Prometheus", "promtool", "PagerDuty", "Slack"],
+          "lab_task": "Replay 90 days of drift scores through a rule that fires when PSI > 0.25 for 3 consecutive daily evaluations on any of 40 features, versus a single-evaluation rule. Count alerts, true incidents from an incident list and precision for both. Add an Alertmanager inhibit_rule so a pipeline-down alert suppresses drift alerts, and a Watchdog heartbeat alert.",
+          "deliverable": "Rule files, a replay comparison table and alertmanager.yml with inhibition and Watchdog",
+          "checks": [["Replay the single-evaluation rule", "Alert count is higher and precision is lower than the 3-consecutive rule", "Comparison table"], ["Fire a pipeline-down alert during a drift alert", "Drift alerts are inhibited and only the pipeline alert notifies", "Alertmanager UI"], ["Stop the monitoring job", "The Watchdog dead-man alert reaches the receiver", "Receiver log"]],
+          "objectives": ["Reduce false alerts with consecutive-evaluation rules", "Use inhibition and heartbeats for reliable alerting", "Measure alert precision against incidents"]
+        },
+        {
+          "topic": "SageMaker Model Monitor",
+          "subtopics": ["Data capture with DataCaptureConfig on endpoints", "Baseline with DefaultModelMonitor.suggest_baseline", "statistics.json and constraints.json", "Monitoring schedules and cron expressions", "constraint_violations.json and violation types", "ModelQualityMonitor with ground truth merge", "ModelBiasMonitor and ModelExplainabilityMonitor with Clarify", "CloudWatch metrics and alarms from monitoring", "Cost and instance sizing of monitoring jobs"],
+          "tools": ["Amazon SageMaker", "boto3", "Amazon S3", "Amazon CloudWatch", "SageMaker Python SDK"],
+          "lab_task": "Deploy a model endpoint with DataCaptureConfig(enable_capture=True, sampling_percentage=100, destination_s3_uri=...). Run DefaultModelMonitor.suggest_baseline on the training CSV, create an hourly schedule with CronExpressionGenerator.hourly(), send 500 normal and 500 shifted requests, and read constraint_violations.json from S3 after the next execution.",
+          "deliverable": "Notebook, baseline artifacts and the violations report from S3",
+          "checks": [["Run suggest_baseline", "statistics.json and constraints.json appear in the S3 output prefix", "S3 listing"], ["Describe the schedule executions", "The latest execution status is Completed or CompletedWithViolations", "describe_monitoring_schedule output"], ["Read constraint_violations.json after shifted traffic", "At least one violation of type data_type_check, baseline_drift_check or completeness_check is listed", "JSON excerpt"]],
+          "objectives": ["Configure data capture and baselines on SageMaker", "Schedule monitors and read violation reports", "Wire monitoring results to CloudWatch alarms"]
+        },
+        {
+          "topic": "Vertex AI Model Monitoring",
+          "subtopics": ["Model monitoring v2: ModelMonitor, schedules and objectives", "Feature skew versus feature drift objectives", "Skew detection against a training dataset in BigQuery or Cloud Storage", "Drift detection over a prediction window", "Distance metrics: Jensen-Shannon and L-infinity", "Feature attribution drift", "Alert thresholds per feature and notification channels", "Request-response logging to BigQuery", "Cloud Logging and Cloud Monitoring alerts"],
+          "tools": ["Vertex AI", "BigQuery", "Cloud Monitoring", "Cloud Storage", "gcloud CLI"],
+          "lab_task": "On a deployed Vertex AI endpoint, enable request-response logging to BigQuery, create a model monitor with a training-data baseline in BigQuery, a skew threshold of 0.3 and a drift threshold of 0.3 on 5 features, and a schedule every 6 hours. Send shifted traffic and read the monitoring results and alert email.",
+          "deliverable": "Monitor configuration, a shifted-traffic test script and the alert evidence",
+          "checks": [["List logged requests in BigQuery", "A row count above 1,000 for the test run is returned", "BigQuery query result"], ["Run the monitor on shifted traffic", "At least one feature exceeds its threshold and is shown as anomalous", "Console screenshot"], ["Check the notification channel", "An alert email for the anomaly is received", "Email screenshot"]],
+          "objectives": ["Configure skew and drift objectives on Vertex AI", "Log requests for monitoring and audits", "Route anomalies to notification channels"]
+        },
+        {
+          "topic": "Managed Monitoring on Azure Machine Learning and Databricks",
+          "subtopics": ["Azure ML model monitoring signals: data drift, prediction drift, data quality", "Production data collection with the data collector", "Monitor definitions with the az ml schedule YAML", "Feature attribution drift in Azure ML", "Databricks Lakehouse Monitoring: profile and drift metric tables", "Inference tables in Unity Catalog", "Monitor refresh and output tables", "Dashboards and SQL alerts on metric tables", "Choosing managed versus open-source tooling"],
+          "tools": ["Azure Machine Learning", "Databricks", "Unity Catalog", "az CLI", "SQL"],
+          "lab_task": "Pick one platform. On Azure ML create a monitor with az ml schedule create -f monitor.yaml using data_drift and data_quality signals with Jensen-Shannon threshold 0.1. On Databricks create an inference-profile monitor on an inference table and refresh it. Trigger shifted data and capture the metric table rows showing drift.",
+          "deliverable": "Monitor definition file, run output and screenshot of the drift metric rows",
+          "checks": [["Create the monitor", "The command returns without error and the monitor is listed", "CLI or UI output"], ["Run the monitor on baseline-like data", "Reported drift is below the configured threshold", "Metric rows"], ["Run on shifted data", "At least one feature crosses the threshold and a metric table row records it", "Metric table query"]],
+          "objectives": ["Configure managed drift monitors on a major platform", "Read drift outputs from metric tables", "Select managed or open-source monitoring with reasons"]
+        },
+        {
+          "topic": "Monitoring Shadow, Canary and Champion-Challenger Models",
+          "subtopics": ["Shadow traffic and logging both predictions", "Prediction agreement rate between champion and challenger", "Canary percentages and guardrail metrics", "Statistical comparison of challenger and champion on labels", "Sequential monitoring during rollout", "Automatic rollback rules", "Traffic splitting with a gateway or Istio weights", "Version labels on all metrics", "Exit criteria for a rollout"],
+          "tools": ["KServe", "Istio", "Prometheus", "Grafana", "Python"],
+          "lab_task": "Route 10 percent of lab traffic to a challenger and also shadow 100 percent to it. Log both scores with model_version, compute prediction agreement rate and score correlation, and write a Prometheus rule that triggers rollback when the canary error ratio exceeds the champion's by 2 points for 10 minutes. Demonstrate a rollback.",
+          "deliverable": "Traffic config, agreement report and rollback rule with a demonstration log",
+          "checks": [["Send 5,000 requests through the 10 percent canary", "About 500 requests (between 430 and 570) go to the challenger by version label", "Counter query"], ["Compute agreement rate on shadow data", "Agreement rate is reported with the share of disagreements by score band", "Report table"], ["Inject challenger errors", "The rollback rule fires and traffic returns to 100 percent champion", "Alert and routing log"]],
+          "objectives": ["Monitor challengers safely before and during rollout", "Compare model versions with guardrails", "Automate rollback on measurable criteria"]
+        },
+        {
+          "topic": "Training-Serving Skew and Feature Store Monitoring",
+          "subtopics": ["Offline versus online feature computation paths", "Skew checks: logged serving features versus recomputed offline features", "Point-in-time correctness", "Feast online store freshness", "Null-fill and default value rate monitoring", "Feature staleness metric and TTL", "Unit and timezone mismatches", "Embedding model version drift", "Skew regression tests"],
+          "tools": ["Feast", "Redis", "pandas", "Evidently", "Prometheus"],
+          "lab_task": "Using a Feast repo with an online Redis store, log 10,000 serving feature vectors, recompute the same features offline with get_historical_features at the request timestamps, and compare per feature with exact match rate and relative error. Add a feature_age_seconds gauge and an alert for age above the TTL.",
+          "deliverable": "Skew report with exact-match rate per feature and a staleness alert rule",
+          "checks": [["Compare logged online and recomputed offline features", "Match rate per feature is reported and the injected timezone bug shows a rate below 0.99 for one feature", "Skew table"], ["Fix the bug and rerun", "All features reach at least 0.999 match rate", "Skew table"], ["Stop the materialisation job", "feature_age_seconds passes the TTL and the staleness alert fires", "Alert screenshot"]],
+          "objectives": ["Detect training-serving skew with logged features", "Monitor feature freshness and default rates", "Add skew checks to release gates"]
+        },
+        {
+          "topic": "Retraining Triggers and Safe Rollout of Retrained Models",
+          "subtopics": ["Schedule, performance and drift based triggers", "Trigger design: thresholds, cooldown and approvals", "Automated retraining pipeline with Airflow or Argo", "Data selection windows for retraining", "Champion-challenger evaluation gates", "Avoiding retrain loops that chase noise", "Cost of retraining versus cost of degradation", "Registering the new model and annotating dashboards", "Human approval step and audit record"],
+          "tools": ["Apache Airflow", "MLflow", "Argo Workflows", "Evidently", "Python"],
+          "lab_task": "Create an Airflow DAG with a sensor reading the metrics table. It triggers retraining when weekly AUC is under 0.78 for 2 consecutive weeks or drift share is over 0.5, with a 14-day cooldown. The challenger registers in MLflow and promotion needs AUC at least 0.01 above the champion on the latest labelled window plus a manual approval task.",
+          "deliverable": "DAG, trigger policy document and a replay of three scenarios",
+          "checks": [["Replay a single bad week", "No retraining is triggered", "DAG run list"], ["Replay two consecutive weeks under 0.78", "Retraining is triggered once and the cooldown blocks a second trigger within 14 days", "DAG run list"], ["Challenger does not beat champion by 0.01", "The DAG ends without promotion and logs the metric gap", "MLflow and task log"]],
+          "objectives": ["Design retraining triggers with cooldown and approvals", "Gate promotion on measured improvement", "Avoid unnecessary retraining"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Signal Monitoring Platform for a Fraud Model",
+          "subtopics": ["Prediction logging, labels with delay and cohort metrics", "Drift, data quality and slice monitors on a schedule", "Fairness and SHAP attribution tracking", "Prometheus and Grafana dashboards with tested alerts", "Challenger shadow comparison and retraining trigger", "Runbooks and an incident replay"],
+          "tools": ["Airflow", "Evidently", "NannyML", "Prometheus", "Grafana", "MLflow"],
+          "lab_task": "Build a monitoring platform for a fraud model on 6 months of replayed transactions with injected incidents: a null spike, a currency unit change, gradual concept drift and a failing region slice. Use CBPE for estimation, delayed-label AUC, fairness by age band and tested alert rules, and produce an incident log with time to detect for each.",
+          "deliverable": "Repository, dashboards, alert rules, runbooks and an incident detection report with time-to-detect per incident",
+          "checks": [["Replay the 6 months", "All 4 injected incidents trigger an alert and no alert fires in the clean 3-week control period", "Alert history"], ["Compare CBPE estimates with realised AUC", "Mean absolute gap per chunk is reported and is below 0.03", "Comparison chart"], ["Review the detection report", "Time to detect, cause, action and alert precision are given for each incident", "Report PDF"]],
+          "objectives": ["Integrate data, drift, performance and fairness monitors", "Measure detection time for injected incidents", "Present a monitoring platform with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior ML engineers, platform engineers and model risk leads who own monitoring for many models including LLM applications. Covers LLM tracing and quality monitoring, RAG, safety and agent monitoring, LLM drift and cost, streaming monitoring, statistical rigor, shift corrections, intersectional fairness, adversarial inputs, quality SLOs, governance and audit evidence, privacy-aware logging, fleet platform design, incident response, backtesting of monitors and a regulated capstone.",
+      "prerequisites": ["Operates at least one ML model and one LLM feature in production or a realistic replica", "Comfortable with statistics for hypothesis testing and with Kafka or Spark basics", "Has completed the intermediate path or equivalent experience with drift, labels and alerting"],
+      "outcomes": ["Monitor LLM, RAG and agent systems for quality, safety, drift and cost", "Apply rigorous statistics and backtesting to make monitors precise and trustworthy", "Design a privacy-aware, config-driven monitoring platform for a large model fleet", "Produce governance evidence and run incident response for regulated ML and LLM systems"],
+      "days": [
+        {
+          "topic": "LLM Application Tracing with OpenTelemetry and Phoenix",
+          "subtopics": ["Traces, spans and the LLM call tree", "OpenInference and OpenTelemetry GenAI semantic conventions (gen_ai.* attributes)", "phoenix.otel.register and auto-instrumentation", "Running Arize Phoenix locally on port 6006", "Token usage, latency and time to first token", "Prompt and completion capture and redaction", "Sessions, users and metadata tagging", "Sampling traces in production", "Exporting to Prometheus and Grafana"],
+          "tools": ["Arize Phoenix", "OpenTelemetry", "OpenInference", "Python", "Docker"],
+          "lab_task": "Run docker run -p 6006:6006 -p 4317:4317 arizephoenix/phoenix, call phoenix.otel.register(project_name='support-bot', auto_instrument=True) in a small OpenAI-compatible chat app, send 200 questions and use the Phoenix UI to find the slowest 5 traces, total tokens per day and the error rate. Add a user_id session attribute.",
+          "deliverable": "Instrumented app, a Phoenix project and a table of the slowest traces with token counts",
+          "checks": [["Send 200 requests to the instrumented app", "The Phoenix project shows 200 traces", "Phoenix UI screenshot"], ["Sort traces by latency", "The 5 slowest traces are listed with prompt and completion token counts", "Latency table"], ["Open one trace", "Spans for retrieval and LLM call are visible with a session id attribute", "Trace screenshot"]],
+          "objectives": ["Instrument an LLM application with OpenTelemetry", "Use Phoenix to inspect traces, tokens and latency", "Control sensitive content in captured traces"]
+        },
+        {
+          "topic": "LLM Output Quality: Judges, Groundedness and Hallucination Rates",
+          "subtopics": ["Reference-free versus reference-based evaluation", "LLM-as-judge prompts and rubrics", "Judge bias: position, verbosity and self-preference", "Groundedness and faithfulness against retrieved context", "Calibrating judges against 200 human labels", "Cohen's kappa for judge-human agreement", "Sampling production traffic for online evals", "Rates over time with confidence intervals", "Cost of judging and judge model versioning"],
+          "tools": ["Arize Phoenix", "Ragas", "Evidently", "OpenAI API", "pandas"],
+          "lab_task": "Sample 300 production answers with their retrieved context. Run a groundedness judge with a 3-point rubric using phoenix.evals or Ragas faithfulness, compare to 100 human labels with sklearn cohen_kappa_score, and compute the weekly hallucination rate with 95 percent Wilson intervals for 6 weeks. Flag weeks above 8 percent.",
+          "deliverable": "Judge prompt, agreement report and a weekly hallucination chart",
+          "checks": [["Compute kappa between judge and 100 human labels", "Kappa is reported and the judge is declared usable only if kappa is at least 0.6", "Printed kappa"], ["Compute weekly hallucination rate", "Each of the 6 weeks has a rate and Wilson interval", "Weekly table"], ["Swap answer order in the judge prompt for pairwise tests", "Position bias rate is measured and reported", "Bias table"]],
+          "objectives": ["Build and calibrate an LLM judge for production sampling", "Report quality rates with intervals", "Account for judge bias and drift"]
+        },
+        {
+          "topic": "RAG Monitoring: Retrieval Quality and Knowledge Drift",
+          "subtopics": ["Retrieval metrics: hit rate, MRR and nDCG on labelled queries", "Context relevance and context utilisation scores", "Empty and low-similarity retrieval rates", "Query distribution drift and new-topic detection", "Index freshness and document age", "Chunk and embedding model version monitoring", "Answer citation validity checks", "Retrieval latency and top-k cost", "Golden query set run on a schedule"],
+          "tools": ["Arize Phoenix", "Ragas", "Qdrant", "sentence-transformers", "Prometheus"],
+          "lab_task": "Maintain a golden set of 150 queries with known relevant document ids. Run it nightly against a Qdrant index, publish hit_rate@5 and MRR as Prometheus gauges, then re-embed 20 percent of documents with a different embedding model and show the drop. Also cluster 2,000 live queries with KMeans and report the share in clusters absent from the first month.",
+          "deliverable": "Nightly eval job, Prometheus gauges and a query-cluster drift note",
+          "checks": [["Run the golden set on the healthy index", "hit_rate@5 is reported and is at least the recorded baseline", "Metric output"], ["Re-embed 20 percent of documents with another model", "hit_rate@5 falls by at least 0.05", "Before and after gauges"], ["Cluster live queries", "The share of queries in new clusters is reported and clusters are labelled with example queries", "Cluster table"]],
+          "objectives": ["Monitor retrieval quality with a golden set", "Detect query and corpus drift", "Link retrieval faults to answer quality"]
+        },
+        {
+          "topic": "Safety Monitoring: Toxicity, PII Leakage, Jailbreaks and Prompt Injection",
+          "subtopics": ["Toxicity and policy classifiers on outputs", "PII detection with Microsoft Presidio", "Jailbreak and prompt injection signatures in inputs", "Refusal rate and over-refusal monitoring", "Indirect injection through retrieved documents", "Canary tokens in system prompts", "Rate limits and abuse patterns per user", "Human review queues for flagged items", "Reporting rates with severity levels"],
+          "tools": ["Presidio", "Arize Phoenix", "Detoxify", "Evidently", "Python"],
+          "lab_task": "Run Presidio AnalyzerEngine on 1,000 logged outputs to count emails, phone numbers and credit card numbers, run Detoxify on the same outputs, and test 50 known injection prompts from a local list against the app. Publish pii_detected_total, toxic_outputs_total and injection_success_total counters and alert if injection success exceeds 0.",
+          "deliverable": "Safety monitor script, counters and a summary of findings",
+          "checks": [["Run Presidio on 1,000 outputs", "Counts per entity type are produced and each match is logged with a masked value", "Entity count table"], ["Replay 50 injection prompts", "Number of successful injections is reported and each success is linked to a trace id", "Test report"], ["Inject one canary token leak", "The canary alert fires within one evaluation interval", "Alert screenshot"]],
+          "objectives": ["Detect PII, toxicity and injection attempts in production traffic", "Measure refusal and abuse patterns", "Create alerts for safety events with human review"]
+        },
+        {
+          "topic": "LLM Drift: Prompt, Model-Version and Embedding Drift",
+          "subtopics": ["Provider-side model updates and silent behaviour change", "Pinning model snapshots and tracking returned model ids", "Prompt template versioning in traces", "Output length, format and refusal drift", "Embedding drift of outputs and inputs", "Regression suites run on schedule against a fixed prompt set", "Comparing output distributions with Jensen-Shannon on embeddings clusters", "JSON schema validity rate", "Change management for prompts"],
+          "tools": ["Arize Phoenix", "Evidently", "Langfuse", "pytest", "sentence-transformers"],
+          "lab_task": "Run a fixed set of 200 prompts each night against the production model alias, log response model id, output length, JSON-valid rate and an embedding of each answer. Compare the 7-day windows with Evidently text descriptors and a cluster-share Jensen-Shannon score, and alert when the returned model id changes or JSON-valid rate drops by 3 points.",
+          "deliverable": "Nightly regression job, comparison report and alert rules",
+          "checks": [["Run the nightly set for 14 days", "A metrics table with model id, length, JSON-valid rate and drift score exists for each night", "Metrics table"], ["Simulate a model id change", "The model-id-changed alert fires on the next run", "Alert log"], ["Simulate a JSON-valid drop of 5 points", "The format-regression alert fires", "Alert log"]],
+          "objectives": ["Detect silent LLM behaviour changes", "Version prompts and model ids in monitoring", "Run scheduled regression suites on fixed prompts"]
+        },
+        {
+          "topic": "User Feedback and Human Review Loops for LLMs",
+          "subtopics": ["Explicit feedback: thumbs, ratings and edits", "Implicit feedback: regeneration, copy, abandonment", "Feedback bias and low response rates", "Annotation queues in Phoenix or Langfuse", "Sampling for review: random, uncertainty and low-score", "Inter-annotator agreement", "Turning reviews into evaluation datasets", "Closing the loop to prompts and retrieval fixes", "Reviewer workload and privacy"],
+          "tools": ["Langfuse", "Arize Phoenix", "pandas", "Label Studio"],
+          "lab_task": "Add thumbs up/down and regenerate events as Langfuse scores on traces, then build a review queue sampling 50 traces per day: 20 random, 15 lowest judge score and 15 negative-feedback. Have two reviewers label 100 items, compute Cohen's kappa, and export disagreements into a versioned evaluation dataset.",
+          "deliverable": "Feedback capture code, review queue config and an evaluation dataset export",
+          "checks": [["Submit 20 feedback events through the UI", "20 scores are attached to the correct traces", "Langfuse screenshot"], ["Compare two reviewers on 100 items", "Cohen's kappa is calculated and below-0.6 categories are listed for rubric revision", "Agreement report"], ["Export the evaluation set", "The file includes trace id, label, reviewer id and dataset version", "Export file"]],
+          "objectives": ["Collect and use explicit and implicit LLM feedback", "Sample traces for human review sensibly", "Convert reviews into versioned test data"]
+        },
+        {
+          "topic": "Agent and Tool-Call Monitoring",
+          "subtopics": ["Agent traces: plan, tool call, observation loops", "Tool success rate, retries and timeouts", "Step count and loop detection", "Cost and token budget per task", "Task success rate with outcome checks", "Argument validity and schema errors in tool calls", "Permission and side-effect audit logs", "Human escalation rate", "Trajectory evaluation on sampled runs"],
+          "tools": ["Arize Phoenix", "OpenTelemetry", "Langfuse", "Prometheus", "Python"],
+          "lab_task": "Instrument a tool-using agent with 4 tools. For 500 runs record steps, tool errors, tokens and success verdict from an outcome checker. Add counters agent_tool_errors_total{tool} and a histogram of steps, alert when the median steps exceeds 8 or any tool's error ratio exceeds 10 percent, and find a looping run by repeated identical tool calls.",
+          "deliverable": "Instrumented agent, metrics and a loop-detection report",
+          "checks": [["Run 500 tasks", "The success rate, median steps and tool error ratio per tool are reported", "Summary table"], ["Inject a failing tool at 30 percent errors", "The tool error alert fires for that tool only", "Alert screenshot"], ["Run loop detection", "Runs with 3 or more identical consecutive tool calls are listed with trace ids", "Loop report"]],
+          "objectives": ["Trace and measure multi-step agent behaviour", "Detect loops, tool failures and budget overruns", "Audit side effects of tool use"]
+        },
+        {
+          "topic": "Cost, Latency and Capacity Monitoring for LLM Services",
+          "subtopics": ["Tokens in and out per request and per feature", "Cost per request with model price tables", "Cost per successful task", "Time to first token and tokens per second", "Cache hit rates for prompt caching", "Rate limit errors (HTTP 429) and retry storms", "Budgets, quotas and anomaly alerts on spend", "GPU utilisation and queue depth for self-hosted vLLM", "Capacity forecasts from traffic growth"],
+          "tools": ["Prometheus", "Grafana", "vLLM", "OpenTelemetry", "LiteLLM"],
+          "lab_task": "Scrape vLLM /metrics, record llm_request_cost_usd computed from token counts and a price table, and build panels for tokens per second, queue depth, cache hit rate, 429 ratio and daily cost per feature. Create an alert when daily spend exceeds 1.5 times the 14-day median and replay a traffic spike of 3x.",
+          "deliverable": "Dashboard JSON, cost rules and a spike replay report",
+          "checks": [["Query token counters for one hour", "Input and output tokens match the application logs within 2 percent", "Query and log comparison"], ["Replay the 3x traffic spike", "Queue depth and p95 latency rise and the spend alert fires", "Dashboard screenshot"], ["Compute cost per successful task", "A value per feature is reported and the most expensive feature is named", "Report table"]],
+          "objectives": ["Track token, cost and latency signals for LLM services", "Alert on spend and capacity anomalies", "Relate cost to task success"]
+        },
+        {
+          "topic": "Streaming Monitoring Pipelines with Kafka and Flink",
+          "subtopics": ["Prediction events on Kafka topics", "Windowed aggregations: tumbling and sliding", "Approximate quantiles and sketches (t-digest, KLL)", "Streaming PSI and null rates", "Event time and watermarks for late data", "Exactly-once metric sinks", "Backpressure and sampling", "Emitting drift events to a topic", "Replay and reprocessing from offsets"],
+          "tools": ["Apache Kafka", "Apache Flink", "PyFlink", "Prometheus", "Redpanda"],
+          "lab_task": "Produce 1,000 events per second to a Kafka topic predictions and write a PyFlink job with 5-minute tumbling event-time windows that computes count, null rate, mean score and PSI against a broadcast reference, emitting results to a drift-metrics topic. Replay 2 hours from offset 0 and compare with the batch job values.",
+          "deliverable": "Flink job, topic schemas and a streaming versus batch comparison",
+          "checks": [["Run the job for 30 minutes", "The drift-metrics topic receives one record per window per feature, 6 windows in total", "kafka-console-consumer output"], ["Compare to the batch computation for the same windows", "Counts match exactly and PSI differs by under 0.005", "Comparison table"], ["Send events 10 minutes late", "Late events beyond the watermark are counted in a late_events metric", "Metric output"]],
+          "objectives": ["Compute monitoring statistics on event streams", "Handle late data and replays", "Validate streaming results against batch"]
+        },
+        {
+          "topic": "Statistical Rigor: Sequential Tests, FDR Control and Power",
+          "subtopics": ["Type I and II errors in monitoring", "Benjamini-Hochberg false discovery control", "Sequential probability ratio test and always-valid p-values", "CUSUM control charts for metrics", "Power analysis for detecting a 2-point AUC drop", "Minimum detectable effect per window size", "Bootstrap and permutation tests", "Dependence between features and correlated tests", "Practical significance thresholds"],
+          "tools": ["statsmodels", "SciPy", "NumPy", "river"],
+          "lab_task": "Simulate 90 days with 100 features where 5 truly drift from day 60. Compare raw p < 0.05, Bonferroni and Benjamini-Hochberg at q = 0.05 on false discoveries and detections per day. Then use statsmodels NormalIndPower to find the daily sample size needed to detect a 2-point AUC drop with 80 percent power.",
+          "deliverable": "Simulation notebook with a comparison of three correction methods and a power table",
+          "checks": [["Apply raw p < 0.05 across 100 null features", "About 5 false alerts per day are observed on average", "Simulation summary"], ["Apply Benjamini-Hochberg at q = 0.05", "False discovery proportion stays below 0.05 while the 5 true drifts are detected", "Simulation summary"], ["Run the power calculation", "The required sample size for 80 percent power is printed for the 2-point drop", "Printed table"]],
+          "objectives": ["Control false alerts across hundreds of features", "Apply sequential tests and CUSUM charts", "Size windows using power analysis"]
+        },
+        {
+          "topic": "Label Shift, Covariate Shift and Importance Weighting",
+          "subtopics": ["Covariate shift P(x) changes with P(y|x) fixed", "Label shift P(y) changes with P(x|y) fixed", "Black box shift estimation with a confusion matrix", "Importance weights from a domain classifier", "Reweighting validation data to estimate performance", "Detecting violations of the shift assumptions", "Prior correction of predicted probabilities", "Weight clipping and effective sample size", "When estimators fail: concept drift"],
+          "tools": ["scikit-learn", "NannyML", "NumPy", "pandas"],
+          "lab_task": "Create a 3-class dataset where class priors change from 0.5/0.3/0.2 to 0.2/0.3/0.5. Estimate new priors with black box shift estimation from the validation confusion matrix and predicted label counts, reweight validation accuracy, and compare with the true accuracy on labelled new data. Report the effective sample size after weighting.",
+          "deliverable": "Notebook with prior estimates, weighted versus true accuracy and effective sample size",
+          "checks": [["Estimate the new class priors with BBSE", "Estimated priors are within 0.03 of 0.2/0.3/0.5", "Printed priors"], ["Compute importance-weighted validation accuracy", "It is closer to the true new accuracy than the unweighted validation accuracy", "Comparison table"], ["Compute effective sample size after weights", "Value (sum w)^2 / sum w^2 is printed and is lower than n", "Printed value"]],
+          "objectives": ["Distinguish shift types and their remedies", "Estimate performance under label and covariate shift", "Recognise when the assumptions fail"]
+        },
+        {
+          "topic": "Intersectional Fairness Monitoring in Regulated Settings",
+          "subtopics": ["Intersectional groups and small-sample problems", "Confidence intervals and Bayesian shrinkage for rare groups", "Disparate impact ratio, equal opportunity and calibration by group", "Proxy detection for protected attributes", "Inferred attributes such as BISG and their error", "Fairness drift over time and thresholds", "Privacy rules for storing sensitive attributes", "Documenting fairness decisions and trade-offs", "Regulatory references: ECOA adverse action, EU AI Act high-risk obligations"],
+          "tools": ["Fairlearn", "AIF360", "pandas", "Evidently", "Grafana"],
+          "lab_task": "On 200,000 lending decisions with sex, age band and region, compute selection rate and true positive rate for all 2x4x6 intersections with Wilson intervals, shrink groups under 200 rows toward the parent group, and flag groups whose adverse impact ratio upper bound is below 0.8. Produce a monthly fairness report and a sensitive-data handling note.",
+          "deliverable": "Intersectional fairness report, thresholds table and data handling note",
+          "checks": [["Compute intersections", "48 groups are listed and each group under 200 rows is marked low-sample", "Group table"], ["Apply the flag rule", "Only groups with n of at least 200 and an upper bound below 0.8 are flagged as failures", "Flag list"], ["Review the handling note", "It states who can access sensitive attributes, retention period and legal basis", "Note review"]],
+          "objectives": ["Compute intersectional fairness with uncertainty", "Handle small groups statistically", "Document fairness monitoring for regulators"]
+        },
+        {
+          "topic": "Monitoring for Adversarial Inputs and Data Poisoning",
+          "subtopics": ["Evasion attacks and score probing patterns", "Model extraction signals: high-volume systematic queries", "Out-of-distribution detection with Mahalanobis or energy scores", "Outlier detectors on embeddings", "Poisoning in retraining data and label flipping", "Training data validation before retraining", "Rate limiting and anomaly detection per client", "Honeypot features and canaries", "Response playbook for suspected attacks"],
+          "tools": ["Alibi Detect", "scikit-learn", "PyOD", "Prometheus", "pandas"],
+          "lab_task": "Fit an IsolationForest and a Mahalanobis detector on training embeddings, inject 2 percent adversarially perturbed inputs and one client sending 5,000 systematically varied queries, and flag them. Then flip 3 percent of labels in a retraining set and show how a validation check comparing label rates per segment catches it.",
+          "deliverable": "Detection notebook with ROC of the detectors, client anomaly list and a label-poisoning check",
+          "checks": [["Score the 2 percent perturbed inputs", "Detector ROC AUC is reported and is above 0.8 on the lab data", "ROC plot"], ["Analyse request logs per client", "The probing client is ranked first by query volume and input variance", "Client table"], ["Run the label audit on the poisoned set", "The segment with flipped labels shows a positive rate gap above 0.02 from its prior month", "Audit table"]],
+          "objectives": ["Detect out-of-distribution and probing inputs", "Check retraining data for poisoning", "Prepare a response playbook"]
+        },
+        {
+          "topic": "Model Quality SLOs and Error Budgets",
+          "subtopics": ["SLIs for models: availability, freshness, quality, fairness", "Setting a quality SLO such as AUC at least 0.80 on 28-day cohorts", "Error budgets for quality and for latency", "Burn-rate alerts adapted to delayed labels", "Fast and slow windows", "SLOs for LLM features: groundedness rate and refusal rate", "Reporting to product owners", "Budget policy: freeze releases when exhausted", "Review cadence"],
+          "tools": ["Prometheus", "Grafana", "Sloth", "PromQL", "Python"],
+          "lab_task": "Define 3 SLOs for a model service: 99.5 percent of requests under 200 ms, 95 percent of daily cohorts with estimated AUC at least 0.80, and feature freshness under 2 hours for 99 percent of time. Generate burn-rate rules with Sloth or hand-written PromQL for 1h/5m and 6h/30m windows, replay a bad week and compute remaining budget.",
+          "deliverable": "SLO specification, generated rules and a budget burn report",
+          "checks": [["Validate the generated rules with promtool", "promtool check rules reports SUCCESS", "Terminal output"], ["Replay the bad week", "The fast-burn page alert fires and the budget remaining is reported as a percentage", "Alert and report"], ["Review the budget policy", "It names the owner, the release freeze condition and review cadence", "Policy document"]],
+          "objectives": ["Express model quality as SLOs", "Alert on error budget burn", "Link SLO status to release policy"]
+        },
+        {
+          "topic": "Governance, Model Risk and Audit Evidence",
+          "subtopics": ["Model inventory and risk tiers", "SR 11-7 ongoing monitoring and outcomes analysis expectations", "EU AI Act Article 72 post-market monitoring plan for high-risk systems", "NIST AI Risk Management Framework: Measure and Manage functions", "ISO/IEC 42001 management system controls", "Model cards and monitoring sections", "Thresholds, ownership and escalation as controls", "Evidence: immutable logs, versioned reports, approvals", "Periodic validation and decommission criteria"],
+          "tools": ["MLflow", "Model cards", "Git", "Confluence", "Evidently"],
+          "lab_task": "Take a high-risk credit model and write a post-market monitoring plan listing each monitored risk, metric, threshold, frequency, owner, escalation and the evidence stored. Map each row to SR 11-7, NIST AI RMF and EU AI Act obligations, create the evidence folder structure in Git and an audit sample of three months of reports.",
+          "deliverable": "Monitoring plan, control mapping matrix and an audit evidence pack",
+          "checks": [["Review the plan table", "Every monitored risk has a metric, threshold, frequency, owner and escalation path", "Plan table"], ["Review the control mapping", "Each row is mapped to at least one framework clause and gaps are marked explicitly", "Mapping matrix"], ["Sample an audit month", "The report, alert history and approval record can be retrieved by model version", "Evidence folder"]],
+          "objectives": ["Write a monitoring plan acceptable to risk and audit", "Map monitoring controls to regulatory frameworks", "Keep verifiable evidence of monitoring"]
+        },
+        {
+          "topic": "Privacy-Aware Monitoring and Data Retention",
+          "subtopics": ["Minimising logged data for monitoring", "Profiles and sketches instead of raw records", "Hashing, tokenisation and k-anonymity of logged identifiers", "Differential privacy for shared metrics", "Retention schedules and deletion requests", "Right to erasure versus audit obligations", "Access control to prediction logs", "Redaction of prompts in LLM traces", "Cross-border logging constraints"],
+          "tools": ["whylogs", "Presidio", "Open Policy Agent", "AWS S3 Lifecycle", "pandas"],
+          "lab_task": "Replace a raw prediction log with a whylogs profile pipeline plus a 5 percent sample stored for 30 days with hashed user ids (HMAC-SHA256 with a rotating key). Redact traces with Presidio before export, add an S3 lifecycle rule expiring samples after 30 days, and demonstrate a deletion request by user id.",
+          "deliverable": "Redesigned logging pipeline, lifecycle rule and a deletion request demonstration",
+          "checks": [["Compare stored bytes before and after", "Storage falls by at least 90 percent and drift metrics still compute", "Storage report"], ["Scan stored traces with Presidio", "Zero unmasked emails or phone numbers are found", "Scan report"], ["Run the deletion request", "Sample rows for the user id are removed and an audit entry is written", "Query results"]],
+          "objectives": ["Design monitoring that minimises personal data", "Implement retention and deletion controls", "Redact sensitive content in LLM traces"]
+        },
+        {
+          "topic": "Fleet Monitoring Platform Design for Hundreds of Models",
+          "subtopics": ["Platform layers: collection, compute, storage, UI, alerting", "Monitoring as configuration: one YAML per model", "Default monitors versus custom monitors", "Multi-tenancy and per-team ownership", "Compute cost per model and sampling", "Metric storage choices: Prometheus, ClickHouse, warehouse", "Standard metric schema across models", "Onboarding checklist and golden paths", "Platform SLOs and self-monitoring"],
+          "tools": ["ClickHouse", "Prometheus", "Apache Airflow", "Evidently", "Terraform", "Grafana"],
+          "lab_task": "Design and prototype a config-driven monitoring service: a model-monitor.yaml per model defines features, reference, drift method, thresholds, owners and alert routes. Write a generator that creates Airflow DAGs and Prometheus rules for 30 sample configs, store results in a shared metric schema, and estimate the monthly compute cost per model.",
+          "deliverable": "Config schema, generator code, 30 generated DAGs and a cost estimate",
+          "checks": [["Run the generator on 30 configs", "30 DAGs and 30 rule groups are generated and pass validation", "Generator output"], ["Introduce an invalid config", "Validation rejects it with a message naming the field", "Error message"], ["Query the shared metric table", "Metrics from all 30 models can be listed with one query by owner team", "SQL result"]],
+          "objectives": ["Design a self-service monitoring platform", "Standardise metric schemas across models", "Estimate and control platform cost"]
+        },
+        {
+          "topic": "Incident Response and Post-Incident Reviews for Model Failures",
+          "subtopics": ["Severity levels for model incidents", "Containment: fallback rule, rollback, traffic cut or human review", "Impact assessment with slices and time ranges", "Re-scoring affected decisions", "Communication to business, customers and regulators", "Root cause: data, code, model, label or world", "Blameless review template", "Corrective actions linked to monitors", "Tabletop exercises and game days"],
+          "tools": ["Grafana", "PagerDuty", "Jira", "MLflow", "Python"],
+          "lab_task": "Run a tabletop on a scenario in which a unit change from dollars to cents in an upstream feed goes unnoticed for 9 days. Use provided logs to determine the start time, affected predictions, wrong decisions and business cost, write the containment plan and a blameless review with three corrective actions, including a new monitor that would have caught it.",
+          "deliverable": "Incident timeline, impact analysis and a blameless review document",
+          "checks": [["Analyse feature logs", "The start of the change is located to within one hour and the affected row count is reported", "Timeline"], ["Re-score affected predictions with corrected input", "The number of changed decisions and the cost are quantified", "Impact table"], ["Review corrective actions", "Each action has an owner, a due date and a monitor or test that would detect recurrence", "Review document"]],
+          "objectives": ["Run a structured model incident response", "Quantify impact and contain a failing model", "Convert incidents into monitors and tests"]
+        },
+        {
+          "topic": "Backtesting Monitors: Detection Delay, Precision and Coverage",
+          "subtopics": ["Building a labelled incident history", "Replaying historical data through detectors", "Detection delay, precision, recall and alert volume", "Comparing detectors on the same incidents", "Sensitivity sweeps and ROC-like curves for thresholds", "Synthetic fault injection library", "Regression tests for monitoring code", "Monitor coverage matrix: risk versus signal", "Retiring noisy monitors"],
+          "tools": ["Evidently", "pytest", "NumPy", "pandas", "Alibi Detect"],
+          "lab_task": "Build a replay harness with 12 historical incidents and 12 injected faults over 180 days. Run PSI, KS, Evidently drift share and an MMD detector with 5 threshold settings each, compute precision, recall and median detection delay per detector, and choose a configuration that gives recall of at least 0.9 with under 2 false alerts per month.",
+          "deliverable": "Replay harness, comparison matrix and a chosen configuration with justification",
+          "checks": [["Run all detectors across 5 thresholds", "A table of precision, recall and delay for 20 detector-threshold pairs is produced", "Comparison matrix"], ["Apply the selection rule", "The chosen configuration has recall at least 0.9 and below 2 false alerts per month, or the report states none qualifies", "Selection note"], ["Run the harness in CI", "The pytest suite fails if a detector change reduces recall on the stored incidents", "CI log"]],
+          "objectives": ["Evaluate monitors against known incidents", "Tune thresholds with measured trade-offs", "Test monitoring code in CI"]
+        },
+        {
+          "topic": "Advanced Capstone: Monitoring Programme for a Regulated ML and LLM Estate",
+          "subtopics": ["Tiered monitoring plans for a tabular model and an LLM assistant", "Drift, delayed-label performance, fairness and safety monitors", "Alerting, SLOs and incident runbooks", "Privacy controls and audit evidence", "Backtest of detectors with injected faults", "Governance review and executive report"],
+          "tools": ["Evidently", "Arize Phoenix", "Prometheus", "Grafana", "Airflow", "MLflow"],
+          "lab_task": "Deliver a monitoring programme for a credit model and a RAG-based policy assistant. Implement config-driven monitors, delayed-label and CBPE metrics, fairness by intersection, LLM groundedness and safety checks, SLO burn alerts and a privacy-minimised log design. Run 6 injected faults, record detection time and publish a governance pack with a post-market monitoring plan.",
+          "deliverable": "Repository, dashboards, backtest results, runbooks, governance pack and a 10-minute review presentation",
+          "checks": [["Replay the 6 injected faults", "All 6 are detected, each with a recorded time to detect and an owner notified", "Incident log"], ["Run the control-period replay", "Fewer than 2 false alerts are produced in 30 clean days", "Alert history"], ["Review the governance pack", "It contains the monitoring plan, framework mapping, SLOs, privacy design and sample evidence by model version", "Pack index"]],
+          "objectives": ["Design a complete monitoring programme across ML and LLM systems", "Demonstrate detection performance with backtests", "Present governance and evidence to reviewers"]
+        }
+      ]
+    }
+  }
+}

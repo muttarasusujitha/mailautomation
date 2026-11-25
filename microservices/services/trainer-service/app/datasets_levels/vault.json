@@ -1,0 +1,573 @@
+{
+  "domain": "Vault",
+  "name": "Vault",
+  "category": "Cybersecurity and Identity",
+  "icon": "shield",
+  "aliases": ["HashiCorp Vault", "Secrets Management", "Vault Secrets Management", "OpenBao", "Vault Enterprise", "HCP Vault", "Vault Administration", "Vault Operations"],
+  "certifications": ["HashiCorp Certified: Vault Associate", "HashiCorp Certified: Vault Operations Professional"],
+  "tools": ["HashiCorp Vault", "Vault CLI", "Vault UI", "Vault Agent", "Vault Proxy", "Vault Helm Chart", "Vault Agent Injector", "Vault Secrets Operator", "Secrets Store CSI Driver", "Terraform Vault Provider", "HCP Vault Dedicated", "OpenBao", "curl", "jq"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, platform engineers and operators who have never run HashiCorp Vault and need to stop keeping passwords in config files, CI variables and wikis. Covers the dev server, the CLI, HTTP API and UI, KV version 1 and 2, ACL policies, tokens, userpass and AppRole auth, response wrapping, leases, dynamic PostgreSQL credentials, Transit encryption, a single-node production-style install with Shamir unseal, TLS, file audit devices, mount tuning, calling Vault from code, reading common errors, and a capstone that secures a small web team's secrets.",
+      "prerequisites": ["Uses a Linux or macOS shell confidently, including environment variables, pipes and editing files with a text editor", "Understands HTTP methods, status codes, JSON and basic TLS certificate concepts", "Has a laptop with rights to install the vault binary, Docker for a PostgreSQL container, curl and jq"],
+      "outcomes": ["Run Vault in dev and single-node file or Raft mode, initialise and unseal it, and explain the barrier, seal and storage layers", "Store, version and recover secrets in KV v2 and write least-privilege ACL policies that are tested with vault token capabilities", "Authenticate people with userpass and applications with AppRole, deliver credentials with response wrapping and manage token and lease lifetimes", "Issue dynamic database credentials, encrypt data with Transit and trace every request through a file audit device"],
+      "days": [
+        {
+          "topic": "Vault Orientation: Secrets Sprawl, Architecture and the Dev Server",
+          "subtopics": ["Secrets sprawl: hard-coded passwords, CI variables and long-lived cloud keys", "What Vault does: identity-based access to secrets, encryption and certificates", "Core components: HTTP API, barrier, storage backend, secrets engines, auth methods, audit devices", "Sealed and unsealed states and why the barrier encrypts everything at rest", "Installing the vault binary from the official package repositories or releases site", "vault server -dev: in-memory storage, auto-unseal, root token and KV v2 at secret/", "VAULT_ADDR, VAULT_TOKEN and the ~/.vault-token helper file", "vault status fields: Sealed, Initialized, Storage Type, HA Enabled, Version", "Licensing: Vault Community under BSL 1.1, Vault Enterprise, HCP Vault Dedicated and OpenBao under MPL 2.0", "Terminology map: mount, path, lease, token, policy, entity"],
+          "tools": ["Vault CLI", "Vault UI", "curl", "jq"],
+          "lab_task": "Install vault, start vault server -dev -dev-root-token-id=root in one terminal, export VAULT_ADDR=http://127.0.0.1:8200 and VAULT_TOKEN=root in another, then run vault status, vault secrets list and vault auth list. Open the UI at http://127.0.0.1:8200/ui, sign in with the root token and record which mounts (cubbyhole/, identity/, secret/, sys/) and the token/ auth method exist by default.",
+          "deliverable": "Orientation sheet with vault status output, the default mount list and a one-page architecture sketch labelled with barrier, storage and engines",
+          "checks": [["Run vault status against the dev server", "Sealed is false, Initialized is true and Storage Type is inmem", "Terminal output"], ["Run vault secrets list -format=json | jq -r 'keys[]'", "Exactly cubbyhole/, identity/, secret/ and sys/ are listed", "jq output"], ["Stop the dev server, start it again and run vault kv list secret/", "No keys are found because dev mode storage is in memory", "Terminal output showing the empty result"]],
+          "objectives": ["Explain the problem Vault solves and its main components", "Run and connect to a dev server with the CLI and UI", "Distinguish Vault Community, Enterprise, HCP Vault Dedicated and OpenBao"]
+        },
+        {
+          "topic": "Vault CLI, HTTP API and UI Workflows",
+          "subtopics": ["Every CLI command maps to an HTTP call under /v1/", "vault read, write, list and delete versus vault kv helper commands", "-format=json and -field for scripting", "-output-curl-string to print the equivalent curl call", "X-Vault-Token and X-Vault-Request headers", "vault path-help and vault read sys/internal/specs/openapi", "Response structure: data, lease_id, lease_duration, renewable, warnings, auth", "Using the UI browser CLI and the API explorer"],
+          "tools": ["Vault CLI", "Vault HTTP API", "Vault UI", "curl", "jq"],
+          "lab_task": "On the dev server write secret/app/web with vault kv put -mount=secret app/web api_key=abc123, run the same read with vault kv get -output-curl-string -mount=secret app/web, execute the printed curl command, then extract the value with curl -s -H \"X-Vault-Token: $VAULT_TOKEN\" $VAULT_ADDR/v1/secret/data/app/web | jq -r .data.data.api_key. Repeat the read in the UI API explorer and compare the JSON.",
+          "deliverable": "Cheat sheet mapping five CLI commands to their HTTP method, path and curl string",
+          "checks": [["Run vault kv get -field=api_key -mount=secret app/web", "Only the string abc123 is printed", "Terminal output"], ["Send the curl read without the X-Vault-Token header", "Vault returns HTTP 403 with errors containing permission denied", "curl -i output"], ["Run vault path-help secret/data/app/web", "The help text describes the KV v2 data endpoint and its parameters", "path-help output"]],
+          "objectives": ["Translate CLI commands into HTTP API calls", "Parse Vault JSON responses with jq for scripts", "Discover endpoints with path-help and the API explorer"]
+        },
+        {
+          "topic": "KV Version 1 and Version 2 Secrets Engines",
+          "subtopics": ["Secrets engines as mounted plugins with their own path prefix", "vault secrets enable -path=kv1 -version=1 kv and enabling kv-v2", "KV v1: no history, smaller storage footprint, simpler paths", "KV v2: versions, metadata and the data/ and metadata/ API prefixes", "vault kv put, get, patch and list with -mount", "Writing values from files with key=@file.json and from stdin with key=-", "Upgrading a mount with vault kv enable-versioning and its brief unavailability", "Naming conventions for teams, environments and applications"],
+          "tools": ["Vault CLI", "Vault UI", "jq"],
+          "lab_task": "Enable kv1/ with -version=1 and kv2/ as kv-v2. Write team/payments/db with username and password to both, read each with curl and compare paths (/v1/kv1/team/payments/db versus /v1/kv2/data/team/payments/db). Use vault kv patch to change only password on kv2, then store a JSON certificate bundle with cert=@bundle.json and list keys under team/ on both mounts.",
+          "deliverable": "Comparison table of KV v1 and v2 behaviour with the API paths used for each operation",
+          "checks": [["Run vault secrets list -detailed for kv1/ and kv2/", "kv1/ shows map[version:1] and kv2/ shows map[version:2] in the Options column", "secrets list output"], ["Run vault kv patch -mount=kv2 team/payments/db password=new then vault kv get", "username is unchanged and password is new at version 2", "kv get output"], ["Run vault kv patch against kv1/", "The command fails because patch requires a KV v2 mount", "Error output"]],
+          "objectives": ["Enable and use KV v1 and v2 mounts", "Explain the extra data/ and metadata/ prefixes in KV v2", "Choose a KV path layout for teams and environments"]
+        },
+        {
+          "topic": "KV v2 Versioning, Soft Delete, Destroy and Check-and-Set",
+          "subtopics": ["Version numbers and vault kv get -version", "vault kv delete as a soft delete and vault kv undelete -versions", "vault kv destroy -versions for permanent removal", "vault kv metadata delete to remove all versions and metadata", "max_versions on the mount config and per secret", "delete_version_after for automatic expiry of versions", "Check-and-set with -cas and cas_required=true", "Custom metadata for owner and rotation information"],
+          "tools": ["Vault CLI", "Vault UI", "jq"],
+          "lab_task": "On kv2/ write team/payments/db five times, set vault kv metadata put -max-versions=3 -cas-required=true -custom-metadata=owner=payments kv2/team/payments/db, and confirm only versions 3 to 5 remain. Soft delete version 5, undelete it, destroy version 3, then attempt a write with -cas=4 and another with -cas=5 and record which succeeds.",
+          "deliverable": "Version lifecycle log showing metadata before and after each delete, undelete and destroy",
+          "checks": [["Run vault kv metadata get kv2/team/payments/db after setting max_versions=3", "Only versions 3, 4 and 5 appear in the Version list", "metadata output"], ["Write with vault kv put -cas=4 when the current version is 5", "The write fails with check-and-set parameter did not match the current version", "Error output"], ["Run vault kv get -version=3 after destroy", "The version shows destroyed true and no data is returned", "kv get output"]],
+          "objectives": ["Recover and permanently remove KV v2 versions", "Prevent lost updates with check-and-set", "Limit stored history with max_versions and delete_version_after"]
+        },
+        {
+          "topic": "Writing Vault ACL Policies with Paths and Capabilities",
+          "subtopics": ["Default deny and the built-in default and root policies", "HCL path blocks and capabilities: create, read, update, patch, delete, list, sudo, deny", "Glob * at the end of a path and the + single-segment wildcard", "Policy paths for KV v2: data/, metadata/, delete/, undelete/, destroy/", "Priority rules when several path blocks match", "vault policy write, read, list and fmt", "vault token capabilities to test a path for a token", "Naming policies after roles rather than people"],
+          "tools": ["Vault CLI", "Vault UI"],
+          "lab_task": "Write payments-read.hcl allowing read on kv2/data/team/payments/* and list on kv2/metadata/team/payments/*, and payments-write.hcl adding create, update and patch. Create a token for each with vault token create -policy, then run vault token capabilities <token> kv2/data/team/payments/db and kv2/data/team/hr/db for both tokens and record the result matrix (4 lines). Add an explicit deny on kv2/data/team/payments/prod/* and retest.",
+          "deliverable": "Two policy files and a capability matrix for four paths and two tokens",
+          "checks": [["Run vault token capabilities with the read token on kv2/data/team/payments/db", "The output is read", "Terminal output"], ["Run the same command for kv2/data/team/hr/db", "The output is deny", "Terminal output"], ["Read kv2/team/payments/prod/db with the write token after adding the deny block", "Vault returns Code: 403 permission denied", "Error output"]],
+          "objectives": ["Write HCL policies with correct KV v2 paths", "Test policies before handing tokens to users", "Use deny and wildcards safely"]
+        },
+        {
+          "topic": "Vault Tokens: Types, TTLs, Accessors and Hierarchy",
+          "subtopics": ["Service tokens (hvs.), batch tokens (hvb.) and recovery tokens", "ttl, explicit_max_ttl and the system max of 768h", "Periodic tokens with -period for long-running services", "Parent and child tokens and cascading revocation", "Orphan tokens with -orphan and token roles", "Token accessors for lookup and revocation without the secret", "Use limits with -use-limit", "vault token lookup, renew and revoke"],
+          "tools": ["Vault CLI", "jq"],
+          "lab_task": "Create a parent token with -policy=payments-read -ttl=1h, use it to create two children, plus one -orphan token. Revoke the parent and test which tokens still work with vault token lookup. Then create a token with -ttl=10m -explicit-max-ttl=15m, renew it with -increment=30m and read the capped TTL. Finally create a -type=batch token and try to renew it.",
+          "deliverable": "Token behaviour report covering hierarchy, TTL capping, accessors and batch token limits",
+          "checks": [["Run vault token lookup on a child after revoking its parent", "Vault returns bad token because the child was revoked with its parent", "Error output"], ["Renew the 15m explicit max token with -increment=30m", "The returned TTL is no more than the remaining part of 15m and a warning mentions the max TTL", "renew output"], ["Run vault token renew on the batch token", "The request fails because batch tokens cannot be renewed", "Error output"]],
+          "objectives": ["Choose between service, batch and periodic tokens", "Predict revocation through the token tree", "Manage tokens through accessors"]
+        },
+        {
+          "topic": "Userpass and Token Auth Methods for Human Operators",
+          "subtopics": ["Auth methods, mounts and accessors", "vault auth enable userpass and creating users with token_policies", "vault login -method=userpass and the token helper", "token_ttl, token_max_ttl and token_bound_cidrs on users", "Tuning auth mounts with vault auth tune -default-lease-ttl", "Password changes through auth/userpass/users/<name>/password", "Why the root token is revoked after setup", "Listing and disabling auth methods safely"],
+          "tools": ["Vault CLI", "Vault UI"],
+          "lab_task": "Enable userpass, create users alice (token_policies=payments-write) and bob (payments-read) with token_ttl=1h and token_max_ttl=8h. Log in as each with vault login -method=userpass username=alice and run vault token lookup to read policies and TTL. Sign in to the UI as bob, try to edit a payments secret, change bob's password via the API and prove the old password is rejected.",
+          "deliverable": "Operator access guide with user definitions, login commands and token lookup output",
+          "checks": [["Run vault token lookup after logging in as alice", "policies contains default and payments-write and ttl is about 1h", "lookup output"], ["Log in as bob with the old password after the change", "Login fails with invalid username or password", "Error output"], ["As bob, write to kv2/team/payments/db", "Vault returns 403 permission denied", "Error output"]],
+          "objectives": ["Enable and configure the userpass auth method", "Attach policies and TTLs to user logins", "Retire the root token in favour of named users"]
+        },
+        {
+          "topic": "AppRole Auth for Applications and Scripts",
+          "subtopics": ["Machine authentication and the secret zero problem", "RoleID and SecretID as username and password for machines", "Role settings: token_policies, token_ttl, secret_id_ttl, secret_id_num_uses", "secret_id_bound_cidrs and token_bound_cidrs", "Push versus pull SecretID delivery", "vault write auth/approle/login with role_id and secret_id", "Listing and destroying SecretID accessors", "Trusted orchestrator pattern with CI or configuration management"],
+          "tools": ["Vault CLI", "curl", "jq"],
+          "lab_task": "Enable approle and create role billing-api with token_policies=payments-read, token_ttl=20m, secret_id_ttl=10m and secret_id_num_uses=1. Read the role-id, generate a secret-id with vault write -f auth/approle/role/billing-api/secret-id, log in with curl to /v1/auth/approle/login and use the client_token to read kv2/team/payments/db. Repeat the login with the same secret-id and record the error.",
+          "deliverable": "AppRole login script and a short note on how the RoleID and SecretID reach the application",
+          "checks": [["Log in with a fresh RoleID and SecretID", "The response contains auth.client_token and auth.policies includes payments-read", "curl and jq output"], ["Reuse the single-use SecretID", "Login fails with an invalid secret id error", "Error output"], ["Run vault list auth/approle/role/billing-api/secret-id after one login", "No SecretID accessors remain because the only one was consumed", "list output"]],
+          "objectives": ["Configure AppRole roles with short-lived SecretIDs", "Log an application in through the HTTP API", "Explain the trusted orchestrator delivery pattern"]
+        },
+        {
+          "topic": "Response Wrapping and Cubbyhole for Secret Delivery",
+          "subtopics": ["Cubbyhole as a per-token private store", "-wrap-ttl and the wrap_info block with token, ttl and creation_path", "vault unwrap and single-use wrapping tokens", "sys/wrapping/lookup to verify creation_path before unwrapping", "Detecting interception when an unwrap fails", "Wrapping AppRole SecretIDs for delivery", "min_wrapping_ttl and max_wrapping_ttl in policies", "sys/wrapping/wrap for arbitrary data"],
+          "tools": ["Vault CLI", "curl", "jq"],
+          "lab_task": "Generate a wrapped SecretID with vault write -wrap-ttl=60s -f auth/approle/role/billing-api/secret-id, check its creation_path with vault write sys/wrapping/lookup token=<wrap>, unwrap it once with vault unwrap and log in with the result. Try a second unwrap, then create another wrapped token, wait 70 seconds and unwrap it, and record both errors.",
+          "deliverable": "Secret delivery runbook showing lookup, unwrap and the interception checks",
+          "checks": [["Run sys/wrapping/lookup on a new wrapping token", "creation_path is auth/approle/role/billing-api/secret-id", "lookup output"], ["Unwrap the same token a second time", "Vault reports the wrapping token is not valid or does not exist", "Error output"], ["Write a value to cubbyhole/notes with one token and read it with another", "The second token sees no value at cubbyhole/notes", "Terminal output"]],
+          "objectives": ["Deliver secrets with single-use wrapping tokens", "Validate wrapping tokens before use", "Explain cubbyhole scoping"]
+        },
+        {
+          "topic": "Dynamic PostgreSQL Credentials with the Database Secrets Engine",
+          "subtopics": ["Why dynamic credentials beat shared database passwords", "vault secrets enable database and the postgresql-database-plugin", "database/config connection_url with {{username}} and {{password}} templates", "allowed_roles and the Vault management user", "Role creation_statements with {{name}}, {{password}} and {{expiration}}", "default_ttl and max_ttl on roles", "vault read database/creds/<role> and the returned lease", "Rotating the root credential with database/rotate-root"],
+          "tools": ["Vault CLI", "PostgreSQL", "psql", "Docker"],
+          "lab_task": "Run postgres in Docker, create a vault user with CREATEROLE, configure database/config/appdb with plugin_name=postgresql-database-plugin and allowed_roles=readonly, and create role readonly with a CREATE ROLE ... VALID UNTIL '{{expiration}}' statement and GRANT SELECT, default_ttl=1h, max_ttl=24h. Read creds, connect with psql, run SELECT 1, then revoke the lease and retry the connection.",
+          "deliverable": "Working database engine configuration and a transcript of credential issue, use and revocation",
+          "checks": [["Run \\du in psql after reading creds", "A role named v-token-readonly-... (or similar generated name) appears with a valid until date", "psql output"], ["Run INSERT with the readonly credential", "PostgreSQL returns permission denied for table", "psql error"], ["Connect after vault lease revoke on the credential", "PostgreSQL rejects the login because the role was dropped", "psql error"]],
+          "objectives": ["Configure the database secrets engine for PostgreSQL", "Issue and revoke short-lived database users", "Rotate the Vault management password"]
+        },
+        {
+          "topic": "Leases, Renewal and Revocation Basics",
+          "subtopics": ["What a lease is and which responses carry lease_id", "lease_duration, renewable and max TTL", "Mount defaults with vault secrets tune -default-lease-ttl and -max-lease-ttl", "vault lease lookup", "vault lease renew -increment", "vault lease revoke for one lease", "vault lease revoke -prefix for a whole path", "How token revocation revokes the leases it created", "KV secrets have no lease but return a refresh hint", "Lease expiry and the expiration manager"],
+          "tools": ["Vault CLI", "jq"],
+          "lab_task": "Using the readonly database role from the previous day, read database/creds/readonly three times, list leases with vault list sys/leases/lookup/database/creds/readonly, renew one with -increment=30m, revoke one by ID and the rest with vault lease revoke -prefix database/creds/readonly. Record lease counts after each step.",
+          "deliverable": "Lease worksheet showing the lease count and TTL after each renew and revoke",
+          "checks": [["List sys/leases/lookup/database/creds/readonly after three reads", "Three lease IDs are listed", "list output"], ["Renew a lease with -increment beyond max_ttl", "The returned lease_duration is capped at the remaining max TTL", "renew output"], ["Run vault lease revoke -prefix database/creds/readonly and list again", "No keys are found under the prefix", "Terminal output"]],
+          "objectives": ["Read and interpret lease fields", "Renew and revoke leases individually and by prefix", "Set mount lease defaults"]
+        },
+        {
+          "topic": "Transit Engine: Encrypt, Decrypt and Rotate Keys",
+          "subtopics": ["Encryption as a service: Vault holds keys, applications hold ciphertext", "vault secrets enable transit and vault write -f transit/keys/<name>", "Base64-encoding plaintext before encryption", "Ciphertext format vault:v1:...", "Key rotation with transit/keys/<name>/rotate", "Rewrapping old ciphertext with transit/rewrap", "min_decryption_version and min_encryption_version", "Default key type aes256-gcm96 and other types"],
+          "tools": ["Vault CLI", "jq", "base64"],
+          "lab_task": "Enable transit and create key orders. Encrypt the string 4111-1111-1111-1111 with vault write -field=ciphertext transit/encrypt/orders plaintext=$(echo -n 4111-1111-1111-1111 | base64), decrypt it and base64 -d the result. Rotate the key twice, rewrap the v1 ciphertext, set min_decryption_version=3 and try to decrypt the original v1 ciphertext.",
+          "deliverable": "Encryption demo script with ciphertext samples from key versions 1 and 3",
+          "checks": [["Decrypt the ciphertext and pipe the plaintext through base64 -d", "The output is 4111-1111-1111-1111", "Terminal output"], ["Rewrap the v1 ciphertext after two rotations", "The new ciphertext begins with vault:v3:", "rewrap output"], ["Decrypt v1 ciphertext after min_decryption_version=3", "Vault returns ciphertext or signature version is disallowed by policy (too old)", "Error output"]],
+          "objectives": ["Encrypt and decrypt data through Transit", "Rotate keys and rewrap ciphertext", "Retire old key versions safely"]
+        },
+        {
+          "topic": "Installing a Single-Node Vault Server with a Configuration File",
+          "subtopics": ["Package install and the vault system user", "HCL server configuration: storage, listener, api_addr, cluster_addr, ui", "storage \"raft\" with a single node versus storage \"file\"", "disable_mlock with integrated storage", "systemd unit, LimitMEMLOCK and capabilities", "Log level and log format settings", "Data directory ownership and permissions", "vault operator diagnose -config before first start"],
+          "tools": ["Vault CLI", "systemd", "Linux"],
+          "lab_task": "On a Linux VM install vault from the HashiCorp package repository, write /etc/vault.d/vault.hcl with storage \"raft\" (path /opt/vault/data, node_id node1), a TCP listener on 0.0.0.0:8200 with tls_disable=1 for this lab only, api_addr, cluster_addr and ui=true. Run vault operator diagnose -config=/etc/vault.d/vault.hcl, start vault.service and confirm vault status shows Initialized false.",
+          "deliverable": "vault.hcl, systemd status output and the diagnose report",
+          "checks": [["Run vault operator diagnose -config=/etc/vault.d/vault.hcl", "Storage and listener checks pass, with a warning about TLS being disabled", "Diagnose output"], ["Run vault status after systemctl start vault", "Initialized is false and Sealed is true; the command exits with code 2", "Terminal output and echo $?"], ["Run ls -ld /opt/vault/data", "The directory is owned by the vault user", "ls output"]],
+          "objectives": ["Write a minimal production-style server configuration", "Run Vault as a systemd service", "Validate configuration with operator diagnose"]
+        },
+        {
+          "topic": "Initialising and Unsealing Vault with Shamir Key Shares",
+          "subtopics": ["vault operator init -key-shares and -key-threshold", "Shamir secret sharing and the root key", "Unseal keys versus the initial root token", "vault operator unseal and unseal progress", "vault operator seal for emergencies", "Encrypting unseal keys to PGP keys with -pgp-keys", "Distributing key shares to separate custodians", "Why restarts leave Vault sealed"],
+          "tools": ["Vault CLI", "GnuPG"],
+          "lab_task": "On the single-node server run vault operator init -key-shares=5 -key-threshold=3 and store the output in a lab-only file. Unseal with three different keys, watching Unseal Progress, log in with the root token, enable kv-v2, then restart vault.service and unseal again. Finally run vault operator seal and show that reads fail until Vault is unsealed.",
+          "deliverable": "Unseal ceremony record listing custodians, threshold and the sealed/unsealed status transitions",
+          "checks": [["Run vault operator unseal with two of five keys", "vault status shows Sealed true and Unseal Progress 2/3", "status output"], ["Read a secret after vault operator seal", "The request fails with Code: 503 Vault is sealed", "Error output"], ["Run vault status after systemctl restart vault", "Sealed is true even though it was unsealed before the restart", "status output"]],
+          "objectives": ["Initialise Vault with a chosen key threshold", "Unseal and seal Vault", "Plan custody of unseal keys"]
+        },
+        {
+          "topic": "TLS Listeners and Client Configuration for Vault",
+          "subtopics": ["tls_cert_file and tls_key_file on the TCP listener", "Certificate SANs for DNS names and IPs", "tls_min_version and cipher choices", "VAULT_CACERT, VAULT_CAPATH and VAULT_SKIP_VERIFY", "Reloading certificates with SIGHUP", "tls_require_and_verify_client_cert for mutual TLS", "Common x509 errors from clients", "Separate listeners for API and metrics"],
+          "tools": ["Vault CLI", "OpenSSL", "curl"],
+          "lab_task": "Create a lab CA and server certificate with openssl including SAN DNS:vault.lab.local and IP:127.0.0.1, configure the listener with tls_cert_file, tls_key_file and tls_min_version=\"tls12\", restart Vault and unseal. Export VAULT_ADDR=https://vault.lab.local:8200, run vault status without and with VAULT_CACERT, then rotate the certificate and reload with kill -HUP.",
+          "deliverable": "TLS configuration snippet, CA bundle and connection test results",
+          "checks": [["Run vault status without VAULT_CACERT", "The client fails with x509: certificate signed by unknown authority", "Error output"], ["Run vault status with VAULT_CACERT=ca.pem", "Status prints with Sealed false", "Terminal output"], ["Run openssl s_client -connect vault.lab.local:8200 after the SIGHUP reload", "The served certificate shows the new serial number", "openssl output"]],
+          "objectives": ["Serve Vault over TLS with correct SANs", "Configure clients to trust the Vault CA", "Rotate listener certificates without downtime"]
+        },
+        {
+          "topic": "Enabling File Audit Devices and Reading Audit Logs",
+          "subtopics": ["Audit devices: file, syslog and socket", "vault audit enable file file_path=/var/log/vault/audit.log", "Request and response entries and their fields", "HMAC-SHA256 of secret values and tokens", "sys/audit-hash to compute a matching HMAC", "Vault blocks requests when no enabled audit device can write", "Log rotation with logrotate and SIGHUP", "Searching audit logs with jq"],
+          "tools": ["Vault CLI", "jq", "logrotate"],
+          "lab_task": "Enable a file audit device at /var/log/vault/audit.log, log in as alice, read kv2/team/payments/db and attempt a denied write. Use jq to find both requests by path and show the error field on the denied one. Compute the HMAC of the password value with vault write sys/audit-hash/file input=<value> and find the matching string in the log. Add a logrotate rule with a postrotate kill -HUP.",
+          "deliverable": "Audit evidence pack: jq queries, matching entries and the logrotate configuration",
+          "checks": [["Run jq 'select(.type==\"response\" and .request.path==\"kv2/data/team/payments/db\")' on the log", "At least one entry shows display_name userpass-alice", "jq output"], ["Compare sys/audit-hash output with the password field in the log", "The two hmac-sha256: strings are identical", "Terminal output"], ["Inspect the denied write entry", "The error field contains permission denied", "jq output"]],
+          "objectives": ["Enable and read file audit logs", "Correlate HMAC values without exposing secrets", "Rotate audit logs safely"]
+        },
+        {
+          "topic": "Mount Management: Enabling, Tuning and Moving Secrets Engines",
+          "subtopics": ["vault secrets enable with -path, -description and -version", "vault secrets tune for TTLs, listing_visibility and audit_non_hmac keys", "vault secrets move to rename a mount", "vault secrets disable and the data it destroys", "Mount accessors and local mounts", "Plugin versions shown in vault secrets list -detailed", "Policy updates after moving a mount", "Documenting mounts per team"],
+          "tools": ["Vault CLI", "Vault UI", "jq"],
+          "lab_task": "Enable kv-v2 at teams/finance/ with a description, tune it with -max-lease-ttl=24h and -listing-visibility=unauth, then move it to finance/ with vault secrets move teams/finance finance. Check that existing secrets are still readable at the new path and that the old policy no longer works until you update it. Finally disable a scratch mount and show its data is gone.",
+          "deliverable": "Mount inventory table with path, type, version, TTLs and owning team",
+          "checks": [["Run vault secrets list -detailed after the move", "finance/ exists and teams/finance/ does not", "secrets list output"], ["Read a moved secret with the old policy", "The request is denied until the policy path is updated", "Error output"], ["Enable scratch/, write a key, disable and re-enable it", "The key is gone after re-enabling", "Terminal output"]],
+          "objectives": ["Enable, tune and move secrets engine mounts", "Keep policies consistent with mount paths", "Avoid data loss when disabling mounts"]
+        },
+        {
+          "topic": "Calling Vault from Application Code with SDKs and curl",
+          "subtopics": ["Official Go client and the vault-client-go library", "hvac for Python", "Reading VAULT_ADDR and tokens from the environment", "AppRole login from code and token renewal", "Handling 403, 404 and 503 responses", "Caching secrets in memory and re-reading on rotation", "Never logging tokens or secret values", "Timeouts and retries against Vault"],
+          "tools": ["hvac", "Python", "Vault HTTP API", "curl"],
+          "lab_task": "Write a Python script with hvac that logs in with AppRole using role_id and secret_id from files, reads kv2/team/payments/db, prints only the username, and renews its token with client.auth.token.renew_self(). Add handling that exits with code 3 on hvac.exceptions.Forbidden and code 4 on VaultDown. Test it with valid credentials, a wrong policy and a sealed Vault.",
+          "deliverable": "vault_client.py with the three test runs and their exit codes",
+          "checks": [["Run the script with valid AppRole credentials", "It prints the username and exits with code 0", "Terminal output"], ["Run it with a role whose policy lacks the path", "It exits with code 3 after a Forbidden error", "Terminal output and echo $?"], ["Run it while Vault is sealed", "It exits with code 4 after a VaultDown error", "Terminal output and echo $?"]],
+          "objectives": ["Authenticate and read secrets from application code", "Handle Vault error responses explicitly", "Keep secrets out of logs"]
+        },
+        {
+          "topic": "Common Vault Errors: Sealed, Permission Denied and Expired Tokens",
+          "subtopics": ["Reading the Code: and Errors: lines in CLI output", "403 permission denied and checking policies with vault token capabilities", "503 Vault is sealed and vault status", "Expired or revoked tokens and bad token responses", "400 errors from wrong KV v2 paths or missing parameters", "Connection refused and wrong VAULT_ADDR", "Using the audit log to confirm what Vault saw", "A repeatable triage checklist"],
+          "tools": ["Vault CLI", "jq", "curl"],
+          "lab_task": "The trainer breaks six things in a lab Vault: a sealed node, a policy missing list, an expired token, http instead of https in VAULT_ADDR, a KV v2 read through the raw secret/ path with vault read, and a revoked AppRole SecretID. For each, capture the exact error, find the cause with vault status, token lookup, capabilities or the audit log, fix it, and log the time taken.",
+          "deliverable": "Triage log with six error messages, causes, fixes and minutes spent on each",
+          "checks": [["Run vault read secret/app/web on a KV v2 mount", "No value found is returned, and the fix is vault kv get or the secret/data/ path", "Terminal output"], ["Use the expired token", "Vault returns 403 with permission denied and token lookup reports bad token", "Error output"], ["Point VAULT_ADDR at http:// for an https listener", "The client reports an HTTP response to an HTTPS client error", "Error output"]],
+          "objectives": ["Recognise the most common Vault error messages", "Trace an error to its cause with built-in commands", "Apply a consistent triage checklist"]
+        },
+        {
+          "topic": "Beginner Capstone: Secrets Platform for a Small Web Team",
+          "subtopics": ["Requirements: two developers, one web app, one PostgreSQL database, one CI job", "Server build with Raft storage, TLS and Shamir unseal", "KV v2 layout, policies and userpass users", "AppRole with wrapped SecretID for the web app and dynamic database credentials", "Transit encryption of a customer field and an audit device", "Demonstration, runbook and handover"],
+          "tools": ["Vault CLI", "Vault UI", "PostgreSQL", "hvac", "jq"],
+          "lab_task": "Build a single-node TLS Vault with Raft storage and a 3-of-5 unseal, add userpass users dev1 and dev2, KV v2 secrets for staging and prod, an AppRole for the web app that receives a wrapped SecretID, dynamic PostgreSQL credentials with a 1h TTL and a Transit key for the email column. Revoke the root token and show every access in the audit log.",
+          "deliverable": "Capstone repository with vault.hcl, policies, setup script, application snippet, runbook and audit extracts",
+          "checks": [["Run the setup script against a freshly initialised and unsealed Vault", "It completes with exit code 0 and creates all mounts, policies, roles and users", "Script output"], ["Log in as dev1 and read a prod secret", "The read is denied with 403 while the staging read succeeds", "Terminal output"], ["Search the audit log for the web app's database credential request", "One response entry for database/creds/web is found with the AppRole display name", "jq output"]],
+          "objectives": ["Combine storage, auth, policies and engines in one Vault", "Deliver application credentials without static secrets", "Hand over a documented and audited setup"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who can run a single Vault server, write policies and use KV, AppRole and dynamic secrets, and now need to run Vault as a shared platform. Covers three-node integrated storage clusters, auto-unseal with cloud KMS and Transit seals, Kubernetes, OIDC, JWT and cloud IAM auth, identity entities and groups, templated policies, database static roles and AWS dynamic credentials, a two-tier PKI with revocation and tidy, Transit data keys and signing, Vault Agent and Vault Proxy, and the three Kubernetes delivery options: Agent Injector, Secrets Store CSI Driver and Vault Secrets Operator.",
+      "prerequisites": ["Has completed the beginner level or can initialise, unseal and configure a Vault server, write ACL policies and use AppRole", "Can deploy workloads to Kubernetes with kubectl and Helm and read pod logs and events", "Has access to a Kubernetes cluster (kind, minikube or a cloud cluster) and a cloud account or LocalStack for KMS and IAM labs"],
+      "outcomes": ["Build and operate a three-node Raft cluster with TLS and auto-unseal, and explain leader election and request forwarding", "Integrate human and workload identities through OIDC, JWT, Kubernetes and cloud IAM auth, mapped to entities, groups and templated policies", "Run database, AWS, PKI and Transit engines for real applications with sensible TTLs, rotation and revocation", "Deliver secrets to Kubernetes and VM workloads with Vault Agent, Vault Proxy, the Agent Injector, the CSI provider and Vault Secrets Operator, and choose between them"],
+      "days": [
+        {
+          "topic": "Production Vault Architecture with Integrated Storage",
+          "subtopics": ["Active and standby nodes and how standbys forward requests to the active node", "Integrated storage (Raft) versus Consul storage and why Raft is the default choice", "Quorum sizes: three nodes tolerate one failure, five tolerate two", "api_addr, cluster_addr and port 8201 for cluster traffic", "Failure domains: zones, racks and separate VMs", "Sizing CPU, memory, disk IOPS and network for Raft", "Where auto-unseal, audit devices and backups fit in the design", "Reference architecture review checklist"],
+          "tools": ["Vault CLI", "draw.io", "Raft"],
+          "lab_task": "Given a brief for 400 applications in two availability zones plus one spare zone, design a Raft cluster: choose node count, placement, instance size, disk type, load balancer health check path, seal type, audit targets and snapshot schedule. Justify the quorum choice, list every port with its direction, and state how many node failures the design survives without losing writes.",
+          "deliverable": "Architecture document with diagram, port table, sizing table and failure analysis",
+          "checks": [["Review the design's node count against the quorum formula", "The design states (n/2)+1 votes and the number of tolerated failures correctly", "Design document"], ["Check the port table", "Both 8200 for API and 8201 for cluster traffic are listed with directions", "Port table"], ["Ask how a write reaches storage when it arrives on a standby", "The answer describes forwarding to the active node over the cluster port", "Review notes"]],
+          "objectives": ["Design a Raft cluster that matches failure-tolerance goals", "Explain active, standby and forwarding behaviour", "Document network and sizing requirements"]
+        },
+        {
+          "topic": "Building a Three-Node Raft Cluster with retry_join",
+          "subtopics": ["storage \"raft\" stanza: path, node_id and retry_join blocks", "leader_api_addr, leader_ca_cert_file and TLS for joining", "auto_join with cloud tags", "Initialising the first node and unsealing joiners", "vault operator raft list-peers and the Voter column", "vault operator raft join for manual joins", "vault operator step-down to move leadership", "Testing failover by stopping the leader"],
+          "tools": ["Vault CLI", "Docker Compose", "OpenSSL"],
+          "lab_task": "Start three Vault nodes (VMs or containers) with TLS and storage \"raft\" retry_join blocks pointing at each other. Initialise node1, unseal all three, and run vault operator raft list-peers. Stop the leader, time how long until a new leader appears in list-peers, write a KV secret through the new leader, then restart the old node and confirm it rejoins as a follower.",
+          "deliverable": "Cluster configuration files, list-peers output before and after failover, and the measured failover time",
+          "checks": [["Run vault operator raft list-peers after unsealing all nodes", "Three peers are listed, one leader and two followers, all with Voter true", "list-peers output"], ["Stop the leader and poll list-peers", "A new leader is elected within about 10 seconds", "Timestamped output"], ["Read the secret written during failover from the restarted node", "The value matches what was written", "kv get output"]],
+          "objectives": ["Form a Raft cluster with retry_join", "Observe leader election and failover", "Rejoin a recovered node"]
+        },
+        {
+          "topic": "Auto-Unseal with Cloud KMS and Transit Seals",
+          "subtopics": ["seal stanzas: awskms, azurekeyvault, gcpckms and transit", "Recovery keys versus unseal keys and -recovery-shares", "IAM permissions the seal needs: Encrypt, Decrypt and DescribeKey on the KMS key", "Transit seal: a separate Vault cluster providing the key", "What happens when the KMS key is unavailable or deleted", "Migrating from Shamir to auto-unseal with vault operator unseal -migrate", "Seal status fields: Seal Type and Recovery Seal", "Protecting the KMS key with key policies and deletion windows"],
+          "tools": ["Vault CLI", "AWS KMS", "AWS CLI", "LocalStack"],
+          "lab_task": "Create an AWS KMS symmetric key (or LocalStack equivalent), grant the Vault instance role kms:Encrypt, kms:Decrypt and kms:DescribeKey, and add seal \"awskms\" { region, kms_key_id } to a new node. Initialise with -recovery-shares=5 -recovery-threshold=3, restart the service and confirm it unseals without operator input. Then remove kms:Decrypt from the role, restart, and record the log error.",
+          "deliverable": "Seal configuration, IAM policy JSON and restart test results with log extracts",
+          "checks": [["Run vault status after a restart", "Seal Type is awskms and Sealed is false without any unseal command", "status output"], ["Inspect the init output", "It shows Recovery Key 1 to 5 instead of Unseal Keys", "Init output (redacted)"], ["Restart after removing kms:Decrypt", "Vault stays sealed and the log shows an AccessDeniedException from KMS", "journalctl extract"]],
+          "objectives": ["Configure cloud KMS auto-unseal", "Explain recovery keys and their limits", "Diagnose auto-unseal failures"]
+        },
+        {
+          "topic": "Kubernetes Auth Method with Service Account Tokens",
+          "subtopics": ["How Vault validates a pod's service account JWT with the TokenReview API", "auth/kubernetes/config: kubernetes_host, kubernetes_ca_cert and token_reviewer_jwt", "Running Vault in-cluster versus outside the cluster", "Roles with bound_service_account_names and bound_service_account_namespaces", "audience binding for projected tokens", "The system:auth-delegator ClusterRoleBinding", "Short-lived projected tokens versus legacy long-lived secrets", "Testing logins from a debug pod"],
+          "tools": ["Vault CLI", "kubectl", "Kubernetes"],
+          "lab_task": "Enable auth/kubernetes, create a reviewer service account bound to system:auth-delegator, and configure kubernetes_host and kubernetes_ca_cert. Create role orders bound to service account orders in namespace shop with token_policies=orders-read and ttl=1h. From a pod using that account, log in with vault write auth/kubernetes/login role=orders jwt=@/var/run/secrets/kubernetes.io/serviceaccount/token; repeat from a pod using the default account.",
+          "deliverable": "Kubernetes auth configuration, role definition and login transcripts from both pods",
+          "checks": [["Log in from the orders pod", "A token with policies default and orders-read is returned", "Login output"], ["Log in from a pod using the default service account", "Vault returns service account name not authorized", "Error output"], ["Remove the auth-delegator binding and log in again", "Login fails with a permission denied error from the TokenReview call", "Error output and binding manifest"]],
+          "objectives": ["Configure Kubernetes auth against a cluster", "Bind roles to specific service accounts and namespaces", "Diagnose TokenReview failures"]
+        },
+        {
+          "topic": "OIDC Auth for Single Sign-On to the Vault UI and CLI",
+          "subtopics": ["auth/oidc/config: oidc_discovery_url, oidc_client_id, oidc_client_secret and default_role", "allowed_redirect_uris for the UI and http://localhost:8250/oidc/callback for the CLI", "user_claim, groups_claim and oidc_scopes", "bound_claims to restrict logins", "vault login -method=oidc and the browser flow", "External groups and group aliases mapped from the groups claim", "Token TTLs for interactive users", "Keycloak, Okta, Microsoft Entra ID and Google as identity providers"],
+          "tools": ["Vault CLI", "Vault UI", "Keycloak"],
+          "lab_task": "Register a Vault client in a lab Keycloak realm with a groups mapper. Enable auth/oidc, configure discovery, client ID and secret, and create role default with user_claim=preferred_username, groups_claim=groups and both redirect URIs. Create external group vault-admins with a group alias matching the Keycloak group, log in through the UI and with vault login -method=oidc, and compare the policies on each token.",
+          "deliverable": "OIDC configuration, group alias definitions and screenshots of both login flows",
+          "checks": [["Log in with vault login -method=oidc as a member of vault-admins", "The token's identity_policies include the admin policy from the external group", "token lookup output"], ["Log in as a user outside the bound_claims group", "Login fails with a claim value mismatch error", "Error output"], ["Use a redirect URI not in allowed_redirect_uris", "Vault rejects the request with an unauthorized redirect_uri error", "Browser or CLI output"]],
+          "objectives": ["Configure OIDC login for the UI and CLI", "Map identity provider groups to Vault policies", "Restrict logins with bound claims"]
+        },
+        {
+          "topic": "JWT Auth for CI Pipelines and Workload Identity",
+          "subtopics": ["JWT auth versus OIDC auth on the same plugin", "jwks_url, oidc_discovery_url and bound_issuer", "GitHub Actions tokens from https://token.actions.githubusercontent.com", "GitLab CI id_tokens and their claims", "bound_audiences, bound_subject and bound_claims with glob matching", "role_type=jwt and token_ttl for short pipeline tokens", "hashicorp/vault-action and VAULT_ID_TOKEN usage", "Avoiding over-broad claims such as repository owner only"],
+          "tools": ["Vault CLI", "GitHub Actions", "GitLab CI", "jq"],
+          "lab_task": "Enable auth/jwt with oidc_discovery_url=https://token.actions.githubusercontent.com and bound_issuer set to the same value. Create role deploy with role_type=jwt, bound_audiences=https://github.com/<org>, bound_claims repository=<org>/<repo> and ref=refs/heads/main, token_ttl=10m. Run a workflow with permissions id-token: write that logs in with hashicorp/vault-action and reads one secret; run it again from a feature branch.",
+          "deliverable": "JWT role definition, workflow YAML and job logs from the main and feature branch runs",
+          "checks": [["Run the workflow on main", "The secret is read and masked in the job log", "Job log"], ["Run the workflow on a feature branch", "Login fails with a claim mismatch on ref", "Job log"], ["Look up the CI token's TTL in the audit log", "The token TTL is 600 seconds", "Audit log entry"]],
+          "objectives": ["Authenticate CI jobs without stored secrets", "Bind roles to repository, branch and audience claims", "Keep pipeline tokens short-lived"]
+        },
+        {
+          "topic": "AWS, Azure and Google Cloud Auth Methods",
+          "subtopics": ["AWS iam auth type and signed sts:GetCallerIdentity requests", "bound_iam_principal_arn and the iam_server_id_header_value", "AWS ec2 auth type and why iam is preferred", "Azure auth with managed identities and bound_subscription_ids", "GCP auth with iam and gce types and bound_service_accounts", "Vault's own credentials for calling cloud APIs", "Mapping cloud roles to policies", "Comparing cloud auth with Kubernetes auth on managed clusters"],
+          "tools": ["Vault CLI", "AWS CLI", "Azure CLI", "gcloud"],
+          "lab_task": "Enable auth/aws, set iam_server_id_header_value=vault.lab.local and create role app-ec2 with auth_type=iam and bound_iam_principal_arn of an EC2 instance role. From that instance run vault login -method=aws role=app-ec2 header_value=vault.lab.local and read a secret. Try from a different role, then repeat the pattern for one Azure or GCP workload and compare the configuration fields.",
+          "deliverable": "Cloud auth configuration for AWS plus one other provider, with login transcripts and a comparison table",
+          "checks": [["Log in from the bound EC2 instance role", "A token with the app-ec2 policies is returned", "Login output"], ["Log in from an instance with a different IAM role", "Vault rejects the login because the principal ARN does not match", "Error output"], ["Log in without header_value", "Login fails because the expected iam_server_id_header_value is missing", "Error output"]],
+          "objectives": ["Authenticate cloud workloads with IAM identities", "Configure AWS iam auth with header binding", "Compare AWS, Azure and GCP auth roles"]
+        },
+        {
+          "topic": "Identity Entities, Aliases and Groups",
+          "subtopics": ["Entities as the person or workload behind several logins", "Entity aliases tied to an auth mount accessor", "Internal groups with explicit members", "External groups linked to OIDC, LDAP or GitHub groups", "Policy inheritance: token policies plus identity policies", "Entity metadata for templated policies", "Merging duplicate entities", "Client counts and why one entity per human matters for licensing"],
+          "tools": ["Vault CLI", "Vault UI", "jq"],
+          "lab_task": "Create entity alice with metadata team=payments, add aliases for her userpass and OIDC logins using each mount accessor from vault auth list -format=json, and add her to internal group payments-devs that carries the payments-write policy. Log in both ways, compare entity_id in vault token lookup, then remove her from the group and confirm the policy disappears without changing her user record.",
+          "deliverable": "Identity setup script and token lookups from both login methods before and after the group change",
+          "checks": [["Compare entity_id from userpass and OIDC logins", "Both tokens carry the same entity_id", "token lookup output"], ["Check identity_policies after adding alice to payments-devs", "identity_policies contains payments-write", "token lookup output"], ["Remove alice from the group and run vault token capabilities on a payments path", "The capability for her existing token changes to read or deny without a new login", "capabilities output"]],
+          "objectives": ["Link several logins to one entity", "Grant policies through internal and external groups", "Explain how identity affects client counts"]
+        },
+        {
+          "topic": "Templated Policies and Fine-Grained Parameter Constraints",
+          "subtopics": ["Templating with {{identity.entity.id}} and {{identity.entity.name}}", "{{identity.entity.metadata.<key>}} and {{identity.entity.aliases.<accessor>.name}}", "{{identity.groups.names.<name>.id}} for group-scoped paths", "Per-user KV areas with one policy", "allowed_parameters, denied_parameters and required_parameters", "min_wrapping_ttl and max_wrapping_ttl", "The subscribe capability and when it matters", "Unit-testing policies with vault token capabilities and a test matrix"],
+          "tools": ["Vault CLI", "jq"],
+          "lab_task": "Write user-kv.hcl granting create, read, update, delete and list on kv2/data/users/{{identity.entity.name}}/* and kv2/metadata/users/{{identity.entity.name}}/*. Attach it to a group with alice and bob. Write pki-issue.hcl that allows pki_int/issue/web only with allowed_parameters common_name=[\"*.shop.example.com\"]. Test eight paths and two parameter cases and record the matrix.",
+          "deliverable": "Two templated policies and a test matrix of 8 path checks and 2 parameter checks",
+          "checks": [["As alice, write kv2/users/alice/notes", "The write succeeds", "Terminal output"], ["As alice, read kv2/users/bob/notes", "Vault returns 403 permission denied", "Error output"], ["Request a certificate for api.other.com through pki-issue.hcl", "The request is denied because the common_name parameter value is not allowed", "Error output"]],
+          "objectives": ["Write one policy that scales to every user", "Restrict request parameters in policies", "Test templated policies systematically"]
+        },
+        {
+          "topic": "Database Secrets Engine: Static Roles, Root Rotation and Multiple Plugins",
+          "subtopics": ["Dynamic roles versus static roles", "database/static-roles with username and rotation_period", "Schedule-based rotation with rotation_schedule", "Reading database/static-creds and last_vault_rotation", "Rotating the root credential and its consequences", "password_policy and custom username_template", "MySQL, MongoDB and Microsoft SQL Server plugins", "Connection pooling and max_open_connections"],
+          "tools": ["Vault CLI", "PostgreSQL", "MySQL", "psql"],
+          "lab_task": "Create password policy db-strong (24 characters, at least one digit and one symbol) and attach it to a PostgreSQL connection. Create static role reporting for an existing reporting user with rotation_period=1h, read static-creds twice and trigger vault write -f database/rotate-role/reporting. Add a MySQL connection with mysql-database-plugin and a dynamic role, then run vault write -f database/rotate-root/appdb.",
+          "deliverable": "Static and dynamic role configuration for two databases, with rotation evidence",
+          "checks": [["Read database/static-creds/reporting before and after rotate-role", "The password changes and last_vault_rotation moves forward", "Two static-creds outputs"], ["Check a generated password against db-strong", "It is 24 characters with at least one digit and one symbol", "Terminal output"], ["Log in to PostgreSQL with the original vault user password after rotate-root", "Authentication fails because only Vault knows the new password", "psql error"]],
+          "objectives": ["Rotate existing database accounts with static roles", "Apply password policies to generated credentials", "Manage several database plugins from one engine"]
+        },
+        {
+          "topic": "AWS Secrets Engine: IAM Users, Assumed Roles and STS",
+          "subtopics": ["aws/config/root with a dedicated IAM user or instance role", "credential_type iam_user, assumed_role and federation_token", "policy_arns, policy_document and iam_groups", "role_arns and the trust policy for assumed roles", "TTL limits on STS credentials", "Rotating the root key with aws/config/rotate-root", "IAM eventual consistency and retry delays", "Cost and quota limits on IAM users"],
+          "tools": ["Vault CLI", "AWS CLI", "AWS IAM"],
+          "lab_task": "Configure aws/config/root, then create role s3-read with credential_type=iam_user and policy_arns=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess, and role deploy with credential_type=assumed_role and role_arns pointing at an IAM role that trusts the Vault identity. Read both credentials, run aws sts get-caller-identity and aws s3 ls with each, then revoke the iam_user lease and check the user is deleted.",
+          "deliverable": "AWS engine configuration with get-caller-identity output for both role types and the revocation result",
+          "checks": [["Run aws sts get-caller-identity with the assumed_role credentials", "The Arn is an assumed-role ARN for the deploy role", "AWS CLI output"], ["Run aws iam get-user for the generated user after lease revocation", "AWS returns NoSuchEntity", "AWS CLI error"], ["Run aws s3 rm with the s3-read credentials", "AWS returns AccessDenied", "AWS CLI error"]],
+          "objectives": ["Issue short-lived AWS credentials from Vault", "Choose between IAM users and assumed roles", "Revoke cloud credentials through leases"]
+        },
+        {
+          "topic": "Building a Two-Tier PKI with Root and Intermediate CAs",
+          "subtopics": ["Mounting pki and pki_int and tuning max-lease-ttl", "pki/root/generate/internal versus exported keys", "Issuers and issuer_name, and keys as separate objects", "Generating an intermediate CSR and signing it with pki/root/sign-intermediate", "pki_int/intermediate/set-signed", "Roles: allowed_domains, allow_subdomains, max_ttl and key_type", "pki/config/urls for issuing certificates and CRL distribution points", "Issuing a certificate with pki_int/issue/<role>"],
+          "tools": ["Vault CLI", "OpenSSL", "jq"],
+          "lab_task": "Mount pki with max-lease-ttl=87600h and generate root example-root. Mount pki_int, generate an intermediate CSR, sign it with the root for 43800h and import it with set-signed. Configure URLs, create role web with allowed_domains=shop.example.com, allow_subdomains=true and max_ttl=72h, issue api.shop.example.com for 24h and verify the chain with openssl verify -CAfile root.crt -untrusted int.crt leaf.crt.",
+          "deliverable": "PKI setup script, root and intermediate certificates and the openssl verification output",
+          "checks": [["Run openssl verify on the issued certificate", "The output ends with leaf.crt: OK", "openssl output"], ["Request a certificate for api.evil.com", "Vault returns common name api.evil.com not allowed by this role", "Error output"], ["Request a certificate with ttl=200h", "The issued certificate expires in 72 hours because max_ttl caps it", "openssl x509 -enddate output"]],
+          "objectives": ["Build a root and intermediate CA in Vault", "Constrain issuance with PKI roles", "Verify certificate chains"]
+        },
+        {
+          "topic": "PKI Roles, Revocation, CRLs, OCSP and Tidy",
+          "subtopics": ["Revoking by serial number with pki_int/revoke", "CRL generation, crl expiry and auto_rebuild", "Delta CRLs and unified CRLs for clusters", "OCSP responder at pki_int/ocsp", "no_store for high-volume short-lived certificates", "Tidying expired and revoked certificates with pki_int/tidy and safety_buffer", "Auto-tidy configuration", "Monitoring certificate counts and storage growth"],
+          "tools": ["Vault CLI", "OpenSSL", "curl"],
+          "lab_task": "Issue five certificates from role web, revoke two by serial_number, then download the CRL from /v1/pki_int/crl/pem and list revoked serials with openssl crl -text. Query OCSP for one revoked and one valid serial using openssl ocsp -url $VAULT_ADDR/v1/pki_int/ocsp. Enable auto-tidy with tidy_cert_store=true, tidy_revoked_certs=true and interval_duration=12h, and run a manual tidy.",
+          "deliverable": "Revocation test log with CRL contents, OCSP responses and tidy status",
+          "checks": [["Run openssl crl -text on the downloaded CRL", "Exactly two revoked serial numbers are listed", "openssl output"], ["Run openssl ocsp for a revoked certificate", "The response status is revoked", "openssl output"], ["Read pki_int/tidy-status after the manual tidy", "state is Finished", "tidy-status output"]],
+          "objectives": ["Revoke certificates and publish CRLs", "Serve certificate status through OCSP", "Keep PKI storage under control with tidy"]
+        },
+        {
+          "topic": "Transit for Applications: Data Keys, Signing, HMAC and Rewrap",
+          "subtopics": ["Envelope encryption with transit/datakey/plaintext and transit/datakey/wrapped", "Batch encryption with batch_input", "Signing and verifying with ed25519 and ecdsa-p256 keys", "transit/hmac and transit/verify for HMACs", "Key derivation with derived=true and context", "Automatic rotation with auto_rotate_period", "Rewrap jobs for stored ciphertext", "Latency budget and when local encryption with data keys is better"],
+          "tools": ["Vault CLI", "hvac", "Python", "OpenSSL"],
+          "lab_task": "Create key files-key, request a wrapped data key, encrypt a 50 MB file locally with the plaintext key using openssl enc -aes-256-cbc -pbkdf2 (lab only), and store only the wrapped key. Decrypt the wrapped key through transit/decrypt to restore the file. Create an ed25519 key, sign a release manifest, verify it, change one byte and verify again. Finally encrypt 1,000 records with one batch_input call and time it.",
+          "deliverable": "Envelope encryption script, signature test results and batch timing",
+          "checks": [["Decrypt the file with the unwrapped data key and compare sha256sum", "The checksums match the original file", "sha256sum output"], ["Verify the signature after changing one byte of the manifest", "transit/verify returns valid false", "verify output"], ["Encrypt 1,000 records in one batch_input request", "batch_results contains 1,000 ciphertexts and the call completes in under 2 seconds on the lab cluster", "Timing output"]],
+          "objectives": ["Apply envelope encryption with Transit data keys", "Sign and verify data with Transit", "Use batch operations for throughput"]
+        },
+        {
+          "topic": "Vault Agent Auto-Auth, Templates and Process Supervision",
+          "subtopics": ["vault agent -config and the agent HCL file", "auto_auth with method approle, kubernetes, aws or jwt", "File sinks, wrapped sinks and sink permissions", "template stanzas with source, destination, perms and command", "Consul Template syntax: with secret and .Data.data", "Lease renewal for dynamic secrets and static_secret_render_interval", "env_template and exec for process supervisor mode", "exit_after_auth for init-style use"],
+          "tools": ["Vault Agent", "Vault CLI", "systemd"],
+          "lab_task": "Run vault agent with auto_auth method approle reading role_id and secret_id files, a file sink at /run/vault/token and a template that renders /etc/app/db.env from database/creds/readonly with command=\"systemctl reload app\". Set the role TTL to 5m and watch the agent re-render. Then switch to exec mode with env_template DB_PASSWORD and restart_on_secret_changes=always and confirm the child process restarts.",
+          "deliverable": "Agent configuration for both modes, rendered files and log extracts of renewals and restarts",
+          "checks": [["Check /etc/app/db.env after the agent starts", "It contains a username beginning with v- and a password", "File contents (password redacted)"], ["Wait until the database lease nears expiry", "The agent log shows a new credential and the reload command running", "Agent log"], ["In exec mode, revoke the lease manually", "The child process restarts with a new DB_PASSWORD value", "Process list and log"]],
+          "objectives": ["Configure auto-auth and sinks", "Render dynamic secrets to files and environment variables", "Explain how the agent renews and re-renders"]
+        },
+        {
+          "topic": "Vault Proxy and API Caching",
+          "subtopics": ["vault proxy as a separate binary mode from vault agent", "api_proxy with use_auto_auth_token", "cache stanza and which responses are cached", "Listener on a Unix socket or localhost TCP", "Lease-aware cache eviction and proxy cache clear", "When to choose Vault Proxy over Vault Agent", "Reducing token creation load on Vault", "Metrics for cache hits"],
+          "tools": ["Vault Proxy", "Vault CLI", "curl"],
+          "lab_task": "Run vault proxy with auto_auth AppRole, a listener on 127.0.0.1:8100, api_proxy use_auto_auth_token=true and a cache stanza. Point an application at VAULT_ADDR=http://127.0.0.1:8100 without a token and read a KV secret and a dynamic database credential. Request the same database credential 20 times and count leases created on the server, then clear the cache with curl -X POST /agent/v1/cache-clear.",
+          "deliverable": "Proxy configuration and a comparison of lease counts with and without the cache",
+          "checks": [["Read a secret through the proxy without VAULT_TOKEN", "The secret is returned because the proxy adds its auto-auth token", "curl output"], ["Request the same dynamic credential 20 times through the proxy", "vault list sys/leases/lookup shows one new lease, not 20", "list output"], ["Post to /agent/v1/cache-clear with type=all", "The proxy returns HTTP 200 and the next read creates a new lease", "curl -i output"]],
+          "objectives": ["Run Vault Proxy in front of applications", "Cache leased responses to cut server load", "Choose between Agent and Proxy"]
+        },
+        {
+          "topic": "Vault Agent Injector Sidecars on Kubernetes",
+          "subtopics": ["Installing Vault on Kubernetes with the hashicorp/vault Helm chart", "The injector mutating webhook and its TLS", "vault.hashicorp.com/agent-inject and role annotations", "agent-inject-secret-<file> and agent-inject-template-<file>", "Init container vault-agent-init and sidecar vault-agent", "agent-pre-populate-only for jobs", "Resource requests and limits for the sidecar", "Debugging injection with pod events and agent logs"],
+          "tools": ["Helm", "kubectl", "Vault Agent Injector", "Kubernetes"],
+          "lab_task": "Install the hashicorp/vault chart with injector.enabled=true pointing at the lab Vault. Annotate deployment orders with agent-inject: \"true\", role: orders, agent-inject-secret-db.env: database/creds/readonly and a template that writes export lines. Roll out, exec into the pod, cat /vault/secrets/db.env, then remove the role binding and read the vault-agent-init logs from a new pod.",
+          "deliverable": "Annotated deployment manifest, pod description and agent logs from the working and failing cases",
+          "checks": [["Run kubectl get pod -n shop -o jsonpath='{.spec.initContainers[*].name}'", "vault-agent-init is listed", "kubectl output"], ["Run cat /vault/secrets/db.env in the app container", "The file contains export lines with a generated username", "kubectl exec output (redacted)"], ["Roll out after removing the Kubernetes auth role", "The pod stays in Init and vault-agent-init logs show a permission denied login error", "kubectl logs output"]],
+          "objectives": ["Inject Vault Agent into pods with annotations", "Render secrets into a shared volume", "Troubleshoot injection failures"]
+        },
+        {
+          "topic": "Secrets Store CSI Driver with the Vault Provider",
+          "subtopics": ["secrets-store-csi-driver and the Vault CSI provider DaemonSet", "Enabling the provider with csi.enabled=true in the Helm chart", "SecretProviderClass with provider: vault, vaultAddress and roleName", "objects with objectName, secretPath and secretKey", "Mounting the volume and the file layout", "secretObjects to sync into a Kubernetes Secret", "Rotation with enableSecretRotation and rotationPollInterval", "Limitations: files only at pod start unless rotation is enabled"],
+          "tools": ["Helm", "kubectl", "Secrets Store CSI Driver", "Kubernetes"],
+          "lab_task": "Install secrets-store-csi-driver with syncSecret.enabled=true and enableSecretRotation=true, enable the Vault CSI provider, and create SecretProviderClass orders-db with an object db-password from secret/data/orders key password and a secretObjects entry that syncs to Secret orders-db. Mount it in a pod, read the file, update the KV value and measure how long until the file and Secret change.",
+          "deliverable": "SecretProviderClass manifest, pod spec and rotation timing results",
+          "checks": [["Run cat /mnt/secrets-store/db-password in the pod", "The current KV password value is printed", "kubectl exec output (redacted)"], ["Run kubectl get secret orders-db -o jsonpath='{.data.password}' | base64 -d", "The synced Secret holds the same value as the mounted file", "kubectl output (redacted)"], ["Update the KV secret and poll the mounted file", "The file changes within the configured rotationPollInterval", "Timestamped output"]],
+          "objectives": ["Deliver Vault secrets as CSI volumes", "Sync CSI-mounted secrets to Kubernetes Secrets", "Enable and measure rotation"]
+        },
+        {
+          "topic": "Vault Secrets Operator CRDs and Secret Rotation",
+          "subtopics": ["Installing hashicorp/vault-secrets-operator with Helm", "VaultConnection and VaultAuth resources", "VaultStaticSecret with type kv-v2, mount, path, refreshAfter and destination", "VaultDynamicSecret for database and cloud credentials", "VaultPKISecret for certificates", "rolloutRestartTargets to restart deployments on change", "Client cache and its encryption with Transit", "Choosing between the Agent Injector, CSI provider and VSO"],
+          "tools": ["Helm", "kubectl", "Vault Secrets Operator", "Kubernetes"],
+          "lab_task": "Install VSO, create VaultConnection to the lab Vault and VaultAuth using kubernetes auth role orders. Create VaultStaticSecret for kv-v2 secret orders/config with refreshAfter: 30s, destination create: true and rolloutRestartTargets for Deployment orders, plus VaultDynamicSecret for database/creds/readonly. Change the KV value and record the time until pods restart.",
+          "deliverable": "VSO manifests, kubectl describe output and a decision table for the three Kubernetes delivery methods",
+          "checks": [["Run kubectl get vaultstaticsecret orders-config -o yaml", "The status shows a successful sync and a secretMAC value", "kubectl output"], ["Change the KV value and watch kubectl get pods -w", "The orders pods restart within about 30 seconds", "Timestamped pod list"], ["Point VaultAuth at a missing role", "The resource events show a Vault login error with permission denied", "kubectl describe events"]],
+          "objectives": ["Sync Vault secrets into Kubernetes with VSO", "Restart workloads automatically on secret changes", "Compare Kubernetes delivery options"]
+        },
+        {
+          "topic": "Intermediate Capstone: Zero-Static-Secret Kubernetes Platform",
+          "subtopics": ["Three-node Raft cluster with TLS and KMS auto-unseal", "OIDC login for engineers mapped to groups and templated policies", "Kubernetes and JWT auth for workloads and CI", "Dynamic database credentials, PKI certificates and Transit encryption", "Delivery with VSO for one service and the Agent Injector for another", "Failover test, demonstration and design review"],
+          "tools": ["Vault CLI", "Helm", "kubectl", "Vault Secrets Operator", "Terraform Vault Provider"],
+          "lab_task": "Deliver a shop platform where no static secret is stored in Git or CI: a three-node auto-unsealed Raft cluster, OIDC for engineers, JWT auth for the deploy pipeline, Kubernetes auth for two services, dynamic PostgreSQL credentials via VSO, TLS certificates from pki_int via the injector and Transit for card tokens. Prove it with a leader failover during live traffic.",
+          "deliverable": "Platform repository with configuration, manifests, policies, a design document and a recorded failover demonstration",
+          "checks": [["Run a secret scanner such as gitleaks over the repository", "Zero secrets are reported", "Scanner output"], ["Stop the Raft leader while the services run", "Both services keep serving requests and a new leader is elected", "Load test output and list-peers"], ["Read the audit log for one CI deploy", "It shows a jwt login and reads only on the paths in the deploy policy", "jq output"]],
+          "objectives": ["Assemble a complete Vault platform for Kubernetes", "Remove static credentials from code and CI", "Demonstrate resilience under failover"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform and security engineers who already run Vault clusters and integrations in production and now own their reliability, security and lifecycle. Covers Raft Autopilot and quorum recovery, snapshots and DR drills, load balancing with sys/health, seal migration, rekey and root generation, audit pipelines, telemetry and alerting, quotas and lease control, Enterprise namespaces and replication, HCP Vault Dedicated, upgrades and plugins, PKI at scale with ACME, Transit key import and key policies, the SSH CA, Vault as code with the Terraform Vault provider, hardening, incident response, Vault and OpenBao migration, and deep diagnostics, ending with a multi-region service and DR runbook.",
+      "prerequisites": ["Has completed the intermediate level or runs a multi-node Vault cluster with auto-unseal, several auth methods and dynamic secrets engines", "Is comfortable with Linux operations, systemd, Prometheus and Grafana, and reading Go-style structured logs", "Has lab access to at least three VMs or a Kubernetes cluster, a cloud KMS, and a Vault Enterprise trial licence or HCP account for the Enterprise and HCP days"],
+      "outcomes": ["Operate Raft clusters through node loss, quorum loss, snapshot restore, rolling upgrades and seal changes with tested runbooks", "Build audit, telemetry and alerting that detect sealed nodes, leader churn, lease growth and audit failures before users do", "Design multi-tenant and multi-region Vault with Enterprise namespaces, performance and DR replication or HCP Vault Dedicated, and explain the trade-offs", "Harden Vault, manage its configuration as code, respond to credential leaks, and migrate between Vault and OpenBao where licensing requires it"],
+      "days": [
+        {
+          "topic": "Raft Operations: Autopilot, Peer Management and Quorum Loss",
+          "subtopics": ["vault operator raft autopilot state and get-config", "cleanup_dead_servers, dead_server_last_contact_threshold and min_quorum", "Server stability checks and healthy versus unhealthy voters", "Non-voters and redundancy zones in Vault Enterprise", "vault operator raft remove-peer for failed nodes", "Recovering from lost quorum with a peers.json file", "Disk latency, fsync and leader lastContact", "Replacing nodes one at a time"],
+          "tools": ["Vault CLI", "jq", "Raft"],
+          "lab_task": "On a five-node lab cluster set autopilot with -cleanup-dead-servers=true -dead-server-last-contact-threshold=2m -min-quorum=3. Kill one node and watch autopilot state until it is removed. Then stop three of five nodes to lose quorum, show writes fail, and recover one surviving node by writing raft/peers.json with its own ID and address, restarting it and rejoining fresh nodes.",
+          "deliverable": "Autopilot configuration, state snapshots during the failure and a quorum recovery runbook",
+          "checks": [["Run vault operator raft autopilot state after killing one node", "Healthy is false at first and the dead node is removed after the 2 minute threshold", "autopilot state output"], ["Write a KV secret with three of five nodes down", "The write times out or fails because there is no leader", "Error output"], ["Run vault operator raft list-peers after peers.json recovery", "One leader is listed and data written before the outage is readable", "list-peers and kv get output"]],
+          "objectives": ["Tune Autopilot for automatic dead server cleanup", "Recover a Raft cluster after quorum loss", "Replace failed peers safely"]
+        },
+        {
+          "topic": "Snapshot Backup, Restore and Disaster Recovery Drills",
+          "subtopics": ["vault operator raft snapshot save and its required policy on sys/storage/raft/snapshot", "Snapshot contents and why they are encrypted with the barrier key", "Automated snapshots in Vault Enterprise", "Shipping snapshots to object storage with retention", "vault operator raft snapshot restore and -force for a different cluster", "Seal and unseal or recovery keys needed after restore", "RPO and RTO targets and how to measure them", "Quarterly restore drills and evidence"],
+          "tools": ["Vault CLI", "AWS S3", "cron", "systemd"],
+          "lab_task": "Create a backup-operator policy and an AppRole for it, schedule vault operator raft snapshot save every 15 minutes with a systemd timer that uploads to S3 with versioning. Write marker secrets, destroy the cluster, build a fresh one with the same seal, restore the newest snapshot with -force and measure RTO and the age of the newest marker (RPO).",
+          "deliverable": "Backup timer units, S3 bucket policy and a drill report with measured RPO and RTO",
+          "checks": [["List the S3 bucket after one hour", "At least four snapshots exist, 15 minutes apart", "aws s3 ls output"], ["Read the newest marker secret after restore", "It was written no more than 15 minutes before the outage", "kv get output with timestamps"], ["Restore a snapshot into a cluster with a different KMS key", "The restored cluster cannot unseal, proving the seal key is part of the backup plan", "Log extract"]],
+          "objectives": ["Automate Raft snapshots with least privilege", "Restore Vault to a new cluster", "Measure and report RPO and RTO"]
+        },
+        {
+          "topic": "Load Balancing Vault with sys/health and Request Forwarding",
+          "subtopics": ["/v1/sys/health status codes: 200 active, 429 standby, 472 DR secondary, 473 performance standby, 501 not initialised, 503 sealed", "Query parameters standbyok, perfstandbyok and custom code overrides", "Health checks that send clients only to the active node", "Request forwarding versus client redirection", "X-Forwarded-For handling with x_forwarded_for_authorized_addrs", "TLS passthrough versus termination at the load balancer", "Performance standbys in Vault Enterprise for read scaling", "Kubernetes services vault-active and vault-standby from the Helm chart"],
+          "tools": ["HAProxy", "curl", "Vault CLI", "Kubernetes"],
+          "lab_task": "Put HAProxy in TCP passthrough mode in front of three nodes with a health check on GET /v1/sys/health that expects 200. Run curl -s -o /dev/null -w '%{http_code}' against each node directly, then step down the leader and record how long HAProxy takes to move traffic. Repeat with ?standbyok=true and explain which clients that setting suits.",
+          "deliverable": "HAProxy configuration, per-node health codes and failover timings for both check styles",
+          "checks": [["Curl /v1/sys/health on a standby node", "HTTP 429 is returned", "curl output"], ["Curl /v1/sys/health on a sealed node", "HTTP 503 is returned", "curl output"], ["Run vault operator step-down while a client loops writes through HAProxy", "Writes resume on the new active node within the health check interval plus election time", "Timestamped client log"]],
+          "objectives": ["Configure load balancer health checks for Vault", "Explain request forwarding and standby behaviour", "Preserve client IPs through proxies"]
+        },
+        {
+          "topic": "Seal Migration, Rekeying, Key Rotation and Root Token Generation",
+          "subtopics": ["vault operator rekey -init with new share count and threshold", "Rekeying recovery keys with -target=recovery", "vault operator rotate and the keyring term", "Automatic barrier key rotation settings", "Seal migration from Shamir to KMS and between KMS keys", "vault operator unseal -migrate on each node", "vault operator generate-root with OTP and -decode", "Revoking generated root tokens after the task"],
+          "tools": ["Vault CLI", "AWS KMS", "GnuPG"],
+          "lab_task": "On a three-node lab cluster migrate from Shamir to awskms: add the seal stanza, restart nodes one at a time and run vault operator unseal -migrate with the old keys. Rekey recovery keys to 7 shares with threshold 4 and -target=recovery, run vault operator rotate and check vault read sys/key-status, then generate a root token with vault operator generate-root -init, supply recovery keys and decode it with -otp.",
+          "deliverable": "Seal migration runbook with status outputs, key-status before and after rotation and root generation steps",
+          "checks": [["Run vault status after migration on each node", "Seal Type is awskms on all three nodes", "status output"], ["Read sys/key-status before and after vault operator rotate", "term increases by 1", "key-status output"], ["Use the decoded root token, then revoke it with vault token revoke -self", "A later lookup with that token returns bad token", "Terminal output"]],
+          "objectives": ["Migrate seal types without data loss", "Rekey and rotate Vault keys", "Generate and dispose of emergency root tokens"]
+        },
+        {
+          "topic": "Audit Pipelines: Multiple Devices, HMAC Lookups and SIEM Shipping",
+          "subtopics": ["Enabling two audit devices so one failure does not block Vault", "file, syslog and socket devices and their failure behaviour", "Shipping logs with Fluent Bit, Vector or the Splunk forwarder", "audit_non_hmac_request_keys and audit_non_hmac_response_keys on mounts", "hmac_accessor and log_raw risks", "Building detections: root token use, policy changes, sys/raw access, mass lease revocation", "Disk-full behaviour and vault.audit.log_request_failure metrics", "Retention and integrity of audit data"],
+          "tools": ["Vault CLI", "Fluent Bit", "Splunk", "jq"],
+          "lab_task": "Enable a file device and a socket device to a Fluent Bit TCP input that forwards to a SIEM index. Write three detections: any request with policies containing root, any write to sys/policies/acl, and more than 100 lease revocations per minute. Trigger each, then fill the file device's disk in a lab VM and show Vault keeps serving through the socket device.",
+          "deliverable": "Audit pipeline configuration, three SIEM queries and alert screenshots, and the disk-full test result",
+          "checks": [["Log in with a root token and read a secret", "The root token detection fires within 5 minutes", "SIEM alert"], ["Fill the file device's disk while the socket device is healthy", "Requests still succeed", "Client output"], ["Disable the socket device and keep the file disk full", "Requests fail because no audit device can record them", "Error output and server log"]],
+          "objectives": ["Run redundant audit devices", "Ship audit logs to a SIEM and write detections", "Explain Vault's fail-closed audit behaviour"]
+        },
+        {
+          "topic": "Telemetry, Prometheus Metrics and Vault Alerting",
+          "subtopics": ["telemetry stanza with prometheus_retention_time and disable_hostname", "/v1/sys/metrics?format=prometheus and unauthenticated_metrics_access", "Key metrics: vault.core.unsealed, vault.core.handle_request, vault.expire.num_leases", "Raft metrics such as leader lastContact and commitTime", "vault.audit.log_request_failure and vault.audit.log_response_failure", "Runtime metrics: heap, goroutines and GC pause", "Grafana dashboards and SLOs for latency and availability", "Alert thresholds and runbook links"],
+          "tools": ["Prometheus", "Grafana", "Vault CLI", "curl"],
+          "lab_task": "Add a telemetry stanza with prometheus_retention_time=\"30s\" and disable_hostname=true, create a metrics policy and token, and scrape /v1/sys/metrics?format=prometheus from all nodes. Build a Grafana dashboard and write alert rules for a sealed node, p99 handle_request over 250 ms, leases above 250,000 and any audit failure. Trigger the sealed alert with vault operator seal on one standby.",
+          "deliverable": "Prometheus scrape config, alert rules, dashboard JSON and an alert firing screenshot",
+          "checks": [["Curl the metrics endpoint with the metrics token", "Output contains vault_core_unsealed and vault_expire_num_leases lines", "curl output"], ["Seal one standby node", "The sealed-node alert fires within 2 minutes", "Alertmanager screenshot"], ["Curl the metrics endpoint without a token", "Vault returns 403 unless unauthenticated_metrics_access is enabled", "curl -i output"]],
+          "objectives": ["Expose and scrape Vault metrics", "Alert on the signals that matter for Vault health", "Define latency and availability SLOs"]
+        },
+        {
+          "topic": "Performance Tuning, Rate Limit Quotas and Lease Explosion Control",
+          "subtopics": ["Finding hot paths from audit logs and metrics", "Rate limit quotas with sys/quotas/rate-limit and path or role scope", "Lease count quotas in Vault Enterprise", "Lease explosion: causes such as missing token reuse and long TTLs", "Batch tokens for high-volume short work", "Tuning default_lease_ttl and max_lease_ttl per mount", "Load testing with vault-benchmark", "Storage growth and Raft snapshot size"],
+          "tools": ["vault-benchmark", "Vault CLI", "Prometheus", "Grafana"],
+          "lab_task": "Run vault-benchmark against a lab cluster with a mix of KV reads, AppRole logins and database creds and record throughput and p99. Create a lease explosion by running a script that logs in on every request, watch vault.expire.num_leases climb, then add vault write sys/quotas/rate-limit/approle-login path=auth/approle/login rate=50 and switch the script to token reuse. Compare both runs.",
+          "deliverable": "Benchmark reports before and after tuning, quota definitions and lease graphs",
+          "checks": [["Exceed the approle-login quota", "Vault returns HTTP 429 with a request rate quota exceeded message", "curl -i output"], ["Compare vault.expire.num_leases before and after token reuse", "The lease growth rate falls by at least 90 percent", "Grafana graph"], ["Run vault-benchmark with batch tokens for the login test", "Logins per second increase compared with service tokens", "Benchmark output"]],
+          "objectives": ["Load test Vault and read the results", "Apply rate limit quotas to protect the cluster", "Prevent lease explosions"]
+        },
+        {
+          "topic": "Vault Enterprise Namespaces and Multi-Tenancy",
+          "subtopics": ["Namespaces as isolated Vault environments with their own mounts, policies and tokens", "vault namespace create, list and the -namespace flag or VAULT_NAMESPACE", "Nested namespaces and path addressing", "Delegated administration with namespace admin policies", "Cross-namespace group membership and sharing", "Namespace locking with vault namespace lock", "Client counts per namespace", "When separate clusters are better than namespaces"],
+          "tools": ["Vault Enterprise", "Vault CLI", "Vault UI"],
+          "lab_task": "With a Vault Enterprise trial, create namespaces finance and finance/payments, give each an admin policy that manages only its own mounts and policies, and enable userpass and kv-v2 inside each. Log in as the finance admin and try to read sys/policies in the root namespace, create a mount in finance/payments, and lock then unlock finance/payments with vault namespace lock.",
+          "deliverable": "Namespace layout, delegated admin policies and access test results",
+          "checks": [["Run vault namespace list -namespace=finance", "payments/ is listed", "CLI output"], ["As the finance admin, read root namespace policies", "Vault returns 403 permission denied", "Error output"], ["Read a secret in finance/payments while it is locked", "The request fails because the namespace is locked", "Error output"]],
+          "objectives": ["Create and address nested namespaces", "Delegate administration per tenant", "Decide between namespaces and separate clusters"]
+        },
+        {
+          "topic": "Performance and DR Replication in Vault Enterprise",
+          "subtopics": ["Performance replication: shared config, local tokens and leases, read scaling", "DR replication: a warm standby copy that does not serve clients", "sys/replication/dr/primary/enable and secondary-token", "Activating a secondary with the wrapped activation token", "Paths filters for performance secondaries", "Local mounts with -local", "DR operation tokens and promote and demote", "Failover and failback runbooks and client redirection"],
+          "tools": ["Vault Enterprise", "Vault CLI", "jq"],
+          "lab_task": "Enable DR replication on cluster A, create a secondary token with id=dr-b, and enable cluster B as DR secondary with it. Check sys/replication/status on both. Simulate losing A, generate a DR operation token on B with vault operator generate-root -dr-token, promote B and confirm writes work. Then set up performance replication to cluster C with a paths filter that excludes finance/.",
+          "deliverable": "Replication configuration, status outputs and a timed DR failover runbook",
+          "checks": [["Run vault read -format=json sys/replication/status on the DR secondary", "dr.mode is secondary and the state is stream-wals", "Status output"], ["Read a KV secret on B before promotion", "The request is rejected because DR secondaries do not serve client requests", "Error output"], ["List mounts on performance secondary C", "finance/ is absent because of the paths filter", "secrets list output"]],
+          "objectives": ["Set up DR and performance replication", "Promote a DR secondary during an outage", "Filter replicated data by path"]
+        },
+        {
+          "topic": "HCP Vault Dedicated: Clusters, Admin Namespace and Networking",
+          "subtopics": ["HCP organisation, project and HashiCorp Virtual Network (HVN)", "Cluster tiers and sizes and what they include", "Public versus private endpoints", "Peering and transit gateway attachments to AWS or Azure", "The admin namespace as the top level for customer configuration", "Admin tokens and replacing them with OIDC or userpass", "Audit log and metrics streaming to external providers", "Snapshots, upgrades and support boundaries handled by HashiCorp"],
+          "tools": ["HCP Vault Dedicated", "HCP Portal", "Terraform Vault Provider", "AWS VPC"],
+          "lab_task": "Create an HVN and a development-tier HCP Vault Dedicated cluster with a private endpoint, peer it with a lab AWS VPC and add routes. From an EC2 instance in that VPC set VAULT_NAMESPACE=admin and log in with a generated admin token, enable OIDC auth inside admin, then revoke the admin token and configure audit log streaming to the chosen provider.",
+          "deliverable": "HCP setup record, peering and route evidence, and the admin namespace configuration",
+          "checks": [["Run vault status from the peered EC2 instance", "The cluster responds with Sealed false over the private address", "Terminal output"], ["Run vault secrets list without VAULT_NAMESPACE=admin", "The request is denied because customer access starts at the admin namespace", "Error output"], ["Check the streaming destination after a login", "The audit entry for the login arrives at the provider", "Provider search result"]],
+          "objectives": ["Deploy and connect to HCP Vault Dedicated", "Configure access inside the admin namespace", "Explain the shared responsibility model"]
+        },
+        {
+          "topic": "Upgrading Vault Clusters and Managing Plugins",
+          "subtopics": ["Reading release notes, upgrade guides and deprecation notices", "Rolling upgrade order: standbys first, then step down the active node", "Autopilot automated upgrades in Vault Enterprise with upgrade_version", "Taking a snapshot and pausing changes before upgrading", "Plugin catalog: vault plugin register with -sha256 and -version", "Pinning and reloading plugins with vault plugin reload", "Helm chart upgrades for Vault on Kubernetes and OnDelete update strategy", "Rollback limits after storage format changes"],
+          "tools": ["Vault CLI", "Helm", "kubectl", "sha256sum"],
+          "lab_task": "Take a snapshot, then upgrade a three-node lab cluster one minor version: replace the binary on each standby, restart and unseal, confirm vault status Version, then run vault operator step-down and upgrade the old leader. Keep a client writing every second and count errors. Then register an external plugin with vault plugin register -sha256 and mount it.",
+          "deliverable": "Upgrade runbook, per-node version log, client error count and plugin registration output",
+          "checks": [["Run vault status on each node after the upgrade", "All three report the new Version", "status output"], ["Count failed writes from the client loop during the upgrade", "No more than the writes during one leader election fail", "Client log"], ["Register the plugin with a wrong -sha256", "Mounting it fails with a checksum mismatch error", "Error output"]],
+          "objectives": ["Perform a rolling Vault upgrade with minimal disruption", "Register and pin external plugins", "Prepare rollback options before upgrading"]
+        },
+        {
+          "topic": "PKI at Scale: ACME, Issuer Rotation and Cross-Signing",
+          "subtopics": ["pki_int/config/cluster path and aia_path for ACME and AIA URLs", "Enabling ACME with pki_int/config/acme", "Tuning allowed and passthrough headers for ACME", "ACME directory at /v1/pki_int/acme/directory and EAB policies", "Issuing with certbot or cert-manager ACME issuers", "Rotating an intermediate with a new issuer and setting the default", "Cross-signing to keep old chains trusted", "Certificate counts, no_store and performance"],
+          "tools": ["Vault CLI", "certbot", "cert-manager", "OpenSSL"],
+          "lab_task": "Set pki_int/config/cluster path and aia_path, tune the mount headers for ACME (If-Modified-Since, Replay-Nonce, Link, Location, Last-Modified), and enable pki_int/config/acme. Issue a certificate with certbot certonly --server $VAULT_ADDR/v1/pki_int/acme/directory --standalone. Then generate a new intermediate issuer, make it default with pki_int/config/issuers and confirm new and old leaves both verify.",
+          "deliverable": "ACME configuration, certbot output and an issuer rotation plan with verification results",
+          "checks": [["Curl /v1/pki_int/acme/directory", "JSON with newNonce, newAccount and newOrder URLs is returned", "curl output"], ["Run certbot certonly against the Vault ACME directory", "Certbot reports Successfully received certificate", "certbot output"], ["Read pki_int/config/issuers after rotation", "default points at the new issuer ID", "CLI output"]],
+          "objectives": ["Serve ACME from Vault PKI", "Rotate intermediate issuers without breaking trust", "Plan PKI capacity for high issuance rates"]
+        },
+        {
+          "topic": "Transit Key Management: BYOK, Convergent Encryption and Key Policies",
+          "subtopics": ["Importing keys with transit/wrapping_key and transit/keys/<name>/import", "Exportable keys and the risks of export", "Convergent encryption with derived=true and convergent_encryption=true", "deletion_allowed and protecting keys from deletion", "Per-key policies for encrypt-only and decrypt-only services", "Trimming old versions with min_available_version", "Backing up keys with allow_plaintext_backup", "Managed keys and HSM-backed keys in Vault Enterprise"],
+          "tools": ["Vault CLI", "OpenSSL", "Python"],
+          "lab_task": "Fetch transit/wrapping_key, wrap a locally generated AES-256 key per the BYOK documentation and import it as imported-key, then confirm data encrypted by the same key outside Vault decrypts in Vault. Create a convergent key with a context and show identical plaintexts give identical ciphertexts. Write encrypt-only and decrypt-only policies and try to delete a key without deletion_allowed.",
+          "deliverable": "BYOK import script, convergent encryption test and key policy matrix",
+          "checks": [["Encrypt the same plaintext twice with the convergent key and the same context", "Both ciphertexts are identical", "Terminal output"], ["Run vault delete transit/keys/orders without deletion_allowed", "Vault refuses because deletion is not allowed for this key", "Error output"], ["Call transit/decrypt with the encrypt-only token", "Vault returns 403 permission denied", "Error output"]],
+          "objectives": ["Import external keys into Transit", "Use convergent encryption for searchable data", "Separate encrypt and decrypt duties"]
+        },
+        {
+          "topic": "SSH Certificate Authority and One-Time Credentials with Vault",
+          "subtopics": ["SSH secrets engine modes: signed certificates and one-time passwords", "ssh/config/ca with generate_signing_key=true", "Roles with key_type=ca, allowed_users, default_extensions and ttl", "Signing user keys with ssh/sign/<role>", "TrustedUserCAKeys in sshd_config", "Host key signing and @cert-authority in known_hosts", "Principals and mapping to identity", "Revocation limits and short TTLs"],
+          "tools": ["Vault CLI", "OpenSSH", "ssh-keygen"],
+          "lab_task": "Enable ssh-client-signer, generate a CA with ssh/config/ca generate_signing_key=true, and put the public key in /etc/ssh/trusted-user-ca-keys.pem with TrustedUserCAKeys on a target host. Create role ops with allowed_users=ubuntu, default_user=ubuntu, ttl=30m and permit-pty. Sign ~/.ssh/id_ed25519.pub, inspect it with ssh-keygen -Lf, log in, then wait for expiry and try again.",
+          "deliverable": "SSH CA configuration, signed certificate details and login results before and after expiry",
+          "checks": [["Run ssh-keygen -Lf on the signed certificate", "Principals lists ubuntu and Valid shows a 30 minute window", "ssh-keygen output"], ["SSH to the host with the certificate", "The login succeeds without the user key being in authorized_keys", "ssh output"], ["SSH after the certificate expires", "sshd rejects the certificate and the login fails", "ssh -v output and auth.log"]],
+          "objectives": ["Run an SSH certificate authority in Vault", "Configure OpenSSH to trust Vault-signed certificates", "Replace static authorized_keys with short-lived certificates"]
+        },
+        {
+          "topic": "Managing Vault Configuration with the Terraform Vault Provider",
+          "subtopics": ["vault provider authentication and the namespace argument", "Resources: vault_mount, vault_policy, vault_auth_backend, vault_kubernetes_auth_backend_role", "vault_database_secret_backend_connection and role resources", "Keeping secret values out of state and plans", "Separate workspaces for cluster build and Vault configuration", "Importing existing mounts and policies", "Plan review and drift detection in CI", "Using JWT auth for the Terraform pipeline itself"],
+          "tools": ["Terraform Vault Provider", "Terraform", "Vault CLI", "GitHub Actions"],
+          "lab_task": "Import two existing policies and one KV mount into Terraform with import blocks, then add a Kubernetes auth role and a database connection as resources. Run terraform plan in CI using JWT auth with a 15m token, apply, then change a policy by hand with vault policy write and show the next scheduled plan reports drift. Search the plan output and state for the database password.",
+          "deliverable": "Terraform configuration, CI workflow, import evidence and a drift report",
+          "checks": [["Run terraform plan after the imports", "The plan shows No changes for the imported resources", "Plan output"], ["Run the scheduled plan after the manual policy edit", "The plan shows one vault_policy to update in place", "Plan output"], ["grep the plan output for the database password", "No match is found because the value is marked sensitive", "grep output"]],
+          "objectives": ["Manage Vault configuration as code", "Import existing Vault objects", "Detect configuration drift"]
+        },
+        {
+          "topic": "Hardening a Production Vault Deployment",
+          "subtopics": ["Single-tenant hosts, no shell access for application teams", "Running as an unprivileged user with mlock or swap disabled", "TLS everywhere, including cluster and storage traffic", "Disabling core dumps and protecting the data directory", "Revoking the root token and using generate-root only for emergencies", "Restricting sys/ and sys/raw paths", "Limiting UI and API exposure with network controls", "CIS-style checks and the HashiCorp production hardening guide"],
+          "tools": ["Vault CLI", "Linux", "OpenSCAP", "nmap"],
+          "lab_task": "Audit a lab Vault node against a 20-item checklist from the production hardening guide: swap, core dumps, file ownership, systemd sandboxing, TLS versions, open ports, root tokens in use, policies granting sys/*, and raw endpoint access. Score it, fix at least 15 findings, and rerun nmap -sV -p- and vault token lookup on any known root token to show the results.",
+          "deliverable": "Hardening checklist with before and after scores and evidence for each fixed item",
+          "checks": [["Run nmap -p- against the hardened node", "Only 8200, 8201 and SSH from the management network are open", "nmap output"], ["Run ulimit -c in the Vault service context", "The value is 0", "systemd-run or service output"], ["Search policies for sys/* grants with vault policy read on all policies", "Only the break-glass admin policy grants sys/*", "Script output"]],
+          "objectives": ["Apply production hardening controls", "Measure hardening with repeatable checks", "Reduce standing privileged access"]
+        },
+        {
+          "topic": "Responding to Vault Security Incidents: Token Leaks and Revocation",
+          "subtopics": ["Incident types: leaked token, leaked SecretID, compromised workload, leaked unseal or recovery keys", "Finding usage of a token by HMAC in audit logs", "vault token revoke -accessor and revoking a whole role's tokens", "vault lease revoke -prefix and -force", "Rotating database roots, cloud roots and Transit keys after exposure", "Rekeying after a key share leak", "Evidence preservation and timeline building", "Post-incident review and control changes"],
+          "tools": ["Vault CLI", "jq", "Splunk"],
+          "lab_task": "The trainer leaks an AppRole token and SecretID into a public lab repository and uses them from an unknown IP. Find the token's HMAC in audit logs with sys/audit-hash, list every path it touched, revoke it by accessor, destroy all SecretIDs for the role, revoke its database leases by prefix, rotate the database root and add token_bound_cidrs. Produce a timeline.",
+          "deliverable": "Incident report with timeline, audit queries, revocation commands and control changes",
+          "checks": [["Search the audit log by the leaked token's HMAC", "Every request from the unknown IP is listed with paths and times", "jq output"], ["Use the leaked token after revocation", "Vault returns 403 permission denied", "Error output"], ["Log in with the old SecretID after destroying the role's SecretIDs", "Login fails with invalid secret id", "Error output"]],
+          "objectives": ["Contain leaked Vault credentials quickly", "Reconstruct attacker activity from audit logs", "Rotate downstream secrets after exposure"]
+        },
+        {
+          "topic": "Migrating Between Vault and OpenBao",
+          "subtopics": ["OpenBao as the Linux Foundation fork of Vault under MPL 2.0", "The bao CLI, BAO_ADDR and API compatibility for common paths", "Feature differences and features unique to each project", "Which Vault Enterprise features have no OpenBao equivalent", "Migration approaches: snapshot compatibility limits versus re-creating configuration", "Exporting KV data with scripts and re-importing it", "Re-pointing clients, agents and Kubernetes integrations", "Licensing review with legal and procurement"],
+          "tools": ["OpenBao", "Vault CLI", "Terraform Vault Provider", "jq"],
+          "lab_task": "Stand up an OpenBao server and recreate a lab Vault configuration on it with the same Terraform code by changing only the provider address. Copy KV v2 data with a script that walks vault kv list recursively and writes with bao kv put, then point a Vault Agent or OpenBao agent template at the new server. List every feature or path from the lab that failed on OpenBao.",
+          "deliverable": "Migration log, KV copy script, client cut-over steps and a feature gap list",
+          "checks": [["Compare the KV key count on Vault and OpenBao after the copy", "Both report the same number of keys", "Script output"], ["Run terraform plan against OpenBao after apply", "The plan shows No changes", "Plan output"], ["Read a secret through the re-pointed agent template", "The rendered file holds the value from OpenBao", "File contents (redacted)"]],
+          "objectives": ["Compare Vault and OpenBao for a given environment", "Migrate configuration and KV data between them", "Cut clients over with minimal downtime"]
+        },
+        {
+          "topic": "Diagnosing Vault with operator diagnose, debug Bundles and Logs",
+          "subtopics": ["vault operator diagnose for configuration, storage, seal and TLS checks", "vault debug -duration and -interval and what the bundle contains", "Structured logs with log_format=json and log_level=trace briefly", "vault read sys/host-info and sys/in-flight-req", "pprof profiles for CPU and memory", "Common failures: clock skew, disk latency, KMS throttling, expired TLS certificates", "Leader flapping and network partitions", "Opening a support case with the right evidence"],
+          "tools": ["Vault CLI", "jq", "go tool pprof"],
+          "lab_task": "The trainer injects four faults into a lab cluster: a 300 ms disk delay with tc or dm-delay on one node, an expired listener certificate, a clock skew of 10 minutes on a joiner, and throttled KMS calls. For each, collect vault debug -duration=2m output and logs, identify the cause from metrics or log lines, fix it and record time to diagnosis.",
+          "deliverable": "Diagnosis report with the four debug bundles, evidence lines and fixes",
+          "checks": [["Run vault debug -duration=2m on the slow-disk node", "The bundle contains metrics and pprof profiles showing raft commit time far above the other nodes", "Bundle contents and graph"], ["Run vault operator diagnose on the node with the expired certificate", "The TLS check fails and names the expired certificate", "Diagnose output"], ["Read the skewed joiner's logs", "Log lines show TLS or token validation errors linked to time differences", "Log extract"]],
+          "objectives": ["Collect diagnostic evidence from Vault", "Match symptoms to root causes", "Prepare complete support cases"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Region Vault Service with DR Runbook",
+          "subtopics": ["Service design: regions, replication or HCP choice and namespace layout", "Seal, audit, telemetry and backup design", "Vault configuration as code with the Terraform Vault provider", "Live DR exercise with failover and failback", "Security incident tabletop using audit evidence", "Final review with RPO, RTO and SLO results"],
+          "tools": ["Vault CLI", "Vault Enterprise", "Terraform Vault Provider", "Prometheus", "Grafana"],
+          "lab_task": "Design and run a two-region Vault service for 50 teams: primary and DR clusters (Enterprise replication, HCP Vault Dedicated, or snapshot restore for Community and OpenBao), namespaces or mount-per-team layout, KMS seals, redundant audit, alerts and Terraform-managed config. Fail the primary region in a timed exercise, promote or restore, fail back, and report measured RPO and RTO.",
+          "deliverable": "Service design, Terraform repository, dashboards, DR runbook and an exercise report with measured RPO and RTO",
+          "checks": [["Fail the primary region during the exercise", "Clients are serving from the DR region within the stated RTO", "Timed exercise log"], ["Compare the newest secret on the DR cluster with the last write on the primary", "The gap is within the stated RPO", "Timestamps from both clusters"], ["Run terraform plan against both regions after failback", "Both plans show No changes", "Plan output"]],
+          "objectives": ["Design a multi-region Vault service with clear trade-offs", "Execute and measure a DR exercise", "Present an operable service to stakeholders"]
+        }
+      ]
+    }
+  }
+}

@@ -1558,7 +1558,12 @@ export default function Trainers() {
     }
     setLoading(true)
     try {
-      const res = await semanticTrainerSearch({ q: query, limit: 15 })
+      const res = await semanticTrainerSearch({
+        q: query,
+        limit: 15,
+        domain: domain || undefined,
+        location: locationFilter.trim() || undefined,
+      })
       setTrainers(res.data.items || [])
       setTotal(res.data.total || 0)
       setPages(1)
@@ -2158,20 +2163,45 @@ export default function Trainers() {
               <h2 className="mt-3 text-xl font-black text-slate-950">Ask for trainers in natural language</h2>
               <p className="mt-1 text-sm text-slate-600">Search resumes, skills, domains, experience, location, and availability signals with ranked explanations.</p>
             </div>
-            <form onSubmit={handleSemanticSearch} className="flex min-w-0 flex-1 gap-2 xl:max-w-3xl">
-              <div className="relative min-w-0 flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-500" />
-                <input
-                  className="input h-12 pl-9"
-                  value={semanticQuery}
-                  onChange={e => setSemanticQuery(e.target.value)}
-                  placeholder="Find a Python trainer with 5+ years experience available next week"
-                />
+            <form onSubmit={handleSemanticSearch} className="flex min-w-0 flex-1 flex-col gap-2 xl:max-w-3xl">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <label className="relative block">
+                  <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-500" />
+                  <span className="sr-only">Filter by location</span>
+                  <input
+                    className="input h-11 pl-9"
+                    value={locationFilter}
+                    onChange={e => { setLocationFilter(e.target.value); setPage(1); setSemanticMode(false); setSemanticIntent(null) }}
+                    placeholder="Any location"
+                  />
+                </label>
+                <label className="relative block">
+                  <span className="sr-only">Filter by domain</span>
+                  <select
+                    className="input h-11"
+                    value={domain}
+                    onChange={e => { setDomain(e.target.value); setPage(1); setSemanticMode(false); setSemanticIntent(null) }}
+                  >
+                    <option value="">Any domain</option>
+                    {domainOptions.map(item => <option key={item} value={item}>{item}</option>)}
+                  </select>
+                </label>
               </div>
-              <button type="submit" disabled={loading} className="btn-primary h-12 px-4 disabled:opacity-60">
-                {loading && semanticMode ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                Search
-              </button>
+              <div className="flex min-w-0 gap-2">
+                <div className="relative min-w-0 flex-1">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-500" />
+                  <input
+                    className="input h-12 pl-9"
+                    value={semanticQuery}
+                    onChange={e => setSemanticQuery(e.target.value)}
+                    placeholder="Find a Python trainer with 5+ years experience available next week"
+                  />
+                </div>
+                <button type="submit" disabled={loading} className="btn-primary h-12 px-4 disabled:opacity-60">
+                  {loading && semanticMode ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                  Search
+                </button>
+              </div>
             </form>
           </div>
           {semanticMode && semanticIntent && (
@@ -2191,7 +2221,7 @@ export default function Trainers() {
           <Filter className="w-4 h-4 text-slate-400" />
           Trainer filters
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
           <form onSubmit={handleSearch} className="md:col-span-2 xl:col-span-2 flex gap-2">
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -2205,11 +2235,6 @@ export default function Trainers() {
             <button type="submit" className="btn-primary px-4">Search</button>
           </form>
 
-          <select className="input" value={domain} onChange={e => { setDomain(e.target.value); setPage(1) }}>
-            <option value="">All Software Domains</option>
-            {domainOptions.map(item => <option key={item} value={item}>{item}</option>)}
-          </select>
-
           <select className="input" value={category} onChange={e => { setCategory(e.target.value); setPage(1) }}>
             <option value="">All Categories</option>
             {categoryOptions.map(item => <option key={item} value={item}>{item}</option>)}
@@ -2219,16 +2244,6 @@ export default function Trainers() {
             <option value="">All Industries</option>
             {industryOptions.map(item => <option key={item} value={item}>{item}</option>)}
           </select>
-
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              className="input pl-9"
-              placeholder="Location"
-              value={locationFilter}
-              onChange={e => { setLocationFilter(e.target.value); setPage(1) }}
-            />
-          </div>
 
           <select className="input" value={experience} onChange={e => { setExperience(e.target.value); setPage(1) }}>
             {EXPERIENCE_OPTIONS.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}

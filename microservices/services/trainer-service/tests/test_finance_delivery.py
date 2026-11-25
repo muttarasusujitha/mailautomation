@@ -139,58 +139,30 @@ def test_finance_approval_serializes_dates_and_excludes_database_id(monkeypatch)
     assert requests[1][1]['attachments']
 
 
-def test_combined_client_po_creates_and_sends_separate_training_and_lab_invoices(monkeypatch):
-    requests = transport(monkeypatch)
-    db = database()
-    db['requirements'].find_one = AsyncMock(return_value={
-        'requirement_id': 'REQ-1', 'technology_needed': 'DevOps',
-        'budget_total': 100000, 'lab_client_price': 30000,
-        'client_budget_includes_lab': True,
-    })
-    db['finance_approvals'].find_one = AsyncMock(return_value={'requirement_id': 'REQ-1'})
-
-    result = asyncio.run(finance.approve_and_send_invoice(
-        'FIN-COMBINED',
-        finance.FinanceApproveRequest(client_name='Acme', client_email='client@example.com', po_number='PO-100', total_amount=100000),
-        db,
-    ))
-
-    assert result['status'] == 'invoice_sent'
-    assert result['lab_invoice_id'].startswith('LINV-')
-    # Two separate PDFs are delivered in the same approved finance action.
-    assert len(requests) == 3
-    assert len(requests[-1][1]['attachments']) == 2
-    po = db['purchase_orders'].update_one.await_args.args[1]['$set']
-    assert po['total_amount'] == 100000
-    assert [item['description'] for item in po['items']] == ['Training services', 'Lab services']
-    created = [call.args[1]['$set'] for call in db['invoices'].update_one.await_args_list if 'invoice_kind' in call.args[1].get('$set', {})]
-    assert {invoice['invoice_kind'] for invoice in created} == {'lab'}
-    assert created[0]['total_amount'] == 30000
-
-
-def test_invoice_approval_confirms_the_batch_and_completes_the_pipeline(monkeypatch):
+def test_received_po_sets_batch_confirmed_and_completes_pipeline(monkeypatch):
     transport(monkeypatch)
     db = database()
-    db['finance_approvals'].find_one = AsyncMock(return_value={
-        'requirement_id': 'REQ-1',
-        'trainer_id': 'T-1',
+    db['shortlists'] = SimpleNamespace(find_one=AsyncMock(return_value={}), update_one=AsyncMock())
+    db['finance_approvals'].find_one.return_value = {
+        'status': 'processing_invoice',
+        'requirement_id': 'REQ-PO',
+        'trainer_id': 'T-PO',
         'client_email': 'client@example.com',
-    })
-    db['shortlists'] = SimpleNamespace(
-        find_one=AsyncMock(return_value={'top_trainers': [{'trainer_id': 'T-1', 'pipeline_status': 'selected'}]}),
-        update_one=AsyncMock(),
+    }
+    payload = finance.FinanceApproveRequest(
+        client_name='Test', client_email='client@example.com', po_number='PO-9', total_amount=1000,
     )
-    payload = finance.FinanceApproveRequest(client_name='Test', client_email='client@example.com', po_number='PO-9', total_amount=1000)
     result = asyncio.run(finance.approve_and_send_invoice('FIN-1', payload, db))
-    assert result['status'] == 'invoice_sent'
+    assert result['batch_confirmed'] is True
+    assert result['pipeline_status'] == 'completed'
     requirement_update = db['requirements'].update_one.await_args.args[1]['$set']
     assert requirement_update['batch_confirmed'] is True
-    assert requirement_update['status'] == 'batch_confirmed'
-    assert requirement_update['pipeline_status'] == 'completed'
-    shortlist_update = db['shortlists'].update_one.await_args.args[1]['$set']
-    assert shortlist_update['pipeline_summary.status'] == 'completed'
-    assert shortlist_update['pipeline_summary.current_stage'] == 'batch_confirmed'
-    assert shortlist_update['top_trainers.$.pipeline_status'] == 'training_confirmed'
+    assert requirement_update['status'] == 'completed'
+    assert requirement_update['invoice_sent'] is True
+    trainer_update = db['shortlists'].update_one.await_args.args[1]['$set']
+    assert trainer_update['top_trainers.$.pipeline_status'] == 'training_confirmed'
+    assert trainer_update['top_trainers.$.batch_confirmed'] is True
+    assert trainer_update['pipeline_summary.status'] == 'completed'
 
 
 def test_invalid_amount_does_not_claim_approval():

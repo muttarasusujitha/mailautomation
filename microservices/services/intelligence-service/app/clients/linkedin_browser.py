@@ -1,4 +1,4 @@
-"""Read visible LinkedIn search cards using a dedicated, human-authenticated profile."""
+﻿"""Read visible LinkedIn search cards using a dedicated, human-authenticated profile."""
 import asyncio
 import logging
 import os
@@ -78,6 +78,9 @@ def search_cursor_key(domain, location=''):
 
 
 def canonical_url(value):
+    value = str(value or '').strip()
+    if value.startswith('/'):
+        value = 'https://www.linkedin.com' + value
     parts = urlsplit(value)
     host = (parts.hostname or '').lower()
     if parts.scheme != 'https' or not (host == 'linkedin.com' or host.endswith('.linkedin.com')):
@@ -143,10 +146,16 @@ def author_headline(content):
 async def scroll_results(page, cards):
     # LinkedIn scrolls a nested results panel. A wheel event at the default
     # pointer location leaves the initial three cards unchanged.
-    await cards.last.scroll_into_view_if_needed(timeout=3000)
-    await cards.last.hover(timeout=3000)
-    await page.mouse.wheel(0, 1800)
-    await page.wait_for_timeout(1500)
+    try:
+        await cards.last.scroll_into_view_if_needed(timeout=3000)
+        await cards.last.hover(timeout=3000)
+    except Exception:
+        pass
+    try:
+        await page.mouse.wheel(0, 1800)
+        await page.wait_for_timeout(1500)
+    except Exception:
+        pass
 
 
 async def read_post_cards(page, context, mode, limit, results=None, processed=None):
@@ -290,6 +299,40 @@ def _people_search_url(keywords, page_number):
 from shared.trainer_targets import TRAINER_RESULT_CEILING, TRAINER_RESULT_TARGET, TRAINER_SCAN_LIMIT
 
 
+def trainer_scan_budget(limit):
+    limit = min(max(int(limit or 1), 1), TRAINER_RESULT_CEILING)
+    full_target = limit >= 50
+    scan_limit = TRAINER_SCAN_LIMIT if full_target else min(TRAINER_SCAN_LIMIT, max(limit * 4, limit))
+    page_cap = max(1, (scan_limit + 9) // 10) if full_target else min(20, max(limit, 2))
+    seconds = 180 if full_target else 130 if limit >= 20 else 70 if limit >= 2 else 40
+    return limit, scan_limit, page_cap, seconds
+
+
+def trainer_collection_budget(limit):
+    return trainer_scan_budget(limit)
+
+
+def profiles_from_search_html(raw, limit=25):
+    from app.clients.linkedin_people import profiles_from_text
+    return [
+        {'url': row['url'], 'text': row.get('content') or ''}
+        for row in profiles_from_text(raw, limit=limit)
+    ]
+
+
+def trainer_people_budget(limit):
+    return 180 if int(limit or 0) >= 20 else 40
+
+
+def trainer_content_budget(limit):
+    return 40 if int(limit or 0) >= 20 else 20
+
+
+def account_fetch_limit(requested, mode):
+    ceiling = TRAINER_RESULT_CEILING if mode == 'trainer' else 50
+    return min(max(int(requested or 1), 1), ceiling)
+
+
 
 class PeopleIdentitiesHidden(Exception):
     pass
@@ -328,8 +371,8 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     started = asyncio.get_running_loop().time()
     # People pages and the content fallback have separate budgets, so a slow
     # page cannot consume the fallback or raise a time limit before it runs.
-    people_budget = 180 if limit >= 20 else 45
-    content_budget = 40 if limit >= 20 else 20
+    people_budget = trainer_people_budget(limit)
+    content_budget = trainer_content_budget(limit)
     people_deadline = started + people_budget
     deadline = started + people_budget + content_budget
 
@@ -474,6 +517,22 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
         raise
     if len(results) >= limit:
         return results
+    try:
+        markup = await page.content()
+    except Exception:
+        markup = ''
+    from app.clients.linkedin_people import profiles_from_text
+    for profile in profiles_from_text(markup, limit=scan_limit):
+        url = canonical_url(profile.get('url'))
+        content = profile.get('content') or ''
+        if not url or url in seen or url.lower() in excluded or not content.strip():
+            continue
+        candidate = {**profile, 'url': url}
+        if _normalize_result(candidate, domain, 'trainer'):
+            seen.add(url)
+            results.append(candidate)
+            if len(results) >= limit:
+                return results
     phrases = ('"corporate trainer"', '"trainer" "I am"', '"technical trainer"',
                '"instructor"', '"freelance trainer"',
                '"training consultant"', '"trainer" "delivered"', '"trainer" "workshop"')

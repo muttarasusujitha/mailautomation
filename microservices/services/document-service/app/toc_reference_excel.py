@@ -303,7 +303,13 @@ def render_reference_toc(toc):
     plan_rows, outcomes, assessments, delivery_rows = [], [], [], []
     for index, day in enumerate(days, 1):
         title = day.get("focus_area") or day.get("module") or day.get("title") or f"Module {index}"
-        topics = text(day.get("subtopics") or (day.get("morning_session") or {}).get("topics"))
+        roadmap = [step for step in day.get("roadmap") or [] if isinstance(step, dict) and step.get("subtopics")]
+        if roadmap:
+            # Subtopics grouped into ordered stages: "Step 1: Understand" then its topics.
+            topics = "\n".join(f"Step {number}: {step.get('stage')}\n" + "\n".join(f"  - {text(item)}" for item in step["subtopics"])
+                               for number, step in enumerate(roadmap, 1))
+        else:
+            topics = text(day.get("subtopics") or (day.get("morning_session") or {}).get("topics"))
         lab = text(day.get("lab") or day.get("lab_task"))
         objectives = text(day.get("learning_objectives"))
         assessment = text(day.get("assessment")) or "To be confirmed"

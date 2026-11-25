@@ -16,6 +16,34 @@ def money(value):
     return value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
 
+def offline_expense_items(requirement):
+    """Return confirmed trainer travel and accommodation expenses as invoice rows."""
+    logistics = (requirement or {}).get('offline_logistics') or {}
+    expenses = logistics.get('actual_expenses') or {}
+    descriptions = {
+        'travel': 'Trainer travel expenses',
+        'accommodation': 'Trainer accommodation expenses',
+        'food': 'Trainer meal expenses',
+    }
+    rows = []
+    for category, description in descriptions.items():
+        raw_amount = expenses.get(category)
+        if raw_amount in (None, ''):
+            continue
+        try:
+            amount = money(number(raw_amount, f'{description} amount'))
+        except ValueError:
+            continue
+        if amount > 0:
+            rows.append({
+                'description': description,
+                'quantity': 1,
+                'rate': float(amount),
+                'amount': float(amount),
+            })
+    return rows
+
+
 def calculate_document(items, total_amount=0, gst_rate=0, *, description='Training services', duration=0, day_rate=0):
     """Recompute every line; caller-supplied amount fields are never authoritative."""
     rows = []
@@ -45,16 +73,3 @@ def calculate_document(items, total_amount=0, gst_rate=0, *, description='Traini
     tax_amount = money(subtotal * tax / 100)
     return {'items': rows, 'subtotal': float(subtotal), 'gst_rate': float(tax),
             'gst_amount': float(tax_amount), 'grand_total': float(subtotal + tax_amount)}
-
-
-def offline_expense_items(requirement):
-    logistics = (requirement or {}).get("offline_logistics") or {}
-    owners = logistics.get("owners") or {}
-    rows = []
-    for category, value in (logistics.get("actual_expenses") or {}).items():
-        if category not in {"travel", "accommodation", "food"} or owners.get(category) != "clahan":
-            continue
-        amount = round(float(value), 2)
-        if 0 < amount < float("inf"):
-            rows.append({"description": f"Offline {category} expense", "quantity": 1, "rate": amount, "amount": amount})
-    return rows

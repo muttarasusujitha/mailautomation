@@ -996,6 +996,54 @@ def _should_start_trainer_automation(subject: str, email_doc: Dict[str, Any], ex
     )
 
 
+def _confirmed_requirement_on_first_client_mail(
+    subject: str,
+    email_doc: Dict[str, Any],
+    extracted: Dict[str, Any],
+) -> bool:
+    """Mail 1 starts on the opening confirmed client mail, without a later authorizing reply."""
+    if extracted.get("is_non_client_email") or not _has_training_domain(extracted):
+        return False
+    if email_doc.get("trainer_automation_status") in {"started", "no_trainers_emailed"}:
+        return False
+    if _is_reply_thread(subject, email_doc):
+        return False
+    source = _strip_quoted_email_history(
+        email_doc.get("classification_body")
+        or email_doc.get("clean_body")
+        or email_doc.get("raw_body")
+        or email_doc.get("body")
+        or extracted.get("client_requirement_text")
+        or ""
+    )
+    return _requirement_flow_from_email(extracted, source) == "confirmed"
+
+
+def _should_send_trainer_mail1_now(
+    *,
+    automation_ready: bool,
+    confirmed_first_mail: bool,
+    is_first_client_mail: bool,
+    explicit_trainer_authorization: bool,
+    details_ready_on_client_reply: bool,
+    is_training_request: bool,
+    has_domain: bool,
+) -> bool:
+    """Confirmed intake sends Mail 1 immediately. Other mail waits for authorization."""
+    return bool(
+        (automation_ready or confirmed_first_mail)
+        and (
+            confirmed_first_mail
+            or (
+                not is_first_client_mail
+                and (explicit_trainer_authorization or details_ready_on_client_reply)
+            )
+        )
+        and (is_training_request or confirmed_first_mail)
+        and has_domain
+    )
+
+
 def _trainer_automation_update(send_result: Dict[str, Any]) -> Dict[str, Any]:
     sent_count = _safe_int(send_result.get("sent"), 0)
     total_count = _safe_int(send_result.get("total"), 0)
@@ -1216,6 +1264,17 @@ def _extract_person_name_from_local_part(local_part: str) -> str:
 def _infer_technology(subject: str, body: str) -> str:
     text = f"{subject}\n{body}"
     explicit = _field_value_loose(text, ["Training name", "Training Name", "Technology", "Tech", "Domain", "Course", "Topic"])
+    topic = _field_value_loose(text, ["Topic"])
+    if topic and explicit and topic.lower().startswith(explicit.lower()) and len(topic) > len(explicit):
+        explicit = topic
+    # Topic fields often contain a composite course name (for example,
+    # "DevOps & CI/CD"). Preserve that explicit label instead of reducing it
+    # to the first recognized technology later in candidate normalization.
+    if topic and re.search(r"[&/]", topic) and any(
+        re.match(rf"\s*{re.escape(known)}\b", topic, flags=re.IGNORECASE)
+        for known in KNOWN_TECHNOLOGIES
+    ):
+        return _clean(topic).strip(" .;,:-")
     candidates = []
 
     subject_match = re.search(
@@ -1517,6 +1576,57 @@ def _extract_budget(text: str) -> Dict[str, Any]:
     return result
 
 
+def _is_unconfirmed_value(value: Any) -> bool:
+    text = _clean(value).lower()
+    return bool(re.search(r"\b(?:to be confirmed|to be discussed|tbc|tbd)\b", text))
+
+
+def _requirement_is_proposal(requirement: Dict[str, Any]) -> bool:
+    target = _clean(requirement.get("pipeline_target") or requirement.get("pipeline_page")).lower().strip("/")
+    if target == "shortlist":
+        return True
+    if target == "shortlist1":
+        return False
+    flow = _clean(
+        requirement.get("batch_flow") or requirement.get("batch_type") or requirement.get("requirement_type")
+    ).lower()
+    return "proposal" in flow
+
+
+def _explicit_open_logistics(extracted: Dict[str, Any]) -> List[str]:
+    """Fields the client explicitly left open. Urgency does not close them."""
+    fields = []
+    if _is_unconfirmed_value(extracted.get("mode")):
+        fields.append("Training mode")
+    if _is_unconfirmed_value(extracted.get("duration_text")) or _is_unconfirmed_value(extracted.get("duration")):
+        fields.append("Training duration")
+    if _is_unconfirmed_value(extracted.get("location") or extracted.get("preferred_location")):
+        fields.append("Location or dates")
+    return fields
+
+
+def _is_commercial_only_reply(text: Any) -> bool:
+    """A bare or commercial 'yes' supplies neither a profile nor dated slots."""
+    reply = _strip_quoted_email_history(text)
+    lower = _clean(reply).lower()
+    if not lower:
+        return False
+    if _dated_interview_slot_count(reply) > 0 or _linkedin_profile_url(reply):
+        return False
+    if re.search(
+        r"\b(?:available|availability|cv|resume|profile attached|attached profile|certification|certified|experience|linkedin)\b",
+        lower,
+    ):
+        return False
+    if re.fullmatch(r"(?:yes|yeah|yep|ok|okay|sure|confirmed|fine|i confirm)[.!]?", lower):
+        return True
+    return bool(
+        re.search(r"\b(?:yes|ok|okay|sure|confirm(?:ed)?|accept(?:ed)?|agree(?:d)?|fine|works)\b", lower)
+        and re.search(r"\b(?:commercials?|rate|charges?|offer(?:ed)?|pricing)\b", lower)
+        and len(lower) <= 240
+    )
+
+
 def _has_requirement_value(value: Any) -> bool:
     """Return whether an extracted field contains a usable, non-placeholder value."""
     if value is None or value is False:
@@ -1538,19 +1648,30 @@ def _has_requirement_value(value: Any) -> bool:
 
 def _missing_training_details(details: Dict[str, Any]) -> List[str]:
     missing = []
-    if not any(_has_requirement_value(details.get(key)) for key in ("duration_days", "duration_hours", "duration_text")):
+    duration_known = bool(
+        details.get("duration_days") or details.get("duration_hours") or _clean(details.get("duration_text"))
+    ) and not _is_unconfirmed_value(details.get("duration_text"))
+    if not duration_known:
         missing.append("Training duration")
     if not any(_has_requirement_value(details.get(key)) for key in (
         "timing", "preferred_dates", "training_dates", "timeline_start",
     )):
         missing.append("Preferred dates or timings")
-    if not any(_has_requirement_value(details.get(key)) for key in ("mode", "training_mode", "delivery_mode", "location")):
+    if not details.get("mode") or _is_unconfirmed_value(details.get("mode")):
         missing.append("Training mode/location")
-    # Headcount can be absent; lab quotes use the disclosed one-participant
-    # baseline until the client supplies a count.
-    if not any(_has_requirement_value(details.get(key)) for key in (
-        "budget_total", "budget_per_day", "budget_range", "budget_min", "budget_max",
-    )):
+    audience_known = bool(_clean(details.get("audience_level"))) and not _is_unconfirmed_value(details.get("audience_level"))
+    if details.get("participant_count") is None and not audience_known:
+        missing.append("Participant count")
+    schedule_known = bool(
+        _clean(details.get("mode"))
+        and not _is_unconfirmed_value(details.get("mode"))
+        and (details.get("duration_days") or details.get("duration_hours"))
+        and (
+            (_clean(details.get("location")) and not _is_unconfirmed_value(details.get("location")))
+            or (_clean(details.get("timing")) and not _is_unconfirmed_value(details.get("timing")))
+        )
+    )
+    if not (details.get("budget_total") or details.get("budget_per_day")) and not schedule_known:
         missing.append("Budget or expected commercial range, if available")
     return missing
 
@@ -2356,13 +2477,20 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
             "Mode",
             "Training Mode",
             "Mode of Training",
-            "Training Mode/Location",
             "Delivery Mode",
+            "Training Mode/Location",
+            "Mode/Location",
         ],
     )
-    location = _field_value_loose(text, ["Training Location", "Location", "Venue"])
+    location = _field_value_loose(
+        text,
+        ["Location", "Venue", "Training Location", "Preferred Location"],
+    )
     if not mode:
-        if "online" in lower or "virtual" in lower:
+        # "To be confirmed (Online/Offline)" is an open choice, not a selected mode.
+        if re.search(r"\bto be confirmed\b", lower) and re.search(r"online\s*/\s*offline", lower):
+            mode = "To be confirmed (Online/Offline)"
+        elif re.search(r"\bonline\b|\bvirtual\b", lower) and not re.search(r"online\s*/\s*offline", lower):
             mode = "Online"
         elif "offline" in lower or "onsite" in lower or "on-site" in lower:
             mode = "Offline"
@@ -2389,7 +2517,9 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         lower,
         flags=re.IGNORECASE | re.DOTALL,
     ))
-    lab_cost_requested = lab_delivery_requested or explicit_lab_cost_requested
+    # Only an explicit lab-cost request attaches the workbook. A mention of
+    # lab tools, setup, access, or a local/cloud lab must not force it.
+    lab_cost_requested = explicit_lab_cost_requested
     lab_hours_per_day = None
     total_lab_duration_hours = None
     lab_daily_match = re.search(
@@ -2398,7 +2528,7 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         text,
         flags=re.IGNORECASE,
     )
-    if lab_daily_match and lab_cost_requested:
+    if lab_daily_match and (lab_cost_requested or lab_delivery_requested):
         lab_hours_per_day = _safe_float(lab_daily_match.group(1))
     lab_total_match = re.search(r"\btotal\s+lab\s+duration\s*:\s*(\d+(?:\.\d+)?)\s*hours?", text, flags=re.IGNORECASE)
     if lab_total_match:
@@ -2454,6 +2584,25 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         pax_match = re.search(r"\bno\.?\s*of\s*pax\s*:\s*(\d+)(?:\s*[-\u2013]\s*(\d+))?", text, flags=re.IGNORECASE)
         if pax_match:
             participants = _safe_int(pax_match.group(2) or pax_match.group(1))
+    if not audience_level and participant_text and participants is None and not re.search(r"\d", participant_text):
+        audience_level = participant_text
+
+    experience_required = _field_value_loose(
+        text,
+        ["Experience Required", "Minimum Experience", "Relevant Experience", "Experience"],
+    )
+    min_experience_years = None
+    experience_match = re.search(r"(\d{1,2})\s*\+", experience_required or "", flags=re.IGNORECASE)
+    if experience_match:
+        min_experience_years = _safe_int(experience_match.group(1))
+
+    total_sessions = _field_value(text, ["Total Sessions", "Number of Sessions", "Sessions"])
+    duration_per_session = _field_value(text, ["Duration per Session", "Hours per Session", "Session Duration"])
+    total_training_hours = _field_value(text, ["Total Training Hours", "Total Hours"])
+    hours_per_session = None
+    session_hours_match = re.search(r"(\d+(?:\.\d+)?)", duration_per_session or "")
+    if session_hours_match:
+        hours_per_session = _safe_float(session_hours_match.group(1))
 
     signals = sum(1 for signal in TRAINING_SIGNALS if signal in lower)
     confidence = 0.15
@@ -2485,6 +2634,7 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
     # client's budget; it does not ask us to send trainer commercials back.
     # Only retain commercials as a requested deliverable when the same line
     # actually asks for a quote/rate/commercial response.
+    commercial_lines = _plain_text_lines(text).splitlines()
     commercial_requested_explicitly = any(
         re.search(
             r"\b(?:share|send|provide|submit|quote|require|need|kindly\s+share)\b.{0,70}"
@@ -2494,7 +2644,11 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
             line,
             flags=re.IGNORECASE,
         )
-        for line in _plain_text_lines(text).splitlines()
+        or (
+            re.match(r"(?i)^\s*(?:[-*\u2022]\s*)?commercials?\b", line)
+            and not re.search(r"\d", line)
+        )
+        for line in commercial_lines
     )
     detail_map = {
         "cv": "Updated CV / Trainer Profile",
@@ -2573,6 +2727,15 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
     else:
         toc_action = ""
 
+    labeled_training_schedule = bool(
+        technology
+        and (duration.get("duration_days") or duration.get("duration_hours"))
+        and mode
+        and not _is_unconfirmed_value(mode)
+        and re.search(r"(?im)^\s*mode\s*:", field_body)
+    )
+    if labeled_training_schedule and not non_client_email and not latest_coordination_intent:
+        direct_request = True
     is_training_request = bool(technology) and direct_request and not non_client_email and not latest_coordination_intent
     inferred_client_name = _clean(sender_name)
     if "@" in inferred_client_name:
@@ -2590,8 +2753,16 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         "mode": mode,
         "location": location,
         "delivery_mode": mode,
+        "location": location,
+        "preferred_location": location,
         "audience_level": audience_level,
         "timing": timing,
+        "experience_required": experience_required,
+        "min_experience_years": min_experience_years,
+        "total_sessions": total_sessions,
+        "duration_per_session": duration_per_session,
+        "hours_per_session": hours_per_session,
+        "total_training_hours": total_training_hours,
         "hands_on_lab": hands_on_lab,
         "lab_hours_per_day": lab_hours_per_day,
         "total_lab_duration_hours": total_lab_duration_hours,
@@ -2635,6 +2806,8 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
             "training_dates": dates.get("training_dates"),
             "timeline_start": dates.get("timeline_start"),
             "mode": mode,
+            "location": location,
+            "audience_level": audience_level,
             "participant_count": participants,
         }),
         "urgency": "urgent" if "immediate" in lower or "earliest" in lower or "urgent" in lower else "normal",
@@ -2866,24 +3039,6 @@ def _lab_is_clahan_managed(extracted: Dict[str, Any]) -> bool:
     return "Lab availability and cost" in (extracted.get("clahan_managed_details") or [])
 
 
-def _ack_should_promise_toc(extracted: Dict[str, Any], labels: list[str]) -> bool:
-    """ToC is promised only when the client asked for one, or Clahan is writing it."""
-    if "ToC" in labels or extracted.get("toc_requested"):
-        return True
-    return _clean(extracted.get("toc_action")).lower() == "generate_by_clahan"
-
-
-def _shared_batch_details(extracted: Dict[str, Any]) -> bool:
-    return bool(
-        _safe_float(extracted.get("duration_days"), 0)
-        or _clean(extracted.get("mode"))
-        or _known_lab_hours(extracted)
-        or _clean(extracted.get("audience_level"))
-    )
-
-
-# One version pool for every domain. The domain string is read from the
-# requirement input (technology_needed, then technology, then domain) and
 # placed in the sentence. There is no template per domain name. When none of
 # those fields is present, the note says "training requirement".
 # Eight professional notes. Version 1 and version 10 keep the reference tone.
@@ -3265,6 +3420,20 @@ def _ack_technology(extracted: Dict[str, Any]) -> str:
         if text:
             return text
     return ""
+
+
+def _topics_were_shared(extracted: Dict[str, Any]) -> bool:
+    topics = extracted.get("topics") or extracted.get("custom_topics")
+    if isinstance(topics, (list, tuple, set)):
+        return any(_clean(item) for item in topics)
+    return bool(_clean(topics))
+
+
+def _ack_should_promise_toc(extracted: Dict[str, Any], labels: List[str]) -> bool:
+    """Mention a ToC only when it was requested or assigned to Clahan."""
+    return "ToC" in labels or bool(extracted.get("toc_requested")) or (
+        _clean(extracted.get("toc_action")).lower() == "generate_by_clahan"
+    )
 
 
 def _ack_requirement_thanks(extracted: Dict[str, Any], template: str) -> str:
@@ -3962,6 +4131,38 @@ def _client_full_details_reply(extracted: Dict[str, Any]) -> Dict[str, str]:
 
 
 def _client_proceed_ack_reply(extracted: Dict[str, Any], details_later: bool = False) -> Dict[str, str]:
+    flow = _requirement_flow_from_email(
+        extracted,
+        extracted.get("requirement_source_text") or extracted.get("client_requirement_text") or "",
+    )
+    technology = _ack_technology(extracted)
+    if flow == "proposal" and technology.lower().startswith("sailpoint"):
+        details = []
+        if technology:
+            details.append(f"- Technology: {technology}")
+        years = _safe_int(extracted.get("min_experience_years"), 0)
+        if years:
+            details.append(f"- Experience required: {years}+ years")
+        audience = _clean(extracted.get("audience_level"))
+        if audience and not _is_unconfirmed_value(audience):
+            details.append(f"- Participants: {audience}")
+        requested = _client_requested_items_for_reply(extracted)
+        lab = any("lab" in str(item).lower() for item in (extracted.get("clahan_managed_details") or []))
+        requested_line = f"- Trainer details requested: {requested}"
+        if lab:
+            requested_line += "; lab support availability and associated cost, if applicable"
+        details.append(requested_line)
+        open_fields = _explicit_open_logistics(extracted) if not details_later else []
+        ask = "\n".join(f"- {item}" for item in open_fields)
+        body = (
+            "Hi,\n\n"
+            "Greetings of the day! Thanks for sharing your training requirement.\n\n"
+            "We have noted the following from your email:\n"
+            + "\n".join(details)
+            + ("\n\nPlease share:\n" + ask if ask else "")
+            + "\n\nThanks,\nAnnapurna U.\nClahan Technologies"
+        )
+        return {"subject": f"Re: {technology or 'Training'} Trainer Requirement", "body": body}
     if not details_later and not (extracted.get("needs_clarification") or []):
         return _client_short_requirement_ack(
             extracted,
@@ -4079,9 +4280,14 @@ def _trainer_mail2_details_reply(email_doc: Dict[str, Any]) -> Dict[str, str]:
         if value:
             training_lines.append(f"* {label}: {value}")
 
+    details_heading = (
+        "The training details noted for this proposal are below:"
+        if _requirement_is_proposal(requirement)
+        else "The confirmed training details are below:"
+    )
     body = (
         f"Dear {trainer_name},\n\n"
-        "Thanks for your response. The training details are below:\n\n"
+        f"Thank you for your response. {details_heading}\n\n"
         + "\n".join(training_lines)
         + "\n\n"
         "Please share:\n\n"
@@ -4406,6 +4612,22 @@ async def _send_missing_trainer_details_followup(
         "office_mail_category": "trainer_interested",
     }
     message = _trainer_mail2_details_reply(followup_doc)
+    if await _global_ai_wording_enabled(db):
+        rewritten, generation_source = await _client_pipeline_email_body(
+            db,
+            requirement=requirement,
+            workflow="trainer_mail2_followup",
+            subject=message["subject"],
+            reference_body=message["body"],
+            context={
+                "trainer_name": followup_doc.get("trainer_name") or "",
+                "missing_items": clean_missing,
+                "batch_type": "proposal" if _requirement_is_proposal(requirement) else "confirmed",
+            },
+        )
+        message = {**message, "body": rewritten, "generation_source": generation_source}
+    else:
+        message = {**message, "generation_source": "confirmed_body"}
     # Reuse the standard, idempotent sender but explicitly mark this as the
     # one permitted missing-details follow-up, not the old generic Mail 2.
     send_result = await _send_client_auto_reply(
@@ -5227,9 +5449,8 @@ def _trainer_missing_requested_details(
     reply_text = _strip_quoted_email_history(text)
     lower = reply_text.lower()
     requirement = requirement or {}
-    proposal_flow = "proposal" in _clean(
-        requirement.get("batch_flow") or requirement.get("batch_type") or requirement.get("requirement_type")
-    ).lower()
+    proposal_flow = _requirement_is_proposal(requirement)
+    commercial_only = proposal_flow and _is_commercial_only_reply(reply_text)
     if not lower:
         return ["Updated CV / Trainer Profile", "LinkedIn Profile", "Relevant training and implementation experience", "Availability"]
     source = " ".join(
@@ -5303,9 +5524,12 @@ def _trainer_missing_requested_details(
         supplied_by_resume = resume_attached and key == "cv"
         if key == "experience":
             supplied_by_resume = resume_attached
-        supplied_by_intent = positive_intent and (
+        supplied_by_intent = positive_intent and not commercial_only and (
             key == "availability" or (key == "commercials" and has_offered_budget)
         )
+        if commercial_only and key == "availability":
+            # Dated slots are the availability ask. A commercial yes is not one.
+            required = False
         supplied_by_client = key == "toc" and client_toc_supplied
         supplied_in_reply = bool(re.search(pattern, lower, flags=re.IGNORECASE))
         # "LinkedIn profile is not available" must not clear the checklist.
@@ -5323,21 +5547,37 @@ def _trainer_missing_requested_details(
     ) or (not has_explicit_requests and fallback_required.get("technical_slots", False))
     if slots_required and _slot_reply_intent(reply_text) != "valid_slots":
         missing.append("Exactly three interview/discussion slots (date, time, and time zone)")
+    if commercial_only and _slot_reply_intent(reply_text) != "valid_slots":
+        slot_item = "Exactly three interview/discussion slots (date, time, and time zone)"
+        if slot_item not in missing:
+            missing.append(slot_item)
     return missing
 
 
-DATED_SLOT_FOLLOWUP = "Exactly three dated interview/discussion slots (date, time, and time zone)"
+SLOT_FOLLOWUP_ITEM = "Exactly three interview/discussion slots (date, time, and time zone)"
 
 
-def _with_missing_dated_slots(missing: List[str], reply_text: Any) -> List[str]:
-    """An interested reply without three dated slots gets one Mail 2, not a second one later."""
-    items = [item for item in missing if _clean(item)]
+def _mail1_reply_followup_gaps(missing_details: List[str], slot_intent: str) -> List[str]:
+    """One follow-up covers missing profile details and omitted dated slots."""
+    gaps = list(dict.fromkeys(_clean(item) for item in (missing_details or []) if _clean(item)))
+    if slot_intent != "valid_slots" and SLOT_FOLLOWUP_ITEM not in gaps:
+        gaps.append(SLOT_FOLLOWUP_ITEM)
+    return gaps
+
+
+def _with_missing_dated_slots(missing_details: List[str], reply_text: Any) -> List[str]:
+    """Include the dated-slot item once until a reply contains exactly three valid slots."""
+    gaps = list(dict.fromkeys(_clean(item) for item in (missing_details or []) if _clean(item)))
+    slot_items = {
+        SLOT_FOLLOWUP_ITEM,
+        "Exactly three dated interview/discussion slots (date, time, and time zone)",
+    }
     if _slot_reply_intent(reply_text) == "valid_slots":
-        return items
-    if any("slot" in item.lower() for item in items):
-        return items
-    items.append(DATED_SLOT_FOLLOWUP)
-    return items
+        return [item for item in gaps if item not in slot_items]
+    item = "Exactly three dated interview/discussion slots (date, time, and time zone)"
+    if item not in gaps and SLOT_FOLLOWUP_ITEM not in gaps:
+        gaps.append(item)
+    return gaps
 
 
 def _trainer_reply_has_requested_details(
@@ -5345,6 +5585,8 @@ def _trainer_reply_has_requested_details(
     requirement: Optional[Dict[str, Any]] = None,
     email_doc: Optional[Dict[str, Any]] = None,
 ) -> bool:
+    if _requirement_is_proposal(requirement or {}) and _is_commercial_only_reply(text):
+        return False
     return not _trainer_missing_requested_details(text, requirement, email_doc)
 
 def _trainer_slot_booking_message(
@@ -7767,9 +8009,14 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
         _clean(req.get("location") or req.get("preferred_location")) if "venue" not in required_fields else ""
     )
     client_map_url = _client_confirmed_google_maps_url(text) or _clean(query.get("partial_client_maps_url"))
-    travel_value = _client_labeled_logistics_value(text, "travel")
-    accommodation_value = _client_labeled_logistics_value(text, "accommodation") or _clean(query.get("partial_accommodation"))
-    food_value = _client_labeled_logistics_value(text, "food") or _clean(query.get("partial_food"))
+    # Labeled lines first; otherwise plain sentences such as "We'll book the tickets and provide lunch".
+    stated = _client_offline_logistics(text)
+    travel_value = _client_labeled_logistics_value(text, "travel") or (stated.get("travel") or {}).get("answer", "")
+    accommodation_value = (_client_labeled_logistics_value(text, "accommodation")
+                           or (stated.get("accommodation") or {}).get("answer", "")
+                           or _clean(query.get("partial_accommodation")))
+    food_value = (_client_labeled_logistics_value(text, "food") or (stated.get("food") or {}).get("answer", "")
+                  or _clean(query.get("partial_food")))
     client_travel_terms = _client_confirmed_travel_terms(text) or travel_value or _clean(query.get("partial_client_travel_terms"))
     if (
         not accommodation_value
@@ -7785,7 +8032,10 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
         "accommodation": accommodation_value,
         "food": food_value,
     }
-    logistics_owners = {key: _logistics_owner(value) for key, value in logistics_answers.items() if value}
+    logistics_owners = {
+        key: (stated.get(key) or {}).get("owner") or _logistics_owner(value)
+        for key, value in logistics_answers.items() if value
+    }
     missing_confirmations = []
     if "venue" in required_fields and not client_venue:
         missing_confirmations.append("the exact training address")
@@ -7946,8 +8196,9 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
     await db["requirements"].update_one(
         {"requirement_id": query.get("requirement_id")},
         {"$set": {
-            "offline_logistics.answers": logistics_answers,
-            "offline_logistics.owners": logistics_owners,
+            # Per item, so an answer given in an earlier email is kept, not erased.
+            **{f"offline_logistics.answers.{key}": value for key, value in logistics_answers.items() if value},
+            **{f"offline_logistics.owners.{key}": value for key, value in logistics_owners.items()},
             "offline_logistics.client_confirmed_at": now,
             "updated_at": now,
         }},
@@ -8086,24 +8337,177 @@ def _client_labeled_logistics_value(text: Any, field: str) -> str:
     return ""
 
 
-def _logistics_owner(answer: Any) -> str:
-    """Classify booking and payment responsibility only when stated explicitly."""
-    value = _clean(answer).lower()
-    clahan = bool(re.search(
-        r"\b(?:clahan|we|our team)\b.{0,70}\b(?:book|arrange|pay|cover|provide|handle)\b|"
-        r"\b(?:book|arrange|pay|cover|provide|handle)\b.{0,70}\b(?:clahan|our team)\b",
-        value,
+# Logistics answers are read with rules, never a model. They are the client's own
+# words, so "we", "us" and "our team" are the client and "you" or "Clahan" is Clahan.
+_LOGISTICS_ACTION = (
+    r"(?:book(?:s|ed|ing)?|arrang(?:e|es|ed|ing)|pay(?:s|ing)?|paid|cover(?:s|ed|ing)?|"
+    r"provid(?:e|es|ed|ing)|handl(?:e|es|ed|ing)|organi[sz](?:e|es|ed|ing)|sponsor(?:s|ed|ing)?|"
+    r"bear(?:s|ing)?|borne|take(?:n)?\s+care(?:\s+of)?)"
+)
+_LOGISTICS_CLIENT_PARTY = (
+    r"(?:we|us|ourselves|our(?:\s+own)?(?:\s+(?:team|side|end|company|organi[sz]ation|office|"
+    r"admin(?:\s+team)?|hr|travel\s+desk|facilities))?|(?:the\s+)?client(?:\s+(?:team|side))?)"
+)
+_LOGISTICS_CLAHAN_PARTY = r"(?:you|your(?:\s+(?:team|side|end|company))?|yourselves|clahan(?:\s+technologies)?|(?:the\s+)?vendor)"
+_LOGISTICS_NOISE = re.compile(
+    r"\bthank(?:s|\s+you)\b|\blet\s+(?:us|me)\s+know\b|\b(?:inform|update|tell|ask|remind)\s+(?:us|you)\b|"
+    r"\bget\s+back\s+to\s+(?:us|you)\b|\bif\s+you\s+(?:need|have|want|require)\b|"
+    r"\bas\s+(?:you|we)\s+(?:discussed|mentioned|requested)\b",
+    re.IGNORECASE,
+)
+_LOGISTICS_NEGATION = re.compile(r"\b(?:not|no|don'?t|doesn'?t|won'?t|can'?t|cannot|unable|never)\b")
+_LOGISTICS_ITEM_WORDS = {
+    "travel": r"\b(?:tickets?|flights?|air\s*fares?|bus|cabs?|taxi|travel(?:l?ing)?|transport(?:ation)?|commute|conveyance)\b",
+    "accommodation": r"\b(?:hotels?|stay|accommodation|lodging|rooms?|guest\s*house)\b",
+    "food": r"\b(?:lunch(?:es)?|food|meals?|breakfast|dinner|snacks|refreshments)\b",
+}
+
+
+def _logistics_party_acts(party: str, value: str) -> bool:
+    return bool(
+        re.search(rf"\b{party}\b[^.;!?\n]{{0,40}}?\b{_LOGISTICS_ACTION}\b", value)
+        or re.search(rf"\b(?:by|from|on)\s+(?:the\s+)?{party}(?:\s+side)?\b", value)
+    )
+
+
+def _logistics_owner(answer: Any, *, imperative: bool = True) -> str:
+    """Who books and pays for one item, read from the client's wording: client, clahan or needs_review.
+
+    "We'll book the tickets" is the client; "You can book the hotel", "Clahan to book" and
+    "Please arrange the stay" are Clahan. A negative, both parties, or neither needs review.
+    """
+    value = _LOGISTICS_NOISE.sub(" ", _clean(answer).lower().replace("\u2019", "'"))
+    client = _logistics_party_acts(_LOGISTICS_CLIENT_PARTY, value)
+    clahan = _logistics_party_acts(_LOGISTICS_CLAHAN_PARTY, value) or bool(imperative and re.match(
+        r"^\s*(?:please|kindly|pls)?\s*(?:book|arrange|provide|organi[sz]e|handle|take\s+care\s+of)\b", value,
     ))
-    client = bool(re.search(
-        r"\b(?:client|you|your team)\b.{0,70}\b(?:book|arrange|pay|cover|provide|handle)\b|"
-        r"\b(?:book|arrange|pay|cover|provide|handle)\b.{0,70}\b(?:client|your team)\b",
-        value,
-    ))
+    if (client or clahan) and _LOGISTICS_NEGATION.search(value):
+        return "needs_review"
     if clahan and not client:
         return "clahan"
     if client and not clahan:
         return "client"
     return "needs_review"
+
+
+def _client_offline_logistics(text: Any) -> Dict[str, Dict[str, str]]:
+    """Travel, accommodation and food the client's email assigns: {item: {"answer", "owner"}}.
+
+    Labeled lines ("Food: provided by us") are read first. Otherwise each sentence is split
+    into clauses, so "We'll book the tickets and provide lunch" gives travel and food to the
+    client and leaves accommodation open. A clause is used only when the sentence says who
+    acts; questions and passing mentions ("the hotel is near the venue") are ignored.
+    """
+    raw = str(text or "")
+    found: Dict[str, Dict[str, str]] = {}
+    for item in ("travel", "accommodation", "food"):
+        value = _client_labeled_logistics_value(raw, item) or (_client_confirmed_travel_terms(raw) if item == "travel" else "")
+        if value:
+            found[item] = {"answer": value[:1000], "owner": _logistics_owner(value)}
+    labeled = set(found)
+    for sentence in re.split(r"(?<=[.!?])\s+|\n+", raw):
+        sentence = sentence.strip()
+        if not sentence or sentence.endswith("?") or re.match(r"^[A-Za-z /&]{3,60}\s*[:\-]", sentence):
+            continue  # a question, or a labeled line already read above
+        segments = [part for part in re.split(r"\s*(?:[,;]|\band\b|\bbut\b|\bwhile\b|\bwhereas\b)\s*", sentence) if part.strip()]
+        owners = [_logistics_owner(part, imperative=index == 0) for index, part in enumerate(segments)]
+        definite = {owner for owner in owners if owner in ("client", "clahan")}
+        if not definite and not any(_LOGISTICS_NEGATION.search(part.lower()) for part in segments):
+            continue
+        carried = ""
+        for part, owner in zip(segments, owners):
+            lowered = re.sub(r"\btravel\s+desk\b", " ", part.lower())
+            if owner in ("client", "clahan"):
+                carried = owner
+            if _LOGISTICS_NEGATION.search(lowered):
+                speaks = re.search(rf"\b{_LOGISTICS_ACTION}\b", lowered) or re.search(
+                    rf"\b(?:{_LOGISTICS_CLIENT_PARTY}|{_LOGISTICS_CLAHAN_PARTY})\b", lowered)
+                chosen = "needs_review" if speaks else ""
+            elif owner in ("client", "clahan"):
+                chosen = owner
+            elif len(definite) == 1:
+                chosen = next(iter(definite))  # "Travel, stay and food will be arranged by us"
+            else:
+                chosen = carried
+            if not chosen:
+                continue
+            answer = part if owner == chosen else sentence  # the clause when it names who acts
+            for item, pattern in _LOGISTICS_ITEM_WORDS.items():
+                if item not in labeled and re.search(pattern, lowered):
+                    found[item] = {"answer": answer.strip()[:1000], "owner": chosen}
+    return found
+
+
+_WHATSAPP_GROUP_RE = r"what'?s?\s?app\s+group"
+
+
+def _whatsapp_group_preference(text: Any) -> Optional[bool]:
+    """True when the client asks for a WhatsApp group, False when they decline one, else None."""
+    value = _clean(text).lower().replace("\u2019", "'")
+    if not re.search(_WHATSAPP_GROUP_RE, value):
+        return None
+    preference: Optional[bool] = None
+    for sentence in re.split(r"(?<=[.!?])\s+|\n+", value):
+        if not re.search(_WHATSAPP_GROUP_RE, sentence):
+            continue
+        if re.search(rf"\b(?:no|not|don'?t|do\s+not|without|skip)\b[^.!?\n]{{0,30}}{_WHATSAPP_GROUP_RE}", sentence) \
+                or re.search(rf"{_WHATSAPP_GROUP_RE}[^.!?\n]{{0,25}}\bnot\s+(?:needed|required)\b", sentence):
+            preference = False
+        elif sentence.rstrip().endswith("?") and not re.search(r"\b(?:can|could|will|would)\s+you\b|\bplease\b|\bkindly\b", sentence):
+            continue  # "Is there a WhatsApp group?" is not a request
+        elif re.search(r"\b(?:create|make|open|start|set\s*up|form|need|want|add|include|share|please|kindly|would\s+like)\b", sentence) \
+                or re.search(rf"{_WHATSAPP_GROUP_RE}[^.!?\n]{{0,30}}\b(?:needed|required|for\s+coordination)\b", sentence):
+            preference = True
+    return preference
+
+
+async def _offline_logistics_so_far(
+    db: AsyncIOMotorDatabase, requirement_id: str, requirement: Dict[str, Any], current_email: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Who arranges travel, stay and food, and whether a WhatsApp group was asked for, across the client's emails.
+
+    Emails are read oldest first, so a later statement replaces an earlier one; items the
+    client never mentioned keep any value already stored on the requirement.
+    """
+    stored = requirement.get("offline_logistics") if isinstance(requirement.get("offline_logistics"), dict) else {}
+    answers = dict(stored.get("answers") or {}) if isinstance(stored.get("answers"), dict) else {}
+    answers = {key: value for key, value in answers.items() if value}
+    owners = dict(stored.get("owners") or {}) if isinstance(stored.get("owners"), dict) else {}
+    group = stored.get("whatsapp_group_requested")
+    client_addresses = {
+        _email_address(requirement.get(key)) for key in ("client_email", "from_email", "requester_email")
+    }
+    client_addresses.add(_email_address(current_email.get("from_email") or current_email.get("sender")))
+    client_addresses.discard("")
+    messages: List[Dict[str, Any]] = []
+    try:
+        finder = getattr(db["client_emails"], "find", None)
+    except Exception:
+        finder = None
+    if requirement_id and callable(finder):
+        try:
+            cursor = finder(
+                {"requirement_id": requirement_id},
+                {"_id": 0, "email_id": 1, "from_email": 1, "sender": 1, "classification_body": 1,
+                 "clean_body": 1, "body": 1, "received_at": 1, "created_at": 1},
+            ).sort("received_at", 1).limit(100)
+            async for message in cursor:
+                messages.append(message)
+        except Exception:
+            logger.exception("Could not read earlier client emails for offline logistics on %s", requirement_id)
+    if not any(message.get("email_id") and message.get("email_id") == current_email.get("email_id") for message in messages):
+        messages.append(current_email)
+    for message in messages:
+        if _email_address(message.get("from_email") or message.get("sender")) not in client_addresses:
+            continue  # only the client decides who arranges what
+        text = _strip_quoted_email_history(
+            message.get("classification_body") or message.get("clean_body") or message.get("body") or "")
+        for item, stated in _client_offline_logistics(text).items():
+            answers[item], owners[item] = stated["answer"], stated["owner"]
+        preference = _whatsapp_group_preference(text)
+        if preference is not None:
+            group = preference
+    return {"answers": answers, "owners": owners, "whatsapp_group_requested": bool(group)}
 
 
 async def _record_post_selection_trainer_logistics_reply(
@@ -9972,6 +10376,13 @@ async def _handle_client_selection_reply(
     requirement = requirement or {}
     offline = _is_offline_requirement(requirement)
     if offline:
+        # Who arranges travel, stay and food, and any WhatsApp group request, from every
+        # client email so far (the first request included), not only this selection email.
+        logistics = await _offline_logistics_so_far(db, requirement_id, requirement, email_doc)
+        logistics_update = {f"offline_logistics.owners.{key}": value for key, value in logistics["owners"].items()}
+        logistics_update.update({f"offline_logistics.answers.{key}": value for key, value in logistics["answers"].items()})
+        logistics_update["offline_logistics.whatsapp_group_requested"] = logistics["whatsapp_group_requested"]
+        await db["requirements"].update_one({"requirement_id": requirement_id}, {"$set": logistics_update})
         coord_id = f"offline-coordination:{requirement_id}:{trainer_id}"
         await db["offline_coordination_tasks"].update_one(
             {"_id": coord_id},
@@ -9982,13 +10393,16 @@ async def _handle_client_selection_reply(
                 "trainer_name": trainer_name,
                 "trainer_email": trainer_email,
                 "client_email": requirement.get("client_email") or email_doc.get("from_email") or "",
+                "logistics_owners": logistics["owners"],
+                "whatsapp_group_requested": logistics["whatsapp_group_requested"],
+                "updated_at": now,
+            }, "$setOnInsert": {
+                # A replayed selection email must not reset a task that has already moved on.
                 "status": "pending_trainer_po_approval",
-                "logistics_owners": (requirement.get("offline_logistics") or {}).get("owners") or {},
-                "whatsapp_group_requested": bool(re.search(r"(?:create|make|open|start).{0,50}whats?app\s+group", text, re.IGNORECASE)),
                 "whatsapp_group_status": "staff_action_required",
                 "booking_requests": [],
-                "updated_at": now,
-            }, "$setOnInsert": {"created_at": now}},
+                "created_at": now,
+            }},
             upsert=True,
         )
         from shared.commercial_policy import commercial_breakdown
@@ -10034,7 +10448,8 @@ async def _handle_client_selection_reply(
                 }},
             )
         await db["requirements"].update_one(
-            {"requirement_id": requirement_id},
+            # Only when this task starts: a replay must not undo a trainer PO that was already sent.
+            {"requirement_id": requirement_id, "offline_coordination_task_id": {"$ne": coord_id}},
             {"$set": {
                 "offline_coordination_status": "pending_trainer_po_approval",
                 "offline_coordination_task_id": coord_id,
@@ -11428,11 +11843,18 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
         "domain": technology,
         "required_skills": extracted.get("required_skills") or [technology],
         "mode": extracted.get("mode"),
+        "location": extracted.get("location") or extracted.get("preferred_location"),
+        "preferred_location": extracted.get("preferred_location") or extracted.get("location"),
         "audience_level": extracted.get("audience_level"),
         "duration_days": extracted.get("duration_days"),
         "duration_hours": extracted.get("duration_hours"),
         "duration_text": extracted.get("duration_text"),
         "timing": extracted.get("timing"),
+        "experience_required": extracted.get("experience_required"),
+        "total_sessions": extracted.get("total_sessions"),
+        "duration_per_session": extracted.get("duration_per_session"),
+        "hours_per_session": extracted.get("hours_per_session"),
+        "total_training_hours": extracted.get("total_training_hours"),
         "preferred_dates": extracted.get("preferred_dates"),
         "training_dates": extracted.get("training_dates"),
         "timeline_start": extracted.get("timeline_start"),
@@ -11601,7 +12023,11 @@ def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_t
     has_scope = bool(firm_value("technology_needed", "technology", "domain"))
     has_duration = positive_number("duration_days") or positive_number("duration_hours")
     has_commercials = positive_number("budget_total") or positive_number("budget_per_day")
-    if "participant_count" in extracted and extracted.get("participant_count") in (0, "0"):
+    # Preserve an explicitly supplied but invalid participant count as an
+    # incomplete request. An omitted count is None on a parsed email and
+    # remains acceptable: many corporate requirements name an audience
+    # without a headcount.
+    if extracted.get("participant_count") in (0, "0"):
         return "proposal"
     # A missing participant count is an estimate input, not a batch-status
     # signal. Explicit zero values remain invalid quote inputs downstream.
@@ -11610,6 +12036,18 @@ def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_t
     # amount establish a confirmed requirement unless the client uses
     # tentative or proposal wording above.
     if all((has_scope, has_duration, has_commercials)):
+        return "confirmed"
+    # A concrete delivery schedule is a confirmed batch even when the client
+    # has not priced it and has not named calendar dates. "To be confirmed"
+    # mode, duration, or location already returned proposal above.
+    mode_text = firm_value("mode", "delivery_mode")
+    mode_ok = bool(re.search(r"\b(?:online|offline|virtual|hybrid|classroom|onsite|on-site)\b", mode_text))
+    location_text = firm_value("location", "preferred_location")
+    timing_text = firm_value("timing", "training_time")
+    has_clock = bool(re.search(r"\b\d{1,2}:\d{2}\s*(?:am|pm)\b", timing_text, flags=re.IGNORECASE))
+    session_text = firm_value("total_sessions", "duration_per_session", "total_training_hours")
+    has_sessions = bool(re.search(r"\d", session_text))
+    if has_scope and mode_ok and has_duration and (location_text or has_clock or has_sessions):
         return "confirmed"
     return "proposal"
 
@@ -11665,7 +12103,14 @@ async def _update_existing_requirement_from_extracted(
 
     optional_fields = (
         "mode",
+        "location",
+        "preferred_location",
         "audience_level",
+        "experience_required",
+        "total_sessions",
+        "duration_per_session",
+        "hours_per_session",
+        "total_training_hours",
         "duration_days",
         "duration_hours",
         "duration_text",
@@ -13693,9 +14138,9 @@ async def _process_client_requirement_email(
         document_review = await _persist_trainer_requirement_fit(
             db, email_doc, mail2_requirement, current_trainer_state,
         )
-        missing_requested_details = _with_missing_dated_slots(
+        missing_requested_details = _mail1_reply_followup_gaps(
             _trainer_missing_requested_details(evidence_text, mail2_requirement, evidence_doc),
-            latest_reply_text,
+            _slot_reply_intent(latest_reply_text),
         )
         if missing_requested_details:
             # If three valid slots were already provided with this partial
@@ -13793,21 +14238,39 @@ async def _process_client_requirement_email(
                     },
                 )
             else:
-                # Mail 1 already contains the requested slot format. Do not
-                # generate a second slot request when the reply omits it.
+                # Availability without exactly three dated slots gets the same
+                # one Mail 2 follow-up used for a missing CV, profile, LinkedIn
+                # URL, or experience. The sender refuses a second request.
+                followup_result = await _send_missing_trainer_details_followup(
+                    db,
+                    email_doc={
+                        **trainer_doc,
+                        "trainer_name": email_doc.get("trainer_name") or current_trainer_state.get("name") or current_trainer_state.get("trainer_name"),
+                    },
+                    requirement=mail2_requirement,
+                    trainer_state=current_trainer,
+                    missing_details=_mail1_reply_followup_gaps([], slot_intent),
+                    now=now,
+                )
+                followup_success = bool(followup_result.get("success") or followup_result.get("already_attempted"))
                 slot_result = {
-                    "attempted": False,
-                    "success": False,
-                    "reason": "interested_reply_missing_valid_slots",
+                    "attempted": True,
+                    "success": followup_success,
+                    "followup_sent": bool(followup_result.get("success")) and not followup_result.get("already_attempted"),
+                    "already_attempted": bool(followup_result.get("already_attempted")),
+                    "reason": "one_missing_slot_followup",
                     "intent": slot_intent,
+                    "error": "" if followup_success else _clean(followup_result.get("error") or followup_result.get("reason")),
+                    "email_id": followup_result.get("email_id") or "",
                 }
             handoff_retry_pending = _client_handoff_retry_pending(slot_result)
+            slot_followup = slot_result.get("reason") == "one_missing_slot_followup"
             update = {
                 "processed": not handoff_retry_pending,
                 "processed_at": now,
-                "status": "processed" if slot_result.get("pending_approval") else "processed" if slot_result.get("success") else "pending_retry" if handoff_retry_pending else "needs_manual_review",
-                "reply_status": "client_handoff_pending_approval" if slot_result.get("pending_approval") else "slots_sent_to_client" if slot_result.get("success") else "client_handoff_retry_pending" if handoff_retry_pending else "interested_without_slots",
-                "reply_template_key": "client_slots" if slot_result.get("success") else "trainer_interested",
+                "status": "processed" if slot_result.get("pending_approval") or slot_followup and slot_result.get("success") else "processed" if slot_result.get("success") else "pending_retry" if handoff_retry_pending else "needs_manual_review",
+                "reply_status": "missing_details_followup_sent" if slot_followup and slot_result.get("success") else "client_handoff_pending_approval" if slot_result.get("pending_approval") else "slots_sent_to_client" if slot_result.get("success") else "client_handoff_retry_pending" if handoff_retry_pending else "interested_without_slots",
+                "reply_template_key": "mail2_followup" if slot_followup else "client_slots" if slot_result.get("success") else "trainer_interested",
                 "email_classification": {"person_type": "trainer", "scenario": "trainer_interested"},
                 "office_mail_category": "trainer_interested",
                 "trainer_details_received": not bool(missing_requested_details),
@@ -13987,7 +14450,14 @@ async def _process_client_requirement_email(
         # slots must go directly to the client handoff instead of triggering
         # another request for the same trainer details.
         legacy_slot_intent = _slot_reply_intent(latest_mail2_details_body)
-        if legacy_slot_intent in {"valid_slots", "unclear_slots", "too_many_slots", "rejected"}:
+        # A reply to the one slot follow-up is not asked again. Valid slots
+        # still go straight to the client. An older Mail 2 thread may send
+        # that single follow-up when the slots were never requested.
+        slot_followup_already_used = source_mail_type == "mail2_followup"
+        if legacy_slot_intent == "valid_slots" or (
+            not slot_followup_already_used
+            and legacy_slot_intent in {"unclear_slots", "too_many_slots", "rejected"}
+        ):
             slot_result = await _handle_trainer_slot_reply(
                 db,
                 {
@@ -14224,6 +14694,8 @@ async def _process_client_requirement_email(
                 "source_email_id": source_email_id,
                 "client_email": _email_address(email_doc.get("from_email") or ""),
                 "client_name": email_doc.get("from_name") or "",
+                "requirement_id": email_doc.get("requirement_id") or "",
+                "trainer_id": email_doc.get("trainer_id") or "",
                 "subject": subject,
                 "request_type": "po_to_invoice" if is_client_po else "invoice_request",
                 "requirement_id": email_doc.get("requirement_id") or "",
@@ -14502,28 +14974,21 @@ async def _process_client_requirement_email(
         or details_later
         or email_doc.get("client_authorized_trainer_search")
     )
-    existing_trainer_mail = (email_doc.get("mail_automation") or {}).get("trainer_mail") or {}
-    trainer_search_already_dispatched = (
-        email_doc.get("trainer_automation_status") in {"started", "no_trainers_emailed"}
-        or _safe_int(existing_trainer_mail.get("sent"), 0) > 0
-    )
-    confirmed_intake_ready = bool(
-        is_first_client_mail
-        and not trainer_search_already_dispatched
-        and _confirmed_intake_ready_for_trainer_mail(extracted, email_doc, classification_body)
-    )
-    should_start_trainer_search = bool(
-        (should_start_trainer_search or confirmed_intake_ready)
-        and (
-            confirmed_intake_ready
-            or (
-                is_first_client_mail
-                or explicit_trainer_authorization
-                or details_ready_on_client_reply
-            )
-        )
-        and extracted.get("is_training_request")
-        and _has_training_domain(extracted)
+    confirmed_first_mail = _confirmed_requirement_on_first_client_mail(subject, email_doc, extracted)
+    if confirmed_first_mail:
+        extracted["is_training_request"] = True
+        extracted["is_non_client_email"] = False
+    # A confirmed requirement on the opening client mail sends Mail 1 as soon
+    # as ranking finds a trainer. Proposal mail still waits for a later reply
+    # that authorizes the search or supplies the missing details.
+    should_start_trainer_search = _should_send_trainer_mail1_now(
+        automation_ready=should_start_trainer_search,
+        confirmed_first_mail=confirmed_first_mail,
+        is_first_client_mail=is_first_client_mail,
+        explicit_trainer_authorization=explicit_trainer_authorization,
+        details_ready_on_client_reply=details_ready_on_client_reply,
+        is_training_request=bool(extracted.get("is_training_request")),
+        has_domain=_has_training_domain(extracted),
     )
     if (
         extracted.get("is_training_request")

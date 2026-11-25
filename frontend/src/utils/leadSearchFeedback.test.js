@@ -1,6 +1,15 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { collectionOutcomeLines, leadSourceLabel, linkedInSearchPayload, mergeSearchLeads, outcomeLine, sourceReportLines, visibleSearchLeads } from './leadSearchFeedback.js'
+import {
+  leadSourceLabel,
+  linkedInSearchPayload,
+  mergeSearchLeads,
+  newSearchRef,
+  searchReportGroups,
+  searchResultLeads,
+  sourceReportLines,
+  visibleSearchLeads,
+} from './leadSearchFeedback.js'
 
 test('client and trainer searches both post into LinkedIn search with the same domains', () => {
   const client = linkedInSearchPayload('client', '')
@@ -22,11 +31,21 @@ test('an entered domain list is shared by both LinkedIn search modes', () => {
   assert.deepEqual(linkedInSearchPayload('trainer', 'SAP, Python').domains, ['SAP', 'Python'])
 })
 
-test('a catalog scan without a per-domain target does not say the target was zero', () => {
-  const domains = ['DevOps', 'Python', 'Java', 'Cloud', 'SAP', 'React', 'AWS']
-  const lines = collectionOutcomeLines(domains.map(domain => ({ domain, matched: 0, status: 'no_match' })))
-  assert.deepEqual(lines, ['7 domains had no matching posts.'])
-  assert.equal(outcomeLine({ domain: 'Python', matched: 3, target: 20, target_met: false }), 'Python: 3 found (target: 20). Partial results; the target is not guaranteed.')
+test('saved trainer profiles stay visible when the latest search matches nothing', () => {
+  const leads = [
+    { lead_id: 'TPL-1', domain: 'AWS', source_url: 'https://www.linkedin.com/in/a' },
+    { lead_id: 'TPL-2', domain: 'Python', source_url: 'https://www.linkedin.com/in/b' },
+  ]
+  const visible = searchResultLeads(leads, {
+    selectedDomain: 'soft skills',
+    showSearchMatches: true,
+    results: [{ source_url: 'https://www.linkedin.com/in/missing' }],
+  })
+  assert.deepEqual(visible.map(lead => lead.lead_id), ['TPL-1', 'TPL-2'])
+  assert.deepEqual(
+    searchResultLeads(leads, { selectedDomain: 'AWS' }).map(lead => lead.lead_id),
+    ['TPL-1'],
+  )
 })
 
 test('fresh search matches stay in the LinkedIn search list with saved leads', () => {
@@ -73,4 +92,31 @@ test('lead source label names the web engines that found a profile', () => {
   assert.equal(leadSourceLabel({ discovery_provider: 'public_fallback' }), 'Public indexed search fallback')
   assert.equal(leadSourceLabel({ discovery_provider: 'linkedin_account', source: 'linkedin' }), 'LinkedIn account')
   assert.equal(leadSourceLabel({ source: 'naukri' }), 'naukri')
+})
+
+test('a search-public report lists each domain and each source, including skipped domains', () => {
+  const report = {
+    sources: [{ source: 'duckduckgo', label: 'DuckDuckGo', status: 'ok', qualified: 2, note: 'Failed on 1 of 2 searches: refused' }],
+    domain_outcomes: [
+      { domain: 'Python', target: 10, matched: 2, target_met: false, status: 'partial',
+        sources: [{ source: 'duckduckgo', label: 'DuckDuckGo', status: 'ok', qualified: 2 }] },
+      { domain: 'AWS', target: 0, matched: 0, status: 'not_run', limit_reason: 'Not searched: the search service stopped answering.', sources: [] },
+    ],
+  }
+  assert.deepEqual(searchReportGroups(report), [
+    { key: '0-Python', heading: 'Python: 2 found (target: 10). Partial results; the target is not guaranteed.',
+      lines: [{ key: 'duckduckgo', ok: true, text: 'DuckDuckGo: worked, 2 matching profiles' }] },
+    { key: '1-AWS', heading: 'AWS: Not searched: the search service stopped answering.', lines: [] },
+  ])
+  assert.deepEqual(searchReportGroups({ sources: report.sources }), [{
+    key: 'sources', heading: '',
+    lines: [{ key: 'duckduckgo', ok: true, text: 'DuckDuckGo: worked, 2 matching profiles Failed on 1 of 2 searches: refused' }],
+  }])
+  assert.deepEqual(searchReportGroups({}), [])
+})
+
+test('each search gets its own reference for its saved report', () => {
+  const first = newSearchRef()
+  assert.match(first, /^[\w-]{8,64}$/)
+  assert.notEqual(first, newSearchRef())
 })

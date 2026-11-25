@@ -1,0 +1,573 @@
+{
+  "domain": "Splunk",
+  "name": "Splunk",
+  "category": "Observability and SRE",
+  "icon": "search",
+  "aliases": ["Splunk Enterprise", "Splunk Observability/SIEM", "Splunk Cloud Platform", "Splunk Administration", "Splunk Power User", "Splunk SPL", "Splunk Search Processing Language", "Splunk Training"],
+  "certifications": ["Splunk Core Certified User", "Splunk Core Certified Power User", "Splunk Core Certified Advanced Power User", "Splunk Enterprise Certified Admin", "Splunk Cloud Certified Admin", "Splunk Enterprise Certified Architect", "Splunk Enterprise Security Certified Admin", "Splunk O11y Cloud Certified Metrics User"],
+  "tools": ["Splunk Enterprise", "Splunk Cloud Platform", "Splunk Web", "SPL", "Splunk Universal Forwarder", "HTTP Event Collector", "Dashboard Studio", "Deployment server", "Monitoring Console", "Splunkbase", "Splunk Common Information Model add-on", "Edge Processor", "Admin Config Service", "Splunk Observability Cloud"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For analysts, support engineers, developers and junior administrators who are new to Splunk and need to search, report on and onboard machine data. Covers Splunk Enterprise and Splunk Cloud Platform from the user's side: Splunk Web, indexes and default fields, the SPL search pipeline, results shaping, stats, chart and timechart, eval, rex and the Field Extractor, lookups, event types, tags and macros, scheduled reports and alerts, Dashboard Studio with inputs and drilldowns, file monitor inputs, the universal forwarder, the HTTP Event Collector, and users, roles and apps, ending with a web store monitoring app capstone.",
+      "prerequisites": ["Reads log files comfortably and knows what timestamps, IP addresses, HTTP status codes and key=value pairs look like", "Uses a Linux terminal for basic tasks: navigating directories, editing files, running curl and tailing logs", "Has a laptop able to run Docker or a Linux VM with 4 GB of free RAM, or access to a Splunk Cloud Platform trial"],
+      "outcomes": ["Write SPL searches that filter, extract, calculate and report on events with stats, chart, timechart, eval and rex", "Create and share knowledge objects: field extractions, lookups, event types, tags, macros, reports and alerts", "Build Dashboard Studio dashboards with base and chain searches, inputs, tokens and drilldowns", "Onboard data with file monitor inputs, the universal forwarder and the HTTP Event Collector into the right index and sourcetype"],
+      "days": [
+        {
+          "topic": "Splunk Platform Orientation: Enterprise, Cloud Platform and Splunk Web",
+          "subtopics": ["What Splunk indexes: machine data stored as time-stamped events", "Splunk Enterprise (self-managed) compared with Splunk Cloud Platform (Splunk-managed service)", "The Search & Reporting app and the Splunk Web home page", "Default ports: 8000 Splunk Web, 8089 management (splunkd), 9997 receiving, 8088 HEC", "$SPLUNK_HOME layout: bin, etc/apps, etc/system, var/lib/splunk and var/log/splunk", "splunk start, stop, restart, status and version from the CLI", "Trial, Free, Developer and Enterprise licenses and what each allows", "Apps and add-ons as the packaging unit for searches, dashboards and inputs", "Internal indexes: _internal, _audit and _introspection", "Where to get help: Splunk Docs, Splunk Lantern, Splunk Answers and Splunkbase"],
+          "tools": ["Splunk Enterprise", "Splunk Cloud Platform", "Splunk Web", "Splunk CLI", "Docker"],
+          "lab_task": "Start Splunk Enterprise with docker run -d --name so1 -p 8000:8000 -p 8089:8089 -e SPLUNK_START_ARGS=--accept-license -e SPLUNK_PASSWORD=<pw> splunk/splunk:latest (add the general-terms variable the image README requires), log in on port 8000, run /opt/splunk/bin/splunk version and status in the container, then search index=_internal | stats count by sourcetype and record the five largest sourcetypes.",
+          "deliverable": "Lab environment record with the docker run command, splunk version output and a table of the five largest internal sourcetypes",
+          "checks": [["Run /opt/splunk/bin/splunk status inside the container", "splunkd is running is printed with its process ID", "Terminal output"], ["Search index=_internal | stats count by sourcetype over the last 15 minutes", "Rows for splunkd, splunkd_access and splunk_web_access appear with non-zero counts", "Search results screenshot"], ["Run curl -k -u admin:<pw> https://localhost:8089/services/server/info", "An XML Atom feed containing serverName and version is returned", "curl output"]],
+          "objectives": ["Distinguish Splunk Enterprise from Splunk Cloud Platform and name the main ports and directories", "Start, stop and check a Splunk instance from the CLI", "Navigate Splunk Web and run a first search in the Search & Reporting app"]
+        },
+        {
+          "topic": "Searching Events in Splunk Web: Time Picker, Search Modes and Job Inspector",
+          "subtopics": ["The search bar, search assistant and syntax highlighting", "Time range picker: presets, relative, real-time, date and date-time ranges", "Event viewer: raw, list and table formats and event actions", "Fields sidebar: selected fields and interesting fields present in at least 20% of events", "Fast, Smart and Verbose search modes and what each discovers", "Search jobs: pause, stop, finalize, send to background and share", "Job Inspector: execution costs, scanned events and search.log", "Activity > Jobs, search history and the 10-minute default lifetime of ad hoc jobs"],
+          "tools": ["Splunk Web", "Search & Reporting app", "Job Inspector"],
+          "lab_task": "Upload the Splunk tutorial data (tutorialdata.zip) into a new index named tutorial, run index=tutorial sourcetype=access_combined_wcookie status=404 over All time in Fast, Smart and Verbose mode, record the event count and run duration of each from the Job Inspector, then send a long search to the background and find it again under Activity > Jobs.",
+          "deliverable": "Search-mode comparison table with event counts, run durations and Job Inspector screenshots",
+          "checks": [["Run the same status=404 search in Fast and Verbose mode", "The event count is identical in both modes", "Job Inspector screenshots"], ["Open the fields sidebar after a Fast mode search", "Only default fields and fields named in the search are listed, with no interesting fields", "Sidebar screenshot"], ["Set a time range that ends before the earliest tutorial event", "No results found is displayed", "Search screenshot"]],
+          "objectives": ["Choose a time range and search mode that fit the question being asked", "Manage search jobs from Splunk Web", "Read run duration and scanned events in the Job Inspector"]
+        },
+        {
+          "topic": "Indexes, Sourcetypes, Hosts and Sources: The Default Fields",
+          "subtopics": ["Events, _raw and _time", "An index as a logical store, and main as the default index", "host, source and sourcetype assigned at input time", "Pretrained sourcetypes such as access_combined, syslog and _json", "Internal fields: _indextime, _cd, linecount, splunk_server and index", "date_* fields and when they are missing", "Inventory with | metadata type=sourcetypes and type=hosts", "| eventcount and | dbinspect for index inventory"],
+          "tools": ["Splunk Web", "SPL", "metadata command", "eventcount command"],
+          "lab_task": "Create an index named web in Settings > Indexes, upload one Apache access log with sourcetype access_combined and one syslog file with sourcetype syslog, run | metadata type=sourcetypes index=web and | eventcount summarize=false index=web, then run index=web | eval lag=_indextime-_time | stats avg(lag) AS avg_lag by sourcetype and record the lag for each sourcetype.",
+          "deliverable": "Data inventory listing each sourcetype's event count, first and last event time and average indexing lag",
+          "checks": [["Run | metadata type=sourcetypes index=web", "Two rows, access_combined and syslog, each with totalCount, firstTime and lastTime", "Search results"], ["Run index=web | stats dc(sourcetype) AS st dc(source) AS src", "st equals 2 and src equals the number of uploaded files", "Stats table"], ["Compute avg_lag for the uploaded historical files", "avg_lag is positive and roughly equal to the age of the uploaded events in seconds", "Stats table"]],
+          "objectives": ["Explain the role of index, host, source and sourcetype in every search", "Inventory an index's sourcetypes and event counts", "Compare event time with index time"]
+        },
+        {
+          "topic": "SPL Search Pipeline: Search Terms, Boolean Logic and Field Filters",
+          "subtopics": ["Keywords, quoted phrases and wildcards", "Implied AND, explicit OR and NOT, parentheses and the uppercase rule for operators", "field=value, field!=value and NOT field=value, and how they treat missing fields", "Comparison operators on numeric fields such as status>=500", "The IN operator for value lists", "The pipe: the implicit search command first, then streaming and transforming commands", "Case sensitivity: field names are case sensitive, field values in the base search are not", "Leading wildcards and why index and sourcetype should always be specified"],
+          "tools": ["SPL", "Splunk Web", "Search assistant"],
+          "lab_task": "On index=tutorial write searches that return all 5xx responses from host www1, purchases (action=purchase) that failed with status 503, and all events where status is not 200. Run both status!=200 and NOT status=200 with | stats count, and explain the difference using events that have no status field, such as the secure and vendor_sales logs.",
+          "deliverable": "Search worksheet with each search string, its result count and a short explanation of the != versus NOT difference",
+          "checks": [["Compare index=tutorial status!=200 | stats count with index=tutorial NOT status=200 | stats count", "NOT status=200 returns the higher count because it includes events without a status field", "Two stats results"], ["Search index=tutorial status=503 or status=500 with a lowercase or", "Zero events are returned because or is treated as a search term", "Search screenshot"], ["Compare status IN (500, 503) with (status=500 OR status=503)", "Both searches return the same event count", "stats count output"]],
+          "objectives": ["Write base searches with keywords, Boolean operators and field filters", "Predict how != and NOT treat events that lack a field", "Order commands correctly in an SPL pipeline"]
+        },
+        {
+          "topic": "Shaping SPL Results with fields, table, rename, sort and dedup",
+          "subtopics": ["fields + and fields - for output and performance", "table for ordered columnar output", "rename with wildcards and quoted names containing spaces", "sort ascending and descending, sort limits and sort 0", "dedup on one or more fields, sortby and keepempty", "head and tail", "Streaming compared with transforming commands", "Where commands run: distributable streaming on indexers, the rest on the search head"],
+          "tools": ["SPL", "Splunk Web"],
+          "lab_task": "From index=tutorial sourcetype=access_combined_wcookie build a table of clientip, status, bytes and uri_path for the 20 largest responses with sort - bytes | head 20, rename bytes AS \"Response Bytes\", then list unique clients with dedup clientip | stats count and compare the result with | stats dc(clientip). Finally run sort - bytes on all events without a count and record how many rows come back.",
+          "deliverable": "Saved search strings with result screenshots and a note on the default sort limit",
+          "checks": [["Compare dedup clientip | stats count with stats dc(clientip)", "Both counts are equal", "Two stats results"], ["Run sort - bytes | head 20 | table clientip status bytes uri_path", "Exactly 20 rows ordered from the largest to the smallest bytes value", "Results table"], ["Run sort - bytes without a count on more than 10,000 events", "Only 10,000 rows are returned", "Result count in the Statistics tab"]],
+          "objectives": ["Shape results into readable tables", "Remove duplicates and limit results correctly", "Explain the difference between streaming and transforming commands"]
+        },
+        {
+          "topic": "SPL Reporting Commands: top, rare, stats and chart",
+          "subtopics": ["top and rare with limit, showperc and countfield", "stats functions: count, dc, sum, avg, min, max, values and list", "by clauses and naming outputs with AS", "chart count over a field by another field", "The default limit of 10 series in chart and the OTHER column, useother and limit=0", "Statistics and Visualization tabs", "Column, bar and pie charts from transforming results", "Saving a search as a report"],
+          "tools": ["SPL", "Splunk Web", "Visualization tab"],
+          "lab_task": "On index=tutorial sourcetype=access_combined_wcookie run action=purchase | top limit=5 productId, then stats count, dc(clientip) AS visitors, sum(bytes) AS total_bytes by host, and chart count over status by host. Render the chart as a stacked column chart and save the stats search as a report named Web Traffic by Host.",
+          "deliverable": "Report Web Traffic by Host plus screenshots of the top and chart results",
+          "checks": [["Run action=purchase | top limit=5 productId", "Five rows with productId, count and percent columns", "Results table"], ["Run chart count over status by host", "One row per status value and one column per host: www1, www2 and www3", "Results table"], ["Run stats count by host | stats sum(count)", "The sum equals the total from | stats count on the same search", "Two stats results"]],
+          "objectives": ["Summarise events with top, rare and stats", "Build two-dimensional reports with chart", "Turn transforming results into charts and saved reports"]
+        },
+        {
+          "topic": "Time-Based Reporting with timechart, bin and Relative Time Modifiers",
+          "subtopics": ["timechart span, count by a field, limit and useother", "Automatic span selection from the time range", "bin _time span=1h before stats", "earliest and latest in the search string: -24h@h, @d and -7d@w0", "Snap-to units and the user's time zone setting", "strftime and strptime for formatting and parsing time", "timewrap for day-over-day and week-over-week comparison", "Line and area charts and null value handling"],
+          "tools": ["SPL", "Splunk Web", "timechart", "timewrap"],
+          "lab_task": "Using index=tutorial over All time, run timechart span=1h count by host limit=3, rebuild the same result with bin _time span=1h | stats count by _time host, count events per weekday with eval day=strftime(_time,\"%A\") | stats count by day, and overlay days with timechart span=1h count | timewrap 1d. Then run a search with earliest=-24h@h latest=@h on index=_internal.",
+          "deliverable": "Time reporting workbook with the four searches, their charts and the Job Inspector time range of the snapped search",
+          "checks": [["Compare timechart span=1h count by host with bin plus stats count by _time host", "Both give the same count for every hour and host", "Side-by-side results"], ["Run index=_internal earliest=-24h@h latest=@h and open the Job Inspector", "The earliest and latest times are aligned to the top of the hour", "Job Inspector screenshot"], ["Run stats count by day after strftime %A", "At most seven rows, named Monday to Sunday", "Results table"]],
+          "objectives": ["Report on trends over time with timechart and bin", "Use relative time modifiers and snap-to in searches", "Format and compare time periods"]
+        },
+        {
+          "topic": "Calculated Values with eval: Functions, Conditionals and Null Handling",
+          "subtopics": ["eval arithmetic and string concatenation with the . operator", "if, case and validate", "coalesce, isnull, isnotnull and null()", "String functions: lower, upper, substr, len, replace and split", "Number functions: round, floor, tonumber and tostring with commas", "where compared with search for filtering on calculated fields", "fillnull and fieldformat", "eval inside stats: count(eval(status>=500))"],
+          "tools": ["SPL", "Splunk Web", "eval functions reference"],
+          "lab_task": "On the tutorial access data add eval status_class=case(status<300,\"success\", status<400,\"redirect\", status<500,\"client_error\", true(),\"server_error\") and kb=round(bytes/1024,2), then run stats count(eval(status>=500)) AS errors, count AS total by host | eval error_rate=round(errors/total*100,2) | where error_rate>1 and report the error rate of each host.",
+          "deliverable": "eval worksheet with the status_class distribution and the per-host error rate table",
+          "checks": [["Run stats count by status_class", "At most four rows whose counts add up to the total event count", "Results table"], ["Run | makeresults | eval x=tonumber(\"abc\") | eval missing=if(isnull(x),\"yes\",\"no\")", "missing is yes", "Search result"], ["Recount status>=500 for one host with a separate search and compare to error_rate", "The manually computed rate matches error_rate to two decimal places", "Calculation note"]],
+          "objectives": ["Create calculated fields with eval functions", "Handle null and missing values deliberately", "Calculate rates inside a stats pipeline"]
+        },
+        {
+          "topic": "Field Extraction in Splunk: rex, the Field Extractor and erex",
+          "subtopics": ["Automatic key=value extraction and KV_MODE", "rex with named capture groups (?<name>...)", "rex max_match for multivalue results", "rex mode=sed for search-time masking", "erex with examples, and copying the regex it generates", "The Field Extractor: regular expression and delimiter methods", "Saving extractions as knowledge objects with permissions", "Testing regex against sample events and avoiding greedy patterns"],
+          "tools": ["SPL", "Field Extractor", "regex101", "Splunk Web"],
+          "lab_task": "Upload a log with lines like 2026-11-02 10:15:22 ERROR order_id=A1234 latency_ms=842 msg=\"payment timeout\" as sourcetype app:orders. Extract the level with rex \"^\\S+ \\S+ (?<level>[A-Z]+)\", build the same extraction in the Field Extractor and save it, mask IDs with rex mode=sed \"s/order_id=\\w+/order_id=XXXX/g\", and report avg(latency_ms) by level.",
+          "deliverable": "Extraction notes with the rex search, the saved Field Extractor regex and the latency by level table",
+          "checks": [["Run the rex search followed by | stats count by level", "One row per level such as INFO, WARN and ERROR", "Results table"], ["Search sourcetype=app:orders after saving the extraction, without rex", "level appears in the fields sidebar", "Sidebar screenshot"], ["Apply rex mode=sed and view _raw, then rerun without it", "order_id shows XXXX only in the sed search; the indexed events are unchanged", "Two event screenshots"]],
+          "objectives": ["Extract fields at search time with rex", "Create and save extractions with the Field Extractor", "Mask sensitive values in search results"]
+        },
+        {
+          "topic": "Lookups in Splunk: CSV Lookup Files, Definitions and Automatic Lookups",
+          "subtopics": ["Lookup table files uploaded in Settings > Lookups", "Lookup definitions and their transforms.conf stanzas", "The lookup command with OUTPUT and OUTPUTNEW", "inputlookup and outputlookup", "Automatic lookups and LOOKUP- in props.conf", "Case sensitivity, max_matches and match_type WILDCARD() and CIDR()", "KV store lookups at awareness level", "Lookup permissions and sharing"],
+          "tools": ["SPL", "Lookup editor in Splunk Web", "CSV files"],
+          "lab_task": "Upload http_status.csv with columns status and status_description, create the lookup definition http_status, run index=tutorial | lookup http_status status OUTPUT status_description | stats count by status_description, then add an automatic lookup for sourcetype access_combined_wcookie and write the top 20 clients to top_clients.csv with outputlookup.",
+          "deliverable": "Lookup files, the definition and automatic lookup settings, and the enriched status report",
+          "checks": [["Run | inputlookup http_status | stats count", "The count equals the number of data rows in the CSV", "Search result"], ["Search the sourcetype after enabling the automatic lookup", "status_description appears in the fields sidebar without a lookup command", "Sidebar screenshot"], ["Look up a status value that is missing from the CSV", "status_description is null for those events", "Search result"]],
+          "objectives": ["Enrich events from CSV lookups", "Configure automatic lookups for a sourcetype", "Write search results to a lookup"]
+        },
+        {
+          "topic": "Splunk Knowledge Objects: Event Types, Tags, Field Aliases and Macros",
+          "subtopics": ["What knowledge objects are and where Splunk stores them", "Private, app and global sharing and read/write permissions", "Event types defined from search strings", "Tags on field-value pairs and event types", "Field aliases and calculated fields", "Search macros with arguments: `name(arg)` and $arg$", "Naming conventions and the knowledge manager role", "Reassigning orphaned knowledge objects"],
+          "tools": ["Splunk Web", "SPL", "Settings > Knowledge"],
+          "lab_task": "Create event type web_error for sourcetype=access_combined_wcookie status>=500 and tag it error, add a field alias clientip AS src, a calculated field kb=round(bytes/1024,1), and a macro web_errors_by(1) with argument field defined as eventtype=web_error | stats count by $field$. Run `web_errors_by(host)`, then share every object to the app.",
+          "deliverable": "Knowledge object inventory listing name, type, owner, app and sharing for each object",
+          "checks": [["Compare tag=error | stats count with eventtype=web_error | stats count", "Both counts are equal", "Two stats results"], ["Run `web_errors_by(host)`", "One row per host with its error count", "Results table"], ["Run the macro as another user while it is still private", "The search fails with an error that the macro cannot be found", "Error screenshot"]],
+          "objectives": ["Create event types, tags, field aliases and calculated fields", "Write reusable macros with arguments", "Control who can see knowledge objects"]
+        },
+        {
+          "topic": "Splunk Reports and Scheduled Searches",
+          "subtopics": ["Saving searches as reports and report permissions", "Scheduling with cron expressions and schedule windows", "Time ranges for scheduled runs aligned with snap-to", "Email actions with inline tables, CSV and PDF attachments", "Schedule priority and skipped searches", "Embedding reports and report acceleration at awareness level", "Dispatched jobs, Activity > Jobs and job lifetimes for scheduled results", "Scheduler logs in index=_internal sourcetype=scheduler"],
+          "tools": ["Splunk Web", "SPL", "Splunk scheduler"],
+          "lab_task": "Save the report Hourly Error Summary from index=_internal log_level=ERROR | stats count by component, schedule it with cron 5 * * * * over earliest=-1h@h latest=@h, add an email action with an inline table, wait for two runs, then run index=_internal sourcetype=scheduler savedsearch_name=\"Hourly Error Summary\" | table _time status run_time result_count.",
+          "deliverable": "Scheduled report definition with the scheduler log table showing two runs",
+          "checks": [["Search the scheduler log after two hours", "Two rows with status=success", "Results table"], ["Enter the cron expression 61 * * * *", "Splunk Web refuses to save the schedule because the cron expression is invalid", "Error screenshot"], ["Open the Reports page as a user with no read permission on the report", "The report is not listed", "Reports page screenshot"]],
+          "objectives": ["Save and schedule reports", "Write cron schedules with aligned time ranges", "Confirm scheduled runs from scheduler logs"]
+        },
+        {
+          "topic": "Splunk Alerts: Trigger Conditions, Throttling and Alert Actions",
+          "subtopics": ["Scheduled compared with real-time alerts and their resource cost", "Trigger conditions: number of results and custom conditions", "Trigger once compared with for each result", "Throttling by time and by field values", "Alert actions: email, webhook, log event and add to triggered alerts", "Tokens in alert messages such as $name$, $results_link$ and $result.user$", "Triggered Alerts page and alert expiration", "Alert actions from Splunkbase add-ons such as Slack or PagerDuty"],
+          "tools": ["Splunk Web", "SPL", "Webhook test receiver"],
+          "lab_task": "Create an alert on index=_audit action=\"login attempt\" info=failed | stats count by user, scheduled with cron */5 * * * * over the last 5 minutes, triggering for each result when count>=3, throttled on user for 30 minutes, with Add to Triggered Alerts and a webhook to a test receiver. Fail three logins as user test1 and confirm one webhook arrives.",
+          "deliverable": "Alert definition plus the received webhook body and the Triggered Alerts screenshot",
+          "checks": [["Fail three logins for test1 within 5 minutes", "One entry appears under Activity > Triggered Alerts", "Triggered Alerts screenshot"], ["Fail three more logins for test1 inside the 30-minute throttle window", "No second webhook is received", "Receiver log"], ["Inspect the webhook body", "The JSON contains search_name, results_link and a result object with user test1", "Webhook payload"]],
+          "objectives": ["Build scheduled alerts with clear trigger conditions", "Throttle alerts to prevent noise", "Send alert results to email and webhooks"]
+        },
+        {
+          "topic": "Dashboard Studio Layouts, Visualizations and Data Sources",
+          "subtopics": ["Dashboard Studio compared with Classic (Simple XML) dashboards", "Absolute and grid layouts", "The JSON definition: dataSources, visualizations, layout, inputs and defaults", "ds.search data sources, and base and chain searches with ds.chain", "Visualization types: splunk.singlevalue, splunk.line, splunk.column, splunk.table and splunk.pie", "Dynamic options syntax for thresholds and colours", "Markdown text, images and shapes", "Sharing, exporting to PDF and PNG, and scheduled export"],
+          "tools": ["Dashboard Studio", "Splunk Web", "SPL"],
+          "lab_task": "Create a Dashboard Studio grid dashboard Web Overview with a base ds.search on index=tutorial sourcetype=access_combined_wcookie and three ds.chain children: | stats count for a single value, | timechart count by host for a line chart and | top limit=10 uri_path for a table. Colour the single value red above a threshold with dynamic options, then export the dashboard as PNG.",
+          "deliverable": "Dashboard Studio JSON source and the exported PNG",
+          "checks": [["Open the dashboard Source view", "dataSources has one ds.search and three ds.chain entries whose extend value names the base", "JSON excerpt"], ["Lower the threshold below the current value", "The single value turns red", "Dashboard screenshot"], ["Export the dashboard as PNG", "A PNG file containing all three panels is downloaded", "PNG file"]],
+          "objectives": ["Build dashboards in Dashboard Studio", "Reduce search load with base and chain searches", "Apply dynamic colouring to visualizations"]
+        },
+        {
+          "topic": "Dashboard Studio Inputs, Tokens and Drilldowns",
+          "subtopics": ["input.timerange and the global time token", "input.dropdown with static and search-driven options", "Multiselect inputs and token filters such as $tok|s$", "Default token values in the defaults and inputs sections", "Drilldown actions: setToken, linkToSearch, linkToDashboard and linkToUrl", "Hiding panels until a token is set", "Tabs in Dashboard Studio", "Debugging tokens through the URL and the Source view"],
+          "tools": ["Dashboard Studio", "Splunk Web", "SPL"],
+          "lab_task": "Extend Web Overview with a time range input bound to global_time, a host dropdown filled from index=tutorial | stats count by host, and a status table whose click drilldown sets token sel_status. Add a detail table of events filtered by status=$sel_status$ that stays hidden until the token is set, then test the drilldown on status 503.",
+          "deliverable": "Updated dashboard JSON with inputs, tokens and drilldown, plus screenshots before and after a click",
+          "checks": [["Select www2 in the host dropdown", "Every panel recalculates and shows only www2 data", "Dashboard screenshot"], ["Click the 503 row in the status table", "The detail table shows only events with status=503", "Dashboard screenshot"], ["Load the dashboard before clicking any row", "The detail panel is hidden and runs no search", "Dashboard screenshot"]],
+          "objectives": ["Add time and dropdown inputs to dashboards", "Pass values between panels with tokens", "Build click-through drilldowns"]
+        },
+        {
+          "topic": "Getting Data into Splunk: Upload, Monitor Inputs and the Add Data Wizard",
+          "subtopics": ["Upload, Monitor and Forward choices in Add Data", "File and directory monitor inputs with whitelist and blacklist", "Setting sourcetype, host and index at input time", "Set Source Type preview: event breaks and timestamps", "inputs.conf [monitor://] stanzas, crcSalt and the fishbucket", "Network inputs on TCP and UDP and why a syslog server is preferred", "Scripted inputs at awareness level", "Checking ingestion with metrics.log group=per_sourcetype_thruput"],
+          "tools": ["Splunk Web", "Splunk CLI", "inputs.conf"],
+          "lab_task": "Create index demo, then run splunk add monitor /var/log/demo -index demo -sourcetype demo:app. Append 100 lines to /var/log/demo/app.log with a shell loop, confirm index=demo | stats count returns 100, then rename app.log to app.log.1 and search again to see how the CRC check prevents re-indexing. Finish with splunk list monitor.",
+          "deliverable": "Input configuration from inputs.conf with counts before and after the rename",
+          "checks": [["Append 100 lines and run index=demo | stats count", "count = 100", "Search result"], ["Rename app.log to app.log.1 and search again", "count stays at 100 with no duplicate events", "Search result"], ["Run splunk list monitor", "/var/log/demo is listed among the monitored directories", "CLI output"]],
+          "objectives": ["Configure file monitor inputs with the correct index and sourcetype", "Explain how Splunk tracks files it has already read", "Verify that new data is arriving"]
+        },
+        {
+          "topic": "Universal Forwarder Installation and outputs.conf Forwarding",
+          "subtopics": ["Universal forwarder compared with heavy forwarder", "Installing the forwarder package on Linux and Windows", "Seeding the admin account with user-seed.conf", "Enabling receiving on the indexer with splunk enable listen 9997", "splunk add forward-server and the resulting [tcpout] stanza in outputs.conf", "Forwarder inputs.conf and the splunk add monitor command", "Verifying connections with splunk list forward-server and metrics.log tcpin_connections", "The forwarder's default 256 KBps limit in limits.conf [thruput] maxKBps"],
+          "tools": ["Splunk Universal Forwarder", "Splunk Enterprise", "Splunk CLI", "outputs.conf"],
+          "lab_task": "Install the universal forwarder on a Linux VM with a user-seed.conf password, enable receiving on the indexer with splunk enable listen 9997, then on the forwarder run splunk add forward-server <indexer>:9997 and splunk add monitor /var/log/syslog -index os -sourcetype syslog. Confirm with splunk list forward-server and index=os host=<forwarder>.",
+          "deliverable": "Forwarder build notes with outputs.conf, inputs.conf and the search showing its events",
+          "checks": [["Run splunk list forward-server on the forwarder", "The indexer is listed under Active forwards", "CLI output"], ["On the indexer run index=_internal source=*metrics.log group=tcpin_connections | stats count by hostname", "The forwarder's hostname appears", "Results table"], ["Stop splunkd on the indexer and rerun splunk list forward-server", "The indexer moves to Configured but inactive forwards", "CLI output"]],
+          "objectives": ["Install and configure a universal forwarder", "Connect forwarders to a receiving indexer", "Check forwarder connectivity from both ends"]
+        },
+        {
+          "topic": "HTTP Event Collector Tokens, Endpoints and Acknowledgement",
+          "subtopics": ["Enabling HEC in Global Settings and the default port 8088", "Creating tokens with allowed indexes and a default sourcetype", "/services/collector/event and its JSON envelope: time, host, source, sourcetype, index, event and fields", "The /services/collector/raw endpoint", "The Authorization: Splunk <token> header", "Indexer acknowledgement with channels and /services/collector/ack", "HEC response codes such as 0 Success, 2 Token is required and 4 Invalid token", "HEC on Splunk Cloud Platform: the http-inputs-<stack> host on port 443"],
+          "tools": ["HTTP Event Collector", "curl", "Splunk Web"],
+          "lab_task": "Enable HEC and create token demo-hec allowed only on index demo, then send curl -k https://localhost:8088/services/collector/event -H \"Authorization: Splunk <token>\" -d '{\"event\":{\"msg\":\"order created\",\"amount\":42},\"sourcetype\":\"demo:hec\"}'. Repeat with a wrong token and with \"index\":\"main\", record each HTTP status and JSON code, then search index=demo sourcetype=demo:hec.",
+          "deliverable": "HEC test log with each request, its HTTP status and JSON response, and the indexed event",
+          "checks": [["Send the valid event", "{\"text\":\"Success\",\"code\":0}", "curl output"], ["Send the event with a wrong token", "HTTP 403 with {\"text\":\"Invalid token\",\"code\":4}", "curl output"], ["Send the event with \"index\":\"main\" using the restricted token", "HTTP 400 with the Incorrect index error (code 7)", "curl output"]],
+          "objectives": ["Create and scope HEC tokens", "Send events to HEC and read its responses", "Explain when to use indexer acknowledgement"]
+        },
+        {
+          "topic": "Splunk Users, Roles and Apps for Search Teams",
+          "subtopics": ["Native authentication and local user accounts", "Built-in roles: user, power, admin and can_delete, and sc_admin in Splunk Cloud Platform", "Role inheritance and capabilities", "Allowed and default indexes per role", "Search job quotas and search time window limits", "Installing apps from Splunkbase and from a .tgz file", "App permissions and navigation menus", "User preferences: default app, time zone and SPL editor settings"],
+          "tools": ["Splunk Web", "Splunkbase", "Splunk CLI"],
+          "lab_task": "Create role web_analyst that inherits user, with allowed indexes web and tutorial and default index tutorial, create user ana with that role, and install one app from Splunkbase or a .tgz file. Log in as ana and confirm index=_internal returns nothing, index=tutorial returns events, and the Settings menu has no Indexes page.",
+          "deliverable": "Role and user definitions with screenshots of the three tests as ana",
+          "checks": [["As ana run index=_internal | stats count", "count = 0", "Search result"], ["As ana run index=tutorial | stats count", "The count matches the admin's result for the same time range", "Search result"], ["As ana run index=tutorial | head 1 | delete", "An error says the user has insufficient privileges to delete events", "Error screenshot"]],
+          "objectives": ["Create roles with index restrictions", "Add users and assign roles", "Install and share apps"]
+        },
+        {
+          "topic": "Capstone: Web Store Monitoring App in Splunk",
+          "subtopics": ["Onboarding web and application logs into a dedicated index", "Field extractions, a status lookup and event types for the app", "A Dashboard Studio dashboard with time and host inputs and a drilldown", "A scheduled daily error report and a throttled 5xx alert", "Role-based sharing of all knowledge objects", "Ten-minute demonstration and peer review"],
+          "tools": ["Splunk Enterprise", "Dashboard Studio", "HTTP Event Collector", "Splunk Universal Forwarder", "SPL"],
+          "lab_task": "Build app web_store_ops: onboard access and order logs into index web through a forwarder or HEC, add extractions, a status lookup and event types, build a Dashboard Studio dashboard with time and host inputs and a drilldown, schedule a daily error report and a throttled 5xx alert, share everything to role web_analyst and demonstrate it in 10 minutes.",
+          "deliverable": "The web_store_ops app with a one-page README listing every input, knowledge object, dashboard and alert",
+          "checks": [["Log in as a web_analyst user and open the dashboard", "All panels load with data and no permission errors", "Dashboard screenshot"], ["Send 20 status=503 events through HEC", "The alert fires once and is throttled afterwards", "Triggered Alerts screenshot"], ["Run | rest /servicesNS/-/web_store_ops/saved/searches | table title", "The daily report and the alert are both listed", "Search result"]],
+          "objectives": ["Combine onboarding, searching, knowledge objects and dashboards in one app", "Deliver a working alert and report for a real use case", "Present and defend the design choices"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For Splunk users moving into administration, knowledge management and power-user work. Covers distributed Splunk Enterprise components, .conf file precedence and btool, index and bucket management, the parsing pipeline and props.conf, index-time and search-time transforms, the deployment server, heavy and intermediate forwarders, Splunkbase add-ons, correlation with transaction and streamstats, multivalue and JSON data, subsearches, data models, the Common Information Model, tstats with accelerated data models, summary indexing, access control, licensing and the Monitoring Console, ending with a capstone that onboards and normalises a new data source.",
+      "prerequisites": ["Completed the beginner level or can write SPL with stats, eval, rex, lookups and timechart without reference material", "Has onboarded data with monitor inputs, a universal forwarder or HEC and can explain index, host, source and sourcetype", "Can administer Linux servers over SSH, edit configuration files and run four or more Splunk instances in VMs or containers"],
+      "outcomes": ["Build and operate a distributed Splunk Enterprise deployment with forwarders, indexers, a search head and a deployment server", "Onboard new data sources with correct line breaking, timestamps, routing, filtering and search-time extractions", "Normalise data to the Common Information Model and report on it quickly with data models, tstats and summary indexes", "Control access, licence usage and platform health with roles, the license manager and the Monitoring Console"],
+      "days": [
+        {
+          "topic": "Splunk Enterprise Component Architecture: Forwarders, Indexers and Search Heads",
+          "subtopics": ["Processing tiers: data input, parsing, indexing and search", "Universal and heavy forwarders and where parsing happens", "Indexers: parsing, merging, typing and indexing pipelines and their queues", "Search heads, distributed search and search peers", "Management components: deployment server, license manager, cluster manager, deployer and Monitoring Console", "Splunk Validated Architectures and choosing a topology", "Sizing inputs: daily ingest, concurrent searches and retention", "Adding peers with splunk add search-server"],
+          "tools": ["Splunk Enterprise", "Splunk Universal Forwarder", "Splunk CLI", "Splunk Validated Architectures"],
+          "lab_task": "Build a lab with one search head, two indexers and one forwarder. On the search head run splunk add search-server https://idx1:8089 -auth admin:<pw> -remoteUsername admin -remotePassword <pw> for each indexer, configure the forwarder to send to both indexers, then run index=os | stats count by splunk_server and record how events are split.",
+          "deliverable": "Architecture diagram of the lab with ports, roles and the event split per indexer",
+          "checks": [["Run | rest /services/search/distributed/peers | table peerName status", "Two peers, both with status Up", "Results table"], ["Run index=os | stats count by splunk_server", "Both indexers appear with non-zero counts", "Results table"], ["Stop one indexer and rerun the search", "Results come from one peer with a message that a search peer is unreachable", "Search screenshot"]],
+          "objectives": ["Explain the role of each Splunk Enterprise component", "Build distributed search across several indexers", "Choose a topology from Splunk Validated Architectures"]
+        },
+        {
+          "topic": "Splunk Configuration Files: Layering, Precedence and btool",
+          "subtopics": ["default compared with local directories, and why default is never edited", "System, app and user directories", "Global (index-time) precedence: system/local, app local, app default, system/default", "App and user context precedence for search-time settings", "Stanza and attribute merging, and ASCII ordering of app names", "splunk btool <conf> list --debug and splunk btool check", "Reloading with the debug/refresh endpoint compared with restarting", "Keeping configuration in version control as deployable apps"],
+          "tools": ["Splunk CLI", "btool", "Git", "Text editor"],
+          "lab_task": "Create apps aa_override and zz_override, each setting a different TRUNCATE for sourcetype demo:app in local/props.conf. Run splunk btool props list demo:app --debug and note which file wins, then add TRUNCATE to etc/system/local/props.conf and rerun. Finally misspell an attribute as TRUNCAT, run splunk btool check and fix what it reports.",
+          "deliverable": "Precedence worksheet with the btool --debug output for each step and the corrected configuration",
+          "checks": [["Run btool props list demo:app --debug with only the two apps set", "TRUNCATE is read from apps/aa_override/local/props.conf", "btool output"], ["Add TRUNCATE to etc/system/local/props.conf and rerun btool", "The winning value now comes from system/local", "btool output"], ["Run splunk btool check after adding TRUNCAT", "Invalid key in stanza [demo:app] is reported for TRUNCAT", "btool output"]],
+          "objectives": ["Predict which configuration value Splunk uses", "Troubleshoot configuration with btool", "Organise settings in apps instead of system/local"]
+        },
+        {
+          "topic": "Splunk Index Management: Buckets, Retention and Volumes",
+          "subtopics": ["indexes.conf stanzas: homePath, coldPath and thawedPath", "Bucket lifecycle: hot, warm, cold, frozen and thawed", "Bucket rolling: maxDataSize, maxHotBuckets and maxWarmDBCount", "Retention with frozenTimePeriodInSecs (default about six years) and maxTotalDataSizeMB", "Archiving with coldToFrozenDir and coldToFrozenScript", "Volumes and maxVolumeDataSizeMB", "Event indexes compared with metrics indexes (datatype = metric)", "Inspecting buckets with | dbinspect and restoring thawed buckets with splunk rebuild"],
+          "tools": ["Splunk Enterprise", "indexes.conf", "dbinspect", "Splunk CLI"],
+          "lab_task": "In an app's indexes.conf define index app_logs with frozenTimePeriodInSecs = 2592000, maxTotalDataSizeMB = 5000, homePath on volume:hot and coldPath on volume:cold, plus a metrics index app_metrics with datatype = metric. Restart, index sample data, run | dbinspect index=app_logs | table bucketId state startEpoch endEpoch sizeOnDiskMB, then roll hot buckets.",
+          "deliverable": "indexes.conf with a retention table explaining when app_logs data freezes and how much disk it may use",
+          "checks": [["Run splunk btool indexes list app_logs", "frozenTimePeriodInSecs = 2592000 and maxTotalDataSizeMB = 5000 are shown", "btool output"], ["Run | dbinspect index=app_logs after indexing data", "At least one bucket has state hot", "Results table"], ["Run splunk _internal call /data/indexes/app_logs/roll-hot-buckets -method POST and rerun dbinspect", "The former hot bucket is now listed as warm", "Results table"]],
+          "objectives": ["Design index retention by time and by size", "Explain the bucket lifecycle", "Create event and metrics indexes"]
+        },
+        {
+          "topic": "Splunk Event Processing: Line Breaking, Timestamps and props.conf",
+          "subtopics": ["The parsing pipeline: character set, line breaking, line merging and timestamp extraction", "LINE_BREAKER with a capture group and SHOULD_LINEMERGE = false", "TRUNCATE and MAX_EVENTS", "TIME_PREFIX, TIME_FORMAT and MAX_TIMESTAMP_LOOKAHEAD", "TZ and what happens when no timestamp is found", "EVENT_BREAKER_ENABLE and EVENT_BREAKER on universal forwarders", "Structured data: INDEXED_EXTRACTIONS = json or csv compared with KV_MODE = json", "The eight core props.conf settings for every new sourcetype"],
+          "tools": ["props.conf", "Add Data preview", "Splunk CLI", "btool"],
+          "lab_task": "Onboard a multiline Java log whose events start like [2026-11-02 10:15:22,481 +0100]. In props.conf set SHOULD_LINEMERGE = false, LINE_BREAKER = ([\\r\\n]+)\\[\\d{4}-, TIME_PREFIX = ^\\[, TIME_FORMAT = %Y-%m-%d %H:%M:%S,%3N %z and MAX_TIMESTAMP_LOOKAHEAD = 30. Test in Add Data preview, index a 50-entry file and confirm stack traces stay inside one event.",
+          "deliverable": "props.conf stanza for the sourcetype with preview screenshots and the event count check",
+          "checks": [["Index the file with 50 log entries containing stack traces and count events", "| stats count returns 50", "Search result"], ["Compare _time with the timestamp text in one event", "They match to the millisecond after time zone conversion", "Event screenshot"], ["Set TIME_FORMAT to %d/%m/%Y and reindex into a test index", "DateParserVerbose warnings appear in index=_internal for the source", "Search result"]],
+          "objectives": ["Configure line breaking for multiline events", "Extract timestamps reliably with explicit settings", "Diagnose timestamp problems from internal logs"]
+        },
+        {
+          "topic": "Index-Time Transforms: Routing, Filtering and Masking",
+          "subtopics": ["TRANSFORMS- classes in props.conf and their evaluation order", "Filtering with DEST_KEY = queue and FORMAT = nullQueue", "Keep-only filtering: send everything to nullQueue, then route wanted events to indexQueue", "Index routing with DEST_KEY = _MetaData:Index", "Sourcetype and host overrides with MetaData:Sourcetype and MetaData:Host", "SEDCMD for masking card numbers and passwords", "Index-time fields with WRITE_META and fields.conf INDEXED = true", "Where these run: indexers and heavy forwarders, not universal forwarders"],
+          "tools": ["props.conf", "transforms.conf", "Splunk Enterprise", "Heavy forwarder"],
+          "lab_task": "On the indexer write transforms that send DEBUG lines to nullQueue, route lines containing AUDIT to index audit_app with DEST_KEY = _MetaData:Index, and mask card numbers with SEDCMD-mask_pan = s/\\d{12}(\\d{4})/XXXXXXXXXXXX\\1/g. Send a 1,000-line test file with known counts of each line type and compare the counts in each index.",
+          "deliverable": "props.conf and transforms.conf with a count reconciliation table: lines sent, dropped, routed and masked",
+          "checks": [["Search for DEBUG events across all indexes", "count = 0", "Search result"], ["Run index=audit_app | stats count", "The count equals the number of AUDIT lines in the test file", "Search result"], ["Search for one full test card number", "No results; the matching events show XXXXXXXXXXXX and the last four digits", "Search screenshots"]],
+          "objectives": ["Filter unwanted events before they are indexed", "Route events to different indexes", "Mask sensitive data at index time"]
+        },
+        {
+          "topic": "Search-Time Field Extraction with props.conf and transforms.conf",
+          "subtopics": ["Search-time operation order: EXTRACT, REPORT, KV_MODE, FIELDALIAS, EVAL, LOOKUP", "EXTRACT- with inline named-group regex", "REPORT- with DELIMS and FIELDS in transforms.conf", "REPORT- with REGEX, FORMAT and MV_ADD", "FIELDALIAS- for CIM field names", "EVAL- calculated fields", "KV_MODE values: auto, none, json and xml", "Deploying search-time settings to search heads only"],
+          "tools": ["props.conf", "transforms.conf", "SPL", "fieldsummary"],
+          "lab_task": "For sourcetype app:orders write props.conf on the search head with EXTRACT-level, a REPORT-kv transform using DELIMS = \" \", \"=\", FIELDALIAS-src = client_ip AS src and EVAL-latency_s = latency_ms/1000. Reload with https://localhost:8089/debug/refresh, run sourcetype=app:orders | fieldsummary | search field IN (level, src, latency_s), then check events indexed before the change.",
+          "deliverable": "Search-time configuration files with fieldsummary output for old and new events",
+          "checks": [["Run the fieldsummary search", "level, src and latency_s are listed with non-zero counts", "Results table"], ["Search events indexed before the props change", "They also show the new fields because extraction happens at search time", "Event screenshot"], ["Set KV_MODE = none and rerun fieldsummary", "Automatic key=value fields not produced by your REPORT disappear", "Results table"]],
+          "objectives": ["Write search-time extractions in configuration files", "Explain the search-time order of operations", "Place search-time settings on the right tier"]
+        },
+        {
+          "topic": "Deployment Server: Server Classes, Deployment Apps and Agent Management",
+          "subtopics": ["deploymentclient.conf targetUri and phoneHomeIntervalInSecs", "Deployment apps in $SPLUNK_HOME/etc/deployment-apps", "serverclass.conf whitelist and blacklist by hostname, IP and machineTypesFilter", "restartSplunkd and stateOnClient", "The Forwarder Management or Agent Management page, depending on version", "splunk reload deploy-server and splunk list deploy-clients", "Base configuration apps: outputs, deployment client and inputs", "Scaling limits and when to add deployment servers"],
+          "tools": ["Deployment server", "Splunk Universal Forwarder", "serverclass.conf", "Splunk CLI"],
+          "lab_task": "On the deployment server create apps org_all_forwarder_outputs and org_linux_inputs in etc/deployment-apps, define server classes all_forwarders (whitelist.0 = *) and linux (machineTypesFilter = linux-x86_64), point two forwarders at it with splunk set deploy-poll ds:8089, run splunk reload deploy-server and confirm both forwarders received both apps.",
+          "deliverable": "serverclass.conf, the two deployment apps and a client status screenshot",
+          "checks": [["Run splunk list deploy-clients on the deployment server", "Both forwarders are listed with recent phone-home times", "CLI output"], ["List $SPLUNK_HOME/etc/apps on a forwarder", "org_all_forwarder_outputs and org_linux_inputs are present", "Directory listing"], ["Add an input to org_linux_inputs and run splunk reload deploy-server", "The new input appears in splunk list monitor on the forwarder within one phone-home interval", "CLI output"]],
+          "objectives": ["Manage forwarder configuration centrally", "Target apps to groups of forwarders with server classes", "Structure configuration as small, reusable apps"]
+        },
+        {
+          "topic": "Heavy Forwarders, Intermediate Forwarding and Load Balancing",
+          "subtopics": ["When a heavy forwarder is justified: parsing, routing and modular inputs", "Intermediate forwarding tiers and their trade-offs", "outputs.conf target groups and defaultGroup", "Automatic load balancing with autoLBFrequency and autoLBVolume", "Indexer acknowledgement with useACK = true", "Output queues and maxQueueSize", "Indexer discovery through a cluster manager", "Routing to several groups with _TCP_ROUTING"],
+          "tools": ["Splunk Universal Forwarder", "Heavy forwarder", "outputs.conf", "Splunk CLI"],
+          "lab_task": "Configure a forwarder with outputs.conf [tcpout:primary_indexers] server = idx1:9997, idx2:9997, autoLBFrequency = 30 and useACK = true. Generate one numbered event per second with a shell loop, stop idx1 for 3 minutes, then compare generated and indexed counts and run index=demo | timechart span=30s count by splunk_server.",
+          "deliverable": "outputs.conf with the outage timeline chart and the generated versus indexed count",
+          "checks": [["Compare generated and indexed event counts after the outage", "The counts are equal", "Count comparison"], ["Chart events by splunk_server during the outage", "Only idx2 receives events while idx1 is down", "Timechart screenshot"], ["Search the forwarder's splunkd.log for TcpOutputProc", "Messages show the connection to idx1 failing and later recovering", "Log excerpt"]],
+          "objectives": ["Configure load-balanced forwarding", "Protect data in transit with indexer acknowledgement", "Decide when to add a heavy or intermediate forwarder"]
+        },
+        {
+          "topic": "Splunk Add-ons from Splunkbase: Technology Add-on Structure and Modular Inputs",
+          "subtopics": ["Apps compared with technology add-ons (TAs)", "Splunk-supported, developer-supported and community add-ons", "Add-on layout: default, local, metadata, bin, lookups and README", "Which tier needs each add-on: forwarders, indexers or search heads", "Modular inputs and their setup pages", "Credential storage in storage/passwords", "Splunk Add-on for Unix and Linux and Splunk Add-on for Microsoft Windows", "Upgrading add-ons without losing local settings"],
+          "tools": ["Splunkbase", "Splunk Add-on for Unix and Linux", "Deployment server", "Splunk Web"],
+          "lab_task": "Install the Splunk Add-on for Unix and Linux on the search head and indexers, and deploy a copy to forwarders through the deployment server with only cpu.sh, df.sh and a /var/log monitor enabled in local/inputs.conf. After 30 minutes run index=os | stats count by sourcetype and index=os sourcetype=cpu | stats avg(pctIdle) by host.",
+          "deliverable": "Add-on placement table by tier with the local/inputs.conf and sourcetype counts",
+          "checks": [["Run index=os | stats count by sourcetype", "cpu, df and the log sourcetypes from /var/log appear", "Results table"], ["Run index=os sourcetype=cpu | stats avg(pctIdle) by host", "One value between 0 and 100 per forwarder", "Results table"], ["Upgrade the add-on and diff local/inputs.conf", "The enabled inputs are unchanged", "diff output"]],
+          "objectives": ["Select and install add-ons on the correct tiers", "Enable only the inputs a use case needs", "Upgrade add-ons safely"]
+        },
+        {
+          "topic": "Correlating Events with transaction, stats and streamstats",
+          "subtopics": ["transaction by field with maxspan, maxpause, startswith and endswith", "duration, eventcount and closed_txn fields", "Why stats with min, max and values is usually faster than transaction", "eventstats for group totals on every event", "streamstats with window, time_window and reset_on_change", "delta and autoregress for previous values", "Rebuilding web sessions from JSESSIONID", "transaction memory limits in limits.conf"],
+          "tools": ["SPL", "Job Inspector", "Splunk Web"],
+          "lab_task": "On the tutorial access data group sessions with transaction JSESSIONID and compute avg(duration). Rebuild the result with stats min(_time) AS start max(_time) AS end count by JSESSIONID | eval duration=end-start, compare run times in the Job Inspector, then number each client's clicks with streamstats count AS click_no by clientip.",
+          "deliverable": "Correlation notebook with both session searches, their run times and the click numbering search",
+          "checks": [["Compare the session counts from transaction and stats", "Both return the same number of sessions", "Two stats results"], ["Compare run durations in the Job Inspector", "The stats version finishes faster than transaction", "Job Inspector screenshots"], ["Run streamstats count AS click_no by clientip | stats max(click_no) AS m count by clientip", "m equals count for every client", "Results table"]],
+          "objectives": ["Group related events into sessions", "Replace transaction with stats where possible", "Add running counts and group totals to events"]
+        },
+        {
+          "topic": "Multivalue Fields and JSON Data in SPL: spath, mvexpand and mv Functions",
+          "subtopics": ["Multivalue fields from extractions and makemv", "mvcount, mvindex, mvfilter, mvjoin and mvdedup", "mvexpand and its memory limit", "spath with path and output, and array paths such as items{}.sku", "KV_MODE = json compared with INDEXED_EXTRACTIONS = json", "JSON eval functions such as json_extract and json_object", "mvzip and split for paired arrays", "stats values compared with list"],
+          "tools": ["SPL", "HTTP Event Collector", "Python"],
+          "lab_task": "Send 50 JSON orders through HEC with a Python script, each like {\"order\":\"A1\",\"items\":[{\"sku\":\"S1\",\"qty\":2}]}, and record the total quantity per sku. Use spath to extract items{}.sku and items{}.qty, combine them with mvzip, mvexpand to one row per item, split back into sku and qty, and run stats sum(qty) by sku.",
+          "deliverable": "Sender script, the SPL pipeline and a reconciliation of sum(qty) by sku against the script totals",
+          "checks": [["Run spath path=items{}.sku output=sku | eval n=mvcount(sku)", "n equals the number of items in each order", "Results table"], ["Compare stats sum(qty) by sku with the script totals", "Every sku total matches", "Reconciliation table"], ["Run mvexpand on sku and qty separately without mvzip", "Rows multiply into mismatched sku and qty pairs", "Results table"]],
+          "objectives": ["Work with multivalue fields", "Parse nested JSON events in SPL", "Expand arrays into rows without losing pairing"]
+        },
+        {
+          "topic": "Subsearches, join, append and Lookup Enrichment in SPL",
+          "subtopics": ["Subsearch syntax [ search ... ] and the format command", "Subsearch default limits: 10,000 results and 60 seconds", "return and format for building filters", "join type=inner and type=left, and their limits", "append, appendcols and multisearch", "Replacing join with stats over combined searches", "Lookup enrichment instead of join", "Seeing the expanded subsearch in the Job Inspector"],
+          "tools": ["SPL", "Job Inspector", "Splunk Web"],
+          "lab_task": "Find tutorial clients that made a purchase and also hit server errors three ways: index=tutorial status>=500 [search index=tutorial action=purchase | dedup clientip | fields clientip], a join type=inner clientip, and one search over both conditions with stats values(action) values(status) by clientip. Compare result sets and run times.",
+          "deliverable": "Comparison table of the three approaches with result counts, run times and a recommendation",
+          "checks": [["Compare the clientip lists of the three versions", "All three return the same set of clientip values", "Result comparison"], ["Open the Job Inspector for the subsearch version", "The expanded search contains ( clientip=\"...\" ) OR ( clientip=\"...\" ) terms", "Job Inspector excerpt"], ["Write a subsearch that returns more than 10,000 rows", "Results are truncated and a message reports the subsearch result limit", "Search screenshot"]],
+          "objectives": ["Use subsearches to build dynamic filters", "Choose between join, append, stats and lookups", "Recognise subsearch limits"]
+        },
+        {
+          "topic": "Splunk Data Models: Datasets, Constraints and Pivot",
+          "subtopics": ["What a data model is: a hierarchical, searchable schema", "Root event, root search and child datasets", "Constraints and inheritance", "Auto-extracted, eval, lookup and regular expression fields", "Field types and required flags", "Pivot editor and saving pivots to dashboards", "| datamodel and | from datamodel: commands", "Data model permissions and app placement"],
+          "tools": ["Data model editor", "Pivot", "SPL", "Splunk Web"],
+          "lab_task": "Create data model Web_Store with root event dataset Access (constraint index=tutorial sourcetype=access_combined_wcookie) and child datasets Errors (status>=400) and Purchases (action=purchase), with an eval field kb. Build a pivot of Purchases count by productId, save it to a dashboard, and run | from datamodel:\"Web_Store.Purchases\" | stats count.",
+          "deliverable": "Web_Store data model JSON export with the pivot dashboard",
+          "checks": [["Run | from datamodel:\"Web_Store.Purchases\" | stats count", "The count equals index=tutorial action=purchase | stats count", "Two stats results"], ["Open the Errors dataset definition", "It inherits the Access constraint and adds status>=400", "Editor screenshot"], ["Pivot Purchases split by productId", "One row per productId", "Pivot screenshot"]],
+          "objectives": ["Design data models with inherited datasets", "Report on data models with Pivot", "Query data models from SPL"]
+        },
+        {
+          "topic": "Splunk Common Information Model: CIM Add-on and Field Normalization",
+          "subtopics": ["Why normalise: one search across many vendors", "The Splunk Common Information Model add-on (Splunk_SA_CIM)", "Key data models: Authentication, Network_Traffic, Web, Endpoint and Change", "Event types and tags that map events into data models", "Common fields such as action, src, dest, user and app", "Field aliases and calculated fields that fill CIM fields", "CIM index constraint macros such as cim_Authentication_indexes", "Validating mappings with datamodel searches and field coverage checks"],
+          "tools": ["Splunk Common Information Model add-on", "SPL", "props.conf", "eventtypes.conf"],
+          "lab_task": "Map sourcetype app:auth (lines like user=bob result=FAIL ip=10.1.2.3) to the CIM Authentication data model: create event type app_auth tagged authentication, add EVAL-action = case(result=\"OK\",\"success\",result=\"FAIL\",\"failure\") and FIELDALIAS-src = ip AS src, set the cim_Authentication_indexes macro, then run | datamodel Authentication Authentication search | stats count by Authentication.action.",
+          "deliverable": "CIM mapping sheet for app:auth listing each CIM field, its source and the configuration that sets it",
+          "checks": [["Run the datamodel search with stats count by Authentication.action", "Only success and failure values appear", "Results table"], ["Compare sourcetype=app:auth tag=authentication | stats count with sourcetype=app:auth | stats count", "Both counts are equal", "Two stats results"], ["Run | datamodel Authentication Failed_Authentication search | stats count", "The count equals the number of FAIL lines", "Search result"]],
+          "objectives": ["Map a custom sourcetype to a CIM data model", "Fill CIM fields with aliases and calculated fields", "Validate a CIM mapping with searches"]
+        },
+        {
+          "topic": "tstats and Accelerated Data Models",
+          "subtopics": ["tsidx files and why tstats is fast", "tstats on indexed fields: | tstats count where index=* by index, sourcetype", "Data model acceleration: summary range, backfill and schedule", "tstats from datamodel= with summariesonly=true", "Dataset-prefixed field names such as Authentication.user", "prestats=true with timechart", "Acceleration status: percent complete, size and last run", "TERM() and PREFIX() in tstats where clauses"],
+          "tools": ["SPL", "Data model editor", "Job Inspector"],
+          "lab_task": "Accelerate the CIM Authentication data model with a 7-day summary range and wait until it is 100% built. Compare | datamodel Authentication Authentication search | stats count by Authentication.user with | tstats summariesonly=true count from datamodel=Authentication by Authentication.user, record run times, then run | tstats count where index=* by index, sourcetype.",
+          "deliverable": "Acceleration settings with a run-time comparison table for the two searches",
+          "checks": [["Compare the per-user counts of both searches", "The counts match once the summary is 100% complete", "Results tables"], ["Compare run durations", "The tstats search finishes in less time than the datamodel search", "Job Inspector screenshots"], ["Run the tstats search with summariesonly=true over 30 days", "No results are returned for days outside the 7-day summary range", "Timechart screenshot"]],
+          "objectives": ["Accelerate data models and monitor their build", "Write tstats searches against indexed fields and data models", "Explain the trade-offs of summariesonly"]
+        },
+        {
+          "topic": "Report Acceleration and Summary Indexing in Splunk",
+          "subtopics": ["Report acceleration requirements and eligible searches", "Acceleration summaries and summary ranges", "Summary indexing with collect and scheduled searches", "si- commands such as sistats and sitimechart", "The stash sourcetype and why summary data does not consume licence", "Backfilling with fill_summary_index.py", "Avoiding gaps and overlaps with aligned earliest and latest times", "Choosing between report acceleration, summary indexes and tstats"],
+          "tools": ["SPL", "Splunk scheduler", "fill_summary_index.py"],
+          "lab_task": "Create index summary_splunkd and schedule index=_internal sourcetype=splunkd | stats count by log_level, component | collect index=summary_splunkd hourly over earliest=-1h@h latest=@h. Backfill 24 hours with splunk cmd python fill_summary_index.py -app search -name <report> -et -24h@h -lt @h -dedup true, then compare 24-hour totals with the raw search.",
+          "deliverable": "Summary indexing design note with the scheduled search, the backfill command and the reconciliation",
+          "checks": [["Compare 24-hour totals from summary_splunkd and the raw search", "The totals are equal", "Two stats results"], ["Run index=summary_splunkd | stats count by sourcetype", "The only sourcetype is stash", "Search result"], ["Run the backfill command a second time with -dedup true", "No duplicate hourly rows are added", "Count comparison"]],
+          "objectives": ["Build summary indexes without gaps or duplicates", "Enable report acceleration where it fits", "Choose the right acceleration method for a report"]
+        },
+        {
+          "topic": "Splunk Access Control: Role Search Filters, Index Permissions and SAML",
+          "subtopics": ["authorize.conf: importRoles, srchIndexesAllowed and srchIndexesDefault", "srchFilter for row-level restriction and how filters combine across roles", "Capabilities such as schedule_search, rtsearch, edit_tcp and delete_by_keyword", "Search quotas: srchJobsQuota, srchDiskQuota and srchTimeWin", "LDAP strategies and group-to-role mapping", "SAML single sign-on with an identity provider", "Authentication tokens for scripts", "Auditing user activity in index=_audit"],
+          "tools": ["authorize.conf", "Splunk Web", "SAML identity provider", "LDAP"],
+          "lab_task": "Create role emea_support with srchIndexesAllowed = web, srchFilter = region=emea, srchJobsQuota = 3 and no schedule_search capability. Map an LDAP or SAML group to it, or use a local user if no identity provider is available. As that user run index=web | stats count by region, start four long searches and try to schedule a report.",
+          "deliverable": "authorize.conf role stanza, the group mapping and test results for each restriction",
+          "checks": [["As the user run index=web | stats count by region", "Only the emea row is returned", "Results table"], ["Start four long-running searches at once", "The fourth is queued or refused with a message about the search job quota", "Screenshot"], ["Search index=_audit user=<name> action=search", "Each search the user ran is logged with its search string", "Results table"]],
+          "objectives": ["Restrict data access by index and by search filter", "Connect Splunk to LDAP or SAML", "Audit what users search"]
+        },
+        {
+          "topic": "Splunk Licensing: License Manager, Usage Reports and Violations",
+          "subtopics": ["Ingest-based licensing measured on daily indexed volume", "Workload-based pricing and how it differs", "License manager and license peers", "License stacks and pools", "The License Usage Report and license_usage.log type=Usage", "Warnings, violations and how enforcement depends on licence size and type", "Data that does not count: internal indexes and stash summary data", "Reducing volume with filtering, Ingest Actions and metrics"],
+          "tools": ["License manager", "Splunk Web", "SPL", "Splunk CLI"],
+          "lab_task": "Make one instance the license manager and point another at it with splunk edit licenser-localpeer -manager_uri https://lm:8089. Then run index=_internal source=*license_usage.log* type=Usage | eval GB=b/1024/1024/1024 | timechart span=1d sum(GB) by idx and build a 30-day top-five table by index and by sourcetype (st).",
+          "deliverable": "Licence usage report with daily totals and the top-five index and sourcetype tables",
+          "checks": [["Open Settings > Licensing on the peer", "It shows the license manager URI and a successful connection", "Screenshot"], ["Sum one day of license_usage.log by idx", "The total matches the License Usage Report for that day", "Two results"], ["Run | table b idx st h pool on type=Usage events", "Every row has values for b, idx, st, h and pool", "Results table"]],
+          "objectives": ["Configure a license manager and peers", "Measure licence usage by index, sourcetype and host", "Plan actions that keep usage within the licence"]
+        },
+        {
+          "topic": "Monitoring Console: Health Checks, Indexing Performance and Search Activity",
+          "subtopics": ["Standalone and distributed modes and server roles", "Overview, Indexing Performance and Search Activity dashboards", "Health Check with built-in and custom items", "Platform alerts such as near-critical disk usage and missing forwarders", "Queue fill ratios for parsing, aggregation, typing and index queues", "Skipped and deferred scheduled searches", "The splunkd health report and health.conf", "Forwarder monitoring setup and the forwarder dashboards"],
+          "tools": ["Monitoring Console", "Splunk Web", "SPL"],
+          "lab_task": "Enable the Monitoring Console in distributed mode, assign server roles to every lab node, turn on forwarder monitoring, run the Health Check and fix one warning, enable the missing forwarders platform alert, then stop a forwarder for 20 minutes. Also run index=_internal source=*metrics.log group=queue | timechart perc90(current_size_kb) by name.",
+          "deliverable": "Monitoring Console setup record with Health Check results before and after the fix and the alert evidence",
+          "checks": [["Run the Health Check, fix one warning and rerun it", "The fixed item changes from warning to pass", "Two Health Check screenshots"], ["Stop a forwarder for 20 minutes", "The forwarder is shown as missing and the platform alert triggers", "Alert screenshot"], ["Chart queue sizes under normal load", "No queue stays at its maximum size", "Timechart screenshot"]],
+          "objectives": ["Configure the Monitoring Console for a distributed deployment", "Read indexing and search health dashboards", "Alert on platform problems"]
+        },
+        {
+          "topic": "Capstone: Onboarding and Normalising a New Data Source in Splunk",
+          "subtopics": ["Data source assessment and onboarding request", "Index design, retention and access control", "Forwarder inputs delivered through the deployment server", "props.conf and transforms.conf for parsing and filtering", "CIM mapping and data model acceleration", "Operational checks and the handover runbook"],
+          "tools": ["Splunk Enterprise", "Deployment server", "Splunk Common Information Model add-on", "Monitoring Console", "SPL"],
+          "lab_task": "Onboard a firewall-style sample log end to end: create the index and role, deploy inputs through the deployment server, write the core props.conf settings, drop noise to nullQueue, map the data to CIM Network_Traffic, accelerate it, build a tstats-based dashboard and a Monitoring Console check, then hand over a runbook to another learner.",
+          "deliverable": "Onboarding package: deployment apps, search-head app, dashboard and runbook",
+          "checks": [["Index 100 sample lines and check event breaking and timestamps", "Exactly 100 events with _time matching the source timestamps", "Search result"], ["Run | tstats count from datamodel=Network_Traffic by All_Traffic.action", "allowed and blocked actions appear", "Results table"], ["Compare daily licence usage for the sourcetype before and after the nullQueue filter", "Usage drops by the share of filtered lines", "License usage search"]],
+          "objectives": ["Onboard a data source to production standard", "Normalise it to the CIM and accelerate it", "Hand over an operable runbook"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For Splunk administrators, architects and senior power users who run or design large Splunk deployments. Covers indexer clustering, search head clustering, multisite clusters, SmartStore, Splunk Cloud Platform administration through the Admin Config Service, Edge Processor and Ingest Processor pipelines in SPL2, Ingest Actions, search performance tuning, workload management, advanced SPL, forecasting and the Machine Learning Toolkit, the REST API and SDKs, app development and AppInspect, custom search commands, platform hardening, two days of Splunk Enterprise Security, Splunk Observability Cloud at awareness level and platform troubleshooting, ending with a highly available platform design capstone.",
+      "prerequisites": ["Completed the intermediate level or has administered a distributed Splunk Enterprise deployment with forwarders, indexers and a deployment server", "Writes props.conf, transforms.conf, indexes.conf and authorize.conf from memory and troubleshoots them with btool", "Can run eight or more Linux VMs or containers, use Python 3 and work with S3-compatible object storage and TLS certificates"],
+      "outcomes": ["Build and operate indexer clusters, search head clusters, multisite clusters and SmartStore-backed indexes", "Control ingest cost and quality with Edge Processor, Ingest Processor and Ingest Actions, and keep searches fast with tuning and workload management", "Automate and extend Splunk with the REST API, SDKs, custom apps, custom search commands and alert actions", "Secure the platform, run Splunk Enterprise Security detections and risk-based alerting, and design a highly available Splunk platform"],
+      "days": [
+        {
+          "topic": "Splunk Indexer Clustering: Manager Node, Replication Factor and Search Factor",
+          "subtopics": ["Cluster roles: manager node, peer nodes and search heads", "replication_factor and search_factor, and searchable compared with non-searchable copies", "server.conf [clustering]: mode = manager or peer, manager_uri and pass4SymmKey", "Replication port and splunk edit cluster-config", "Distributing configuration from manager-apps with splunk apply cluster-bundle", "Bucket fixup after a peer failure", "Maintenance mode and rolling restart", "Indexer discovery for forwarders"],
+          "tools": ["Splunk Enterprise", "Cluster manager", "Splunk CLI", "server.conf"],
+          "lab_task": "Build a cluster with one manager and three peers using replication_factor = 2 and search_factor = 2, connect a search head, validate and push an indexes.conf from manager-apps with splunk validate cluster-bundle and splunk apply cluster-bundle --answer-yes, index data, then stop one peer and watch splunk show cluster-status --verbose until both factors are met again.",
+          "deliverable": "Cluster build log with server.conf stanzas and cluster-status output before, during and after the peer failure",
+          "checks": [["Run splunk show cluster-status --verbose on the manager", "Three peers Up with replication factor met and search factor met", "CLI output"], ["Stop one peer and wait for fixup to finish", "Both factors are met again on the two remaining peers", "CLI output"], ["Add a syntax error to indexes.conf in manager-apps and run splunk validate cluster-bundle", "Validation fails and no bundle is pushed", "CLI output"]],
+          "objectives": ["Build an indexer cluster", "Explain replication factor and search factor in practice", "Distribute configuration and recover from a peer failure"]
+        },
+        {
+          "topic": "Splunk Search Head Clustering: Captain, Deployer and Replication",
+          "subtopics": ["Members, the dynamic captain and captain election", "The three-member minimum and the majority requirement", "splunk init shcluster-config and splunk bootstrap shcluster-captain", "The deployer and splunk apply shcluster-bundle", "Knowledge object and configuration replication between members", "Scheduled search distribution by the captain", "KV store replication in a search head cluster", "A load balancer in front of members and session stickiness"],
+          "tools": ["Search head cluster", "Deployer", "Splunk CLI", "Load balancer"],
+          "lab_task": "Initialise three members with splunk init shcluster-config -mgmt_uri https://shN:8089 -replication_port 9200 -conf_deploy_fetch_url https://deployer:8089 -secret <key>, run splunk bootstrap shcluster-captain -servers_list on one member, push an app from etc/shcluster/apps with splunk apply shcluster-bundle -target https://sh1:8089, then stop the captain and time the election.",
+          "deliverable": "Search head cluster runbook with init, bootstrap and bundle commands and the measured election time",
+          "checks": [["Run splunk show shcluster-status", "One captain is reported and all three members are Up", "CLI output"], ["Create a saved search on sh2 in Splunk Web", "The saved search appears on sh1 and sh3", "Screenshots from both members"], ["Stop the captain", "One of the remaining two members becomes captain", "CLI output"]],
+          "objectives": ["Build a search head cluster with a deployer", "Deploy apps to cluster members", "Explain captain election and replication"]
+        },
+        {
+          "topic": "Multisite Indexer Clustering and Search Affinity",
+          "subtopics": ["multisite = true and available_sites on the manager", "site_replication_factor and site_search_factor syntax such as origin:1,total:2", "Assigning peers and search heads to sites with site in [general]", "Search affinity, and site0 to turn it off", "Site failure and manager node recovery planning", "Migrating a single-site cluster to multisite", "Bandwidth and latency between sites", "Site-aware forwarding with indexer discovery"],
+          "tools": ["Cluster manager", "Splunk CLI", "server.conf"],
+          "lab_task": "Convert the lab cluster to two sites: on the manager set multisite = true, available_sites = site1,site2, site_replication_factor = origin:1,total:2 and site_search_factor = origin:1,total:2, and set site = site1 or site2 in [general] on each peer and on the search head. Record a count, stop all site2 peers and confirm searches return the same count from site1.",
+          "deliverable": "Multisite configuration with site assignment table and the failure test results",
+          "checks": [["Run splunk show cluster-status --verbose", "Peers are grouped under site1 and site2", "CLI output"], ["From the site1 search head run index=* | stats count by splunk_server with all peers up", "Only site1 peers are listed", "Results table"], ["Stop all site2 peers and rerun the count", "The total count is unchanged", "Two results"]],
+          "objectives": ["Configure a multisite indexer cluster", "Use search affinity to keep searches local", "Test site failure without data loss"]
+        },
+        {
+          "topic": "SmartStore: Remote Object Storage and the Cache Manager",
+          "subtopics": ["SmartStore design: local cache with an S3-compatible remote store", "[volume:] stanzas with storageType = remote and remote.s3.* settings", "remotePath = volume:<name>/$_index_name", "Cache manager settings: max_cache_size, eviction_policy and hotlist settings", "Upload on warm roll and download when searches need evicted buckets", "Retention with frozenTimePeriodInSecs and maxGlobalDataSizeMB", "SmartStore in indexer clusters: a single remote copy and replication of hot buckets", "Migrating existing indexes and sizing the cache"],
+          "tools": ["SmartStore", "MinIO", "MinIO Client (mc)", "indexes.conf"],
+          "lab_task": "Run MinIO and create bucket splunk-smartstore. Define [volume:remote_store] with storageType = remote, path = s3://splunk-smartstore, remote.s3.endpoint = http://minio:9000 and access keys, set remotePath for one index, roll hot buckets, list objects with mc ls --recursive, then evict the cache and search the old data again.",
+          "deliverable": "SmartStore configuration with bucket listings and cache upload and download evidence",
+          "checks": [["Roll hot buckets and run mc ls --recursive on the bucket", "Bucket objects appear under the index name prefix", "mc output"], ["Search the index over all time after eviction", "The event count equals the count before eviction", "Two results"], ["Search index=_internal sourcetype=splunkd component=CacheManager* during that search", "Download activity for the evicted buckets is logged", "Log excerpt"]],
+          "objectives": ["Configure SmartStore with S3-compatible storage", "Explain how the cache manager serves searches", "Size and migrate indexes to SmartStore"]
+        },
+        {
+          "topic": "Splunk Cloud Platform Administration with the Admin Config Service",
+          "subtopics": ["Victoria and Classic experiences in Splunk Cloud Platform", "The sc_admin role and what Splunk operates for you", "The ACS API and acs CLI with JWT authentication tokens", "Managing indexes, HEC tokens and IP allow lists through ACS", "Private app installation after AppInspect cloud vetting", "Forwarding to Splunk Cloud Platform with the universal forwarder credentials app", "Restarts, maintenance windows and limits customers cannot change", "Subscription models and the Cloud Monitoring Console"],
+          "tools": ["Splunk Cloud Platform", "Admin Config Service", "acs CLI", "Cloud Monitoring Console", "curl"],
+          "lab_task": "On a Splunk Cloud Platform trial create an authentication token, configure the acs CLI with acs config add-stack <stack>, create index app_logs with acs indexes create --name app_logs --data-type event --searchable-days 90, create a HEC token with acs hec-token create, add your IP to the search-api allow list, and send a test event to https://http-inputs-<stack>.splunkcloud.com/services/collector/event.",
+          "deliverable": "ACS change log with every command, its output and the test event in Splunk Web",
+          "checks": [["Run acs indexes list", "app_logs is listed with 90 searchable days", "CLI output"], ["Send the test event with the new HEC token", "{\"text\":\"Success\",\"code\":0} is returned", "curl output"], ["Call the REST API on port 8089 from an IP that is not allow-listed", "The connection times out or is refused", "curl output"]],
+          "objectives": ["Administer Splunk Cloud Platform through ACS", "Explain what Splunk Cloud Platform customers can and cannot configure", "Connect data sources and apps to a cloud stack"]
+        },
+        {
+          "topic": "Edge Processor and Ingest Processor Pipelines with SPL2",
+          "subtopics": ["Where each runs: Edge Processor on customer hosts, Ingest Processor as a Splunk Cloud Platform service", "Data Management: sources, pipelines and destinations", "SPL2 pipeline structure: $pipeline = | from $source | ... | into $destination", "Filtering with where, extracting with rex and masking with eval replace", "Routing to Splunk indexes and Amazon S3", "Converting logs to metrics with Ingest Processor", "Previewing pipelines with sample data", "Installing and scaling Edge Processor instances"],
+          "tools": ["Edge Processor", "Ingest Processor", "SPL2", "Splunk Cloud Platform"],
+          "lab_task": "In Data Management create a pipeline for sourcetype app:orders: $pipeline = | from $source | rex field=_raw \"(?<level>INFO|WARN|ERROR|DEBUG)\" | where level != \"DEBUG\" | eval _raw=replace(_raw, \"\\d{12}(\\d{4})\", \"XXXXXXXXXXXX\\1\") | into $destination; Preview it, apply it, send 1,000 test events and compare destination counts.",
+          "deliverable": "Pipeline SPL2 with preview screenshots and a sent versus received reconciliation",
+          "checks": [["Preview the pipeline with 20 sample events that include DEBUG lines", "No DEBUG events appear in the preview output", "Preview screenshot"], ["Count events in the destination index after sending 1,000", "The count equals 1,000 minus the DEBUG events sent", "Search result"], ["Search the destination for one full card number", "No match; the events show the masked value", "Search result"]],
+          "objectives": ["Write SPL2 pipelines that filter, extract and mask data", "Choose between Edge Processor and Ingest Processor", "Route processed data to the right destination"]
+        },
+        {
+          "topic": "Splunk Ingest Actions: Rulesets, Sampling and Routing to S3",
+          "subtopics": ["Ingest Actions page and where rulesets run: indexers, heavy forwarders and Splunk Cloud Platform", "Ruleset rules: filter, mask, set index and route", "RULESET- settings written to props.conf and transforms.conf", "Filtering with regular expressions or eval expressions, and sampling", "Masking with regular expression replacement", "S3 and file system destinations defined with [rfs:] in outputs.conf", "Previewing rules on sample data", "Comparing Ingest Actions, Edge Processor and classic index-time transforms"],
+          "tools": ["Ingest Actions", "MinIO", "props.conf", "outputs.conf"],
+          "lab_task": "Create a ruleset for sourcetype access_combined that drops status 200 requests to /health, masks session IDs and routes a full copy of the events to an S3 or MinIO destination while indexing the rest. Send 5,000 events with known counts, then compare index counts, objects written to the bucket and daily licence usage for the sourcetype.",
+          "deliverable": "Ruleset export with a before-and-after table of indexed events, archived events and licence usage",
+          "checks": [["Run splunk btool props list access_combined", "RULESET- entries written by Ingest Actions are listed", "btool output"], ["Search the index for /health requests with status=200", "count = 0", "Search result"], ["List the destination bucket prefix", "Objects containing the routed events exist", "mc output"]],
+          "objectives": ["Build Ingest Actions rulesets", "Archive full-fidelity data to object storage", "Measure the licence effect of filtering"]
+        },
+        {
+          "topic": "Splunk Search Performance Tuning: Job Inspector, lispy and Search Optimization",
+          "subtopics": ["Search execution: lispy, bloom filters, tsidx files and the raw journal", "Job Inspector costs such as command.search.rawdata, command.search.kv and command.search.filter", "scanCount compared with eventCount, and selectivity", "base lispy lines in search.log", "TERM() and PREFIX() and major breakers", "Built-in optimisations: predicate pushdown and projection elimination", "Avoiding wildcards, NOT-only searches and late filtering", "When an indexed field is worth its cost"],
+          "tools": ["Job Inspector", "SPL", "search.log", "Monitoring Console"],
+          "lab_task": "Take a slow search such as index=* \"*error*\" | search host=web* | stats count by host. Record scanCount, eventCount and run time, then rewrite it with a specific index and sourcetype, TERM(error), filters in the base search and tstats where possible. Present before-and-after Job Inspector metrics with the base lispy lines from search.log.",
+          "deliverable": "Tuning report with both searches, Job Inspector metrics and lispy lines",
+          "checks": [["Compare scanCount before and after the rewrite", "scanCount falls by at least half", "Job Inspector screenshots"], ["Compare the result tables", "Both searches return identical counts per host", "Results tables"], ["Open search.log for the rewritten search", "The base lispy contains index::<your index> and the error term", "Log excerpt"]],
+          "objectives": ["Read the Job Inspector to find search bottlenecks", "Rewrite searches to scan fewer events", "Explain how lispy and tsidx matching work"]
+        },
+        {
+          "topic": "Splunk Workload Management: Pools, Rules and Admission Control",
+          "subtopics": ["Why workload management: noisy searches and protecting ingestion", "Linux cgroups and splunkd running under systemd", "Workload categories: search, ingest and misc", "workload_pools.conf CPU and memory weights", "workload_rules.conf predicates such as role, app, search_type and runtime", "Admission rules that block searches such as index=* over all time", "Monitoring workload in the Monitoring Console", "Workload management differences in Splunk Cloud Platform"],
+          "tools": ["Workload management", "Monitoring Console", "systemd", "Splunk Web"],
+          "lab_task": "On Linux nodes running splunkd under systemd, enable workload management, create pools high_priority (CPU weight 70) and standard (CPU weight 30), add a rule that moves or aborts power-role searches running longer than 10 minutes, and an admission rule that rejects index=* over all time. Run test searches as a power user and record each outcome.",
+          "deliverable": "workload_pools.conf and workload_rules.conf with results of each test search",
+          "checks": [["Open Settings > Workload Management", "Both pools and both rules are listed and enabled", "Screenshot"], ["Run index=* over All time as a power user", "The search is rejected with the admission rule message", "Error screenshot"], ["Run a power-user search for more than 10 minutes", "The search is moved or aborted as the rule specifies", "Job Inspector screenshot"]],
+          "objectives": ["Configure workload pools and rules", "Block expensive searches before they start", "Protect ingestion and critical searches from noisy users"]
+        },
+        {
+          "topic": "Advanced SPL Techniques: eventstats, foreach, map and Argument Macros",
+          "subtopics": ["eventstats and streamstats for baselines", "foreach with <<FIELD>> templates", "map for per-row searches and its maxsearches limit", "makeresults with format=csv data for test data", "Macros with arguments and validation expressions", "untable, xyseries and transpose for reshaping", "appendpipe for totals and subtotal rows", "Comments in SPL with triple backticks"],
+          "tools": ["SPL", "Search macros", "Splunk Web"],
+          "lab_task": "Write a search that bins errors per host into hours, computes each host's 7-day average and standard deviation with eventstats, flags hours above avg+3*stdev, rounds every *_count field with foreach, adds a total row with appendpipe, and wraps it in macro error_spikes(2) taking index and threshold with a validation expression. Test it on makeresults data with one planted spike.",
+          "deliverable": "Macro definition with test data, expected output and the validation error example",
+          "checks": [["Run the macro on the test data with one planted spike", "Exactly one row is flagged", "Results table"], ["Call the macro with threshold abc", "The macro's validation error message is shown", "Error screenshot"], ["Check the appendpipe total row", "It equals the sum of the rows above it", "Results table"]],
+          "objectives": ["Build baselines and outlier flags in SPL", "Write reusable, validated macros", "Reshape and total results for reports"]
+        },
+        {
+          "topic": "Forecasting and Anomaly Detection in SPL with the Machine Learning Toolkit",
+          "subtopics": ["predict with LLP5 and future_timespan", "anomalydetection and outlier commands", "Splunk Machine Learning Toolkit and the Python for Scientific Computing add-on", "fit and apply with DensityFunction", "Model storage, permissions and | summary", "Training and test splits by time", "Evaluating models with score", "Alerting on model output and retraining schedules"],
+          "tools": ["Splunk Machine Learning Toolkit", "Python for Scientific Computing", "SPL"],
+          "lab_task": "Install MLTK and Python for Scientific Computing, build 30 days of hourly login counts and run | predict count future_timespan=24. Add eval hour_of_day=strftime(_time,\"%H\"), run | fit DensityFunction count by hour_of_day into login_model on the first 21 days and | apply login_model on the last 9, then count IsOutlier(count)=1 rows against a planted spike.",
+          "deliverable": "Model notebook with the forecast chart, the model summary and the outlier table",
+          "checks": [["Run the predict search", "Output has prediction(count), lower95(prediction(count)) and upper95(prediction(count)) columns", "Results table"], ["Apply the model to data containing the planted spike", "The spike hour has IsOutlier(count)=1", "Results table"], ["Run | summary login_model", "Parameters for each hour_of_day group are listed", "Results table"]],
+          "objectives": ["Forecast time series in SPL", "Train and apply an anomaly model with MLTK", "Turn model output into alerts"]
+        },
+        {
+          "topic": "Splunk REST API and SDKs: Search Jobs, Export and Automation",
+          "subtopics": ["Management port 8089, /services and /servicesNS/<user>/<app>", "Session keys and Bearer authentication tokens", "POST /services/search/jobs, the sid and dispatchState", "Results with /services/search/v2/jobs/<sid>/results?output_mode=json", "Streaming results with /services/search/jobs/export", "Managing saved searches and knowledge objects over REST", "Splunk SDK for Python: splunklib.client and JSONResultsReader", "Pagination with count and offset"],
+          "tools": ["Splunk REST API", "curl", "Splunk SDK for Python", "Python"],
+          "lab_task": "Create a token, then run curl -k -H \"Authorization: Bearer <token>\" https://localhost:8089/services/search/jobs -d search=\"search index=_internal | stats count by sourcetype\" to get a sid, poll the job until dispatchState is DONE and fetch JSON results. Repeat in Python with splunklib, create a saved search, and exit non-zero on any failure.",
+          "deliverable": "REST script repository with the curl sequence, the Python script and their outputs",
+          "checks": [["POST to /services/search/jobs", "The response contains a <sid> element", "curl output"], ["GET the job until it finishes", "dispatchState is DONE and resultCount equals the number of rows returned", "curl output"], ["Call the API with a wrong token", "HTTP 401 Unauthorized", "curl output"]],
+          "objectives": ["Run and retrieve searches over the REST API", "Automate Splunk with the Python SDK", "Authenticate scripts with tokens"]
+        },
+        {
+          "topic": "Splunk App Development: app.conf, Packaging and AppInspect",
+          "subtopics": ["App layout: default, metadata, appserver, bin, lookups and static", "app.conf: [id], [launcher], [package] and version", "default.meta and local.meta permissions", "Navigation in default/data/ui/nav/default.xml and views", "UCC Framework for add-ons at awareness level", "Packaging with slim package or tar", "Splunk AppInspect CLI and API, and cloud tags", "Versioning, upgrades and publishing to Splunkbase"],
+          "tools": ["Splunk AppInspect", "Packaging Toolkit (slim)", "Splunk Enterprise", "Python"],
+          "lab_task": "Package the beginner capstone app web_store_ops: set id, label and version = 1.0.0 in app.conf, move all settings from local into default, export knowledge objects in default.meta, package it, then run splunk-appinspect inspect web_store_ops.tgz --mode precert --included-tags cloud and fix every failure until the report shows 0 failures.",
+          "deliverable": "Packaged web_store_ops.tgz with the final AppInspect report",
+          "checks": [["Run AppInspect on the final package", "The summary shows 0 failures and 0 errors", "AppInspect report"], ["Install the package on a clean instance", "The app installs and its dashboards load", "Screenshot"], ["Run AppInspect on a package that still contains a local directory", "A failure is reported for the local directory", "AppInspect report"]],
+          "objectives": ["Structure an app for distribution", "Package and vet an app with AppInspect", "Prepare an app for Splunk Cloud Platform"]
+        },
+        {
+          "topic": "Custom Search Commands and Alert Actions with the Splunk SDK for Python",
+          "subtopics": ["Command types: streaming, generating, reporting and eventing", "splunklib.searchcommands: @Configuration and Option", "commands.conf with chunked = true and python.version = python3", "Bundling splunklib in the app's bin or lib directory", "Custom alert actions: alert_actions.conf, payload_format = json and --execute", "Logging to _internal and debugging with search.log", "Distributed execution of streaming commands", "Reading secrets from storage/passwords instead of code"],
+          "tools": ["Splunk SDK for Python", "Python", "commands.conf", "alert_actions.conf"],
+          "lab_task": "Write a streaming command | maskemail field=user that replaces the local part of email addresses and register it in commands.conf with chunked = true. Add a custom alert action that posts JSON to a test webhook, reading the URL from its configuration and the API key from storage/passwords. Test both and show their log lines in index=_internal.",
+          "deliverable": "App with the command and alert action source, configuration files and test evidence",
+          "checks": [["Run | makeresults | eval user=\"ana@example.com\" | maskemail field=user", "user becomes ***@example.com", "Search result"], ["Trigger the custom alert action", "The webhook receives one JSON payload with search_name and result fields", "Receiver log"], ["Search every file in the app for the API key", "The key appears in no file", "grep output"]],
+          "objectives": ["Write custom search commands with the Python SDK", "Build custom alert actions", "Handle secrets safely in Splunk apps"]
+        },
+        {
+          "topic": "Splunk Platform Security Hardening: TLS, Certificates and Audit",
+          "subtopics": ["Replacing default certificates on splunkd, Splunk Web and forwarding", "server.conf [sslConfig]: sslRootCAPath, serverCert and sslVerifyServerCert", "web.conf: enableSplunkWebSSL, privKeyPath and serverCert", "Forwarder-to-indexer TLS with [splunktcp-ssl:9997], requireClientCert and clientCert", "splunk.secret, pass4SymmKey and protecting stored credentials", "Password policy, lockout and MFA through a SAML identity provider", "Least-privilege roles and high-risk capabilities", "Audit trails in index=_audit"],
+          "tools": ["OpenSSL", "Splunk Enterprise", "Splunk Universal Forwarder", "server.conf", "inputs.conf"],
+          "lab_task": "Create a private CA with openssl and issue certificates for an indexer and a forwarder. On the indexer configure [splunktcp-ssl:9997] with serverCert and requireClientCert = true; on the forwarder set clientCert and sslVerifyServerCert = true in outputs.conf. Enable HTTPS on Splunk Web, then prove a forwarder without a client certificate is rejected.",
+          "deliverable": "Hardening record with the configuration, certificate chain and the rejected connection evidence",
+          "checks": [["Run openssl s_client -connect idx:9997", "The certificate chain shows your private CA as issuer", "openssl output"], ["Start a forwarder without clientCert", "The indexer logs a TLS handshake failure and no data arrives from that forwarder", "Log excerpt"], ["Open Splunk Web with http://", "The page does not load; only https:// works", "Browser screenshot"]],
+          "objectives": ["Secure Splunk traffic with your own certificates", "Enforce mutual TLS between forwarders and indexers", "Audit administrative and search activity"]
+        },
+        {
+          "topic": "Splunk Enterprise Security: Findings, Detections and Risk-Based Alerting",
+          "subtopics": ["Enterprise Security architecture: a dedicated search head, CIM and accelerated data models", "The analyst queue and investigations", "Findings (formerly notable events): urgency, owner, status and disposition", "Event-based detections built on data model searches", "Risk-based alerting: the risk index, risk objects and risk scores", "Finding-based detections on accumulated risk", "Adaptive response actions", "Tuning with throttling and suppression"],
+          "tools": ["Splunk Enterprise Security", "Splunk Common Information Model add-on", "SPL"],
+          "lab_task": "In an Enterprise Security lab enable a detection for excessive failed logins on the Authentication data model that adds a risk score of 20 to the user, build a finding-based detection that fires when a user's 24-hour risk total exceeds 60, replay sample failed logins, then work the resulting finding in the analyst queue through to closure.",
+          "deliverable": "Detection definitions with the risk events, the finding and its closure history",
+          "checks": [["Search index=risk risk_object=<user>", "Risk events with risk_score=20 are returned", "Results table"], ["Replay enough failed logins to exceed 60", "One finding for the user appears in the analyst queue", "Analyst queue screenshot"], ["Close the finding with a disposition and comment", "Its status shows Closed and the comment appears in its history", "Finding screenshot"]],
+          "objectives": ["Explain how Enterprise Security uses the CIM and data models", "Build risk-based detections", "Triage findings in the analyst queue"]
+        },
+        {
+          "topic": "Splunk Enterprise Security Content and the Asset and Identity Framework",
+          "subtopics": ["Content management and Splunk Enterprise Security Content Update (ESCU) analytic stories", "MITRE ATT&CK mapping on detections", "Asset and identity lookups: key fields, priority and category", "Asset and identity correlation and merge behaviour", "Threat intelligence sources and matching", "Data model acceleration health for Enterprise Security", "Testing detections with attack data samples", "Detection lifecycle: test, enable, tune and retire"],
+          "tools": ["Splunk Enterprise Security", "ES Content Update", "Splunk Web", "SPL"],
+          "lab_task": "Upload an asset list (ip, nt_host, priority, category) and an identity list (identity, email, priority, bunit) and enable correlation for both. Trigger a detection for a listed IP and check the enrichment fields on the finding, then enable one ESCU analytic story detection, run it on its attack data sample and record its MITRE ATT&CK mapping.",
+          "deliverable": "Asset and identity configuration with enriched finding screenshots and the ESCU test record",
+          "checks": [["Open a finding whose src is in the asset list", "src_priority and src_category are populated", "Finding screenshot"], ["Open a finding whose src is not in the asset list", "No src_priority value is present", "Finding screenshot"], ["Run the ESCU detection on its sample data", "At least one finding with the expected MITRE ATT&CK technique ID", "Finding screenshot"]],
+          "objectives": ["Enrich findings with asset and identity data", "Deploy and test ESCU content", "Manage the detection lifecycle"]
+        },
+        {
+          "topic": "Splunk Observability Cloud for Platform Teams: Infrastructure Monitoring, APM and Log Observer Connect",
+          "subtopics": ["Products: Infrastructure Monitoring, APM, RUM, Synthetic Monitoring and On-Call", "The Splunk Distribution of the OpenTelemetry Collector", "Metrics, metric time series and dimensions", "Detectors and alert rules, and SignalFlow at awareness level", "APM service maps, traces and Tag Spotlight", "Log Observer Connect querying Splunk Cloud Platform or Splunk Enterprise indexes", "Related Content links between metrics, traces and logs", "When to use Observability Cloud and when to use Splunk platform metrics indexes"],
+          "tools": ["Splunk Observability Cloud", "Splunk Distribution of the OpenTelemetry Collector", "stress-ng"],
+          "lab_task": "In an Observability Cloud trial install the Splunk Distribution of the OpenTelemetry Collector on a Linux VM with the installer script, your access token and realm. Confirm host metrics in Infrastructure Monitoring, create a detector for CPU utilisation above 80% for 5 minutes, load the CPU with stress-ng, and connect Log Observer Connect to your index.",
+          "deliverable": "Awareness worksheet with collector status, the detector definition, its alert and Log Observer Connect screenshots",
+          "checks": [["Run systemctl status splunk-otel-collector", "The service is active (running)", "Terminal output"], ["Load the CPU with stress-ng for 6 minutes", "The detector raises an alert", "Alert screenshot"], ["Open Log Observer Connect for the host", "Log events from your Splunk index are listed", "Screenshot"]],
+          "objectives": ["Describe what each Observability Cloud product does", "Send host metrics with the OpenTelemetry Collector", "Link Observability Cloud to Splunk platform logs"]
+        },
+        {
+          "topic": "Splunk Platform Troubleshooting: _internal Logs, Diagnostics and Blocked Queues",
+          "subtopics": ["splunkd.log, metrics.log, scheduler.log and splunkd_access.log", "Searching _internal by component and log_level", "Blocked queues in metrics.log group=queue blocked=true", "Forwarder connectivity messages from TcpOutputProc and TcpInputProc", "Timestamp and line-breaking warnings: DateParserVerbose and LineBreakingProcessor", "Skipped searches and concurrency limits", "splunk diag and sharing diagnostics with Splunk Support", "KV store status with splunk show kvstore-status"],
+          "tools": ["Splunk CLI", "splunk diag", "Monitoring Console", "SPL"],
+          "lab_task": "Inject four faults: fill the indexer disk below the server.conf minFreeSpace value, point a forwarder at the wrong port, give a sourcetype a bad TIME_FORMAT, and schedule more concurrent searches than the limit allows. For each fault find the evidence in _internal, fix it, and attach a splunk diag from the affected node.",
+          "deliverable": "Troubleshooting log with the evidence search, root cause and fix for each fault, plus the diag files",
+          "checks": [["Search index=_internal source=*metrics.log group=queue blocked=true during the disk fault", "Blocked events are returned for the index queue", "Results table"], ["Search index=_internal component=DateParserVerbose", "Warnings name the source with the bad TIME_FORMAT", "Results table"], ["Search index=_internal sourcetype=scheduler status=skipped | stats count by reason", "Skips with a concurrency limit reason appear", "Results table"]],
+          "objectives": ["Diagnose ingestion, forwarding and search faults from internal logs", "Use splunk diag for escalation", "Restore service and confirm the fix"]
+        },
+        {
+          "topic": "Capstone: Highly Available Splunk Platform Design and Migration Plan",
+          "subtopics": ["Requirements: ingest volume, retention, users and availability targets", "Multisite indexer clustering, search head clustering and SmartStore", "Ingest pipeline design with Edge Processor or Ingest Actions", "Security hardening, access control and licence plan", "Performance and workload management targets", "Migration, cutover and rollback runbook"],
+          "tools": ["Splunk Enterprise", "Search head cluster", "SmartStore", "Edge Processor", "Monitoring Console"],
+          "lab_task": "Design a Splunk platform for 2 TB/day with 90 days searchable retention and 1 year archive. Build a reduced lab with a multisite cluster, a search head cluster and SmartStore to prove it, and write the sizing, security, workload rules, onboarding standards and a migration runbook from a standalone indexer with rollback steps. Demonstrate a site failure.",
+          "deliverable": "Architecture document, sizing sheet, migration runbook and a recorded failure demonstration",
+          "checks": [["Fail one site during a dashboard demonstration", "Dashboards keep returning complete results", "Recording"], ["Review the sizing sheet", "Indexer count, storage and cache sizes trace back to the 2 TB/day and 90-day inputs", "Sizing sheet"], ["Run the migration dry run", "Event counts per index match on the old and new platforms", "Reconciliation table"]],
+          "objectives": ["Design a highly available Splunk platform from requirements", "Prove the design in a working lab", "Plan a migration with rollback"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,573 @@
+{
+  "domain": "Jaeger",
+  "name": "Jaeger",
+  "category": "Observability and SRE",
+  "icon": "activity",
+  "aliases": ["Jaeger Tracing", "Jaeger Distributed Tracing", "Jaeger v2", "Jaeger Tracing Platform", "Jaeger UI", "Jaeger Collector", "Jaeger Administration", "Jaeger SPM"],
+  "certifications": [],
+  "tools": ["Jaeger v2 (jaegertracing/jaeger)", "Jaeger UI", "OpenTelemetry SDKs", "OpenTelemetry Collector Builder (ocb)", "HotROD demo application", "tracegen / telemetrygen", "Badger", "Elasticsearch / OpenSearch", "Apache Cassandra", "ClickHouse", "Apache Kafka", "Prometheus", "Helm", "kubectl"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, SREs and platform engineers who are new to distributed tracing with Jaeger. Covers the Jaeger v2 single binary built on the OpenTelemetry Collector, the all-in-one role with memory and Badger storage, the span and trace data model, sending OTLP spans from instrumented services, context propagation, the YAML configuration layout of receivers, processors, exporters and extensions, the Jaeger UI search, trace timeline, critical path, trace comparison and dependency graph, the HTTP query API, file-based sampling strategies, self-monitoring, and a traced three-service capstone.",
+      "prerequisites": ["Writes and runs small services in Python, Node.js, Java or Go and can read HTTP request logs", "Uses Docker and Docker Compose to run containers, publish ports and read container logs", "Uses curl and jq in a terminal to call HTTP APIs and filter JSON responses"],
+      "outcomes": ["Run Jaeger v2 all-in-one with memory or Badger storage and confirm it receives OTLP spans", "Instrument services with OpenTelemetry SDKs so their traces appear in Jaeger with correct parent-child links", "Search, read, compare and export traces in the Jaeger UI and query them through the HTTP API", "Use traces, the dependency graph and the critical path to locate the slow or failing service in a request"],
+      "days": [
+        {
+          "topic": "Jaeger v2 Orientation and First All-in-One Run",
+          "subtopics": ["Why distributed tracing exists: following one request across many services", "Jaeger history: CNCF graduated project, v1 components and the v2 rewrite", "Jaeger v2 as a distribution of the OpenTelemetry Collector", "The single jaeger binary and the jaegertracing/jaeger container image", "All-in-one role: receivers, memory storage, query service and UI in one process", "Default ports: 16686 UI, 4317 OTLP gRPC, 4318 OTLP HTTP, 5778 sampling", "Starting Jaeger with docker run and publishing ports", "Opening the UI and finding the jaeger service's own traces", "Where Jaeger stops: no metrics or log storage of its own", "Lab conventions: Compose project, ports and clean-up"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "Docker", "Jaeger UI", "curl"],
+          "lab_task": "Run docker run --rm -d --name jaeger -p 16686:16686 -p 4317:4317 -p 4318:4318 -p 5778:5778 jaegertracing/jaeger:latest, run docker logs jaeger and find the line showing the OTLP receiver listening on 4317, open http://localhost:16686, then run curl -s localhost:16686/api/services | jq and record which service names exist before any application has sent spans.",
+          "deliverable": "Lab notes with the docker run command, the startup log lines for each listening port and a UI screenshot",
+          "checks": [["Run docker ps after starting the container", "The jaeger container is Up with ports 16686, 4317, 4318 and 5778 published", "docker ps output"], ["Call curl -s localhost:16686/api/services | jq .data", "A JSON array is returned without an error field", "Terminal output"], ["Start a second container with -p 16686:16686 while the first runs", "Docker refuses to start it with a port is already allocated error", "Docker error message"]],
+          "objectives": ["Explain what problem distributed tracing solves", "Describe Jaeger v2 as an OpenTelemetry Collector distribution", "Start Jaeger all-in-one and reach its UI and API"]
+        },
+        {
+          "topic": "Jaeger Trace Data Model: Spans, References and Attributes",
+          "subtopics": ["Trace ID (128-bit) and span ID (64-bit) as hex strings", "Parent-child relationships and the root span", "Span kind: server, client, producer, consumer and internal", "Operation name versus service name", "Attributes (tags), events (logs) and resource attributes", "Span status: unset, ok and error, and the error=true tag in the UI", "Start time and duration in microseconds", "How Jaeger maps OTLP resources to process tags"],
+          "tools": ["Jaeger UI", "Jaeger v2 (jaegertracing/jaeger)", "jq", "curl"],
+          "lab_task": "Send one sample trace with docker run --rm --network host jaegertracing/jaeger-tracegen -traces 1 -service datamodel-lab, find it in the UI, download it with curl -s localhost:16686/api/traces/<traceID> > trace.json, then use jq to list each span's operationName, spanID, parent references and duration, and draw the parent-child tree by hand.",
+          "deliverable": "Annotated span tree diagram with a table of span IDs, parents, kinds and durations",
+          "checks": [["Run jq '.data[0].spans | length' trace.json", "The count equals the number of spans shown in the UI trace header", "jq output and UI screenshot"], ["Inspect the root span's references array", "The root span has no CHILD_OF reference", "trace.json excerpt"], ["Compare a child span's references[0].spanID with the root", "It matches the root span's spanID", "jq output"]],
+          "objectives": ["Identify the fields that make up a Jaeger span", "Reconstruct a trace tree from span references", "Distinguish service, operation, attributes and events"]
+        },
+        {
+          "topic": "Exploring the HotROD Demo in the Jaeger UI",
+          "subtopics": ["HotROD services: frontend, customer, driver, route, mysql and redis simulations", "Running HotROD with Docker Compose next to Jaeger", "OTEL_EXPORTER_OTLP_ENDPOINT pointing HotROD at Jaeger", "Generating requests from the HotROD web page", "Finding the frontend HTTP GET /dispatch trace", "Counting spans per service in one dispatch trace", "Spotting sequential versus parallel calls on the timeline", "Baggage such as the customer ID carried across services"],
+          "tools": ["HotROD demo application", "Jaeger UI", "Docker Compose", "Jaeger v2 (jaegertracing/jaeger)"],
+          "lab_task": "Start Jaeger and jaegertracing/example-hotrod with Docker Compose, setting OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318 on HotROD, open http://localhost:8080 and click each customer five times, then in the Jaeger UI open one frontend /dispatch trace and record its total duration, span count, the number of route calls and whether the driver redis calls run one after another.",
+          "deliverable": "HotROD exploration report with one annotated dispatch trace screenshot and a span-count table per service",
+          "checks": [["Open the Service dropdown in the Jaeger UI", "frontend, customer, driver, route, mysql and redis are listed", "UI screenshot"], ["Open one /dispatch trace", "The trace contains 10 route spans and a single mysql query span", "Trace view screenshot"], ["Stop the HotROD container and search the last 5 minutes for frontend", "No new traces appear after the stop time", "Search results screenshot"]],
+          "objectives": ["Run a multi-service demo that reports to Jaeger", "Read service participation in one trace", "Recognise sequential and parallel work on a timeline"]
+        },
+        {
+          "topic": "Jaeger UI Search: Services, Operations, Tags and Durations",
+          "subtopics": ["Service and operation dropdowns", "Tag filters with key=value syntax, for example http.status_code=500", "Combining several tags separated by spaces", "Lookback window and custom time ranges", "Min Duration and Max Duration filters such as 200ms or 1.2s", "Limit Results and why it caps search output", "Searching by trace ID directly", "The scatter plot of duration over time in search results"],
+          "tools": ["Jaeger UI", "HotROD demo application", "Jaeger v2 (jaegertracing/jaeger)"],
+          "lab_task": "With HotROD running, generate 50 requests, then build three saved searches in the Jaeger UI: all frontend /dispatch traces longer than 700ms in the last 15 minutes, all traces with tag error=true, and all customer traces with tag customer_id=123. Record the result count of each search and the URL query string the UI produced for it.",
+          "deliverable": "Search cookbook listing three search URLs, their filters and result counts",
+          "checks": [["Search frontend with Min Duration 700ms", "Every returned trace shows a duration of 700ms or more", "Search results screenshot"], ["Search with Tags error=true", "Only traces that contain at least one red error span are listed", "Search results screenshot"], ["Paste a trace ID into the top search box", "The UI opens that trace directly without a search form", "Trace view screenshot"]],
+          "objectives": ["Filter traces by service, operation, tag and duration", "Reproduce a search from its URL", "Explain why result limits and lookback matter"]
+        },
+        {
+          "topic": "Reading the Jaeger Trace Timeline and Critical Path",
+          "subtopics": ["Trace header: start time, duration, services, depth and total spans", "Timeline bars, nesting and collapsing subtrees", "Span detail pane: tags, process, logs and warnings", "Critical path highlighting in the timeline", "Self time versus total time of a span", "Clock skew warnings and adjustment", "Trace statistics view grouped by service and operation", "Span table and flamegraph views"],
+          "tools": ["Jaeger UI", "HotROD demo application"],
+          "lab_task": "Open a HotROD /dispatch trace longer than 700ms, switch on the critical path view and list every span that lies on it, then open Trace Statistics grouped by service and record the self time of mysql, redis and route. State which service contributes most to the critical path and support it with the numbers you recorded.",
+          "deliverable": "Critical path analysis note with a timeline screenshot and a self-time table per service",
+          "checks": [["Enable critical path on the slow trace", "The mysql SQL SELECT span is highlighted as part of the critical path", "Timeline screenshot"], ["Open Trace Statistics grouped by service", "Self times are listed per service and sum to no more than the trace duration", "Statistics screenshot"], ["Collapse the driver subtree", "Its child spans disappear and the parent row shows a child count", "Timeline screenshot"]],
+          "objectives": ["Read a trace timeline and span details", "Use the critical path to find where time goes", "Differentiate self time from total span time"]
+        },
+        {
+          "topic": "Sending OTLP Spans to Jaeger from a Python Service",
+          "subtopics": ["opentelemetry-sdk and opentelemetry-exporter-otlp packages", "TracerProvider, BatchSpanProcessor and OTLPSpanExporter", "service.name as the Jaeger service label", "OTEL_EXPORTER_OTLP_ENDPOINT and OTEL_EXPORTER_OTLP_PROTOCOL", "gRPC 4317 versus HTTP 4318 endpoints", "Zero-code instrumentation with opentelemetry-instrument", "Flask or FastAPI auto-instrumentation spans", "Flushing spans on shutdown"],
+          "tools": ["OpenTelemetry SDKs", "Python", "Jaeger v2 (jaegertracing/jaeger)", "Jaeger UI"],
+          "lab_task": "Create a Flask app with routes /hello and /slow (time.sleep(0.3)), install opentelemetry-distro and opentelemetry-exporter-otlp, run it with OTEL_SERVICE_NAME=py-lab OTEL_TRACES_EXPORTER=otlp OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317 opentelemetry-instrument flask run, call each route 10 times and confirm py-lab traces in Jaeger with /slow near 300ms.",
+          "deliverable": "Python service source, the run command and a Jaeger search screenshot for py-lab",
+          "checks": [["Search service py-lab in the last 5 minutes", "20 traces are listed, 10 for each route", "Search results screenshot"], ["Open a /slow trace", "The server span duration is between 300ms and 350ms", "Trace view screenshot"], ["Set OTEL_EXPORTER_OTLP_ENDPOINT to port 4319 and call /hello", "The app logs an exporter connection failure and no new trace appears in Jaeger", "Application log excerpt"]],
+          "objectives": ["Configure an OTLP exporter that reaches Jaeger", "Name services so they are searchable in Jaeger", "Diagnose an exporter that cannot reach the collector"]
+        },
+        {
+          "topic": "Instrumenting a Java or Node.js Service for Jaeger",
+          "subtopics": ["OpenTelemetry Java agent attached with -javaagent", "@opentelemetry/auto-instrumentations-node and --require register", "Manual spans with tracer.startActiveSpan or spanBuilder", "Adding attributes and events to spans", "Recording exceptions and setting span status to error", "Resource attributes: service.version and deployment.environment", "How these attributes appear as process tags in Jaeger", "Common mistakes: unnamed services shown as unknown_service"],
+          "tools": ["OpenTelemetry SDKs", "Java", "Node.js", "Jaeger UI"],
+          "lab_task": "Instrument either a Spring Boot or an Express service with the OpenTelemetry agent, add one manual span named price-calc with attribute order.items, record an exception on 1 in 10 requests, set OTEL_RESOURCE_ATTRIBUTES=service.version=1.0.0,deployment.environment=lab, send 100 requests and confirm in Jaeger that exactly the failing requests carry error=true.",
+          "deliverable": "Instrumented service repository and a Jaeger screenshot showing a failed span with its exception event",
+          "checks": [["Search the service with tag error=true", "About 10 of the 100 traces are returned", "Search results screenshot"], ["Open the process section of any span", "service.version=1.0.0 and deployment.environment=lab are shown", "Span detail screenshot"], ["Start the service without OTEL_SERVICE_NAME", "Its traces appear under a service name beginning with unknown_service", "Service dropdown screenshot"]],
+          "objectives": ["Apply agent-based and manual instrumentation", "Record errors so Jaeger marks them", "Attach resource attributes visible in Jaeger"]
+        },
+        {
+          "topic": "Context Propagation Across Services as Seen in Jaeger",
+          "subtopics": ["W3C traceparent header format", "tracestate and baggage headers", "Jaeger uber-trace-id legacy header", "OTEL_PROPAGATORS=tracecontext,baggage,jaeger", "Broken propagation symptom: many one-service traces", "Proxies and gateways that drop headers", "Propagating context over message queues", "Verifying propagation with curl -H traceparent"],
+          "tools": ["OpenTelemetry SDKs", "Jaeger UI", "curl", "Docker Compose"],
+          "lab_task": "Run two instrumented services where svc-a calls svc-b over HTTP and confirm one trace contains both. Then disable propagation in svc-a by setting OTEL_PROPAGATORS=none, send 10 requests and count the resulting traces. Finally send curl -H 'traceparent: 00-<32hex>-<16hex>-01' to svc-a and find the trace by that ID in Jaeger.",
+          "deliverable": "Propagation report comparing trace counts with and without propagators, plus the header-injected trace",
+          "checks": [["Send 10 requests with propagation on", "Jaeger shows 10 traces, each containing spans from svc-a and svc-b", "Search results screenshot"], ["Send 10 requests with OTEL_PROPAGATORS=none", "Jaeger shows 20 traces, each containing a single service", "Search results screenshot"], ["Search the trace ID that was sent in traceparent", "The trace exists and its root span has that parent span ID as a reference", "Trace view screenshot"]],
+          "objectives": ["Explain how trace context crosses process boundaries", "Diagnose fragmented traces caused by lost headers", "Configure propagators including the Jaeger format"]
+        },
+        {
+          "topic": "Jaeger v2 Configuration File Anatomy",
+          "subtopics": ["Passing a config with jaeger --config /etc/jaeger/config.yaml", "service.extensions and service.pipelines.traces", "Receivers, processors and exporters in a traces pipeline", "jaeger_storage extension and named backends", "jaeger_query extension and its storage.traces reference", "jaeger_storage_exporter and its trace_storage key", "healthcheckv2 and telemetry settings", "Environment variable expansion with ${env:VAR}"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "YAML", "Docker", "Jaeger UI"],
+          "lab_task": "Write config.yaml with an otlp receiver, batch processor, jaeger_storage_exporter, a jaeger_storage backend named lab_store of type memory with max_traces: 50000, and jaeger_query pointing at lab_store. Mount it and start docker run -v $PWD/config.yaml:/cfg.yaml jaegertracing/jaeger --config /cfg.yaml, then rename the backend in only one place and record the startup error.",
+          "deliverable": "Commented config.yaml and the startup error produced by the mismatched backend name",
+          "checks": [["Start Jaeger with the correct config", "The log reports Everything is ready and the UI loads", "docker logs excerpt"], ["Rename trace_storage in the exporter to a missing backend", "Jaeger exits at startup with an error that the storage name was not found", "docker logs excerpt"], ["Send spans with tracegen and query /api/services", "The tracegen service is listed", "curl output"]],
+          "objectives": ["Read and write a Jaeger v2 configuration file", "Connect pipelines to storage through extensions", "Interpret configuration errors at startup"]
+        },
+        {
+          "topic": "Jaeger Receivers and Protocols: OTLP, Jaeger Thrift and Zipkin",
+          "subtopics": ["otlp receiver with grpc and http protocols", "jaeger receiver: grpc 14250 and thrift_http 14268", "thrift_compact 6831 and thrift_binary 6832 for legacy UDP clients", "zipkin receiver on 9411", "Binding endpoints to 0.0.0.0 inside containers", "Enabling only the receivers you need", "Retired Jaeger client libraries and the move to OpenTelemetry SDKs", "Mapping protocol to port in firewall rules"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "Zipkin", "curl", "tracegen / telemetrygen"],
+          "lab_task": "Extend config.yaml with the jaeger receiver (grpc and thrift_http) and the zipkin receiver on 0.0.0.0:9411, add both to the traces pipeline, restart Jaeger and post a two-span Zipkin v2 JSON payload with curl -X POST localhost:9411/api/v2/spans -H 'Content-Type: application/json' -d @zipkin.json. Confirm the trace appears with the Zipkin service name.",
+          "deliverable": "Receiver matrix of protocol, port and test command, plus the Zipkin payload and resulting trace",
+          "checks": [["POST the Zipkin JSON payload", "curl returns HTTP 202 Accepted", "curl -i output"], ["Search the Zipkin payload's service name in Jaeger", "One trace with two spans is found", "Trace view screenshot"], ["POST to 9411 after removing zipkin from the pipeline", "The connection is refused because nothing listens on 9411", "curl error output"]],
+          "objectives": ["Configure Jaeger receivers for several protocols", "Accept data from legacy and Zipkin clients", "Keep exposed ports to the minimum needed"]
+        },
+        {
+          "topic": "Memory and Badger Storage for Single-Node Jaeger",
+          "subtopics": ["memory backend and max_traces", "Why memory storage loses data on restart", "badger backend: ephemeral, directories.keys and directories.values", "Badger ttl.spans retention setting", "Persisting Badger data on a Docker volume", "File ownership and the container user for Badger directories", "Badger disk growth and compaction", "When single-node storage is acceptable"],
+          "tools": ["Badger", "Jaeger v2 (jaegertracing/jaeger)", "Docker", "tracegen / telemetrygen"],
+          "lab_task": "Switch lab_store to type badger with ephemeral: false, directories under /badger/keys and /badger/values on a named volume, and ttl.spans: 48h. Send 1,000 traces with tracegen, restart the container and confirm the traces are still searchable. Repeat with memory storage and record the difference after restart, plus the volume size with du -sh.",
+          "deliverable": "Storage comparison table for memory and Badger covering persistence, disk use and restart behaviour",
+          "checks": [["Restart Jaeger with Badger and search tracegen", "The traces sent before the restart are still returned", "Search results screenshot"], ["Restart Jaeger with memory storage and search", "No traces from before the restart are returned", "Search results screenshot"], ["Run du -sh on the Badger volume after 1,000 traces", "A non-zero size in the megabyte range is reported", "Terminal output"]],
+          "objectives": ["Choose between memory and Badger storage", "Persist Badger data across restarts", "Set retention for single-node Jaeger"]
+        },
+        {
+          "topic": "Jaeger HTTP Query API and API v3",
+          "subtopics": ["/api/services and /api/services/{service}/operations", "/api/traces with service, operation, tags, lookback, minDuration and limit", "/api/traces/{traceID} for one trace", "/api/dependencies with endTs and lookback in milliseconds", "API v3 endpoints under /api/v3 returning OTLP JSON", "gRPC QueryService on port 16685", "Internal versus stable APIs and compatibility", "Scripting trace checks with curl and jq"],
+          "tools": ["curl", "jq", "Jaeger v2 (jaegertracing/jaeger)", "grpcurl"],
+          "lab_task": "Write a shell script that calls /api/traces?service=frontend&lookback=1h&limit=20&minDuration=500ms, prints the trace ID and duration of each result with jq, then fetches the slowest one from /api/v3/traces/<id> and counts its spans. Run it against HotROD and compare its count with the UI.",
+          "deliverable": "slow-traces.sh script with sample output and a note on v1-style versus v3 response shapes",
+          "checks": [["Run the script against HotROD data", "It prints up to 20 trace IDs with durations of at least 500ms", "Script output"], ["Fetch the slowest trace from /api/v3/traces/<id>", "The response holds OTLP resourceSpans and the span count matches the UI", "jq output and UI screenshot"], ["Call /api/traces/0000000000000000000000000000dead", "The API returns an error saying the trace was not found", "curl output"]],
+          "objectives": ["Query traces and services through HTTP APIs", "Script latency checks against Jaeger", "Contrast the internal API with API v3"]
+        },
+        {
+          "topic": "Comparing Two Traces in the Jaeger UI",
+          "subtopics": ["Selecting traces in search results for comparison", "Compare view with traces A and B", "Node colours for spans only in A, only in B or changed", "Span count differences per node", "Comparing a fast and a slow trace of the same endpoint", "Comparing before and after a deployment", "Limits of structural comparison for timing questions", "Sharing a comparison URL"],
+          "tools": ["Jaeger UI", "HotROD demo application"],
+          "lab_task": "From HotROD search results pick the fastest and the slowest frontend /dispatch trace, open Compare Traces, record which nodes differ in span count, then repeat for a /dispatch trace and a customer-only trace. Explain in three sentences what structural differences the comparison revealed and what it cannot show about latency.",
+          "deliverable": "Comparison report with two compare-view screenshots and an interpretation paragraph",
+          "checks": [["Compare a fast and a slow /dispatch trace", "The graph shows the same node structure with matching or near-matching span counts", "Compare view screenshot"], ["Compare /dispatch with a customer-only trace", "Nodes present only in the /dispatch trace are coloured as missing from the other trace", "Compare view screenshot"], ["Reload the compare URL in a new tab", "The same two trace IDs and graph are shown", "Browser screenshot"]],
+          "objectives": ["Use the trace comparison view", "Interpret structural differences between traces", "Explain what comparison cannot tell you about timing"]
+        },
+        {
+          "topic": "Service Dependency Graph in the Jaeger UI",
+          "subtopics": ["System Architecture page: force-directed and DAG views", "Edges and call counts between services", "How memory and Badger compute dependencies at query time", "Lookback for the dependency view", "Detecting unexpected callers", "Deep Dependency Graph focused on one service", "Missing edges caused by broken propagation", "Dependency data returned by /api/dependencies"],
+          "tools": ["Jaeger UI", "HotROD demo application", "curl", "jq"],
+          "lab_task": "Generate HotROD traffic, open System Architecture and draw the call graph with call counts, then call curl 'localhost:16686/api/dependencies?endTs=<now ms>&lookback=3600000' | jq and match each parent-child pair to the UI edges. Open the Deep Dependency Graph for driver and list its upstream and downstream services.",
+          "deliverable": "Dependency map with call counts and the matching /api/dependencies JSON",
+          "checks": [["Call /api/dependencies for the last hour", "A frontend to customer edge is present with a callCount above 0", "jq output"], ["Open the DAG view", "frontend appears as a root with edges to customer, driver and route", "UI screenshot"], ["Count edges in the API response and the UI", "Both report the same number of service pairs", "Comparison table"]],
+          "objectives": ["Read service dependencies from Jaeger", "Query the dependency API", "Spot missing or unexpected edges"]
+        },
+        {
+          "topic": "File-Based Sampling Strategies in Jaeger",
+          "subtopics": ["Head-based sampling decided at the root span", "remote_sampling extension with file.path", "default_strategy with type probabilistic and param", "service_strategies and operation_strategies", "ratelimiting strategy with max traces per second", "reload_interval for strategy file changes", "Fetching a strategy from :5778/sampling?service=name", "Effect of sampling on search results and counts"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "curl", "jq", "OpenTelemetry SDKs"],
+          "lab_task": "Create sampling.json with default_strategy probabilistic 0.5 and a service_strategies entry for frontend with probabilistic 0.1, enable the remote_sampling extension with file.path and reload_interval: 10s, then run curl 'localhost:5778/sampling?service=frontend' and curl 'localhost:5778/sampling?service=other'. Change frontend to 0.2 and confirm the new value appears within 10 seconds.",
+          "deliverable": "sampling.json, extension config and before-and-after curl outputs",
+          "checks": [["Query the strategy for frontend", "probabilisticSampling.samplingRate is 0.1", "curl output"], ["Query the strategy for an unlisted service", "The default rate of 0.5 is returned", "curl output"], ["Edit the file to 0.2 and wait 10 seconds", "The frontend query now returns 0.2 without a restart", "curl output with timestamps"]],
+          "objectives": ["Write a Jaeger sampling strategy file", "Serve strategies to SDKs through the sampling endpoint", "Explain how head sampling changes trace volume"]
+        },
+        {
+          "topic": "Jaeger Docker Compose Lab Stack",
+          "subtopics": ["Compose services for Jaeger, HotROD and an instrumented app", "Mounting config.yaml and sampling.json as files", "Named volume for Badger data", "depends_on with a health check on port 13133", "Using service names as OTLP endpoints", "Resource limits with deploy.resources.limits", "Viewing logs with docker compose logs -f jaeger", "Tearing down with and without volumes"],
+          "tools": ["Docker Compose", "Jaeger v2 (jaegertracing/jaeger)", "Badger", "HotROD demo application"],
+          "lab_task": "Write a compose.yaml running Jaeger with your config.yaml and Badger volume, HotROD and your Python service, with a healthcheck calling the Jaeger health endpoint on 13133 and depends_on: condition: service_healthy. Run docker compose up -d, confirm all three services report traces, then run docker compose down and up again and verify traces survive.",
+          "deliverable": "compose.yaml with a README describing start, stop and reset commands",
+          "checks": [["Run docker compose ps after up -d", "jaeger shows healthy and both apps are running", "Terminal output"], ["Open the Jaeger service list", "frontend, py-lab and jaeger services are present", "UI screenshot"], ["Run docker compose down -v then up -d", "Previously stored traces are gone because the volume was removed", "Search results screenshot"]],
+          "objectives": ["Package a reproducible Jaeger lab", "Gate dependent services on Jaeger health", "Control persistence through Compose volumes"]
+        },
+        {
+          "topic": "Jaeger Self-Monitoring: Health Check and Internal Metrics",
+          "subtopics": ["healthcheckv2 extension and the /status endpoint", "Internal metrics on :8888/metrics", "otelcol_receiver_accepted_spans and otelcol_receiver_refused_spans", "otelcol_exporter_sent_spans and otelcol_exporter_send_failed_spans", "Batch processor metrics", "Log level via service.telemetry.logs.level", "Jaeger's own traces in the UI", "Scraping Jaeger with Prometheus"],
+          "tools": ["Prometheus", "Jaeger v2 (jaegertracing/jaeger)", "curl", "tracegen / telemetrygen"],
+          "lab_task": "Expose port 8888, send exactly 500 spans with tracegen, then run curl -s localhost:8888/metrics | grep -E 'otelcol_receiver_accepted_spans|otelcol_exporter_sent_spans' and record the counters before and after. Add a Prometheus scrape job for Jaeger and graph rate(otelcol_receiver_accepted_spans_total[1m]) during a second burst.",
+          "deliverable": "Self-monitoring sheet with metric names, before-and-after counter values and a Prometheus graph",
+          "checks": [["Compare accepted span counters before and after 500 spans", "The counter increased by 500", "curl output"], ["Call the health endpoint on 13133", "HTTP 200 is returned while Jaeger is running", "curl -i output"], ["Open Prometheus Targets", "The jaeger target is UP", "Prometheus screenshot"]],
+          "objectives": ["Check Jaeger health from outside", "Read the pipeline counters Jaeger exposes", "Scrape Jaeger internal metrics with Prometheus"]
+        },
+        {
+          "topic": "Finding Errors with Span Status and Tags in Jaeger",
+          "subtopics": ["How OTLP status code error becomes error=true in Jaeger", "otel.status_code and otel.status_description tags", "exception events with exception.type and exception.stacktrace", "HTTP semantic convention attributes such as http.response.status_code", "Client errors versus server errors in span status", "Red error markers in search results and timelines", "Error propagation up the call chain", "Finding the first failing span in a trace"],
+          "tools": ["Jaeger UI", "OpenTelemetry SDKs", "HotROD demo application", "curl"],
+          "lab_task": "Configure your two-service lab so svc-b returns HTTP 500 on 20 percent of calls and records an exception. Send 100 requests, search for error=true, and for three failing traces identify the deepest span with an error, its exception.type and whether the parent span in svc-a was also marked as an error.",
+          "deliverable": "Error triage worksheet for three failing traces with deepest failing span and exception details",
+          "checks": [["Search error=true for svc-a in the last 10 minutes", "About 20 traces are returned", "Search results screenshot"], ["Open the deepest red span in a failed trace", "An exception event with exception.type is listed under Logs", "Span detail screenshot"], ["Send a request that returns HTTP 404", "The server span is not marked error=true", "Span detail screenshot"]],
+          "objectives": ["Locate failing spans in Jaeger", "Read exception events and status tags", "Explain how HTTP status maps to span status"]
+        },
+        {
+          "topic": "Latency Investigation with HotROD and Jaeger",
+          "subtopics": ["Reproducing slowness under concurrent load", "Lock contention visible as stair-step mysql spans", "Worker pool saturation visible as queued route calls", "HotROD fix flags such as --fix-db-query-delay and --fix-disable-db-conn-mutex", "Measuring duration percentiles from search results", "Before-and-after evidence with trace comparison", "Writing a latency finding with trace links", "Avoiding conclusions from a single trace"],
+          "tools": ["HotROD demo application", "Jaeger UI", "curl", "jq"],
+          "lab_task": "Click a HotROD customer rapidly 20 times to create contention, collect 20 /dispatch durations with the /api/traces API and compute median and maximum with jq. Restart HotROD with --fix-disable-db-conn-mutex and --fix-route-worker-pool-size=100, repeat the load and compare the median, maximum and trace shape.",
+          "deliverable": "Latency finding report with before-and-after duration statistics and two annotated traces",
+          "checks": [["Compute the median of 20 /dispatch traces before the fix", "The median is higher than in the fixed run", "jq output"], ["Open a trace from the contended run", "mysql spans from concurrent requests start one after another rather than in parallel", "Timeline screenshot"], ["Open a trace after the fix", "route spans run in parallel and the trace is shorter", "Timeline screenshot"]],
+          "objectives": ["Find latency causes from trace shape", "Back a finding with numbers from many traces", "Prove a fix with before-and-after traces"]
+        },
+        {
+          "topic": "Beginner Capstone: Traced Three-Service Shop on Jaeger All-in-One",
+          "subtopics": ["Shop design: gateway, catalogue and payment services with one slow path", "OpenTelemetry instrumentation and propagation across all three services", "Jaeger all-in-one with Badger storage and file sampling in Docker Compose", "Error injection and a controlled latency fault", "Diagnosis using search, critical path, comparison and dependencies", "Report and demonstration"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "Badger", "OpenTelemetry SDKs", "Docker Compose", "Jaeger UI"],
+          "lab_task": "Build a three-service shop where gateway calls catalogue and payment, run it with Jaeger all-in-one on Badger in Compose, sample payment at 100 percent and others at 50 percent, inject a 400ms delay and 10 percent errors in payment, send 300 requests, then use Jaeger to prove which service and operation caused the slow and failed checkouts.",
+          "deliverable": "Compose project, sampling file, diagnosis report with trace links and a 10-minute demonstration",
+          "checks": [["Search gateway checkout traces with Min Duration 400ms", "Every slow trace has a payment span of about 400ms on the critical path", "Search and timeline screenshots"], ["Open the dependency graph for the last hour", "gateway shows edges to catalogue and payment only", "UI screenshot"], ["Restart the stack and search the earlier checkout traces", "The traces are still found in Badger storage", "Search results screenshot"]],
+          "objectives": ["Combine instrumentation, storage and sampling in one stack", "Diagnose latency and errors using Jaeger views", "Present trace evidence for a root cause"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who can run Jaeger all-in-one and read traces, and now need to operate it as a shared service. Covers splitting Jaeger v2 into collector, ingester and query roles, the Elasticsearch, OpenSearch and Cassandra storage backends with their schema and retention tools, Kafka buffering, dependency jobs, Service Performance Monitoring with the spanmetrics connector and Prometheus, remote sampling for SDKs, tail sampling in front of Jaeger, Kubernetes deployment with Helm and the OpenTelemetry Operator, archive storage, UI configuration, and moving v1 flags to v2 YAML.",
+      "prerequisites": ["Completed the beginner level or can run Jaeger v2 all-in-one, configure receivers and read traces in the UI", "Operates Docker Compose stacks and a Kubernetes cluster with kubectl and Helm", "Has basic experience administering Elasticsearch, OpenSearch or Cassandra and writing PromQL queries"],
+      "outcomes": ["Deploy Jaeger v2 as separate collector, ingester and query roles backed by Elasticsearch, OpenSearch or Cassandra", "Buffer spans through Kafka and apply retention with TTLs, index cleaning and rollover", "Enable Service Performance Monitoring and remote sampling so teams see RED metrics and control trace volume", "Run Jaeger on Kubernetes with Helm or the OpenTelemetry Operator and migrate v1 configuration to v2"],
+      "days": [
+        {
+          "topic": "Jaeger v2 Deployment Roles: Collector, Ingester and Query",
+          "subtopics": ["Role defined by which receivers, exporters and extensions a config enables", "Collector role: receivers plus jaeger_storage_exporter, no jaeger_query", "Query role: jaeger_query extension only, no span receivers", "Ingester role: kafka receiver into storage", "Sharing one storage definition across roles", "Scaling collectors and query independently", "Health endpoints per role for load balancers", "Port exposure per role"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "Docker Compose", "OpenSearch", "curl"],
+          "lab_task": "Split your all-in-one into two Compose services from the same image: collector.yaml with the otlp receiver and jaeger_storage_exporter, and query.yaml with only jaeger_query, both pointing at the same OpenSearch backend. Run two collector replicas and one query, send 2,000 spans with tracegen and confirm all are queryable from the query service.",
+          "deliverable": "collector.yaml, query.yaml, compose.yaml and a role diagram showing ports and data flow",
+          "checks": [["Search tracegen traces through the query service", "All traces sent to both collectors are returned", "Search results screenshot"], ["Call port 4317 on the query container", "The connection is refused because the query role has no OTLP receiver", "grpcurl or nc output"], ["Stop one collector replica during a load run", "The other collector's otelcol_receiver_accepted_spans keeps increasing", "Metrics output"]],
+          "objectives": ["Separate Jaeger into deployment roles", "Share storage between collectors and query", "Scale roles independently"]
+        },
+        {
+          "topic": "Elasticsearch Storage Backend for Jaeger",
+          "subtopics": ["elasticsearch backend: server_urls, auth and tls", "Index prefix and daily indices jaeger-span-YYYY-MM-DD and jaeger-service-YYYY-MM-DD", "Index templates and mappings created on startup", "Shards and replicas settings for indices", "Bulk processor settings: workers, size and flush interval", "Tag storage as nested objects versus flattened fields", "Checking indices with _cat/indices", "Common errors: version mismatch and authentication failures"],
+          "tools": ["Elasticsearch / OpenSearch", "Jaeger v2 (jaegertracing/jaeger)", "curl", "Kibana"],
+          "lab_task": "Run single-node Elasticsearch with security enabled, configure a jaeger_storage backend of type elasticsearch with server_urls, basic auth from ${env:ES_PASSWORD} and index prefix lab, send 5,000 spans and list indices with curl -u elastic:$ES_PASSWORD localhost:9200/_cat/indices/lab-jaeger-*?v. Record doc counts and then break the password to capture the error.",
+          "deliverable": "Elasticsearch storage config, _cat/indices output and the authentication failure log",
+          "checks": [["Run _cat/indices for lab-jaeger-*", "Span and service indices for today's date exist", "curl output"], ["Count documents in today's span index", "docs.count is 5,000 after the tracegen run", "_count response"], ["Start Jaeger with a wrong password", "The log shows an HTTP 401 security_exception from Elasticsearch", "docker logs excerpt"]],
+          "objectives": ["Configure Jaeger to write to Elasticsearch", "Inspect Jaeger indices and documents", "Diagnose Elasticsearch connection errors"]
+        },
+        {
+          "topic": "OpenSearch Storage and Index Rollover for Jaeger",
+          "subtopics": ["opensearch backend type and its configuration keys", "Daily indices versus rollover aliases", "use_aliases and the read and write alias names", "jaeger-es-rollover init, rollover and lookback commands", "Rollover conditions such as max_age and max_docs", "Running rollover as a scheduled job", "Index State Management as an alternative", "Verifying aliases with _cat/aliases"],
+          "tools": ["Elasticsearch / OpenSearch", "Jaeger v2 (jaegertracing/jaeger)", "curl", "Docker"],
+          "lab_task": "Point Jaeger at OpenSearch with use_aliases: true, run docker run --rm jaegertracing/jaeger-es-rollover:latest init http://opensearch:9200 to create aliases, send spans, then run rollover with CONDITIONS='{\"max_docs\": 1000}' after 1,500 spans and confirm a second write index exists. Check which index the write alias now targets.",
+          "deliverable": "Rollover runbook with init and rollover commands and _cat/aliases output before and after",
+          "checks": [["Run _cat/aliases after init", "jaeger-span-read and jaeger-span-write aliases exist", "curl output"], ["Run rollover after 1,500 spans", "A new span index ending in -000002 is created", "_cat/indices output"], ["Query the write alias", "It points only at the -000002 index while the read alias covers both", "_alias output"]],
+          "objectives": ["Configure OpenSearch storage with aliases", "Run the Jaeger rollover tool", "Verify read and write alias targets"]
+        },
+        {
+          "topic": "Cassandra Storage Backend and Schema for Jaeger",
+          "subtopics": ["cassandra backend: servers, keyspace and local_dc", "Creating the keyspace with the jaeger-cassandra-schema image", "MODE prod versus test and replication factor", "TRACE_TTL and DEPENDENCIES_TTL at schema creation", "Tables: traces, service_names, operation_names and the index tables", "Consistency level for writes and reads", "Index tables and the cost of tag search on Cassandra", "Checking writes with cqlsh"],
+          "tools": ["Apache Cassandra", "Jaeger v2 (jaegertracing/jaeger)", "cqlsh", "Docker Compose"],
+          "lab_task": "Start a Cassandra container, create the schema with docker run --rm -e CQLSH_HOST=cassandra -e MODE=test -e KEYSPACE=jaeger_lab -e TRACE_TTL=86400 jaegertracing/jaeger-cassandra-schema, configure Jaeger's cassandra backend for keyspace jaeger_lab, send 1,000 spans and run SELECT COUNT(*) FROM jaeger_lab.traces in cqlsh. Read the table's default_time_to_live.",
+          "deliverable": "Cassandra schema log, Jaeger storage config and cqlsh query results",
+          "checks": [["Run DESCRIBE KEYSPACE jaeger_lab", "The traces, service_names and operation_names tables exist", "cqlsh output"], ["Run SELECT COUNT(*) FROM jaeger_lab.traces", "The count is 1,000", "cqlsh output"], ["Inspect default_time_to_live on traces", "It is 86400", "cqlsh output"]],
+          "objectives": ["Create the Jaeger Cassandra schema", "Point Jaeger at Cassandra", "Verify TTL and stored spans in cqlsh"]
+        },
+        {
+          "topic": "Jaeger Retention: TTLs, Index Cleaner and Storage Budgets",
+          "subtopics": ["Retention per backend: Badger ttl, Cassandra TTL, Elasticsearch index deletion", "jaeger-es-index-cleaner with a days argument", "Running the index cleaner as a Kubernetes CronJob", "Including archive and dependency indices", "ILM or ISM policies instead of the cleaner", "Estimating disk per day from span rate and span size", "Retention agreements with teams", "Verifying deletion with index lists"],
+          "tools": ["Elasticsearch / OpenSearch", "Apache Cassandra", "kubectl", "Docker"],
+          "lab_task": "Create Elasticsearch span indices for five back-dated days with curl index requests, run docker run --rm jaegertracing/jaeger-es-index-cleaner:latest 2 http://elasticsearch:9200, and list indices before and after. Then compute a storage budget: measure store.size of today's index, divide by span count and project 14 days at 2,000 spans per second.",
+          "deliverable": "Retention policy document with cleaner output, before-and-after index lists and a 14-day storage estimate",
+          "checks": [["List jaeger-span-* indices before the cleaner", "Five back-dated daily indices plus today exist", "_cat/indices output"], ["Run the cleaner with 2 days", "Indices older than 2 days are deleted and newer ones remain", "_cat/indices output"], ["Calculate bytes per span from today's index", "A figure in bytes per span is shown with the calculation", "Spreadsheet or notes"]],
+          "objectives": ["Apply retention to each Jaeger backend", "Automate Elasticsearch index cleaning", "Estimate storage from span volume"]
+        },
+        {
+          "topic": "Kafka Buffering between Jaeger Collectors and Ingesters",
+          "subtopics": ["Why buffer: absorbing spikes and storage outages", "Collector config: kafka exporter with brokers, topic and encoding", "otlp_proto versus jaeger_proto encodings", "Ingester config: kafka receiver, group_id and initial_offset", "Topic partitions and ingester parallelism", "Consumer lag as the key health signal", "Replaying after a storage outage", "Message size limits"],
+          "tools": ["Apache Kafka", "Jaeger v2 (jaegertracing/jaeger)", "Elasticsearch / OpenSearch", "kafka-consumer-groups"],
+          "lab_task": "Run Kafka with a 6-partition topic jaeger-spans, configure the collector with the kafka exporter (encoding otlp_proto) and an ingester with the kafka receiver and jaeger_storage_exporter to Elasticsearch. Stop Elasticsearch, send 10,000 spans, check lag with kafka-consumer-groups --describe --group jaeger-ingester, restart Elasticsearch and time how long lag takes to reach 0.",
+          "deliverable": "Kafka pipeline configs, lag measurements during the outage and the time to drain",
+          "checks": [["Describe the consumer group while Elasticsearch is down", "Total LAG grows to about 10,000", "kafka-consumer-groups output"], ["Describe the group after Elasticsearch restarts", "LAG returns to 0 for all 6 partitions", "kafka-consumer-groups output"], ["Count spans in Elasticsearch afterwards", "All 10,000 spans are stored", "_count response"]],
+          "objectives": ["Insert Kafka between collectors and storage", "Monitor ingester consumer lag", "Recover spans after a storage outage"]
+        },
+        {
+          "topic": "Building Dependency Graphs for Cassandra and Elasticsearch",
+          "subtopics": ["Why persistent backends need a batch dependency job", "The spark-dependencies job and its STORAGE setting", "ES_NODES, CASSANDRA_CONTACT_POINTS and date arguments", "Running the job daily as a Kubernetes CronJob", "jaeger-dependencies indices and the dependencies table", "UI behaviour when no dependency data exists", "Lookback limits of daily dependency data", "Resource needs for large span volumes"],
+          "tools": ["Elasticsearch / OpenSearch", "Apache Cassandra", "kubectl", "Jaeger UI"],
+          "lab_task": "With HotROD writing to Elasticsearch, open System Architecture and note that it is empty, then run docker run --rm -e STORAGE=elasticsearch -e ES_NODES=http://elasticsearch:9200 ghcr.io/jaegertracing/spark-dependencies/spark-dependencies, reload the page and compare the edges with those from the earlier memory-backed run. Wrap the job in a CronJob manifest.",
+          "deliverable": "Dependency job command, CronJob YAML and before-and-after System Architecture screenshots",
+          "checks": [["Open System Architecture before running the job", "No dependency graph is shown for the Elasticsearch backend", "UI screenshot"], ["List jaeger-dependencies-* indices after the job", "An index for today's date exists", "_cat/indices output"], ["Reload System Architecture", "frontend, customer, driver and route edges are displayed", "UI screenshot"]],
+          "objectives": ["Explain when Jaeger needs a dependency job", "Run and schedule the Spark dependency job", "Verify dependency data in storage and UI"]
+        },
+        {
+          "topic": "Service Performance Monitoring with spanmetrics and Prometheus",
+          "subtopics": ["SPM architecture: spanmetrics connector, Prometheus and jaeger_query metrics storage", "connectors.spanmetrics in the traces and metrics pipelines", "Histogram buckets and dimensions", "prometheus exporter or remote write to Prometheus", "jaeger_storage metric_backends with a prometheus endpoint", "jaeger_query storage.metrics reference", "Metric names such as traces_span_metrics_calls_total", "Namespace and normalisation settings that must match"],
+          "tools": ["Prometheus", "Jaeger v2 (jaegertracing/jaeger)", "HotROD demo application", "PromQL"],
+          "lab_task": "Add the spanmetrics connector as an exporter of the traces pipeline and a receiver of a metrics pipeline exporting to Prometheus, add a prometheus metric backend to jaeger_storage and reference it in jaeger_query storage.metrics. Generate HotROD traffic, then query sum(rate(traces_span_metrics_calls_total[1m])) by (service_name) in Prometheus and open the Jaeger Monitor tab.",
+          "deliverable": "SPM configuration, a Prometheus query screenshot and a Monitor tab screenshot",
+          "checks": [["Run the calls_total PromQL query", "A non-zero rate is returned for frontend, customer, driver and route", "Prometheus screenshot"], ["Open the Monitor tab for frontend", "Latency, error rate and request rate charts show data", "UI screenshot"], ["Point the metric backend at a wrong Prometheus URL", "The Monitor tab shows an error fetching metrics", "UI screenshot"]],
+          "objectives": ["Wire span-derived metrics into Prometheus", "Connect Jaeger query to a metrics backend", "Validate SPM end to end"]
+        },
+        {
+          "topic": "Jaeger Monitor Tab: RED Metrics per Operation",
+          "subtopics": ["Request rate, error rate and duration percentiles", "Operation table with impact ranking", "Choosing the time range and step", "Span kind filter, server by default", "Jumping from an operation to matching traces", "Error rate based on span status", "Comparing P95 between operations", "Using SPM to choose which traces to inspect"],
+          "tools": ["Jaeger UI", "Prometheus", "HotROD demo application", "PromQL"],
+          "lab_task": "Run HotROD load for 10 minutes with the mutex fix off, open Monitor for frontend and record P95 latency, error rate and request rate for each operation. Pick the highest-impact operation, click through to its traces and choose three slow ones, then reproduce the P95 figure in Prometheus with histogram_quantile(0.95, sum(rate(traces_span_metrics_duration_milliseconds_bucket[5m])) by (le, span_name)).",
+          "deliverable": "RED metrics table per operation, the matching PromQL result and three linked slow traces",
+          "checks": [["Compare the Monitor P95 with the PromQL result", "Both figures for the same operation agree within 5 percent", "Screenshots of both"], ["Sort the operation table by impact", "/dispatch is ranked first for frontend", "UI screenshot"], ["Click through from an operation to traces", "The search page opens filtered to that service and operation", "Browser screenshot"]],
+          "objectives": ["Read RED metrics in Jaeger", "Rank operations by impact", "Move from metrics to supporting traces"]
+        },
+        {
+          "topic": "Remote Sampling Extension and the SDK jaeger_remote Sampler",
+          "subtopics": ["remote_sampling extension endpoints: http 5778 and grpc 5779", "OTEL_TRACES_SAMPLER=parentbased_jaeger_remote", "OTEL_TRACES_SAMPLER_ARG endpoint, pollingIntervalMs and initialSamplingRate", "SDK support for the Jaeger remote sampler by language", "Per-operation strategies from operation_strategies", "What happens when the sampling endpoint is unreachable", "Parent-based decisions in downstream services", "Verifying sampling with sampler.type and sampler.param span tags"],
+          "tools": ["OpenTelemetry SDKs", "Jaeger v2 (jaegertracing/jaeger)", "Java", "curl"],
+          "lab_task": "Configure a Java service with OTEL_TRACES_SAMPLER=parentbased_jaeger_remote and OTEL_TRACES_SAMPLER_ARG=endpoint=http://jaeger:5779,pollingIntervalMs=5000,initialSamplingRate=1.0. Serve a strategy of 0.25 for its service, send 1,000 requests and count stored traces. Then set /health to probabilistic 0.0 under operation_strategies and confirm no /health traces are stored.",
+          "deliverable": "Sampling configuration for SDK and Jaeger with trace counts for each strategy",
+          "checks": [["Send 1,000 requests with a 0.25 strategy", "Between 200 and 300 traces are stored", "/api/traces count output"], ["Send 200 /health requests after the operation strategy", "No /health traces are stored", "Search results screenshot"], ["Stop Jaeger's sampling endpoint and restart the service", "The SDK keeps sampling at the initialSamplingRate", "Trace count output"]],
+          "objectives": ["Configure SDKs to fetch Jaeger sampling strategies", "Apply per-operation sampling", "Predict behaviour when strategies are unavailable"]
+        },
+        {
+          "topic": "Running Jaeger on Kubernetes with the Helm Chart",
+          "subtopics": ["jaegertracing Helm repository and chart values", "Choosing all-in-one or separate collector and query", "Passing the v2 configuration through chart values", "Storage settings and secrets for Elasticsearch credentials", "Service and Ingress for the UI", "Resource requests, limits and HorizontalPodAutoscaler", "helm template for reviewing manifests", "Upgrades with helm upgrade and rollbacks"],
+          "tools": ["Helm", "kubectl", "Jaeger v2 (jaegertracing/jaeger)", "Elasticsearch / OpenSearch"],
+          "lab_task": "Add the chart with helm repo add jaegertracing https://jaegertracing.github.io/helm-charts, render it with helm template to review the manifests, then install Jaeger into namespace tracing with a values file that points at an existing Elasticsearch and reads the password from a Secret. Port-forward the query service to 16686 and send spans from a test pod to the collector Service.",
+          "deliverable": "values.yaml, rendered manifest excerpt and kubectl get all -n tracing output",
+          "checks": [["Run kubectl get pods -n tracing", "All Jaeger pods are Running and Ready", "kubectl output"], ["Send spans from a test pod to the collector Service on 4317", "The test service appears in the UI through port-forward", "UI screenshot"], ["Run helm rollback after a bad values change", "Pods return to the previous revision and become Ready", "helm history and kubectl output"]],
+          "objectives": ["Deploy Jaeger with Helm", "Keep storage credentials in Kubernetes Secrets", "Upgrade and roll back a Jaeger release"]
+        },
+        {
+          "topic": "Running Jaeger with the OpenTelemetry Operator",
+          "subtopics": ["OpenTelemetryCollector custom resource with the Jaeger image", "spec.image set to jaegertracing/jaeger and spec.config holding the v2 YAML", "Deployment, DaemonSet and StatefulSet modes", "Status of the Jaeger Operator for v1 deployments", "Instrumentation resource for auto-injecting SDKs", "Annotation instrumentation.opentelemetry.io/inject-java", "Exposing ports and the UI through spec.ports", "Reconciling config changes"],
+          "tools": ["kubectl", "Jaeger v2 (jaegertracing/jaeger)", "OpenTelemetry SDKs", "Helm"],
+          "lab_task": "Install cert-manager and the OpenTelemetry Operator, create an OpenTelemetryCollector named jaeger with spec.image jaegertracing/jaeger:<pinned tag> and your v2 config with memory storage, add a ports entry for 16686, then create an Instrumentation resource and annotate a Java Deployment for injection. Confirm its traces reach the Jaeger UI without code changes.",
+          "deliverable": "OpenTelemetryCollector and Instrumentation manifests and the annotated Deployment",
+          "checks": [["Run kubectl get opentelemetrycollector jaeger", "The resource exists and its pod is Running", "kubectl output"], ["Describe the annotated application pod", "An opentelemetry-auto-instrumentation init container was injected", "kubectl describe output"], ["Search the Java service in the UI", "Traces from the injected service appear", "UI screenshot"]],
+          "objectives": ["Run Jaeger v2 through the OpenTelemetry Operator", "Auto-instrument workloads sending to Jaeger", "Explain the operator options for v1 and v2"]
+        },
+        {
+          "topic": "Collector Processors in Jaeger Pipelines",
+          "subtopics": ["memory_limiter with limit_mib and spike_limit_mib", "batch processor send_batch_size and timeout", "attributes processor to delete or hash sensitive tags", "resource processor to add cluster and environment", "filter processor to drop health check spans", "Processor order and why memory_limiter comes first", "Processors available in the Jaeger distribution", "Measuring processor effects with internal metrics"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "OpenTelemetry Collector Builder (ocb)", "Prometheus", "Jaeger UI"],
+          "lab_task": "Add memory_limiter, a filter processor dropping spans where url.path is /health, an attributes processor deleting http.request.header.authorization, and a resource processor setting k8s.cluster.name=lab. Send mixed traffic and confirm health spans disappear and the header is gone. If a processor is missing from the Jaeger build, record the startup error.",
+          "deliverable": "Processor pipeline config with before-and-after span screenshots and any unknown-component error",
+          "checks": [["Send 100 /health requests through the pipeline", "No /health spans are stored", "Search results screenshot"], ["Inspect a span that had an authorization header", "The http.request.header.authorization tag is absent", "Span detail screenshot"], ["Inspect process tags on any span", "k8s.cluster.name=lab is present", "Span detail screenshot"]],
+          "objectives": ["Shape spans with collector processors", "Remove sensitive data before storage", "Order processors for safety"]
+        },
+        {
+          "topic": "Tail-Based Sampling in Front of Jaeger",
+          "subtopics": ["Head sampling versus tail sampling decisions", "tail_sampling processor policies: latency, status_code and probabilistic", "decision_wait and num_traces settings", "Why all spans of a trace must reach the same collector", "loadbalancing exporter keyed by traceID", "Two-tier layout: load-balancing tier then sampling tier", "Memory cost of buffering traces", "Checking kept versus dropped trace counts"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "OpenTelemetry Collector Builder (ocb)", "Prometheus", "Docker Compose"],
+          "lab_task": "Build a two-tier pipeline: one front collector with the loadbalancing exporter routing by traceID to two Jaeger collectors running tail_sampling with policies keep errors, keep latency over 500ms and 5 percent probabilistic. Send 10,000 HotROD-like traces and count stored traces, checking that every error trace and every slow trace was kept.",
+          "deliverable": "Tail sampling configuration, topology diagram and kept-trace counts per policy",
+          "checks": [["Search error=true after the run", "Every trace that returned an error was stored", "Count comparison against the generator log"], ["Search Min Duration 500ms", "Every trace over 500ms was stored", "Search results count"], ["Count all stored traces", "Total stored is well below 10,000, near errors plus slow plus 5 percent", "/api/traces count output"]],
+          "objectives": ["Configure tail-based sampling for Jaeger", "Route all spans of a trace to one sampler", "Measure sampling outcomes"]
+        },
+        {
+          "topic": "Jaeger Trace Comparison for Regression Analysis",
+          "subtopics": ["Choosing representative baseline and candidate traces", "Selecting traces by version tag such as service.version", "Reading added and removed nodes after a release", "Detecting new N+1 query patterns", "Pairing comparison with duration percentiles", "Uploading JSON traces from another environment", "Documenting a regression with compare URLs", "Limitations of comparing sampled traces"],
+          "tools": ["Jaeger UI", "OpenTelemetry SDKs", "curl", "jq"],
+          "lab_task": "Deploy version 1.0.0 of your catalogue service, capture 20 traces, then deploy 1.1.0 which loops one database call per item. Search each version by tag service.version, compare a typical 1.0.0 and 1.1.0 trace, count the added database spans, and export both traces as JSON so a colleague can load them with the UI upload option.",
+          "deliverable": "Regression note with the comparison screenshot, span count difference and the two exported trace files",
+          "checks": [["Compare 1.0.0 and 1.1.0 traces for a 5-item order", "The 1.1.0 trace shows 4 more database spans than 1.0.0", "Compare view screenshot"], ["Search with tag service.version=1.1.0", "Only traces from the new version are returned", "Search results screenshot"], ["Upload the exported JSON on a fresh Jaeger", "Both traces display without querying storage", "UI screenshot"]],
+          "objectives": ["Use trace comparison to explain a regression", "Select traces by version attribute", "Share traces as JSON files"]
+        },
+        {
+          "topic": "Asynchronous Messaging and Span Links in Jaeger",
+          "subtopics": ["Producer and consumer span kinds", "Propagating context in Kafka message headers", "Span links for batch consumers", "How Jaeger shows FOLLOWS_FROM and link references", "Traces that span minutes because of queue delay", "Separating queue wait time from processing time", "messaging.* semantic convention attributes", "Broken async traces and how to spot them"],
+          "tools": ["Apache Kafka", "OpenTelemetry SDKs", "Jaeger UI", "Java"],
+          "lab_task": "Instrument a producer and a consumer for a Kafka topic orders, propagate context in message headers, then add a batch consumer that processes 10 messages at once and adds span links to each producer context. In Jaeger, record the queue delay between producer and consumer spans and show how the linked batch span references the 10 producer traces.",
+          "deliverable": "Async tracing report with producer-consumer trace screenshots and the batch span's references",
+          "checks": [["Open a single order trace", "Producer and consumer spans appear in one trace with the consumer as a child or follows-from", "Trace view screenshot"], ["Open the batch consumer span", "Ten references to other traces are listed", "Span detail screenshot"], ["Pause the consumer for 30 seconds then resume", "The gap between producer end and consumer start is about 30 seconds", "Timeline screenshot"]],
+          "objectives": ["Trace message-driven workflows in Jaeger", "Use span links for fan-in processing", "Measure queue delay from traces"]
+        },
+        {
+          "topic": "Jaeger UI Configuration: Menus, Links and Trace Upload",
+          "subtopics": ["UI configuration file referenced by jaeger_query ui.config_file", "Custom menu entries", "linkPatterns to logs and dashboards using tag values", "Dependencies menu settings", "Base path for serving the UI behind a proxy", "Monitor tab settings", "Loading trace JSON files with the upload option", "Validating UI config JSON"],
+          "tools": ["Jaeger UI", "Jaeger v2 (jaegertracing/jaeger)", "jq", "Grafana"],
+          "lab_task": "Create ui-config.json with a menu entry linking to your runbook and a linkPatterns entry that turns the process tag k8s.pod.name into a link to your log viewer URL with #{k8s.pod.name}. Reference it via jaeger_query ui.config_file, set base_path to /jaeger, serve it behind a reverse proxy and confirm both links work on a real span.",
+          "deliverable": "ui-config.json, jaeger_query settings and screenshots of the custom menu and generated tag link",
+          "checks": [["Open the UI at http://host/jaeger", "The UI loads and API calls go to /jaeger/api", "Browser network panel screenshot"], ["Click the k8s.pod.name tag on a span", "A link opens the log viewer filtered to that pod", "Browser screenshot"], ["Introduce a JSON syntax error in ui-config.json and restart", "Jaeger reports a failure parsing the UI config", "docker logs excerpt"]],
+          "objectives": ["Customise the Jaeger UI for an organisation", "Link spans to logs and dashboards", "Serve the UI under a base path"]
+        },
+        {
+          "topic": "Archive Storage and Long-Lived Traces in Jaeger",
+          "subtopics": ["Why archive important traces beyond normal retention", "Archive backend in jaeger_storage and jaeger_query storage.traces_archive", "Separate index prefix or keyspace for archives", "Archive button in the trace view", "Retrieving archived traces after primary deletion", "Retention of the archive store", "Access control for archived incident traces", "Linking archived traces from postmortems"],
+          "tools": ["Jaeger UI", "Elasticsearch / OpenSearch", "Jaeger v2 (jaegertracing/jaeger)", "curl"],
+          "lab_task": "Configure a second Elasticsearch backend with index prefix archive, reference it as traces_archive in jaeger_query, then archive one HotROD trace from the UI. Delete today's primary span index with curl -X DELETE, confirm the trace no longer appears in search, then open it by trace ID and verify it loads from the archive.",
+          "deliverable": "Archive configuration and a test record showing the trace before and after primary deletion",
+          "checks": [["Click Archive Trace on a trace", "The UI confirms the trace was archived", "UI screenshot"], ["Search for the trace after deleting the primary index", "It is not returned by search", "Search results screenshot"], ["Open the trace by its ID", "It loads with all spans from the archive store", "Trace view screenshot"]],
+          "objectives": ["Configure an archive store for Jaeger", "Preserve incident traces beyond retention", "Retrieve archived traces by ID"]
+        },
+        {
+          "topic": "Migrating Jaeger v1 Flags to v2 YAML",
+          "subtopics": ["v1 binaries: jaeger-agent, jaeger-collector, jaeger-query and jaeger-ingester", "Removal of jaeger-agent and sending OTLP from SDKs", "Mapping SPAN_STORAGE_TYPE and es.* flags to jaeger_storage", "Mapping --sampling.strategies-file to remote_sampling", "Mapping query.base-path and UI config", "Renamed internal metrics from jaeger_* to otelcol_*", "Updating dashboards and alerts", "v1 end of life and the planning timeline"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "Elasticsearch / OpenSearch", "Docker Compose", "Prometheus"],
+          "lab_task": "Take a v1 Compose stack with jaeger-collector and jaeger-query using SPAN_STORAGE_TYPE=elasticsearch, ES_SERVER_URLS, --sampling.strategies-file and QUERY_BASE_PATH, write the equivalent v2 collector and query YAML, run v2 against the same indices and confirm traces written by v1 are readable from the v2 UI.",
+          "deliverable": "Flag-to-YAML mapping table, the v2 configs and proof that v1 data is readable",
+          "checks": [["Search a trace written by v1 using the v2 query", "The trace loads with all spans", "Trace view screenshot"], ["Fetch a sampling strategy from the v2 collector", "The same rate as the v1 strategies file is returned", "curl output"], ["Run a v1 dashboard panel against v2 metrics", "The old jaeger_* metric query returns no data until it is updated", "Prometheus screenshot"]],
+          "objectives": ["Translate v1 settings into v2 configuration", "Reuse existing storage during migration", "Update monitoring for renamed metrics"]
+        },
+        {
+          "topic": "Intermediate Capstone: Production-Style Jaeger on Kubernetes with Elasticsearch, Kafka and SPM",
+          "subtopics": ["Collector, ingester and query roles on Kubernetes with Kafka in between", "Elasticsearch storage with rollover and index cleaning CronJobs", "SPM with spanmetrics and Prometheus", "Remote sampling for at least two services", "Outage drill for storage", "Runbook and handover"],
+          "tools": ["Helm", "kubectl", "Jaeger v2 (jaegertracing/jaeger)", "Apache Kafka", "Elasticsearch / OpenSearch", "Prometheus"],
+          "lab_task": "Deploy Jaeger v2 on Kubernetes with two collectors, two ingesters via Kafka, one query, Elasticsearch with rollover and a 7-day cleaner CronJob, SPM in the Monitor tab and remote sampling for HotROD services. Run load, stop Elasticsearch for 5 minutes, then show lag draining to 0, no lost spans and Monitor data for every service.",
+          "deliverable": "Helm values, manifests, runbook and an outage drill report with lag graph and span counts",
+          "checks": [["Compare spans sent by the generator with spans stored", "The stored count equals the sent count after the outage", "Generator log and _count output"], ["Open the Monitor tab for each HotROD service", "Every service shows request rate and P95 latency", "UI screenshots"], ["List CronJobs in the tracing namespace", "Rollover and index cleaner jobs exist with a successful last run", "kubectl get cronjobs output"]],
+          "objectives": ["Assemble a multi-role Jaeger deployment", "Prove resilience to a storage outage", "Hand over Jaeger with a working runbook"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For SREs and platform owners who run Jaeger for many teams and must keep it fast, safe and affordable at high span volume. Covers adaptive sampling, collector scaling and backpressure, Elasticsearch, OpenSearch and Cassandra tuning, ClickHouse and remote gRPC storage, TLS, mTLS, UI authentication and multi-tenancy, ingester scaling, multi-cluster topologies, zero-downtime cutover from v1, critical-path root-cause analysis, trace-based regression tests, trace-to-log-and-metric correlation, capacity and cost control, SLOs for the tracing pipeline, custom Jaeger builds, storage failure drills and a structured troubleshooting playbook.",
+      "prerequisites": ["Completed the intermediate level or operates a multi-role Jaeger deployment with persistent storage", "Administers Kubernetes, Kafka and at least one of Elasticsearch, OpenSearch, Cassandra or ClickHouse in production", "Writes PromQL alerts and reads Go service configuration and logs"],
+      "outcomes": ["Control trace volume with adaptive sampling and tail sampling while keeping the traces teams need", "Scale, secure and isolate a multi-tenant Jaeger platform across clusters with tested failure recovery", "Tune storage backends and plan capacity and cost from measured span volumes", "Find latency root causes and catch regressions with critical-path analysis and trace-based tests"],
+      "days": [
+        {
+          "topic": "Adaptive Sampling in Jaeger v2",
+          "subtopics": ["How adaptive sampling targets traces per second per operation", "remote_sampling.adaptive settings: sampling_store, target_samples_per_second and initial_sampling_probability", "adaptive_sampling processor in the traces pipeline", "calculation_interval, aggregation_buckets and min_samples_per_second", "Shared sampling store and leader election between collectors", "Backends that support the sampling store", "Interaction with parent-based SDK samplers", "Watching probabilities converge over time"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "OpenTelemetry SDKs", "Apache Cassandra", "curl"],
+          "lab_task": "Enable remote_sampling.adaptive with a Cassandra sampling store, target_samples_per_second: 1 and calculation_interval: 1m, add the adaptive_sampling processor, and point two services using the jaeger_remote sampler at it. Drive 200 req/s on one operation and 2 req/s on another for 15 minutes and log the strategy from :5778/sampling every minute.",
+          "deliverable": "Adaptive sampling config with a time series of per-operation probabilities and stored trace rates",
+          "checks": [["Read the strategy for the 200 req/s operation after 15 minutes", "Its samplingRate has fallen to near 0.005", "curl output time series"], ["Read the strategy for the 2 req/s operation", "Its samplingRate stays much higher than the busy operation", "curl output"], ["Measure stored traces per second per operation", "Both operations store roughly 1 trace per second", "/api/traces counts over time"]],
+          "objectives": ["Configure adaptive sampling in Jaeger v2", "Explain how probabilities are calculated", "Verify that sampling converges on the target rate"]
+        },
+        {
+          "topic": "Scaling Jaeger Collectors: Load Balancing and Backpressure",
+          "subtopics": ["gRPC connection stickiness and client-side load balancing", "Headless Services and the dns resolver", "HorizontalPodAutoscaler on CPU and on accepted span rate", "memory_limiter refusals and RESOURCE_EXHAUSTED errors", "sending_queue and retry_on_failure on exporters", "otelcol_exporter_queue_size versus queue_capacity", "SDK retry behaviour on refused exports", "Load testing with telemetrygen"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "tracegen / telemetrygen", "kubectl", "Prometheus"],
+          "lab_task": "Run telemetrygen traces --rate 20000 --duration 10m --otlp-insecure against a Kubernetes Service fronting three collectors and graph accepted spans per pod. Show the imbalance with a ClusterIP Service, switch clients to a headless Service with round_robin, then lower memory_limiter until refusals occur and record otelcol_receiver_refused_spans and the queue size.",
+          "deliverable": "Load test report with per-pod span rates before and after balancing and the refusal threshold",
+          "checks": [["Graph accepted spans per pod with ClusterIP", "One or two pods take most of the traffic", "Prometheus screenshot"], ["Graph accepted spans per pod with the headless Service", "All three pods are within 20 percent of each other", "Prometheus screenshot"], ["Lower limit_mib below the working set", "otelcol_receiver_refused_spans increases and clients log RESOURCE_EXHAUSTED or retries", "Metrics and client log"]],
+          "objectives": ["Balance long-lived gRPC traffic across collectors", "Find collector saturation points", "Tune queues and memory limits for backpressure"]
+        },
+        {
+          "topic": "Elasticsearch and OpenSearch Tuning for Jaeger at Scale",
+          "subtopics": ["Shard sizing targets and primary shard count per daily index", "Replicas and refresh_interval for write-heavy indices", "Bulk size, workers and flush interval in the Jaeger backend", "Rejected bulk requests and thread pool queue metrics", "Hot-warm tiers with ILM or ISM", "max_doc_count and search size limits", "Tag search cost and limiting indexed tags", "Benchmarking ingest with a fixed span rate"],
+          "tools": ["Elasticsearch / OpenSearch", "Jaeger v2 (jaegertracing/jaeger)", "tracegen / telemetrygen", "curl"],
+          "lab_task": "Benchmark ingest at 15,000 spans/s for 15 minutes with three settings: default, refresh_interval 30s with 1 replica, and larger bulk size with more workers. For each record indexing rate, _nodes/stats thread_pool.write.rejected, exporter failures and P95 search latency for a 1-hour service query.",
+          "deliverable": "Tuning matrix comparing three Elasticsearch settings on ingest rate, rejections and query latency",
+          "checks": [["Run with refresh_interval 30s", "Indexing CPU drops compared with the default run", "Node stats comparison"], ["Check thread_pool.write.rejected after the tuned run", "The rejected count is 0", "_nodes/stats output"], ["Time a 1-hour service search after each run", "P95 search latency is recorded for each setting", "Timing table"]],
+          "objectives": ["Size shards and replicas for span indices", "Tune bulk writes from Jaeger", "Detect and remove write rejections"]
+        },
+        {
+          "topic": "Cassandra Tuning for High-Volume Jaeger Writes",
+          "subtopics": ["Replication factor and LOCAL_QUORUM versus LOCAL_ONE", "Compaction strategy for time-series span tables", "TTL alignment and tombstone pressure", "Disabling tag index writes to cut write amplification", "Partition sizes and nodetool tablestats", "Write latency from nodetool proxyhistograms", "Adding nodes and streaming data", "Dropped mutations as a capacity signal"],
+          "tools": ["Apache Cassandra", "nodetool", "Jaeger v2 (jaegertracing/jaeger)", "tracegen / telemetrygen"],
+          "lab_task": "On a three-node Cassandra cluster run 10,000 spans/s for 20 minutes, collecting nodetool proxyhistograms and tablestats for jaeger.traces. Repeat with tag index writes reduced in the Jaeger cassandra index settings and compare write latency and disk use. Confirm the table's compaction strategy and check for dropped mutations with nodetool tpstats.",
+          "deliverable": "Cassandra tuning report with write latency percentiles, disk use and dropped mutation counts",
+          "checks": [["Compare P99 write latency before and after reducing tag index writes", "P99 write latency is lower after the change", "proxyhistograms output"], ["Run nodetool tpstats after the load", "Dropped MUTATION count is 0", "nodetool output"], ["Search by a tag that is no longer indexed", "The search returns no results while service search still works", "UI screenshot"]],
+          "objectives": ["Tune Cassandra for Jaeger write load", "Trade tag search for write throughput", "Read Cassandra capacity signals"]
+        },
+        {
+          "topic": "ClickHouse Storage for Jaeger",
+          "subtopics": ["ClickHouse as a columnar store for spans", "Native ClickHouse backend status in current Jaeger v2 releases", "Earlier jaeger-clickhouse remote storage plugin", "Table layout, ORDER BY keys and partitions by day", "TTL clauses for retention", "Compression ratios compared with Elasticsearch", "Running analytical SQL over spans", "Checking feature support before adopting"],
+          "tools": ["ClickHouse", "Jaeger v2 (jaegertracing/jaeger)", "clickhouse-client", "tracegen / telemetrygen"],
+          "lab_task": "Check the Jaeger release notes for ClickHouse backend support in your version, configure it (native backend or remote storage), send 1,000,000 spans, and compare disk use with SELECT sum(bytes_on_disk) FROM system.parts against Elasticsearch store.size for the same load. Run SQL for P95 duration per service and confirm UI search works.",
+          "deliverable": "ClickHouse evaluation report with config, compression comparison, SQL results and supported features",
+          "checks": [["Query system.parts for the span table", "bytes_on_disk is reported and is smaller than the Elasticsearch store.size", "clickhouse-client output"], ["Run a quantile(0.95)(duration) query grouped by service", "One P95 row per service is returned", "SQL output"], ["Search a service in the Jaeger UI", "Traces are returned from ClickHouse", "UI screenshot"]],
+          "objectives": ["Evaluate ClickHouse as a Jaeger backend", "Compare storage efficiency across backends", "Query spans analytically with SQL"]
+        },
+        {
+          "topic": "Remote gRPC Storage Backends for Jaeger",
+          "subtopics": ["grpc storage type and remote storage API", "Storage API protobuf services for reading and writing traces", "Running a storage server as a separate process", "Using a second Jaeger instance as remote memory storage", "Timeouts and TLS for the storage connection", "Why the old plugin binary approach was removed", "Testing a backend with the storage integration tests", "Latency added by the remote hop"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "grpcurl", "Go", "Docker Compose"],
+          "lab_task": "Run one Jaeger instance as a remote storage server backed by memory, configure a second Jaeger with a grpc storage backend pointing at it, send 5,000 spans and query them from the second instance. Measure search latency with and without the remote hop, then stop the storage server and record the error the query returns.",
+          "deliverable": "Remote storage topology, configs, latency comparison and failure behaviour notes",
+          "checks": [["Search traces through the second Jaeger", "All 5,000 spans are found via the remote backend", "Search results screenshot"], ["Compare search latency with local memory storage", "The remote setup is slower by a measured number of milliseconds", "Timing table"], ["Stop the storage server and search", "The query returns a gRPC Unavailable error", "UI or curl output"]],
+          "objectives": ["Configure Jaeger with a remote gRPC storage backend", "Measure the cost of remote storage", "Explain the remote storage API's place in v2"]
+        },
+        {
+          "topic": "Jaeger Security: TLS and mTLS for Receivers, Query and Storage",
+          "subtopics": ["tls.cert_file, key_file and client_ca_file on OTLP receivers", "Requiring client certificates for mTLS", "TLS on jaeger_query HTTP and gRPC endpoints", "TLS and CA settings for Elasticsearch, Cassandra and Kafka", "Certificate rotation with reload_interval and cert-manager", "min_version and cipher choices"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "OpenSSL", "kubectl", "OpenTelemetry SDKs"],
+          "lab_task": "Create a CA and certificates with cert-manager, enable mTLS on the collector OTLP gRPC receiver with client_ca_file, TLS on the query endpoints and TLS to Elasticsearch. Prove an SDK with a valid client certificate exports spans, a client without one is rejected, and openssl s_client -connect collector:4317 shows the expected chain and TLS 1.2 or higher.",
+          "deliverable": "TLS design with certificate manifests, receiver and query configs and handshake evidence",
+          "checks": [["Export spans with a valid client certificate", "The spans are stored and visible in the UI", "UI screenshot"], ["Export spans without a client certificate", "The TLS handshake fails and no spans are stored", "SDK error log"], ["Run openssl s_client against port 4317", "The certificate chain verifies and the protocol is TLSv1.2 or TLSv1.3", "openssl output"]],
+          "objectives": ["Encrypt and authenticate span ingestion", "Secure query and storage connections", "Automate certificate rotation"]
+        },
+        {
+          "topic": "Securing the Jaeger UI with OAuth2 Proxy and Tenant Isolation",
+          "subtopics": ["Jaeger UI has no built-in user login", "oauth2-proxy in front of the query service", "Bearer token propagation to Elasticsearch", "Multi-tenancy with a tenant header on query and receivers", "Per-tenant index prefixes or separate backends", "Authenticator extensions such as bearertokenauth on receivers", "Network policies blocking direct access to query ports", "Auditing who viewed which traces"],
+          "tools": ["Jaeger UI", "oauth2-proxy", "kubectl", "Elasticsearch / OpenSearch"],
+          "lab_task": "Put oauth2-proxy in front of jaeger-query with your identity provider, add a NetworkPolicy so only oauth2-proxy reaches port 16686, enable a tenant header and route tenants team-a and team-b to separate index prefixes. Show that each user only sees their tenant's services and that direct pod access is blocked.",
+          "deliverable": "UI security architecture with oauth2-proxy and NetworkPolicy manifests and tenant isolation test results",
+          "checks": [["Open the UI without logging in", "The browser is redirected to the identity provider", "Browser screenshot"], ["Log in as a team-a user and list services", "Only team-a services are listed", "UI screenshot"], ["curl the query pod IP on 16686 from another namespace", "The connection times out because of the NetworkPolicy", "curl output"]],
+          "objectives": ["Add authentication in front of the Jaeger UI", "Isolate tenants' trace data", "Block bypass routes to query endpoints"]
+        },
+        {
+          "topic": "Kafka Ingester Scaling and Lag Management for Jaeger",
+          "subtopics": ["Partition count as the ceiling on ingester parallelism", "Consumer group rebalances and their effect on lag", "Ingester throughput limited by storage write speed", "Lag alerts in seconds versus messages", "Scaling ingesters on lag with KEDA", "Retention.ms on the span topic as a safety window", "Poison messages and encoding mismatches", "Replaying from an earlier offset"],
+          "tools": ["Apache Kafka", "Jaeger v2 (jaegertracing/jaeger)", "kubectl", "Prometheus"],
+          "lab_task": "With a 12-partition topic, run 2 ingesters and a producer at 30,000 spans/s so lag grows, add a KEDA ScaledObject on consumer lag with a max of 12 replicas, and record lag and replica count every minute until lag is near 0. Then publish one message with the wrong encoding and capture the ingester's error.",
+          "deliverable": "Ingester scaling report with lag and replica time series, the ScaledObject and the encoding error",
+          "checks": [["Watch replicas during the backlog", "KEDA scales ingesters above 2 and not beyond 12", "kubectl get hpa output"], ["Graph consumer lag after scaling", "Lag falls steadily to near 0", "Prometheus screenshot"], ["Publish a message with the wrong encoding", "The ingester logs an unmarshal error for that message", "Ingester log excerpt"]],
+          "objectives": ["Scale ingesters against Kafka lag", "Size partitions for parallelism", "Handle bad messages in the span topic"]
+        },
+        {
+          "topic": "Multi-Cluster and Multi-Region Jaeger Topologies",
+          "subtopics": ["Central storage versus per-region storage", "Regional collectors forwarding to a central Kafka", "Cross-region bandwidth and compression", "Traces that cross regions", "Querying several regions from one UI", "Adding cluster and region resource attributes", "Failure isolation when a region is cut off", "Data residency constraints"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "Apache Kafka", "kubectl", "Elasticsearch / OpenSearch"],
+          "lab_task": "Build two kind clusters as region-a and region-b, run local collectors adding cloud.region via a resource processor and exporting OTLP with gzip to a central Jaeger collector, with a service in region-a calling one in region-b. Confirm the cross-region trace is complete, then block the link with a NetworkPolicy and record exporter queue growth and recovery.",
+          "deliverable": "Topology design with configs, a cross-region trace screenshot and a partition test report",
+          "checks": [["Open a request that crosses regions", "Spans from both regions appear in one trace with different cloud.region tags", "Trace view screenshot"], ["Block the link for 2 minutes", "otelcol_exporter_queue_size in region-b rises", "Prometheus screenshot"], ["Restore the link", "The queue drains and the spans from the blocked period become searchable", "Metrics and search screenshot"]],
+          "objectives": ["Design Jaeger across clusters and regions", "Keep cross-region traces intact", "Plan for regional network partitions"]
+        },
+        {
+          "topic": "Zero-Downtime Jaeger v1 to v2 Cutover",
+          "subtopics": ["Inventory of v1 components, flags and client protocols", "Running v1 and v2 collectors in parallel on the same storage", "Keeping jaeger receiver ports for legacy clients", "Replacing jaeger-agent sidecars and DaemonSets", "Shifting traffic with DNS or Service selectors", "Dashboard and alert migration to otelcol_* metrics", "Rollback criteria and procedure", "Decommissioning v1 after end of life"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "kubectl", "Prometheus", "Helm"],
+          "lab_task": "Starting from a v1 deployment with agents, deploy v2 collectors beside v1 on the same Elasticsearch, move 10 percent, then 50, then 100 percent of senders by changing the collector Service selector, and watch spans received in v1 jaeger_* and v2 otelcol_* metrics. Remove the agents, rehearse rollback once and record total span loss.",
+          "deliverable": "Cutover plan with traffic shift steps, metric graphs, rollback test result and span loss figure",
+          "checks": [["Graph v1 and v2 received spans during the shift", "The v2 share rises step by step while the total stays flat", "Prometheus screenshot"], ["Compare generator sent count with stored count over the cutover", "Span loss is below 0.1 percent", "Count comparison"], ["Run the rollback procedure", "v1 collectors receive all traffic again within 5 minutes", "Metrics screenshot"]],
+          "objectives": ["Plan a staged Jaeger v2 cutover", "Measure span loss during migration", "Rehearse and time a rollback"]
+        },
+        {
+          "topic": "Critical Path Root-Cause Analysis with Jaeger",
+          "subtopics": ["Critical path algorithm and why parallel children drop off it", "Self time aggregation across many traces", "Fan-out and the slowest-child problem", "Retry storms visible as repeated client spans", "Gaps on the timeline: untraced work and queueing", "Clock skew and adjustment limits", "Comparing critical paths of fast and slow percentiles", "Writing root-cause statements backed by traces"],
+          "tools": ["Jaeger UI", "curl", "jq", "Python"],
+          "lab_task": "Download 200 traces of one endpoint with /api/v3, write a Python script that computes the critical path per trace and aggregates self time on the path by service and operation, then compare the P50 and P99 groups. Name the operation whose share of critical-path time grows most from P50 to P99 and confirm it in the UI.",
+          "deliverable": "Critical path script, aggregated table for P50 and P99 traces and a root-cause statement",
+          "checks": [["Run the script on one trace and compare with the UI", "The critical path spans match the UI highlighting", "Script output and UI screenshot"], ["Compare P50 and P99 aggregates", "One operation's share rises most and is named", "Aggregated table"], ["Check a trace with a visible gap between spans", "The gap is reported as untraced time on the parent", "Script output"]],
+          "objectives": ["Compute critical paths across many traces", "Separate tail-latency causes from typical ones", "State a root cause with trace evidence"]
+        },
+        {
+          "topic": "Trace-Based Regression Tests with the Jaeger API",
+          "subtopics": ["Injecting a known trace ID from the test client", "Polling the Jaeger API until the trace is complete", "Asserting span counts, operation names and attributes", "Asserting no N+1 query patterns", "Latency budgets per span", "Running tests in CI with Jaeger all-in-one", "Forcing sampling for test traffic", "Flaky test causes: batching delay and late spans"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "pytest", "curl", "OpenTelemetry SDKs"],
+          "lab_task": "Write a pytest suite that sends a checkout request with a generated traceparent and sampled flag, polls /api/v3/traces/<id> until the span count is stable, then asserts at most 3 database spans, no span with error status and payment under 200ms. Run it in CI against Jaeger all-in-one and make it fail by adding a per-item query.",
+          "deliverable": "pytest suite, CI workflow file and a failing run log showing the N+1 assertion",
+          "checks": [["Run the suite against the healthy build", "All assertions pass", "pytest output"], ["Run it against the build with per-item queries", "The database span count assertion fails with the actual count", "pytest output"], ["Run the suite 20 times", "No flaky failures occur", "CI run history"]],
+          "objectives": ["Turn traces into automated tests", "Detect structural regressions in CI", "Avoid timing flakiness in trace assertions"]
+        },
+        {
+          "topic": "Correlating Jaeger Traces with Logs and Metrics",
+          "subtopics": ["Writing trace_id and span_id into structured logs", "Jaeger UI link patterns from spans to logs", "Metric exemplars carrying trace IDs", "Jumping from a Prometheus exemplar to a Jaeger trace", "Grafana Jaeger data source and trace-to-logs", "SPM as a bridge between metrics and traces", "Consistent service naming across signals", "Failure modes: sampled-out traces behind exemplars"],
+          "tools": ["Jaeger UI", "Prometheus", "Grafana", "OpenTelemetry SDKs"],
+          "lab_task": "Configure your service to log trace_id and span_id in JSON, emit a latency histogram with exemplars, and add a Grafana Jaeger data source plus a Jaeger UI link pattern to your log tool. Starting from a P99 latency spike, follow an exemplar to its trace in Jaeger, then the span link to its logs, and record each hop.",
+          "deliverable": "Correlation walkthrough with screenshots of metric, exemplar, trace and log views for one request",
+          "checks": [["Click an exemplar on the latency panel", "The matching trace opens in Jaeger", "Screenshot"], ["Click the log link on a span", "Log lines with the same trace_id are shown", "Screenshot"], ["Pick an exemplar for a trace that was not sampled", "Jaeger reports the trace was not found", "Screenshot"]],
+          "objectives": ["Connect traces with logs and metrics", "Navigate from a metric spike to a root cause", "Explain gaps caused by sampling"]
+        },
+        {
+          "topic": "Jaeger Capacity Planning and Cost Control",
+          "subtopics": ["Measuring spans per second and average span size", "Collector CPU and memory per 1,000 spans per second", "Storage cost per day by backend", "Cutting volume: sampling, attribute limits and span filtering", "Removing high-cardinality attributes", "Showback per team using span counts", "Retention tiers for normal, error and archived traces", "Forecasting growth"],
+          "tools": ["Prometheus", "Jaeger v2 (jaegertracing/jaeger)", "Elasticsearch / OpenSearch", "PromQL"],
+          "lab_task": "Measure a week of span rate per service from otelcol and spanmetrics data, average span size from index store.size divided by doc count, and collector CPU per 1,000 spans/s from load tests. Build a cost model, then apply one sampling change and one attribute filter and show the measured reduction in daily storage.",
+          "deliverable": "Capacity and cost model spreadsheet with per-team showback and before-and-after savings",
+          "checks": [["Compute spans per second per service", "A ranked list with the top five services is produced", "PromQL output"], ["Calculate bytes per span", "A figure with its calculation from index stats is shown", "Spreadsheet"], ["Compare daily index size after the changes", "Daily storage falls by the predicted amount within 15 percent", "_cat/indices output"]],
+          "objectives": ["Model Jaeger capacity from measurements", "Reduce trace volume without losing key data", "Report tracing cost per team"]
+        },
+        {
+          "topic": "SLOs and Alerting for the Jaeger Pipeline",
+          "subtopics": ["Pipeline SLIs: ingest success ratio, end-to-end delay and query latency", "Refused and failed span ratios from otelcol metrics", "Kafka lag in seconds as a freshness SLI", "Synthetic canary traces measuring write-to-read delay", "Burn-rate alerts with multiple windows", "Query service latency and error alerts", "Storage health signals", "Alert runbooks linked from rules"],
+          "tools": ["Prometheus", "Alertmanager", "Jaeger v2 (jaegertracing/jaeger)", "curl"],
+          "lab_task": "Define SLOs of 99.9 percent ingest success and 95 percent of canary traces searchable within 60 seconds. Deploy a canary job that sends a trace every 30 seconds and measures time until /api/v3/traces/<id> returns it, write burn-rate alert rules, then inject storage slowness and confirm the alert fires with a runbook link.",
+          "deliverable": "SLO document, canary job, Prometheus rule file and an alert firing record",
+          "checks": [["Run promtool check rules on the rule file", "promtool reports SUCCESS", "promtool output"], ["Inject storage slowness for 15 minutes", "The freshness burn-rate alert fires", "Alertmanager screenshot"], ["Graph canary write-to-read delay in normal operation", "The 95th percentile is below 60 seconds", "Prometheus screenshot"]],
+          "objectives": ["Define SLIs for a tracing pipeline", "Measure trace freshness with canaries", "Alert on SLO burn rather than raw thresholds"]
+        },
+        {
+          "topic": "Custom Jaeger v2 Builds with Extra Collector Components",
+          "subtopics": ["Components included in the official Jaeger binary", "OpenTelemetry Collector Builder manifest structure", "Adding contrib processors to a Jaeger-based build", "Version alignment between Jaeger and collector modules", "Building and publishing a container image", "Supply-chain checks: pinned versions and SBOM", "Testing a custom build with the standard configs", "Cost of maintaining a fork"],
+          "tools": ["OpenTelemetry Collector Builder (ocb)", "Go", "Docker", "Jaeger v2 (jaegertracing/jaeger)"],
+          "lab_task": "List the components in your Jaeger binary with jaeger components, then write an ocb manifest that includes the Jaeger extensions and exporter plus a contrib processor that is missing, such as redaction. Build it, package it as an image with a pinned base, generate an SBOM and run it with a config that uses the new processor.",
+          "deliverable": "ocb manifest, Dockerfile, SBOM file and a run log showing the added processor working",
+          "checks": [["Run the components command on the custom binary", "The added processor is listed alongside the Jaeger extensions", "Command output"], ["Start the official image with the same config", "It fails with an unknown processor type error", "docker logs excerpt"], ["Send spans containing a value the redaction rule targets", "The stored spans show the value masked", "Span detail screenshot"]],
+          "objectives": ["Build a custom Jaeger distribution", "Check component availability before relying on it", "Weigh the upkeep of custom builds"]
+        },
+        {
+          "topic": "Jaeger Storage Failure Drills and Recovery",
+          "subtopics": ["Failure modes: slow storage, full disks, lost nodes and bad mappings", "Collector behaviour with and without Kafka buffering", "Elasticsearch red cluster and read-only index blocks", "Cassandra node loss and consistency errors", "Badger corruption and restore from snapshot", "Snapshots and restores for Elasticsearch indices", "Game-day planning and blast radius", "Post-drill improvements"],
+          "tools": ["Elasticsearch / OpenSearch", "Apache Cassandra", "Apache Kafka", "kubectl"],
+          "lab_task": "Run three drills: fill an Elasticsearch data node until indices get the read_only_allow_delete block, kill one of three Cassandra nodes under LOCAL_QUORUM, and restore yesterday's span index from a snapshot. For each record user impact, span loss, the signals that detected it and time to recover.",
+          "deliverable": "Drill report with timelines, detection signals, span loss and recovery times for each scenario",
+          "checks": [["Fill the Elasticsearch disk past the flood-stage watermark", "Writes fail with a cluster_block_exception and Kafka lag grows", "Jaeger logs and lag graph"], ["Kill one Cassandra node under LOCAL_QUORUM with RF 3", "Writes and reads continue without errors", "Jaeger metrics"], ["Restore yesterday's index from snapshot", "Traces from yesterday are searchable again", "Search results screenshot"]],
+          "objectives": ["Rehearse storage failures safely", "Measure detection and recovery times", "Restore trace data from backups"]
+        },
+        {
+          "topic": "Jaeger Troubleshooting Playbook: Missing Spans and Broken Traces",
+          "subtopics": ["Symptom map: no service, missing spans, orphan spans and wrong durations", "Following one span from SDK export to receiver, exporter and storage", "SDK debug logging and OTEL_LOG_LEVEL", "Collector debug exporter and verbose logging", "Clock skew, sampling mismatches and header loss", "Span size limits and dropped attributes"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "OpenTelemetry SDKs", "Prometheus", "curl"],
+          "lab_task": "Your trainer injects four faults into a lab: a wrong OTLP port, a proxy stripping traceparent, a downstream service sampling at 0 that ignores parent decisions, and a host clock 2 seconds ahead. Use SDK logs, the debug exporter, otelcol metrics and the UI to find each one, then write a playbook entry with symptom, check and fix.",
+          "deliverable": "Troubleshooting playbook with four entries and evidence for each diagnosis",
+          "checks": [["Find the wrong OTLP port", "SDK logs show connection refused and otelcol_receiver_accepted_spans does not change", "Log and metric excerpts"], ["Find the stripped header", "Downstream spans appear as separate root traces", "Search results screenshot"], ["Find the skewed clock", "The UI shows a clock skew adjustment warning on the affected spans", "Span detail screenshot"]],
+          "objectives": ["Trace a span through every pipeline stage", "Diagnose common causes of incomplete traces", "Write reusable troubleshooting entries"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Tenant Jaeger Platform with Adaptive Sampling and SLOs",
+          "subtopics": ["Platform design for three tenant teams across two clusters", "mTLS ingestion, authenticated UI and tenant isolation", "Adaptive and tail sampling with a documented volume budget", "Kafka buffering, tuned storage and retention tiers", "Pipeline SLOs, canaries, alerts and a failure drill", "Design review and live demonstration"],
+          "tools": ["Jaeger v2 (jaegertracing/jaeger)", "kubectl", "Apache Kafka", "Elasticsearch / OpenSearch", "Prometheus", "oauth2-proxy"],
+          "lab_task": "Deliver a Jaeger v2 platform for three tenants across two clusters with mTLS ingest, oauth2-proxy UI login, per-tenant storage, adaptive sampling at 2 traces/s per operation, tail sampling keeping all errors, Kafka buffering, SLO alerts and a 7-day retention tier. Run a storage failure drill under 10,000 spans/s and present results.",
+          "deliverable": "Architecture document, deployment manifests, SLO dashboards, drill report and a 20-minute review",
+          "checks": [["Log in as each tenant and list services", "Each tenant sees only its own services", "UI screenshots"], ["Run the storage failure drill at 10,000 spans/s", "No spans are lost and the freshness alert fires and clears", "Counts and Alertmanager history"], ["Search error=true for one tenant over an hour", "Every error trace the generator produced is present", "Count comparison"]],
+          "objectives": ["Design a secure multi-tenant Jaeger platform", "Balance sampling, cost and SLOs", "Defend the design with drill evidence"]
+        }
+      ]
+    }
+  }
+}

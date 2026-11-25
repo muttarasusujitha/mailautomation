@@ -10,6 +10,63 @@ import httpx
 _BROWSER = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
 
 
+def _engine_tally():
+    return {'attempts': 0, 'found': 0, 'challenged': 0, 'refused': 0, 'timeouts': 0, 'urls': []}
+
+
+def merge_engine_reports(reports):
+    """Combine per-engine counters from several searches without duplicating URLs."""
+    merged = {}
+    for report in reports or ():
+        for source, values in (report or {}).items():
+            target = merged.setdefault(source, _engine_tally())
+            for key in ('attempts', 'found', 'challenged', 'refused', 'timeouts'):
+                target[key] += int((values or {}).get(key) or 0)
+            if (values or {}).get('skipped'):
+                target['skipped'] = values['skipped']
+            for url in (values or {}).get('urls') or ():
+                if url not in target['urls']:
+                    target['urls'].append(url)
+    return merged
+
+
+def engine_sources(report, kept_urls=None, noun='profile links'):
+    """Turn raw engine counters into concise user-facing source statuses."""
+    kept = set(kept_urls) if kept_urls is not None else None
+    labels = {'duckduckgo': 'DuckDuckGo', 'bing': 'Bing'}
+    result = []
+    for source in ('duckduckgo', 'bing'):
+        values = (report or {}).get(source) or _engine_tally()
+        urls = values.get('urls') or []
+        found = int(values.get('found') or 0)
+        qualified = sum(url in kept for url in urls) if kept is not None else found
+        reason = ''
+        if values.get('skipped'):
+            status = 'not_needed'
+        elif not values.get('attempts'):
+            status = 'not_run'
+        elif found:
+            status = 'ok' if kept is None or qualified else 'filtered'
+            if status == 'filtered':
+                reason = f'{found} {noun} were returned, but none passed the checks.'
+        elif values.get('challenged'):
+            status = 'blocked'
+            reason = f'{labels[source]} showed a bot check; it was not bypassed.'
+        elif values.get('timeouts'):
+            status = 'error'
+            reason = f'{labels[source]} did not answer before the search timed out.'
+        elif values.get('refused'):
+            status = 'blocked'
+            reason = f'{labels[source]} refused the search request.'
+        else:
+            status = 'no_results'
+            reason = f'{labels[source]} returned no matching {noun}.'
+        item = {'source': source, 'label': labels[source], 'status': status, 'found': found,
+                'qualified': qualified, 'reason': reason}
+        result.append(item)
+    return result
+
+
 class _BingLinks(HTMLParser):
     """Read the heading link and the caption under it. Result links are not opened."""
 
@@ -250,14 +307,30 @@ async def _fetch(method, url, retries=1, **kwargs):
     return None, timed_out
 
 
+class PublicSearchUnavailable(ValueError):
+    """A results page did not arrive. timed_out tells a slow network apart from a refusal."""
+
+    def __init__(self, message, timed_out=False):
+        super().__init__(message)
+        self.timed_out = timed_out
+
+
+# Text of a bot-check page. Checked only on a page without results, and only reported: it is not solved.
+_BOT_CHECK_MARKERS = (b'captcha', b'unusual traffic', b'are you a robot', b'not a robot', b'verify you are human',
+                      b'challenge-platform', b'cf-chl', b'detected unusual')
+
+
 async def _search_page(query, limit, first, allowed_domains=None):
     response, timed_out = await _fetch(
         'GET', 'https://www.bing.com/search', params={'q': query, 'count': min(limit, 20), 'first': first})
     if timed_out or response is None or response.status_code != 200:
-        raise ValueError('Public search is temporarily unavailable or rate limited')
+        raise PublicSearchUnavailable('Public search is temporarily unavailable or rate limited', timed_out=timed_out)
     if len(response.content) > 1_000_000:
         raise ValueError('Public search response is too large')
-    return parse_html(response.content, limit, allowed_domains)
+    rows = parse_html(response.content, limit, allowed_domains)
+    if not rows and any(marker in response.content.lower() for marker in _BOT_CHECK_MARKERS):
+        raise PublicSearchUnavailable('Bing showed a bot check instead of results')
+    return rows
 
 
 async def _read_ddg_pages(response, limit, found, seen, allowed_domains=None, query=''):
@@ -306,18 +379,24 @@ async def _search_bing(query, limit, allowed_domains=None, report=None):
     found, seen = [], set()
     first = 1
     while len(found) < limit and first <= 41:
+        if report is not None:
+            report['attempts'] = report.get('attempts', 0) + 1
         try:
             page = await _search_page(query, limit - len(found), first, allowed_domains)
-        except ValueError:
+        except ValueError as exc:
             if report is not None and first == 1:
-                # The first page was refused or did not answer, so nothing was searched.
                 report['blocked'] = report.get('blocked', 0) + 1
+                kind = 'timeouts' if getattr(exc, 'timed_out', False) else 'refused'
+                report[kind] = report.get(kind, 0) + 1
             break
         added = [row for row in page if row['url'] not in seen]
         if not added:
             break
         seen.update(row['url'] for row in added)
         found.extend(added)
+        if report is not None:
+            report['found'] = report.get('found', 0) + len(added)
+            report.setdefault('urls', []).extend(row['url'] for row in added)
         first += 20
     return found
 
@@ -325,27 +404,14 @@ async def _search_bing(query, limit, allowed_domains=None, report=None):
 async def search_public(query, limit=10):
     """Read a public results page, then the next page only while new profile links appear."""
     limit = min(max(int(limit or 1), 1), 60)
-    found, challenged = await _search_ddg(query, limit)
-    if found or challenged:
+    found, _challenged = await _search_ddg(query, limit)
+    if found:
         return found[:limit]
+    # A challenge page is not solved. The other public results page can still be read.
     return (await _search_bing(query, limit))[:limit]
 
 
-class SearchBatch(tuple):
-    """Matched rows and attempt count.
-
-    timed_out is set when nothing was kept. blocked is set when nothing was kept
-    and DuckDuckGo or Bing refused a request (challenge page or error status).
-    """
-
-    def __new__(cls, found, attempts, timed_out=False, blocked=False):
-        batch = super().__new__(cls, (list(found), attempts))
-        batch.timed_out = bool(timed_out)
-        batch.blocked = bool(blocked)
-        return batch
-
-
-async def search_public_many(queries, limit=50, allowed_domains=None, supplement_with_bing=False):
+async def search_public_many(queries, limit=50, allowed_domains=None, report=None):
     """Keep reading result pages until the route minimum is filled or the connection stops answering."""
     limit = min(max(int(limit or 1), 1), 120)
     domains = tuple(allowed_domains or ('linkedin.com', 'naukri.com'))
@@ -354,28 +420,37 @@ async def search_public_many(queries, limit=50, allowed_domains=None, supplement
     refused = 0
     timeouts = 0
     attempts = 0
-    bing_report = {}
+    ddg, bing = _engine_tally(), _engine_tally()
     await _fetch('GET', 'https://duckduckgo.com/', retries=0)
     for query in queries:
         if len(found) >= limit or challenges >= 8 or timeouts >= 2:
             break
         attempts += 1
+        ddg['attempts'] += 1
         before = len(found)
         response, timed_out = await _fetch('GET', 'https://html.duckduckgo.com/html/', params={'q': query, 'kl': 'in-en'})
         if timed_out or response is None:
             if timed_out:
                 timeouts += 1
+                ddg['timeouts'] += 1
             else:
                 challenges += 1
                 refused += 1
+                ddg['refused'] += 1
                 timeouts = 0
             continue
         if response.status_code not in (200, 202):
             refused += 1
+            ddg['refused'] += 1
         challenged, page_timeout = await _read_ddg_pages(
             response, limit, found, seen, domains, query)
+        ddg['found'] += len(found) - before
+        ddg['urls'].extend(row['url'] for row in found[before:])
+        if challenged:
+            ddg['challenged'] += 1
         if page_timeout:
             timeouts += 1
+            ddg['timeouts'] += 1
         elif challenged and len(found) == before:
             challenges += 1
             refused += 1
@@ -385,21 +460,14 @@ async def search_public_many(queries, limit=50, allowed_domains=None, supplement
             timeouts = 0
         else:
             timeouts = 0
-    # Search Bing for additional candidates even when DuckDuckGo returned some:
-    # the later trainer relevance filters may discard much of that first batch.
-    if (not found or supplement_with_bing) and len(found) < limit and timeouts < 2 and queries:
-        for query in queries:
-            if len(found) >= limit:
-                break
-            bing_rows = await _search_bing(query, limit - len(found), domains, report=bing_report)
-            for row in bing_rows:
-                if row['url'] in seen:
-                    continue
-                row['search_query'] = query
-                seen.add(row['url'])
-                found.append(row)
-                if len(found) >= limit:
-                    break
-    kept = found[:limit]
-    return SearchBatch(kept, attempts, timed_out=not kept and timeouts > 0,
-                       blocked=not kept and bool(refused or bing_report.get('blocked')))
+    if found:
+        bing['skipped'] = 'enough'
+    elif queries:
+        bing['attempts'] += 1
+        bing_rows = await _search_bing(queries[0], limit, domains, bing)
+        found.extend(bing_rows)
+        bing['found'] += len(bing_rows)
+        bing['urls'].extend(row['url'] for row in bing_rows)
+    if report is not None:
+        report.update({'duckduckgo': ddg, 'bing': bing})
+    return found[:limit], attempts

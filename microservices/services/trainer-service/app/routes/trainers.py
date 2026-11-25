@@ -762,6 +762,8 @@ async def list_trainer_industries(db: AsyncIOMotorDatabase = Depends(get_db)):
 async def semantic_trainer_search(
     q: str = Query(..., min_length=2),
     limit: int = Query(10, ge=1, le=50),
+    domain: Optional[str] = None,
+    location: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     intent = _semantic_query_intent(q)
@@ -779,6 +781,10 @@ async def semantic_trainer_search(
             for term in candidate_terms
             if term
         ]
+    if domain:
+        _append_or(candidate_query, await _domain_search_clauses(db, domain))
+    if location:
+        _append_or(candidate_query, _location_search_clauses(location))
 
     projection = {"combined_text": 0}
     cursor = db.trainers.find(candidate_query, projection).sort([("profile_score", -1), ("resume_rank_score", -1), ("created_at", -1)]).limit(500)

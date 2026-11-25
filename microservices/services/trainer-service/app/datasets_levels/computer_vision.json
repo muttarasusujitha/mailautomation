@@ -1,0 +1,573 @@
+{
+  "domain": "Computer Vision",
+  "name": "Computer Vision",
+  "category": "Data Science and Machine Learning",
+  "icon": "search",
+  "aliases": ["CV", "Machine Vision", "OpenCV", "Image Recognition", "Vision AI", "Visual Computing", "Computer Vision with Python", "Image Processing and Vision"],
+  "certifications": ["Google Cloud Professional Machine Learning Engineer", "AWS Certified Machine Learning Engineer - Associate"],
+  "tools": ["OpenCV", "NumPy", "PyTorch", "torchvision", "timm", "Ultralytics YOLO", "Albumentations", "Segment Anything", "Hugging Face Transformers", "ONNX Runtime", "TensorRT", "FiftyOne", "CVAT", "Tesseract"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python programmers who are new to image processing and computer vision. Covers images as NumPy arrays, colour spaces, thresholding, filtering, edges, contours, video I/O, feature matching, homography, camera calibration, classical detectors, dataset formats, CNN basics in PyTorch, training and transfer learning, classification metrics, simple OCR, pretrained YOLO inference, and an inspection-pipeline capstone.",
+      "prerequisites": ["Writes Python scripts with functions, lists and NumPy arrays", "Uses a terminal, pip and virtual environments", "Knows high-school linear algebra: vectors, matrices and coordinates"],
+      "outcomes": ["Load, transform, filter and analyse images and video with OpenCV", "Match features, align images and calibrate a camera", "Train and evaluate an image classifier with PyTorch transfer learning", "Run pretrained YOLO and OCR models and package results as a command-line tool"],
+      "days": [
+        {
+          "topic": "Digital Images as Arrays with OpenCV and NumPy",
+          "subtopics": ["Pixels, resolution and bit depth: uint8 versus float32 images", "Image shape as (height, width, channels) in NumPy", "cv2.imread flags: IMREAD_COLOR, IMREAD_GRAYSCALE and IMREAD_UNCHANGED", "cv2.imwrite and JPEG quality versus lossless PNG", "Slicing a region of interest and the view-versus-copy trap", "Arithmetic on images: saturation in cv2.add versus wraparound in NumPy", "Drawing with cv2.rectangle, cv2.circle and cv2.putText", "Displaying images with cv2.imshow, matplotlib and notebooks"],
+          "tools": ["Python", "OpenCV", "NumPy", "Matplotlib", "Jupyter"],
+          "lab_task": "Create a virtual environment and pip install opencv-python numpy matplotlib. Load a 1920x1080 JPEG with cv2.imread, print img.shape and img.dtype, crop a 200x200 ROI by slicing, add 100 to a uint8 copy with cv2.add and with plain NumPy +, and save the three results as PNG files. Record the pixel value at (10,10) in each version.",
+          "deliverable": "Notebook that loads, inspects, crops, brightens and saves an image, with a table of pixel values for saturated versus wrapped addition",
+          "checks": [["Print img.shape and img.dtype for a 1920x1080 colour JPEG", "(1080, 1920, 3) and uint8", "Notebook output"], ["Add 100 to a pixel of value 200 using cv2.add and then NumPy uint8 +", "cv2.add gives 255 (saturated), NumPy gives 44 (wrapped modulo 256)", "Printed pixel values"], ["Call cv2.imread on a path that does not exist", "Returns None without raising, and the next call on it fails with AttributeError", "Traceback and a guard clause in the code"]],
+          "objectives": ["Describe an image as a NumPy array with shape, dtype and channel order", "Read, crop, modify and write images with OpenCV", "Explain saturation versus wraparound arithmetic and the view-versus-copy trap"]
+        },
+        {
+          "topic": "Colour Spaces: BGR, RGB, HSV and Lab Conversions",
+          "subtopics": ["OpenCV BGR channel order versus RGB in matplotlib and PIL", "cv2.cvtColor codes: COLOR_BGR2GRAY, COLOR_BGR2RGB, COLOR_BGR2HSV", "HSV ranges in OpenCV: H 0-179, S and V 0-255", "Lab and YCrCb for perceptual and luma-chroma work", "cv2.inRange to build a colour mask", "Applying a mask with cv2.bitwise_and", "Splitting and merging channels with cv2.split and cv2.merge", "Lighting sensitivity and why hue is more stable than RGB"],
+          "tools": ["Python", "OpenCV", "NumPy", "Matplotlib"],
+          "lab_task": "Load a photo of coloured objects, convert with cv2.cvtColor to RGB, HSV and Lab, and display the channels. Build a red-object mask with two cv2.inRange calls (H 0-10 and 170-179), apply it with cv2.bitwise_and, count mask pixels with cv2.countNonZero, and repeat on a darker copy of the image to compare the counts.",
+          "deliverable": "Notebook with channel plots, the red-object mask and a table of mask pixel counts under normal and dark lighting",
+          "checks": [["Show a cv2.imread image with matplotlib without conversion", "Colours look swapped (blue shows as orange) because the data is BGR", "Screenshot before and after cv2.COLOR_BGR2RGB"], ["Convert pure red (0,0,255 in BGR) to HSV", "H = 0 and S = V = 255", "Printed array [[[0 255 255]]]"], ["Mask red using only H 0-10 and ignore the 170-179 band", "Mask misses the wrap-around reds, so the pixel count is lower than with two ranges", "Two printed countNonZero values"]],
+          "objectives": ["Convert between BGR, RGB, HSV, Lab and grayscale", "Build and apply colour masks with cv2.inRange", "Explain HSV hue wrap-around and lighting effects"]
+        },
+        {
+          "topic": "Pixel Operations, Thresholding and Histogram Equalization",
+          "subtopics": ["Brightness and contrast with cv2.convertScaleAbs alpha and beta", "Gamma correction with a lookup table and cv2.LUT", "Image histograms with cv2.calcHist", "Global thresholding: THRESH_BINARY and THRESH_OTSU", "Adaptive thresholding: ADAPTIVE_THRESH_GAUSSIAN_C", "cv2.equalizeHist on grayscale images", "CLAHE with clipLimit and tileGridSize", "Choosing between global, adaptive and CLAHE on uneven lighting"],
+          "tools": ["Python", "OpenCV", "NumPy", "Matplotlib"],
+          "lab_task": "Take a photographed document with a shadow. Compute its histogram with cv2.calcHist, threshold it with cv2.threshold using THRESH_OTSU and print the chosen threshold, then apply cv2.adaptiveThreshold (blockSize 31, C 10) and CLAHE (clipLimit 2.0, tileGridSize 8x8). Save a 2x2 comparison grid and note which output keeps the shadowed text legible.",
+          "deliverable": "Comparison grid of global, Otsu, adaptive and CLAHE results with a one-paragraph recommendation",
+          "checks": [["Run cv2.threshold with THRESH_OTSU on a bimodal image", "Returns a computed threshold between the two histogram peaks, not the 0 you passed", "Printed threshold and histogram plot"], ["Apply a global threshold to an image with a shadow across half the page", "Half the text turns solid black or vanishes", "Output image"], ["Apply cv2.adaptiveThreshold on the same image", "Text stays readable on both sides of the shadow", "Output image next to the global result"]],
+          "objectives": ["Read and interpret image histograms", "Apply Otsu, adaptive and CLAHE methods", "Select a method for uneven lighting and justify it"]
+        },
+        {
+          "topic": "Geometric Transforms: Resize, Rotate, Affine and Perspective Warp",
+          "subtopics": ["cv2.resize and interpolation flags: INTER_AREA, INTER_LINEAR, INTER_CUBIC", "Aspect ratio and letterbox padding", "Translation and rotation with cv2.getRotationMatrix2D and cv2.warpAffine", "Affine transforms from three point pairs with cv2.getAffineTransform", "Perspective transforms from four point pairs with cv2.getPerspectiveTransform", "Flip, transpose and crop", "Border modes: BORDER_CONSTANT and BORDER_REFLECT", "Document scanning by perspective rectification"],
+          "tools": ["Python", "OpenCV", "NumPy"],
+          "lab_task": "Photograph a sheet of paper at an angle. Click or hard-code its four corners, compute cv2.getPerspectiveTransform to an 800x1100 output, apply cv2.warpPerspective, and save the flattened page. Then shrink a 4000x3000 image to 640x480 with INTER_AREA and INTER_NEAREST and compare the two results visually and by file size.",
+          "deliverable": "Script scan.py that flattens a skewed page to 800x1100 plus a resize-quality comparison",
+          "checks": [["Run warpPerspective with the four corners ordered top-left, top-right, bottom-right, bottom-left", "Output is an upright 800x1100 page", "Output image"], ["Swap two corners in the source points", "Output is twisted or mirrored", "Output image"], ["Downscale a 4000x3000 image to 640x480 with INTER_AREA versus INTER_NEAREST", "INTER_AREA is smoother, INTER_NEAREST shows aliasing and jagged lines", "Cropped zoom of both outputs"]],
+          "objectives": ["Apply resize, rotation, affine and perspective transforms", "Pick an interpolation flag for upscaling and downscaling", "Build a simple document scanner"]
+        },
+        {
+          "topic": "Spatial Filtering: Blur, Sharpen and Noise Removal",
+          "subtopics": ["Convolution kernels and cv2.filter2D", "Box blur with cv2.blur", "Gaussian blur and kernel size versus sigma", "Median blur for salt-and-pepper noise", "Bilateral filter for edge-preserving smoothing", "Sharpening with unsharp masking using cv2.addWeighted", "Non-local means with cv2.fastNlMeansDenoisingColored", "Measuring noise reduction with PSNR and SSIM"],
+          "tools": ["Python", "OpenCV", "NumPy", "scikit-image"],
+          "lab_task": "Add Gaussian noise (sigma 25) and 5% salt-and-pepper noise to a clean image. Denoise each with cv2.GaussianBlur (5x5), cv2.medianBlur (ksize 5), cv2.bilateralFilter (d 9, sigmaColor 75, sigmaSpace 75) and fastNlMeansDenoisingColored, then compute PSNR with cv2.PSNR against the clean image and tabulate all results.",
+          "deliverable": "PSNR table of four filters on two noise types, with sample crops and a conclusion",
+          "checks": [["Remove salt-and-pepper noise with cv2.GaussianBlur", "Specks are smeared into grey blobs and PSNR stays below the median-blur result", "PSNR table"], ["Remove salt-and-pepper noise with cv2.medianBlur ksize 5", "Specks are removed and edges stay sharp, giving the highest PSNR of the four filters", "PSNR table and crop"], ["Pass an even kernel size such as 4 to cv2.medianBlur", "OpenCV raises an assertion error because ksize must be odd", "Error message"]],
+          "objectives": ["Explain convolution with a kernel", "Match a filter to a noise type", "Quantify denoising with PSNR"]
+        },
+        {
+          "topic": "Edge Detection with Sobel, Laplacian and Canny",
+          "subtopics": ["Image gradients and gradient magnitude", "cv2.Sobel with dx, dy and ksize", "Scharr kernel for better rotational accuracy", "cv2.Laplacian and variance of Laplacian as a blur metric", "Canny stages: smoothing, gradient, non-maximum suppression, hysteresis", "Choosing Canny low and high thresholds, including the median heuristic", "Hough line transform with cv2.HoughLinesP", "Hough circle transform with cv2.HoughCircles"],
+          "tools": ["Python", "OpenCV", "NumPy", "Matplotlib"],
+          "lab_task": "On a road photo, run cv2.Canny with thresholds (50,150), (100,200) and automatic thresholds at 0.67 and 1.33 times the median, then run cv2.HoughLinesP (rho 1, theta pi/180, threshold 50, minLineLength 80, maxLineGap 10) and draw the detected lines. Also compute cv2.Laplacian(gray, cv2.CV_64F).var() for a sharp and a blurred copy.",
+          "deliverable": "Edge and line-detection notebook with three Canny settings and a blur-score comparison",
+          "checks": [["Lower both Canny thresholds to (10, 30)", "Many noisy edges appear and the edge pixel count rises compared with (100, 200)", "Edge pixel counts"], ["Compute Laplacian variance of a sharp image and of a Gaussian-blurred copy", "The sharp image has a clearly higher variance", "Two printed numbers"], ["Run HoughLinesP with minLineLength 80 on a lane photo", "Long lane-marking segments are returned and short texture edges are ignored", "Overlay image"]],
+          "objectives": ["Compute gradients and detect edges", "Tune Canny hysteresis thresholds", "Detect lines and circles with Hough transforms"]
+        },
+        {
+          "topic": "Morphology and Contour Analysis",
+          "subtopics": ["Structuring elements with cv2.getStructuringElement", "Erosion and dilation", "Opening and closing for noise and gap removal", "Morphological gradient, top-hat and black-hat", "cv2.findContours and retrieval modes RETR_EXTERNAL and RETR_TREE", "Contour area, perimeter and cv2.approxPolyDP", "Bounding boxes, minAreaRect and convex hull", "Connected components with cv2.connectedComponentsWithStats"],
+          "tools": ["Python", "OpenCV", "NumPy"],
+          "lab_task": "Threshold a photo of coins or screws on a plain background with Otsu, clean it with cv2.morphologyEx (MORPH_OPEN then MORPH_CLOSE, 5x5 ellipse), run cv2.findContours with RETR_EXTERNAL, filter contours with area above 500 pixels, draw bounding boxes and print each object's area and circularity 4*pi*area/perimeter^2.",
+          "deliverable": "Object counting script that prints a table of area, perimeter and circularity per object",
+          "checks": [["Count objects in an image of 10 coins on a plain sheet", "Script reports 10 contours after the 500-pixel area filter", "Printed count and annotated image"], ["Remove the area filter", "Count rises above 10 because of small noise blobs", "Printed count"], ["Compute circularity for a coin and for a square screw head", "Coin is near 1.0 and the square is about 0.78", "Printed circularity values"]],
+          "objectives": ["Clean binary masks with morphological operations", "Extract and measure contours", "Count and classify objects by shape"]
+        },
+        {
+          "topic": "Video I/O and Camera Capture with VideoCapture",
+          "subtopics": ["cv2.VideoCapture from file, webcam index and RTSP URL", "Frame properties: CAP_PROP_FPS, CAP_PROP_FRAME_COUNT", "Reading frames and handling the ret flag", "cv2.VideoWriter with fourcc codecs such as mp4v", "Frame skipping and resizing for throughput", "Measuring FPS with time.perf_counter", "Background subtraction with cv2.createBackgroundSubtractorMOG2", "Handling dropped frames and camera timeouts"],
+          "tools": ["Python", "OpenCV", "NumPy", "FFmpeg"],
+          "lab_task": "Write video_tool.py that opens a 30-second MP4, prints width, height, FPS and frame count, converts each frame to grayscale, overlays a running FPS value with cv2.putText, and writes the result with cv2.VideoWriter (mp4v). Then run MOG2 background subtraction and report the frame number where the first moving object appears.",
+          "deliverable": "video_tool.py plus an output MP4 with FPS overlay and a log of first-motion frame",
+          "checks": [["Read a 30 s, 30 FPS file until ret is False", "About 900 frames are read, matching CAP_PROP_FRAME_COUNT", "Printed frame counts"], ["Open a missing file path with VideoCapture", "isOpened() returns False and no exception is raised", "Printed flag"], ["Run MOG2 on a static-camera clip with one person entering", "Foreground mask shows the person from the entry frame and stays empty before it", "Mask frames at two timestamps"]],
+          "objectives": ["Read, process and write video with OpenCV", "Measure processing throughput in FPS", "Detect motion with background subtraction"]
+        },
+        {
+          "topic": "Image Features: Harris Corners, ORB and Keypoint Matching",
+          "subtopics": ["What makes a good local feature: corners and blobs", "cv2.cornerHarris and cv2.goodFeaturesToTrack", "ORB detector and binary BRIEF descriptors", "SIFT in the main OpenCV module and when it still beats ORB", "Brute-force matching with Hamming and L2 norms", "Lowe ratio test with knnMatch and a 0.75 threshold", "Outlier removal with RANSAC", "Drawing matches with cv2.drawMatches"],
+          "tools": ["Python", "OpenCV", "NumPy"],
+          "lab_task": "Take two photos of a book cover from different angles. Detect 1000 ORB keypoints in each with cv2.ORB_create(nfeatures=1000), match descriptors with cv2.BFMatcher(cv2.NORM_HAMMING).knnMatch(k=2), keep matches passing a 0.75 ratio test, draw them with drawMatches, and report how many matches survive with and without the ratio test.",
+          "deliverable": "Matching notebook with annotated image and counts before and after the ratio test",
+          "checks": [["Match ORB descriptors without a ratio test", "Many wrong matches appear as crossing lines", "Annotated image"], ["Apply the 0.75 ratio test", "Match count falls and the remaining lines are mostly parallel", "Printed counts and image"], ["Match two unrelated photos", "Almost no matches survive the ratio test", "Printed count under 10"]],
+          "objectives": ["Detect keypoints and compute descriptors", "Match features with a ratio test", "Explain why binary descriptors use Hamming distance"]
+        },
+        {
+          "topic": "Template Matching and Homography Image Alignment",
+          "subtopics": ["cv2.matchTemplate and TM_CCOEFF_NORMED", "Finding the maximum with cv2.minMaxLoc", "Multi-match detection with a score threshold", "Limits: scale and rotation sensitivity", "Homography as a 3x3 matrix", "cv2.findHomography with RANSAC and the reprojection threshold", "Warping one image onto another with cv2.warpPerspective", "Panorama stitching with cv2.Stitcher_create"],
+          "tools": ["Python", "OpenCV", "NumPy"],
+          "lab_task": "Find a small logo in a screenshot with cv2.matchTemplate (TM_CCOEFF_NORMED) and report the peak score and location. Then build a two-image panorama: match ORB features, compute cv2.findHomography with RANSAC (threshold 5.0), warp the left image, blend, and print the inlier count. Compare with cv2.Stitcher_create output.",
+          "deliverable": "Template-matching script and a panorama script that prints the RANSAC inlier ratio",
+          "checks": [["Match a logo that exists in the screenshot", "Peak score is above 0.9 at the logo's top-left corner", "Printed score and drawn box"], ["Match the same logo scaled to 50 percent", "Peak score drops well below 0.9 and the location is wrong", "Printed score"], ["Compute a homography from 4 correct and 4 wrong matches with RANSAC", "findHomography returns a mask marking the wrong matches as outliers", "Printed inlier mask"]],
+          "objectives": ["Use template matching and know its limits", "Estimate a homography with RANSAC", "Stitch two overlapping images"]
+        },
+        {
+          "topic": "Camera Calibration and Lens Undistortion",
+          "subtopics": ["Pinhole model and the intrinsic matrix K", "Radial and tangential distortion coefficients", "Printing and photographing a chessboard target", "cv2.findChessboardCorners and cv2.cornerSubPix", "cv2.calibrateCamera and reprojection error", "Saving and loading calibration with NumPy", "cv2.undistort and getOptimalNewCameraMatrix", "Fisheye model with cv2.fisheye"],
+          "tools": ["Python", "OpenCV", "NumPy", "Matplotlib"],
+          "lab_task": "Photograph a 9x6 inner-corner chessboard from 15 angles. Run findChessboardCorners and cornerSubPix on each, call cv2.calibrateCamera, print K, the distortion vector and the RMS reprojection error, undistort a test photo with cv2.undistort, and save the calibration to calib.npz.",
+          "deliverable": "calib.npz and a before and after undistortion image with a reported RMS error",
+          "checks": [["Run calibrateCamera on 15 sharp views", "RMS reprojection error is below 1.0 pixel", "Printed RMS value"], ["Calibrate using only 3 nearly identical views", "Error may look low but undistortion generalises poorly, with K varying between runs", "Two printed K matrices"], ["Undistort a wide-angle photo with the saved coefficients", "Straight wall edges that bowed outward become straight", "Before and after images"]],
+          "objectives": ["Explain intrinsic parameters and lens distortion", "Calibrate a camera and judge the error", "Undistort images with saved parameters"]
+        },
+        {
+          "topic": "Classical Object Detection: Haar Cascades and HOG with SVM",
+          "subtopics": ["Sliding windows and image pyramids", "Haar-like features and integral images", "cv2.CascadeClassifier and detectMultiScale", "scaleFactor, minNeighbors and minSize tuning", "HOG descriptor computation", "cv2.HOGDescriptor with the default people detector", "Non-maximum suppression of overlapping boxes", "Why deep detectors replaced these methods"],
+          "tools": ["Python", "OpenCV", "NumPy"],
+          "lab_task": "Run cv2.CascadeClassifier with haarcascade_frontalface_default.xml on a group photo using scaleFactor 1.1 and minNeighbors 5 and count faces. Repeat with minNeighbors 1 and 10. Then run cv2.HOGDescriptor_getDefaultPeopleDetector on a street image, draw boxes, and time both detectors per frame.",
+          "deliverable": "Comparison table of detection counts and latency for three parameter settings",
+          "checks": [["Set minNeighbors to 1", "More false positives appear compared with 5", "Face counts and annotated image"], ["Set minNeighbors to 10 on a group photo", "Some true faces are missed", "Face counts"], ["Run the Haar face model on a face rotated 90 degrees", "No face is detected because the cascade is not rotation invariant", "Output image"]],
+          "objectives": ["Run Haar and HOG detectors", "Tune detectMultiScale parameters", "State the limits of hand-crafted detectors"]
+        },
+        {
+          "topic": "Image Datasets, Annotation Formats and Train/Validation Splits",
+          "subtopics": ["Classification folder layout and torchvision ImageFolder", "Bounding box formats: COCO xywh, Pascal VOC xyxy and YOLO normalised", "Annotation tools: CVAT and Label Studio", "Converting between COCO and YOLO formats", "Stratified train, validation and test splits", "Data leakage from near-duplicate frames", "Class imbalance checks", "Dataset inspection with FiftyOne"],
+          "tools": ["Python", "CVAT", "FiftyOne", "pycocotools", "scikit-learn"],
+          "lab_task": "Annotate 30 images with two classes in CVAT and export in COCO 1.0. Load the export with fiftyone.utils.coco, convert one box by hand from COCO [x,y,w,h] pixels to YOLO normalised [cx,cy,w,h], split 70/15/15 with a fixed seed grouped by source video, and print the per-class count in each split.",
+          "deliverable": "COCO export, a conversion script and a per-split class count table",
+          "checks": [["Convert COCO box [100,50,200,100] on a 1000x500 image to YOLO", "Result is [0.2, 0.2, 0.2, 0.2]", "Printed values and script"], ["Split frames of one video randomly across train and validation", "Near-identical frames leak, so validation looks too good; grouped splitting removes the leak", "Two metric comparisons"], ["Count labels per class after splitting", "Every class appears in each split in roughly the 70/15/15 ratio", "Count table"]],
+          "objectives": ["Convert between common box formats", "Create leak-free dataset splits", "Inspect a dataset for imbalance and label errors"]
+        },
+        {
+          "topic": "Convolutions and CNN Building Blocks in PyTorch",
+          "subtopics": ["Tensors: NCHW layout and torch.from_numpy", "nn.Conv2d: kernel, stride, padding and dilation", "Output size formula for convolution", "Pooling: max, average and adaptive", "Activation functions: ReLU and GELU", "Batch normalisation in nn.BatchNorm2d", "Receptive field growth across layers", "Counting parameters with sum(p.numel())"],
+          "tools": ["Python", "PyTorch", "torchvision", "NumPy", "Matplotlib"],
+          "lab_task": "In PyTorch, apply nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1) to a 1x3x224x224 tensor and print the output shape. Predict then verify shapes for stride 2 and no padding. Build a 3-block CNN with BatchNorm and MaxPool, print the layer shapes with torchinfo or manual hooks, and report the total parameter count.",
+          "deliverable": "Notebook with shape predictions versus measured outputs and a parameter-count table",
+          "checks": [["Pass 1x3x224x224 through Conv2d(3,16,3,stride=1,padding=1)", "Output shape is [1, 16, 224, 224]", "Printed shape"], ["Change to stride 2 and padding 0", "Output shape is [1, 16, 111, 111]", "Printed shape"], ["Count parameters of Conv2d(3,16,3) with bias", "432 weights plus 16 biases, 448 in total", "Printed count"]],
+          "objectives": ["Compute convolution output sizes", "Assemble a small CNN from standard blocks", "Count parameters and explain receptive field"]
+        },
+        {
+          "topic": "Training an Image Classifier with torchvision and Data Augmentation",
+          "subtopics": ["Dataset and DataLoader with num_workers and pin_memory", "torchvision.transforms.v2 pipelines", "Augmentations: RandomResizedCrop, flip and ColorJitter", "Normalisation with ImageNet mean and std", "Cross-entropy loss and the AdamW optimiser", "Training and validation loops with model.train and model.eval", "Learning-rate schedulers such as OneCycleLR", "Overfitting diagnosis from loss curves"],
+          "tools": ["Python", "PyTorch", "torchvision", "TensorBoard", "Matplotlib"],
+          "lab_task": "Train a small CNN on CIFAR-10 for 15 epochs with AdamW (lr 1e-3) and OneCycleLR, once without augmentation and once with RandomResizedCrop and horizontal flip. Log train and validation loss and accuracy to TensorBoard and report the final validation accuracy and the train-validation gap for both runs.",
+          "deliverable": "Two training runs in TensorBoard and a short report on augmentation effect",
+          "checks": [["Train without augmentation for 15 epochs", "Training accuracy climbs far above validation accuracy, showing overfitting", "TensorBoard curves"], ["Train with crop and flip augmentation", "The gap between training and validation accuracy shrinks", "Two curve screenshots"], ["Forget model.eval() during validation with BatchNorm and Dropout layers", "Validation accuracy is noisy and differs between repeated passes", "Two evaluation runs"]],
+          "objectives": ["Write a complete classifier training loop", "Apply augmentation and learning-rate scheduling", "Diagnose overfitting from curves"]
+        },
+        {
+          "topic": "Transfer Learning with Pretrained ResNet and EfficientNet Backbones",
+          "subtopics": ["Pretrained weights in torchvision.models with weights enums", "Replacing the classifier head", "Feature extraction versus fine-tuning", "Freezing layers with requires_grad", "Discriminative learning rates", "Matching the preprocessing transforms of the pretrained weights", "Small-dataset fine-tuning with label smoothing", "Model size and latency trade-offs"],
+          "tools": ["Python", "PyTorch", "torchvision", "timm", "TensorBoard"],
+          "lab_task": "Fine-tune torchvision resnet18 with ResNet18_Weights.DEFAULT on a 5-class flower dataset of about 1000 images. First train only the new fc layer for 5 epochs, then unfreeze all layers at lr 1e-4 for 5 more. Record validation accuracy after each stage and measure CPU inference latency for one 224x224 image.",
+          "deliverable": "Two-stage fine-tuning notebook with accuracy per stage and latency measurement",
+          "checks": [["Train only the new head for 5 epochs", "Validation accuracy already exceeds 85 percent on the 5-class set", "Printed accuracy"], ["Unfreeze all layers and continue with lr 1e-4", "Validation accuracy rises further without the loss diverging", "Curves"], ["Feed images normalised with mean 0.5 and std 0.5 instead of ImageNet statistics", "Accuracy drops compared with the correct normalisation", "Two accuracy values"]],
+          "objectives": ["Adapt a pretrained backbone to a new class set", "Choose between feature extraction and full fine-tuning", "Match preprocessing to pretrained weights"]
+        },
+        {
+          "topic": "Classification Metrics: Confusion Matrix, Precision, Recall and Top-k",
+          "subtopics": ["Accuracy and why it misleads on imbalanced data", "Confusion matrix reading", "Precision, recall and F1 per class", "Macro, micro and weighted averages", "Top-1 and top-5 accuracy", "ROC curve and AUC", "Calibration and reliability diagrams", "Error analysis by viewing misclassified images"],
+          "tools": ["Python", "scikit-learn", "PyTorch", "Matplotlib", "FiftyOne"],
+          "lab_task": "Run your fine-tuned classifier over the test split, collect predictions, and print sklearn.metrics.classification_report and confusion_matrix. Plot the matrix with ConfusionMatrixDisplay, list the top 5 most confused class pairs, view 20 misclassified images in FiftyOne, and compute top-5 accuracy with torch.topk.",
+          "deliverable": "Evaluation report with confusion matrix, per-class F1 and annotated list of error causes",
+          "checks": [["Evaluate a model that always predicts the majority class on a 95/5 dataset", "Accuracy is 95 percent but minority recall is 0", "classification_report output"], ["Compute top-5 accuracy of a 100-class classifier", "Top-5 is higher than top-1 for the same predictions", "Two printed values"], ["Inspect the 20 most confident wrong predictions", "At least some are label errors or ambiguous images, noted in the report", "FiftyOne view and notes"]],
+          "objectives": ["Compute and interpret per-class metrics", "Read a confusion matrix", "Find label and data problems through error analysis"]
+        },
+        {
+          "topic": "Barcode, QR Code and Simple OCR with Tesseract",
+          "subtopics": ["cv2.QRCodeDetector and decoding", "cv2.barcode.BarcodeDetector for 1D codes", "pyzbar as an alternative decoder", "Preprocessing for OCR: grayscale, denoise, binarise and deskew", "pytesseract image_to_string and image_to_data", "Page segmentation modes --psm 6 and --psm 7", "Language packs and confidence values", "OCR accuracy as character error rate"],
+          "tools": ["Python", "OpenCV", "Tesseract", "pytesseract", "pyzbar", "NumPy"],
+          "lab_task": "Decode a QR code and an EAN-13 barcode from phone photos with OpenCV. Then run pytesseract.image_to_string on a skewed receipt photo with and without preprocessing (grayscale, medianBlur 3, Otsu threshold, deskew), use --psm 6, and compute character error rate against a typed ground-truth text for both versions.",
+          "deliverable": "Decoder script and OCR comparison with character error rates",
+          "checks": [["Decode a QR photographed at a 30 degree angle", "Payload string is returned, or an empty string if detection fails and the failure is logged", "Printed payload"], ["Run Tesseract on the raw skewed receipt and on the preprocessed one", "Character error rate is lower after preprocessing", "Two CER values"], ["Use --psm 7 on a multi-line block", "Only one line is read and the rest is lost", "OCR output"]],
+          "objectives": ["Decode QR and barcodes", "Preprocess images for OCR", "Measure OCR quality with character error rate"]
+        },
+        {
+          "topic": "Running Ultralytics YOLO Inference on Images and Video",
+          "subtopics": ["Installing the ultralytics package and loading weights like yolo11n.pt", "Command line: yolo predict model=... source=...", "Python API: model.predict and Results objects", "Boxes, classes, confidences and xyxy coordinates", "Confidence and IoU thresholds: conf and iou", "Task variants: detect, segment, pose and classify", "Saving annotated images and video", "Reading speed from Results.speed"],
+          "tools": ["Python", "Ultralytics YOLO", "OpenCV", "PyTorch", "FFmpeg"],
+          "lab_task": "Install ultralytics, run yolo predict model=yolo11n.pt source=street.mp4 conf=0.25 save=True, then repeat in Python with model.predict, loop over results[0].boxes to print class names, confidence and xyxy, and count persons per frame. Compare conf 0.25 versus 0.6 on 10 frames and record mean preprocess, inference and postprocess ms.",
+          "deliverable": "Inference script that writes a CSV of person counts per frame plus timing table",
+          "checks": [["Run yolo predict with conf=0.25 on a street clip", "An annotated video appears in runs/detect/predict", "Output folder listing"], ["Raise conf from 0.25 to 0.6", "Fewer boxes per frame and no low-confidence false positives", "Box counts across 10 frames"], ["Read results[0].speed", "Dictionary with preprocess, inference and postprocess milliseconds", "Printed dictionary"]],
+          "objectives": ["Run pretrained YOLO models from CLI and Python", "Read boxes, classes and confidences from Results", "Tune confidence and IoU thresholds"]
+        },
+        {
+          "topic": "Capstone: Parts Inspection Pipeline with OpenCV and a CNN",
+          "subtopics": ["Problem definition: defect classes, pass criteria and cost of error", "Capture and calibration plan for repeatable images", "Classical preprocessing: crop, align and normalise lighting", "CNN classifier trained with transfer learning", "Evaluation with recall on the defect class", "Report and demo with annotated outputs"],
+          "tools": ["Python", "OpenCV", "PyTorch", "torchvision", "FiftyOne", "TensorBoard"],
+          "lab_task": "Build an end-to-end inspection tool for a 2-class parts dataset (good, defective, 300+ images): align and crop with OpenCV, fine-tune resnet18, evaluate with a confusion matrix, and write inspect.py that takes a folder, writes results.csv and saves annotated images. Report defect recall, precision and images per second on CPU.",
+          "deliverable": "Repository with inspect.py, trained weights, results.csv, evaluation report and a 3-minute demo recording",
+          "checks": [["Run inspect.py on the 50-image held-out folder", "results.csv has 50 rows with label, confidence and filename", "CSV file"], ["Compare recall on the defective class against the target of 0.95", "Recall is reported and either meets the target or the report lists the next action", "Evaluation report"], ["Feed a blank or corrupt image", "Script logs the file as unreadable and continues without crashing", "Log excerpt"]],
+          "objectives": ["Combine classical preprocessing with a CNN in one pipeline", "Evaluate against a business target", "Package the result as a repeatable command-line tool"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For practitioners who can train a classifier and now need detection, segmentation, tracking, OCR, video, 3D and vision-language work. Covers augmentation, vision transformers, embeddings and retrieval, detection metrics, YOLO training, error analysis, DETR-family detectors, U-Net and instance segmentation, SAM, tracking, pose, OCR engines, optical flow, depth, structure from motion, anomaly detection, VLMs, open-vocabulary detection, and an analytics capstone.",
+      "prerequisites": ["Has trained a CNN classifier in PyTorch and can read training curves", "Can use Git, the command line and a GPU notebook or workstation", "Understands IoU, precision, recall and confusion matrices"],
+      "outcomes": ["Train and evaluate detection and segmentation models with correct metrics", "Combine detection, tracking and zone logic into video analytics", "Use foundation models for embeddings, segmentation, grounding and question answering", "Reconstruct depth and 3D structure from images and video"],
+      "days": [
+        {
+          "topic": "Albumentations Pipelines for Detection and Segmentation Data",
+          "subtopics": ["Spatial versus pixel-level transforms", "A.Compose with bbox_params and format=\"yolo\" or \"coco\"", "label_fields and min_visibility for boxes", "Mask and keypoint targets moving together with the image", "Mosaic and MixUp style augmentations", "Weather, blur and compression augmentations for robustness", "Seeding and reproducibility with A.ReplayCompose", "Visual verification of augmented samples"],
+          "tools": ["Python", "Albumentations", "OpenCV", "FiftyOne", "PyTorch"],
+          "lab_task": "Build an A.Compose with HorizontalFlip, RandomBrightnessContrast, Affine and bbox_params(format='yolo', label_fields=['labels'], min_visibility=0.3). Apply it 200 times to 20 annotated images with fixed seeds, assert every output box stays within [0,1], save 16 samples in a grid, and count boxes dropped by min_visibility.",
+          "deliverable": "Augmentation module with a unit test and a 4x4 sample grid",
+          "checks": [["Flip an image with a YOLO box at cx=0.2", "Flipped box has cx=0.8 and the same width and height", "Assertion output"], ["Crop so only 20 percent of a box remains with min_visibility=0.3", "The box and its label are dropped together", "Counts of boxes before and after"], ["Pass labels as a separate list without label_fields", "Albumentations raises a ValueError about labels and boxes lengths or fields", "Error message"]],
+          "objectives": ["Build box-aware augmentation pipelines", "Keep images, boxes, masks and keypoints consistent", "Verify augmentations visually and by test"]
+        },
+        {
+          "topic": "Vision Transformers and Modern Backbones with timm",
+          "subtopics": ["Patch embedding and class token", "Self-attention cost versus image resolution", "ViT, DeiT, Swin and ConvNeXt compared", "timm.create_model and pretrained_cfg", "Resolving data config with timm.data.resolve_data_config", "Fine-tuning with layer-wise learning-rate decay", "Mixed precision with torch.autocast", "Throughput versus accuracy on an RTX or T4 class GPU"],
+          "tools": ["Python", "PyTorch", "timm", "Hugging Face Transformers", "TensorBoard", "Weights & Biases"],
+          "lab_task": "With timm, create resnet50, convnext_tiny and vit_small_patch16_224 with pretrained=True. Build transforms from resolve_data_config, fine-tune each for 5 epochs on a 10-class dataset using torch.autocast(bfloat16), and tabulate parameters, top-1 accuracy, images per second at batch 64 and peak GPU memory from torch.cuda.max_memory_allocated.",
+          "deliverable": "Benchmark table of three backbones with accuracy, throughput and memory",
+          "checks": [["Count tokens for a 224x224 image with patch size 16", "196 patch tokens plus 1 class token", "Printed shape [1, 197, D]"], ["Feed 384x384 images to a model built for 224 without resizing position embeddings", "Shape mismatch error or reduced accuracy until embeddings are interpolated", "Error or metric"], ["Train with autocast on a GPU", "Memory use and step time drop compared with float32", "Two measured values"]],
+          "objectives": ["Explain how a ViT turns an image into tokens", "Load and fine-tune timm backbones", "Compare backbones by accuracy, speed and memory"]
+        },
+        {
+          "topic": "Image Embeddings and Retrieval with DINOv2 and CLIP",
+          "subtopics": ["Embeddings as feature vectors from pretrained encoders", "DINOv2 self-supervised features for dense and global use", "CLIP image and text encoders and the shared space", "Cosine similarity and L2 normalisation", "FAISS flat and IVF indexes", "Zero-shot classification with text prompts", "Recall@k for retrieval evaluation", "Duplicate and near-duplicate detection"],
+          "tools": ["Python", "PyTorch", "Hugging Face Transformers", "FAISS", "FiftyOne", "NumPy"],
+          "lab_task": "Embed 5000 images with a DINOv2 small model and with CLIP ViT-B/32, normalise the vectors, build a faiss.IndexFlatIP, and run 100 query images. Compute recall@5 against class labels for both encoders, then do zero-shot classification with CLIP prompts like 'a photo of a {class}' and compare accuracy with a linear probe on DINOv2.",
+          "deliverable": "Retrieval notebook with recall@5 for both encoders and zero-shot versus linear-probe accuracy",
+          "checks": [["Search the index with an image already in the database", "It is returned as the top hit with cosine similarity 1.0", "Printed top result"], ["Skip L2 normalisation before IndexFlatIP", "Rankings are dominated by vector length and recall@5 drops", "Two recall values"], ["Change CLIP prompt from the class name alone to 'a photo of a {class}'", "Zero-shot accuracy changes measurably, usually upward", "Two accuracy values"]],
+          "objectives": ["Extract and compare image embeddings", "Build a similarity search index", "Evaluate retrieval and zero-shot classification"]
+        },
+        {
+          "topic": "Detection Metrics and Matching: IoU, Anchors, NMS and mAP",
+          "subtopics": ["Bounding box regression targets", "Intersection over Union computed by hand", "Anchor boxes versus anchor-free heads", "Non-maximum suppression and Soft-NMS", "Matching predictions to ground truth", "Precision-recall curve per class", "AP at IoU 0.5 and mAP@0.5:0.95 as in COCO", "pycocotools COCOeval and torchmetrics MeanAveragePrecision"],
+          "tools": ["Python", "NumPy", "pycocotools", "torchmetrics", "PyTorch", "Matplotlib"],
+          "lab_task": "Implement iou(a, b) and greedy nms(boxes, scores, thr) in NumPy and check them against torchvision.ops.box_iou and torchvision.ops.nms on 1000 random boxes. Then compute AP at IoU 0.5 for a small hand-made prediction set and confirm it with torchmetrics MeanAveragePrecision, printing map, map_50 and map_75.",
+          "deliverable": "iou.py and nms.py with tests, plus a worked AP calculation sheet",
+          "checks": [["IoU of boxes [0,0,10,10] and [5,0,15,10]", "50/150, which equals 0.3333", "Unit test output"], ["Compare custom NMS with torchvision.ops.nms on 1000 random boxes at IoU 0.5", "Identical kept indices", "Assertion pass"], ["Lower the evaluation IoU threshold from 0.75 to 0.5", "AP value rises for the same predictions", "Printed map_75 and map_50"]],
+          "objectives": ["Compute IoU and NMS from scratch", "Explain AP and mAP@0.5:0.95", "Use COCO evaluation tools correctly"]
+        },
+        {
+          "topic": "Training Ultralytics YOLO on a Custom Dataset",
+          "subtopics": ["data.yaml with train, val, nc and names", "Directory layout of images and labels", "yolo train arguments: epochs, imgsz, batch, patience", "Choosing a model size from n to x", "Mosaic, close_mosaic and built-in augmentation", "Reading results.csv, PR curves and confusion matrix", "Resuming with resume=True", "Validation with yolo val and exporting weights best.pt"],
+          "tools": ["Python", "Ultralytics YOLO", "PyTorch", "TensorBoard", "CVAT", "Weights & Biases"],
+          "lab_task": "Prepare a 3-class dataset of at least 300 images in YOLO format with a data.yaml, run yolo detect train model=yolo11s.pt data=data.yaml epochs=60 imgsz=640 batch=16 patience=20, then run yolo val on best.pt and record mAP50, mAP50-95, precision and recall per class from the printed table and results.csv.",
+          "deliverable": "Trained best.pt, data.yaml, results.csv and a metrics summary with per-class mAP",
+          "checks": [["Point data.yaml at a path with no labels folder", "Training warns that no labels were found or reports 0 images with labels", "Console output"], ["Check results.csv after training", "box_loss and cls_loss fall over epochs and mAP50-95 rises or plateaus", "Plotted curves"], ["Run yolo val on best.pt", "Per-class P, R, mAP50 and mAP50-95 are printed for all 3 classes", "Console table"]],
+          "objectives": ["Train a YOLO model on custom data", "Interpret training curves and validation tables", "Choose model size and image size for a target"]
+        },
+        {
+          "topic": "Detection Error Analysis and Hard-Example Mining",
+          "subtopics": ["Error taxonomy: localisation, classification, duplicate, background and missed", "TIDE style breakdown of mAP loss", "Confidence threshold selection from the F1 curve", "Small-object failure and image size choices", "Label noise and inconsistent annotation guidelines", "Hard-negative mining from background images", "Slicing inference with SAHI for small objects", "Re-training loops with versioned datasets"],
+          "tools": ["Python", "FiftyOne", "Ultralytics YOLO", "SAHI", "pycocotools", "CVAT"],
+          "lab_task": "Load validation predictions into FiftyOne with evaluate_detections(eval_key='eval', iou=0.5). List false positives sorted by confidence, tag 50 of them as label error, hard negative or true model error, and run sliced inference with SAHI (slice 640, overlap 0.2) on the small-object subset. Report the change in recall for objects under 32x32 pixels.",
+          "deliverable": "Error taxonomy table, tagged FiftyOne dataset and a before-after recall for small objects",
+          "checks": [["Sort false positives by confidence and inspect the top 50", "A share of them are real objects missing from ground truth, tagged label error", "FiftyOne tag counts"], ["Run SAHI slicing on 4000x3000 images with small objects", "Small-object recall increases and latency per image increases", "Two metric values and timings"], ["Pick the confidence that maximises F1 from the F1 curve", "Chosen value differs from the 0.25 default and improves F1 on validation", "F1 curve and chosen threshold"]],
+          "objectives": ["Categorise detector errors", "Use error analysis to drive data fixes", "Improve small-object detection with slicing"]
+        },
+        {
+          "topic": "Two-Stage and Transformer Detectors: Faster R-CNN, DETR and RT-DETR",
+          "subtopics": ["Region proposal networks and RoI pooling", "Faster R-CNN in torchvision.models.detection", "Feature pyramid networks", "DETR with object queries and Hungarian matching", "Why DETR trained slowly and how deformable attention helped", "RT-DETR for real-time use", "Latency versus accuracy against YOLO", "Fine-tuning heads with Hugging Face Transformers"],
+          "tools": ["Python", "PyTorch", "torchvision", "Hugging Face Transformers", "Ultralytics YOLO", "pycocotools"],
+          "lab_task": "Run torchvision fasterrcnn_resnet50_fpn_v2, an RT-DETR checkpoint through ultralytics.RTDETR and a YOLO model of similar size on 200 COCO val images. Compute COCO mAP with pycocotools for each and measure median latency over 100 runs after 10 warm-up runs on the same GPU. Tabulate mAP, latency and parameters.",
+          "deliverable": "Detector comparison table with mAP, latency, parameters and a recommendation",
+          "checks": [["Time 100 inference runs after 10 warm-ups with torch.cuda.synchronize()", "Stable median latency with low variance", "Timing log"], ["Time without synchronize", "Reported latency is too low because GPU work is asynchronous", "Two timing logs"], ["Compare RT-DETR and YOLO outputs on a crowded scene", "RT-DETR needs no NMS step; YOLO output passes through NMS", "Pipeline diagram and outputs"]],
+          "objectives": ["Describe two-stage and query-based detectors", "Benchmark detectors fairly", "Select a detector family for a latency budget"]
+        },
+        {
+          "topic": "Semantic Segmentation with U-Net and DeepLab",
+          "subtopics": ["Pixel-wise labels and mask formats", "Encoder-decoder design and skip connections", "segmentation_models_pytorch Unet with a pretrained encoder", "DeepLabV3 and atrous convolution", "Dice, cross-entropy and focal losses", "Mean IoU and per-class IoU", "Tiling large images", "Post-processing masks with morphology"],
+          "tools": ["Python", "PyTorch", "segmentation_models_pytorch", "Albumentations", "torchmetrics", "OpenCV"],
+          "lab_task": "Train smp.Unet('resnet34', encoder_weights='imagenet', classes=2) on a binary segmentation dataset for 30 epochs with a DiceLoss plus BCE combination. Report mean IoU and Dice on a validation set, overlay predictions on 10 images, then tile a 4096x4096 image into 512x512 patches with 64-pixel overlap and merge predictions.",
+          "deliverable": "Training script, IoU and Dice report, overlay images and a tiled inference function",
+          "checks": [["Evaluate on a validation set with 10 percent foreground", "Mean IoU is reported per class and foreground IoU is lower than background", "Metric table"], ["Train with plain cross-entropy on an imbalanced mask set", "Model predicts mostly background; Dice loss improves foreground IoU", "Two IoU values"], ["Merge tiles without overlap", "Visible seams at tile borders disappear with 64-pixel overlap blending", "Before and after image"]],
+          "objectives": ["Train a U-Net for binary and multi-class masks", "Use Dice and IoU for imbalanced segmentation", "Run tiled inference on large images"]
+        },
+        {
+          "topic": "Instance Segmentation with Mask R-CNN and YOLO-seg",
+          "subtopics": ["Semantic versus instance versus panoptic segmentation", "Mask R-CNN heads and RoIAlign", "COCO polygon and RLE mask formats", "pycocotools mask encode and decode", "yolo segment train on polygon labels", "Mask AP versus box AP", "Counting and measuring instances from masks", "Polygon simplification for annotation export"],
+          "tools": ["Python", "Ultralytics YOLO", "torchvision", "pycocotools", "CVAT", "OpenCV"],
+          "lab_task": "Annotate or download a 2-class polygon dataset, train yolo segment train model=yolo11n-seg.pt data=seg.yaml epochs=50 imgsz=640, and compare mask mAP50-95 with a torchvision maskrcnn_resnet50_fpn_v2 fine-tuned on the same data. For each predicted mask compute area in pixels with cv2.countNonZero and export the counts to CSV.",
+          "deliverable": "Two trained segmenters, mask mAP table and CSV of instance areas",
+          "checks": [["Read the metrics table from yolo val for a segment model", "Both Box and Mask columns with mAP50 and mAP50-95 are printed", "Console output"], ["Decode an RLE mask with pycocotools.mask.decode", "Binary array whose sum equals the annotation area", "Printed sum and area"], ["Two touching objects of the same class", "Instance segmentation yields two masks while semantic segmentation yields one merged region", "Two outputs side by side"]],
+          "objectives": ["Train and evaluate instance segmentation", "Work with polygon and RLE masks", "Measure objects from masks"]
+        },
+        {
+          "topic": "Promptable Segmentation with SAM and SAM 2",
+          "subtopics": ["Segment Anything image encoder, prompt encoder and mask decoder", "Point, box and mask prompts", "SamPredictor.set_image and predict with multimask_output", "Automatic mask generation", "SAM 2 video propagation and memory", "Model size and speed trade-offs", "SAM for faster annotation in CVAT or Label Studio", "Failure modes: thin structures, transparency and domain shift"],
+          "tools": ["Python", "Segment Anything", "PyTorch", "OpenCV", "CVAT", "Hugging Face Transformers"],
+          "lab_task": "Load a SAM checkpoint, call SamPredictor.set_image on a photo, then predict with one foreground point, with two points (one background) and with a box prompt, saving the best mask by score each time. Compare mask IoU against a hand-drawn ground truth for 10 objects and report time for set_image versus per-prompt predict.",
+          "deliverable": "Notebook comparing point, multi-point and box prompts with mean IoU and timing",
+          "checks": [["Click one point on a shirt and read three masks with multimask_output=True", "Three candidate masks with scores, from part to whole object", "Printed scores and overlays"], ["Add a background point on the neighbouring trousers", "Mask no longer spills onto the trousers", "Before and after overlay"], ["Time set_image versus predict", "set_image takes far longer than each later predict call", "Two timings"]],
+          "objectives": ["Prompt SAM with points and boxes", "Explain image-encoder cost versus prompt cost", "Use SAM to speed up annotation"]
+        },
+        {
+          "topic": "Multi-Object Tracking with ByteTrack and BoT-SORT",
+          "subtopics": ["Tracking-by-detection loop", "Kalman filter motion model", "Association with IoU and the Hungarian algorithm", "ByteTrack use of low-confidence detections", "BoT-SORT with camera-motion compensation and ReID", "Track IDs, lifetimes and ID switches", "MOTA, IDF1 and HOTA metrics", "model.track with tracker=bytetrack.yaml"],
+          "tools": ["Python", "Ultralytics YOLO", "supervision", "TrackEval", "OpenCV", "NumPy"],
+          "lab_task": "Run model.track(source='traffic.mp4', tracker='bytetrack.yaml', persist=True, classes=[2]) in Python, collect track IDs per frame, count unique vehicles crossing a virtual line with supervision.LineZone, and repeat with botsort.yaml. Report the count, ID switches observed in a 20-second manual review and FPS for each tracker.",
+          "deliverable": "Line-crossing counter script with a comparison table for two trackers",
+          "checks": [["Run ByteTrack on a clip where two cars cross paths", "Track IDs are kept for both, or the ID switch frame is logged", "Annotated frames"], ["Count unique IDs versus actual vehicles on a 20-second clip", "Unique ID count is at least the true count, with the excess explained by ID switches", "Two numbers"], ["Set persist=False in successive model.track calls", "Track IDs reset on each call and counts become wrong", "Printed IDs"]],
+          "objectives": ["Describe the tracking-by-detection pipeline", "Run and compare trackers", "Evaluate tracking with ID-aware metrics"]
+        },
+        {
+          "topic": "Pose Estimation and Keypoint Models",
+          "subtopics": ["Top-down versus bottom-up pose estimation", "COCO 17-keypoint skeleton", "yolo pose with yolo11n-pose.pt", "Keypoint confidence and visibility flags", "Object keypoint similarity and pose AP", "Joint angle computation from three keypoints", "Rule-based action checks such as squat depth", "Custom keypoint datasets and labelling"],
+          "tools": ["Python", "Ultralytics YOLO", "OpenCV", "MediaPipe", "NumPy", "supervision"],
+          "lab_task": "Run a YOLO pose model on a squat video, read results[0].keypoints.xy and .conf, compute the knee angle from hip, knee and ankle keypoints with arctan2 each frame, count repetitions when the angle goes below 90 degrees and back above 160 degrees, and draw the angle on the output video.",
+          "deliverable": "Repetition counter with angle plot and output video",
+          "checks": [["Squat video with 10 clear repetitions", "Counter reports 10 repetitions, or a stated count with each miss explained", "Printed count and plot"], ["Person partly outside the frame", "Low confidence keypoints are skipped instead of producing wild angles", "Log lines"], ["Compute the angle of hip (0,0), knee (0,1), ankle (1,1)", "90 degrees", "Unit test"]],
+          "objectives": ["Run pose models and parse keypoints", "Compute geometric features from keypoints", "Build a rule-based motion analysis"]
+        },
+        {
+          "topic": "Scene Text and Document OCR with PaddleOCR and EasyOCR",
+          "subtopics": ["Text detection (DB) and recognition (CRNN or SVTR) stages", "PaddleOCR pipeline and angle classification", "EasyOCR readers and language lists", "Reading order from box coordinates", "Table detection and structure recognition", "Handwriting versus printed text", "Evaluating with CER, WER and field-level accuracy", "When Tesseract is still enough"],
+          "tools": ["Python", "PaddleOCR", "EasyOCR", "Tesseract", "OpenCV", "jiwer"],
+          "lab_task": "Run PaddleOCR and EasyOCR on 30 photographed invoices, sort lines by box y then x to rebuild reading order, extract invoice number and total with regular expressions, and compute CER with jiwer plus field-level exact-match accuracy against hand-typed ground truth. Compare both engines with Tesseract --psm 6 on the same images.",
+          "deliverable": "OCR comparison with CER and field accuracy across three engines",
+          "checks": [["Run each engine on the 30 invoices", "Table shows CER and field accuracy per engine on identical images", "Metric table"], ["Rotate an invoice 180 degrees", "Output degrades unless angle classification is enabled", "Two OCR outputs"], ["Compare 'O' and '0' confusions in invoice numbers", "Regex post-processing or character constraints fix the confusion in the field extractor", "Before and after field accuracy"]],
+          "objectives": ["Describe detection and recognition OCR stages", "Extract fields from OCR output", "Evaluate OCR engines with CER and field accuracy"]
+        },
+        {
+          "topic": "Video Understanding: Optical Flow and Action Recognition",
+          "subtopics": ["Optical flow assumptions and brightness constancy", "Lucas-Kanade sparse flow with cv2.calcOpticalFlowPyrLK", "Dense Farneback flow with cv2.calcOpticalFlowFarneback", "Learned flow models such as RAFT", "Frame sampling strategies for clips", "3D CNNs, SlowFast and video transformers", "Action recognition with Hugging Face VideoMAE", "Temporal evaluation: clip versus video accuracy"],
+          "tools": ["Python", "OpenCV", "PyTorch", "Hugging Face Transformers", "PyAV", "NumPy"],
+          "lab_task": "Compute Farneback flow between consecutive frames of a walking clip, visualise it with cv2.cartToPolar into an HSV image, and track 100 goodFeaturesToTrack points with Lucas-Kanade. Then classify 16-frame clips with a Kinetics-finetuned VideoMAE model from Transformers and print the top-3 labels with scores.",
+          "deliverable": "Flow visualisation video and top-3 action predictions for 5 clips",
+          "checks": [["Visualise flow on a clip with a person walking right", "Moving region shows a consistent hue for rightward motion and static background stays near black", "Flow video"], ["Sample 16 frames uniformly from a 10 s clip", "Indices are spread across the full clip, not just the first second", "Printed indices"], ["Feed a clip of 8 frames to a model expecting 16", "Shape or position error unless frames are resampled", "Error message"]],
+          "objectives": ["Compute sparse and dense optical flow", "Sample frames for video models", "Run a pretrained action recogniser"]
+        },
+        {
+          "topic": "Stereo Vision and Monocular Depth Estimation",
+          "subtopics": ["Epipolar geometry and rectified stereo pairs", "Disparity and depth = f * B / d", "cv2.StereoSGBM_create parameters", "Block matching versus semi-global matching", "Reprojecting to 3D with cv2.reprojectImageTo3D", "Monocular depth models: Depth Anything and MiDaS", "Relative versus metric depth and scale ambiguity", "Depth map visualisation and filtering"],
+          "tools": ["Python", "OpenCV", "PyTorch", "Hugging Face Transformers", "Open3D", "NumPy"],
+          "lab_task": "Using a rectified stereo pair from the Middlebury set, compute disparity with cv2.StereoSGBM_create(minDisparity=0, numDisparities=128, blockSize=5), convert to depth with Z = f*B/d, and compare with a Depth Anything prediction from the Transformers depth-estimation pipeline. Report mean absolute error after scale-and-shift alignment on 1000 valid pixels.",
+          "deliverable": "Stereo and monocular depth comparison with MAE and colour-mapped depth images",
+          "checks": [["Camera with f=700 px, baseline 0.12 m and disparity 21 px", "Depth is 4.0 m", "Calculation in notebook"], ["Use unrectified images with StereoSGBM", "Disparity map is noisy because matches do not lie on the same row", "Disparity image"], ["Compare monocular depth against ground truth without alignment", "Error is large; scale-and-shift alignment reduces it", "Two error values"]],
+          "objectives": ["Compute depth from stereo disparity", "Tune StereoSGBM", "Explain scale ambiguity in monocular depth"]
+        },
+        {
+          "topic": "Structure from Motion and 3D Reconstruction with COLMAP",
+          "subtopics": ["Feature extraction and matching across many views", "Incremental SfM and bundle adjustment", "COLMAP command line: feature_extractor, exhaustive_matcher, mapper", "Camera models: SIMPLE_RADIAL and OPENCV", "Sparse versus dense reconstruction", "Reprojection error and track length", "Image capture guidelines for good reconstructions", "Exporting to PLY and viewing in Open3D or MeshLab"],
+          "tools": ["COLMAP", "Python", "Open3D", "OpenCV", "MeshLab", "NumPy"],
+          "lab_task": "Capture 40 overlapping photos of an object. Run colmap feature_extractor, colmap exhaustive_matcher and colmap mapper on the folder, open the sparse model in the COLMAP GUI or colmap model_analyzer, and record registered images, 3D points, mean track length and mean reprojection error. Export to PLY and view it with Open3D.",
+          "deliverable": "COLMAP workspace, model_analyzer statistics and an exported PLY file",
+          "checks": [["Run colmap model_analyzer on the sparse model", "Reports registered image count, points and mean reprojection error below 1 pixel", "Console output"], ["Remove 25 of the 40 photos", "Fewer images register and the model may split into multiple components", "Two analyzer outputs"], ["Photograph a white featureless wall", "Few features are found and registration fails", "Feature counts"]],
+          "objectives": ["Run a structure-from-motion pipeline", "Judge reconstruction quality from statistics", "Plan image capture for 3D reconstruction"]
+        },
+        {
+          "topic": "Visual Anomaly Detection for Industrial Inspection",
+          "subtopics": ["Defect scarcity and one-class training", "Feature-memory methods such as PatchCore", "Reconstruction methods such as autoencoders", "Anomaly maps and image-level scores", "MVTec AD dataset and its categories", "Image AUROC, pixel AUROC and PRO", "anomalib training and export", "Choosing the alert threshold from normal data"],
+          "tools": ["Python", "anomalib", "PyTorch", "OpenCV", "MVTec AD", "OpenVINO"],
+          "lab_task": "Train an anomalib PatchCore model on the MVTec AD 'bottle' category using only good training images, run test inference, report image AUROC and pixel AUROC, save heatmap overlays for 10 defective images, and set a threshold at the 99th percentile of validation normal scores. Report false alarm rate and defect recall at that threshold.",
+          "deliverable": "Trained PatchCore model, AUROC report, heatmaps and threshold justification",
+          "checks": [["Train on good images only and test on defective ones", "Image AUROC is reported and is typically above 0.95 on the bottle category", "Evaluation output"], ["Set the threshold at the 99th percentile of normal scores", "About 1 percent of normal validation images raise a false alarm", "Measured false alarm rate"], ["Test with a lighting change not seen in training", "Normal images get high anomaly scores, so false alarms rise", "Score histogram"]],
+          "objectives": ["Train anomaly detectors without defect labels", "Evaluate with AUROC and anomaly maps", "Choose an operating threshold from normal data"]
+        },
+        {
+          "topic": "Vision-Language Models for Captioning and Visual Question Answering",
+          "subtopics": ["Architecture: vision encoder, projector and language model", "Hugging Face image-text-to-text pipelines", "Prompt formats with image placeholders", "Captioning versus VQA versus grounded answers", "Resolution and tiling effects on small text", "Hallucination and how to measure it", "Benchmarks such as VQAv2, TextVQA and DocVQA", "Local open models versus hosted APIs"],
+          "tools": ["Python", "Hugging Face Transformers", "PyTorch", "vLLM", "Pillow", "OpenCV"],
+          "lab_task": "Load an open vision-language model with transformers AutoModelForImageTextToText and AutoProcessor in bfloat16. Ask 3 questions each about 20 images (count objects, read a sign, describe a scene), score answers by exact match against your reference, and record the hallucinated-object rate. Repeat with images resized to 336 px and 1024 px.",
+          "deliverable": "VQA evaluation sheet with accuracy at two resolutions and a hallucination rate",
+          "checks": [["Ask 'how many people are in the image' on 20 crowded photos", "Counting accuracy is lower than for simple recognition questions", "Accuracy table"], ["Read a street sign from 336 px versus 1024 px inputs", "Larger input reads small text correctly more often", "Two accuracies"], ["Ask about an object not present in the image", "Model should answer no; count answers that invent the object as hallucinations", "Hallucination rate"]],
+          "objectives": ["Describe the building blocks of a vision-language model", "Run VQA and captioning locally", "Measure accuracy and hallucination"]
+        },
+        {
+          "topic": "Open-Vocabulary Detection with Grounding DINO and YOLO-World",
+          "subtopics": ["Closed-set versus open-vocabulary detection", "Text-prompted detection with Grounding DINO", "YOLO-World set_classes and prompt-then-detect", "Box and text thresholds", "Prompt wording and negative cases", "Auto-labelling datasets with a large model then training a small one", "Comparing zero-shot to fine-tuned accuracy", "Licence and cost checks for model weights"],
+          "tools": ["Python", "Hugging Face Transformers", "Ultralytics YOLO", "Segment Anything", "FiftyOne", "supervision"],
+          "lab_task": "Auto-label 200 unlabelled shelf images with Grounding DINO using prompts such as 'bottle . box . can .' and box_threshold 0.35. Review 50 in FiftyOne, fix errors, train a yolo11s model on the labels, and compare mAP50 of the small model, the zero-shot YOLO-World model and Grounding DINO on 50 hand-labelled test images.",
+          "deliverable": "Auto-labelled dataset, trained small detector and a three-way mAP50 table",
+          "checks": [["Prompt Grounding DINO with a class that is absent from the image", "No detections above the box threshold, or low-score false boxes that a higher threshold removes", "Output image"], ["Raise box_threshold from 0.25 to 0.45", "Fewer boxes with higher precision and lower recall", "Counts and metrics"], ["Compare the small trained model with the zero-shot models on latency", "Small model runs several times faster at similar or better mAP50 on the target domain", "Latency and mAP table"]],
+          "objectives": ["Run text-prompted detectors", "Use large models for auto-labelling", "Distil zero-shot output into a fast detector"]
+        },
+        {
+          "topic": "Capstone: Retail Shelf Analytics with Detection and Tracking",
+          "subtopics": ["Use case definition: stock counting, gaps and dwell time", "Dataset creation with auto-labelling and review", "Detector fine-tuning and threshold selection", "Tracking and zone logic with supervision", "Metrics against manual counts", "Report with failure cases and next steps"],
+          "tools": ["Python", "Ultralytics YOLO", "supervision", "FiftyOne", "OpenCV", "Hugging Face Transformers"],
+          "lab_task": "Build a pipeline for shelf or store video: auto-label with Grounding DINO, review in FiftyOne, fine-tune YOLO, track with ByteTrack, count items or customers per polygon zone with supervision.PolygonZone, and write counts per minute to CSV. Compare against a manual count of 3 clips and report mean absolute percentage error and FPS.",
+          "deliverable": "Repository with training config, pipeline script, CSV outputs, accuracy report and a 5-minute demo",
+          "checks": [["Compare automated and manual counts on 3 clips", "MAPE is reported per clip and compared with a 10 percent target", "Comparison table"], ["Run the pipeline on a 5-minute video", "Processes at the stated FPS and writes one CSV row per minute", "CSV and timing log"], ["Cover the camera partly for 10 seconds", "Counts for that period are flagged or excluded instead of silently wrong", "Log lines"]],
+          "objectives": ["Assemble detection, tracking and zone counting", "Validate against manual ground truth", "Document failure modes and next steps"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers who ship vision systems to production and the edge. Covers ONNX and TensorRT export, quantisation, Jetson and low-power hardware, mobile and browser inference, distillation, VLM fine-tuning, document AI, synthetic data, dataset curation, robustness, multi-camera pipelines, SLAM, radiance fields, LiDAR fusion, Triton serving, privacy and compliance, monitoring, and an edge-to-cloud capstone.",
+      "prerequisites": ["Has trained and evaluated detection or segmentation models", "Comfortable with Docker, Linux and basic GPU tooling", "Understands precision, latency and throughput trade-offs"],
+      "outcomes": ["Export, optimise and benchmark vision models for GPU, edge and browser targets", "Fine-tune and evaluate vision-language and document models", "Run, monitor and retrain vision systems with drift alerts", "Meet privacy, robustness and fairness requirements with documented evidence"],
+      "days": [
+        {
+          "topic": "Exporting Vision Models to ONNX with Numerical Parity Checks",
+          "subtopics": ["torch.onnx.export with dynamic_axes and opset selection", "Ultralytics model.export(format='onnx')", "Graph inspection with Netron", "onnx.checker and onnxsim simplification", "Running with onnxruntime InferenceSession and execution providers", "Pre- and post-processing inside versus outside the graph", "Parity tests: max absolute difference and top-1 agreement", "Unsupported operators and export failures"],
+          "tools": ["Python", "PyTorch", "ONNX", "ONNX Runtime", "Netron", "onnxsim"],
+          "lab_task": "Export a fine-tuned resnet18 and a YOLO model to ONNX with a dynamic batch axis. Run onnx.checker.check_model, simplify with onnxsim, run both in onnxruntime CPUExecutionProvider on 100 images and compute np.abs(torch_out - onnx_out).max() and top-1 agreement. Record the ONNX file size and latency against PyTorch.",
+          "deliverable": "Export script, parity report and latency table for two models",
+          "checks": [["Compare PyTorch and ONNX Runtime outputs on 100 images", "Max absolute difference is below 1e-4 and top-1 agreement is 100 percent", "Printed values"], ["Run an ONNX model exported with batch 1 on a batch of 8", "ONNX Runtime reports an invalid input shape error; with dynamic_axes it succeeds", "Error and fixed run"], ["Export with the model still in train mode", "BatchNorm statistics differ so outputs mismatch; model.eval() fixes it", "Two difference values"]],
+          "objectives": ["Export PyTorch vision models to ONNX", "Verify numerical parity", "Debug unsupported operators and shape errors"]
+        },
+        {
+          "topic": "TensorRT Engines and GPU Benchmarking for Vision Models",
+          "subtopics": ["Building engines with trtexec --onnx --saveEngine", "FP16 and INT8 builder flags", "Dynamic shape profiles: minShapes, optShapes, maxShapes", "Engine portability: tied to GPU and TensorRT version", "Calibration datasets for INT8", "Benchmarking with trtexec --loadEngine and reading GPU compute time", "Layer fusion and the verbose build log", "Torch-TensorRT and Ultralytics format='engine'"],
+          "tools": ["TensorRT", "trtexec", "ONNX", "PyTorch", "Ultralytics YOLO", "NVIDIA Nsight Systems"],
+          "lab_task": "Convert a YOLO ONNX model with trtexec --onnx=m.onnx --fp16 --saveEngine=m_fp16.engine, repeat without --fp16, then run trtexec --loadEngine on each and record mean GPU compute time, throughput in qps and p99 latency. Compute mAP50 of each engine on 500 validation images to confirm accuracy loss stays under 0.5 points.",
+          "deliverable": "FP32 versus FP16 engines table with latency, throughput and mAP50",
+          "checks": [["Benchmark FP16 versus FP32 engines with trtexec", "FP16 shows lower GPU compute time and higher qps", "trtexec summary lines"], ["Evaluate mAP50 for both engines", "Difference is under 0.5 points", "Two mAP values"], ["Copy an engine built on one GPU architecture to a different one", "Deserialisation fails with an error about incompatible engine or device", "Error message"]],
+          "objectives": ["Build and benchmark TensorRT engines", "Check accuracy after precision reduction", "Explain engine portability limits"]
+        },
+        {
+          "topic": "Quantizing Vision Models: PTQ, QAT and Accuracy Recovery",
+          "subtopics": ["Affine quantisation: scale and zero-point", "Per-tensor versus per-channel weights", "Dynamic, static and QAT modes", "Calibration data size and representativeness", "ONNX Runtime quantize_static with QDQ format", "PyTorch quantisation-aware training", "Sensitivity analysis: which layers to keep in FP16", "Reporting size, latency and accuracy together"],
+          "tools": ["Python", "PyTorch", "ONNX Runtime", "OpenVINO NNCF", "TensorRT", "Netron"],
+          "lab_task": "Quantise a ResNet-50 ONNX model to INT8 with onnxruntime.quantization.quantize_static using QDQ format and 200 calibration images. Measure top-1 on 5000 validation images, file size and CPU latency. Repeat with 20 calibration images and with a per-channel setting, then identify the 3 most sensitive layers by leaving each in FP32.",
+          "deliverable": "Quantisation report comparing calibration sizes with accuracy, size and latency",
+          "checks": [["Quantise to INT8 with 200 calibration images", "Model file is about 4 times smaller than FP32 and top-1 drops under 1 point", "Size and accuracy table"], ["Calibrate with 20 images of one class only", "Accuracy falls further than with representative calibration", "Two accuracy values"], ["Keep the most sensitive layer in FP32", "Accuracy recovers part of the loss with a small latency cost", "Before and after metrics"]],
+          "objectives": ["Apply post-training and quantisation-aware methods", "Choose calibration data well", "Report accuracy, size and latency together"]
+        },
+        {
+          "topic": "Jetson Edge Inference with DeepStream and GStreamer",
+          "subtopics": ["Jetson modules and power modes with nvpmodel and jetson_clocks", "JetPack and CUDA versions", "DeepStream pipeline: nvstreammux, nvinfer, nvtracker, nvdsosd", "Config files for primary GIE and tracker", "Hardware decode with nvv4l2decoder", "Batching multiple RTSP streams", "Monitoring with tegrastats", "Thermal throttling and power budgets"],
+          "tools": ["NVIDIA Jetson", "DeepStream", "GStreamer", "TensorRT", "tegrastats", "Docker"],
+          "lab_task": "On a Jetson, set nvpmodel to the maximum power mode, run a DeepStream sample with a custom YOLO engine on 4 looped video files, and record FPS per stream from the fakesink output with sync=0. Watch tegrastats during a 10-minute run, log GPU utilisation and temperature, and repeat in the lowest power mode.",
+          "deliverable": "DeepStream config, FPS-per-stream table and tegrastats logs for two power modes",
+          "checks": [["Run 4 streams in max power mode", "Each stream reports a stable FPS and the total throughput is logged", "DeepStream FPS output"], ["Switch to the lowest power mode", "FPS falls and tegrastats shows lower GPU frequency", "Two log excerpts"], ["Increase streams until FPS per stream drops under 25", "Capacity limit identified as the highest stream count that holds 25 FPS", "Capacity table"]],
+          "objectives": ["Build and configure a DeepStream pipeline", "Measure multi-stream capacity", "Account for power and thermal limits"]
+        },
+        {
+          "topic": "Mobile and Browser Inference with TFLite, Core ML and ONNX Runtime Web",
+          "subtopics": ["Converting to TFLite and Core ML with coremltools", "Delegates: GPU, NNAPI and Core ML", "Operator support and fallbacks to CPU", "Model size budgets for app stores", "On-device preprocessing with matching normalisation", "ONNX Runtime Web with WebGPU and WASM backends", "Camera permission and frame rate limits in browsers", "Privacy benefits of on-device inference"],
+          "tools": ["TensorFlow Lite", "Core ML Tools", "ONNX Runtime Web", "Android Studio", "Xcode", "Netron"],
+          "lab_task": "Convert an image classifier to TFLite with float16 quantisation and to Core ML with coremltools.convert, then check outputs match PyTorch on 20 images. Load the ONNX version in a web page using ort.InferenceSession with executionProviders ['webgpu','wasm'], capture webcam frames at 224x224 and report ms per inference for each backend.",
+          "deliverable": "Three exported formats with parity check and a browser demo with a latency table",
+          "checks": [["Compare TFLite float16 output with the PyTorch model on 20 images", "Top-1 agreement is at least 95 percent", "Agreement count"], ["Run the browser demo with WebGPU and then WASM only", "WebGPU shows lower ms per frame where supported", "Two latency numbers"], ["Feed the mobile model un-normalised pixels from 0 to 255", "Predictions collapse to a few classes until the correct preprocessing is applied", "Before and after predictions"]],
+          "objectives": ["Convert models for mobile and browser targets", "Check parity on exported formats", "Match on-device preprocessing to training"]
+        },
+        {
+          "topic": "Low-Power Vision on Raspberry Pi with Hailo, Coral and OpenVINO",
+          "subtopics": ["CPU-only baselines on Raspberry Pi 5 with ONNX Runtime", "Hailo accelerators and the Hailo Dataflow Compiler", "Coral Edge TPU and compiler constraints", "OpenVINO on Intel CPUs and iGPUs", "Using Picamera2 for capture", "Frame-drop policies and queue design", "Power and thermal measurement", "Choosing hardware by cost per stream"],
+          "tools": ["Raspberry Pi", "OpenVINO", "ONNX Runtime", "Picamera2", "Hailo SDK", "OpenCV"],
+          "lab_task": "Run a YOLO nano model on a Raspberry Pi 5 with ONNX Runtime CPU at 320 and 640 input sizes and record FPS and CPU temperature over 5 minutes. Convert the model to OpenVINO IR with ovc and benchmark with benchmark_app on an Intel mini PC, then compare cost per FPS with an accelerator if available.",
+          "deliverable": "Hardware comparison table with FPS, power, temperature and cost per stream",
+          "checks": [["Run the 640 and 320 models on Raspberry Pi CPU", "320 gives a clearly higher FPS with lower mAP", "FPS and mAP table"], ["Run a 5-minute test without a heatsink or fan", "CPU temperature approaches throttling and FPS falls over time", "Temperature and FPS log"], ["Run benchmark_app on the OpenVINO IR", "Report of latency and throughput with the selected device", "Console summary"]],
+          "objectives": ["Benchmark vision models on low-power hardware", "Convert models for OpenVINO and accelerators", "Choose hardware from measured cost per stream"]
+        },
+        {
+          "topic": "Knowledge Distillation and Pruning for Compact Vision Models",
+          "subtopics": ["Teacher-student distillation with soft targets and temperature", "Feature and attention distillation", "Distilling detectors with box and logit losses", "Unstructured versus structured pruning", "torch.nn.utils.prune and torch-pruning", "Retraining after pruning", "Hardware realities: sparse weights rarely speed up GPUs", "Measuring the accuracy-latency Pareto front"],
+          "tools": ["Python", "PyTorch", "torch-pruning", "timm", "ONNX Runtime", "TensorBoard"],
+          "lab_task": "Distil a timm resnet50 teacher into a resnet18 student on a 20-class dataset with loss = 0.7*KL(T=4) + 0.3*cross-entropy. Compare student accuracy trained with and without distillation. Then structurally prune 30 percent of channels using torch-pruning, fine-tune 5 epochs, and report params, FLOPs, CPU latency and accuracy.",
+          "deliverable": "Distillation and pruning report with a Pareto table of accuracy versus latency",
+          "checks": [["Train the student with and without teacher soft targets", "Distilled student has higher validation accuracy", "Two accuracy values"], ["Apply unstructured pruning with 50 percent sparsity and time CPU inference", "Latency barely changes because dense kernels are used", "Latency comparison"], ["Structurally prune 30 percent of channels", "Parameters and latency both fall and fine-tuning recovers most accuracy", "Params, latency and accuracy table"]],
+          "objectives": ["Distil a large model into a small one", "Apply structured pruning and recover accuracy", "Explain why sparsity may not speed inference"]
+        },
+        {
+          "topic": "Fine-Tuning Vision-Language Models with LoRA for Domain Tasks",
+          "subtopics": ["Choosing a base model and licence", "Instruction data format with image and text turns", "LoRA and QLoRA adapters with PEFT", "Target modules and rank selection", "Freezing the vision tower versus training the projector", "Training with TRL SFTTrainer on image-text data", "Evaluating exact-match and field accuracy", "Merging adapters and serving"],
+          "tools": ["Python", "Hugging Face Transformers", "PEFT", "TRL", "bitsandbytes", "vLLM"],
+          "lab_task": "Fine-tune a small open vision-language model with LoRA (r=16, alpha=32, target q_proj and v_proj) on 500 image-question-answer rows from receipts or charts using TRL SFTTrainer in 4-bit. Evaluate exact-match accuracy on 100 held-out rows before and after, record peak GPU memory and save and reload the adapter with PeftModel.from_pretrained.",
+          "deliverable": "Training script, adapter weights and before-and-after exact-match table",
+          "checks": [["Evaluate the base model and the tuned model on 100 held-out rows", "Tuned exact match is higher and the difference is reported", "Two accuracy values"], ["Train with 4-bit quantisation and LoRA versus full fine-tuning", "Peak GPU memory is much lower with QLoRA", "Memory readings"], ["Reload the adapter in a fresh process", "Outputs equal those from the in-memory tuned model for 10 prompts", "Output comparison"]],
+          "objectives": ["Prepare image-text instruction data", "Fine-tune a VLM with LoRA", "Evaluate domain gains against a baseline"]
+        },
+        {
+          "topic": "Document AI: Layout Parsing and Structured Extraction from Scans",
+          "subtopics": ["Document layout analysis: text, title, table and figure blocks", "Layout models such as LayoutLMv3 and Donut", "Table structure recognition", "Key-value and entity extraction with token classification", "OCR-free versus OCR-based pipelines", "VLM extraction with JSON schema outputs", "Validation rules: totals, dates and checksum fields", "Human review queues and confidence routing"],
+          "tools": ["Python", "Hugging Face Transformers", "PaddleOCR", "Pydantic", "LayoutParser", "OpenCV"],
+          "lab_task": "Build a pipeline for 100 invoice scans: layout detection, OCR, extraction of vendor, date, line items and total via a VLM with a Pydantic JSON schema, then validation that sum(line items) equals total within 0.01. Route failures to a review CSV and report field-level F1, straight-through rate and review rate.",
+          "deliverable": "Extraction pipeline with field F1, straight-through rate and a review queue file",
+          "checks": [["Run the pipeline on 100 invoices", "Field-level F1 is reported for each of vendor, date and total", "Metric table"], ["Feed an invoice whose line items do not sum to the total", "Validation fails and the document is routed to the review CSV", "Review file row"], ["Pass a model response that is not valid JSON", "Schema validation fails, the call is retried once and then routed to review", "Log lines"]],
+          "objectives": ["Design a layout-aware extraction pipeline", "Validate extracted values with business rules", "Measure straight-through rate and route exceptions"]
+        },
+        {
+          "topic": "Synthetic Data for Vision: Rendering, Diffusion and Domain Randomisation",
+          "subtopics": ["When synthetic data helps: rare defects and privacy", "Rendering with Blender and bpy", "Domain randomisation of lighting, texture and pose", "Automatic labels from render passes", "Diffusion inpainting for defect synthesis with diffusers", "Controlling generation with ControlNet or masks", "Sim-to-real gap and mixing ratios", "Validating on real data only"],
+          "tools": ["Python", "Blender", "Hugging Face Diffusers", "Ultralytics YOLO", "Albumentations", "FiftyOne"],
+          "lab_task": "Generate 1000 Blender renders of a part with randomised lighting and backgrounds and automatic YOLO labels. Train a YOLO model on (a) 100 real images, (b) 1000 synthetic only and (c) 100 real plus 1000 synthetic, and evaluate all three on the same 100 real test images, reporting mAP50 each.",
+          "deliverable": "Three-way experiment on real, synthetic and mixed training with mAP50 on real test images",
+          "checks": [["Train on synthetic only and test on real images", "mAP50 is lower than with real data, showing a sim-to-real gap", "mAP50 table"], ["Train on 100 real plus 1000 synthetic images", "mAP50 is higher than 100 real alone", "mAP50 table"], ["Include synthetic images in the test set", "Metric is inflated and the report flags this as invalid", "Two metric values"]],
+          "objectives": ["Create labelled synthetic datasets", "Evaluate synthetic data fairly on real test data", "Describe the sim-to-real gap"]
+        },
+        {
+          "topic": "Dataset Curation, Label Quality and Active Learning at Scale",
+          "subtopics": ["Finding label errors with confident learning and cleanlab", "Embedding-based duplicate and outlier detection", "Uncertainty sampling: entropy and margin", "Diversity sampling with k-center or clustering", "Active learning loops with budgets", "Inter-annotator agreement and Cohen's kappa", "Annotation guidelines and review sampling", "Dataset versioning with DVC or FiftyOne snapshots"],
+          "tools": ["Python", "FiftyOne", "cleanlab", "DVC", "scikit-learn", "CVAT"],
+          "lab_task": "On a 10000-image classification dataset, find label issues with cleanlab.Datalab using cross-validated predicted probabilities, review the top 100 in FiftyOne and count true label errors. Then simulate active learning: start with 1000 labels, add 500 per round by random choice versus lowest-margin sampling for 4 rounds, and plot accuracy per round.",
+          "deliverable": "Label-issue report and an active-learning curve comparing random and margin sampling",
+          "checks": [["Review the top 100 cleanlab issues", "A reported fraction are genuine label errors and are corrected", "Review tally"], ["Compare random and margin sampling after 4 rounds", "Margin sampling reaches higher accuracy for the same label count", "Accuracy curves"], ["Compute Cohen's kappa for two annotators on 100 images", "A value between -1 and 1 is reported, with guideline updates if below 0.8", "Kappa value"]],
+          "objectives": ["Detect label errors and duplicates", "Run and evaluate active learning", "Version datasets and measure annotator agreement"]
+        },
+        {
+          "topic": "Robustness, Domain Shift and Calibration of Vision Models",
+          "subtopics": ["Common corruptions: noise, blur, weather and JPEG compression", "ImageNet-C style corruption benchmarks", "Covariate shift versus label shift", "Test-time augmentation", "Temperature scaling and expected calibration error", "Out-of-distribution detection with max softmax and energy scores", "Adversarial examples with FGSM and why they matter", "Defining acceptance tests for shifted data"],
+          "tools": ["Python", "PyTorch", "torchvision", "Albumentations", "torchmetrics", "timm"],
+          "lab_task": "Evaluate a classifier on the clean test set and on 5 corruption types at 3 severities generated with Albumentations. Report accuracy per corruption, compute expected calibration error with 15 bins before and after temperature scaling fit on a validation set, and compute AUROC of max softmax for separating in-distribution from out-of-distribution images.",
+          "deliverable": "Robustness table by corruption and severity with ECE before and after calibration",
+          "checks": [["Apply Gaussian blur at three severities", "Accuracy falls as severity rises", "Accuracy by severity table"], ["Fit temperature scaling on validation and evaluate ECE on test", "ECE decreases and accuracy does not change", "Two ECE values"], ["Score OOD images with max softmax probability", "OOD AUROC above 0.5 is reported with the limitations noted", "AUROC value"]],
+          "objectives": ["Test models under common corruptions", "Calibrate confidence scores", "Detect out-of-distribution inputs and set acceptance tests"]
+        },
+        {
+          "topic": "Multi-Camera Video Pipelines: Synchronisation and Throughput",
+          "subtopics": ["RTSP, RTP and latency in network cameras", "GStreamer elements: rtspsrc, decodebin, appsink", "Hardware decode with NVDEC or VAAPI", "PTP and NTP clock sync and frame timestamps", "Batching frames across cameras", "Back-pressure, queue sizes and leaky queues", "Profiling with Nsight Systems and py-spy", "Reconnect and watchdog logic"],
+          "tools": ["GStreamer", "FFmpeg", "OpenCV", "Python", "NVIDIA Nsight Systems", "Docker"],
+          "lab_task": "Ingest 8 RTSP streams (or 8 looped files via rtspsimpleserver) with GStreamer rtspsrc into appsink, batch frames across cameras, run a YOLO model, and measure end-to-end latency from frame timestamp to result for 10 minutes. Add leaky queues and compare dropped frame count and p95 latency. Kill one stream and confirm automatic reconnection.",
+          "deliverable": "Multi-camera ingest service with latency percentile report and reconnect test",
+          "checks": [["Run 8 streams for 10 minutes with leaky queues", "p95 end-to-end latency stays under the target while some frames are dropped and counted", "Latency percentiles and drop counter"], ["Run the same with unbounded queues under overload", "Latency grows without bound as the queue fills", "Latency graph"], ["Kill one camera stream", "Service logs the loss and reconnects within the retry interval without stopping the other 7", "Log excerpt"]],
+          "objectives": ["Build a multi-stream ingest pipeline", "Measure end-to-end latency percentiles", "Handle overload and reconnection safely"]
+        },
+        {
+          "topic": "Visual Odometry and SLAM with ORB-SLAM3 and Open-Source Pipelines",
+          "subtopics": ["Monocular, stereo and RGB-D SLAM", "Visual odometry versus loop closure", "Tracking, local mapping and loop closing threads", "Scale drift in monocular systems", "Datasets: KITTI and EuRoC", "ATE and RPE evaluation with evo", "Visual-inertial fusion", "Failure modes: textureless scenes and fast motion"],
+          "tools": ["ORB-SLAM3", "evo", "ROS 2", "OpenCV", "Python", "Docker"],
+          "lab_task": "Run a visual SLAM system on the EuRoC MH_01_easy sequence in stereo mode, export the trajectory in TUM format and evaluate absolute trajectory error with evo_ape tum groundtruth.txt traj.txt --align --plot. Repeat on a harder sequence and monocular mode with --correct_scale, and report ATE RMSE for each.",
+          "deliverable": "Trajectory plots and an ATE RMSE table across sequences and sensor modes",
+          "checks": [["Run evo_ape with --align on the easy sequence", "ATE RMSE is reported in metres and is small for the easy sequence", "evo output"], ["Run monocular mode without scale correction", "Error is large because the scale is arbitrary; --correct_scale reduces it", "Two RMSE values"], ["Run a sequence with fast motion and blur", "Tracking is lost for part of the trajectory and a relocalisation or reset is logged", "System log"]],
+          "objectives": ["Run a visual SLAM pipeline on benchmark data", "Evaluate trajectories with ATE", "Explain scale drift and tracking failure"]
+        },
+        {
+          "topic": "Neural Radiance Fields and 3D Gaussian Splatting",
+          "subtopics": ["NeRF volume rendering and positional encoding", "Instant-NGP style hash grids", "3D Gaussian Splatting representation", "Training from COLMAP poses", "Rendering speed versus NeRF", "PSNR, SSIM and LPIPS on held-out views", "nerfstudio ns-train and ns-viewer", "Editing, cleaning floaters and exporting"],
+          "tools": ["nerfstudio", "COLMAP", "PyTorch", "CUDA", "ns-train", "Open3D"],
+          "lab_task": "Using a COLMAP reconstruction of 60 photos, run ns-process-data, train splatfacto and nerfacto with ns-train on the same data, evaluate with ns-eval, and report PSNR, SSIM and LPIPS on held-out views plus training time and rendering FPS for each. Capture a camera path video with ns-render.",
+          "deliverable": "Comparison of Gaussian splatting and NeRF with metrics, timing and a rendered video",
+          "checks": [["Evaluate both methods on 10 held-out views", "PSNR, SSIM and LPIPS are reported for each method", "ns-eval JSON"], ["Compare render speed", "Splatting renders at far higher FPS than NeRF", "Two FPS values"], ["Train on blurry photos with poor pose accuracy", "Quality drops, with floaters visible, and the COLMAP error is cited as the cause", "Render and COLMAP stats"]],
+          "objectives": ["Train radiance field and splatting models", "Evaluate novel-view quality", "Diagnose poor reconstructions"]
+        },
+        {
+          "topic": "Point Clouds and LiDAR-Camera Fusion for 3D Detection",
+          "subtopics": ["Point cloud formats: PCD, PLY and LAS", "Open3D filtering, downsampling and plane segmentation", "Voxel and pillar based 3D detectors", "KITTI and nuScenes dataset formats", "Camera-LiDAR extrinsic calibration", "Projecting 3D points into the image with intrinsics K", "3D IoU and BEV mAP", "Fusion strategies: early, mid and late"],
+          "tools": ["Open3D", "Python", "OpenCV", "MMDetection3D", "NumPy", "nuScenes devkit"],
+          "lab_task": "Load a KITTI frame, voxel downsample with Open3D (voxel_size 0.1), remove the ground using segment_plane (distance_threshold 0.2), and project the remaining points into the image with P2 @ Tr_velo_to_cam. Colour points by depth, overlay on the image and count points inside each 2D ground-truth box.",
+          "deliverable": "Projection script with an overlay image and point counts per object",
+          "checks": [["Segment the ground plane with distance_threshold 0.2", "Plane inliers form most of the lower points and remaining points are objects", "Inlier count and view"], ["Project with a wrong extrinsic rotation", "Points no longer align with objects in the image", "Misaligned overlay"], ["Count LiDAR points inside the box of a car 10 m away versus 50 m away", "Near car has many more points than the far car", "Two counts"]],
+          "objectives": ["Process point clouds with Open3D", "Project LiDAR points into images", "Explain fusion strategies and 3D metrics"]
+        },
+        {
+          "topic": "Serving Vision Models at Scale with Triton and Ray Serve",
+          "subtopics": ["Triton model repository layout and config.pbtxt", "Dynamic batching with max_queue_delay_microseconds", "Instance groups and GPU placement", "Ensembles for preprocessing and model", "Ray Serve deployments and autoscaling", "perf_analyzer and load testing", "Shared memory and image transfer cost", "Canary rollout of a new model version"],
+          "tools": ["Triton Inference Server", "Ray Serve", "ONNX Runtime", "TensorRT", "Docker", "Prometheus"],
+          "lab_task": "Place a TensorRT or ONNX classifier in a Triton model repository with dynamic_batching { max_queue_delay_microseconds: 5000 }, start tritonserver --model-repository, then run perf_analyzer -m model --concurrency-range 1:16:3 and record throughput and p99 latency per concurrency. Repeat with batching disabled and report the difference.",
+          "deliverable": "Model repository, config.pbtxt and a perf_analyzer comparison with and without dynamic batching",
+          "checks": [["Run perf_analyzer from concurrency 1 to 16", "Throughput rises and then plateaus while p99 latency keeps increasing", "perf_analyzer table"], ["Disable dynamic batching and repeat", "Peak throughput is lower at high concurrency", "Two throughput values"], ["Request a model name that is not in the repository", "Server returns an unknown model error and stays healthy", "HTTP status and message"]],
+          "objectives": ["Configure Triton for a vision model", "Load-test with perf_analyzer", "Tune dynamic batching against a latency budget"]
+        },
+        {
+          "topic": "Privacy, Bias and Compliance for Vision Systems",
+          "subtopics": ["Biometric data and GDPR special category rules", "EU AI Act risk categories for remote identification and emotion recognition", "Face blurring and anonymisation with detector plus blur", "Data retention and consent for video", "Dataset bias audits: per-group error rates", "Fairness metrics: equal opportunity and false match rate by group", "Model cards and datasheets", "Incident response for a harmful output"],
+          "tools": ["Python", "FiftyOne", "Ultralytics YOLO", "OpenCV", "Fairlearn", "Model Card Toolkit"],
+          "lab_task": "Build an anonymisation step that detects faces and number plates with a YOLO model and applies cv2.GaussianBlur inside each box before storage. Evaluate recall on 200 labelled frames, audit a face detector's miss rate across skin-tone or age groups in a labelled test set, and write a model card with intended use, limits and retention period.",
+          "deliverable": "Anonymiser with recall report, per-group error table and a completed model card",
+          "checks": [["Evaluate anonymiser recall on 200 labelled frames", "Recall for faces and plates is reported and missed regions are listed", "Metric table and examples"], ["Compare miss rates across groups", "Differences between groups are quantified, with a gap above the agreed limit flagged", "Per-group table"], ["Check stored video older than the retention period", "A scheduled job deletes it and logs the deletion", "Job log"]],
+          "objectives": ["Apply privacy-by-design to video pipelines", "Audit models for group-level error differences", "Document intended use and limits"]
+        },
+        {
+          "topic": "Monitoring Production Vision Models: Drift, Latency and Retraining Triggers",
+          "subtopics": ["Operational metrics: latency percentiles, FPS and queue depth", "Input statistics: brightness, blur score and resolution", "Embedding drift with PSI or MMD", "Prediction drift: class mix and confidence histograms", "Sampling for human review and delayed ground truth", "Alerting with Prometheus and Grafana", "Retraining triggers and shadow deployment of new versions", "Rollback criteria"],
+          "tools": ["Prometheus", "Grafana", "Evidently", "Python", "FiftyOne", "OpenTelemetry"],
+          "lab_task": "Instrument an inference service with prometheus_client to export request latency histogram, mean brightness, Laplacian blur score and average confidence per minute. Replay a clip that gets progressively darker, compute PSI of brightness versus training data, and create a Grafana alert when PSI exceeds 0.25 for 10 minutes.",
+          "deliverable": "Metrics exporter, Grafana dashboard JSON and an alert rule tested with replayed drift",
+          "checks": [["Replay a clip that gets darker over 10 minutes", "Brightness PSI rises above 0.25 and the alert fires", "Alert event"], ["Compare mean confidence before and after the drift", "Confidence falls and the dashboard shows it", "Dashboard screenshot"], ["Send a corrupt image to the service", "A counted error is recorded and latency metrics are not polluted", "Metric values"]],
+          "objectives": ["Instrument vision services with useful metrics", "Detect input and prediction drift", "Define retraining and rollback triggers"]
+        },
+        {
+          "topic": "Capstone: Production Edge-to-Cloud Vision System with Monitoring",
+          "subtopics": ["Requirements: accuracy target, latency budget, cost and privacy limits", "Architecture: edge inference, cloud retraining and data return loop", "Optimised model export and device benchmark", "Monitoring and drift alerts", "Release and rollback plan", "Final review with metrics against requirements"],
+          "tools": ["Ultralytics YOLO", "TensorRT", "ONNX Runtime", "Triton Inference Server", "Prometheus", "FiftyOne"],
+          "lab_task": "Deliver a complete system: a YOLO model trained on your dataset, exported to an optimised format, running on an edge device or container with GStreamer ingest, sending low-confidence frames to cloud storage, with Prometheus metrics, a drift alert and a retraining script. Demonstrate one full loop from a drifted input to a new model version and report accuracy, p95 latency and cost per stream.",
+          "deliverable": "Repository, architecture diagram, benchmark report, dashboards and a recorded demo of the retraining loop",
+          "checks": [["Run the system for 30 minutes on live or replayed streams", "p95 latency and FPS meet the stated targets in the benchmark report", "Metrics export"], ["Inject drifted inputs", "Drift alert fires and low-confidence frames land in the review bucket", "Alert and bucket listing"], ["Promote the retrained model with a rollback test", "New version is served after validation, and the rollback restores the previous one within the agreed time", "Release log"]],
+          "objectives": ["Design an edge-to-cloud vision architecture against requirements", "Operate it with monitoring and a retraining loop", "Present measured results and trade-offs"]
+        }
+      ]
+    }
+  }
+}

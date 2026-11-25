@@ -1,0 +1,573 @@
+{
+  "domain": "Dart",
+  "name": "Dart",
+  "category": "Programming Languages",
+  "icon": "code",
+  "aliases": ["Dart Programming", "Dart Language", "Dart Lang", "Dart Developer", "Advanced Dart", "Dart CLI Development", "Server-Side Dart"],
+  "certifications": [],
+  "tools": ["Dart SDK", "dart CLI (analyze, format, fix, test, compile)", "pub.dev", "Visual Studio Code with the Dart extension", "IntelliJ IDEA with the Dart plugin", "DartPad", "Dart DevTools", "package:test", "package:lints", "build_runner", "shelf", "Docker", "Melos"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who already program in another language such as Python, Java, JavaScript or C# and are new to Dart. Covers the SDK and dart CLI, types and sound null safety, control flow, functions, collections, classes, mixins, enums, generics, records and patterns, sealed classes, exceptions, Futures and async, dart:io files, pub packages, testing, linting, and a command-line capstone. Flutter is not required.",
+      "prerequisites": ["Writes working programs in at least one other language", "Uses a terminal confidently: changing directories, running commands and reading output", "Has a Windows, macOS or Linux machine with rights to install the Dart SDK and an editor such as Visual Studio Code"],
+      "outcomes": ["Install the Dart SDK and build, run, analyse, format, test and compile programs with the dart CLI", "Write null-safe, strongly typed Dart using classes, mixins, generics, records, patterns and sealed types", "Handle errors and asynchronous work with exceptions, Futures and async and await", "Build, test and compile a command-line tool that uses pub packages and local files"],
+      "days": [
+        {
+          "topic": "Dart SDK Setup, the dart CLI and DartPad",
+          "subtopics": ["Where Dart runs: command-line tools, servers, the web and Flutter", "Installing the SDK with winget, Homebrew or the Dart apt repository", "Release channels: stable, beta and dev", "dart --version and dart info for diagnosing an install", "dart create -t console and the generated bin, lib and test layout", "dart run, dart analyze, dart format and dart test as one toolchain", "JIT for development and AOT for release builds", "Visual Studio Code with the Dart extension and IntelliJ with the Dart plugin", "DartPad for quick experiments", "Hot restart from the IDE and dart run --enable-vm-service"],
+          "tools": ["Dart SDK", "dart CLI", "DartPad", "Visual Studio Code", "IntelliJ IDEA"],
+          "lab_task": "Install the Dart SDK, run dart --version, then dart create -t console hello_dart and dart run. Print the arguments given with dart run bin/hello_dart.dart a b c. Build dart compile exe bin/hello_dart.dart -o hello and use time to compare the JIT run with the native binary.",
+          "deliverable": "Setup report with dart --version and dart info output, the project tree and a JIT versus native start-up timing table",
+          "checks": [["Run dart --version", "Prints Dart SDK version 3.x on the stable channel", "Terminal screenshot"], ["Run dart run bin/hello_dart.dart a b c", "Program prints three arguments: a, b and c", "Program output"], ["Run dart compile exe bin/hello_dart.dart -o hello and then ./hello a", "A standalone executable is created and runs without the dart command", "Terminal output and file listing"]],
+          "objectives": ["Install and verify the Dart SDK", "Create and run a console project with the dart CLI", "Explain JIT and AOT execution"]
+        },
+        {
+          "topic": "Variables, Types and Type Inference",
+          "subtopics": ["var, final and const and when each applies", "Type inference and why var x = 5 is an int", "int and double, and the num supertype", "String, bool and the dynamic and Object types", "Assigning the wrong type: the invalid_assignment error", "const canonicalisation and compile-time constants", "Compile-time versus run-time constants: final DateTime.now()", "Top-level variables, library privacy with a leading underscore", "Runtime type checks with is, is! and as", "Naming conventions and the effective_dart lints"],
+          "tools": ["Dart SDK", "DartPad", "dart analyze", "Visual Studio Code"],
+          "lab_task": "Write types.dart that declares var, final and const values, then print runtimeType for ten values. Add var n = 5; n = 'five'; and const t = DateTime.now(); and record the analyzer messages from dart analyze. Show that identical(const [1, 2], const [1, 2]) is true.",
+          "deliverable": "types.dart, the recorded analyzer output and a table of ten values with their runtime types",
+          "checks": [["Assign a String to a variable inferred as int", "dart analyze reports invalid_assignment: a value of type String can't be assigned to int", "Analyzer output"], ["Initialise a const with DateTime.now()", "dart analyze reports const_initialized_with_non_constant_value", "Analyzer output"], ["Print identical(const [1, 2], const [1, 2])", "Prints true because equal const values are canonicalised", "Program output"]],
+          "objectives": ["Choose between var, final and const", "Read inferred types and fix type errors", "Explain compile-time constants"]
+        },
+        {
+          "topic": "Numbers, Strings and String Interpolation",
+          "subtopics": ["int arithmetic: / returns double, ~/ truncates, % is never negative", "remainder versus % for negative values", "double precision: 0.1 + 0.2 and comparing with a tolerance", "int.parse, int.tryParse and FormatException", "num methods: round, floor, ceil, toStringAsFixed, clamp", "String interpolation with $name and ${expression}", "Raw strings, multi-line strings and escape sequences", "StringBuffer for building large strings", "Code units, runes and why '😀'.length is 2", "The characters package for user-perceived characters"],
+          "tools": ["Dart SDK", "DartPad", "package:characters", "dart test"],
+          "lab_task": "Write numbers.dart that prints 7 ~/ 2, -7 % 3, (-7).remainder(3), 0.1 + 0.2 and 9223372036854775807 + 1. Parse 'abc' with int.parse and int.tryParse, then build a 10,000-line string with StringBuffer. Print '😀'.length and '😀'.characters.length after adding package:characters.",
+          "deliverable": "numbers.dart with a results table for arithmetic, parsing and Unicode length",
+          "checks": [["Print 7 ~/ 2 and -7 % 3", "Output is 3 and 2", "Program output"], ["Call int.parse('abc') without a try block", "Throws FormatException and the program exits with a stack trace", "Terminal output"], ["Print '😀'.length and '😀'.characters.length", "Output is 2 and 1", "Program output"]],
+          "objectives": ["Use integer and floating-point operators correctly", "Parse text safely", "Build and measure strings including Unicode text"]
+        },
+        {
+          "topic": "Control Flow: if, switch and Loops",
+          "subtopics": ["if, else if and the conditional expression a ? b : c", "for loops, for-in loops and while and do-while", "break, continue and labelled loops", "Collection if and collection for inside list literals", "Switch statements without fall-through", "Switch expressions with =>", "Case patterns with when guards", "Exhaustive switch over enums and bool", "Ranges with List.generate and Iterable.generate", "Closures capturing the loop variable"],
+          "tools": ["Dart SDK", "DartPad", "dart analyze", "dart test"],
+          "lab_task": "Build fizzbuzz.dart that prints 1 to 30 with a switch expression on (i % 3, i % 5) as a record pattern. Add a labelled loop that finds the first pair of numbers below 50 whose product is 391. Create ten closures in a for loop, call each, and show they return 0 to 9.",
+          "deliverable": "fizzbuzz.dart, a labelled-loop search and a note explaining the closure result",
+          "checks": [["Run fizzbuzz for 1 to 30", "Prints FizzBuzz for 15 and 30, Fizz for 9 and Buzz for 10", "Program output"], ["Search for the pair with product 391", "Finds 17 and 23 and stops the outer loop", "Program output"], ["Call the ten closures created in a for loop", "Returns 0 to 9 because each iteration has its own variable", "Program output"]],
+          "objectives": ["Write loops and conditionals idiomatically", "Use switch expressions and guards", "Explain loop-variable capture in closures"]
+        },
+        {
+          "topic": "Functions, Parameters and Closures",
+          "subtopics": ["Positional, optional positional [ ] and named parameters", "required named parameters and default values", "Arrow functions and return types", "Functions as first-class values and typedefs", "Tear-offs such as list.forEach(print)", "Closures and captured state", "Higher-order functions: map, where, fold, reduce", "The call() method and callable objects", "Recursion and the stack depth limit", "Documentation comments with /// and [references]"],
+          "tools": ["Dart SDK", "dart doc", "dart test", "Visual Studio Code"],
+          "lab_task": "Write functions.dart with a function that takes two positional parameters, an optional positional one and two required named ones. Create makeCounter() returning a closure, call it three times, and write compose<A, B, C>(f, g). Add /// docs and generate HTML with dart doc.",
+          "deliverable": "functions.dart with doc comments and the generated doc/api folder",
+          "checks": [["Call a function without a required named argument", "dart analyze reports missing_required_argument", "Analyzer output"], ["Call a counter closure three times", "Returns 1, 2 and 3 because state is retained", "Program output"], ["Run dart doc .", "Creates doc/api/index.html listing the documented functions", "Directory listing"]],
+          "objectives": ["Choose the right parameter style", "Write and compose closures", "Document public functions"]
+        },
+        {
+          "topic": "Dart Collections: Lists, Sets and Maps in Practice",
+          "subtopics": ["List literals, growable and fixed-length lists", "Set and the set operations union, intersection and difference", "Map literals, putIfAbsent, update and entries", "Spread ... and null-aware spread ...?", "Iteration order: LinkedHashMap by default", "Lazy iterables: map and where return Iterable", "sort, sorted copies and compareTo", "const and unmodifiable collections", "Bad state: No element from first on an empty list", "Counting and grouping words in a text"],
+          "tools": ["Dart SDK", "package:collection", "DartPad", "dart test"],
+          "lab_task": "Write wordcount.dart that reads a paragraph, counts words into a Map<String, int>, sorts the entries by count descending and prints the top five. Then show what happens with const [1, 2].add(3), [].first and a Set built from ['a', 'A', 'a'].",
+          "deliverable": "wordcount.dart with the top-five output and a table of three collection errors",
+          "checks": [["Call add on a const list", "Throws Unsupported operation: Cannot add to an unmodifiable list", "Terminal output"], ["Read .first on an empty list", "Throws Bad state: No element", "Terminal output"], ["Run wordcount on a paragraph of known text", "Top five words and counts match a manual count", "Program output"]],
+          "objectives": ["Choose between List, Set and Map", "Transform data with lazy iterables", "Recognise common collection runtime errors"]
+        },
+        {
+          "topic": "Null Safety: Nullable Types, ?, ! and late",
+          "subtopics": ["Non-nullable by default and the T? nullable type", "Null-aware operators ?., ??, ??= and ?[ ]", "The bang operator ! and Null check operator used on a null value", "Type promotion after a null check", "Why public fields do not promote", "late variables and lazy initialisation", "LateInitializationError and late final", "required named parameters instead of nullable defaults", "Map lookups return V?", "Reading unchecked_use_of_nullable_value diagnostics"],
+          "tools": ["Dart SDK", "dart analyze", "DartPad", "Visual Studio Code"],
+          "lab_task": "Write nulls.dart with String? name and print name.length, then fix it with ?., ?? and an if (name != null) check. Add a late final String config read before assignment, and a Map<String, int> lookup used without handling null. Record each analyzer or runtime message.",
+          "deliverable": "nulls.dart and a table of each diagnostic with the fix that removed it",
+          "checks": [["Access .length on a String? without a check", "Analyzer reports unchecked_use_of_nullable_value", "Analyzer output"], ["Use name! when name is null", "Throws Null check operator used on a null value at run time", "Terminal output"], ["Read a late variable before it is assigned", "Throws LateInitializationError: Field has not been initialized", "Terminal output"]],
+          "objectives": ["Declare nullable and non-nullable values", "Handle null with promotion and null-aware operators", "Use late only where it is safe"]
+        },
+        {
+          "topic": "Classes, Constructors and Object State",
+          "subtopics": ["Fields, methods, getters and setters", "Generative constructors and initialising formals this.x", "Named constructors and the initialiser list", "const constructors and immutable value objects", "Factory constructors and caching", "Redirecting constructors", "Private members with _ and library scope", "Overriding toString, == and hashCode", "Static members and cascade notation ..", "Set behaviour when hashCode is not overridden"],
+          "tools": ["Dart SDK", "dart analyze", "dart test", "Visual Studio Code"],
+          "lab_task": "Model a Money class with amount and currency, a const constructor, a named constructor Money.zero(currency) and a factory Money.parse('12.50 EUR'). Override ==, hashCode and toString. Add two equal Money values to a Set and show the set has one element, then remove the hashCode override and show it has two.",
+          "deliverable": "money.dart plus a test showing the Set result with and without hashCode",
+          "checks": [["Add two equal Money objects to a Set", "Set length is 1", "Test output"], ["Remove the hashCode override and repeat", "Set length is 2, because the default identity hash is used", "Test output"], ["Call Money.parse('12.50 EUR')", "Returns amount 12.5 and currency EUR", "Program output"]],
+          "objectives": ["Write classes with several kinds of constructor", "Implement value equality correctly", "Keep state private to a library"]
+        },
+        {
+          "topic": "Inheritance, Interfaces and Mixins",
+          "subtopics": ["extends, super calls and super parameters", "abstract classes and abstract methods", "Every class is an implicit interface: implements", "Overriding with @override and covariant parameters", "Mixins with the with keyword", "mixin ... on to restrict where a mixin is used", "Method resolution order with several mixins", "Composition versus inheritance", "Polymorphism with a List<Shape>", "Calling super in constructors"],
+          "tools": ["Dart SDK", "dart analyze", "dart test", "DartPad"],
+          "lab_task": "Create an abstract class Shape with area(), classes Circle and Rectangle that extend it, a mixin Loggable that prints each call, and Square implementing Shape without extending it. Apply two mixins to one class, print the call order, and compute the total area of a mixed list.",
+          "deliverable": "shapes.dart with the call-order explanation and total area output",
+          "checks": [["Instantiate an abstract class directly", "Analyzer reports instantiate_abstract_class", "Analyzer output"], ["Apply Loggable and Timestamped to one class and call a method", "Calls run in last-mixin-first order, as printed in the output", "Program output"], ["Sum areas of Circle(1) and Rectangle(2, 3)", "Total is 9.14159 within 0.00001", "Program output"]],
+          "objectives": ["Use extends, implements and with correctly", "Design a small class hierarchy", "Explain mixin ordering"]
+        },
+        {
+          "topic": "Enums, Enhanced Enums and Extension Methods",
+          "subtopics": ["Simple enums, values, name and index", "Enhanced enums with fields, constructors and methods", "Enums implementing interfaces", "byName and the ArgumentError for unknown names", "Exhaustive switch on an enum", "Extension methods on built-in types", "Extensions on nullable types", "Static resolution: extensions are not virtual", "Resolving name conflicts with show, hide and explicit extension syntax", "Packaging extensions in a library"],
+          "tools": ["Dart SDK", "dart analyze", "dart test", "DartPad"],
+          "lab_task": "Write an enhanced enum Planet with mass and radius fields and a surfaceGravity getter. Add extension on String with toTitleCase() and extension on int? with orZero. Call Planet.values.byName('pluto') and record the error, then add a new enum value and show the switch becomes non-exhaustive.",
+          "deliverable": "planet.dart and extensions.dart with output of the byName failure and the exhaustiveness error",
+          "checks": [["Call Planet.values.byName('pluto')", "Throws ArgumentError", "Terminal output"], ["Add an enum case without updating a switch expression", "Analyzer reports non_exhaustive_switch_expression", "Analyzer output"], ["Call 'dart language'.toTitleCase()", "Returns Dart Language", "Program output"]],
+          "objectives": ["Model fixed sets of values with enhanced enums", "Add behaviour with extension methods", "Use exhaustive switches to catch missing cases"]
+        },
+        {
+          "topic": "Generics and Type Constraints",
+          "subtopics": ["Generic classes and the type parameter T", "Generic functions and inference", "Bounds with extends: T extends num", "Generic typedefs", "Reified generics: List<int> is not List<String> at run time", "Covariance and runtime TypeError", "Comparable<T> and sorting generic data", "Generic interfaces such as Repository<T>", "Collection literals with explicit type arguments", "When dynamic hides type errors"],
+          "tools": ["Dart SDK", "dart analyze", "dart test", "DartPad"],
+          "lab_task": "Write a generic class Stack<T> with push, pop and peek, a function maxOf<T extends Comparable<T>>(List<T>), and a Repository<T> interface with an in-memory implementation. Assign a List<int> to a List<Object> variable, call add('x'), and record the run-time error. Add tests for ints and strings.",
+          "deliverable": "stack.dart, repository.dart, tests and a note on the covariance error",
+          "checks": [["Call maxOf with a list of objects that are not Comparable", "Analyzer reports a type argument bound error", "Analyzer output"], ["Add a String to a List<Object> that really holds ints", "Throws a TypeError at run time", "Terminal output"], ["Run dart test on Stack<int> and Stack<String>", "All tests pass, including a pop on an empty stack that throws StateError", "Test output"]],
+          "objectives": ["Write generic classes and functions", "Constrain type parameters", "Explain covariance and its runtime cost"]
+        },
+        {
+          "topic": "Records and Pattern Matching",
+          "subtopics": ["Positional and named record fields", "Accessing fields with $1 and names", "Structural equality of records", "Returning multiple values from a function", "Destructuring with var (a, b) = record", "Swapping variables with (a, b) = (b, a)", "List, map and object patterns", "if-case and switch patterns", "Relational, logical-or and cast patterns", "Refutable versus irrefutable patterns"],
+          "tools": ["Dart SDK", "dart analyze", "dart test", "DartPad"],
+          "lab_task": "Write stats(List<num>) returning a record ({num min, num max, double mean}). Destructure it, swap two variables, and write describe(Object o) using a switch with list patterns [], [var x], [var x, ...var rest], a map pattern and a relational pattern. Test equality of (1, 'a') and (1, 'a').",
+          "deliverable": "records.dart and a table of ten describe inputs with outputs",
+          "checks": [["Compare (1, 'a') == (1, 'a')", "Prints true because records compare structurally", "Program output"], ["Call describe([]) and describe([7, 8, 9])", "Outputs differ: empty list and head 7 with rest [8, 9]", "Program output"], ["Call stats([4, 8, 6])", "Returns min 4, max 8 and mean 6.0", "Program output"]],
+          "objectives": ["Use records for lightweight data", "Destructure values with patterns", "Write pattern-based switches"]
+        },
+        {
+          "topic": "Sealed Classes and Exhaustive Switch",
+          "subtopics": ["Modelling a closed set of cases with sealed class", "Subtypes must live in the same library", "Exhaustiveness checking and the non_exhaustive_switch_expression error", "Object patterns such as Circle(radius: var r)", "A Result<T> type with Ok and Err", "Replacing nullable returns with sealed results", "Switch expressions returning values", "Guards with when and how they affect exhaustiveness", "Adding a case and following the analyzer errors", "Sealed versus enum: when each fits"],
+          "tools": ["Dart SDK", "dart analyze", "dart test", "DartPad"],
+          "lab_task": "Define sealed class Result<T> with Ok<T> and Err<T>, and sealed class Shape with Circle, Square and Triangle. Write area(Shape) as a switch expression. Add a Rectangle subtype and fix every analyzer error. Try extending Shape from another library file and record the error.",
+          "deliverable": "result.dart and shape.dart with the error log before and after adding Rectangle",
+          "checks": [["Add Rectangle without updating area()", "Analyzer reports non_exhaustive_switch_expression naming Rectangle()", "Analyzer output"], ["Extend sealed Shape in a different library", "Analyzer reports sealed_class_subtype_outside_of_library", "Analyzer output"], ["Call area(Circle(2))", "Returns 12.566 within 0.001", "Program output"]],
+          "objectives": ["Model closed hierarchies with sealed classes", "Rely on exhaustiveness for safe changes", "Return results instead of nulls or exceptions"]
+        },
+        {
+          "topic": "Exceptions, Error Handling and Assertions",
+          "subtopics": ["Exception versus Error and what to catch", "try, on, catch and finally", "rethrow and preserving stack traces", "Custom exceptions that implement Exception", "Throwing from deep code and catching at a boundary", "assert and --enable-asserts", "Uncaught exceptions and process exit code 255", "Stack traces and StackTrace.current", "Validating input instead of catching everything", "Catching Error subclasses: when it is wrong"],
+          "tools": ["Dart SDK", "dart test", "dart analyze", "Visual Studio Code"],
+          "lab_task": "Write a parser for lines like 'name,age' that throws a custom ParseException with the line number. Catch it with on ParseException catch (e, st), rethrow a different one, and use finally to print cleanup. Run an uncaught throw and note the exit code with echo $?. Compare assert(age > 0) under dart run and dart run --enable-asserts.",
+          "deliverable": "parser.dart, an exit-code log and a note on when asserts run",
+          "checks": [["Run a program that throws an uncaught exception, then echo $?", "Exit code is 255", "Terminal output"], ["Run assert(false) with dart run --enable-asserts", "Throws AssertionError", "Terminal output"], ["Parse the line 'bob,abc'", "Throws ParseException reporting the line number and the bad value", "Program output"]],
+          "objectives": ["Throw and catch the right kinds of failure", "Create domain-specific exceptions", "Read stack traces and exit codes"]
+        },
+        {
+          "topic": "Futures, async and await",
+          "subtopics": ["Future<T> and the states pending, completed and error", "async functions return a Future", "await and sequential versus parallel code", "Future.wait and the record form (f1, f2).wait", "then, catchError and whenComplete", "Future.delayed and simulating latency", "Error handling with try/catch around await", "Unawaited futures and the unawaited_futures lint", "FutureOr<T>", "Order of output between sync code and futures"],
+          "tools": ["Dart SDK", "dart analyze", "dart test", "DartPad"],
+          "lab_task": "Write three functions that each await Future.delayed of 300 ms. Run them sequentially and with Future.wait, measuring with Stopwatch. Add one that throws and handle it with try/catch. Call an async function without await inside main and show the unawaited_futures lint after enabling it in analysis_options.yaml.",
+          "deliverable": "async_demo.dart with a timing table for sequential versus parallel runs",
+          "checks": [["Run three 300 ms tasks sequentially", "Total elapsed time is about 900 ms", "Stopwatch output"], ["Run the same tasks with Future.wait", "Total elapsed time is about 300 ms", "Stopwatch output"], ["Call an async function without await with the lint enabled", "dart analyze reports unawaited_futures", "Analyzer output"]],
+          "objectives": ["Write async functions with await", "Run independent futures in parallel", "Handle and surface asynchronous errors"]
+        },
+        {
+          "topic": "Reading Files and Streams with dart:io",
+          "subtopics": ["File, Directory and Path handling with package:path", "readAsString and readAsLines for small files", "openRead with utf8.decoder and LineSplitter for large files", "writeAsString with FileMode.append and IOSink", "PathNotFoundException and errno 2", "Directory.list and recursive walks", "stdin, stdout and stderr", "Temporary directories with Directory.systemTemp.createTemp", "File.length, lastModified and File.stat", "Choosing sync or async file APIs"],
+          "tools": ["Dart SDK", "package:path", "dart test", "Terminal"],
+          "lab_task": "Write a program that generates a 200 MB text file of 2 million lines, then counts the lines containing 'ERROR' by streaming it with openRead, utf8.decoder and LineSplitter. Compare peak memory with readAsLines. Open a missing file and handle the exception, and write the counts to stdout and errors to stderr.",
+          "deliverable": "loggrep.dart with a memory and time comparison for streaming and full-read approaches",
+          "checks": [["Count ERROR lines in the generated file", "Matches the number written by the generator", "Program output"], ["Open a path that does not exist", "Throws PathNotFoundException with errno 2", "Terminal output"], ["Run with stdout redirected to a file and stderr to the terminal", "Only error messages appear on the terminal", "Terminal output"]],
+          "objectives": ["Read and write files with dart:io", "Process large files as streams", "Separate stdout and stderr"]
+        },
+        {
+          "topic": "Libraries, Imports and Packages with pub",
+          "subtopics": ["lib/ and lib/src/ conventions", "import, as, show and hide", "export for a public API", "part and part of", "pubspec.yaml: name, environment, dependencies and dev_dependencies", "dart pub add, get, upgrade and remove", "Caret version constraints and pubspec.lock", "dart pub deps and dart pub outdated", "Finding packages on pub.dev: likes, pub points and publishers", "Import errors: uri_does_not_exist"],
+          "tools": ["Dart SDK", "pub.dev", "dart pub", "package:path", "Visual Studio Code"],
+          "lab_task": "Create a package text_tools with lib/src/slug.dart and lib/text_tools.dart exporting only the slug function. Add package:path and package:collection with dart pub add, inspect pubspec.lock, and run dart pub deps. Import the private file from outside the package and record the analyzer message.",
+          "deliverable": "text_tools package, the dart pub deps output and a note on what lib/src hides",
+          "checks": [["Run dart pub add path", "pubspec.yaml gains path with a caret constraint and pubspec.lock is updated", "File diff"], ["Import a file from another package's lib/src", "Analyzer reports implementation_imports lint when enabled", "Analyzer output"], ["Run dart pub deps --style=compact", "Lists text_tools with path and collection as direct dependencies", "Terminal output"]],
+          "objectives": ["Structure code as libraries and packages", "Manage dependencies with pub", "Keep implementation details private"]
+        },
+        {
+          "topic": "Unit Testing with package:test",
+          "subtopics": ["dart test and the test/ directory convention", "test, group, setUp and tearDown", "expect with matchers: equals, isA, throwsA, closeTo", "Testing async code with async tests and completion", "Testing streams with emitsInOrder", "Selecting tests with -n and --plain-name", "Reporters: expanded, compact and github", "Reading the Expected and Actual output", "Test-driven development in a small kata", "Arrange, act and assert structure"],
+          "tools": ["Dart SDK", "package:test", "dart test", "Visual Studio Code"],
+          "lab_task": "Do the FizzBuzz or string-calculator kata test-first in a package: write a failing test, see the red output, make it pass, and repeat for at least eight behaviours including an exception with throwsA(isA<FormatException>()) and one Stream test with emitsInOrder. Run dart test -n with a name filter.",
+          "deliverable": "A package with at least ten passing tests and a log of one red-to-green cycle",
+          "checks": [["Write a test that expects 5 but the code returns 4", "Output shows Expected: <5> Actual: <4>", "Test output"], ["Run dart test -n 'negative'", "Only tests whose names contain negative are run", "Test output"], ["Run dart test --reporter expanded", "Each of the ten tests is listed with a pass marker", "Test output"]],
+          "objectives": ["Write and organise unit tests", "Use matchers for exceptions, async and streams", "Apply a test-first loop"]
+        },
+        {
+          "topic": "Static Analysis, Lints and dart format",
+          "subtopics": ["analysis_options.yaml and include: package:lints/recommended.yaml", "Errors, warnings and infos", "Enabling rules: prefer_const_constructors, avoid_print and others", "strict-casts, strict-inference and strict-raw-types", "dart analyze --fatal-infos", "dart fix --dry-run and dart fix --apply", "dart format and --set-exit-if-changed", "Formatter page width and trailing commas", "Suppressing a rule with // ignore: and its cost", "Running analysis and format checks in CI"],
+          "tools": ["Dart SDK", "package:lints", "dart analyze", "dart fix", "dart format"],
+          "lab_task": "Take a deliberately messy 300-line sample, add package:lints with analysis_options.yaml enabling strict-casts, strict-inference, strict-raw-types and avoid_print. Run dart analyze, apply dart fix --apply, then dart format --output=none --set-exit-if-changed . and drive the issue count to zero. Record counts before and after.",
+          "deliverable": "Before-and-after analyzer reports and the final analysis_options.yaml",
+          "checks": [["Run dart analyze on the messy sample", "Reports more than 20 issues before any fixes", "Analyzer output"], ["Run dart fix --apply and then dart analyze", "Issue count drops and the remaining ones are listed for manual fixing", "Analyzer output"], ["Run dart format --output=none --set-exit-if-changed .", "Exit code is 0 when formatted and 1 when changes are needed", "Terminal output"]],
+          "objectives": ["Configure the analyzer and lints", "Apply automated fixes safely", "Enforce style in CI"]
+        },
+        {
+          "topic": "Beginner Capstone: Command-Line Expense Tracker",
+          "subtopics": ["Project structure with bin, lib and test", "Argument handling with pattern matching on the arguments list", "Sealed command types and an exhaustive dispatcher", "Persistence in JSON with dart:convert and dart:io", "Error handling, exit codes and messages on stderr", "Unit tests, analysis and a compiled executable"],
+          "tools": ["Dart SDK", "package:test", "package:path", "dart compile", "dart analyze"],
+          "lab_task": "Build expenses with commands add <amount> <category>, list and total, stored in a JSON file. Parse the arguments with a switch on the list, model commands as a sealed class, exit 64 on bad usage, add 12 tests, keep dart analyze clean, and build dart compile exe bin/expenses.dart -o expenses.",
+          "deliverable": "Repository with source, 12 tests, a README of usage and the compiled expenses binary",
+          "checks": [["Run expenses add 12.50 food then expenses total", "Total prints 12.50 and the JSON file contains one entry", "Program output and file contents"], ["Run expenses add abc food", "Message on stderr and exit code 64", "Terminal output"], ["Run dart analyze and dart test", "No issues and all 12 tests pass", "Command output"]],
+          "objectives": ["Combine language features into a working tool", "Persist and validate data", "Ship a tested executable"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For Dart developers who know the basics and need production habits. Covers flow analysis and promotion, class modifiers, extension types, lazy iterables, equality, the event loop, streams, async patterns, isolates, zones, JSON code generation, HTTP clients, package publishing, mocking and coverage, command-line tools with package:args, processes and signals, sharing pure-Dart code with Flutter, and a concurrent link-checker capstone.",
+      "prerequisites": ["Completed a beginner Dart course or has equivalent experience with classes, null safety, Futures and pub", "Can write and run tests with package:test", "Is comfortable with Git and a command-line workflow"],
+      "outcomes": ["Use class modifiers, extension types and patterns to model data safely", "Design concurrent programs with streams, futures, zones and isolates", "Build, test and publish-ready packages and command-line tools with generated JSON code and HTTP clients", "Measure test coverage and test asynchronous and time-dependent code deterministically"],
+      "days": [
+        {
+          "topic": "Advanced Null Safety: Flow Analysis, Promotion and Pitfalls",
+          "subtopics": ["Definite assignment and definite non-assignment analysis", "Promotion of locals, parameters and private final fields", "Why non-final and public fields do not promote and the workarounds", "Null-aware elements ?x in collection literals", "nonNulls and whereType<T> for cleaning iterables", "T versus T? versus T extends Object? in generic code", "late costs: hidden checks and initialisation order", "Smells and lints: avoid unnecessary ! and unnecessary_null_checks", "Sound null safety: what the compiler guarantees and what jsonDecode does not"],
+          "tools": ["Dart SDK", "dart analyze", "package:lints", "dart test"],
+          "lab_task": "Write promotion.dart with a class holding a public String? title, a private final String? _id and a local copy. Show which of the three promote after a null check and record the analyzer message for the one that does not. Then clean a List<String?> with nonNulls, a null-aware element and whereType, and count items.",
+          "deliverable": "promotion.dart with an analyzer log and a table of what promotes and why",
+          "checks": [["Null-check a public mutable field and then read .length", "Analyzer reports unchecked_use_of_nullable_value and explains that the property can't be promoted", "Analyzer output"], ["Null-check a private final field and then read .length", "Compiles without error because private final fields promote", "Analyzer output"], ["Apply nonNulls to ['a', null, 'b', null]", "Result has length 2 and contains a and b", "Program output"]],
+          "objectives": ["Predict when type promotion succeeds", "Remove unsafe bang operators", "Write null-safe generic code"]
+        },
+        {
+          "topic": "Class Modifiers: base, final, interface, sealed and mixin class",
+          "subtopics": ["What each modifier restricts: extend, implement and mix in", "interface class and the contract-only API", "base class and guaranteeing inherited behaviour", "final class and closing a hierarchy", "sealed versus abstract final for exhaustiveness", "mixin class and mixin declarations", "Modifiers apply across libraries, not inside one library", "Choosing a modifier for a public package API", "Version-compatibility impact of removing a modifier"],
+          "tools": ["Dart SDK", "dart analyze", "dart test", "Visual Studio Code"],
+          "lab_task": "Create lib/api.dart with an interface class Clock, a base class Plugin, a final class Config, a sealed class Event and a mixin class Logging. From a second package file, try to extend, implement and mix in each one. Record every analyzer error code in a matrix and decide a modifier for a public Repository API.",
+          "deliverable": "api.dart plus a matrix of permitted and denied uses with analyzer codes",
+          "checks": [["Extend an interface class from another library", "Analyzer reports interface_class_extended_outside_of_library", "Analyzer output"], ["Implement a base class from another library", "Analyzer reports base_class_implemented_outside_of_library", "Analyzer output"], ["Extend a final class from another library", "Analyzer reports final_class_extended_outside_of_library", "Analyzer output"]],
+          "objectives": ["Apply class modifiers to control extension", "Predict allowed and denied uses", "Evaluate API compatibility impact"]
+        },
+        {
+          "topic": "Extension Types and Zero-Cost Wrappers",
+          "subtopics": ["Declaring extension type UserId(int value)", "Representation type and the erased runtime type", "Compile-time distinction between UserId and OrderId", "implements to expose members of the representation type", "Constructors, const and factory forms", "Extension types versus extensions versus wrapper classes", "is checks and why the wrapper disappears at run time", "Use with dart:js_interop for typed JavaScript objects", "Pitfalls: boxing into Object and runtimeType"],
+          "tools": ["Dart SDK", "dart analyze", "dart test", "dart compile exe"],
+          "lab_task": "Define extension type UserId(int value) and OrderId(int value) with a validating constructor. Write fetchUser(UserId) and show passing an OrderId is rejected. Print UserId(7).runtimeType and an Object-typed reference, then benchmark 10 million wrapper allocations versus a class wrapper with Stopwatch.",
+          "deliverable": "ids.dart with analyzer evidence and a benchmark table",
+          "checks": [["Pass an OrderId to fetchUser(UserId)", "Analyzer reports argument_type_not_assignable", "Analyzer output"], ["Print UserId(7).runtimeType", "Prints int because the wrapper is erased at run time", "Program output"], ["Create UserId(-1) with a validating constructor", "Throws ArgumentError from the constructor check", "Terminal output"]],
+          "objectives": ["Create type-safe wrappers with no allocation", "Explain erasure at run time", "Choose between extension types and classes"]
+        },
+        {
+          "topic": "Records and Patterns in Real Code: JSON Validation",
+          "subtopics": ["Decoding JSON into dynamic and why that needs validation", "Map patterns and key presence", "Typed captures: {'id': int id, 'tags': List<String> tags}", "if-case for validation at the boundary", "Nested map and list patterns", "Returning records or sealed results from validators", "Guard clauses with when", "Cast patterns and TypeError", "Precise error messages from failed matches"],
+          "tools": ["Dart SDK", "dart:convert", "dart test", "package:test"],
+          "lab_task": "Write parseOrder(String json) that uses jsonDecode and pattern matching to return a record (id: int, items: List<String>, total: double) or throw FormatException with the failing key. Run it on five documents: three valid and two invalid, one missing id and one with id as a string. Write one test per document.",
+          "deliverable": "order_parser.dart and five tests covering valid and invalid documents",
+          "checks": [["Parse a document missing the id key", "Throws FormatException naming id", "Test output"], ["Parse a document with id as '12'", "Throws FormatException because id is not an int", "Test output"], ["Parse a valid document with two items", "Returns a record with id, two items and the expected total", "Test output"]],
+          "objectives": ["Validate untyped data with patterns", "Return structured results", "Test validation paths exhaustively"]
+        },
+        {
+          "topic": "Iterables, Lazy Sequences and Generators",
+          "subtopics": ["Iterable versus List and when evaluation happens", "map and where laziness and repeated evaluation", "sync* generators with yield and yield*", "Infinite sequences and take, skip, takeWhile", "Iterable.generate and List.generate", "Custom iterables with IterableBase", "cast, List.from and toList to avoid re-evaluation", "package:collection: groupBy, PriorityQueue and QueueList", "Cost of chained iterables in hot paths"],
+          "tools": ["Dart SDK", "package:collection", "dart test", "Stopwatch"],
+          "lab_task": "Write fibonacci() as a sync* generator and print the first 10 with take(10). Build a .map with a print inside, iterate it twice and count side effects. Use groupBy from package:collection on 1,000 records, and compare a three-step lazy chain with eager toList() calls on 1 million integers.",
+          "deliverable": "generators.dart with a table of laziness evidence and benchmark timings",
+          "checks": [["Print fibonacci().take(10).toList()", "Output is 0, 1, 1, 2, 3, 5, 8, 13, 21, 34", "Program output"], ["Iterate a lazy map with a print twice", "Side effect prints twice per element, once per iteration", "Program output"], ["Group 1,000 records by a key with groupBy", "Group counts sum to 1,000", "Program output"]],
+          "objectives": ["Use lazy iterables correctly", "Write generators", "Avoid repeated evaluation"]
+        },
+        {
+          "topic": "Operator Overloading, Callable Objects and Value Equality",
+          "subtopics": ["Overloading +, -, [] and []=", "operator == and hashCode with Object.hash and Object.hashAll", "Comparable and compareTo for sorting", "Callable classes with call()", "toString and debugging output", "const canonicalisation and identical()", "Records as an alternative to hand-written equality", "Equality for collections: ListEquality and DeepCollectionEquality", "Pitfalls: mutable keys in a Set or Map"],
+          "tools": ["Dart SDK", "package:collection", "dart test", "dart analyze"],
+          "lab_task": "Implement Vector2 with +, -, *, ==, hashCode and compareTo, and a callable Polynomial class. Put a mutable-key object into a Set, mutate it and show lookup fails. Compare [1, 2] == [1, 2] with ListEquality().equals, and identical(const Vector2(1, 2), const Vector2(1, 2)).",
+          "deliverable": "vector.dart with tests for equality, ordering and the mutable-key failure",
+          "checks": [["Compare Vector2(1, 2) == Vector2(1, 2)", "Prints true with the overridden operator", "Test output"], ["Compare [1, 2] == [1, 2]", "Prints false because lists use identity equality", "Program output"], ["Mutate an object after adding it to a Set and call contains", "Returns false because the hash changed", "Program output"]],
+          "objectives": ["Overload operators responsibly", "Implement consistent equality and hashing", "Avoid mutable-key bugs"]
+        },
+        {
+          "topic": "The Event Loop, Microtasks and Timers",
+          "subtopics": ["Single-threaded isolates and the two queues", "Microtask queue versus event queue", "scheduleMicrotask, Future.microtask and Future()", "How await yields to the event loop", "Timer and Timer.periodic", "Starving the event queue with microtasks", "Blocking calls such as sleep and busy loops", "Future.sync and Completer.sync", "Predicting output order"],
+          "tools": ["Dart SDK", "dart:async", "dart test", "Stopwatch"],
+          "lab_task": "Write order.dart that prints eight labels using print, scheduleMicrotask, Future(), Future.microtask, Future.delayed(Duration.zero) and await. Predict the order on paper first, then run it. Add Timer.periodic(10 ms) and a 200 ms busy loop, and log the largest gap between ticks.",
+          "deliverable": "order.dart with predicted versus actual order and a timer-gap measurement",
+          "checks": [["Run order.dart with synchronous prints and a microtask", "Synchronous prints come first, then microtasks, then event-queue tasks", "Program output"], ["Run a 200 ms busy loop beside Timer.periodic(10 ms)", "The largest tick gap is at least 200 ms", "Program output"], ["Schedule a microtask that reschedules itself 1,000 times next to a Timer", "The timer callback runs only after the microtasks finish", "Program output"]],
+          "objectives": ["Predict ordering of async code", "Explain microtasks and events", "Recognise blocking code"]
+        },
+        {
+          "topic": "Streams: Controllers, Subscriptions and Transformers",
+          "subtopics": ["Single-subscription versus broadcast streams", "StreamController with onListen, onPause and onCancel", "async* generators and await for", "listen with onError, onDone and cancelOnError", "pause, resume and cancel on StreamSubscription", "map, where, expand, asyncMap, distinct and take", "StreamTransformer.fromHandlers", "package:stream_transform: debounce and throttle", "Bad state: Stream has already been listened to"],
+          "tools": ["Dart SDK", "dart:async", "package:stream_transform", "package:test"],
+          "lab_task": "Build a ticker with Stream.periodic and an async* temperature generator. Create a broadcast StreamController, subscribe two listeners and cancel one. Apply debounce(300 ms) from stream_transform to 20 rapid events, and listen twice to a single-subscription stream to see the error. Test with emitsInOrder.",
+          "deliverable": "streams.dart with tests and a table of single versus broadcast behaviour",
+          "checks": [["Listen twice to a single-subscription stream", "Throws Bad state: Stream has already been listened to", "Terminal output"], ["Send 20 events within 100 ms through debounce(300 ms)", "One event is emitted after the quiet period", "Program output"], ["Cancel one of two broadcast listeners and add an event", "Only the remaining listener receives the event", "Program output"]],
+          "objectives": ["Create and consume streams", "Use broadcast and single-subscription streams correctly", "Transform and test streams"]
+        },
+        {
+          "topic": "Async Patterns: Completer, Timeouts, Retries and Cancellation",
+          "subtopics": ["Completer and bridging callback APIs", "Future.timeout and TimeoutException", "Retry with exponential backoff and jitter", "CancelableOperation from package:async", "Limiting concurrency with package:pool", "Future.wait with eagerError", "StreamQueue and AsyncMemoizer", "Idempotency and safe retries", "Cleaning up on cancellation"],
+          "tools": ["Dart SDK", "package:async", "package:pool", "package:test"],
+          "lab_task": "Implement retry<T>(Future<T> Function() action, {int max = 4}) with exponential backoff and jitter, and test it against a function that fails twice and then succeeds. Run 10 tasks of 100 ms through Pool(3) and record the total time. Wrap a slow call with timeout(200 ms) and handle TimeoutException.",
+          "deliverable": "retry.dart, a pool timing table and tests",
+          "checks": [["Retry a function that fails twice and then succeeds", "Returns the value on the third call, with two delays recorded", "Test output"], ["Run 10 tasks of 100 ms through Pool(3)", "Total time is about 400 ms because there are 4 rounds", "Stopwatch output"], ["Call a 500 ms task with timeout(200 ms)", "Throws TimeoutException after about 200 ms", "Terminal output"]],
+          "objectives": ["Write robust asynchronous helpers", "Control concurrency", "Handle timeouts and cancellation"]
+        },
+        {
+          "topic": "Isolates: Isolate.run, Spawn and Message Passing",
+          "subtopics": ["Isolates versus threads: separate heaps and no shared state", "Isolate.run for one-off computations", "Isolate.spawn with ReceivePort and SendPort", "The handshake pattern for two-way communication", "What can be sent and the unsendable-object error", "Errors from Isolate.run and uncaught errors in spawned isolates", "Isolate.exit and onExit", "Top-level and static variables are per isolate", "When isolates help and when they do not"],
+          "tools": ["Dart SDK", "dart:isolate", "Stopwatch", "dart test"],
+          "lab_task": "Count primes below 5,000,000 on the main isolate, then split the range across four Isolate.run calls and compare wall time. Spawn a long-lived worker with ReceivePort and a handshake. Increment a top-level counter inside an isolate and show it is unchanged in the caller, and send a ReceivePort-backed Socket to see the error.",
+          "deliverable": "primes.dart and worker.dart with a timing table and a note on isolated state",
+          "checks": [["Run the prime count on one isolate and on four", "Both give the same count and the four-isolate run is faster on a multi-core machine", "Stopwatch output"], ["Increment a top-level variable inside Isolate.run", "The variable in the caller remains 0", "Program output"], ["Throw inside Isolate.run and await it", "The exception is rethrown in the calling isolate", "Terminal output"]],
+          "objectives": ["Run CPU-bound work off the main isolate", "Communicate with ports", "Explain isolated memory"]
+        },
+        {
+          "topic": "Zones and Uncaught Error Handling",
+          "subtopics": ["Zone.current and the root zone", "runZonedGuarded and the uncaught-error handler", "Zone values for request-scoped context", "ZoneSpecification: print, scheduleMicrotask and registerCallback", "Errors from unawaited futures and timers", "Zones and isolates: values do not cross", "Correlation ids across awaits", "Testing code that uses zones", "Pitfalls and when not to use zones"],
+          "tools": ["Dart SDK", "dart:async", "package:logging", "package:test"],
+          "lab_task": "Use runZonedGuarded to wrap a program, store a requestId in zoneValues, and read it from three nested awaits. Throw from unawaited(Future.error('boom')) and catch it in the handler. Override print with ZoneSpecification to prefix each line with the id, and start an Isolate to show the id is lost.",
+          "deliverable": "zones.dart with a log showing the id on every line except the isolate",
+          "checks": [["Throw from an unawaited future inside runZonedGuarded", "The zone error handler receives boom", "Program output"], ["Read Zone.current[#requestId] after three awaits", "Returns the same id each time", "Program output"], ["Read the same zone value inside a spawned isolate", "Returns null", "Program output"]],
+          "objectives": ["Catch uncaught asynchronous errors", "Carry context with zone values", "Know the limits of zones"]
+        },
+        {
+          "topic": "JSON Serialization with json_serializable and build_runner",
+          "subtopics": ["dart:convert: jsonEncode, jsonDecode and JsonEncoder.withIndent", "Why hand-written fromJson does not scale", "@JsonSerializable and the part directive", "dart run build_runner build --delete-conflicting-outputs and watch", "@JsonKey: name, defaultValue and includeIfNull", "Nested objects and explicitToJson", "Enums, DateTime and custom converters", "checked: true and CheckedFromJsonException", "Alternatives: freezed, dart_mappable and pattern-based parsing"],
+          "tools": ["Dart SDK", "package:json_serializable", "build_runner", "package:test"],
+          "lab_task": "Model a User with nested Address and a DateTime, annotate with @JsonSerializable(explicitToJson: true, checked: true) and run dart run build_runner build --delete-conflicting-outputs. Round-trip five fixtures through jsonEncode and fromJson. Feed a payload with a wrong type and capture the CheckedFromJsonException.",
+          "deliverable": "user.dart, generated user.g.dart and a round-trip test file",
+          "checks": [["Run dart run build_runner build --delete-conflicting-outputs", "Generates user.g.dart and reports a successful build", "Terminal output"], ["Round-trip five fixtures through toJson and fromJson", "All five objects compare equal to the originals", "Test output"], ["Decode a payload where age is a string", "Throws CheckedFromJsonException naming the age key", "Test output"]],
+          "objectives": ["Generate serialisation code", "Handle nested and typed values", "Report decoding errors precisely"]
+        },
+        {
+          "topic": "HTTP Clients with package:http and Retry Logic",
+          "subtopics": ["http.get, post and Uri.https", "Reusing and closing a Client", "Status codes, headers and decoding bodies", "Timeouts and ClientException", "RetryClient with retries and when", "Respecting 429 and Retry-After", "BaseClient wrappers for auth headers", "MockClient for deterministic tests", "Streaming and multipart requests", "dart:io HttpClient as the lower level"],
+          "tools": ["Dart SDK", "package:http", "package:test", "curl"],
+          "lab_task": "Write GithubClient with a method that fetches a repo as JSON, a BaseClient wrapper adding an Authorization header, and RetryClient(retries: 3). Using MockClient, simulate 503, 503, then 200 and assert exactly three requests were made. Add a test for a 404 mapped to a domain exception.",
+          "deliverable": "github_client.dart and tests driven only by MockClient",
+          "checks": [["Simulate responses 503, 503 and 200", "The client returns the 200 body after exactly 3 requests", "Test output"], ["Return a 404 from the mock", "Throws the domain exception NotFound", "Test output"], ["Send a request through the wrapper", "Request has the Authorization header set", "Test assertion"]],
+          "objectives": ["Call HTTP APIs with error handling", "Add retries and wrappers", "Test network code without the network"]
+        },
+        {
+          "topic": "Package Development: pubspec, Versioning and Publishing",
+          "subtopics": ["pubspec fields: version, description, repository, topics and environment", "SemVer and caret ranges including 0.x rules", "lib/src and curated exports", "Documentation: /// comments, README and dart doc", "example/ and CHANGELOG.md", "LICENSE and publisher verification", "dart pub publish --dry-run", "pana scoring and pub points", "Retracting, discontinuing and deprecating"],
+          "tools": ["Dart SDK", "pub.dev", "dart doc", "pana", "dart pub"],
+          "lab_task": "Prepare a package for publication: complete pubspec.yaml, README, CHANGELOG, LICENSE and an example/ file, document every public member, then run dart pub publish --dry-run and fix every warning. Run dart pub global activate pana and pana . to see the score. Do not publish.",
+          "deliverable": "Publish-ready package with the dry-run log and the pana report",
+          "checks": [["Run dart pub publish --dry-run with the LICENSE removed", "Reports a warning about the missing LICENSE", "Terminal output"], ["Fix all warnings and re-run the dry run", "Ends with Package has 0 warnings.", "Terminal output"], ["Run pana . on the package", "Reports a score for documentation and null safety above 0", "pana output"]],
+          "objectives": ["Prepare a package for pub.dev", "Apply semantic versioning", "Document public APIs"]
+        },
+        {
+          "topic": "Mocking, Fakes, fake_async and Test Tags",
+          "subtopics": ["Test doubles: dummy, stub, fake and mock", "mocktail: Mock, when, thenAnswer and verify", "registerFallbackValue and argument matchers", "mockito with @GenerateMocks and build_runner", "Hand-written fakes and Fake", "fake_async and elapsing time", "package:clock and withClock", "Tags with @Tags and dart_test.yaml", "addTearDown for cleanup"],
+          "tools": ["Dart SDK", "package:mocktail", "package:fake_async", "package:test"],
+          "lab_task": "Test a service that calls a repository and a clock. Write one mocktail mock, one hand-written fake and one test using FakeAsync that elapses 5 seconds of a 1 second Timer.periodic. Tag the slow tests with @Tags(['slow']) in dart_test.yaml and run dart test --exclude-tags slow.",
+          "deliverable": "Service tests using a mock, a fake and fake_async with tag configuration",
+          "checks": [["Elapse 5 seconds in FakeAsync with a 1 second periodic timer", "The callback has fired 5 times and the test takes under 100 ms of real time", "Test output"], ["Run verify(() => repo.save(any())).called(1)", "Passes when save was called once and fails with the actual count otherwise", "Test output"], ["Run dart test --exclude-tags slow", "Tests tagged slow are skipped", "Test output"]],
+          "objectives": ["Choose between mocks and fakes", "Test timers without waiting", "Organise tests with tags"]
+        },
+        {
+          "topic": "Test Coverage, Reporters and Parameterised Tests",
+          "subtopics": ["dart test --coverage=coverage", "Converting data with coverage:format_coverage to lcov", "dart pub global run coverage:test_with_coverage", "Reading lcov and genhtml reports", "Reporters: github, json and file reporters", "Sharding with --shard-index and --total-shards", "Table-driven tests with loops", "Randomised ordering with --test-randomize-ordering-seed", "Running on several platforms with --platform"],
+          "tools": ["Dart SDK", "package:coverage", "package:test", "genhtml", "GitHub Actions"],
+          "lab_task": "Create a table-driven test of 20 cases for a slug function, run dart test --coverage=coverage, convert to lcov.info with coverage:format_coverage --lcov --report-on=lib, and report line coverage per file. Run with --test-randomize-ordering-seed=random and --reporter json to capture machine-readable output.",
+          "deliverable": "A table-driven test file, lcov.info and a coverage summary per file",
+          "checks": [["Run dart test --coverage=coverage", "A coverage directory is created containing JSON files", "Directory listing"], ["Generate lcov and summarise lib/", "Per-file line coverage is listed and the slug file is at least 90 percent", "Coverage report"], ["Run dart test --reporter json", "Output is one JSON object per line including a done event", "Terminal output"]],
+          "objectives": ["Measure test coverage", "Write table-driven tests", "Produce CI-friendly reports"]
+        },
+        {
+          "topic": "Command-Line Applications with package:args and CommandRunner",
+          "subtopics": ["ArgParser, flags, options and allowed values", "addMultiOption and defaults", "Parsing and the FormatException for unknown options", "Generating usage text", "CommandRunner and Command subclasses", "UsageException and exit code 64", "Exit codes for data errors, missing input and internal errors", "Writing results to stdout and diagnostics to stderr", "Colours with package:io only when a terminal is attached"],
+          "tools": ["Dart SDK", "package:args", "package:io", "package:test"],
+          "lab_task": "Create a tool with subcommands convert and stats using CommandRunner, a --format option allowed json or csv, a repeated --column option and a --verbose flag. Print usage on --help, exit 64 on unknown options, and add tests that call runner.run([...]) and capture output.",
+          "deliverable": "A CommandRunner CLI with usage text and tests for each command",
+          "checks": [["Run the tool with --bogus", "Prints Could not find an option named \"--bogus\" and exits 64", "Terminal output"], ["Run the tool with --format xml", "Rejected as not an allowed value, listing json and csv", "Terminal output"], ["Run tool convert --help", "Prints usage listing --format and --column", "Terminal output"]],
+          "objectives": ["Build structured command-line tools", "Provide usage and proper exit codes", "Test commands without a terminal"]
+        },
+        {
+          "topic": "Processes, Signals and Stdio Pipelines",
+          "subtopics": ["Process.run, Process.start and ProcessResult", "Streaming child stdout and stderr", "runInShell, working directory and environment", "ProcessException when the executable is missing", "Reading from stdin line by line", "ProcessSignal.sigint.watch and sigterm", "Cleaning up children on Ctrl+C", "Piping with stdin.pipe", "Platform differences on Windows, macOS and Linux"],
+          "tools": ["Dart SDK", "dart:io", "package:test", "Terminal"],
+          "lab_task": "Write a xargs-style tool that reads lines from stdin and runs a command for each, capturing exit codes. Handle ProcessSignal.sigint to kill the running child and exit 130. Start a missing executable and handle the ProcessException. Test with printf 'a\\nb\\nc\\n' | dart run bin/runeach.dart echo.",
+          "deliverable": "runeach.dart with a transcript of normal, failing-child and Ctrl+C runs",
+          "checks": [["Run printf 'a\\nb\\nc\\n' | dart run bin/runeach.dart echo", "Prints a, b and c on separate lines", "Terminal output"], ["Run the tool with a command that does not exist", "Reports ProcessException and exits non-zero", "Terminal output"], ["Press Ctrl+C during a sleep 30 child", "Child is killed and the exit code is 130", "Terminal output and ps listing"]],
+          "objectives": ["Run and manage child processes", "Handle signals gracefully", "Build stream-based pipelines"]
+        },
+        {
+          "topic": "Pure-Dart Packages Shared with Flutter Apps",
+          "subtopics": ["Why keep domain logic free of package:flutter", "dart pub versus flutter pub and the resolver", "Testing the same package with dart test and flutter test", "Conditional imports: dart.library.io and dart.library.js_interop", "Moving heavy parsing to Isolate.run, as compute does", "Repository and service interfaces for the data layer", "Verifying web compatibility with dart compile js", "Sharing one package across a Flutter app and a Dart server"],
+          "tools": ["Dart SDK", "Flutter SDK", "dart compile", "package:test", "pub workspaces"],
+          "lab_task": "Create a pure Dart package notes_core with a Note model, a NoteRepository interface and a conditional import of a storage implementation (file on dart.library.io, in-memory otherwise). Run dart test, compile a tiny main with dart compile js, and show that importing package:flutter fails under dart analyze.",
+          "deliverable": "notes_core package with conditional import, test results and a JS compile log",
+          "checks": [["Run dart analyze after importing package:flutter in the pure package", "Reports uri_does_not_exist for the Flutter import", "Analyzer output"], ["Run dart compile js on an entry point using the conditional import", "Compilation succeeds and chooses the in-memory implementation", "Terminal output"], ["Run dart test", "All repository tests pass on the VM using the file implementation", "Test output"]],
+          "objectives": ["Design Dart code that can be shared across platforms", "Use conditional imports", "Keep the domain layer testable"]
+        },
+        {
+          "topic": "Intermediate Capstone: Async Link Checker CLI with Isolates",
+          "subtopics": ["Architecture: CommandRunner, a crawler, a parser and a reporter", "Concurrency with Pool and per-host limits", "HTML parsing in isolates with package:html", "Deterministic tests with a local HttpServer fixture and MockClient", "JSON and text reports with exit code 1 when links are broken", "Packaging as dart compile exe with a README"],
+          "tools": ["Dart SDK", "package:args", "package:http", "package:html", "package:pool", "package:test"],
+          "lab_task": "Build linkcheck <url> --depth 2 --concurrency 8 --format json that crawls a local HttpServer fixture of 12 links containing 3 broken ones, parses HTML in Isolate.run, retries 503s, prints a report, and exits 1 when links are broken. Add at least 15 tests and compile with dart compile exe.",
+          "deliverable": "Repository with source, 15 tests, JSON report sample and compiled binary",
+          "checks": [["Crawl the fixture with 12 links and 3 that return 404", "Report lists 12 checked and 3 broken and the exit code is 1", "Report and exit code"], ["Crawl with --concurrency 1 and then 8", "The 8-way run finishes in less than half the time on delayed responses", "Timing log"], ["Run dart analyze and dart test", "No issues and all tests pass", "Command output"]],
+          "objectives": ["Combine async, isolates and CLI design", "Make network tools testable", "Ship and document a Dart tool"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For experienced Dart developers building performance-sensitive tools and servers. Covers the VM, garbage collection, profiling with DevTools, benchmarking, isolate worker pools, FFI, build hooks and native assets, Dart on the web with JavaScript and WebAssembly, compile targets and cross-compilation, server-side Dart with shelf, dart:io, WebSockets, databases, security, gRPC, Dart Frog and Serverpod, containers and Cloud Run, observability, workspaces, code generation, dependency governance, and a job-queue capstone.",
+      "prerequisites": ["Completed an intermediate Dart course or has shipped Dart packages or tools", "Understands async, streams and isolates and can write tests", "Has Docker installed and can read basic SQL and HTTP traces"],
+      "outcomes": ["Profile, benchmark and tune Dart programs using DevTools and AOT builds", "Integrate native code and JavaScript or WebAssembly targets with FFI and js_interop", "Build secure, observable, containerised Dart servers with databases and gRPC", "Govern dependencies and large Dart codebases with workspaces, code generation and CI checks"],
+      "days": [
+        {
+          "topic": "Dart VM Internals: Heap, Garbage Collection, JIT and AOT",
+          "subtopics": ["Kernel (dill) as the shared intermediate form", "JIT: unoptimised code, type feedback, optimising compiler and deoptimisation", "AOT: whole-program type flow analysis and tree shaking", "Generational heap: young-space scavenger and old-space mark-sweep or compact", "Isolate groups sharing a heap and code", "Snapshot kinds: kernel, JIT, AOT and app", "VM flags such as --old_gen_heap_size and verbose GC logging", "Memory growth versus leaks", "Reading GC logs and pause times"],
+          "tools": ["Dart SDK", "dart CLI", "DartPad", "Dart DevTools"],
+          "lab_task": "Write gc_demo.dart that creates 50 million short-lived objects, then a version that retains 2 million in a list. Run both with the VM's verbose GC logging flag, count scavenges and mark-sweep events, and record peak RSS using /usr/bin/time -v. Compare the JIT run with dart compile exe output.",
+          "deliverable": "gc_demo.dart with GC event counts, RSS figures and a JIT versus AOT comparison",
+          "checks": [["Run the short-lived allocation program with GC logging", "Log shows many young-generation scavenges and few or no old-generation collections", "GC log"], ["Run the retaining program", "Peak RSS is at least ten times higher than the short-lived version", "time -v output"], ["Compare dart run and the dart compile exe binary", "Start-up time of the binary is lower; steady-state speed is recorded for both", "Timing table"]],
+          "objectives": ["Describe how the VM compiles and runs Dart", "Read GC behaviour", "Choose JIT or AOT for a workload"]
+        },
+        {
+          "topic": "Profiling with DevTools: CPU, Memory and Allocation",
+          "subtopics": ["dart run --observe and the VM service URI", "dart devtools and connecting to a running process", "CPU profiler: call tree, bottom-up and flame chart", "Memory view: snapshots, diffs and retaining paths", "Allocation tracing per class", "dart:developer Timeline.timeSync and developer.log", "Exporting traces for Perfetto", "Profile AOT builds, not only JIT", "Finding a leak from a growing cache"],
+          "tools": ["Dart SDK", "Dart DevTools", "dart:developer", "Perfetto", "Stopwatch"],
+          "lab_task": "Profile a supplied report generator that concatenates strings in a loop and keeps an unbounded cache. Run with dart run --observe, open DevTools, capture a CPU profile and a memory diff, and name the top frame and the leaking class. Fix with StringBuffer and a bounded LRU map, then record before and after numbers.",
+          "deliverable": "Profiling report with screenshots, top-frame percentages and before and after timings",
+          "checks": [["Capture the CPU profile of the naive generator", "The string concatenation frame is the largest self-time entry", "DevTools screenshot"], ["Take two memory snapshots one minute apart and diff them", "Instance count of the cached entry class grows steadily", "DevTools snapshot diff"], ["Re-run after the StringBuffer and LRU fixes", "Wall time falls and the instance count stays at or below the cache limit", "Timing and snapshot table"]],
+          "objectives": ["Profile CPU and memory", "Locate hot spots and leaks", "Prove an optimisation with measurements"]
+        },
+        {
+          "topic": "Performance Tuning: Allocations, const, Typed Data and Benchmarks",
+          "subtopics": ["benchmark_harness: BenchmarkBase, setup, run and exercise", "Benchmark AOT builds, warm-up and noise", "const and canonical instances to avoid allocation", "Typed data: Uint8List, Float64List and ByteData", "BytesBuilder and avoiding repeated copies", "sublistView versus sublist", "Avoiding dynamic calls and closures in hot loops", "StringBuffer and avoiding interpolation in tight loops", "Lazy iterable chains versus loops"],
+          "tools": ["Dart SDK", "package:benchmark_harness", "dart compile exe", "Dart DevTools"],
+          "lab_task": "Write benchmarks with benchmark_harness for summing 10 million numbers in a List<int>, a Int32List and a lazy iterable chain, and for building a 1 MB response with string concatenation, StringBuffer and BytesBuilder. Compile with dart compile exe and run each three times. Report mean and spread.",
+          "deliverable": "A benchmark suite with a results table and a ranked list of optimisations",
+          "checks": [["Run the sum benchmark for List<int> and Int32List", "Int32List is faster and uses less memory; both numbers are recorded", "Benchmark output"], ["Run the concatenation benchmark", "StringBuffer is faster than repeated + by a factor shown in the table", "Benchmark output"], ["Run each benchmark three times", "Spread between runs is reported and stays below 15 percent", "Results table"]],
+          "objectives": ["Write trustworthy micro-benchmarks", "Reduce allocation", "Use typed data"]
+        },
+        {
+          "topic": "Isolate Groups, TransferableTypedData and Worker Pools",
+          "subtopics": ["Isolate groups and cheap spawning of workers", "Designing a worker pool with N isolates", "Request and response correlation with ids", "TransferableTypedData for large byte buffers", "Isolate.exit for returning a large result without copying", "Backpressure with bounded queues", "Crash isolation with onError, onExit and restart", "Graceful shutdown and Isolate.kill", "Sizing with Platform.numberOfProcessors"],
+          "tools": ["Dart SDK", "dart:isolate", "package:crypto", "Dart DevTools"],
+          "lab_task": "Build a WorkerPool with Platform.numberOfProcessors isolates that hashes 500 buffers of 1 MB with package:crypto sha256. Send buffers with plain Uint8List and again with TransferableTypedData, then compare time. Kill one worker mid-run, restart it, and confirm all 500 results arrive.",
+          "deliverable": "worker_pool.dart with timings for both transfer methods and a crash-recovery log",
+          "checks": [["Hash 500 buffers with plain copies and with TransferableTypedData", "Both return identical digests and the transferable run is faster", "Timing table"], ["Kill one worker during the run", "The pool restarts it and all 500 results are still returned", "Program output"], ["Call pool.shutdown()", "All isolates exit and the process ends within one second", "Terminal output"]],
+          "objectives": ["Build a robust isolate pool", "Move large data efficiently", "Handle crashes and shutdown"]
+        },
+        {
+          "topic": "Calling C from Dart with dart:ffi",
+          "subtopics": ["DynamicLibrary.open, DynamicLibrary.process and symbol lookup", "Native and Dart function signatures with lookupFunction", "Pointer, Struct, Union and Array types", "package:ffi: calloc, malloc and Utf8 conversion", "Arena and using() for scoped memory", "NativeCallable callbacks", "NativeFinalizer and Finalizable", "Memory ownership rules and leaks", "Platform libraries: libc, libm and Windows DLLs"],
+          "tools": ["Dart SDK", "package:ffi", "gcc or clang", "Dart DevTools"],
+          "lab_task": "Compile add.c with gcc -shared -fPIC -o libadd.so, bind int add(int, int) and a struct-returning function with dart:ffi, and call strlen from the process library through toNativeUtf8. Allocate with an Arena, free everything, then call 1 million times to check the Dart process memory stays flat.",
+          "deliverable": "ffi_demo.dart, add.c and a memory-over-time note",
+          "checks": [["Call add(2, 3) through FFI", "Returns 5", "Program output"], ["Call strlen on the string 'dartffi' via toNativeUtf8", "Returns 7 and the pointer is freed", "Program output"], ["Allocate 1 million native strings inside using() blocks", "Resident memory stays flat; without freeing it grows", "Memory log"]],
+          "objectives": ["Call native functions from Dart", "Manage native memory", "Avoid FFI leaks"]
+        },
+        {
+          "topic": "Build Hooks and Native Assets with ffigen and jnigen",
+          "subtopics": ["Why build hooks replace hand-written build scripts for native code", "hook/build.dart and the BuildInput and BuildOutput types", "Compiling C with native_toolchain_c CBuilder", "Declaring code assets and @Native bindings", "Generating bindings with ffigen and ffigen.yaml", "jnigen for Java and Kotlin on the JVM and Android", "Objective-C and Swift interop via generated bindings", "Checking which hook packages are stable in the SDK in use", "Cross-platform pitfalls: toolchain, architecture and linking"],
+          "tools": ["Dart SDK", "package:hooks", "native_toolchain_c", "ffigen", "jnigen"],
+          "lab_task": "Create a package with a small C file, a hook/build.dart that compiles it with CBuilder, an @Native external function bound to it, and ffigen to generate bindings from the header. Run dart run on a client that calls it, and record exact package versions because these APIs are still moving.",
+          "deliverable": "A native-assets package with hook, bindings, run log and a version-compatibility note",
+          "checks": [["Run dart run in the client package", "The hook compiles the C source and the program prints the native result", "Terminal output"], ["Run dart run ffigen", "Generates a bindings file listing the functions declared in the header", "Terminal output and generated file"], ["Change the C source and re-run", "The hook rebuilds and the new result is printed", "Terminal output"]],
+          "objectives": ["Bundle native code in a Dart package", "Generate bindings automatically", "Track unstable APIs responsibly"]
+        },
+        {
+          "topic": "Dart on the Web: dart:js_interop, package:web and Wasm",
+          "subtopics": ["dart:js_interop, @JS and JSObject", "Extension types for typed JavaScript objects", "toJS, toDart and converting values", "package:web for DOM access", "dart:html and why it is deprecated", "dart compile js -O2 and source maps", "dart compile wasm and WasmGC browser support", "Interop rules that make code compile to both targets", "Output size, loading and the .mjs bootstrap"],
+          "tools": ["Dart SDK", "package:web", "dart compile js", "dart compile wasm", "Chrome DevTools"],
+          "lab_task": "Write a counter that uses package:web to update the DOM and dart:js_interop to call console.log and a small JavaScript function. Compile with dart compile js -O2 and with dart compile wasm, serve with python3 -m http.server and test in a current Chromium browser. Record output sizes of both builds.",
+          "deliverable": "A web demo compiled to JS and Wasm with a size comparison table",
+          "checks": [["Run dart compile js -O2", "Produces a .js file and the counter works in the browser", "File listing and browser screenshot"], ["Run dart compile wasm", "Produces a .wasm file and a .mjs loader", "File listing"], ["Import dart:html in a file compiled to Wasm", "The compiler rejects it as unsupported for this target", "Compiler output"]],
+          "objectives": ["Interoperate with JavaScript from Dart", "Compile to JS and WebAssembly", "Write code compatible with both"]
+        },
+        {
+          "topic": "Compilation Targets and Cross-Platform Binaries",
+          "subtopics": ["dart compile exe: self-contained executables", "aot-snapshot and dartaotruntime", "jit-snapshot and training runs", "kernel and module output", "Cross-compilation with --target-os and --target-arch", "Compile-time defines: -D and String.fromEnvironment", "Assertions are removed in AOT builds", "Binary size and start-up trade-offs", "Release pipelines for Linux, macOS and Windows"],
+          "tools": ["Dart SDK", "dart compile", "file", "GitHub Actions", "Docker"],
+          "lab_task": "Compile one CLI to exe on your host, to aot-snapshot run with dartaotruntime, and to jit-snapshot. Cross-compile a Linux arm64 binary with --target-os=linux --target-arch=arm64 and run file on it. Pass -DENV=prod and read it with String.fromEnvironment. Record size and start-up time for each.",
+          "deliverable": "Comparison table of five outputs plus the cross-compile and define evidence",
+          "checks": [["Run file on the cross-compiled binary", "Reports an ELF 64-bit executable for ARM aarch64", "Terminal output"], ["Build with -DENV=prod and print String.fromEnvironment('ENV')", "Prints prod; without the flag it prints the default value", "Program output"], ["Run code containing assert(false) from the exe", "No AssertionError is thrown because AOT builds drop asserts", "Program output"]],
+          "objectives": ["Choose the right compile target", "Cross-compile for servers", "Inject build-time configuration"]
+        },
+        {
+          "topic": "Server-Side Dart with shelf, Routers and Middleware",
+          "subtopics": ["shelf Handler, Request and Response", "shelf_io.serve and binding to 0.0.0.0", "Pipeline and middleware order", "shelf_router: path parameters and typed routes", "Custom middleware for error mapping and request ids", "Reading and validating JSON bodies", "Static files with shelf_static", "CORS with shelf_cors_headers", "Graceful shutdown on SIGINT and SIGTERM", "Testing handlers directly without sockets"],
+          "tools": ["Dart SDK", "package:shelf", "package:shelf_router", "curl", "package:test"],
+          "lab_task": "Build an items API with GET /items, GET /items/<id>, POST /items and DELETE /items/<id> using shelf_router, logRequests, an error-mapping middleware and a request-id middleware. Test handlers by calling them with Request objects, then verify with curl -i and close the server cleanly on SIGINT.",
+          "deliverable": "A shelf service with tests, a curl transcript and middleware ordering notes",
+          "checks": [["curl -i /items/999 for a missing item", "Returns 404 with a JSON error body and an X-Request-Id header", "curl transcript"], ["POST invalid JSON to /items", "Returns 400 with a message naming the bad field", "curl transcript"], ["Send SIGINT to the running server", "Server closes and exits with code 0 after in-flight requests finish", "Terminal output"]],
+          "objectives": ["Build a REST API with shelf", "Compose middleware", "Test handlers without a network"]
+        },
+        {
+          "topic": "HTTP Servers with dart:io: Streaming, WebSockets and TLS",
+          "subtopics": ["HttpServer.bind and the request lifecycle", "Headers, status codes and content negotiation", "Streaming responses and Server-Sent Events", "Request body limits and chunked uploads", "WebSocketTransformer.upgrade and shelf_web_socket", "Ping intervals, close codes and idle clients", "Broadcasting to connected clients", "HttpServer.bindSecure with SecurityContext", "Compression and keep-alive settings"],
+          "tools": ["Dart SDK", "dart:io", "package:shelf_web_socket", "websocat", "curl"],
+          "lab_task": "Write a chat server with a /ws WebSocket route that broadcasts messages to all other clients, plus a /events Server-Sent Events route that emits one event per second. Connect three clients with WebSocket.connect, send one message, and assert two receive it. Add an idle timeout that closes silent sockets with code 1001.",
+          "deliverable": "chat_server.dart with a three-client test and an SSE curl transcript",
+          "checks": [["Three clients connect and one sends 'hi'", "The other two receive hi and the sender does not", "Test output"], ["curl -N /events for five seconds", "Receives about five data: lines with the text/event-stream content type", "curl transcript"], ["Keep a socket silent beyond the idle timeout", "Server closes it with a close code and the client sees onDone", "Test output"]],
+          "objectives": ["Serve streaming responses", "Build WebSocket servers", "Manage idle and secure connections"]
+        },
+        {
+          "topic": "Databases from Dart: PostgreSQL, SQLite and Transactions",
+          "subtopics": ["package:postgres: Connection.open, Endpoint and Pool", "Parameterised queries with Sql.named and @params", "Transactions with runTx and rollback on exception", "package:sqlite3: open, select, prepare and dispose", "SQLite WAL mode and the busy timeout", "SQL injection with string interpolation", "Migrations as ordered SQL files", "Type-safe queries with Drift", "Mapping rows to records and sealed results"],
+          "tools": ["Dart SDK", "package:postgres", "package:sqlite3", "Docker", "psql"],
+          "lab_task": "Create a users table in SQLite and in PostgreSQL started with docker run postgres. Insert 10,000 rows with one transaction and then one auto-commit per row and compare times. Run a query built with string interpolation against the input x' OR '1'='1, then the Sql.named parameterised version, and add a transaction that rolls back.",
+          "deliverable": "A data access layer with a timing table, injection demonstration and rollback test",
+          "checks": [["Insert 10,000 rows in one transaction versus separate statements", "The single transaction is clearly faster and both counts equal 10,000", "Timing table"], ["Query with the input x' OR '1'='1 using string interpolation", "Returns every row, demonstrating injection", "Program output"], ["Run the parameterised query with the same input", "Returns 0 rows", "Program output"]],
+          "objectives": ["Query SQL databases safely from Dart", "Use transactions and pools", "Prevent SQL injection"]
+        },
+        {
+          "topic": "Authentication and Security Hardening for Dart Servers",
+          "subtopics": ["Password storage with Argon2id or bcrypt, never plain sha256", "Issuing and verifying JWTs with dart_jsonwebtoken", "Short expiry, refresh tokens and revocation", "Random.secure for tokens and constant-time comparison", "Auth middleware returning 401 and 403", "Security headers: HSTS, nosniff and CSP", "CORS allowlists", "Rate limiting with a token bucket", "Request size limits and input validation", "Keeping secrets out of source and logs"],
+          "tools": ["Dart SDK", "package:shelf", "dart_jsonwebtoken", "package:crypto", "curl"],
+          "lab_task": "Add authentication to the shelf items API: POST /login issues a 15-minute JWT, an auth middleware protects /items, a token-bucket middleware returns 429 after 20 requests a minute, and security headers are added to every response. Test missing, expired, tampered and valid tokens, and keep the signing key in an environment variable.",
+          "deliverable": "Auth and rate-limit middleware with a test matrix and a header check",
+          "checks": [["Call /items with no token and with a tampered token", "Both return 401", "curl transcript"], ["Call /items with an expired token", "Returns 401 and an expiry message", "Test output"], ["Send 25 requests in a minute with a valid token", "Requests 21 to 25 return 429", "Request log"]],
+          "objectives": ["Authenticate API clients securely", "Add defensive middleware", "Handle secrets properly"]
+        },
+        {
+          "topic": "gRPC and Protocol Buffers in Dart",
+          "subtopics": ["Writing a .proto service and message definitions", "protoc with protoc_plugin: --dart_out=grpc:lib/src/generated", "package:grpc Server.create and serve", "ClientChannel and ChannelCredentials", "Unary, server-streaming, client-streaming and bidirectional calls", "Deadlines with CallOptions(timeout:)", "GrpcError codes and status mapping", "Interceptors and metadata for auth and logging", "Testing with an in-process server", "gRPC versus REST trade-offs"],
+          "tools": ["Dart SDK", "protoc", "protoc_plugin", "package:grpc", "grpcurl"],
+          "lab_task": "Define Greeter with a unary SayHello and a server-streaming Countdown(n), generate code with protoc, implement the server and a client, and stream 5 messages. Add a slow handler of 500 ms and call it with a 100 ms deadline. Query it with grpcurl using reflection or the proto file.",
+          "deliverable": "A proto file, generated code, server and client with test results",
+          "checks": [["Call Countdown(5)", "Client receives exactly 5 messages in order", "Program output"], ["Call the slow method with a 100 ms deadline", "Fails with GrpcError code 4 DEADLINE_EXCEEDED", "Program output"], ["Call SayHello through grpcurl", "Returns the same JSON reply as the Dart client", "grpcurl output"]],
+          "objectives": ["Define services with protobuf", "Implement gRPC servers and clients", "Use deadlines and error codes"]
+        },
+        {
+          "topic": "Dart Frog and Serverpod: Choosing a Backend Framework",
+          "subtopics": ["Dart Frog file-system routing and onRequest", "Dart Frog middleware and dependency injection with provider", "Dynamic routes like routes/users/[id].dart", "dart_frog dev and dart_frog build", "Serverpod project layout: server, client and Flutter packages", "Serverpod models in .spy.yaml and generated protocol code", "Serverpod endpoints, ORM and Docker services", "Comparing plain shelf, Dart Frog and Serverpod", "Migration paths between frameworks"],
+          "tools": ["Dart SDK", "dart_frog_cli", "Serverpod CLI", "Docker", "package:shelf"],
+          "lab_task": "Implement GET /health and GET /users/<id> in Dart Frog with a provided repository, run dart_frog dev and test with dart_frog_test. Run serverpod create demo and list the packages it generates. Write a one-page decision matrix comparing shelf, Dart Frog and Serverpod for a team of three building a CRUD API.",
+          "deliverable": "A Dart Frog service, the Serverpod project tree and a decision matrix",
+          "checks": [["Run dart_frog dev and request /users/42", "Returns JSON for user 42 supplied through the provider", "curl transcript"], ["Run serverpod create demo", "Creates demo_server, demo_client and demo_flutter packages", "Directory listing"], ["Run dart_frog build", "Produces a build folder with a server entry and Dockerfile", "Directory listing"]],
+          "objectives": ["Build a service with Dart Frog", "Understand Serverpod structure", "Choose a framework with criteria"]
+        },
+        {
+          "topic": "Containers and Cloud Run Deployment for Dart Servers",
+          "subtopics": ["Multi-stage Dockerfile: dart:stable build stage and a scratch runtime", "dart pub get --offline and layer caching", "AOT-compiled server binary in a minimal image", ".dockerignore and non-root execution", "Reading PORT and binding to 0.0.0.0", "Handling SIGTERM for graceful shutdown", "gcloud run deploy with concurrency, min instances and secrets", "Health and readiness endpoints", "Image size and vulnerability scanning"],
+          "tools": ["Dart SDK", "Docker", "gcloud CLI", "Cloud Run", "curl"],
+          "lab_task": "Write a multi-stage Dockerfile that compiles the shelf server with dart compile exe and copies it and /runtime/ into a scratch image. Build it, run on port 8080, check docker image ls size, then docker stop twice: once without a SIGTERM handler and once with it. Deploy to Cloud Run if an account is available.",
+          "deliverable": "Dockerfile, size report and stop-time comparison with and without the SIGTERM handler",
+          "checks": [["Run docker image ls for the final image", "Image size is under 30 MB", "Command output"], ["curl localhost:8080/health from the container", "Returns 200 and ok", "curl transcript"], ["docker stop with and without the SIGTERM handler", "Handler exits in under 2 seconds with code 0; without it exit takes about 10 seconds with code 137", "Timing and docker inspect output"]],
+          "objectives": ["Containerise a Dart server", "Shut down gracefully on SIGTERM", "Deploy to a serverless platform"]
+        },
+        {
+          "topic": "Observability: Logging, Metrics and Tracing for Dart Services",
+          "subtopics": ["package:logging: Logger, Level and onRecord", "Structured JSON logs with a severity field", "Request ids via zones in log records", "Counters and histograms exposed in Prometheus text format", "/metrics, /health and /ready endpoints", "dart:developer log and Timeline", "Error reporting with Sentry or Crashlytics-style tools", "Community OpenTelemetry packages and their maturity", "Alerting on latency and error rate"],
+          "tools": ["Dart SDK", "package:logging", "Prometheus", "Grafana", "curl"],
+          "lab_task": "Add a JSON logging middleware and a /metrics endpoint to the shelf service exposing http_requests_total{route,status} and a request duration histogram. Generate 200 requests with a loop, scrape /metrics with curl, then run a local Prometheus with docker and graph the rate for a minute.",
+          "deliverable": "Instrumented service with a scraped metrics sample and a dashboard screenshot",
+          "checks": [["Send 200 requests to /items and read /metrics", "http_requests_total for route /items sums to 200", "curl output"], ["Trigger an error route", "A JSON log line has severity ERROR, the request id and the message", "Log output"], ["Open Prometheus and query rate(http_requests_total[1m])", "Graph shows a non-zero rate during the load loop", "Prometheus screenshot"]],
+          "objectives": ["Emit structured logs", "Expose service metrics", "Correlate logs with requests"]
+        },
+        {
+          "topic": "Monorepos with Pub Workspaces and Package Governance",
+          "subtopics": ["Root pubspec workspace: list and member resolution: workspace", "One resolution and one pubspec.lock for all packages", "dart pub get from any member", "Local packages without path overrides", "publish_to: none on the root and private packages", "dependency_overrides only at the root", "Running tests and analysis across packages", "Melos for versioning and scripts", "Ownership with CODEOWNERS and package boundaries"],
+          "tools": ["Dart SDK", "pub workspaces", "Melos", "GitHub Actions", "dart test"],
+          "lab_task": "Create a workspace with packages core, api and cli, where api and cli depend on core, run dart pub get once, and confirm there is a single pubspec.lock. Bump a shared dependency in one place, run dart test in every package using a loop or Melos, and show what happens when a member omits resolution: workspace.",
+          "deliverable": "A three-package workspace with a CI script that tests all packages",
+          "checks": [["Run find . -name pubspec.lock after dart pub get", "Exactly one lockfile at the workspace root", "Terminal output"], ["Remove resolution: workspace from one member and run dart pub get", "Resolution fails with a message that the member must opt in", "Terminal output"], ["Run the test loop across the three packages", "Each package reports its own pass count and exit code 0", "Test output"]],
+          "objectives": ["Structure a Dart monorepo", "Share dependencies safely", "Run checks across packages"]
+        },
+        {
+          "topic": "Custom Lints and Code Generation with source_gen",
+          "subtopics": ["The build system: Builder, build.yaml and build_extensions", "source_gen: GeneratorForAnnotation and part files", "Reading the analyzer element model", "Generating toString, copyWith or serialisers", "Testing builders with build_test", "Why macros were dropped and code generation remains the route", "Analyzer plugins and custom lint rules", "Keeping generators fast: incremental builds", "Versioning generated code and analyzer API changes"],
+          "tools": ["Dart SDK", "build_runner", "source_gen", "build_test", "package:analyzer"],
+          "lab_task": "Write an @AutoToString annotation and a source_gen generator that emits a toString for annotated classes into a .g.dart part file. Test it with build_test and a golden string, run dart run build_runner build on a sample package, and pin the analyzer and source_gen versions in pubspec.yaml with a note on why.",
+          "deliverable": "A builder package and sample consumer with a golden test",
+          "checks": [["Annotate a class with two fields and run build_runner build", "Generated part file defines a toString containing both fields", "Generated file"], ["Run the build_test golden test", "Output matches the golden string exactly", "Test output"], ["Run build_runner build a second time without changes", "Reports no outputs rebuilt because inputs are unchanged", "Terminal output"]],
+          "objectives": ["Write a code generator", "Test builders", "Manage analyzer version coupling"]
+        },
+        {
+          "topic": "Pub Dependency Governance: Advisories, Pinning and Lockfiles",
+          "subtopics": ["When to commit pubspec.lock: applications yes, libraries no", "dart pub outdated, including --json output", "dart pub upgrade --major-versions and --tighten", "dart pub get --enforce-lockfile in CI", "Reviewing a dependency: pub points, maintainers and publisher", "Retracted versions and discontinued packages", "Security advisories reported by pub.dev and the SDK", "Overrides and the warnings they print", "Mirrors and private repositories with PUB_HOSTED_URL"],
+          "tools": ["Dart SDK", "dart pub", "pub.dev", "GitHub Actions", "jq"],
+          "lab_task": "Write a script that runs dart pub outdated --json and prints a table of direct dependencies with current, upgradable and latest versions. Add a CI step using dart pub get --enforce-lockfile, introduce a pubspec change without updating the lock, and show it fails. Review three dependencies with a checklist.",
+          "deliverable": "A dependency audit script, CI step and a three-package review table",
+          "checks": [["Run the audit script", "Prints a table with one row per direct dependency including three version columns", "Script output"], ["Edit pubspec.yaml without refreshing the lock and run dart pub get --enforce-lockfile", "The command fails because the lockfile would change", "Terminal output"], ["Add a dependency_overrides entry and run dart pub get", "Prints a warning listing the overridden dependency", "Terminal output"]],
+          "objectives": ["Audit and update dependencies", "Enforce reproducible installs", "Evaluate third-party packages"]
+        },
+        {
+          "topic": "Advanced Capstone: Production Job-Queue Service with Isolate Workers",
+          "subtopics": ["Architecture: shelf API, SQLite store and an isolate worker pool", "Authentication, rate limits and structured logging", "Graceful shutdown that drains running jobs", "Tests, load test and benchmark results", "AOT build, container image and deployment notes", "Runbook with failure modes and metrics"],
+          "tools": ["Dart SDK", "package:shelf", "package:sqlite3", "Docker", "hey", "Dart DevTools"],
+          "lab_task": "Build a service with POST /jobs and GET /jobs/<id>, persisting jobs in SQLite and running hash and report tasks on an isolate pool of 4 workers. Add JWT auth, /metrics and a SIGTERM drain. Load test with hey -n 2000 -c 50, kill the process mid-run, restart and show no accepted job is lost.",
+          "deliverable": "Repository with source, tests, Dockerfile, load-test report and a runbook",
+          "checks": [["Run hey -n 2000 -c 50 against POST /jobs", "All 2000 return 202 and p95 latency is recorded below 100 ms", "hey output"], ["Send SIGTERM during processing and restart", "Running jobs finish, queued jobs persist and the final count of completed jobs equals the accepted count", "Database query output"], ["Run dart analyze, dart test and docker build", "No analyzer issues, all tests pass and the image builds", "Command output"]],
+          "objectives": ["Combine isolates, HTTP and persistence in a service", "Prove reliability with load and failure tests", "Document operations for the team"]
+        }
+      ]
+    }
+  }
+}

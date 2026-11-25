@@ -92,16 +92,20 @@ async def discover(domain, mode, target, location='', db=None):
     except Exception as exc:
         accept(getattr(exc, 'results', None) or collected, 'linkedin_account')
         warnings.insert(0, search_warning('linkedin_account', exc))
-    return results[:target], {'domain': domain, 'target': target, 'matched': min(len(results), target),
-                              'target_met': len(results) >= target, 'attempts': attempts,
-                              'warnings': warnings, 'primary_error': warnings[0]['error'] if warnings else None,
-                              'status': 'target_met' if len(results) >= target else 'partial' if results else 'blocked' if warnings else 'no_results'}
+    outcome = {'domain': domain, 'target': target, 'matched': min(len(results), target),
+               'target_met': len(results) >= target, 'attempts': attempts,
+               'warnings': warnings, 'primary_error': warnings[0]['error'] if warnings else None,
+               'status': 'target_met' if len(results) >= target else 'partial' if results else 'blocked' if warnings else 'no_results'}
+    outcome['sources'] = [_account_source(results, outcome)]
+    return results[:target], outcome
 
 
 def _account_source(rows, outcome):
     error = outcome.get('primary_error') or ''
     low = error.lower()
-    if 'paused until' in low or 'linkedin limited this session' in low:
+    if 'not enabled' in low or 'not configured' in low:
+        status = 'not_configured'
+    elif 'paused until' in low or 'linkedin limited this session' in low:
         status = 'paused'
     elif rows:
         status = 'ok'
@@ -135,6 +139,10 @@ async def _saved_lead_keys(db, mode):
                 url = canonical_public_url(value or '') if isinstance(value, str) else ''
                 if url:
                     keys.add(url.lower())
+        # The saved profile keys use the same form as the finder's profile URLs.
+        for value in await db['trainer_profile_leads'].distinct('profile_key') or []:
+            if isinstance(value, str) and value.startswith('https://'):
+                keys.add(value)
     except Exception:
         logger.warning('Could not read saved %s leads; the web search may return saved ones again.', mode)
     return keys
