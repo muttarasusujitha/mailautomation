@@ -460,14 +460,29 @@ async def search_public_many(queries, limit=50, allowed_domains=None, report=Non
             timeouts = 0
         else:
             timeouts = 0
-    if found:
+    if len(found) >= limit:
         bing['skipped'] = 'enough'
-    elif queries:
-        bing['attempts'] += 1
-        bing_rows = await _search_bing(queries[0], limit, domains, bing)
-        found.extend(bing_rows)
-        bing['found'] += len(bing_rows)
-        bing['urls'].extend(row['url'] for row in bing_rows)
+    else:
+        # A few DuckDuckGo hits may not fill the requested batch. Search the
+        # remaining Naukri query variants on Bing too; the first, path-specific
+        # query often has no indexed hits even when broader variants do.
+        for query in queries:
+            remaining = limit - len(found)
+            if remaining <= 0:
+                break
+            query_report = _engine_tally()
+            bing_rows = await _search_bing(query, remaining, domains, query_report)
+            bing['attempts'] += query_report['attempts']
+            bing['timeouts'] += query_report['timeouts']
+            bing['refused'] += query_report['refused']
+            for row in bing_rows:
+                url = row['url']
+                if url in seen:
+                    continue
+                seen.add(url)
+                found.append(row)
+                bing['urls'].append(url)
+            bing['found'] = len(bing['urls'])
     if report is not None:
         report.update({'duckduckgo': ddg, 'bing': bing})
     return found[:limit], attempts
