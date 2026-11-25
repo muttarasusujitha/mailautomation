@@ -768,7 +768,7 @@ export default function Requirements() {
               <p className="mt-1 text-xs text-slate-500">Candidates below this experience are excluded.</p>
             </div>
             <div className="field-module">
-              <label className="label">Preferred Location <span className="text-slate-400 font-normal">(optional)</span></label>
+              <label className="label">Preferred Location</label>
               <input className="input" placeholder="e.g. Bangalore, Pune"
                 value={form.preferred_location}
                 onChange={e => setForm(f => ({ ...f, preferred_location: e.target.value }))} />
@@ -781,7 +781,7 @@ export default function Requirements() {
               </select>
             </div>
             <div className="field-module">
-              <label className="label">Required Certifications <span className="text-slate-400 font-normal">(optional)</span></label>
+              <label className="label">Required Certifications</label>
               <input className="input" placeholder="e.g. AWS Certified, PMP"
                 value={form.required_certifications.join(', ')}
                 onChange={e => setForm(f => ({
