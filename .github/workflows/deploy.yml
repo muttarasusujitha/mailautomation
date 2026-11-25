@@ -334,6 +334,15 @@ jobs:
           VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID || secrets.GOOGLE_CLIENT_ID }}
           EOF
 
+      - name: Reclaim unused Docker cache and images
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker system df
+          docker builder prune --all --force
+          docker image prune --all --force
+          docker system df
+
       - name: Check Deployment Disk Space
         shell: bash
         run: bash .github/scripts/check-docker-space.sh
