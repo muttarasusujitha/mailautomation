@@ -2700,20 +2700,14 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
         toc_data = dict(toc_data)
         quality = toc_data.get("quality") or {}
         evaluation = quality.get("content_evaluation") or {}
-        score = evaluation.get("score")
         if (
             quality.get("status") == "requires_review"
             and not quality.get("validation_errors")
+            and not quality.get("missing_requested_topics")
             and not evaluation.get("blocking_issues")
             and evaluation.get("status") != "fail"
-            and isinstance(score, (int, float))
-            and score >= 85
         ):
-            quality = {
-                **quality,
-                "automatic_review": True,
-                "reviewed_by": "automatic_quality_review",
-            }
+            quality.update({"automatic_review": True, "reviewed_by": "automatic_quality_review"})
             toc_data["quality"] = quality
         client_toc_topics = _client_supplied_toc_topics(requirement)
         if client_toc_topics:
@@ -4184,23 +4178,6 @@ async def send_shortlist_mail(
                                     toc_url,
                                     json={"toc": generated_toc},
                                 )
-                                toc_quality = generated_toc.get("quality") or {}
-                                reviewable_draft = (
-                                    toc_quality.get("status") == "requires_review"
-                                    and not toc_quality.get("validation_errors")
-                                    and (toc_quality.get("content_evaluation") or {}).get("status") != "fail"
-                                )
-                                is_draft_toc = False
-                                if toc_response.status_code == 422 and reviewable_draft:
-                                    # Mail 1 goes to the trainer for feasibility review.
-                                    # Export a clearly labeled draft for that review;
-                                    # never turn regeneration failures into delivery.
-                                    toc_response = await _post_with_local_fallback(
-                                        client,
-                                        f"{DOC_SVC}/api/v1/documents/excel/toc",
-                                        json={"toc": generated_toc, "draft": True},
-                                    )
-                                    is_draft_toc = True
                                 quality_review_rejected = False
                                 if toc_response.status_code == 422:
                                     try:
@@ -4223,14 +4200,7 @@ async def send_shortlist_mail(
                                     pass
                                 elif toc_response.status_code == 200 and toc_response.content:
                                     toc_label = "Proposed TOC" if is_proposal_flow else "Confirmed Batch TOC"
-                                    if is_draft_toc:
-                                        toc_label = "DRAFT FOR REVIEW - " + toc_label
-                                    if is_draft_toc:
-                                        toc_note = (
-                                            "A draft ToC/course agenda is attached for your review. Please confirm this scope and "
-                                            "confirm availability and delivery feasibility."
-                                        )
-                                    elif is_proposal_flow:
+                                    if is_proposal_flow:
                                         toc_note = (
                                             "The proposed ToC/course agenda is attached. Please review this scope and "
                                             "confirm availability and delivery feasibility."

@@ -32,8 +32,10 @@ def toc_delivery_error(toc):
     if status == "requires_review" and not automatic_review:
         return "TOC requires review before export or delivery; resolve its quality warnings first"
     evaluation = quality.get("content_evaluation") or {}
-    if (evaluation.get("status") == "fail"
-            or (evaluation.get("status") == "review" and evaluation.get("score", 0) < 85)):
+    if evaluation.get("status") == "fail":
+        return "TOC content evidence requires trainer review before export or delivery"
+    if (evaluation.get("status") == "review" and evaluation.get("score", 0) < 85
+            and not automatic_review):
         return "TOC content evidence requires trainer review before export or delivery"
     if not toc.get("days"):
         return "TOC has no day-wise curriculum"
