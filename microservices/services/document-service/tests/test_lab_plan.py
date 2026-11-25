@@ -61,8 +61,8 @@ def test_module_lab_inputs_keep_teaching_and_access_hours_separate():
 
 def test_plan_preserves_toc_order_and_literal_lab_text():
     book = openpyxl.load_workbook(io.BytesIO(sample_estimate()))
-    sheet = book.active
-    assert sheet.title == 'Lab Plan'
+    sheet = book['Lab Plan']
+    assert book.active.title == 'Quote'
     assert [sheet.cell(row, 1).value for row in (7, 8, 9)] == ['1', '2-3', '4']
     assert sheet['C8'].value == 'Deploy and troubleshoot a sample service'
     assert sheet['C9'].value == '=1+1'
@@ -73,7 +73,7 @@ def test_plan_preserves_toc_order_and_literal_lab_text():
 
 def test_unverified_rates_are_not_shown_as_numeric_costs():
     book = openpyxl.load_workbook(io.BytesIO(sample_estimate(verified=False)))
-    sheet = book.active
+    sheet = book['Lab Plan']
     assert 'Incomplete' in sheet['B4'].value
     assert all(sheet.cell(row, 7).value == 'Unverified' for row in (7, 8, 9, 10, 11, 14, 19, 20))
     assert 'excluded' in sheet['B21'].value
@@ -160,10 +160,10 @@ def test_configured_clahan_margin_reaches_final_quote(settings, expected):
 
 def test_confirmed_cost_scope_and_additional_unpriced_services():
     confirmed = dict(local_costs_status='covered', license_costs_status='not_required')
-    complete = openpyxl.load_workbook(io.BytesIO(sample_estimate(**confirmed))).active
+    complete = openpyxl.load_workbook(io.BytesIO(sample_estimate(**confirmed)))['Lab Plan']
     assert complete['A19'].value == 'Total estimated lab cost (confirmed scope)'
     incomplete = openpyxl.load_workbook(io.BytesIO(sample_estimate(
-        **confirmed, required_unpriced_costs=['GPU service']))).active
+        **confirmed, required_unpriced_costs=['GPU service'])))['Lab Plan']
     assert 'GPU service' in incomplete['B4'].value
     assert 'incomplete' in incomplete['A19'].value
 
@@ -173,16 +173,16 @@ def test_vm_details_use_provider_metadata_and_flag_unknown_hardware():
     assert 'SKU unconfirmed' in _vm_description({}, 'Light')
     rates = {'VM Light': {'sku': 'synthetic', 'specifications': {
         'instance_type': 'test.small', 'vcpu': '2', 'memory': '4 GiB', 'os': 'Linux'}}}
-    plan = openpyxl.load_workbook(io.BytesIO(sample_estimate(rate_card_overrides=rates))).active
+    plan = openpyxl.load_workbook(io.BytesIO(sample_estimate(rate_card_overrides=rates)))['Lab Plan']
     assert 'test.small / 2 vCPU / 4 GiB RAM / Linux' in plan['E7'].value
     assert 'vCPU unconfirmed' in plan['E7'].value  # Heavy remains unconfirmed.
 
 
 def test_day_setup_labels_preserve_overrides_and_flag_local_cloud_conflicts():
     plan = openpyxl.load_workbook(io.BytesIO(sample_estimate(
-        lab_day_setups=['individual', 'shared', 'local']))).active
+        lab_day_setups=['individual', 'shared', 'local'])))['Lab Plan']
     assert 'Setup: ' in plan['B7'].value and 'Individual' in plan['B7'].value
     assert 'Shared' in plan['B8'].value
     assert 'local setup with cloud resources; review' in plan['B9'].value
-    inferred = openpyxl.load_workbook(io.BytesIO(sample_estimate())).active
+    inferred = openpyxl.load_workbook(io.BytesIO(sample_estimate()))['Lab Plan']
     assert 'assumed' in inferred['B7'].value
