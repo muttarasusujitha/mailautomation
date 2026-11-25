@@ -10160,8 +10160,7 @@ def _append_initial_offline_logistics_request(body: str, fields: List[str]) -> s
     request_lines = "\n".join(labels[field] for field in fields)
     addition = (
         "As this is an offline training request, please also confirm the following in this reply:\n\n"
-        f"{request_lines}\n\n"
-        "Please share any planned arrangements or preferences for the trainer's travel, accommodation, and meals."
+        f"{request_lines}"
     )
     paragraphs = str(body or "").strip().split("\n\n")
     if len(paragraphs) > 1 and re.search(r"\b(?:regards|thanks|sincerely|cheers)\b", paragraphs[-1], re.IGNORECASE):
