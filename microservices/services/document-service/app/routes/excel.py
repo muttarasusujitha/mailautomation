@@ -17,6 +17,135 @@ logger = logging.getLogger(__name__)
 TOC_GREEN_TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "assets" / "ToC_Template_8_Columns_Green_Header.xlsx"
 TOC_ORANGE_TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "assets" / "ToC_Template_8_Columns_Orange_Header.xlsx"
 LAB_COST_TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "assets" / "Lab_Cost_Estimator_No_Internal_Pricing.xlsx"
+LAB_COST_QUOTE_TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "assets" / "DevOps_Lab_Cost_Estimate_Blank_Template.xlsx"
+
+
+def _add_lab_cost_quote_cover(workbook, toc: Dict[str, Any], values: Dict[str, Any], days: List[Dict[str, Any]]) -> None:
+    """Add the supplied quote layout, linked to the existing audited estimate."""
+    import openpyxl
+    from copy import copy
+    from datetime import date, timedelta
+
+    if not LAB_COST_QUOTE_TEMPLATE_PATH.exists():
+        raise FileNotFoundError(f"Lab Cost quote template is missing: {LAB_COST_QUOTE_TEMPLATE_PATH}")
+    if "Quote" in workbook.sheetnames:
+        del workbook["Quote"]
+    source = openpyxl.load_workbook(LAB_COST_QUOTE_TEMPLATE_PATH, data_only=False)["Quote"]
+    quote = workbook.create_sheet("Quote", 0)
+    for row in source.iter_rows():
+        for cell in row:
+            target = quote.cell(cell.row, cell.column, cell.value)
+            if cell.has_style:
+                target._style = copy(cell._style)
+            if cell.number_format:
+                target.number_format = cell.number_format
+            if cell.hyperlink:
+                target._hyperlink = copy(cell.hyperlink)
+            if cell.comment:
+                target.comment = copy(cell.comment)
+    for key, dimension in source.column_dimensions.items():
+        target = quote.column_dimensions[key]
+        target.width = dimension.width
+        target.hidden = dimension.hidden
+        target.bestFit = dimension.bestFit
+        target.outlineLevel = dimension.outlineLevel
+    for index, dimension in source.row_dimensions.items():
+        target = quote.row_dimensions[index]
+        target.height = dimension.height
+        target.hidden = dimension.hidden
+        target.outlineLevel = dimension.outlineLevel
+    for merged in source.merged_cells.ranges:
+        quote.merge_cells(str(merged))
+    quote.sheet_view.showGridLines = source.sheet_view.showGridLines
+    quote.freeze_panes = source.freeze_panes
+    quote.sheet_properties.pageSetUpPr.fitToPage = source.sheet_properties.pageSetUpPr.fitToPage
+    quote.page_setup.orientation = source.page_setup.orientation
+    quote.page_setup.paperSize = source.page_setup.paperSize
+    quote.page_setup.fitToWidth = source.page_setup.fitToWidth
+    quote.page_setup.fitToHeight = source.page_setup.fitToHeight
+    quote.page_margins = copy(source.page_margins)
+    quote.print_area = source.print_area
+
+    # Remove the blank template's example formulas before linking only the
+    # relevant client-facing fields to this quote's calculation workbook.
+    for row in quote.iter_rows():
+        for cell in row:
+            if cell.data_type == "f":
+                cell.value = None
+
+    def literal(cell_ref: str, value: Any) -> None:
+        cell = quote[cell_ref]
+        cell.value = "" if value is None else str(value)
+        cell.data_type = "s"
+
+    summary = values.get("request_summary") if isinstance(values.get("request_summary"), dict) else {}
+    title = str(toc.get("title") or toc.get("domain") or toc.get("technology") or "Training").strip()
+    client_name = summary.get("client_name") or values.get("client_name") or "Not provided"
+    validity = max(1, int(float(values.get("quote_validity_days") or 7)))
+    issued = date.today()
+    participants = max(1, int(float(values.get("participant_count") or 1)))
+    hours = float(values.get("hours_per_day") or 3)
+    provider = str(values.get("cloud_provider") or values.get("provider") or "aws").strip().upper()
+    region = str(values.get("cloud_region") or values.get("region") or "").strip()
+    region_label = {"ap-south-1": "Mumbai", "centralindia": "Central India", "asia-south1": "GCP Mumbai"}.get(region.lower(), region)
+
+    literal("B3", title)
+    literal("D5", client_name)
+    quote["D6"] = issued
+    quote["D6"].number_format = "dd mmm yyyy"
+    quote["D7"] = issued + timedelta(days=validity)
+    quote["D7"].number_format = "dd mmm yyyy"
+    status = "Draft — commercial review required"
+    if values.get("pricing_status") != "provider_api_verified_public_retail":
+        status += " | cloud rates or FX unverified"
+    literal("D8", status)
+    quote["B11"] = "='Client Estimate'!B12"
+    quote["D11"] = "='Client Estimate'!B13"
+    quote["E11"] = f"{participants} participant(s) × {sum(max(1, int(float(day.get('duration_days') or day.get('days') or 1))) for day in days)} day(s)"
+    quote["F14"] = "='Client Estimate'!B8"
+    quote["F15"] = "='Client Estimate'!B9"
+    quote["F16"] = "='Client Estimate'!B10"
+    quote["F18"] = "='Client Estimate'!B11"
+    quote["F19"] = "='Client Estimate'!B12"
+    literal("B16", f"Contingency ({float(values.get('contingency_percent') or 0):.1f}%)")
+    literal("B18", f"Tax / GST ({float(values.get('tax_percent') or 0):.1f}%)")
+    quote.row_dimensions[17].hidden = True  # The internal service uplift stays confidential.
+
+    from app.lab_plan import _tools_for_day
+    for index, day in enumerate(days[:10], 1):
+        row = 22 + index
+        plan_row = 6 + index
+        quote.cell(row, 2, f"='Lab Plan'!A{plan_row}")
+        quote.cell(row, 3, f"='Lab Plan'!B{plan_row}")
+        quote.cell(row, 4, _tools_for_day(day))
+        quote.cell(row, 5, f"='Lab Plan'!F{plan_row}")
+        quote.cell(row, 6, f"='Lab Plan'!G{plan_row}")
+    shared_row = 8 + len(days)
+    quote["F33"] = f"='Lab Plan'!G{shared_row}"
+    quote["F34"] = "='Client Estimate'!B8"
+    literal("D37", f"{provider} – {region_label}")
+    literal("D38", f"{hours:g} hours/day")
+    package = str(values.get("lab_package") or "Standard").title()
+    support = float(values.get("lab_support_per_participant_day") or values.get("lab_support_per_participant") or 0)
+    literal("D39", package + (" (rate not configured)" if support <= 0 else ""))
+    fx_date = values.get("fx_rate_date") or "date not supplied"
+    fx_rate = values.get("fx_rate") or 0
+    literal("D40", f"1 USD = INR {float(fx_rate):.2f} (observed {fx_date})")
+    literal("D41", values.get("rate_snapshot_id") or "Not recorded")
+    literal("B44", f"Pricing basis: {values.get('rate_snapshot_source') or 'Provider source not supplied'}; snapshot {values.get('rate_snapshot_id') or 'not recorded'}.")
+    literal("B45", str(values.get("architecture_note") or "Compute is estimated for the stated lab-access hours. Storage and disks are billed for the mapped active days; confirm teardown and retention."))
+    unresolved = list(values.get("required_unpriced_costs") or [])
+    if values.get("local_costs_status") not in ("covered", "not_required"):
+        unresolved.append("local hardware/electricity status unverified")
+    if values.get("license_costs_status") not in ("covered", "not_required"):
+        unresolved.append("required license status unverified")
+    literal("B46", "Excluded / unverified: " + (", ".join(unresolved) if unresolved else "unmapped services and costs not included in the supplied scope."))
+    literal("B47", f"This quote is valid for {validity} days from {issued:%d %b %Y} (until {(issued + timedelta(days=validity)):%d %b %Y}).")
+    if len(days) > 10:
+        literal("B33", "Shared course usage; full day-wise schedule is on the Lab Plan tab")
+    quote.sheet_state = "visible"
+
+
 
 
 def _to_excel(rows: List[Dict[str, Any]], sheet_name: str = "Sheet1") -> bytes:
@@ -1795,7 +1924,8 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
         module_sheet.auto_filter.ref = module_sheet.dimensions
     # Deliver one beginner-friendly sheet. Calculation tabs remain available
     # internally for audit and recalculation, without overwhelming clients.
-    client_sheet_index = workbook.sheetnames.index("Lab Plan")
+    _add_lab_cost_quote_cover(workbook, toc, values, days)
+    client_sheet_index = workbook.sheetnames.index("Quote")
     workbook.active = client_sheet_index
     from openpyxl.workbook.views import BookView
     if not workbook.views:
@@ -1806,7 +1936,7 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     # view first so Excel, Google Drive, and LibreOffice open the quote.
     for sheet_index, sheet in enumerate(workbook.worksheets):
         sheet.sheet_view.tabSelected = sheet_index == client_sheet_index
-        if sheet_index != client_sheet_index and sheet.sheet_state != "veryHidden":
+        if sheet.title not in {"Quote", "Lab Plan"} and sheet.sheet_state != "veryHidden":
             sheet.sheet_state = 'hidden'
     output = io.BytesIO()
     workbook.save(output)

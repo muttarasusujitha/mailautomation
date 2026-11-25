@@ -64,7 +64,7 @@ def combine_lab_estimates(estimates):
     # Show the concise plan when present; older workbooks retain their quote
     # and resource-cost view. Supporting inputs remain editable below, with
     # no cross-sheet references.
-    preferred_order = ('Lab Plan', 'Client Estimate', 'Resource Cost Breakdown', 'TOC Mapping',
+    preferred_order = ('Quote', 'Lab Plan', 'Client Estimate', 'Resource Cost Breakdown', 'TOC Mapping',
                        'Assumptions', 'Rate Card')
     for detail in (False, True):
         for provider, book in loaded:
@@ -73,7 +73,9 @@ def combine_lab_estimates(estimates):
             )
             for source_name in source_order:
                 source = book[source_name]
-                visible_sheets = {'Lab Plan'} if 'Lab Plan' in book.sheetnames else {'Client Estimate', 'Resource Cost Breakdown'}
+                visible_sheets = ({'Quote', 'Lab Plan'} if 'Quote' in book.sheetnames else
+                                  {'Lab Plan'} if 'Lab Plan' in book.sheetnames else
+                                  {'Client Estimate', 'Resource Cost Breakdown'})
                 is_detail = source.title not in visible_sheets
                 if is_detail != detail:
                     continue
