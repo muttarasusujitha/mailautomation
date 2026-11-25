@@ -16,9 +16,17 @@ def test_draft_is_downloadable_and_labelled_without_changing_delivery_status():
     assert "Confirm lab feasibility" in str(list(wb["Readiness & Risks"].values))
     assert "DRAFT_" in response.headers["content-disposition"]
     assert toc["quality"]["status"] == "requires_review"
-    with pytest.raises(HTTPException) as error:
-        asyncio.run(export_toc_workbook({"toc": toc}))
-    assert error.value.status_code == 422
+    delivery_response = asyncio.run(export_toc_workbook({"toc": toc}))
+    delivery_wb = openpyxl.load_workbook(io.BytesIO(delivery_response.body))
+    delivery_values = [
+        cell.value
+        for sheet in delivery_wb.worksheets
+        for row in sheet.iter_rows()
+        for cell in row
+    ]
+    assert delivery_response.status_code == 200
+    assert not any("DRAFT" in str(value).upper() for value in delivery_values if value is not None)
+    assert "DRAFT_" not in delivery_response.headers["content-disposition"]
 
 
 def test_draft_does_not_allow_empty_curriculum():
