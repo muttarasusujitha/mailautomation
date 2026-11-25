@@ -76,6 +76,35 @@ class BotSettings(BaseModel):
     interval_minutes: int = Field(default=60, ge=10, le=1440)
 
 
+class NaukriBotSettings(BaseModel):
+    enabled: bool = False
+    domains: list[str] = Field(default_factory=lambda: ['Python'], max_length=4)
+    location: str = Field(default='India', max_length=120)
+    interval_minutes: int = Field(default=360, ge=60, le=1440)
+
+
+@router.get('/naukri')
+async def naukri_status(db=Depends(get_db)):
+    config = await db['lead_bots'].find_one({'_id': 'naukri'}, {'_id': 0}) or NaukriBotSettings().model_dump()
+    config['scan_strategy'] = 'public_naukri_index'
+    return config
+
+
+@router.put('/naukri')
+async def configure_naukri(payload: NaukriBotSettings, db=Depends(get_db)):
+    from fastapi import HTTPException
+    domains = list(dict.fromkeys(d.strip()[:120] for d in payload.domains if d.strip()))
+    if payload.enabled and not domains:
+        raise HTTPException(422, 'Enter at least one skill or domain')
+    await db['lead_bots'].update_one({'_id': 'naukri'}, {'$set': {
+        **payload.model_dump(),
+        'domains': domains,
+        'location': payload.location.strip()[:120] or 'India',
+        'next_run': datetime.utcnow(),
+    }}, upsert=True)
+    return await naukri_status(db)
+
+
 @router.get('/{mode}')
 async def status(mode: Literal['trainer', 'client'], db=Depends(get_db)):
     config = await db['lead_bots'].find_one({'_id': mode}, {'_id': 0}) or BotSettings(
@@ -180,6 +209,41 @@ async def collect_due(db, mode):
     })
 
 
+async def collect_due_naukri(db):
+    now, token = datetime.utcnow(), uuid.uuid4().hex
+    config = await db['lead_bots'].find_one_and_update({
+        '_id': 'naukri', 'enabled': True,
+        '$and': [
+            {'$or': [{'next_run': {'$lte': now}}, {'next_run': {'$exists': False}}]},
+            {'$or': [{'lease_until': {'$lte': now}}, {'lease_until': {'$exists': False}}]},
+        ],
+    }, {'$set': {'lease_until': now + timedelta(minutes=20), 'lease_token': token,
+                 'status': 'running', 'last_started': now}})
+    if not config:
+        return
+    try:
+        from app.routes.trainer_profile_leads import SearchPublicRequest, search_public_trainer_leads
+        domains = list(dict.fromkeys(d.strip() for d in config.get('domains', []) if d.strip()))[:4]
+        result = await asyncio.wait_for(search_public_trainer_leads(SearchPublicRequest(
+            source='naukri', domains=domains, location=config.get('location') or 'India',
+            max_results=30, max_queries=len(domains),
+        ), db), timeout=900)
+        error = result.get('search_error') or result.get('error') or ''
+        outcome = {
+            'status': 'error' if error and not result.get('found') else 'completed' if result.get('found') else 'no_results',
+            'last_error': str(error)[:500],
+            'found': result.get('found', 0),
+            'saved': result.get('saved_count', 0),
+        }
+    except Exception as exc:
+        outcome = {'status': 'error', 'last_error': str(exc)[:500] or type(exc).__name__, 'found': 0, 'saved': 0}
+    await db['lead_bots'].update_one({'_id': 'naukri', 'lease_token': token}, {
+        '$set': {**outcome, 'last_finished': datetime.utcnow(),
+                 'next_run': datetime.utcnow() + timedelta(minutes=config.get('interval_minutes', 360))},
+        '$unset': {'lease_until': '', 'lease_token': ''},
+    })
+
+
 async def collect_pending_trainer_searches(db):
     """Retry a single queued trainer search per cycle without user intervention."""
     now = datetime.utcnow()
@@ -254,8 +318,19 @@ async def _run_mode(mode):
         await asyncio.sleep(30)
 
 
+async def _run_naukri():
+    while True:
+        try:
+            db = await get_db()
+            await collect_due_naukri(db)
+        except Exception:
+            logger.exception('Naukri recruiter collection cycle failed')
+        await asyncio.sleep(30)
+
+
 async def run_loop():
     # Keep independent schedules when trainer discovery takes over ten minutes.
     async with asyncio.TaskGroup() as group:
         for mode in ('trainer', 'client'):
             group.create_task(_run_mode(mode))
+        group.create_task(_run_naukri())

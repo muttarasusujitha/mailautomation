@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
-import { CheckCircle2, ExternalLink, Newspaper, RefreshCw, Search, Send, Trash2, Users } from 'lucide-react'
+import { Bot, CheckCircle2, Clock3, ExternalLink, Newspaper, Pause, Play, RefreshCw, Search, Send, Trash2, Users } from 'lucide-react'
 import api from '../utils/api'
 import Pager from '../components/Pager'
 import SearchSourceReport from '../components/SearchSourceReport'
@@ -30,6 +30,13 @@ function initials(value) {
   return String(value || 'Naukri result').replace(/[^a-zA-Z0-9\s]/g, ' ').split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase()
 }
 
+function formatTimestamp(value) {
+  if (!value) return ''
+  const text = String(value)
+  const date = new Date(text.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(text) ? text : `${text}Z`)
+  return Number.isNaN(date.getTime()) ? text : date.toLocaleString(undefined, { timeZoneName: 'short' })
+}
+
 export default function NaukriSearch() {
   const [leads, setLeads] = useState([])
   const [status, setStatus] = useState('all')
@@ -44,6 +51,9 @@ export default function NaukriSearch() {
   const [searchReport, setSearchReport] = useState(null)
   const [reloadKey, setReloadKey] = useState(0)
   const loadSeq = useRef(0)
+  const [botSettings, setBotSettings] = useState(null)
+  const [savingBot, setSavingBot] = useState(false)
+  const previousBotRun = useRef('')
 
   const load = useCallback(async () => {
     // Only the latest request updates the list: the search box reloads on every keystroke.
@@ -72,7 +82,28 @@ export default function NaukriSearch() {
   useEffect(() => { load() }, [load, reloadKey])
 
   // Reloads with the filters as they are when the reload runs, not when an action started.
-  const refresh = () => setReloadKey(key => key + 1)
+  const refresh = useCallback(() => setReloadKey(key => key + 1), [])
+
+  useEffect(() => {
+    let active = true
+    let reportedError = false
+    const refreshBot = () => api.get('/linkedin-leads/bot/naukri')
+      .then(response => {
+        if (!active) return
+        reportedError = false
+        const nextSettings = response.data || {}
+        if (previousBotRun.current && nextSettings.last_finished && nextSettings.last_finished !== previousBotRun.current) refresh()
+        previousBotRun.current = nextSettings.last_finished || ''
+        setBotSettings(nextSettings)
+      })
+      .catch(error => {
+        if (active && !reportedError) toast.error(error.message || 'Could not load Naukri bot settings')
+        reportedError = true
+      })
+    refreshBot()
+    const timer = window.setInterval(refreshBot, 15000)
+    return () => { active = false; window.clearInterval(timer) }
+  }, [refresh])
 
   const domains = useMemo(() => domainsText.split(',').map(value => value.trim()).filter(Boolean), [domainsText])
   const queries = useMemo(() => domains.map(domain => ({ domain, query: buildNaukriQuery(domain, location) })), [domains, location])
@@ -107,6 +138,45 @@ export default function NaukriSearch() {
       toast.error(error.message || 'Naukri search failed')
     } finally {
       setSearching(false)
+    }
+  }
+
+  const saveBot = async enabled => {
+    const botDomains = domains.slice(0, 4)
+    if (enabled && !botDomains.length) {
+      toast.error('Enter at least one skill or domain')
+      return
+    }
+    setSavingBot(true)
+    try {
+      const response = await api.put('/linkedin-leads/bot/naukri', {
+        enabled,
+        domains: botDomains.length ? botDomains : (botSettings?.domains || []),
+        location,
+        interval_minutes: Number(botSettings?.interval_minutes || 360),
+      })
+      setBotSettings(response.data || {})
+      toast.success(enabled ? 'Naukri recruiter bot enabled' : 'Naukri recruiter bot paused')
+    } catch (error) {
+      toast.error(error.message || 'Could not update Naukri bot')
+    } finally {
+      setSavingBot(false)
+    }
+  }
+
+  const saveInterval = async value => {
+    const interval_minutes = Number(value)
+    setBotSettings(current => ({ ...current, interval_minutes }))
+    try {
+      const response = await api.put('/linkedin-leads/bot/naukri', {
+        enabled: Boolean(botSettings?.enabled),
+        domains: botSettings?.domains?.length ? botSettings.domains : (domains.length ? domains.slice(0, 4) : ['Python']),
+        location: botSettings?.location || location,
+        interval_minutes,
+      })
+      setBotSettings(response.data || {})
+    } catch (error) {
+      toast.error(error.message || 'Could not save bot schedule')
     }
   }
 
@@ -183,6 +253,39 @@ export default function NaukriSearch() {
           <input type="range" min="10" max="30" step="5" value={targetCount} onChange={event => setTargetCount(Number(event.target.value))} className="w-full accent-blue-600" />
           <span className="shrink-0">{queries.length} Naukri public-index queries</span>
         </div>
+      </section>
+
+      <section className="space-y-3 rounded-xl border border-blue-200 bg-blue-50 p-4 shadow-sm">
+        <div className="flex items-start gap-3">
+          <Bot className="mt-0.5 h-5 w-5 text-blue-700" />
+          <div className="min-w-0 flex-1">
+            <h2 className="text-sm font-bold text-slate-900">Naukri Recruiter Bot</h2>
+            <p className="mt-1 text-xs text-slate-600">Automatically checks publicly indexed Naukri profiles on a schedule and saves new matches for review. Private Resdex resumes are not accessed.</p>
+          </div>
+          <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${botSettings?.enabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
+            {botSettings?.status === 'running' ? 'Running search' : botSettings?.enabled ? 'Enabled' : 'Paused'}
+          </span>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+          <label className="block text-xs font-semibold text-slate-600">Check every
+            <select className="input mt-1 bg-white" disabled={!botSettings || savingBot} value={botSettings?.interval_minutes || 360} onChange={event => saveInterval(event.target.value)}>
+              <option value="60">1 hour</option><option value="180">3 hours</option><option value="360">6 hours</option><option value="720">12 hours</option><option value="1440">24 hours</option>
+            </select>
+          </label>
+          <div className="flex gap-2">
+            <button onClick={() => saveBot(true)} disabled={savingBot} className="btn-primary text-sm disabled:opacity-50"><Play className="h-4 w-4" />Enable bot</button>
+            <button onClick={() => saveBot(false)} disabled={savingBot} className="btn-secondary text-sm disabled:opacity-50"><Pause className="h-4 w-4" />Pause</button>
+          </div>
+        </div>
+        {botSettings?.last_finished && <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
+          <span><Clock3 className="mr-1 inline h-3.5 w-3.5" />Last check: {formatTimestamp(botSettings.last_finished)}</span>
+          <span>{botSettings.found || 0} matches, {botSettings.saved || 0} new profiles saved</span>
+          {botSettings.last_error && <span className="text-amber-800">{botSettings.last_error}</span>}
+        </div>}
+        {(botSettings?.last_started || botSettings?.next_run) && <p className="text-xs text-slate-500">
+          {botSettings.last_started ? `Last started: ${formatTimestamp(botSettings.last_started)}` : ''}
+          {botSettings.next_run ? ` · Next run: ${formatTimestamp(botSettings.next_run)}` : ''}
+        </p>}
       </section>
 
       <SearchSourceReport report={searchReport} noun="Naukri profiles" />
