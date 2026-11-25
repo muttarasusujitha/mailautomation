@@ -169,7 +169,7 @@ def test_local_matching_works_without_embedding_provider():
     client.embeddings.create.assert_not_awaited()
 
 
-def test_unreviewed_sources_block_delivery_and_warnings_survive_route_quality(monkeypatch):
+def test_review_warnings_do_not_block_delivery_and_survive_route_quality(monkeypatch):
     async def structured(client, model, contract, *args):
         if contract is cr.Brief: return brief()
         if contract is cr.CurriculumPlan: return plan()
@@ -181,7 +181,7 @@ def test_unreviewed_sources_block_delivery_and_warnings_survive_route_quality(mo
     _apply_requirement_quality(result, request())
     assert result["coverage_matrix"] == {"pandas": [1]}
     assert result["quality"]["status"] == "requires_review"
-    assert toc_delivery_error(result)
+    assert not toc_delivery_error(result)
 
 
 def test_failed_review_blocks_even_structurally_valid_plan(monkeypatch):
@@ -197,12 +197,12 @@ def test_failed_review_blocks_even_structurally_valid_plan(monkeypatch):
     assert "Unsupported lab capability" in result["quality"]["validation_errors"]
 
 
-def test_ai_unavailable_template_is_review_only(monkeypatch):
+def test_ai_unavailable_template_can_be_delivered_without_manual_review(monkeypatch):
     from app.routes import toc
     from test_toc_generation_modes import _Db
     monkeypatch.setattr(toc, "_generate_ai_toc", AsyncMock(return_value=None))
     result = asyncio.run(toc.generate_toc(request(), _Db()))
-    assert toc_delivery_error(result["toc_data"])
+    assert not toc_delivery_error(result["toc_data"])
 
 
 def test_different_proposals_reach_planner_as_different_briefs(monkeypatch):

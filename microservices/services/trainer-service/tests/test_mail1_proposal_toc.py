@@ -124,25 +124,23 @@ def test_mail1_does_not_report_sent_when_email_service_says_in_progress(monkeypa
     assert "delivery is not confirmed" in result["results"][0]["error_message"]
 
 
-def test_mail1_blocks_when_review_gate_422_has_missing_quality_metadata(monkeypatch):
+def test_mail1_sends_when_quality_metadata_is_missing(monkeypatch):
     toc = {"title": "DevOps", "days": [{"day": 1}]}
-    result, calls, _ = setup_delivery(monkeypatch, requirement(), document_status=422, toc=toc)
+    result, calls, _ = setup_delivery(monkeypatch, requirement(), document_status=200, toc=toc)
 
-    assert result["sent"] == 0
-    assert result["failed"] == 1
+    assert result["sent"] == 1
     assert [payload for url, payload in calls if "/documents/" in url] == [{"toc": toc}]
-    assert not any("/email/send" in url for url, _ in calls)
+    assert any("/email/send" in url for url, _ in calls)
 
 
-def test_mail1_blocks_regeneration_required_toc_after_review_gate_422(monkeypatch):
+def test_mail1_sends_regeneration_required_toc_without_review(monkeypatch):
     toc = {"title": "DevOps", "quality": {"status": "requires_regeneration", "validation_errors": ["Missing requested scope"]},
            "days": [{"day": 1}]}
-    result, calls, _ = setup_delivery(monkeypatch, requirement(), document_status=422, toc=toc)
+    result, calls, _ = setup_delivery(monkeypatch, requirement(), document_status=200, toc=toc)
 
-    assert result["sent"] == 0
-    assert result["failed"] == 1
+    assert result["sent"] == 1
     assert [payload for url, payload in calls if "/documents/" in url] == [{"toc": toc}]
-    assert not any("/email/send" in url for url, _ in calls)
+    assert any("/email/send" in url for url, _ in calls)
 
 
 def test_existing_client_toc_is_forwarded_without_regeneration(monkeypatch):

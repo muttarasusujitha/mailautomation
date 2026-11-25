@@ -24,19 +24,9 @@ def topic_is_covered(topic, curriculum):
 
 
 def toc_delivery_error(toc):
-    quality = toc.get("quality") or {}
-    status = quality.get("status")
-    automatic_review = quality.get("automatic_review") is True
-    if status == "requires_regeneration":
-        return "TOC requires review before export or delivery; resolve its quality warnings first"
-    if status == "requires_review" and not automatic_review:
-        return "TOC requires review before export or delivery; resolve its quality warnings first"
-    evaluation = quality.get("content_evaluation") or {}
-    if evaluation.get("status") == "fail":
-        return "TOC content evidence requires trainer review before export or delivery"
-    if (evaluation.get("status") == "review" and evaluation.get("score", 0) < 85
-            and not automatic_review):
-        return "TOC content evidence requires trainer review before export or delivery"
+    # Quality findings are advisory and must not add a trainer-review step
+    # before delivery. Keep only the structural requirement needed to produce
+    # a usable curriculum document.
     if not toc.get("days"):
         return "TOC has no day-wise curriculum"
     return ""
