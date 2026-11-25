@@ -8071,6 +8071,7 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
             "Thanks for the update. Could you please help us confirm the following details?\n\n"
             + "\n".join(clarification_requests) + "\n\n"
             "If any arrangements have already been made, you can share the booking details.\n\n"
+            "The final travel package is on hold until we confirm these items.\n\n"
             "We will share the final confirmed details with the selected trainer after the required items are complete.\n\n"
             "Regards,\nClahan Technologies"
         )
@@ -8313,9 +8314,16 @@ def _client_confirmed_travel_terms(text: Any) -> str:
     )
     # In an inbound client reply, “you” refers to Clahan. Preserve the exact
     # sentence as authorization; this does not create a budget or payment cap.
-    for sentence in re.split(r"[\n.!?;]+", message):
+    travel_scope = re.compile(
+        r"\b(?:travel|travell?ing|transport(?:ation)?|commute|conveyance|tickets?|flights?|air\s*fares?|bus|cabs?|taxi)\b",
+        re.IGNORECASE,
+    )
+    # Keep question marks in candidates so questions cannot be treated as
+    # authorization to book travel.
+    for sentence in re.split(r"[\n.!;]+", message):
         sentence = _clean(sentence)
-        if sentence and not negative_booking.search(sentence) and positive_booking.search(sentence):
+        if (sentence and "?" not in sentence and travel_scope.search(sentence)
+                and not negative_booking.search(sentence) and positive_booking.search(sentence)):
             return f"Client authorized Clahan to book/arrange: {sentence}"
     return ""
 
@@ -10144,16 +10152,16 @@ def _append_initial_offline_logistics_request(body: str, fields: List[str]) -> s
     if not fields:
         return body
     labels = {
-        "travel": "Please let us know what travel arrangements are planned for the trainer.",
-        "accommodation": "Please confirm what accommodation will be available for the trainer.",
-        "food": "Please let us know whether meals will be provided during the training.",
-        "venue": "Please confirm the training venue address.",
+        "travel": "Travel terms: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
+        "accommodation": "Accommodation: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
+        "food": "Food: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
+        "venue": "Confirmed training address: [details]",
     }
-    request_lines = "\n".join(f"- {labels[field]}" for field in fields)
+    request_lines = "\n".join(labels[field] for field in fields)
     addition = (
-        "To help us coordinate the offline training, could you please confirm:\n"
+        "As this is an offline training request, please also confirm the following in this reply:\n\n"
         f"{request_lines}\n\n"
-        "If you would like Clahan to arrange any of these, just let us know and we will proceed based on your instruction."
+        "For each item, please state whether the Client or Clahan will arrange and pay, any approved cap, and receipt rules."
     )
     paragraphs = str(body or "").strip().split("\n\n")
     if len(paragraphs) > 1 and re.search(r"\b(?:regards|thanks|sincerely|cheers)\b", paragraphs[-1], re.IGNORECASE):

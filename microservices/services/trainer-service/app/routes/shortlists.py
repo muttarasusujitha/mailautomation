@@ -4249,6 +4249,7 @@ async def send_shortlist_mail(
                         generated_toc = await _build_toc(requirement, t, db)
                         if generated_toc:
                             try:
+                                toc_is_review_draft = False
                                 toc_url = f"{DOC_SVC}/api/v1/documents/excel/toc"
                                 toc_response = await _post_with_local_fallback(
                                     client,
@@ -4265,19 +4266,44 @@ async def send_shortlist_mail(
                                         "TOC requires review before export or delivery" in str(export_detail)
                                     )
                                 if toc_response.status_code == 422 and quality_review_rejected:
-                                    logger.warning(
-                                        "Blocking Mail 1 to %s because its ToC requires regeneration: %s",
-                                        trainer_email, export_detail,
+                                    toc_quality_status = _clean(
+                                        (generated_toc.get("quality") or {}).get("status")
+                                    ).lower()
+                                    if toc_quality_status != "requires_review":
+                                        logger.warning(
+                                            "Blocking Mail 1 to %s because its ToC requires regeneration: %s",
+                                            trainer_email, export_detail,
+                                        )
+                                        raise RuntimeError(
+                                            "Mail 1 was not sent because its ToC failed quality review: "
+                                            + str(export_detail)[:300]
+                                        )
+                                    draft_response = await _post_with_local_fallback(
+                                        client, toc_url, json={"toc": generated_toc, "draft": True},
                                     )
-                                    raise RuntimeError(
-                                        "Mail 1 was not sent because its ToC failed quality review: "
-                                        + str(export_detail)[:300]
-                                    )
+                                    if draft_response is None or draft_response.status_code != 200 or not draft_response.content:
+                                        logger.warning(
+                                            "Blocking Mail 1 to %s because its ToC review draft could not be exported: %s",
+                                            trainer_email, export_detail,
+                                        )
+                                        raise RuntimeError(
+                                            "Mail 1 was not sent because its ToC failed quality review and a review draft could not be attached: "
+                                            + str(export_detail)[:300]
+                                        )
+                                    toc_response = draft_response
+                                    toc_is_review_draft = True
                                 if toc_response is None:
                                     pass
                                 elif toc_response.status_code == 200 and toc_response.content:
-                                    toc_label = "Proposed TOC" if is_proposal_flow else "Confirmed Batch TOC"
-                                    if is_proposal_flow:
+                                    toc_label = "DRAFT FOR REVIEW - TOC" if toc_is_review_draft else (
+                                        "Proposed TOC" if is_proposal_flow else "Confirmed Batch TOC"
+                                    )
+                                    if toc_is_review_draft:
+                                        toc_note = (
+                                            "A draft ToC/course agenda is attached for your review. It has not passed the quality "
+                                            "review and is not an approved delivery scope."
+                                        )
+                                    elif is_proposal_flow:
                                         toc_note = (
                                             "The proposed ToC/course agenda is attached. Please review this scope and "
                                             "confirm availability and delivery feasibility."
