@@ -460,13 +460,19 @@ async def search_public_many(queries, limit=50, allowed_domains=None, report=Non
             timeouts = 0
         else:
             timeouts = 0
-    if len(found) >= limit:
-        bing['skipped'] = 'enough'
+    if found:
+        # Any usable DuckDuckGo results are sufficient to avoid duplicating
+        # work on Bing. Later skill or qualification filters can still reduce
+        # the final set, but should not trigger a second full search sweep.
+        bing['skipped'] = 'duckduckgo_results'
     else:
         # A few DuckDuckGo hits may not fill the requested batch. Search the
         # remaining Naukri query variants on Bing too; the first, path-specific
         # query often has no indexed hits even when broader variants do.
-        for query in queries:
+        # If DuckDuckGo timed out repeatedly, keep the fallback bounded to one
+        # Bing query rather than repeating the same failed network pattern.
+        bing_queries = list(queries)[:1] if timeouts >= 2 else queries
+        for query in bing_queries:
             remaining = limit - len(found)
             if remaining <= 0:
                 break
