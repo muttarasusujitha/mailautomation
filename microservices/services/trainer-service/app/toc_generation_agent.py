@@ -719,6 +719,42 @@ def _day_learning_objectives(topic_name: str, tools) -> list:
     ]
 
 
+STANDARD_STEP_BASIS = "Proposed seven-hour day; the trainer confirms timings during review"
+# Minutes for the four delivery steps of a 7-hour day: 90 concepts + 60 demonstrations, the
+# 150-minute main lab, 60 minutes of independent troubleshooting, 60 minutes of check and recap.
+_STEP_SPLIT = {"explain": 150, "guided": 150, "independent": 60, "assessment": 60}
+_CAPSTONE_STEP_SPLIT = {"explain": 30, "guided": 240, "independent": 60, "assessment": 90}
+
+
+def _step_kind(method: str) -> str:
+    text = str(method or "").lower()
+    if "assess" in text:
+        return "assessment"
+    if "independent" in text:
+        return "independent"
+    if "guided" in text:
+        return "guided"
+    return "explain" if "explan" in text or "demonstrat" in text else ""
+
+
+def _standard_step_minutes(steps, topic: str):
+    """The course file's four delivery steps with the standard minutes, when they have none.
+
+    Course files carry specific step activities and evidence but often no minutes. Only steps
+    with no minutes at all, in the usual four kinds, are filled; anything else returns None.
+    """
+    steps = [step for step in steps or [] if isinstance(step, dict)]
+    if len(steps) != 4 or any(step.get("minutes") not in (None, "", 0) for step in steps):
+        return None
+    if not all(str(step.get("activity") or "").strip() and str(step.get("evidence") or "").strip() for step in steps):
+        return None
+    kinds = [_step_kind(step.get("method")) for step in steps]
+    if sorted(kinds) != sorted(_STEP_SPLIT):
+        return None
+    split = _CAPSTONE_STEP_SPLIT if "capstone" in str(topic or "").lower() else _STEP_SPLIT
+    return [{**step, "minutes": split[kind]} for step, kind in zip(steps, kinds)]
+
+
 def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes: str) -> dict:
     topic_name = item.get("topic") or f"Day {day_number} Topic"
     preserve_content = bool(item.get("content_quality_stage"))
@@ -831,7 +867,13 @@ def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes
         ):
             if key in item:
                 entry[key] = deepcopy(item[key])
-    if not preserve_content and not (len(entry["delivery_steps"]) >= 3 and all(isinstance(step, dict) and isinstance(step.get("minutes"), (int, float)) and step.get("minutes", 0) > 0 for step in entry["delivery_steps"])):
+    timed_steps = None if preserve_content else _standard_step_minutes(entry["delivery_steps"], topic_name)
+    if timed_steps:
+        # Keep the course file's own activities and evidence; only the missing minutes are filled.
+        entry["delivery_steps"] = timed_steps
+        entry["minutes"] = 420
+        entry["duration_basis"] = entry.get("duration_basis") or STANDARD_STEP_BASIS
+    elif not preserve_content and not (len(entry["delivery_steps"]) >= 3 and all(isinstance(step, dict) and isinstance(step.get("minutes"), (int, float)) and step.get("minutes", 0) > 0 for step in entry["delivery_steps"])):
         entry["delivery_steps"] = [
             {"activity": f"Explain and demonstrate the core {topic_name} workflow", "evidence": "Participant notes and demonstrated starting state", "minutes": 120},
             {"activity": f"Guide participants through the {topic_name} hands-on implementation", "evidence": "Working implementation and command or action log", "minutes": 150},
