@@ -781,6 +781,9 @@ async def semantic_trainer_search(
     certification: Optional[str] = None,
     commercial_max: Optional[float] = None,
     experience: Optional[str] = None,
+    category: Optional[str] = None,
+    industry: Optional[str] = None,
+    status: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     intent = _semantic_query_intent(q)
@@ -800,6 +803,18 @@ async def semantic_trainer_search(
         ]
     if domain:
         _append_or(candidate_query, await _domain_search_clauses(db, domain))
+    if category:
+        _append_or(candidate_query, [
+            _regex_clause(field, category)
+            for field in ("technology_category", "primary_category", "category")
+        ])
+    if industry:
+        _append_or(candidate_query, [
+            _regex_clause(field, industry)
+            for field in ("industry_focus", "past_clients")
+        ])
+    if status:
+        candidate_query["status"] = status
     if location:
         _append_or(candidate_query, _location_search_clauses(location))
     if certification:

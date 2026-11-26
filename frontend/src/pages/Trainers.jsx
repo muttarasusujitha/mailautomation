@@ -28,7 +28,6 @@ import {
   Clock,
   ChevronLeft,
   ChevronRight,
-  Filter,
   Users,
   Trash2,
   X,
@@ -1406,7 +1405,6 @@ export default function Trainers() {
   const [domains, setDomains] = useState([])
   const [industries, setIndustries] = useState([])
   const [loading, setLoading] = useState(false)
-  const [searchInput, setSearchInput] = useState('')
   const [semanticQuery, setSemanticQuery] = useState('')
   const [semanticIntent, setSemanticIntent] = useState(null)
   const [semanticMode, setSemanticMode] = useState(false)
@@ -1555,12 +1553,11 @@ export default function Trainers() {
     return () => clearInterval(interval)
   }, [automationPollingTrainerId, selectedTrainer])
 
-  const handleSearch = (e) => {
-    e.preventDefault()
+  const updateFinderFilter = (setter) => (event) => {
+    setter(event.target.value)
+    setPage(1)
     setSemanticMode(false)
     setSemanticIntent(null)
-    setSearch(searchInput.trim())
-    setPage(1)
   }
 
   const handleSemanticSearch = async (e) => {
@@ -1570,7 +1567,6 @@ export default function Trainers() {
       setSemanticMode(false)
       setSemanticIntent(null)
       setSearch(query)
-      setSearchInput(query)
       setPage(1)
       return
     }
@@ -1584,6 +1580,9 @@ export default function Trainers() {
         certification: certificationFilter.trim() || undefined,
         commercial_max: commercialMax === '' ? undefined : Number(commercialMax),
         experience: experience || undefined,
+        category: category || undefined,
+        industry: industry || undefined,
+        status: status || undefined,
       })
       setTrainers(res.data.items || [])
       setTotal(res.data.total || 0)
@@ -1597,23 +1596,6 @@ export default function Trainers() {
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleClearFilters = () => {
-    setSearch('')
-    setSearchInput('')
-    setSemanticQuery('')
-    setSemanticIntent(null)
-    setSemanticMode(false)
-    setStatus('')
-    setDomain('')
-    setCategory('')
-    setIndustry('')
-    setLocationFilter('')
-    setCertificationFilter('')
-    setCommercialMax('')
-    setExperience('')
-    setPage(1)
   }
 
   const handleViewTrainer = async (trainer) => {
@@ -2176,76 +2158,77 @@ export default function Trainers() {
         </div>
         </div>
 
-        <div className="rounded-lg border border-sky-200 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-4 shadow-sm">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-700 shadow-sm">
-                <Sparkles className="h-3.5 w-3.5" />
-                Trainer shortlist search
-              </div>
-              <h2 className="mt-3 text-xl font-black text-slate-950">Find trainers for your requirement</h2>
-              <p className="mt-1 text-sm text-slate-600">Filter by location, experience, domain, certifications, and daily commercials.</p>
-            </div>
-            <form onSubmit={handleSemanticSearch} className="flex min-w-0 flex-1 flex-col gap-2 xl:max-w-4xl">
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                <label className="relative block sm:col-span-2 xl:col-span-1">
+        <div className="rounded-2xl border border-sky-200 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-2 shadow-sm 2xl:rounded-full">
+          <div className="block">
+            <form onSubmit={handleSemanticSearch} className="grid w-full min-w-0 grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1.2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_auto]">
+              <div className="contents">
+                <label className="relative flex min-w-0 items-center border-b border-slate-200 px-3 2xl:border-b-0 2xl:border-r">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-500" />
                   <span className="sr-only">Search trainer, skill, or designation</span>
-                  <input className="input h-11 pl-9" value={semanticQuery} onChange={e => setSemanticQuery(e.target.value)} placeholder="Skill, keyword, or designation" />
+                  <input className="h-12 w-full min-w-0 border-0 bg-transparent pl-9 pr-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0" value={semanticQuery} onChange={e => setSemanticQuery(e.target.value)} placeholder="Skill or designation" />
                 </label>
-                <label className="relative block">
-                  <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-500" />
+                <label className="relative flex min-w-0 items-center border-b border-slate-200 px-3 2xl:border-b-0 2xl:border-r">
+                  <MapPin className="h-4 w-4 flex-shrink-0 text-sky-500" />
                   <span className="sr-only">Filter by location</span>
-                  <input
-                    className="input h-11 pl-9"
-                    value={locationFilter}
-                    onChange={e => setLocationFilter(e.target.value)}
-                    placeholder="Any location"
-                  />
+                  <input className="h-12 w-full min-w-0 border-0 bg-transparent pl-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0" value={locationFilter} onChange={updateFinderFilter(setLocationFilter)} placeholder="Any location" />
                 </label>
-                <label className="relative block">
-                  <Award className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-500" />
+                <label className="relative flex min-w-0 items-center border-b border-slate-200 px-3 2xl:border-b-0 2xl:border-r">
+                  <Award className="h-4 w-4 flex-shrink-0 text-sky-500" />
                   <span className="sr-only">Filter by certification</span>
-                  <input
-                    className="input h-11 pl-9"
-                    value={certificationFilter}
-                    onChange={e => setCertificationFilter(e.target.value)}
-                    placeholder="Certification"
-                  />
+                  <input className="h-12 w-full min-w-0 border-0 bg-transparent pl-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0" value={certificationFilter} onChange={updateFinderFilter(setCertificationFilter)} placeholder="Certification" />
                 </label>
-                <label className="relative block">
+                <label className="relative min-w-0 border-b border-slate-200 px-3 2xl:border-b-0 2xl:border-r">
                   <span className="sr-only">Filter by domain</span>
                   <select
-                    className="input h-11"
+                    className="h-12 w-full min-w-0 border-0 bg-transparent text-sm text-slate-800 focus:outline-none focus:ring-0"
                     value={domain}
-                    onChange={e => setDomain(e.target.value)}
+                    onChange={updateFinderFilter(setDomain)}
                   >
                     <option value="">Any domain</option>
                     {domainOptions.map(item => <option key={item} value={item}>{item}</option>)}
                   </select>
                 </label>
-                <label className="relative block">
+                <label className="min-w-0 border-b border-slate-200 px-3 2xl:border-b-0 2xl:border-r">
                   <span className="sr-only">Filter by experience</span>
                   <select
-                    className="input h-11"
+                    className="h-12 w-full min-w-0 border-0 bg-transparent text-sm text-slate-800 focus:outline-none focus:ring-0"
                     value={experience}
-                    onChange={e => setExperience(e.target.value)}
+                    onChange={updateFinderFilter(setExperience)}
                   >
                     {EXPERIENCE_OPTIONS.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
                   </select>
                 </label>
-                <label className="relative block">
+                <label className="relative min-w-0 border-b border-slate-200 px-3 2xl:border-b-0 2xl:border-r">
                   <span className="sr-only">Maximum daily commercial in INR</span>
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-sky-500">₹</span>
-                  <input className="input h-11 pl-8" type="number" min="0" step="500" value={commercialMax} onChange={e => setCommercialMax(e.target.value)} placeholder="Max commercial / day" />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-sky-500">INR</span>
+                  <input className="h-12 w-full min-w-0 border-0 bg-transparent pl-8 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0" type="number" min="0" step="500" value={commercialMax} onChange={updateFinderFilter(setCommercialMax)} placeholder="Max INR / day" />
+                </label>
+                <label className="min-w-0 border-b border-slate-200 px-3 2xl:border-b-0 2xl:border-r">
+                  <span className="sr-only">Filter by category</span>
+                  <select className="h-12 w-full min-w-0 border-0 bg-transparent text-sm text-slate-800 focus:outline-none focus:ring-0" value={category} onChange={updateFinderFilter(setCategory)}>
+                    <option value="">All categories</option>
+                    {categoryOptions.map(item => <option key={item} value={item}>{item}</option>)}
+                  </select>
+                </label>
+                <label className="min-w-0 border-b border-slate-200 px-3 2xl:border-b-0 2xl:border-r">
+                  <span className="sr-only">Filter by industry</span>
+                  <select className="h-12 w-full min-w-0 border-0 bg-transparent text-sm text-slate-800 focus:outline-none focus:ring-0" value={industry} onChange={updateFinderFilter(setIndustry)}>
+                    <option value="">All industries</option>
+                    {industryOptions.map(item => <option key={item} value={item}>{item}</option>)}
+                  </select>
+                </label>
+                <label className="min-w-0 px-3">
+                  <span className="sr-only">Filter by trainer status</span>
+                  <select className="h-12 w-full min-w-0 border-0 bg-transparent text-sm text-slate-800 focus:outline-none focus:ring-0" value={status} onChange={updateFinderFilter(setStatus)}>
+                    <option value="">All statuses</option>
+                    {STATUSES.filter(Boolean).map(item => <option key={item} value={item}>{item.replace('_', ' ')}</option>)}
+                  </select>
                 </label>
               </div>
-              <div className="flex justify-end">
-                <button type="submit" disabled={loading} className="btn-primary h-11 px-5 disabled:opacity-60">
+              <button type="submit" disabled={loading} className="btn-primary h-12 justify-center rounded-full px-5 disabled:opacity-60">
                   {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                  Search trainers
-                </button>
-              </div>
+                  Search
+              </button>
             </form>
           </div>
           {semanticMode && semanticIntent && (
@@ -2258,50 +2241,6 @@ export default function Trainers() {
               <span className="ml-auto font-semibold text-slate-500">{total} ranked match{total === 1 ? '' : 'es'}</span>
             </div>
           )}
-        </div>
-
-        <div className="card p-4 space-y-3">
-        <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-          <Filter className="w-4 h-4 text-slate-400" />
-          Trainer filters
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-          <form onSubmit={handleSearch} className="md:col-span-2 xl:col-span-2 flex gap-2">
-            <div className="relative flex-1 min-w-0">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                className="input pl-9"
-                placeholder="Search name or skill"
-                value={searchInput}
-                onChange={e => setSearchInput(e.target.value)}
-              />
-            </div>
-            <button type="submit" className="btn-primary px-4">Search</button>
-          </form>
-
-          <select className="input" value={category} onChange={e => { setCategory(e.target.value); setPage(1) }}>
-            <option value="">All Categories</option>
-            {categoryOptions.map(item => <option key={item} value={item}>{item}</option>)}
-          </select>
-
-          <select className="input" value={industry} onChange={e => { setIndustry(e.target.value); setPage(1) }}>
-            <option value="">All Industries</option>
-            {industryOptions.map(item => <option key={item} value={item}>{item}</option>)}
-          </select>
-
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <select className="input w-44" value={status} onChange={e => { setStatus(e.target.value); setPage(1) }}>
-            <option value="">All Statuses</option>
-            {STATUSES.filter(Boolean).map(item => (
-              <option key={item} value={item}>{item.replace('_', ' ')}</option>
-            ))}
-          </select>
-          <button type="button" onClick={handleClearFilters} className="btn-secondary px-4">
-            <X className="w-4 h-4" /> Clear all filters
-          </button>
-        </div>
         </div>
 
         {loading ? (
@@ -2323,7 +2262,7 @@ export default function Trainers() {
         <div className="card p-16 text-center">
           <Users className="w-12 h-12 text-slate-200 mx-auto mb-3" />
           <p className="font-medium text-slate-500">No trainers found</p>
-          <p className="text-sm text-slate-400 mt-1">Upload trainer resumes or clear filters to widen the search</p>
+          <p className="text-sm text-slate-400 mt-1">Adjust the search fields or upload trainer resumes to add profiles</p>
         </div>
       ) : (
         <div className="space-y-3">
