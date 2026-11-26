@@ -140,8 +140,13 @@ def trainer_kind_filter(kind):
     if kind == 'naukri_profile':
         return {'$and': [
             {'source': 'naukri'},
-            {'source_url': {'$regex': _NAUKRI_HOST + _NAUKRI_PROFILE_PATH, '$options': 'i'}},
-            {'$nor': [{'source_url': {'$regex': _NAUKRI_HOST + _NAUKRI_NON_PROFILE_PATH, '$options': 'i'}}]},
+            {'$or': [
+                {'import_method': 'resdex_export'},
+                {'$and': [
+                    {'source_url': {'$regex': _NAUKRI_HOST + _NAUKRI_PROFILE_PATH, '$options': 'i'}},
+                    {'$nor': [{'source_url': {'$regex': _NAUKRI_HOST + _NAUKRI_NON_PROFILE_PATH, '$options': 'i'}}]},
+                ]},
+            ]},
         ]}
     raise ValueError(f'kind must be one of: {", ".join(TRAINER_KINDS)}')
 

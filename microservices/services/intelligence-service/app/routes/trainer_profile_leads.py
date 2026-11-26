@@ -1,5 +1,6 @@
 """Trainer profile leads — LinkedIn and public enrichment pipeline."""
 import logging
+import hashlib
 import re
 import uuid
 from datetime import datetime
@@ -98,6 +99,10 @@ class SearchPublicRequest(BaseModel):
     max_queries: Optional[int] = None
     # An ID from the page, saved with the run report (GET /linkedin-leads/search-runs?search_ref=...).
     search_ref: Optional[str] = ""
+
+
+class ResdexImportRequest(BaseModel):
+    candidates: List[Dict[str, Any]] = Field(min_length=1, max_length=500)
 
 
 class SendOutreachRequest(BaseModel):
@@ -235,6 +240,67 @@ async def create_trainer_lead(payload: TrainerLeadCreate, db: AsyncIOMotorDataba
         raise HTTPException(409, f"This profile is already saved as {(saved or {}).get('lead_id', 'another lead')}") from exc
     doc.pop("_id", None)
     return {"success": True, "lead_id": lead_id, "lead": doc}
+
+
+@router.post("/import-resdex")
+async def import_resdex_candidates(payload: ResdexImportRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """Import rows the recruiter exported from their authorized Naukri Resdex account."""
+    table = db["trainer_profile_leads"]
+    now = datetime.utcnow()
+    imported = duplicates = skipped = 0
+    for row in payload.candidates:
+        name = str(row.get("name") or "").strip()[:200]
+        if not name:
+            skipped += 1
+            continue
+        email = str(row.get("email") or "").strip()[:254]
+        if email and not EMAIL_ADDRESS_RE.fullmatch(email):
+            email = ""
+        phone = str(row.get("phone") or "").strip()[:40]
+        headline = str(row.get("headline") or "").strip()[:300]
+        company = str(row.get("company") or "").strip()[:200]
+        location = str(row.get("location") or "").strip()[:200]
+        experience = str(row.get("experience") or "").strip()[:100]
+        domain = str(row.get("skills") or row.get("domain") or "").strip()[:500]
+        summary = str(row.get("summary") or "").strip()[:5000]
+        profile_url = str(row.get("profile_url") or "").strip()[:1000]
+        try:
+            parsed = urlsplit(profile_url)
+            host = (parsed.hostname or "").lower()
+            if parsed.scheme not in ("http", "https") or not (host == "naukri.com" or host.endswith(".naukri.com")):
+                profile_url = ""
+        except ValueError:
+            profile_url = ""
+        identity = ("url:" + trainer_lead_key(profile_url)) if profile_url else (
+            "email:" + email.lower() if email else "row:" + "|".join(
+                part.lower() for part in (name, phone, headline, company)
+            )
+        )
+        import_key = hashlib.sha256(identity.encode("utf-8")).hexdigest()
+        if await table.find_one({"import_key": import_key}, {"_id": 1}):
+            duplicates += 1
+            continue
+        doc = {
+            "lead_id": f"TPL-{uuid.uuid4().hex[:10].upper()}", "name": name,
+            "trainer_name": name, "headline": headline, "company": company,
+            "location": location, "experience": experience, "domain": domain,
+            "email": email, "contact_email": email, "phone": phone, "contact_phone": phone,
+            "source_url": profile_url, "snippet": summary or headline,
+            "profile_text": summary or headline, "source": "naukri", "import_method": "resdex_export",
+            "import_key": import_key, "status": "found", "verification_tier": "unverified",
+            "created_at": now, "updated_at": now,
+        }
+        if profile_url:
+            key = lead_key(doc)
+            if key:
+                doc["profile_key"] = key
+        try:
+            await table.insert_one(doc)
+            imported += 1
+        except DuplicateKeyError:
+            duplicates += 1
+    return {"success": True, "received": len(payload.candidates), "imported": imported,
+            "duplicates": duplicates, "skipped": skipped}
 
 
 @router.patch("/{lead_id}")

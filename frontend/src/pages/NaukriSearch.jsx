@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
-import { Bot, CheckCircle2, Clock3, ExternalLink, Newspaper, Pause, Play, RefreshCw, Search, Send, Trash2, Users } from 'lucide-react'
+import { Bot, CheckCircle2, Clock3, ExternalLink, FileUp, Newspaper, Pause, Play, RefreshCw, Search, Send, Trash2, Users } from 'lucide-react'
 import api from '../utils/api'
 import Pager from '../components/Pager'
 import SearchSourceReport from '../components/SearchSourceReport'
@@ -37,6 +37,45 @@ function formatTimestamp(value) {
   return Number.isNaN(date.getTime()) ? text : date.toLocaleString(undefined, { timeZoneName: 'short' })
 }
 
+const IMPORT_FIELDS = [
+  { key: 'name', label: 'Candidate name', aliases: ['name', 'candidate name', 'full name', 'applicant name', 'resume name'] },
+  { key: 'headline', label: 'Headline / designation', aliases: ['headline', 'designation', 'current designation', 'title', 'profile headline', 'current role'] },
+  { key: 'skills', label: 'Skills', aliases: ['skills', 'key skills', 'skill set', 'keywords', 'domain'] },
+  { key: 'location', label: 'Location', aliases: ['location', 'current location', 'preferred location', 'city'] },
+  { key: 'experience', label: 'Experience', aliases: ['experience', 'total experience', 'work experience', 'years of experience'] },
+  { key: 'company', label: 'Current company', aliases: ['company', 'current company', 'employer', 'organization'] },
+  { key: 'email', label: 'Email', aliases: ['email', 'email id', 'e-mail', 'candidate email'] },
+  { key: 'phone', label: 'Phone', aliases: ['phone', 'mobile', 'mobile number', 'contact number', 'phone number'] },
+  { key: 'profile_url', label: 'Naukri profile URL', aliases: ['profile url', 'naukri profile', 'profile link', 'resume url', 'url'] },
+  { key: 'summary', label: 'Resume summary', aliases: ['summary', 'resume summary', 'profile summary', 'resume headline', 'description'] },
+]
+
+function parseDelimited(text, delimiter) {
+  const rows = []
+  let row = []; let cell = ''; let quoted = false
+  const input = String(text || '').replace(/^\uFEFF/, '')
+  for (let i = 0; i < input.length; i += 1) {
+    const char = input[i]
+    if (char === '"') {
+      if (quoted && input[i + 1] === '"') { cell += '"'; i += 1 }
+      else quoted = !quoted
+    } else if (!quoted && char === delimiter) { row.push(cell.trim()); cell = '' }
+    else if (!quoted && (char === '\n' || char === '\r')) {
+      if (char === '\r' && input[i + 1] === '\n') i += 1
+      row.push(cell.trim()); cell = ''
+      if (row.some(Boolean)) rows.push(row)
+      row = []
+    } else cell += char
+  }
+  row.push(cell.trim())
+  if (row.some(Boolean)) rows.push(row)
+  return rows
+}
+
+function normalizeHeader(value) {
+  return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+}
+
 export default function NaukriSearch() {
   const [leads, setLeads] = useState([])
   const [status, setStatus] = useState('all')
@@ -49,6 +88,10 @@ export default function NaukriSearch() {
   const [page, setPage] = useState(1)
   const [list, setList] = useState(listPage())
   const [searchReport, setSearchReport] = useState(null)
+  const [importHeaders, setImportHeaders] = useState([])
+  const [importRows, setImportRows] = useState([])
+  const [importMapping, setImportMapping] = useState({})
+  const [importing, setImporting] = useState(false)
   const [reloadKey, setReloadKey] = useState(0)
   const loadSeq = useRef(0)
   const [botSettings, setBotSettings] = useState(null)
@@ -138,6 +181,50 @@ export default function NaukriSearch() {
       toast.error(error.message || 'Naukri search failed')
     } finally {
       setSearching(false)
+    }
+  }
+
+  const loadExportFile = async file => {
+    if (!file) return
+    try {
+      const raw = await file.text()
+      const firstLine = raw.split(/\r?\n/, 1)[0] || ''
+      const delimiter = firstLine.includes('\t') ? '\t' : ','
+      const parsed = parseDelimited(raw, delimiter)
+      if (parsed.length < 2) { toast.error('This file has no candidate rows'); return }
+      const headers = parsed[0].map((header, index) => header || `Column ${index + 1}`)
+      const rows = parsed.slice(1).filter(row => row.some(Boolean)).slice(0, 500)
+      const mapping = {}
+      for (const field of IMPORT_FIELDS) {
+        const aliases = field.aliases.map(normalizeHeader)
+        const index = headers.findIndex(header => aliases.includes(normalizeHeader(header)))
+        if (index >= 0) mapping[field.key] = String(index)
+      }
+      setImportHeaders(headers)
+      setImportRows(rows)
+      setImportMapping(mapping)
+      if (parsed.length - 1 > 500) toast('Only the first 500 rows can be imported per batch.')
+    } catch (error) {
+      toast.error(error.message || 'Could not read this file')
+    }
+  }
+
+  const importExport = async () => {
+    if (!importRows.length) return
+    if (importMapping.name === undefined || importMapping.name === '') { toast.error('Map a column to Candidate name first'); return }
+    setImporting(true)
+    try {
+      const candidates = importRows.map(row => Object.fromEntries(IMPORT_FIELDS.map(field => [
+        field.key, importMapping[field.key] === undefined ? '' : (row[Number(importMapping[field.key])] || ''),
+      ])))
+      const response = await api.post('/trainer-profile-leads/import-resdex', { candidates })
+      toast.success(`${response.data.imported} imported, ${response.data.duplicates} already saved, ${response.data.skipped} skipped.`)
+      setImportRows([]); setImportHeaders([]); setImportMapping({})
+      setPage(1); refresh()
+    } catch (error) {
+      toast.error(error.message || 'Could not import Resdex export')
+    } finally {
+      setImporting(false)
     }
   }
 
@@ -255,6 +342,29 @@ export default function NaukriSearch() {
         </div>
       </section>
 
+      <section className="space-y-4 rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-sm">
+        <div className="flex items-center gap-2"><FileUp className="h-4 w-4 text-emerald-700" /><h2 className="text-sm font-bold text-slate-900">Import authorized Resdex export</h2></div>
+        <p className="text-xs text-slate-600">Upload a CSV or TSV downloaded through your Naukri recruiter account. The file is read here, and candidate columns are matched before import. This does not sign in to Naukri or access private resumes.</p>
+        <input type="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values" onChange={event => loadExportFile(event.target.files?.[0])} className="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-700" />
+        {importRows.length > 0 && <>
+          <p className="text-xs font-semibold text-slate-700">{importRows.length} rows ready. Check the column matches:</p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {IMPORT_FIELDS.map(field => <label key={field.key} className="block text-xs font-semibold text-slate-600">{field.label}{field.key === 'name' ? ' *' : ''}
+              <select className="input mt-1 bg-white" value={importMapping[field.key] ?? ''} onChange={event => setImportMapping(current => ({ ...current, [field.key]: event.target.value }))}>
+                <option value="">Not mapped</option>
+                {importHeaders.map((header, index) => <option key={`${index}-${header}`} value={String(index)}>{header}</option>)}
+              </select>
+            </label>)}
+          </div>
+          <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+            <table className="min-w-full text-left text-xs"><thead><tr>{importHeaders.map((header, index) => <th key={`${index}-${header}`} className="whitespace-nowrap px-3 py-2 font-semibold text-slate-600">{header}</th>)}</tr></thead>
+              <tbody>{importRows.slice(0, 3).map((row, index) => <tr key={index} className="border-t border-slate-100">{importHeaders.map((_, column) => <td key={column} className="max-w-56 truncate px-3 py-2 text-slate-600">{row[column] || '—'}</td>)}</tr>)}</tbody>
+            </table>
+          </div>
+          <button onClick={importExport} disabled={importing || importMapping.name === undefined || importMapping.name === ''} className="btn-primary text-sm disabled:opacity-50"><FileUp className="h-4 w-4" />{importing ? 'Importing…' : `Import ${importRows.length} candidates`}</button>
+        </>}
+      </section>
+
       <section className="space-y-3 rounded-xl border border-blue-200 bg-blue-50 p-4 shadow-sm">
         <div className="flex items-start gap-3">
           <Bot className="mt-0.5 h-5 w-5 text-blue-700" />
@@ -298,7 +408,7 @@ export default function NaukriSearch() {
 
       <div className="flex flex-wrap gap-2 rounded-xl border border-slate-200 bg-white p-3">
         {STATUSES.map(item => <button key={item} onClick={() => { setStatus(item); setPage(1) }} className={clsx('rounded-lg px-3 py-2 text-sm font-semibold', status === item ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}>{STATUS_LABELS[item]}</button>)}
-        <span className="ml-auto self-center text-xs text-slate-500">{list.total} public Naukri profiles</span>
+        <span className="ml-auto self-center text-xs text-slate-500">{list.total} Naukri candidates</span>
       </div>
 
       {loading ? <div className="py-14 text-center text-sm text-slate-400">Loading Naukri results…</div> : leads.length ? (
@@ -313,7 +423,7 @@ export default function NaukriSearch() {
                   <span className={clsx('mt-2 inline-flex rounded-full border px-2 py-0.5 text-xs font-semibold capitalize', getStatusClass(lead.status))}>{STATUS_LABELS[lead.status] || lead.status || 'New'}</span>
                 </div>
               </div>
-              <a href={lead.source_url} target="_blank" rel="noreferrer" className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1.5 text-xs font-semibold text-blue-700"><ExternalLink className="h-3.5 w-3.5" />Naukri profile</a>
+              {lead.source_url ? <a href={lead.source_url} target="_blank" rel="noreferrer" className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1.5 text-xs font-semibold text-blue-700"><ExternalLink className="h-3.5 w-3.5" />Naukri profile</a> : <span className="inline-flex shrink-0 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-700">Resdex import</span>}
             </div>
             <p className="mt-4 line-clamp-4 whitespace-pre-wrap text-sm leading-6 text-slate-600">{lead.profile_text || lead.snippet || lead.headline || 'No profile summary available.'}</p>
             <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
@@ -329,7 +439,7 @@ export default function NaukriSearch() {
             </div>
           </article>)}
         </div>
-      ) : <div className="rounded-xl border border-slate-200 bg-white py-16 text-center text-slate-400"><Newspaper className="mx-auto mb-3 h-10 w-10 opacity-40" /><p>No public Naukri profiles in this view.</p></div>}
+      ) : <div className="rounded-xl border border-slate-200 bg-white py-16 text-center text-slate-400"><Newspaper className="mx-auto mb-3 h-10 w-10 opacity-40" /><p>No Naukri candidates in this view. Run public search or import an authorized Resdex export above.</p></div>}
 
       <Pager page={list.page} pages={list.pages} total={list.total} pageSize={LEAD_PAGE_SIZE} loading={loading} onPage={setPage} noun="Naukri profiles" />
     </div>
